@@ -15,7 +15,7 @@ public class SolrPropertySearchRepositoryFactory {
     @Autowired
     private SolrOperations solrOperations;
 
-    public SolrPropertyRepository create() {
-      return new SolrRepositoryFactory(this.solrOperations).getRepository(SolrPropertyRepository.class);
+    public PropertyDao create() {
+      return new SolrRepositoryFactory(this.solrOperations).getRepository(PropertyDao.class);
     }
 }
