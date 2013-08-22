@@ -3,9 +3,9 @@
  */
 package com.proptiger.data.service;
 
+import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +22,6 @@ public class PropertyService {
     PropertyDao propertyDao;
 
     public List<Property> getProperties() {
-        return IteratorUtils.toList(propertyDao.findAll().iterator());
+        return Collections.singletonList(propertyDao.findOne("PROPERTY-10000"));
     }
 }
