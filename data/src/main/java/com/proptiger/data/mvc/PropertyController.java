@@ -18,7 +18,7 @@ import com.proptiger.data.service.PropertyService;
  *
  */
 @Controller
-@RequestMapping(value = "/1.01/entity/property")
+@RequestMapping(value = "v1/entity/property")
 public class PropertyController {
     @Autowired
     PropertyService propertyService;
