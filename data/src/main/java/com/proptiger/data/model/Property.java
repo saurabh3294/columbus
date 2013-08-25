@@ -1,19 +1,18 @@
 package com.proptiger.data.model;
 
-import java.util.Map;
+import org.apache.solr.client.solrj.beans.Field;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+import org.codehaus.jackson.annotate.JsonProperty;
 
+@JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class Property {
     private String id;
-
-    private Map<String, Object> attrMap;
-
-    public Map<String, Object> getAttrMap() {
-        return attrMap;
-    }
     
-    public void setAttrMap(Map<String, Object> attrMap) {
-        this.attrMap = attrMap;
-    }
+    @Field(value="UNIT_NAME")
+    @JsonProperty(value="UNIT_NAME")
+    private String unitName;
+
     public String getId() {
         return id;
     }
