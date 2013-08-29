@@ -6,17 +6,23 @@ package com.proptiger.data.model;
 
 import java.util.Date;
 import org.apache.solr.client.solrj.beans.Field;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+
 
 /**
  *
  * @author mukand
  */
+@JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class Project {
+    @Field(value="id")
+    @JsonProperty(value="ID")
     private String id;
     
-    @Field(value="HAS_SIZE")
-    @JsonProperty(value="HAS_SIZE")
+    @Field(value="PROJECT_ID")
+    @JsonProperty(value="PROJECT_ID")
     private long projectId;
     
     @Field(value="LOCALITY_ID")
@@ -142,10 +148,6 @@ public class Project {
     @Field(value="LONGITUDE")
     @JsonProperty(value="LONGITUDE")
     private float longitude;
-    
-    @Field(value="GEO")
-    @JsonProperty(value="GEO")
-    private String geo;
     
     @Field(value="HAS_GEO")
     @JsonProperty(value="HAS_GEO")
@@ -703,20 +705,6 @@ public class Project {
      */
     public void setLongitude(float longitude) {
         this.longitude = longitude;
-    }
-
-    /**
-     * @return the geo
-     */
-    public String getGeo() {
-        return geo;
-    }
-
-    /**
-     * @param geo the geo to set
-     */
-    public void setGeo(String geo) {
-        this.geo = geo;
     }
 
     /**

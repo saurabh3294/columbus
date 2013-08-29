@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.repo;
 
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
