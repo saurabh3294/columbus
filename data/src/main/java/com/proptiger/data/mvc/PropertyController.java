@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Property;
 import com.proptiger.data.service.PropertyService;
+import org.apache.solr.client.solrj.SolrServerException;
 
 /**
  * @author mandeep
@@ -20,11 +21,11 @@ import com.proptiger.data.service.PropertyService;
 @Controller
 @RequestMapping(value = "v1/entity/property")
 public class PropertyController {
-    @Autowired
-    PropertyService propertyService;
+    
+    PropertyService propertyService = new PropertyService();
 
     @RequestMapping
-    public @ResponseBody List<Property> getProperties() {
+    public @ResponseBody Object getProperties() throws SolrServerException {
         return propertyService.getProperties();
     }
 }

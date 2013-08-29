@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Property;
 import com.proptiger.data.repo.PropertyDao;
+import org.apache.solr.client.solrj.SolrServerException;
 
 /**
  * @author mandeep
@@ -18,10 +19,11 @@ import com.proptiger.data.repo.PropertyDao;
  */
 @Service
 public class PropertyService {
-    @Autowired
-    PropertyDao propertyDao;
+    
+    PropertyDao propertyDao = new PropertyDao();
 
-    public List<Property> getProperties() {
-        return Collections.singletonList(propertyDao.findOne("PROPERTY-10000"));
+    public Object getProperties() throws SolrServerException{
+        return propertyDao.getProperties();
+        //return Collections.singletonList(propertyDao.findOne("PROPERTY-10000"));
     }
 }

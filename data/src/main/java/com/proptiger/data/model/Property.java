@@ -13,11 +13,11 @@ public class Property {
     
     @Field(value="TYPE_ID")
     @JsonProperty(value="TYPE_ID")
-    private Long typeId;
+    private long typeId;
     
     @Field(value="BEDROOMS")
     @JsonProperty(value="BEDROOMS")
-    private Long bedrooms;
+    private long bedrooms;
     
     @Field(value="BATHROOMS")
     @JsonProperty(value="BATHROOMS")
@@ -37,15 +37,15 @@ public class Property {
     
     @Field(value="PRICE_PER_UNIT_AREA")
     @JsonProperty(value="PRICE_PER_UNIT_AREA")
-    private Float pricePerUnitArea;
+    private float pricePerUnitArea;
     
     @Field(value="SIZE")
     @JsonProperty(value="SIZE")
-    private Float size;
+    private float size;
     
     @Field(value="BUDGET")
     @JsonProperty(value="BUDGET")
-    private Float budget;
+    private float budget;
     
     @Field(value="PRICE")
     @JsonProperty(value="PRICE")
@@ -57,27 +57,27 @@ public class Property {
     
     @Field(value="NORTH_EAST_LATITUDE")
     @JsonProperty(value="NORTH_EAST_LATITUDE")
-    private Float northEastLatitude;
+    private float northEastLatitude;
     
     @Field(value="NORTH_EAST_LONGITUDE")
     @JsonProperty(value="NORTH_EAST_LONGITUDE")
-    private Float northEastLongitude;
+    private float northEastLongitude;
     
     @Field(value="SOUTH_WEST_LATITUDE")
     @JsonProperty(value="SOUTH_WEST_LATITUDE")
-    private Float southWestLatitude;
+    private float southWestLatitude;
     
     @Field(value="SOUTH_WEST_LONGITUDE")
     @JsonProperty(value="SOUTH_WEST_LONGITUDE")
-    private Float southWestLongitude;
+    private float southWestLongitude;
     
     @Field(value="CENTER_LATITUDE")
     @JsonProperty(value="CENTER_LATITUDE")
-    private Float centerLatitude;
+    private float centerLatitude;
     
     @Field(value="CENTER_LONGITUDE")
     @JsonProperty(value="CENTER_LONGITUDE")
-    private Float centerLongitude;
+    private float centerLongitude;
     
     @Field(value="LOCALITY_LABEL_PRIORITY")
     @JsonProperty(value="LOCALITY_LABEL_PRIORITY")
@@ -95,6 +95,7 @@ public class Property {
     @JsonProperty(value="PROJECT_STATUS_BEDROOM")
     private String projectStatusbedroom;
     
+    private Project project;
     
     public String getId() {
         return id;
@@ -256,5 +257,152 @@ public class Property {
      */
     public String getProjectStatusbedroom() {
         return projectStatusbedroom;
+    }
+
+    /**
+     * @param typeId the typeId to set
+     */
+    public void setTypeId(long typeId) {
+        this.typeId = typeId;
+    }
+
+    /**
+     * @param bedrooms the bedrooms to set
+     */
+    public void setBedrooms(long bedrooms) {
+        this.bedrooms = bedrooms;
+    }
+
+    /**
+     * @param bathrooms the bathrooms to set
+     */
+    public void setBathrooms(long bathrooms) {
+        this.bathrooms = bathrooms;
+    }
+
+    /**
+     * @param unitType the unitType to set
+     */
+    public void setUnitType(String unitType) {
+        this.unitType = unitType;
+    }
+
+    /**
+     * @param projectType the projectType to set
+     */
+    public void setProjectType(String projectType) {
+        this.projectType = projectType;
+    }
+
+    /**
+     * @param pricePerUnitArea the pricePerUnitArea to set
+     */
+    public void setPricePerUnitArea(float pricePerUnitArea) {
+        this.pricePerUnitArea = pricePerUnitArea;
+    }
+
+    /**
+     * @param size the size to set
+     */
+    public void setSize(float size) {
+        this.size = size;
+    }
+
+    /**
+     * @param budget the budget to set
+     */
+    public void setBudget(float budget) {
+        this.budget = budget;
+    }
+
+    /**
+     * @param price the price to set
+     */
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    /**
+     * @param propertyUrl the propertyUrl to set
+     */
+    public void setPropertyUrl(String propertyUrl) {
+        this.propertyUrl = propertyUrl;
+    }
+
+    /**
+     * @param northEastLatitude the northEastLatitude to set
+     */
+    public void setNorthEastLatitude(float northEastLatitude) {
+        this.northEastLatitude = northEastLatitude;
+    }
+
+    /**
+     * @param northEastLongitude the northEastLongitude to set
+     */
+    public void setNorthEastLongitude(float northEastLongitude) {
+        this.northEastLongitude = northEastLongitude;
+    }
+
+    /**
+     * @param southWestLatitude the southWestLatitude to set
+     */
+    public void setSouthWestLatitude(float southWestLatitude) {
+        this.southWestLatitude = southWestLatitude;
+    }
+
+    /**
+     * @param southWestLongitude the southWestLongitude to set
+     */
+    public void setSouthWestLongitude(float southWestLongitude) {
+        this.southWestLongitude = southWestLongitude;
+    }
+
+    /**
+     * @param centerLatitude the centerLatitude to set
+     */
+    public void setCenterLatitude(float centerLatitude) {
+        this.centerLatitude = centerLatitude;
+    }
+
+    /**
+     * @param centerLongitude the centerLongitude to set
+     */
+    public void setCenterLongitude(float centerLongitude) {
+        this.centerLongitude = centerLongitude;
+    }
+
+    /**
+     * @param localityLabelPriority the localityLabelPriority to set
+     */
+    public void setLocalityLabelPriority(String localityLabelPriority) {
+        this.localityLabelPriority = localityLabelPriority;
+    }
+
+    /**
+     * @param builderLabelPriority the builderLabelPriority to set
+     */
+    public void setBuilderLabelPriority(String builderLabelPriority) {
+        this.builderLabelPriority = builderLabelPriority;
+    }
+
+    /**
+     * @param projectStatusbedroom the projectStatusbedroom to set
+     */
+    public void setProjectStatusbedroom(String projectStatusbedroom) {
+        this.projectStatusbedroom = projectStatusbedroom;
+    }
+
+    /**
+     * @return the project
+     */
+    public Project getProject() {
+        return project;
+    }
+
+    /**
+     * @param project the project to set
+     */
+    public void setProject(Project project) {
+        this.project = project;
     }
 }
