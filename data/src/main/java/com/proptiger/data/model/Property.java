@@ -4,9 +4,10 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
-public class Property {
+public class Property extends Project{
     @Field(value="id")
     @JsonProperty(value="ID")
     private String id;
@@ -95,7 +96,7 @@ public class Property {
     @JsonProperty(value="PROJECT_STATUS_BEDROOM")
     private String projectStatusbedroom;
     
-    private Project project;
+    //private Project project;
     
     public String getId() {
         return id;
@@ -392,17 +393,5 @@ public class Property {
         this.projectStatusbedroom = projectStatusbedroom;
     }
 
-    /**
-     * @return the project
-     */
-    public Project getProject() {
-        return project;
-    }
-
-    /**
-     * @param project the project to set
-     */
-    public void setProject(Project project) {
-        this.project = project;
-    }
+    
 }
