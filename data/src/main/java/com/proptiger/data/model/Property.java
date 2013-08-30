@@ -7,24 +7,24 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class Property extends Project{
-    @Field(value="id")
-    @JsonProperty(value="ID")
+@Field(value="id")
+    @JsonProperty(value="id")
     private String id;
     
     @Field(value="TYPE_ID")
-    @JsonProperty(value="TYPE_ID")
+    @JsonProperty(value="type_id")
     private long typeId;
     
     @Field(value="BEDROOMS")
-    @JsonProperty(value="BEDROOMS")
+    @JsonProperty(value="bedrooms")
     private long bedrooms;
     
     @Field(value="BATHROOMS")
-    @JsonProperty(value="BATHROOMS")
+    @JsonProperty(value="bathrooms")
     private long bathrooms;
     
     @Field(value="UNIT_TYPE")
-    @JsonProperty(value="UNIT_TYPE")
+    @JsonProperty(value="unit_type")
     private String unitType;
     
     @Field(value="UNIT_NAME")
@@ -32,68 +32,68 @@ public class Property extends Project{
     private String unitName;
     
     @Field(value="PROJECT_TYPE")
-    @JsonProperty(value="PROJECT_TYPE")
+    @JsonProperty(value="project_type")
     private String projectType;
     
     @Field(value="PRICE_PER_UNIT_AREA")
-    @JsonProperty(value="PRICE_PER_UNIT_AREA")
+    @JsonProperty(value="price_per_unit_area")
     private float pricePerUnitArea;
     
     @Field(value="SIZE")
-    @JsonProperty(value="SIZE")
+    @JsonProperty(value="size")
     private float size;
     
     @Field(value="BUDGET")
-    @JsonProperty(value="BUDGET")
+    @JsonProperty(value="budget")
     private float budget;
     
     @Field(value="PRICE")
-    @JsonProperty(value="PRICE")
+    @JsonProperty(value="price")
     private String price;
     
     @Field(value="PROPERTY_URL")
-    @JsonProperty(value="PROPERTY_URL")
+    @JsonProperty(value="property_url")
     private String propertyUrl;
     
     @Field(value="NORTH_EAST_LATITUDE")
-    @JsonProperty(value="NORTH_EAST_LATITUDE")
+    @JsonProperty(value="north_east_latitude")
     private float northEastLatitude;
     
     @Field(value="NORTH_EAST_LONGITUDE")
-    @JsonProperty(value="NORTH_EAST_LONGITUDE")
+    @JsonProperty(value="north_east_longitude")
     private float northEastLongitude;
     
     @Field(value="SOUTH_WEST_LATITUDE")
-    @JsonProperty(value="SOUTH_WEST_LATITUDE")
+    @JsonProperty(value="south_west_latitude")
     private float southWestLatitude;
     
     @Field(value="SOUTH_WEST_LONGITUDE")
-    @JsonProperty(value="SOUTH_WEST_LONGITUDE")
+    @JsonProperty(value="south_west_longitude")
     private float southWestLongitude;
     
     @Field(value="CENTER_LATITUDE")
-    @JsonProperty(value="CENTER_LATITUDE")
+    @JsonProperty(value="center_latitude")
     private float centerLatitude;
     
     @Field(value="CENTER_LONGITUDE")
-    @JsonProperty(value="CENTER_LONGITUDE")
+    @JsonProperty(value="center_longitude")
     private float centerLongitude;
     
     @Field(value="LOCALITY_LABEL_PRIORITY")
-    @JsonProperty(value="LOCALITY_LABEL_PRIORITY")
+    @JsonProperty(value="locality_label_priority")
     private String localityLabelPriority;
     
     @Field(value="BUILDER_LABEL_PRIORITY")
-    @JsonProperty(value="BUILDER_LABEL_PRIORITY")
+    @JsonProperty(value="builder_label_priority")
     private String builderLabelPriority;
     
     @Field(value="SUBURB_LABEL_PRIORITY")
-    @JsonProperty(value="SUBURB_LABEL_PRIORITY")
+    @JsonProperty(value="suburb_label_priority")
     private String suburbLabelPriority;
     
     @Field(value="PROJECT_STATUS_BEDROOM")
-    @JsonProperty(value="PROJECT_STATUS_BEDROOM")
-    private String projectStatusbedroom;
+    @JsonProperty(value="project_status_bedroom")
+    private String projectStatusBedroom;
     
     //private Project project;
     
@@ -256,7 +256,7 @@ public class Property extends Project{
      * @return the projectStatusbedroom
      */
     public String getProjectStatusbedroom() {
-        return projectStatusbedroom;
+        return projectStatusBedroom;
     }
 
     /**
@@ -389,7 +389,7 @@ public class Property extends Project{
      * @param projectStatusbedroom the projectStatusbedroom to set
      */
     public void setProjectStatusbedroom(String projectStatusbedroom) {
-        this.projectStatusbedroom = projectStatusbedroom;
+        this.projectStatusBedroom = projectStatusbedroom;
     }
 
     

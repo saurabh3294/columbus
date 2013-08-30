@@ -18,231 +18,231 @@ import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class Project {
     @Field(value="id")
-    @JsonProperty(value="ID")
+    @JsonProperty(value="id")
     private String id;
     
     @Field(value="PROJECT_ID")
-    @JsonProperty(value="PROJECT_ID")
+    @JsonProperty(value="project_id")
     private long projectId;
     
     @Field(value="LOCALITY_ID")
-    @JsonProperty(value="LOCALITY_ID")
+    @JsonProperty(value="locality_id")
     private long localityId;
     
     @Field(value="SUBURB_ID")
-    @JsonProperty(value="SUBURB_ID")
+    @JsonProperty(value="suburb_id")
     private long suburbId;
     
     @Field(value="CITY_ID")
-    @JsonProperty(value="CITY_ID")
+    @JsonProperty(value="city_id")
     private long cityId;
     
     @Field(value="BUILDER_ID")
-    @JsonProperty(value="BUILDER_ID")
+    @JsonProperty(value="builder_id")
     private long builderId;
     
     @Field(value="PROJECT_NAME")
-    @JsonProperty(value="PROJECT_NAME")
+    @JsonProperty(value="project_name")
     private String projectName;
     
     @Field(value="PROJECT_TYPES")
-    @JsonProperty(value="PROJECT_TYPES")
+    @JsonProperty(value="project_types")
     private String projectTypes;
     
     @Field(value="BUILDER_NAME")
-    @JsonProperty(value="BUILDER_NAME")
+    @JsonProperty(value="builder_name")
     private String builderName;
     
     @Field(value="LOCALITY")
-    @JsonProperty(value="LOCALITY")
+    @JsonProperty(value="locality")
     private String locality;
     
     @Field(value="BUILDER_IMAGE")
-    @JsonProperty(value="BUILDER_IMAGE")
+    @JsonProperty(value="builder_image")
     private String builderImage;
     
     @Field(value="VALID_LAUNCH_DATE")
-    @JsonProperty(value="VALID_LAUNCH_DATE")
+    @JsonProperty(value="valid_launch_date")
     private Date validLaunchDate;
     
     @Field(value="BUILDER_IMAGE_SMALL")
-    @JsonProperty(value="BUILDER_IMAGE_SMALL")
+    @JsonProperty(value="builder_image_small")
     private String builderImageSmall;
     
     @Field(value="CITY")
-    @JsonProperty(value="CITY")
+    @JsonProperty(value="city")
     private String city;
     
     @Field(value="PROJECT_ADDRESS")
-    @JsonProperty(value="PROJECT_ADDRESS")
+    @JsonProperty(value="project_address")
     private String projectAddress;
     
     @Field(value="PROJECT_PRIORITY")
-    @JsonProperty(value="PROJECT_PRIORITY")
+    @JsonProperty(value="project_priority")
     private float projectPriority;
     
     @Field(value="DISPLAY_FLAG")
-    @JsonProperty(value="DISPLAY_FLAG")
+    @JsonProperty(value="display_flag")
     private float displayflag;
     
     @Field(value="DISPLAY_ORDER")
-    @JsonProperty(value="DISPLAY_ORDER")
+    @JsonProperty(value="display_order")
     private float displayOrder;
     
     @Field(value="DISPLAY_ORDER_LOCALITY")
-    @JsonProperty(value="DISPLAY_ORDER_LOCALITY")
+    @JsonProperty(value="display_order_locality")
     private float displayOrderLocality;
     
     @Field(value="DISPLAY_ORDER_SUBURB")
-    @JsonProperty(value="DISPLAY_ORDER_SUBURB")
+    @JsonProperty(value="display_order_suburb")
     private float displayOrderSuburb;
     
     @Field(value="COMPLETION_DATE")
-    @JsonProperty(value="COMPLETION_DATE")
+    @JsonProperty(value="completion_date")
     private String completionDate;
     
     @Field(value="SUBMITTED_DATE")
-    @JsonProperty(value="SUBMITTED_DATE")
+    @JsonProperty(value="submitted_date")
     private Date submittedDate;
     
     @Field(value="LAUNCH_DATE")
-    @JsonProperty(value="LAUNCH_DATE")
+    @JsonProperty(value="launch_date")
     private Date launchDate;
     
     @Field(value="PROMISED_COMPLETION_DATE")
-    @JsonProperty(value="PROMISED_COMPLETION_DATE")
+    @JsonProperty(value="promised_completion_date")
     private Date promisedCompletionDate;
     
     @Field(value="IMPORTANCE")
-    @JsonProperty(value="IMPORTANCE")
+    @JsonProperty(value="importance")
     private long importance;
     
     @Field(value="SUBURB")
-    @JsonProperty(value="SUBURB")
+    @JsonProperty(value="suburb")
     private String suburb;
     
     @Field(value="PROJECT_SMALL_IMAGE")
-    @JsonProperty(value="PROJECT_SMALL_IMAGE")
+    @JsonProperty(value="project_small_image")
     private String projectSmallImage;
     
     @Field(value="OFFER")
-    @JsonProperty(value="OFFER")
+    @JsonProperty(value="offer")
     private String offer;
     
     @Field(value="OFFER_HEADING")
-    @JsonProperty(value="OFFER_HEADING")
+    @JsonProperty(value="offer_heading")
     private String offerHeading;
     
     @Field(value="OFFER_DESC")
-    @JsonProperty(value="OFFER_DESC")
+    @JsonProperty(value="offer_desc")
     private String offerDesc;
     
     @Field(value="PROJECT_URL")
-    @JsonProperty(value="PROJECT_URL")
+    @JsonProperty(value="project_url")
     private String projectUrl;
     
     @Field(value="LATITUDE")
-    @JsonProperty(value="LATITUDE")
+    @JsonProperty(value="latitude")
     private float latitude;
     
     @Field(value="LONGITUDE")
-    @JsonProperty(value="LONGITUDE")
+    @JsonProperty(value="longitude")
     private float longitude;
     
     @Field(value="HAS_GEO")
-    @JsonProperty(value="HAS_GEO")
+    @JsonProperty(value="has_geo")
     private int hasGeo;
     
     @Field(value="HAS_SIZE")
-    @JsonProperty(value="HAS_SIZE")
+    @JsonProperty(value="has_size")
     private int hasSize;
     
     @Field(value="HAS_PRICE_PER_UNIT_AREA")
-    @JsonProperty(value="HAS_PRICE_PER_UNIT_AREA")
+    @JsonProperty(value="has_price_per_unit_area")
     private int hasPricePerUnitArea;
     
     @Field(value="HAS_BUDGET")
-    @JsonProperty(value="HAS_BUDGET")
+    @JsonProperty(value="has_budget")
     private int hasBudget;
     
     @Field(value="ALL_BEDROOMS")
-    @JsonProperty(value="ALL_BEDROOMS")
+    @JsonProperty(value="all_bedrooms")
     private String allBedrooms;
     
     @Field(value="MIN_PRICE_PER_UNIT_AREA")
-    @JsonProperty(value="MIN_PRICE_PER_UNIT_AREA")
+    @JsonProperty(value="min_price_per_unit_area")
     private float minPricePerUnitArea;
     
     @Field(value="MAX_PRICE_PER_UNIT_AREA")
-    @JsonProperty(value="MAX_PRICE_PER_UNIT_AREA")
+    @JsonProperty(value="max_price_per_unit_area")
     private float maxPricePerUnitArea;
     
     @Field(value="MINSIZE")
-    @JsonProperty(value="MINSIZE")
+    @JsonProperty(value="minsize")
     private float minSize;
     
     @Field(value="MAXSIZE")
-    @JsonProperty(value="MAXSIZE")
+    @JsonProperty(value="maxsize")
     private float maxSize;
     
     @Field(value="MIN_BUDGET")
-    @JsonProperty(value="MIN_BUDGET")
+    @JsonProperty(value="min_budget")
     private float minBudget;
     
     @Field(value="MAX_BUDGET")
-    @JsonProperty(value="MAX_BUDGET")
+    @JsonProperty(value="max_budget")
     private float maxBudget;
     
     @Field(value="MINPRICE")
-    @JsonProperty(value="MINPRICE")
+    @JsonProperty(value="minprice")
     private String minPrice;
     
     @Field(value="MAXPRICE")
-    @JsonProperty(value="MAXPRICE")
+    @JsonProperty(value="maxprice")
     private String maxPrice;
     
     @Field(value="MEASURE")
-    @JsonProperty(value="MEASURE")
+    @JsonProperty(value="measure")
     private String measure;
     
     @Field(value="PROJECT_STATUS")
-    @JsonProperty(value="PROJECT_STATUS")
+    @JsonProperty(value="project_status")
     private String projectStatus;
     
     @Field(value="IS_RESALE")
-    @JsonProperty(value="IS_RESALE")
+    @JsonProperty(value="is_resale")
     private boolean isResale;
     
     @Field(value="SPECIFICATION")
-    @JsonProperty(value="SPECIFICATION")
+    @JsonProperty(value="specification")
     private String specification;
     
     @Field(value="PROJECT_DESCRIPTION")
-    @JsonProperty(value="PROJECT_DESCRIPTION")
+    @JsonProperty(value="project_description")
     private String projectDescription;
     
     @Field(value="PLAN_IMAGES")
-    @JsonProperty(value="PLAN_IMAGES")
+    @JsonProperty(value="plan_images")
     private String planImages;
     
     @Field(value="FLOOR_PLAN_IMAGES")
-    @JsonProperty(value="FLOOR_PLAN_IMAGES")
+    @JsonProperty(value="floor_plan_images")
     private String floorPlanImages;
     
     @Field(value="CONSTRUCTION_IMAGES")
-    @JsonProperty(value="CONSTRUCTION_IMAGES")
+    @JsonProperty(value="construction_images")
     private String constructionImages;
     
     @Field(value="AMENITIES")
-    @JsonProperty(value="AMENITIES")
+    @JsonProperty(value="amenities")
     private String amenities;
     
     @Field(value="TOTAL_UNITS")
-    @JsonProperty(value="TOTAL_UNITS")
+    @JsonProperty(value="total_units")
     private int totalUnits;
     
     @Field(value="PROJECT_SIZE")
-    @JsonProperty(value="PROJECT_SIZE")
+    @JsonProperty(value="project_size")
     private float projectSize;
     
     /**
