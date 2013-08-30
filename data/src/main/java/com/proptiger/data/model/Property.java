@@ -4,7 +4,6 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class Property extends Project{
@@ -29,7 +28,7 @@ public class Property extends Project{
     private String unitType;
     
     @Field(value="UNIT_NAME")
-    @JsonProperty(value="UNIT_NAME")
+    @JsonProperty(value="unit_name")
     private String unitName;
     
     @Field(value="PROJECT_TYPE")

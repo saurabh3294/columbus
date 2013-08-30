@@ -3,12 +3,10 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:mvc="http://www.springframework.org/schema/mvc"
 xmlns:context="http://www.springframework.org/schema/context"
-xmlns:solr="http://www.springframework.org/schema/data/solr"
 xsi:schemaLocation="
 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
-http://www.springframework.org/schema/data/solr http://www.springframework.org/schema/data/solr/spring-solr-1.0.xsd">
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
     <!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
 
@@ -16,14 +14,6 @@ http://www.springframework.org/schema/data/solr http://www.springframework.org/s
     <!-- @Controller, @Service, @Configuration, etc. -->
     <context:component-scan base-package="com.proptiger.data" />
 
-    <!-- For spring data -->
-    <solr:repositories base-package="com.proptiger.data.repo" />
-
     <!-- Enables the Spring MVC @Controller programming model -->
     <mvc:annotation-driven />
-    <solr:solr-server id="solrServer" url="http://www.proptiger.com:8983/solr" />
-
-    <bean id="solrTemplate" class="org.springframework.data.solr.core.SolrTemplate">
-        <constructor-arg ref="solrServer" />
-    </bean>
 </beans>
