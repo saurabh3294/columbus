@@ -10,7 +10,7 @@ public class Property {
     private String id;
     
     @Field(value="UNIT_NAME")
-    @JsonProperty(value="UNIT_NAME")
+    @JsonProperty(value="unit_name")
     private String unitName;
 
     public String getId() {
