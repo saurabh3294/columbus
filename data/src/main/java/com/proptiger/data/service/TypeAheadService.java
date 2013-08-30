@@ -15,8 +15,8 @@ import java.util.List;
 public class TypeAheadService {
     private TypeaheadDao typeaheadDao = new TypeaheadDao();
     
-    public List<Typeahead> getSearchTypeahead(String query){
-        return typeaheadDao.getSearchTypeahead(query);
+    public List<Typeahead> getSearchTypeahead(String query, int rows){
+        return typeaheadDao.getSearchTypeahead(query, rows);
     }
     
 }

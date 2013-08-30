@@ -17,12 +17,12 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
 public class TypeaheadDao {
     private HttpSolrServer httpSolrServer = new HttpSolrServer("http://localhost:8983/solr/");
 
-    public List<Typeahead> getSearchTypeahead(String query){
+    public List<Typeahead> getSearchTypeahead(String query, int rows){
         SolrQuery solrQuery = new SolrQuery();
                 
         solrQuery.setQuery( getQueryParams(query) );
         solrQuery.setFilterQueries("DOCUMENT_TYPE:TYPEAHEAD");
-        solrQuery.setRows(10);
+        solrQuery.setRows(rows);
         
         List<Typeahead> typeaheadList = null;
         try{
