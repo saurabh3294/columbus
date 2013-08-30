@@ -16,15 +16,15 @@ public class Property extends Project{
     private long typeId;
     
     @Field(value="BEDROOMS")
-    @JsonProperty(value="BEDROOMS")
+    @JsonProperty(value="bedrooms")
     private long bedrooms;
     
     @Field(value="BATHROOMS")
-    @JsonProperty(value="BATHROOMS")
+    @JsonProperty(value="bathrooms")
     private long bathrooms;
     
     @Field(value="UNIT_TYPE")
-    @JsonProperty(value="UNIT_TYPE")
+    @JsonProperty(value="unit_type")
     private String unitType;
     
     @Field(value="UNIT_NAME")

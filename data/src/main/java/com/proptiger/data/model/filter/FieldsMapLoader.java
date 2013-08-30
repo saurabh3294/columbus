@@ -16,26 +16,34 @@ import org.springframework.core.annotation.AnnotationUtils;
  *
  */
 public class FieldsMapLoader {
-    static Map<Class<?>, Map<String, String>> fieldsMap = new ConcurrentHashMap<Class<?>, Map<String,String>>();
+    static ConcurrentHashMap<Class<?>, Map<String, Field>> fieldsMap = new ConcurrentHashMap<Class<?>, Map<String, Field>>();
 
-    public static String getFieldName(Class<?> clazz, String name) {
+    public static String getDaoFieldName(Class<?> clazz, String name) {
+        if (!fieldsMap.containsKey(clazz)) {
+            loadClassFields(clazz);
+        }
+
+        Annotation fieldAnnotation = fieldsMap.get(clazz).get(name).getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
+        return (String) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get("value");
+    }
+
+    public static Field getField(Class<?> clazz, String name) {
         if (!fieldsMap.containsKey(clazz)) {
             loadClassFields(clazz);
         }
 
         return fieldsMap.get(clazz).get(name);
     }
-
+    
     private static void loadClassFields(Class<?> clazz) {
         for (Field field : clazz.getDeclaredFields()) {
             Annotation annotation = field.getAnnotation(JsonProperty.class);
-            Annotation fieldAnnotation = field.getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
             if (annotation != null) {
                 if (!fieldsMap.containsKey(clazz)) {
-                    fieldsMap.put(clazz, new ConcurrentHashMap<String, String>());
+                    fieldsMap.put(clazz, new ConcurrentHashMap<String, Field>());
                 }
 
-                fieldsMap.get(clazz).put((String) AnnotationUtils.getAnnotationAttributes(annotation).get("value"), (String) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get("value"));
+                fieldsMap.get(clazz).put((String) AnnotationUtils.getAnnotationAttributes(annotation).get("value"), field);
             }
         }
     }

@@ -3,6 +3,8 @@
  */
 package com.proptiger.data.model.filter;
 
+import java.util.List;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.springframework.util.StringUtils;
 
@@ -21,19 +23,21 @@ public class SolrQueryBuilder implements QueryBuilder {
      * @see com.proptiger.data.model.filter.QueryBuilder#addEqualsFilter(java.lang.String, java.lang.String[])
      */
     @Override
-    public void addEqualsFilter(String fieldName, String[] value) {
-        // TODO Auto-generated method stub
-        if (value != null) {
-            String string = StringUtils.arrayToDelimitedString(value, "\" OR \"");
-            solrQuery.addFilterQuery("{!tag=" + fieldName + "}" + fieldName + ":(\"" + string + "\")");
+    public void addEqualsFilter(String fieldName, List<Object> values) {
+        String quote = "";
+        if (values.get(0) instanceof String) {
+            quote = "\"";
         }
+
+        String string = StringUtils.arrayToDelimitedString(values.toArray(), quote + " OR " + quote );
+        solrQuery.addFilterQuery("{!tag=" + fieldName + "}" + fieldName + ":(" + quote + string + quote + ")");
     }
 
     /* (non-Javadoc)
      * @see com.proptiger.data.model.filter.QueryBuilder#addRangeFilter(java.lang.String, java.lang.String, java.lang.String)
      */
     @Override
-    public void addRangeFilter(String fieldName, String from, String to) {
+    public void addRangeFilter(String fieldName, Object from, Object to) {
         if (from == null) {
             from = "*";
         }

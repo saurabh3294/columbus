@@ -54,7 +54,7 @@ public class Project {
     private String builderName;
     
     @Field(value="LOCALITY")
-    @JsonProperty(value="LOCALITY")
+    @JsonProperty(value="locality")
     private String locality;
     
     @Field(value="BUILDER_IMAGE")
