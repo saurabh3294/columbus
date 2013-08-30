@@ -5,7 +5,7 @@ package com.proptiger.data.service;
 
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrServerException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Property;
@@ -14,15 +14,14 @@ import com.proptiger.data.repo.PropertyDao;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @Service
 public class PropertyService {
-    
-    PropertyDao propertyDao = new PropertyDao();
+    @Autowired
+    PropertyDao propertyDao;
 
-    public List<Property> getProperties(PropertyFilter propertyFilter) throws SolrServerException{
+    public List<Property> getProperties(PropertyFilter propertyFilter) {
         return propertyDao.getProperties(propertyFilter);
-        //return Collections.singletonList(propertyDao.findOne("PROPERTY-10000"));
     }
 }

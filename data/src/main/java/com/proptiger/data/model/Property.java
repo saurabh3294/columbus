@@ -4,10 +4,11 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.annotate.JsonUnwrapped;
 
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
-public class Property extends Project{
-@Field(value="id")
+public class Property {
+    @Field(value="id")
     @JsonProperty(value="id")
     private String id;
     
@@ -20,7 +21,7 @@ public class Property extends Project{
     private long bedrooms;
     
     @Field(value="BATHROOMS")
-    @JsonProperty(value="bathrooms")
+    @JsonProperty(value = "bathrooms")
     private long bathrooms;
     
     @Field(value="UNIT_TYPE")
@@ -94,9 +95,10 @@ public class Property extends Project{
     @Field(value="PROJECT_STATUS_BEDROOM")
     @JsonProperty(value="project_status_bedroom")
     private String projectStatusBedroom;
-    
-    //private Project project;
-    
+
+    @JsonUnwrapped
+    private Project project;
+
     public String getId() {
         return id;
     }
@@ -390,6 +392,26 @@ public class Property extends Project{
      */
     public void setProjectStatusbedroom(String projectStatusbedroom) {
         this.projectStatusBedroom = projectStatusbedroom;
+    }
+
+    public String getProjectStatusBedroom() {
+        return projectStatusBedroom;
+    }
+
+    public void setProjectStatusBedroom(String projectStatusBedroom) {
+        this.projectStatusBedroom = projectStatusBedroom;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void setSuburbLabelPriority(String suburbLabelPriority) {
+        this.suburbLabelPriority = suburbLabelPriority;
     }
 
     
