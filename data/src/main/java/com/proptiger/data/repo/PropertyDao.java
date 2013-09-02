@@ -33,6 +33,7 @@ public class PropertyDao {
         solrQuery.setQuery("*:*");
         solrQuery.add("facet", "true");
         solrQuery.add("facet.field", "CITY");
+        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
         solrQuery.setRows(10);
 
         SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);

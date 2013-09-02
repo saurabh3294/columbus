@@ -18,6 +18,7 @@ import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 public class Project {
     @Field(value="id")
+    @JsonProperty(value="id")
     private String id;
     
     @Field(value="PROJECT_ID")
