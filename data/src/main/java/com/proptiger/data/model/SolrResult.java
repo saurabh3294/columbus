@@ -7,7 +7,7 @@ package com.proptiger.data.model;
  * @author mandeep
  *
  */
-public class SolrResult {
+public class SolrResult extends Property {
     Property property;
     Project project;
 

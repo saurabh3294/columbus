@@ -14,9 +14,11 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
 import com.proptiger.data.model.filter.PropertyFilter;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
+import com.proptiger.data.model.filter.SortQueryBuilder;
 
 /**
  * @author mandeep
@@ -33,16 +35,20 @@ public class PropertyDao {
         solrQuery.add("facet.field", "CITY");
         solrQuery.setRows(10);
 
-        FilterQueryBuilder.applyFilter(new SolrQueryBuilder(solrQuery), propertyFilter.getFilters(), Property.class);
+        SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
+        FilterQueryBuilder.applyFilter(queryBuilder, propertyFilter.getFilters(), Property.class);
+        SortQueryBuilder.applySort(queryBuilder, propertyFilter.getSort(), Property.class);
+        FieldsQueryBuilder.applyFields(queryBuilder, propertyFilter.getFields(), Property.class);
 
         try {
             QueryResponse queryResponse = httpSolrServer.query(solrQuery);
-            List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
-            List<Property> properties = new ArrayList<Property>();
-            for (SolrResult solrResult : solrResults) {
-                properties.add(solrResult.getProperty());
-            }
-            return properties;
+            return queryResponse.getBeans(Property.class);
+//            List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
+//            List<Property> properties = new ArrayList<Property>();
+//            for (SolrResult solrResult : solrResults) {
+//                properties.add(solrResult.getProperty());
+//            }
+//            return properties;
         } catch (SolrServerException e) {
             throw new RuntimeException("Could not run query", e);
         }
@@ -51,6 +57,8 @@ public class PropertyDao {
     public static void main(String[] args) {
         PropertyFilter propertyFilter = new PropertyFilter();
         propertyFilter.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
+        propertyFilter.setFields("price_per_unit_area,bedrooms,unit_name,unit_type");
+        propertyFilter.setSort("[{\"price_per_unit_area\" : \"asc\"}, {\"bedrooms\" : \"desc\"}]");
         new PropertyDao().getProperties(propertyFilter);
     }
 }
