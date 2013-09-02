@@ -16,7 +16,6 @@ import com.proptiger.data.repo.ProjectReviewDao;
  */
 @Service
 public class ProjectReviewService {
-
 	@Autowired
 	private ProjectReviewDao projectReviewDao;
 	
@@ -29,5 +28,4 @@ public class ProjectReviewService {
 		return projectReviewDao.findReviewsByProjectId(projectId);
 		
 	}
-
 }

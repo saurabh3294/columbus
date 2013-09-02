@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.filter.PropertyFilter;
+import com.proptiger.data.model.filter.PropertyRequestParams;
 import com.proptiger.data.repo.PropertyDao;
 
 /**
@@ -21,7 +21,7 @@ public class PropertyService {
     @Autowired
     PropertyDao propertyDao;
 
-    public List<Property> getProperties(PropertyFilter propertyFilter) {
+    public List<Property> getProperties(PropertyRequestParams propertyFilter) {
         return propertyDao.getProperties(propertyFilter);
     }
 }

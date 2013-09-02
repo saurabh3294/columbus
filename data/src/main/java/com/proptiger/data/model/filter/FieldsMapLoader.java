@@ -8,8 +8,9 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.codehaus.jackson.annotate.JsonProperty;
 import org.springframework.core.annotation.AnnotationUtils;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author mandeep
@@ -39,10 +40,7 @@ public class FieldsMapLoader {
         for (Field field : clazz.getDeclaredFields()) {
             Annotation annotation = field.getAnnotation(JsonProperty.class);
             if (annotation != null) {
-                if (!fieldsMap.containsKey(clazz)) {
-                    fieldsMap.putIfAbsent(clazz, new ConcurrentHashMap<String, Field>());
-                }
-
+                fieldsMap.putIfAbsent(clazz, new ConcurrentHashMap<String, Field>());
                 fieldsMap.get(clazz).put((String) AnnotationUtils.getAnnotationAttributes(annotation).get("value"), field);
             }
         }

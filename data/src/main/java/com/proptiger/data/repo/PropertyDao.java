@@ -3,7 +3,6 @@
  */
 package com.proptiger.data.repo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -13,10 +12,9 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
-import com.proptiger.data.model.filter.PropertyFilter;
+import com.proptiger.data.model.filter.PropertyRequestParams;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.model.filter.SortQueryBuilder;
 
@@ -28,18 +26,19 @@ import com.proptiger.data.model.filter.SortQueryBuilder;
 public class PropertyDao {
     private HttpSolrServer httpSolrServer = new HttpSolrServer("http://www.proptiger.com:8983/solr/");
 
-    public List<Property> getProperties(PropertyFilter propertyFilter) {
+    public List<Property> getProperties(PropertyRequestParams propertyRequestParams) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.add("facet", "true");
         solrQuery.add("facet.field", "CITY");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
-        solrQuery.setRows(10);
+        solrQuery.setRows(propertyRequestParams.getRows());
+        solrQuery.setStart(propertyRequestParams.getStart());
 
         SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
-        FilterQueryBuilder.applyFilter(queryBuilder, propertyFilter.getFilters(), Property.class);
-        SortQueryBuilder.applySort(queryBuilder, propertyFilter.getSort(), Property.class);
-        FieldsQueryBuilder.applyFields(queryBuilder, propertyFilter.getFields(), Property.class);
+        FilterQueryBuilder.applyFilter(queryBuilder, propertyRequestParams.getFilters(), Property.class);
+        SortQueryBuilder.applySort(queryBuilder, propertyRequestParams.getSort(), Property.class);
+        FieldsQueryBuilder.applyFields(queryBuilder, propertyRequestParams.getFields(), Property.class);
 
         try {
             QueryResponse queryResponse = httpSolrServer.query(solrQuery);
@@ -56,7 +55,7 @@ public class PropertyDao {
     }
     
     public static void main(String[] args) {
-        PropertyFilter propertyFilter = new PropertyFilter();
+        PropertyRequestParams propertyFilter = new PropertyRequestParams();
         propertyFilter.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
         propertyFilter.setFields("price_per_unit_area,bedrooms,unit_name,unit_type");
         propertyFilter.setSort("[{\"price_per_unit_area\" : \"asc\"}, {\"bedrooms\" : \"desc\"}]");

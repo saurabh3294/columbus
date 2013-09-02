@@ -5,7 +5,8 @@
 package com.proptiger.data.model;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.codehaus.jackson.annotate.JsonProperty;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  *

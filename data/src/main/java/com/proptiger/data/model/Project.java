@@ -5,10 +5,13 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+
 import org.apache.solr.client.solrj.beans.Field;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 /**
@@ -16,6 +19,7 @@ import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
  * @author mukand
  */
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
+@JsonFilter("fieldFilter")
 public class Project {
     @Field(value="id")
     @JsonProperty(value="id")

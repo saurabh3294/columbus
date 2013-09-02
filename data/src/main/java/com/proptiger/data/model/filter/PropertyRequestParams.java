@@ -8,7 +8,7 @@ package com.proptiger.data.model.filter;
  * @author mandeep
  * 
  */
-public class PropertyFilter {
+public class PropertyRequestParams {
     private String fields;
     private String filters;
     private String sort;
