@@ -11,6 +11,8 @@ import com.proptiger.data.repo.LocalityReviewDao;
 
 
 /**
+ * Service class to handle CRUD operations for locality review details.
+ * 
  * @author Rajeev Pandey
  *
  */
@@ -20,6 +22,12 @@ public class LocalityReviewService {
 	@Resource
 	private LocalityReviewDao localityReviewDao;
 	
+	/**
+	 * Finds all review for a locality based on locality id
+	 * 
+	 * @param localityId
+	 * @return
+	 */
 	public List<LocalityReview> findReviewByLocalityId(long localityId){
 		return localityReviewDao.findReviewsByLocalityId(localityId);
 	}
