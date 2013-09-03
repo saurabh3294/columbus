@@ -156,6 +156,10 @@ public class Project {
     @JsonProperty(value="longitude")
     private float longitude;
     
+    @Field(value="GEO")
+    @JsonProperty(value="geo")
+    private String geo;
+    
     @Field(value="HAS_GEO")
     @JsonProperty(value="has_geo")
     private int hasGeo;
@@ -1048,5 +1052,13 @@ public class Project {
      */
     public void setProjectSize(float projectSize) {
         this.projectSize = projectSize;
+    }
+
+    public String getGeo() {
+        return geo;
+    }
+
+    public void setGeo(String geo) {
+        this.geo = geo;
     }
 }

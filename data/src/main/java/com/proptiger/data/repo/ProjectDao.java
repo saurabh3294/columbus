@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
+import com.proptiger.data.model.filter.GeoQueryBuilder;
 import com.proptiger.data.model.filter.PropertyRequestParams;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.model.filter.SortBy;
@@ -31,18 +32,20 @@ import com.proptiger.data.model.filter.SortQueryBuilder;
  */
 @Repository
 public class ProjectDao {
-     private HttpSolrServer httpSolrServer = new HttpSolrServer("http://www.proptiger.com:8983/solr/");
+     private HttpSolrServer httpSolrServer = new HttpSolrServer("http://localhost:8983/solr/");
 
     public List<Project> getProjects(PropertyRequestParams projectFilter) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
-        solrQuery.setRows(10);
+        solrQuery.setRows(1);
 
         SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
         FilterQueryBuilder.applyFilter(queryBuilder, projectFilter.getFilters(), Project.class);
         SortQueryBuilder.applySort(queryBuilder, projectFilter.getSort(), Project.class);
         FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
+        GeoQueryBuilder.applyDistanceQuery(projectFilter.getLatitude(), 
+                projectFilter.getLongitude(), projectFilter.getRadius(), queryBuilder);
 
         try {
             QueryResponse queryResponse = httpSolrServer.query(solrQuery);

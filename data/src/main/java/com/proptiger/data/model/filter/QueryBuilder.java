@@ -15,4 +15,5 @@ public interface QueryBuilder {
     void addRangeFilter(String fieldName, Object from, Object to);
     void addSort(String fieldName, SortOrder sortOrder);
     void addField(String fieldName);
+    void addGeo(Float radius, String point);
 }

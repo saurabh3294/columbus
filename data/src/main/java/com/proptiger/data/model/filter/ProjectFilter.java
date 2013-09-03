@@ -16,6 +16,9 @@ public class ProjectFilter {
     private String stats;
     private Integer start = 0;
     private Integer rows = 10;
+    private Float radius;
+    private Float latitude;
+    private Float longitude;
 
     public String getFields() {
         return fields;
@@ -58,5 +61,29 @@ public class ProjectFilter {
     }
     public void setStats(String stats) {
         this.stats = stats;
+    }
+
+    public Float getRadius() {
+        return radius;
+    }
+
+    public void setRadius(Float radius) {
+        this.radius = radius;
+    }
+
+    public Float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Float latitude) {
+        this.latitude = latitude;
+    }
+
+    public Float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Float longitude) {
+        this.longitude = longitude;
     }
 }
