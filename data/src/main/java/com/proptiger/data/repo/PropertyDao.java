@@ -24,7 +24,7 @@ import com.proptiger.data.model.filter.SortQueryBuilder;
  */
 @Repository
 public class PropertyDao {
-    private HttpSolrServer httpSolrServer = new HttpSolrServer("http://www.proptiger.com:8983/solr/");
+    private HttpSolrServer httpSolrServer = new HttpSolrServer("http://localhost:8983/solr/");
 
     public List<Property> getProperties(PropertyRequestParams propertyRequestParams) {
         SolrQuery solrQuery = new SolrQuery();

@@ -73,4 +73,12 @@ public class SolrQueryBuilder implements QueryBuilder {
     public void addField(String fieldName) {
         solrQuery.addField(fieldName);
     }
+    
+    @Override
+    public void addGeo(Float radius, String point){
+        solrQuery.addFilterQuery("{!geofilt}");
+        solrQuery.add("pt",  point);
+        solrQuery.add("sfield", "GEO");
+        solrQuery.add("d", radius.toString());
+    }
 }
