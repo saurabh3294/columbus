@@ -9,8 +9,6 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.springframework.util.StringUtils;
 
-import com.proptiger.data.model.filter.SortQueryBuilder.SortOrder;
-
 /**
  * @author mandeep
  *
@@ -57,10 +55,10 @@ public class SolrQueryBuilder implements QueryBuilder {
     @Override
     public void addSort(String fieldName, SortOrder valueOf) {
         switch (valueOf) {
-        case asc:
+        case ASC:
             solrQuery.addSort(fieldName, ORDER.asc);
             break;
-        case desc:
+        case DESC:
             solrQuery.addSort(fieldName, ORDER.desc);
             break;
         default:

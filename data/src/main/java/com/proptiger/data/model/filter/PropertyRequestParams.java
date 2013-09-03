@@ -3,27 +3,30 @@
  */
 package com.proptiger.data.model.filter;
 
+import java.util.Set;
+
 
 /**
  * @author mandeep
  * 
  */
 public class PropertyRequestParams {
-    private String fields;
+    private Set<String> fields;
     private String filters;
-    private String sort;
+    private Set<SortBy> sort;
     private String facets;
     private String stats;
     private Integer start = 0;
     private Integer rows = 10;
 
-    public String getFields() {
-        return fields;
-    }
-    public void setFields(String fields) {
-        this.fields = fields;
-    }
-    public String getFilters() {
+    
+    public Set<String> getFields() {
+		return fields;
+	}
+	public void setFields(Set<String> fields) {
+		this.fields = fields;
+	}
+	public String getFilters() {
         return filters;
     }
     public void setFilters(String filters) {
@@ -41,13 +44,15 @@ public class PropertyRequestParams {
     public void setRows(Integer rows) {
         this.rows = rows;
     }
-    public String getSort() {
-        return sort;
-    }
-    public void setSort(String sort) {
-        this.sort = sort;
-    }
-    public String getFacets() {
+    
+    
+    public Set<SortBy> getSort() {
+		return sort;
+	}
+	public void setSort(Set<SortBy> sort) {
+		this.sort = sort;
+	}
+	public String getFacets() {
         return facets;
     }
     public void setFacets(String facets) {
@@ -59,4 +64,13 @@ public class PropertyRequestParams {
     public void setStats(String stats) {
         this.stats = stats;
     }
+	@Override
+	public String toString() {
+		return "PropertyRequestParams [fields=" + fields + ", filters="
+				+ filters + ", sort=" + sort + ", facets=" + facets
+				+ ", stats=" + stats + ", start=" + start + ", rows=" + rows
+				+ "]";
+	}
+    
+    
 }

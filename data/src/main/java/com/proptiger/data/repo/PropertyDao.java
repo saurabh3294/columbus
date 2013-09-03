@@ -57,8 +57,8 @@ public class PropertyDao {
     public static void main(String[] args) {
         PropertyRequestParams propertyFilter = new PropertyRequestParams();
         propertyFilter.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
-        propertyFilter.setFields("price_per_unit_area,bedrooms,unit_name,unit_type");
-        propertyFilter.setSort("[{\"price_per_unit_area\" : \"asc\"}, {\"bedrooms\" : \"desc\"}]");
+//        propertyFilter.setFields("price_per_unit_area,bedrooms,unit_name,unit_type");
+//        propertyFilter.setSort("[{\"price_per_unit_area\" : \"asc\"}, {\"bedrooms\" : \"desc\"}]");
         new PropertyDao().getProperties(propertyFilter);
     }
 }

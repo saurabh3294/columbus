@@ -4,16 +4,18 @@
  */
 package com.proptiger.data.mvc;
 
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.filter.ProjectFilter;
-import com.proptiger.data.service.ProjectService;
 import java.util.List;
-import org.apache.solr.client.solrj.SolrServerException;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.proptiger.data.model.Project;
+import com.proptiger.data.model.filter.PropertyRequestParams;
+import com.proptiger.data.service.ProjectService;
 
 /**
  *
@@ -26,14 +28,14 @@ public class ProjectController extends BaseController {
     private ProjectService projectService;
     
     @RequestMapping
-    public @ResponseBody Object getProjects(ProjectFilter projectFilter) {
-        List<Project> projects = projectService.getProjects(projectFilter);
-        String fieldsString = projectFilter.getFields();
-        String[] fields = null;
-        if (fieldsString != null && !fieldsString.isEmpty()) {
-            fields = fieldsString.split(",");
-        }
+    public @ResponseBody Object getProjects(@RequestParam(required=false) String search) throws Exception {
+    	PropertyRequestParams propRequestParam = super.parseJsonToObject(search, PropertyRequestParams.class);
+    	if(propRequestParam == null){
+    		propRequestParam = new PropertyRequestParams();
+    	}
+        List<Project> projects = projectService.getProjects(propRequestParam);
+        Set<String> fieldsString = propRequestParam.getFields();
 
-        return super.filterFields(projects, fields);
+        return super.filterFields(projects, fieldsString);
     }
 }

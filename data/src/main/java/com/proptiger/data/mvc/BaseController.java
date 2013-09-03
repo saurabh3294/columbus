@@ -17,24 +17,37 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
  *
  */
 public class BaseController {
-    protected Object filterFields(Object object, String[] fields) {
+	private ObjectMapper mapper = new ObjectMapper();
+    protected Object filterFields(Object object, Set<String> fields) {
         try {
-            Set<String> fieldSet = new HashSet<String>();
-            FilterProvider filterProvider = new SimpleFilterProvider().addFilter("fieldFilter", SimpleBeanPropertyFilter.serializeAllExcept(fieldSet));
+        	Set<String> fieldSet = new HashSet<String>();
+			FilterProvider filterProvider = new SimpleFilterProvider()
+					.addFilter("fieldFilter", SimpleBeanPropertyFilter
+							.serializeAllExcept(fieldSet));
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            if (fields != null) {
-                for (String field : fields) {
-                    fieldSet.add(field);
-                }
+        	
+        	if(fields != null){
+        		filterProvider = new SimpleFilterProvider()
+				.addFilter("fieldFilter",
+						SimpleBeanPropertyFilter.filterOutAllExcept(fields));
+        	}
 
-                filterProvider = new SimpleFilterProvider().addFilter("fieldFilter", SimpleBeanPropertyFilter.filterOutAllExcept(fieldSet));
-            }
+			return mapper.writer(filterProvider).writeValueAsString(object);
 
-            return objectMapper.writer(filterProvider).writeValueAsString(object);
         }
         catch (JsonProcessingException e) {
             throw new RuntimeException("Could not serialize " + object, e);
         }
     }
+    public <T> T parseJsonToObject(String content, Class<T> valueType) throws Exception {
+		// TODO Auto-generated method stub
+		try {
+			if(content != null){
+				return mapper.readValue(content, valueType);
+			}
+			return null;
+		} catch (Exception e) {
+			throw e;
+		}
+	}
 }

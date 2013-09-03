@@ -10,7 +10,9 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
@@ -19,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author mukand
  */
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
+@JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
 public class Project {
     @Field(value="id")
