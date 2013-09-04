@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.LocalityReview;
@@ -22,6 +24,7 @@ public class LocalityReviewService {
 	@Resource
 	private LocalityReviewDao localityReviewDao;
 	
+	private static Logger logger = LoggerFactory.getLogger("locality.review");
 	/**
 	 * Finds all review for a locality based on locality id
 	 * 
@@ -29,6 +32,9 @@ public class LocalityReviewService {
 	 * @return
 	 */
 	public List<LocalityReview> findReviewByLocalityId(long localityId){
+		if(logger.isDebugEnabled()){
+			logger.debug("findReviewByLocalityId, id="+localityId);
+		}
 		return localityReviewDao.findReviewsByLocalityId(localityId);
 	}
 }
