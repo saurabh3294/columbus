@@ -5,7 +5,6 @@
 package com.proptiger.data.service;
 
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.filter.ProjectFilter;
 import com.proptiger.data.model.filter.PropertyRequestParams;
 import com.proptiger.data.repo.ProjectDao;
 
