@@ -28,6 +28,10 @@
 	<logger name="exception.handler" level="DEBUG" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
+	
+	<logger name="property" level="DEBUG" additivity="true">
+		<appender-ref ref="proptiger-website" />
+	</logger>
 
 	<root level="ERROR">
 		<appender-ref ref="STDOUT" />

@@ -12,6 +12,8 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +27,7 @@ import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.model.filter.SortBy;
 import com.proptiger.data.model.filter.SortOrder;
 import com.proptiger.data.model.filter.SortQueryBuilder;
+import com.proptiger.exception.ProAPIException;
 
 /**
  *
@@ -32,6 +35,7 @@ import com.proptiger.data.model.filter.SortQueryBuilder;
  */
 @Repository
 public class ProjectDao {
+	private static Logger logger = LoggerFactory.getLogger("project");
      private HttpSolrServer httpSolrServer = new HttpSolrServer("http://localhost:8983/solr/");
 
     public List<Project> getProjects(PropertyRequestParams projectFilter) {
@@ -57,7 +61,8 @@ public class ProjectDao {
 //            }
 //            return properties;
         } catch (SolrServerException e) {
-            throw new RuntimeException("Could not run query", e);
+        	logger.error("Could not run Solr query", e);
+            throw new ProAPIException("Could not run Solr query", e);
         }
     }
     
