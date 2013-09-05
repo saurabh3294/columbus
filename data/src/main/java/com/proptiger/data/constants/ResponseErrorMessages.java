@@ -2,6 +2,6 @@ package com.proptiger.data.constants;
 
 public interface ResponseErrorMessages {
 
-	static String INTERNAL_SERVER_ERROR = "internal server error";
+	static String SOME_ERROR_OCCURED = "some error occured, please try again later";
 	static String DATABASE_CONNECTION_ERROR = "database connection error";
 }

@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 	@ResponseStatus(value = HttpStatus.OK)
 	protected String handleGenericException(Exception ex){
 		logger.error("handleGenericException - Caching "+ex);
-		return ResponseErrorMessages.INTERNAL_SERVER_ERROR;
+		return ResponseErrorMessages.SOME_ERROR_OCCURED;
 	}
 	
 	@ExceptionHandler(PersistenceException.class)
@@ -40,4 +40,6 @@ public class GlobalExceptionHandler {
 		logger.error("handleDatabaseException - Caching "+ex);
 		return ResponseErrorMessages.DATABASE_CONNECTION_ERROR;
 	}
+	
+	
 }
