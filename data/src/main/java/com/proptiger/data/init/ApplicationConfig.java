@@ -22,6 +22,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import com.proptiger.data.util.PropertyReader;
+
 /**
  * This class is responsible to configure Spring Data JPA, will create data source,
  * and entity manager for Spring Data JPA managed entities.
@@ -44,9 +46,8 @@ public class ApplicationConfig {
 	private static final String HIBERNATE_SHOW_SQL = "hibernate.show_sql";
 	private static final String ENTITYMANAGER_PACKAGES_TO_SCAN = "entitymanager.packages.to.scan";
 
-	@Resource
-	private Environment env;
-
+	@Autowired
+	private PropertyReader propertyReader;
 	/**
 	 * Creating Data source
 	 */
@@ -54,12 +55,12 @@ public class ApplicationConfig {
 	public DataSource dataSource() {
 		DriverManagerDataSource dataSource = new DriverManagerDataSource();
 
-		dataSource.setDriverClassName(env
+		dataSource.setDriverClassName(propertyReader
 				.getRequiredProperty(DATABASE_DRIVER));
-		dataSource.setUrl(env.getRequiredProperty(DATABASE_URL));
-		dataSource.setUsername(env
+		dataSource.setUrl(propertyReader.getRequiredProperty(DATABASE_URL));
+		dataSource.setUsername(propertyReader
 				.getRequiredProperty(DATABASE_USERNAME));
-		dataSource.setPassword(env
+		dataSource.setPassword(propertyReader
 				.getRequiredProperty(DATABASE_PASSWORD));
 
 		return dataSource;
@@ -71,7 +72,7 @@ public class ApplicationConfig {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter.setGenerateDdl(false);
 		vendorAdapter.setShowSql(false);
-		vendorAdapter.setDatabasePlatform(env.getRequiredProperty(HIBERNATE_DIALECT));
+		vendorAdapter.setDatabasePlatform(propertyReader.getRequiredProperty(HIBERNATE_DIALECT));
 		vendorAdapter.setDatabase(Database.MYSQL);
 
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
@@ -79,7 +80,7 @@ public class ApplicationConfig {
 		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setDataSource(dataSource());
 		factory.setPersistenceProviderClass(HibernatePersistence.class);
-		factory.setPackagesToScan(env.getRequiredProperty(ENTITYMANAGER_PACKAGES_TO_SCAN));
+		factory.setPackagesToScan(propertyReader.getRequiredProperty(ENTITYMANAGER_PACKAGES_TO_SCAN));
 		factory.setJpaProperties(hibProperties());
 		
 		
@@ -90,9 +91,9 @@ public class ApplicationConfig {
 	private Properties hibProperties() {
 		Properties properties = new Properties();
 		properties.put(HIBERNATE_DIALECT,
-				env.getRequiredProperty(HIBERNATE_DIALECT));
+				propertyReader.getRequiredProperty(HIBERNATE_DIALECT));
 		properties.put(HIBERNATE_SHOW_SQL,
-				env.getRequiredProperty(HIBERNATE_SHOW_SQL));
+				propertyReader.getRequiredProperty(HIBERNATE_SHOW_SQL));
 		return properties;
 	}
 

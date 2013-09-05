@@ -8,11 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,20 +24,22 @@ import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.model.filter.SortBy;
 import com.proptiger.data.model.filter.SortOrder;
 import com.proptiger.data.model.filter.SortQueryBuilder;
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.data.util.PropertyReader;
 
 /**
  * @author mandeep
  * 
  */
 @Repository
-public class PropertyDao {
-	private static Logger logger = LoggerFactory.getLogger("property");
+public class PropertyDao extends SolrDao{
 	
-    private HttpSolrServer httpSolrServer = new HttpSolrServer("http://localhost:8983/solr/");
+	@Autowired
+	private PropertyReader propertyReader;
+	
+	private static Logger logger = LoggerFactory.getLogger("property");
 
     public List<Property> getProperties(PropertyRequestParams propertyRequestParams) {
-        SolrQuery solrQuery = new SolrQuery();
+    	SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.add("facet", "true");
         solrQuery.add("facet.field", "CITY");
@@ -51,19 +52,15 @@ public class PropertyDao {
         SortQueryBuilder.applySort(queryBuilder, propertyRequestParams.getSort(), Property.class);
         FieldsQueryBuilder.applyFields(queryBuilder, propertyRequestParams.getFields(), Property.class);
 
-        try {
-            QueryResponse queryResponse = httpSolrServer.query(solrQuery);
-            return queryResponse.getBeans(Property.class);
-//            List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
-//            List<Property> properties = new ArrayList<Property>();
-//            for (SolrResult solrResult : solrResults) {
-//                properties.add(solrResult.getProperty());
-//            }
-//            return properties;
-        } catch (SolrServerException e) {
-        	logger.error("Could not run Solr query", e);
-            throw new ProAPIException("Could not run Solr query", e);
-        }
+		QueryResponse queryResponse = executeQuery(solrQuery);
+		return queryResponse.getBeans(Property.class);
+		// List<SolrResult> solrResults =
+		// queryResponse.getBeans(SolrResult.class);
+		// List<Property> properties = new ArrayList<Property>();
+		// for (SolrResult solrResult : solrResults) {
+		// properties.add(solrResult.getProperty());
+		// }
+		// return properties;
     }
     
 	public static void main(String[] args) {

@@ -7,6 +7,10 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Entity
 @Table(name = "LOCALITY_REVIEW")
 public class LocalityReview {

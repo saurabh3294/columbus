@@ -9,6 +9,10 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Entity
 @Table(name = "REVIEW_COMMENTS")
 public class ProjectReview {
@@ -145,16 +149,5 @@ public class ProjectReview {
 
 	public void setStatus(int status) {
 		this.status = status;
-	}
-
-	public enum Recommend {
-		FAMILY("family"), SINGLES("singles"), COUPLES("couples"), RETIREES(
-				"retirees");
-
-		private String type;
-
-		private Recommend(String type) {
-			this.type = type;
-		}
 	}
 }
