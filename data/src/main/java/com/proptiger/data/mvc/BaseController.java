@@ -6,17 +6,23 @@ package com.proptiger.data.mvc;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * @author mandeep
  *
  */
 public class BaseController {
+	private static Logger logger = LoggerFactory.getLogger(BaseController.class);
+	
 	private ObjectMapper mapper = new ObjectMapper();
     protected Object filterFields(Object object, Set<String> fields) {
         try {
@@ -36,10 +42,10 @@ public class BaseController {
 
         }
         catch (JsonProcessingException e) {
-            throw new RuntimeException("Could not serialize " + object, e);
+            throw new ProAPIException("Could not serialize response", e);
         }
     }
-    public <T> T parseJsonToObject(String content, Class<T> valueType) throws Exception {
+    public <T> T parseJsonToObject(String content, Class<T> valueType){
 		// TODO Auto-generated method stub
 		try {
 			if(content != null){
@@ -47,7 +53,7 @@ public class BaseController {
 			}
 			return null;
 		} catch (Exception e) {
-			throw e;
+			throw new ProAPIException("Could not parse request", e);
 		}
 	}
 }
