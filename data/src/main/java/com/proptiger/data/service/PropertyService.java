@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.filter.PropertyRequestParams;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
 
 /**
@@ -25,7 +25,7 @@ public class PropertyService {
 
     private static Logger logger = LoggerFactory.getLogger("project.review");
     
-    public List<Property> getProperties(PropertyRequestParams propertyFilter) {
+    public List<Property> getProperties(Selector propertyFilter) {
     	if(logger.isDebugEnabled()){
 			logger.debug("Get Property, Request="+propertyFilter);
 		}

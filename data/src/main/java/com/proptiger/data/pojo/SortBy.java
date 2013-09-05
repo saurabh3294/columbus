@@ -1,4 +1,4 @@
-package com.proptiger.data.model.filter;
+package com.proptiger.data.pojo;
 
 /**
  * @author Rajeev Pandey

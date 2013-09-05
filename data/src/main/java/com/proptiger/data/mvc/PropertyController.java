@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.filter.PropertyRequestParams;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.PropertyService;
 
 /**
@@ -33,9 +33,9 @@ public class PropertyController extends BaseController {
     @RequestMapping
     public @ResponseBody Object getProperties(@RequestParam(required=false) String search) throws Exception {
     	
-    	PropertyRequestParams propRequestParam = super.parseJsonToObject(search, PropertyRequestParams.class);
+    	Selector propRequestParam = super.parseJsonToObject(search, Selector.class);
     	if(propRequestParam == null){
-    		propRequestParam = new PropertyRequestParams();
+    		propRequestParam = new Selector();
     	}
         List<Property> properties = propertyService.getProperties(propRequestParam);
         Set<String> fieldsSet = propRequestParam.getFields();
@@ -48,7 +48,7 @@ public class PropertyController extends BaseController {
     	String str = "{\"fields\":[\"price_per_unit_area\",\"unit_type\",\"bedrooms\",\"unit_name\"],\"start\":0,\"rows\":20}";
     	ObjectMapper mapper = new ObjectMapper();
     	try {
-			PropertyRequestParams propertyRequestParams = mapper.readValue(str, PropertyRequestParams.class);
+			Selector propertyRequestParams = mapper.readValue(str, Selector.class);
 			System.out.println();
     	} catch (JsonParseException e) {
 			// TODO Auto-generated catch block

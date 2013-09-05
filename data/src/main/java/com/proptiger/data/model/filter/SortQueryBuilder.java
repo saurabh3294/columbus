@@ -5,6 +5,8 @@ package com.proptiger.data.model.filter;
 
 import java.util.Set;
 
+import com.proptiger.data.pojo.SortBy;
+
 /**
  * @author mandeep
  * 

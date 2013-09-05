@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.filter.PropertyRequestParams;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ProjectService;
 
 /**
@@ -29,9 +29,9 @@ public class ProjectController extends BaseController {
     
     @RequestMapping
     public @ResponseBody Object getProjects(@RequestParam(required=false) String search) throws Exception {
-    	PropertyRequestParams propRequestParam = super.parseJsonToObject(search, PropertyRequestParams.class);
+    	Selector propRequestParam = super.parseJsonToObject(search, Selector.class);
     	if(propRequestParam == null){
-    		propRequestParam = new PropertyRequestParams();
+    		propRequestParam = new Selector();
     	}
         List<Project> projects = projectService.getProjects(propRequestParam);
         Set<String> fieldsString = propRequestParam.getFields();

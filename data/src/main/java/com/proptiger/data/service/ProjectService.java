@@ -5,7 +5,7 @@
 package com.proptiger.data.service;
 
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.filter.PropertyRequestParams;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ProjectDao;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class ProjectService {
     private ProjectDao projectDao;
     private static Logger logger = LoggerFactory.getLogger("project");
     	
-    public List<Project> getProjects(PropertyRequestParams projectFilter){
+    public List<Project> getProjects(Selector projectFilter){
     	if(logger.isDebugEnabled()){
 			logger.debug("Get Projects, Request="+projectFilter);
 		}

@@ -19,11 +19,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
-import com.proptiger.data.model.filter.PropertyRequestParams;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.model.filter.SortBy;
-import com.proptiger.data.model.filter.SortOrder;
 import com.proptiger.data.model.filter.SortQueryBuilder;
+import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.SortBy;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -38,7 +38,7 @@ public class PropertyDao extends SolrDao{
 	
 	private static Logger logger = LoggerFactory.getLogger("property");
 
-    public List<Property> getProperties(PropertyRequestParams propertyRequestParams) {
+    public List<Property> getProperties(Selector propertyRequestParams) {
     	SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.add("facet", "true");
@@ -64,7 +64,7 @@ public class PropertyDao extends SolrDao{
     }
     
 	public static void main(String[] args) {
-		PropertyRequestParams propertyFilter = new PropertyRequestParams();
+		Selector propertyFilter = new Selector();
 		propertyFilter
 				.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
 		Set<String> fields = new HashSet<String>();

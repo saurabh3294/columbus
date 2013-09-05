@@ -21,11 +21,11 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
 import com.proptiger.data.model.filter.GeoQueryBuilder;
-import com.proptiger.data.model.filter.PropertyRequestParams;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.model.filter.SortBy;
-import com.proptiger.data.model.filter.SortOrder;
 import com.proptiger.data.model.filter.SortQueryBuilder;
+import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.SortBy;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -39,7 +39,7 @@ public class ProjectDao extends SolrDao{
 	
 	private static Logger logger = LoggerFactory.getLogger("project");
 	
-    public List<Project> getProjects(PropertyRequestParams projectFilter) {
+    public List<Project> getProjects(Selector projectFilter) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
@@ -64,7 +64,7 @@ public class ProjectDao extends SolrDao{
     }
     
     public static void main(String[] args) {
-    	PropertyRequestParams projectFilter = new PropertyRequestParams();
+    	Selector projectFilter = new Selector();
         projectFilter.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
        Set<String> fields = new HashSet<String>();
        fields.add("price_per_unit_area");

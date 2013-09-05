@@ -1,16 +1,19 @@
 /**
  * 
  */
-package com.proptiger.data.model.filter;
+package com.proptiger.data.pojo;
 
 import java.util.Set;
 
 
 /**
- * @author mandeep
+ * This class represents the request that include all components of a database/solr query,
+ * that includes selct part, filtering part, sorting part etc.
  * 
+ * @author mandeep
+ * @author Rajeev Pandey
  */
-public class PropertyRequestParams {
+public class Selector {
     private Set<String> fields;
     private String filters;
     private Set<SortBy> sort;
