@@ -81,4 +81,9 @@ public class SolrQueryBuilder implements QueryBuilder {
         solrQuery.add("sfield", "GEO");
         solrQuery.add("d", radius.toString());
     }
+    
+    @Override
+    public Class<org.apache.solr.client.solrj.beans.Field> getAnnotationClassForColumnName() {
+    	return org.apache.solr.client.solrj.beans.Field.class;
+    }
 }

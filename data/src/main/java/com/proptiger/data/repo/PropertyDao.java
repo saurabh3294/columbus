@@ -41,19 +41,19 @@ public class PropertyDao{
 	
 	private static Logger logger = LoggerFactory.getLogger("property");
 
-    public List<Property> getProperties(Selector propertyRequestParams) {
+    public List<Property> getProperties(Selector selector) {
     	SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.add("facet", "true");
         solrQuery.add("facet.field", "CITY");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
-        solrQuery.setRows(propertyRequestParams.getRows());
-        solrQuery.setStart(propertyRequestParams.getStart());
+        solrQuery.setRows(selector.getRows());
+        solrQuery.setStart(selector.getStart());
 
         SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
-        FilterQueryBuilder.applyFilter(queryBuilder, propertyRequestParams.getFilters(), Property.class);
-        SortQueryBuilder.applySort(queryBuilder, propertyRequestParams.getSort(), Property.class);
-        FieldsQueryBuilder.applyFields(queryBuilder, propertyRequestParams.getFields(), Property.class);
+        FilterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), Property.class);
+        SortQueryBuilder.applySort(queryBuilder, selector.getSort(), Property.class);
+        FieldsQueryBuilder.applyFields(queryBuilder, selector.getFields(), Property.class);
 
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		return queryResponse.getBeans(Property.class);

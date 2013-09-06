@@ -21,7 +21,7 @@ public class SortQueryBuilder {
 		for (SortBy sortCriterion : sortBy) {
 			queryBuilder.addSort(
 					FieldsMapLoader.getDaoFieldName(modelClass,
-							sortCriterion.getField()),	sortCriterion.getSortOrder());
+							sortCriterion.getField(), queryBuilder.getAnnotationClassForColumnName()),	sortCriterion.getSortOrder());
 		}
     }
 }

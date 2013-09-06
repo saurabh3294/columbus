@@ -19,14 +19,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class FieldsMapLoader {
     static ConcurrentHashMap<Class<?>, Map<String, Field>> fieldsMap = new ConcurrentHashMap<Class<?>, Map<String, Field>>();
 
-    public static String getDaoFieldName(Class<?> clazz, String name) {
+      
+    public static String getDaoFieldName(Class<?> clazz, String name, Class<? extends Annotation> annotationClazzForColumnName) {
         if (!fieldsMap.containsKey(clazz)) {
             loadClassFields(clazz);
         }
 
-        Annotation fieldAnnotation = fieldsMap.get(clazz).get(name).getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
+        Annotation fieldAnnotation = fieldsMap.get(clazz).get(name).getAnnotation(annotationClazzForColumnName);
         return (String) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get("value");
     }
+    
+    
 
     public static Field getField(Class<?> clazz, String name) {
         if (!fieldsMap.containsKey(clazz)) {
@@ -44,5 +47,9 @@ public class FieldsMapLoader {
                 fieldsMap.get(clazz).put((String) AnnotationUtils.getAnnotationAttributes(annotation).get("value"), field);
             }
         }
+    }
+    
+    public static Class<? extends Annotation> getAnnotationClassForColumnName() {
+    	return org.apache.solr.client.solrj.beans.Field.class;
     }
 }

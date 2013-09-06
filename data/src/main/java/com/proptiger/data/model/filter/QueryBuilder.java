@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.model.filter;
 
+import java.lang.annotation.Annotation;
 import java.util.List;
 
 import com.proptiger.data.pojo.SortOrder;
@@ -18,4 +19,6 @@ public interface QueryBuilder {
     void addSort(String fieldName, SortOrder sortOrder);
     void addField(String fieldName);
     void addGeo(Float radius, String point);
+    
+    Class<? extends Annotation> getAnnotationClassForColumnName();
 }
