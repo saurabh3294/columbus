@@ -4,7 +4,6 @@
  */
 package com.proptiger.data.service;
 
-import com.proptiger.data.repo.GraphDao;
 import com.proptiger.data.repo.PropertyDao;
 import java.util.HashMap;
 import java.util.Map;
