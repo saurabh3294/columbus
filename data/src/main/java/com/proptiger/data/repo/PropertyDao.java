@@ -31,7 +31,10 @@ import com.proptiger.data.util.PropertyReader;
  * 
  */
 @Repository
-public class PropertyDao extends SolrDao{
+public class PropertyDao{
+	
+	@Autowired
+	private SolrDao solrDao;
 	
 	@Autowired
 	private PropertyReader propertyReader;
@@ -52,7 +55,7 @@ public class PropertyDao extends SolrDao{
         SortQueryBuilder.applySort(queryBuilder, propertyRequestParams.getSort(), Property.class);
         FieldsQueryBuilder.applyFields(queryBuilder, propertyRequestParams.getFields(), Property.class);
 
-		QueryResponse queryResponse = executeQuery(solrQuery);
+		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		return queryResponse.getBeans(Property.class);
 		// List<SolrResult> solrResults =
 		// queryResponse.getBeans(SolrResult.class);

@@ -9,15 +9,17 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ProAPIException;
 
 /**
- * Every solr related Dao should extend this class to execute solr query.
+ * Solr dao provides method to execute solr query.
  * @author Rajeev Pandey
  *
  */
+@Component
 public class SolrDao {
 
 	private static Logger logger = LoggerFactory.getLogger(SolrDao.class);

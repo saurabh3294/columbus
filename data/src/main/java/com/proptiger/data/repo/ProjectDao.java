@@ -33,7 +33,9 @@ import com.proptiger.data.util.PropertyReader;
  * @author mukand
  */
 @Repository
-public class ProjectDao extends SolrDao{
+public class ProjectDao{
+	@Autowired
+	private SolrDao solrDao;
 	@Autowired
 	private PropertyReader propertyReader;
 	
@@ -52,7 +54,7 @@ public class ProjectDao extends SolrDao{
         GeoQueryBuilder.applyDistanceQuery(projectFilter.getLatitude(), 
                 projectFilter.getLongitude(), projectFilter.getRadius(), queryBuilder);
 
-		QueryResponse queryResponse = executeQuery(solrQuery);
+		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		return queryResponse.getBeans(Project.class);
 		// List<SolrResult> solrResults =
 		// queryResponse.getBeans(SolrResult.class);
