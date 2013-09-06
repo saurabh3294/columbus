@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -24,8 +25,9 @@ public class GraphController {
     private Gson gson = new Gson();
     private GraphService graphService = new GraphService();
     
-    @RequestMapping("/project-distribution-status-bedroom")
+    @RequestMapping( value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     public @ResponseBody Object getProjectDistrubtionOnStatus(@RequestParam String params){
+           System.out.println("testing");
            Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
            
