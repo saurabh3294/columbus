@@ -28,8 +28,8 @@ public class ProjectController extends BaseController {
     private ProjectService projectService;
     
     @RequestMapping
-    public @ResponseBody Object getProjects(@RequestParam(required=false) String search) throws Exception {
-    	Selector propRequestParam = super.parseJsonToObject(search, Selector.class);
+    public @ResponseBody Object getProjects(@RequestParam(required=false, value = "selector") String selector) throws Exception {
+    	Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
     	if(propRequestParam == null){
     		propRequestParam = new Selector();
     	}

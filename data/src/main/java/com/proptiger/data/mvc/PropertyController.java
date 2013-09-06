@@ -31,9 +31,9 @@ public class PropertyController extends BaseController {
     PropertyService propertyService;
 
     @RequestMapping
-    public @ResponseBody Object getProperties(@RequestParam(required=false) String search) throws Exception {
+    public @ResponseBody Object getProperties(@RequestParam(required=false, value = "selector") String selector) throws Exception {
     	
-    	Selector propRequestParam = super.parseJsonToObject(search, Selector.class);
+    	Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
     	if(propRequestParam == null){
     		propRequestParam = new Selector();
     	}

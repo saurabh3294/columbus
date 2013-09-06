@@ -4,6 +4,7 @@ import javax.persistence.PersistenceException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +40,15 @@ public class GlobalExceptionHandler {
 	protected String handleDatabaseException(PersistenceException ex){
 		logger.error("handleDatabaseException - Caching "+ex);
 		return ResponseErrorMessages.DATABASE_CONNECTION_ERROR;
+	}
+	
+	@ExceptionHandler(ConversionNotSupportedException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected String handleConversionNotSupportedException(ConversionNotSupportedException ex){
+		logger.error("handleConversionNotSupportedException - Caching "+ex);
+		return ResponseErrorMessages.REQUEST_PARAM_CONVERSION_ERROR;
+		
 	}
 	
 	

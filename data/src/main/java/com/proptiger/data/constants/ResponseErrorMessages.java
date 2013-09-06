@@ -4,4 +4,7 @@ public interface ResponseErrorMessages {
 
 	static String SOME_ERROR_OCCURED = "some error occured, please try again later";
 	static String DATABASE_CONNECTION_ERROR = "database connection error";
+	
+	static String REQUEST_PARAM_CONVERSION_ERROR = "request parameter is not valid";
+	
 }
