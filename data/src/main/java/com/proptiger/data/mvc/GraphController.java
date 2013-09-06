@@ -26,12 +26,29 @@ public class GraphController {
     private GraphService graphService = new GraphService();
     
     @RequestMapping( value="/project-distribution-status-bedroom", method = RequestMethod.GET)
-    public @ResponseBody Object getProjectDistrubtionOnStatus(@RequestParam String params){
-           System.out.println("testing");
+    @ResponseBody
+    public Object getProjectDistrubtionOnStatus(@RequestParam String params){
            Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
            
            return graphService.getProjectDistrubtionOnStatus(paramObject);
     }
     
+    @RequestMapping( value="/enquiry_distribution_locality", method= RequestMethod.GET)
+    @ResponseBody
+    public Object getEnquiryDistributionOnLocality(@RequestParam String params){
+           Type type = new TypeToken<Map<String, String>>() {}.getType();
+           Map<String, String> paramObject = gson.fromJson(params, type);
+           
+           return graphService.getEnquiryDistributionOnLocality(paramObject);
+    }
+    
+    @RequestMapping(value="/project_distribution_price", method= RequestMethod.GET)
+    @ResponseBody
+    public Object getProjectDistributionOnPrice(@RequestParam String params){
+        Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
+        Map<String, Map<String, String>> paramObject = gson.fromJson(params, type);
+        
+        return graphService.getProjectDistributionOnPrice(paramObject);
+    }
 }

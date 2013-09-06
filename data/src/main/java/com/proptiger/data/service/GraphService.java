@@ -29,5 +29,15 @@ public class GraphService {
         
         return projectBed;
     }
+    
+    public Object getEnquiryDistributionOnLocality(Map<String, String> params){
+        
+        return graphDao.getEnquiryDistributionOnLocality(params);
+    }
+    
+    public Object getProjectDistributionOnPrice(Map<String, Map<String, String>> params){
+        
+        return graphDao.getProjectDistributionOnPrice(params);
+    }
             
 }

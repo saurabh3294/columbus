@@ -65,4 +65,12 @@ public class GraphDao {
         }
         
     }
+    
+    public Object getEnquiryDistributionOnLocality(Map<String, String> params){
+        return new Object();
+    }
+    
+    public Object getProjectDistributionOnPrice(Map<String, Map<String, String>> params){
+        return new Object();
+    }
 }
