@@ -38,8 +38,10 @@ public class SolrDao {
 	 */
 	protected QueryResponse executeQuery(SolrQuery query){
 		try {
+                        System.out.println("*****************");
 			return httpSolrServer.query(query);
 		} catch (SolrServerException e) {
+                    System.out.println("error in running query");
 			logger.error("Could not run Solr query", e);
             throw new ProAPIException("Could not run Solr query", e);
 		}

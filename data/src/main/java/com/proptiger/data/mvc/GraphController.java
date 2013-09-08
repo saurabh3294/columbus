@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import com.proptiger.data.service.GraphService;
 import java.lang.reflect.Type;
 import java.util.Map;
+import org.apache.solr.common.SolrDocumentList;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,13 +26,17 @@ public class GraphController {
     private Gson gson = new Gson();
     private GraphService graphService = new GraphService();
     
-    @RequestMapping( value="/project-distribution-status-bedroom", method = RequestMethod.GET)
+    @RequestMapping(value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     @ResponseBody
-    public Object getProjectDistrubtionOnStatus(@RequestParam String params){
+    public SolrDocumentList getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
            Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
-           
-           return graphService.getProjectDistrubtionOnStatus(paramObject);
+           System.out.println("testing1");
+                   
+           SolrDocumentList solrList = (SolrDocumentList)graphService.getProjectDistrubtionOnStatus(paramObject);
+           System.out.println("data");
+           System.out.println(solrList.getNumFound());
+           return solrList;
     }
     
     @RequestMapping( value="/enquiry_distribution_locality", method= RequestMethod.GET)

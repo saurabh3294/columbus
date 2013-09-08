@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
@@ -26,6 +27,7 @@ import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.util.PropertyReader;
 import java.util.Map;
+import org.apache.solr.common.SolrDocumentList;
 
 /**
  * @author mandeep
@@ -63,30 +65,39 @@ public class PropertyDao extends SolrDao{
 		// }
 		// return properties;
     }
-    public Object getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
+    public SolrDocumentList getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
         int bedrooms = Integer.parseInt( params.get("bedroom_upper_limit") );
-        solrQuery.setQuery( params.get("location_key")+":"+params.get("location_id") );
+        String location_type = params.get("location_type").toUpperCase();
+        
+        solrQuery.setQuery( location_type+":"+params.get("location_id") );
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND BEDROOMS:[1 TO "+bedrooms+"]");
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");
         solrQuery.add("group.field", "PROJECT_ID");
         solrQuery.addFacetField("PROJECT_STATUS_BEDROOM");
         solrQuery.setFacet(true);
-        
+        Gson gson = new Gson();
         QueryResponse queryResponse = executeQuery(solrQuery);
+                System.out.println("****data******");
+
+        System.out.println(solrQuery.toString());
+        System.out.println("STATUS "+queryResponse.getStatus());
+        //System.out.println( gson.toJson(queryResponse.getResults()) );
         
         return queryResponse.getResults();
         
     }
-    public Object getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
+    public SolrDocumentList getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
         int bedrooms = Integer.parseInt( params.get("bedroom_upper_limit") );
-        solrQuery.setQuery( params.get("location_key")+":"+params.get("location_id") );
+        String location_type = params.get("location_type").toUpperCase();
+        
+        solrQuery.setQuery( location_type+":"+params.get("location_id") );
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND BEDROOMS:["+bedrooms+" TO *]");
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");
@@ -103,7 +114,9 @@ public class PropertyDao extends SolrDao{
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
-        solrQuery.setQuery( params.get("location_key")+":"+params.get("location_id") );
+        //String location_type = params.get("location_type").toUpperCase();
+        
+        solrQuery.setQuery( params.get("location_type")+":"+params.get("location_id") );
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND UNIT_TYPE:Apartment");
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");
