@@ -8,6 +8,7 @@ import com.proptiger.data.repo.PropertyDao;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.solr.common.SolrDocumentList;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,7 +17,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class GraphService {
-    private PropertyDao propertyDao = new PropertyDao();
+    @Autowired
+    private PropertyDao propertyDao;
     
     public SolrDocumentList getProjectDistrubtionOnStatus(Map<String, String> params){
         Map<String, Map<String, String>> projectCounts = new HashMap<String, Map<String, String>>();
@@ -24,7 +26,7 @@ public class GraphService {
         //projectStatusMapping.put("under construction", {"under construction"});
         //projectStatusMapping.put("ready for possession", {"ready for possession", "occupied"});
         //projectStatusMapping.put("launch and upcoming", {"pre launch", "not launched", "launch"});
-        System.out.println("testing");
+        System.out.println("testing11111111111");
         SolrDocumentList projectBed = propertyDao.getProjectDistrubtionOnStatusOnBed(params);
         //SolrDocumentList projectMaxBed = propertyDao.getProjectDistrubtionOnStatusOnMaxBed(params);
         System.out.println("got data");

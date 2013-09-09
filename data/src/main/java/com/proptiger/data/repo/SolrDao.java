@@ -24,11 +24,11 @@ public class SolrDao {
 	@Autowired
 	protected PropertyReader propertyReader;
 	
-	private HttpSolrServer httpSolrServer;
+	private HttpSolrServer httpSolrServer = new HttpSolrServer("http://localhost:8983/solr/");
 	
 	@PostConstruct
 	private void init(){
-		httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty("solr.server.url"));
+		//httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty("solr.server.url"));
 	}
 	/**
 	 * This method takes a SolrQuery and execute that, and if any exception occures then it wrapps
@@ -40,7 +40,8 @@ public class SolrDao {
 		try {
                         System.out.println("*****************");
 			return httpSolrServer.query(query);
-		} catch (SolrServerException e) {
+		} catch (Exception e) {
+                    System.out.println("Execption: "+e.getMessage());
                     System.out.println("error in running query");
 			logger.error("Could not run Solr query", e);
             throw new ProAPIException("Could not run Solr query", e);

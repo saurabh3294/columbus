@@ -10,6 +10,7 @@ import com.proptiger.data.service.GraphService;
 import java.lang.reflect.Type;
 import java.util.Map;
 import org.apache.solr.common.SolrDocumentList;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,7 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping(value="v1/entity/graph")
 public class GraphController {
     private Gson gson = new Gson();
-    private GraphService graphService = new GraphService();
+    @Autowired
+    private GraphService graphService;// = new GraphService();
     
     @RequestMapping(value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     @ResponseBody
