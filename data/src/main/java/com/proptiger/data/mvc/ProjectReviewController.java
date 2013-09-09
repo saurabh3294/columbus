@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.ProjectReview;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.PropAPIResponse;
 import com.proptiger.data.service.ProjectReviewService;
 
 @Controller
@@ -21,8 +23,10 @@ public class ProjectReviewController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public List<ProjectReview> getProjectReviewByProjectId(
+	public PropAPIResponse getProjectReviewByProjectId(
 			@RequestParam Long projectId){
-		return projectReviewService.getProjectReviewByProjectId(projectId);
+		List<ProjectReview> list = projectReviewService.getProjectReviewByProjectId(projectId);
+		
+		return new ProAPISuccessResponse(list);
 	}
 }

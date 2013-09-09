@@ -16,13 +16,13 @@
 	    </encoder>
    </appender>
 
-	<logger name="locality.review" level="DEBUG" additivity="false">
+	<logger name="locality.review" level="DEBUG" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
-	<logger name="project.review" level="DEBUG" additivity="false">
+	<logger name="project.review" level="DEBUG" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
-	<logger name="project" level="DEBUG" additivity="false">
+	<logger name="project" level="DEBUG" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
 	<logger name="exception.handler" level="DEBUG" additivity="true">
@@ -34,6 +34,7 @@
 	</logger>
 
 	<root level="ERROR">
+		<appender-ref ref="proptiger-website" />
 		<appender-ref ref="STDOUT" />
 	</root>
 

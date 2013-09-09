@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.data.pojo.ProAPIErrorResponse;
+import com.proptiger.data.pojo.PropAPIResponse;
 
 
 /**
@@ -29,25 +32,30 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected String handleGenericException(Exception ex){
+	protected PropAPIResponse handleGenericException(Exception ex){
 		logger.error("handleGenericException - Caching "+ex);
-		return ResponseErrorMessages.SOME_ERROR_OCCURED;
+		logger.error("handleGenericException - Caching "+ex.getCause());
+		
+		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
+				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(PersistenceException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected String handleDatabaseException(PersistenceException ex){
-		logger.error("handleDatabaseException - Caching "+ex);
-		return ResponseErrorMessages.DATABASE_CONNECTION_ERROR;
+	protected PropAPIResponse handleDatabaseException(PersistenceException ex) {
+		logger.error("handleDatabaseException - Caching " + ex);
+		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
+				ResponseErrorMessages.DATABASE_CONNECTION_ERROR);
 	}
 	
 	@ExceptionHandler(ConversionNotSupportedException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected String handleConversionNotSupportedException(ConversionNotSupportedException ex){
+	protected PropAPIResponse handleConversionNotSupportedException(ConversionNotSupportedException ex){
 		logger.error("handleConversionNotSupportedException - Caching "+ex);
-		return ResponseErrorMessages.REQUEST_PARAM_CONVERSION_ERROR;
+		return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_CONVERSION_ERROR,
+				ResponseErrorMessages.REQUEST_PARAM_CONVERSION_ERROR);
 		
 	}
 	

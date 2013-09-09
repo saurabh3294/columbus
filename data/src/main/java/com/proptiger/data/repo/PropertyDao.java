@@ -67,15 +67,15 @@ public class PropertyDao{
     }
     
 	public static void main(String[] args) {
-		Selector propertyFilter = new Selector();
-		propertyFilter
+		Selector selector = new Selector();
+		selector
 				.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
 		Set<String> fields = new HashSet<String>();
 		fields.add("price_per_unit_area");
 		fields.add("bedrooms");
 		fields.add("unit_name");
 		fields.add("unit_type");
-		propertyFilter.setFields(fields);
+		selector.setFields(fields);
 
 		Set<SortBy> sort = new HashSet<SortBy>();
 		SortBy sortBy1 = new SortBy();
@@ -87,15 +87,15 @@ public class PropertyDao{
 		sortBy2.setSortOrder(SortOrder.DESC);
 		sort.add(sortBy1);
 		sort.add(sortBy2);
-		propertyFilter.setSort(sort);
+		selector.setSort(sort);
 		ObjectMapper mapper = new ObjectMapper();
 
 		try {
-			System.out.println(mapper.writeValueAsString(propertyFilter));
+			System.out.println(mapper.writeValueAsString(selector));
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		new PropertyDao().getProperties(propertyFilter);
+		new PropertyDao().getProperties(selector);
 	}
 }

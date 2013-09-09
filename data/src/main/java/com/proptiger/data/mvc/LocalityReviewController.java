@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.LocalityReview;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.PropAPIResponse;
 import com.proptiger.data.service.LocalityReviewService;
 
 /**
@@ -27,10 +29,10 @@ public class LocalityReviewController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public List<LocalityReview> getLocalityReviewByLocalityId(
+	public PropAPIResponse getLocalityReviewByLocalityId(
 			@RequestParam long localityId){
 		List<LocalityReview> list = localityReviewService.findReviewByLocalityId(localityId);
-		return list;
+		return new ProAPISuccessResponse(list);
 	}
 	
 }
