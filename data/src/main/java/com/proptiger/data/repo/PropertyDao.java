@@ -78,22 +78,21 @@ public class PropertyDao extends SolrDao{
         int bedrooms = Integer.parseInt( params.get("bedroom_upper_limit") );
         String location_type = params.get("location_type").toUpperCase();
         
-        solrQuery.setQuery( location_type+":"+params.get("location_id") );
+        solrQuery.setQuery( location_type+"_ID:"+params.get("location_id") );
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND BEDROOMS:[1 TO "+bedrooms+"]");
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");
         solrQuery.add("group.field", "PROJECT_ID");
         solrQuery.addFacetField("PROJECT_STATUS_BEDROOM");
-        solrQuery.addFacetField("PROJECT_STATUS");
         solrQuery.setFacet(true);
         solrQuery.add("wt","json");
-
+        System.out.println(solrQuery.toString());
         QueryResponse queryResponse = executeQuery(solrQuery);
         
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
     
-    public SolrDocumentList getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
+    public HashMap<String, HashMap<String, Integer>> getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
@@ -111,7 +110,7 @@ public class PropertyDao extends SolrDao{
         
         QueryResponse queryResponse = executeQuery(solrQuery);
         
-        return queryResponse.getResults();
+        return solrResponseReader.getFacetResults(queryResponse.getResponse());
         
     }
     public Object getProjectDistributionOnPrice(Map<String, Map<String, String>> params){
