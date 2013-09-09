@@ -10,6 +10,7 @@ import com.proptiger.data.service.GraphService;
 import java.lang.reflect.Type;
 import java.util.Map;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.NamedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,14 +31,12 @@ public class GraphController {
     
     @RequestMapping(value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     @ResponseBody
-    public SolrDocumentList getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
+    public NamedList<Object> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
            Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
-           System.out.println("testing1");
-                   
-           SolrDocumentList solrList = (SolrDocumentList)graphService.getProjectDistrubtionOnStatus(paramObject);
-           System.out.println("data");
-           System.out.println(solrList.getNumFound());
+                              
+           NamedList<Object> solrList = graphService.getProjectDistrubtionOnStatus(paramObject);
+                      
            return solrList;
     }
     

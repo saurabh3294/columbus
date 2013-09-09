@@ -29,6 +29,7 @@ import com.proptiger.data.util.PropertyReader;
 import java.util.Map;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.NamedList;
 
 /**
  * @author mandeep
@@ -39,8 +40,7 @@ public class PropertyDao extends SolrDao{
 	
 	@Autowired
 	private PropertyReader propertyReader;
-	
-        private HttpSolrServer httpSolrServer1 = new HttpSolrServer("http://www.proptiger.com:8983/solr/");
+
 	private static Logger logger = LoggerFactory.getLogger("property");
 
     public List<Property> getProperties(Selector propertyRequestParams) {
@@ -67,7 +67,7 @@ public class PropertyDao extends SolrDao{
 		// }
 		// return properties;
     }
-    public SolrDocumentList getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
+    public NamedList<Object> getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
@@ -79,23 +79,14 @@ public class PropertyDao extends SolrDao{
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");
         solrQuery.add("group.field", "PROJECT_ID");
+        solrQuery.add("wt","json");
         solrQuery.addFacetField("PROJECT_STATUS_BEDROOM");
         solrQuery.setFacet(true);
-        Gson gson = new Gson();
         QueryResponse queryResponse = null;
-        try{
-            queryResponse = httpSolrServer1.query(solrQuery);
-        }catch(Exception e){
-            System.out.println("Message");
-            System.out.println(e.getMessage());
-        }
-        System.out.println("****data******");
-
-        System.out.println(solrQuery.toString());
-        System.out.println("STATUS "+queryResponse.getStatus());
-        System.out.println( queryResponse.getResults() );
         
-        return queryResponse.getResults();
+        queryResponse = executeQuery(solrQuery);
+                
+        return queryResponse.getResponse();
         
     }
     public SolrDocumentList getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
