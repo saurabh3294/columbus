@@ -32,13 +32,15 @@ public class GraphController {
     
     @RequestMapping(value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     @ResponseBody
-    public HashMap<String, HashMap<String, Integer>> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
+    public Map<String, Map<String, Map<Integer, Integer>>> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
            Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
                               
-           HashMap<String, HashMap<String, Integer>> solrList = graphService.getProjectDistrubtionOnStatus(paramObject);
-                      
-           return solrList;
+           Map<String, Map<Integer, Integer>> solrList = graphService.getProjectDistrubtionOnStatus(paramObject);
+           Map<String, Map<String, Map<Integer, Integer>>> response = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+           
+           response.put("data", solrList);
+           return response;
     }
     
     @RequestMapping( value="/enquiry_distribution_locality", method= RequestMethod.GET)

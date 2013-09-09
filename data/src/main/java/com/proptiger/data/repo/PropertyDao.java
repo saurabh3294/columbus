@@ -42,7 +42,7 @@ public class PropertyDao extends SolrDao{
 	
 	@Autowired
 	private PropertyReader propertyReader;
-        
+        // to make it autowired.
         private SolrResponseReader solrResponseReader = new SolrResponseReader();
 
 	private static Logger logger = LoggerFactory.getLogger("property");
@@ -71,7 +71,7 @@ public class PropertyDao extends SolrDao{
 		// }
 		// return properties;
     }
-    public HashMap<String, HashMap<String, Integer>> getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
+    public Map<String, Map<String, Integer>> getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
@@ -92,14 +92,14 @@ public class PropertyDao extends SolrDao{
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
     
-    public HashMap<String, HashMap<String, Integer>> getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
+    public Map<String, Map<String, Integer>> getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
-        int bedrooms = Integer.parseInt( params.get("bedroom_upper_limit") );
+        int bedrooms = Integer.parseInt( params.get("bedroom_upper_limit") ) + 1;
         String location_type = params.get("location_type").toUpperCase();
         
-        solrQuery.setQuery( location_type+":"+params.get("location_id") );
+        solrQuery.setQuery( location_type+"_ID:"+params.get("location_id") );
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND BEDROOMS:["+bedrooms+" TO *]");
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");

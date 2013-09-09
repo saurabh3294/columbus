@@ -28,7 +28,7 @@ public class GraphService {
     @Autowired
     private PropertyDao propertyDao;
         
-    public HashMap<String, HashMap<String, Integer>> getProjectDistrubtionOnStatus(Map<String, String> params){
+    public Map<String, Map<Integer, Integer>> getProjectDistrubtionOnStatus(Map<String, String> params){
         int bedroom_limit = Integer.parseInt( params.get("bedroom_upper_limit") );
         
         // TODO to move configuration  file
@@ -40,12 +40,13 @@ public class GraphService {
         projectStatusMapping.put("ready for possession", "ready for possession");
         projectStatusMapping.put("occupied", "ready for possession");
         
-        HashMap<String, HashMap<Integer, Integer>> response = new HashMap<String, HashMap<Integer, Integer>>();
-        HashMap<Integer, Integer> data;
-        HashMap<String, HashMap<String, Integer>> projectBed = propertyDao.getProjectDistrubtionOnStatusOnBed(params);
-        HashMap<String, HashMap<String, Integer>> projectMaxBed = propertyDao.getProjectDistrubtionOnStatusOnMaxBed(params);
+        Map<String, Map<Integer, Integer>> response = new HashMap<String, Map<Integer, Integer>>();
+        Map<Integer, Integer> data;
+        Map<String, Map<String, Integer>> projectBed = propertyDao.getProjectDistrubtionOnStatusOnBed(params);
+        Map<String, Map<String, Integer>> projectMaxBed = propertyDao.getProjectDistrubtionOnStatusOnMaxBed(params);
         
-        HashMap<String, Integer> it = projectBed.get("PROJECT_STATUS_BEDROOM");
+        // adding the projects with bedroom limit from 1 to Bedroom_limit
+        Map<String, Integer> it = projectBed.get("PROJECT_STATUS_BEDROOM");
         Iterator<String> keys = it.keySet().iterator();
         String splits[], key, hashKey;
         Integer value=null, bed=null;
@@ -62,7 +63,6 @@ public class GraphService {
                 bed = bedroom_limit+1;
             
             key = projectStatusMapping.get(splits[0]);
-            System.out.println("key "+hashKey+" SPLIT "+splits[0]+" mapped "+key);
             if(key != null)
             {
                 data = response.get(key);
@@ -77,7 +77,6 @@ public class GraphService {
                 else
                 {
                     value = it.get(hashKey);
-                    System.out.println("**ADDED** BED "+bed+" COUNT"+value);
                     data = new HashMap<Integer, Integer>();
                     
                 }
@@ -85,9 +84,27 @@ public class GraphService {
                 response.put(key, data);
             }
         }
+        
+        // adding projects where bedroom greater than bedrooms.
+        it = projectMaxBed.get("PROJECT_STATUS");
+        keys = it.keySet().iterator();
+        bed = bedroom_limit+1;
+        while(keys.hasNext())
+        {
+            hashKey = keys.next();
+            key = projectStatusMapping.get(hashKey);
+            if(key != null)
+            {
+                data = response.get(key);
+                value = data.get(bed);
+                data.put(bed, value+it.get(hashKey));
+                response.put(key, data);
+            }
+        }
+        
         Gson gson = new Gson();
         System.out.println(gson.toJson(response));
-        return projectBed;
+        return response;
     }
     
     public Object getEnquiryDistributionOnLocality(Map<String, String> params){

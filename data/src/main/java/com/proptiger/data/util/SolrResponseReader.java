@@ -7,6 +7,7 @@ package com.proptiger.data.util;
 import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 
@@ -16,8 +17,8 @@ import org.apache.solr.common.util.SimpleOrderedMap;
  */
 public class SolrResponseReader {
     
-    public HashMap<String, HashMap<String, Integer>> getFacetResults(NamedList<Object> response){
-            HashMap<String, HashMap<String, Integer>> list = new HashMap<String, HashMap<String, Integer>>();
+    public Map<String, Map<String, Integer>> getFacetResults(NamedList<Object> response){
+            Map<String, Map<String, Integer>> list = new HashMap<String, Map<String, Integer>>();
             Gson gson = new Gson();
             SimpleOrderedMap map = (SimpleOrderedMap)response.getVal(2);
             map = (SimpleOrderedMap)map.getVal(1);
