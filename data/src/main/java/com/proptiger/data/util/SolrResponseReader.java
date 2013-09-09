@@ -37,8 +37,6 @@ public class SolrResponseReader {
                 list.put(key, hash);
             }
             
-            System.out.println(gson.toJson(list));
-            
             return list;
     }
     

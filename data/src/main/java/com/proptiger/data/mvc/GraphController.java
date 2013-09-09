@@ -35,7 +35,10 @@ public class GraphController {
     public Map<String, Map<String, Map<Integer, Integer>>> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
            Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
-                              
+           
+           if( !paramObject.containsKey("bedroom_upper_limit") )
+               paramObject.put("bedroom_upper_limit", "3");
+           
            Map<String, Map<Integer, Integer>> solrList = graphService.getProjectDistrubtionOnStatus(paramObject);
            Map<String, Map<String, Map<Integer, Integer>>> response = new HashMap<String, Map<String, Map<Integer, Integer>>>();
            
