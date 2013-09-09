@@ -38,8 +38,7 @@ public class SolrDao {
 	 */
 	protected QueryResponse executeQuery(SolrQuery query){
 		try {
-                        System.out.println("*****************");
-			return httpSolrServer.query(query);
+                        return httpSolrServer.query(query);
 		} catch (Exception e) {
                     System.out.println("Execption: "+e.getMessage());
                     System.out.println("error in running query");

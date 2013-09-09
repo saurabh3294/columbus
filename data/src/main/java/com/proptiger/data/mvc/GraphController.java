@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.proptiger.data.service.GraphService;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
@@ -27,15 +28,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class GraphController {
     private Gson gson = new Gson();
     @Autowired
-    private GraphService graphService;// = new GraphService();
+    private GraphService graphService;
     
     @RequestMapping(value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     @ResponseBody
-    public NamedList<Object> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
+    public HashMap<String, HashMap<String, Integer>> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
            Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
                               
-           NamedList<Object> solrList = graphService.getProjectDistrubtionOnStatus(paramObject);
+           HashMap<String, HashMap<String, Integer>> solrList = graphService.getProjectDistrubtionOnStatus(paramObject);
                       
            return solrList;
     }

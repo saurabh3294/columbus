@@ -26,6 +26,8 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.SolrResponseReader;
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.common.SolrDocumentList;
@@ -40,6 +42,8 @@ public class PropertyDao extends SolrDao{
 	
 	@Autowired
 	private PropertyReader propertyReader;
+        
+        private SolrResponseReader solrResponseReader = new SolrResponseReader();
 
 	private static Logger logger = LoggerFactory.getLogger("property");
 
@@ -67,7 +71,7 @@ public class PropertyDao extends SolrDao{
 		// }
 		// return properties;
     }
-    public NamedList<Object> getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
+    public HashMap<String, HashMap<String, Integer>> getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
@@ -79,16 +83,16 @@ public class PropertyDao extends SolrDao{
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");
         solrQuery.add("group.field", "PROJECT_ID");
-        solrQuery.add("wt","json");
         solrQuery.addFacetField("PROJECT_STATUS_BEDROOM");
+        solrQuery.addFacetField("PROJECT_STATUS");
         solrQuery.setFacet(true);
-        QueryResponse queryResponse = null;
+        solrQuery.add("wt","json");
+
+        QueryResponse queryResponse = executeQuery(solrQuery);
         
-        queryResponse = executeQuery(solrQuery);
-                
-        return queryResponse.getResponse();
-        
+        return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
+    
     public SolrDocumentList getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
         SolrQuery solrQuery = new SolrQuery();
         
@@ -103,6 +107,7 @@ public class PropertyDao extends SolrDao{
         solrQuery.add("group.field", "PROJECT_ID");
         solrQuery.addFacetField("PROJECT_STATUS");
         solrQuery.setFacet(true);
+        solrQuery.add("wt","json");
         
         QueryResponse queryResponse = executeQuery(solrQuery);
         
