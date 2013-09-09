@@ -49,7 +49,4 @@ public class FieldsMapLoader {
         }
     }
     
-    public static Class<? extends Annotation> getAnnotationClassForColumnName() {
-    	return org.apache.solr.client.solrj.beans.Field.class;
-    }
 }
