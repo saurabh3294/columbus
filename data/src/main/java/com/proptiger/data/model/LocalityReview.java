@@ -32,9 +32,9 @@ public class LocalityReview {
 	@Column(name = "LOCALITY_ID")
 	@JsonProperty(value = "locality_id")
 	private long localityId;
-	@FieldMetaInfo(name = "overall_tating", displayName = "Overall Rating", dataType = DataType.STRING, description = "overall rating")
+	@FieldMetaInfo(name = "overall_rating", displayName = "Overall Rating", dataType = DataType.STRING, description = "overall rating")
 	@Column(name = "OVERALL_RATING")
-	@JsonProperty(value = "overall_tating")
+	@JsonProperty(value = "overall_rating")
 	private float overallRating;
 	@FieldMetaInfo(name = "location", displayName = "Location", dataType = DataType.STRING, description = "location")
 	@Column(name = "LOCATION")
@@ -176,5 +176,4 @@ public class LocalityReview {
 	public void setCivic(float civic) {
 		this.civic = civic;
 	}
-
 }

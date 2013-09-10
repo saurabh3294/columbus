@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,14 +51,14 @@ public class MetaService {
 			resourceAnnotation = clazz.getAnnotation(ResourceMetaInfo.class);
 			resourceModelMeta.setName((String)AnnotationUtils.getAnnotationAttributes(resourceAnnotation).get("name"));
 			
-			Field[] fields = clazz.getFields();
+			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {
 				FieldMetaData fieldMetaData = new FieldMetaData();
 				fieldAnnotation = field.getAnnotation(FieldMetaInfo.class);
 				
 				fieldMetaData.setDataType((String) AnnotationUtils
 						.getAnnotationAttributes(fieldAnnotation).get(
-								"dataType"));
+								"dataType").toString());
 				fieldMetaData.setDescription((String) AnnotationUtils
 						.getAnnotationAttributes(fieldAnnotation).get(
 								"description"));
@@ -92,7 +93,7 @@ public class MetaService {
 	 * @return List<ResourceModelMeta>
 	 */
 	public List<ResourceModelMeta> getAllResourceMeta(){
-		return (List<ResourceModelMeta>)resourceMetaMap.values();
+		return new ArrayList<ResourceModelMeta>(resourceMetaMap.values());
 	}
 
 }
