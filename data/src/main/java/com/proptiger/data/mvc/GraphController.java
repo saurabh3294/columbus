@@ -63,12 +63,12 @@ public class GraphController {
         Type type = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> paramObject = gson.fromJson(params, type);
         
-        Map<Integer, Integer> defaultPriceRange = new LinkedTreeMap<Integer, Integer>();
-        defaultPriceRange.put(300, 1);
-        defaultPriceRange.put(700, 1);
-        defaultPriceRange.put(1000, 9);
-        defaultPriceRange.put(3000, 2);
-        defaultPriceRange.put(4000, 6);
+        Map<Integer, Double> defaultPriceRange = new LinkedTreeMap<Integer, Double>();
+        defaultPriceRange.put(300, 1.0);
+        defaultPriceRange.put(700, 1.0);
+        defaultPriceRange.put(1000, 9.0);
+        defaultPriceRange.put(3000, 2.0);
+        defaultPriceRange.put(4000, 6.0);
         
         System.out.println(paramObject.get("custom_price_range").getClass().getName());
         if( !paramObject.containsKey("custom_price_range") )

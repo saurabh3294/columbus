@@ -115,13 +115,71 @@ public class GraphService {
     public Map<String, Integer> getProjectDistributionOnPrice(Map<String, Object> params){
         
         Map<String, Integer> solrData = propertyDao.getProjectDistributionOnPrice(params).get("PRICE_PER_UNIT_AREA");
-        Map<String, Integer> customPriceRange = (Map<String, Integer>)params.get("custom_price_range");
+        Map<String, Double> customPriceRange = (Map<String, Double>)params.get("custom_price_range");
         Map<String, Integer> response = new LinkedHashMap<String, Integer>();
         
         Iterator<String> priceIt = customPriceRange.keySet().iterator();
         Iterator<String> solrDataIt = solrData.keySet().iterator();
         
-        int currentPrice;
+        String priceRangeKey = priceIt.next();
+        int range = Integer.parseInt( priceRangeKey );
+        int count = customPriceRange.get(priceRangeKey).intValue();
+        double currentRange = range;
+        double oldRange = 0;
+        String rangeKey = "0";
+        response.put(rangeKey,0);
+        double maxPrice = 0;
+        String key = solrDataIt.next();
+        double currentPrice;
+        int value;
+        Integer oldValue;
+        boolean customRangeFlag=true;
+            
+        while( solrDataIt.hasNext()  )
+        {
+            currentPrice = Double.parseDouble(key);
+            maxPrice = maxPrice<currentPrice? currentPrice: maxPrice;
+            value = solrData.get(key);
+            if(count == 0 && priceIt.hasNext())
+            {
+                priceRangeKey = priceIt.next();
+                range = Integer.parseInt(priceRangeKey);
+                count = customPriceRange.get(priceRangeKey).intValue();
+                oldRange = currentRange;
+                currentRange += range;
+                response.put(""+oldRange, 0);
+                
+            }
+            if(currentPrice <= currentRange || (!priceIt.hasNext() && count==0) )
+            {
+                if(!priceIt.hasNext() && count == 0 && customRangeFlag)
+                {
+                    oldRange += range;
+                    customRangeFlag = false;
+                }
+                
+                oldValue = response.get(""+oldRange);
+                oldValue = (oldValue == null) ?0 : oldValue;
+                response.put(""+oldRange, oldValue+value);
+                
+                key = solrDataIt.next();
+            }
+            else
+            {
+                count--;
+                if(count>0)
+                {
+                    oldRange = currentRange;
+                    currentRange += range;
+                    response.put(""+oldRange, 0);
+                    //$projectCountsRange[$oldRange] = 0;
+                }
+            } 
+        }
+        
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(response));
+        /*int currentPrice;
         int count;
         int totalCount = 0;
         int oldPriceRange = 0;
@@ -140,13 +198,17 @@ public class GraphService {
                 rangeCount = customPriceRange.get(newPriceRange.toString());
                 priceRangeTotal += newPriceRange;
                 
-                if(currentPrice<= priceRangeTotal){
-                    
+                while(currentPrice> priceRangeTotal && rangeCount>=0){
+                    response.put(oldPriceRange+"-"+priceRangeTotal, 0);
+                    oldPriceRange = priceRangeTotal;
+                    priceRangeTotal += newPriceRange;
+                    rangeCount--;
                 }
+                //if(currentPrice <= priceRangeTotal)
             }
-        }
+        }*/
         
-        Gson gson = new Gson();
+        //Gson gson = new Gson();
         System.out.println(gson.toJson(solrData));
         return solrData;
     }
