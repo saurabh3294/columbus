@@ -5,10 +5,12 @@
 package com.proptiger.data.mvc;
 
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.proptiger.data.service.GraphService;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
@@ -57,10 +59,26 @@ public class GraphController {
     
     @RequestMapping(value="/project_distribution_price", method= RequestMethod.GET)
     @ResponseBody
-    public Object getProjectDistributionOnPrice(@RequestParam String params){
-        Type type = new TypeToken<Map<String, Map<String, String>>>() {}.getType();
-        Map<String, Map<String, String>> paramObject = gson.fromJson(params, type);
+    public Map<String, Map<String, Integer>> getProjectDistributionOnPrice(@RequestParam String params){
+        Type type = new TypeToken<Map<String, Object>>() {}.getType();
+        Map<String, Object> paramObject = gson.fromJson(params, type);
         
-        return graphService.getProjectDistributionOnPrice(paramObject);
+        Map<Integer, Integer> defaultPriceRange = new LinkedTreeMap<Integer, Integer>();
+        defaultPriceRange.put(300, 1);
+        defaultPriceRange.put(700, 1);
+        defaultPriceRange.put(1000, 9);
+        defaultPriceRange.put(3000, 2);
+        defaultPriceRange.put(4000, 6);
+        
+        System.out.println(paramObject.get("custom_price_range").getClass().getName());
+        if( !paramObject.containsKey("custom_price_range") )
+            paramObject.put("custom_price_range", defaultPriceRange);
+        
+        Map<String, Integer> data = graphService.getProjectDistributionOnPrice(paramObject);
+        Map<String, Map<String, Integer>> response = new LinkedHashMap<String, Map<String, Integer>>();
+        
+        response.put("data", data);
+        
+        return response;
     }
 }

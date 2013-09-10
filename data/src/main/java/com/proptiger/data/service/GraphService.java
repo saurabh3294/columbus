@@ -9,6 +9,7 @@ import com.proptiger.data.repo.PropertyDao;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Map;
@@ -102,8 +103,6 @@ public class GraphService {
             }
         }
         
-        Gson gson = new Gson();
-        System.out.println(gson.toJson(response));
         return response;
     }
     
@@ -113,9 +112,43 @@ public class GraphService {
         return new Object();
     }
     
-    public Object getProjectDistributionOnPrice(Map<String, Map<String, String>> params){
+    public Map<String, Integer> getProjectDistributionOnPrice(Map<String, Object> params){
         
-        return propertyDao.getProjectDistributionOnPrice(params);
+        Map<String, Integer> solrData = propertyDao.getProjectDistributionOnPrice(params).get("PRICE_PER_UNIT_AREA");
+        Map<String, Integer> customPriceRange = (Map<String, Integer>)params.get("custom_price_range");
+        Map<String, Integer> response = new LinkedHashMap<String, Integer>();
+        
+        Iterator<String> priceIt = customPriceRange.keySet().iterator();
+        Iterator<String> solrDataIt = solrData.keySet().iterator();
+        
+        int currentPrice;
+        int count;
+        int totalCount = 0;
+        int oldPriceRange = 0;
+        Integer newPriceRange = 0;
+        int rangeCount = 0;
+        String key;
+        int priceRangeTotal = 0;
+        while(solrDataIt.hasNext())
+        {
+            key = solrDataIt.next();
+            currentPrice = Integer.parseInt(key);
+            totalCount += solrData.get(key);
+            while(priceIt.hasNext() && rangeCount <= 0)
+            {
+                newPriceRange = Integer.parseInt(priceIt.next());
+                rangeCount = customPriceRange.get(newPriceRange.toString());
+                priceRangeTotal += newPriceRange;
+                
+                if(currentPrice<= priceRangeTotal){
+                    
+                }
+            }
+        }
+        
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(solrData));
+        return solrData;
     }
             
 }

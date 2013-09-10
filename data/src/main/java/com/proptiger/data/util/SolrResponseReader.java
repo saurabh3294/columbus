@@ -6,6 +6,7 @@ package com.proptiger.data.util;
 
 import com.google.gson.Gson;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.solr.common.util.NamedList;
@@ -16,9 +17,14 @@ import org.apache.solr.common.util.SimpleOrderedMap;
  * @author mukand
  */
 public class SolrResponseReader {
-    
+    /**
+     * 
+     * @param response
+     * @return 
+     */
     public Map<String, Map<String, Integer>> getFacetResults(NamedList<Object> response){
-            Map<String, Map<String, Integer>> list = new HashMap<String, Map<String, Integer>>();
+            // Do not change Linked Hash Map as the order of inserted elements is needed.
+            Map<String, Map<String, Integer>> list = new LinkedHashMap<String, Map<String, Integer>>();
             Gson gson = new Gson();
             SimpleOrderedMap map = (SimpleOrderedMap)response.getVal(2);
             map = (SimpleOrderedMap)map.getVal(1);
@@ -30,8 +36,9 @@ public class SolrResponseReader {
             for(i=0; i<map.size(); i++){
                 it = (NamedList<Object>)map.getVal(i);
                 key = map.getName(i);
-                hash = new HashMap<String, Integer>();
+                hash = new LinkedHashMap<String, Integer>();
                 for(j=0; j<it.size(); j++){
+                    System.out.println(it.getName(j));
                     hash.put(it.getName(j), (Integer)it.getVal(j) );
                 }
                 list.put(key, hash);

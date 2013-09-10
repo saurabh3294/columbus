@@ -86,7 +86,7 @@ public class PropertyDao extends SolrDao{
         solrQuery.addFacetField("PROJECT_STATUS_BEDROOM");
         solrQuery.setFacet(true);
         solrQuery.add("wt","json");
-        System.out.println(solrQuery.toString());
+        
         QueryResponse queryResponse = executeQuery(solrQuery);
         
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
@@ -113,13 +113,16 @@ public class PropertyDao extends SolrDao{
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
         
     }
-    public Object getProjectDistributionOnPrice(Map<String, Map<String, String>> params){
+    public Map<String, Map<String, Integer>> getProjectDistributionOnPrice(Map<String, Object> params){
         SolrQuery solrQuery = new SolrQuery();
         
         //todo to handle null params or required params not found.
-        //String location_type = params.get("location_type").toUpperCase();
-        
-        solrQuery.setQuery( params.get("location_type")+":"+params.get("location_id") );
+        String location_type = (String)params.get("location_type");
+        location_type = location_type.toUpperCase();
+        Double location_id = (Double)params.get("location_id");
+                
+        System.out.println("inside property dao");
+        solrQuery.setQuery( location_type+"_ID:"+location_id.intValue() );
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND UNIT_TYPE:Apartment");
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");
@@ -129,10 +132,11 @@ public class PropertyDao extends SolrDao{
         solrQuery.setFacetSort("index");
         solrQuery.setFacetLimit(10000000);
         solrQuery.setFacet(true);
+        solrQuery.add("wt","json");
         
         QueryResponse queryResponse = executeQuery(solrQuery);
-        
-        return queryResponse.getResults();
+                
+        return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
     
     public static void main(String[] args) {
