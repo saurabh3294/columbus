@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
@@ -25,6 +26,12 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.SolrResponseReader;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
+import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.util.NamedList;
 
 /**
  * @author mandeep
@@ -38,7 +45,9 @@ public class PropertyDao{
 	
 	@Autowired
 	private PropertyReader propertyReader;
-	
+        // to make it autowired.
+        private SolrResponseReader solrResponseReader = new SolrResponseReader();
+
 	private static Logger logger = LoggerFactory.getLogger("property");
 
     public List<Property> getProperties(Selector selector) {
@@ -65,8 +74,74 @@ public class PropertyDao{
 		// }
 		// return properties;
     }
+    public Map<String, Map<String, Integer>> getProjectDistrubtionOnStatusOnBed(Map<String, String> params){
+        SolrQuery solrQuery = new SolrQuery();
+        
+        //todo to handle null params or required params not found.
+        int bedrooms = Integer.parseInt( params.get("bedroom_upper_limit") );
+        String location_type = params.get("location_type").toUpperCase();
+        
+        solrQuery.setQuery( location_type+"_ID:"+params.get("location_id") );
+        solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND BEDROOMS:[1 TO "+bedrooms+"]");
+        solrQuery.add("group", "true");
+        solrQuery.add("group.facet", "true");
+        solrQuery.add("group.field", "PROJECT_ID");
+        solrQuery.addFacetField("PROJECT_STATUS_BEDROOM");
+        solrQuery.setFacet(true);
+        solrQuery.add("wt","json");
+        
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        
+        return solrResponseReader.getFacetResults(queryResponse.getResponse());
+    }
     
-	public static void main(String[] args) {
+    public Map<String, Map<String, Integer>> getProjectDistrubtionOnStatusOnMaxBed(Map<String, String> params){
+        SolrQuery solrQuery = new SolrQuery();
+        
+        //todo to handle null params or required params not found.
+        int bedrooms = Integer.parseInt( params.get("bedroom_upper_limit") ) + 1;
+        String location_type = params.get("location_type").toUpperCase();
+        
+        solrQuery.setQuery( location_type+"_ID:"+params.get("location_id") );
+        solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND BEDROOMS:["+bedrooms+" TO *]");
+        solrQuery.add("group", "true");
+        solrQuery.add("group.facet", "true");
+        solrQuery.add("group.field", "PROJECT_ID");
+        solrQuery.addFacetField("PROJECT_STATUS");
+        solrQuery.setFacet(true);
+        solrQuery.add("wt","json");
+        
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        
+        return solrResponseReader.getFacetResults(queryResponse.getResponse());
+        
+    }
+    public Map<String, Map<String, Integer>> getProjectDistributionOnPrice(Map<String, Object> params){
+        SolrQuery solrQuery = new SolrQuery();
+        
+        //todo to handle null params or required params not found.
+        String location_type = (String)params.get("location_type");
+        location_type = location_type.toUpperCase();
+        Double location_id = (Double)params.get("location_id");
+                
+        solrQuery.setQuery( location_type+"_ID:"+location_id.intValue() );
+        solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND UNIT_TYPE:Apartment");
+        solrQuery.add("group", "true");
+        solrQuery.add("group.facet", "true");
+        solrQuery.add("group.field", "PROJECT_ID");
+        solrQuery.addFacetField("PRICE_PER_UNIT_AREA");
+        solrQuery.setFacetMinCount(1);
+        solrQuery.setFacetSort("index");
+        solrQuery.setFacetLimit(10000000);
+        solrQuery.setFacet(true);
+        solrQuery.add("wt","json");
+        
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+                
+        return solrResponseReader.getFacetResults(queryResponse.getResponse());
+    }
+    
+    public static void main(String[] args) {
 		Selector selector = new Selector();
 		selector
 				.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
