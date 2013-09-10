@@ -38,7 +38,6 @@ public class SolrResponseReader {
                 key = map.getName(i);
                 hash = new LinkedHashMap<String, Integer>();
                 for(j=0; j<it.size(); j++){
-                    System.out.println(it.getName(j));
                     hash.put(it.getName(j), (Integer)it.getVal(j) );
                 }
                 list.put(key, hash);

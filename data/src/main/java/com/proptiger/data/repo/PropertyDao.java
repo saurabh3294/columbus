@@ -90,7 +90,7 @@ public class PropertyDao{
         solrQuery.setFacet(true);
         solrQuery.add("wt","json");
         
-        QueryResponse queryResponse = executeQuery(solrQuery);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
@@ -111,7 +111,7 @@ public class PropertyDao{
         solrQuery.setFacet(true);
         solrQuery.add("wt","json");
         
-        QueryResponse queryResponse = executeQuery(solrQuery);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
         
@@ -124,7 +124,6 @@ public class PropertyDao{
         location_type = location_type.toUpperCase();
         Double location_id = (Double)params.get("location_id");
                 
-        System.out.println("inside property dao");
         solrQuery.setQuery( location_type+"_ID:"+location_id.intValue() );
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND UNIT_TYPE:Apartment");
         solrQuery.add("group", "true");
@@ -137,7 +136,7 @@ public class PropertyDao{
         solrQuery.setFacet(true);
         solrQuery.add("wt","json");
         
-        QueryResponse queryResponse = executeQuery(solrQuery);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
                 
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
