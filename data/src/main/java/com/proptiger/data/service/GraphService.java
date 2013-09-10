@@ -13,6 +13,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
@@ -124,20 +125,22 @@ public class GraphService {
         String priceRangeKey = priceIt.next();
         int range = Integer.parseInt( priceRangeKey );
         int count = customPriceRange.get(priceRangeKey).intValue();
-        double currentRange = range;
-        double oldRange = 0;
-        String rangeKey = "0";
+        int currentRange = range;
+        int oldRange = 0;
+        String rangeKey = "0-"+range;
         response.put(rangeKey,0);
-        double maxPrice = 0;
+        int maxPrice = 0;
         String key = solrDataIt.next();
-        double currentPrice;
+        int currentPrice;
         int value;
         Integer oldValue;
         boolean customRangeFlag=true;
+        boolean solrDataFlag = true;
             
-        while( solrDataIt.hasNext()  )
+        while(solrDataFlag)
         {
-            currentPrice = Double.parseDouble(key);
+            currentPrice = new Double(key).intValue();
+            System.out.println(currentPrice+" COUNT "+count);
             maxPrice = maxPrice<currentPrice? currentPrice: maxPrice;
             value = solrData.get(key);
             if(count == 0 && priceIt.hasNext())
@@ -147,7 +150,7 @@ public class GraphService {
                 count = customPriceRange.get(priceRangeKey).intValue();
                 oldRange = currentRange;
                 currentRange += range;
-                response.put(""+oldRange, 0);
+                response.put(oldRange+"-"+currentRange, 0);
                 
             }
             if(currentPrice <= currentRange || (!priceIt.hasNext() && count==0) )
@@ -158,11 +161,15 @@ public class GraphService {
                     customRangeFlag = false;
                 }
                 
-                oldValue = response.get(""+oldRange);
+                oldValue = response.get(oldRange+"-"+currentRange);
                 oldValue = (oldValue == null) ?0 : oldValue;
-                response.put(""+oldRange, oldValue+value);
+                response.put(oldRange+"-"+currentRange, oldValue+value);
                 
-                key = solrDataIt.next();
+                try{
+                    key = solrDataIt.next();
+                }catch(NoSuchElementException e){
+                    solrDataFlag = false;
+                }
             }
             else
             {
@@ -171,46 +178,23 @@ public class GraphService {
                 {
                     oldRange = currentRange;
                     currentRange += range;
-                    response.put(""+oldRange, 0);
+                    response.put(oldRange+"-"+currentRange, 0);
                     //$projectCountsRange[$oldRange] = 0;
                 }
             } 
         }
+        if(currentRange == oldRange)
+        {
+            key = currentRange+"-"+currentRange;
+            count = response.get(key);
+            response.remove(key);
+            response.put(currentRange+"+", count);
+        }
         
         Gson gson = new Gson();
         System.out.println(gson.toJson(response));
-        /*int currentPrice;
-        int count;
-        int totalCount = 0;
-        int oldPriceRange = 0;
-        Integer newPriceRange = 0;
-        int rangeCount = 0;
-        String key;
-        int priceRangeTotal = 0;
-        while(solrDataIt.hasNext())
-        {
-            key = solrDataIt.next();
-            currentPrice = Integer.parseInt(key);
-            totalCount += solrData.get(key);
-            while(priceIt.hasNext() && rangeCount <= 0)
-            {
-                newPriceRange = Integer.parseInt(priceIt.next());
-                rangeCount = customPriceRange.get(newPriceRange.toString());
-                priceRangeTotal += newPriceRange;
-                
-                while(currentPrice> priceRangeTotal && rangeCount>=0){
-                    response.put(oldPriceRange+"-"+priceRangeTotal, 0);
-                    oldPriceRange = priceRangeTotal;
-                    priceRangeTotal += newPriceRange;
-                    rangeCount--;
-                }
-                //if(currentPrice <= priceRangeTotal)
-            }
-        }*/
-        
-        //Gson gson = new Gson();
         System.out.println(gson.toJson(solrData));
-        return solrData;
+        return response;
     }
             
 }
