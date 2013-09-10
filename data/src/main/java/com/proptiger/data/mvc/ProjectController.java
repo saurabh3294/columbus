@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.pojo.PropAPIResponse;
+import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ProjectService;
 
@@ -30,7 +30,7 @@ public class ProjectController extends BaseController {
     private ProjectService projectService;
     
     @RequestMapping
-    public @ResponseBody PropAPIResponse getProjects(@RequestParam(required=false, value = "selector") String selector) throws Exception {
+    public @ResponseBody ProAPIResponse getProjects(@RequestParam(required=false, value = "selector") String selector) throws Exception {
     	Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
     	if(propRequestParam == null){
     		propRequestParam = new Selector();
