@@ -4,10 +4,14 @@
  */
 package com.proptiger.data.repo;
 
+import com.proptiger.data.model.Enquiry;
+import java.io.Serializable;
+import org.springframework.data.jpa.repository.JpaRepository;
+
 /**
  *
  * @author mukand
  */
-public class EnquiryDao {
+public interface EnquiryDao extends JpaRepository<Enquiry, Serializable>{
     
 }
