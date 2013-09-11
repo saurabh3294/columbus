@@ -11,6 +11,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
+ * Locality review model class
  * @author Rajeev Pandey
  * 
  */

@@ -6,12 +6,14 @@ package com.proptiger.data.meta;
  */
 public enum DataType {
 
-	STRING("String"),
-	INTEGER("Integer"),
-	DOUBLE("Double"),
-	LONG("Long"),
-	DATE("Date"),
-	CURRENCY("currency");
+	STRING("string"),
+	INTEGER("integer"),
+	DOUBLE("double"),
+	FLOAT("float"),
+	LONG("long"),
+	DATE("date"),
+	CURRENCY("currency"),
+	BOOLEAN("boolean");
 	
 	private String type;
 	
