@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.meta.FieldMetaData;
 import com.proptiger.data.model.meta.ResourceModelMeta;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -33,12 +35,14 @@ import com.proptiger.exception.ResourceNotAvailableException;
 public class MetaService {
 
 	private Map<String, ResourceModelMeta> resourceMetaMap;
+	@Autowired
+	private PropertyReader propertyReader;
 	
 	@PostConstruct
 	public void init() {
 		resourceMetaMap = new HashMap<String, ResourceModelMeta>();
 		
-		Reflections reflections = new Reflections("com.proptiger.data.model",
+		Reflections reflections = new Reflections(propertyReader.getRequiredProperty("metainfo.package.to.scan"),
 				new TypeAnnotationsScanner());
 		Set<Class<?>> annotated = reflections
 				.getTypesAnnotatedWith(ResourceMetaInfo.class);
