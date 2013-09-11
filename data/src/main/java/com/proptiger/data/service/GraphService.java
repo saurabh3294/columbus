@@ -140,7 +140,6 @@ public class GraphService {
         while(solrDataFlag)
         {
             currentPrice = new Double(key).intValue();
-            System.out.println(currentPrice+" COUNT "+count);
             maxPrice = maxPrice<currentPrice? currentPrice: maxPrice;
             value = solrData.get(key);
             if(count == 0 && priceIt.hasNext())
@@ -179,7 +178,6 @@ public class GraphService {
                     oldRange = currentRange;
                     currentRange += range;
                     response.put(oldRange+"-"+currentRange, 0);
-                    //$projectCountsRange[$oldRange] = 0;
                 }
             } 
         }
@@ -191,9 +189,6 @@ public class GraphService {
             response.put(currentRange+"+", count);
         }
         
-        Gson gson = new Gson();
-        System.out.println(gson.toJson(response));
-        System.out.println(gson.toJson(solrData));
         return response;
     }
             
