@@ -3,6 +3,7 @@ package com.proptiger.data.mvc;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,21 +27,21 @@ public class MetaController {
 	@Autowired
 	private MetaService metaService;
 
-	@RequestMapping(method = RequestMethod.GET)
+	/*@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	public  ProAPIResponse getAllResourceMeta(){
 		
 		List<ResourceModelMeta> list = metaService.getAllResourceMeta();
 		return new ProAPISuccessResponse(list);
-	}
+	}*/
 	
-	@RequestMapping(method = RequestMethod.GET, value = "/{resourceName}")
+	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	public ProAPIResponse getAllResourceMeta(
-			@PathVariable String resourceName) {
+			@RequestParam(value ="resourceName", required = false) String resourceName) {
 
-		ResourceModelMeta resourceMeta = metaService
+		List<ResourceModelMeta> resourceMetaList = metaService
 				.getResourceMeta(resourceName);
-		return new ProAPISuccessResponse(resourceMeta);
+		return new ProAPISuccessResponse(resourceMetaList);
 	}
 }

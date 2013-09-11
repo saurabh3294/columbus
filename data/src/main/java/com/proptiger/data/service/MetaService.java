@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
@@ -48,7 +49,6 @@ public class MetaService {
 				.getTypesAnnotatedWith(ResourceMetaInfo.class);
 		Iterator<Class<?>> itr = annotated.iterator();
 		Annotation resourceAnnotation = null;
-		Annotation fieldAnnotation = null;
 		while(itr.hasNext()){
 			ResourceModelMeta resourceModelMeta = new ResourceModelMeta();
 			Class<?> clazz = itr.next();
@@ -58,23 +58,25 @@ public class MetaService {
 			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {
 				FieldMetaData fieldMetaData = new FieldMetaData();
-				fieldAnnotation = field.getAnnotation(FieldMetaInfo.class);
+				Annotation fieldAnnotation = field.getAnnotation(FieldMetaInfo.class);
+				if(fieldAnnotation != null){
+					fieldMetaData.setDataType((String) AnnotationUtils
+							.getAnnotationAttributes(fieldAnnotation).get(
+									"dataType").toString());
+					fieldMetaData.setDescription((String) AnnotationUtils
+							.getAnnotationAttributes(fieldAnnotation).get(
+									"description"));
+					fieldMetaData.setDisplayName((String) AnnotationUtils
+							.getAnnotationAttributes(fieldAnnotation).get(
+									"displayName"));
+					fieldMetaData.setEditable((boolean) AnnotationUtils
+							.getAnnotationAttributes(fieldAnnotation).get(
+									"editable"));
+					fieldMetaData.setName((String) AnnotationUtils
+							.getAnnotationAttributes(fieldAnnotation).get("name"));
+					resourceModelMeta.addFieldMeta(fieldMetaData);
+				}
 				
-				fieldMetaData.setDataType((String) AnnotationUtils
-						.getAnnotationAttributes(fieldAnnotation).get(
-								"dataType").toString());
-				fieldMetaData.setDescription((String) AnnotationUtils
-						.getAnnotationAttributes(fieldAnnotation).get(
-								"description"));
-				fieldMetaData.setDisplayName((String) AnnotationUtils
-						.getAnnotationAttributes(fieldAnnotation).get(
-								"displayName"));
-				fieldMetaData.setEditable((boolean) AnnotationUtils
-						.getAnnotationAttributes(fieldAnnotation).get(
-								"editable"));
-				fieldMetaData.setName((String) AnnotationUtils
-						.getAnnotationAttributes(fieldAnnotation).get("name"));
-				resourceModelMeta.addFieldMeta(fieldMetaData);
 			}
 			resourceMetaMap.put(resourceModelMeta.getName(), resourceModelMeta);
 		}
@@ -85,18 +87,23 @@ public class MetaService {
 	 * @param resourceName
 	 * @return ResourceModelMeta
 	 */
-	public ResourceModelMeta getResourceMeta(String resourceName){
+	public List<ResourceModelMeta> getResourceMeta(String resourceName){
+		if(resourceName == null){
+			return getAllResourceMeta();
+		}
 		ResourceModelMeta resourceModelMeta = resourceMetaMap.get(resourceName);
 		if(resourceModelMeta == null){
 			throw new ResourceNotAvailableException("Invalid resource name:"+resourceName);
 		}
-		return resourceModelMeta;
+		List<ResourceModelMeta> list = new ArrayList<ResourceModelMeta>();
+		list.add(resourceModelMeta);
+		return list;
 	}
 	
 	/**
 	 * @return List<ResourceModelMeta>
 	 */
-	public List<ResourceModelMeta> getAllResourceMeta(){
+	private List<ResourceModelMeta> getAllResourceMeta(){
 		return new ArrayList<ResourceModelMeta>(resourceMetaMap.values());
 	}
 
