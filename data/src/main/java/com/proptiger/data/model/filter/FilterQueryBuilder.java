@@ -42,7 +42,7 @@ public class FilterQueryBuilder {
                     switch (Operator.valueOf(operator)) {
                     case equal:
                         for (String jsonFieldName : andFilter.get(operator).keySet()) {
-                            String daoFieldName = FieldsMapLoader.getDaoFieldName(modelClass, jsonFieldName);
+                            String daoFieldName = FieldsMapLoader.getDaoFieldName(modelClass, jsonFieldName, queryBuilder.getAnnotationClassForColumnName());
                             Field field = FieldsMapLoader.getField(modelClass, jsonFieldName);
 
                             List<Object> objects = new ArrayList<Object>();
@@ -55,7 +55,7 @@ public class FilterQueryBuilder {
 
                     case range:
                         for (String jsonFieldName : andFilter.get(operator).keySet()) {
-                            String daoFieldName = FieldsMapLoader.getDaoFieldName(modelClass, jsonFieldName);
+                            String daoFieldName = FieldsMapLoader.getDaoFieldName(modelClass, jsonFieldName, queryBuilder.getAnnotationClassForColumnName());
                             Field field = FieldsMapLoader.getField(modelClass, jsonFieldName);
 
                             Map<String, Object> obj = (Map<String, Object>) andFilter.get(operator).get(jsonFieldName);

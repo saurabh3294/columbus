@@ -4,15 +4,20 @@
  */
 package com.proptiger.data.mvc;
 
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.filter.ProjectFilter;
-import com.proptiger.data.service.ProjectService;
 import java.util.List;
-import org.apache.solr.client.solrj.SolrServerException;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.proptiger.data.model.Project;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.service.ProjectService;
 
 /**
  *
@@ -20,12 +25,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping(value="v1/entity/project")
-public class ProjectController {
+public class ProjectController extends BaseController {
     @Autowired
     private ProjectService projectService;
     
     @RequestMapping
-    public @ResponseBody List<Project> getProjects(ProjectFilter projectFilter) throws SolrServerException{
-        return projectService.getProjects(projectFilter);
+    public @ResponseBody ProAPIResponse getProjects(@RequestParam(required=false, value = "selector") String selector) throws Exception {
+    	Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+    	if(propRequestParam == null){
+    		propRequestParam = new Selector();
+    	}
+        List<Project> projects = projectService.getProjects(propRequestParam);
+        Set<String> fieldsString = propRequestParam.getFields();
+
+        return new ProAPISuccessResponse(super.filterFields(projects, fieldsString));
     }
 }

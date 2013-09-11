@@ -3,34 +3,25 @@
  */
 package com.proptiger.data.model.filter;
 
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.proptiger.data.pojo.SortBy;
 
 /**
  * @author mandeep
  * 
  */
 public class SortQueryBuilder {
-    private static Gson gson = new Gson();
-    public static enum SortOrder {
-        asc, desc;
-    }
 
-    public static void applySort(QueryBuilder queryBuilder, String sortString, Class<?> modelClass) {
-        if (sortString == null || sortString.isEmpty()) {
+    public static void applySort(QueryBuilder queryBuilder, Set<SortBy> sortBy, Class<?> modelClass) {
+        if (sortBy == null) {
             return;
         }
         
-        Type type = new TypeToken<List<Map<String, String>>>() {}.getType();
-        List<Map<String, String>> sortCriteria = gson.fromJson(sortString, type);
-        for (Map<String, String> sortCriterion : sortCriteria) {
-            for (String fieldName : sortCriterion.keySet()) {
-                queryBuilder.addSort(FieldsMapLoader.getDaoFieldName(modelClass, fieldName), SortOrder.valueOf(sortCriterion.get(fieldName)));
-            }
-        }
+		for (SortBy sortCriterion : sortBy) {
+			queryBuilder.addSort(
+					FieldsMapLoader.getDaoFieldName(modelClass,
+							sortCriterion.getField(), queryBuilder.getAnnotationClassForColumnName()),	sortCriterion.getSortOrder());
+		}
     }
 }

@@ -5,10 +5,15 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+
 import org.apache.solr.client.solrj.beans.Field;
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 /**
@@ -16,6 +21,8 @@ import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
  * @author mukand
  */
 @JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
+@JsonInclude(Include.NON_NULL)
+@JsonFilter("fieldFilter")
 public class Project {
     @Field(value="id")
     @JsonProperty(value="id")
@@ -148,6 +155,10 @@ public class Project {
     @Field(value="LONGITUDE")
     @JsonProperty(value="longitude")
     private float longitude;
+    
+    @Field(value="GEO")
+    @JsonProperty(value="geo")
+    private String geo;
     
     @Field(value="HAS_GEO")
     @JsonProperty(value="has_geo")
@@ -1041,5 +1052,13 @@ public class Project {
      */
     public void setProjectSize(float projectSize) {
         this.projectSize = projectSize;
+    }
+
+    public String getGeo() {
+        return geo;
+    }
+
+    public void setGeo(String geo) {
+        this.geo = geo;
     }
 }

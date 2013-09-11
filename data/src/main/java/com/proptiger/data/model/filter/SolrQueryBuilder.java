@@ -9,7 +9,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.springframework.util.StringUtils;
 
-import com.proptiger.data.model.filter.SortQueryBuilder.SortOrder;
+import com.proptiger.data.pojo.SortOrder;
 
 /**
  * @author mandeep
@@ -57,10 +57,10 @@ public class SolrQueryBuilder implements QueryBuilder {
     @Override
     public void addSort(String fieldName, SortOrder valueOf) {
         switch (valueOf) {
-        case asc:
+        case ASC:
             solrQuery.addSort(fieldName, ORDER.asc);
             break;
-        case desc:
+        case DESC:
             solrQuery.addSort(fieldName, ORDER.desc);
             break;
         default:
@@ -72,5 +72,18 @@ public class SolrQueryBuilder implements QueryBuilder {
     @Override
     public void addField(String fieldName) {
         solrQuery.addField(fieldName);
+    }
+    
+    @Override
+    public void addGeo(Float radius, String point){
+        solrQuery.addFilterQuery("{!geofilt}");
+        solrQuery.add("pt",  point);
+        solrQuery.add("sfield", "GEO");
+        solrQuery.add("d", radius.toString());
+    }
+    
+    @Override
+    public Class<org.apache.solr.client.solrj.beans.Field> getAnnotationClassForColumnName() {
+    	return org.apache.solr.client.solrj.beans.Field.class;
     }
 }
