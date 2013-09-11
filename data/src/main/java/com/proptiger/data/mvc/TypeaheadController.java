@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.pojo.PropAPIResponse;
+import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.service.TypeAheadService;
 
 /**
@@ -27,7 +27,7 @@ public class TypeaheadController {
     
     @RequestMapping
     @ResponseBody
-    public PropAPIResponse getSearchTypeahead(@RequestParam String query, @RequestParam(defaultValue = "5") int rows){
+    public ProAPIResponse getSearchTypeahead(@RequestParam String query, @RequestParam(defaultValue = "5") int rows){
         List<Typeahead> list = typeaheadService.getSearchTypeahead(query, rows);
         return new ProAPISuccessResponse(list);
     }

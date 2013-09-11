@@ -6,7 +6,7 @@ package com.proptiger.data.pojo;
  * @author Rajeev Pandey
  * 
  */
-public class ProAPIErrorResponse implements PropAPIResponse {
+public class ProAPIErrorResponse implements ProAPIResponse {
 
 	private String statusCode;
 	private ProError error;

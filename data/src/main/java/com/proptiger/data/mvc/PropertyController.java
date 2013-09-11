@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.pojo.PropAPIResponse;
+import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.PropertyService;
 
@@ -33,7 +33,7 @@ public class PropertyController extends BaseController {
     PropertyService propertyService;
 
     @RequestMapping
-    public @ResponseBody PropAPIResponse getProperties(@RequestParam(required=false, value = "selector") String selector) throws Exception {
+    public @ResponseBody ProAPIResponse getProperties(@RequestParam(required=false, value = "selector") String selector) throws Exception {
     	
     	Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
     	if(propRequestParam == null){

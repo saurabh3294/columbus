@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.ProjectReview;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.pojo.PropAPIResponse;
+import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.service.ProjectReviewService;
 
 @Controller
@@ -23,7 +23,7 @@ public class ProjectReviewController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public PropAPIResponse getProjectReviewByProjectId(
+	public ProAPIResponse getProjectReviewByProjectId(
 			@RequestParam Long projectId){
 		List<ProjectReview> list = projectReviewService.getProjectReviewByProjectId(projectId);
 		

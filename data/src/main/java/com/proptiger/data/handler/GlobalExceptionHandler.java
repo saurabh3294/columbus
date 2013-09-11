@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
-import com.proptiger.data.pojo.PropAPIResponse;
+import com.proptiger.data.pojo.ProAPIResponse;
 
 
 /**
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected PropAPIResponse handleGenericException(Exception ex){
+	protected ProAPIResponse handleGenericException(Exception ex){
 		logger.error("handleGenericException - Caching "+ex);
 		logger.error("handleGenericException - Caching "+ex.getCause());
 		
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(PersistenceException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected PropAPIResponse handleDatabaseException(PersistenceException ex) {
+	protected ProAPIResponse handleDatabaseException(PersistenceException ex) {
 		logger.error("handleDatabaseException - Caching " + ex);
 		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
 				ResponseErrorMessages.DATABASE_CONNECTION_ERROR);
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(ConversionNotSupportedException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected PropAPIResponse handleConversionNotSupportedException(ConversionNotSupportedException ex){
+	protected ProAPIResponse handleConversionNotSupportedException(ConversionNotSupportedException ex){
 		logger.error("handleConversionNotSupportedException - Caching "+ex);
 		return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_CONVERSION_ERROR,
 				ResponseErrorMessages.REQUEST_PARAM_CONVERSION_ERROR);

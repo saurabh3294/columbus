@@ -26,11 +26,11 @@ public class SolrDao {
 	@Autowired
 	protected PropertyReader propertyReader;
 	
-	private HttpSolrServer httpSolrServer = new HttpSolrServer("http://localhost:8983/solr/");
+	private HttpSolrServer httpSolrServer;
 	
 	@PostConstruct
 	private void init(){
-		//httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty("solr.server.url"));
+		httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty("solr.server.url"));
 	}
 	/**
 	 * This method takes a SolrQuery and execute that, and if any exception occures then it wrapps

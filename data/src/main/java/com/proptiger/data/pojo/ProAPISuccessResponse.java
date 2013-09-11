@@ -7,7 +7,7 @@ import com.proptiger.data.constants.ResponseCodes;
  * @author Rajeev Pandey
  *
  */
-public class ProAPISuccessResponse implements PropAPIResponse{
+public class ProAPISuccessResponse implements ProAPIResponse{
 
 	private String statusCode;
 	private Object data;
