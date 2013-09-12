@@ -1,5 +1,6 @@
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,12 @@ public class ProjectAmenityService {
 	@Autowired
 	private ProjectAmenityDao projectAmenityDao;
 	
-	public List<Amenity> getAmenitiesByProjectId(long projectId){
-		return projectAmenityDao.findAmenitiesByProjectId(projectId);
+	public List<String> getAmenitiesByProjectId(long projectId){
+		List<Amenity> list = projectAmenityDao.findAmenitiesByProjectId(projectId);
+		List<String> amenityNameList = new ArrayList<String>();
+		for(Amenity amenity: list){
+			amenityNameList.add(amenity.getAmenityName());
+		}
+		return amenityNameList;
 	}
 }

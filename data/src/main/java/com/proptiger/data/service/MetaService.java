@@ -83,9 +83,10 @@ public class MetaService {
 	}
 	
 	/**
-	 * Return ResourceModelMeta for a particular resource name passed
+	 * Return ResourceModelMeta for a particular resource if name passed otherwise returns
+	 * meta information of all resources
 	 * @param resourceName
-	 * @return ResourceModelMeta
+	 * @return ResourceModelMeta or list of ResourceModelMeta
 	 */
 	public List<ResourceModelMeta> getResourceMeta(String resourceName){
 		if(resourceName == null){

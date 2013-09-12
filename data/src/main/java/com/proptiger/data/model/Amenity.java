@@ -13,7 +13,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo(name = "Amenities")
 public class Amenity {
 
-	@Column(name = "LOCALITY_ID")
+	@Column(name = "ID")
 	@Id
 	private Long id;
 	
