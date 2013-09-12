@@ -5,6 +5,7 @@ package com.proptiger.data.repo;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -16,22 +17,17 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.model.filter.SortQueryBuilder;
+import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SolrResponseReader;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.NamedList;
 
 /**
  * @author mandeep
@@ -56,8 +52,12 @@ public class PropertyDao{
         solrQuery.add("facet", "true");
         solrQuery.add("facet.field", "CITY");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
-        solrQuery.setRows(selector.getRows());
-        solrQuery.setStart(selector.getStart());
+        Paging paging = selector.getPaging();
+        if(paging != null){
+        	solrQuery.setRows(paging.getRows());
+            solrQuery.setStart(paging.getStart());
+        }
+        
 
         SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
         FilterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), Property.class);

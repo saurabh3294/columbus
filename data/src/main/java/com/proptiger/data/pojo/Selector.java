@@ -19,8 +19,9 @@ public class Selector {
     private Set<SortBy> sort;
     private String facets;
     private String stats;
-    private Integer start = 0;
-    private Integer rows = 10;
+    private Paging paging;
+    
+    private Set<String> groupBy;
     
     private Float radius;
     private Float latitude;
@@ -39,21 +40,20 @@ public class Selector {
     public void setFilters(String filters) {
         this.filters = filters;
     }
-    public Integer getStart() {
-        return start;
-    }
-    public void setStart(Integer start) {
-        this.start = start;
-    }
-    public Integer getRows() {
-        return rows;
-    }
-    public void setRows(Integer rows) {
-        this.rows = rows;
-    }
     
-    
-    public Set<SortBy> getSort() {
+    public Paging getPaging() {
+		return paging;
+	}
+	public void setPaging(Paging paging) {
+		this.paging = paging;
+	}
+	public Set<String> getGroupBy() {
+		return groupBy;
+	}
+	public void setGroupBy(Set<String> groupBy) {
+		this.groupBy = groupBy;
+	}
+	public Set<SortBy> getSort() {
 		return sort;
 	}
 	public void setSort(Set<SortBy> sort) {
@@ -95,10 +95,9 @@ public class Selector {
 	public String toString() {
 		return "Selector [fields=" + fields + ", filters=" + filters
 				+ ", sort=" + sort + ", facets=" + facets + ", stats=" + stats
-				+ ", start=" + start + ", rows=" + rows + ", radius=" + radius
-				+ ", latitude=" + latitude + ", longitude=" + longitude + "]";
+				+ ", paging=" + paging + ", groupBy=" + groupBy + ", radius="
+				+ radius + ", latitude=" + latitude + ", longitude="
+				+ longitude + "]";
 	}
-	
-    
     
 }

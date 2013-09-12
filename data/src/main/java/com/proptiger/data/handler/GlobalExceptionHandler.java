@@ -2,6 +2,7 @@ package com.proptiger.data.handler;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -56,6 +57,15 @@ public class GlobalExceptionHandler {
 		return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_CONVERSION_ERROR,
 				ResponseErrorMessages.REQUEST_PARAM_CONVERSION_ERROR);
 		
+	}
+	
+	@ExceptionHandler(SolrServerException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleSolrException(SolrServerException exception) {
+		logger.error("handleSolrException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
+				ResponseErrorMessages.SOLR_DOWN);
 	}
 	
 	

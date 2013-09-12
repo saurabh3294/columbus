@@ -7,4 +7,6 @@ public interface ResponseErrorMessages {
 	
 	static String REQUEST_PARAM_CONVERSION_ERROR = "request parameter is not valid";
 	
+	static String SOLR_DOWN = "solr server down";
+	
 }
