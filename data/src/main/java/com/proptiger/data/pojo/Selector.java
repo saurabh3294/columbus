@@ -93,11 +93,10 @@ public class Selector {
 	}
 	@Override
 	public String toString() {
-		return "PropertyRequestParams [fields=" + fields + ", filters="
-				+ filters + ", sort=" + sort + ", facets=" + facets
-				+ ", stats=" + stats + ", start=" + start + ", rows=" + rows
-				+ ", radius=" + radius + ", latitude=" + latitude
-				+ ", longitude=" + longitude + "]";
+		return "Selector [fields=" + fields + ", filters=" + filters
+				+ ", sort=" + sort + ", facets=" + facets + ", stats=" + stats
+				+ ", start=" + start + ", rows=" + rows + ", radius=" + radius
+				+ ", latitude=" + latitude + ", longitude=" + longitude + "]";
 	}
 	
     

@@ -33,8 +33,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleGenericException(Exception ex){
-		logger.error("handleGenericException - Caching "+ex);
-		logger.error("handleGenericException - Caching "+ex.getCause());
+		logger.error("handleGenericException - Caching ",ex);
 		
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
@@ -44,7 +43,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleDatabaseException(PersistenceException ex) {
-		logger.error("handleDatabaseException - Caching " + ex);
+		logger.error("handleDatabaseException - Caching ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
 				ResponseErrorMessages.DATABASE_CONNECTION_ERROR);
 	}
@@ -53,7 +52,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleConversionNotSupportedException(ConversionNotSupportedException ex){
-		logger.error("handleConversionNotSupportedException - Caching "+ex);
+		logger.error("handleConversionNotSupportedException - Caching ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_CONVERSION_ERROR,
 				ResponseErrorMessages.REQUEST_PARAM_CONVERSION_ERROR);
 		

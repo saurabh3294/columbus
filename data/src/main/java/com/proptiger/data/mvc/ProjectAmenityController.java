@@ -23,7 +23,7 @@ public class ProjectAmenityController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public ProAPIResponse getProjectAmenities(@RequestParam Long projectId){
+	public ProAPIResponse getProjectAmenities(@RequestParam(required = true, value = "projectId") Long projectId){
 		List<String> list = amenityService.getAmenitiesByProjectId(projectId);
 		return new ProAPISuccessResponse(list);
 	}
