@@ -50,11 +50,27 @@ public class GraphController {
     
     @RequestMapping( value="/enquiry_distribution_locality", method= RequestMethod.GET)
     @ResponseBody
-    public Object getEnquiryDistributionOnLocality(@RequestParam String params){
-           Type type = new TypeToken<Map<String, String>>() {}.getType();
-           Map<String, String> paramObject = gson.fromJson(params, type);
+    public Object getEnquiryDistributionOnLocality(@RequestParam(value="params") String params){
+           Type type = new TypeToken<Map<String, Object>>() {}.getType();
+           Map<String, Object> paramObject = gson.fromJson(params, type);
            
-           return graphService.getEnquiryDistributionOnLocality(paramObject);
+           Double paramDouble = (Double)paramObject.get("number_of_localities");
+           Integer param = paramDouble.intValue();
+           if( param == null || param <=0 )
+            paramObject.put("number_of_localities", 6);
+           
+           paramDouble = (Double)paramObject.get("last_number_of_months");
+           param = paramDouble.intValue();
+           if( param == null || param <= 0)
+               paramObject.put("last_number_of_months", 1);
+           
+           try{
+            return graphService.getEnquiryDistributionOnLocality(paramObject);
+           }catch(Exception e){
+               System.out.println(e.getMessage());
+               e.printStackTrace();
+           }
+           return null;
     }
     
     @RequestMapping(value="/project_distribution_price", method= RequestMethod.GET)

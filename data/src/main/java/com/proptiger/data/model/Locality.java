@@ -1,20 +1,36 @@
 package com.proptiger.data.model;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
 @Table(name = "LOCALITY")
+/*@NamedQueries({
+    @NamedQuery(name="Locality.findEnquiry",
+        query = "select -1 as locality_id, '' as label, count(*), 'total' from LOCALITY AS L"
+        + " JOIN ENQUIRY AS E ON (E.LOCALITY_ID=L.LOCALITY_ID)")
+})*/
 public class Locality {
 	@Column(name = "LOCALITY_ID")
 	@Id
 	private long localityId;
+        
 	@Column(name = "SUBURB_ID")
-	private long suburbID;
+	private long suburbId;
+        
 	@Column(name = "CITY_ID")
-	private long cityID;
+	private long cityId;
+        
 	@Column(name = "LABEL")
 	private String label;
 	@Column(name = "META_TITLE")
@@ -37,11 +53,40 @@ public class Locality {
 	private long latitude;
 	@Column(name = "LONGITUDE")
 	private long longitude;
+	@Column(name = "wikimapia_id", nullable = true)
+	private Long wikimapiaID;
+        // These two column are not present in the table. They are used
+        // in custom queries.
+        /*@Column(name = "ENQUIRY_COUNT")
+        private int enquiryCount;
+        @Column(name = "QUERY_TYPE")
+        private String queryType;*/
+        
+       /* @OneToMany(targetEntity = Enquiry.class, fetch = FetchType.LAZY)
+        @JoinTable(name = "ENQUIRY", 
+          joinColumns = @JoinColumn(name = "LOCALITY_ID"), 
+          inverseJoinColumns = @JoinColumn(name="LOCALITY_ID", referencedColumnName = "LOCALITY_ID"))*/
+        @OneToMany(mappedBy = "locality", targetEntity = Enquiry.class)
+        private Set<Enquiry> enquiry = new HashSet<Enquiry>();
+        
+        
+        public Set<Enquiry> getEnquiry(){
+            return this.enquiry;
+        }
+        
+        public void setEnquiry(Set<Enquiry> enquiry){
+            this.enquiry = enquiry;
+        }
+        
+        public void addEnquiry(Enquiry enquiry){
+            enquiry.setLocality(this);
+            getEnquiry().add(enquiry);
+        }
 	
-	@Column(name = "wikimapia_id")
-	private long wikimapiaID;
-
-	
+        public void removeEnquiry(Enquiry enquiry){
+            getEnquiry().remove(enquiry);
+        }
+        
 	public long getLocalityId() {
 		return localityId;
 	}
@@ -50,20 +95,20 @@ public class Locality {
 		this.localityId = localityId;
 	}
 
-	public long getSuburbID() {
-		return suburbID;
+	public long getSuburbId() {
+		return suburbId;
 	}
 
-	public void setSuburbID(long suburbID) {
-		this.suburbID = suburbID;
+	public void setSuburbId(long suburbId) {
+		this.suburbId = suburbId;
 	}
 
-	public long getCityID() {
-		return cityID;
+	public long getCityId() {
+		return cityId;
 	}
 
-	public void setCityID(long cityID) {
-		this.cityID = cityID;
+	public void setCityId(long cityId) {
+		this.cityId = cityId;
 	}
 
 	public String getLabel() {
@@ -161,6 +206,22 @@ public class Locality {
 	public void setWikimapiaID(long wikimapiaID) {
 		this.wikimapiaID = wikimapiaID;
 	}
+
+    /*public int getEnquiryCount() {
+        return enquiryCount;
+    }
+
+    public void setEnquiryCount(int enquiryCount) {
+        this.enquiryCount = enquiryCount;
+    }
+
+    public String getQueryType() {
+        return queryType;
+    }
+
+    public void setQueryType(String queryType) {
+        this.queryType = queryType;
+    }*/
 	
 	
 

@@ -5,8 +5,14 @@
 package com.proptiger.data.service;
 
 import com.google.gson.Gson;
+import com.proptiger.data.model.Locality;
+import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.PropertyDao;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -15,6 +21,7 @@ import java.util.Map.Entry;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
@@ -29,7 +36,9 @@ import org.springframework.stereotype.Service;
 public class GraphService {
     @Autowired
     private PropertyDao propertyDao;
-        
+    @Resource
+    private LocalityDao localityDao;
+            
     public Map<String, Map<Integer, Integer>> getProjectDistrubtionOnStatus(Map<String, String> params){
         int bedroom_limit = Integer.parseInt( params.get("bedroom_upper_limit") );
         
@@ -107,9 +116,38 @@ public class GraphService {
         return response;
     }
     
-    public Object getEnquiryDistributionOnLocality(Map<String, String> params){
+    public Object getEnquiryDistributionOnLocality(Map<String, Object> params){
         
-        //return graphDao.getEnquiryDistributionOnLocality(params);
+        Double locationId = (Double)params.get("location_id");
+        String locationType = (String)params.get("location_type");
+        Double numberOfLocalities = (Double)params.get("number_of_localities");
+        Double lastNumberOfMonths = (Double)params.get("last_number_of_months");
+        
+        Long timediff = lastNumberOfMonths.longValue()*30*24*60*60;
+        Long locationTypeMap;
+        
+        locationType = locationType.toLowerCase();
+        switch(locationType)
+        {
+            case "locality":
+                locationTypeMap = 1L;
+                break;
+            case "suburb":
+                locationTypeMap = 2L;
+                break;
+            case "CITY":
+                locationTypeMap = 3L;
+                break;
+            default:
+                locationTypeMap = 3L;
+        }
+        
+        List<Locality> data = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, locationId.longValue());
+        
+        Gson gson = new Gson();
+        System.out.println(gson.toJson(params));
+        System.out.println(gson.toJson(data));
+        
         return new Object();
     }
     

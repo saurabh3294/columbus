@@ -7,8 +7,14 @@ package com.proptiger.data.model;
 import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -40,12 +46,14 @@ public class Enquiry {
     private int cityId;
     @Column(name = "CITY_NAME")
     private String cityName;
-    @Column(name = "LOCALITY_ID")
+    @Column(name = "LOCALITY_ID", insertable = false, updatable = false)
     private int localityId;
     @Column(name = "IP")
     private String ip;
+    
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_DATE")
-    private String createdDate;
+    private Date createdDate;
     @Column(name = "SOURCE")
     private String source;
     @Column(name = "FORM_NAME")
@@ -84,6 +92,22 @@ public class Enquiry {
     private String gaUserId;
     @Column(name = "GA_TIMESPENT")
     private String gaTimespent;
+    
+   //@ManyToOne(targetEntity = Locality.class, fetch = FetchType.LAZY)
+    //@JoinTable(name = "LOCALITY", joinColumns = @JoinColumn(name="LOCALITY_ID", insertable = false, updatable = false, referencedColumnName = "LOCALITY_ID"),
+     //       inverseJoinColumns = @JoinColumn(name="LOCALITY_ID", insertable = false, updatable = false))
+    //@JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID")
+    @ManyToOne
+    @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID")
+    private Locality locality;
+
+    public Locality getLocality() {
+        return locality;
+    }
+
+    public void setLocality(Locality locality) {
+        this.locality = locality;
+    }
     
     private enum buyPeriod  {
         NOW(0), LAST_90_DAYS(1), LAST_180_DAYS(2);
@@ -201,11 +225,11 @@ public class Enquiry {
         this.ip = ip;
     }
 
-    public String getCreatedDate() {
+    public Date getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(String createdDate) {
+    public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
 
