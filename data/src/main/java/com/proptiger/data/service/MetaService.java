@@ -66,7 +66,7 @@ public class MetaService {
 				Annotation fieldAnnotation = field.getAnnotation(FieldMetaInfo.class);
 				if(fieldAnnotation != null){
 					DataType dataType = (DataType) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get(DATA_TYPE);
-					if(dataType == DataType.DEFAULT){
+					if(dataType == DataType.DEFAULT) {
 						String type = field.getGenericType().toString();
 						dataType = DataType.valueOfIgnoreCase(type);
 					}
