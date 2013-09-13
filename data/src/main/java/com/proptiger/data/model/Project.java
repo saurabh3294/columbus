@@ -24,7 +24,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @ResourceMetaInfo(name = "Project")
-@JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
+@JsonAutoDetect(fieldVisibility=Visibility.ANY, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
 public class Project {

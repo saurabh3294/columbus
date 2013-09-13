@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.meta.FieldMetaData;
@@ -35,6 +36,10 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class MetaService {
 
+	private static final String EDITABLE = "editable";
+	private static final String DATA_TYPE = "dataType";
+	private static final String DISPLAY_NAME = "displayName";
+	private static final String DESCRIPTION = "description";
 	private Map<String, ResourceModelMeta> resourceMetaMap;
 	@Autowired
 	private PropertyReader propertyReader;
@@ -60,18 +65,22 @@ public class MetaService {
 				FieldMetaData fieldMetaData = new FieldMetaData();
 				Annotation fieldAnnotation = field.getAnnotation(FieldMetaInfo.class);
 				if(fieldAnnotation != null){
-					fieldMetaData.setDataType((String) AnnotationUtils
-							.getAnnotationAttributes(fieldAnnotation).get(
-									"dataType").toString());
+					DataType dataType = (DataType) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get(DATA_TYPE);
+					if(dataType == DataType.DEFAULT){
+						String type = field.getGenericType().toString();
+						dataType = DataType.valueOfIgnoreCase(type);
+					}
+					
+					fieldMetaData.setDataType(dataType.toString());
 					fieldMetaData.setDescription((String) AnnotationUtils
 							.getAnnotationAttributes(fieldAnnotation).get(
-									"description"));
+									DESCRIPTION));
 					fieldMetaData.setDisplayName((String) AnnotationUtils
 							.getAnnotationAttributes(fieldAnnotation).get(
-									"displayName"));
+									DISPLAY_NAME));
 					fieldMetaData.setEditable((boolean) AnnotationUtils
 							.getAnnotationAttributes(fieldAnnotation).get(
-									"editable"));
+									EDITABLE));
 					fieldMetaData.setName((String) AnnotationUtils
 							.getAnnotationAttributes(fieldAnnotation).get("name"));
 					resourceModelMeta.addFieldMeta(fieldMetaData);

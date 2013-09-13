@@ -17,12 +17,12 @@ public class Amenity {
 	@Id
 	private Long id;
 	
-	@FieldMetaInfo(name = "project_Id", displayName = "Project Id", dataType = DataType.LONG, description = "Project Id")
+	@FieldMetaInfo(name = "project_Id", displayName = "Project Id", description = "Project Id")
 	@Column(name = "PROJECT_ID")
 	@JsonProperty(value = "project_Id")
 	private long projectId;
 	
-	@FieldMetaInfo(name = "amenity_Name", displayName = "Amenity Name", dataType = DataType.LONG, description = "Amenity Name")
+	@FieldMetaInfo(name = "amenity_Name", displayName = "Amenity Name", description = "Amenity Name")
 	@Column(name = "AMENITY_NAME")
 	@JsonProperty(value = "amenity_name")
 	private String amenityName;

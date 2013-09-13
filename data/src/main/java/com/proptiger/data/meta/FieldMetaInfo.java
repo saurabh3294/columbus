@@ -15,10 +15,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldMetaInfo {
-	
+	public static final String DEF_NAME = "Default";
 	String name() ;
 	String displayName();
 	String description() ;
-	DataType dataType() ;
+	DataType dataType() default DataType.DEFAULT;
 	boolean editable() default false;
 }
