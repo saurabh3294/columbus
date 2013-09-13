@@ -62,10 +62,6 @@ public class Locality {
         @Column(name = "QUERY_TYPE")
         private String queryType;*/
         
-       /* @OneToMany(targetEntity = Enquiry.class, fetch = FetchType.LAZY)
-        @JoinTable(name = "ENQUIRY", 
-          joinColumns = @JoinColumn(name = "LOCALITY_ID"), 
-          inverseJoinColumns = @JoinColumn(name="LOCALITY_ID", referencedColumnName = "LOCALITY_ID"))*/
         @OneToMany(mappedBy = "locality", targetEntity = Enquiry.class)
         private Set<Enquiry> enquiry = new HashSet<Enquiry>();
         

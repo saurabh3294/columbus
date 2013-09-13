@@ -116,21 +116,23 @@ public class GraphService {
         return response;
     }
     
-    public Object getEnquiryDistributionOnLocality(Map<String, Object> params){
+    public Map<String, Double> getEnquiryDistributionOnLocality(Map<String, Object> params){
         
         Double locationId = (Double)params.get("location_id");
         String locationType = (String)params.get("location_type");
         Double numberOfLocalities = (Double)params.get("number_of_localities");
         Double lastNumberOfMonths = (Double)params.get("last_number_of_months");
+        Double cityId = (Double)params.get("city_id");
         
         Long timediff = lastNumberOfMonths.longValue()*30*24*60*60;
-        Long locationTypeMap;
+        Long locationTypeMap, parentLocationId = locationId.longValue();
         
         locationType = locationType.toLowerCase();
         switch(locationType)
         {
             case "locality":
                 locationTypeMap = 1L;
+                parentLocationId = cityId.longValue();
                 break;
             case "suburb":
                 locationTypeMap = 2L;
@@ -142,13 +144,45 @@ public class GraphService {
                 locationTypeMap = 3L;
         }
         
-        List<Locality> data = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, locationId.longValue());
+        Long totalEnquiry = localityDao.findTotalEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId);
+        List<Object[]> localitiesData = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId);
+        Object[] currentLocalityData = null;
+        if(locationTypeMap == 1L)
+        {
+            currentLocalityData = localityDao.findEnquiryCountOnLoc(timediff, locationId.longValue());
+        }
         
-        Gson gson = new Gson();
-        System.out.println(gson.toJson(params));
-        System.out.println(gson.toJson(data));
+        Map<String, Double> response = new LinkedHashMap<String, Double>();
+        Object[] data;
+        double sum=0;
+        double percentage;
+        boolean flag = true;
+        for(int i=0; i<localitiesData.size()&& i<numberOfLocalities; i++)
+        {
+            data = (Object[])localitiesData.get(i);
+            if(flag && currentLocalityData != null && (Long)currentLocalityData[2]>(Long)data[2] && !response.containsKey(currentLocalityData[1]))
+            {
+                flag = false;
+                percentage = (100*(Long)currentLocalityData[2])/totalEnquiry.doubleValue();
+                if(percentage > 1)
+                {
+                    sum += percentage;
+                    response.put((String)currentLocalityData[1], percentage);
+                }
+                
+            }
+            if(response.size() < numberOfLocalities )
+            {
+                percentage = (100*(Long)data[2])/totalEnquiry.doubleValue();
+                response.put((String)data[1], percentage);
+                if(currentLocalityData == null || currentLocalityData[1]!=data[1] || !response.containsKey(currentLocalityData[1]) )
+                    sum += percentage;
+            }
+        }
         
-        return new Object();
+        response.put("Other Localities", 100-sum);
+               
+        return response;
     }
     
     public Map<String, Integer> getProjectDistributionOnPrice(Map<String, Object> params){

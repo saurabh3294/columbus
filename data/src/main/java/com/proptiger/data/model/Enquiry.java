@@ -93,10 +93,6 @@ public class Enquiry {
     @Column(name = "GA_TIMESPENT")
     private String gaTimespent;
     
-   //@ManyToOne(targetEntity = Locality.class, fetch = FetchType.LAZY)
-    //@JoinTable(name = "LOCALITY", joinColumns = @JoinColumn(name="LOCALITY_ID", insertable = false, updatable = false, referencedColumnName = "LOCALITY_ID"),
-     //       inverseJoinColumns = @JoinColumn(name="LOCALITY_ID", insertable = false, updatable = false))
-    //@JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID")
     @ManyToOne
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID")
     private Locality locality;
