@@ -1,5 +1,8 @@
 package com.proptiger.data.model;
 
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -58,6 +61,8 @@ public class Property {
     private String URL;
 
     @JsonUnwrapped
+    @ManyToOne
+    @JoinColumn(name="PROJECT_ID")
     private Project project;
 
     public long getId() {

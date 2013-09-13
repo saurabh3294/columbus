@@ -6,6 +6,8 @@ package com.proptiger.data.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -32,8 +34,10 @@ public class Suburb {
     @Column(name = "LABEL")
     private String label;
 
+    @ManyToOne
+    @JoinColumn(name="CITY_ID")
     private City city;
-    
+
     public long getId() {
         return id;
     }

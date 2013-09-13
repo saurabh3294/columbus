@@ -3,6 +3,8 @@ package com.proptiger.data.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -26,6 +28,8 @@ public class Locality {
 	@Column(name = "SUBURB_ID")
 	private long suburbId;
 
+    @ManyToOne
+    @JoinColumn(name="SUBURB_ID")
 	private Suburb suburb;
 
 	@FieldMetaInfo( displayName = "Label",  description = "Label")

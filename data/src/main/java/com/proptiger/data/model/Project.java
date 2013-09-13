@@ -5,6 +5,11 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.List;
+
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -13,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -34,14 +38,21 @@ public class Project {
     @Field(value = "LOCALITY_ID")
     private long localityId;
 
+    @ManyToOne
+    @JoinColumn(name="LOCALITY_ID")
     private Locality locality;
 
     @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
     private long builderId;
 
+    @ManyToOne
+    @JoinColumn(name="BUILDER_ID")
     private Builder builder;
 
+    @OneToMany(mappedBy="project")
+    private List<Property> properties;
+    
     @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
     @Field(value = "PROJECT_NAME")
     private String name;

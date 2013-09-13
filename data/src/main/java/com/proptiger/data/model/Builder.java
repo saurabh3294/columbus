@@ -4,16 +4,22 @@
 package com.proptiger.data.model;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  * @author mandeep
  *
  */
+@Entity
+@Table(name = "RESI_BUILDER")
+@ResourceMetaInfo(name = "Builder")
 public class Builder {
     @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
     @Column(name = "BUILDER_ID")
