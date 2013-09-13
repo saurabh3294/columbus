@@ -27,7 +27,7 @@ import javax.persistence.TemporalType;
 public class Enquiry {
     @Column(name = "ID")
     @Id
-    private int id;
+    private long id;
     @Column(name = "NAME")
     private String name;
     @Column(name = "email")
@@ -38,15 +38,15 @@ public class Enquiry {
     private String countryOfResidence;
     @Column(name = "QUERY")
     private String query;
-    @Column(name = "PROJECT_ID")
-    private int projectId;
+    @Column(name = "PROJECT_ID", nullable = true)
+    private Long projectId;
     @Column(name = "PROJECT_NAME")
     private String projectName;
     @Column(name = "CITY_ID")
-    private int cityId;
+    private Integer cityId;
     @Column(name = "CITY_NAME")
     private String cityName;
-    @Column(name = "LOCALITY_ID", insertable = false, updatable = false)
+    @Column(name = "LOCALITY_ID", insertable = false, updatable = false, nullable = true)
     private int localityId;
     @Column(name = "IP")
     private String ip;
@@ -125,7 +125,7 @@ public class Enquiry {
         PRIMARY, RESALE;
     }
     
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -173,11 +173,11 @@ public class Enquiry {
         this.query = query;
     }
 
-    public int getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(int projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
 
