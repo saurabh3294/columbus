@@ -1,20 +1,17 @@
 package com.proptiger.data.model;
 
+import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.meta.ResourceMetaInfo;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
-import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
-
-/**
- * Locality entity class
- * @author Rajeev Pandey
- *
- */
 @Entity
 @Table(name = "LOCALITY")
 @ResourceMetaInfo(name = "Locality")
@@ -22,16 +19,19 @@ public class Locality {
 	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
 	@Column(name = "LOCALITY_ID")
 	@Id
-	private long id;
-
-	@FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
+	private long localityId;
+    
+	@FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")    
 	@Column(name = "SUBURB_ID")
 	private long suburbId;
-
+    
     @ManyToOne
     @JoinColumn(name="SUBURB_ID", insertable = false, updatable = false)
-	private Suburb suburb;
-
+	private Suburb suburb; 
+   
+	@Column(name = "CITY_ID")
+	private long cityId;
+        
 	@FieldMetaInfo( displayName = "Label",  description = "Label")
 	@Column(name = "LABEL")
 	private String label;
@@ -66,24 +66,54 @@ public class Locality {
 	@Column(name = "LONGITUDE")
 	private long longitude;
 	@FieldMetaInfo( displayName = "Wikimapia Id",  description = "Wikimapia Id")
-	@Column(name = "wikimapia_id")
-	private long wikimapiaID;
-
+	@Column(name = "wikimapia_id", nullable = true)
+	private Long wikimapiaID;
+        // These two column are not present in the table. They are used
+        // in custom queries.
+                
+        @OneToMany(mappedBy = "locality", targetEntity = Enquiry.class)
+        private Set<Enquiry> enquiry = new HashSet<Enquiry>();
+        
+        
+        public Set<Enquiry> getEnquiry(){
+            return this.enquiry;
+        }
+        
+        public void setEnquiry(Set<Enquiry> enquiry){
+            this.enquiry = enquiry;
+        }
+        
+        public void addEnquiry(Enquiry enquiry){
+            enquiry.setLocality(this);
+            getEnquiry().add(enquiry);
+        }
 	
+        public void removeEnquiry(Enquiry enquiry){
+            getEnquiry().remove(enquiry);
+        }
+        
 	public long getLocalityId() {
-		return id;
+		return localityId;
 	}
 
 	public void setLocalityId(long localityId) {
-		this.id = localityId;
+		this.localityId = localityId;
 	}
 
-	public long getSuburbID() {
+	public long getSuburbId() {
 		return suburbId;
 	}
 
-	public void setSuburbID(long suburbID) {
-		this.suburbId = suburbID;
+	public void setSuburbId(long suburbId) {
+		this.suburbId = suburbId;
+	}
+
+	public long getCityId() {
+		return cityId;
+	}
+
+	public void setCityId(long cityId) {
+		this.cityId = cityId;
 	}
 
 	public String getLabel() {

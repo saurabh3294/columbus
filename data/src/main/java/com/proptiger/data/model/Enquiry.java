@@ -8,7 +8,11 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
@@ -21,7 +25,7 @@ import javax.persistence.Table;
 public class Enquiry {
     @Column(name = "ID")
     @Id
-    private int id;
+    private long id;
     @Column(name = "NAME")
     private String name;
     @Column(name = "email")
@@ -32,20 +36,22 @@ public class Enquiry {
     private String countryOfResidence;
     @Column(name = "QUERY")
     private String query;
-    @Column(name = "PROJECT_ID")
-    private int projectId;
+    @Column(name = "PROJECT_ID", nullable = true)
+    private Long projectId;
     @Column(name = "PROJECT_NAME")
     private String projectName;
     @Column(name = "CITY_ID")
-    private int cityId;
+    private Integer cityId;
     @Column(name = "CITY_NAME")
     private String cityName;
-    @Column(name = "LOCALITY_ID")
+    @Column(name = "LOCALITY_ID", insertable = false, updatable = false, nullable = true)
     private int localityId;
     @Column(name = "IP")
     private String ip;
+    
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_DATE")
-    private String createdDate;
+    private Date createdDate;
     @Column(name = "SOURCE")
     private String source;
     @Column(name = "FORM_NAME")
@@ -85,6 +91,18 @@ public class Enquiry {
     @Column(name = "GA_TIMESPENT")
     private String gaTimespent;
     
+    @ManyToOne
+    @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID")
+    private Locality locality;
+
+    public Locality getLocality() {
+        return locality;
+    }
+
+    public void setLocality(Locality locality) {
+        this.locality = locality;
+    }
+    
     private enum buyPeriod  {
         NOW(0), LAST_90_DAYS(1), LAST_180_DAYS(2);
         int x;
@@ -105,7 +123,7 @@ public class Enquiry {
         PRIMARY, RESALE;
     }
     
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -153,11 +171,11 @@ public class Enquiry {
         this.query = query;
     }
 
-    public int getProjectId() {
+    public Long getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(int projectId) {
+    public void setProjectId(Long projectId) {
         this.projectId = projectId;
     }
 
@@ -201,11 +219,11 @@ public class Enquiry {
         this.ip = ip;
     }
 
-    public String getCreatedDate() {
+    public Date getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(String createdDate) {
+    public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
 

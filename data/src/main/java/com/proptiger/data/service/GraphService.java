@@ -4,20 +4,15 @@
  */
 package com.proptiger.data.service;
 
-import com.google.gson.Gson;
+import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.PropertyDao;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.NamedList;
-import org.apache.solr.common.util.SimpleOrderedMap;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +24,10 @@ import org.springframework.stereotype.Service;
 public class GraphService {
     @Autowired
     private PropertyDao propertyDao;
-        
+
+    @Resource
+    private LocalityDao localityDao;
+            
     public Map<String, Map<Integer, Integer>> getProjectDistrubtionOnStatus(Map<String, String> params){
         int bedroom_limit = Integer.parseInt( params.get("bedroom_upper_limit") );
         
@@ -107,10 +105,73 @@ public class GraphService {
         return response;
     }
     
-    public Object getEnquiryDistributionOnLocality(Map<String, String> params){
+    public Map<String, Double> getEnquiryDistributionOnLocality(Map<String, Object> params){
         
-        //return graphDao.getEnquiryDistributionOnLocality(params);
-        return new Object();
+        Double locationId = (Double)params.get("location_id");
+        String locationType = (String)params.get("location_type");
+        Double numberOfLocalities = (Double)params.get("number_of_localities");
+        Double lastNumberOfMonths = (Double)params.get("last_number_of_months");
+        Double cityId = (Double)params.get("city_id");
+        
+        Long timediff = lastNumberOfMonths.longValue()*30*24*60*60;
+        Long locationTypeMap, parentLocationId = locationId.longValue();
+        
+        locationType = locationType.toLowerCase();
+        switch(locationType)
+        {
+            case "locality":
+                locationTypeMap = 1L;
+                parentLocationId = cityId.longValue();
+                break;
+            case "suburb":
+                locationTypeMap = 2L;
+                break;
+            case "city":
+                locationTypeMap = 3L;
+                break;
+            default:
+                locationTypeMap = 3L;
+        }
+        
+        Long totalEnquiry = localityDao.findTotalEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId);
+        List<Object[]> localitiesData = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId);
+        Object[] currentLocalityData = null;
+        if(locationTypeMap == 1L)
+        {
+            currentLocalityData = localityDao.findEnquiryCountOnLoc(timediff, locationId.longValue());
+        }
+        
+        Map<String, Double> response = new LinkedHashMap<String, Double>();
+        Object[] data;
+        double sum=0;
+        double percentage;
+        boolean flag = true;
+        for(int i=0; i<localitiesData.size()&& i<numberOfLocalities; i++)
+        {
+            data = (Object[])localitiesData.get(i);
+            if(flag && currentLocalityData != null && (Long)currentLocalityData[2]>(Long)data[2] && !response.containsKey(currentLocalityData[1]))
+            {
+                flag = false;
+                percentage = (100*(Long)currentLocalityData[2])/totalEnquiry.doubleValue();
+                if(percentage > 1)
+                {
+                    sum += percentage;
+                    response.put((String)currentLocalityData[1], percentage);
+                }
+                
+            }
+            if(response.size() < numberOfLocalities )
+            {
+                percentage = (100*(Long)data[2])/totalEnquiry.doubleValue();
+                response.put((String)data[1], percentage);
+                if(currentLocalityData == null || currentLocalityData[1]!=data[1] || !response.containsKey(currentLocalityData[1]) )
+                    sum += percentage;
+            }
+        }
+        
+        response.put("Other Localities", 100-sum);
+               
+        return response;
     }
     
     public Map<String, Integer> getProjectDistributionOnPrice(Map<String, Object> params){
@@ -140,7 +201,6 @@ public class GraphService {
         while(solrDataFlag)
         {
             currentPrice = new Double(key).intValue();
-            System.out.println(currentPrice+" COUNT "+count);
             maxPrice = maxPrice<currentPrice? currentPrice: maxPrice;
             value = solrData.get(key);
             if(count == 0 && priceIt.hasNext())
@@ -179,7 +239,6 @@ public class GraphService {
                     oldRange = currentRange;
                     currentRange += range;
                     response.put(oldRange+"-"+currentRange, 0);
-                    //$projectCountsRange[$oldRange] = 0;
                 }
             } 
         }
@@ -191,9 +250,6 @@ public class GraphService {
             response.put(currentRange+"+", count);
         }
         
-        Gson gson = new Gson();
-        System.out.println(gson.toJson(response));
-        System.out.println(gson.toJson(solrData));
         return response;
     }
             

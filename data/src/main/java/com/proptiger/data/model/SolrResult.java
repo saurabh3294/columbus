@@ -440,7 +440,7 @@ private Builder builder = new Builder();
 
     @Field("SUBURB_ID")
     public void setSuburbId(long suburbId) {
-        locality.setSuburbID(suburbId);
+        locality.setSuburbId(suburbId);
         suburb.setId(suburbId);
     }
 
