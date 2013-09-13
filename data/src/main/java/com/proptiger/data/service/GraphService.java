@@ -4,27 +4,15 @@
  */
 package com.proptiger.data.service;
 
-import com.google.gson.Gson;
-import com.proptiger.data.model.Locality;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.PropertyDao;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import javax.annotation.Resource;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.NamedList;
-import org.apache.solr.common.util.SimpleOrderedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class GraphService {
     @Autowired
     private PropertyDao propertyDao;
+
     @Resource
     private LocalityDao localityDao;
             
@@ -137,7 +126,7 @@ public class GraphService {
             case "suburb":
                 locationTypeMap = 2L;
                 break;
-            case "CITY":
+            case "city":
                 locationTypeMap = 3L;
                 break;
             default:

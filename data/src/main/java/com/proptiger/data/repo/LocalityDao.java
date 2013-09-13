@@ -5,14 +5,10 @@
 package com.proptiger.data.repo;
 
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.Enquiry;
-import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 import org.jboss.logging.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 /**
  *
