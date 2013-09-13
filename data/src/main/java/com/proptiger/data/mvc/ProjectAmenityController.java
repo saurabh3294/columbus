@@ -9,28 +9,22 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.meta.ResourceModelMeta;
+import com.proptiger.data.model.Amenity;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.service.MetaService;
+import com.proptiger.data.service.ProjectAmenityService;
 
-/**
- * @author Rajeev Pandey
- *
- */
 @Controller
-@RequestMapping(value = "v1/resource/meta")
-public class MetaController {	
+@RequestMapping(value = "v1/entity/amenity")
+public class ProjectAmenityController {
+
 	@Autowired
-	private MetaService metaService;
+	private ProjectAmenityService amenityService;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public ProAPIResponse getAllResourceMeta(
-			@RequestParam(value ="resourceName", required = false) String resourceName) {
-
-		List<ResourceModelMeta> resourceMetaList = metaService
-				.getResourceMeta(resourceName);
-		return new ProAPISuccessResponse(resourceMetaList);
+	public ProAPIResponse getProjectAmenities(@RequestParam(required = true, value = "projectId") Long projectId){
+		List<String> list = amenityService.getAmenitiesByProjectId(projectId);
+		return new ProAPISuccessResponse(list);
 	}
 }

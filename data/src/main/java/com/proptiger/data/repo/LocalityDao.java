@@ -5,6 +5,7 @@
 package com.proptiger.data.repo;
 
 import com.proptiger.data.model.Locality;
+import java.io.Serializable;
 import java.util.List;
 import org.jboss.logging.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +15,6 @@ import org.springframework.data.jpa.repository.Query;
  *
  * @author mukand
  */
-
 public interface LocalityDao extends JpaRepository<Locality, Long>{
     
     @Query("SELECT COUNT(*) "

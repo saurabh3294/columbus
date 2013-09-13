@@ -23,7 +23,7 @@ public class PropertyService {
     @Autowired
     PropertyDao propertyDao;
 
-    private static Logger logger = LoggerFactory.getLogger("project.review");
+    private static Logger logger = LoggerFactory.getLogger("property");
     
     public List<Property> getProperties(Selector propertyFilter) {
     	if(logger.isDebugEnabled()){

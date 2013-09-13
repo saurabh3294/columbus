@@ -14,39 +14,30 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class Typeahead {
     @Field(value="id")
-    @JsonProperty(value="id")
     private String id;
     
     @Field(value="TYPEAHEAD_LABEL")
-    @JsonProperty(value="typeahead_label")  
     private String typeahead_label;
     
     @Field(value="TYPEAHEAD_LABEL_NGRAMS")
-    @JsonProperty(value="typeahead_label_ngrams")  
     private String typeahead_label_ngrams;
     
     @Field(value="TYPEAHEAD_CITY")
-    @JsonProperty(value="typeahead_city")  
     private String typeahead_city;
     
     @Field(value="TYPEAHEAD_REDIRECT_URL")
-    @JsonProperty(value="typeahead_redirect_url")  
     private String typeahead_redirect_url;
     
     @Field(value="TYPEAHEAD_TYPE")
-    @JsonProperty(value="typeahead_type")  
     private String typeahead_type;
     
     @Field(value="TYPEAHEAD_DISPLAY_TEXT")
-    @JsonProperty(value="typeahead_display_text")  
     private String typeahead_display_text;
     
     @Field(value="TYPEAHEAD_CORE_TEXT")
-    @JsonProperty(value="typeahead_core_text")  
     private String typeahead_core_text;
     
     @Field(value="TYPEAHEAD_CORE_TEXT_NGRAMS")
-    @JsonProperty(value="typeahead_core_text_ngrams")  
     private String typeahead_core_text_ngrams;
 
     public String getId() {

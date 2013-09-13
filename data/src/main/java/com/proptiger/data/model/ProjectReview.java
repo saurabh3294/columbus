@@ -8,6 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  * @author Rajeev Pandey
@@ -15,44 +17,56 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @Entity
 @Table(name = "REVIEW_COMMENTS")
+@ResourceMetaInfo(name = "Project Review")
 public class ProjectReview {
 
+	@FieldMetaInfo( displayName = "Comment Id",  description = "Comment Id")
 	@Column(name = "COMMENT_ID")
-	@JsonProperty(value = "comment_id")
 	@Id
 	private long commentId;
+	
+	@FieldMetaInfo( displayName = "User Id",  description = "User Id")
 	@Column(name = "USER_ID")
-	@JsonProperty(value = "user_id")
 	private long userId;
+	
+	@FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
 	@Column(name = "PROJECT_ID")
-	@JsonProperty(value = "project_id")
 	private long projectId;
+	
+	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
 	@Column(name = "LOCALITY_ID")
-	@JsonProperty(value = "locality_id")
 	private long localityId;
+	
+	@FieldMetaInfo( displayName = "Likes Count",  description = "Likes Count")
 	@Column(name = "LIKES_COUNT")
-	@JsonProperty(value = "likes_count")
 	private long likesCount;
+	
+	@FieldMetaInfo( displayName = "Review Label",  description = "Review Label")
 	@Column(name = "REVIEW_LABEL")
-	@JsonProperty(value = "review_label")
 	private String reviewLabel;
+	
+	@FieldMetaInfo( displayName = "Review",  description = "Review")
 	@Column(name = "REVIEW")
-	@JsonProperty(value = "review")
 	private String review;
+	
+	@FieldMetaInfo( displayName = "Recommend",  description = "Recommend")
 	@Column(name = "RECOMMEND")
-	@JsonProperty(value = "recommend")
 	private String recommend;
+	
+	@FieldMetaInfo( displayName = "You Know",  description = "You Know")
 	@Column(name = "YOU_KNOW")
-	@JsonProperty(value = "you_know")
 	private int youKnow;
+	
+	@FieldMetaInfo( displayName = "Comment Time",  description = "Comment Time")
 	@Column(name = "COMMENTTIME")
-	@JsonProperty(value = "commenttime")
 	private Date commentTime;
+	
+	@FieldMetaInfo( displayName = "User Name",  description = "User Name")
 	@Column(name = "USER_NAME")
-	@JsonProperty(value = "user_name")
 	private String userName;
+	
+	@FieldMetaInfo( displayName = "Status",  description = "Status")
 	@Column(name = "STATUS")
-	@JsonProperty(value = "status")
 	private int status;
 
 	public long getCommentId() {

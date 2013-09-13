@@ -7,56 +7,68 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 @Table(name = "LOCALITY")
-/*@NamedQueries({
-    @NamedQuery(name="Locality.findEnquiry",
-        query = "select -1 as locality_id, '' as label, count(*), 'total' from LOCALITY AS L"
-        + " JOIN ENQUIRY AS E ON (E.LOCALITY_ID=L.LOCALITY_ID)")
-})*/
+@ResourceMetaInfo(name = "Locality")
 public class Locality {
+	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
 	@Column(name = "LOCALITY_ID")
 	@Id
 	private long localityId;
-        
+    
+	@FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")    
 	@Column(name = "SUBURB_ID")
 	private long suburbId;
-        
+    
+    @ManyToOne
+    @JoinColumn(name="SUBURB_ID", insertable = false, updatable = false)
+	private Suburb suburb; 
+   
 	@Column(name = "CITY_ID")
 	private long cityId;
         
+	@FieldMetaInfo( displayName = "Label",  description = "Label")
 	@Column(name = "LABEL")
 	private String label;
+	@FieldMetaInfo( displayName = "Title",  description = "Title")
 	@Column(name = "META_TITLE")
 	private String title;
+	@FieldMetaInfo( displayName = "Keywords",  description = "Keywords")
 	@Column(name = "META_KEYWORDS")
 	private String keywords;
+	@FieldMetaInfo( displayName = "Meta Description",  description = "Meta Description")
 	@Column(name = "META_DESCRIPTION")
 	private String metaDescription;
+	@FieldMetaInfo( displayName = "Url",  description = "Url")
 	@Column(name = "URL")
 	private String url;
+	@FieldMetaInfo( displayName = "Active",  description = "Active")
 	@Column(name = "ACTIVE")
 	private int active;
+	@FieldMetaInfo( displayName = "Deleted Flag",  description = "Deleted Flag")
 	@Column(name = "DELETED_FLAG")
 	private int deletedFlag;
+	@FieldMetaInfo( displayName = "Description",  description = "Description")
 	@Column(name = "DESCRIPTION")
 	private String description;
+	@FieldMetaInfo( displayName = "Priority",  description = "Priority")
 	@Column(name = "PRIORITY")
 	private int priority;
+	@FieldMetaInfo( displayName = "Latitude",  description = "Latitude")
 	@Column(name = "LATITUDE")
 	private long latitude;
+	@FieldMetaInfo( displayName = "Longitude",  description = "Longitude")
 	@Column(name = "LONGITUDE")
 	private long longitude;
+	@FieldMetaInfo( displayName = "Wikimapia Id",  description = "Wikimapia Id")
 	@Column(name = "wikimapia_id", nullable = true)
 	private Long wikimapiaID;
         // These two column are not present in the table. They are used
         // in custom queries.
-        /*@Column(name = "ENQUIRY_COUNT")
-        private int enquiryCount;
-        @Column(name = "QUERY_TYPE")
-        private String queryType;*/
-        
+                
         @OneToMany(mappedBy = "locality", targetEntity = Enquiry.class)
         private Set<Enquiry> enquiry = new HashSet<Enquiry>();
         
@@ -198,21 +210,13 @@ public class Locality {
 		this.wikimapiaID = wikimapiaID;
 	}
 
-    /*public int getEnquiryCount() {
-        return enquiryCount;
+    public Suburb getSuburb() {
+        return suburb;
     }
 
-    public void setEnquiryCount(int enquiryCount) {
-        this.enquiryCount = enquiryCount;
+    public void setSuburb(Suburb suburb) {
+        this.suburb = suburb;
     }
-
-    public String getQueryType() {
-        return queryType;
-    }
-
-    public void setQueryType(String queryType) {
-        this.queryType = queryType;
-    }*/
 	
 	
 

@@ -3,6 +3,7 @@ package com.proptiger.data.repo;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.LocalityReview;
 
@@ -12,6 +13,7 @@ import com.proptiger.data.model.LocalityReview;
  * @author Rajeev Pandey
  *
  */
+@Repository
 public interface LocalityReviewDao extends JpaRepository<LocalityReview, Long>{
 
 	/**

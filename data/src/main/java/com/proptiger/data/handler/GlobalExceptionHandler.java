@@ -2,6 +2,7 @@ package com.proptiger.data.handler;
 
 import javax.persistence.PersistenceException;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -33,8 +34,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleGenericException(Exception ex){
-		logger.error("handleGenericException - Caching "+ex);
-		logger.error("handleGenericException - Caching "+ex.getCause());
+		logger.error("handleGenericException - Caching ",ex);
 		
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleDatabaseException(PersistenceException ex) {
-		logger.error("handleDatabaseException - Caching " + ex);
+		logger.error("handleDatabaseException - Caching ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
 				ResponseErrorMessages.DATABASE_CONNECTION_ERROR);
 	}
@@ -53,10 +53,19 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleConversionNotSupportedException(ConversionNotSupportedException ex){
-		logger.error("handleConversionNotSupportedException - Caching "+ex);
+		logger.error("handleConversionNotSupportedException - Caching ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_CONVERSION_ERROR,
 				ResponseErrorMessages.REQUEST_PARAM_CONVERSION_ERROR);
 		
+	}
+	
+	@ExceptionHandler(SolrServerException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleSolrException(SolrServerException exception) {
+		logger.error("handleSolrException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
+				ResponseErrorMessages.SOLR_DOWN);
 	}
 	
 	

@@ -7,11 +7,16 @@ package com.proptiger.data.meta;
 public enum DataType {
 
 	STRING("String"),
-	INTEGER("Integer"),
+	INTEGER("Int"),
 	DOUBLE("Double"),
+	FLOAT("Float"),
 	LONG("Long"),
 	DATE("Date"),
-	CURRENCY("currency");
+	CURRENCY("Currency"),
+	BOOLEAN("Boolean"),
+	
+	DEFAULT("Default");
+	
 	
 	private String type;
 	
@@ -25,6 +30,20 @@ public enum DataType {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	public static DataType valueOfIgnoreCase(String typeStr){
+		if(typeStr != null && typeStr.contains(".")){
+			String[] arr = typeStr.split("\\.");
+			typeStr = arr[arr.length - 1];
+		}
+		for(DataType dt: values()){
+			if(dt.getType().equalsIgnoreCase(typeStr)){
+				return dt;
+			}
+				
+		}
+		throw new IllegalArgumentException("Illegal DataType string "+typeStr);
 	}
 	
 	@Override
