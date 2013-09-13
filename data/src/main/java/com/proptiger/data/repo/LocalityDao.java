@@ -13,5 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author mukand
  */
 public interface LocalityDao extends JpaRepository<Locality, Long>{
-    
+
 }

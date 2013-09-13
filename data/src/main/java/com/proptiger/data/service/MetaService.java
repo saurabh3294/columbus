@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.EntityManager;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.TypeAnnotationsScanner;
@@ -78,7 +77,7 @@ public class MetaService {
 					fieldMetaData.setDisplayName((String) AnnotationUtils
 							.getAnnotationAttributes(fieldAnnotation).get(
 									DISPLAY_NAME));
-					fieldMetaData.setEditable((boolean) AnnotationUtils
+					fieldMetaData.setEditable((Boolean) AnnotationUtils
 							.getAnnotationAttributes(fieldAnnotation).get(
 									EDITABLE));
 					fieldMetaData.setName((String) AnnotationUtils

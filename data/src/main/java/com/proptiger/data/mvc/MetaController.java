@@ -3,9 +3,7 @@ package com.proptiger.data.mvc;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,18 +20,9 @@ import com.proptiger.data.service.MetaService;
  */
 @Controller
 @RequestMapping(value = "v1/resource/meta")
-public class MetaController {
-	
+public class MetaController {	
 	@Autowired
 	private MetaService metaService;
-
-	/*@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public  ProAPIResponse getAllResourceMeta(){
-		
-		List<ResourceModelMeta> list = metaService.getAllResourceMeta();
-		return new ProAPISuccessResponse(list);
-	}*/
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
