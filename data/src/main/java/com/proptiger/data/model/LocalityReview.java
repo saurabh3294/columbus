@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -20,58 +18,46 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo(name = "Locality Review")
 public class LocalityReview {
 
-	@FieldMetaInfo(name = "review_id", displayName = "Review Id", dataType = DataType.STRING, description = "Review Id")
+	@FieldMetaInfo( displayName = "Review Id",  description = "Review Id")
 	@Column(name = "REVIEW_ID")
-	@JsonProperty(value = "review_id")
 	@Id
 	private long reviewId;
-	@FieldMetaInfo(name = "user_id", displayName = "User Id", dataType = DataType.STRING, description = "User Id")
+	@FieldMetaInfo( displayName = "User Id",  description = "User Id")
 	@Column(name = "USER_ID")
-	@JsonProperty(value = "user_id")
 	private long userId;
-	@FieldMetaInfo(name = "locality_id", displayName = "Locality Id", dataType = DataType.STRING, description = "Locality Id")
+	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
 	@Column(name = "LOCALITY_ID")
-	@JsonProperty(value = "locality_id")
 	private long localityId;
-	@FieldMetaInfo(name = "overall_rating", displayName = "Overall Rating", dataType = DataType.STRING, description = "Overall Rating")
+	@FieldMetaInfo( displayName = "Overall Rating",  description = "Overall Rating")
 	@Column(name = "OVERALL_RATING")
-	@JsonProperty(value = "overall_rating")
 	private float overallRating;
-	@FieldMetaInfo(name = "location", displayName = "Location", dataType = DataType.STRING, description = "Location")
+	@FieldMetaInfo( displayName = "Location",  description = "Location")
 	@Column(name = "LOCATION")
-	@JsonProperty(value = "location")
+	
 	private float location;
-	@FieldMetaInfo(name = "safety", displayName = "Safety", dataType = DataType.STRING, description = "Safety")
+	@FieldMetaInfo( displayName = "Safety",  description = "Safety")
 	@Column(name = "SAFETY")
-	@JsonProperty(value = "safety")
+	
 	private float safety;
-	@FieldMetaInfo(name = "pub_trans", displayName = "Public Transport", dataType = DataType.STRING, description = "Public Transport")
+	@FieldMetaInfo( displayName = "Public Transport",  description = "Public Transport")
 	@Column(name = "PUB_TRANS")
-	@JsonProperty(value = "pub_trans")
 	private float pubTrans;
-	@FieldMetaInfo(name = "rest_shop", displayName = "Rest Shop", dataType = DataType.STRING, description = "Rest Shop")
+	@FieldMetaInfo( displayName = "Rest Shop",  description = "Rest Shop")
 	@Column(name = "REST_SHOP")
-	@JsonProperty(value = "rest_shop")
 	private float restShop;
-	@FieldMetaInfo(name = "schools", displayName = "Schools", dataType = DataType.STRING, description = "Schools")
+	@FieldMetaInfo( displayName = "Schools",  description = "Schools")
 	@Column(name = "SCHOOLS")
-	@JsonProperty(value = "schools")
 	private float schools;
-	@FieldMetaInfo(name = "parks", displayName = "Parks", dataType = DataType.STRING, description = "Parks")
+	@FieldMetaInfo( displayName = "Parks",  description = "Parks")
 	@Column(name = "PARKS")
-	@JsonProperty(value = "parks")
 	private float parks;
-	@FieldMetaInfo(name = "traffic", displayName = "Traffic", dataType = DataType.STRING, description = "Traffic")
+	@FieldMetaInfo( displayName = "Traffic",  description = "Traffic")
 	@Column(name = "TRAFFIC")
-	@JsonProperty(value = "traffic")
 	private float traffic;
-	@FieldMetaInfo(name = "hospitals", displayName = "Hospitals", dataType = DataType.STRING, description = "Hospitals")
+	@FieldMetaInfo( displayName = "Hospitals",  description = "Hospitals")
 	@Column(name = "HOSPITALS")
-	@JsonProperty(value = "hospitals")
 	private float hospitals;
-	@FieldMetaInfo(name = "civic", displayName = "Civic", dataType = DataType.STRING, description = "Civic")
-	@Column(name = "CIVIC")
-	@JsonProperty(value = "civic")
+	@FieldMetaInfo( displayName = "Civic",  description = "Civic")
 	private float civic;
 
 	public long getReviewId() {

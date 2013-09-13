@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldMetaInfo {
 	public static final String DEF_NAME = "Default";
-	String name() ;
+	String name() default DEF_NAME;
 	String displayName();
 	String description() ;
 	DataType dataType() default DataType.DEFAULT;

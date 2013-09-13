@@ -17,19 +17,15 @@ public class WordpressPost {
 
 	@Id
 	@Column(name = "ID")
-	@JsonProperty(value = "id")
 	private long id;
 	
 	@Column(name = "post_title")
-	@JsonProperty(value = "post_title")
 	private String postTitle;
 	
 	@Column(name = "post_content")
-	@JsonProperty(value = "post_content")
 	private String postContent;
 	
 	@Column(name = "guid")
-	@JsonProperty(value = "guid")
 	private String guid;
 	
 

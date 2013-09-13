@@ -5,8 +5,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -19,54 +17,51 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "LOCALITY")
 @ResourceMetaInfo(name = "Locality")
 public class Locality {
-	@FieldMetaInfo(name = "localityId", displayName = "Locality Id", dataType = DataType.INTEGER, description = "Locality Id")
+	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
 	@Column(name = "LOCALITY_ID")
 	@Id
-	@JsonProperty
 	private long id;
 
-	@FieldMetaInfo(name = "suburbId", displayName = "Suburb Id", dataType = DataType.INTEGER, description = "Suburb Id")
+	@FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
 	@Column(name = "SUBURB_ID")
-	@JsonProperty
 	private long suburbId;
 
-	@JsonProperty
 	private Suburb suburb;
 
-	@FieldMetaInfo(name = "label", displayName = "Label", dataType = DataType.STRING, description = "Label")
+	@FieldMetaInfo( displayName = "Label",  description = "Label")
 	@Column(name = "LABEL")
 	private String label;
-	@FieldMetaInfo(name = "title", displayName = "Title", dataType = DataType.STRING, description = "Title")
+	@FieldMetaInfo( displayName = "Title",  description = "Title")
 	@Column(name = "META_TITLE")
 	private String title;
-	@FieldMetaInfo(name = "keywords", displayName = "Keywords", dataType = DataType.STRING, description = "Keywords")
+	@FieldMetaInfo( displayName = "Keywords",  description = "Keywords")
 	@Column(name = "META_KEYWORDS")
 	private String keywords;
-	@FieldMetaInfo(name = "metaDescription", displayName = "Meta Description", dataType = DataType.STRING, description = "Meta Description")
+	@FieldMetaInfo( displayName = "Meta Description",  description = "Meta Description")
 	@Column(name = "META_DESCRIPTION")
 	private String metaDescription;
-	@FieldMetaInfo(name = "url", displayName = "Url", dataType = DataType.STRING, description = "Url")
+	@FieldMetaInfo( displayName = "Url",  description = "Url")
 	@Column(name = "URL")
 	private String url;
-	@FieldMetaInfo(name = "active", displayName = "Active", dataType = DataType.INTEGER, description = "Active")
+	@FieldMetaInfo( displayName = "Active",  description = "Active")
 	@Column(name = "ACTIVE")
 	private int active;
-	@FieldMetaInfo(name = "deletedFlag", displayName = "Deleted Flag", dataType = DataType.INTEGER, description = "Deleted Flag")
+	@FieldMetaInfo( displayName = "Deleted Flag",  description = "Deleted Flag")
 	@Column(name = "DELETED_FLAG")
 	private int deletedFlag;
-	@FieldMetaInfo(name = "description", displayName = "Description", dataType = DataType.STRING, description = "Description")
+	@FieldMetaInfo( displayName = "Description",  description = "Description")
 	@Column(name = "DESCRIPTION")
 	private String description;
-	@FieldMetaInfo(name = "priority", displayName = "Priority", dataType = DataType.INTEGER, description = "Priority")
+	@FieldMetaInfo( displayName = "Priority",  description = "Priority")
 	@Column(name = "PRIORITY")
 	private int priority;
-	@FieldMetaInfo(name = "latitude", displayName = "Latitude", dataType = DataType.LONG, description = "Latitude")
+	@FieldMetaInfo( displayName = "Latitude",  description = "Latitude")
 	@Column(name = "LATITUDE")
 	private long latitude;
-	@FieldMetaInfo(name = "longitude", displayName = "Longitude", dataType = DataType.LONG, description = "Longitude")
+	@FieldMetaInfo( displayName = "Longitude",  description = "Longitude")
 	@Column(name = "LONGITUDE")
 	private long longitude;
-	@FieldMetaInfo(name = "wikimapiaID", displayName = "Wikimapia Id", dataType = DataType.LONG, description = "Wikimapia Id")
+	@FieldMetaInfo( displayName = "Wikimapia Id",  description = "Wikimapia Id")
 	@Column(name = "wikimapia_id")
 	private long wikimapiaID;
 

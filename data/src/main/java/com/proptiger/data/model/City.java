@@ -16,43 +16,37 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "CITY")
 @ResourceMetaInfo(name = "City")
 public class City {
-    @FieldMetaInfo(name = "cityId", displayName = "City Id", dataType = DataType.LONG, description = "City Id")
+    @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")
     @Id
     private long id;
 
-    @FieldMetaInfo(name = "label", displayName = "Label", dataType = DataType.STRING, description = "City label")
+    @FieldMetaInfo( displayName = "Label",  description = "City label")
     @Column(name = "LABEL")
     private String label;
 
-    @FieldMetaInfo(name = "northEastLatitude", displayName = "North east latitude", dataType = DataType.FLOAT, description = "North east latitude")
+    @FieldMetaInfo( displayName = "North east latitude",  description = "North east latitude")
     @Field(value="NORTH_EAST_LATITUDE")
-    @JsonProperty
     private float northEastLatitude;
     
-    @FieldMetaInfo(name = "northEastLongitude", displayName = "North east longitude", dataType = DataType.FLOAT, description = "North east longitude")
+    @FieldMetaInfo( displayName = "North east longitude",  description = "North east longitude")
     @Field(value="NORTH_EAST_LONGITUDE")
-    @JsonProperty
     private float northEastLongitude;
     
-    @FieldMetaInfo(name = "southWestLatitude", displayName = "South west latitude", dataType = DataType.FLOAT, description = "South west latitude")
+    @FieldMetaInfo( displayName = "South west latitude",  description = "South west latitude")
     @Field(value="SOUTH_WEST_LATITUDE")
-    @JsonProperty
     private float southWestLatitude;
     
-    @FieldMetaInfo(name = "southWestLongitude", displayName = "South west longitude", dataType = DataType.FLOAT, description = "South west latitude")
+    @FieldMetaInfo( displayName = "South west longitude",  description = "South west latitude")
     @Field(value="SOUTH_WEST_LONGITUDE")
-    @JsonProperty
     private float southWestLongitude;
     
-    @FieldMetaInfo(name = "centerLatitude", displayName = "Center latitude", dataType = DataType.FLOAT, description = "Center latitude")
+    @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
     @Field(value="CENTER_LATITUDE")
-    @JsonProperty
     private float centerLatitude;
     
-    @FieldMetaInfo(name = "centerLatitude", displayName = "Center latitude", dataType = DataType.FLOAT, description = "Center latitude")
+    @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
     @Field(value="CENTER_LONGITUDE")
-    @JsonProperty
     private float centerLongitude;
 
     public long getId() {

@@ -15,20 +15,17 @@ import com.proptiger.data.meta.FieldMetaInfo;
  *
  */
 public class Builder {
-    @FieldMetaInfo(name = "builderId", displayName = "Builder Id", dataType = DataType.LONG, description = "Builder Id")
+    @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
     @Column(name = "BUILDER_ID")
     @Id
-    @JsonProperty
     private long id;
 
-    @FieldMetaInfo(name = "name", displayName = "Name", dataType = DataType.STRING, description = "Builder Name")
+    @FieldMetaInfo( displayName = "Name",  description = "Builder Name")
     @Column(name = "BUILDER_NAME")
-    @JsonProperty
     private String name;
 
-    @FieldMetaInfo(name = "image", displayName = "Image", dataType = DataType.STRING, description = "Builder Image URL")
+    @FieldMetaInfo( displayName = "Image",  description = "Builder Image URL")
     @Column(name = "BUILDER_IMAGE")
-    @JsonProperty
     private String imageUrl;
 
     public long getId() {

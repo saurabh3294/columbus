@@ -10,8 +10,6 @@ import javax.persistence.Id;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 
 /**
@@ -19,12 +17,12 @@ import com.proptiger.data.meta.FieldMetaInfo;
  *
  */
 public class SolrResult {
-    private Property property = new Property();
-    private Project project = new Project();
-    private Locality locality = new Locality();
-    private Suburb suburb = new Suburb();
-    private City city = new City();
-    private Builder builder = new Builder();
+private Property property = new Property();
+private Project project = new Project();
+private Locality locality = new Locality();
+private Suburb suburb = new Suburb();
+private City city = new City();
+private Builder builder = new Builder();
 
     public SolrResult() {
         property.setProject(project);
@@ -34,259 +32,212 @@ public class SolrResult {
         suburb.setCity(city);
     }
     
-    @FieldMetaInfo(name = "id", displayName = "Id", dataType = DataType.LONG, description = "Property Id")
+    @FieldMetaInfo( displayName = "Id",  description = "Property Id")
     @Field(value="TYPE_ID")
-    @JsonProperty
     private long typeId;
 
-    @FieldMetaInfo(name = "bedrooms", displayName = "Bedrooms", dataType = DataType.INTEGER, description = "Number of bedrooms")
+    @FieldMetaInfo( displayName = "Bedrooms",  description = "Number of bedrooms")
     @Field(value="BEDROOMS")
-    @JsonProperty
     private int bedrooms;
     
-    @FieldMetaInfo(name = "bathrooms", displayName = "Bathrooms", dataType = DataType.INTEGER, description = "Number of bathrooms")
+    @FieldMetaInfo( displayName = "Bathrooms",  description = "Number of bathrooms")
     @Field(value="BATHROOMS")
-    @JsonProperty
     private int bathrooms;    
     
-    @FieldMetaInfo(name = "unitType", displayName = "Unit type", dataType = DataType.STRING, description = "Unit type")
+    @FieldMetaInfo( displayName = "Unit type",  description = "Unit type")
     @Field(value="UNIT_TYPE")
-    @JsonProperty
     private String unitType;
     
-    @FieldMetaInfo(name = "unitName", displayName = "Unit name", dataType = DataType.STRING, description = "Unit name")
+    @FieldMetaInfo( displayName = "Unit name",  description = "Unit name")
     @Field(value="UNIT_NAME")
-    @JsonProperty
     private String unitName;
 
-    @FieldMetaInfo(name = "pricePerUnitArea", displayName = "Price per unit area", dataType = DataType.CURRENCY, description = "Price per unit area")
-    @JsonProperty
+    @FieldMetaInfo( displayName = "Price per unit area",  description = "Price per unit area")
     @Field(value="PRICE_PER_UNIT_AREA")
     private float pricePerUnitArea;
 
-    @FieldMetaInfo(name = "size", displayName = "Size", dataType = DataType.FLOAT, description = "Size")
+    @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
-    @JsonProperty
     private float size;
 
-    @FieldMetaInfo(name = "measure", displayName = "Measure", dataType = DataType.STRING, description = "Measure")
+    @FieldMetaInfo( displayName = "Measure",  description = "Measure")
     @Field(value="MEASURE")
-    @JsonProperty
     private String measure;
 
-    @FieldMetaInfo(name = "URL", displayName = "URL", dataType = DataType.STRING, description = "URL")
+    @FieldMetaInfo( displayName = "URL",  description = "URL")
     @Field(value="PROPERTY_URL")
-    @JsonProperty
     private String propertyURL;
-    @FieldMetaInfo(name = "id", displayName = "Id", dataType = DataType.LONG, description = "Project Id")
+    @FieldMetaInfo( displayName = "Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
-    @JsonProperty
     private long projectId;
 
-    @FieldMetaInfo(name = "localityId", displayName = "Locality Id", dataType = DataType.LONG, description = "Locality Id")
+    @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
-    @JsonProperty
     private long localityId;
 
-    @FieldMetaInfo(name = "builderId", displayName = "Builder Id", dataType = DataType.LONG, description = "Builder Id")
+    @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
-    @JsonProperty
     private long builderId;
 
-    @FieldMetaInfo(name = "name", displayName = "Project Name", dataType = DataType.STRING, description = "Project Name")
+    @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
     @Field(value = "PROJECT_NAME")
-    @JsonProperty
     private String projectName;
 
-    @FieldMetaInfo(name = "unitTypes", displayName = "Project Types", dataType = DataType.STRING, description = "Project Types")
+    @FieldMetaInfo( displayName = "Project Types",  description = "Project Types")
     @Field(value = "PROJECT_TYPES")
-    @JsonProperty
     private String unitTypes;
 
-    @FieldMetaInfo(name = "launchDate", displayName = "Launch Date", dataType = DataType.DATE, description = "Launch Date")
+    @FieldMetaInfo( displayName = "Launch Date",  description = "Launch Date")
     @Field(value = "VALID_LAUNCH_DATE")
-    @JsonProperty
     private Date launchDate;
 
-    @FieldMetaInfo(name = "address", displayName = "Address", dataType = DataType.STRING, description = "Address")
+    @FieldMetaInfo( displayName = "Address",  description = "Address")
     @Field(value = "PROJECT_ADDRESS")
-    @JsonProperty
     private String address;
 
-    @FieldMetaInfo(name = "computedPriority", displayName = "Computed Priority", dataType = DataType.FLOAT, description = "Computed Priority")
+    @FieldMetaInfo( displayName = "Computed Priority",  description = "Computed Priority")
     @Field(value = "PROJECT_PRIORITY")
-    @JsonProperty
     private float computedPriority;
 
-    @FieldMetaInfo(name = "assignedPriority", displayName = "Assigned Priority", dataType = DataType.INTEGER, description = "Assigned Priority")
+    @FieldMetaInfo( displayName = "Assigned Priority",  description = "Assigned Priority")
     @Field(value = "DISPLAY_ORDER")
-    @JsonProperty
     private float assignedPriority;
 
-    @FieldMetaInfo(name = "assignedLocalityPriority", displayName = "Assigned Locality Priority", dataType = DataType.INTEGER, description = "Assigned Locality Priority")
+    @FieldMetaInfo( displayName = "Assigned Locality Priority",  description = "Assigned Locality Priority")
     @Field(value = "DISPLAY_ORDER_LOCALITY")
-    @JsonProperty
     private float assignedLocalityPriority;
 
-    @FieldMetaInfo(name = "assignedSuburbPriority", displayName = "Assigned Suburb Priority", dataType = DataType.INTEGER, description = "Assigned Suburb Priority")
+    @FieldMetaInfo( displayName = "Assigned Suburb Priority",  description = "Assigned Suburb Priority")
     @Field(value = "DISPLAY_ORDER_SUBURB")
-    @JsonProperty
     private float assignedSuburbPriority;
 
-    @FieldMetaInfo(name = "completionDate", displayName = "Completion Date", dataType = DataType.DATE, description = "Completion Date")
+    @FieldMetaInfo( displayName = "Completion Date",  description = "Completion Date")
     @Field(value = "COMPLETION_DATE")
-    @JsonProperty
     private String completionDate;
 
-    @FieldMetaInfo(name = "submittedDate", displayName = "Submitted Date", dataType = DataType.DATE, description = "Submitted Date")
+    @FieldMetaInfo( displayName = "Submitted Date",  description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
-    @JsonProperty
     private Date submittedDate;
 
-    @FieldMetaInfo(name = "projectImageURL", displayName = "Image URL", dataType = DataType.STRING, description = "Image URL")
+    @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
     @Field(value = "PROJECT_SMALL_IMAGE")
-    @JsonProperty
     private String projectImageURL;
 
-    @FieldMetaInfo(name = "offer", displayName = "Offer", dataType = DataType.STRING, description = "Offer")
+    @FieldMetaInfo( displayName = "Offer",  description = "Offer")
     @Field(value = "OFFER")
-    @JsonProperty(value = "offer")
     private String offer;
 
-    @FieldMetaInfo(name = "offer_heading", displayName = "Offer Heading", dataType = DataType.STRING, description = "Offer Heading")
+    @FieldMetaInfo( displayName = "Offer Heading",  description = "Offer Heading")
     @Field(value = "OFFER_HEADING")
-    @JsonProperty(value = "offer_heading")
     private String offerHeading;
 
-    @FieldMetaInfo(name = "offer_desc", displayName = "Offer Description", dataType = DataType.STRING, description = "Offer Description")
+    @FieldMetaInfo( displayName = "Offer Description",  description = "Offer Description")
     @Field(value = "OFFER_DESC")
-    @JsonProperty(value = "offer_desc")
     private String offerDesc;
 
-    @FieldMetaInfo(name = "URL", displayName = "URL", dataType = DataType.STRING, description = "URL")
+    @FieldMetaInfo( displayName = "URL",  description = "URL")
     @Field(value = "PROJECT_URL")
-    @JsonProperty
     private String projectURL;
 
-    @FieldMetaInfo(name = "latitude", displayName = "Latitude", dataType = DataType.FLOAT, description = "Latitude")
+    @FieldMetaInfo( displayName = "Latitude",  description = "Latitude")
     @Field(value = "LATITUDE")
-    @JsonProperty(value = "latitude")
     private float latitude;
 
-    @FieldMetaInfo(name = "longitude", displayName = "Longitude", dataType = DataType.FLOAT, description = "Longitude")
+    @FieldMetaInfo( displayName = "Longitude",  description = "Longitude")
     @Field(value = "LONGITUDE")
-    @JsonProperty(value = "longitude")
     private float longitude;
 
-    @FieldMetaInfo(name = "minPricePerUnitArea", displayName = "Min Price Per Unit Area", dataType = DataType.FLOAT, description = "Min Price Per Unit Area")
+    @FieldMetaInfo( displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
     @Field(value = "MIN_PRICE_PER_UNIT_AREA")
-    @JsonProperty
     private float minPricePerUnitArea;
 
-    @FieldMetaInfo(name = "maxPricePerUnitArea", displayName = "Max Price Per Unit Area", dataType = DataType.FLOAT, description = "Max Price Per Unit Area")
+    @FieldMetaInfo( displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
     @Field(value = "MAX_PRICE_PER_UNIT_AREA")
-    @JsonProperty
     private float maxPricePerUnitArea;
 
-    @FieldMetaInfo(name = "minSize", displayName = "Min Size", dataType = DataType.FLOAT, description = "Min Size")
+    @FieldMetaInfo( displayName = "Min Size",  description = "Min Size")
     @Field(value = "MINSIZE")
-    @JsonProperty
     private float minSize;
 
-    @FieldMetaInfo(name = "maxSize", displayName = "Max Size", dataType = DataType.FLOAT, description = "Max Size")
+    @FieldMetaInfo( displayName = "Max Size",  description = "Max Size")
     @Field(value = "MAXSIZE")
-    @JsonProperty
     private float maxSize;
 
-    @FieldMetaInfo(name = "status", displayName = "Project Status", dataType = DataType.STRING, description = "Project Status")
+    @FieldMetaInfo( displayName = "Project Status",  description = "Project Status")
     @Field(value = "PROJECT_STATUS")
-    @JsonProperty
     private String status;
 
     @Field(value = "IS_RESALE")
     private boolean isResale;
 
-    @FieldMetaInfo(name = "description", displayName = "Project Description", dataType = DataType.STRING, description = "Project Description")
+    @FieldMetaInfo( displayName = "Project Description",  description = "Project Description")
     @Field(value = "PROJECT_DESCRIPTION")
-    @JsonProperty
     private String projectDescription;
 
-    @FieldMetaInfo(name = "totalUnits", displayName = "Total Units", dataType = DataType.INTEGER, description = "Total Units")
+    @FieldMetaInfo( displayName = "Total Units",  description = "Total Units")
     @Field(value = "TOTAL_UNITS")
-    @JsonProperty
     private int totalUnits;
 
-    @FieldMetaInfo(name = "sizeInAcres", displayName = "size in acres", dataType = DataType.FLOAT, description = "size in acres")
+    @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
     @Field(value = "PROJECT_SIZE")
-    @JsonProperty
     private float sizeInAcres;
 
     @Field(value="PROJECT_STATUS_BEDROOM")
     private String projectStatusBedroom;
 
-    @FieldMetaInfo(name = "name", displayName = "Name", dataType = DataType.STRING, description = "Builder Name")
+    @FieldMetaInfo( displayName = "Name",  description = "Builder Name")
     @Column(name = "BUILDER_NAME")
-    @JsonProperty
     private String builderName;
 
-    @FieldMetaInfo(name = "image", displayName = "Image", dataType = DataType.STRING, description = "Builder Image URL")
+    @FieldMetaInfo( displayName = "Image",  description = "Builder Image URL")
     @Column(name = "BUILDER_IMAGE")
-    @JsonProperty
     private String builderImageURL;
 
-    @FieldMetaInfo(name = "suburbId", displayName = "Suburb Id", dataType = DataType.INTEGER, description = "Suburb Id")
+    @FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
     @Column(name = "SUBURB_ID")
-    @JsonProperty
     private long suburbId;
 
-    @FieldMetaInfo(name = "label", displayName = "Label", dataType = DataType.STRING, description = "Label")
+    @FieldMetaInfo( displayName = "Label",  description = "Label")
     @Column(name = "LABEL")
     private String localityLabel;
-    @FieldMetaInfo(name = "priority", displayName = "Priority", dataType = DataType.INTEGER, description = "Priority")
+    @FieldMetaInfo( displayName = "Priority",  description = "Priority")
     @Column(name = "PRIORITY")
     private int priority;
 
-    @FieldMetaInfo(name = "label", displayName = "Label", dataType = DataType.STRING, description = "Suburb label")
+    @FieldMetaInfo( displayName = "Label",  description = "Suburb label")
     @Column(name = "LABEL")
-    @JsonProperty
     private String suburbLabel;
-    @FieldMetaInfo(name = "cityId", displayName = "City Id", dataType = DataType.LONG, description = "City Id")
+    @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")
     @Id
     private long cityId;
 
-    @FieldMetaInfo(name = "label", displayName = "Label", dataType = DataType.STRING, description = "City label")
+    @FieldMetaInfo( displayName = "Label",  description = "City label")
     @Column(name = "LABEL")
     private String cityLabel;
 
-    @FieldMetaInfo(name = "northEastLatitude", displayName = "North east latitude", dataType = DataType.FLOAT, description = "North east latitude")
+    @FieldMetaInfo( displayName = "North east latitude",  description = "North east latitude")
     @Field(value="NORTH_EAST_LATITUDE")
-    @JsonProperty
     private float northEastLatitude;
     
-    @FieldMetaInfo(name = "northEastLongitude", displayName = "North east longitude", dataType = DataType.FLOAT, description = "North east longitude")
+    @FieldMetaInfo( displayName = "North east longitude",  description = "North east longitude")
     @Field(value="NORTH_EAST_LONGITUDE")
-    @JsonProperty
     private float northEastLongitude;
     
-    @FieldMetaInfo(name = "southWestLatitude", displayName = "South west latitude", dataType = DataType.FLOAT, description = "South west latitude")
+    @FieldMetaInfo( displayName = "South west latitude",  description = "South west latitude")
     @Field(value="SOUTH_WEST_LATITUDE")
-    @JsonProperty
     private float southWestLatitude;
     
-    @FieldMetaInfo(name = "southWestLongitude", displayName = "South west longitude", dataType = DataType.FLOAT, description = "South west latitude")
+    @FieldMetaInfo( displayName = "South west longitude",  description = "South west latitude")
     @Field(value="SOUTH_WEST_LONGITUDE")
-    @JsonProperty
     private float southWestLongitude;
     
-    @FieldMetaInfo(name = "centerLatitude", displayName = "Center latitude", dataType = DataType.FLOAT, description = "Center latitude")
+    @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
     @Field(value="CENTER_LATITUDE")
-    @JsonProperty
     private float centerLatitude;
     
-    @FieldMetaInfo(name = "centerLatitude", displayName = "Center latitude", dataType = DataType.FLOAT, description = "Center latitude")
+    @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
     @Field(value="CENTER_LONGITUDE")
-    @JsonProperty
     private float centerLongitude;
 
     @Field("TYPE_ID")
