@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -18,16 +19,20 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "LOCALITY")
 @ResourceMetaInfo(name = "Locality")
 public class Locality {
-	@FieldMetaInfo(name = "localityId", displayName = "Locality Id", dataType = DataType.STRING, description = "Locality Id")
+	@FieldMetaInfo(name = "localityId", displayName = "Locality Id", dataType = DataType.INTEGER, description = "Locality Id")
 	@Column(name = "LOCALITY_ID")
 	@Id
-	private long localityId;
-	@FieldMetaInfo(name = "suburbID", displayName = "Suburb Id", dataType = DataType.STRING, description = "Suburb Id")
+	@JsonProperty
+	private long id;
+
+	@FieldMetaInfo(name = "suburbId", displayName = "Suburb Id", dataType = DataType.INTEGER, description = "Suburb Id")
 	@Column(name = "SUBURB_ID")
-	private long suburbID;
-	@FieldMetaInfo(name = "cityID", displayName = "City ID", dataType = DataType.STRING, description = "City ID")
-	@Column(name = "CITY_ID")
-	private long cityID;
+	@JsonProperty
+	private long suburbId;
+
+	@JsonProperty
+	private Suburb suburb;
+
 	@FieldMetaInfo(name = "label", displayName = "Label", dataType = DataType.STRING, description = "Label")
 	@Column(name = "LABEL")
 	private String label;
@@ -67,27 +72,19 @@ public class Locality {
 
 	
 	public long getLocalityId() {
-		return localityId;
+		return id;
 	}
 
 	public void setLocalityId(long localityId) {
-		this.localityId = localityId;
+		this.id = localityId;
 	}
 
 	public long getSuburbID() {
-		return suburbID;
+		return suburbId;
 	}
 
 	public void setSuburbID(long suburbID) {
-		this.suburbID = suburbID;
-	}
-
-	public long getCityID() {
-		return cityID;
-	}
-
-	public void setCityID(long cityID) {
-		this.cityID = cityID;
+		this.suburbId = suburbID;
 	}
 
 	public String getLabel() {
@@ -185,6 +182,14 @@ public class Locality {
 	public void setWikimapiaID(long wikimapiaID) {
 		this.wikimapiaID = wikimapiaID;
 	}
+
+    public Suburb getSuburb() {
+        return suburb;
+    }
+
+    public void setSuburb(Suburb suburb) {
+        this.suburb = suburb;
+    }
 	
 	
 
