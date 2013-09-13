@@ -223,12 +223,12 @@ public class Project {
     @JsonProperty(value="all_bedrooms")
     private String allBedrooms;
     
-	@FieldMetaInfo(name = "min_price_per_unit_area", displayName = "Min Price Per Unit Area", dataType = DataType.FLOAT, description = "Min Price Per Unit Area")
+	@FieldMetaInfo(name = "min_price_per_unit_area", displayName = "Min Price Per Unit Area", dataType = DataType.CURRENCY, description = "Min Price Per Unit Area")
     @Field(value="MIN_PRICE_PER_UNIT_AREA")
     @JsonProperty(value="min_price_per_unit_area")
     private float minPricePerUnitArea;
     
-	@FieldMetaInfo(name = "max_price_per_unit_area", displayName = "Max Price Per Unit Area", dataType = DataType.FLOAT, description = "Max Price Per Unit Area")
+	@FieldMetaInfo(name = "max_price_per_unit_area", displayName = "Max Price Per Unit Area", dataType = DataType.CURRENCY, description = "Max Price Per Unit Area")
     @Field(value="MAX_PRICE_PER_UNIT_AREA")
     @JsonProperty(value="max_price_per_unit_area")
     private float maxPricePerUnitArea;
@@ -243,22 +243,22 @@ public class Project {
     @JsonProperty(value="maxsize")
     private float maxSize;
     
-	@FieldMetaInfo(name = "min_budget", displayName = "Min Budget", dataType = DataType.STRING, description = "Min Budget")
+	@FieldMetaInfo(name = "min_budget", displayName = "Min Budget", dataType = DataType.CURRENCY, description = "Min Budget")
     @Field(value="MIN_BUDGET")
     @JsonProperty(value="min_budget")
     private float minBudget;
     
-	@FieldMetaInfo(name = "max_budget", displayName = "Max Budget", dataType = DataType.STRING, description = "Max Budget")
+	@FieldMetaInfo(name = "max_budget", displayName = "Max Budget", dataType = DataType.CURRENCY, description = "Max Budget")
     @Field(value="MAX_BUDGET")
     @JsonProperty(value="max_budget")
     private float maxBudget;
     
-	@FieldMetaInfo(name = "minprice", displayName = "Min Price", dataType = DataType.STRING, description = "Min Price")
+	@FieldMetaInfo(name = "minprice", displayName = "Min Price", dataType = DataType.CURRENCY, description = "Min Price")
     @Field(value="MINPRICE")
     @JsonProperty(value="minprice")
     private String minPrice;
     
-	@FieldMetaInfo(name = "maxprice", displayName = "Max Price", dataType = DataType.STRING, description = "Max Price")
+	@FieldMetaInfo(name = "maxprice", displayName = "Max Price", dataType = DataType.CURRENCY, description = "Max Price")
     @Field(value="MAXPRICE")
     @JsonProperty(value="maxprice")
     private String maxPrice;
