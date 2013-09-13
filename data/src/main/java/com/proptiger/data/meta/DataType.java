@@ -7,7 +7,7 @@ package com.proptiger.data.meta;
 public enum DataType {
 
 	STRING("String"),
-	INTEGER("Integer"),
+	INTEGER("Int"),
 	DOUBLE("Double"),
 	FLOAT("Float"),
 	LONG("Long"),

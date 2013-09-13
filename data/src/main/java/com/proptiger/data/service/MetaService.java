@@ -35,6 +35,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class MetaService {
 
+	private static final String NAME = "name";
 	private static final String EDITABLE = "editable";
 	private static final String DATA_TYPE = "dataType";
 	private static final String DISPLAY_NAME = "displayName";
@@ -57,7 +58,7 @@ public class MetaService {
 			ResourceModelMeta resourceModelMeta = new ResourceModelMeta();
 			Class<?> clazz = itr.next();
 			resourceAnnotation = clazz.getAnnotation(ResourceMetaInfo.class);
-			resourceModelMeta.setName((String)AnnotationUtils.getAnnotationAttributes(resourceAnnotation).get("name"));
+			resourceModelMeta.setName((String)AnnotationUtils.getAnnotationAttributes(resourceAnnotation).get(NAME));
 			
 			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {
@@ -80,8 +81,11 @@ public class MetaService {
 					fieldMetaData.setEditable((Boolean) AnnotationUtils
 							.getAnnotationAttributes(fieldAnnotation).get(
 									EDITABLE));
-					fieldMetaData.setName((String) AnnotationUtils
-							.getAnnotationAttributes(fieldAnnotation).get("name"));
+					String name = (String) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get(NAME);
+					if(name.equals(FieldMetaInfo.DEF_NAME)){
+						name = field.getName();
+					}
+					fieldMetaData.setName(name);
 					resourceModelMeta.addFieldMeta(fieldMetaData);
 				}
 				
