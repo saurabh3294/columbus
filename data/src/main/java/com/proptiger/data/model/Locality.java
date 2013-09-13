@@ -29,7 +29,7 @@ public class Locality {
 	private long suburbId;
 
     @ManyToOne
-    @JoinColumn(name="SUBURB_ID")
+    @JoinColumn(name="SUBURB_ID", insertable = false, updatable = false)
 	private Suburb suburb;
 
 	@FieldMetaInfo( displayName = "Label",  description = "Label")

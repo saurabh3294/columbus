@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -35,7 +36,7 @@ public class Suburb {
     private String label;
 
     @ManyToOne
-    @JoinColumn(name="CITY_ID")
+    @JoinColumn(name="CITY_ID", insertable = false, updatable = false)
     private City city;
 
     public long getId() {
