@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.core.annotation.AnnotationUtils;
 
@@ -17,8 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class FieldsMapLoader {
-    static ConcurrentHashMap<Class<?>, Map<String, Field>> fieldsMap = new ConcurrentHashMap<Class<?>, Map<String, Field>>();
-
+    static ConcurrentMap<Class<?>, Map<String, Field>> fieldsMap = new ConcurrentHashMap<Class<?>, Map<String, Field>>();
       
     public static String getDaoFieldName(Class<?> clazz, String name, Class<? extends Annotation> annotationClazzForColumnName) {
         if (!fieldsMap.containsKey(clazz)) {
@@ -28,8 +28,6 @@ public class FieldsMapLoader {
         Annotation fieldAnnotation = fieldsMap.get(clazz).get(name).getAnnotation(annotationClazzForColumnName);
         return (String) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get("value");
     }
-    
-    
 
     public static Field getField(Class<?> clazz, String name) {
         if (!fieldsMap.containsKey(clazz)) {
@@ -48,5 +46,4 @@ public class FieldsMapLoader {
             }
         }
     }
-    
 }
