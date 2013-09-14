@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  * @author Rajeev Pandey
@@ -13,8 +13,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @Entity
 @Table(name = "wp_posts")
-public class WordpressPost {
-
+@ResourceMetaInfo(name="BlogPost")
+public class WordpressPost implements BaseModel {
 	@Id
 	@Column(name = "ID")
 	private long id;
@@ -27,7 +27,6 @@ public class WordpressPost {
 	
 	@Column(name = "guid")
 	private String guid;
-	
 
 	public long getId() {
 		return id;
