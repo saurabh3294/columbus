@@ -20,7 +20,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "SUBURB")
 @ResourceMetaInfo(name = "Suburb")
-public class Suburb {
+public class Suburb implements BaseModel {
     @Id
     @FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
     @Column(name = "SUBURB_ID")

@@ -13,11 +13,7 @@ import javax.persistence.OneToMany;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -27,10 +23,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @ResourceMetaInfo(name = "Project")
-@JsonAutoDetect(fieldVisibility=Visibility.ANY, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
-@JsonInclude(Include.NON_NULL)
-@JsonFilter("fieldFilter")
-public class Project {
+public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     private int id;
@@ -155,10 +148,14 @@ public class Project {
 
     @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
     @Field(value = "PROJECT_SIZE")
-    private Integer sizeInAcres;
+    private Double sizeInAcres;
 
     @Field(value="PROJECT_STATUS_BEDROOM")
+    @JsonIgnore
     private String projectStatusBedroom;
+
+    @Field(value="MEASURE")
+    private String propertySizeMeasure;
 
     public int getId() {
         return id;
@@ -408,11 +405,11 @@ public class Project {
         this.totalUnits = totalUnits;
     }
 
-    public Integer getSizeInAcres() {
+    public Double getSizeInAcres() {
         return sizeInAcres;
     }
 
-    public void setSizeInAcres(Integer sizeInAcres) {
+    public void setSizeInAcres(Double sizeInAcres) {
         this.sizeInAcres = sizeInAcres;
     }
 
@@ -422,5 +419,13 @@ public class Project {
 
     public void setProjectStatusBedroom(String projectStatusBedroom) {
         this.projectStatusBedroom = projectStatusBedroom;
+    }
+
+    public String getPropertySizeMeasure() {
+        return propertySizeMeasure;
+    }
+
+    public void setPropertySizeMeasure(String propertySizeMeasure) {
+        this.propertySizeMeasure = propertySizeMeasure;
     }
 }

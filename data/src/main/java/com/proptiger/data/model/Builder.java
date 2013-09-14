@@ -18,7 +18,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "RESI_BUILDER")
 @ResourceMetaInfo(name = "Builder")
-public class Builder {
+public class Builder implements BaseModel {
     @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
     @Column(name = "BUILDER_ID")
     @Id

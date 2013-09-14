@@ -5,24 +5,19 @@ package com.proptiger.data.model;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-
 import org.apache.solr.client.solrj.beans.Field;
-
-import com.proptiger.data.meta.FieldMetaInfo;
 
 /**
  * @author mandeep
- *
+ * 
  */
 public class SolrResult {
-private Property property = new Property();
-private Project project = new Project();
-private Locality locality = new Locality();
-private Suburb suburb = new Suburb();
-private City city = new City();
-private Builder builder = new Builder();
+    private Property property = new Property();
+    private Project project = new Project();
+    private Locality locality = new Locality();
+    private Suburb suburb = new Suburb();
+    private City city = new City();
+    private Builder builder = new Builder();
 
     public SolrResult() {
         property.setProject(project);
@@ -31,7 +26,7 @@ private Builder builder = new Builder();
         locality.setSuburb(suburb);
         suburb.setCity(city);
     }
-    
+
     @Field("TYPE_ID")
     public void setTypeId(int typeId) {
         property.setId(typeId);

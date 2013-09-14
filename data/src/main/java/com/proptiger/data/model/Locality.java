@@ -15,7 +15,7 @@ import javax.persistence.ManyToOne;
 @Entity
 @Table(name = "LOCALITY")
 @ResourceMetaInfo(name = "Locality")
-public class Locality {
+public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
     @Id

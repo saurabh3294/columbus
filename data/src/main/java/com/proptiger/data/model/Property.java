@@ -5,21 +5,12 @@ import javax.persistence.ManyToOne;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 @ResourceMetaInfo(name = "Property")
-@JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
-@JsonInclude(Include.NON_NULL)
-@JsonFilter("fieldFilter")
-public class Property {
+public class Property implements BaseModel {
     @FieldMetaInfo( displayName = "Id",  description = "Property Id")
     @Field(value="TYPE_ID")
     private int id;
@@ -60,7 +51,6 @@ public class Property {
     @Field(value="PROPERTY_URL")
     private String URL;
 
-    @JsonUnwrapped
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     private Project project;
