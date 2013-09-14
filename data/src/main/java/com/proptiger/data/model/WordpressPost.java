@@ -59,6 +59,4 @@ public class WordpressPost implements BaseModel {
 	public void setGuid(String guid) {
 		this.guid = guid;
 	}
-	
-	
 }
