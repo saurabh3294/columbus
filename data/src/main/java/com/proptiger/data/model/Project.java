@@ -79,9 +79,9 @@ public class Project implements BaseModel {
     @Field(value = "DISPLAY_ORDER_SUBURB")
     private int assignedSuburbPriority;
 
-    @FieldMetaInfo( displayName = "Completion Date",  description = "Completion Date")
-    @Field(value = "COMPLETION_DATE")
-    private String completionDate;
+    @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
+    @Field(value = "PROMISED_COMPLETION_DATE")
+    private Date possessionDate;
 
     @FieldMetaInfo( displayName = "Submitted Date",  description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
@@ -269,12 +269,12 @@ public class Project implements BaseModel {
         this.assignedSuburbPriority = assignedSuburbPriority;
     }
 
-    public String getCompletionDate() {
-        return completionDate;
+    public Date getPossessionDate() {
+        return possessionDate;
     }
 
-    public void setCompletionDate(String completionDate) {
-        this.completionDate = completionDate;
+    public void setPossessionDate(Date possessionDate) {
+        this.possessionDate = possessionDate;
     }
 
     public Date getSubmittedDate() {

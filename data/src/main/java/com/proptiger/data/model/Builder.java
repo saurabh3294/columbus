@@ -30,7 +30,7 @@ public class Builder implements BaseModel {
 
     @FieldMetaInfo( displayName = "Image",  description = "Builder Image URL")
     @Column(name = "BUILDER_IMAGE")
-    private String imageUrl;
+    private String imageURL;
 
     public int getId() {
         return id;
@@ -48,12 +48,12 @@ public class Builder implements BaseModel {
         this.name = name;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImageURL() {
+        return imageURL;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageURL(String imageUrl) {
+        this.imageURL = imageUrl;
     }
 
 }

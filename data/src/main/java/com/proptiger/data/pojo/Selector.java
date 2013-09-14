@@ -19,7 +19,7 @@ public class Selector {
     private Set<SortBy> sort;
     private String facets;
     private String stats;
-    private Paging paging;
+    private Paging paging = new Paging();
     
     private Set<String> groupBy;
     

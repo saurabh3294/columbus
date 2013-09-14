@@ -65,6 +65,7 @@ public class SolrResult {
     @Field("MEASURE")
     public void setMeasure(String measure) {
         property.setMeasure(measure);
+        project.setPropertySizeMeasure(measure);
     }
 
     @Field("PROPERTY_URL")
@@ -130,9 +131,9 @@ public class SolrResult {
         project.setAssignedSuburbPriority(assignedSuburbPriority);
     }
 
-    @Field("COMPLETION_DATE")
-    public void setCompletionDate(String completionDate) {
-        project.setCompletionDate(completionDate);
+    @Field("PROMISED_COMPLETION_DATE")
+    public void setPossessionDate(Date possessionDate) {
+        project.setPossessionDate(possessionDate);
     }
 
     @Field("SUBMITTED_DATE")
@@ -222,7 +223,7 @@ public class SolrResult {
 
     @Field("BUILDER_IMAGE")
     public void setBuilderImageURL(String builderImageURL) {
-        builder.setImageUrl(builderImageURL);
+        builder.setImageURL(builderImageURL);
     }
 
     @Field("SUBURB_ID")

@@ -40,7 +40,7 @@ public class ProjectDetailController extends BaseController {
             projectDetailSelector = new Selector();
         }
 
-        List<Project> projects = projectService.getProjects(projectDetailSelector);
+        List<Project> projects = null; //projectService.getProjects(projectDetailSelector);
         propertyService.getProperties(projectDetailSelector);
         Set<String> fieldsString = projectDetailSelector.getFields();
 

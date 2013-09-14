@@ -4,7 +4,10 @@
  */
 package com.proptiger.data.mvc;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +38,14 @@ public class ProjectController extends BaseController {
     	if(propRequestParam == null){
     		propRequestParam = new Selector();
     	}
-        List<Project> projects = projectService.getProjects(propRequestParam);
-        Set<String> fieldsString = propRequestParam.getFields();
+    	Map<Long, List<Project>> result = projectService.getProjects(propRequestParam);
+    	Map<String, Object> data = new HashMap<String, Object>();
+    	for (Entry<Long, List<Project>> entry : result.entrySet()) {
+    	    data.put("numFound", entry.getKey());
+    	    data.put("items", entry.getValue());
+    	}
 
-        return new ProAPISuccessResponse(super.filterFields(projects, fieldsString));
+        Set<String> fieldsString = propRequestParam.getFields();
+        return new ProAPISuccessResponse(super.filterFields(data, fieldsString));
     }
 }
