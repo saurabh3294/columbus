@@ -8,8 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -20,11 +18,11 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "RESI_BUILDER")
 @ResourceMetaInfo(name = "Builder")
-public class Builder {
+public class Builder implements BaseModel {
     @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
     @Column(name = "BUILDER_ID")
     @Id
-    private long id;
+    private int id;
 
     @FieldMetaInfo( displayName = "Name",  description = "Builder Name")
     @Column(name = "BUILDER_NAME")
@@ -32,13 +30,13 @@ public class Builder {
 
     @FieldMetaInfo( displayName = "Image",  description = "Builder Image URL")
     @Column(name = "BUILDER_IMAGE")
-    private String imageUrl;
+    private String imageURL;
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -50,11 +48,12 @@ public class Builder {
         this.name = name;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImageURL() {
+        return imageURL;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImageURL(String imageUrl) {
+        this.imageURL = imageUrl;
     }
+
 }

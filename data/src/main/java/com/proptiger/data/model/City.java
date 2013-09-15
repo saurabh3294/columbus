@@ -7,19 +7,17 @@ import javax.persistence.Table;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo(name = "City")
-public class City {
+public class City implements BaseModel {
+    @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")
-    @Id
-    private long id;
+    private int id;
 
     @FieldMetaInfo( displayName = "Label",  description = "City label")
     @Column(name = "LABEL")
@@ -27,34 +25,34 @@ public class City {
 
     @FieldMetaInfo( displayName = "North east latitude",  description = "North east latitude")
     @Field(value="NORTH_EAST_LATITUDE")
-    private float northEastLatitude;
+    private Double northEastLatitude;
     
     @FieldMetaInfo( displayName = "North east longitude",  description = "North east longitude")
     @Field(value="NORTH_EAST_LONGITUDE")
-    private float northEastLongitude;
+    private Double northEastLongitude;
     
     @FieldMetaInfo( displayName = "South west latitude",  description = "South west latitude")
     @Field(value="SOUTH_WEST_LATITUDE")
-    private float southWestLatitude;
+    private Double southWestLatitude;
     
     @FieldMetaInfo( displayName = "South west longitude",  description = "South west latitude")
     @Field(value="SOUTH_WEST_LONGITUDE")
-    private float southWestLongitude;
+    private Double southWestLongitude;
     
     @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
     @Field(value="CENTER_LATITUDE")
-    private float centerLatitude;
+    private Double centerLatitude;
     
     @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
     @Field(value="CENTER_LONGITUDE")
-    private float centerLongitude;
+    private Double centerLongitude;
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long cityId) {
-        this.id = cityId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getLabel() {
@@ -65,51 +63,51 @@ public class City {
         this.label = label;
     }
 
-    public float getNorthEastLatitude() {
+    public Double getNorthEastLatitude() {
         return northEastLatitude;
     }
 
-    public void setNorthEastLatitude(float northEastLatitude) {
+    public void setNorthEastLatitude(Double northEastLatitude) {
         this.northEastLatitude = northEastLatitude;
     }
 
-    public float getNorthEastLongitude() {
+    public Double getNorthEastLongitude() {
         return northEastLongitude;
     }
 
-    public void setNorthEastLongitude(float northEastLongitude) {
+    public void setNorthEastLongitude(Double northEastLongitude) {
         this.northEastLongitude = northEastLongitude;
     }
 
-    public float getSouthWestLatitude() {
+    public Double getSouthWestLatitude() {
         return southWestLatitude;
     }
 
-    public void setSouthWestLatitude(float southWestLatitude) {
+    public void setSouthWestLatitude(Double southWestLatitude) {
         this.southWestLatitude = southWestLatitude;
     }
 
-    public float getSouthWestLongitude() {
+    public Double getSouthWestLongitude() {
         return southWestLongitude;
     }
 
-    public void setSouthWestLongitude(float southWestLongitude) {
+    public void setSouthWestLongitude(Double southWestLongitude) {
         this.southWestLongitude = southWestLongitude;
     }
 
-    public float getCenterLatitude() {
+    public Double getCenterLatitude() {
         return centerLatitude;
     }
 
-    public void setCenterLatitude(float centerLatitude) {
+    public void setCenterLatitude(Double centerLatitude) {
         this.centerLatitude = centerLatitude;
     }
 
-    public float getCenterLongitude() {
+    public Double getCenterLongitude() {
         return centerLongitude;
     }
 
-    public void setCenterLongitude(float centerLongitude) {
+    public void setCenterLongitude(Double centerLongitude) {
         this.centerLongitude = centerLongitude;
     }
 }

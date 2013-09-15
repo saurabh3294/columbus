@@ -6,14 +6,12 @@ package com.proptiger.data.mvc;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -21,9 +19,12 @@ import com.proptiger.exception.ProAPIException;
  *
  */
 public class BaseController {
-	private static Logger logger = LoggerFactory.getLogger(BaseController.class);
-	
-	private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper = new ObjectMapper();
+
+	public BaseController() {
+	    mapper.setDateFormat(new ISO8601DateFormat());	    
+	}
+
     protected Object filterFields(Object object, Set<String> fields) {
         try {
         	Set<String> fieldSet = new HashSet<String>();

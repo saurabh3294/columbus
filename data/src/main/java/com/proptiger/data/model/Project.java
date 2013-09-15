@@ -13,11 +13,8 @@ import javax.persistence.OneToMany;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -26,17 +23,14 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @ResourceMetaInfo(name = "Project")
-@JsonAutoDetect(fieldVisibility=Visibility.ANY, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
-@JsonInclude(Include.NON_NULL)
-@JsonFilter("fieldFilter")
-public class Project {
+public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
-    private long id;
+    private int id;
 
     @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
-    private long localityId;
+    private int localityId;
 
     @ManyToOne
     @JoinColumn(name="LOCALITY_ID")
@@ -44,7 +38,7 @@ public class Project {
 
     @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
-    private long builderId;
+    private int builderId;
 
     @ManyToOne
     @JoinColumn(name="BUILDER_ID")
@@ -71,23 +65,23 @@ public class Project {
 
     @FieldMetaInfo( displayName = "Computed Priority",  description = "Computed Priority")
     @Field(value = "PROJECT_PRIORITY")
-    private float computedPriority;
+    private double computedPriority;
 
     @FieldMetaInfo( displayName = "Assigned Priority",  description = "Assigned Priority")
     @Field(value = "DISPLAY_ORDER")
-    private float assignedPriority;
+    private int assignedPriority;
 
     @FieldMetaInfo( displayName = "Assigned Locality Priority",  description = "Assigned Locality Priority")
     @Field(value = "DISPLAY_ORDER_LOCALITY")
-    private float assignedLocalityPriority;
+    private int assignedLocalityPriority;
 
     @FieldMetaInfo( displayName = "Assigned Suburb Priority",  description = "Assigned Suburb Priority")
     @Field(value = "DISPLAY_ORDER_SUBURB")
-    private float assignedSuburbPriority;
+    private int assignedSuburbPriority;
 
-    @FieldMetaInfo( displayName = "Completion Date",  description = "Completion Date")
-    @Field(value = "COMPLETION_DATE")
-    private String completionDate;
+    @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
+    @Field(value = "PROMISED_COMPLETION_DATE")
+    private Date possessionDate;
 
     @FieldMetaInfo( displayName = "Submitted Date",  description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
@@ -115,27 +109,27 @@ public class Project {
 
     @FieldMetaInfo( displayName = "Latitude",  description = "Latitude")
     @Field(value = "LATITUDE")
-    private float latitude;
+    private Double latitude;
 
     @FieldMetaInfo( displayName = "Longitude",  description = "Longitude")
     @Field(value = "LONGITUDE")
-    private float longitude;
+    private Double longitude;
 
-    @FieldMetaInfo( displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
     @Field(value = "MIN_PRICE_PER_UNIT_AREA")
-    private float minPricePerUnitArea;
+    private Double minPricePerUnitArea;
 
-    @FieldMetaInfo( displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
     @Field(value = "MAX_PRICE_PER_UNIT_AREA")
-    private float maxPricePerUnitArea;
+    private Double maxPricePerUnitArea;
 
     @FieldMetaInfo( displayName = "Min Size",  description = "Min Size")
     @Field(value = "MINSIZE")
-    private float minSize;
+    private Double minSize;
 
     @FieldMetaInfo( displayName = "Max Size",  description = "Max Size")
     @Field(value = "MAXSIZE")
-    private float maxSize;
+    private Double maxSize;
 
     @FieldMetaInfo( displayName = "Project Status",  description = "Project Status")
     @Field(value = "PROJECT_STATUS")
@@ -150,28 +144,32 @@ public class Project {
 
     @FieldMetaInfo( displayName = "Total Units",  description = "Total Units")
     @Field(value = "TOTAL_UNITS")
-    private int totalUnits;
+    private Integer totalUnits;
 
     @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
     @Field(value = "PROJECT_SIZE")
-    private float sizeInAcres;
+    private Double sizeInAcres;
 
     @Field(value="PROJECT_STATUS_BEDROOM")
+    @JsonIgnore
     private String projectStatusBedroom;
 
-    public long getId() {
+    @Field(value="MEASURE")
+    private String propertySizeMeasure;
+
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public long getLocalityId() {
+    public int getLocalityId() {
         return localityId;
     }
 
-    public void setLocalityId(long localityId) {
+    public void setLocalityId(int localityId) {
         this.localityId = localityId;
     }
 
@@ -183,11 +181,11 @@ public class Project {
         this.locality = locality;
     }
 
-    public long getBuilderId() {
+    public int getBuilderId() {
         return builderId;
     }
 
-    public void setBuilderId(long builderId) {
+    public void setBuilderId(int builderId) {
         this.builderId = builderId;
     }
 
@@ -197,6 +195,14 @@ public class Project {
 
     public void setBuilder(Builder builder) {
         this.builder = builder;
+    }
+
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
     }
 
     public String getName() {
@@ -231,44 +237,44 @@ public class Project {
         this.address = address;
     }
 
-    public float getComputedPriority() {
+    public double getComputedPriority() {
         return computedPriority;
     }
 
-    public void setComputedPriority(float computedPriority) {
+    public void setComputedPriority(double computedPriority) {
         this.computedPriority = computedPriority;
     }
 
-    public float getAssignedPriority() {
+    public int getAssignedPriority() {
         return assignedPriority;
     }
 
-    public void setAssignedPriority(float assignedPriority) {
+    public void setAssignedPriority(int assignedPriority) {
         this.assignedPriority = assignedPriority;
     }
 
-    public float getAssignedLocalityPriority() {
+    public int getAssignedLocalityPriority() {
         return assignedLocalityPriority;
     }
 
-    public void setAssignedLocalityPriority(float assignedLocalityPriority) {
+    public void setAssignedLocalityPriority(int assignedLocalityPriority) {
         this.assignedLocalityPriority = assignedLocalityPriority;
     }
 
-    public float getAssignedSuburbPriority() {
+    public int getAssignedSuburbPriority() {
         return assignedSuburbPriority;
     }
 
-    public void setAssignedSuburbPriority(float assignedSuburbPriority) {
+    public void setAssignedSuburbPriority(int assignedSuburbPriority) {
         this.assignedSuburbPriority = assignedSuburbPriority;
     }
 
-    public String getCompletionDate() {
-        return completionDate;
+    public Date getPossessionDate() {
+        return possessionDate;
     }
 
-    public void setCompletionDate(String completionDate) {
-        this.completionDate = completionDate;
+    public void setPossessionDate(Date possessionDate) {
+        this.possessionDate = possessionDate;
     }
 
     public Date getSubmittedDate() {
@@ -319,51 +325,51 @@ public class Project {
         URL = uRL;
     }
 
-    public float getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
-    public float getMinPricePerUnitArea() {
+    public Double getMinPricePerUnitArea() {
         return minPricePerUnitArea;
     }
 
-    public void setMinPricePerUnitArea(float minPricePerUnitArea) {
+    public void setMinPricePerUnitArea(Double minPricePerUnitArea) {
         this.minPricePerUnitArea = minPricePerUnitArea;
     }
 
-    public float getMaxPricePerUnitArea() {
+    public Double getMaxPricePerUnitArea() {
         return maxPricePerUnitArea;
     }
 
-    public void setMaxPricePerUnitArea(float maxPricePerUnitArea) {
+    public void setMaxPricePerUnitArea(Double maxPricePerUnitArea) {
         this.maxPricePerUnitArea = maxPricePerUnitArea;
     }
 
-    public float getMinSize() {
+    public Double getMinSize() {
         return minSize;
     }
 
-    public void setMinSize(float minSize) {
+    public void setMinSize(Double minSize) {
         this.minSize = minSize;
     }
 
-    public float getMaxSize() {
+    public Double getMaxSize() {
         return maxSize;
     }
 
-    public void setMaxSize(float maxSize) {
+    public void setMaxSize(Double maxSize) {
         this.maxSize = maxSize;
     }
 
@@ -391,19 +397,35 @@ public class Project {
         this.description = description;
     }
 
-    public int getTotalUnits() {
+    public Integer getTotalUnits() {
         return totalUnits;
     }
 
-    public void setTotalUnits(int totalUnits) {
+    public void setTotalUnits(Integer totalUnits) {
         this.totalUnits = totalUnits;
     }
 
-    public float getSizeInAcres() {
+    public Double getSizeInAcres() {
         return sizeInAcres;
     }
 
-    public void setSizeInAcres(float sizeInAcres) {
+    public void setSizeInAcres(Double sizeInAcres) {
         this.sizeInAcres = sizeInAcres;
+    }
+
+    public String getProjectStatusBedroom() {
+        return projectStatusBedroom;
+    }
+
+    public void setProjectStatusBedroom(String projectStatusBedroom) {
+        this.projectStatusBedroom = projectStatusBedroom;
+    }
+
+    public String getPropertySizeMeasure() {
+        return propertySizeMeasure;
+    }
+
+    public void setPropertySizeMeasure(String propertySizeMeasure) {
+        this.propertySizeMeasure = propertySizeMeasure;
     }
 }

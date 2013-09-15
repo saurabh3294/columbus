@@ -5,6 +5,7 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -19,10 +20,9 @@ import javax.persistence.TemporalType;
  * @author mukand
  */
 
-
 @Entity
 @Table(name = "ENQUIRY")
-public class Enquiry {
+public class Enquiry implements BaseModel {
     @Column(name = "ID")
     @Id
     private long id;

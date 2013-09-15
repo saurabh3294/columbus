@@ -5,28 +5,19 @@ import javax.persistence.ManyToOne;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 @ResourceMetaInfo(name = "Property")
-@JsonAutoDetect(fieldVisibility=Visibility.NONE, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
-@JsonInclude(Include.NON_NULL)
-@JsonFilter("fieldFilter")
-public class Property {
+public class Property implements BaseModel {
     @FieldMetaInfo( displayName = "Id",  description = "Property Id")
     @Field(value="TYPE_ID")
-    private long id;
+    private int id;
 
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value="PROJECT_ID")
-    private long projectId;
+    private int projectId;
 
     @FieldMetaInfo( displayName = "Bedrooms",  description = "Number of bedrooms")
     @Field(value="BEDROOMS")
@@ -34,7 +25,7 @@ public class Property {
     
     @FieldMetaInfo( displayName = "Bathrooms",  description = "Number of bathrooms")
     @Field(value="BATHROOMS")
-    private int bathrooms;    
+    private int bathrooms;
     
     @FieldMetaInfo( displayName = "Unit type",  description = "Unit type")
     @Field(value="UNIT_TYPE")
@@ -44,13 +35,13 @@ public class Property {
     @Field(value="UNIT_NAME")
     private String unitName;
 
-    @FieldMetaInfo( displayName = "Price per unit area",  description = "Price per unit area")
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
     @Field(value="PRICE_PER_UNIT_AREA")
-    private float pricePerUnitArea;
+    private Double pricePerUnitArea;
 
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
-    private float size;
+    private Double size;
 
     @FieldMetaInfo( displayName = "Measure",  description = "Measure")
     @Field(value="MEASURE")
@@ -60,17 +51,24 @@ public class Property {
     @Field(value="PROPERTY_URL")
     private String URL;
 
-    @JsonUnwrapped
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     private Project project;
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public int getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
     }
 
     public int getBedrooms() {
@@ -105,19 +103,19 @@ public class Property {
         this.unitName = unitName;
     }
 
-    public float getPricePerUnitArea() {
+    public Double getPricePerUnitArea() {
         return pricePerUnitArea;
     }
 
-    public void setPricePerUnitArea(float pricePerUnitArea) {
+    public void setPricePerUnitArea(Double pricePerUnitArea) {
         this.pricePerUnitArea = pricePerUnitArea;
     }
 
-    public float getSize() {
+    public Double getSize() {
         return size;
     }
 
-    public void setSize(float size) {
+    public void setSize(Double size) {
         this.size = size;
     }
 
@@ -143,13 +141,5 @@ public class Property {
 
     public void setProject(Project project) {
         this.project = project;
-    }
-
-    public long getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(long projectId) {
-        this.projectId = projectId;
     }
 }

@@ -1,5 +1,8 @@
 package com.proptiger.data.pojo;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.constants.ResponseCodes;
 
 /**
@@ -39,6 +42,7 @@ public class ProAPISuccessResponse implements ProAPIResponse{
 		this.statusCode = code;
 	}
 
+	@JsonRawValue
 	public Object getData() {
 		return data;
 	}
