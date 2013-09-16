@@ -1,6 +1,7 @@
 package com.proptiger.data.model.image;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,8 +10,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-
-import org.joda.time.DateTime;
 
 @Entity(name = "Image")
 public class Image implements Serializable {
@@ -30,10 +29,10 @@ public class Image implements Serializable {
 	private String path;
 	
 	@Column(name = "created_at")
-	private DateTime createdAt;
+	private Date createdAt;
 	
 	@Column(name = "taken_at", nullable = true)
-	private DateTime takenAt;
+	private Date takenAt;
 	
 	@Column(name = "size")
 	private long size;
@@ -115,28 +114,28 @@ public class Image implements Serializable {
 	/**
 	 * @return the createdAt
 	 */
-	public DateTime getCreatedAt() {
+	public Date getCreatedAt() {
 		return createdAt;
 	}
 
 	/**
 	 * @param createdAt the createdAt to set
 	 */
-	public void setCreatedAt(DateTime createdAt) {
+	public void setCreatedAt(Date createdAt) {
 		this.createdAt = createdAt;
 	}
 
 	/**
 	 * @return the takenAt
 	 */
-	public DateTime getTakenAt() {
+	public Date getTakenAt() {
 		return takenAt;
 	}
 
 	/**
 	 * @param takenAt the takenAt to set
 	 */
-	public void setTakenAt(DateTime takenAt) {
+	public void setTakenAt(Date takenAt) {
 		this.takenAt = takenAt;
 	}
 
