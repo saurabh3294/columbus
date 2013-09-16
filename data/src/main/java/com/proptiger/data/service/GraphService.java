@@ -4,6 +4,8 @@
  */
 package com.proptiger.data.service;
 
+import com.google.gson.Gson;
+import com.proptiger.data.repo.CMSDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.PropertyDao;
 import java.util.HashMap;
@@ -27,6 +29,9 @@ public class GraphService {
 
     @Resource
     private LocalityDao localityDao;
+    
+    @Autowired
+    private CMSDao cmsDao;
             
     public Map<String, Map<Integer, Integer>> getProjectDistrubtionOnStatus(Map<String, String> params){
         int bedroom_limit = Integer.parseInt( params.get("bedroom_upper_limit") );
@@ -252,5 +257,12 @@ public class GraphService {
         
         return response;
     }
-            
+    
+    public Object getPropertyPriceTrends(Map<String, Object> paramObject){
+        String locationType = (String)paramObject.get("location_type");
+        Double locationId = (Double)paramObject.get("location_id");
+        String unitType = (String)paramObject.get("unit_type");
+                
+        return cmsDao.getPropertyPriceTrends(locationType, locationId.longValue(), unitType.split(","));
+    }
 }

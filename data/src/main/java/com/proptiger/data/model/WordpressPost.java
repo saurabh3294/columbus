@@ -1,5 +1,7 @@
 package com.proptiger.data.model;
 
+import java.sql.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,9 +14,10 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  *
  */
 @Entity
-@Table(name = "wp_posts")
+@Table(name = "wordpress.wp_posts")
 @ResourceMetaInfo(name="BlogPost")
-public class WordpressPost implements BaseModel {
+public class WordpressPost {
+
 	@Id
 	@Column(name = "ID")
 	private long id;
@@ -27,7 +30,14 @@ public class WordpressPost implements BaseModel {
 	
 	@Column(name = "guid")
 	private String guid;
+	
 
+	@Column(name = "post_status")
+	private String postStatus;
+	
+	@Column(name = "post_date")
+	private Date postDate;
+	
 	public long getId() {
 		return id;
 	}
@@ -59,4 +69,6 @@ public class WordpressPost implements BaseModel {
 	public void setGuid(String guid) {
 		this.guid = guid;
 	}
+	
+	
 }

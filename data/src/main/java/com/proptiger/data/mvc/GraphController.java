@@ -91,4 +91,14 @@ public class GraphController {
         
         return response;
     }
+    
+    @RequestMapping(value="/property_price_trends", method= RequestMethod.GET)
+    @ResponseBody
+    public Object getPropertyPriceTrends(@RequestParam String params){
+        Type type = new TypeToken<Map<String, Object>>() {}.getType();
+        Map<String, Object> paramObject = gson.fromJson(params, type);
+        System.out.println("testing");
+        
+        return graphService.getPropertyPriceTrends(paramObject);
+    }
 }
