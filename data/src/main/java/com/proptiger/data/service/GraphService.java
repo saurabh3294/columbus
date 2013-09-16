@@ -138,12 +138,12 @@ public class GraphService {
                 locationTypeMap = 3L;
         }
         
-        Long totalEnquiry = localityDao.findTotalEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId);
-        List<Object[]> localitiesData = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId);
+        Long totalEnquiry = localityDao.findTotalEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId.intValue());
+        List<Object[]> localitiesData = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId.intValue());
         Object[] currentLocalityData = null;
         if(locationTypeMap == 1L)
         {
-            currentLocalityData = localityDao.findEnquiryCountOnLoc(timediff, locationId.longValue());
+            currentLocalityData = localityDao.findEnquiryCountOnLoc(timediff, locationId.intValue());
         }
         
         Map<String, Double> response = new LinkedHashMap<String, Double>();

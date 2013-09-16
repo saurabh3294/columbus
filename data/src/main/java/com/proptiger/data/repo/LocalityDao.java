@@ -21,7 +21,7 @@ public interface LocalityDao extends JpaRepository<Locality, Long>{
             + " FROM Locality L join L.enquiry E WHERE L.localityId=E.localityId AND "
             + " UNIX_TIMESTAMP(E.createdDate) >= (UNIX_TIMESTAMP() - ?1) AND "
             + " CASE ?2 WHEN 1 THEN L.cityId WHEN 2 THEN L.suburbId WHEN 3 THEN L.cityId END = ?3")
-    public Long findTotalEnquiryCountOnCityOrSubOrLoc(@Param Long timediff, @Param Long location_type, @Param Long location_id);
+    public Long findTotalEnquiryCountOnCityOrSubOrLoc(@Param Long timediff, @Param Long location_type, @Param int location_id);
    
     
     @Query("SELECT L.localityId, L.label, COUNT(*) AS enquiryCount"
@@ -29,12 +29,12 @@ public interface LocalityDao extends JpaRepository<Locality, Long>{
             + " UNIX_TIMESTAMP(E.createdDate) >= (UNIX_TIMESTAMP() - ?1) AND "
             + " CASE ?2 WHEN 1 THEN L.cityId WHEN 2 THEN L.suburbId WHEN 3 THEN L.cityId END = ?3 "
             + " GROUP BY E.localityId ORDER BY enquiryCount DESC ")
-    public List<Object[]> findEnquiryCountOnCityOrSubOrLoc(@Param Long timediff, @Param Long location_type, @Param Long location_id);
+    public List<Object[]> findEnquiryCountOnCityOrSubOrLoc(@Param Long timediff, @Param Long location_type, @Param int location_id);
     
     @Query("SELECT L.localityId, L.label, COUNT(*) AS enquiryCount "
             + " FROM Locality L join L.enquiry E where L.localityId = E.localityId AND "
             + " UNIX_TIMESTAMP(E.createdDate) >= (UNIX_TIMESTAMP() - ?1) AND "
             + " L.localityId=?2")
-    public Object[] findEnquiryCountOnLoc(@Param Long timediff, @Param Long localityId);
+    public Object[] findEnquiryCountOnLoc(@Param Long timediff, @Param int localityId);
      
 }
