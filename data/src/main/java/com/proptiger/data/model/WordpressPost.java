@@ -7,12 +7,15 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.proptiger.data.meta.ResourceMetaInfo;
+
 /**
  * @author Rajeev Pandey
  *
  */
 @Entity
 @Table(name = "wordpress.wp_posts")
+@ResourceMetaInfo(name="BlogPost")
 public class WordpressPost {
 
 	@Id

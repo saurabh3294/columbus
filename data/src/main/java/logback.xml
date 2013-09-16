@@ -33,7 +33,7 @@
 		<appender-ref ref="proptiger-website" />
 	</logger>
 
-	<root level="ERROR">
+	<root level="INFO">
 		<appender-ref ref="proptiger-website" />
 		<appender-ref ref="STDOUT" />
 	</root>

@@ -12,8 +12,6 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.util.NamedList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,11 +48,24 @@ public class GraphController {
     
     @RequestMapping( value="/enquiry_distribution_locality", method= RequestMethod.GET)
     @ResponseBody
-    public Object getEnquiryDistributionOnLocality(@RequestParam String params){
-           Type type = new TypeToken<Map<String, String>>() {}.getType();
-           Map<String, String> paramObject = gson.fromJson(params, type);
+    public Map<String, Map<String, Double>> getEnquiryDistributionOnLocality(@RequestParam(value="params") String params){
+           Type type = new TypeToken<Map<String, Object>>() {}.getType();
+           Map<String, Object> paramObject = gson.fromJson(params, type);
            
-           return graphService.getEnquiryDistributionOnLocality(paramObject);
+           Double paramDouble = (Double)paramObject.get("number_of_localities");
+           Integer param = paramDouble.intValue();
+           if( param == null || param <=0 )
+            paramObject.put("number_of_localities", 6);
+           
+           paramDouble = (Double)paramObject.get("last_number_of_months");
+           param = paramDouble.intValue();
+           if( param == null || param <= 0)
+               paramObject.put("last_number_of_months", 1);
+           
+           Map<String, Map<String, Double>> response = new LinkedHashMap<String, Map<String, Double>>();
+           
+           response.put("data", graphService.getEnquiryDistributionOnLocality(paramObject) );
+           return response;
     }
     
     @RequestMapping(value="/project_distribution_price", method= RequestMethod.GET)
@@ -79,5 +90,15 @@ public class GraphController {
         response.put("data", data);
         
         return response;
+    }
+    
+    @RequestMapping(value="/property_price_trends", method= RequestMethod.GET)
+    @ResponseBody
+    public Object getPropertyPriceTrends(@RequestParam String params){
+        Type type = new TypeToken<Map<String, Object>>() {}.getType();
+        Map<String, Object> paramObject = gson.fromJson(params, type);
+        System.out.println("testing");
+        
+        return graphService.getPropertyPriceTrends(paramObject);
     }
 }

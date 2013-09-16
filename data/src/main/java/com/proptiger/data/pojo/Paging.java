@@ -6,8 +6,8 @@ package com.proptiger.data.pojo;
  */
 public class Paging {
 
-	private int start;
-	private int rows;
+	private int start = 0;
+	private int rows = 10;
 	public int getStart() {
 		return start;
 	}

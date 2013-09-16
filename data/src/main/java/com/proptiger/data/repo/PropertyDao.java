@@ -66,7 +66,9 @@ public class PropertyDao {
         SortQueryBuilder.applySort(queryBuilder, selector.getSort(), Property.class);
         FieldsQueryBuilder.applyFields(queryBuilder, selector.getFields(), Property.class);
 
+        logger.error("Running a query against solr");
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        logger.error("Fetched results");
         List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
         List<Property> properties = new ArrayList<Property>();
         for (SolrResult solrResult : solrResults) {
