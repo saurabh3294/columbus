@@ -5,13 +5,25 @@
 package com.proptiger.data.model;
 
 import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.meta.ResourceMetaInfo;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  *
  * @author mukand
  */
-public class LOCALITY_AMENITY {
+@Entity
+@Table(name = "LOCALITY_NEAR_PLACES")
+@ResourceMetaInfo(name = "Locality Amenity")
+public class Locality_Amenity implements BaseModel{
+    @FieldMetaInfo(displayName = "Id", description = "Id")
+    @Column(name="id")
+    @Id
+    private int  id;
+    
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name="locality_id")
     private int  localityId;
@@ -190,6 +202,14 @@ public class LOCALITY_AMENITY {
 
     public void setRestDetails(String restDetails) {
         this.restDetails = restDetails;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
 
