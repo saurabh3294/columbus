@@ -23,8 +23,8 @@ public class ImageController extends BaseController {
 	private ImageService imageService;
 	
     @RequestMapping
-    public @ResponseBody ProAPIResponse getProjects() {
+    public @ResponseBody ProAPISuccessResponse getProjects() {
         List<Image> images = imageService.getImages();
-        return new ProAPISuccessResponse(images);
+        return new ProAPISuccessResponse(super.filterFields(images, null));
     }
 }
