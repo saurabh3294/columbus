@@ -16,24 +16,5 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 
     <!-- Enables the Spring MVC @Controller programming model -->
     <mvc:annotation-driven />
-    <utilMap id="projectStatusMapping" map-class="java.util.HashMap">
-        <entry key="under construction">
-            <value>under construction</value>
-        </entry>
-        <entry key="pre launch">
-            <value>launch and upcoming</value>
-        </entry>
-        <entry key="not launched">
-            <value>launch and upcoming</value>
-        </entry>
-        <entry key="launch">
-            <value>launch and upcoming</value>
-        </entry>
-        <entry key="ready for possession">
-            <value>ready for possession</value>
-        </entry>
-        <entry key="occupied">
-            <value>ready for possession</value>
-        </entry>
-    </utilMap>
+    
 </beans>

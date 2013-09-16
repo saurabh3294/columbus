@@ -78,7 +78,7 @@ public class Locality_Amenity implements BaseModel{
 
     @FieldMetaInfo(displayName = "Details Info", description = "Details Info")
     @Column(name="is_details")
-    private short  isDetails;
+    private int  isDetails;
 
     @FieldMetaInfo(displayName = "Other Details", description = "Other Details")
     @Column(name="rest_details")
@@ -188,11 +188,11 @@ public class Locality_Amenity implements BaseModel{
         this.vicinity = vicinity;
     }
 
-    public short getIsDetails() {
+    public int getIsDetails() {
         return isDetails;
     }
 
-    public void setIsDetails(short isDetails) {
+    public void setIsDetails(int isDetails) {
         this.isDetails = isDetails;
     }
 
