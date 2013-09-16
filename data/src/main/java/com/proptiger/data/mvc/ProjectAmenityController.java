@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.Amenity;
+import com.proptiger.data.model.Project_Amenity;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.ProjectAmenityService;

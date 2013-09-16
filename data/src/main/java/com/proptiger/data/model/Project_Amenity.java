@@ -9,7 +9,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity(name = "AMENITIES")
 @ResourceMetaInfo(name = "Amenities")
-public class Amenity implements BaseModel {
+public class Project_Amenity implements BaseModel {
 
 	@Column(name = "ID")
 	@Id
