@@ -17,7 +17,7 @@ public class BlogNewsService {
 	public long getBlogNews() {
 		// TODO Auto-generated method stub
 		long num = blogNewsDao.count();
-		List<WordpressPost> list = blogNewsDao.findBlogNews();
+		List<WordpressPost> list = blogNewsDao.findPostByPostTitle();
 		return num;
 	}
 }
