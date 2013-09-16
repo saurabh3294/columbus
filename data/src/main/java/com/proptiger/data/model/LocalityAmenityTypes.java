@@ -6,9 +6,12 @@ package com.proptiger.data.model;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -18,7 +21,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "NEAR_PLACE_TYPES")
 @ResourceMetaInfo(name = "Locality Amenity Types")
-public class Locality_Amenity_Types {
+public class LocalityAmenityTypes {
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
     @Id 
@@ -31,7 +34,10 @@ public class Locality_Amenity_Types {
     @FieldMetaInfo(displayName = "Display Name", description = "Amenity Display Name")
     @Column(name="display_name")
     private String displayName;
-
+    
+    @OneToMany(mappedBy = "localityAmenityTypes", targetEntity = LocalityAmenity.class)
+    private Set<LocalityAmenity> localityAmenity = new HashSet<LocalityAmenity>();
+    
     public int getId() {
         return id;
     }
@@ -54,5 +60,13 @@ public class Locality_Amenity_Types {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public Set<LocalityAmenity> getLocalityAmenity() {
+        return localityAmenity;
+    }
+
+    public void setLocalityAmenity(Set<LocalityAmenity> localityAmenity) {
+        this.localityAmenity = localityAmenity;
     }
 }

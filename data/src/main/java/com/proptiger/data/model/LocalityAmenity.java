@@ -9,6 +9,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
@@ -18,7 +20,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "LOCALITY_NEAR_PLACES")
 @ResourceMetaInfo(name = "Locality Amenity")
-public class Locality_Amenity implements BaseModel{
+public class LocalityAmenity implements BaseModel{
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
     @Id
@@ -33,8 +35,8 @@ public class Locality_Amenity implements BaseModel{
     private int  cityId;
     
     @FieldMetaInfo(displayName = "Place Type Id", description = "Place Type Id")
-    @Column(name="place_type_id")
-    private int  placeTypeId; 
+    @Column(name="place_type_id", insertable = false, updatable = false)
+    private int  placeTypeId;
     
     @FieldMetaInfo(displayName = "Name", description = "Name")
     @Column(name="name")
@@ -84,6 +86,10 @@ public class Locality_Amenity implements BaseModel{
     @Column(name="rest_details")
     private String  restDetails;
 
+    @ManyToOne
+    @JoinColumn(name = "place_type_id", referencedColumnName = "id")
+    private LocalityAmenityTypes localityAmenityTypes;
+    
     public int getLocalityId() {
         return localityId;
     }
@@ -210,6 +216,14 @@ public class Locality_Amenity implements BaseModel{
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public LocalityAmenityTypes getLocalityAmenityTypes() {
+        return localityAmenityTypes;
+    }
+
+    public void setLocalityAmenityTypes(LocalityAmenityTypes localityAmenityTypes) {
+        this.localityAmenityTypes = localityAmenityTypes;
     }
 
 
