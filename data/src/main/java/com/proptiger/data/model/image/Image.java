@@ -1,5 +1,7 @@
 package com.proptiger.data.model.image;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,7 +13,7 @@ import javax.persistence.ManyToOne;
 import org.joda.time.DateTime;
 
 @Entity(name = "Image")
-public class Image {
+public class Image implements Serializable {
 	@Id
 	@Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -30,7 +32,7 @@ public class Image {
 	@Column(name = "created_at")
 	private DateTime createdAt;
 	
-	@Column(name = "taken_at")
+	@Column(name = "taken_at", nullable = true)
 	private DateTime takenAt;
 	
 	@Column(name = "size")
@@ -45,7 +47,7 @@ public class Image {
 	@Column(name = "format")
 	private String format;
 	
-	@Column(name = "order")
+	@Column(name = "order", nullable = true)
 	private Integer order;
 	
 	@Column(name = "content_hash")
