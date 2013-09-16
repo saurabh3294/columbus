@@ -11,7 +11,7 @@ import com.proptiger.data.repo.BlogNewsDao;
 @Service
 public class BlogNewsService {
 
-	@Autowired
+	//@Autowired
 	private BlogNewsDao blogNewsDao;
 
 	public long getBlogNews() {
