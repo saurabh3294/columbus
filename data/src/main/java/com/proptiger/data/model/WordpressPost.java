@@ -1,18 +1,18 @@
 package com.proptiger.data.model;
 
+import java.sql.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author Rajeev Pandey
  *
  */
 @Entity
-@Table(name = "wp_posts")
+@Table(name = "wordpress.wp_posts")
 public class WordpressPost {
 
 	@Id
@@ -29,6 +29,12 @@ public class WordpressPost {
 	private String guid;
 	
 
+	@Column(name = "post_status")
+	private String postStatus;
+	
+	@Column(name = "post_date")
+	private Date postDate;
+	
 	public long getId() {
 		return id;
 	}
