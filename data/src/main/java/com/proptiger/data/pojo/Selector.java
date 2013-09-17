@@ -17,7 +17,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class Selector {
     private Set<String> fields;
-    private String filters;
+    private Object filters;
     private Set<SortBy> sort;
     private Paging paging = new Paging();
     private Float radius;
@@ -30,10 +30,10 @@ public class Selector {
 	public void setFields(Set<String> fields) {
 		this.fields = fields;
 	}
-	public String getFilters() {
+	public Object getFilters() {
         return filters;
     }
-    public void setFilters(String filters) {
+    public void setFilters(Object filters) {
         this.filters = filters;
     }
     

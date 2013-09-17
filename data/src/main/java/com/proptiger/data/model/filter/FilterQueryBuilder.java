@@ -4,36 +4,34 @@
 package com.proptiger.data.model.filter;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jboss.logging.Logger;
 import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverter;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * @author mandeep
  * 
  */
 public class FilterQueryBuilder {
-    private static Gson gson = new Gson();
     private static TypeConverter typeConvertor = new SimpleTypeConverter();
     private static enum Operator {
         and, range, equal, from, to;
     }
 
+    private static Logger logger = Logger.getLogger(FilterQueryBuilder.class);
+
     @SuppressWarnings("unchecked")
-    public static void applyFilter(QueryBuilder queryBuilder, String filterString, Class<?> modelClass) {
-        if (filterString == null || filterString.isEmpty()) {
+    public static void applyFilter(QueryBuilder queryBuilder, Object filterString, Class<?> modelClass) {
+        logger.error(filterString);
+        if (filterString == null) {
             return;
         }
         
-        Type type = new TypeToken<Map<String, List<Map<String, Map<String, Object>>>>>() {}.getType();
-        Map<String, List<Map<String, Map<String, Object>>>> filters = gson.fromJson(filterString, type);
+        Map<String, List<Map<String, Map<String, Object>>>> filters = (Map<String, List<Map<String, Map<String, Object>>>>) filterString; // gson.fromJson(filterString, type);
         List<Map<String, Map<String, Object>>> andFilters = filters.get(Operator.and.name());
         if (andFilters != null && filters.size() == 1) {
             for (Map<String, Map<String, Object>> andFilter : andFilters) {

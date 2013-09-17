@@ -44,7 +44,7 @@ public class CMSDao {
         
         String url = CMS_URL+"analytics/apis/price-trend.json?"+queryParams;
                 
-        return restTemplate.getForObject(url, Object.class, null);
+        return restTemplate.getForObject(url, Object.class);
     }
     
     
