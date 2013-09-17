@@ -69,7 +69,7 @@ public class PropertyDao {
         Map<String, List<Map<Object, Long>>> resultMap = new HashMap<String, List<Map<Object, Long>>>();
         for (String field : fields) {
             resultMap.put(field, new ArrayList<Map<Object, Long>>());
-            for (Count count : solrDao.executeQuery(query).getFacetField(field).getValues()) {
+            for (Count count : solrDao.executeQuery(query).getFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class)).getValues()) {
                 HashMap<Object, Long> map = new HashMap<Object, Long>();
                 map.put(count.getName(), count.getCount());
                 resultMap.get(field).add(map);
