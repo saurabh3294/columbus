@@ -5,7 +5,6 @@
 package com.proptiger.data.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,6 +15,7 @@ import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import javax.persistence.FetchType;
 
 /**
  *
@@ -26,7 +26,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo(name = "Locality Amenity")
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonFilter("fieldFilter")
+//@JsonFilter("fieldFilter")
 public class LocalityAmenity implements BaseModel{
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
@@ -93,7 +93,7 @@ public class LocalityAmenity implements BaseModel{
     @Column(name="rest_details")
     private String  restDetails;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "place_type_id", referencedColumnName = "id")
     private LocalityAmenityTypes localityAmenityTypes;
     
