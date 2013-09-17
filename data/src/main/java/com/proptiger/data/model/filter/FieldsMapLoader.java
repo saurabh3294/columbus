@@ -5,7 +5,6 @@ package com.proptiger.data.model.filter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -18,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class FieldsMapLoader {
-    static ConcurrentMap<Class<?>, Map<String, Field>> fieldsMap = new ConcurrentHashMap<Class<?>, Map<String, Field>>();
+    static ConcurrentMap<Class<?>, ConcurrentMap<String, Field>> fieldsMap = new ConcurrentHashMap<Class<?>, ConcurrentMap<String, Field>>();
       
     public static String getDaoFieldName(Class<?> clazz, String name, Class<? extends Annotation> annotationClazzForColumnName) {
         if (!fieldsMap.containsKey(clazz)) {
@@ -40,9 +39,13 @@ public class FieldsMapLoader {
     private static void loadClassFields(Class<?> clazz) {
         for (Field field : clazz.getDeclaredFields()) {
             Annotation annotation = field.getAnnotation(JsonProperty.class);
+            fieldsMap.putIfAbsent(clazz, new ConcurrentHashMap<String, Field>());
+
             if (annotation != null) {
-                fieldsMap.putIfAbsent(clazz, new ConcurrentHashMap<String, Field>());
-                fieldsMap.get(clazz).put((String) AnnotationUtils.getAnnotationAttributes(annotation).get("value"), field);
+                fieldsMap.get(clazz).putIfAbsent((String) AnnotationUtils.getAnnotationAttributes(annotation).get("value"), field);
+            }
+            else {
+                fieldsMap.get(clazz).putIfAbsent(field.getName(), field);
             }
         }
     }

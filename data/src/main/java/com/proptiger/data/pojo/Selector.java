@@ -5,6 +5,8 @@ package com.proptiger.data.pojo;
 
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 
 /**
  * This class represents the request that include all components of a database/solr query,
@@ -17,17 +19,11 @@ public class Selector {
     private Set<String> fields;
     private String filters;
     private Set<SortBy> sort;
-    private String facets;
-    private String stats;
     private Paging paging = new Paging();
-    
-    private Set<String> groupBy;
-    
     private Float radius;
     private Float latitude;
     private Float longitude;
 
-    
     public Set<String> getFields() {
 		return fields;
 	}
@@ -47,32 +43,12 @@ public class Selector {
 	public void setPaging(Paging paging) {
 		this.paging = paging;
 	}
-	public Set<String> getGroupBy() {
-		return groupBy;
-	}
-	public void setGroupBy(Set<String> groupBy) {
-		this.groupBy = groupBy;
-	}
 	public Set<SortBy> getSort() {
 		return sort;
 	}
 	public void setSort(Set<SortBy> sort) {
 		this.sort = sort;
 	}
-	public String getFacets() {
-        return facets;
-    }
-    public void setFacets(String facets) {
-        this.facets = facets;
-    }
-    public String getStats() {
-        return stats;
-    }
-    public void setStats(String stats) {
-        this.stats = stats;
-    }
-    
-    
 	public Float getRadius() {
 		return radius;
 	}
@@ -93,11 +69,7 @@ public class Selector {
 	}
 	@Override
 	public String toString() {
-		return "Selector [fields=" + fields + ", filters=" + filters
-				+ ", sort=" + sort + ", facets=" + facets + ", stats=" + stats
-				+ ", paging=" + paging + ", groupBy=" + groupBy + ", radius="
-				+ radius + ", latitude=" + latitude + ", longitude="
-				+ longitude + "]";
+	    return ToStringBuilder.reflectionToString(this);
 	}
     
 }

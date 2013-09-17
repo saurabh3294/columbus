@@ -1,5 +1,6 @@
 package com.proptiger.data.model.meta;
 
+
 /**
  * Contains all the information relate to a field in data model class.
  * These information could be used by client and will serve as a central repository
@@ -9,7 +10,6 @@ package com.proptiger.data.model.meta;
  *
  */
 public class FieldMetaData {
-
 	private String name;
 	private String displayName;
 	private String description;
@@ -46,7 +46,4 @@ public class FieldMetaData {
 	public void setEditable(boolean editable) {
 		this.editable = editable;
 	}
-	
-	
-	
 }

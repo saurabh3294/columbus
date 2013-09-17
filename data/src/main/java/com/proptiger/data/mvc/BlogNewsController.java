@@ -10,7 +10,7 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.BlogNewsService;
 
 @Controller
-@RequestMapping(value = "v1/entity/blognews")
+@RequestMapping(value = "data/v1/entity/locality-review")
 public class BlogNewsController extends BaseController{
 
 	@Autowired

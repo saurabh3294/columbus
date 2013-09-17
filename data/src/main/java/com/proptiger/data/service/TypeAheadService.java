@@ -4,9 +4,10 @@
  */
 package com.proptiger.data.service;
 
+import java.util.List;
+
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.repo.TypeaheadDao;
-import java.util.List;
 
 /**
  *

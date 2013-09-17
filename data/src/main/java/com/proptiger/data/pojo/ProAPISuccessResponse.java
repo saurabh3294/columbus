@@ -1,8 +1,5 @@
 package com.proptiger.data.pojo;
 
-import com.fasterxml.jackson.annotation.JsonRawValue;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.constants.ResponseCodes;
 
 /**
@@ -10,7 +7,7 @@ import com.proptiger.data.constants.ResponseCodes;
  * @author Rajeev Pandey
  *
  */
-public class ProAPISuccessResponse implements ProAPIResponse{
+public class ProAPISuccessResponse implements ProAPIResponse {
 
 	private String statusCode;
 	private Object data;
@@ -33,7 +30,6 @@ public class ProAPISuccessResponse implements ProAPIResponse{
 
 	@Override
 	public String getStatusCode() {
-		// TODO Auto-generated method stub
 		return statusCode;
 	}
 
@@ -42,7 +38,7 @@ public class ProAPISuccessResponse implements ProAPIResponse{
 		this.statusCode = code;
 	}
 
-	@JsonRawValue
+//	@JsonRawValue
 	public Object getData() {
 		return data;
 	}

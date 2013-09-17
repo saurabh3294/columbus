@@ -5,11 +5,11 @@ package com.proptiger.data.service;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.solr.client.solrj.response.FacetField;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
@@ -22,14 +22,20 @@ import com.proptiger.data.repo.PropertyDao;
 public class PropertyService {
     @Autowired
     PropertyDao propertyDao;
-
-    private static Logger logger = LoggerFactory.getLogger("property");
     
     public List<Property> getProperties(Selector propertyFilter) {
-    	if(logger.isDebugEnabled()){
-			logger.debug("Get Property, Request="+propertyFilter);
-		}
-    	
         return propertyDao.getProperties(propertyFilter);
+    }
+
+    public List<Project> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
+        return propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+    }
+
+    public List<FacetField> getFacets(List<String> fields) {
+        return propertyDao.getFacets(fields);
+    }
+
+    public Object getStats(List<String> fields) {
+        return propertyDao.getFacets(fields);
     }
 }

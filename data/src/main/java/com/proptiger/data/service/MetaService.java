@@ -41,6 +41,7 @@ public class MetaService {
 	private static final String DISPLAY_NAME = "displayName";
 	private static final String DESCRIPTION = "description";
 	private Map<String, ResourceModelMeta> resourceMetaMap;
+
 	@Autowired
 	private PropertyReader propertyReader;
 	
