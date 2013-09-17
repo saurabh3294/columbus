@@ -24,27 +24,27 @@ public class City implements BaseModel {
     private String label;
 
     @FieldMetaInfo( displayName = "North east latitude",  description = "North east latitude")
-    @Field(value="NORTH_EAST_LATITUDE")
+    @Column(name="NORTH_EAST_LATITUDE")
     private Double northEastLatitude;
     
     @FieldMetaInfo( displayName = "North east longitude",  description = "North east longitude")
-    @Field(value="NORTH_EAST_LONGITUDE")
+    @Column(name="NORTH_EAST_LONGITUDE")
     private Double northEastLongitude;
     
     @FieldMetaInfo( displayName = "South west latitude",  description = "South west latitude")
-    @Field(value="SOUTH_WEST_LATITUDE")
+    @Column(name="SOUTH_WEST_LATITUDE")
     private Double southWestLatitude;
     
     @FieldMetaInfo( displayName = "South west longitude",  description = "South west latitude")
-    @Field(value="SOUTH_WEST_LONGITUDE")
+    @Column(name="SOUTH_WEST_LONGITUDE")
     private Double southWestLongitude;
     
     @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
-    @Field(value="CENTER_LATITUDE")
+    @Column(name="CENTER_LATITUDE")
     private Double centerLatitude;
     
     @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
-    @Field(value="CENTER_LONGITUDE")
+    @Column(name="CENTER_LONGITUDE")
     private Double centerLongitude;
 
     public int getId() {
