@@ -53,7 +53,7 @@ public class ProjectListingController extends BaseController {
         }
         
         if (stats != null) {
-            response.put("stats", propertyService.getStats(Arrays.asList(facets.split(","))));
+            response.put("stats", propertyService.getStats(Arrays.asList(stats.split(","))));
         }
 
         return new ProAPISuccessResponse(response);

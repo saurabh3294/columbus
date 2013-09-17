@@ -4,8 +4,9 @@
 package com.proptiger.data.service;
 
 import java.util.List;
+import java.util.Map;
 
-import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,11 +32,11 @@ public class PropertyService {
         return propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
     }
 
-    public List<FacetField> getFacets(List<String> fields) {
+    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields) {
         return propertyDao.getFacets(fields);
     }
 
-    public Object getStats(List<String> fields) {
-        return propertyDao.getFacets(fields);
+    public Map<String, FieldStatsInfo> getStats(List<String> fields) {
+        return propertyDao.getStats(fields);
     }
 }
