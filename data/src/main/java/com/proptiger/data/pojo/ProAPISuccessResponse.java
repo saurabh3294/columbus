@@ -49,7 +49,6 @@ public class ProAPISuccessResponse implements ProAPIResponse {
 		this.statusCode = code;
 	}
 
-	@JsonRawValue
 	public Object getData() {
 		return data;
 	}

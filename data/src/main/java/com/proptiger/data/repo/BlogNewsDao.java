@@ -9,7 +9,7 @@ import com.proptiger.data.model.WordpressPost;
 
 public interface BlogNewsDao extends JpaRepository<WordpressPost, Long>{
 
-	@Query("SELECT D.id, D.postTitle, D.postContent, D.guid " +
+	@Query("SELECT D " +
             " FROM WordpressTerms AS A, WordpressTermTaxonomy AS B, WordpressTermRelationship AS C, WordpressPost AS D "+
                 "  WHERE A.termId = B.termId AND"+
                 "  C.termTaxonomyId = B.termTaxonomyId AND"+
