@@ -4,6 +4,7 @@
  */
 package com.proptiger.data.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +25,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @ResourceMetaInfo(name = "Project")
+@JsonFilter("fieldFilter")
 public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
