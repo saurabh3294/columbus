@@ -170,7 +170,7 @@ public class PropertyDao {
 
         try {
             System.out.println(mapper.writeValueAsString(selector));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

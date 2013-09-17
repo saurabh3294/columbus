@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ProjectDao;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 
 /**
  *
@@ -26,7 +27,7 @@ public class ProjectService {
     private ProjectDao projectDao;
     private static Logger logger = LoggerFactory.getLogger("project");
     	
-    public Map<Long, List<Project>> getProjects(Selector projectFilter){
+    public SolrServiceResponse<List<Project>>  getProjects(Selector projectFilter){
     	if (logger.isDebugEnabled()) {
 			logger.debug("Get Projects, Request="+projectFilter);
 		}

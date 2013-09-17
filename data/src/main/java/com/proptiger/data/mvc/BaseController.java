@@ -42,7 +42,7 @@ public class BaseController {
 			return mapper.writer(filterProvider).writeValueAsString(object);
 
         }
-        catch (JsonProcessingException e) {
+        catch (Exception e) {
             throw new ProAPIException("Could not serialize response", e);
         }
     }
