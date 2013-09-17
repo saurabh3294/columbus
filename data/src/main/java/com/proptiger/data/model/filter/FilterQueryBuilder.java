@@ -14,7 +14,6 @@ import org.springframework.beans.TypeConverter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.proptiger.data.model.Property;
 
 /**
  * @author mandeep

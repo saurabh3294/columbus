@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
@@ -28,7 +28,7 @@ import com.proptiger.data.service.pojo.SolrServiceResponse;
  * @author mukand
  */
 @Controller
-@RequestMapping(value="v1/entity/project")
+@RequestMapping(value="data/v1/entity/project")
 public class ProjectController extends BaseController {
     @Autowired
     private ProjectService projectService;

@@ -4,19 +4,21 @@
  */
 package com.proptiger.data.service;
 
-import com.google.gson.Gson;
-import com.proptiger.data.repo.CMSDao;
-import com.proptiger.data.repo.LocalityDao;
-import com.proptiger.data.repo.PropertyDao;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+
 import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.proptiger.data.repo.CMSDao;
+import com.proptiger.data.repo.LocalityDao;
+import com.proptiger.data.repo.PropertyDao;
 
 /**
  *
@@ -138,12 +140,12 @@ public class GraphService {
                 locationTypeMap = 3L;
         }
         
-        Long totalEnquiry = localityDao.findTotalEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId);
-        List<Object[]> localitiesData = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId);
+        Long totalEnquiry = localityDao.findTotalEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId.intValue());
+        List<Object[]> localitiesData = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId.intValue());
         Object[] currentLocalityData = null;
         if(locationTypeMap == 1L)
         {
-            currentLocalityData = localityDao.findEnquiryCountOnLoc(timediff, locationId.longValue());
+            currentLocalityData = localityDao.findEnquiryCountOnLoc(timediff, locationId.intValue());
         }
         
         Map<String, Double> response = new LinkedHashMap<String, Double>();

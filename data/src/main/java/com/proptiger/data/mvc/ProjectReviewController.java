@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.ProjectReview;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.ProjectReviewService;
 
 @Controller
-@RequestMapping(value = "v1/entity/project-review")
+@RequestMapping(value = "data/v1/entity/project-review")
 public class ProjectReviewController {
 
 	@Autowired

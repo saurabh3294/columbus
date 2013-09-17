@@ -7,7 +7,7 @@ import com.proptiger.data.constants.ResponseCodes;
  * @author Rajeev Pandey
  *
  */
-public class ProAPISuccessResponse implements ProAPIResponse{
+public class ProAPISuccessResponse implements ProAPIResponse {
 
 	private String statusCode;
 	private long totalCount;
@@ -37,7 +37,6 @@ public class ProAPISuccessResponse implements ProAPIResponse{
 
 	@Override
 	public String getStatusCode() {
-		// TODO Auto-generated method stub
 		return statusCode;
 	}
 
