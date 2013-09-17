@@ -4,26 +4,13 @@
  */
 package com.proptiger.data.repo;
 
-import com.google.gson.Gson;
-import com.proptiger.data.util.HMAC_Client;
-import com.sun.jndi.toolkit.url.Uri;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import javax.ws.rs.core.UriBuilder;
-import org.mortbay.util.ajax.JSON;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.mvc.method.annotation.UriComponentsBuilderMethodArgumentResolver;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
-import sun.security.provider.SHA;
+
+import com.proptiger.data.util.HMAC_Client;
 
 /**
  *

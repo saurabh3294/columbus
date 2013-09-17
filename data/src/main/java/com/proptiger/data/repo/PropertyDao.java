@@ -5,6 +5,7 @@ package com.proptiger.data.repo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,7 @@ import java.util.Set;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import org.apache.solr.client.solrj.beans.Field;
-import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
@@ -59,13 +60,23 @@ public class PropertyDao {
         return properties;
     }
 
-    public List<FacetField> getFacets(List<String> fields) {
+    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields) {
         SolrQuery query = createSolrQuery(null);
         for (String field : fields) {
             query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class));
         }
 
-        return solrDao.executeQuery(query).getFacetFields();
+        Map<String, List<Map<Object, Long>>> resultMap = new HashMap<String, List<Map<Object, Long>>>();
+        for (String field : fields) {
+            resultMap.put(field, new ArrayList<Map<Object, Long>>());
+            for (Count count : solrDao.executeQuery(query).getFacetField(field).getValues()) {
+                HashMap<Object, Long> map = new HashMap<Object, Long>();
+                map.put(count.getName(), count.getCount());
+                resultMap.get(field).add(map);
+            }
+        }
+
+        return resultMap;
     }
 
     public Map<String, FieldStatsInfo> getStats(List<String> fields) {
@@ -76,7 +87,13 @@ public class PropertyDao {
             query.add("stats.field", FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class));
         }
 
-        return solrDao.executeQuery(query).getFieldStatsInfo();
+        Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
+        Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
+        for (String field : fields) {
+            resultMap.put(field, response.get(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class)));
+        }
+        
+        return resultMap;
     }
 
     public List<Project> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
