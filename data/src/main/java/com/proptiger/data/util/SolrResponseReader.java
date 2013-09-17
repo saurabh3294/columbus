@@ -4,13 +4,14 @@
  */
 package com.proptiger.data.util;
 
-import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
+
+import com.google.gson.Gson;
 
 /**
  *

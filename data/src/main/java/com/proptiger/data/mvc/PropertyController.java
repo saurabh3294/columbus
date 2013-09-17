@@ -17,8 +17,8 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.PropertyService;
 
@@ -27,7 +27,7 @@ import com.proptiger.data.service.PropertyService;
  *
  */
 @Controller
-@RequestMapping(value = "v1/entity/property")
+@RequestMapping(value = "data/v1/entity/property")
 public class PropertyController extends BaseController {
     @Autowired
     PropertyService propertyService;

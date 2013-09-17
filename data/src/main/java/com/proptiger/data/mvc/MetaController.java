@@ -19,7 +19,7 @@ import com.proptiger.data.service.MetaService;
  *
  */
 @Controller
-@RequestMapping(value = "v1/resource/meta")
+@RequestMapping(value = "data/v1/resource/meta")
 public class MetaController {	
 	@Autowired
 	private MetaService metaService;

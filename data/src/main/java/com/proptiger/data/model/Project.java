@@ -6,6 +6,7 @@ package com.proptiger.data.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -156,6 +157,8 @@ public class Project implements BaseModel {
 
     @Field(value="MEASURE")
     private String propertySizeMeasure;
+    
+    private Set<String> propertyUnitTypes;
 
     public int getId() {
         return id;
@@ -427,5 +430,13 @@ public class Project implements BaseModel {
 
     public void setPropertySizeMeasure(String propertySizeMeasure) {
         this.propertySizeMeasure = propertySizeMeasure;
+    }
+
+    public Set<String> getPropertyUnitTypes() {
+        return propertyUnitTypes;
+    }
+
+    public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
+        this.propertyUnitTypes = propertyUnitTypes;
     }
 }

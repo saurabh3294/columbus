@@ -4,12 +4,13 @@
  */
 package com.proptiger.data.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
 import com.google.gson.Gson;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.repo.LocalityAmenityDao;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
 
 /**
  *

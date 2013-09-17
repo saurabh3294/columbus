@@ -7,6 +7,9 @@ import java.util.Date;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import com.proptiger.data.meta.DataType;
+import com.proptiger.data.meta.FieldMetaInfo;
+
 /**
  * @author mandeep
  * 
@@ -18,6 +21,82 @@ public class SolrResult {
     private Suburb suburb = new Suburb();
     private City city = new City();
     private Builder builder = new Builder();
+
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
+    @Field(value = "MIN_PRICE_PER_UNIT_AREA")
+    private Double minPricePerUnitArea;
+
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
+    @Field(value = "MAX_PRICE_PER_UNIT_AREA")
+    private Double maxPricePerUnitArea;
+
+    @FieldMetaInfo( displayName = "Min Size",  description = "Min Size")
+    @Field(value = "MINSIZE")
+    private Double minSize;
+
+    @FieldMetaInfo( displayName = "Max Size",  description = "Max Size")
+    @Field(value = "MAXSIZE")
+    private Double maxSize;
+
+    @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
+    @Field(value = "PROJECT_NAME")
+    private String name;
+
+    @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
+    @Field(value = "LOCALITY_ID")
+    private int localityId;
+
+    @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
+    @Field(value = "BUILDER_ID")
+    private int builderId;
+
+    @FieldMetaInfo( displayName = "Launch Date",  description = "Launch Date")
+    @Field(value = "VALID_LAUNCH_DATE")
+    private Date launchDate;
+
+    @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
+    @Field(value = "PROMISED_COMPLETION_DATE")
+    private Date possessionDate;
+    
+    @FieldMetaInfo( displayName = "Bedrooms",  description = "Number of bedrooms")
+    @Field(value="BEDROOMS")
+    private int bedrooms;
+    
+    @FieldMetaInfo( displayName = "Bathrooms",  description = "Number of bathrooms")
+    @Field(value="BATHROOMS")
+    private int bathrooms;
+    
+    @FieldMetaInfo( displayName = "Unit type",  description = "Unit type")
+    @Field(value="UNIT_TYPE")
+    private String unitType;
+    
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
+    @Field(value="PRICE_PER_UNIT_AREA")
+    private Double pricePerUnitArea;
+
+    @FieldMetaInfo( displayName = "Size",  description = "Size")
+    @Field(value="SIZE")
+    private Double size;
+
+    @FieldMetaInfo(displayName = "Locality Label", description = "Locality Label")
+    @Field(value = "LOCALITY")
+    private String localityLabel;
+
+    @FieldMetaInfo(displayName = "Suburb Label", description = "Suburb Label")
+    @Field(value = "SUBURB")
+    private String suburbLabel;
+    
+    @FieldMetaInfo(displayName = "Builder Label", description = "Builder Label")
+    @Field(value = "BUILDER_NAME")
+    private String buiderLabel;
+    
+    @FieldMetaInfo(displayName = "City Label", description = "City Label")
+    @Field(value = "CITY")
+    private String cityLabel;
+
+    @FieldMetaInfo( displayName = "Address",  description = "Address")
+    @Field(value = "PROJECT_ADDRESS")
+    private String address;
 
     public SolrResult() {
         property.setProject(project);
@@ -53,12 +132,12 @@ public class SolrResult {
     }
 
     @Field("PRICE_PER_UNIT_AREA")
-    public void setPricePerUnitArea(double pricePerUnitArea) {
+    public void setPricePerUnitArea(Double pricePerUnitArea) {
         property.setPricePerUnitArea(pricePerUnitArea);
     }
 
     @Field("SIZE")
-    public void setSize(double size) {
+    public void setSize(Double size) {
         property.setSize(size);
     }
 
@@ -167,22 +246,22 @@ public class SolrResult {
     }
 
     @Field("LATITUDE")
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         project.setLatitude(latitude);
     }
 
     @Field("LONGITUDE")
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         project.setLongitude(longitude);
     }
 
     @Field("MIN_PRICE_PER_UNIT_AREA")
-    public void setMinPricePerUnitArea(double minPricePerUnitArea) {
+    public void setMinPricePerUnitArea(Double minPricePerUnitArea) {
         project.setMinPricePerUnitArea(minPricePerUnitArea);
     }
 
     @Field("MAX_PRICE_PER_UNIT_AREA")
-    public void setMaxPricePerUnitArea(double maxPricePerUnitArea) {
+    public void setMaxPricePerUnitArea(Double maxPricePerUnitArea) {
         project.setMaxPricePerUnitArea(maxPricePerUnitArea);
     }
 
@@ -254,32 +333,32 @@ public class SolrResult {
     }
 
     @Field("NORTH_EAST_LATITUDE")
-    public void setNorthEastLatitude(double northEastLatitude) {
+    public void setNorthEastLatitude(Double northEastLatitude) {
         city.setNorthEastLatitude(northEastLatitude);
     }
 
     @Field("NORTH_EAST_LONGITUDE")
-    public void setNorthEastLongitude(double northEastLongitude) {
+    public void setNorthEastLongitude(Double northEastLongitude) {
         city.setNorthEastLongitude(northEastLongitude);
     }
 
     @Field("SOUTH_WEST_LATITUDE")
-    public void setSouthWestLatitude(double southWestLatitude) {
+    public void setSouthWestLatitude(Double southWestLatitude) {
         city.setSouthWestLatitude(southWestLatitude);
     }
 
     @Field("SOUth_WEST_LONGITUDE")
-    public void setSouthWestLongitude(double southWestLongitude) {
+    public void setSouthWestLongitude(Double southWestLongitude) {
         city.setSouthWestLongitude(southWestLongitude);
     }
 
     @Field("CENTER_LATITUDE")
-    public void setCenterLatitude(double centerLatitude) {
+    public void setCenterLatitude(Double centerLatitude) {
         city.setCenterLatitude(centerLatitude);
     }
 
     @Field("CENTER_LONGITUDE")
-    public void setCenterLongitude(double centerLongitude) {
+    public void setCenterLongitude(Double centerLongitude) {
         city.setCenterLongitude(centerLongitude);
     }
 

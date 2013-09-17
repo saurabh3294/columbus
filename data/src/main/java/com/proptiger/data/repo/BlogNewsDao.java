@@ -9,12 +9,12 @@ import com.proptiger.data.model.WordpressPost;
 
 public interface BlogNewsDao extends JpaRepository<WordpressPost, Long>{
 
-/*	@Query("SELECT D.ID, D.postTitle, D.postContent, D.guid " +
-            " FROM WordpressTerms AS A"+
-                "  join WordpressTermTaxonomy AS B WHERE A.term_id = B.termId"+
-                "  join WordpressTermRelationship AS C WHERE C.termTaxonomyId = B.termTaxonomyId"+
-                "  join WordpressPost AS D WHERE D.id = C.objectId WHERE"+
-            " A.name='Noida' AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' ORDER BY D.postDate DESC LIMIT 10")
-*/	
-	public List<WordpressPost> findPostByPostTitle();
+	@Query("SELECT D.id, D.postTitle, D.postContent, D.guid " +
+            " FROM WordpressTerms AS A, WordpressTermTaxonomy AS B, WordpressTermRelationship AS C, WordpressPost AS D "+
+                "  WHERE A.termId = B.termId AND"+
+                "  C.termTaxonomyId = B.termTaxonomyId AND"+
+                "  D.id = C.objectId AND"+
+            " A.name= ?1 AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' ORDER BY D.postDate DESC ")
+	
+	public List<WordpressPost> findPublishedBlogNewsByCity(String cityName);
 }

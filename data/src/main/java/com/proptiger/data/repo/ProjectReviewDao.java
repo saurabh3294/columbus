@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.model.LocalityReview;
 import com.proptiger.data.model.ProjectReview;
 
 /**

@@ -4,14 +4,11 @@
  */
 package com.proptiger.data.mvc;
 
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
-import com.google.gson.reflect.TypeToken;
-import com.proptiger.data.service.GraphService;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,12 +16,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
+import com.proptiger.data.service.GraphService;
+
 /**
  *
  * @author mukand
  */
 @Controller
-@RequestMapping(value="v1/entity/graph")
+@RequestMapping(value="data/v1/entity/graph")
 public class GraphController {
     private Gson gson = new Gson();
     @Autowired

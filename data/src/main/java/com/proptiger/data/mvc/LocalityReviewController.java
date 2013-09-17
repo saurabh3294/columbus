@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.LocalityReview;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.LocalityReviewService;
 
 /**
@@ -21,7 +21,7 @@ import com.proptiger.data.service.LocalityReviewService;
  *
  */
 @Controller
-@RequestMapping(value = "v1/entity/locality-review")
+@RequestMapping(value = "data/v1/entity/locality-review")
 public class LocalityReviewController {
 
 	@Autowired

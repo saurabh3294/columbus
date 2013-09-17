@@ -17,17 +17,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ProjectService;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 
 /**
  *
  * @author mukand
  */
 @Controller
-@RequestMapping(value="v1/entity/project")
+@RequestMapping(value="data/v1/entity/project")
 public class ProjectController extends BaseController {
     @Autowired
     private ProjectService projectService;
@@ -38,14 +39,9 @@ public class ProjectController extends BaseController {
     	if(propRequestParam == null){
     		propRequestParam = new Selector();
     	}
-    	Map<Long, List<Project>> result = projectService.getProjects(propRequestParam);
-    	Map<String, Object> data = new HashMap<String, Object>();
-    	for (Entry<Long, List<Project>> entry : result.entrySet()) {
-    	    data.put("numFound", entry.getKey());
-    	    data.put("items", entry.getValue());
-    	}
+    	SolrServiceResponse<List<Project>> response = projectService.getProjects(propRequestParam);
 
         Set<String> fieldsString = propRequestParam.getFields();
-        return new ProAPISuccessResponse(super.filterFields(data, fieldsString));
+        return new ProAPISuccessResponse(super.filterFields(response.getResult(), fieldsString), response.getTotalResultCount());
     }
 }

@@ -8,16 +8,18 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.repo.BlogNewsDao;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Service
 public class BlogNewsService {
 
-	//@Autowired
+	@Autowired
 	private BlogNewsDao blogNewsDao;
 
-	public long getBlogNews() {
-		// TODO Auto-generated method stub
-		long num = blogNewsDao.count();
-		List<WordpressPost> list = blogNewsDao.findPostByPostTitle();
-		return num;
+	public List<WordpressPost> getBlogNewsPostsByCity(String cityName) {
+		List<WordpressPost> list = blogNewsDao.findPublishedBlogNewsByCity(cityName);
+		return list;
 	}
 }

@@ -4,22 +4,31 @@
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
+import org.apache.solr.client.solrj.beans.Field;
+import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
+import org.apache.solr.client.solrj.response.Group;
+import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.filter.FieldsMapLoader;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
@@ -28,7 +37,6 @@ import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
-import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SolrResponseReader;
 
 /**
@@ -37,44 +45,130 @@ import com.proptiger.data.util.SolrResponseReader;
  */
 @Repository
 public class PropertyDao {
-
     @Autowired
     private SolrDao solrDao;
 
-    @Autowired
-    private PropertyReader propertyReader;
     // to make it autowired.
     private SolrResponseReader solrResponseReader = new SolrResponseReader();
 
-    private static Logger logger = LoggerFactory.getLogger("property");
-
     public List<Property> getProperties(Selector selector) {
-        SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery("*:*");
-        solrQuery.add("facet", "true");
-        solrQuery.add("facet.field", "CITY");
-        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
-        Paging paging = selector.getPaging();
-        if(paging != null){
-        	solrQuery.setRows(paging.getRows());
-            solrQuery.setStart(paging.getStart());
-        }
-        
-
-        SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
-        FilterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), Property.class);
-        SortQueryBuilder.applySort(queryBuilder, selector.getSort(), Property.class);
-        FieldsQueryBuilder.applyFields(queryBuilder, selector.getFields(), Property.class);
-
-        logger.error("Running a query against solr");
-        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-        logger.error("Fetched results");
-        List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
+        List<SolrResult> solrResults = getSolrResultsForProperties(selector);
         List<Property> properties = new ArrayList<Property>();
         for (SolrResult solrResult : solrResults) {
             properties.add(solrResult.getProperty());
         }
         return properties;
+    }
+
+    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields) {
+        SolrQuery query = createSolrQuery(null);
+        for (String field : fields) {
+            query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class));
+        }
+
+        Map<String, List<Map<Object, Long>>> resultMap = new HashMap<String, List<Map<Object, Long>>>();
+        for (String field : fields) {
+            resultMap.put(field, new ArrayList<Map<Object, Long>>());
+            for (Count count : solrDao.executeQuery(query).getFacetField(field).getValues()) {
+                HashMap<Object, Long> map = new HashMap<Object, Long>();
+                map.put(count.getName(), count.getCount());
+                resultMap.get(field).add(map);
+            }
+        }
+
+        return resultMap;
+    }
+
+    public Map<String, FieldStatsInfo> getStats(List<String> fields) {
+        SolrQuery query = createSolrQuery(null);
+        query.add("stats", "true");
+
+        for (String field : fields) {
+            query.add("stats.field", FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class));
+        }
+
+        Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
+        Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
+        for (String field : fields) {
+            resultMap.put(field, response.get(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class)));
+        }
+        
+        return resultMap;
+    }
+
+    public List<Project> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
+        SolrQuery solrQuery = createSolrQuery(propertyListingSelector);
+        solrQuery.add("group", "true");
+        solrQuery.add("group.field", "PROJECT_ID");
+
+        List<Project> projects = new ArrayList<Project>();
+
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
+            for (Group group : groupCommand.getValues()) {
+                List<SolrResult> solrResults = convertSolrResult(group.getResult());
+                Project project = solrResults.get(0).getProject();
+                Property property = solrResults.get(0).getProperty();
+                project.setMaxPricePerUnitArea(property.getPricePerUnitArea());
+                project.setMaxSize(property.getSize());
+                project.setMinPricePerUnitArea(property.getPricePerUnitArea());
+                project.setMinSize(property.getSize());
+
+                Set<String> unitTypes = new HashSet<String>();
+                for (SolrResult solrResult : solrResults) {
+                    Property propertyLocal = solrResult.getProperty();
+                    unitTypes.add(propertyLocal.getUnitType());
+                    if (propertyLocal.getPricePerUnitArea() != null) {
+                        project.setMaxPricePerUnitArea(Math.max(project.getMaxPricePerUnitArea(),
+                                propertyLocal.getPricePerUnitArea()));
+                        project.setMinPricePerUnitArea(Math.min(project.getMinPricePerUnitArea(),
+                                propertyLocal.getPricePerUnitArea()));
+                    }
+
+                    if (propertyLocal.getSize() != null) {
+                        project.setMaxSize(Math.max(project.getMaxSize(), propertyLocal.getSize()));
+                        project.setMinSize(Math.min(project.getMinSize(), propertyLocal.getSize()));
+                    }
+                }
+                project.setPropertyUnitTypes(unitTypes);
+                projects.add(project);
+            }
+        }
+
+        return projects;
+    }
+
+    private List<SolrResult> convertSolrResult(SolrDocumentList result) {
+        return new DocumentObjectBinder().getBeans(SolrResult.class, result);
+    }
+
+    private List<SolrResult> getSolrResultsForProperties(Selector selector) {
+        SolrQuery solrQuery = createSolrQuery(selector);
+
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
+        return solrResults;
+    }
+
+    private SolrQuery createSolrQuery(Selector selector) {
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery("*:*");
+        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
+        
+        if (selector != null) {
+            Paging paging = selector.getPaging();
+            if (paging != null) {
+                solrQuery.setRows(paging.getRows());
+                solrQuery.setStart(paging.getStart());
+            }
+
+            SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
+            FilterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), SolrResult.class);
+            SortQueryBuilder.applySort(queryBuilder, selector.getSort(), SolrResult.class);
+            FieldsQueryBuilder.applyFields(queryBuilder, selector.getFields(), SolrResult.class);
+        }
+
+        return solrQuery;
     }
 
     public Map<String, Map<String, Integer>> getProjectDistrubtionOnStatusOnBed(Map<String, String> params) {
@@ -149,15 +243,15 @@ public class PropertyDao {
         Selector selector = new Selector();
         selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
         Set<String> fields = new HashSet<String>();
-        fields.add("price_per_unit_area");
+        fields.add("pricePerUnitArea");
         fields.add("bedrooms");
-        fields.add("unit_name");
-        fields.add("unit_type");
+        // fields.add("unit_name");
+        fields.add("unitType");
         selector.setFields(fields);
 
         Set<SortBy> sort = new HashSet<SortBy>();
         SortBy sortBy1 = new SortBy();
-        sortBy1.setField("price_per_unit_area");
+        sortBy1.setField("pricePerUnitArea");
         sortBy1.setSortOrder(SortOrder.ASC);
 
         SortBy sortBy2 = new SortBy();
@@ -170,10 +264,11 @@ public class PropertyDao {
 
         try {
             System.out.println(mapper.writeValueAsString(selector));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        new PropertyDao().getProperties(selector);
+//        new PropertyDao().getPropertiesGroupedToProjects(selector);
+        new PropertyDao().getStats(Collections.singletonList("bedrooms"));
     }
 }
