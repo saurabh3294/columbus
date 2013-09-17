@@ -18,7 +18,7 @@ import com.proptiger.data.service.BlogNewsService;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/locality-review")
+@RequestMapping(value = "data/v1/entity/blog-news")
 public class BlogNewsController extends BaseController{
 
 	@Autowired
