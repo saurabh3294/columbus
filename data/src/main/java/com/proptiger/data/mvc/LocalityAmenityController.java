@@ -4,11 +4,16 @@
  */
 package com.proptiger.data.mvc;
 
+import com.proptiger.data.model.LocalityAmenity;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.LocalityAmenityService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -21,10 +26,10 @@ public class LocalityAmenityController extends BaseController{
     @Autowired
     private LocalityAmenityService localityAmenityService;
     
-    @RequestMapping(value="{id}/amenity/{amenity}")
+    @RequestMapping(value="{id}/amenity/", method = RequestMethod.GET)
     @ResponseBody
-    public Object getAmenitiesByLocalityIdAndAmenity(@PathVariable("id")int localityId, @PathVariable("amenity") String amenityName){
-        Object data = localityAmenityService.getAmenitiesByLocalityIdAndAmenity(localityId, amenityName);
-        return data;
+    public Object getAmenitiesByLocalityIdAndAmenity(@PathVariable("id")int localityId, @RequestParam(value = "amenity", required = false) String amenityName){
+        return new ProAPISuccessResponse(localityAmenityService.getAmenitiesByLocalityIdAndAmenity(localityId, amenityName));
+        
     }
 }
