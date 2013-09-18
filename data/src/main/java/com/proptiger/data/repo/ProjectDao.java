@@ -4,11 +4,8 @@
  */
 package com.proptiger.data.repo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -16,10 +13,8 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
 import com.proptiger.data.model.filter.GeoQueryBuilder;
@@ -28,6 +23,7 @@ import com.proptiger.data.model.filter.SortQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -41,7 +37,7 @@ public class ProjectDao {
     @Autowired
     private PropertyReader propertyReader;
 
-    public Map<Long, List<Project>> getProjects(Selector projectFilter) {
+    public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
@@ -56,15 +52,12 @@ public class ProjectDao {
                 projectFilter.getRadius(), queryBuilder);
 
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-        List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
-        List<Project> projects = new ArrayList<Project>();
-        for (SolrResult solrResult : solrResults) {
-            projects.add(solrResult.getProject());
-        }
+        List<Project> solrResults = queryResponse.getBeans(Project.class);
 
-        Map<Long, List<Project>> result = new HashMap<Long, List<Project>>();
-        result.put(queryResponse.getResults().getNumFound(), projects);
-        return result;
+        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
+        solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
+        solrRes.setResult(solrResults);
+        return solrRes;
     }
 
     public static void main(String[] args) {
@@ -93,7 +86,7 @@ public class ProjectDao {
 
         try {
             System.out.println(mapper.writeValueAsString(projectFilter));
-        } catch (JsonProcessingException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

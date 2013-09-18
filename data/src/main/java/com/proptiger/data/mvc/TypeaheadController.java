@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Typeahead;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.TypeAheadService;
 
 /**
@@ -21,7 +21,7 @@ import com.proptiger.data.service.TypeAheadService;
  * @author mukand
  */
 @Controller
-@RequestMapping(value="v1/entity/typeahead")
+@RequestMapping(value="data/v1/entity/typeahead")
 public class TypeaheadController {
     TypeAheadService typeaheadService = new TypeAheadService();
     

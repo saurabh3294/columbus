@@ -1,4 +1,4 @@
-package com.proptiger.data.model;
+    package com.proptiger.data.model;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +13,7 @@ import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import javax.persistence.FetchType;
 
 /**
  * Locality entity class
@@ -63,7 +64,11 @@ public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Active", description = "Active")
     @Column(name = "ACTIVE")
     private boolean isActive;
-
+    
+    @FieldMetaInfo(displayName = "DELETED_FLAG", description = "DELETED_FLAG")
+    @Column(name = "DELETED_FLAG")
+    private boolean deletedFlag;
+    
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
     private String description;
@@ -80,8 +85,6 @@ public class Locality implements BaseModel {
     @Column(name = "LONGITUDE")
     private Double longitude;
 
-    // These two column are not present in the table. They are used
-    // in custom queries.
     @OneToMany(mappedBy = "locality", targetEntity = Enquiry.class)
     private Set<Enquiry> enquiry = new HashSet<Enquiry>();
 
@@ -203,5 +206,13 @@ public class Locality implements BaseModel {
 
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public boolean isDeletedFlag() {
+        return deletedFlag;
+    }
+
+    public void setDeletedFlag(boolean deletedFlag) {
+        this.deletedFlag = deletedFlag;
     }
 }

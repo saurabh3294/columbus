@@ -4,11 +4,13 @@
  */
 package com.proptiger.data.repo;
 
-import com.proptiger.data.model.Typeahead;
 import java.util.List;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
+
+import com.proptiger.data.model.Typeahead;
 
 /**
  *

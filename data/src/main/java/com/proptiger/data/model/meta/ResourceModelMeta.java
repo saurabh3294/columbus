@@ -19,10 +19,10 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  *
  */
 public class ResourceModelMeta {
-
 	private String name;
-	private List<FieldMetaData> fieldMeta;
 	
+	private List<FieldMetaData> fieldMeta;
+
 	public String getName() {
 		return name;
 	}
@@ -50,7 +50,7 @@ public class ResourceModelMeta {
 		 System.out.println("------------------");
 		 Iterator<Class<?>> it = annotated.iterator();
 		 while(it.hasNext()){
-			 Class cl = it.next();
+			 Class<?> cl = it.next();
 			 Annotation annotation = cl.getAnnotation(ResourceMetaInfo.class);
 			 System.out.println(AnnotationUtils.getAnnotationAttributes(annotation).get("name"));
 		 }

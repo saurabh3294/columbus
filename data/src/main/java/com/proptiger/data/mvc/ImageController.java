@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.service.ImageService;
 
 /**
@@ -17,7 +16,7 @@ import com.proptiger.data.service.ImageService;
  *
  */
 @Controller
-@RequestMapping(value="v1/entity/image")
+@RequestMapping(value="data/v1/entity/image")
 public class ImageController extends BaseController {
 	@Autowired
 	private ImageService imageService;

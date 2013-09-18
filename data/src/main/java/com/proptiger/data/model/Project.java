@@ -4,8 +4,10 @@
  */
 package com.proptiger.data.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -23,10 +25,11 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @ResourceMetaInfo(name = "Project")
+@JsonFilter("fieldFilter")
 public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
-    private int id;
+    private int projectId;
 
     @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
@@ -131,6 +134,14 @@ public class Project implements BaseModel {
     @Field(value = "MAXSIZE")
     private Double maxSize;
 
+    @FieldMetaInfo( displayName = "Min Price",  description = "Min Price")
+    @Field(value = "MIN_BUDGET")
+    private Double minPrice;
+
+    @FieldMetaInfo( displayName = "Max Price",  description = "Max Price")
+    @Field(value = "MAX_BUDGET")
+    private Double maxPrice;
+
     @FieldMetaInfo( displayName = "Project Status",  description = "Project Status")
     @Field(value = "PROJECT_STATUS")
     private String status;
@@ -156,13 +167,15 @@ public class Project implements BaseModel {
 
     @Field(value="MEASURE")
     private String propertySizeMeasure;
+    
+    private Set<String> propertyUnitTypes;
 
-    public int getId() {
-        return id;
+    public int getProjectId() {
+        return projectId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setProjectId(int id) {
+        this.projectId = id;
     }
 
     public int getLocalityId() {
@@ -427,5 +440,29 @@ public class Project implements BaseModel {
 
     public void setPropertySizeMeasure(String propertySizeMeasure) {
         this.propertySizeMeasure = propertySizeMeasure;
+    }
+
+    public Set<String> getPropertyUnitTypes() {
+        return propertyUnitTypes;
+    }
+
+    public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
+        this.propertyUnitTypes = propertyUnitTypes;
+    }
+
+    public Double getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(Double minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public Double getMaxPrice() {
+        return maxPrice;
+    }
+
+    public void setMaxPrice(Double maxPrice) {
+        this.maxPrice = maxPrice;
     }
 }
