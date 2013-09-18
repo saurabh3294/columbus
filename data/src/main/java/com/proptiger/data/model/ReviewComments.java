@@ -57,7 +57,7 @@ public class ReviewComments implements BaseModel{
     
     @FieldMetaInfo(displayName = "You know", description = "You Know")
     @Column(name = "YOU_KNOW")
-    private short youKnow;
+    private int youKnow;
     
     @FieldMetaInfo(displayName = "Comment Time", description = "Comment Time")
     @Column(name = "COMMENTTIME")
@@ -70,7 +70,7 @@ public class ReviewComments implements BaseModel{
     
     @FieldMetaInfo(displayName = "Status", description = "Status")
     @Column(name = "STATUS")
-    private short status;
+    private int status;
 
     public int getCommentId() {
         return commentId;
@@ -136,7 +136,7 @@ public class ReviewComments implements BaseModel{
         this.recommend = recommend;
     }
 
-    public short getYouKnow() {
+    public int getYouKnow() {
         return youKnow;
     }
 
@@ -160,7 +160,7 @@ public class ReviewComments implements BaseModel{
         this.userName = userName;
     }
 
-    public short getStatus() {
+    public int getStatus() {
         return status;
     }
 
