@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import java.util.Date;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -14,6 +15,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
  * @author mandeep
  * 
  */
+@JsonFilter("fieldFilter")
 public class SolrResult {
     private Property property = new Property();
     private Project project = new Project();

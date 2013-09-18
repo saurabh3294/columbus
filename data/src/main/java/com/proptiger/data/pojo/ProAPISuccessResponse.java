@@ -29,7 +29,7 @@ public class ProAPISuccessResponse implements ProAPIResponse {
 		this.data = data;
 		this.totalCount = count;
 	}
-
+        
 	public ProAPISuccessResponse(String statusCode, Object data) {
 		super();
 		this.statusCode = statusCode;
@@ -47,7 +47,6 @@ public class ProAPISuccessResponse implements ProAPIResponse {
 		this.statusCode = code;
 	}
 
-//	@JsonRawValue
 	public Object getData() {
 		return data;
 	}

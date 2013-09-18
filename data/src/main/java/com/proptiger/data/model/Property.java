@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -10,6 +11,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 @ResourceMetaInfo(name = "Property")
+@JsonFilter("fieldFilter")
 public class Property implements BaseModel {
     @FieldMetaInfo( displayName = "Id",  description = "Property Id")
     @Field(value="TYPE_ID")
