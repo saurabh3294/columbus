@@ -4,13 +4,12 @@
  */
 package com.proptiger.data.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -23,7 +22,10 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "NEAR_PLACE_TYPES")
 @ResourceMetaInfo(name = "Locality Amenity Types")
-public class LocalityAmenityTypes {
+@JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+//@JsonFilter("fieldFilter")
+public class LocalityAmenityTypes implements BaseModel{
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
     @Id 
@@ -37,8 +39,8 @@ public class LocalityAmenityTypes {
     @Column(name="display_name")
     private String displayName;
     
-    @OneToMany(mappedBy = "localityAmenityTypes", targetEntity = LocalityAmenity.class)
-    private Set<LocalityAmenity> localityAmenity = new HashSet<LocalityAmenity>();
+    //@OneToMany(mappedBy = "localityAmenityTypes", targetEntity = LocalityAmenity.class, fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
+    //private Set<LocalityAmenity> localityAmenity = new HashSet<LocalityAmenity>();
     
     public int getId() {
         return id;
@@ -64,11 +66,11 @@ public class LocalityAmenityTypes {
         this.displayName = displayName;
     }
 
-    public Set<LocalityAmenity> getLocalityAmenity() {
+    /*public Set<LocalityAmenity> getLocalityAmenity() {
         return localityAmenity;
     }
 
     public void setLocalityAmenity(Set<LocalityAmenity> localityAmenity) {
         this.localityAmenity = localityAmenity;
-    }
+    }*/
 }

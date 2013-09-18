@@ -1,6 +1,5 @@
 package com.proptiger.data.pojo;
 
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.proptiger.data.constants.ResponseCodes;
 
 /**
@@ -29,7 +28,7 @@ public class ProAPISuccessResponse implements ProAPIResponse {
 		this.data = data;
 		this.totalCount = count;
 	}
-        
+
 	public ProAPISuccessResponse(String statusCode, Object data) {
 		super();
 		this.statusCode = statusCode;
@@ -38,7 +37,6 @@ public class ProAPISuccessResponse implements ProAPIResponse {
 
 	@Override
 	public String getStatusCode() {
-		// TODO Auto-generated method stub
 		return statusCode;
 	}
 
@@ -47,6 +45,10 @@ public class ProAPISuccessResponse implements ProAPIResponse {
 		this.statusCode = code;
 	}
 
+<<<<<<< HEAD
+//	@JsonRawValue
+=======
+>>>>>>> branch 'master' of https://proptiger.repositoryhosting.com/git/proptiger/dal.git
 	public Object getData() {
 		return data;
 	}

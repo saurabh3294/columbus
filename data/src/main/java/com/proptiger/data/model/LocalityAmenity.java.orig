@@ -4,8 +4,14 @@
  */
 package com.proptiger.data.model;
 
+<<<<<<< HEAD
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.meta.ResourceMetaInfo;
+=======
+>>>>>>> branch 'master' of https://proptiger.repositoryhosting.com/git/proptiger/dal.git
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -15,7 +21,6 @@ import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import javax.persistence.FetchType;
 
 /**
  *
@@ -26,7 +31,7 @@ import javax.persistence.FetchType;
 @ResourceMetaInfo(name = "Locality Amenity")
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-//@JsonFilter("fieldFilter")
+@JsonFilter("fieldFilter")
 public class LocalityAmenity implements BaseModel{
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
@@ -93,7 +98,7 @@ public class LocalityAmenity implements BaseModel{
     @Column(name="rest_details")
     private String  restDetails;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "place_type_id", referencedColumnName = "id")
     private LocalityAmenityTypes localityAmenityTypes;
     

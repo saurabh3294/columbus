@@ -1,4 +1,4 @@
-/*
+    /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -11,12 +11,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.model.Locality;
+import java.util.Collection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
  *
  * @author mukand
  */
-public interface LocalityDao extends JpaRepository<Locality, Long>{
+    public interface LocalityDao extends PagingAndSortingRepository<Locality, Long>{
     
     @Query("SELECT COUNT(*) "
             + " FROM Locality L join L.enquiry E WHERE L.localityId=E.localityId AND "
@@ -37,5 +41,9 @@ public interface LocalityDao extends JpaRepository<Locality, Long>{
             + " UNIX_TIMESTAMP(E.createdDate) >= (UNIX_TIMESTAMP() - ?1) AND "
             + " L.localityId=?2")
     public Object[] findEnquiryCountOnLoc(@Param Long timediff, @Param int localityId);
+    
+    public Page<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityDesc(int cityId, boolean active, boolean deletedFlag, Pageable pageable);
+    
+    public Page<Locality> findByLocalityIdInAndIsActiveAndDeletedFlagOrderByPriorityDescLabelAsc(List<Integer> localityIds, boolean active, boolean deletedFlag, Pageable pageable);
      
 }

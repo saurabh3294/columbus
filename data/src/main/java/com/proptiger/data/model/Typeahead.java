@@ -4,6 +4,7 @@
  */
 package com.proptiger.data.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -13,6 +14,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @ResourceMetaInfo(name="Typeahead")
+@JsonFilter("fieldFilter")
 public class Typeahead implements BaseModel {
     @Field(value="id")
     private String id;

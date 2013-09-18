@@ -30,8 +30,8 @@ public class FilterQueryBuilder {
         if (filterString == null) {
             return;
         }
-        
-        Map<String, List<Map<String, Map<String, Object>>>> filters = (Map<String, List<Map<String, Map<String, Object>>>>) filterString; // gson.fromJson(filterString, type);
+
+        Map<String, List<Map<String, Map<String, Object>>>> filters = (Map<String, List<Map<String, Map<String, Object>>>>) filterString;
         List<Map<String, Map<String, Object>>> andFilters = filters.get(Operator.and.name());
         if (andFilters != null && filters.size() == 1) {
             for (Map<String, Map<String, Object>> andFilter : andFilters) {

@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -13,6 +14,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo(name = "City")
+@JsonFilter("fieldFilter")
 public class City implements BaseModel {
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
@@ -24,26 +26,32 @@ public class City implements BaseModel {
     private String label;
 
     @FieldMetaInfo( displayName = "North east latitude",  description = "North east latitude")
+    @Column(name="NORTH_EAST_LATITUDE")
     @Field(value="NORTH_EAST_LATITUDE")
     private Double northEastLatitude;
     
     @FieldMetaInfo( displayName = "North east longitude",  description = "North east longitude")
+    @Column(name="NORTH_EAST_LONGITUDE")
     @Field(value="NORTH_EAST_LONGITUDE")
     private Double northEastLongitude;
     
     @FieldMetaInfo( displayName = "South west latitude",  description = "South west latitude")
+    @Column(name="SOUTH_WEST_LATITUDE")
     @Field(value="SOUTH_WEST_LATITUDE")
     private Double southWestLatitude;
     
     @FieldMetaInfo( displayName = "South west longitude",  description = "South west latitude")
+    @Column(name="SOUTH_WEST_LONGITUDE")
     @Field(value="SOUTH_WEST_LONGITUDE")
     private Double southWestLongitude;
     
     @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
+    @Column(name="CENTER_LATITUDE")
     @Field(value="CENTER_LATITUDE")
     private Double centerLatitude;
     
     @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
+    @Column(name="CENTER_LONGITUDE")
     @Field(value="CENTER_LONGITUDE")
     private Double centerLongitude;
 

@@ -4,7 +4,13 @@
  */
 package com.proptiger.data.mvc;
 
+<<<<<<< HEAD
+import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.service.LocalityAmenityService;
+import java.util.List;
+=======
+>>>>>>> branch 'master' of https://proptiger.repositoryhosting.com/git/proptiger/dal.git
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
