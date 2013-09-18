@@ -19,15 +19,19 @@ import com.proptiger.data.service.BlogNewsService;
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/blog-news")
-public class BlogNewsController extends BaseController{
+public class BlogNewsController extends BaseController {
 
 	@Autowired
 	private BlogNewsService blogNewsService;
-	
+
 	@RequestMapping
 	@ResponseBody
-	public ProAPIResponse getBlogNewsForCity(@RequestParam(required = true, value="cityName") String cityName){
-		List<WordpressPost> newsList = blogNewsService.getBlogNewsPostsByCity(cityName);
+	public ProAPIResponse getBlogNewsForCity(
+			@RequestParam(required = true, value = "cityName") String cityName,
+			@RequestParam(required = false, defaultValue = "200", value = "contentLimit") int contentLimit) {
+
+		List<WordpressPost> newsList = blogNewsService
+				.getBlogNewsPostsByCity(cityName, contentLimit);
 		return new ProAPISuccessResponse(newsList);
 	}
 }

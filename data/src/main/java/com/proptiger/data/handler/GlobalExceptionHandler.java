@@ -68,5 +68,13 @@ public class GlobalExceptionHandler {
 				ResponseErrorMessages.SOLR_DOWN);
 	}
 	
+	@ExceptionHandler(IllegalArgumentException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleIllegalArgumentException(IllegalArgumentException exception) {
+		logger.error("handleIllegalArgumentException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
+				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
+	}
 	
 }
