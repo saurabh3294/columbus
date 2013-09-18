@@ -11,7 +11,7 @@ public class ObjectType {
 	@Id
 	@Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	private long id;
 	
 	@Column(name = "type")
 	private String type;
@@ -19,14 +19,14 @@ public class ObjectType {
 	/**
 	 * @return the id
 	 */
-	public Integer getId() {
+	public long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Integer id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -43,4 +43,5 @@ public class ObjectType {
 	public void setType(String type) {
 		this.type = type;
 	}
+
 }

@@ -15,10 +15,10 @@ public class ImageType {
 	@Id
 	@Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	private long id;
 	
-	@ManyToOne
-	@JoinColumn(name = "ObjectType_id")
+	@ManyToOne(targetEntity = ObjectType.class)
+	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id")
 	private ObjectType objectType;
 	
 	@Column(name = "type")
@@ -27,14 +27,14 @@ public class ImageType {
 	/**
 	 * @return the id
 	 */
-	public Integer getId() {
+	public long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Integer id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -65,4 +65,5 @@ public class ImageType {
 	public void setType(String type) {
 		this.type = type;
 	}
+
 }

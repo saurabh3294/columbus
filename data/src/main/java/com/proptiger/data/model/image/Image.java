@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 @Entity(name = "Image")
 public class Image implements Serializable {
@@ -19,8 +20,12 @@ public class Image implements Serializable {
 	private long id;
 	
 	@ManyToOne
+	@Transient
 	@JoinColumn(name = "ImageType_id")
 	private ImageType imageType;
+	
+	@Column(name = "ImageType_id")
+	private long imageTypeId;
 	
 	@Column(name = "object_id")
 	private long objectId;
@@ -70,17 +75,17 @@ public class Image implements Serializable {
 	}
 
 	/**
-	 * @return the imageType
+	 * @return the imageTypeId
 	 */
-	public ImageType getImageType() {
-		return imageType;
+	public long getImageTypeId() {
+		return imageTypeId;
 	}
 
 	/**
-	 * @param imageType the imageType to set
+	 * @param imageTypeId the imageTypeId to set
 	 */
-	public void setImageType(ImageType imageType) {
-		this.imageType = imageType;
+	public void setImageTypeId(long imageTypeId) {
+		this.imageTypeId = imageTypeId;
 	}
 
 	/**
