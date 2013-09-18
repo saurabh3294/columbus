@@ -27,7 +27,7 @@ public class LocalityReview{
     private long userId;
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
-    private long localityId;
+    private int localityId;
     @FieldMetaInfo(displayName = "Overall Rating", description = "Overall Rating")
     @Column(name = "OVERALL_RATING")
     private float overallRating;
@@ -74,11 +74,11 @@ public class LocalityReview{
         this.userId = userId;
     }
 
-    public long getLocalityId() {
+    public int getLocalityId() {
         return localityId;
     }
 
-    public void setLocalityId(long localityId) {
+    public void setLocalityId(int localityId) {
         this.localityId = localityId;
     }
 

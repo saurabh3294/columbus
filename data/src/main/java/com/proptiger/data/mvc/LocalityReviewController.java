@@ -30,8 +30,8 @@ public class LocalityReviewController {
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	public ProAPIResponse getLocalityReviewByLocalityId(
-			@RequestParam long localityId){
-		List<LocalityReview> list = localityReviewService.findReviewByLocalityId(localityId);
+			@RequestParam int localityId){
+		Object list = localityReviewService.findReviewByLocalityId(localityId);
 		return new ProAPISuccessResponse(list);
 	}
 	
