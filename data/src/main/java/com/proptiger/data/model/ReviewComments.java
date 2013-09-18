@@ -21,7 +21,7 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "REVIEW_COMMENTS")
 @ResourceMetaInfo(name = "Review Comments")
-public class REVIEW_COMMENTS {
+public class ReviewComments implements BaseModel{
     @FieldMetaInfo(displayName = "Comment Id", description = "Comment Id")
     @Column(name = "COMMENT_ID")
     @Id
