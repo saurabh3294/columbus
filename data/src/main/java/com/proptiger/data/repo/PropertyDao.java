@@ -23,7 +23,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
@@ -108,34 +107,80 @@ public class PropertyDao {
             for (Group group : groupCommand.getValues()) {
                 List<SolrResult> solrResults = convertSolrResult(group.getResult());
                 Project project = solrResults.get(0).getProject();
-                Property property = solrResults.get(0).getProperty();
-                project.setMaxPricePerUnitArea(property.getPricePerUnitArea());
-                project.setMaxSize(property.getSize());
-                project.setMinPricePerUnitArea(property.getPricePerUnitArea());
-                project.setMinSize(property.getSize());
 
                 Set<String> unitTypes = new HashSet<String>();
                 for (SolrResult solrResult : solrResults) {
-                    Property propertyLocal = solrResult.getProperty();
-                    unitTypes.add(propertyLocal.getUnitType());
-                    if (propertyLocal.getPricePerUnitArea() != null) {
-                        project.setMaxPricePerUnitArea(Math.max(project.getMaxPricePerUnitArea(),
-                                propertyLocal.getPricePerUnitArea()));
-                        project.setMinPricePerUnitArea(Math.min(project.getMinPricePerUnitArea(),
-                                propertyLocal.getPricePerUnitArea()));
-                    }
+                    Property property = solrResult.getProperty();
+                    Double pricePerUnitArea = property.getPricePerUnitArea();
+                    Double size = property.getSize();
+                    unitTypes.add(property.getUnitType());
 
-                    if (propertyLocal.getSize() != null) {
-                        project.setMaxSize(Math.max(project.getMaxSize(), propertyLocal.getSize()));
-                        project.setMinSize(Math.min(project.getMinSize(), propertyLocal.getSize()));
+                    project.setMinPricePerUnitArea(min(pricePerUnitArea, project.getMinPricePerUnitArea()));
+                    project.setMaxPricePerUnitArea(max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
+                    project.setMinSize(min(size, project.getMinSize()));
+                    project.setMaxSize(max(size, project.getMaxSize()));
+
+                    if (pricePerUnitArea != null && size != null) {
+                        Double price = pricePerUnitArea * size;
+                        project.setMinPrice(min(price, project.getMinPrice()));
+                        project.setMaxPrice(max(price, project.getMaxPrice()));
                     }
                 }
+
                 project.setPropertyUnitTypes(unitTypes);
                 projects.add(project);
             }
         }
 
         return projects;
+    }
+
+    /**
+     * Returns non zero max of given 2 numbers - null otherwise
+     * @param a
+     * @param b
+     * @return
+     */
+    private Double max(Double a, Double b) {
+        Double c = a;
+        if (a == null || a == 0) {
+            c = b;
+        }
+        else {
+            if (b != null && b != 0) {
+                c = Math.max(a, b);
+            }
+        }
+
+        if (c != null && c == 0) {
+            c = null;
+        }
+
+        return c;
+    }
+
+    /**
+     * Returns non zero min of given 2 numbers - null otherwise
+     * @param a
+     * @param b
+     * @return
+     */
+    private Double min(Double a, Double b) {
+        Double c = a;
+        if (a == null || a == 0) {
+            c = b;
+        }
+        else {
+            if (b != null && b != 0) {
+                c = Math.min(a, b);
+            }
+        }
+
+        if (c != null && c == 0) {
+            c = null;
+        }
+
+        return c;
     }
 
     private List<SolrResult> convertSolrResult(SolrDocumentList result) {
@@ -165,6 +210,15 @@ public class PropertyDao {
             SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
             FilterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), SolrResult.class);
             SortQueryBuilder.applySort(queryBuilder, selector.getSort(), SolrResult.class);
+            
+            if (selector.getFields() != null && selector.getFields().size() > 0) {
+                if (selector.getFields().contains("maxPricePerUnitArea") || selector.getFields().contains("minPricePerUnitArea")) {
+                    selector.getFields().add("pricePerUnitArea");
+                }
+                if (selector.getFields().contains("maxSize") || selector.getFields().contains("minSize")) {
+                    selector.getFields().add("size");
+                }
+            }
             FieldsQueryBuilder.applyFields(queryBuilder, selector.getFields(), SolrResult.class);
         }
 
@@ -269,6 +323,14 @@ public class PropertyDao {
             e.printStackTrace();
         }
 //        new PropertyDao().getPropertiesGroupedToProjects(selector);
-        new PropertyDao().getStats(Collections.singletonList("bedrooms"));
+//        new PropertyDao().getStats(Collections.singletonList("bedrooms"));
+        PropertyDao propertyDao = new PropertyDao();
+        System.out.println(propertyDao.min(null, 76.9));
+        System.out.println(propertyDao.min(87.9, 76.9));
+        System.out.println(propertyDao.min(65.9, 76.9));
+        System.out.println(propertyDao.min(null, null));
+        System.out.println(propertyDao.min(null, 0.0));
+        System.out.println(propertyDao.min(0.0, null));
+        System.out.println(propertyDao.min(0.0, 0.0));
     }
 }

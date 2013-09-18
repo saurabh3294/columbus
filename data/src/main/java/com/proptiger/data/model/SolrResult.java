@@ -40,9 +40,21 @@ public class SolrResult {
     @Field(value = "MAXSIZE")
     private Double maxSize;
 
+    @FieldMetaInfo( displayName = "Min Price",  description = "Min Price")
+    @Field(value = "MIN_BUDGET")
+    private Double minPrice;
+
+    @FieldMetaInfo( displayName = "Max Price",  description = "Max Price")
+    @Field(value = "MAX_BUDGET")
+    private Double maxPrice;
+
     @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
     @Field(value = "PROJECT_NAME")
     private String name;
+
+    @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
+    @Field(value = "PROJECT_ID")
+    private int projectId;
 
     @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
@@ -156,7 +168,7 @@ public class SolrResult {
 
     @Field("PROJECT_ID")
     public void setProjectId(int projectId) {
-        project.setId(projectId);
+        project.setProjectId(projectId);
         property.setProjectId(projectId);
     }
 
@@ -378,5 +390,15 @@ public class SolrResult {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    @Field("MIN_BUDGET")
+    public void setMinPrice(Double minPrice) {
+        project.setMinPrice(minPrice);
+    }
+
+    @Field("MAX_BUDGET")
+    public void setMaxPrice(Double maxPrice) {
+        project.setMaxPrice(maxPrice);
     }
 }
