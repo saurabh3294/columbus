@@ -9,6 +9,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import com.proptiger.data.model.ObjectType;
 
@@ -22,11 +23,15 @@ public class ImageType implements Serializable {
     @Id
 	@Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	private long id;
 	
-	@ManyToOne
-	@JoinColumn(name = "ObjectType_id")
+	@ManyToOne(targetEntity = ObjectType.class)
+	@Transient
+	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id")
 	private ObjectType objectType;
+	
+	@Column(name = "ObjectType_id")
+	private String objectTypeId;
 	
 	@Column(name = "type")
 	private String type;
@@ -34,14 +39,14 @@ public class ImageType implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public Integer getId() {
+	public long getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(Integer id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -60,6 +65,20 @@ public class ImageType implements Serializable {
 	}
 
 	/**
+	 * @return the objectTypeId
+	 */
+	public String getObjectTypeId() {
+		return objectTypeId;
+	}
+
+	/**
+	 * @param objectTypeId the objectTypeId to set
+	 */
+	public void setObjectTypeId(String objectTypeId) {
+		this.objectTypeId = objectTypeId;
+	}
+
+	/**
 	 * @return the type
 	 */
 	public String getType() {
@@ -72,4 +91,5 @@ public class ImageType implements Serializable {
 	public void setType(String type) {
 		this.type = type;
 	}
+
 }
