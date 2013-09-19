@@ -33,7 +33,6 @@ public class SolrDao {
     @PostConstruct
     private void init() {
         httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty("solr.server.url"));
-        HttpClientUtil.setBasicAuth((DefaultHttpClient) httpSolrServer.getHttpClient(), propertyReader.getRequiredProperty("solr.server.username"), propertyReader.getRequiredProperty("solr.server.password"));
     }
 
     /**

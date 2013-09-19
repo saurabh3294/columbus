@@ -75,15 +75,15 @@ public class SolrQueryBuilder implements QueryBuilder {
     }
     
     @Override
-    public void addGeo(Float radius, String point){
-        solrQuery.addFilterQuery("{!geofilt}");
-        solrQuery.add("pt",  point);
-        solrQuery.add("sfield", "GEO");
-        solrQuery.add("d", radius.toString());
-    }
-    
-    @Override
     public Class<org.apache.solr.client.solrj.beans.Field> getAnnotationClassForColumnName() {
     	return org.apache.solr.client.solrj.beans.Field.class;
+    }
+
+    @Override
+    public void addGeoFilter(String daoFieldName, double distance, double latitude, double longitude) {
+        solrQuery.addFilterQuery("{!geofilt}");
+        solrQuery.add("pt", latitude + "," + longitude);
+        solrQuery.add("sfield", daoFieldName);
+        solrQuery.add("d", String.valueOf(distance));
     }
 }

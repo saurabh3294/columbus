@@ -4,6 +4,8 @@
  */
 package com.proptiger.data.repo;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -14,11 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
-import com.proptiger.data.model.filter.GeoQueryBuilder;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.model.filter.SortQueryBuilder;
 import com.proptiger.data.pojo.Selector;
@@ -26,9 +26,6 @@ import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.PropertyReader;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 /**
  * 
@@ -52,9 +49,8 @@ public class ProjectDao {
         FilterQueryBuilder.applyFilter(queryBuilder, projectFilter.getFilters(), Project.class);
         SortQueryBuilder.applySort(queryBuilder, projectFilter.getSort(), Project.class);
         FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
-        GeoQueryBuilder.applyDistanceQuery(projectFilter.getLatitude(), projectFilter.getLongitude(),
-                projectFilter.getRadius(), queryBuilder);
 
+        System.out.println(solrQuery);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Project> solrResults = queryResponse.getBeans(Project.class);
 
