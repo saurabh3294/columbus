@@ -1,11 +1,13 @@
 package com.proptiger.data.repo;
 
-import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.model.LocalityReview;
+import com.proptiger.data.model.ReviewComments;
+import java.util.List;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 /**
  * Dao class to handle CRUD operation for Locality review
@@ -14,13 +16,14 @@ import com.proptiger.data.model.LocalityReview;
  *
  */
 @Repository
-public interface LocalityReviewDao extends JpaRepository<LocalityReview, Long>{
+public interface LocalityReviewDao extends PagingAndSortingRepository<ReviewComments, Long>{
 
-	/**
-	 * Finds all review for a locality based on locality id
-	 * 
-	 * @param localityId
-	 * @return
-	 */
-	public List<LocalityReview> findReviewsByLocalityId(Long localityId);
+    @Query("SELECT COUNT(*) FROM ReviewComments WHERE Status = 1 AND localityId = ?1")
+    public Long getTotalReviewsByLocalityId(int localityId);
+    
+    @Query("SELECT R.review , R.reviewLabel, U.username, R.commenttime FROM ReviewComments AS R "
+            + " , ForumUser as U WHERE R.userId=U.userId AND R.status = 1 AND R.localityId = ?1 "
+            + " ORDER BY R.commenttime DESC ")
+    public List<Object> getReviewCommentsByLocalityId(int localityId, Pageable pageable);
+    
 }
