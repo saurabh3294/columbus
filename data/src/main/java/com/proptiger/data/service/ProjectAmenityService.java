@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.model.Project_Amenity;
 import com.proptiger.data.repo.ProjectAmenityDao;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Service
 public class ProjectAmenityService {
 
