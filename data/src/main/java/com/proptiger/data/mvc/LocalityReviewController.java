@@ -10,9 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.LocalityReview;
+import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.LocalityReviewService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Controller for fetching data related to locality review
@@ -29,10 +32,21 @@ public class LocalityReviewController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public ProAPIResponse getLocalityReviewByLocalityId(
-			@RequestParam int localityId){
-		Object list = localityReviewService.findReviewByLocalityId(localityId);
-		return new ProAPISuccessResponse(list);
+	public ProAPIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(required = false) Integer numberOfReviews){
+            
+            if(localityId == null || localityId < 1)
+                return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
+            
+            System.out.println("***************"+numberOfReviews);
+            Pageable pageable = null;
+            if(numberOfReviews != null && numberOfReviews > 0)
+                pageable = new PageRequest(0, numberOfReviews);
+            else
+                pageable = new PageRequest(0, 5);
+            
+            
+            Object list = localityReviewService.findReviewByLocalityId(localityId, pageable);
+            return new ProAPISuccessResponse(list);
 	}
 	
 }

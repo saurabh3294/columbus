@@ -39,12 +39,12 @@ public class LocalityReviewService {
 	 * @param localityId
 	 * @return
 	 */
-	public Map<String, Object> findReviewByLocalityId(int localityId){
+	public Map<String, Object> findReviewByLocalityId(int localityId, Pageable pageable){
 		if(logger.isDebugEnabled()){
 			logger.debug("findReviewByLocalityId, id="+localityId);
 		}
                                 
-                Pageable pageable = new PageRequest(0, 5);
+                //Pageable pageable = new PageRequest(0, 5);
                                         
                 List<Object> reviewComments = localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
                 Long totalReviews = localityReviewDao.getTotalReviewsByLocalityId(localityId);
