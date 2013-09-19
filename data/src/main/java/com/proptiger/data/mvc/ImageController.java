@@ -24,12 +24,12 @@ public class ImageController extends BaseController {
 	private ImageService imageService;
 	
     @RequestMapping
-    public @ResponseBody ProAPISuccessResponse getImages(
+    public @ResponseBody Object getImages(
     			@RequestParam(value = "objectType") String objectType,
     			@RequestParam(required=false, value = "imageType") String imageType,
     			@RequestParam(value = "objectId") String objectId
     		) {
         List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, Integer.parseInt(objectId));
-        return new ProAPISuccessResponse(images);
+        return super.filterFields(new ProAPISuccessResponse(images), null);
     }
 }
