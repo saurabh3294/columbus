@@ -35,6 +35,7 @@ import com.proptiger.data.util.PropertyReader;
 public class ProjectDao {
     @Autowired
     private SolrDao solrDao;
+
     @Autowired
     private PropertyReader propertyReader;
 
@@ -59,26 +60,27 @@ public class ProjectDao {
         solrRes.setResult(solrResults);
         return solrRes;
     }
+
     // TODO to integrate with existing getProject functions.
-    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter){
+    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter) {
         SolrQuery solrQuery = new SolrQuery();
-                
-        if(cityName == null || cityName.length() <= 0)
+
+        if (cityName == null || cityName.length() <= 0)
             solrQuery.setQuery("*:*");
         else
-            solrQuery.setQuery("CITY:"+cityName);
-        
+            solrQuery.setQuery("CITY:" + cityName);
+
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Calendar.getInstance().getTime());
-        String fq = "DOCUMENT_TYPE:PROJECT AND VALID_LAUNCH_DATE:[* TO "+timeStamp+"] "
+        String fq = "DOCUMENT_TYPE:PROJECT AND VALID_LAUNCH_DATE:[* TO " + timeStamp + "] "
                 + "AND -PROJECT_STATUS:cancelled AND -PROJECT_STATUS:\"on hold\"";
         solrQuery.setFilterQueries(fq);
-                
+
         solrQuery.setRows(projectFilter.getPaging().getRows());
         solrQuery.setSort("VALID_LAUNCH_DATE", SolrQuery.ORDER.desc);
-                
+
         SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
         FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
-        
+
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Project> solrResults = queryResponse.getBeans(Project.class);
 
@@ -88,6 +90,7 @@ public class ProjectDao {
         return solrRes;
 
     }
+
     public static void main(String[] args) {
         Selector projectFilter = new Selector();
         projectFilter
