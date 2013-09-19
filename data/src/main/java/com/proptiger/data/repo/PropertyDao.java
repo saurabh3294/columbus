@@ -44,6 +44,9 @@ import com.proptiger.data.util.SolrResponseReader;
 @Repository
 public class PropertyDao {
     @Autowired
+    private FilterQueryBuilder filterQueryBuilder;
+
+    @Autowired
     private SolrDao solrDao;
 
     // to make it autowired.
@@ -207,9 +210,17 @@ public class PropertyDao {
             }
 
             SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
-            FilterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), SolrResult.class);
+            filterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), SolrResult.class);
             SortQueryBuilder.applySort(queryBuilder, selector.getSort(), SolrResult.class);
             
+            // Current default relebanr order
+            queryBuilder.addSort("DISPLAY_ORDER", SortOrder.ASC);
+            queryBuilder.addSort("PROJECT_PRIORITY", SortOrder.ASC);
+            queryBuilder.addSort("PROJECT_ID", SortOrder.DESC);
+            queryBuilder.addSort("BEDROOMS", SortOrder.ASC);
+            queryBuilder.addSort("SIZE", SortOrder.ASC);
+            
+            // XXX - including price and size fields
             if (selector.getFields() != null && selector.getFields().size() > 0) {
                 if (selector.getFields().contains("maxPricePerUnitArea") || selector.getFields().contains("minPricePerUnitArea")) {
                     selector.getFields().add("pricePerUnitArea");

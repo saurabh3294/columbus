@@ -34,6 +34,9 @@ import com.proptiger.data.util.PropertyReader;
 @Repository
 public class ProjectDao {
     @Autowired
+    FilterQueryBuilder filterQueryBuilder;
+
+    @Autowired
     private SolrDao solrDao;
 
     @Autowired
@@ -47,7 +50,7 @@ public class ProjectDao {
         solrQuery.setStart(projectFilter.getPaging().getStart());
 
         SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
-        FilterQueryBuilder.applyFilter(queryBuilder, projectFilter.getFilters(), Project.class);
+        filterQueryBuilder.applyFilter(queryBuilder, projectFilter.getFilters(), Project.class);
         SortQueryBuilder.applySort(queryBuilder, projectFilter.getSort(), Project.class);
         FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
 
