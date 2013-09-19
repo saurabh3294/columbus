@@ -12,6 +12,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity(name = "Image")
 public class Image implements Serializable {
 	@Id
@@ -33,6 +35,11 @@ public class Image implements Serializable {
 	@Column(name = "path")
 	private String path;
 	
+	@JsonProperty
+	public String getAbsolutePath() {
+		return path + seoName + "." + format;
+	}
+	
 	@Column(name = "created_at")
 	private Date createdAt;
 	
@@ -50,6 +57,12 @@ public class Image implements Serializable {
 	
 	@Column(name = "format")
 	private String format;
+	
+	@Column(name = "label")
+	private String label;
+	
+	@Column(name = "desc")
+	private String desc;
 	
 	@Column(name = "order", nullable = true)
 	private Integer order;
@@ -212,6 +225,34 @@ public class Image implements Serializable {
 	 */
 	public void setFormat(String format) {
 		this.format = format;
+	}
+
+	/**
+	 * @return the label
+	 */
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * @param label the label to set
+	 */
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	/**
+	 * @return the desc
+	 */
+	public String getDesc() {
+		return desc;
+	}
+
+	/**
+	 * @param desc the desc to set
+	 */
+	public void setDesc(String desc) {
+		this.desc = desc;
 	}
 
 	/**

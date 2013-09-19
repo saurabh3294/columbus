@@ -20,6 +20,10 @@ public class ImageService {
 	private ImageDao imageDao;
 	
 	public List<Image> getImages(DomainObject object, String type, int objId) {
-		return imageDao.getImagesForObject(object.getText(), type, objId);
+		if(type == null) {
+			return imageDao.getImagesForObject(object.getText(), objId);			
+		} else {
+			return imageDao.getImagesForObjectWithImageType(object.getText(), type, objId);	
+		}
 	}
 }

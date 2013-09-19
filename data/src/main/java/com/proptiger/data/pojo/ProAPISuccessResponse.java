@@ -1,6 +1,5 @@
 package com.proptiger.data.pojo;
 
-import com.fasterxml.jackson.annotation.JsonRawValue;
 import com.proptiger.data.constants.ResponseCodes;
 
 /**

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.DomainObject;
@@ -23,8 +24,12 @@ public class ImageController extends BaseController {
 	private ImageService imageService;
 	
     @RequestMapping
-    public @ResponseBody ProAPISuccessResponse getProjects() {
-        List<Image> images = imageService.getImages(DomainObject.PROJECT, "main", 1);
-        return new ProAPISuccessResponse(images);
+    public @ResponseBody Object getImages(
+    			@RequestParam(value = "objectType") String objectType,
+    			@RequestParam(required=false, value = "imageType") String imageType,
+    			@RequestParam(value = "objectId") String objectId
+    		) {
+        List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, Integer.parseInt(objectId));
+        return super.filterFields(new ProAPISuccessResponse(images), null);
     }
 }
