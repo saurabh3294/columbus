@@ -76,7 +76,7 @@ public class ProjectDao {
         String fq = "DOCUMENT_TYPE:PROJECT AND VALID_LAUNCH_DATE:[* TO "+timeStamp+"] "
                 + "AND -PROJECT_STATUS:cancelled AND -PROJECT_STATUS:\"on hold\"";
         solrQuery.setFilterQueries(fq);
-        
+                
         solrQuery.setRows(projectFilter.getPaging().getRows());
         solrQuery.setSort("VALID_LAUNCH_DATE", SolrQuery.ORDER.desc);
                 
