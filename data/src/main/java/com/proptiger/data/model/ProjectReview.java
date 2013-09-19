@@ -17,7 +17,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "REVIEW_COMMENTS")
 @ResourceMetaInfo(name = "Project Review")
-public class ProjectReview implements BaseModel {
+public class ProjectReview{
 
 	@FieldMetaInfo( displayName = "Comment Id",  description = "Comment Id")
 	@Column(name = "COMMENT_ID")
