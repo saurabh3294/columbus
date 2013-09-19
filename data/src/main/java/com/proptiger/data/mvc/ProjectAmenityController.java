@@ -13,6 +13,10 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.ProjectAmenityService;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Controller
 @RequestMapping(value = "data/v1/entity/amenity")
 public class ProjectAmenityController {
