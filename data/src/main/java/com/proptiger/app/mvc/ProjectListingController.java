@@ -49,11 +49,11 @@ public class ProjectListingController extends BaseController {
         response.put("items", super.filterFields(projects, fields));
 
         if (facets != null) {
-            response.put("facets", propertyService.getFacets(Arrays.asList(facets.split(","))));
+            response.put("facets", propertyService.getFacets(Arrays.asList(facets.split(",")), projectListingSelector));
         }
 
         if (stats != null) {
-            response.put("stats", propertyService.getStats(Arrays.asList(stats.split(","))));
+            response.put("stats", propertyService.getStats(Arrays.asList(stats.split(",")), projectListingSelector));
         }
 
         return new ProAPISuccessResponse(response);

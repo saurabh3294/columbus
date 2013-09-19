@@ -97,6 +97,10 @@ public class SolrResult {
     @Field(value="PRICE_PER_UNIT_AREA")
     private Double pricePerUnitArea;
 
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price",  description = "Price")
+    @Field(value="BUDGET")
+    private Double price;
+
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
     private Double size;

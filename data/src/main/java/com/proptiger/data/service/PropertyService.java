@@ -32,11 +32,11 @@ public class PropertyService {
         return propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
     }
 
-    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields) {
-        return propertyDao.getFacets(fields);
+    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertyListingSelector) {
+        return propertyDao.getFacets(fields, propertyListingSelector);
     }
 
-    public Map<String, FieldStatsInfo> getStats(List<String> fields) {
-        return propertyDao.getStats(fields);
+    public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertyListingSelector) {
+        return propertyDao.getStats(fields, propertyListingSelector);
     }
 }

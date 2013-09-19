@@ -58,8 +58,8 @@ public class PropertyDao {
         return properties;
     }
 
-    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields) {
-        SolrQuery query = createSolrQuery(null);
+    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertySelector) {
+        SolrQuery query = createSolrQuery(propertySelector);
         for (String field : fields) {
             query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class));
         }
@@ -77,8 +77,8 @@ public class PropertyDao {
         return resultMap;
     }
 
-    public Map<String, FieldStatsInfo> getStats(List<String> fields) {
-        SolrQuery query = createSolrQuery(null);
+    public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertySelector) {
+        SolrQuery query = createSolrQuery(propertySelector);
         query.add("stats", "true");
 
         for (String field : fields) {
