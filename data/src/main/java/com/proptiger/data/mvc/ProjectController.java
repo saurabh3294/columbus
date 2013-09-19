@@ -44,4 +44,17 @@ public class ProjectController extends BaseController {
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessResponse(super.filterFields(response.getResult(), fieldsString), response.getTotalResultCount());
     }
+    
+    @RequestMapping(value="/new-projects-by-launch-date")
+    @ResponseBody
+    public ProAPIResponse getNewProjectsByLaunchDate(@RequestParam String cityName, @RequestParam(required = false) String selector){
+       Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+    	if(propRequestParam == null){
+    		propRequestParam = new Selector();
+    	}
+    	SolrServiceResponse<List<Project>> response = projectService.getNewProjectsByLaunchDate(cityName, propRequestParam);
+
+        Set<String> fieldsString = propRequestParam.getFields();
+        return new ProAPISuccessResponse(super.filterFields(response.getResult(), fieldsString), response.getTotalResultCount()); 
+    }
 }
