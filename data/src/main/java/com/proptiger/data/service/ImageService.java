@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 
@@ -17,8 +18,8 @@ import com.proptiger.data.repo.ImageDao;
 public class ImageService {
 	@Resource
 	private ImageDao imageDao;
-
-	public List<Image> getImages() {
-		return imageDao.findAll();
+	
+	public List<Image> getImages(DomainObject object, String type, int objId) {
+		return imageDao.getImagesForObject(object.getText(), type, objId);
 	}
 }

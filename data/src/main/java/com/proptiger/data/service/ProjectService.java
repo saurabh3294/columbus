@@ -33,4 +33,11 @@ public class ProjectService {
 		}
         return projectDao.getProjects(projectFilter);
     }
+    
+    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter){
+        if (logger.isDebugEnabled()) {
+			logger.debug("Get Projects, Request="+projectFilter);
+		}
+        return projectDao.getNewProjectsByLaunchDate(cityName, projectFilter);
+    }
 }

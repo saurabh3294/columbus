@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
@@ -25,6 +26,9 @@ import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.PropertyReader;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 /**
  * 
@@ -59,7 +63,35 @@ public class ProjectDao {
         solrRes.setResult(solrResults);
         return solrRes;
     }
+    // TODO to integrate with existing getProject functions.
+    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter){
+        SolrQuery solrQuery = new SolrQuery();
+                
+        if(cityName == null || cityName.length() <= 0)
+            solrQuery.setQuery("*:*");
+        else
+            solrQuery.setQuery("CITY:"+cityName);
+        
+        String timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Calendar.getInstance().getTime());
+        String fq = "DOCUMENT_TYPE:PROJECT AND VALID_LAUNCH_DATE:[* TO "+timeStamp+"] "
+                + "AND -PROJECT_STATUS:cancelled AND -PROJECT_STATUS:\"on hold\"";
+        solrQuery.setFilterQueries(fq);
+        
+        solrQuery.setRows(projectFilter.getPaging().getRows());
+        solrQuery.setSort("VALID_LAUNCH_DATE", SolrQuery.ORDER.desc);
+                
+        SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
+        FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
+        
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<Project> solrResults = queryResponse.getBeans(Project.class);
 
+        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
+        solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
+        solrRes.setResult(solrResults);
+        return solrRes;
+
+    }
     public static void main(String[] args) {
         Selector projectFilter = new Selector();
         projectFilter
