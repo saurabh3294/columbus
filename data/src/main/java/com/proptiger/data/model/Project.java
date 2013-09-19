@@ -4,7 +4,6 @@
  */
 package com.proptiger.data.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -15,6 +14,7 @@ import javax.persistence.OneToMany;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -160,6 +160,9 @@ public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
     @Field(value = "PROJECT_SIZE")
     private Double sizeInAcres;
+
+    @Field(value = "GEO")
+    private List<String> geo;
 
     @Field(value="PROJECT_STATUS_BEDROOM")
     @JsonIgnore
@@ -464,5 +467,13 @@ public class Project implements BaseModel {
 
     public void setMaxPrice(Double maxPrice) {
         this.maxPrice = maxPrice;
+    }
+
+    public List<String> getGeo() {
+        return geo;
+    }
+
+    public void setGeo(List<String> geo) {
+        this.geo = geo;
     }
 }

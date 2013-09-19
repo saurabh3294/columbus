@@ -19,7 +19,7 @@ import org.springframework.beans.TypeConverter;
 public class FilterQueryBuilder {
     private static TypeConverter typeConvertor = new SimpleTypeConverter();
     private static enum Operator {
-        and, range, equal, from, to;
+        and, range, equal, from, to, geoDistance, lat, lon, distance;
     }
 
     private static Logger logger = Logger.getLogger(FilterQueryBuilder.class);
@@ -58,6 +58,18 @@ public class FilterQueryBuilder {
                             Map<String, Object> obj = (Map<String, Object>) andFilter.get(operator).get(jsonFieldName);
                             queryBuilder.addRangeFilter(daoFieldName, typeConvertor.convertIfNecessary(obj.get(Operator.from.name()), field.getType()),
                                                                       typeConvertor.convertIfNecessary(obj.get(Operator.to.name()), field.getType()));
+                        }
+                        break;
+
+                    case geoDistance:
+                        for (String jsonFieldName : andFilter.get(operator).keySet()) {
+                            String daoFieldName = FieldsMapLoader.getDaoFieldName(modelClass, jsonFieldName, queryBuilder.getAnnotationClassForColumnName());
+                            Field field = FieldsMapLoader.getField(modelClass, jsonFieldName);
+
+                            Map<String, Object> obj = (Map<String, Object>) andFilter.get(operator).get(jsonFieldName);
+                            queryBuilder.addGeoFilter(daoFieldName, (Double) obj.get(Operator.distance.name()),
+                                                                    (Double) obj.get(Operator.lat.name()),
+                                                                    (Double) obj.get(Operator.lon.name()));
                         }
                         break;
 
