@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(Exception.class)
 	@ResponseBody
-	@ResponseStatus(value = HttpStatus.OK)
+	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	protected ProAPIResponse handleGenericException(Exception ex){
 		logger.error("handleGenericException - Caching ",ex);
 		
