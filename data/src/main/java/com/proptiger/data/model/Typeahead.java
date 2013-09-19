@@ -4,44 +4,52 @@
  */
 package com.proptiger.data.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import org.apache.solr.client.solrj.beans.Field;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  *
  * @author mukand
  */
-@ResourceMetaInfo(name="Typeahead")
+@JsonAutoDetect(fieldVisibility=Visibility.ANY, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
+@JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
+@ResourceMetaInfo(name="Typeahead")
 public class Typeahead implements BaseModel {
     @Field(value="id")
     private String id;
     
     @Field(value="TYPEAHEAD_LABEL")
-    private String typeahead_label;
+    private String label;
     
     @Field(value="TYPEAHEAD_LABEL_NGRAMS")
-    private String typeahead_label_ngrams;
+    @JsonIgnore
+    private String labelNgrams;
     
     @Field(value="TYPEAHEAD_CITY")
-    private String typeahead_city;
+    private String city;
     
     @Field(value="TYPEAHEAD_REDIRECT_URL")
-    private String typeahead_redirect_url;
+    private String redirectUrl;
     
     @Field(value="TYPEAHEAD_TYPE")
-    private String typeahead_type;
+    private String type;
     
     @Field(value="TYPEAHEAD_DISPLAY_TEXT")
-    private String typeahead_display_text;
+    private String displayText;
     
     @Field(value="TYPEAHEAD_CORE_TEXT")
-    private String typeahead_core_text;
+    private String coreText;
     
     @Field(value="TYPEAHEAD_CORE_TEXT_NGRAMS")
-    private String typeahead_core_text_ngrams;
+    private String coreTextNgrams;
 
     public String getId() {
         return id;
@@ -51,67 +59,67 @@ public class Typeahead implements BaseModel {
         this.id = id;
     }
 
-    public String getTypeahead_label() {
-        return typeahead_label;
+    public String getLabel() {
+        return label;
     }
 
-    public void setTypeahead_label(String typeahead_label) {
-        this.typeahead_label = typeahead_label;
+    public void setLabel(String label) {
+        this.label = label;
     }
 
-    public String getTypeahead_label_ngrams() {
-        return typeahead_label_ngrams;
+    public String getLabelNgrams() {
+        return labelNgrams;
     }
 
-    public void setTypeahead_label_ngrams(String typeahead_label_ngrams) {
-        this.typeahead_label_ngrams = typeahead_label_ngrams;
+    public void setLabelNgrams(String labelNgrams) {
+        this.labelNgrams = labelNgrams;
     }
 
-    public String getTypeahead_city() {
-        return typeahead_city;
+    public String getCity() {
+        return city;
     }
 
-    public void setTypeahead_city(String typeahead_city) {
-        this.typeahead_city = typeahead_city;
+    public void setCity(String city) {
+        this.city = city;
     }
 
-    public String getTypeahead_redirect_url() {
-        return typeahead_redirect_url;
+    public String getRedirectUrl() {
+        return redirectUrl;
     }
 
-    public void setTypeahead_redirect_url(String typeahead_redirect_url) {
-        this.typeahead_redirect_url = typeahead_redirect_url;
+    public void setRedirectUrl(String redirectUrl) {
+        this.redirectUrl = redirectUrl;
     }
 
-    public String getTypeahead_type() {
-        return typeahead_type;
+    public String getType() {
+        return type;
     }
 
-    public void setTypeahead_type(String typeahead_type) {
-        this.typeahead_type = typeahead_type;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public String getTypeahead_display_text() {
-        return typeahead_display_text;
+    public String getDisplayText() {
+        return displayText;
     }
 
-    public void setTypeahead_display_text(String typeahead_display_text) {
-        this.typeahead_display_text = typeahead_display_text;
+    public void setDisplayText(String displayText) {
+        this.displayText = displayText;
     }
 
-    public String getTypeahead_core_text() {
-        return typeahead_core_text;
+    public String getCoreText() {
+        return coreText;
     }
 
-    public void setTypeahead_core_text(String typeahead_core_text) {
-        this.typeahead_core_text = typeahead_core_text;
+    public void setCoreText(String coreText) {
+        this.coreText = coreText;
     }
 
-    public String getTypeahead_core_text_ngrams() {
-        return typeahead_core_text_ngrams;
+    public String getCoreTextNgrams() {
+        return coreTextNgrams;
     }
 
-    public void setTypeahead_core_text_ngrams(String typeahead_core_text_ngrams) {
-        this.typeahead_core_text_ngrams = typeahead_core_text_ngrams;
+    public void setCoreTextNgrams(String coreTextNgrams) {
+        this.coreTextNgrams = coreTextNgrams;
     }
 }

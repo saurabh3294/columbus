@@ -25,7 +25,6 @@ import com.proptiger.data.service.PropertyService;
  *
  */
 @Controller
-@RequestMapping(value="app/v1/project-detail")
 public class ProjectDetailController extends BaseController {
     @Autowired
     private ProjectService projectService;
@@ -33,7 +32,7 @@ public class ProjectDetailController extends BaseController {
     @Autowired
     private PropertyService propertyService;
     
-    @RequestMapping
+    @RequestMapping(value="app/v1/project-detail")
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required=false) String selector) throws Exception {
         Selector projectDetailSelector = super.parseJsonToObject(selector, Selector.class);
         if(projectDetailSelector == null){
