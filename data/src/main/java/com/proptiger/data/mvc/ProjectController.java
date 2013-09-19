@@ -44,7 +44,7 @@ public class ProjectController extends BaseController {
     
     @RequestMapping(value="/new-projects-by-launch-date")
     @ResponseBody
-    public ProAPIResponse getNewProjectsByLaunchDate(@RequestParam String cityName, @RequestParam(required = false) String selector){
+    public ProAPIResponse getNewProjectsByLaunchDate(@RequestParam(required = false) String cityName, @RequestParam(required = false) String selector){
        Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
     	if(propRequestParam == null){
     		propRequestParam = new Selector();
