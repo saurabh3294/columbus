@@ -30,6 +30,6 @@ public class ImageController extends BaseController {
     			@RequestParam(value = "objectId") String objectId
     		) {
         List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, Integer.parseInt(objectId));
-        return new ProAPISuccessResponse(images);
+        return new ProAPISuccessResponse(super.filterFields(images, null));
     }
 }
