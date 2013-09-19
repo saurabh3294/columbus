@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.ImageService;
@@ -23,7 +24,7 @@ public class ImageController extends BaseController {
 	
     @RequestMapping
     public @ResponseBody ProAPISuccessResponse getProjects() {
-        List<Image> images = imageService.getImages();
-        return new ProAPISuccessResponse(super.filterFields(images, null));
+        List<Image> images = imageService.getImages(DomainObject.PROJECT, "main", 1);
+        return new ProAPISuccessResponse(images);
     }
 }

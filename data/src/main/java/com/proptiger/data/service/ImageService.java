@@ -19,11 +19,7 @@ public class ImageService {
 	@Resource
 	private ImageDao imageDao;
 	
-	public List<Image> getImages(DomainObject object, String type, long objId) {
-		String objectType = object.getText();
-		System.out.println("============================");
-		System.out.println(objectType);
-		System.out.println("============================");
-		return imageDao.findAll();
+	public List<Image> getImages(DomainObject object, String type, int objId) {
+		return imageDao.getImagesForObject(object.getText(), type, objId);
 	}
 }

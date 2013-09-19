@@ -25,7 +25,7 @@ public class Image implements Serializable {
 	private ImageType imageType;
 	
 	@Column(name = "ImageType_id")
-	private long imageTypeId;
+	private int imageTypeId;
 	
 	@Column(name = "object_id")
 	private int objectId;
@@ -91,14 +91,14 @@ public class Image implements Serializable {
 	/**
 	 * @return the imageTypeId
 	 */
-	public long getImageTypeId() {
+	public int getImageTypeId() {
 		return imageTypeId;
 	}
 
 	/**
 	 * @param imageTypeId the imageTypeId to set
 	 */
-	public void setImageTypeId(long imageTypeId) {
+	public void setImageTypeId(int imageTypeId) {
 		this.imageTypeId = imageTypeId;
 	}
 
