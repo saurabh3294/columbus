@@ -13,6 +13,16 @@ public interface ImageDao extends JpaRepository<Image, Integer> {
 
 	@Query("select I from Image as I " +
 			" where " +
+			" I.imageTypeId in ( " +
+			" 	SELECT IT.id " +
+			" 	FROM ObjectType AS O " +
+			" 	, ImageType AS IT" + 
+			" 	WHERE O.id = IT.objectTypeId AND O.type =  ?1 " +
+			") AND I.objectId = ?2")
+	public List<Image> getImagesForObject(String obj, int object_id);
+	
+	@Query("select I from Image as I " +
+			" where " +
 			" I.imageTypeId = ( " +
 			" 	SELECT IT.id " +
 			" 	FROM ObjectType AS O " +
@@ -20,5 +30,5 @@ public interface ImageDao extends JpaRepository<Image, Integer> {
 			" 	WHERE O.id = IT.objectTypeId AND O.type =  ?1 " +
 			" 	AND IT.type =  ?2 " +
 			") AND I.objectId = ?3")
-	public List<Image> getImagesForObject(String obj, String type, int object_id);
+	public List<Image> getImagesForObjectWithImageType(String obj, String type, int object_id);
 }

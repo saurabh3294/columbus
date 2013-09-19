@@ -51,6 +51,12 @@ public class Image implements Serializable {
 	@Column(name = "format")
 	private String format;
 	
+	@Column(name = "label")
+	private String label;
+	
+	@Column(name = "desc")
+	private String desc;
+	
 	@Column(name = "order", nullable = true)
 	private Integer order;
 	
@@ -212,6 +218,34 @@ public class Image implements Serializable {
 	 */
 	public void setFormat(String format) {
 		this.format = format;
+	}
+
+	/**
+	 * @return the label
+	 */
+	public String getLabel() {
+		return label;
+	}
+
+	/**
+	 * @param label the label to set
+	 */
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	/**
+	 * @return the desc
+	 */
+	public String getDesc() {
+		return desc;
+	}
+
+	/**
+	 * @param desc the desc to set
+	 */
+	public void setDesc(String desc) {
+		this.desc = desc;
 	}
 
 	/**

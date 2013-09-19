@@ -1,11 +1,11 @@
 package com.proptiger.data.model;
 
 public enum DomainObject {
-	PROJECT("project"),
-	PROPERTY("property"),
-	BUILDER("builder"),
-	LOCALITY("locality"),
-	BANK("bank");
+	project("project"),
+	property("property"),
+	builder("builder"),
+	locality("locality"),
+	bank("bank");
 	
 	String text;
 	DomainObject(String x) {
