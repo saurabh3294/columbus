@@ -35,6 +35,7 @@ import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.SolrResponseReader;
 
 /**
@@ -97,9 +98,10 @@ public class PropertyDao {
         return resultMap;
     }
 
-    public List<Project> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
+    public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         SolrQuery solrQuery = createSolrQuery(propertyListingSelector);
         solrQuery.add("group", "true");
+        solrQuery.add("group.ngroups", "true");
         solrQuery.add("group.field", "PROJECT_ID");
 
         List<Project> projects = new ArrayList<Project>();
@@ -134,7 +136,11 @@ public class PropertyDao {
             }
         }
 
-        return projects;
+        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
+        solrRes.setTotalResultCount(queryResponse.getGroupResponse().getValues().get(0).getNGroups());
+        solrRes.setResult(projects);
+
+        return solrRes;
     }
 
     /**
