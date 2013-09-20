@@ -8,6 +8,17 @@ public class Paging {
 
 	private int start = 0;
 	private int rows = 10;
+	
+	public Paging(){
+		
+	}
+	
+	public Paging(int start, int rows) {
+		super();
+		this.start = start;
+		this.rows = rows;
+	}
+
 	public int getStart() {
 		return start;
 	}
