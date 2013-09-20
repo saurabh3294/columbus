@@ -19,91 +19,88 @@ import javax.persistence.Table;
  * @author mukand
  */
 @Entity
-@ResourceMetaInfo(name = "Project")
+@ResourceMetaInfo(name = "Project Specification")
 @Table(name="RESI_PROJ_SPECIFICATION")
 public class ProjectSpecification implements BaseModel{
     @FieldMetaInfo(displayName="PROJECT ID", description="PROJECT ID")
-    @Column(name="PROJECT ID")
+    @Column(name="PROJECT_ID")
     @Id
-    private int projectId;
-
+    private int id;
     
     @FieldMetaInfo(displayName="FLOORING MASTER BEDROOM", description="FLOORING MASTER BEDROOM")
-    @Column(name="FLOORING MASTER BEDROOM")
+    @Column(name="FLOORING_MASTER_BEDROOM")
     private String flooringMasterBedroom;
-
     
     @FieldMetaInfo(displayName="FLOORING OTHER BEDROOM", description="FLOORING OTHER BEDROOM")
-    @Column(name="FLOORING OTHER BEDROOM")
+    @Column(name="FLOORING_OTHER_BEDROOM")
     private String flooringOtherBedroom;
-
     
     @FieldMetaInfo(displayName="FLOORING LIVING DINING", description="FLOORING LIVING DINING")
-    @Column(name="FLOORING LIVING DINING")
+    @Column(name="FLOORING_LIVING_DINING")
     private String flooringLivingDining;
 
     @FieldMetaInfo(displayName="FLOORING KITCHEN", description="FLOORING KITCHEN")
-    @Column(name="FLOORING KITCHEN")
+    @Column(name="FLOORING_KITCHEN")
     private String flooringKitchen;
 
     @FieldMetaInfo(displayName="FLOORING TOILETS", description="FLOORING TOILETS")
-    @Column(name="FLOORING TOILETS")
+    @Column(name="FLOORING_TOILETS")
     private String flooringToilets;
 
     @FieldMetaInfo(displayName="FLOORING BALCONY", description="FLOORING BALCONY")
-    @Column(name="FLOORING BALCONY")
+    @Column(name="FLOORING_BALCONY")
     private String flooringBalcony;
 
     @FieldMetaInfo(displayName="WALLS INTERIOR", description="WALLS INTERIOR")
-    @Column(name="WALLS INTERIOR")
+    @Column(name="WALLS_INTERIOR")
     private String wallsInterior;
 
     @FieldMetaInfo(displayName="WALLS EXTERIOR", description="WALLS EXTERIOR")
-    @Column(name="WALLS EXTERIOR")
+    @Column(name="WALLS_EXTERIOR")
     private String wallsExterior;
 
     @FieldMetaInfo(displayName="WALLS KITCHEN", description="WALLS KITCHEN")
-    @Column(name="WALLS KITCHEN")
+    @Column(name="WALLS_KITCHEN", nullable = true)
     private String wallsKitchen;
 
     @FieldMetaInfo(displayName="DOORS MAIN", description="DOORS MAIN")
-    @Column(name="DOORS MAIN")
+    @Column(name="DOORS_MAIN")
     private String doorsMain;
 
     @FieldMetaInfo(displayName="DOORS INTERNAL", description="DOORS INTERNAL")
-    @Column(name="DOORS INTERNAL")
+    @Column(name="DOORS_INTERNAL")
     private String doorsInternal;
 
     @FieldMetaInfo(displayName="WINDOWS", description="WINDOWS")
     @Column(name="WINDOWS")
-    private String WINDOWS;
+    private String windows;
 
     @FieldMetaInfo(displayName="ELECTRICAL FITTINGS", description="ELECTRICAL FITTINGS")
-    @Column(name="ELECTRICAL FITTINGS")
+    @Column(name="ELECTRICAL_FITTINGS")
     private String electricalFittings;
 
     @FieldMetaInfo(displayName="FITTINGS AND FIXTURES TOILETS", description="FITTINGS AND FIXTURES TOILETS")
-    @Column(name="FITTINGS AND FIXTURES TOILETS")
+    @Column(name="FITTINGS_AND_FIXTURES_TOILETS")
     private String fittingsAndFixturesToilets;
 
     @FieldMetaInfo(displayName="FITTINGS AND FIXTURES KITCHEN", description="FITTINGS AND FIXTURES KITCHEN")
-    @Column(name="FITTINGS AND FIXTURES KITCHEN")
+    @Column(name="FITTINGS_AND_FIXTURES_KITCHEN")
     private String fittingsAndFixturesKitchen;
 
     @FieldMetaInfo(displayName="OTHERS", description="OTHERS")
-    @Column(name="OTHERS")
-    private String OTHERS;
+    @Column(name="OTHERS", nullable = true)
+    private String others;
 
     @FieldMetaInfo(displayName="WALLS TOILETS", description="WALLS TOILETS")
-    @Column(name="WALLS TOILETS")
+    @Column(name="WALLS_TOILETS", nullable = true)
     private String wallsToilets;
 
-    public int getProjectId() {
-        return projectId;
+    public int getId() {
+        return id;
     }
 
-    public void setProjectId(int projectId) {
-        this.projectId = projectId;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getFlooringMasterBedroom() {
@@ -194,12 +191,12 @@ public class ProjectSpecification implements BaseModel{
         this.doorsInternal = doorsInternal;
     }
 
-    public String getWINDOWS() {
-        return WINDOWS;
+    public String getWindows() {
+        return windows;
     }
 
-    public void setWINDOWS(String WINDOWS) {
-        this.WINDOWS = WINDOWS;
+    public void setWindows(String WINDOWS) {
+        this.windows = WINDOWS;
     }
 
     public String getElectricalFittings() {
@@ -226,12 +223,12 @@ public class ProjectSpecification implements BaseModel{
         this.fittingsAndFixturesKitchen = fittingsAndFixturesKitchen;
     }
 
-    public String getOTHERS() {
-        return OTHERS;
+    public String getOthers() {
+        return others;
     }
 
-    public void setOTHERS(String OTHERS) {
-        this.OTHERS = OTHERS;
+    public void setOthers(String OTHERS) {
+        this.others = OTHERS;
     }
 
     public String getWallsToilets() {
