@@ -324,6 +324,9 @@ public class PropertyDao {
         sort.add(sortBy1);
         sort.add(sortBy2);
         selector.setSort(sort);
+        
+        Paging paging = new Paging(5,20);
+        selector.setPaging(paging);
         ObjectMapper mapper = new ObjectMapper();
 
         try {
