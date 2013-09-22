@@ -60,4 +60,12 @@ public class Builder implements BaseModel {
         this.imageURL = imageUrl;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
 }

@@ -24,9 +24,13 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeMap;
 
 /**
  * @author mandeep
@@ -50,7 +54,7 @@ public class ProjectDetailController extends BaseController {
             projectDetailSelector = new Selector();
         }
 
-        List<Project> projects = null; //projectService.getProjects(projectDetailSelector);
+        SolrServiceResponse<List<Project>> projects = projectService.getProjects(projectDetailSelector);
         propertyService.getProperties(projectDetailSelector);
         Set<String> fieldsString = projectDetailSelector.getFields();
         
@@ -63,15 +67,76 @@ public class ProjectDetailController extends BaseController {
         System.out.println(" BUILDER \n"+gson.toJson(builderDetails));
         System.out.println(" PROJECT INFO \n"+gson.toJson(projectInfo));
         
-        return new ProAPISuccessResponse(super.filterFields(projects, fieldsString));
+        
+        Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
+        
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("specification", parseSpecification);
+        response.put("projectDescription", projectInfo.getProjectDescription());
+        response.put("builderDescription", builderDetails.getDescription());
+        response.put("properties", super.filterFields(projects, fieldsString));
+        
+        //return new ProAPISuccessResponse(super.filterFields(projects, fieldsString));
+        return new ProAPISuccessResponse(response);
     }
     
     private Map<String, Object> parseSpecificationObject(ProjectSpecification projectSpecification){
-        String specsGroups[] = {"FLOORING", "WALLS", "DOORS", "FITTINGS_AND_FIXTURES", 
-            "WINDOWS", "ELECTRICAL_FITTINGS", "OTHERS"};
+        String specsGroups[] = {"doors", "electricalFittings", "fittingsAndFixtures", "flooring", "id", "others", "walls",  "windows"};
+        
         Field fields[] = projectSpecification.getClass().getDeclaredFields();
-        //fields[0].
-        return new HashMap<>();
+        
+        Map<String, Integer> fieldsMap = new TreeMap<>();
+        
+        for(int i=0; i<fields.length; i++)
+            fieldsMap.put(fields[i].getName(), i);
+        
+        Map<String, Object> parseMap = new LinkedHashMap<String, Object>();
+        Map<String, Object> splitKeys;
+        
+        int i=0;
+        String key;
+        String keySuffix;
+        boolean found = false;
+        int index;
+        Object value = null;
+        for(Map.Entry<String, Integer> entry: fieldsMap.entrySet())
+        {
+            key = entry.getKey();
+            found = false;
+            while(!found && i<specsGroups.length)
+            {
+                found = key.startsWith(specsGroups[i++]);
+            }
+            if(!found)
+                break;
+            
+            i--;
+            keySuffix = key.substring(specsGroups[i].length());
+            if( !parseMap.containsKey(specsGroups[i]) )
+                splitKeys = new LinkedHashMap<String, Object>();
+            else
+                splitKeys = (Map<String, Object>)parseMap.get(specsGroups[i]);
+            
+            index = entry.getValue();
+            try{
+                fields[index].setAccessible(true);
+                value = fields[index].get(projectSpecification);
+            }catch(Exception e){
+                value = null;
+                System.out.println(e.getMessage());
+                e.printStackTrace();
+            }
+            
+            if(keySuffix.length() <= 0)
+                parseMap.put(specsGroups[i], value);
+            else
+            {
+                splitKeys.put(keySuffix, value);
+                parseMap.put(specsGroups[i], splitKeys);
+            }
+        }
+        
+        return parseMap;
     }
     
 }
