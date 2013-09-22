@@ -3,7 +3,6 @@
  */
 package com.proptiger.app.mvc;
 
-import com.google.gson.Gson;
 import com.proptiger.data.model.Builder;
 import java.util.List;
 import java.util.Set;
@@ -26,10 +25,8 @@ import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.TreeMap;
 
 /**
@@ -61,13 +58,6 @@ public class ProjectDetailController extends BaseController {
         ProjectSpecification projectSpecification = projectService.getProjectSpecifications(projectId);
         Builder builderDetails = builderService.getBuilderDetailsByProjectId(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
-        
-        Gson gson = new Gson();
-        System.out.println(" SPECS \n"+gson.toJson(projectSpecification));
-        System.out.println(" BUILDER \n"+gson.toJson(builderDetails));
-        System.out.println(" PROJECT INFO \n"+gson.toJson(projectInfo));
-        
-        
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
         
         Map<String, Object> response = new LinkedHashMap<>();
@@ -76,7 +66,6 @@ public class ProjectDetailController extends BaseController {
         response.put("builderDescription", builderDetails.getDescription());
         response.put("properties", super.filterFields(projects, fieldsString));
         
-        //return new ProAPISuccessResponse(super.filterFields(projects, fieldsString));
         return new ProAPISuccessResponse(response);
     }
     
