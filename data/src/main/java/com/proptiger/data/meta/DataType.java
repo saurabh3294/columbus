@@ -16,7 +16,9 @@ public enum DataType {
 	DATE,
 	CURRENCY,
 	BOOLEAN,
-	DEFAULT;
+	DEFAULT,
+	OBJECT,
+	ARRAY;
 
 	private static Map<String, DataType> typeMap = new HashMap<String, DataType>();
 
@@ -30,6 +32,9 @@ public enum DataType {
         typeMap.put("date", DATE);
         typeMap.put("currency", CURRENCY);
         typeMap.put("boolean", BOOLEAN);
+        typeMap.put("Object", OBJECT);
+        typeMap.put("Array", ARRAY);
+        typeMap.put("List", ARRAY);
 	}
 
 	public static DataType valueOfIgnoreCase(String typeStr){
