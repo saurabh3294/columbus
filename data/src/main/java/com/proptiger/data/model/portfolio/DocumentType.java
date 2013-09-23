@@ -4,15 +4,15 @@ package com.proptiger.data.model.portfolio;
  * @author Rajeev Pandey
  *
  */
-public enum PropertyType {
+public enum DocumentType {
 
-	APARTMENT("Appartment"),
-	PLOT("Plot");
+	DEMAND_LETTER("Demand Letter"),
+	BUILDER_DOC("Builder Doc");
 	
 	private String type;
 	
-	private PropertyType(String type){
-		this.type = type;
+	private DocumentType(String str){
+		this.type = str;
 	}
 
 	public String getType() {

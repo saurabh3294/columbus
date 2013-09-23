@@ -4,15 +4,15 @@ package com.proptiger.data.model.portfolio;
  * @author Rajeev Pandey
  *
  */
-public enum PropertyType {
+public enum TicketType {
 
-	APARTMENT("Appartment"),
-	PLOT("Plot");
+	PAYMENTS("Payments"),
+	CONSTRUCTION("Construction");
 	
 	private String type;
 	
-	private PropertyType(String type){
-		this.type = type;
+	private TicketType(String t){
+		this.type = t;
 	}
 
 	public String getType() {

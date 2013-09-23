@@ -16,7 +16,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonAutoDetect(fieldVisibility=Visibility.ANY, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 @JsonInclude(Include.NON_NULL)
-@JsonFilter("fieldFilter")
+// DO NOT UNCOMMENT IT.
+//@JsonFilter("fieldFilter")
 public interface BaseModel {
     
 }

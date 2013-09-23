@@ -17,7 +17,7 @@ public class OverallReturn {
 	private double changeAmount;
 	
 	@FieldMetaInfo(displayName = "changePercent", description = "Change Percent")
-	private float changePercent;
+	private double changePercent;
 
 	public ReturnType getReturnType() {
 		return returnType;
@@ -35,11 +35,11 @@ public class OverallReturn {
 		this.changeAmount = changeAmount;
 	}
 
-	public float getChangePercent() {
+	public double getChangePercent() {
 		return changePercent;
 	}
 
-	public void setChangePercent(float changePercent) {
+	public void setChangePercent(double changePercent) {
 		this.changePercent = changePercent;
 	}
 	

@@ -26,7 +26,7 @@ public class Portfolio {
 	private OverallReturn overallReturn;
 
 	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "properties", description = "Properties")
-	private List<ProptigerProperty> properties;
+	private List<Integer> propertiesId;
 	
 	public int getId() {
 		return id;
@@ -60,13 +60,13 @@ public class Portfolio {
 		this.overallReturn = overallReturn;
 	}
 
-	public List<ProptigerProperty> getProperties() {
-		return properties;
+	public List<Integer> getPropertiesId() {
+		return propertiesId;
 	}
 
-	public void setProperties(List<ProptigerProperty> properties) {
-		this.properties = properties;
+	public void setPropertiesId(List<Integer> propertiesId) {
+		this.propertiesId = propertiesId;
 	}
-	
+
 	
 }
