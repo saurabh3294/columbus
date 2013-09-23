@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.http.HttpStatus;
+//import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -74,4 +75,12 @@ public class GlobalExceptionHandler {
 				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
 	}
 	
+//	@ExceptionHandler(MissingServletRequestParameterException.class)
+//	@ResponseBody
+//	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+//	protected ProAPIResponse missingArgument(MissingServletRequestParameterException exception) {
+//		logger.error("handleMissingParameter - Caching ", exception);
+//		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
+//				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
+//	}
 }

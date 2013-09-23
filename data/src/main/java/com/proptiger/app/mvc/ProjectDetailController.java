@@ -3,6 +3,7 @@
  */
 package com.proptiger.app.mvc;
 
+import com.google.gson.reflect.TypeToken;
 import com.proptiger.data.model.Builder;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectSpecification;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -25,6 +27,7 @@ import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -45,26 +48,25 @@ public class ProjectDetailController extends BaseController {
     private BuilderService builderService;
     
     @RequestMapping(value="app/v1/project-detail")
-    public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required=false) String selector,@RequestParam int projectId) throws Exception {
-        Selector projectDetailSelector = super.parseJsonToObject(selector, Selector.class);
-        if(projectDetailSelector == null){
-            projectDetailSelector = new Selector();
-        }
-
-        SolrServiceResponse<List<Project>> projects = projectService.getProjects(projectDetailSelector);
-        propertyService.getProperties(projectDetailSelector);
-        Set<String> fieldsString = projectDetailSelector.getFields();
+    public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
+        Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
+        if(propertyDetailsSelector == null)
+            propertyDetailsSelector = new Selector();
+                        
+        List<Property> properties = propertyService.getProperties(propertyDetailsSelector);
         ProjectSpecification projectSpecification = projectService.getProjectSpecifications(projectId);
         Builder builderDetails = builderService.getBuilderDetailsByProjectId(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
         
+        Set<String> propertyFieldString = propertyDetailsSelector.getFields();
+               
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("specification", parseSpecification);
-        response.put("projectDescription", projectInfo.getProjectDescription());
-        response.put("builderDescription", builderDetails.getDescription());
-        response.put("properties", super.filterFields(projects, fieldsString));
+        response.put("projectDetails", projectInfo );
+        response.put("builderDetails", builderDetails );
+        response.put("properties", super.filterFields(properties, propertyFieldString));
         
         return new ProAPISuccessResponse(response);
     }
