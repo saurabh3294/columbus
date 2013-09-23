@@ -27,7 +27,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo(name = "Project")
 @JsonFilter("fieldFilter")
 public class Project implements BaseModel {
-    @FieldMetaInfo( displayName = "Id",  description = "Project Id")
+    @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     private int projectId;
 
@@ -177,8 +177,8 @@ public class Project implements BaseModel {
         return projectId;
     }
 
-    public void setProjectId(int id) {
-        this.projectId = id;
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
     }
 
     public int getLocalityId() {

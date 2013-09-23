@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 
 /**
  * @author mandeep
@@ -34,7 +34,7 @@ public class ProjectListingController extends BaseController {
 
     @RequestMapping
     public @ResponseBody
-    ProAPIResponse getProjectListings(@RequestParam(required = false) String selector,
+    Object getProjectListings(@RequestParam(required = false) String selector,
                                       @RequestParam(required = false) String facets,
                                       @RequestParam(required = false) String stats)
     {
@@ -43,10 +43,10 @@ public class ProjectListingController extends BaseController {
             projectListingSelector = new Selector();
         }
 
-        List<Project> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
+        SolrServiceResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
         Set<String> fields = projectListingSelector.getFields();
         Map<String, Object> response = new HashMap<String, Object>();
-        response.put("items", super.filterFields(projects, fields));
+        response.put("items", projects.getResult());
 
         if (facets != null) {
             response.put("facets", propertyService.getFacets(Arrays.asList(facets.split(",")), projectListingSelector));
@@ -56,6 +56,6 @@ public class ProjectListingController extends BaseController {
             response.put("stats", propertyService.getStats(Arrays.asList(stats.split(",")), projectListingSelector));
         }
 
-        return new ProAPISuccessResponse(response);
+        return super.filterFields(new ProAPISuccessResponse(response, projects.getTotalResultCount()), fields);
     }
 }
