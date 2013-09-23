@@ -36,7 +36,9 @@ public class ImageController extends BaseController {
     }
     
     @RequestMapping(method = RequestMethod.POST)
-    public @ResponseBody Object putImages(@RequestParam("image") MultipartFile image) {
+    public @ResponseBody Object putImages(
+    			@RequestParam("image") MultipartFile image
+    		) {
     	imageService.uploadImage(image);
     	return super.filterFields(new ProAPISuccessResponse(), null);
     }

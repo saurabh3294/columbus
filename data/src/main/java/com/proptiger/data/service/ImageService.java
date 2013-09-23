@@ -4,21 +4,29 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.proptiger.data.model.DomainObject;
+import com.proptiger.data.model.ObjectType;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.image.ImageType;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.PropertyReader;
 
@@ -42,6 +50,9 @@ public class ImageService {
 		}
 	}
 
+	@Autowired
+	EntityManagerFactory emf;
+	
 	@Resource
 	private ImageDao imageDao;
 	
@@ -78,11 +89,11 @@ public class ImageService {
 		return waterMarkImageFile;
 	}
 	
-	private HashMap<String, String> getFileAttributes() {
-		return new HashMap<String, String>();
+	private void uploadToS3() {
 	}
 	
-	private void uploadToS3() {
+	private HashMap<String, String> getFileAttributes() {
+		return new HashMap<String, String>();
 	}
 	
 	/*
@@ -99,16 +110,38 @@ public class ImageService {
 	/*
 	 * Public method to upload images
 	 * */
-	public void uploadImage(MultipartFile image) {
+	public void uploadImage(MultipartFile imageFile) {
     	try {
-    		File tempFile = File.createTempFile("image", ".tmp", tempDir);
-    		File jpgFile, waterMarkImageFile;
-    		if(isValidImage(image)) {
-    			image.transferTo(tempFile);
-    			jpgFile = convertToJPG(tempFile);
-    			makeProgresiveJPG(jpgFile);
-    			waterMarkImageFile = createWatermarkedCopy(jpgFile);
-    		}
+	    		File tempFile = File.createTempFile("image", ".tmp", tempDir);
+	    		File jpgFile, waterMarkImageFile;
+	    		if(isValidImage(imageFile)) {
+	    			imageFile.transferTo(tempFile);
+	    			jpgFile = convertToJPG(tempFile);
+	    			makeProgresiveJPG(jpgFile);
+	    			waterMarkImageFile = createWatermarkedCopy(jpgFile);
+	    		} else {
+	    			throw new IllegalArgumentException();
+	    		}
+	    		// Upload to S3
+//	    		EntityManager em = emf.createEntityManager();
+//	    		ObjectType objType = (ObjectType)em.createQuery("FROM ObjectType WHERE type = :type").setParameter("type", object.getText()).getSingleResult();
+//	    		ImageType imageType = (ImageType)em.createQuery("FROM ImageType WHERE objectType = :objType AND type = :type").setParameter("objType", objType).setParameter("type", type).getSingleResult();
+//	    		Image image = new Image();
+//	    		image.setImageType(imageType);
+//	    		image.setObjectId(objId);
+//	    		image.setPath(object.getText() + "/" + objId + "/" + type + "/");
+////	    		image.setTakenAt("");
+////	    		image.setSize("");
+////	    		image.setWidth("");
+////	    		image.setHeight("");
+//	    		image.setFormat("jpg");
+//	    		MessageDigest md = MessageDigest.getInstance("MD5");
+//	    		DigestInputStream dis = new DigestInputStream(new FileInputStream(jpgFile), md);
+//	    		image.setContentHash(md.digest().toString());
+//	    		image.setSeoName(object.getText() + objId + type);
+//	    		em.getTransaction().begin();
+//	    		em.persist(image);
+//	    		em.getTransaction().commit();
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
 		}
