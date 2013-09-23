@@ -35,6 +35,7 @@ import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.SolrResponseReader;
 
 /**
@@ -43,6 +44,9 @@ import com.proptiger.data.util.SolrResponseReader;
  */
 @Repository
 public class PropertyDao {
+    @Autowired
+    private FilterQueryBuilder filterQueryBuilder;
+
     @Autowired
     private SolrDao solrDao;
 
@@ -58,8 +62,8 @@ public class PropertyDao {
         return properties;
     }
 
-    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields) {
-        SolrQuery query = createSolrQuery(null);
+    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertySelector) {
+        SolrQuery query = createSolrQuery(propertySelector);
         for (String field : fields) {
             query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class));
         }
@@ -77,8 +81,8 @@ public class PropertyDao {
         return resultMap;
     }
 
-    public Map<String, FieldStatsInfo> getStats(List<String> fields) {
-        SolrQuery query = createSolrQuery(null);
+    public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertySelector) {
+        SolrQuery query = createSolrQuery(propertySelector);
         query.add("stats", "true");
 
         for (String field : fields) {
@@ -94,9 +98,10 @@ public class PropertyDao {
         return resultMap;
     }
 
-    public List<Project> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
+    public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         SolrQuery solrQuery = createSolrQuery(propertyListingSelector);
         solrQuery.add("group", "true");
+        solrQuery.add("group.ngroups", "true");
         solrQuery.add("group.field", "PROJECT_ID");
 
         List<Project> projects = new ArrayList<Project>();
@@ -131,7 +136,11 @@ public class PropertyDao {
             }
         }
 
-        return projects;
+        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
+        solrRes.setTotalResultCount(queryResponse.getGroupResponse().getValues().get(0).getNGroups());
+        solrRes.setResult(projects);
+
+        return solrRes;
     }
 
     /**
@@ -207,9 +216,17 @@ public class PropertyDao {
             }
 
             SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
-            FilterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), SolrResult.class);
+            filterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), SolrResult.class);
             SortQueryBuilder.applySort(queryBuilder, selector.getSort(), SolrResult.class);
             
+            // Current default relebanr order
+            queryBuilder.addSort("DISPLAY_ORDER", SortOrder.ASC);
+            queryBuilder.addSort("PROJECT_PRIORITY", SortOrder.ASC);
+            queryBuilder.addSort("PROJECT_ID", SortOrder.DESC);
+            queryBuilder.addSort("BEDROOMS", SortOrder.ASC);
+            queryBuilder.addSort("SIZE", SortOrder.ASC);
+            
+            // XXX - including price and size fields
             if (selector.getFields() != null && selector.getFields().size() > 0) {
                 if (selector.getFields().contains("maxPricePerUnitArea") || selector.getFields().contains("minPricePerUnitArea")) {
                     selector.getFields().add("pricePerUnitArea");
@@ -313,6 +330,9 @@ public class PropertyDao {
         sort.add(sortBy1);
         sort.add(sortBy2);
         selector.setSort(sort);
+        
+        Paging paging = new Paging(5,20);
+        selector.setPaging(paging);
         ObjectMapper mapper = new ObjectMapper();
 
         try {

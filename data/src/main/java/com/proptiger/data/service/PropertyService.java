@@ -14,6 +14,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 
 /**
  * @author mandeep
@@ -28,15 +29,15 @@ public class PropertyService {
         return propertyDao.getProperties(propertyFilter);
     }
 
-    public List<Project> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
+    public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         return propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
     }
 
-    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields) {
-        return propertyDao.getFacets(fields);
+    public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertyListingSelector) {
+        return propertyDao.getFacets(fields, propertyListingSelector);
     }
 
-    public Map<String, FieldStatsInfo> getStats(List<String> fields) {
-        return propertyDao.getStats(fields);
+    public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertyListingSelector) {
+        return propertyDao.getStats(fields, propertyListingSelector);
     }
 }

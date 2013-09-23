@@ -3,11 +3,12 @@
  */
 package com.proptiger.data.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 
@@ -79,14 +80,26 @@ public class SolrResult {
     @FieldMetaInfo( displayName = "Bathrooms",  description = "Number of bathrooms")
     @Field(value="BATHROOMS")
     private int bathrooms;
-    
+
+    @FieldMetaInfo( displayName = "Is resale ?",  description = "Is resale ?")
+    @Field(value="IS_RESALE")
+    private boolean isResale;
+
     @FieldMetaInfo( displayName = "Unit type",  description = "Unit type")
     @Field(value="UNIT_TYPE")
     private String unitType;
+
+    @FieldMetaInfo( displayName = "Project status",  description = "Project status")
+    @Field(value="PROJECT_STATUS")
+    private String projectStatus;
     
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
     @Field(value="PRICE_PER_UNIT_AREA")
     private Double pricePerUnitArea;
+
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price",  description = "Price")
+    @Field(value="BUDGET")
+    private Double price;
 
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
@@ -102,7 +115,7 @@ public class SolrResult {
     
     @FieldMetaInfo(displayName = "Builder Label", description = "Builder Label")
     @Field(value = "BUILDER_NAME")
-    private String buiderLabel;
+    private String builderLabel;
     
     @FieldMetaInfo(displayName = "City Label", description = "City Label")
     @Field(value = "CITY")
@@ -111,6 +124,13 @@ public class SolrResult {
     @FieldMetaInfo( displayName = "Address",  description = "Address")
     @Field(value = "PROJECT_ADDRESS")
     private String address;
+
+    @FieldMetaInfo( displayName = "Text",  description = "Full text for search")
+    @Field(value = "text")
+    private String text;
+
+    @Field(value = "GEO")
+    private List<String> geo;
 
     public SolrResult() {
         property.setProject(project);

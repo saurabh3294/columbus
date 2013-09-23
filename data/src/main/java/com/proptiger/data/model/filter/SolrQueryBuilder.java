@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.util.StringUtils;
 
 import com.proptiger.data.pojo.SortOrder;
@@ -16,6 +18,9 @@ import com.proptiger.data.pojo.SortOrder;
  *
  */
 public class SolrQueryBuilder implements QueryBuilder {
+    @Autowired
+    private ConversionService conversionService;
+    
     private SolrQuery solrQuery;
 
     public SolrQueryBuilder(SolrQuery solrQuery) {

@@ -9,15 +9,19 @@ import java.util.List;
 import java.util.Map;
 
 import org.jboss.logging.Logger;
-import org.springframework.beans.SimpleTypeConverter;
-import org.springframework.beans.TypeConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.stereotype.Component;
 
 /**
  * @author mandeep
  * 
  */
+@Component
 public class FilterQueryBuilder {
-    private static TypeConverter typeConvertor = new SimpleTypeConverter();
+    @Autowired
+    private ConversionService typeConvertor;
+
     private static enum Operator {
         and, range, equal, from, to, geoDistance, lat, lon, distance;
     }
@@ -25,7 +29,7 @@ public class FilterQueryBuilder {
     private static Logger logger = Logger.getLogger(FilterQueryBuilder.class);
 
     @SuppressWarnings("unchecked")
-    public static void applyFilter(QueryBuilder queryBuilder, Object filterString, Class<?> modelClass) {
+    public void applyFilter(QueryBuilder queryBuilder, Object filterString, Class<?> modelClass) {
         logger.error(filterString);
         if (filterString == null) {
             return;
@@ -44,7 +48,7 @@ public class FilterQueryBuilder {
 
                             List<Object> objects = new ArrayList<Object>();
                             for (Object obj : (List<Object>) andFilter.get(operator).get(jsonFieldName)) {
-                                objects.add(typeConvertor.convertIfNecessary(obj, field.getType()));
+                                objects.add(typeConvertor.convert(obj, field.getType()));
                             }
                             queryBuilder.addEqualsFilter(daoFieldName, objects);
                         }
@@ -56,15 +60,14 @@ public class FilterQueryBuilder {
                             Field field = FieldsMapLoader.getField(modelClass, jsonFieldName);
 
                             Map<String, Object> obj = (Map<String, Object>) andFilter.get(operator).get(jsonFieldName);
-                            queryBuilder.addRangeFilter(daoFieldName, typeConvertor.convertIfNecessary(obj.get(Operator.from.name()), field.getType()),
-                                                                      typeConvertor.convertIfNecessary(obj.get(Operator.to.name()), field.getType()));
+                            queryBuilder.addRangeFilter(daoFieldName, typeConvertor.convert(obj.get(Operator.from.name()), field.getType()),
+                                                                      typeConvertor.convert(obj.get(Operator.to.name()), field.getType()));
                         }
                         break;
 
                     case geoDistance:
                         for (String jsonFieldName : andFilter.get(operator).keySet()) {
                             String daoFieldName = FieldsMapLoader.getDaoFieldName(modelClass, jsonFieldName, queryBuilder.getAnnotationClassForColumnName());
-                            Field field = FieldsMapLoader.getField(modelClass, jsonFieldName);
 
                             Map<String, Object> obj = (Map<String, Object>) andFilter.get(operator).get(jsonFieldName);
                             queryBuilder.addGeoFilter(daoFieldName, (Double) obj.get(Operator.distance.name()),
