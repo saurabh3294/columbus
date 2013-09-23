@@ -1,6 +1,7 @@
 package com.proptiger.data.model.portfolio;
 
 import java.util.Date;
+import java.util.List;
 
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -14,20 +15,27 @@ import com.proptiger.data.model.Property;
 @ResourceMetaInfo(name = "ProptigerProperty")
 public class ProptigerProperty {
 
-	@FieldMetaInfo(displayName = "id", description = "Property Id")
+	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
 	private int id;
 	
-	@FieldMetaInfo(displayName = "tower", description = "Tower")
+	@FieldMetaInfo(displayName = "Tower", description = "Tower")
 	private int tower;
 	
-	@FieldMetaInfo(dataType = DataType.DATE, displayName = "purchaseDate", description = "Purchase Date")
+	@FieldMetaInfo(dataType = DataType.DATE, displayName = "Purchase Date", description = "Purchase Date")
 	private Date purchaseDate;
 	
-	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "property", description = "Property")
+	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "Property", description = "Property")
 	private Property property;
 	
-	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "purchasePrice", description = "Purchase Price")
+	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Purchase Price", description = "Purchase Price")
 	private double purchasePrice;
+	
+	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "Payment Plans", description = "Payment Plans")
+	private List<PropertyPaymentPlan> paymentPlans;
+	
+	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "Documents", description = "Documents")
+	private List<PropertyDocument> documents;
+	
 	
 	public int getId() {
 		return id;
@@ -60,7 +68,17 @@ public class ProptigerProperty {
 	public void setPurchasePrice(double purchasePrice) {
 		this.purchasePrice = purchasePrice;
 	}
-	
-	
+	public List<PropertyPaymentPlan> getPaymentPlans() {
+		return paymentPlans;
+	}
+	public void setPaymentPlans(List<PropertyPaymentPlan> paymentPlans) {
+		this.paymentPlans = paymentPlans;
+	}
+	public List<PropertyDocument> getDocuments() {
+		return documents;
+	}
+	public void setDocuments(List<PropertyDocument> documents) {
+		this.documents = documents;
+	}
 	
 }

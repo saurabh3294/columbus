@@ -1,8 +1,5 @@
 package com.proptiger.data.handler;
 
-import javax.persistence.PersistenceException;
-
-import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -40,33 +37,33 @@ public class GlobalExceptionHandler {
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
-	@ExceptionHandler(PersistenceException.class)
+	/*@ExceptionHandler(PersistenceException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleDatabaseException(PersistenceException ex) {
 		logger.error("handleDatabaseException - Caching ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
 				ResponseErrorMessages.DATABASE_CONNECTION_ERROR);
-	}
+	}*/
 	
 	@ExceptionHandler(ConversionNotSupportedException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleConversionNotSupportedException(ConversionNotSupportedException ex){
 		logger.error("handleConversionNotSupportedException - Caching ", ex);
-		return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_CONVERSION_ERROR,
-				ResponseErrorMessages.REQUEST_PARAM_CONVERSION_ERROR);
+		return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_INVALID,
+				ResponseErrorMessages.REQUEST_PARAM_INVALID);
 		
 	}
 	
-	@ExceptionHandler(SolrServerException.class)
+	/*@ExceptionHandler(SolrServerException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleSolrException(SolrServerException exception) {
 		logger.error("handleSolrException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.SOLR_DOWN);
-	}
+	}*/
 	
 	@ExceptionHandler(IllegalArgumentException.class)
 	@ResponseBody
