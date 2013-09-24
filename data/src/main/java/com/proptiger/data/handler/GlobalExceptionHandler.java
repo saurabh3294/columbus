@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.http.HttpStatus;
-//import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -14,6 +13,8 @@ import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.exception.ResourceNotAvailableException;
+//import org.springframework.web.bind.MissingServletRequestParameterException;
 
 
 /**
@@ -83,4 +84,13 @@ public class GlobalExceptionHandler {
 //		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
 //				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
 //	}
+	
+	@ExceptionHandler(ResourceNotAvailableException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleResourceNotAvailableException(ResourceNotAvailableException exception) {
+		logger.error("handle ResourceNotAvailableException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
+				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
+	}
 }
