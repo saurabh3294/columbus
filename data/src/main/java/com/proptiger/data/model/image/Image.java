@@ -27,17 +27,22 @@ public class Image implements Serializable {
 	private ImageType imageType;
 	
 	@Column(name = "ImageType_id")
-	private int imageTypeId;
+	private long imageTypeId;
 	
 	@Column(name = "object_id")
-	private int objectId;
+	private long objectId;
 	
 	@Column(name = "path")
 	private String path;
 	
 	@JsonProperty
-	public String getAbsolutePath() {
-		return path + seoName + "." + format;
+	public String getSeoPath() {
+		return path + seoName;
+	}
+	
+	@JsonProperty
+	public String getContentPath() {
+		return path + contentName;
 	}
 	
 	@Column(name = "created_at")
@@ -55,20 +60,17 @@ public class Image implements Serializable {
 	@Column(name = "height")
 	private int height;
 	
-	@Column(name = "format")
-	private String format;
-	
 	@Column(name = "label")
 	private String label;
 	
-	@Column(name = "desc")
-	private String desc;
+	@Column(name = "description")
+	private String description;
 	
-	@Column(name = "order", nullable = true)
-	private Integer order;
+	@Column(name = "priority", nullable = true)
+	private Integer priority;
 	
-	@Column(name = "content_hash")
-	private String contentHash;
+	@Column(name = "content_name")
+	private String contentName;
 	
 	@Column(name = "seo_name")
 	private String seoName;
@@ -104,28 +106,28 @@ public class Image implements Serializable {
 	/**
 	 * @return the imageTypeId
 	 */
-	public int getImageTypeId() {
+	public long getImageTypeId() {
 		return imageTypeId;
 	}
 
 	/**
 	 * @param imageTypeId the imageTypeId to set
 	 */
-	public void setImageTypeId(int imageTypeId) {
+	public void setImageTypeId(long imageTypeId) {
 		this.imageTypeId = imageTypeId;
 	}
 
 	/**
 	 * @return the objectId
 	 */
-	public int getObjectId() {
+	public long getObjectId() {
 		return objectId;
 	}
 
 	/**
 	 * @param objectId the objectId to set
 	 */
-	public void setObjectId(int objectId) {
+	public void setObjectId(long objectId) {
 		this.objectId = objectId;
 	}
 
@@ -214,20 +216,6 @@ public class Image implements Serializable {
 	}
 
 	/**
-	 * @return the format
-	 */
-	public String getFormat() {
-		return format;
-	}
-
-	/**
-	 * @param format the format to set
-	 */
-	public void setFormat(String format) {
-		this.format = format;
-	}
-
-	/**
 	 * @return the label
 	 */
 	public String getLabel() {
@@ -242,45 +230,45 @@ public class Image implements Serializable {
 	}
 
 	/**
-	 * @return the desc
+	 * @return the description
 	 */
-	public String getDesc() {
-		return desc;
+	public String getDescription() {
+		return description;
 	}
 
 	/**
-	 * @param desc the desc to set
+	 * @param description the description to set
 	 */
-	public void setDesc(String desc) {
-		this.desc = desc;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	/**
-	 * @return the order
+	 * @return the priority
 	 */
-	public Integer getOrder() {
-		return order;
+	public Integer getPriority() {
+		return priority;
 	}
 
 	/**
-	 * @param order the order to set
+	 * @param priority the priority to set
 	 */
-	public void setOrder(Integer order) {
-		this.order = order;
+	public void setPriority(Integer priority) {
+		this.priority = priority;
 	}
 
 	/**
-	 * @return the contentHash
+	 * @return the contentName
 	 */
-	public String getContentHash() {
-		return contentHash;
+	public String getContentName() {
+		return contentName;
 	}
 
 	/**
-	 * @param contentHash the contentHash to set
+	 * @param contentName the contentName to set
 	 */
-	public void setContentHash(String contentHash) {
-		this.contentHash = contentHash;
+	public void setContentName(String contentName) {
+		this.contentName = contentName;
 	}
 
 	/**

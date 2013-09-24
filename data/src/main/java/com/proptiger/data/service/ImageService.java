@@ -18,6 +18,10 @@ import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -110,7 +114,7 @@ public class ImageService {
 	/*
 	 * Public method to upload images
 	 * */
-	public void uploadImage(MultipartFile imageFile) {
+	public void uploadImage(DomainObject object, String type, int objId, MultipartFile imageFile) {
     	try {
 	    		File tempFile = File.createTempFile("image", ".tmp", tempDir);
 	    		File jpgFile, waterMarkImageFile;
@@ -123,26 +127,49 @@ public class ImageService {
 	    			throw new IllegalArgumentException();
 	    		}
 	    		// Upload to S3
-//	    		EntityManager em = emf.createEntityManager();
-//	    		ObjectType objType = (ObjectType)em.createQuery("FROM ObjectType WHERE type = :type").setParameter("type", object.getText()).getSingleResult();
-//	    		ImageType imageType = (ImageType)em.createQuery("FROM ImageType WHERE objectType = :objType AND type = :type").setParameter("objType", objType).setParameter("type", type).getSingleResult();
-//	    		Image image = new Image();
-//	    		image.setImageType(imageType);
-//	    		image.setObjectId(objId);
-//	    		image.setPath(object.getText() + "/" + objId + "/" + type + "/");
-////	    		image.setTakenAt("");
-////	    		image.setSize("");
-////	    		image.setWidth("");
-////	    		image.setHeight("");
-//	    		image.setFormat("jpg");
-//	    		MessageDigest md = MessageDigest.getInstance("MD5");
-//	    		DigestInputStream dis = new DigestInputStream(new FileInputStream(jpgFile), md);
-//	    		image.setContentHash(md.digest().toString());
-//	    		image.setSeoName(object.getText() + objId + type);
-//	    		em.getTransaction().begin();
-//	    		em.persist(image);
-//	    		em.getTransaction().commit();
-		} catch (IllegalStateException | IOException e) {
+	    		EntityManager em = emf.createEntityManager();
+	    		CriteriaBuilder cb = em.getCriteriaBuilder();
+	    		CriteriaQuery<ObjectType> otQ = cb.createQuery(ObjectType.class);
+	    		// Get ObjectType
+	    		Root<ObjectType> ot = otQ.from(ObjectType.class);
+	    		otQ.select(ot).where(cb.equal(ot.get("type"), object.getText()));
+                TypedQuery<ObjectType> query = em.createQuery(otQ);
+                ObjectType objType = query.getSingleResult();
+                // Get ImageType
+                CriteriaQuery<ImageType> itQ = cb.createQuery(ImageType.class);
+	    		Root<ImageType> it = itQ.from(ImageType.class);
+	    		itQ.select(it).where( cb.and(cb.equal(it.get("objectTypeId"), objType.getId()), cb.equal(it.get("type"), type)) );
+                ImageType imageType = em.createQuery(itQ).getSingleResult();
+                // Create Image
+	    		Image image = new Image();
+	    		image.setImageTypeId(imageType.getId());
+	    		image.setObjectId(objId);
+	    		image.setPath(object.getText() + "/" + objId + "/" + type + "/");
+//	    		image.setTakenAt("");
+//	    		image.setSize("");
+//	    		image.setWidth("");
+//	    		image.setHeight("");
+	    		// Calculate File Hash
+	    		MessageDigest md = MessageDigest.getInstance("MD5");
+	    		FileInputStream fis = new FileInputStream(jpgFile);
+	    		byte[] dataBytes = new byte[1024];
+	            int nread = 0; 
+	            while ((nread = fis.read(dataBytes)) != -1) {
+	              md.update(dataBytes, 0, nread);
+	            };
+	            byte[] mdbytes = md.digest();
+	            StringBuffer sb = new StringBuffer();
+	            for (int i = 0; i < mdbytes.length; i++) {
+	              sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+	            }
+	            // End calculate File Hash
+	    		image.setContentName(sb.toString());
+	    		image.setSeoName(object.getText() + objId + type);
+	    		
+	    		em.getTransaction().begin();
+	    		em.persist(image);
+	    		em.getTransaction().commit();
+		} catch (IllegalStateException | NoSuchAlgorithmException | IOException e) {
 			e.printStackTrace();
 		}
 	}
