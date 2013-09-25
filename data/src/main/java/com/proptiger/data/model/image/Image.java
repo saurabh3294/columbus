@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity(name = "Image")
@@ -40,7 +41,7 @@ public class Image implements Serializable {
 		return path + seoName;
 	}
 	
-	@JsonProperty
+	@JsonIgnore
 	public String getContentPath() {
 		return path + contentName;
 	}
