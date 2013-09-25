@@ -19,7 +19,7 @@ public class FieldsQueryBuilder {
         }
 
         for (String fieldName : fieldString) {
-            queryBuilder.addField(FieldsMapLoader.getDaoFieldName(modelClass, fieldName, queryBuilder.getAnnotationClassForColumnName()));
+            queryBuilder.addField(fieldName);
         }
     }
 }

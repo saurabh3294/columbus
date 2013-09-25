@@ -25,9 +25,10 @@ public class CityController extends BaseController{
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public ProAPIResponse getCities(@RequestParam(required = false) Selector selector){
+	public ProAPIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr){
+		Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
 		List<City> list = cityService.getCityList(selector);
 		
-		return new ProAPISuccessResponse(super.filterFields(list, null), list.size());
+		return new ProAPISuccessResponse(super.filterFields(list, selector.getFields()), list.size());
 	}
 }
