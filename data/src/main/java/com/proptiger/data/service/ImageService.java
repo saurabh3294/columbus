@@ -19,10 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.image.ImageType;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.repo.ImageDaoImpl;
-import com.proptiger.data.util.ImageUtil;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -35,13 +33,7 @@ public class ImageService {
 
 	@Autowired
     protected PropertyReader propertyReader;
-    	
-	@Resource
-	private ImageDao imageDao;
-
-	@Autowired
-	private ImageDaoImpl dao;
-
+    
 	@PostConstruct
 	private void init() {
 		String path = propertyReader.getRequiredProperty("imageTempPath");
@@ -50,6 +42,12 @@ public class ImageService {
 			tempDir.mkdir();
 		}
 	}
+	
+	@Resource
+	private ImageDao imageDao;
+
+	@Autowired
+	private ImageDaoImpl dao;
 	
 	private boolean isValidImage(MultipartFile file) {
 		return (file.getSize() == 0)? false:true;
@@ -94,18 +92,18 @@ public class ImageService {
 	/*
 	 * Public method to get images
 	 * */
-	public List<Image> getImages(DomainObject object, String type, int objId) {
-		if(type == null) {
+	public List<Image> getImages(DomainObject object, String imageTypeStr, int objId) {
+		if(imageTypeStr == null) {
 			return imageDao.getImagesForObject(object.getText(), objId);			
 		} else {
-			return imageDao.getImagesForObjectWithImageType(object.getText(), type, objId);	
+			return imageDao.getImagesForObjectWithImageType(object.getText(), imageTypeStr, objId);	
 		}
 	}
 	
 	/*
 	 * Public method to upload images
 	 * */
-	public void uploadImage(DomainObject object, String type, int objId, MultipartFile imageFile) {
+	public void uploadImage(DomainObject object, String imageTypeStr, int objId, MultipartFile imageFile) {
     	try {
 	    		File tempFile = File.createTempFile("image", ".tmp", tempDir);
 	    		File jpgFile, waterMarkImageFile;
@@ -118,19 +116,8 @@ public class ImageService {
 	    			throw new IllegalArgumentException();
 	    		}
 	    		// Upload to S3
-                ImageType imageType = dao.getImageType(object, type);
-                // Create Image
-	    		Image image = new Image();
-	    		image.setImageTypeId(imageType.getId());
-	    		image.setObjectId(objId);
-	    		image.setPath(object.getText() + "/" + objId + "/" + type + "/");
-//	    		image.setTakenAt("");
-//	    		image.setSize("");
-//	    		image.setWidth("");
-//	    		image.setHeight("");
-	    		image.setContentName(ImageUtil.fileMd5Hash(jpgFile));
-	    		image.setSeoName(object.getText() + objId + type);
-	    		dao.save(image);
+	    		dao.setImage(object, imageTypeStr, objId, jpgFile);
+	    		dao.save();
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
 		}
