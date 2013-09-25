@@ -18,8 +18,6 @@ import com.proptiger.data.pojo.SortOrder;
  *
  */
 public class SolrQueryBuilder implements QueryBuilder {
-    @Autowired
-    private ConversionService conversionService;
     
     private SolrQuery solrQuery;
 
