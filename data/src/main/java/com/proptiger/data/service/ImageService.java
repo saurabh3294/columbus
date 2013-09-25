@@ -116,7 +116,7 @@ public class ImageService {
 	    			throw new IllegalArgumentException();
 	    		}
 	    		// Upload to S3
-	    		dao.setImage(object, imageTypeStr, objId, jpgFile);
+	    		dao.setImage(object, imageTypeStr, objId, jpgFile, waterMarkImageFile);
 	    		dao.save();
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();

@@ -1,6 +1,7 @@
 package com.proptiger.data.repo;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.annotation.PostConstruct;
@@ -61,10 +62,15 @@ public class ImageDaoImpl {
 
 	/**
 	 * @param image the image to set
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
 	 */
-	public void setImage(DomainObject object, String imageTypeStr, int objId, File imageFile) {
+	public void setImage(DomainObject object, String imageTypeStr, int objId, File orignalImage, File watermarkImage) throws FileNotFoundException, IOException {
+		String originalHash, watermarkHash;
+		originalHash = ImageUtil.fileMd5Hash(orignalImage);
+		watermarkHash = ImageUtil.fileMd5Hash(watermarkImage);
+		// Image
         ImageType imageType = getImageType(object, imageTypeStr);
-        // Create Image
 		Image img = new Image();
 		img.setImageTypeId(imageType.getId());
 		img.setObjectId(objId);
@@ -73,13 +79,10 @@ public class ImageDaoImpl {
 //		image.setSize("");
 //		image.setWidth("");
 //		image.setHeight("");
-		try {
-			img.setContentName(ImageUtil.fileMd5Hash(imageFile));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		img.setSeoName(object.getText() + objId + imageTypeStr);
+		img.setOriginalHash(originalHash);
+		img.setWaterMarkHash(watermarkHash);
+		img.setOriginalName(originalHash);
+		img.setWaterMarkName(object.getText() + objId + imageTypeStr);
 		image = img;
 	}
 	
