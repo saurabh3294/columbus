@@ -36,14 +36,14 @@ public class Image implements Serializable {
 	@Column(name = "path")
 	private String path;
 	
-	@JsonProperty
-	public String getSeoPath() {
-		return path + seoName;
+	@JsonIgnore
+	public String getOriginalPath() {
+		return path + originalName;
 	}
 	
-	@JsonIgnore
-	public String getContentPath() {
-		return path + contentName;
+	@JsonProperty
+	public String getWaterMarkPath() {
+		return path + waterMarkName;
 	}
 	
 	@Column(name = "created_at")
@@ -61,6 +61,9 @@ public class Image implements Serializable {
 	@Column(name = "height")
 	private int height;
 	
+	@Column(name = "alt_text")
+	private String altText;
+	
 	@Column(name = "label")
 	private String label;
 	
@@ -70,11 +73,17 @@ public class Image implements Serializable {
 	@Column(name = "priority", nullable = true)
 	private Integer priority;
 	
-	@Column(name = "content_name")
-	private String contentName;
+	@Column(name = "original_hash")
+	private String originalHash;
 	
-	@Column(name = "seo_name")
-	private String seoName;
+	@Column(name = "watermark_hash")
+	private String waterMarkHash;
+	
+	@Column(name = "original_name")
+	private String originalName;
+	
+	@Column(name = "watermark_name")
+	private String waterMarkName;
 
 	/**
 	 * @return the id
@@ -217,6 +226,20 @@ public class Image implements Serializable {
 	}
 
 	/**
+	 * @return the altText
+	 */
+	public String getAltText() {
+		return altText;
+	}
+
+	/**
+	 * @param altText the altText to set
+	 */
+	public void setAltText(String altText) {
+		this.altText = altText;
+	}
+
+	/**
 	 * @return the label
 	 */
 	public String getLabel() {
@@ -259,31 +282,59 @@ public class Image implements Serializable {
 	}
 
 	/**
-	 * @return the contentName
+	 * @return the originalHash
 	 */
-	public String getContentName() {
-		return contentName;
+	public String getOriginalHash() {
+		return originalHash;
 	}
 
 	/**
-	 * @param contentName the contentName to set
+	 * @param originalHash the originalHash to set
 	 */
-	public void setContentName(String contentName) {
-		this.contentName = contentName;
+	public void setOriginalHash(String originalHash) {
+		this.originalHash = originalHash;
 	}
 
 	/**
-	 * @return the seoName
+	 * @return the waterMarkHash
 	 */
-	public String getSeoName() {
-		return seoName;
+	public String getWaterMarkHash() {
+		return waterMarkHash;
 	}
 
 	/**
-	 * @param seoName the seoName to set
+	 * @param waterMarkHash the waterMarkHash to set
 	 */
-	public void setSeoName(String seoName) {
-		this.seoName = seoName;
+	public void setWaterMarkHash(String waterMarkHash) {
+		this.waterMarkHash = waterMarkHash;
+	}
+
+	/**
+	 * @return the originalName
+	 */
+	public String getOriginalName() {
+		return originalName;
+	}
+
+	/**
+	 * @param originalName the originalName to set
+	 */
+	public void setOriginalName(String originalName) {
+		this.originalName = originalName;
+	}
+
+	/**
+	 * @return the waterMarkName
+	 */
+	public String getWaterMarkName() {
+		return waterMarkName;
+	}
+
+	/**
+	 * @param waterMarkName the waterMarkName to set
+	 */
+	public void setWaterMarkName(String waterMarkName) {
+		this.waterMarkName = waterMarkName;
 	}
 
 }
