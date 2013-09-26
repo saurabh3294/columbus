@@ -4,11 +4,11 @@
  */
 package com.proptiger.data.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.repo.BuilderDao;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Service;
 
 /**
  *

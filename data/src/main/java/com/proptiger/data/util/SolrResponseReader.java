@@ -26,7 +26,6 @@ public class SolrResponseReader {
     public Map<String, Map<String, Integer>> getFacetResults(NamedList<Object> response){
             // Do not change Linked Hash Map as the order of inserted elements is needed.
             Map<String, Map<String, Integer>> list = new LinkedHashMap<String, Map<String, Integer>>();
-            Gson gson = new Gson();
             SimpleOrderedMap map = (SimpleOrderedMap)response.getVal(2);
             map = (SimpleOrderedMap)map.getVal(1);
             int i=0,j=0;

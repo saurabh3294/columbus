@@ -2,9 +2,7 @@ package com.proptiger.data.repo;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.HttpClientUtil;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;

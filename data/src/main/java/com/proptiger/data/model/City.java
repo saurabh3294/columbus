@@ -1,6 +1,5 @@
 package com.proptiger.data.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;

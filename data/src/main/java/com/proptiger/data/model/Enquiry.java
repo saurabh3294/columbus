@@ -103,25 +103,6 @@ public class Enquiry implements BaseModel {
         this.locality = locality;
     }
     
-    private enum buyPeriod  {
-        NOW(0), LAST_90_DAYS(1), LAST_180_DAYS(2);
-        int x;
-        buyPeriod(int x) {
-            this.x = x;
-        }
-    }
-    private enum processingStatus {
-        UNSUCCESSFUL,PROCESSING,PROCESSED;
-    }
-    private enum gaPpc {
-        ZERO, ONE;
-    }
-    private enum registeredUser {
-        YES, NO, NULL
-    }
-    private enum leadSaleType {
-        PRIMARY, RESALE;
-    }
     
     public Long getId() {
         return id;
