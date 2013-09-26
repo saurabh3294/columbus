@@ -3,10 +3,12 @@
  */
 package com.proptiger.app.mvc;
 
-import com.google.gson.reflect.TypeToken;
-import com.proptiger.data.model.Builder;
+import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.Project;
+import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
@@ -25,12 +27,6 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * @author mandeep

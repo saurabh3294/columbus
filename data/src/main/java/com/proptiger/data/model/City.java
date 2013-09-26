@@ -1,6 +1,5 @@
 package com.proptiger.data.model;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,11 +10,15 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo(name = "City")
-@JsonFilter("fieldFilter")
-public class City implements BaseModel {
+//@JsonFilter("fieldFilter")
+public class City{
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")
@@ -55,6 +58,16 @@ public class City implements BaseModel {
     @Field(value="CENTER_LONGITUDE")
     private Double centerLongitude;
 
+    @Column(name="DISPLAY_PRIORITY")
+    @Field(value="DISPLAY_PRIORITY")
+    @FieldMetaInfo( displayName = "Display Priority",  description = "Display Priority")
+    private Integer displayPriority;
+    
+    @Column(name="DISPLAY_ORDER")
+    @Field(value="DISPLAY_ORDER")
+    @FieldMetaInfo( displayName = "Display Order",  description = "Display Order")
+    private Integer displayOrder;
+    
     public int getId() {
         return id;
     }
@@ -118,4 +131,21 @@ public class City implements BaseModel {
     public void setCenterLongitude(Double centerLongitude) {
         this.centerLongitude = centerLongitude;
     }
+
+	public Integer getDisplayPriority() {
+		return displayPriority;
+	}
+
+	public void setDisplayPriority(Integer displayPriority) {
+		this.displayPriority = displayPriority;
+	}
+
+	public Integer getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
+	}
+    
 }

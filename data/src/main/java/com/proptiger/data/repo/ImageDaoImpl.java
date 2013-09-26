@@ -1,7 +1,10 @@
 package com.proptiger.data.repo;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
@@ -11,9 +14,11 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.drew.imaging.ImageProcessingException;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.ObjectType;
 import com.proptiger.data.model.image.Image;
@@ -36,17 +41,20 @@ public class ImageDaoImpl {
 	
 	private Image image;
 	
-	public ImageType getImageType(DomainObject object, String type) {
+	private ObjectType getObjectType(DomainObject objectStr) {
 		CriteriaQuery<ObjectType> otQ = cb.createQuery(ObjectType.class);
-		// Get ObjectType
 		Root<ObjectType> ot = otQ.from(ObjectType.class);
-		otQ.select(ot).where(cb.equal(ot.get("type"), object.getText()));
+		otQ.select(ot).where(cb.equal(ot.get("type"), objectStr.getText()));
         TypedQuery<ObjectType> query = em.createQuery(otQ);
         ObjectType objType = query.getSingleResult();
+        return objType;
+	}
+	
+	public ImageType getImageType(ObjectType objType, String imageTypeStr) {
         // Get ImageType
         CriteriaQuery<ImageType> itQ = cb.createQuery(ImageType.class);
 		Root<ImageType> it = itQ.from(ImageType.class);
-		itQ.select(it).where( cb.and(cb.equal(it.get("objectTypeId"), objType.getId()), cb.equal(it.get("type"), type)) );
+		itQ.select(it).where( cb.and(cb.equal(it.get("objectTypeId"), objType.getId()), cb.equal(it.get("type"), imageTypeStr)) );
         ImageType imageType = em.createQuery(itQ).getSingleResult();
         // Return
         return imageType;
@@ -61,25 +69,47 @@ public class ImageDaoImpl {
 
 	/**
 	 * @param image the image to set
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 * @throws ImageProcessingException 
 	 */
-	public void setImage(DomainObject object, String imageTypeStr, int objId, File imageFile) {
-        ImageType imageType = getImageType(object, imageTypeStr);
-        // Create Image
+	public void setImage(DomainObject objectStr, String imageTypeStr, int objId, File orignalImage, File watermarkImage) throws FileNotFoundException, IOException, ImageProcessingException {
+		String originalHash, watermarkHash;
+		originalHash = ImageUtil.fileMd5Hash(orignalImage);
+		watermarkHash = ImageUtil.fileMd5Hash(watermarkImage);
+		// Image
+		ObjectType objType = getObjectType(objectStr);
+        ImageType imageType = getImageType(objType, imageTypeStr);
 		Image img = new Image();
 		img.setImageTypeId(imageType.getId());
 		img.setObjectId(objId);
-		img.setPath(object.getText() + "/" + objId + "/" + imageTypeStr + "/");
-//		image.setTakenAt("");
-//		image.setSize("");
-//		image.setWidth("");
-//		image.setHeight("");
-		try {
-			img.setContentName(ImageUtil.fileMd5Hash(imageFile));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		img.setSeoName(object.getText() + objId + imageTypeStr);
+		String[] directories = {
+				"", String.valueOf(objType.getId()),
+				String.valueOf(objId),
+				String.valueOf(imageType.getId()),
+				""
+				};
+		String path = StringUtils.join(directories, "/");
+		img.setPath(path);
+		// MetaData
+		HashMap<String, Object> info;
+		ImageUtil.getImageInfo(orignalImage);
+		info = ImageUtil.getImageInfo(orignalImage);
+		// DateTime
+		Object obj = info.get("datetime");
+		Date date = (obj != null)? (Date)obj: null;
+		img.setTakenAt(date);
+		img.setSizeInBytes((long) info.get("size_in_bytes"));
+		img.setWidth(Integer.parseInt((String)info.get("width")));
+		img.setHeight(Integer.parseInt((String)info.get("height")));
+		Object latitude = info.get("latitude");
+		Object longitude = info.get("longitude");
+		img.setLatitude((latitude != null)? (double)latitude: null);
+		img.setLatitude((longitude != null)? (double)longitude: null);
+		img.setOriginalHash(originalHash);
+		img.setWaterMarkHash(watermarkHash);
+		img.setOriginalName(originalHash);
+		img.setWaterMarkName(objectStr.getText() + objId + imageTypeStr);
 		image = img;
 	}
 	

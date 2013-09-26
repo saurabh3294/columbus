@@ -3,7 +3,7 @@
  */
 package com.proptiger.data.model.filter;
 
-import java.util.Set;
+import com.proptiger.data.pojo.Selector;
 
 
 
@@ -13,13 +13,13 @@ import java.util.Set;
  * 
  */
 public class FieldsQueryBuilder {
-    public static void applyFields(QueryBuilder queryBuilder, Set<String> fieldString, Class<?> modelClass) {
-        if (fieldString == null || fieldString.size() == 0) {
+    public static void applyFields(QueryBuilder queryBuilder, Selector selector) {
+        if (selector == null || selector.getFields() == null) {
             return;
         }
 
-        for (String fieldName : fieldString) {
-            queryBuilder.addField(FieldsMapLoader.getDaoFieldName(modelClass, fieldName, queryBuilder.getAnnotationClassForColumnName()));
+        for (String fieldName : selector.getFields()) {
+            queryBuilder.addField(fieldName);
         }
     }
 }

@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
-import org.apache.solr.client.solrj.beans.Field;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.apache.solr.client.solrj.response.Group;
@@ -65,13 +64,13 @@ public class PropertyDao {
     public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertySelector) {
         SolrQuery query = createSolrQuery(propertySelector);
         for (String field : fields) {
-            query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class));
+            query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         }
 
         Map<String, List<Map<Object, Long>>> resultMap = new HashMap<String, List<Map<Object, Long>>>();
         for (String field : fields) {
             resultMap.put(field, new ArrayList<Map<Object, Long>>());
-            for (Count count : solrDao.executeQuery(query).getFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class)).getValues()) {
+            for (Count count : solrDao.executeQuery(query).getFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field)).getValues()) {
                 HashMap<Object, Long> map = new HashMap<Object, Long>();
                 map.put(count.getName(), count.getCount());
                 resultMap.get(field).add(map);
@@ -86,13 +85,13 @@ public class PropertyDao {
         query.add("stats", "true");
 
         for (String field : fields) {
-            query.add("stats.field", FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class));
+            query.add("stats.field", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         }
 
         Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
         Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
         for (String field : fields) {
-            resultMap.put(field, response.get(FieldsMapLoader.getDaoFieldName(SolrResult.class, field, Field.class)));
+            resultMap.put(field, response.get(FieldsMapLoader.getDaoFieldName(SolrResult.class, field)));
         }
         
         return resultMap;
@@ -215,16 +214,18 @@ public class PropertyDao {
                 solrQuery.setStart(paging.getStart());
             }
 
-            SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
-            filterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), SolrResult.class);
-            SortQueryBuilder.applySort(queryBuilder, selector.getSort(), SolrResult.class);
+            SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
+            filterQueryBuilder.applyFilter(queryBuilder, selector, SolrResult.class);
+            SortQueryBuilder.applySort(queryBuilder, selector);
             
             // Current default relebanr order
+            /*Set<SortBy> sortBySet = new HashSet<SortBy>();
+            
             queryBuilder.addSort("DISPLAY_ORDER", SortOrder.ASC);
             queryBuilder.addSort("PROJECT_PRIORITY", SortOrder.ASC);
             queryBuilder.addSort("PROJECT_ID", SortOrder.DESC);
             queryBuilder.addSort("BEDROOMS", SortOrder.ASC);
-            queryBuilder.addSort("SIZE", SortOrder.ASC);
+            queryBuilder.addSort("SIZE", SortOrder.ASC);*/
             
             // XXX - including price and size fields
             if (selector.getFields() != null && selector.getFields().size() > 0) {
@@ -235,7 +236,7 @@ public class PropertyDao {
                     selector.getFields().add("size");
                 }
             }
-            FieldsQueryBuilder.applyFields(queryBuilder, selector.getFields(), SolrResult.class);
+            FieldsQueryBuilder.applyFields(queryBuilder, selector);
         }
 
         return solrQuery;
