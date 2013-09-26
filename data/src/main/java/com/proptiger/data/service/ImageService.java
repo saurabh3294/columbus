@@ -17,10 +17,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.drew.imaging.ImageProcessingException;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.repo.ImageDaoImpl;
+import com.proptiger.data.util.ImageUtil;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -49,8 +51,8 @@ public class ImageService {
 	@Autowired
 	private ImageDaoImpl dao;
 	
-	private boolean isValidImage(MultipartFile file) {
-		return (file.getSize() == 0)? false:true;
+	private boolean isEmpty(MultipartFile file) {
+		return (file.getSize() == 0)? true:false;
 	}
 	
 	private File convertToJPG(File image) throws IOException {
@@ -59,9 +61,6 @@ public class ImageService {
 		File jpg = File.createTempFile("imageJPG", ".jpg", tempDir);
 		ImageIO.write(img, "jpg", jpg); // Writes at 0.7 compression quality
 		return jpg;
-	}
-
-	private void makeProgresiveJPG(File jpgFile) {
 	}
 	
 	private File createWatermarkedCopy(File jpgFile) throws IOException {
@@ -85,10 +84,6 @@ public class ImageService {
 	private void uploadToS3() {
 	}
 	
-	private HashMap<String, String> getFileAttributes() {
-		return new HashMap<String, String>();
-	}
-	
 	/*
 	 * Public method to get images
 	 * */
@@ -103,20 +98,27 @@ public class ImageService {
 	/*
 	 * Public method to upload images
 	 * */
-	public void uploadImage(DomainObject object, String imageTypeStr, int objId, MultipartFile imageFile) {
+	public void uploadImage(DomainObject object, String imageTypeStr, int objId, MultipartFile fileUpload) {
     	try {
+    			// Upload file
 	    		File tempFile = File.createTempFile("image", ".tmp", tempDir);
-	    		File jpgFile, waterMarkImageFile;
-	    		if(isValidImage(imageFile)) {
-	    			imageFile.transferTo(tempFile);
-	    			jpgFile = convertToJPG(tempFile);
-	    			makeProgresiveJPG(jpgFile);
-	    			waterMarkImageFile = createWatermarkedCopy(jpgFile);
-	    		} else {
-	    			throw new IllegalArgumentException();
+	    		if(isEmpty(fileUpload))
+	    			throw new IllegalArgumentException("Empty file uploaded");
+	    		fileUpload.transferTo(tempFile);
+	    		if(!ImageUtil.isValidImage(tempFile)) {
+	    			tempFile.delete();
+	    			throw new IllegalArgumentException("Uploaded file is not an image");	    			
 	    		}
+	    		// Image uploaded
+	    		File jpgFile, waterMarkFile;
+    			jpgFile = convertToJPG(tempFile);
+    			waterMarkFile = createWatermarkedCopy(jpgFile);
 	    		// Upload to S3
-	    		dao.setImage(object, imageTypeStr, objId, jpgFile, waterMarkImageFile);
+	    		try {
+					dao.setImage(object, imageTypeStr, objId, jpgFile, waterMarkFile);
+				} catch (ImageProcessingException e) {
+					throw new RuntimeException("Something went wrong.");
+				}
 	    		dao.save();
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
