@@ -61,6 +61,12 @@ public class Image implements Serializable {
 	@Column(name = "height")
 	private int height;
 	
+	@Column(name = "latitude", nullable = true)
+	private Double latitude;
+	
+	@Column(name = "longitude", nullable = true)
+	private Double longitude;
+	
 	@Column(name = "alt_text", nullable = true)
 	private String altText;
 	
@@ -223,6 +229,34 @@ public class Image implements Serializable {
 	 */
 	public void setHeight(int height) {
 		this.height = height;
+	}
+
+	/**
+	 * @return the latitude
+	 */
+	public Double getLatitude() {
+		return latitude;
+	}
+
+	/**
+	 * @param latitude the latitude to set
+	 */
+	public void setLatitude(Double latitude) {
+		this.latitude = latitude;
+	}
+
+	/**
+	 * @return the longitude
+	 */
+	public Double getLongitude() {
+		return longitude;
+	}
+
+	/**
+	 * @param longitude the longitude to set
+	 */
+	public void setLongitude(Double longitude) {
+		this.longitude = longitude;
 	}
 
 	/**
