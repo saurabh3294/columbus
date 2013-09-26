@@ -216,8 +216,8 @@ public class PropertyDao {
             }
 
             SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
-            filterQueryBuilder.applyFilter(queryBuilder, selector.getFilters(), SolrResult.class);
-            SortQueryBuilder.applySort(queryBuilder, selector.getSort(), SolrResult.class);
+            filterQueryBuilder.applyFilter(queryBuilder, selector, SolrResult.class);
+            SortQueryBuilder.applySort(queryBuilder, selector);
             
             // Current default relebanr order
             /*Set<SortBy> sortBySet = new HashSet<SortBy>();
@@ -237,7 +237,7 @@ public class PropertyDao {
                     selector.getFields().add("size");
                 }
             }
-            FieldsQueryBuilder.applyFields(queryBuilder, selector.getFields(), SolrResult.class);
+            FieldsQueryBuilder.applyFields(queryBuilder, selector);
         }
 
         return solrQuery;

@@ -37,9 +37,8 @@ public class CityDao {
 		MySqlQueryBuilder<City> mySqlQueryBuilder = new MySqlQueryBuilder<City>(
 				builder, City.class);
 		filterQueryBuilder.applyFilter(mySqlQueryBuilder,
-				selector.getFilters(), City.class);
-		SortQueryBuilder.applySort(mySqlQueryBuilder, selector.getSort(),
-				City.class);
+				selector, City.class);
+		SortQueryBuilder.applySort(mySqlQueryBuilder, selector);
 		result = em.createQuery(mySqlQueryBuilder.getQuery()).getResultList();
 
 		return result;

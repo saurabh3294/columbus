@@ -3,9 +3,7 @@
  */
 package com.proptiger.data.model.filter;
 
-import java.util.Set;
-
-import com.proptiger.data.pojo.SortBy;
+import com.proptiger.data.pojo.Selector;
 
 /**
  * @author mandeep
@@ -13,11 +11,11 @@ import com.proptiger.data.pojo.SortBy;
  */
 public class SortQueryBuilder {
 
-    public static void applySort(QueryBuilder queryBuilder, Set<SortBy> sortBy, Class<?> modelClass) {
-        if (sortBy == null) {
+    public static void applySort(QueryBuilder queryBuilder, Selector selector) {
+        if (selector == null || selector.getSort() == null) {
             return;
         }
         
-		queryBuilder.addSort(sortBy);
+		queryBuilder.addSort(selector.getSort());
     }
 }
