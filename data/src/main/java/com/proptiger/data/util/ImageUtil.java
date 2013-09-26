@@ -80,11 +80,16 @@ public class ImageUtil {
 		// Size
 		info.put("size_in_bytes", imageFile.length());
 		// Latitude - Longitude
-		if(metadata.containsDirectory(GpsDirectory.class)) {
-			GpsDirectory directory = metadata.getDirectory(GpsDirectory.class);
-			GeoLocation geo = directory.getGeoLocation();
-			info.put("latitude", (geo != null)? geo.getLatitude():null);
-			info.put("longitude", (geo!= null)? geo.getLongitude():null);
+		GpsDirectory gpsDirectory = metadata.getDirectory(GpsDirectory.class);
+		if(gpsDirectory !=null) {
+			GeoLocation geo = gpsDirectory.getGeoLocation();
+			Double lat = null, lng = null;
+			if (geo != null && !geo.isZero()){
+				lat = geo.getLatitude();
+				lng = geo.getLongitude();
+			}
+			info.put("latitude", lat);
+			info.put("longitude", lng);
 		}
 		return info;
 	}

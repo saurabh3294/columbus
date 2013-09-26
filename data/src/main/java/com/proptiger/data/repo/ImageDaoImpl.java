@@ -96,16 +96,15 @@ public class ImageDaoImpl {
 		ImageUtil.getImageInfo(orignalImage);
 		info = ImageUtil.getImageInfo(orignalImage);
 		// DateTime
-		Object obj = info.get("datetime");
-		Date date = (obj != null)? (Date)obj: null;
-		img.setTakenAt(date);
+		Date date = (Date) info.get("datetime");
+		img.setTakenAt((date != null)? (Date)date: null);
 		img.setSizeInBytes((long) info.get("size_in_bytes"));
 		img.setWidth(Integer.parseInt((String)info.get("width")));
 		img.setHeight(Integer.parseInt((String)info.get("height")));
-		Object latitude = info.get("latitude");
-		Object longitude = info.get("longitude");
-		img.setLatitude((latitude != null)? (double)latitude: null);
-		img.setLatitude((longitude != null)? (double)longitude: null);
+		Double lat = (Double) info.get("latitude");
+		Double lng = (Double) info.get("longitude");
+		img.setLatitude((lat != null)? (double)lat: null);
+		img.setLongitude((lng != null)? (double)lng: null);
 		img.setOriginalHash(originalHash);
 		img.setWaterMarkHash(watermarkHash);
 		img.setOriginalName(originalHash);
