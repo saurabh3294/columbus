@@ -17,10 +17,10 @@ import javax.imageio.stream.ImageInputStream;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Directory;
+import com.drew.lang.GeoLocation;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.drew.metadata.exif.GpsDirectory;
 
 public class ImageUtil {
 
@@ -67,20 +67,25 @@ public class ImageUtil {
 	public static HashMap<String, Object> getImageInfo(File imageFile) throws IOException, ImageProcessingException {
 		HashMap<String, Object> info = new HashMap<String, Object>();
 		ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
-		BufferedImage image = ImageIO.read ( iis );
-		info.put("width", String.valueOf(image.getWidth()));    // Width
-		info.put("height", String.valueOf(image.getHeight()));  // Height
+		BufferedImage buffImage = ImageIO.read ( iis );
+		info.put("width", String.valueOf(buffImage.getWidth()));    // Width
+		info.put("height", String.valueOf(buffImage.getHeight()));  // Height
 		// Date
 		Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
 		if(metadata.containsDirectory(ExifSubIFDDirectory.class)) {
 			ExifSubIFDDirectory directory = metadata.getDirectory(ExifSubIFDDirectory.class);
 			Date date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
 			info.put("datetime", date);
-		} else {
-			info.put("datetime", null);
 		}
 		// Size
 		info.put("size_in_bytes", imageFile.length());
+		// Latitude - Longitude
+		if(metadata.containsDirectory(GpsDirectory.class)) {
+			GpsDirectory directory = metadata.getDirectory(GpsDirectory.class);
+			GeoLocation geo = directory.getGeoLocation();
+			info.put("latitude", (geo != null)? geo.getLatitude():null);
+			info.put("longitude", (geo!= null)? geo.getLongitude():null);
+		}
 		return info;
 	}
 

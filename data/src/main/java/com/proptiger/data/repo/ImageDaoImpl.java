@@ -102,6 +102,10 @@ public class ImageDaoImpl {
 		img.setSizeInBytes((long) info.get("size_in_bytes"));
 		img.setWidth(Integer.parseInt((String)info.get("width")));
 		img.setHeight(Integer.parseInt((String)info.get("height")));
+		Object latitude = info.get("latitude");
+		Object longitude = info.get("longitude");
+		img.setLatitude((latitude != null)? (double)latitude: null);
+		img.setLatitude((longitude != null)? (double)longitude: null);
 		img.setOriginalHash(originalHash);
 		img.setWaterMarkHash(watermarkHash);
 		img.setOriginalName(originalHash);

@@ -27,15 +27,15 @@ import com.proptiger.data.util.PropertyReader;
 
 /**
  * @author yugal
- *
+ * 
  */
 @Service
 public class ImageService {
 	private static File tempDir;
 
 	@Autowired
-    protected PropertyReader propertyReader;
-    
+	protected PropertyReader propertyReader;
+
 	@PostConstruct
 	private void init() {
 		String path = propertyReader.getRequiredProperty("imageTempPath");
@@ -44,26 +44,24 @@ public class ImageService {
 			tempDir.mkdir();
 		}
 	}
-	
+
 	@Resource
 	private ImageDao imageDao;
 
 	@Autowired
 	private ImageDaoImpl dao;
-	
+
 	private boolean isEmpty(MultipartFile file) {
-		return (file.getSize() == 0)? true:false;
+		return (file.getSize() == 0) ? true : false;
 	}
-	
-	private File convertToJPG(File image) throws IOException {
+
+	private void convertToJPG(File image, File jpg) throws IOException {
 		BufferedImage img = null;
 		img = ImageIO.read(image);
-		File jpg = File.createTempFile("imageJPG", ".jpg", tempDir);
 		ImageIO.write(img, "jpg", jpg); // Writes at 0.7 compression quality
-		return jpg;
 	}
-	
-	private File createWatermarkedCopy(File jpgFile) throws IOException {
+
+	private void addWaterMark(File jpgFile) throws IOException {
 		InputStream waterMarkFile = ImageService.class.getResourceAsStream("/com/proptiger/data/service/watermark.png");
 		BufferedImage waterMark = ImageIO.read(waterMarkFile);
 
@@ -71,55 +69,57 @@ public class ImageService {
 		Graphics2D g = image.createGraphics();
 		try {
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)); // 50% transparent
-			g.drawImage(waterMark, (image.getWidth() - waterMark.getWidth())/2, (image.getHeight() - waterMark.getHeight())/2, null);
-		}
-		finally {
+			g.drawImage(waterMark,
+					(image.getWidth() - waterMark.getWidth()) / 2,
+					(image.getHeight() - waterMark.getHeight()) / 2, null);
+		} finally {
 			g.dispose();
 		}
-		File waterMarkImageFile = File.createTempFile("imageWatermark", ".jpg", tempDir);
-		ImageIO.write(image, "jpg", waterMarkImageFile);
-		return waterMarkImageFile;
+		ImageIO.write(image, "jpg", jpgFile);
 	}
-	
+
 	private void uploadToS3() {
 	}
-	
+
 	/*
 	 * Public method to get images
-	 * */
-	public List<Image> getImages(DomainObject object, String imageTypeStr, int objId) {
-		if(imageTypeStr == null) {
-			return imageDao.getImagesForObject(object.getText(), objId);			
+	 */
+	public List<Image> getImages(DomainObject object, String imageTypeStr,
+			int objId) {
+		if (imageTypeStr == null) {
+			return imageDao.getImagesForObject(object.getText(), objId);
 		} else {
-			return imageDao.getImagesForObjectWithImageType(object.getText(), imageTypeStr, objId);	
+			return imageDao.getImagesForObjectWithImageType(object.getText(),
+					imageTypeStr, objId);
 		}
 	}
-	
+
 	/*
 	 * Public method to upload images
-	 * */
-	public void uploadImage(DomainObject object, String imageTypeStr, int objId, MultipartFile fileUpload) {
-    	try {
-    			// Upload file
-	    		File tempFile = File.createTempFile("image", ".tmp", tempDir);
-	    		if(isEmpty(fileUpload))
-	    			throw new IllegalArgumentException("Empty file uploaded");
-	    		fileUpload.transferTo(tempFile);
-	    		if(!ImageUtil.isValidImage(tempFile)) {
-	    			tempFile.delete();
-	    			throw new IllegalArgumentException("Uploaded file is not an image");	    			
-	    		}
-	    		// Image uploaded
-	    		File jpgFile, waterMarkFile;
-    			jpgFile = convertToJPG(tempFile);
-    			waterMarkFile = createWatermarkedCopy(jpgFile);
-	    		// Upload to S3
-	    		try {
-					dao.setImage(object, imageTypeStr, objId, jpgFile, waterMarkFile);
-				} catch (ImageProcessingException e) {
-					throw new RuntimeException("Something went wrong.");
-				}
-	    		dao.save();
+	 */
+	public void uploadImage(DomainObject object, String imageTypeStr,
+			int objId, MultipartFile fileUpload) {
+		try {
+			// Upload file
+			File originalFile = File.createTempFile("originalImage", ".tmp", tempDir);
+			if (isEmpty(fileUpload))
+				throw new IllegalArgumentException("Empty file uploaded");
+			fileUpload.transferTo(originalFile);
+			if (!ImageUtil.isValidImage(originalFile)) {
+				originalFile.delete();
+				throw new IllegalArgumentException("Uploaded file is not an image");
+			}
+			// Image uploaded
+			File jpgFile = File.createTempFile("jpgImage", ".jpg", tempDir);
+			convertToJPG(originalFile, jpgFile);
+			addWaterMark(jpgFile);
+			// Upload to S3
+			try {
+				dao.setImage(object, imageTypeStr, objId, originalFile, jpgFile);
+			} catch (ImageProcessingException e) {
+				throw new RuntimeException("Something went wrong.");
+			}
+			dao.save();
 		} catch (IllegalStateException | IOException e) {
 			e.printStackTrace();
 		}
