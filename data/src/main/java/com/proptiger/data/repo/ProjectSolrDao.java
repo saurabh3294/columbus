@@ -46,7 +46,7 @@ public class ProjectSolrDao {
         solrQuery.setRows(projectFilter.getPaging().getRows());
         solrQuery.setStart(projectFilter.getPaging().getStart());
 
-        SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
+        SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
         
         filterQueryBuilder.applyFilter(queryBuilder, projectFilter.getFilters(), Project.class);
         SortQueryBuilder.applySort(queryBuilder, projectFilter.getSort(), Project.class);
