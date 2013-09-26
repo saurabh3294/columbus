@@ -18,8 +18,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo(name = "City")
-@JsonFilter("fieldFilter")
-public class City implements BaseModel {
+//@JsonFilter("fieldFilter")
+public class City{
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")

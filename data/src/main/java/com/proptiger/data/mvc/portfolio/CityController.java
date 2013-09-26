@@ -33,6 +33,6 @@ public class CityController extends BaseController{
 		if(selector != null){
 			fieldsToSerialize = selector.getFields();
 		}
-		return new ProAPISuccessResponse(super.filterFields(list, fieldsToSerialize), list.size());
+		return new ProAPISuccessResponse(super.filterOutAllExcept(list, fieldsToSerialize), list.size());
 	}
 }
