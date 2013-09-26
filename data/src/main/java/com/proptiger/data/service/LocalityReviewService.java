@@ -1,21 +1,18 @@
 package com.proptiger.data.service;
 
-import com.google.gson.Gson;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.repo.LocalityRatingDao;
 import com.proptiger.data.repo.LocalityReviewDao;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 
 
 /**

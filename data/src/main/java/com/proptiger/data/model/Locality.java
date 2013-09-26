@@ -13,7 +13,6 @@ import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import javax.persistence.FetchType;
 
 /**
  * Locality entity class

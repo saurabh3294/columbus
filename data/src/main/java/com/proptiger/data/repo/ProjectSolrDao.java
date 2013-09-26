@@ -25,7 +25,6 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
-import com.proptiger.data.util.PropertyReader;
 
 /**
  * 

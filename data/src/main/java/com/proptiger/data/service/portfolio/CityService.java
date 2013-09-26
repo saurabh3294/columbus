@@ -2,8 +2,6 @@ package com.proptiger.data.service.portfolio;
 
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
