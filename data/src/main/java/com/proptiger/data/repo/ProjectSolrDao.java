@@ -39,18 +39,18 @@ public class ProjectSolrDao {
     @Autowired
     private FilterQueryBuilder filterQueryBuilder;
 
-    public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
+    public SolrServiceResponse<List<Project>> getProjects(Selector selector) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
-        solrQuery.setRows(projectFilter.getPaging().getRows());
-        solrQuery.setStart(projectFilter.getPaging().getStart());
+        solrQuery.setRows(selector.getPaging().getRows());
+        solrQuery.setStart(selector.getPaging().getStart());
 
         SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
         
-        filterQueryBuilder.applyFilter(queryBuilder, projectFilter.getFilters(), Project.class);
-        SortQueryBuilder.applySort(queryBuilder, projectFilter.getSort(), Project.class);
-        FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
+        filterQueryBuilder.applyFilter(queryBuilder, selector, Project.class);
+        SortQueryBuilder.applySort(queryBuilder, selector);
+        FieldsQueryBuilder.applyFields(queryBuilder, selector);
 
         System.out.println(solrQuery);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
@@ -63,7 +63,7 @@ public class ProjectSolrDao {
     }
 
     // TODO to integrate with existing getProject functions.
-    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter) {
+    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector selector) {
         SolrQuery solrQuery = new SolrQuery();
 
         if (cityName == null || cityName.length() <= 0)
@@ -76,11 +76,11 @@ public class ProjectSolrDao {
                 + "AND -PROJECT_STATUS:cancelled AND -PROJECT_STATUS:\"on hold\"";
         solrQuery.setFilterQueries(fq);
 
-        solrQuery.setRows(projectFilter.getPaging().getRows());
+        solrQuery.setRows(selector.getPaging().getRows());
         solrQuery.setSort("VALID_LAUNCH_DATE", SolrQuery.ORDER.desc);
 
         SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
-        FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
+        FieldsQueryBuilder.applyFields(queryBuilder, selector);
 
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Project> solrResults = queryResponse.getBeans(Project.class);

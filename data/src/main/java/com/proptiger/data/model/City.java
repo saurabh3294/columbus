@@ -11,6 +11,10 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo(name = "City")
@@ -58,12 +62,12 @@ public class City implements BaseModel {
     @Column(name="DISPLAY_PRIORITY")
     @Field(value="DISPLAY_PRIORITY")
     @FieldMetaInfo( displayName = "Display Priority",  description = "Display Priority")
-    private int displayPriority;
+    private Integer displayPriority;
     
     @Column(name="DISPLAY_ORDER")
     @Field(value="DISPLAY_ORDER")
     @FieldMetaInfo( displayName = "Display Order",  description = "Display Order")
-    private int displayOrder;
+    private Integer displayOrder;
     
     public int getId() {
         return id;
@@ -129,12 +133,20 @@ public class City implements BaseModel {
         this.centerLongitude = centerLongitude;
     }
 
-	public int getDisplayPriority() {
+	public Integer getDisplayPriority() {
 		return displayPriority;
 	}
 
-	public void setDisplayPriority(int displayPriority) {
+	public void setDisplayPriority(Integer displayPriority) {
 		this.displayPriority = displayPriority;
+	}
+
+	public Integer getDisplayOrder() {
+		return displayOrder;
+	}
+
+	public void setDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
 	}
     
 }
