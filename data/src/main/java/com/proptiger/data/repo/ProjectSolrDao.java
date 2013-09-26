@@ -33,14 +33,11 @@ import com.proptiger.data.util.PropertyReader;
  */
 @Repository
 public class ProjectSolrDao {
-    @Autowired
-    FilterQueryBuilder filterQueryBuilder;
 
     @Autowired
     private SolrDao solrDao;
-
     @Autowired
-    private PropertyReader propertyReader;
+    private FilterQueryBuilder filterQueryBuilder;
 
     public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
         SolrQuery solrQuery = new SolrQuery();
@@ -49,7 +46,8 @@ public class ProjectSolrDao {
         solrQuery.setRows(projectFilter.getPaging().getRows());
         solrQuery.setStart(projectFilter.getPaging().getStart());
 
-        SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
+        SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
+        
         filterQueryBuilder.applyFilter(queryBuilder, projectFilter.getFilters(), Project.class);
         SortQueryBuilder.applySort(queryBuilder, projectFilter.getSort(), Project.class);
         FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
@@ -81,7 +79,7 @@ public class ProjectSolrDao {
         solrQuery.setRows(projectFilter.getPaging().getRows());
         solrQuery.setSort("VALID_LAUNCH_DATE", SolrQuery.ORDER.desc);
 
-        SolrQueryBuilder queryBuilder = new SolrQueryBuilder(solrQuery);
+        SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
         FieldsQueryBuilder.applyFields(queryBuilder, projectFilter.getFields(), Project.class);
 
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);

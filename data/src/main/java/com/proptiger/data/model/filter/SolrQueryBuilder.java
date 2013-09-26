@@ -4,25 +4,26 @@
 package com.proptiger.data.model.filter;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.util.StringUtils;
 
-import com.proptiger.data.pojo.SortOrder;
+import com.proptiger.data.pojo.SortBy;
 
 /**
  * @author mandeep
  *
  */
-public class SolrQueryBuilder implements QueryBuilder {
+public class SolrQueryBuilder<T> implements QueryBuilder {
     
     private SolrQuery solrQuery;
-
-    public SolrQueryBuilder(SolrQuery solrQuery) {
+    private Class<T> modelClass;
+    
+    public SolrQueryBuilder(SolrQuery solrQuery, Class<T> clazz) {
         this.solrQuery = solrQuery;
+        this.modelClass = clazz;
     }
     
     /* (non-Javadoc)
@@ -30,13 +31,14 @@ public class SolrQueryBuilder implements QueryBuilder {
      */
     @Override
     public void addEqualsFilter(String fieldName, List<Object> values) {
+    	String colName = getColumnName(fieldName);
         String quote = "";
         if (values.get(0) instanceof String) {
             quote = "\"";
         }
 
         String string = StringUtils.arrayToDelimitedString(values.toArray(), quote + " OR " + quote );
-        solrQuery.addFilterQuery("{!tag=" + fieldName + "}" + fieldName + ":(" + quote + string + quote + ")");
+        solrQuery.addFilterQuery("{!tag=" + colName + "}" + colName + ":(" + quote + string + quote + ")");
     }
 
     /* (non-Javadoc)
@@ -44,6 +46,7 @@ public class SolrQueryBuilder implements QueryBuilder {
      */
     @Override
     public void addRangeFilter(String fieldName, Object from, Object to) {
+    	String colName = getColumnName(fieldName);
         if (from == null) {
             from = "*";
         }
@@ -52,41 +55,47 @@ public class SolrQueryBuilder implements QueryBuilder {
             to = "*";
         }
         
-        if (fieldName != null) {
-            solrQuery.addFilterQuery("{!tag=" + fieldName + "}" + fieldName + ":[" + from + " TO " + to + "]");
+        if (colName != null) {
+            solrQuery.addFilterQuery("{!tag=" + colName + "}" + colName + ":[" + from + " TO " + to + "]");
         }
     }
 
     @Override
-    public void addSort(String fieldName, SortOrder valueOf) {
-        switch (valueOf) {
-        case ASC:
-            solrQuery.addSort(fieldName, ORDER.asc);
-            break;
-        case DESC:
-            solrQuery.addSort(fieldName, ORDER.desc);
-            break;
-        default:
-            solrQuery.addSort(fieldName, ORDER.asc);
-            break;
-        }
+    public void addSort(Set<SortBy> sortBySet) {
+    	for(SortBy sortBy : sortBySet){
+    		String colName = getColumnName(sortBy.getField());
+            switch (sortBy.getSortOrder()) {
+            case ASC:
+                solrQuery.addSort(colName, ORDER.asc);
+                break;
+            case DESC:
+                solrQuery.addSort(colName, ORDER.desc);
+                break;
+            default:
+                solrQuery.addSort(colName, ORDER.asc);
+                break;
+            }
+    	}
+    	
     }
 
     @Override
     public void addField(String fieldName) {
-        solrQuery.addField(fieldName);
+    	String colName = getColumnName(fieldName);
+        solrQuery.addField(colName);
     }
-    
-    @Override
-    public Class<org.apache.solr.client.solrj.beans.Field> getAnnotationClassForColumnName() {
-    	return org.apache.solr.client.solrj.beans.Field.class;
-    }
+   
 
     @Override
-    public void addGeoFilter(String daoFieldName, double distance, double latitude, double longitude) {
+    public void addGeoFilter(String fieldName, double distance, double latitude, double longitude) {
+    	String colName = getColumnName(fieldName);
         solrQuery.addFilterQuery("{!geofilt}");
         solrQuery.add("pt", latitude + "," + longitude);
-        solrQuery.add("sfield", daoFieldName);
+        solrQuery.add("sfield", colName);
         solrQuery.add("d", String.valueOf(distance));
+    }
+
+    private String getColumnName(String jsonFieldName){
+    	return FieldsMapLoader.getDaoFieldName(modelClass, jsonFieldName);
     }
 }

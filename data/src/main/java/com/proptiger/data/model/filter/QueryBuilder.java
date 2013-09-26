@@ -3,10 +3,10 @@
  */
 package com.proptiger.data.model.filter;
 
-import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Set;
 
-import com.proptiger.data.pojo.SortOrder;
+import com.proptiger.data.pojo.SortBy;
 
 /**
  * @author mandeep
@@ -17,11 +17,11 @@ public interface QueryBuilder {
 
     void addRangeFilter(String fieldName, Object from, Object to);
 
-    void addSort(String fieldName, SortOrder sortOrder);
+    void addSort(Set<SortBy> sortBySet);
 
     void addField(String fieldName);
 
-    Class<? extends Annotation> getAnnotationClassForColumnName();
-
     void addGeoFilter(String daoFieldName, double distance, double latitude, double longitude);
+    
+    
 }

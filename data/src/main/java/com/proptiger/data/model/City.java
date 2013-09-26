@@ -55,6 +55,16 @@ public class City implements BaseModel {
     @Field(value="CENTER_LONGITUDE")
     private Double centerLongitude;
 
+    @Column(name="DISPLAY_PRIORITY")
+    @Field(value="DISPLAY_PRIORITY")
+    @FieldMetaInfo( displayName = "Display Priority",  description = "Display Priority")
+    private int displayPriority;
+    
+    @Column(name="DISPLAY_ORDER")
+    @Field(value="DISPLAY_ORDER")
+    @FieldMetaInfo( displayName = "Display Order",  description = "Display Order")
+    private int displayOrder;
+    
     public int getId() {
         return id;
     }
@@ -118,4 +128,13 @@ public class City implements BaseModel {
     public void setCenterLongitude(Double centerLongitude) {
         this.centerLongitude = centerLongitude;
     }
+
+	public int getDisplayPriority() {
+		return displayPriority;
+	}
+
+	public void setDisplayPriority(int displayPriority) {
+		this.displayPriority = displayPriority;
+	}
+    
 }

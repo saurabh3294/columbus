@@ -18,10 +18,6 @@ public class SortQueryBuilder {
             return;
         }
         
-		for (SortBy sortCriterion : sortBy) {
-			queryBuilder.addSort(
-					FieldsMapLoader.getDaoFieldName(modelClass,
-							sortCriterion.getField(), queryBuilder.getAnnotationClassForColumnName()),	sortCriterion.getSortOrder());
-		}
+		queryBuilder.addSort(sortBy);
     }
 }

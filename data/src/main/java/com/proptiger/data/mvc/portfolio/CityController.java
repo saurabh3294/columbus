@@ -1,6 +1,7 @@
 package com.proptiger.data.mvc.portfolio;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,9 +26,13 @@ public class CityController extends BaseController{
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public ProAPIResponse getCities(@RequestParam(required = false) Selector selector){
+	public ProAPIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr){
+		Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
 		List<City> list = cityService.getCityList(selector);
-		
-		return new ProAPISuccessResponse(super.filterFields(list, null), list.size());
+		Set<String> fieldsToSerialize = null;
+		if(selector != null){
+			fieldsToSerialize = selector.getFields();
+		}
+		return new ProAPISuccessResponse(super.filterFields(list, fieldsToSerialize), list.size());
 	}
 }
