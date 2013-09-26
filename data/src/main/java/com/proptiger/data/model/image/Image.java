@@ -52,8 +52,8 @@ public class Image implements Serializable {
 	@Column(name = "taken_at", nullable = true)
 	private Date takenAt;
 	
-	@Column(name = "size")
-	private long size;
+	@Column(name = "size_in_bytes")
+	private long sizeInBytes;
 	
 	@Column(name = "width")
 	private int width;
@@ -61,13 +61,13 @@ public class Image implements Serializable {
 	@Column(name = "height")
 	private int height;
 	
-	@Column(name = "alt_text")
+	@Column(name = "alt_text", nullable = true)
 	private String altText;
 	
-	@Column(name = "label")
+	@Column(name = "label", nullable = true)
 	private String label;
 	
-	@Column(name = "description")
+	@Column(name = "description", nullable = true)
 	private String description;
 	
 	@Column(name = "priority", nullable = true)
@@ -184,17 +184,17 @@ public class Image implements Serializable {
 	}
 
 	/**
-	 * @return the size
+	 * @return the sizeInBytes
 	 */
-	public long getSize() {
-		return size;
+	public long getSizeInBytes() {
+		return sizeInBytes;
 	}
 
 	/**
-	 * @param size the size to set
+	 * @param sizeInBytes the sizeInBytes to set
 	 */
-	public void setSize(long size) {
-		this.size = size;
+	public void setSizeInBytes(long sizeInBytes) {
+		this.sizeInBytes = sizeInBytes;
 	}
 
 	/**
