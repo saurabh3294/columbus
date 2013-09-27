@@ -1,5 +1,8 @@
-/target
+data/target
+data/data.iml
 .classpath
 .project
 .settings
 .springBeans
+*.orig
+.idea

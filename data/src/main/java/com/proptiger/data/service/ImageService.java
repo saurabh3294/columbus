@@ -4,9 +4,10 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.net.URL;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -17,6 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.drew.imaging.ImageProcessingException;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
@@ -62,8 +70,9 @@ public class ImageService {
 	}
 
 	private void addWaterMark(File jpgFile) throws IOException {
-		InputStream waterMarkFile = ImageService.class.getResourceAsStream("/com/proptiger/data/service/watermark.png");
-		BufferedImage waterMark = ImageIO.read(waterMarkFile);
+		URL url = this.getClass().getClassLoader().getResource("watermark.png");
+		InputStream waterMarkIS = new FileInputStream(url.getFile());
+		BufferedImage waterMark = ImageIO.read(waterMarkIS);
 
 		BufferedImage image = ImageIO.read(jpgFile);
 		Graphics2D g = image.createGraphics();
@@ -78,7 +87,25 @@ public class ImageService {
 		ImageIO.write(image, "jpg", jpgFile);
 	}
 
-	private void uploadToS3() {
+	private void uploadToS3(Image image, File original, File waterMark) {
+		String bucket = propertyReader.getRequiredProperty("bucket");
+		String accessKeyId = propertyReader.getRequiredProperty("accessKeyId");
+		String secretAccessKey = propertyReader.getRequiredProperty("secretAccessKey");
+		
+        ClientConfiguration config = new ClientConfiguration();
+        config.withProtocol(Protocol.HTTP);
+        config.setMaxErrorRetry(3);
+        config.setConnectionTimeout(120);
+
+        AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
+        AmazonS3 s3 = new AmazonS3Client(credentials, config);
+        s3.putObject(bucket, image.getOriginalPath(), original);
+        s3.putObject(bucket, image.getWaterMarkPath(), waterMark);
+	}
+	
+	private void cleanUp(File original, File waterMark) {
+		original.delete();
+		waterMark.delete();
 	}
 
 	/*
@@ -89,8 +116,7 @@ public class ImageService {
 		if (imageTypeStr == null) {
 			return imageDao.getImagesForObject(object.getText(), objId);
 		} else {
-			return imageDao.getImagesForObjectWithImageType(object.getText(),
-					imageTypeStr, objId);
+			return imageDao.getImagesForObjectWithImageType(object.getText(), imageTypeStr, objId);
 		}
 	}
 
@@ -110,18 +136,18 @@ public class ImageService {
 				throw new IllegalArgumentException("Uploaded file is not an image");
 			}
 			// Image uploaded
-			File jpgFile = File.createTempFile("jpgImage", ".jpg", tempDir);
+			File jpgFile = File.createTempFile("jpgImage", ".jpeg", tempDir);
 			convertToJPG(originalFile, jpgFile);
 			addWaterMark(jpgFile);
-			// Upload to S3
-			try {
-				dao.setImage(object, imageTypeStr, objId, originalFile, jpgFile);
-			} catch (ImageProcessingException e) {
-				throw new RuntimeException("Something went wrong.");
-			}
+			// Persist
+			dao.setImage(object, imageTypeStr, objId, originalFile, jpgFile);
 			dao.save();
-		} catch (IllegalStateException | IOException e) {
-			e.printStackTrace();
+			Image image = dao.getImage();
+			uploadToS3(image, originalFile, jpgFile);
+			cleanUp(originalFile, jpgFile);
+			dao.activate();
+		} catch (IllegalStateException | IOException | ImageProcessingException e) {
+			throw new RuntimeException("Something went wrong");
 		}
 	}
 }

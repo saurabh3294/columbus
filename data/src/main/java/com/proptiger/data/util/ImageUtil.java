@@ -10,6 +10,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -49,23 +50,28 @@ public class ImageUtil {
 		return sb.toString();
 	}
 
+	public static String getImageFormat(File file) throws IllegalArgumentException, IOException {
+		ImageInputStream iis = ImageIO.createImageInputStream(file);
+		Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
+		if (!iter.hasNext())
+			throw new IllegalArgumentException("Invalid Image");
+		ImageReader reader = iter.next();
+		String format = reader.getFormatName();
+		iis.close();
+		return format.toLowerCase();
+	}
+	
 	public static boolean isValidImage(File file) {
 		try {
-			ImageInputStream iis = ImageIO.createImageInputStream(file);
-			Iterator<ImageReader> iter = ImageIO.getImageReaders(iis);
-			if (!iter.hasNext())
-				return false;
-			ImageReader reader = iter.next();
-			String type = reader.getFormatName();
-			iis.close();
+			getImageFormat(file);
 			return true;
-		} catch (IOException e) {
+		} catch (IOException | IllegalArgumentException e) {
 			return false;
 		}
 	}
 	
-	public static HashMap<String, Object> getImageInfo(File imageFile) throws IOException, ImageProcessingException {
-		HashMap<String, Object> info = new HashMap<String, Object>();
+	public static Map<String, Object> getImageInfo(File imageFile) throws IOException, ImageProcessingException {
+		Map<String, Object> info = new HashMap<String, Object>();
 		ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
 		BufferedImage buffImage = ImageIO.read ( iis );
 		info.put("width", String.valueOf(buffImage.getWidth()));    // Width
@@ -80,11 +86,16 @@ public class ImageUtil {
 		// Size
 		info.put("size_in_bytes", imageFile.length());
 		// Latitude - Longitude
-		if(metadata.containsDirectory(GpsDirectory.class)) {
-			GpsDirectory directory = metadata.getDirectory(GpsDirectory.class);
-			GeoLocation geo = directory.getGeoLocation();
-			info.put("latitude", (geo != null)? geo.getLatitude():null);
-			info.put("longitude", (geo!= null)? geo.getLongitude():null);
+		GpsDirectory gpsDirectory = metadata.getDirectory(GpsDirectory.class);
+		if(gpsDirectory !=null) {
+			GeoLocation geo = gpsDirectory.getGeoLocation();
+			Double lat = null, lng = null;
+			if (geo != null && !geo.isZero()){
+				lat = geo.getLatitude();
+				lng = geo.getLongitude();
+			}
+			info.put("latitude", lat);
+			info.put("longitude", lng);
 		}
 		return info;
 	}
