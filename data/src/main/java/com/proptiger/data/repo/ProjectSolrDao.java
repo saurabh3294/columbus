@@ -17,10 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.filter.FieldsQueryBuilder;
-import com.proptiger.data.model.filter.FilterQueryBuilder;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.model.filter.SortQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
@@ -35,8 +32,8 @@ public class ProjectSolrDao {
 
     @Autowired
     private SolrDao solrDao;
-    @Autowired
-    private FilterQueryBuilder filterQueryBuilder;
+   /* @Autowired
+    private FilterQueryBuilder filterQueryBuilder;*/
 
     public SolrServiceResponse<List<Project>> getProjects(Selector selector) {
         SolrQuery solrQuery = new SolrQuery();
@@ -47,9 +44,11 @@ public class ProjectSolrDao {
 
         SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
         
-        filterQueryBuilder.applyFilter(queryBuilder, selector, Project.class);
-        SortQueryBuilder.applySort(queryBuilder, selector);
-        FieldsQueryBuilder.applyFields(queryBuilder, selector);
+        queryBuilder.buildQuery(selector, null);
+        
+        //filterQueryBuilder.applyFilter(queryBuilder, selector, Project.class);
+     /*   queryBuilder.addSort(selector.getSort());
+        FieldsQueryBuilder.applyFields(queryBuilder, selector);*/
 
         System.out.println(solrQuery);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
@@ -79,8 +78,9 @@ public class ProjectSolrDao {
         solrQuery.setSort("VALID_LAUNCH_DATE", SolrQuery.ORDER.desc);
 
         SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
-        FieldsQueryBuilder.applyFields(queryBuilder, selector);
-
+        //FieldsQueryBuilder.applyFields(queryBuilder, selector);
+        queryBuilder.buildQuery(selector, null);
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Project> solrResults = queryResponse.getBeans(Project.class);
 

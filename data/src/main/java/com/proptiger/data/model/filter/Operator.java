@@ -13,5 +13,6 @@ public enum Operator {
 	geoDistance, 
 	lat, 
 	lon, 
-	distance;
+	distance,
+	in;
 }

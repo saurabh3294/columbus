@@ -26,10 +26,8 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.FieldsMapLoader;
-import com.proptiger.data.model.filter.FieldsQueryBuilder;
 import com.proptiger.data.model.filter.FilterQueryBuilder;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.model.filter.SortQueryBuilder;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -214,19 +212,6 @@ public class PropertyDao {
                 solrQuery.setStart(paging.getStart());
             }
 
-            SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
-            filterQueryBuilder.applyFilter(queryBuilder, selector, SolrResult.class);
-            SortQueryBuilder.applySort(queryBuilder, selector);
-            
-            // Current default relebanr order
-            /*Set<SortBy> sortBySet = new HashSet<SortBy>();
-            
-            queryBuilder.addSort("DISPLAY_ORDER", SortOrder.ASC);
-            queryBuilder.addSort("PROJECT_PRIORITY", SortOrder.ASC);
-            queryBuilder.addSort("PROJECT_ID", SortOrder.DESC);
-            queryBuilder.addSort("BEDROOMS", SortOrder.ASC);
-            queryBuilder.addSort("SIZE", SortOrder.ASC);*/
-            
             // XXX - including price and size fields
             if (selector.getFields() != null && selector.getFields().size() > 0) {
                 if (selector.getFields().contains("maxPricePerUnitArea") || selector.getFields().contains("minPricePerUnitArea")) {
@@ -236,7 +221,22 @@ public class PropertyDao {
                     selector.getFields().add("size");
                 }
             }
-            FieldsQueryBuilder.applyFields(queryBuilder, selector);
+            SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
+            
+            queryBuilder.buildQuery(selector, null);
+            
+/*            filterQueryBuilder.applyFilter(queryBuilder, selector, SolrResult.class);
+            SortQueryBuilder.applySort(queryBuilder, selector);
+*/            
+            // Current default relebanr order
+            /*Set<SortBy> sortBySet = new HashSet<SortBy>();
+            
+            queryBuilder.addSort("DISPLAY_ORDER", SortOrder.ASC);
+            queryBuilder.addSort("PROJECT_PRIORITY", SortOrder.ASC);
+            queryBuilder.addSort("PROJECT_ID", SortOrder.DESC);
+            queryBuilder.addSort("BEDROOMS", SortOrder.ASC);
+            queryBuilder.addSort("SIZE", SortOrder.ASC);*/
+            
         }
 
         return solrQuery;

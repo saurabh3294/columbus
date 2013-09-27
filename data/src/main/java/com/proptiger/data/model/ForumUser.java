@@ -11,12 +11,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
+import com.proptiger.data.meta.ResourceMetaInfo;
+
 /**
  *
  * @author mukand
  */
 @Entity
 @Table(name="FORUM_USER")
+@ResourceMetaInfo(name = "ForumUser")
 public class ForumUser {
     @Column(name = "USER_ID")
     @Id

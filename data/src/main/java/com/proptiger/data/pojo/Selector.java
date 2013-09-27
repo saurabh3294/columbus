@@ -20,10 +20,7 @@ public class Selector {
     private Object filters;
     private Set<SortBy> sort;
     private Paging paging = new Paging();
-    private Float radius;
-    private Float latitude;
-    private Float longitude;
-
+    
     public Set<String> getFields() {
 		return fields;
 	}
@@ -48,24 +45,6 @@ public class Selector {
 	}
 	public void setSort(Set<SortBy> sort) {
 		this.sort = sort;
-	}
-	public Float getRadius() {
-		return radius;
-	}
-	public void setRadius(Float radius) {
-		this.radius = radius;
-	}
-	public Float getLatitude() {
-		return latitude;
-	}
-	public void setLatitude(Float latitude) {
-		this.latitude = latitude;
-	}
-	public Float getLongitude() {
-		return longitude;
-	}
-	public void setLongitude(Float longitude) {
-		this.longitude = longitude;
 	}
 	@Override
 	public String toString() {

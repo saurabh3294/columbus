@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -61,7 +62,7 @@ public abstract class BaseController {
 		try {
 			List<Map<String, Object>> result = new ArrayList<>();
 			for(T val: list){
-				Map<String, Object> map = mapper.convertValue(val, HashMap.class);
+				Map<String, Object> map = mapper.convertValue(val, new TypeReference<HashMap<String,String>>(){});
 				if(fields != null && fields.size() > 0){
 					Iterator<String> it = map.keySet().iterator();
 					while(it.hasNext()){

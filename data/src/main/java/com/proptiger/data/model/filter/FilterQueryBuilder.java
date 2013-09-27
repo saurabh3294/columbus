@@ -29,7 +29,7 @@ public class FilterQueryBuilder {
     private static Logger logger = LoggerFactory.getLogger(FilterQueryBuilder.class);
 
     @SuppressWarnings("unchecked")
-    public void applyFilter(QueryBuilder queryBuilder, Selector selector, Class<?> modelClass) {
+    public void applyFilter(AbstractQueryBuilder queryBuilder, Selector selector, Class<?> modelClass) {/*
        
         if (selector == null || selector.getFilters() == null) {
             return;
@@ -87,7 +87,7 @@ public class FilterQueryBuilder {
                 }
             }
         }
-    }
+    */}
     
     
 }

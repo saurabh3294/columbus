@@ -12,30 +12,28 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.filter.MySqlQueryBuilder;
+import com.proptiger.data.model.portfolio.ForumUserSavedSearch;
 import com.proptiger.data.pojo.Selector;
 
-/**
- * @author Rajeev Pandey
- *
- */
 @Component
-public class CityDao {
+public class ForumUserSavedSearchDao {
+
 	@Autowired
 	private EntityManagerFactory emf;
 	
-	public List<City> getCities(Selector selector) {
+	public List<ForumUserSavedSearch> getUserSavedSearches(Selector selector,
+			Integer userId) {
 
 		EntityManager em = emf.createEntityManager();
 		CriteriaBuilder builder = em.getCriteriaBuilder();
-		List<City> result = new ArrayList<City>();
-
-		MySqlQueryBuilder<City> mySqlQueryBuilder = new MySqlQueryBuilder<City>(builder, City.class);
 		
-		mySqlQueryBuilder.buildQuery(selector, null);
-		//executing query to get result
-		result = em.createQuery(mySqlQueryBuilder.getQuery()).getResultList();
+		List<ForumUserSavedSearch> result = new ArrayList<ForumUserSavedSearch>();
+		MySqlQueryBuilder<ForumUserSavedSearch> mySqlQueryBuilder = new MySqlQueryBuilder<ForumUserSavedSearch>(
+				builder, ForumUserSavedSearch.class);
 
+		mySqlQueryBuilder.buildQuery(selector, userId);
+		result = em.createQuery(mySqlQueryBuilder.getQuery()).getResultList();
+		
 		return result;
 	}
-	
 }
