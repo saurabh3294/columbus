@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -90,6 +91,9 @@ public class Image implements Serializable {
 	
 	@Column(name = "watermark_name")
 	private String waterMarkName;
+
+	@Column(name = "active")
+	private boolean active;
 
 	/**
 	 * @return the id
@@ -371,4 +375,18 @@ public class Image implements Serializable {
 		this.waterMarkName = waterMarkName;
 	}
 
+	/**
+	 * @return the active
+	 */
+	public boolean isActive() {
+		return active;
+	}
+
+	/**
+	 * @param active the active to set
+	 */
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+	
 }

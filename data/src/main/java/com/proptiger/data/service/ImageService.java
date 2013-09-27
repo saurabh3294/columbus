@@ -4,9 +4,10 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.net.URL;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -62,8 +63,9 @@ public class ImageService {
 	}
 
 	private void addWaterMark(File jpgFile) throws IOException {
-		InputStream waterMarkFile = ImageService.class.getResourceAsStream("/com/proptiger/data/service/watermark.png");
-		BufferedImage waterMark = ImageIO.read(waterMarkFile);
+		URL url = this.getClass().getClassLoader().getResource("watermark.png");
+		InputStream waterMarkIS = new FileInputStream(url.getFile());
+		BufferedImage waterMark = ImageIO.read(waterMarkIS);
 
 		BufferedImage image = ImageIO.read(jpgFile);
 		Graphics2D g = image.createGraphics();
@@ -78,7 +80,7 @@ public class ImageService {
 		ImageIO.write(image, "jpg", jpgFile);
 	}
 
-	private void uploadToS3() {
+	private void uploadToS3(File original, File watermark) {
 	}
 
 	/*
@@ -110,18 +112,16 @@ public class ImageService {
 				throw new IllegalArgumentException("Uploaded file is not an image");
 			}
 			// Image uploaded
-			File jpgFile = File.createTempFile("jpgImage", ".jpg", tempDir);
+			File jpgFile = File.createTempFile("jpgImage", ".jpeg", tempDir);
 			convertToJPG(originalFile, jpgFile);
 			addWaterMark(jpgFile);
-			// Upload to S3
-			try {
-				dao.setImage(object, imageTypeStr, objId, originalFile, jpgFile);
-			} catch (ImageProcessingException e) {
-				throw new RuntimeException("Something went wrong.");
-			}
+			// Persist
+			dao.setImage(object, imageTypeStr, objId, originalFile, jpgFile);
 			dao.save();
-		} catch (IllegalStateException | IOException e) {
-			e.printStackTrace();
+			uploadToS3(originalFile, jpgFile);
+			// Update Image
+		} catch (IllegalStateException | IOException | ImageProcessingException e) {
+			throw new RuntimeException("Something went wrong");
 		}
 	}
 }

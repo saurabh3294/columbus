@@ -94,7 +94,7 @@ public class ImageDaoImpl {
 		// MetaData
 		HashMap<String, Object> info;
 		ImageUtil.getImageInfo(orignalImage);
-		info = ImageUtil.getImageInfo(orignalImage);
+		info = (HashMap<String, Object>) ImageUtil.getImageInfo(orignalImage);
 		// DateTime
 		Date date = (Date) info.get("datetime");
 		img.setTakenAt((date != null)? (Date)date: null);
@@ -107,8 +107,9 @@ public class ImageDaoImpl {
 		img.setLongitude((lng != null)? (double)lng: null);
 		img.setOriginalHash(originalHash);
 		img.setWaterMarkHash(watermarkHash);
-		img.setOriginalName(originalHash);
-		img.setWaterMarkName(objectStr.getText() + objId + imageTypeStr);
+		img.setOriginalName(originalHash + "." + ImageUtil.getImageFormat(orignalImage));
+		img.setWaterMarkName(objType.getId() + "-" + objId + "-" + imageType.getId() + ".jpeg");
+		img.setActive(false);
 		image = img;
 	}
 	
