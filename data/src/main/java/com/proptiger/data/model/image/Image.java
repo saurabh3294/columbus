@@ -42,6 +42,11 @@ public class Image implements Serializable {
 		return path + originalName;
 	}
 	
+	@JsonIgnore
+	public void generateWaterMarkName() {
+		this.waterMarkName = id + ".jpeg";
+	}
+	
 	@JsonProperty
 	public String getWaterMarkPath() {
 		return path + waterMarkName;

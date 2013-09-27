@@ -84,7 +84,7 @@ public class ImageDaoImpl {
 		img.setImageTypeId(imageType.getId());
 		img.setObjectId(objId);
 		String[] directories = {
-				"", String.valueOf(objType.getId()),
+				String.valueOf(objType.getId()),
 				String.valueOf(objId),
 				String.valueOf(imageType.getId()),
 				""
@@ -108,12 +108,20 @@ public class ImageDaoImpl {
 		img.setOriginalHash(originalHash);
 		img.setWaterMarkHash(watermarkHash);
 		img.setOriginalName(originalHash + "." + ImageUtil.getImageFormat(orignalImage));
-		img.setWaterMarkName(objType.getId() + "-" + objId + "-" + imageType.getId() + ".jpeg");
+		img.setWaterMarkName("");
 		img.setActive(false);
 		image = img;
 	}
 	
 	public void save() {
+		em.getTransaction().begin();
+		em.persist(image);
+		em.getTransaction().commit();
+		image.generateWaterMarkName();
+	}
+	
+	public void activate() {
+		image.setActive(true);
 		em.getTransaction().begin();
 		em.persist(image);
 		em.getTransaction().commit();

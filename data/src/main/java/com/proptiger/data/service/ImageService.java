@@ -18,6 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.Protocol;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Region;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.drew.imaging.ImageProcessingException;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
@@ -80,7 +87,25 @@ public class ImageService {
 		ImageIO.write(image, "jpg", jpgFile);
 	}
 
-	private void uploadToS3(File original, File watermark) {
+	private void uploadToS3(Image image, File original, File waterMark) {
+		String bucket = propertyReader.getRequiredProperty("bucket");
+		String accessKeyId = propertyReader.getRequiredProperty("accessKeyId");
+		String secretAccessKey = propertyReader.getRequiredProperty("secretAccessKey");
+		
+        ClientConfiguration config = new ClientConfiguration();
+        config.withProtocol(Protocol.HTTP);
+        config.setMaxErrorRetry(3);
+        config.setConnectionTimeout(120);
+
+        AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
+        AmazonS3 s3 = new AmazonS3Client(credentials, config);
+        s3.putObject(bucket, image.getOriginalPath(), original);
+        s3.putObject(bucket, image.getWaterMarkPath(), waterMark);
+	}
+	
+	private void cleanUp(File original, File waterMark) {
+		original.delete();
+		waterMark.delete();
 	}
 
 	/*
@@ -91,8 +116,7 @@ public class ImageService {
 		if (imageTypeStr == null) {
 			return imageDao.getImagesForObject(object.getText(), objId);
 		} else {
-			return imageDao.getImagesForObjectWithImageType(object.getText(),
-					imageTypeStr, objId);
+			return imageDao.getImagesForObjectWithImageType(object.getText(), imageTypeStr, objId);
 		}
 	}
 
@@ -118,8 +142,10 @@ public class ImageService {
 			// Persist
 			dao.setImage(object, imageTypeStr, objId, originalFile, jpgFile);
 			dao.save();
-			uploadToS3(originalFile, jpgFile);
-			// Update Image
+			Image image = dao.getImage();
+			uploadToS3(image, originalFile, jpgFile);
+			cleanUp(originalFile, jpgFile);
+			dao.activate();
 		} catch (IllegalStateException | IOException | ImageProcessingException e) {
 			throw new RuntimeException("Something went wrong");
 		}
