@@ -17,6 +17,10 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.portfolio.ForumUserSavedSearchesService;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Controller
 @RequestMapping(value = "data/v1/entity/{userId}/portfolio/saved-searches")
 public class ForumUserSavedSearchesController extends BaseController {

@@ -15,6 +15,10 @@ import com.proptiger.data.model.filter.MySqlQueryBuilder;
 import com.proptiger.data.model.portfolio.ForumUserSavedSearch;
 import com.proptiger.data.pojo.Selector;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Component
 public class ForumUserSavedSearchDao {
 

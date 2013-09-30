@@ -9,6 +9,10 @@ import com.proptiger.data.model.portfolio.ForumUserSavedSearch;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.portfolio.ForumUserSavedSearchDao;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Component
 public class ForumUserSavedSearchesService {
 

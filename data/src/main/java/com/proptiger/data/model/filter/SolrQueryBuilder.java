@@ -77,32 +77,33 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
 
 	@Override
 	protected void buildSelectClause(Selector selector) {
-		
-		for(String jsonFieldName: selector.getFields()){
-			String colName = getColumnName(jsonFieldName);
-	        solrQuery.addField(colName);
+		if(selector != null && selector.getFields() != null){
+			for(String jsonFieldName: selector.getFields()){
+				String colName = getColumnName(jsonFieldName);
+		        solrQuery.addField(colName);
+			}
 		}
 		
 	}
 
 	@Override
 	protected void buildOrderByClause(Selector selector) {
-		
-		for(SortBy sortBy : selector.getSort()){
-    		String colName = getColumnName(sortBy.getField());
-            switch (sortBy.getSortOrder()) {
-            case ASC:
-                solrQuery.addSort(colName, ORDER.asc);
-                break;
-            case DESC:
-                solrQuery.addSort(colName, ORDER.desc);
-                break;
-            default:
-                solrQuery.addSort(colName, ORDER.asc);
-                break;
-            }
-    	}
-		
+		if(selector != null && selector.getSort() != null){
+			for(SortBy sortBy : selector.getSort()){
+	    		String colName = getColumnName(sortBy.getField());
+	            switch (sortBy.getSortOrder()) {
+	            case ASC:
+	                solrQuery.addSort(colName, ORDER.asc);
+	                break;
+	            case DESC:
+	                solrQuery.addSort(colName, ORDER.desc);
+	                break;
+	            default:
+	                solrQuery.addSort(colName, ORDER.asc);
+	                break;
+	            }
+	    	}
+		}
 	}
 
 	@Override

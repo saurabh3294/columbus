@@ -66,16 +66,18 @@ public class MySqlQueryBuilder<T> extends AbstractQueryBuilder<T>{
 	@Override
 	protected void buildOrderByClause(Selector selector) {
 		List<Order> orderByList = new ArrayList<Order>();
-		for (SortBy sortBy : selector.getSort()) {
-			switch (sortBy.getSortOrder()) {
-			case ASC:
-				orderByList.add((builder.asc(root.get(sortBy.getField()))));
-				break;
-			case DESC:
-				orderByList.add(builder.desc(root.get(sortBy.getField())));
-				break;
-			default:
-				break;
+		if(selector != null && selector.getSort() != null){
+			for (SortBy sortBy : selector.getSort()) {
+				switch (sortBy.getSortOrder()) {
+				case ASC:
+					orderByList.add((builder.asc(root.get(sortBy.getField()))));
+					break;
+				case DESC:
+					orderByList.add(builder.desc(root.get(sortBy.getField())));
+					break;
+				default:
+					break;
+				}
 			}
 		}
 		query.orderBy(orderByList);
@@ -159,11 +161,11 @@ public class MySqlQueryBuilder<T> extends AbstractQueryBuilder<T>{
 			}
 
 		}
-
-		if (userId != null) {
+		//creating user based filtering
+		if(userId != null) {
 			predicateList.add(root.get("userId").in(userId));
 		}
-		query.where(predicateList.toArray(new Predicate[] {}));
+		query = query.where(predicateList.toArray(new Predicate[] {}));
 	}
 
 	private Predicate getRangePredicate(String jsonFieldName, Map<String, Object> obj) {
