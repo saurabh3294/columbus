@@ -29,7 +29,7 @@ public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public BaseController() {
-	    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+	    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXX"));
 	}
 
 	
