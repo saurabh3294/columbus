@@ -22,7 +22,6 @@ import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Region;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.drew.imaging.ImageProcessingException;
@@ -88,6 +87,7 @@ public class ImageService {
 	}
 
 	private void uploadToS3(Image image, File original, File waterMark) {
+		String endpoint = propertyReader.getRequiredProperty("endpoint");
 		String bucket = propertyReader.getRequiredProperty("bucket");
 		String accessKeyId = propertyReader.getRequiredProperty("accessKeyId");
 		String secretAccessKey = propertyReader.getRequiredProperty("secretAccessKey");
@@ -95,12 +95,12 @@ public class ImageService {
         ClientConfiguration config = new ClientConfiguration();
         config.withProtocol(Protocol.HTTP);
         config.setMaxErrorRetry(3);
-        config.setConnectionTimeout(120);
 
         AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
         AmazonS3 s3 = new AmazonS3Client(credentials, config);
         s3.putObject(bucket, image.getOriginalPath(), original);
         s3.putObject(bucket, image.getWaterMarkPath(), waterMark);
+        image.setWaterMarkAbsolutePath(endpoint, bucket);
 	}
 	
 	private void cleanUp(File original, File waterMark) {
@@ -123,7 +123,7 @@ public class ImageService {
 	/*
 	 * Public method to upload images
 	 */
-	public void uploadImage(DomainObject object, String imageTypeStr,
+	public Image uploadImage(DomainObject object, String imageTypeStr,
 			long objectId, MultipartFile fileUpload) {
 		try {
 			// Upload file
@@ -146,6 +146,7 @@ public class ImageService {
 			uploadToS3(image, originalFile, jpgFile);
 			cleanUp(originalFile, jpgFile);
 			dao.activate();
+			return image;
 		} catch (IllegalStateException | IOException | ImageProcessingException e) {
 			throw new RuntimeException("Something went wrong");
 		}
