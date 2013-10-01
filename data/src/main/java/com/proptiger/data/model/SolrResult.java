@@ -69,6 +69,14 @@ public class SolrResult {
     @Field(value = "LOCALITY_ID")
     private int localityId;
 
+    @FieldMetaInfo( displayName = "City Id",  description = "City Id")
+    @Field(value = "CITY_ID")
+    private int cityId;
+
+    @FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
+    @Field(value = "SUBURB_ID")
+    private int suburbId;
+
     @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
     private int builderId;
