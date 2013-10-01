@@ -401,7 +401,7 @@ public class SolrResult {
         city.setSouthWestLatitude(southWestLatitude);
     }
 
-    @Field("SOUth_WEST_LONGITUDE")
+    @Field("SOUTH_WEST_LONGITUDE")
     public void setSouthWestLongitude(Double southWestLongitude) {
         city.setSouthWestLongitude(southWestLongitude);
     }
