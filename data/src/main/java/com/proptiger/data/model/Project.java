@@ -6,7 +6,6 @@ package com.proptiger.data.model;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -27,6 +26,27 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo(name = "Project")
 @JsonFilter("fieldFilter")
 public class Project implements BaseModel {
+    public static enum NESTED_PROPERTIES {
+        builderLabel(new String[]{"builder", "name"}),
+        cityLabel(new String[]{"locality", "suburb", "city", "label"}),
+        suburbLabel(new String[]{"locality", "suburb", "label"}),
+        builderImageURL(new String[]{"builder", "imageURL"}),
+        bedrooms(new String[]{"properties", "bedrooms"}),
+        bathrooms(new String[]{"properties", "bathrooms"}),
+        unitType(new String[]{"properties", "unitType"}),
+        localityLabel(new String[]{"locality", "label"});
+
+        private String[] fields;
+
+        private NESTED_PROPERTIES(String[] fields) {
+            this.fields = fields;
+        }
+
+        public String[] getFields() {
+            return fields;
+        }
+    };
+    
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     private int projectId;
@@ -171,8 +191,6 @@ public class Project implements BaseModel {
     @Field(value="MEASURE")
     private String propertySizeMeasure;
     
-    private Set<String> propertyUnitTypes;
-
     public int getProjectId() {
         return projectId;
     }
@@ -443,14 +461,6 @@ public class Project implements BaseModel {
 
     public void setPropertySizeMeasure(String propertySizeMeasure) {
         this.propertySizeMeasure = propertySizeMeasure;
-    }
-
-    public Set<String> getPropertyUnitTypes() {
-        return propertyUnitTypes;
-    }
-
-    public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
-        this.propertyUnitTypes = propertyUnitTypes;
     }
 
     public Double getMinPrice() {

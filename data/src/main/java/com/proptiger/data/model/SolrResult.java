@@ -53,6 +53,14 @@ public class SolrResult {
     @Field(value = "PROJECT_NAME")
     private String name;
 
+    @FieldMetaInfo( displayName = "Project Image URL",  description = "Project Image URL")
+    @Field(value = "PROJECT_SMALL_IMAGE")
+    private String imageURL;
+
+    @FieldMetaInfo( displayName = "Builder Image URL",  description = "Builder Image URL")
+    @Field(value = "BUILDER_IMAGE")
+    private String builderImageURL;
+
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     private int projectId;
@@ -64,6 +72,10 @@ public class SolrResult {
     @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
     private int builderId;
+
+    @FieldMetaInfo( displayName = "Property size measure",  description = "Property size measure")
+    @Field(value="MEASURE")
+    private String propertySizeMeasure;
 
     @FieldMetaInfo( displayName = "Launch Date",  description = "Launch Date")
     @Field(value = "VALID_LAUNCH_DATE")
