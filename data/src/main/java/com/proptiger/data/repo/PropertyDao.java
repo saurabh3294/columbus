@@ -112,6 +112,7 @@ public class PropertyDao {
                     Double pricePerUnitArea = property.getPricePerUnitArea();
                     Double size = property.getSize();
                     properties.add(property);
+                    property.setProject(null);
 
                     project.setMinPricePerUnitArea(min(pricePerUnitArea, project.getMinPricePerUnitArea()));
                     project.setMaxPricePerUnitArea(max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
