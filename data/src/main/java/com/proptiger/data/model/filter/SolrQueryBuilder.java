@@ -49,14 +49,26 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     protected void addRangeFilter(String fieldName, Object from, Object to) {
     	String colName = getColumnName(fieldName);
-        if (from == null) {
+
+    	String quote = "";
+        if (from instanceof String || to instanceof String) {
+            quote = "\"";
+        }
+
+    	if (from == null) {
             from = "*";
         }
+    	else {
+            from = quote + from + quote;
+    	}
 
         if (to == null) {
             to = "*";
         }
-        
+        else {
+            to = quote + to + quote;
+        }
+
         if (colName != null) {
             solrQuery.addFilterQuery("{!tag=" + colName + "}" + colName + ":[" + from + " TO " + to + "]");
         }
