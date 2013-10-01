@@ -40,13 +40,13 @@ public abstract class BaseController {
 					.addFilter("fieldFilter", SimpleBeanPropertyFilter
 							.serializeAllExcept(fieldSet));
 
-			if (fields != null) {
+			if (fields != null && fields.size() > 0) {
 				filterProvider = new SimpleFilterProvider().addFilter(
 						"fieldFilter",
 						SimpleBeanPropertyFilter.filterOutAllExcept(fields));
 			}
-			return mapper.readTree(mapper.writer(filterProvider).writeValueAsString(object));
 
+			return mapper.readTree(mapper.writer(filterProvider).writeValueAsString(object));
 		}
         catch (Exception e) {
             throw new ProAPIException("Could not serialize response", e);

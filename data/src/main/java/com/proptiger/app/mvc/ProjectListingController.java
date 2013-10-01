@@ -47,6 +47,9 @@ public class ProjectListingController extends BaseController {
         SolrServiceResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
+        if (fields == null) {
+            fields = new HashSet<String>();
+        }
         Map<String, Object> response = new HashMap<String, Object>();
         response.put("items", super.filterFields(projects.getResult(), fields));
 
