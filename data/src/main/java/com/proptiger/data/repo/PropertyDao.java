@@ -99,6 +99,7 @@ public class PropertyDao {
         SolrQuery solrQuery = createSolrQuery(propertyListingSelector);
         solrQuery.add("group", "true");
         solrQuery.add("group.ngroups", "true");
+        solrQuery.add("group.limit", "-1");
         solrQuery.add("group.field", "PROJECT_ID");
 
         List<Project> projects = new ArrayList<Project>();
@@ -109,12 +110,12 @@ public class PropertyDao {
                 List<SolrResult> solrResults = convertSolrResult(group.getResult());
                 Project project = solrResults.get(0).getProject();
 
-                Set<String> unitTypes = new HashSet<String>();
+                List<Property> properties = new ArrayList<Property>();
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
                     Double pricePerUnitArea = property.getPricePerUnitArea();
                     Double size = property.getSize();
-                    unitTypes.add(property.getUnitType());
+                    properties.add(property);
 
                     project.setMinPricePerUnitArea(min(pricePerUnitArea, project.getMinPricePerUnitArea()));
                     project.setMaxPricePerUnitArea(max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
@@ -128,7 +129,7 @@ public class PropertyDao {
                     }
                 }
 
-                project.setPropertyUnitTypes(unitTypes);
+                project.setProperties(properties);
                 projects.add(project);
             }
         }
@@ -148,17 +149,11 @@ public class PropertyDao {
      */
     private Double max(Double a, Double b) {
         Double c = a;
-        if (a == null || a == 0) {
+        if (a == null) {
             c = b;
         }
-        else {
-            if (b != null && b != 0) {
-                c = Math.max(a, b);
-            }
-        }
-
-        if (c != null && c == 0) {
-            c = null;
+        else if (b != null) {
+            c = Math.max(a, b);
         }
 
         return c;
@@ -175,14 +170,8 @@ public class PropertyDao {
         if (a == null || a == 0) {
             c = b;
         }
-        else {
-            if (b != null && b != 0) {
-                c = Math.min(a, b);
-            }
-        }
-
-        if (c != null && c == 0) {
-            c = null;
+        else if (b != null && b != 0) {
+            c = Math.min(a, b);
         }
 
         return c;
@@ -217,10 +206,12 @@ public class PropertyDao {
                 if (selector.getFields().contains("maxPricePerUnitArea") || selector.getFields().contains("minPricePerUnitArea")) {
                     selector.getFields().add("pricePerUnitArea");
                 }
+
                 if (selector.getFields().contains("maxSize") || selector.getFields().contains("minSize")) {
                     selector.getFields().add("size");
                 }
             }
+
             SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
             
             queryBuilder.buildQuery(selector, null);

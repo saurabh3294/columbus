@@ -25,13 +25,13 @@ public class ImageController extends BaseController {
 	@Autowired
 	private ImageService imageService;
 	
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping
     public @ResponseBody Object getImages(
     			@RequestParam(value = "objectType") String objectType,
     			@RequestParam(required=false, value = "imageType") String imageType,
-    			@RequestParam(value = "objectId") String objectId
+    			@RequestParam(value = "objectId") long objectId
     		) {
-        List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, Integer.parseInt(objectId));
+        List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, objectId);
         return super.filterFields(new ProAPISuccessResponse(images), null);
     }
     
@@ -39,10 +39,10 @@ public class ImageController extends BaseController {
     public @ResponseBody Object putImages(
 				@RequestParam(value = "objectType") String objectType,
 				@RequestParam(value = "imageType") String imageType,
-				@RequestParam(value = "objectId") String objectId,
+				@RequestParam(value = "objectId") long objectId,
     			@RequestParam("image") MultipartFile image
     		) {
-    	imageService.uploadImage(DomainObject.valueOf(objectType), imageType, Integer.parseInt(objectId), image);
+    	imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image);
     	return super.filterFields(new ProAPISuccessResponse(), null);
     }
 }

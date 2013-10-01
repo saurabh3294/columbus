@@ -45,7 +45,7 @@ public abstract class BaseController {
 						"fieldFilter",
 						SimpleBeanPropertyFilter.filterOutAllExcept(fields));
 			}
-			return mapper.writer(filterProvider).writeValueAsString(object);
+			return mapper.readTree(mapper.writer(filterProvider).writeValueAsString(object));
 
 		}
         catch (Exception e) {

@@ -112,11 +112,11 @@ public class ImageService {
 	 * Public method to get images
 	 */
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
-			int objId) {
+			long objectId) {
 		if (imageTypeStr == null) {
-			return imageDao.getImagesForObject(object.getText(), objId);
+			return imageDao.getImagesForObject(object.getText(), objectId);
 		} else {
-			return imageDao.getImagesForObjectWithImageType(object.getText(), imageTypeStr, objId);
+			return imageDao.getImagesForObjectWithImageType(object.getText(), imageTypeStr, objectId);
 		}
 	}
 
@@ -124,7 +124,7 @@ public class ImageService {
 	 * Public method to upload images
 	 */
 	public void uploadImage(DomainObject object, String imageTypeStr,
-			int objId, MultipartFile fileUpload) {
+			long objectId, MultipartFile fileUpload) {
 		try {
 			// Upload file
 			File originalFile = File.createTempFile("originalImage", ".tmp", tempDir);
@@ -140,7 +140,7 @@ public class ImageService {
 			convertToJPG(originalFile, jpgFile);
 			addWaterMark(jpgFile);
 			// Persist
-			dao.setImage(object, imageTypeStr, objId, originalFile, jpgFile);
+			dao.setImage(object, imageTypeStr, objectId, originalFile, jpgFile);
 			dao.save();
 			Image image = dao.getImage();
 			uploadToS3(image, originalFile, jpgFile);

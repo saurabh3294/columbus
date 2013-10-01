@@ -5,6 +5,8 @@ package com.proptiger.app.mvc;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
+import com.proptiger.data.model.Project.NESTED_PROPERTIES;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
@@ -35,9 +38,7 @@ public class ProjectListingController extends BaseController {
     @RequestMapping
     public @ResponseBody
     Object getProjectListings(@RequestParam(required = false) String selector,
-                                      @RequestParam(required = false) String facets,
-                                      @RequestParam(required = false) String stats)
-    {
+            @RequestParam(required = false) String facets, @RequestParam(required = false) String stats) {
         Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
         if (projectListingSelector == null) {
             projectListingSelector = new Selector();
@@ -45,8 +46,12 @@ public class ProjectListingController extends BaseController {
 
         SolrServiceResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
         Set<String> fields = projectListingSelector.getFields();
+        processFields(fields);
+        if (fields == null) {
+            fields = new HashSet<String>();
+        }
         Map<String, Object> response = new HashMap<String, Object>();
-        response.put("items", projects.getResult());
+        response.put("items", super.filterFields(projects.getResult(), fields));
 
         if (facets != null) {
             response.put("facets", propertyService.getFacets(Arrays.asList(facets.split(",")), projectListingSelector));
@@ -56,6 +61,29 @@ public class ProjectListingController extends BaseController {
             response.put("stats", propertyService.getStats(Arrays.asList(stats.split(",")), projectListingSelector));
         }
 
-        return super.filterFields(new ProAPISuccessResponse(response, projects.getTotalResultCount()), fields);
+        return new ProAPISuccessResponse(response, projects.getTotalResultCount());
+    }
+
+    private void processFields(Set<String> fields) {
+        if (fields != null) {
+            Set<String> fieldsToBeAdded = new HashSet<String>();
+            Iterator<String> iterator = fields.iterator();
+            while (iterator.hasNext()) {
+                String field = iterator.next();
+                NESTED_PROPERTIES nestedProperty = null;
+                try {
+                    nestedProperty = Project.NESTED_PROPERTIES.valueOf(field);
+                } catch (Exception e) {
+                }
+                if (nestedProperty != null) {
+                    for (String fieldName : nestedProperty.getFields()) {
+                        fieldsToBeAdded.add(fieldName);
+                    }
+                    iterator.remove();
+                }
+            }
+
+            fields.addAll(fieldsToBeAdded);
+        }
     }
 }

@@ -73,7 +73,7 @@ public class ImageDaoImpl {
 	 * @throws FileNotFoundException 
 	 * @throws ImageProcessingException 
 	 */
-	public void setImage(DomainObject objectStr, String imageTypeStr, int objId, File orignalImage, File watermarkImage) throws FileNotFoundException, IOException, ImageProcessingException {
+	public void setImage(DomainObject objectStr, String imageTypeStr, long objectId, File orignalImage, File watermarkImage) throws FileNotFoundException, IOException, ImageProcessingException {
 		String originalHash, watermarkHash;
 		originalHash = ImageUtil.fileMd5Hash(orignalImage);
 		watermarkHash = ImageUtil.fileMd5Hash(watermarkImage);
@@ -82,10 +82,10 @@ public class ImageDaoImpl {
         ImageType imageType = getImageType(objType, imageTypeStr);
 		Image img = new Image();
 		img.setImageTypeId(imageType.getId());
-		img.setObjectId(objId);
+		img.setObjectId(objectId);
 		String[] directories = {
 				String.valueOf(objType.getId()),
-				String.valueOf(objId),
+				String.valueOf(objectId),
 				String.valueOf(imageType.getId()),
 				""
 				};
