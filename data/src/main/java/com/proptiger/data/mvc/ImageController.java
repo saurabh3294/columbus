@@ -42,7 +42,7 @@ public class ImageController extends BaseController {
 				@RequestParam(value = "objectId") long objectId,
     			@RequestParam("image") MultipartFile image
     		) {
-    	imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image);
-    	return super.filterFields(new ProAPISuccessResponse(), null);
+    	Image img = imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image);
+    	return super.filterFields(new ProAPISuccessResponse(img), null);
     }
 }
