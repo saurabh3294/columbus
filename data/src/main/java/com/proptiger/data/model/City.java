@@ -22,7 +22,7 @@ public class City{
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")
-    private int id;
+    private Integer id;
 
     @FieldMetaInfo( displayName = "Label",  description = "City label")
     @Column(name = "LABEL")

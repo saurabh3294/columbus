@@ -30,6 +30,7 @@ public abstract class AbstractQueryBuilder<T>{
 	protected abstract void buildSelectClause(Selector selector);
 	protected abstract void buildOrderByClause(Selector selector);
 	protected abstract void buildJoinClause(Selector selector);
+	protected abstract void buildLimitClause(Selector selector);
 	
 	/**
 	 * Override this method if where clause can not be called multiple times like in Spring Data JPA criteria query
@@ -93,6 +94,7 @@ public abstract class AbstractQueryBuilder<T>{
 				}
 			}
 		}
+		//create user based filtering if needed
 	}
 	protected abstract void buildGroupByClause(Selector selector);
 	

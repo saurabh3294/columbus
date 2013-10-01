@@ -26,7 +26,6 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.FieldsMapLoader;
-import com.proptiger.data.model.filter.FilterQueryBuilder;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -41,9 +40,6 @@ import com.proptiger.data.util.SolrResponseReader;
  */
 @Repository
 public class PropertyDao {
-    @Autowired
-    private FilterQueryBuilder filterQueryBuilder;
-
     @Autowired
     private SolrDao solrDao;
 

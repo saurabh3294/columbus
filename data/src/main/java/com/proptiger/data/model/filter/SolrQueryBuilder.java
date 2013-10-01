@@ -120,4 +120,10 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
 	protected Class<T> getModelClass() {
 		return this.modelClass;
 	}
+
+	@Override
+	protected void buildLimitClause(Selector selector) {
+		// TODO Auto-generated method stub
+		
+	}
 }

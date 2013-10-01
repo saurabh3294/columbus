@@ -59,8 +59,7 @@ public class MySqlQueryBuilder<T> extends AbstractQueryBuilder<T>{
 
 	@Override
 	protected void buildSelectClause(Selector selector) {
-		// TODO Auto-generated method stub
-		
+		query.select(root);
 	}
 
 	@Override
@@ -215,4 +214,10 @@ public class MySqlQueryBuilder<T> extends AbstractQueryBuilder<T>{
 	 public void addRangeFilter(String fieldName, Object from, Object to) {
 		 
 	 }
+
+	@Override
+	protected void buildLimitClause(Selector selector) {
+		// TODO Auto-generated method stub
+		
+	}
 }
