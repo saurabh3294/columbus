@@ -20,8 +20,8 @@ public class UserWishListService {
 	@Autowired
 	private UserWishListDao userWishListDao;
 	
-	public List<UserWishList> getRecentlyViewdProperties(Integer userId){
-		List<Object[]> result = userWishListDao.findRecentlyViewdProjects(userId);
+	public List<UserWishList> getUserWishList(Integer userId){
+		List<Object[]> result = userWishListDao.findUserWishList(userId);
 		List<UserWishList> convertedResult = convertDaoResultToDtoObject(result);
 		return convertedResult;
 	}

@@ -27,8 +27,8 @@ public class UserWishListController extends BaseController{
 	
 	@RequestMapping
 	@ResponseBody
-	public ProAPIResponse getRecentlyViewed(@PathVariable Integer userId){
-		List<UserWishList> result = userWishListService.getRecentlyViewdProperties(userId);
+	public ProAPIResponse getUserWishList(@PathVariable Integer userId){
+		List<UserWishList> result = userWishListService.getUserWishList(userId);
 		return new ProAPISuccessResponse(result, result.size());
 	}
 	

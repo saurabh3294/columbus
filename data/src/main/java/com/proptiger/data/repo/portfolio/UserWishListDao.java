@@ -21,6 +21,6 @@ public interface UserWishListDao extends JpaRepository<UserWishlist, Integer>{
            " AND B.typeId = C.typeId "+ 
            " AND (A.cityId = CT.id) "+ 
            " ")
-	public List<Object[]> findRecentlyViewdProjects(Integer userId);
+	public List<Object[]> findUserWishList(Integer userId);
 	
 }
