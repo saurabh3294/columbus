@@ -30,11 +30,16 @@ public class Project implements BaseModel {
         builderLabel(new String[]{"builder", "name"}),
         cityLabel(new String[]{"locality", "suburb", "city", "label"}),
         suburbLabel(new String[]{"locality", "suburb", "label"}),
+        cityId(new String[]{"locality", "suburb", "city", "id"}),
+        suburbId(new String[]{"locality", "suburb", "id"}),
+        localityLabel(new String[]{"locality", "label"}),
         builderImageURL(new String[]{"builder", "imageURL"}),
         bedrooms(new String[]{"properties", "bedrooms"}),
         bathrooms(new String[]{"properties", "bathrooms"}),
-        unitType(new String[]{"properties", "unitType"}),
-        localityLabel(new String[]{"locality", "label"});
+        pricePerUnitArea(new String[]{"properties", "pricePerUnitArea"}),
+        size(new String[]{"properties", "size"}),
+        unitName(new String[]{"properties", "unitName"}),
+        unitType(new String[]{"properties", "unitType"});
 
         private String[] fields;
 
