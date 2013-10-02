@@ -41,6 +41,26 @@ public class SolrResult {
     @Field(value = "MAXSIZE")
     private Double maxSize;
 
+    @FieldMetaInfo( displayName = "Min Bedrooms",  description = "Min Bedrooms")
+    @Field(value = "BEDROOMS")
+    private int minBedrooms;
+
+    @FieldMetaInfo( displayName = "Max Bedrooms",  description = "Max Bedrooms")
+    @Field(value = "BEDROOMS")
+    private int maxBedrooms;
+
+    @FieldMetaInfo( displayName = "Property unit types",  description = "Property unit types")
+    @Field(value = "UNIT_TYPE")
+    private String propertyUnitTypes;
+
+    @FieldMetaInfo( displayName = "Latitude",  description = "Latitude")
+    @Field(value = "LATITUDE")
+    private Double latitude;
+
+    @FieldMetaInfo( displayName = "Longitude",  description = "Longitude")
+    @Field(value = "LONGITUDE")
+    private Double longitude;
+
     @FieldMetaInfo( displayName = "Min Price",  description = "Min Price")
     @Field(value = "MIN_BUDGET")
     private Double minPrice;
@@ -64,6 +84,14 @@ public class SolrResult {
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     private int projectId;
+
+    @FieldMetaInfo( displayName = "Assigned priority",  description = "Priorities assigned manually")
+    @Field(value = "DISPLAY_ORDER")
+    private int assignedPriority;
+
+    @FieldMetaInfo( displayName = "Computed priority",  description = "Priorities computed automatically")
+    @Field(value = "PROJECT_PRIORITY")
+    private Double computedPriority;
 
     @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
