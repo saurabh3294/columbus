@@ -3,7 +3,6 @@
  */
 package com.proptiger.data.mvc;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -29,10 +29,9 @@ public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public BaseController() {
-	    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss"));
+	    mapper.setDateFormat(new ISO8601DateFormat());
 	}
 
-	
     protected Object filterFields(Object object, Set<String> fields) {
 		try {
 			Set<String> fieldSet = new HashSet<String>();

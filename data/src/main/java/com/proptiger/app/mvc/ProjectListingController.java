@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Project.NESTED_PROPERTIES;
+import com.proptiger.data.model.Project.NestedProperties;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
@@ -66,17 +66,15 @@ public class ProjectListingController extends BaseController {
             Set<String> fieldsToBeAdded = new HashSet<String>();
             Iterator<String> iterator = fields.iterator();
             while (iterator.hasNext()) {
-                String field = iterator.next();
-                NESTED_PROPERTIES nestedProperty = null;
                 try {
-                    nestedProperty = Project.NESTED_PROPERTIES.valueOf(field);
-                } catch (Exception e) {
-                }
-                if (nestedProperty != null) {
+                    String field = iterator.next();
+                    NestedProperties nestedProperty = Project.NestedProperties.valueOf(field);
                     for (String fieldName : nestedProperty.getFields()) {
                         fieldsToBeAdded.add(fieldName);
                     }
+
                     iterator.remove();
+                } catch (Exception e) {
                 }
             }
 

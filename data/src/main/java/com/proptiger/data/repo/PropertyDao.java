@@ -6,6 +6,7 @@ package com.proptiger.data.repo;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -106,6 +107,7 @@ public class PropertyDao {
                 List<SolrResult> solrResults = convertSolrResult(group.getResult());
                 Project project = solrResults.get(0).getProject();
 
+                Set<String> unitTypes = new HashSet<String>();
                 List<Property> properties = new ArrayList<Property>();
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
@@ -113,11 +115,20 @@ public class PropertyDao {
                     Double size = property.getSize();
                     properties.add(property);
                     property.setProject(null);
+                    unitTypes.add(property.getUnitType());
 
                     project.setMinPricePerUnitArea(min(pricePerUnitArea, project.getMinPricePerUnitArea()));
                     project.setMaxPricePerUnitArea(max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
                     project.setMinSize(min(size, project.getMinSize()));
                     project.setMaxSize(max(size, project.getMaxSize()));
+                    project.setMaxBedrooms(Math.max(property.getBedrooms(), project.getMaxBedrooms()));
+                    
+                    if (project.getMinBedrooms() == 0) {
+                        project.setMinBedrooms(property.getBedrooms());
+                    }
+                    else if (property.getBedrooms() != 0) {
+                        project.setMinBedrooms(Math.min(property.getBedrooms(), project.getMinBedrooms()));
+                    }
 
                     if (pricePerUnitArea != null && size != null) {
                         Double price = pricePerUnitArea * size;
@@ -126,6 +137,7 @@ public class PropertyDao {
                     }
                 }
 
+                project.setPropertyUnitTypes(unitTypes);
                 project.setProperties(properties);
                 projects.add(project);
             }
@@ -198,36 +210,70 @@ public class PropertyDao {
                 solrQuery.setStart(paging.getStart());
             }
 
-            // XXX - including price and size fields
-            if (selector.getFields() != null && selector.getFields().size() > 0) {
-                if (selector.getFields().contains("maxPricePerUnitArea") || selector.getFields().contains("minPricePerUnitArea")) {
-                    selector.getFields().add("pricePerUnitArea");
-                }
+//            Set<String> fieldsTemporarityAdded = new HashSet<String>();
 
-                if (selector.getFields().contains("maxSize") || selector.getFields().contains("minSize")) {
-                    selector.getFields().add("size");
-                }
-            }
+//            // XXX - including price, size, bedrooms, unitTypes fields as needed
+//            Set<String> fields = selector.getFields();
+//            if (fields != null && fields.size() > 0) {
+//                if ((fields.contains("maxPricePerUnitArea") || fields.contains("minPricePerUnitArea")) && !fields.contains("pricePerUnitArea")) {
+//                    fields.add("pricePerUnitArea");
+//                    fieldsTemporarityAdded.add("pricePerUnitArea");
+//                }
+//
+//                if (fields.contains("maxSize") || fields.contains("minSize")) {
+//                    fields.add("size");
+//                }
+//
+//                if (fields.contains("minBedrooms") || fields.contains("maxBedrooms")) {
+//                    fields.add("bedrooms");
+//                }
+//
+//                if (fields.contains("propertyUnitTypes")) {
+//                    fields.add("unitType");
+//                }
+//            }
 
             SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
-            
+            if (selector.getSort() == null) {
+                selector.setSort(new LinkedHashSet<SortBy>());
+            }
+
+            selector.getSort().addAll(getDefaultSort());
+
             queryBuilder.buildQuery(selector, null);
-            
-/*            filterQueryBuilder.applyFilter(queryBuilder, selector, SolrResult.class);
-            SortQueryBuilder.applySort(queryBuilder, selector);
-*/            
-            // Current default relebanr order
-            /*Set<SortBy> sortBySet = new HashSet<SortBy>();
-            
-            queryBuilder.addSort("DISPLAY_ORDER", SortOrder.ASC);
-            queryBuilder.addSort("PROJECT_PRIORITY", SortOrder.ASC);
-            queryBuilder.addSort("PROJECT_ID", SortOrder.DESC);
-            queryBuilder.addSort("BEDROOMS", SortOrder.ASC);
-            queryBuilder.addSort("SIZE", SortOrder.ASC);*/
-            
         }
 
         return solrQuery;
+    }
+
+    private Set<SortBy> getDefaultSort() {
+        Set<SortBy> sortBySet = new LinkedHashSet<SortBy>();
+        SortBy sortBy = new SortBy();
+        sortBy.setField("assignedPriority");
+        sortBy.setSortOrder(SortOrder.ASC);
+        sortBySet.add(sortBy);
+
+        sortBy = new SortBy();
+        sortBy.setField("computedPriority");
+        sortBy.setSortOrder(SortOrder.ASC);
+        sortBySet.add(sortBy);
+
+        sortBy = new SortBy();
+        sortBy.setField("projectId");
+        sortBy.setSortOrder(SortOrder.DESC);
+        sortBySet.add(sortBy);
+
+        sortBy = new SortBy();
+        sortBy.setField("bedrooms");
+        sortBy.setSortOrder(SortOrder.ASC);
+        sortBySet.add(sortBy);
+
+        sortBy = new SortBy();
+        sortBy.setField("size");
+        sortBy.setSortOrder(SortOrder.ASC);
+        sortBySet.add(sortBy);
+        
+        return sortBySet;
     }
 
     public Map<String, Map<String, Integer>> getProjectDistrubtionOnStatusOnBed(Map<String, String> params) {

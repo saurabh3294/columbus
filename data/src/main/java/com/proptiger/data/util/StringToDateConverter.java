@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.util;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import org.springframework.core.convert.converter.Converter;
@@ -13,10 +14,14 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
  * @author mandeep
  *
  */
-public class StringToDateConverter implements Converter<Date, String> {
+public class StringToDateConverter implements Converter<String, Date> {
 
     @Override
-    public String convert(Date source) {
-        return new ISO8601DateFormat().format(source);
+    public Date convert(String source) {
+        try {
+            return new ISO8601DateFormat().parse(source);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("Could not parse date", e);
+        }
     }
 }
