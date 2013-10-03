@@ -1,6 +1,7 @@
 package com.proptiger.data.model.portfolio;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -62,6 +64,8 @@ public class Dashboard implements NamedResource{
 	@JoinColumn(name = "user_id",  nullable = false, insertable = false, updatable = false)
 	private ForumUser forumUser;
 	
+	@OneToMany(mappedBy = "dashboardId", fetch = FetchType.EAGER)
+	private List<DashboardWidgetMapping> dashboardWidgetMapping;
 	
 	/**
 	 * @return the id
@@ -164,6 +168,22 @@ public class Dashboard implements NamedResource{
 	 */
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	
+	/**
+	 * @return the dashboardWidgetMapping
+	 */
+	public List<DashboardWidgetMapping> getDashboardWidgetMapping() {
+		return dashboardWidgetMapping;
+	}
+
+	/**
+	 * @param dashboardWidgetMapping the dashboardWidgetMapping to set
+	 */
+	public void setDashboardWidgetMapping(
+			List<DashboardWidgetMapping> dashboardWidgetMapping) {
+		this.dashboardWidgetMapping = dashboardWidgetMapping;
 	}
 
 	public static Builder getBuilder(String name, Integer userId){

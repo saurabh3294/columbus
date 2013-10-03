@@ -19,7 +19,7 @@ import com.proptiger.data.service.portfolio.ProptigerPropertyService;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/{userId}/portfolio/{portfolioId}/property")
+@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/{portfolioId}/property")
 public class ProptigerPropertyController {
 
 	@Autowired
