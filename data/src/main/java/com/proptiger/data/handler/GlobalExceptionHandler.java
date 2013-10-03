@@ -1,5 +1,8 @@
 package com.proptiger.data.handler;
 
+import javax.persistence.PersistenceException;
+
+import org.apache.solr.client.solrj.SolrServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -13,10 +16,10 @@ import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateResourceException;
 import com.proptiger.exception.InvalidResourceNameException;
 import com.proptiger.exception.ResourceNotAvailableException;
-//import org.springframework.web.bind.MissingServletRequestParameterException;
 
 
 /**
@@ -41,14 +44,14 @@ public class GlobalExceptionHandler {
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
-	/*@ExceptionHandler(PersistenceException.class)
+	@ExceptionHandler(PersistenceException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleDatabaseException(PersistenceException ex) {
 		logger.error("handleDatabaseException - Caching ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
 				ResponseErrorMessages.DATABASE_CONNECTION_ERROR);
-	}*/
+	}
 	
 	@ExceptionHandler(ConversionNotSupportedException.class)
 	@ResponseBody
@@ -60,14 +63,14 @@ public class GlobalExceptionHandler {
 		
 	}
 	
-	/*@ExceptionHandler(SolrServerException.class)
+	@ExceptionHandler(SolrServerException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleSolrException(SolrServerException exception) {
 		logger.error("handleSolrException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.SOLR_DOWN);
-	}*/
+	}
 	
 	@ExceptionHandler(IllegalArgumentException.class)
 	@ResponseBody
@@ -77,15 +80,6 @@ public class GlobalExceptionHandler {
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
 				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
 	}
-	
-//	@ExceptionHandler(MissingServletRequestParameterException.class)
-//	@ResponseBody
-//	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-//	protected ProAPIResponse missingArgument(MissingServletRequestParameterException exception) {
-//		logger.error("handleMissingParameter - Caching ", exception);
-//		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
-//				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
-//	}
 	
 	@ExceptionHandler(ResourceNotAvailableException.class)
 	@ResponseBody
@@ -111,4 +105,20 @@ public class GlobalExceptionHandler {
 		logger.error("handle DuplicateResourceException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_RESOURCE);
 	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleConstraintVoilationException(ConstraintViolationException exception) {
+		logger.error("handle ConstraintViolationException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.REQUEST_PARAM_INVALID);
+	}
+	
+	/*@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+		logger.error("handle ConstraintViolationException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.REQUEST_PARAM_INVALID);
+	}*/
 }

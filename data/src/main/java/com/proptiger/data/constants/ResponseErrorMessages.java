@@ -7,4 +7,5 @@ public interface ResponseErrorMessages {
 	static String REQUEST_PARAM_INVALID = "request parameter is not valid";
 	static String INVALID_NAME_ATTRIBUTE = "Invalid name attribute";
 	static String DUPLICATE_RESOURCE = "Duplicate resource";
+	static String SOLR_DOWN = "Solr Down, please bear with us";
 }

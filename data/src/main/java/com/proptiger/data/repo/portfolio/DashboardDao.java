@@ -15,7 +15,7 @@ public interface DashboardDao extends JpaRepository<Dashboard, Integer>{
 
 	public List<Dashboard> findByUserId(Integer userId);
 	
-	public List<Dashboard> findByIdAndUserId(Integer dashboardId, Integer userId);
+	public Dashboard findByIdAndUserId(Integer dashboardId, Integer userId);
 	
 	public Dashboard findByNameAndUserId(String name, Integer userId);
 	

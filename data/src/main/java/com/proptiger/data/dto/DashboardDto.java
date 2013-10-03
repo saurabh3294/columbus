@@ -7,10 +7,25 @@ package com.proptiger.data.dto;
  */
 public class DashboardDto {
 	
+	private Integer id;
 	private String name;
 	private int totalRows;
 	private int totalColumn;
 	private Integer userId;
+	
+	
+	/**
+	 * @return the id
+	 */
+	public Integer getId() {
+		return id;
+	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Integer id) {
+		this.id = id;
+	}
 	/**
 	 * @return the name
 	 */

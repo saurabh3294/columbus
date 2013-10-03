@@ -25,6 +25,12 @@ public class ForumUserSavedSearchDao {
 	@Autowired
 	private EntityManagerFactory emf;
 	
+	/**
+	 * This method takes a selector object and form a database query to find user saved searches
+	 * @param selector
+	 * @param userId
+	 * @return List<ForumUserSavedSearch>
+	 */
 	public List<ForumUserSavedSearch> getUserSavedSearches(Selector selector,
 			Integer userId) {
 

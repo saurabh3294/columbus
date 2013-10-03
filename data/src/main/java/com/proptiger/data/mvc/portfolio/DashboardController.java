@@ -38,29 +38,34 @@ public class DashboardController extends BaseController{
 	@RequestMapping(method = RequestMethod.GET, value = "/{dashboardId}")
 	@ResponseBody
 	public ProAPIResponse getDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId){
-		List<Dashboard> result = dashboardService.getDashboardById(userId, dashboardId);
-		return new ProAPISuccessResponse(result, result.size());
+		Dashboard result = dashboardService.getDashboardById(userId, dashboardId);
+		return new ProAPISuccessResponse(result, 1);
 	}
 	
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
 	public ProAPIResponse createDashboard(@PathVariable Integer userId, @RequestBody(required = true) DashboardDto dashboardDto){
 		dashboardDto.setUserId(userId);
-		Integer result = dashboardService.createDashboard(dashboardDto);
+		Dashboard result = dashboardService.createDashboard(dashboardDto);
 		return new ProAPISuccessResponse(result);
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/{dashboardId}")
 	@ResponseBody
-	public ProAPIResponse updateDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId){
-		
-		return new ProAPISuccessResponse();
+	public ProAPIResponse updateDashboard(
+			@PathVariable Integer userId,
+			@PathVariable Integer dashboardId,
+			@RequestBody(required = true) DashboardDto dashboardDto){
+		dashboardDto.setId(dashboardId);
+		dashboardDto.setUserId(userId);
+		Dashboard dashboard = dashboardService.updateDashboard(dashboardDto);
+		return new ProAPISuccessResponse(dashboard, 1);
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{dashboardId}")
 	@ResponseBody
 	public ProAPIResponse deleteDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId){
-		
-		return new ProAPISuccessResponse();
+		Dashboard deleted = dashboardService.deleteDashboard(userId, dashboardId);
+		return new ProAPISuccessResponse(deleted, 1);
 	}
 }

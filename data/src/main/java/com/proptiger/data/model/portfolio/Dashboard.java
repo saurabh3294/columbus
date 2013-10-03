@@ -181,6 +181,7 @@ public class Dashboard implements NamedResource{
     	//optional
     	private int totalRows;
     	private int totalColumns;
+    	private Integer id;
     	
     	Builder(String name, Integer userId){
     		this.name = name;
@@ -193,6 +194,7 @@ public class Dashboard implements NamedResource{
     		dashboard.totalColumns = totalColumns;
     		dashboard.totalRows = totalRows;
     		dashboard.userId = userId;
+    		dashboard.id = id;
     		return dashboard;
     	}
 
@@ -210,6 +212,15 @@ public class Dashboard implements NamedResource{
 			this.totalColumns = totalColumns;
 			return this;
 		}
+
+		/**
+		 * @return the Builder
+		 */
+		public Builder setId(Integer id) {
+			this.id =  id;
+			return this;
+		}
+
     }
     
     @PreUpdate
@@ -220,5 +231,11 @@ public class Dashboard implements NamedResource{
     public void prePersist(){
     	createdAt = new Date();
     	updatedAt = createdAt;
+    }
+    
+    public void update(String name, int totalColumns, int totalRows){
+    	this.name = name;
+    	this.totalColumns = totalColumns;
+    	this.totalRows = totalRows;
     }
 }

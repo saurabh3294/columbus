@@ -20,12 +20,22 @@ public class UserWishListService {
 	@Autowired
 	private UserWishListDao userWishListDao;
 	
+	/**
+	 * This method returns user wish list or favourite projects/properties details based on user id
+	 * @param userId
+	 * @return
+	 */
 	public List<UserWishList> getUserWishList(Integer userId){
 		List<Object[]> result = userWishListDao.findUserWishList(userId);
 		List<UserWishList> convertedResult = convertDaoResultToDtoObject(result);
 		return convertedResult;
 	}
 
+	/**
+	 * A utility method to convert Object[] list to domain object list 
+	 * @param result
+	 * @return
+	 */
 	private List<UserWishList> convertDaoResultToDtoObject(List<Object[]> result) {
 		List<UserWishList> list = new ArrayList<UserWishList>();
 		if(result != null){
