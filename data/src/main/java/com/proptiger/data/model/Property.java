@@ -1,6 +1,8 @@
 package com.proptiger.data.model;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
@@ -9,6 +11,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.util.DoubletoIntegerConverter;
 
 @ResourceMetaInfo(name = "Property")
 @JsonFilter("fieldFilter")
@@ -39,10 +42,12 @@ public class Property implements BaseModel {
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
     @Field(value="PRICE_PER_UNIT_AREA")
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)    
     private Double pricePerUnitArea;
 
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double size;
 
     @FieldMetaInfo( displayName = "Measure",  description = "Measure")

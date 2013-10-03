@@ -29,10 +29,9 @@ public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public BaseController() {
-	    mapper.setDateFormat(new ISO8601DateFormat());	    
+	    mapper.setDateFormat(new ISO8601DateFormat());
 	}
 
-	
     protected Object filterFields(Object object, Set<String> fields) {
 		try {
 			Set<String> fieldSet = new HashSet<String>();
@@ -45,6 +44,7 @@ public abstract class BaseController {
 						"fieldFilter",
 						SimpleBeanPropertyFilter.filterOutAllExcept(fields));
 			}
+
 			return mapper.readTree(mapper.writer(filterProvider).writeValueAsString(object));
 
 		}

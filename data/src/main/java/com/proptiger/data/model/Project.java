@@ -6,6 +6,7 @@ package com.proptiger.data.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -15,9 +16,11 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.util.DoubletoIntegerConverter;
 
 /**
  * 
@@ -26,19 +29,24 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo(name = "Project")
 @JsonFilter("fieldFilter")
 public class Project implements BaseModel {
-    public static enum NESTED_PROPERTIES {
+    public static enum NestedProperties {
         builderLabel(new String[]{"builder", "name"}),
         cityLabel(new String[]{"locality", "suburb", "city", "label"}),
         suburbLabel(new String[]{"locality", "suburb", "label"}),
+        cityId(new String[]{"locality", "suburb", "city", "id"}),
+        suburbId(new String[]{"locality", "suburb", "id"}),
+        localityLabel(new String[]{"locality", "label"}),
         builderImageURL(new String[]{"builder", "imageURL"}),
         bedrooms(new String[]{"properties", "bedrooms"}),
         bathrooms(new String[]{"properties", "bathrooms"}),
-        unitType(new String[]{"properties", "unitType"}),
-        localityLabel(new String[]{"locality", "label"});
+        pricePerUnitArea(new String[]{"properties", "pricePerUnitArea"}),
+        size(new String[]{"properties", "size"}),
+        unitName(new String[]{"properties", "unitName"}),
+        unitType(new String[]{"properties", "unitType"});
 
         private String[] fields;
 
-        private NESTED_PROPERTIES(String[] fields) {
+        private NestedProperties(String[] fields) {
             this.fields = fields;
         }
 
@@ -140,27 +148,39 @@ public class Project implements BaseModel {
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
     @Field(value = "MIN_PRICE_PER_UNIT_AREA")
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double minPricePerUnitArea;
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
     @Field(value = "MAX_PRICE_PER_UNIT_AREA")
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double maxPricePerUnitArea;
 
     @FieldMetaInfo( displayName = "Min Size",  description = "Min Size")
     @Field(value = "MINSIZE")
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double minSize;
 
     @FieldMetaInfo( displayName = "Max Size",  description = "Max Size")
     @Field(value = "MAXSIZE")
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double maxSize;
 
     @FieldMetaInfo( displayName = "Min Price",  description = "Min Price")
     @Field(value = "MIN_BUDGET")
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double minPrice;
 
     @FieldMetaInfo( displayName = "Max Price",  description = "Max Price")
     @Field(value = "MAX_BUDGET")
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double maxPrice;
+
+    @FieldMetaInfo( displayName = "Min Bedroooms",  description = "Min Bedroooms")
+    private int minBedrooms;
+
+    @FieldMetaInfo( displayName = "Max Bedroooms",  description = "Max Bedroooms")
+    private int maxBedrooms;
 
     @FieldMetaInfo( displayName = "Project Status",  description = "Project Status")
     @Field(value = "PROJECT_STATUS")
@@ -190,7 +210,9 @@ public class Project implements BaseModel {
 
     @Field(value="MEASURE")
     private String propertySizeMeasure;
-    
+
+    private Set<String> propertyUnitTypes;
+
     public int getProjectId() {
         return projectId;
     }
@@ -485,5 +507,29 @@ public class Project implements BaseModel {
 
     public void setGeo(List<String> geo) {
         this.geo = geo;
+    }
+
+    public Set<String> getPropertyUnitTypes() {
+        return propertyUnitTypes;
+    }
+
+    public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
+        this.propertyUnitTypes = propertyUnitTypes;
+    }
+
+    public int getMinBedrooms() {
+        return minBedrooms;
+    }
+
+    public void setMinBedrooms(int minBedrooms) {
+        this.minBedrooms = minBedrooms;
+    }
+
+    public int getMaxBedrooms() {
+        return maxBedrooms;
+    }
+
+    public void setMaxBedrooms(int maxBedrooms) {
+        this.maxBedrooms = maxBedrooms;
     }
 }

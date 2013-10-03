@@ -5,7 +5,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -17,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity(name = "Image")
-public class Image implements Serializable {
+public class Image implements Serializable {	
 	@Id
 	@Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,6 +36,10 @@ public class Image implements Serializable {
 	@Column(name = "path")
 	private String path;
 	
+	@JsonProperty
+	@Transient
+	private String waterMarkAbsolutePath;
+	
 	@JsonIgnore
 	public String getOriginalPath() {
 		return path + originalName;
@@ -47,9 +50,18 @@ public class Image implements Serializable {
 		this.waterMarkName = id + ".jpeg";
 	}
 	
-	@JsonProperty
+	@JsonIgnore
 	public String getWaterMarkPath() {
 		return path + waterMarkName;
+	}
+	
+	public void setWaterMarkAbsolutePath(String endpoint, String bucket) {
+		this.waterMarkAbsolutePath = endpoint + "/" + bucket + "/" + path + waterMarkName;
+	}
+	
+	@JsonProperty
+	public String getWaterMarkAbsolutePath(String endpoint, String bucket) {
+		return waterMarkAbsolutePath;
 	}
 	
 	@Column(name = "created_at")
