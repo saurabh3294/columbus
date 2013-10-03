@@ -14,6 +14,13 @@ public class ProAPIException extends RuntimeException{
 	public ProAPIException(Throwable ex){
 		super(ex);
 	}
+	public ProAPIException(String msg){
+		super(msg);
+	}
+	
+	public ProAPIException(){
+		super();
+	}
 	
 	public ProAPIException(String message, Throwable ex){
 		super(message, ex);

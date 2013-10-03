@@ -13,6 +13,8 @@ import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.exception.DuplicateResourceException;
+import com.proptiger.exception.InvalidResourceNameException;
 import com.proptiger.exception.ResourceNotAvailableException;
 //import org.springframework.web.bind.MissingServletRequestParameterException;
 
@@ -92,5 +94,21 @@ public class GlobalExceptionHandler {
 		logger.error("handle ResourceNotAvailableException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
 				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
+	}
+	
+	@ExceptionHandler(InvalidResourceNameException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleInvalidNameException(InvalidResourceNameException exception) {
+		logger.error("handle InvalidResourceNameException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_NAME_ATTRIBUTE);
+	}
+	
+	@ExceptionHandler(DuplicateResourceException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleDuplicateResourceException(DuplicateResourceException exception) {
+		logger.error("handle DuplicateResourceException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_RESOURCE);
 	}
 }

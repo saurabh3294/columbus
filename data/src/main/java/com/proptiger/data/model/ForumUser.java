@@ -23,7 +23,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 public class ForumUser {
     @Column(name = "USER_ID")
     @Id
-    private long userId;
+    private Integer userId;
     
     @Column(name = "USERNAME")
     private String  username;
@@ -72,11 +72,11 @@ public class ForumUser {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date  unsubscribedAt;
 
-    public long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
