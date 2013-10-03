@@ -29,10 +29,10 @@ public class ImageController extends BaseController {
     public @ResponseBody Object getImages(
     			@RequestParam(value = "objectType") String objectType,
     			@RequestParam(required=false, value = "imageType") String imageType,
-    			@RequestParam(value = "objectId") long objectId
-    		) {
+    			@RequestParam(value = "objectId") long objectId)
+    {
         List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, objectId);
-        return super.filterFields(new ProAPISuccessResponse(images), null);
+        return new ProAPISuccessResponse(images);
     }
     
     @RequestMapping(method = RequestMethod.POST)
@@ -43,6 +43,6 @@ public class ImageController extends BaseController {
     			@RequestParam("image") MultipartFile image
     		) {
     	Image img = imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image);
-    	return super.filterFields(new ProAPISuccessResponse(img), null);
+    	return new ProAPISuccessResponse(img);
     }
 }

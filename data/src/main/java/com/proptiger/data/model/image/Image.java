@@ -1,8 +1,9 @@
 package com.proptiger.data.model.image;
 
-import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,15 +17,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity(name = "Image")
-public class Image implements Serializable {	
+@Access(AccessType.FIELD)
+public class Image {
 	@Id
 	@Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	@ManyToOne
-	@Transient
-	@JoinColumn(name = "ImageType_id")
+	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
 	private ImageType imageType;
 	
 	@Column(name = "ImageType_id")
@@ -51,6 +52,7 @@ public class Image implements Serializable {
 	}
 	
 	@JsonIgnore
+	@Column
 	public String getWaterMarkPath() {
 		return path + waterMarkName;
 	}

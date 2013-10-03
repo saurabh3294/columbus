@@ -24,7 +24,6 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.drew.imaging.ImageProcessingException;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
@@ -140,14 +139,12 @@ public class ImageService {
 			convertToJPG(originalFile, jpgFile);
 			addWaterMark(jpgFile);
 			// Persist
-			dao.setImage(object, imageTypeStr, objectId, originalFile, jpgFile);
-			dao.save();
-			Image image = dao.getImage();
+			Image image = dao.insertImage(object, imageTypeStr, objectId, originalFile, jpgFile);
 			uploadToS3(image, originalFile, jpgFile);
 			cleanUp(originalFile, jpgFile);
-			dao.activate();
+			dao.markImageAsActive(image);
 			return image;
-		} catch (IllegalStateException | IOException | ImageProcessingException e) {
+		} catch (IllegalStateException | IOException e) {
 			throw new RuntimeException("Something went wrong");
 		}
 	}

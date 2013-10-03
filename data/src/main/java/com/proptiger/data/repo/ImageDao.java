@@ -9,8 +9,7 @@ import org.springframework.stereotype.Repository;
 import com.proptiger.data.model.image.Image;
 
 @Repository
-public interface ImageDao extends JpaRepository<Image, Integer> {
-
+public interface ImageDao extends JpaRepository<Image, Integer>, ImageCustomDao {
 	@Query("select I from Image as I " +
 			" where " +
 			" I.imageTypeId in ( " +

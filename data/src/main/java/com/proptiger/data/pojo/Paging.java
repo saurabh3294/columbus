@@ -9,7 +9,7 @@ public class Paging {
 	private int start = 0;
 	private int rows = 10;
 	
-	public Paging(){
+	public Paging() {
 		
 	}
 	
