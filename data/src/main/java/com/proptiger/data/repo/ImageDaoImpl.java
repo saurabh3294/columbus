@@ -99,7 +99,7 @@ public class ImageDaoImpl {
         EntityManager em = emf.createEntityManager();
         image.setActive(true);
         em.getTransaction().begin();
-        em.persist(image);
+        em.merge(image);
         em.getTransaction().commit();
     }
 }
