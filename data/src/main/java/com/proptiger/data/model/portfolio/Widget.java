@@ -22,39 +22,30 @@ import com.proptiger.data.model.resource.NamedResource;
  */
 @Entity
 @Table(name = "widgets")
-@ResourceMetaInfo(name = "Widget")
 public class Widget implements NamedResource{
 
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@FieldMetaInfo( displayName = "Widget Id",  description = "Widget Id")
 	private Integer id;
 	
 	@Column(name = "name")
-	@FieldMetaInfo( displayName = "Widget Name",  description = "Widget Name")
 	private String name;
 	
 	@Column(name = "tag")
-	@FieldMetaInfo( displayName = "Widget Tag",  description = "Widget Tag")
 	private String tag;
 	
 	@Column(name = "content")
-	@FieldMetaInfo( displayName = "Widget Content",  description = "Widget Content")
 	private String content;
 	
 	@Column(name = "type")
-	@FieldMetaInfo( displayName = "Widget Type",  description = "Widget Type")
 	private String type;
 	
 	@Column(name = "created_at")
-	@FieldMetaInfo( displayName = "Created Time",  description = "Created Time")
 	private Date createdAt;
 	
 	@Column(name = "updated_at")
-	@FieldMetaInfo( displayName = "Updated Time",  description = "Updated Time")
 	private Date updatedAt;
-	
 	
 	@Override
 	public Integer getId() {

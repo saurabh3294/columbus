@@ -1,18 +1,29 @@
 package com.proptiger.data.dto;
 
+import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.meta.ResourceMetaInfo;
+
 /**
- * This POJO acts as a data transfer object for Dashboard boject
+ * This POJO acts as a data transfer object for Dashboard object
  * @author Rajeev Pandey
  *
  */
+@ResourceMetaInfo(name = "Dashboard")
 public class DashboardDto {
-	
+	@FieldMetaInfo( displayName = "Dashboard Id",  description = "Dashboard Id")
 	private Integer id;
-	private String name;
-	private int totalRows;
-	private int totalColumn;
-	private Integer userId;
 	
+	@FieldMetaInfo( displayName = "Dashboard Name",  description = "Dashboard Name")
+	private String name;
+	
+	@FieldMetaInfo( displayName = "Total Rows",  description = "Total Rows")
+	private int totalRows;
+	
+	@FieldMetaInfo( displayName = "Total Columns",  description = "Total Columns")
+	private int totalColumn;
+	
+	@FieldMetaInfo( displayName = "User Id",  description = "User Id")
+	private Integer userId;
 	
 	/**
 	 * @return the id
@@ -74,6 +85,4 @@ public class DashboardDto {
 	public void setUserId(Integer userId) {
 		this.userId = userId;
 	}
-	
-	
 }
