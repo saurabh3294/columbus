@@ -19,7 +19,7 @@ import com.proptiger.data.service.portfolio.UserWishListService;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/{userId}/portfolio/recently-viewed")
+@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/recently-viewed")
 public class UserWishListController extends BaseController{
 
 	@Autowired

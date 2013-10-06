@@ -10,7 +10,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.data.model.City;
 import com.proptiger.data.model.filter.MySqlQueryBuilder;
 import com.proptiger.data.model.portfolio.ForumUserSavedSearch;
 import com.proptiger.data.pojo.Selector;

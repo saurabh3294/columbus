@@ -22,7 +22,7 @@ import com.proptiger.data.service.portfolio.ForumUserSavedSearchesService;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/{userId}/portfolio/saved-searches")
+@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/saved-searches")
 public class ForumUserSavedSearchesController extends BaseController {
 
 	@Autowired

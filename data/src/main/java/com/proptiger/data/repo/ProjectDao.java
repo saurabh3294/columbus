@@ -4,10 +4,10 @@
  */
 package com.proptiger.data.repo;
 
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectDB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import com.proptiger.data.model.ProjectDB;
 
 /**
  *

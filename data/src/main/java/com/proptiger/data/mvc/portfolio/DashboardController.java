@@ -22,7 +22,7 @@ import com.proptiger.data.service.portfolio.DashboardService;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/{userId}/dashboard")
+@RequestMapping(value = "data/v1/entity/user/{userId}/dashboard")
 public class DashboardController extends BaseController{
 
 	@Autowired
