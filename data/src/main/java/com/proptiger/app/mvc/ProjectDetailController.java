@@ -61,7 +61,7 @@ public class ProjectDetailController extends BaseController {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("specification", parseSpecification);
         response.put("projectDetails", projectInfo );
-        response.put("builderDetails", builderDetails );
+        response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
         
         return new ProAPISuccessResponse(response);

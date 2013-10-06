@@ -72,11 +72,11 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="LATITUDE", description="LATITUDE")
     @Column(name="LATITUDE")
-    private float LATITUDE ;
+    private float latitude ;
     
     @FieldMetaInfo(displayName="LONGITUDE", description="LONGITUDE")
     @Column(name="LONGITUDE")
-    private float LONGITUDE ;
+    private float longitude ;
     
     @FieldMetaInfo(displayName="META TITLE", description="META TITLE")
     @Column(name="META_TITLE")
@@ -96,7 +96,7 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="ACTIVE", description="ACTIVE")
     @Column(name="ACTIVE")
-    private int ACTIVE ;
+    private int active ;
     
     @FieldMetaInfo(displayName="PROJECT STATUS", description="PROJECT STATUS")
     @Column(name="PROJECT_STATUS")
@@ -108,7 +108,7 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="FEATURED", description="FEATURED")
     @Column(name="FEATURED")
-    private int FEATURED ;
+    private int featured ;
     
     @FieldMetaInfo(displayName="COMPLETION Date", description="COMPLETION Date")
     @Column(name="COMPLETION_DATE")
@@ -191,7 +191,7 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="SPECIFICATION", description="SPECIFICATION")
     @Column(name="SPECIFICATION")
-    private String SPECIFICATION ;
+    private String specification ;
     
     @FieldMetaInfo(displayName="PRICE LIST", description="PRICE LIST")
     @Column(name="PRICE_LIST")
@@ -203,7 +203,7 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="IMPORTANCE", description="IMPORTANCE")
     @Column(name="IMPORTANCE")
-    private int IMPORTANCE ;
+    private int importance ;
     
     @FieldMetaInfo(displayName="SHOULD DISPLAY PRICE", description="SHOULD DISPLAY PRICE")
     @Column(name="SHOULD_DISPLAY_PRICE")
@@ -216,7 +216,7 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="AVAILABILITY", description="AVAILABILITY")
     @Column(name="AVAILABILITY")
-    private int AVAILABILITY ;
+    private Integer availability ;
     
     @FieldMetaInfo(displayName="PROJECT TYPE ID", description="PROJECT TYPE ID")
     @Column(name="PROJECT_TYPE_ID")
@@ -224,7 +224,7 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="TOWNSHIP", description="TOWNSHIP")
     @Column(name="TOWNSHIP")
-    private String TOWNSHIP ;
+    private String township ;
     
     /*@FieldMetaInfo(displayName="RESIDENTIAL", description="RESIDENTIAL")
     @Column(name="RESIDENTIAL")
@@ -344,22 +344,6 @@ public class ProjectDB implements BaseModel{
         this.locationDesc = locationDesc;
     }
 
-    public float getLATITUDE() {
-        return LATITUDE;
-    }
-
-    public void setLATITUDE(float LATITUDE) {
-        this.LATITUDE = LATITUDE;
-    }
-
-    public float getLONGITUDE() {
-        return LONGITUDE;
-    }
-
-    public void setLONGITUDE(float LONGITUDE) {
-        this.LONGITUDE = LONGITUDE;
-    }
-
     public String getMetaTitle() {
         return metaTitle;
     }
@@ -392,14 +376,6 @@ public class ProjectDB implements BaseModel{
         this.displayOrder = displayOrder;
     }
 
-    public int getACTIVE() {
-        return ACTIVE;
-    }
-
-    public void setACTIVE(int ACTIVE) {
-        this.ACTIVE = ACTIVE;
-    }
-
     public String getProjectStatus() {
         return projectStatus;
     }
@@ -414,14 +390,6 @@ public class ProjectDB implements BaseModel{
 
     public void setProjectUrl(String projectUrl) {
         this.projectUrl = projectUrl;
-    }
-
-    public int getFEATURED() {
-        return FEATURED;
-    }
-
-    public void setFEATURED(int FEATURED) {
-        this.FEATURED = FEATURED;
     }
 
     public String getCompletionDate() {
@@ -568,14 +536,6 @@ public class ProjectDB implements BaseModel{
         this.youtubeVedio = youtubeVedio;
     }
 
-    public String getSPECIFICATION() {
-        return SPECIFICATION;
-    }
-
-    public void setSPECIFICATION(String SPECIFICATION) {
-        this.SPECIFICATION = SPECIFICATION;
-    }
-
     public String getPriceList() {
         return priceList;
     }
@@ -590,14 +550,6 @@ public class ProjectDB implements BaseModel{
 
     public void setApplicationForm(String applicationForm) {
         this.applicationForm = applicationForm;
-    }
-
-    public int getIMPORTANCE() {
-        return IMPORTANCE;
-    }
-
-    public void setIMPORTANCE(int IMPORTANCE) {
-        this.IMPORTANCE = IMPORTANCE;
     }
 
     public int getShouldDisplayPrice() {
@@ -616,28 +568,12 @@ public class ProjectDB implements BaseModel{
         this.promisedCompletionDate = promisedCompletionDate;
     }
 
-    public int getAVAILABILITY() {
-        return AVAILABILITY;
-    }
-
-    public void setAVAILABILITY(int AVAILABILITY) {
-        this.AVAILABILITY = AVAILABILITY;
-    }
-
     public int getProjectTypeId() {
         return projectTypeId;
     }
 
     public void setProjectTypeId(int projectTypeId) {
         this.projectTypeId = projectTypeId;
-    }
-
-    public String getTOWNSHIP() {
-        return TOWNSHIP;
-    }
-
-    public void setTOWNSHIP(String TOWNSHIP) {
-        this.TOWNSHIP = TOWNSHIP;
     }
 
     public Date getPreLaunchDate() {
@@ -670,6 +606,70 @@ public class ProjectDB implements BaseModel{
 
     public void setForceResale(int forceResale) {
         this.forceResale = forceResale;
+    }
+
+    public float getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(float latitude) {
+        this.latitude = latitude;
+    }
+
+    public float getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(float longitude) {
+        this.longitude = longitude;
+    }
+
+    public int getActive() {
+        return active;
+    }
+
+    public void setActive(int active) {
+        this.active = active;
+    }
+
+    public int getFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(int featured) {
+        this.featured = featured;
+    }
+
+    public int getImportance() {
+        return importance;
+    }
+
+    public void setImportance(int importance) {
+        this.importance = importance;
+    }
+
+    public Integer getAvailability() {
+        return availability;
+    }
+
+    public void setAvailability(Integer availability) {
+        this.availability = availability;
+    }
+
+    public String getTownship() {
+        return township;
+    }
+
+    public void setTownship(String township) {
+        this.township = township;
+    }
+
+    public String getSpecification() {
+        return specification;
+    }
+
+    public void setSpecification(String specification) {
+        this.specification = specification;
     }
 
 }
