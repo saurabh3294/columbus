@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -30,6 +31,7 @@ public abstract class BaseController {
 
 	public BaseController() {
 	    mapper.setDateFormat(new ISO8601DateFormat());
+	    mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 	}
 
     protected Object filterFields(Object object, Set<String> fields) {

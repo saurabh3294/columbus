@@ -364,7 +364,7 @@ public class PropertyDao {
         sortBy2.setSortOrder(SortOrder.DESC);
         sort.add(sortBy1);
         sort.add(sortBy2);
-        selector.setSort(sort);
+//        selector.setSort(sort);
         
         Paging paging = new Paging(5,20);
         selector.setPaging(paging);

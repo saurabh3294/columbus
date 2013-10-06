@@ -112,7 +112,7 @@ public class ProjectSolrDao {
         sortBy2.setSortOrder(SortOrder.DESC);
         sort.add(sortBy1);
         sort.add(sortBy2);
-        projectFilter.setSort(sort);
+//        projectFilter.setSort(sort);
         ObjectMapper mapper = new ObjectMapper();
 
         try {
