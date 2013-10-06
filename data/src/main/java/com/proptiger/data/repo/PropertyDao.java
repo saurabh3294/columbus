@@ -47,6 +47,14 @@ public class PropertyDao {
     // to make it autowired.
     private SolrResponseReader solrResponseReader = new SolrResponseReader();
 
+    public List<Property> getProperties(int projectId) {
+        SolrQuery solrQuery = createSolrQuery(null);
+        solrQuery.addFilterQuery("PROJECT_ID:" + projectId);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<Property> properties = queryResponse.getBeans(Property.class);
+        return properties;        
+    }
+
     public List<Property> getProperties(Selector selector) {
         List<SolrResult> solrResults = getSolrResultsForProperties(selector);
         List<Property> properties = new ArrayList<Property>();

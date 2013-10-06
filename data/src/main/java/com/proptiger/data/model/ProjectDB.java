@@ -189,10 +189,6 @@ public class ProjectDB implements BaseModel{
     @Column(name="YOUTUBE_VEDIO")
     private String youtubeVedio ;
     
-    @FieldMetaInfo(displayName="SPECIFICATION", description="SPECIFICATION")
-    @Column(name="SPECIFICATION")
-    private String specification ;
-    
     @FieldMetaInfo(displayName="PRICE LIST", description="PRICE LIST")
     @Column(name="PRICE_LIST")
     private String priceList ;
@@ -663,13 +659,4 @@ public class ProjectDB implements BaseModel{
     public void setTownship(String township) {
         this.township = township;
     }
-
-    public String getSpecification() {
-        return specification;
-    }
-
-    public void setSpecification(String specification) {
-        this.specification = specification;
-    }
-
 }

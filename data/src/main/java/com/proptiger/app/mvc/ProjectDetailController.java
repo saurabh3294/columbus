@@ -47,10 +47,11 @@ public class ProjectDetailController extends BaseController {
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
         Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
-        if(propertyDetailsSelector == null)
+        if(propertyDetailsSelector == null) {
             propertyDetailsSelector = new Selector();
+        }
                         
-        List<Property> properties = propertyService.getProperties(propertyDetailsSelector);
+        List<Property> properties = propertyService.getProperties(projectId);
         ProjectSpecification projectSpecification = projectService.getProjectSpecifications(projectId);
         Builder builderDetails = builderService.getBuilderDetailsByProjectId(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
