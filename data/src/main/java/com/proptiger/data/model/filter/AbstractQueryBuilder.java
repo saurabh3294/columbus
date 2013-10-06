@@ -3,11 +3,19 @@
  */
 package com.proptiger.data.model.filter;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.SimpleTypeConverter;
+import org.springframework.beans.TypeConverter;
+
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.util.LongToDateConverter;
+import com.proptiger.data.util.StringToDateConverter;
 
 /**
  * This class provides methods to build data store query. Individual data store
@@ -20,7 +28,10 @@ import com.proptiger.data.pojo.Selector;
  * @param <T>
  */
 public abstract class AbstractQueryBuilder<T> {
-
+    private static TypeConverter typeConverter = new SimpleTypeConverter();
+    private static LongToDateConverter longToDateConverter = new LongToDateConverter();
+    private static StringToDateConverter stringToDateConverter = new StringToDateConverter();
+    
     public void buildQuery(Selector selector, Integer userId) {
         buildSelectClause(selector);
         buildOrderByClause(selector);
@@ -45,10 +56,7 @@ public abstract class AbstractQueryBuilder<T> {
     protected void buildFilterClause(Selector selector, Integer userId) {
 
         if (selector != null && selector.getFilters() != null) {
-            Object filterString = selector.getFilters();
-
-            Map<String, List<Map<String, Map<String, Object>>>> filters = (Map<String, List<Map<String, Map<String, Object>>>>) filterString;
-
+            Map<String, List<Map<String, Map<String, Object>>>> filters = selector.getFilters();
             List<Map<String, Map<String, Object>>> andFilters = filters.get(Operator.and.name());
 
             if (andFilters != null && filters.size() == 1) {
@@ -62,12 +70,15 @@ public abstract class AbstractQueryBuilder<T> {
                         case equal:
                             for (String jsonFieldName : fieldNameValueMap.keySet()) {
                                 List<Object> valuesList = new ArrayList<Object>();
-                                
+                                Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
+
                                 Object object = fieldNameValueMap.get(jsonFieldName);
                                 if (object instanceof List) {
-                                    valuesList = (List<Object>) object;
+                                    for (Object obj: (List<?>) object) {
+                                        valuesList.add(convert(obj, field));
+                                    }
                                 } else {
-                                    valuesList.add(object);
+                                    valuesList.add(convert(object, field));
                                 }
 
                                 addEqualsFilter(jsonFieldName, valuesList);
@@ -76,9 +87,10 @@ public abstract class AbstractQueryBuilder<T> {
 
                         case range:
                             for (String jsonFieldName : fieldNameValueMap.keySet()) {
+                                Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
                                 Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap.get(jsonFieldName);
-                                addRangeFilter(jsonFieldName, obj.get(Operator.from.name()),
-                                        obj.get(Operator.to.name()));
+                                addRangeFilter(jsonFieldName, convert(obj.get(Operator.from.name()), field),
+                                        convert(obj.get(Operator.to.name()), field));
                             }
                             break;
 
@@ -97,7 +109,29 @@ public abstract class AbstractQueryBuilder<T> {
                 }
             }
         }
-        // create user based filtering if needed
+    }
+
+    private Object convert(Object obj, Field field) {
+        if (obj == null) {
+            return null;
+        }
+
+        if (field.getType().equals(Date.class)) {
+            Date date = null;
+            if (obj instanceof Long) {
+                date = longToDateConverter.convert((Long)obj);
+            }
+            else if (obj instanceof String) {
+                date = stringToDateConverter.convert((String)obj);
+            }
+            else {
+                date = (Date)typeConverter.convertIfNecessary(obj, field.getType());                
+            }
+
+            return new ISO8601DateFormat().format(date);
+        }
+
+        return typeConverter.convertIfNecessary(obj, field.getType());
     }
 
     protected abstract void buildGroupByClause(Selector selector);

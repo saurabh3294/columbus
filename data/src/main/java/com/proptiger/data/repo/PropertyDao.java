@@ -354,7 +354,7 @@ public class PropertyDao {
 
     public static void main(String[] args) {
         Selector selector = new Selector();
-        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
+//        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
         Set<String> fields = new HashSet<String>();
         fields.add("pricePerUnitArea");
         fields.add("bedrooms");

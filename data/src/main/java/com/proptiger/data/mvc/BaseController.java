@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -30,7 +29,6 @@ public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 
 	public BaseController() {
-	    mapper.setDateFormat(new ISO8601DateFormat());
 	    mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
 	}
 

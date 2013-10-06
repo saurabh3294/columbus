@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.model.filter;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
