@@ -8,15 +8,19 @@ import multiprocessing
 
 # Configs
 config = dict(
-    processes   =   20,
-    server      =   'localhost',
+    processes   =   5,
+    server      =   'noida-1.proptiger-ws.com',
     port        =   '8080',
-    images_dir  =   '/home/yugal/Desktop/images',
+    images_dir  =   '/home/sysadmin/public_html/images',
     mysql       =   {
-                        'host'      :   'localhost',
-                        'user'      :   'root',
-                        'passwd'    :   'root',
+                        'host'      :   '172.16.1.7',
+                        'user'      :   'proptigeruser',
+                        'passwd'    :   'proptigeruser@10',
                         'db'        :   'proptiger'
+                    },
+    objectInfo  =   {
+                        'objectType'    :   'bank',
+                        'imageType'     :   'logo'
                     }
 )
 
@@ -39,7 +43,7 @@ class Object(object):
 
     @property
     def images(self):
-        sql = "SELECT PROJECT_ID, IMAGE_LARGE FROM `proptiger`.`RESI_PROJECT_IMAGES`;"
+        sql = "SELECT BANK_ID, BANK_LOGO FROM `proptiger`.`BANK_LIST` WHERE migration_status!='Done';"
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
@@ -53,7 +57,7 @@ class Object(object):
 
     @classmethod
     def update_status(cls, status, obj_id):
-        sql = "UPDATE  `proptiger`.`RESI_PROJECT_IMAGES` SET  `migration_status` = %s WHERE  `RESI_PROJECT_IMAGES`.`PROJECT_ID` = %s;"
+        sql = "UPDATE `proptiger`.`BANK_LIST` SET `migration_status` = %s WHERE `BANK_LIST`.`BANK_ID` = %s;"
         Object.cur.execute(sql, (status, obj_id))
 
 
@@ -110,5 +114,5 @@ class Upload(object):
 # Main
 if __name__ == '__main__':
     pool = multiprocessing.Pool(processes=config['processes'])
-    obj = Object('project', 'main')
-    pool.map(Upload(), obj.images)
+    obj = Object(config['objectType'], config['imageType'])
+    map(Upload(), obj.images)
