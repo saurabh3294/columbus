@@ -11,8 +11,6 @@ import java.util.Map;
 import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 
-import com.google.gson.Gson;
-
 /**
  *
  * @author mukand

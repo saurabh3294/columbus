@@ -1,13 +1,14 @@
 package com.proptiger.data.repo;
 
 
-import org.springframework.stereotype.Repository;
-
-import com.proptiger.data.model.ReviewComments;
 import java.util.List;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
+
+import com.proptiger.data.model.ReviewComments;
 
 /**
  * Dao class to handle CRUD operation for Locality review
