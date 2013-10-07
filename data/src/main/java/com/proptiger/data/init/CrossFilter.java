@@ -14,7 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Rajeev Pandey
  *
  */
-public class CorsFilter extends OncePerRequestFilter {
+public class CrossFilter extends OncePerRequestFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
