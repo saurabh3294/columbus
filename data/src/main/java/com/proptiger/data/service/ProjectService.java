@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
+import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ProjectDao;
@@ -52,5 +53,9 @@ public class ProjectService {
     
     public ProjectDB getProjectDetails(int projectId){
         return projectDao.findByProjectId(projectId);
+    }
+
+    public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
+        return projectDao.getDiscussions(projectId, commentId);
     }
 }
