@@ -67,6 +67,15 @@ public class ImageService {
 		img = ImageIO.read(image);
 		ImageIO.write(img, "jpg", jpg); // Writes at 0.7 compression quality
 	}
+	
+	private BufferedImage resize(BufferedImage image, int width, int height) {
+		BufferedImage resized = new BufferedImage(width, height, image.getType());
+		Graphics2D g = resized.createGraphics();  
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);  
+        g.drawImage(image, 0, 0, width, height, 0, 0, image.getWidth(), image.getHeight(), null);  
+        g.dispose();
+        return resized;
+	}
 
 	private void addWaterMark(File jpgFile) throws IOException {
 		URL url = this.getClass().getClassLoader().getResource("watermark.png");
@@ -79,11 +88,7 @@ public class ImageService {
 		// Resize watermark image
 		int calWidth = (int) (0.5 * image.getWidth());
 		int calHeight = (int) (0.5 * image.getHeight());
-		BufferedImage resizedWaterMark = new BufferedImage(calWidth, calHeight, waterMark.getType());
-		Graphics2D gr = resizedWaterMark.createGraphics();  
-        gr.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);  
-        gr.drawImage(waterMark, 0, 0, calWidth, calHeight, 0, 0, waterMark.getWidth(), waterMark.getHeight(), null);  
-        gr.dispose();
+		BufferedImage resizedWaterMark = resize(waterMark, calWidth, calHeight);
 		
 		try {
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)); // 50% transparent

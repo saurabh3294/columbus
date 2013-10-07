@@ -96,6 +96,9 @@ public class Image {
 	@Column(name = "description", nullable = true)
 	private String description;
 	
+	@Column(name = "json_dump", nullable = true)
+	private String jsonDump;
+	
 	@Column(name = "priority", nullable = true)
 	private Integer priority;
 	
@@ -182,6 +185,20 @@ public class Image {
 	 */
 	public void setPath(String path) {
 		this.path = path;
+	}
+
+	/**
+	 * @return the waterMarkAbsolutePath
+	 */
+	public String getWaterMarkAbsolutePath() {
+		return waterMarkAbsolutePath;
+	}
+
+	/**
+	 * @param waterMarkAbsolutePath the waterMarkAbsolutePath to set
+	 */
+	public void setWaterMarkAbsolutePath(String waterMarkAbsolutePath) {
+		this.waterMarkAbsolutePath = waterMarkAbsolutePath;
 	}
 
 	/**
@@ -325,6 +342,20 @@ public class Image {
 	}
 
 	/**
+	 * @return the jsonDump
+	 */
+	public String getJsonDump() {
+		return jsonDump;
+	}
+
+	/**
+	 * @param jsonDump the jsonDump to set
+	 */
+	public void setJsonDump(String jsonDump) {
+		this.jsonDump = jsonDump;
+	}
+
+	/**
 	 * @return the priority
 	 */
 	public Integer getPriority() {
@@ -407,5 +438,5 @@ public class Image {
 	public void setActive(boolean active) {
 		this.active = active;
 	}
-	
+
 }
