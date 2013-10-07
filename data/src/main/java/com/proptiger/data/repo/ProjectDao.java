@@ -4,10 +4,13 @@
  */
 package com.proptiger.data.repo;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.ProjectDB;
+import com.proptiger.data.model.ProjectDiscussion;
 
 /**
  *
@@ -22,4 +25,12 @@ public class ProjectDao extends ProjectSolrDao {
             return projectDBDao.findByProjectId(projectId);
         }
 
+        public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
+            if (commentId == null) {
+                return projectDBDao.getProjectDiscussions(projectId);
+            }
+            else {
+                return projectDBDao.getChildrenProjectDiscussions(commentId);
+            }
+        }
 }

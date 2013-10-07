@@ -40,4 +40,8 @@ public class PropertyService {
     public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertyListingSelector) {
         return propertyDao.getStats(fields, propertyListingSelector);
     }
+
+    public List<Property> getProperties(int projectId) {
+        return propertyDao.getProperties(projectId);
+    }
 }

@@ -16,8 +16,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.resource.NamedResource;
 
@@ -28,44 +26,37 @@ import com.proptiger.data.model.resource.NamedResource;
  */
 @Entity
 @Table(name = "dashboards")
-@ResourceMetaInfo(name = "Dashboard")
 public class Dashboard implements NamedResource{
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@FieldMetaInfo( displayName = "Dashboard Id",  description = "Dashboard Id")
 	private Integer id;
 	
 	@Column(name = "name")
-	@FieldMetaInfo( displayName = "Dashboard Name",  description = "Dashboard Name")
 	private String name;
 	
 	@Column(name = "total_row")
-	@FieldMetaInfo( displayName = "Total Rows",  description = "Total Rows")
 	private int totalRows;
 	
 	@Column(name = "total_column")
-	@FieldMetaInfo( displayName = "Total Columns",  description = "Total Columns")
 	private int totalColumns;
 	
 	@Column(name = "user_id")
-	@FieldMetaInfo( displayName = "User Id",  description = "User Id")
 	private Integer userId;
 
 	@Column(name = "created_at")
-	@FieldMetaInfo( displayName = "Created Time",  description = "Created Time")
 	private Date createdAt;
 	
 	@Column(name = "updated_at")
-	@FieldMetaInfo( displayName = "Updated Time",  description = "Updated Time")
 	private Date updatedAt;
+	
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id",  nullable = false, insertable = false, updatable = false)
 	private ForumUser forumUser;
 	
 	@OneToMany(mappedBy = "dashboardId", fetch = FetchType.EAGER)
-	private List<DashboardWidgetMapping> dashboardWidgetMapping;
+	private List<DashboardWidgetMapping> widgets;
 	
 	/**
 	 * @return the id
@@ -172,18 +163,17 @@ public class Dashboard implements NamedResource{
 
 	
 	/**
-	 * @return the dashboardWidgetMapping
+	 * @return the widgets
 	 */
-	public List<DashboardWidgetMapping> getDashboardWidgetMapping() {
-		return dashboardWidgetMapping;
+	public List<DashboardWidgetMapping> getWidgets() {
+		return widgets;
 	}
 
 	/**
-	 * @param dashboardWidgetMapping the dashboardWidgetMapping to set
+	 * @param widgets the widgets to set
 	 */
-	public void setDashboardWidgetMapping(
-			List<DashboardWidgetMapping> dashboardWidgetMapping) {
-		this.dashboardWidgetMapping = dashboardWidgetMapping;
+	public void setWidgets(List<DashboardWidgetMapping> widgets) {
+		this.widgets = widgets;
 	}
 
 	public static Builder getBuilder(String name, Integer userId){

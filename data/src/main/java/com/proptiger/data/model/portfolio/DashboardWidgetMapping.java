@@ -52,20 +52,6 @@ public class DashboardWidgetMapping {
 	private Date updatedAt;
 
 	/**
-	 * @return the id
-	 */
-	public Integer getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
-	/**
 	 * @return the dashboardId
 	 */
 	public Integer getDashboardId() {

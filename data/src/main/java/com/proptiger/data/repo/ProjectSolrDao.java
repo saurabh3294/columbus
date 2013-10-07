@@ -93,8 +93,6 @@ public class ProjectSolrDao {
 
     public static void main(String[] args) {
         Selector projectFilter = new Selector();
-        projectFilter
-                .setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
         Set<String> fields = new HashSet<String>();
         fields.add("price_per_unit_area");
         fields.add("bedrooms");
@@ -112,7 +110,7 @@ public class ProjectSolrDao {
         sortBy2.setSortOrder(SortOrder.DESC);
         sort.add(sortBy1);
         sort.add(sortBy2);
-        projectFilter.setSort(sort);
+//        projectFilter.setSort(sort);
         ObjectMapper mapper = new ObjectMapper();
 
         try {

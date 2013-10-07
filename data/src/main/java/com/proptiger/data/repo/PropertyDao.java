@@ -47,6 +47,14 @@ public class PropertyDao {
     // to make it autowired.
     private SolrResponseReader solrResponseReader = new SolrResponseReader();
 
+    public List<Property> getProperties(int projectId) {
+        SolrQuery solrQuery = createSolrQuery(null);
+        solrQuery.addFilterQuery("PROJECT_ID:" + projectId);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<Property> properties = queryResponse.getBeans(Property.class);
+        return properties;        
+    }
+
     public List<Property> getProperties(Selector selector) {
         List<SolrResult> solrResults = getSolrResultsForProperties(selector);
         List<Property> properties = new ArrayList<Property>();
@@ -346,7 +354,7 @@ public class PropertyDao {
 
     public static void main(String[] args) {
         Selector selector = new Selector();
-        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
+//        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
         Set<String> fields = new HashSet<String>();
         fields.add("pricePerUnitArea");
         fields.add("bedrooms");
@@ -364,7 +372,7 @@ public class PropertyDao {
         sortBy2.setSortOrder(SortOrder.DESC);
         sort.add(sortBy1);
         sort.add(sortBy2);
-        selector.setSort(sort);
+//        selector.setSort(sort);
         
         Paging paging = new Paging(5,20);
         selector.setPaging(paging);
