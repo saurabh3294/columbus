@@ -30,5 +30,12 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
             </list>
         </property>
     </bean>
-    
+    <mvc:interceptors>
+    	<bean class="com.proptiger.data.init.RequestResponseInterceptor">
+    	</bean>
+    	<mvc:interceptor>
+    		<mvc:mapping path="data/v1/entity/**"/>
+    		<bean class="com.proptiger.data.init.RequestResponseInterceptor"></bean>
+    	</mvc:interceptor>
+    </mvc:interceptors>
 </beans>
