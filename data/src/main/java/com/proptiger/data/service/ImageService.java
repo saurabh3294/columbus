@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -74,11 +75,21 @@ public class ImageService {
 
 		BufferedImage image = ImageIO.read(jpgFile);
 		Graphics2D g = image.createGraphics();
+		
+		// Resize watermark image
+		int calWidth = (int) (0.5 * image.getWidth());
+		int calHeight = (int) (0.5 * image.getHeight());
+		BufferedImage resizedWaterMark = new BufferedImage(calWidth, calHeight, waterMark.getType());
+		Graphics2D gr = resizedWaterMark.createGraphics();  
+        gr.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);  
+        gr.drawImage(waterMark, 0, 0, calWidth, calHeight, 0, 0, waterMark.getWidth(), waterMark.getHeight(), null);  
+        gr.dispose();
+		
 		try {
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)); // 50% transparent
-			g.drawImage(waterMark,
-					(image.getWidth() - waterMark.getWidth()) / 2,
-					(image.getHeight() - waterMark.getHeight()) / 2, null);
+			g.drawImage(resizedWaterMark,
+					(image.getWidth() - calWidth) / 2,
+					(image.getHeight() - calHeight) / 2, null);
 		} finally {
 			g.dispose();
 		}

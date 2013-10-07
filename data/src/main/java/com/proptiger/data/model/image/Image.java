@@ -90,8 +90,8 @@ public class Image {
 	@Column(name = "alt_text", nullable = true)
 	private String altText;
 	
-	@Column(name = "label", nullable = true)
-	private String label;
+	@Column(name = "title", nullable = true)
+	private String title;
 	
 	@Column(name = "description", nullable = true)
 	private String description;
@@ -297,17 +297,17 @@ public class Image {
 	}
 
 	/**
-	 * @return the label
+	 * @return the title
 	 */
-	public String getLabel() {
-		return label;
+	public String getTitle() {
+		return title;
 	}
 
 	/**
-	 * @param label the label to set
+	 * @param title the title to set
 	 */
-	public void setLabel(String label) {
-		this.label = label;
+	public void setTitle(String title) {
+		this.title = title;
 	}
 
 	/**
