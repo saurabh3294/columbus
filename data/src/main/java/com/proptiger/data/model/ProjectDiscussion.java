@@ -16,7 +16,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name="FORUM_USER_COMMENTS")
 @ResourceMetaInfo(name = "Project Discussion")
 @JsonFilter("fieldFilter")
-public class ProjectDiscussion {
+public class ProjectDiscussion implements BaseModel {
     @Column(name="COMMENT_ID")
     @Id
     private int id;
@@ -29,10 +29,6 @@ public class ProjectDiscussion {
     
     @Column(name="LEVEL")
     private int level;
-
-    @ManyToOne
-    @JoinColumn(name = "PROJECT_ID", insertable=false, updatable=false)
-    private ProjectDB project;
 
     @Column(name="COMMENTS")
     private String comment;
