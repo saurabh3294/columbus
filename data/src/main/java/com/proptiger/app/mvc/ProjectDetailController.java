@@ -47,10 +47,11 @@ public class ProjectDetailController extends BaseController {
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
         Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
-        if(propertyDetailsSelector == null)
+        if(propertyDetailsSelector == null) {
             propertyDetailsSelector = new Selector();
+        }
                         
-        List<Property> properties = propertyService.getProperties(propertyDetailsSelector);
+        List<Property> properties = propertyService.getProperties(projectId);
         ProjectSpecification projectSpecification = projectService.getProjectSpecifications(projectId);
         Builder builderDetails = builderService.getBuilderDetailsByProjectId(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
@@ -61,7 +62,7 @@ public class ProjectDetailController extends BaseController {
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("specification", parseSpecification);
         response.put("projectDetails", projectInfo );
-        response.put("builderDetails", builderDetails );
+        response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
         
         return new ProAPISuccessResponse(response);

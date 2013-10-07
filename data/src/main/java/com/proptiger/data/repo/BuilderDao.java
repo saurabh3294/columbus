@@ -4,10 +4,12 @@
  */
 package com.proptiger.data.repo;
 
-import com.proptiger.data.model.Builder;
 import java.io.Serializable;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+
+import com.proptiger.data.model.Builder;
 
 /**
  *

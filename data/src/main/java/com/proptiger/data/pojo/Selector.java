@@ -3,6 +3,8 @@
  */
 package com.proptiger.data.pojo;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -17,7 +19,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  */
 public class Selector {
     private Set<String> fields;
-    private Object filters;
+    private Map<String, List<Map<String, Map<String, Object>>>> filters;
     private Set<SortBy> sort;
     private Paging paging = new Paging();
     
@@ -27,13 +29,12 @@ public class Selector {
 	public void setFields(Set<String> fields) {
 		this.fields = fields;
 	}
-	public Object getFilters() {
+	public Map<String, List<Map<String, Map<String, Object>>>> getFilters() {
         return filters;
     }
-    public void setFilters(Object filters) {
+    public void setFilters(Map<String, List<Map<String, Map<String, Object>>>> filters) {
         this.filters = filters;
     }
-    
     public Paging getPaging() {
 		return paging;
 	}
@@ -50,5 +51,4 @@ public class Selector {
 	public String toString() {
 	    return ToStringBuilder.reflectionToString(this);
 	}
-    
 }

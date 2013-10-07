@@ -4,10 +4,6 @@
  */
 package com.proptiger.app.mvc;
 
-import com.proptiger.data.pojo.ProAPIErrorResponse;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.service.LocalityReviewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.proptiger.data.pojo.ProAPIErrorResponse;
+import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.service.LocalityReviewService;
 
 /**
  *
