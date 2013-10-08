@@ -1,6 +1,8 @@
 package com.proptiger.data.mvc;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,32 +19,42 @@ import com.proptiger.data.service.ImageService;
 
 /**
  * @author yugal
- *
+ * 
  */
 @Controller
-@RequestMapping(value="data/v1/entity/image")
+@RequestMapping(value = "data/v1/entity/image")
 public class ImageController extends BaseController {
 	@Autowired
 	private ImageService imageService;
-	
-    @RequestMapping
-    public @ResponseBody Object getImages(
-    			@RequestParam(value = "objectType") String objectType,
-    			@RequestParam(required=false, value = "imageType") String imageType,
-    			@RequestParam(value = "objectId") long objectId)
-    {
-        List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, objectId);
-        return new ProAPISuccessResponse(images);
-    }
-    
-    @RequestMapping(method = RequestMethod.POST)
-    public @ResponseBody Object putImages(
-				@RequestParam(value = "objectType") String objectType,
-				@RequestParam(value = "imageType") String imageType,
-				@RequestParam(value = "objectId") long objectId,
-    			@RequestParam("image") MultipartFile image
-    		) {
-    	Image img = imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image);
-    	return new ProAPISuccessResponse(img);
-    }
+
+	@RequestMapping
+	public @ResponseBody
+	Object getImages(
+			@RequestParam(value = "objectType") String objectType,
+			@RequestParam(required = false, value = "imageType") String imageType,
+			@RequestParam(value = "objectId") long objectId) {
+		List<Image> images = imageService.getImages(
+				DomainObject.valueOf(objectType), imageType, objectId);
+		return new ProAPISuccessResponse(images);
+	}
+
+	@RequestMapping(method = RequestMethod.POST)
+	public @ResponseBody
+	Object putImages(
+			@RequestParam String objectType,
+			@RequestParam String imageType,
+			@RequestParam long objectId,
+			@RequestParam MultipartFile image,
+			@RequestParam(required = false) Boolean addWaterMark,
+			@RequestParam(required = false) String altText,
+			@RequestParam(required = false) String title,
+			@RequestParam(required = false) String description) {
+		Map<String, String> extraInfo = new HashMap<String, String>();
+		extraInfo.put("altText", altText);
+		extraInfo.put("title", title);
+		extraInfo.put("description", description);
+		Image img = imageService.uploadImage(DomainObject.valueOf(objectType),
+				imageType, objectId, image, addWaterMark, extraInfo);
+		return new ProAPISuccessResponse(img);
+	}
 }
