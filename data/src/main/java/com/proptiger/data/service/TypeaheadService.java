@@ -26,7 +26,7 @@ public class TypeaheadService {
     }
     
     public List<Typeahead> getTypeaheadsByTypeAheadType(String query, int rows, String typeAheadType){
-        return typeaheadDao.getTypeaheads(query, rows);
+        return typeaheadDao.getTypeaheadsByTypeAheadType(query, rows, typeAheadType);
     }
     
 }

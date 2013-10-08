@@ -40,6 +40,7 @@ public class TypeaheadController extends BaseController {
 	public ProAPIResponse getTypeaheadForDocumentType(
 			@PathVariable String typeAheadType, @RequestParam String query,
 			@RequestParam(defaultValue = "5") int rows) {
+    	typeAheadType = typeAheadType.toUpperCase();
 		List<Typeahead> list = typeaheadService.getTypeaheadsByTypeAheadType(query, rows,
 				typeAheadType);
 		return new ProAPISuccessResponse(super.filterFields(list, null));
