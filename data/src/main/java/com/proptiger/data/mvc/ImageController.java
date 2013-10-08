@@ -41,9 +41,9 @@ public class ImageController extends BaseController {
 				@RequestParam(value = "imageType") String imageType,
 				@RequestParam(value = "objectId") long objectId,
     			@RequestParam("image") MultipartFile image,
-    			@RequestParam(required=false, value="waterMarkFlag") Boolean waterMarkFlag
+    			@RequestParam(required=false, value="addWaterMark") Boolean addWaterMark
     		) {
-    	Image img = imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image, waterMarkFlag);
+    	Image img = imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image, addWaterMark);
     	return new ProAPISuccessResponse(img);
     }
 }
