@@ -20,7 +20,8 @@ config = dict(
                     },
     objectInfo  =   {
                         'objectType'    :   'bank',
-                        'imageType'     :   'logo'
+                        'imageType'     :   'logo',
+                        'waterMarkFlag' :   'false'
                     }
 )
 
@@ -37,27 +38,29 @@ class Object(object):
     cur = conn.cursor()
     conn.autocommit(True)
 
-    def __init__(self, object_type, image_type):
+    def __init__(self, object_type, image_type, watermark_flag):
         self.objectType = object_type
         self.imageType = image_type
+        self.waterMarkFlag = watermark_flag
 
     @property
     def images(self):
-        sql = "SELECT BANK_ID, BANK_LOGO FROM `proptiger`.`BANK_LIST` WHERE migration_status!='Done';"
+        sql = "SELECT BUILDER_ID, BUILDER_IMAGE FROM `proptiger`.`RESI_BUILDER` WHERE migration_status!='Done';"
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
             img = dict(
-                objectType = self.objectType,
-                objectId   = i[0],
-                imageType  = self.imageType,
-                path       = config['images_dir'] + i[1]
+                objectType      = self.objectType,
+                objectId        = i[0],
+                imageType       = self.imageType,
+                path            = config['images_dir'] + i[1],
+                waterMarkFlag   =   self.waterMarkFlag
             )
             yield img
 
     @classmethod
     def update_status(cls, status, obj_id):
-        sql = "UPDATE `proptiger`.`BANK_LIST` SET `migration_status` = %s WHERE `BANK_LIST`.`BANK_ID` = %s;"
+        sql = "UPDATE `proptiger`.`RESI_BUILDER` SET `migration_status` = %s WHERE `RESI_BUILDER`.`BUILDER_ID` = %s;"
         Object.cur.execute(sql, (status, obj_id))
 
 
@@ -114,5 +117,5 @@ class Upload(object):
 # Main
 if __name__ == '__main__':
     pool = multiprocessing.Pool(processes=config['processes'])
-    obj = Object(config['objectType'], config['imageType'])
+    obj = Object(config['objectInfo']['objectType'], config['objectInfo']['imageType'], config['objectInfo']['waterMarkFlag'])
     map(Upload(), obj.images)
