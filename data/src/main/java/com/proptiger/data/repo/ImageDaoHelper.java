@@ -3,6 +3,7 @@ package com.proptiger.data.repo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -23,7 +24,7 @@ import com.proptiger.data.model.image.ImageType;
 import com.proptiger.data.util.ImageUtil;
 
 @Repository
-public class ImageDaoImpl {
+public class ImageDaoHelper {
     @Autowired
     private EntityManagerFactory emf;
 
@@ -55,7 +56,7 @@ public class ImageDaoImpl {
      * @throws ImageProcessingException
      */
     public Image insertImage(DomainObject objectStr, String imageTypeStr, long objectId, File orignalImage,
-            File watermarkImage) {
+            File watermarkImage, Map<String, String> extraInfo) {
         try {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -89,6 +90,12 @@ public class ImageDaoImpl {
             em.persist(image);
             em.getTransaction().commit();
             image.generateWaterMarkName();
+            
+            // ExtraInfo
+            image.setAltText(extraInfo.get("altText"));
+            image.setTitle(extraInfo.get("title"));
+            image.setDescription(extraInfo.get("description"));
+            
             return image;
         } catch (Exception e) {
             throw new RuntimeException("Could not insert image", e);

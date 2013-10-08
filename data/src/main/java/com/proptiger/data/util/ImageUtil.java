@@ -24,11 +24,10 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.service.portfolio.DashboardService;
 
 public class ImageUtil {
 	
-	private static Logger logger = LoggerFactory.getLogger(DashboardService.class);
+	private static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
 
     public static String fileMd5Hash(File file) throws FileNotFoundException, IOException {
         int nread = 0;
