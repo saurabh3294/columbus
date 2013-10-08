@@ -19,7 +19,7 @@ config = dict(
                         'db'        :   'proptiger'
                     },
     objectInfo  =   {
-                        'objectType'    :   'bank',
+                        'objectType'    :   'builder',
                         'imageType'     :   'logo',
                         'waterMarkFlag' :   'false'
                     }
