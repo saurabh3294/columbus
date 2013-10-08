@@ -12,9 +12,9 @@ env = 'develop'
 config = dict(
     processes   =   5,
     objectInfo  =   {
-                        'objectType'    :   'bank',
-                        'imageType'     :   ['logo'],
-                        'addWaterMark'  :   'false'
+                        'objectType'    :   'locality',
+                        'imageType'     :   ['mall', 'road', 'school', 'hospital', 'other'],
+                        'addWaterMark'  :   'true'
                     },
     env         =   {
                         'develop'   :   {
@@ -63,7 +63,10 @@ class Object(object):
 
     @property
     def images(self):
-        sql = "SELECT BANK_ID, CONCAT('/bank_list/', BANK_LOGO) FROM `proptiger`.`BANK_LIST` WHERE migration_status!='Done';"
+        # Problems
+        # 1. Handle Null in IMAGE_CATEGORY                      [ Done ] - Automatically will not be selected
+        # 2. Locality_Images has multiple images per object_id  [ Done ]
+        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID FROM `proptiger`.`LOCALITY_IMAGE` WHERE migration_status!='Done';"
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
@@ -72,13 +75,14 @@ class Object(object):
                 objectId        = i[0],
                 imageType       = self.imageType,
                 path            = config['env'][env]['images_dir'] + i[1],
+                uniq_id         = i[2],
                 addWaterMark    = self.addWaterMark
             )
             yield img
 
     @classmethod
     def update_status(cls, status, obj_id):
-        sql = "UPDATE `proptiger`.`BANK_LIST` SET `migration_status` = %s WHERE `BANK_LIST`.`BANK_ID` = %s;"
+        sql = "UPDATE `proptiger`.`LOCALITY_IMAGE` SET `migration_status` = %s WHERE `LOCALITY_IMAGE`.`IMAGE_ID` = %s;"
         Object.cur.execute(sql, (status, obj_id))
 
 
@@ -110,7 +114,7 @@ class Upload(object):
         ack = dict(text = status['text'])
         ack.update(img)
         # Update database
-        Object.update_status(status['text'], img['objectId'])
+        Object.update_status(status['text'], img['uniq_id'])
         # Log
         text = "%(objectType)s :: %(objectId)s :: %(imageType)s :: %(path)s :: %(text)s" % ack
         log = status['log']
