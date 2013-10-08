@@ -8,7 +8,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.portfolio.OverallReturn;
-import com.proptiger.data.model.portfolio.Portfolio;
+import com.proptiger.data.model.portfolio.PortfolioPropertyPaymentPlan;
 import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.exception.ResourceNotAvailableException;
 
@@ -21,19 +21,19 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PortfolioService {
 
-	private List<Portfolio> portfolioList;
+	private List<PortfolioPropertyPaymentPlan> portfolioList;
 	
 	@PostConstruct
 	public void init(){
 		createDummyPortfolio(5);
 	}
 	
-	public List<Portfolio> getPortfolio(Integer portfolioId){
+	public List<PortfolioPropertyPaymentPlan> getPortfolio(Integer portfolioId){
 		if(portfolioId == null){
 			return portfolioList;
 		}
-		Portfolio portfolio = null;
-		for(Portfolio p: portfolioList){
+		PortfolioPropertyPaymentPlan portfolio = null;
+		for(PortfolioPropertyPaymentPlan p: portfolioList){
 			if(p.getId() == portfolioId.intValue()){
 				portfolio = p;
 				break;
@@ -42,7 +42,7 @@ public class PortfolioService {
 		if(portfolio == null){
 			throw new ResourceNotAvailableException("Resource id "+portfolioId+" not available");
 		}
-		List<Portfolio> list = new ArrayList<>();
+		List<PortfolioPropertyPaymentPlan> list = new ArrayList<>();
 		list.add(portfolio);
 		return list;
 	}
@@ -53,16 +53,8 @@ public class PortfolioService {
 		int propertyId = 10000;
 		portfolioList = new ArrayList<>();
 		for(int i = 1; i <= count; i++){
-			Portfolio portfolio = new Portfolio();
-			portfolio.setCurrentValue(50000 + Math.random() * 10000);
-			portfolio.setId(id + i);
-			portfolio.setOriginalVaue(50000 + Math.random() * 10000);
-			OverallReturn overallReturn = createOverAllReturn(portfolio.getCurrentValue(), portfolio.getOriginalVaue());
-			portfolio.setOverallReturn(overallReturn );
-			List<Integer> propertiesId = new ArrayList<Integer>();
-			propertiesId.add(propertyId ++);
-			propertiesId.add(propertyId ++);
-			portfolio.setPropertiesId(propertiesId );
+			PortfolioPropertyPaymentPlan portfolio = new PortfolioPropertyPaymentPlan();
+			
 			portfolioList.add(portfolio);
 		}
 		

@@ -9,37 +9,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.portfolio.ProptigerProperty;
+import com.proptiger.data.model.portfolio.PortfolioProperty;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.service.portfolio.ProptigerPropertyService;
+import com.proptiger.data.service.portfolio.PortfolioPropertyService;
 
 /**
  * @author Rajeev Pandey
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/{portfolioId}/property")
-public class ProptigerPropertyController {
+@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/property")
+public class PortfolioPropertyController {
 
 	@Autowired
-	private ProptigerPropertyService proptigerPropertyService;
+	private PortfolioPropertyService proptigerPropertyService;
 	
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public ProAPIResponse getProperties(@PathVariable String userId,
-			@PathVariable Integer portfolioId) {
+	public ProAPIResponse getProperties(@PathVariable Integer userId) {
 
-		List<ProptigerProperty> list = proptigerPropertyService.getProperties(null);
+		List<PortfolioProperty> list = proptigerPropertyService.getProperties(null);
 		return new ProAPISuccessResponse(list, list.size());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{propertyId}")
 	@ResponseBody
 	public ProAPIResponse getProperty(@PathVariable String userId,
-			@PathVariable Integer portfolioId, @PathVariable Integer propertyId) {
+			@PathVariable Integer propertyId) {
 
-		List<ProptigerProperty> list = proptigerPropertyService.getProperties(propertyId);
+		List<PortfolioProperty> list = proptigerPropertyService.getProperties(propertyId);
 		return new ProAPISuccessResponse(list, list.size());
 	}
 	

@@ -8,10 +8,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.portfolio.PropertyDocument;
-import com.proptiger.data.model.portfolio.PropertyPaymentPlan;
-import com.proptiger.data.model.portfolio.ProptigerProperty;
+import com.proptiger.data.model.portfolio.PortfolioProperty;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -21,21 +18,21 @@ import com.proptiger.exception.ResourceNotAvailableException;
  *
  */
 @Service
-public class ProptigerPropertyService {
+public class PortfolioPropertyService {
 
-	private List<ProptigerProperty> propertyList;
+	private List<PortfolioProperty> propertyList;
 
 	@PostConstruct
 	public void init() {
 		createDummyProperties(20);
 	}
 	
-	public List<ProptigerProperty> getProperties(Integer propertyId){
+	public List<PortfolioProperty> getProperties(Integer propertyId){
 		if(propertyId == null){
 			return propertyList;
 		}
-		ProptigerProperty proptigerProperty = null;
-		for(ProptigerProperty property: propertyList){
+		PortfolioProperty proptigerProperty = null;
+		for(PortfolioProperty property: propertyList){
 			if(propertyId.intValue() == property.getId()){
 				proptigerProperty = property;
 				break;
@@ -44,7 +41,7 @@ public class ProptigerPropertyService {
 		if(proptigerProperty == null){
 			throw new ResourceNotAvailableException("Resource id "+propertyId+" not available");
 		}
-		List<ProptigerProperty> list = new ArrayList<>();
+		List<PortfolioProperty> list = new ArrayList<>();
 		list.add(proptigerProperty);
 		return list;
 	}
@@ -54,14 +51,9 @@ public class ProptigerPropertyService {
 		int id = 10000;
 		int tower = 1;
 		for (int i = 1; i <= count; i++) {
-			ProptigerProperty proptigerProperty = new ProptigerProperty();
-			proptigerProperty.setDocuments(new ArrayList<PropertyDocument>());
+			PortfolioProperty proptigerProperty = new PortfolioProperty();
 			proptigerProperty.setId(id + i);
-			List<PropertyPaymentPlan> paymentPlans = new ArrayList<PropertyPaymentPlan>();
-			proptigerProperty.setPaymentPlans(paymentPlans);
-			proptigerProperty.setProperty(new Property());
 			proptigerProperty.setPurchaseDate(new Date());
-			proptigerProperty.setPurchasePrice(750000D);
 			proptigerProperty.setTower(tower++);
 			propertyList.add(proptigerProperty);
 		}
