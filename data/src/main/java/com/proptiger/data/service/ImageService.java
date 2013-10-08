@@ -145,7 +145,9 @@ public class ImageService {
 	 * Public method to upload images
 	 */
 	public Image uploadImage(DomainObject object, String imageTypeStr,
-			long objectId, MultipartFile fileUpload) {
+			long objectId, MultipartFile fileUpload, Boolean waterMarkFlag) {
+		// WaterMark by default (true)
+		waterMarkFlag = (waterMarkFlag != null)? waterMarkFlag:true;
 		try {
 			// Upload file
 			File originalFile = File.createTempFile("originalImage", ".tmp", tempDir);
@@ -159,7 +161,9 @@ public class ImageService {
 			// Image uploaded
 			File jpgFile = File.createTempFile("jpgImage", ".jpeg", tempDir);
 			convertToJPG(originalFile, jpgFile);
-			addWaterMark(jpgFile);
+			if(waterMarkFlag) {
+				addWaterMark(jpgFile);
+			}
 			// Persist
 			Image image = dao.insertImage(object, imageTypeStr, objectId, originalFile, jpgFile);
 			uploadToS3(image, originalFile, jpgFile);
