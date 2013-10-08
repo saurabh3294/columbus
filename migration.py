@@ -8,7 +8,7 @@ import multiprocessing
 
 # Configs
 config = dict(
-    processes   =   5,
+    processes   =   100,
     server      =   'noida-1.proptiger-ws.com',
     port        =   '8080',
     images_dir  =   '/home/sysadmin/public_html/images',
@@ -21,7 +21,7 @@ config = dict(
     objectInfo  =   {
                         'objectType'    :   'builder',
                         'imageType'     :   'logo',
-                        'waterMarkFlag' :   'false'
+                        'addWaterMark' :   'false'
                     }
 )
 
@@ -41,7 +41,7 @@ class Object(object):
     def __init__(self, object_type, image_type, watermark_flag):
         self.objectType = object_type
         self.imageType = image_type
-        self.waterMarkFlag = watermark_flag
+        self.addWaterMark = watermark_flag
 
     @property
     def images(self):
@@ -54,7 +54,7 @@ class Object(object):
                 objectId        = i[0],
                 imageType       = self.imageType,
                 path            = config['images_dir'] + i[1],
-                waterMarkFlag   =   self.waterMarkFlag
+                addWaterMark   =   self.addWaterMark
             )
             yield img
 
@@ -117,5 +117,5 @@ class Upload(object):
 # Main
 if __name__ == '__main__':
     pool = multiprocessing.Pool(processes=config['processes'])
-    obj = Object(config['objectInfo']['objectType'], config['objectInfo']['imageType'], config['objectInfo']['waterMarkFlag'])
+    obj = Object(config['objectInfo']['objectType'], config['objectInfo']['imageType'], config['objectInfo']['addWaterMark'])
     map(Upload(), obj.images)
