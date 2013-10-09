@@ -25,12 +25,23 @@ public class TypeaheadDao {
     private SolrDao solrDao;
 
     public List<Typeahead> getTypeaheads(String query, int rows) {
-        SolrQuery solrQuery = new SolrQuery();
+        SolrQuery solrQuery = getSolrQuery(query, rows);
+
+        return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+    }
+
+	private SolrQuery getSolrQuery(String query, int rows) {
+		SolrQuery solrQuery = new SolrQuery();
 
         solrQuery.setQuery(getQueryParams(query));
         solrQuery.setFilterQueries("DOCUMENT_TYPE:TYPEAHEAD");
         solrQuery.setRows(rows);
-
+		return solrQuery;
+	}
+    
+    public List<Typeahead> getTypeaheadsByTypeAheadType(String query, int rows, String typeAheadType) {
+        SolrQuery solrQuery = getSolrQuery(query, rows);
+        solrQuery.setFilterQueries("TYPEAHEAD_TYPE:"+typeAheadType);
         return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
     }
 

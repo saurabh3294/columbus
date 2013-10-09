@@ -65,8 +65,8 @@ public class ImageService {
 	}
 
 	private void convertToJPG(File image, File jpg) throws IOException {
-		BufferedImage img = null;
-		img = ImageIO.read(image);
+		InputStream imageIS = new FileInputStream(image);
+		BufferedImage img = ImageIO.read(imageIS);
 		ImageIO.write(img, "jpg", jpg); // Writes at 0.7 compression quality
 	}
 
@@ -185,7 +185,7 @@ public class ImageService {
 			dao.markImageAsActive(image);
 			return image;
 		} catch (IllegalStateException | IOException e) {
-			throw new RuntimeException("Something went wrong");
+			throw new RuntimeException("Something went wrong", e);
 		}
 	}
 }

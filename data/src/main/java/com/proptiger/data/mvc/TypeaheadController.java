@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,4 +34,15 @@ public class TypeaheadController extends BaseController {
         List<Typeahead> list = typeaheadService.getTypeaheads(query, rows);
         return new ProAPISuccessResponse(super.filterFields(list, null));
     }
+    
+    @RequestMapping(value="/{typeAheadType}")
+    @ResponseBody
+	public ProAPIResponse getTypeaheadForDocumentType(
+			@PathVariable String typeAheadType, @RequestParam String query,
+			@RequestParam(defaultValue = "5") int rows) {
+    	typeAheadType = typeAheadType.toUpperCase();
+		List<Typeahead> list = typeaheadService.getTypeaheadsByTypeAheadType(query, rows,
+				typeAheadType);
+		return new ProAPISuccessResponse(super.filterFields(list, null));
+	}
 }

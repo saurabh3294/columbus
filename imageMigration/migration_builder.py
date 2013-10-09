@@ -6,24 +6,42 @@ import requests
 import MySQLdb as mysql
 import multiprocessing
 
-# Configs
+# Configurations
+###################################################
+env = 'develop'
 config = dict(
-    processes   =   100,
-    server      =   'noida-1.proptiger-ws.com',
-    port        =   '8080',
-    images_dir  =   '/home/sysadmin/public_html/images',
-    mysql       =   {
-                        'host'      :   '172.16.1.7',
-                        'user'      :   'proptigeruser',
-                        'passwd'    :   'proptigeruser@10',
-                        'db'        :   'proptiger'
-                    },
+    processes   =   5,
     objectInfo  =   {
                         'objectType'    :   'builder',
-                        'imageType'     :   'logo',
-                        'addWaterMark' :   'false'
+                        'imageType'     :   ['logo'],
+                        'addWaterMark'  :   'false'
+                    },
+    env         =   {
+                        'develop'   :   {
+                                            'server'    :   'localhost',
+                                            'port'      :   '8080',
+                                            'images_dir':   '/home/yugal/Desktop',
+                                            'mysql'     :   {
+                                                                'host'      :   'localhost',
+                                                                'user'      :   'root',
+                                                                'passwd'    :   'root',
+                                                                'db'        :   'proptiger'
+                                                            }
+                                        },
+                        'production':   {
+                                            'server'    :   'noida-1.proptiger-ws.com',
+                                            'port'      :   '8080',
+                                            'images_dir':   '/home/sysadmin/public_html/images',
+                                            'mysql'     :   {
+                                                                'host'      :   '172.16.1.7',
+                                                                'user'      :   'proptigeruser',
+                                                                'passwd'    :   'proptigeruser@10',
+                                                                'db'        :   'proptiger'
+                                                            }
+                                        }
                     }
 )
+###################################################
 
 # Logging
 logger = logging.getLogger('migration')
@@ -34,14 +52,14 @@ logger.setLevel(logging.INFO)
 
 # Object Class
 class Object(object):
-    conn = mysql.connect(**config['mysql'])
+    conn = mysql.connect(**config['env'][env]['mysql'])
     cur = conn.cursor()
     conn.autocommit(True)
 
-    def __init__(self, object_type, image_type, watermark_flag):
+    def __init__(self, object_type, image_type, add_watermark):
         self.objectType = object_type
         self.imageType = image_type
-        self.addWaterMark = watermark_flag
+        self.addWaterMark = add_watermark
 
     @property
     def images(self):
@@ -53,8 +71,8 @@ class Object(object):
                 objectType      = self.objectType,
                 objectId        = i[0],
                 imageType       = self.imageType,
-                path            = config['images_dir'] + i[1],
-                addWaterMark   =   self.addWaterMark
+                path            = config['env'][env]['images_dir'] + i[1],
+                addWaterMark    = self.addWaterMark
             )
             yield img
 
@@ -66,7 +84,7 @@ class Object(object):
 
 # Upload Class
 class Upload(object):
-    url = 'http://%(server)s:%(port)s/data/v1/entity/image' % config
+    url = 'http://%(server)s:%(port)s/data/v1/entity/image' % config['env'][env]
     status = dict(
         done = dict(text='Done', log=logger.info),
         failed = dict(text='Failed', log=logger.error),
@@ -117,5 +135,6 @@ class Upload(object):
 # Main
 if __name__ == '__main__':
     pool = multiprocessing.Pool(processes=config['processes'])
-    obj = Object(config['objectInfo']['objectType'], config['objectInfo']['imageType'], config['objectInfo']['addWaterMark'])
-    map(Upload(), obj.images)
+    for t in config['objectInfo']['imageType']:
+        obj = Object(config['objectInfo']['objectType'], t, config['objectInfo']['addWaterMark'])
+        pool.map(Upload(), obj.images)
