@@ -66,7 +66,7 @@ class Object(object):
         # Problems
         # 1. Handle Null in IMAGE_CATEGORY                      [ Done ] - Automatically will not be selected
         # 2. Locality_Images has multiple images per object_id  [ Done ]
-        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID FROM `proptiger`.`LOCALITY_IMAGE` WHERE IMAGE_CATEGORY='%s' AND migration_status!='Done';" % self.imageType
+        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID, IMAGE_DISPLAY_NAME, IMAGE_DESCRIPTION FROM `proptiger`.`LOCALITY_IMAGE` WHERE IMAGE_CATEGORY='%s' AND migration_status!='Done';" % self.imageType
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
@@ -76,6 +76,8 @@ class Object(object):
                 imageType       = self.imageType,
                 path            = config['env'][env]['images_dir'] + i[1],
                 uniq_id         = i[2],
+                title           = i[3],
+                description     = i[4],
                 addWaterMark    = self.addWaterMark
             )
             yield img
