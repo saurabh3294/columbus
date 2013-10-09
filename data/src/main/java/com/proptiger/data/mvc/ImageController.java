@@ -48,11 +48,13 @@ public class ImageController extends BaseController {
 			@RequestParam(required = false) Boolean addWaterMark,
 			@RequestParam(required = false) String altText,
 			@RequestParam(required = false) String title,
-			@RequestParam(required = false) String description) {
+			@RequestParam(required = false) String description,
+			@RequestParam(required = false) String priority) {
 		Map<String, String> extraInfo = new HashMap<String, String>();
 		extraInfo.put("altText", altText);
 		extraInfo.put("title", title);
 		extraInfo.put("description", description);
+		extraInfo.put("priority", priority);
 		Image img = imageService.uploadImage(DomainObject.valueOf(objectType),
 				imageType, objectId, image, addWaterMark, extraInfo);
 		return new ProAPISuccessResponse(img);

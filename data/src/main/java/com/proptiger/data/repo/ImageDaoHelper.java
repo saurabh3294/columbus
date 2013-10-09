@@ -95,6 +95,8 @@ public class ImageDaoHelper {
             image.setAltText(extraInfo.get("altText"));
             image.setTitle(extraInfo.get("title"));
             image.setDescription(extraInfo.get("description"));
+            Integer priority = (extraInfo.get("priority") != null)? Integer.parseInt(extraInfo.get("priority")):null;
+            image.setPriority(priority);
             
             return image;
         } catch (Exception e) {
