@@ -15,7 +15,7 @@ public interface UserWishListDao extends JpaRepository<UserWishlist, Integer>{
 	
 	@Query("SELECT A.projectId, A.projectName, A.projectUrl, B.typeId, B.bedrooms, C.id, " +
 		   " CT.label, B.unitName, A.builderName, C.datetime " +
-		   " FROM ProjectDB A, UserWishlist C, ProjectTypes B, City CT " +
+		   " FROM ProjectDB A, UserWishlist C, ProjectType B, City CT " +
            " WHERE A.projectId = C.projectId "+ 
            " AND C.userId = ?1 "+
            " AND B.typeId = C.typeId "+ 

@@ -2,6 +2,7 @@ package com.proptiger.data.dto;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.resource.Resource;
 
 /**
  * This POJO acts as a data transfer object for Dashboard object
@@ -9,7 +10,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  *
  */
 @ResourceMetaInfo(name = "Dashboard")
-public class DashboardDto {
+public class DashboardDto implements Resource{
 	@FieldMetaInfo( displayName = "Dashboard Id",  description = "Dashboard Id")
 	private Integer id;
 	

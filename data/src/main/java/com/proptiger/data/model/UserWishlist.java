@@ -42,9 +42,9 @@ public class UserWishlist implements Serializable{
 	private Set<ProjectDB> projectDB;
 	
 	
-	@ManyToMany(targetEntity = ProjectTypes.class)
+	@ManyToMany(targetEntity = ProjectType.class)
 	@JoinColumn(name = "typeId", referencedColumnName = "TYPE_ID")
-	private Set<ProjectTypes> projectTypes;
+	private Set<ProjectType> projectTypes;
 
 
 	public Integer getId() {
