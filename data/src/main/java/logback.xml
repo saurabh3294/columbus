@@ -16,20 +16,20 @@
 	    </encoder>
    </appender>
 
-	<logger name="locality.review" level="DEBUG" additivity="true">
+	<logger name="locality.review" level="INFO" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
-	<logger name="project.review" level="DEBUG" additivity="true">
+	<logger name="project.review" level="INFO" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
-	<logger name="project" level="DEBUG" additivity="true">
+	<logger name="project" level="INFO" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
-	<logger name="exception.handler" level="DEBUG" additivity="true">
+	<logger name="exception.handler" level="INFO" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
 	
-	<logger name="property" level="DEBUG" additivity="true">
+	<logger name="property" level="INFO" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
 
