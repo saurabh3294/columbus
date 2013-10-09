@@ -12,9 +12,6 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @ResourceMetaInfo(name = "Portfolio")
 public class Portfolio {
-
-	@FieldMetaInfo(displayName = "id", description = "Portfolio Id")
-	private int id;
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "originalVaue", description = "Original Vaue")
 	private double originalVaue;
@@ -26,47 +23,64 @@ public class Portfolio {
 	private OverallReturn overallReturn;
 
 	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "properties", description = "Properties")
-	private List<Integer> propertiesId;
-	
-	public int getId() {
-		return id;
-	}
+	private List<PortfolioProperty> properties;
 
-	public void setId(int id) {
-		this.id = id;
-	}
-
+	/**
+	 * @return the originalVaue
+	 */
 	public double getOriginalVaue() {
 		return originalVaue;
 	}
 
+	/**
+	 * @param originalVaue the originalVaue to set
+	 */
 	public void setOriginalVaue(double originalVaue) {
 		this.originalVaue = originalVaue;
 	}
 
+	/**
+	 * @return the currentValue
+	 */
 	public double getCurrentValue() {
 		return currentValue;
 	}
 
+	/**
+	 * @param currentValue the currentValue to set
+	 */
 	public void setCurrentValue(double currentValue) {
 		this.currentValue = currentValue;
 	}
 
+	/**
+	 * @return the overallReturn
+	 */
 	public OverallReturn getOverallReturn() {
 		return overallReturn;
 	}
 
+	/**
+	 * @param overallReturn the overallReturn to set
+	 */
 	public void setOverallReturn(OverallReturn overallReturn) {
 		this.overallReturn = overallReturn;
 	}
 
-	public List<Integer> getPropertiesId() {
-		return propertiesId;
+	/**
+	 * @return the properties
+	 */
+	public List<PortfolioProperty> getProperties() {
+		return properties;
 	}
 
-	public void setPropertiesId(List<Integer> propertiesId) {
-		this.propertiesId = propertiesId;
+	/**
+	 * @param properties the properties to set
+	 */
+	public void setProperties(List<PortfolioProperty> properties) {
+		this.properties = properties;
 	}
-
+	
+	
 	
 }

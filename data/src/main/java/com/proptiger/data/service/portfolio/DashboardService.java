@@ -59,29 +59,6 @@ public class DashboardService extends AbstractService{
 		return result;
 	}
 	
-	/**
-	 * Creating a dashboard resource
-	 * @param dashboardDto
-	 * @return
-	 */
-	@Transactional(rollbackFor = DuplicateResourceException.class)
-	public Dashboard createDashboard(DashboardDto dashboardDto) {
-		logger.debug("Creating dashboard for userid {}",dashboardDto.getUserId());
-		Dashboard dashboard = Dashboard
-				.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
-				.setTotalColumns(dashboardDto.getTotalColumn())
-				.setTotalRows(dashboardDto.getTotalRows()).build();
-		preProcessCreate(dashboard);
-		Dashboard created = null;
-		try{
-			created = dashboardDao.save(dashboard);
-		}catch(Exception exception){
-			throw new ConstraintViolationException(exception.getMessage(), exception);
-		}
-		logger.debug("Created dashboard id {} for userid {}",created.getId(),dashboardDto.getUserId());
-		return created;
-	}
-
 	/* (non-Javadoc)
 	 * @see com.proptiger.data.service.portfolio.AbstractService#preProcessCreate(com.proptiger.data.model.resource.Resource)
 	 */
@@ -110,8 +87,7 @@ public class DashboardService extends AbstractService{
 				.setTotalColumns(dashboardDto.getTotalColumn())
 				.setTotalRows(dashboardDto.getTotalRows())
 				.setId(dashboardDto.getId()).build();
-		Dashboard updated = preProcessUpdate(dashboard);
-		updated.update(dashboard.getName(), dashboard.getTotalColumns(), dashboard.getTotalRows());
+		Dashboard updated = update(dashboard);
 		return updated;
 		
 	}
@@ -144,5 +120,39 @@ public class DashboardService extends AbstractService{
 		Dashboard deleted = getDashboardById(userId, dashboardId);
 		dashboardDao.delete(deleted);
 		return deleted;
+	}
+	
+	public Dashboard createDashboard(DashboardDto dashboardDto){
+		logger.debug("Creating dashboard for userid {}",dashboardDto.getUserId());
+		Dashboard dashboard = Dashboard
+				.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
+				.setTotalColumns(dashboardDto.getTotalColumn())
+				.setTotalRows(dashboardDto.getTotalRows()).build();
+		
+		Dashboard created = create(dashboard);
+		return created;
+	}
+	
+	@Override
+	@Transactional(rollbackFor = ConstraintViolationException.class)
+	protected <T extends Resource> T create(T resource) {
+		Dashboard dashboard = (Dashboard) resource;
+		preProcessCreate(dashboard);
+		Dashboard created = null;
+		try{
+			created = dashboardDao.save(dashboard);
+		}catch(Exception exception){
+			throw new ConstraintViolationException(exception.getMessage(), exception);
+		}
+		logger.debug("Created dashboard id {} for userid {}",created.getId(),dashboard.getUserId());
+		return (T) created;
+	}
+
+	@Override
+	protected <T extends Resource> T update(T resource) {
+		Dashboard dashboard = (Dashboard) resource;
+		Dashboard updated = preProcessUpdate(dashboard);
+		updated.update(dashboard.getName(), dashboard.getTotalColumn(), dashboard.getTotalRow());
+		return (T) updated;
 	}
 }

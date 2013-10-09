@@ -10,10 +10,10 @@ import multiprocessing
 ###################################################
 env = 'develop'
 config = dict(
-    processes   =   5,
+    processes   =   1,
     objectInfo  =   {
-                        'objectType'    :   'locality',
-                        'imageType'     :   ['mall', 'road', 'school', 'hospital', 'other'],
+                        'objectType'    :   'property',
+                        'imageType'     :   ['floorPlan'],
                         'addWaterMark'  :   'true'
                     },
     env         =   {
@@ -63,10 +63,7 @@ class Object(object):
 
     @property
     def images(self):
-        # Problems
-        # 1. Handle Null in IMAGE_CATEGORY                      [ Done ] - Automatically will not be selected
-        # 2. Locality_Images has multiple images per object_id  [ Done ]
-        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID, IMAGE_DISPLAY_NAME, IMAGE_DESCRIPTION FROM `proptiger`.`LOCALITY_IMAGE` WHERE IMAGE_CATEGORY='%s' AND migration_status!='Done';" % self.imageType
+        sql = "SELECT TYPE_ID, IMAGE_URL, FLOOR_PLAN_ID, NAME, DISPLAY_ORDER FROM `proptiger`.`RESI_FLOOR_PLANS` WHERE migration_status!='Done';"
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
@@ -77,14 +74,14 @@ class Object(object):
                 path            = config['env'][env]['images_dir'] + i[1],
                 uniq_id         = i[2],
                 title           = i[3],
-                description     = i[4],
+                priority        = i[4],
                 addWaterMark    = self.addWaterMark
             )
             yield img
 
     @classmethod
     def update_status(cls, status, obj_id):
-        sql = "UPDATE `proptiger`.`LOCALITY_IMAGE` SET `migration_status` = %s WHERE `LOCALITY_IMAGE`.`IMAGE_ID` = %s;"
+        sql = "UPDATE `proptiger`.`RESI_FLOOR_PLANS` SET `migration_status` = %s WHERE `RESI_FLOOR_PLANS`.`FLOOR_PLAN_ID` = %s;"
         Object.cur.execute(sql, (status, obj_id))
 
 

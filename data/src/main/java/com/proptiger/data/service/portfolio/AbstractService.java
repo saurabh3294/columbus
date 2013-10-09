@@ -11,6 +11,9 @@ import com.proptiger.exception.ResourceNotAvailableException;
  */
 public abstract class AbstractService {
 
+	protected abstract <T extends Resource> T create(T resource);
+	protected abstract <T extends Resource> T update(T resource);
+	
 	/**
 	 * This method pre process the resource object before creating.
 	 * 

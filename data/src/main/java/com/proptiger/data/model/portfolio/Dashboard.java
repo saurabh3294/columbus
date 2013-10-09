@@ -36,10 +36,10 @@ public class Dashboard implements NamedResource{
 	private String name;
 	
 	@Column(name = "total_row")
-	private int totalRows;
+	private int totalRow;
 	
 	@Column(name = "total_column")
-	private int totalColumns;
+	private int totalColumn;
 	
 	@Column(name = "user_id")
 	private Integer userId;
@@ -93,29 +93,29 @@ public class Dashboard implements NamedResource{
 	/**
 	 * @return the totalRows
 	 */
-	public int getTotalRows() {
-		return totalRows;
+	public int getTotalRow() {
+		return totalRow;
 	}
 
 	/**
 	 * @param totalRows the totalRows to set
 	 */
-	public void setTotalRows(int totalRows) {
-		this.totalRows = totalRows;
+	public void setTotalRow(int totalRows) {
+		this.totalRow = totalRows;
 	}
 
 	/**
 	 * @return the totalColumns
 	 */
-	public int getTotalColumns() {
-		return totalColumns;
+	public int getTotalColumn() {
+		return totalColumn;
 	}
 
 	/**
 	 * @param totalColumns the totalColumns to set
 	 */
-	public void setTotalColumns(int totalColumns) {
-		this.totalColumns = totalColumns;
+	public void setTotalColumn(int totalColumns) {
+		this.totalColumn = totalColumns;
 	}
 
 	/**
@@ -201,8 +201,8 @@ public class Dashboard implements NamedResource{
     	public Dashboard build(){
     		dashboard = new Dashboard();
     		dashboard.name = name;
-    		dashboard.totalColumns = totalColumns;
-    		dashboard.totalRows = totalRows;
+    		dashboard.totalColumn = totalColumns;
+    		dashboard.totalRow = totalRows;
     		dashboard.userId = userId;
     		dashboard.id = id;
     		return dashboard;
@@ -245,7 +245,7 @@ public class Dashboard implements NamedResource{
     
     public void update(String name, int totalColumns, int totalRows){
     	this.name = name;
-    	this.totalColumns = totalColumns;
-    	this.totalRows = totalRows;
+    	this.totalColumn = totalColumns;
+    	this.totalRow = totalRows;
     }
 }
