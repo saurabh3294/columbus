@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,7 +19,7 @@ import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.exception.ConstraintViolationException;
-import com.proptiger.exception.DuplicateResourceException;
+import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.InvalidResourceNameException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
@@ -98,12 +100,12 @@ public class GlobalExceptionHandler {
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_NAME_ATTRIBUTE);
 	}
 	
-	@ExceptionHandler(DuplicateResourceException.class)
+	@ExceptionHandler(DuplicateNameResourceException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected ProAPIResponse handleDuplicateResourceException(DuplicateResourceException exception) {
+	protected ProAPIResponse handleDuplicateNameResourceException(DuplicateNameResourceException exception) {
 		logger.error("handle DuplicateResourceException - Caching ", exception);
-		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_RESOURCE);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_NAME_RESOURCE);
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class)
@@ -114,11 +116,19 @@ public class GlobalExceptionHandler {
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.REQUEST_PARAM_INVALID);
 	}
 	
-	/*@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected ProAPIResponse handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception) {
+	protected ProAPIResponse handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception) {
 		logger.error("handle ConstraintViolationException - Caching ", exception);
-		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.REQUEST_PARAM_INVALID);
-	}*/
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTENT_TYPE);
+	}
+	
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse hanldeHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception){
+		logger.error("handle HttpRequestMethodNotSupportedException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_REQUEST_METHOD_URL_AND_BODY);
+	}
 }
