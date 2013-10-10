@@ -70,30 +70,6 @@ public class ProjectType {
 	private Integer bedrooms;
 
 	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
-	@Column(name = "CLP_VISIBLE")
-	private int clpVisible;
-	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
-	@Column(name = "DP_VISIBLE")
-	private int dpVisible;
-	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
-	@Column(name = "FP_VISIBLE")
-	private int fpVisible;
-	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
-	@Column(name = "DISCLAIMER_CLP")
-	private int disclaimerCLP;
-	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
-	@Column(name = "DISCLAIMER_DP")
-	private int disclaimerDP;
-	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
-	@Column(name = "DISCLAIMER_FP")
-	private int disclaimerFP;
-	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "CREATED_DATE")
 	private Date createdDate;
 	
@@ -236,104 +212,6 @@ public class ProjectType {
 	 */
 	public void setStatus(String status) {
 		this.status = status;
-	}
-
-	/**
-	 * @return the clpVisible
-	 */
-	public int getClpVisible() {
-		return clpVisible;
-	}
-
-	/**
-	 * @param clpVisible the clpVisible to set
-	 */
-	public void setClpVisible(int clpVisible) {
-		this.clpVisible = clpVisible;
-	}
-
-	/**
-	 * @return the dpVisible
-	 */
-	public int getDpVisible() {
-		return dpVisible;
-	}
-
-	/**
-	 * @param dpVisible the dpVisible to set
-	 */
-	public void setDpVisible(int dpVisible) {
-		this.dpVisible = dpVisible;
-	}
-
-	/**
-	 * @return the fpVisible
-	 */
-	public int getFpVisible() {
-		return fpVisible;
-	}
-
-	/**
-	 * @param fpVisible the fpVisible to set
-	 */
-	public void setFpVisible(int fpVisible) {
-		this.fpVisible = fpVisible;
-	}
-
-	/**
-	 * @return the disclaimerCLP
-	 */
-	public int getDisclaimerCLP() {
-		return disclaimerCLP;
-	}
-
-	/**
-	 * @param disclaimerCLP the disclaimerCLP to set
-	 */
-	public void setDisclaimerCLP(int disclaimerCLP) {
-		this.disclaimerCLP = disclaimerCLP;
-	}
-
-	/**
-	 * @return the disclaimerDP
-	 */
-	public int getDisclaimerDP() {
-		return disclaimerDP;
-	}
-
-	/**
-	 * @param disclaimerDP the disclaimerDP to set
-	 */
-	public void setDisclaimerDP(int disclaimerDP) {
-		this.disclaimerDP = disclaimerDP;
-	}
-
-	/**
-	 * @return the disclaimerFP
-	 */
-	public int getDisclaimerFP() {
-		return disclaimerFP;
-	}
-
-	/**
-	 * @param disclaimerFP the disclaimerFP to set
-	 */
-	public void setDisclaimerFP(int disclaimerFP) {
-		this.disclaimerFP = disclaimerFP;
-	}
-
-	/**
-	 * @return the createdDate
-	 */
-	public Date getCreatedDate() {
-		return createdDate;
-	}
-
-	/**
-	 * @param createdDate the createdDate to set
-	 */
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;
 	}
 
 	/**

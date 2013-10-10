@@ -132,36 +132,6 @@ public class Dashboard implements NamedResource{
 		this.userId = userId;
 	}
 
-	
-	/**
-	 * @return the createdAt
-	 */
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-	/**
-	 * @param createdAt the createdAt to set
-	 */
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	/**
-	 * @return the updatedAt
-	 */
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	/**
-	 * @param updatedAt the updatedAt to set
-	 */
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	
 	/**
 	 * @return the widgets
 	 */

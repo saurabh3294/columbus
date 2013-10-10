@@ -10,7 +10,7 @@ import multiprocessing
 ###################################################
 env = 'develop'
 config = dict(
-    processes   =   1,
+    processes   =   5,
     objectInfo  =   {
                         'objectType'    :   'property',
                         'imageType'     :   ['floorPlan'],
@@ -67,6 +67,18 @@ class Object(object):
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
+            water = self.addWaterMark
+            if "floor-plan" not in i[1]:
+                water = 'false'
+            else:
+                u = os.path.split(i[1])
+                filename = list(os.path.splitext(u[1]))
+                filename[0] = filename[0] + '-bkp'
+                i = list(i)
+                i[1] = os.path.join(u[0], "".join(filename))
+                i = tuple(i)
+                if i[1].endswith(".gif"):
+                    water = 'false'
             img = dict(
                 objectType      = self.objectType,
                 objectId        = i[0],
@@ -75,7 +87,7 @@ class Object(object):
                 uniq_id         = i[2],
                 title           = i[3],
                 priority        = i[4],
-                addWaterMark    = self.addWaterMark
+                addWaterMark    = water
             )
             yield img
 

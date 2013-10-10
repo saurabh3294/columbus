@@ -25,6 +25,7 @@ import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.resource.NamedResource;
 
 /**
+ * This is a model object corresponding to a addressable property
  * @author Rajeev Pandey
  *
  */
@@ -39,7 +40,7 @@ public class PortfolioProperty implements NamedResource{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(displayName = "Project Type Id", description = "Project Type Id")
 	@Column(name = "project_type_id")
 	private Integer projectTypeId;
 	
@@ -51,11 +52,11 @@ public class PortfolioProperty implements NamedResource{
 	@Column(name = "tower")
 	private int tower;
 	
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(displayName = "Unit Number", description = "Unit Number")
 	@Column(name = "unit_no")
 	private String unitNo;
 	
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(displayName = "Floor Number", description = "Floor Number")
 	@Column(name = "floor_no")
 	private int floorNo;
 	
@@ -63,23 +64,23 @@ public class PortfolioProperty implements NamedResource{
 	@Column(name = "purchased_date")
 	private Date purchaseDate;
 	
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(displayName = "Property Name", description = "Property Name")
 	@Column(name = "property_name")
 	private String name;
 	
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(displayName = "Base Price", description = "Base Price")
 	@Column(name = "base_price")
 	private Double basePrice;
 	
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(displayName = "Total Price", description = "Total Price")
 	@Column(name = "total_price")
 	private Double totalPrice;
 	
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(displayName = "Goal Amount", description = "Goal Amount")
 	@Column(name = "goal_amount")
 	private Double goalAmount;
 	
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Purchased For", description = "Purchased For")
 	@Column(name = "purchased_for")
 	@Enumerated(EnumType.STRING)
 	private PurchasedFor purchasedFor;
@@ -336,34 +337,6 @@ public class PortfolioProperty implements NamedResource{
 	}
 
 	/**
-	 * @return the createdAt
-	 */
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-	/**
-	 * @param createdAt the createdAt to set
-	 */
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	/**
-	 * @return the updatedAt
-	 */
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	/**
-	 * @param updatedAt the updatedAt to set
-	 */
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-
-	/**
 	 * @return the projectTypes
 	 */
 	public ProjectType getProjectType() {
@@ -391,16 +364,6 @@ public class PortfolioProperty implements NamedResource{
 		this.userId = userId;
 	}
 
-	@PreUpdate
-    public void preUpdate(){
-    	updatedAt = new Date();
-    }
-    @PrePersist
-    public void prePersist(){
-    	createdAt = new Date();
-    	updatedAt = createdAt;
-    }
-
 	@Override
 	public String getName() {
 		// TODO Auto-generated method stub
@@ -412,5 +375,31 @@ public class PortfolioProperty implements NamedResource{
 		this.name = name;
 		
 	}
-	
+	@PreUpdate
+    public void preUpdate(){
+    	updatedAt = new Date();
+    }
+    @PrePersist
+    public void prePersist(){
+    	createdAt = new Date();
+    	updatedAt = createdAt;
+    }
+    
+    public void update(PortfolioProperty toUpdate){
+    	this.name = toUpdate.name;
+    	this.basePrice = toUpdate.basePrice;
+    	this.floorNo = toUpdate.floorNo;
+    	this.goalAmount = toUpdate.goalAmount;
+    	this.loanAmount = toUpdate.loanAmount;
+    	this.loanAvailedAmount = toUpdate.loanAvailedAmount;
+    	this.loanStatus = toUpdate.loanStatus;
+    	this.paymentPlan = toUpdate.paymentPlan;
+    	this.projectTypeId = toUpdate.projectTypeId;
+    	this.purchaseDate = toUpdate.purchaseDate;
+    	this.purchasedFor = toUpdate.purchasedFor;
+    	this.totalPrice = toUpdate.totalPrice;
+    	this.tower = toUpdate.tower;
+    	this.transactionType = toUpdate.transactionType;
+    	this.unitNo = toUpdate.unitNo;
+    }
 }

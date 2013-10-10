@@ -4,14 +4,23 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Entity
 @Table(name = "dashboard_widget_mapping")
 @ResourceMetaInfo(name = "DashboardWidgetMapping")
@@ -40,8 +49,9 @@ public class DashboardWidgetMapping {
 	private int widgetColumnPosition;
 	
 	@Column(name = "status")
-	@FieldMetaInfo( displayName = "Created Time",  description = "Created Time")
-	private String status;
+	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Status",  description = "Status")
+	@Enumerated(EnumType.STRING)
+	private WidgetDisplayStatus status;
 	
 	@Column(name = "created_at")
 	@FieldMetaInfo( displayName = "Created Time",  description = "Created Time")
@@ -110,44 +120,24 @@ public class DashboardWidgetMapping {
 	/**
 	 * @return the status
 	 */
-	public String getStatus() {
+	public WidgetDisplayStatus getStatus() {
 		return status;
 	}
 
 	/**
 	 * @param status the status to set
 	 */
-	public void setStatus(String status) {
+	public void setStatus(WidgetDisplayStatus status) {
 		this.status = status;
 	}
-
-	/**
-	 * @return the createdAt
-	 */
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-	/**
-	 * @param createdAt the createdAt to set
-	 */
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	/**
-	 * @return the updatedAt
-	 */
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	/**
-	 * @param updatedAt the updatedAt to set
-	 */
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-	
+	@PreUpdate
+    public void preUpdate(){
+    	updatedAt = new Date();
+    }
+    @PrePersist
+    public void prePersist(){
+    	createdAt = new Date();
+    	updatedAt = createdAt;
+    }
 	
 }
