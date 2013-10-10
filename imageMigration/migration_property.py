@@ -67,8 +67,9 @@ class Object(object):
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
+            water = self.addWaterMark
             if "floor-plan" not in i[1]:
-                self.addWaterMark = 'false'
+                water = 'false'
             else:
                 u = os.path.split(i[1])
                 filename = list(os.path.splitext(u[1]))
@@ -77,7 +78,7 @@ class Object(object):
                 i[1] = os.path.join(u[0], "".join(filename))
                 i = tuple(i)
                 if i[1].endswith(".gif"):
-                    self.addWaterMark = 'false'
+                    water = 'false'
             img = dict(
                 objectType      = self.objectType,
                 objectId        = i[0],
@@ -86,7 +87,7 @@ class Object(object):
                 uniq_id         = i[2],
                 title           = i[3],
                 priority        = i[4],
-                addWaterMark    = self.addWaterMark
+                addWaterMark    = water
             )
             yield img
 
