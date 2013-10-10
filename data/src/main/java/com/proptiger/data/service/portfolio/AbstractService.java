@@ -1,5 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
+import java.io.Serializable;
+
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 import com.proptiger.exception.InvalidResourceNameException;
@@ -11,7 +13,17 @@ import com.proptiger.exception.ResourceNotAvailableException;
  */
 public abstract class AbstractService {
 
+	/**
+	 * This method creates a resource
+	 * @param resource
+	 * @return
+	 */
 	protected abstract <T extends Resource> T create(T resource);
+	/**
+	 * This method updates a resource if resource is present in database
+	 * @param resource
+	 * @return
+	 */
 	protected abstract <T extends Resource> T update(T resource);
 	
 	/**
@@ -22,6 +34,8 @@ public abstract class AbstractService {
 	 */
 	protected <T extends Resource> void preProcessCreate(T resource){
 		validateName((NamedResource) resource);
+		//setting id to null as it will be auto generated, so ignoring its value if passed in request body
+		resource.setId(null);
 	}
 	
 	/**

@@ -18,7 +18,7 @@ public class DashboardDto implements Resource{
 	private String name;
 	
 	@FieldMetaInfo( displayName = "Total Rows",  description = "Total Rows")
-	private int totalRows;
+	private int totalRow;
 	
 	@FieldMetaInfo( displayName = "Total Columns",  description = "Total Columns")
 	private int totalColumn;
@@ -53,14 +53,14 @@ public class DashboardDto implements Resource{
 	/**
 	 * @return the totalRows
 	 */
-	public int getTotalRows() {
-		return totalRows;
+	public int getTotalRow() {
+		return totalRow;
 	}
 	/**
 	 * @param totalRows the totalRows to set
 	 */
-	public void setTotalRows(int totalRows) {
-		this.totalRows = totalRows;
+	public void setTotalRow(int totalRows) {
+		this.totalRow = totalRows;
 	}
 	/**
 	 * @return the totalColumn

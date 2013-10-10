@@ -1,5 +1,6 @@
 package com.proptiger.data.service.portfolio;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,7 +14,7 @@ import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.resource.Resource;
 import com.proptiger.data.repo.portfolio.DashboardDao;
 import com.proptiger.exception.ConstraintViolationException;
-import com.proptiger.exception.DuplicateResourceException;
+import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -69,7 +70,7 @@ public class DashboardService extends AbstractService{
 		Dashboard dashboardPresent = dashboardDao.findByNameAndUserId(toCreate.getName(), toCreate.getUserId());
 		if(dashboardPresent != null){
 			logger.error("Duplicate resource {}",dashboardPresent.getId());
-			throw new DuplicateResourceException("Resource with same name exist");
+			throw new DuplicateNameResourceException("Resource with same name exist");
 		}
 	}
 	
@@ -85,7 +86,7 @@ public class DashboardService extends AbstractService{
 		Dashboard dashboard = Dashboard
 				.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
 				.setTotalColumns(dashboardDto.getTotalColumn())
-				.setTotalRows(dashboardDto.getTotalRows())
+				.setTotalRows(dashboardDto.getTotalRow())
 				.setId(dashboardDto.getId()).build();
 		Dashboard updated = update(dashboard);
 		return updated;
@@ -116,6 +117,7 @@ public class DashboardService extends AbstractService{
 	 * @param dashboardId
 	 * @return
 	 */
+	@Transactional(rollbackFor = ResourceNotAvailableException.class)
 	public Dashboard deleteDashboard(Integer userId, Integer dashboardId){
 		Dashboard deleted = getDashboardById(userId, dashboardId);
 		dashboardDao.delete(deleted);
@@ -127,7 +129,7 @@ public class DashboardService extends AbstractService{
 		Dashboard dashboard = Dashboard
 				.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
 				.setTotalColumns(dashboardDto.getTotalColumn())
-				.setTotalRows(dashboardDto.getTotalRows()).build();
+				.setTotalRows(dashboardDto.getTotalRow()).build();
 		
 		Dashboard created = create(dashboard);
 		return created;
@@ -155,4 +157,5 @@ public class DashboardService extends AbstractService{
 		updated.update(dashboard.getName(), dashboard.getTotalColumn(), dashboard.getTotalRow());
 		return (T) updated;
 	}
+
 }
