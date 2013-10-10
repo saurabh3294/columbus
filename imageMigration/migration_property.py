@@ -10,7 +10,7 @@ import multiprocessing
 ###################################################
 env = 'develop'
 config = dict(
-    processes   =   1,
+    processes   =   5,
     objectInfo  =   {
                         'objectType'    :   'property',
                         'imageType'     :   ['floorPlan'],
@@ -151,4 +151,4 @@ if __name__ == '__main__':
     pool = multiprocessing.Pool(processes=config['processes'])
     for t in config['objectInfo']['imageType']:
         obj = Object(config['objectInfo']['objectType'], t, config['objectInfo']['addWaterMark'])
-        map(Upload(), obj.images)
+        pool.map(Upload(), obj.images)
