@@ -67,6 +67,17 @@ class Object(object):
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
+            if "floor-plan" not in i[1]:
+                self.addWaterMark = 'false'
+            else:
+                u = os.path.split(i[1])
+                filename = list(os.path.splitext(u[1]))
+                filename[0] = filename[0] + '-bkp'
+                i = list(i)
+                i[1] = os.path.join(u[0], "".join(filename))
+                i = tuple(i)
+                if i[1].endswith(".gif"):
+                    self.addWaterMark = 'false'
             img = dict(
                 objectType      = self.objectType,
                 objectId        = i[0],
@@ -140,4 +151,4 @@ if __name__ == '__main__':
     pool = multiprocessing.Pool(processes=config['processes'])
     for t in config['objectInfo']['imageType']:
         obj = Object(config['objectInfo']['objectType'], t, config['objectInfo']['addWaterMark'])
-        pool.map(Upload(), obj.images)
+        map(Upload(), obj.images)
