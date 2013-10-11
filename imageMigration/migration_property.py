@@ -61,34 +61,41 @@ class Object(object):
         self.imageType = image_type
         self.addWaterMark = add_watermark
 
+    @classmethod
+    def add_bkp(cls, path):
+        sp = os.path.split(path)
+        fname = list(os.path.splitext(sp[1]))
+        fname[0] = fname[0] + '-bkp'
+        return os.path.join(sp[0], "".join(fname))
+
     @property
     def images(self):
         sql = "SELECT TYPE_ID, IMAGE_URL, FLOOR_PLAN_ID, NAME, DISPLAY_ORDER FROM `proptiger`.`RESI_FLOOR_PLANS` WHERE migration_status!='Done';"
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
-            water = self.addWaterMark
-            if "floor-plan" not in i[1]:
-                water = 'false'
-            else:
-                u = os.path.split(i[1])
-                filename = list(os.path.splitext(u[1]))
-                filename[0] = filename[0] + '-bkp'
-                i = list(i)
-                i[1] = os.path.join(u[0], "".join(filename))
-                i = tuple(i)
-                if i[1].endswith(".gif"):
-                    water = 'false'
             img = dict(
                 objectType      = self.objectType,
                 objectId        = i[0],
                 imageType       = self.imageType,
-                path            = config['env'][env]['images_dir'] + i[1],
                 uniq_id         = i[2],
                 title           = i[3],
                 priority        = i[4],
-                addWaterMark    = water
             )
+            # Decide `waterMark` & `path`
+            water = self.addWaterMark
+            path  = i[1]
+            if "floor-plan" not in path:
+                water = 'false'
+            else:
+                img.update(dict(orig_path = config['env'][env]['images_dir'] + path))
+                path = Object.add_bkp(path)
+                if path.endswith(".gif"):
+                    water = 'false'
+            img.update(dict(
+                path            = config['env'][env]['images_dir'] + path,
+                addWaterMark    = water
+            ))
             yield img
 
     @classmethod
@@ -135,8 +142,14 @@ class Upload(object):
     def upload(cls, img):
         try:
             if not cls.validate(img):
-                cls.acknowledge(img, cls.status['not_found'])
-                return
+                not_found = True
+                if 'orig_path' in img:
+                    img['path'] = img['orig_path']
+                    del img['orig_path']
+                    not_found = False if cls.validate(img) else not_found
+                if not_found:
+                    cls.acknowledge(img, cls.status['not_found'])
+                    return
             cls.post(img)
             cls.acknowledge(img, cls.status['done'])
         except Exception, e:
