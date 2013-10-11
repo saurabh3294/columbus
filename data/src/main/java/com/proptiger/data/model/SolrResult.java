@@ -85,6 +85,10 @@ public class SolrResult {
     @Field(value = "PROJECT_ID")
     private int projectId;
 
+    @FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
+    @Field(value = "TYPE_ID")
+    private int propertyId;
+
     @FieldMetaInfo( displayName = "Assigned priority",  description = "Priorities assigned manually")
     @Field(value = "DISPLAY_ORDER")
     private int assignedPriority;
@@ -190,7 +194,7 @@ public class SolrResult {
 
     @Field("TYPE_ID")
     public void setTypeId(int typeId) {
-        property.setId(typeId);
+        property.setPropertyId(typeId);
     }
 
     @Field("BEDROOMS")

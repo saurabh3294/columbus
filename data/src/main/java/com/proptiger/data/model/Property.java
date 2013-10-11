@@ -17,7 +17,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 public class Property implements BaseModel {
     @FieldMetaInfo( displayName = "Id",  description = "Property Id")
     @Field(value="TYPE_ID")
-    private int id;
+    private int propertyId;
 
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value="PROJECT_ID")
@@ -60,14 +60,6 @@ public class Property implements BaseModel {
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     private Project project;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public int getProjectId() {
         return projectId;
@@ -147,5 +139,13 @@ public class Property implements BaseModel {
 
     public void setProject(Project project) {
         this.project = project;
+    }
+
+    public int getPropertyId() {
+        return propertyId;
+    }
+
+    public void setPropertyId(int propertyId) {
+        this.propertyId = propertyId;
     }
 }
