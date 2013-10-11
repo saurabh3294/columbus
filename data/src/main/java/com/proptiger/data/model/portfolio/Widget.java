@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -12,6 +14,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import com.proptiger.data.model.resource.NamedResource;
+import com.proptiger.data.model.resource.Resource;
 
 /**
  * Model object for widget resource
@@ -20,7 +23,7 @@ import com.proptiger.data.model.resource.NamedResource;
  */
 @Entity
 @Table(name = "widgets")
-public class Widget implements NamedResource{
+public class Widget implements NamedResource, Resource{
 
 	@Id
 	@Column(name = "id")
@@ -37,7 +40,8 @@ public class Widget implements NamedResource{
 	private String content;
 	
 	@Column(name = "type")
-	private String type;
+	@Enumerated(EnumType.STRING)
+	private WidgetType type;
 	
 	@Column(name = "created_at")
 	private Date createdAt;
@@ -96,14 +100,14 @@ public class Widget implements NamedResource{
 	/**
 	 * @return the type
 	 */
-	public String getType() {
+	public WidgetType getType() {
 		return type;
 	}
 
 	/**
 	 * @param type the type to set
 	 */
-	public void setType(String type) {
+	public void setType(WidgetType type) {
 		this.type = type;
 	}
 

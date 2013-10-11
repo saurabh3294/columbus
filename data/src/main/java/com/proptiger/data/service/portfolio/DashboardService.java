@@ -1,6 +1,6 @@
 package com.proptiger.data.service.portfolio;
 
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -11,10 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.dto.DashboardDto;
 import com.proptiger.data.model.portfolio.Dashboard;
+import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
+import com.proptiger.data.model.portfolio.WidgetDisplayStatus;
+import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 import com.proptiger.data.repo.portfolio.DashboardDao;
+import com.proptiger.data.repo.portfolio.DashboardWidgetMappingDao;
+import com.proptiger.data.repo.portfolio.WidgetDao;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
+import com.proptiger.exception.DuplicateResourceException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -29,7 +35,10 @@ public class DashboardService extends AbstractService{
 	
 	@Autowired
 	private DashboardDao dashboardDao;
-
+	@Autowired
+	private WidgetDao widgetDao;
+	@Autowired
+	private DashboardWidgetMappingDao dashboardWidgetMappingDao;
 	/**
 	 * Finds all dashboard for given user id
 	 * @param userId
@@ -59,12 +68,37 @@ public class DashboardService extends AbstractService{
 		}
 		return result;
 	}
+	/**
+	 * Find a dashboard widget mapping
+	 * @param userId
+	 * @param dashboardId
+	 * @param widgetId
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public DashboardWidgetMapping getSingleWidgetMapping(Integer userId, Integer dashboardId, Integer widgetId){
+		Dashboard dashboard = getDashboardById(userId, dashboardId);
+		DashboardWidgetMapping toFind = null;
+		if(dashboard.getWidgets() != null){
+			for(DashboardWidgetMapping present: dashboard.getWidgets()){
+				if(present.getId().equals(widgetId)){
+					toFind = present;
+					break;
+				}
+			}
+		}
+		if(toFind == null){
+			logger.error("Widget id {} not found for dashboard id {}",widgetId, dashboardId);
+			throw new ResourceNotAvailableException("Resource not available");
+		}
+		return toFind;
+	}
 	
 	/* (non-Javadoc)
 	 * @see com.proptiger.data.service.portfolio.AbstractService#preProcessCreate(com.proptiger.data.model.resource.Resource)
 	 */
 	@Override
-	protected <T extends Resource> void preProcessCreate(T resource) {
+	protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
 		super.preProcessCreate(resource);
 		Dashboard toCreate = (Dashboard)resource;
 		Dashboard dashboardPresent = dashboardDao.findByNameAndUserId(toCreate.getName(), toCreate.getUserId());
@@ -77,7 +111,7 @@ public class DashboardService extends AbstractService{
 	/**
 	 * Updating a dashboard resource
 	 * @param dashboardDto
-	 * @throws ResourceNotAvailableException
+	 * @throws ``
 	 * @return
 	 */
 	@Transactional(rollbackFor = ResourceNotAvailableException.class)
@@ -111,7 +145,7 @@ public class DashboardService extends AbstractService{
 	}
 	
 	/**
-	 * Deletes a dashboard resource from data store
+	 * Deletes a dashboard resource from data store and all its association with widgets
 	 * @throws ResourceNotAvailableException
 	 * @param userId
 	 * @param dashboardId
@@ -120,10 +154,19 @@ public class DashboardService extends AbstractService{
 	@Transactional(rollbackFor = ResourceNotAvailableException.class)
 	public Dashboard deleteDashboard(Integer userId, Integer dashboardId){
 		Dashboard deleted = getDashboardById(userId, dashboardId);
+		List<DashboardWidgetMapping> widgetMappings = deleted.getWidgets();
+		/*
+		 * First need to delete widgets association with this dashboard object 
+		 */
+		dashboardWidgetMappingDao.delete(widgetMappings);
+		/*
+		 * Now dashboard object can be deleted
+		 */
 		dashboardDao.delete(deleted);
 		return deleted;
 	}
 	
+	@Transactional(rollbackFor = ConstraintViolationException.class)
 	public Dashboard createDashboard(DashboardDto dashboardDto){
 		logger.debug("Creating dashboard for userid {}",dashboardDto.getUserId());
 		Dashboard dashboard = Dashboard
@@ -132,21 +175,51 @@ public class DashboardService extends AbstractService{
 				.setTotalRows(dashboardDto.getTotalRow()).build();
 		
 		Dashboard created = create(dashboard);
+		/*
+		 * creating dashboard and widget association
+		 */
+		List<DashboardWidgetMapping> widgetMappings = createDashboardWidgetMappings(created.getId(), dashboardDto.getWidgets());
+		created.setWidgets(widgetMappings);
 		return created;
 	}
 	
-	@Override
+	/**
+	 * Creating dashboard and widget mappings
+	 * @param created
+	 */
 	@Transactional(rollbackFor = ConstraintViolationException.class)
+	private List<DashboardWidgetMapping> createDashboardWidgetMappings(Integer dashboardId, List<DashboardWidgetMapping> toCreate) {
+		
+		List<DashboardWidgetMapping> createdWidgetsMapping = new ArrayList<DashboardWidgetMapping>();
+		if(toCreate != null){
+			for(DashboardWidgetMapping mapping: toCreate){
+				mapping.setDashboardId(dashboardId);
+				if(mapping.getStatus() == null){
+					mapping.setStatus(WidgetDisplayStatus.MAX);
+				}
+				
+			}
+			/*
+			 * Saving newly created dashboard and widget mapping
+			 */
+			createdWidgetsMapping = dashboardWidgetMappingDao.save(toCreate);
+		}
+		
+		return createdWidgetsMapping;
+	}
+	
+	@Override
 	protected <T extends Resource> T create(T resource) {
-		Dashboard dashboard = (Dashboard) resource;
-		preProcessCreate(dashboard);
+		Dashboard toCreate = (Dashboard) resource;
+		preProcessCreate(toCreate);
+		
 		Dashboard created = null;
 		try{
-			created = dashboardDao.save(dashboard);
+			created = dashboardDao.save(toCreate);
 		}catch(Exception exception){
 			throw new ConstraintViolationException(exception.getMessage(), exception);
 		}
-		logger.debug("Created dashboard id {} for userid {}",created.getId(),dashboard.getUserId());
+		logger.debug("Created dashboard id {} for userid {}",created.getId(),toCreate.getUserId());
 		return (T) created;
 	}
 
@@ -158,4 +231,107 @@ public class DashboardService extends AbstractService{
 		return (T) updated;
 	}
 
+	/**
+	 * This method is adding a widget association with dashboard, it will not over right the existing mapping, rather
+	 * it will add a new mapping in existing mappings
+	 * @param userId
+	 * @param dashboardId
+	 * @param dashboardWidgetMapping
+	 * @return
+	 */
+	@Transactional(rollbackFor = ResourceNotAvailableException.class)
+	public Dashboard createSingleWidget(Integer userId,
+			Integer dashboardId,
+			DashboardWidgetMapping dashboardWidgetMapping){
+		dashboardWidgetMapping.setId(null);
+		Dashboard dashboard = getDashboardById(userId, dashboardId);
+		if(dashboard.getWidgets() != null){
+			for(DashboardWidgetMapping existingMapping: dashboard.getWidgets()){
+				if (existingMapping.getWidgetId().equals(
+						dashboardWidgetMapping.getWidgetId())) {
+					logger.error("Duplicate mapping of dashboard id {} and widgetId {}",
+							dashboardId, existingMapping.getWidgetId());
+					throw new DuplicateResourceException(
+							"Mapping of dashboard id and widget id exist");
+				}
+			}
+		}
+		dashboardWidgetMapping.setDashboardId(dashboardId);
+		if(dashboardWidgetMapping.getStatus() == null){
+			dashboardWidgetMapping.setStatus(WidgetDisplayStatus.MAX);
+		}
+		DashboardWidgetMapping createdMapping = dashboardWidgetMappingDao.save(dashboardWidgetMapping);
+		dashboard.addWidget(createdMapping);
+		return dashboard;
+	}
+	/**
+	 * This method updates a dashboard widget mapping attribute
+	 * @param userId
+	 * @param dashboardId
+	 * @param widgetId
+	 * @param dashboardWidgetMapping
+	 * @return
+	 */
+	@Transactional(rollbackFor = ResourceNotAvailableException.class)
+	public Dashboard updateWidgetMappingWithDashboard(Integer userId,
+			Integer dashboardId,
+			Integer widgetId,
+			DashboardWidgetMapping dashboardWidgetMapping){
+		Dashboard dashboard = getDashboardById(userId, dashboardId);
+		DashboardWidgetMapping existingMapping = getDashboardWidgetMapping(dashboardId, widgetId);
+		existingMapping.update(dashboardWidgetMapping.getWidgetRowPosition(),
+				dashboardWidgetMapping.getWidgetColumnPosition(),
+				dashboardWidgetMapping.getStatus());
+		dashboard = getDashboardById(userId, dashboardId);
+		return dashboard;
+	}
+
+	/**
+	 * This method get a dashboard widget mapping based on dashboard id and widget id
+	 * @param dashboardId
+	 * @param widgetId
+	 * @return
+	 */
+	private DashboardWidgetMapping getDashboardWidgetMapping(Integer dashboardId, Integer widgetId) {
+		DashboardWidgetMapping existingMapping = dashboardWidgetMappingDao.findByDashboardIdAndWidgetId(dashboardId, widgetId);
+		if(existingMapping == null){
+			logger.error("DashboardWidgetMapping not found for dashboardId {} and widgetId {}",dashboardId, widgetId);
+			throw new ResourceNotAvailableException("Resource not available");
+		}
+		return existingMapping;
+	}
+	
+	/**
+	 * This method get all dashboards widget mapping for dashboard id
+	 * @param dashboardId
+	 * @param widgetId
+	 * @return
+	 */
+	private List<DashboardWidgetMapping> getAllWidgetMapping(Integer dashboardId) {
+		List<DashboardWidgetMapping> existingMappings = dashboardWidgetMappingDao.findByDashboardId(dashboardId);
+		if(existingMappings == null){
+			existingMappings = new ArrayList<DashboardWidgetMapping>();
+		}
+		return existingMappings;
+	}
+	
+	/**
+	 * This method deletes a widget association with dashboard
+	 * @param userId
+	 * @param dashboardId
+	 * @param widgetId
+	 * @param dashboardWidgetMapping
+	 * @return
+	 */
+	@Transactional(rollbackFor = ResourceNotAvailableException.class)
+	public Dashboard deleteWidgetMappingWithDashboard(Integer userId,
+			Integer dashboardId,
+			Integer widgetId,
+			DashboardWidgetMapping dashboardWidgetMapping){
+		Dashboard dashboard = getDashboardById(userId, dashboardId);
+		DashboardWidgetMapping existingMapping = getDashboardWidgetMapping(dashboardId, widgetId);
+		dashboardWidgetMappingDao.delete(existingMapping);
+		dashboard = getDashboardById(userId, dashboardId);
+		return dashboard;
+	}
 }

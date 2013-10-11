@@ -1,5 +1,6 @@
 package com.proptiger.data.model.portfolio;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import javax.persistence.Table;
 
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.resource.NamedResource;
+import com.proptiger.data.model.resource.Resource;
 
 /**
  * Dashboard model object
@@ -26,7 +28,7 @@ import com.proptiger.data.model.resource.NamedResource;
  */
 @Entity
 @Table(name = "dashboards")
-public class Dashboard implements NamedResource{
+public class Dashboard implements NamedResource, Resource{
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -144,6 +146,13 @@ public class Dashboard implements NamedResource{
 	 */
 	public void setWidgets(List<DashboardWidgetMapping> widgets) {
 		this.widgets = widgets;
+	}
+	
+	public void addWidget(DashboardWidgetMapping widget) {
+		if(this.widgets == null){
+			this.widgets = new ArrayList<>();
+		}
+		this.widgets.add(widget);
 	}
 
 	public static Builder getBuilder(String name, Integer userId){

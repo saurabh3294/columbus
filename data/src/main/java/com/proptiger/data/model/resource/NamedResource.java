@@ -5,7 +5,7 @@ package com.proptiger.data.model.resource;
  * @author Rajeev Pandey
  *
  */
-public interface NamedResource extends Resource{
+public interface NamedResource{
 
 	public String getName();
 	public void setName(String name);

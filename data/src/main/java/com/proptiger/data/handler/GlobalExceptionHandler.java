@@ -20,6 +20,7 @@ import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
+import com.proptiger.exception.DuplicateResourceException;
 import com.proptiger.exception.InvalidResourceNameException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
@@ -104,8 +105,16 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleDuplicateNameResourceException(DuplicateNameResourceException exception) {
-		logger.error("handle DuplicateResourceException - Caching ", exception);
+		logger.error("handle DuplicateNameResourceException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_NAME_RESOURCE);
+	}
+	
+	@ExceptionHandler(DuplicateResourceException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleDuplicateResourceException(DuplicateResourceException exception) {
+		logger.error("handle DuplicateResourceException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_RESOURCE);
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class)

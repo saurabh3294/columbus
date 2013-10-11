@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.model.portfolio.OverallReturn;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioProperty;
+import com.proptiger.data.model.portfolio.ReturnType;
+import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 import com.proptiger.data.repo.portfolio.PortfolioPropertyDao;
 import com.proptiger.exception.ConstraintViolationException;
@@ -38,12 +41,55 @@ public class PortfolioPropertyService extends AbstractService{
 	public Portfolio getPortfolioByUserId(Integer userId){
 		Portfolio portfolio = new Portfolio();
 		List<PortfolioProperty> properties = portfolioPropertyDao.findByUserId(userId);
-		
-		double originalValue = getTotalOriginalValue(properties);
+		updatePriceInfoInPortfolio(portfolio, properties);
 		portfolio.setProperties(properties);
-		portfolio.setOriginalVaue(originalValue);
-		
 		return portfolio;
+	}
+	/**
+	 * Updates price information in Portfolio object
+	 * @param portfolio
+	 * @param properties
+	 */
+	private void updatePriceInfoInPortfolio(Portfolio portfolio,
+			List<PortfolioProperty> properties) {
+		double originalValue = 0.0D;
+		double currentValue = 0.0D;
+		if(properties != null){
+			for(PortfolioProperty property: properties){
+				originalValue += property.getTotalPrice();
+				property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
+				currentValue += property.getCurrentPrice();
+			}
+		}
+		portfolio.setCurrentValue(currentValue);
+		portfolio.setOriginalVaue(originalValue);
+		OverallReturn overallReturn = getOverAllReturn(originalValue,
+				currentValue);
+		portfolio.setOverallReturn(overallReturn );
+	}
+	/**
+	 * Calculates the overall return 
+	 * @param originalValue
+	 * @param currentValue
+	 * @return
+	 */
+	private OverallReturn getOverAllReturn(double originalValue,
+			double currentValue) {
+		OverallReturn overallReturn = new OverallReturn();
+		double changeAmt = currentValue - originalValue;
+		overallReturn.setChangeAmount(Math.abs(changeAmt));
+		double changePercent = (Math.abs(changeAmt)/originalValue)*100;
+		overallReturn.setChangePercent(changePercent);
+		if(changeAmt < 0){
+			overallReturn.setReturnType(ReturnType.DECLINE);
+		}
+		else if(changeAmt > 0){
+			overallReturn.setReturnType(ReturnType.APPRECIATION);
+		}
+		else{
+			overallReturn.setReturnType(ReturnType.NOCHANGE);
+		}
+		return overallReturn;
 	}
 	/**
 	 * @param userId
@@ -52,21 +98,12 @@ public class PortfolioPropertyService extends AbstractService{
 	@Transactional(readOnly = true)
 	public List<PortfolioProperty> getAllProperties(Integer userId){
 		List<PortfolioProperty> properties = portfolioPropertyDao.findByUserId(userId);
-		return properties;
-	}
-	/**
-	 * Calculating total original price
-	 * @param properties
-	 * @return
-	 */
-	private double getTotalOriginalValue(List<PortfolioProperty> properties) {
-		double value = 0.0D;
 		if(properties != null){
 			for(PortfolioProperty property: properties){
-				value += property.getTotalPrice();
+				property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
 			}
 		}
-		return value;
+		return properties;
 	}
 	/**
 	 * Get a PortfolioProperty for particular user id and PortfolioProperty id
@@ -81,11 +118,12 @@ public class PortfolioPropertyService extends AbstractService{
 			logger.error("Dashboard id {} not found for userid {}",propertyId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
+		property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
 		return property;
 	}
 
 	@Override
-	protected <T extends Resource> void preProcessCreate(T resource) {
+	protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
 		super.preProcessCreate(resource);
 		PortfolioProperty toCreate = (PortfolioProperty) resource;
 		PortfolioProperty propertyPresent = portfolioPropertyDao.findByUserIdAndName(toCreate.getUserId(), toCreate.getName());

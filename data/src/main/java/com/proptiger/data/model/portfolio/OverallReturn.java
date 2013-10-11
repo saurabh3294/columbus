@@ -1,8 +1,10 @@
 package com.proptiger.data.model.portfolio;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.util.DoubletoIntegerConverter;
 
 /**
  * @author Rajeev Pandey
@@ -14,6 +16,7 @@ public class OverallReturn {
 	private ReturnType returnType;
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "changeAmount", description = "Change Amount")
+	@JsonSerialize(converter=DoubletoIntegerConverter.class)
 	private double changeAmount;
 	
 	@FieldMetaInfo(displayName = "changePercent", description = "Change Percent")
