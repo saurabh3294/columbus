@@ -1,7 +1,5 @@
 package com.proptiger.data.service.portfolio;
 
-import java.io.Serializable;
-
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 import com.proptiger.exception.InvalidResourceNameException;
@@ -32,10 +30,18 @@ public abstract class AbstractService {
 	 * Override this method if particular service need different validations
 	 * @param resource
 	 */
-	protected <T extends Resource> void preProcessCreate(T resource){
-		validateName((NamedResource) resource);
+	protected <T extends Resource & NamedResource> void preProcessCreate(T resource){
+		validateName(resource);
 		//setting id to null as it will be auto generated, so ignoring its value if passed in request body
 		resource.setId(null);
+	}
+	
+	/**
+	 * This method is a place holder for post process work after creating a resource
+	 * @param resource
+	 */
+	protected <T extends Resource> void postProcessCreate(T resource){
+
 	}
 	
 	/**
@@ -53,7 +59,7 @@ public abstract class AbstractService {
 	 * Validating id part of resource, that should not be null, this is pre check before update
 	 * @param resource
 	 */
-	private void validateId(Resource resource) {
+	protected void validateId(Resource resource) {
 		if(resource.getId() == null){
 			throw new ResourceNotAvailableException("Resource "+resource.getId()+" not available");
 		}
@@ -63,7 +69,7 @@ public abstract class AbstractService {
 	 * This method is to validate that resource should have a valid name
 	 * @param resource
 	 */
-	private void validateName(NamedResource resource) {
+	protected void validateName(NamedResource resource) {
 		if(resource.getName() == null || "".equals(resource.getName())){
 			throw new InvalidResourceNameException("Inva");
 		}

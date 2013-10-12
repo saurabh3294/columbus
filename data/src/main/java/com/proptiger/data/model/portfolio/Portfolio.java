@@ -2,9 +2,11 @@ package com.proptiger.data.model.portfolio;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.util.DoubletoIntegerConverter;
 
 /**
  * @author Rajeev Pandey
@@ -14,9 +16,11 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 public class Portfolio {
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "originalVaue", description = "Original Vaue")
+	@JsonSerialize(converter=DoubletoIntegerConverter.class)
 	private double originalVaue;
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "currentValue", description = "Current Value")
+	@JsonSerialize(converter=DoubletoIntegerConverter.class)
 	private double currentValue;
 	
 	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")

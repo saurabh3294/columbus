@@ -13,9 +13,11 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.resource.Resource;
 
 /**
  * @author Rajeev Pandey
@@ -24,16 +26,17 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "dashboard_widget_mapping")
 @ResourceMetaInfo(name = "DashboardWidgetMapping")
-public class DashboardWidgetMapping {
+public class DashboardWidgetMapping implements Resource{
 
 	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@FieldMetaInfo( displayName = "Dashboard Widget Mapping Id",  description = "Dashboard Widget Mapping Id")
+	@JsonIgnore//ignoring this field from serialization as this is not needed
 	private Integer id;
 	
 	@Column(name = "dashboard_id")
 	@FieldMetaInfo( displayName = "Dashboard Id",  description = "Dashboard Id")
+	@JsonIgnore//ignoring this field from serialization as this object will be pard of Dashboard object
 	private Integer dashboardId;
 	
 	@Column(name = "widget_id")
@@ -54,11 +57,9 @@ public class DashboardWidgetMapping {
 	private WidgetDisplayStatus status;
 	
 	@Column(name = "created_at")
-	@FieldMetaInfo( displayName = "Created Time",  description = "Created Time")
 	private Date createdAt;
 	
 	@Column(name = "updated_at")
-	@FieldMetaInfo( displayName = "Updated Time",  description = "Updated Time")
 	private Date updatedAt;
 
 	/**
@@ -130,6 +131,11 @@ public class DashboardWidgetMapping {
 	public void setStatus(WidgetDisplayStatus status) {
 		this.status = status;
 	}
+	public void update(int widgetRowPosition, int widgetColumnPosition, WidgetDisplayStatus status){
+		this.widgetRowPosition = widgetRowPosition;
+		this.widgetColumnPosition = widgetColumnPosition;
+		this.status = status;
+	}
 	@PreUpdate
     public void preUpdate(){
     	updatedAt = new Date();
@@ -139,5 +145,14 @@ public class DashboardWidgetMapping {
     	createdAt = new Date();
     	updatedAt = createdAt;
     }
-	
+
+	@Override
+	public Integer getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(Integer id) {
+		this.id = id;
+	}
 }

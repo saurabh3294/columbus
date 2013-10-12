@@ -1,7 +1,11 @@
 package com.proptiger.data.dto;
 
+import java.util.List;
+
+import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.model.resource.Resource;
 
 /**
@@ -10,7 +14,7 @@ import com.proptiger.data.model.resource.Resource;
  *
  */
 @ResourceMetaInfo(name = "Dashboard")
-public class DashboardDto implements Resource{
+public class DashboardDto{
 	@FieldMetaInfo( displayName = "Dashboard Id",  description = "Dashboard Id")
 	private Integer id;
 	
@@ -26,6 +30,8 @@ public class DashboardDto implements Resource{
 	@FieldMetaInfo( displayName = "User Id",  description = "User Id")
 	private Integer userId;
 	
+	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "Widgets",  description = "Widgets")
+	private List<DashboardWidgetMapping> widgets;
 	/**
 	 * @return the id
 	 */
@@ -86,4 +92,17 @@ public class DashboardDto implements Resource{
 	public void setUserId(Integer userId) {
 		this.userId = userId;
 	}
+	/**
+	 * @return the widgets
+	 */
+	public List<DashboardWidgetMapping> getWidgets() {
+		return widgets;
+	}
+	/**
+	 * @param widgets the widgets to set
+	 */
+	public void setWidgets(List<DashboardWidgetMapping> widgets) {
+		this.widgets = widgets;
+	}
+	
 }

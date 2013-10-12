@@ -16,6 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -23,6 +24,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.resource.NamedResource;
+import com.proptiger.data.model.resource.Resource;
 
 /**
  * This is a model object corresponding to a addressable property
@@ -32,7 +34,7 @@ import com.proptiger.data.model.resource.NamedResource;
 @Entity
 @Table(name = "portfolio_property")
 @ResourceMetaInfo(name = "PortfolioProperty")
-public class PortfolioProperty implements NamedResource{
+public class PortfolioProperty implements NamedResource, Resource{
 
 	@Id
 	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
@@ -75,6 +77,10 @@ public class PortfolioProperty implements NamedResource{
 	@FieldMetaInfo(displayName = "Total Price", description = "Total Price")
 	@Column(name = "total_price")
 	private Double totalPrice;
+	
+	@FieldMetaInfo(displayName = "Current Price", description = "Current Price")
+	@Transient
+	private Double currentPrice;
 	
 	@FieldMetaInfo(displayName = "Goal Amount", description = "Goal Amount")
 	@Column(name = "goal_amount")
@@ -366,7 +372,6 @@ public class PortfolioProperty implements NamedResource{
 
 	@Override
 	public String getName() {
-		// TODO Auto-generated method stub
 		return name;
 	}
 
@@ -375,6 +380,20 @@ public class PortfolioProperty implements NamedResource{
 		this.name = name;
 		
 	}
+	/**
+	 * @return the currentPrice
+	 */
+	public Double getCurrentPrice() {
+		return currentPrice;
+	}
+
+	/**
+	 * @param currentPrice the currentPrice to set
+	 */
+	public void setCurrentPrice(Double currentPrice) {
+		this.currentPrice = currentPrice;
+	}
+
 	@PreUpdate
     public void preUpdate(){
     	updatedAt = new Date();
