@@ -6,18 +6,29 @@ import requests
 import MySQLdb as mysql
 import multiprocessing
 
-# Problems
-# 1. Handle Null in IMAGE_CATEGORY                      [ Solved ] - Automatically will not be selected
-# 2. Locality_Images has multiple images per object_id  [ Solved ]
+# Problems:
+# 1. imageType strings in ImageType table and PROJECT_PLAN_IMAGES table doesn't match   [ Solved ]
+# 2. objectID i.e. PROJECT_ID is not unique id of the table                             [ Solved ]
 
 # Configurations
 ###################################################
 env = 'develop'
 config = dict(
-    processes   =   5,
+    processes   =   1,
     objectInfo  =   {
-                        'objectType'    :   'locality',
-                        'imageType'     :   ['mall', 'road', 'school', 'hospital', 'other'],
+                        'objectType'    :   'project',
+                        'imageType'     :   [
+                                                'applicationForm',
+                                                'clusterPlan',
+                                                'constructionStatus',
+                                                'layoutPlan',
+                                                'locationPlan',
+                                                'main',
+                                                'masterPlan',
+                                                'paymentPlan',
+                                                'priceList',
+                                                'sitePlan'
+                                            ],
                         'addWaterMark'  :   'true'
                     },
     env         =   {
@@ -60,6 +71,20 @@ class Object(object):
     cur = conn.cursor()
     conn.autocommit(True)
 
+    # `PROJECT_PLAN_IMAGES` translation
+    type_translate = dict(
+        main                = 'Project Image', 
+        masterPlan          = 'Master Plan', 
+        locationPlan        = 'Location Plan', 
+        clusterPlan         = 'Cluster Plan', 
+        constructionStatus  = 'Construction Status', 
+        layoutPlan          = 'Layout Plan', 
+        paymentPlan         = 'Payment Plan', 
+        sitePlan            = 'Site Plan', 
+        priceList           = 'Price List', 
+        applicationForm     = 'Application Form'
+    )
+
     def __init__(self, object_type, image_type, add_watermark):
         self.objectType = object_type
         self.imageType = image_type
@@ -67,7 +92,8 @@ class Object(object):
 
     @property
     def images(self):
-        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID, IMAGE_DISPLAY_NAME, IMAGE_DESCRIPTION FROM `proptiger`.`LOCALITY_IMAGE` WHERE IMAGE_CATEGORY='%s' AND migration_status!='Done';" % self.imageType
+        sql = "SELECT PROJECT_ID, PLAN_IMAGE, TITLE, PROJECT_PLAN_ID FROM `proptiger`.`PROJECT_PLAN_IMAGES` WHERE PLAN_TYPE='%s' AND STATUS='1' AND migration_status!='Done' AND PROJECT_ID = 1;"
+        sql = sql % Object.type_translate[self.imageType]
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
@@ -76,16 +102,15 @@ class Object(object):
                 objectId        = i[0],
                 imageType       = self.imageType,
                 path            = config['env'][env]['images_dir'] + i[1],
-                uniq_id         = i[2],
-                title           = i[3],
-                description     = i[4],
+                title           = i[2],
+                uniq_id         = i[3],
                 addWaterMark    = self.addWaterMark
             )
             yield img
 
     @classmethod
     def update_status(cls, status, obj_id):
-        sql = "UPDATE `proptiger`.`LOCALITY_IMAGE` SET `migration_status` = %s WHERE `LOCALITY_IMAGE`.`IMAGE_ID` = %s;"
+        sql = "UPDATE `proptiger`.`PROJECT_PLAN_IMAGES` SET `migration_status` = %s WHERE `PROJECT_PLAN_IMAGES`.`PROJECT_PLAN_ID` = %s;"
         Object.cur.execute(sql, (status, obj_id))
 
 
