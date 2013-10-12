@@ -6,6 +6,11 @@ import requests
 import MySQLdb as mysql
 import multiprocessing
 
+# Problems:
+# 1. objectID i.e. FLOOR_PLAN_ID is not unique id of the table                      [ Solved ]
+# 2. Add '-bkp' to image names, fall back to original name if '-bkp' not found      [ Solved ]
+# 3. We beleive all the gif images are already watermarked                          [ Solved ]
+
 # Configurations
 ###################################################
 env = 'develop'
