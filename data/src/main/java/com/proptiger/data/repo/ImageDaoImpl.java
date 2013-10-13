@@ -24,7 +24,7 @@ import com.proptiger.data.model.image.ImageType;
 import com.proptiger.data.util.ImageUtil;
 
 @Repository
-public class ImageDaoHelper {
+public class ImageDaoImpl {
     @Autowired
     private EntityManagerFactory emf;
 
@@ -83,20 +83,18 @@ public class ImageDaoHelper {
             // DateTime
             image.setOriginalHash(originalHash);
             image.setWaterMarkHash(watermarkHash);
-            image.setOriginalName(originalHash + "." + ImageUtil.getImageFormat(orignalImage));
+            image.assignOriginalName(ImageUtil.getImageFormat(orignalImage));
             image.setWaterMarkName("");
             image.setActive(false);
             em.getTransaction().begin();
             em.persist(image);
             em.getTransaction().commit();
-            image.generateWaterMarkName();
+            image.assignWatermarkName();
             
             // ExtraInfo
             image.setAltText(extraInfo.get("altText"));
             image.setTitle(extraInfo.get("title"));
             image.setDescription(extraInfo.get("description"));
-            Integer priority = (extraInfo.get("priority") != null)? Integer.parseInt(extraInfo.get("priority")):null;
-            image.setPriority(priority);
             
             return image;
         } catch (Exception e) {

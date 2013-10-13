@@ -11,61 +11,43 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.proptiger.data.util.ImageUtil;
 
 @Entity(name = "Image")
 @Access(AccessType.FIELD)
 public class Image {
 	@Id
-	@Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
 	@ManyToOne
 	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
 	private ImageType imageType;
-	
+
 	@Column(name = "ImageType_id")
-	private long imageTypeId;
+    private long imageTypeId;
 	
 	@Column(name = "object_id")
 	private long objectId;
 	
-	@Column(name = "path")
 	private String path;
-	
+
+    public void assignWatermarkName() {
+        waterMarkName = id + ".jpg";
+    }
+
+    public void assignOriginalName(String format) {
+        originalName = originalHash + '.' + format;
+    }
+
 	@JsonProperty
-	@Transient
-	private String waterMarkAbsolutePath;
-	
-	@JsonIgnore
-	public String getOriginalPath() {
-		return path + originalName;
-	}
-	
-	@JsonIgnore
-	public void generateWaterMarkName() {
-		this.waterMarkName = id + ".jpeg";
-	}
-	
-	@JsonIgnore
-	@Column
-	public String getWaterMarkPath() {
-		return path + waterMarkName;
-	}
-	
-	public void setWaterMarkAbsolutePath(String endpoint, String bucket) {
-		this.waterMarkAbsolutePath = endpoint + "/" + bucket + "/" + path + waterMarkName;
-	}
-	
-	@JsonProperty
-	public String getWaterMarkAbsolutePath(String endpoint, String bucket) {
-		return waterMarkAbsolutePath;
-	}
-	
+    public String getAbsolutePath() {
+        return ImageUtil.endpoint + "/" + ImageUtil.bucket + "/" + path + waterMarkName;
+    }
+
 	@Column(name = "created_at")
 	private Date createdAt;
 	
@@ -75,368 +57,217 @@ public class Image {
 	@Column(name = "size_in_bytes")
 	private long sizeInBytes;
 	
-	@Column(name = "width")
 	private int width;
 	
-	@Column(name = "height")
 	private int height;
 	
-	@Column(name = "latitude", nullable = true)
 	private Double latitude;
 	
-	@Column(name = "longitude", nullable = true)
 	private Double longitude;
 	
 	@Column(name = "alt_text", nullable = true)
 	private String altText;
 	
-	@Column(name = "title", nullable = true)
 	private String title;
 	
-	@Column(name = "description", nullable = true)
 	private String description;
 	
 	@Column(name = "json_dump", nullable = true)
 	private String jsonDump;
 	
-	@Column(name = "priority", nullable = true)
 	private Integer priority;
-	
+
 	@Column(name = "original_hash")
+	@JsonIgnore
 	private String originalHash;
-	
+
+	@Column(name = "original_name")
+    @JsonIgnore
+    private String originalName;
+
+	@JsonIgnore
 	@Column(name = "watermark_hash")
 	private String waterMarkHash;
-	
-	@Column(name = "original_name")
-	private String originalName;
-	
+
+	@JsonIgnore
 	@Column(name = "watermark_name")
 	private String waterMarkName;
 
-	@Column(name = "active")
 	private boolean active;
 
-	/**
-	 * @return the id
-	 */
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	/**
-	 * @return the imageType
-	 */
-	public ImageType getImageType() {
-		return imageType;
-	}
+    public ImageType getImageType() {
+        return imageType;
+    }
 
-	/**
-	 * @param imageType the imageType to set
-	 */
-	public void setImageType(ImageType imageType) {
-		this.imageType = imageType;
-	}
+    public void setImageType(ImageType imageType) {
+        this.imageType = imageType;
+    }
 
-	/**
-	 * @return the imageTypeId
-	 */
-	public long getImageTypeId() {
-		return imageTypeId;
-	}
+    public long getImageTypeId() {
+        return imageTypeId;
+    }
 
-	/**
-	 * @param imageTypeId the imageTypeId to set
-	 */
-	public void setImageTypeId(long imageTypeId) {
-		this.imageTypeId = imageTypeId;
-	}
+    public void setImageTypeId(long imageTypeId) {
+        this.imageTypeId = imageTypeId;
+    }
 
-	/**
-	 * @return the objectId
-	 */
-	public long getObjectId() {
-		return objectId;
-	}
+    public long getObjectId() {
+        return objectId;
+    }
 
-	/**
-	 * @param objectId the objectId to set
-	 */
-	public void setObjectId(long objectId) {
-		this.objectId = objectId;
-	}
+    public void setObjectId(long objectId) {
+        this.objectId = objectId;
+    }
 
-	/**
-	 * @return the path
-	 */
-	public String getPath() {
-		return path;
-	}
+    public String getPath() {
+        return path;
+    }
 
-	/**
-	 * @param path the path to set
-	 */
-	public void setPath(String path) {
-		this.path = path;
-	}
+    public void setPath(String path) {
+        this.path = path;
+    }
 
-	/**
-	 * @return the waterMarkAbsolutePath
-	 */
-	public String getWaterMarkAbsolutePath() {
-		return waterMarkAbsolutePath;
-	}
+    public Date getCreatedAt() {
+        return createdAt;
+    }
 
-	/**
-	 * @param waterMarkAbsolutePath the waterMarkAbsolutePath to set
-	 */
-	public void setWaterMarkAbsolutePath(String waterMarkAbsolutePath) {
-		this.waterMarkAbsolutePath = waterMarkAbsolutePath;
-	}
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
-	/**
-	 * @return the createdAt
-	 */
-	public Date getCreatedAt() {
-		return createdAt;
-	}
+    public Date getTakenAt() {
+        return takenAt;
+    }
 
-	/**
-	 * @param createdAt the createdAt to set
-	 */
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setTakenAt(Date takenAt) {
+        this.takenAt = takenAt;
+    }
 
-	/**
-	 * @return the takenAt
-	 */
-	public Date getTakenAt() {
-		return takenAt;
-	}
+    public long getSizeInBytes() {
+        return sizeInBytes;
+    }
 
-	/**
-	 * @param takenAt the takenAt to set
-	 */
-	public void setTakenAt(Date takenAt) {
-		this.takenAt = takenAt;
-	}
+    public void setSizeInBytes(long sizeInBytes) {
+        this.sizeInBytes = sizeInBytes;
+    }
 
-	/**
-	 * @return the sizeInBytes
-	 */
-	public long getSizeInBytes() {
-		return sizeInBytes;
-	}
+    public int getWidth() {
+        return width;
+    }
 
-	/**
-	 * @param sizeInBytes the sizeInBytes to set
-	 */
-	public void setSizeInBytes(long sizeInBytes) {
-		this.sizeInBytes = sizeInBytes;
-	}
+    public void setWidth(int width) {
+        this.width = width;
+    }
 
-	/**
-	 * @return the width
-	 */
-	public int getWidth() {
-		return width;
-	}
+    public int getHeight() {
+        return height;
+    }
 
-	/**
-	 * @param width the width to set
-	 */
-	public void setWidth(int width) {
-		this.width = width;
-	}
+    public void setHeight(int height) {
+        this.height = height;
+    }
 
-	/**
-	 * @return the height
-	 */
-	public int getHeight() {
-		return height;
-	}
+    public Double getLatitude() {
+        return latitude;
+    }
 
-	/**
-	 * @param height the height to set
-	 */
-	public void setHeight(int height) {
-		this.height = height;
-	}
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
 
-	/**
-	 * @return the latitude
-	 */
-	public Double getLatitude() {
-		return latitude;
-	}
+    public Double getLongitude() {
+        return longitude;
+    }
 
-	/**
-	 * @param latitude the latitude to set
-	 */
-	public void setLatitude(Double latitude) {
-		this.latitude = latitude;
-	}
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
 
-	/**
-	 * @return the longitude
-	 */
-	public Double getLongitude() {
-		return longitude;
-	}
+    public String getAltText() {
+        return altText;
+    }
 
-	/**
-	 * @param longitude the longitude to set
-	 */
-	public void setLongitude(Double longitude) {
-		this.longitude = longitude;
-	}
+    public void setAltText(String altText) {
+        this.altText = altText;
+    }
 
-	/**
-	 * @return the altText
-	 */
-	public String getAltText() {
-		return altText;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	/**
-	 * @param altText the altText to set
-	 */
-	public void setAltText(String altText) {
-		this.altText = altText;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	/**
-	 * @return the title
-	 */
-	public String getTitle() {
-		return title;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	/**
-	 * @param title the title to set
-	 */
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	/**
-	 * @return the description
-	 */
-	public String getDescription() {
-		return description;
-	}
+    public String getJsonDump() {
+        return jsonDump;
+    }
 
-	/**
-	 * @param description the description to set
-	 */
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setJsonDump(String jsonDump) {
+        this.jsonDump = jsonDump;
+    }
 
-	/**
-	 * @return the jsonDump
-	 */
-	public String getJsonDump() {
-		return jsonDump;
-	}
+    public Integer getPriority() {
+        return priority;
+    }
 
-	/**
-	 * @param jsonDump the jsonDump to set
-	 */
-	public void setJsonDump(String jsonDump) {
-		this.jsonDump = jsonDump;
-	}
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
 
-	/**
-	 * @return the priority
-	 */
-	public Integer getPriority() {
-		return priority;
-	}
+    public String getOriginalHash() {
+        return originalHash;
+    }
 
-	/**
-	 * @param priority the priority to set
-	 */
-	public void setPriority(Integer priority) {
-		this.priority = priority;
-	}
+    public void setOriginalHash(String originalHash) {
+        this.originalHash = originalHash;
+    }
 
-	/**
-	 * @return the originalHash
-	 */
-	public String getOriginalHash() {
-		return originalHash;
-	}
+    public String getOriginalName() {
+        return originalName;
+    }
 
-	/**
-	 * @param originalHash the originalHash to set
-	 */
-	public void setOriginalHash(String originalHash) {
-		this.originalHash = originalHash;
-	}
+    public void setOriginalName(String originalName) {
+        this.originalName = originalName;
+    }
 
-	/**
-	 * @return the waterMarkHash
-	 */
-	public String getWaterMarkHash() {
-		return waterMarkHash;
-	}
+    public String getWaterMarkHash() {
+        return waterMarkHash;
+    }
 
-	/**
-	 * @param waterMarkHash the waterMarkHash to set
-	 */
-	public void setWaterMarkHash(String waterMarkHash) {
-		this.waterMarkHash = waterMarkHash;
-	}
+    public void setWaterMarkHash(String waterMarkHash) {
+        this.waterMarkHash = waterMarkHash;
+    }
 
-	/**
-	 * @return the originalName
-	 */
-	public String getOriginalName() {
-		return originalName;
-	}
+    public String getWaterMarkName() {
+        return waterMarkName;
+    }
 
-	/**
-	 * @param originalName the originalName to set
-	 */
-	public void setOriginalName(String originalName) {
-		this.originalName = originalName;
-	}
+    public void setWaterMarkName(String waterMarkName) {
+        this.waterMarkName = waterMarkName;
+    }
 
-	/**
-	 * @return the waterMarkName
-	 */
-	public String getWaterMarkName() {
-		return waterMarkName;
-	}
+    public boolean isActive() {
+        return active;
+    }
 
-	/**
-	 * @param waterMarkName the waterMarkName to set
-	 */
-	public void setWaterMarkName(String waterMarkName) {
-		this.waterMarkName = waterMarkName;
-	}
-
-	/**
-	 * @return the active
-	 */
-	public boolean isActive() {
-		return active;
-	}
-
-	/**
-	 * @param active the active to set
-	 */
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

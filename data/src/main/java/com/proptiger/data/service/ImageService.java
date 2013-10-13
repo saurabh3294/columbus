@@ -30,7 +30,6 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
-import com.proptiger.data.repo.ImageDaoHelper;
 import com.proptiger.data.util.ImageUtil;
 import com.proptiger.data.util.PropertyReader;
 
@@ -47,18 +46,18 @@ public class ImageService {
 
 	@PostConstruct
 	private void init() {
-		String path = propertyReader.getRequiredProperty("imageTempPath");
-		tempDir = new File(path);
-		if (!tempDir.exists()) {
+        ImageUtil.endpoint = propertyReader.getRequiredProperty("endpoint");
+        ImageUtil.bucket = propertyReader.getRequiredProperty("bucket");
+
+        String path = propertyReader.getRequiredProperty("imageTempPath");
+        tempDir = new File(path);
+        if (!tempDir.exists()) {
 			tempDir.mkdir();
 		}
 	}
 
 	@Resource
 	private ImageDao imageDao;
-
-	@Autowired
-	private ImageDaoHelper dao;
 
 	private boolean isEmpty(MultipartFile file) {
 		return (file.getSize() == 0) ? true : false;
@@ -115,22 +114,18 @@ public class ImageService {
 	}
 
 	private void uploadToS3(Image image, File original, File waterMark) {
-		String endpoint = propertyReader.getRequiredProperty("endpoint");
-		String bucket = propertyReader.getRequiredProperty("bucket");
 		String accessKeyId = propertyReader.getRequiredProperty("accessKeyId");
-		String secretAccessKey = propertyReader
-				.getRequiredProperty("secretAccessKey");
+		String secretAccessKey = propertyReader.getRequiredProperty("secretAccessKey");
 
 		ClientConfiguration config = new ClientConfiguration();
 		config.withProtocol(Protocol.HTTP);
 		config.setMaxErrorRetry(3);
 
-		AWSCredentials credentials = new BasicAWSCredentials(accessKeyId,
-				secretAccessKey);
+		AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
 		AmazonS3 s3 = new AmazonS3Client(credentials, config);
-		s3.putObject(bucket, image.getOriginalPath(), original);
-		s3.putObject(bucket, image.getWaterMarkPath(), waterMark);
-		image.setWaterMarkAbsolutePath(endpoint, bucket);
+		s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
+		image.assignWatermarkName();
+		s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
 	}
 
 	private void cleanUp(File original, File waterMark) {
@@ -178,11 +173,11 @@ public class ImageService {
 				applyWaterMark(jpgFile);
 			}
 			// Persist
-			Image image = dao.insertImage(object, imageTypeStr, objectId,
+			Image image = imageDao.insertImage(object, imageTypeStr, objectId,
 					originalFile, jpgFile, extraInfo);
 			uploadToS3(image, originalFile, jpgFile);
 			cleanUp(originalFile, jpgFile);
-			dao.markImageAsActive(image);
+			imageDao.markImageAsActive(image);
 			return image;
 		} catch (IllegalStateException | IOException e) {
 			throw new RuntimeException("Something went wrong", e);

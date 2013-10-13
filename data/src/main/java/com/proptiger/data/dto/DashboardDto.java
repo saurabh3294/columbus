@@ -6,7 +6,6 @@ import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
-import com.proptiger.data.model.resource.Resource;
 
 /**
  * This POJO acts as a data transfer object for Dashboard object

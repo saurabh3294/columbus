@@ -28,6 +28,8 @@ import com.proptiger.data.model.image.Image;
 public class ImageUtil {
 	
 	private static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
+    public static String endpoint;
+    public static String bucket;
 
     public static String fileMd5Hash(File file) throws FileNotFoundException, IOException {
         int nread = 0;

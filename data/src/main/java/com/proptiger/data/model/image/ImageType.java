@@ -1,7 +1,5 @@
 package com.proptiger.data.model.image;
 
-import java.io.Serializable;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,14 +12,8 @@ import javax.persistence.Transient;
 import com.proptiger.data.model.ObjectType;
 
 @Entity(name = "ImageType")
-public class ImageType implements Serializable {
-	/**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
-
+public class ImageType {
     @Id
-	@Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
