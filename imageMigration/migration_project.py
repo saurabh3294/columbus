@@ -15,7 +15,7 @@ import multiprocessing
 ###################################################
 env = 'develop'
 config = dict(
-    processes   =   50,
+    processes   =   10,
     objectInfo  =   {
                         'objectType'    :   'project',
                         'imageType'     :   [
@@ -104,7 +104,6 @@ class Object(object):
         sql = sql % Object.type_translate[self.imageType]
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
-        images = []
         for i in res:
             img = dict(
                 objectType      = self.objectType,
@@ -121,8 +120,7 @@ class Object(object):
             img.update(dict(
                 path    = config['env'][env]['images_dir'] + path
             ))
-            images.append(img)
-        return images
+            yield img
 
     @classmethod
     def update_status(cls, status, obj_id):
@@ -172,6 +170,7 @@ class Upload(object):
                 if 'orig_path' in img:
                     img['path'] = img['orig_path']
                     del img['orig_path']
+                    img['addWaterMark'] = 'false'
                     not_found = False if cls.validate(img) else not_found
                 if not_found:
                     cls.acknowledge(img, cls.status['not_found'])
@@ -189,8 +188,6 @@ class Upload(object):
 # Main
 if __name__ == '__main__':
     pool = multiprocessing.Pool(processes=config['processes'])
-    manager = multiprocessing.Manager()
     for t in config['objectInfo']['imageType']:
         obj = Object(config['objectInfo']['objectType'], t, config['objectInfo']['addWaterMark'])
-        images = manager.list(obj.images)
-        pool.map(Upload(), images)
+        pool.map(Upload(), obj.images)
