@@ -12,12 +12,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.util.ImageUtil;
 
 @Entity(name = "Image")
 @Access(AccessType.FIELD)
+@JsonFilter("fieldFilter")
 public class Image {
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)

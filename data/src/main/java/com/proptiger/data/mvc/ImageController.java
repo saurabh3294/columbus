@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageService;
 
 /**
@@ -30,12 +31,20 @@ public class ImageController extends BaseController {
 	@RequestMapping
 	public @ResponseBody
 	Object getImages(
+	        @RequestParam(required = false) String selector,
 			@RequestParam(value = "objectType") String objectType,
 			@RequestParam(required = false, value = "imageType") String imageType,
 			@RequestParam(value = "objectId") long objectId) {
 		List<Image> images = imageService.getImages(
 				DomainObject.valueOf(objectType), imageType, objectId);
-		return new ProAPISuccessResponse(images);
+
+		Selector imageSelector = new Selector();
+		if (selector != null) {
+		    imageSelector = super.parseJsonToObject(selector, Selector.class);
+		}
+
+        return new ProAPISuccessResponse(super.filterFields(images, imageSelector.getFields()));
+
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
