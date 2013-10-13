@@ -66,6 +66,6 @@ public class ImageController extends BaseController {
 		extraInfo.put("priority", priority);
 		Image img = imageService.uploadImage(DomainObject.valueOf(objectType),
 				imageType, objectId, image, addWaterMark, extraInfo);
-		return new ProAPISuccessResponse(img);
+		return new ProAPISuccessResponse(super.filterFields(img, null));
 	}
 }
