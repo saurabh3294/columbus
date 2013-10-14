@@ -183,4 +183,8 @@ public class ImageService {
 			throw new RuntimeException("Something went wrong", e);
 		}
 	}
+
+    public void deleteImage(long id) {
+        imageDao.setActiveFalse(id);
+    }
 }
