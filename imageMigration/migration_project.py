@@ -4,7 +4,7 @@ import os
 import logging
 import requests
 import MySQLdb as mysql
-import multiprocessing
+from gevent.pool import Pool
 
 # Problems:
 # 1. imageType strings in ImageType table and PROJECT_PLAN_IMAGES table doesn't match   [ Solved ]
@@ -187,7 +187,7 @@ class Upload(object):
 
 # Main
 if __name__ == '__main__':
-    pool = multiprocessing.Pool(processes=config['processes'])
+    pool = Pool(config['processes'])
     for t in config['objectInfo']['imageType']:
         obj = Object(config['objectInfo']['objectType'], t, config['objectInfo']['addWaterMark'])
         pool.map(Upload(), obj.images)

@@ -19,7 +19,7 @@ public interface ImageDao extends ImageCustomDao, JpaRepository<Image, Long> {
 			" 	FROM ObjectType AS O " +
 			" 	, ImageType AS IT" + 
 			" 	WHERE O.id = IT.objectTypeId AND O.type =  ?1 " +
-			") AND I.objectId = ?2")
+			") AND I.objectId = ?2 AND I.active=1")
 	public List<Image> getImagesForObject(String obj, long objectId);
 	
 	@Query("select I from Image as I " +
@@ -30,7 +30,7 @@ public interface ImageDao extends ImageCustomDao, JpaRepository<Image, Long> {
 			" 	, ImageType AS IT" + 
 			" 	WHERE O.id = IT.objectTypeId AND O.type =  ?1 " +
 			" 	AND IT.type =  ?2 " +
-			") AND I.objectId = ?3")
+			") AND I.objectId = ?3 AND I.active=1")
 	public List<Image> getImagesForObjectWithImageType(String obj, String type, long objectId);
 	
 	@Transactional
