@@ -151,6 +151,7 @@ class Upload(object):
                 if 'orig_path' in img:
                     img['path'] = img['orig_path']
                     del img['orig_path']
+                    img['addWaterMark'] = 'false'
                     not_found = False if cls.validate(img) else not_found
                 if not_found:
                     cls.acknowledge(img, cls.status['not_found'])
