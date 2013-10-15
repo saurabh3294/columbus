@@ -18,7 +18,7 @@ from gevent.pool import Pool
 ###################################################
 env = 'develop'
 config = dict(
-    processes   =   10,
+    processes   =   5,
     objectInfo  =   {
                         'objectType'    :   'project',
                         'imageType'     :   [
