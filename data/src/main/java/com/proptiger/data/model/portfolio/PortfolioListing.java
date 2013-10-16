@@ -31,9 +31,9 @@ import com.proptiger.data.model.resource.Resource;
  *
  */
 @Entity
-@Table(name = "portfolio_property")
-@ResourceMetaInfo(name = "PortfolioProperty")
-public class PortfolioProperty implements NamedResource, Resource{
+@Table(name = "portfolio_listings")
+@ResourceMetaInfo(name = "PortfolioListing")
+public class PortfolioListing implements NamedResource, Resource{
 
 	@Id
 	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
@@ -41,9 +41,9 @@ public class PortfolioProperty implements NamedResource, Resource{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
-	@FieldMetaInfo(displayName = "Project Type Id", description = "Project Type Id")
-	@Column(name = "project_type_id")
-	private Integer projectTypeId;
+	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
+	@Column(name = "type_id")
+	private Integer typeId;
 	
 	@FieldMetaInfo(displayName = "User Id", description = "User Id")
 	@Column(name = "user_id")
@@ -91,11 +91,6 @@ public class PortfolioProperty implements NamedResource, Resource{
 	private PurchasedFor purchasedFor;
 	
 	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Property Id", description = "Property Id")
-	@Column(name = "payment_plan")
-	@Enumerated(EnumType.STRING)
-	private PaymentPlan paymentPlan;
-	
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Property Id", description = "Property Id")
 	@Column(name = "loan_status")
 	@Enumerated(EnumType.STRING)
 	private LoanStatus loanStatus;
@@ -122,7 +117,7 @@ public class PortfolioProperty implements NamedResource, Resource{
 	private Date updatedAt;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "project_type_id",  nullable = false, insertable = false, updatable = false)
+	@JoinColumn(name = "type_id",  nullable = false, insertable = false, updatable = false)
 	private ProjectType projectType;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -145,18 +140,19 @@ public class PortfolioProperty implements NamedResource, Resource{
 		this.id = id;
 	}
 
+	
 	/**
-	 * @return the projectTypeId
+	 * @return the typeId
 	 */
-	public Integer getProjectTypeId() {
-		return projectTypeId;
+	public Integer getTypeId() {
+		return typeId;
 	}
 
 	/**
-	 * @param projectTypeId the projectTypeId to set
+	 * @param typeId the typeId to set
 	 */
-	public void setProjectTypeId(Integer projectTypeId) {
-		this.projectTypeId = projectTypeId;
+	public void setTypeId(Integer typeId) {
+		this.typeId = typeId;
 	}
 
 	/**
@@ -269,20 +265,6 @@ public class PortfolioProperty implements NamedResource, Resource{
 	 */
 	public void setPurchasedFor(PurchasedFor purchasedFor) {
 		this.purchasedFor = purchasedFor;
-	}
-
-	/**
-	 * @return the paymentPlan
-	 */
-	public PaymentPlan getPaymentPlan() {
-		return paymentPlan;
-	}
-
-	/**
-	 * @param paymentPlan the paymentPlan to set
-	 */
-	public void setPaymentPlan(PaymentPlan paymentPlan) {
-		this.paymentPlan = paymentPlan;
 	}
 
 	/**
@@ -403,7 +385,7 @@ public class PortfolioProperty implements NamedResource, Resource{
     	updatedAt = createdAt;
     }
     
-    public void update(PortfolioProperty toUpdate){
+    public void update(PortfolioListing toUpdate){
     	this.name = toUpdate.name;
     	this.basePrice = toUpdate.basePrice;
     	this.floorNo = toUpdate.floorNo;
@@ -411,8 +393,7 @@ public class PortfolioProperty implements NamedResource, Resource{
     	this.loanAmount = toUpdate.loanAmount;
     	this.loanAvailedAmount = toUpdate.loanAvailedAmount;
     	this.loanStatus = toUpdate.loanStatus;
-    	this.paymentPlan = toUpdate.paymentPlan;
-    	this.projectTypeId = toUpdate.projectTypeId;
+    	this.typeId = toUpdate.typeId;
     	this.purchaseDate = toUpdate.purchaseDate;
     	this.purchasedFor = toUpdate.purchasedFor;
     	this.totalPrice = toUpdate.totalPrice;

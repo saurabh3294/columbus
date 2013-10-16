@@ -1,0 +1,340 @@
+package com.proptiger.data.service.portfolio;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.proptiger.data.model.portfolio.OverallReturn;
+import com.proptiger.data.model.portfolio.Portfolio;
+import com.proptiger.data.model.portfolio.PortfolioListing;
+import com.proptiger.data.model.portfolio.ReturnType;
+import com.proptiger.data.model.resource.NamedResource;
+import com.proptiger.data.model.resource.Resource;
+import com.proptiger.data.repo.portfolio.PortfolioListingDao;
+import com.proptiger.exception.ConstraintViolationException;
+import com.proptiger.exception.DuplicateNameResourceException;
+import com.proptiger.exception.ResourceAlreadyExistException;
+import com.proptiger.exception.ResourceNotAvailableException;
+
+/**
+ * This class provides CRUD operations over a property that is a addressable entity
+ * 
+ * @author Rajeev Pandey
+ *
+ */
+@Service
+public class PortfolioService extends AbstractService{
+
+	private static Logger logger = LoggerFactory.getLogger(PortfolioService.class);
+	@Autowired
+	private PortfolioListingDao portfolioListingDao;
+	
+	/**
+	 * Get portfolio object for a particular user id
+	 * @param userId
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public Portfolio getPortfolioByUserId(Integer userId){
+		Portfolio portfolio = new Portfolio();
+		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
+		portfolio.setListings(listings);
+		updatePriceInfoInPortfolio(portfolio);
+		return portfolio;
+	}
+	/**
+	 * Updates price information in Portfolio object
+	 * @param portfolio
+	 * @param listings
+	 */
+	private void updatePriceInfoInPortfolio(Portfolio portfolio) {
+		double originalValue = 0.0D;
+		double currentValue = 0.0D;
+		if(portfolio.getListings() != null){
+			for(PortfolioListing property: portfolio.getListings()){
+				originalValue += property.getTotalPrice();
+				property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
+				currentValue += property.getCurrentPrice();
+			}
+		}
+		portfolio.setCurrentValue(currentValue);
+		portfolio.setOriginalVaue(originalValue);
+		OverallReturn overallReturn = getOverAllReturn(originalValue,
+				currentValue);
+		portfolio.setOverallReturn(overallReturn );
+	}
+	/**
+	 * Calculates the overall return 
+	 * @param originalValue
+	 * @param currentValue
+	 * @return
+	 */
+	private OverallReturn getOverAllReturn(double originalValue,
+			double currentValue) {
+		OverallReturn overallReturn = new OverallReturn();
+		double changeAmt = currentValue - originalValue;
+		overallReturn.setChangeAmount(Math.abs(changeAmt));
+		if(originalValue == 0.0D){
+			overallReturn.setChangePercent(0.0D);
+		}
+		else{
+			overallReturn.setChangePercent((Math.abs(changeAmt)/originalValue)*100);
+		}
+		if(changeAmt < 0){
+			overallReturn.setReturnType(ReturnType.DECLINE);
+		}
+		else if(changeAmt > 0){
+			overallReturn.setReturnType(ReturnType.APPRECIATION);
+		}
+		else{
+			overallReturn.setReturnType(ReturnType.NOCHANGE);
+		}
+		return overallReturn;
+	}
+	
+	/**
+	 * Creating a logical entity Portfolio, that consists a list of PortfolioListing objects
+	 * 
+	 * @param userId
+	 * @param portfolio
+	 * @return
+	 */
+	public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
+		List<PortfolioListing> presentListing = getAllPortfolioListings(userId);
+		List<PortfolioListing> toCreate = portfolio.getListings();
+		if (presentListing != null && presentListing.size() > 0) {
+			logger.error("Portfolio exists for userid {}", userId);
+			throw new ResourceAlreadyExistException("Portfolio exist for user id "+userId);
+		}
+		createPortfolioListings(userId, toCreate);
+		Portfolio created = new Portfolio();
+		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
+		created.setListings(listings);
+		updatePriceInfoInPortfolio(created);
+		return created;
+	}
+	
+	@Transactional(rollbackFor = ResourceAlreadyExistException.class)
+	public void createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList){
+		if(toCreateList != null){
+			for(PortfolioListing toCreate: toCreateList){
+				createPortfolioListing(userId, toCreate);
+			}
+		}
+	}
+	/**
+	 * This method update portfolio for user id. If no portfolio listing exist then it will
+	 * create portfolio listing, and if listing is already present then it will update.
+	 * 
+	 * If any of the existing listing not passed to be updated in portfolio object, then that 
+	 * listing will be deleted from database.
+	 * existing listings
+	 * @param userId
+	 * @param portfolio
+	 * @return
+	 */
+	@Transactional(rollbackFor = DuplicateNameResourceException.class)
+	public Portfolio updatePortfolio(Integer userId, Portfolio portfolio){
+		List<PortfolioListing> presentListingList = getAllPortfolioListings(userId);
+		if (presentListingList == null || presentListingList.size() == 0) {
+			logger.debug("No portfolio listing exists for userid {}", userId);
+			/*
+			 * create new portfolio
+			 */
+			Portfolio created = new Portfolio();
+			createPortfolioListings(userId, portfolio.getListings());
+			List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
+			created.setListings(listings);
+			updatePriceInfoInPortfolio(created);
+			return created;
+		}
+		else{
+			/*
+			 * Either a new Listing will be created if not already present otherwise update
+			 */
+			List<Integer> updatedOrCreatedListings = new ArrayList<Integer>();
+			/*
+			 * Few listings already mapped with user id, there might be some new listings
+			 * to be created and few might need to update
+			 */
+			Portfolio created = new Portfolio();
+			List<PortfolioListing> toUpdateList = portfolio.getListings();
+			for(PortfolioListing toUpdate: toUpdateList){
+				if(toUpdate.getId() == null){
+					/*
+					 * Need to create new Listing, and adding that to portfolio
+					 */
+					PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
+					updatedOrCreatedListings.add(newListing.getId());
+					created.addListings(newListing);
+				}
+				else{
+					/*
+					 * Check if toUpdate is already present in database, if present then update that
+					 * otherwise create
+					 */
+					boolean isUpdated = false;
+					for(PortfolioListing present: presentListingList){
+						if(toUpdate.getId().equals(present.getId())){
+							//need to update
+							present.update(toUpdate);
+							updatedOrCreatedListings.add(toUpdate.getId());
+							isUpdated = true;
+							created.addListings(present);
+							break;
+						}
+					}
+					
+					if(!isUpdated){
+						/*
+						 * Requested PortfolioListing object (toUpdate) is not present in database, so creating new
+						 */
+						PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
+						updatedOrCreatedListings.add(newListing.getId());
+						created.addListings(newListing);
+					}
+				}
+				
+			}
+			/*
+			 * delete listing from database.
+			 */
+			for(Integer portfolioListingId: updatedOrCreatedListings){
+				portfolioListingDao.delete(portfolioListingId);
+			}
+			/*
+			 * Updating price information in portfolio
+			 */
+			updatePriceInfoInPortfolio(created);
+			return created;
+		}
+	}
+	/**
+	 * @param userId
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public List<PortfolioListing> getAllPortfolioListings(Integer userId){
+		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
+		if(listings != null){
+			for(PortfolioListing listing: listings){
+				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+			}
+		}
+		return listings;
+	}
+	/**
+	 * Get a PortfolioProperty for particular user id and PortfolioProperty id
+	 * @param userId
+	 * @param propertyId
+	 * @return
+	 */
+	@Transactional(readOnly = true)
+	public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId){
+		PortfolioListing property = portfolioListingDao.findByUserIdAndId(userId, listingId);
+		if(property == null){
+			logger.error("Listing id {} not found for userid {}",listingId, userId);
+			throw new ResourceNotAvailableException("Resource not available");
+		}
+		property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
+		return property;
+	}
+
+	@Override
+	protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
+		super.preProcessCreate(resource);
+		PortfolioListing toCreate = (PortfolioListing) resource;
+		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndName(toCreate.getUserId(), toCreate.getName());
+		if(propertyPresent != null){
+			logger.error("Duplicate resource id {} and name {}",propertyPresent.getId(), propertyPresent.getName());
+			throw new DuplicateNameResourceException("Resource with same name exist");
+		}
+	}
+	
+	/**
+	 * Creates a PortfolioProperty
+	 * @param userId
+	 * @param listing
+	 * @return
+	 */
+	@Transactional(rollbackFor = ConstraintViolationException.class)
+	public PortfolioListing createPortfolioListing(Integer userId, PortfolioListing listing){
+		listing.setUserId(userId);
+		return create(listing);
+	}
+	
+	/**
+	 * Updated an existing PortfolioProperty
+	 * @param userId
+	 * @param propertyId
+	 * @param property
+	 * @return
+	 */
+	@Transactional(rollbackFor = ResourceNotAvailableException.class)
+	public PortfolioListing updatePortfolioListing(Integer userId, Integer propertyId, PortfolioListing property){
+		property.setUserId(userId);
+		property.setId(propertyId);
+		return update(property);
+	}
+	
+	@Override
+	@SuppressWarnings("unchecked")
+	protected <T extends Resource> T create(T resource) {
+		PortfolioListing toCreate = (PortfolioListing) resource;
+		preProcessCreate(toCreate);
+		PortfolioListing created = null;
+		try{
+			created = portfolioListingDao.save(toCreate);
+		}catch(Exception exception){
+			throw new ConstraintViolationException(exception.getMessage(), exception);
+		}
+		logger.debug("Created PortfolioProperty id {} for userid {}",created.getId(),created.getUserId());
+		return (T) created;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected <T extends Resource> T update(T resource) {
+		PortfolioListing toUpdate = (PortfolioListing) resource;
+		PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
+		PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndName(toUpdate.getUserId(), toUpdate.getName());
+		if(resourceWithSameName != null){
+			logger.error("Duplicate resource id {} and name {}",resourceWithSameName.getId(), resourceWithSameName.getName());
+			throw new DuplicateNameResourceException("Resource with same name exist");
+		}
+		resourcePresent.update(toUpdate);
+		return (T) resourcePresent;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected <T extends Resource> T preProcessUpdate(T resource) {
+		super.preProcessUpdate(resource);
+		PortfolioListing toUpdate = (PortfolioListing) resource;
+		PortfolioListing resourcePresent = portfolioListingDao.findOne(toUpdate.getId());
+		if(resourcePresent == null){
+			logger.error("PortfolioProperty id {} not found",toUpdate.getId());
+			throw new ResourceNotAvailableException("Resource "+toUpdate.getId()+" not available");
+		}
+		return (T) resourcePresent;
+	}
+
+	/**
+	 * Deletes PortfolioListing for provided user id and listing id
+	 * @param userId
+	 * @param propertyId
+	 * @return
+	 */
+	@Transactional(rollbackFor = ResourceNotAvailableException.class)
+	public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId){
+		PortfolioListing propertyPresent = getPortfolioListingById(userId, listingId);
+		portfolioListingDao.delete(propertyPresent);
+		return propertyPresent;
+	}
+	
+}

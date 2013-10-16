@@ -1,6 +1,6 @@
-create table portfolio_property(
+create table portfolio_listings(
 id int not null auto_increment,
-project_type_id int not null,
+type_id int not null,
 user_id bigint not null,
 tower int,
 unit_no varchar(255),
@@ -18,26 +18,26 @@ loan_availed_amount double,
 transaction_type enum('PRIMARY','RESALE'),
 created_at datetime not null,
 updated_at datetime not null,
-foreign key fk_project_type (project_type_id) references RESI_PROJECT_TYPES(TYPE_ID),
+foreign key fk_project_type (type_id) references RESI_PROJECT_TYPES(TYPE_ID),
 foreign key fk_user (user_id) references FORUM_USER(USER_ID),
 primary key(id)
 );
 
 
-create table portfolio_property_price(
+create table portfolio_listings_price(
 id int not null auto_increment,
-portfolio_property_id int,
+portfolio_listings_id int,
 amount double not null,
 component_name varchar(255),
 created_at datetime not null,
 updated_at datetime not null,
-foreign key fk_portfolio_property (portfolio_property_id) references portfolio_property(id),
+foreign key fk_portfolio_listings (portfolio_listings_id) references portfolio_listings(id),
 primary key(id)
 );
 
-create table portfolio_property_payment_plan (
+create table portfolio_listings_payment_plan (
 id int not null auto_increment,
-portfolio_property_id int not null,
+portfolio_listings_id int not null,
 installment_no int,
 amount double not null,
 due_date datetime,
@@ -49,6 +49,6 @@ component_name varchar(255),
 component_value float,
 created_at datetime not null,
 updated_at datetime not null,
-foreign key fk_portfolio_property (portfolio_property_id) references portfolio_property (id),
+foreign key fk_portfolio_listings (portfolio_listings_id) references portfolio_listings (id),
 primary key (id)
 );

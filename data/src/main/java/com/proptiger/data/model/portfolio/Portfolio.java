@@ -1,5 +1,6 @@
 package com.proptiger.data.model.portfolio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -27,7 +28,7 @@ public class Portfolio {
 	private OverallReturn overallReturn;
 
 	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "properties", description = "Properties")
-	private List<PortfolioProperty> properties;
+	private List<PortfolioListing> listings;
 
 	/**
 	 * @return the originalVaue
@@ -72,19 +73,24 @@ public class Portfolio {
 	}
 
 	/**
-	 * @return the properties
+	 * @return the listings
 	 */
-	public List<PortfolioProperty> getProperties() {
-		return properties;
+	public List<PortfolioListing> getListings() {
+		return listings;
 	}
 
 	/**
-	 * @param properties the properties to set
+	 * @param listings the listings to set
 	 */
-	public void setProperties(List<PortfolioProperty> properties) {
-		this.properties = properties;
+	public void setListings(List<PortfolioListing> listings) {
+		this.listings = listings;
 	}
-	
-	
+
+	public void addListings(PortfolioListing listing){
+		if(this.listings == null){
+			this.listings = new ArrayList<PortfolioListing>();
+		}
+		this.listings.add(listing);
+	}
 	
 }
