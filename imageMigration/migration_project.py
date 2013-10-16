@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from gevent import monkey
+monkey.patch_all()
+
 import os
 import logging
 import requests
@@ -15,7 +18,7 @@ from gevent.pool import Pool
 ###################################################
 env = 'develop'
 config = dict(
-    processes   =   10,
+    processes   =   5,
     objectInfo  =   {
                         'objectType'    :   'project',
                         'imageType'     :   [

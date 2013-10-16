@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+from gevent import monkey
+monkey.patch_all()
+
 import os
 import logging
 import requests
 import MySQLdb as mysql
-import multiprocessing
+from gevent.pool import Pool
 
 # Problems:
 # 1. objectID i.e. FLOOR_PLAN_ID is not unique id of the table                      [ Solved ]
@@ -75,7 +78,15 @@ class Object(object):
 
     @property
     def images(self):
-        sql = "SELECT TYPE_ID, IMAGE_URL, FLOOR_PLAN_ID, NAME, DISPLAY_ORDER FROM `proptiger`.`RESI_FLOOR_PLANS` WHERE migration_status!='Done';"
+        sql = """
+            SELECT
+                FP.TYPE_ID, FP.IMAGE_URL, FP.FLOOR_PLAN_ID, FP.NAME, FP.DISPLAY_ORDER 
+            FROM
+                `proptiger`.`RESI_FLOOR_PLANS` AS FP INNER JOIN `proptiger`.`RESI_PROJECT_TYPES` AS PT
+                ON FP.TYPE_ID = PT.TYPE_ID
+            WHERE
+                FP.migration_status!='Done';
+        """
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
@@ -151,6 +162,7 @@ class Upload(object):
                 if 'orig_path' in img:
                     img['path'] = img['orig_path']
                     del img['orig_path']
+                    img['addWaterMark'] = 'false'
                     not_found = False if cls.validate(img) else not_found
                 if not_found:
                     cls.acknowledge(img, cls.status['not_found'])
@@ -167,7 +179,7 @@ class Upload(object):
 
 # Main
 if __name__ == '__main__':
-    pool = multiprocessing.Pool(processes=config['processes'])
+    pool = Pool(config['processes'])
     for t in config['objectInfo']['imageType']:
         obj = Object(config['objectInfo']['objectType'], t, config['objectInfo']['addWaterMark'])
         pool.map(Upload(), obj.images)
