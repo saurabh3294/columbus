@@ -76,6 +76,14 @@ class Object(object):
         fname[0] = fname[0] + '-bkp'
         return os.path.join(sp[0], "".join(fname))
 
+    @classmethod
+    def create_path(cls, path):
+        base = config['env'][env]['images_dir']
+        path = path.strip()
+        if path.startswith('../../images_new'):
+            path = path[len('..'):]
+        return base + path
+
     @property
     def images(self):
         sql = """
@@ -109,7 +117,7 @@ class Object(object):
                 if path.endswith(".gif"):
                     water = 'false'
             img.update(dict(
-                path            = config['env'][env]['images_dir'] + path,
+                path            = Object.create_path(path),
                 addWaterMark    = water
             ))
             yield img
@@ -137,10 +145,7 @@ class Upload(object):
     @classmethod
     def post(cls, img):
         data, files = img.copy(), {}
-        p = data['path'].strip()
-        if p.startswith('../../images_new'):
-            p = p[len('../'):]
-        files['image'] = open(p, 'rb')
+        files['image'] = open(data['path'], 'rb')
         del data['path']
         r = requests.post(cls.url, files = files, data = data)
         if not r.json()['statusCode'].startswith('2'): # Temporary Check
