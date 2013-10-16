@@ -139,7 +139,7 @@ class Upload(object):
         data, files = img.copy(), {}
         p = data['path'].strip()
         if p.startswith('../../images_new'):
-            p = p[len('../../images_new'):]
+            p = p[len('../'):]
         files['image'] = open(p, 'rb')
         del data['path']
         r = requests.post(cls.url, files = files, data = data)
