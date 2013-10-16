@@ -148,7 +148,10 @@ class Upload(object):
     @classmethod
     def post(cls, img):
         data, files = img.copy(), {}
-        files['image'] = open(data['path'], 'rb')
+        p = data['path'].strip()
+        if p.startswith('../../images_new'):
+            p = p[len('../../images_new'):]
+        files['image'] = open(p, 'rb')
         del data['path']
         r = requests.post(cls.url, files = files, data = data)
         if not r.json()['statusCode'].startswith('2'): # Temporary Check
