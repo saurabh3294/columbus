@@ -1,6 +1,6 @@
 package com.proptiger.exception;
 
-public class ResourceNotAvailableException extends RuntimeException{
+public class ResourceNotAvailableException extends ProAPIException{
 
 	private static final long serialVersionUID = 6402255527485347856L;
 
