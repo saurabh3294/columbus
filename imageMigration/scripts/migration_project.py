@@ -101,6 +101,14 @@ class Object(object):
         fname[0] = fname[0] + '-bkp'
         return os.path.join(sp[0], "".join(fname))
 
+    @classmethod
+    def create_path(cls, path):
+        base = config['env'][env]['images_dir']
+        path = path.strip()
+        if path.startswith('../../images_new'):
+            path = path[len('..'):]
+        return base + path
+
     @property
     def images(self):
         sql = "SELECT PROJECT_ID, PLAN_IMAGE, TITLE, PROJECT_PLAN_ID FROM `proptiger`.`PROJECT_PLAN_IMAGES` WHERE PLAN_TYPE='%s' AND STATUS='1' AND migration_status!='Done';"
@@ -121,7 +129,7 @@ class Object(object):
             img.update(dict(orig_path = config['env'][env]['images_dir'] + path))
             path = Object.add_bkp(path)
             img.update(dict(
-                path    = config['env'][env]['images_dir'] + path
+                path    =   Object.create_path(path),
             ))
             yield img
 
