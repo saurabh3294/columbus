@@ -15,7 +15,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @ResourceMetaInfo(name = "Property")
 @JsonFilter("fieldFilter")
 public class Property implements BaseModel {
-    @FieldMetaInfo( displayName = "Id",  description = "Property Id")
+    @FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
     @Field(value="TYPE_ID")
     private int propertyId;
 

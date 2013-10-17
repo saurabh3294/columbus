@@ -21,12 +21,8 @@ public class TypeaheadService {
     @Autowired
     private TypeaheadDao typeaheadDao;
     
-    public List<Typeahead> getTypeaheads(String query, int rows){
-        return typeaheadDao.getTypeaheads(query, rows);
-    }
-    
-    public List<Typeahead> getTypeaheadsByTypeAheadType(String query, int rows, String typeAheadType){
-        return typeaheadDao.getTypeaheadsByTypeAheadType(query, rows, typeAheadType);
+    public List<Typeahead> getTypeaheads(String query, int rows, String typeAheadType, String cityName){
+        return typeaheadDao.getTypeaheads(query, rows, typeAheadType, cityName);
     }
     
 }

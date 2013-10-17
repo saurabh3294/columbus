@@ -15,8 +15,8 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name = "portfolio_property_payment_plan")
-public class PortfolioPropertyPaymentPlan {
+@Table(name = "portfolio_listings_payment_plan")
+public class PortfolioListingPaymentPlan {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
