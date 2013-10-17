@@ -27,7 +27,7 @@ primary key(id)
 
 create table portfolio_listings_price(
 id int not null auto_increment,
-portfolio_listings_id int,
+portfolio_listings_id int not null,
 amount double not null,
 component_name varchar(255),
 created_at datetime not null,

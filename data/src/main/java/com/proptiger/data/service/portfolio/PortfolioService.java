@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.data.model.portfolio.OverallReturn;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
+import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
@@ -274,7 +275,7 @@ public class PortfolioService extends AbstractService{
 	}
 	
 	/**
-	 * Creates a PortfolioProperty
+	 * Creates a PortfolioListing
 	 * @param userId
 	 * @param listing
 	 * @return
@@ -286,7 +287,7 @@ public class PortfolioService extends AbstractService{
 	}
 	
 	/**
-	 * Updated an existing PortfolioProperty
+	 * Updated an existing PortfolioListing
 	 * @param userId
 	 * @param propertyId
 	 * @param property
@@ -305,6 +306,16 @@ public class PortfolioService extends AbstractService{
 		PortfolioListing toCreate = (PortfolioListing) resource;
 		preProcessCreate(toCreate);
 		PortfolioListing created = null;
+		/*
+		 * Creating back reference to parent in child entity, so that while saving
+		 * parent, child will be saved.
+		 */
+		if(toCreate.getListingPrice() != null){
+			for (PortfolioListingPrice listingPrice : toCreate.getListingPrice()) {
+				listingPrice.setPortfolioListing(toCreate);
+			}
+		}
+		
 		try{
 			created = portfolioListingDao.save(toCreate);
 		}catch(Exception exception){

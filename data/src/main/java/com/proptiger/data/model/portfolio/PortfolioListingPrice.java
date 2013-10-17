@@ -2,11 +2,14 @@ package com.proptiger.data.model.portfolio;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -30,11 +33,6 @@ public class PortfolioListingPrice {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer id;
 	
-	@FieldMetaInfo(displayName = "Portfolio Listing Id", description = "Portfolio Listing Id")
-	@Column(name = "portfolio_listings_id")
-	@JsonIgnore
-	private Integer portfolioListingId;
-	
 	@FieldMetaInfo(displayName = "Amount", description = "Amount")
 	@Column(name = "amount")
 	private Double amount;
@@ -42,6 +40,11 @@ public class PortfolioListingPrice {
 	@FieldMetaInfo(displayName = "Component Name", description = "Component Name")
 	@Column(name = "component_name")
 	private String componentName;
+	
+	@ManyToOne
+	@JsonIgnore
+	@JoinColumn(name = "portfolio_listings_id", referencedColumnName="id")
+	private PortfolioListing portfolioListing;
 	
 	@Column(name = "created_at")
 	private Date createdAt;
@@ -56,12 +59,6 @@ public class PortfolioListingPrice {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	public Integer getPortfolioListingId() {
-		return portfolioListingId;
-	}
-	public void setPortfolioListingId(Integer portfolioListingId) {
-		this.portfolioListingId = portfolioListingId;
-	}
 	public Double getAmount() {
 		return amount;
 	}
@@ -73,6 +70,9 @@ public class PortfolioListingPrice {
 	}
 	public void setComponentName(String componentName) {
 		this.componentName = componentName;
+	}
+	public void setPortfolioListing(PortfolioListing portfolioListing) {
+		this.portfolioListing = portfolioListing;
 	}
 	@PreUpdate
     public void preUpdate(){
