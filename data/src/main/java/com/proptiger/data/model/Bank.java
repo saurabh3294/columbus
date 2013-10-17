@@ -6,12 +6,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Entity(name = "BANK_LIST")
-public class Bank implements BaseModel {
+public class Bank{
 	@Id
 	@Column(name = "BANK_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private Integer id;
 	
 	@Column(name = "BANK_NAME")
 	private String name;
@@ -25,14 +29,14 @@ public class Bank implements BaseModel {
 	/**
 	 * @return the id
 	 */
-	public long getId() {
+	public Integer getId() {
 		return id;
 	}
 
 	/**
 	 * @param id the id to set
 	 */
-	public void setId(long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

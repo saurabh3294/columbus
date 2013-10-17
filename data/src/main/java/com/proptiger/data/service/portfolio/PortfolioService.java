@@ -62,6 +62,10 @@ public class PortfolioService extends AbstractService{
 				currentValue += property.getCurrentPrice();
 			}
 		}
+		if(currentValue == 0.0D){
+			logger.debug("Current value not available for Portfolio");
+			currentValue = originalValue;
+		}
 		portfolio.setCurrentValue(currentValue);
 		portfolio.setOriginalVaue(originalValue);
 		OverallReturn overallReturn = getOverAllReturn(originalValue,
@@ -133,86 +137,99 @@ public class PortfolioService extends AbstractService{
 	 * 
 	 * If any of the existing listing not passed to be updated in portfolio object, then that 
 	 * listing will be deleted from database.
+	 * 
+	 * If any existing listing passed to be updated without passing id, then it will be treated as
+	 * new listing to create.
+	 * 
 	 * existing listings
 	 * @param userId
 	 * @param portfolio
 	 * @return
 	 */
-	@Transactional(rollbackFor = DuplicateNameResourceException.class)
 	public Portfolio updatePortfolio(Integer userId, Portfolio portfolio){
 		List<PortfolioListing> presentListingList = getAllPortfolioListings(userId);
+		Portfolio updated = new Portfolio();
 		if (presentListingList == null || presentListingList.size() == 0) {
 			logger.debug("No portfolio listing exists for userid {}", userId);
 			/*
 			 * create new portfolio
 			 */
-			Portfolio created = new Portfolio();
+			
 			createPortfolioListings(userId, portfolio.getListings());
-			List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
-			created.setListings(listings);
-			updatePriceInfoInPortfolio(created);
-			return created;
+			
 		}
 		else{
-			/*
-			 * Either a new Listing will be created if not already present otherwise update
-			 */
-			List<Integer> updatedOrCreatedListings = new ArrayList<Integer>();
-			/*
-			 * Few listings already mapped with user id, there might be some new listings
-			 * to be created and few might need to update
-			 */
-			Portfolio created = new Portfolio();
-			List<PortfolioListing> toUpdateList = portfolio.getListings();
-			for(PortfolioListing toUpdate: toUpdateList){
-				if(toUpdate.getId() == null){
-					/*
-					 * Need to create new Listing, and adding that to portfolio
-					 */
-					PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
-					updatedOrCreatedListings.add(newListing.getId());
-					created.addListings(newListing);
-				}
-				else{
-					/*
-					 * Check if toUpdate is already present in database, if present then update that
-					 * otherwise create
-					 */
-					boolean isUpdated = false;
-					for(PortfolioListing present: presentListingList){
-						if(toUpdate.getId().equals(present.getId())){
-							//need to update
-							present.update(toUpdate);
-							updatedOrCreatedListings.add(toUpdate.getId());
-							isUpdated = true;
-							created.addListings(present);
-							break;
-						}
-					}
-					
-					if(!isUpdated){
-						/*
-						 * Requested PortfolioListing object (toUpdate) is not present in database, so creating new
-						 */
-						PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
-						updatedOrCreatedListings.add(newListing.getId());
-						created.addListings(newListing);
+			updated = createOrUpdatePortfolioListings(userId, portfolio, presentListingList);
+		}
+		List<PortfolioListing> updatedListings = portfolioListingDao.findByUserId(userId);
+		updated.setListings(updatedListings);
+		/*
+		 * Updating price information in portfolio
+		 */
+		updatePriceInfoInPortfolio(updated);
+		return updated;
+	}
+	
+	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
+	private Portfolio createOrUpdatePortfolioListings(Integer userId,
+			Portfolio toUpdatePortfolio, List<PortfolioListing> presentListingList) {
+		/*
+		 * Either a new Listing will be created if not already present otherwise will be updated
+		 */
+		List<Integer> updatedOrCreatedListings = new ArrayList<Integer>();
+		/*
+		 * Few listings already mapped with user id, there might be some new listings
+		 * to be created and few might need to update
+		 */
+		Portfolio updatedPortfolio = new Portfolio();
+		List<PortfolioListing> toUpdateList = toUpdatePortfolio.getListings();
+		for(PortfolioListing toUpdate: toUpdateList){
+			if(toUpdate.getId() == null){
+				/*
+				 * Need to create new Listing, and adding that to portfolio
+				 */
+				PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
+				updatedOrCreatedListings.add(newListing.getId());
+				updatedPortfolio.addListings(newListing);
+			}
+			else{
+				/*
+				 * Check if toUpdate is already present in database, if present then update that
+				 * otherwise create
+				 */
+				boolean isUpdated = false;
+				for(PortfolioListing present: presentListingList){
+					if(toUpdate.getId().equals(present.getId())){
+						//need to update
+						present.update(toUpdate);
+						updatedOrCreatedListings.add(toUpdate.getId());
+						isUpdated = true;
+						updatedPortfolio.addListings(present);
+						break;
 					}
 				}
 				
+				if(!isUpdated){
+					/*
+					 * Requested PortfolioListing object (toUpdate) is not present in database, so creating new
+					 */
+					PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
+					updatedOrCreatedListings.add(newListing.getId());
+					updatedPortfolio.addListings(newListing);
+				}
 			}
-			/*
-			 * delete listing from database.
-			 */
-			for(Integer portfolioListingId: updatedOrCreatedListings){
-				portfolioListingDao.delete(portfolioListingId);
-			}
-			/*
-			 * Updating price information in portfolio
-			 */
-			updatePriceInfoInPortfolio(created);
-			return created;
+			
 		}
+		/*
+		 * delete listing from database.
+		 */
+		for(PortfolioListing listingPresent: presentListingList){
+			if(!updatedOrCreatedListings.contains(listingPresent.getId())){
+				portfolioListingDao.delete(listingPresent.getId());
+			}
+			
+		}
+		return updatedPortfolio;
 	}
 	/**
 	 * @param userId
@@ -236,13 +253,13 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(readOnly = true)
 	public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId){
-		PortfolioListing property = portfolioListingDao.findByUserIdAndId(userId, listingId);
-		if(property == null){
+		PortfolioListing listing = portfolioListingDao.findByUserIdAndId(userId, listingId);
+		if(listing == null){
 			logger.error("Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
-		property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
-		return property;
+		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+		return listing;
 	}
 
 	@Override

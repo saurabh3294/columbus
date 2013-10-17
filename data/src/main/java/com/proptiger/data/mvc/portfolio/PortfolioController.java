@@ -52,8 +52,8 @@ public class PortfolioController {
 	@RequestMapping(method = RequestMethod.GET, value = "/listing")
 	@ResponseBody
 	public ProAPIResponse getAllListings(@PathVariable Integer userId) {
-		List<PortfolioListing> properties = portfolioService.getAllPortfolioListings(userId);
-		return new ProAPISuccessResponse(properties, properties.size());
+		List<PortfolioListing> listings = portfolioService.getAllPortfolioListings(userId);
+		return new ProAPISuccessResponse(listings, listings.size());
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/listing/{listingId}")
@@ -76,16 +76,15 @@ public class PortfolioController {
 	@ResponseBody
 	public ProAPIResponse updateListing(@PathVariable Integer userId, @PathVariable Integer listingId,
 			@RequestBody PortfolioListing portfolioProperty) {
-		PortfolioListing property = portfolioService.updatePortfolioListing(userId, listingId, portfolioProperty);
-		return new ProAPISuccessResponse(property, 1);
+		PortfolioListing listing = portfolioService.updatePortfolioListing(userId, listingId, portfolioProperty);
+		return new ProAPISuccessResponse(listing, 1);
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = "/listing/{listingId}")
 	@ResponseBody
-	public ProAPIResponse updateListing(@PathVariable Integer userId, @PathVariable Integer listingId
-			) {
-		PortfolioListing property = portfolioService.deletePortfolioListing(userId, listingId);
-		return new ProAPISuccessResponse(property, 1);
+	public ProAPIResponse deleteListing(@PathVariable Integer userId, @PathVariable Integer listingId) {
+		PortfolioListing listing = portfolioService.deletePortfolioListing(userId, listingId);
+		return new ProAPISuccessResponse(listing, 1);
 	}
 	
 }

@@ -15,4 +15,5 @@ public interface ResponseErrorMessages {
 	static String SOLR_DOWN = "Solr Down, please bear with us";
 	static String INVALID_CONTENT_TYPE = "Invalid Content-Type in request header";
 	static String INVALID_REQUEST_METHOD_URL_AND_BODY = "Invalid combination of request method, url and body";
+	static String RESOURCE_ALREADY_EXIST = "Resource already exist";
 }

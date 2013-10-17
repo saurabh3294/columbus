@@ -22,6 +22,7 @@ import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
 import com.proptiger.exception.InvalidResourceNameException;
+import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 
@@ -139,5 +140,13 @@ public class GlobalExceptionHandler {
 	protected ProAPIResponse hanldeHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception){
 		logger.error("handle HttpRequestMethodNotSupportedException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_REQUEST_METHOD_URL_AND_BODY);
+	}
+	
+	@ExceptionHandler(ResourceAlreadyExistException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleResourceAlreadyExistException(ResourceAlreadyExistException exception){
+		logger.error("handle HttpRequestMethodNotSupportedException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.RESOURCE_ALREADY_EXIST);
 	}
 }

@@ -31,7 +31,7 @@ public class ProjectService {
     @Autowired
     private ProjectSpecificationDao projectSpecificationDao;
     
-    private static Logger logger = LoggerFactory.getLogger("project");
+    private static Logger logger = LoggerFactory.getLogger(ProjectService.class);
     	
     public SolrServiceResponse<List<Project>>  getProjects(Selector projectFilter){
     	if (logger.isDebugEnabled()) {

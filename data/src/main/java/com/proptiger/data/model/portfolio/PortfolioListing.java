@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -20,6 +21,7 @@ import javax.persistence.Transient;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.resource.NamedResource;
@@ -95,7 +97,11 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Enumerated(EnumType.STRING)
 	private LoanStatus loanStatus;
 	
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Property Id", description = "Property Id")
+	@Column(name = "bank_id")
+	private Integer bankId;
+	
+	@FieldMetaInfo(displayName = "Bank Id", description = "Bank Id")
 	@Column(name = "loan_amount")
 	private Double loanAmount;
 	
@@ -123,6 +129,10 @@ public class PortfolioListing implements NamedResource, Resource{
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id",  nullable = false, insertable = false, updatable = false)
 	private ForumUser forumUser;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "bank_id",  nullable = false, insertable = false, updatable = false)
+	private Bank bank;
 	
 	/**
 	 * @return the id
@@ -373,6 +383,13 @@ public class PortfolioListing implements NamedResource, Resource{
 	 */
 	public void setCurrentPrice(Double currentPrice) {
 		this.currentPrice = currentPrice;
+	}
+
+	public Integer getBankId() {
+		return bankId;
+	}
+	public void setBankId(Integer bankId) {
+		this.bankId = bankId;
 	}
 
 	@PreUpdate
