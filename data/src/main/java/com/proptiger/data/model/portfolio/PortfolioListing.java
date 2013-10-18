@@ -57,7 +57,7 @@ public class PortfolioListing implements NamedResource, Resource{
 	
 	@FieldMetaInfo(displayName = "Tower", description = "Tower")
 	@Column(name = "tower")
-	private int tower;
+	private String tower;
 	
 	@FieldMetaInfo(displayName = "Unit Number", description = "Unit Number")
 	@Column(name = "unit_no")
@@ -160,10 +160,10 @@ public class PortfolioListing implements NamedResource, Resource{
 		this.typeId = typeId;
 	}
 
-	public int getTower() {
+	public String getTower() {
 		return tower;
 	}
-	public void setTower(int tower) {
+	public void setTower(String tower) {
 		this.tower = tower;
 	}
 	public String getUnitNo() {

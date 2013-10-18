@@ -25,10 +25,6 @@
 	<logger name="project" level="INFO" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>
-	<logger name="exception.handler" level="INFO" additivity="true">
-		<appender-ref ref="proptiger-website" />
-	</logger>
-	
 	<logger name="property" level="INFO" additivity="true">
 		<appender-ref ref="proptiger-website" />
 	</logger>

@@ -3,12 +3,15 @@ package com.proptiger.data.mvc.portfolio;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
@@ -36,6 +39,7 @@ public class PortfolioController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
+	@ResponseStatus(value = HttpStatus.CREATED)
 	@ResponseBody
 	public ProAPIResponse createPortfolio(@PathVariable Integer userId, @RequestBody Portfolio portfolio) {
 		Portfolio created = portfolioService.createPortfolio(userId, portfolio);
@@ -43,6 +47,7 @@ public class PortfolioController {
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT)
+	@ResponseStatus(value = HttpStatus.ACCEPTED)
 	@ResponseBody
 	public ProAPIResponse updatePortfolio(@PathVariable Integer userId, @RequestBody Portfolio portfolio) {
 		Portfolio updated = portfolioService.updatePortfolio(userId, portfolio);
@@ -67,12 +72,13 @@ public class PortfolioController {
 	@RequestMapping(method = RequestMethod.POST, value = "/listing")
 	@ResponseBody
 	public ProAPIResponse createListing(@PathVariable Integer userId,
-			@RequestBody PortfolioListing portfolioProperty) {
+			@Validated  @RequestBody PortfolioListing portfolioProperty) {
 		PortfolioListing created = portfolioService.createPortfolioListing(userId, portfolioProperty);
 		return new ProAPISuccessResponse(created, 1);
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}")
+	@ResponseStatus(value = HttpStatus.ACCEPTED)
 	@ResponseBody
 	public ProAPIResponse updateListing(@PathVariable Integer userId, @PathVariable Integer listingId,
 			@RequestBody PortfolioListing portfolioProperty) {

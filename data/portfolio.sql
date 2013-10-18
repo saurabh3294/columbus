@@ -2,7 +2,7 @@ create table portfolio_listings(
 id int not null auto_increment,
 type_id int not null,
 user_id bigint not null,
-tower int,
+tower varchar(255),
 unit_no varchar(255),
 floor_no int,
 purchased_date date,
