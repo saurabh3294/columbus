@@ -322,6 +322,7 @@ public class PortfolioService extends AbstractService{
 		if(toCreate.getListingPaymentPlan() != null){
 			for(PortfolioListingPaymentPlan listingPaymentPlan:toCreate.getListingPaymentPlan()){
 				listingPaymentPlan.setPortfolioListing(toCreate);
+				listingPaymentPlan.setId(null);
 			}
 		}
 		
