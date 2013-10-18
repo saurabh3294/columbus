@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.data.model.portfolio.OverallReturn;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
+import com.proptiger.data.model.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
@@ -313,6 +314,14 @@ public class PortfolioService extends AbstractService{
 		if(toCreate.getListingPrice() != null){
 			for (PortfolioListingPrice listingPrice : toCreate.getListingPrice()) {
 				listingPrice.setPortfolioListing(toCreate);
+				//setting id null, as while creating id should not be present,
+				//need to find better place to do this pre process work
+				listingPrice.setId(null);
+			}
+		}
+		if(toCreate.getListingPaymentPlan() != null){
+			for(PortfolioListingPaymentPlan listingPaymentPlan:toCreate.getListingPaymentPlan()){
+				listingPaymentPlan.setPortfolioListing(toCreate);
 			}
 		}
 		

@@ -2,6 +2,7 @@ package com.proptiger.data.model.portfolio;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,8 +21,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import org.hibernate.annotations.Cascade;
 
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -138,7 +137,10 @@ public class PortfolioListing implements NamedResource, Resource{
 	private Bank bank;
 	
 	@OneToMany(mappedBy = "portfolioListing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	private List<PortfolioListingPrice> listingPrice;
+	private Set<PortfolioListingPrice> listingPrice;
+	
+	@OneToMany(mappedBy = "portfolioListing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	private Set<PortfolioListingPaymentPlan> listingPaymentPlan;
 	
 	@Override
 	public Integer getId() {
@@ -268,12 +270,22 @@ public class PortfolioListing implements NamedResource, Resource{
 		this.bankId = bankId;
 	}
 
-	public List<PortfolioListingPrice> getListingPrice() {
+	public Set<PortfolioListingPrice> getListingPrice() {
 		return listingPrice;
 	}
 
-	public void setListingPrice(List<PortfolioListingPrice> listingPrice) {
+	public void setListingPrice(Set<PortfolioListingPrice> listingPrice) {
 		this.listingPrice = listingPrice;
+	}
+
+	
+	public Set<PortfolioListingPaymentPlan> getListingPaymentPlan() {
+		return listingPaymentPlan;
+	}
+
+	public void setListingPaymentPlan(
+			Set<PortfolioListingPaymentPlan> listingPaymentPlans) {
+		this.listingPaymentPlan = listingPaymentPlans;
 	}
 
 	@PreUpdate

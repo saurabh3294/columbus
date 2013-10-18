@@ -5,10 +5,10 @@ package com.proptiger.data.constants;
  *
  */
 public interface ResponseErrorMessages {
-	static String SOME_ERROR_OCCURED = "some error occured, please try again later";
-	static String DATABASE_CONNECTION_ERROR = "database connection error";
+	static String SOME_ERROR_OCCURED = "Some error occured, please try again later";
+	static String DATABASE_CONNECTION_ERROR = "Database connection error";
 	static String REQUEST_PARAM_CONVERSION_ERROR = "request parameter is not valid";
-	static String REQUEST_PARAM_INVALID = "request parameter is not valid";
+	static String REQUEST_PARAM_INVALID = "Request parameter is not valid";
 	static String INVALID_NAME_ATTRIBUTE = "Invalid name attribute";
 	static String DUPLICATE_NAME_RESOURCE = "Resource with same name exist";
 	static String DUPLICATE_RESOURCE = "Duplicate resource";
@@ -16,4 +16,5 @@ public interface ResponseErrorMessages {
 	static String INVALID_CONTENT_TYPE = "Invalid Content-Type in request header";
 	static String INVALID_REQUEST_METHOD_URL_AND_BODY = "Invalid combination of request method, url and body";
 	static String RESOURCE_ALREADY_EXIST = "Resource already exist";
+	static String INVALID_FORMAT_IN_REQUEST = "Invalid format in request parameter value";
 }
