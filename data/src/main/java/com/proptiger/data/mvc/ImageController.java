@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,5 +67,15 @@ public class ImageController extends BaseController {
     Object deleteImage(@PathVariable long id) {
         imageService.deleteImage(id);
         return new ProAPISuccessResponse();
+    }
+    
+    
+    @RequestMapping(value = "{id}", method = RequestMethod.PUT)
+    public @ResponseBody
+    Object updateImage(@PathVariable long id, @RequestParam MultipartFile image, @RequestParam(required = false) Boolean addWaterMark) {
+        Image imageObj = imageService.getImage(id);
+        Object obj = this.putImages(imageObj.getImageType().getObjectType().getType(), imageObj.getImageType().getType(), imageObj.getObjectId(), image, addWaterMark, imageObj.getAltText(), imageObj.getTitle(), imageObj.getDescription(), String.valueOf(imageObj.getPriority()));
+        imageService.deleteImage(id);
+        return obj;
     }
 }

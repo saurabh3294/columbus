@@ -1,7 +1,10 @@
 package com.proptiger.data.model;
 
+import java.util.List;
+
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -10,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 
 @ResourceMetaInfo(name = "Property")
@@ -60,6 +64,9 @@ public class Property implements BaseModel {
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     private Project project;
+
+    @Transient
+    private List<Image> images;
 
     public int getProjectId() {
         return projectId;
@@ -147,5 +154,13 @@ public class Property implements BaseModel {
 
     public void setPropertyId(int propertyId) {
         this.propertyId = propertyId;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }

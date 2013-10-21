@@ -187,4 +187,8 @@ public class ImageService {
     public void deleteImage(long id) {
         imageDao.setActiveFalse(id);
     }
+
+    public Image getImage(long id) {
+        return imageDao.findOne(id);
+    }
 }

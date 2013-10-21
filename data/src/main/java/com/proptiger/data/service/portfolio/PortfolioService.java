@@ -1,7 +1,10 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.model.ProjectPaymentSchedule;
+import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.portfolio.OverallReturn;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
@@ -17,6 +22,7 @@ import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
+import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
@@ -36,6 +42,9 @@ public class PortfolioService extends AbstractService{
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
+	@Autowired
+	private ProjectPaymentScheduleDao paymentScheduleDao;
+	
 	/**
 	 * Get portfolio object for a particular user id
 	 * @param userId
@@ -47,6 +56,7 @@ public class PortfolioService extends AbstractService{
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
 		portfolio.setListings(listings);
 		updatePriceInfoInPortfolio(portfolio);
+		updatePaymentSchedule(listings);
 		return portfolio;
 	}
 	/**
@@ -111,7 +121,7 @@ public class PortfolioService extends AbstractService{
 	 * @return
 	 */
 	public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
-		List<PortfolioListing> presentListing = getAllPortfolioListings(userId);
+		List<PortfolioListing> presentListing = portfolioListingDao.findByUserId(userId);
 		List<PortfolioListing> toCreate = portfolio.getListings();
 		if (presentListing != null && presentListing.size() > 0) {
 			logger.error("Portfolio exists for userid {}", userId);
@@ -125,8 +135,7 @@ public class PortfolioService extends AbstractService{
 		return created;
 	}
 	
-	@Transactional(rollbackFor = ResourceAlreadyExistException.class)
-	public void createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList){
+	private void createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList){
 		if(toCreateList != null){
 			for(PortfolioListing toCreate: toCreateList){
 				createPortfolioListing(userId, toCreate);
@@ -149,7 +158,7 @@ public class PortfolioService extends AbstractService{
 	 * @return
 	 */
 	public Portfolio updatePortfolio(Integer userId, Portfolio portfolio){
-		List<PortfolioListing> presentListingList = getAllPortfolioListings(userId);
+		List<PortfolioListing> presentListingList = portfolioListingDao.findByUserId(userId);
 		Portfolio updated = new Portfolio();
 		if (presentListingList == null || presentListingList.size() == 0) {
 			logger.debug("No portfolio listing exists for userid {}", userId);
@@ -244,6 +253,7 @@ public class PortfolioService extends AbstractService{
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 			}
+			updatePaymentSchedule(listings);
 		}
 		return listings;
 	}
@@ -257,10 +267,11 @@ public class PortfolioService extends AbstractService{
 	public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId){
 		PortfolioListing listing = portfolioListingDao.findByUserIdAndId(userId, listingId);
 		if(listing == null){
-			logger.error("Listing id {} not found for userid {}",listingId, userId);
+			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+		updatePaymentSchedule(listing);
 		return listing;
 	}
 
@@ -281,7 +292,7 @@ public class PortfolioService extends AbstractService{
 	 * @param listing
 	 * @return
 	 */
-	@Transactional(rollbackFor = ConstraintViolationException.class)
+	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	public PortfolioListing createPortfolioListing(Integer userId, PortfolioListing listing){
 		listing.setUserId(userId);
 		return create(listing);
@@ -305,6 +316,7 @@ public class PortfolioService extends AbstractService{
 	@SuppressWarnings("unchecked")
 	protected <T extends Resource> T create(T resource) {
 		PortfolioListing toCreate = (PortfolioListing) resource;
+		logger.debug("Creating PortfolioProperty for userid {}",toCreate.getUserId());
 		preProcessCreate(toCreate);
 		PortfolioListing created = null;
 		/*
@@ -370,9 +382,59 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(rollbackFor = ResourceNotAvailableException.class)
 	public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId){
-		PortfolioListing propertyPresent = getPortfolioListingById(userId, listingId);
+		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndId(userId, listingId);
 		portfolioListingDao.delete(propertyPresent);
 		return propertyPresent;
+	}
+	
+	private void updatePaymentSchedule(List<PortfolioListing> portfolioListings){
+		for(PortfolioListing listing: portfolioListings){
+			updatePaymentSchedule(listing);
+		}
+	}
+	/**
+	 * This method updates payment plan for portfolio listing object, if user have already added or updated payment plan
+	 * @param portfolioListings
+	 */
+	private void updatePaymentSchedule(PortfolioListing portfolioListing){
+		if (portfolioListing != null) {
+			/*
+			 * If PortfolioListing does not have any payment plan associated,
+			 * means user is accessing this listing first time, once a payment
+			 * plan is created or updated then, do not nedd to fetch payment
+			 * plan template
+			 */
+			if (portfolioListing.getListingPaymentPlan() == null
+					|| portfolioListing.getListingPaymentPlan().size() == 0) {
+				ProjectType projectType = portfolioListing.getProjectType();
+				if (projectType != null && projectType.getProjectId() != null) {
+					List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
+							.findByProjectIdGroupByInstallmentNo(projectType.getProjectId());
+					Set<PortfolioListingPaymentPlan> listingPaymentPlan = convertToPortfolioListingPaymentPlan(paymentScheduleList);
+					portfolioListing.setListingPaymentPlan(listingPaymentPlan);
+				}
+			}
+
+		}
+	}
+	private Set<PortfolioListingPaymentPlan> convertToPortfolioListingPaymentPlan(
+			List<ProjectPaymentSchedule> paymentScheduleList) {
+		Set<PortfolioListingPaymentPlan> list = new LinkedHashSet<PortfolioListingPaymentPlan>();
+		for(ProjectPaymentSchedule paymentSchedule: paymentScheduleList){
+			PortfolioListingPaymentPlan listingPaymentPlan = new PortfolioListingPaymentPlan();
+			listingPaymentPlan.setAmount(0.0D);
+			listingPaymentPlan.setComponentName(paymentSchedule.getComponentName());
+			listingPaymentPlan.setComponentValue(paymentSchedule.getComponentValue());
+			listingPaymentPlan.setDueDate(null);
+			listingPaymentPlan.setInstallmentName(paymentSchedule.getInstallmentName());
+			listingPaymentPlan.setInstallmentNumber(paymentSchedule.getInstallmentNumber());
+			listingPaymentPlan.setPaymentDate(null);
+			listingPaymentPlan.setPaymentPlan(paymentSchedule.getPaymentPlan());
+			listingPaymentPlan.setPaymentSource(null);
+			listingPaymentPlan.setStatus(null);
+			list.add(listingPaymentPlan);
+		}
+		return list;
 	}
 	
 }
