@@ -63,7 +63,7 @@ public class ProjectDetailController extends BaseController {
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
         projectInfo.setImages(imageService.getImages(DomainObject.project, null, projectId));
         for (Property property : properties) {
-            projectInfo.getImages().addAll(imageService.getImages(DomainObject.property, null, property.getPropertyId()));
+            property.setImages(imageService.getImages(DomainObject.property, null, property.getPropertyId()));
         }
 
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
