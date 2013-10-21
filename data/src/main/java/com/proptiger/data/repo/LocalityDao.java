@@ -4,7 +4,11 @@
  */
 package com.proptiger.data.repo;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
 
 import org.jboss.logging.Param;
 import org.springframework.data.domain.Page;
@@ -12,13 +16,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.filter.MySqlQueryBuilder;
 
 /**
  *
  * @author mukand
  */
-    public interface LocalityDao extends PagingAndSortingRepository<Locality, Long>{
+    public interface LocalityDao extends PagingAndSortingRepository<Locality, Integer>, LocalityCustomDao {
     
     @Query("SELECT COUNT(*) "
             + " FROM Locality L join L.enquiry E WHERE L.localityId=E.localityId AND "
@@ -43,5 +49,4 @@ import com.proptiger.data.model.Locality;
     public Page<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityDesc(int cityId, boolean active, boolean deletedFlag, Pageable pageable);
     
     public Page<Locality> findByLocalityIdInAndIsActiveAndDeletedFlagOrderByPriorityDescLabelAsc(List<Integer> localityIds, boolean active, boolean deletedFlag, Pageable pageable);
-     
 }

@@ -12,6 +12,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -87,6 +88,7 @@ public class Locality implements BaseModel {
     private Double longitude;
 
     @OneToMany(mappedBy = "locality", targetEntity = Enquiry.class)
+    @JsonIgnore
     private Set<Enquiry> enquiry = new HashSet<Enquiry>();
 
     public int getLocalityId() {
