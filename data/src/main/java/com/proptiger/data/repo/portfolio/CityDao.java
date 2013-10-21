@@ -8,7 +8,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.filter.MySqlQueryBuilder;
@@ -18,7 +18,7 @@ import com.proptiger.data.pojo.Selector;
  * @author Rajeev Pandey
  *
  */
-@Component
+@Repository
 public class CityDao {
 	@Autowired
 	private EntityManagerFactory emf;
