@@ -19,6 +19,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.filter.MySqlQueryBuilder;
+import com.proptiger.data.pojo.Paging;
 
 /**
  *
@@ -49,4 +50,8 @@ import com.proptiger.data.model.filter.MySqlQueryBuilder;
     public Page<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityDesc(int cityId, boolean active, boolean deletedFlag, Pageable pageable);
     
     public Page<Locality> findByLocalityIdInAndIsActiveAndDeletedFlagOrderByPriorityDescLabelAsc(List<Integer> localityIds, boolean active, boolean deletedFlag, Pageable pageable);
+    
+    public List<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging);
+    
+    public List<Locality> findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging);
 }

@@ -1,4 +1,4 @@
-/*
+    /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.data.util.HMAC_Client;
+import java.util.List;
+import java.util.Map;
+import org.springframework.web.client.RestClientException;
 
 /**
  * 
@@ -33,17 +36,23 @@ public class CMSDao {
         restTemplate = new RestTemplate();
     }
 
-    public Object getPropertyPriceTrends(String locationType, Long locationId, String[] unitTypes) {
+    public Object getPropertyPriceTrends(String locationType, Integer locationId, List<String> unitTypes) {
 
-        String queryParams = "username=" + CMS_USERNAME + "&token=" + token + "&locationType=" + locationId;
+        String queryParams = "username=" + CMS_USERNAME + "&token=" + token + "&"+ locationType+"="+locationId;
         queryParams += "&timestamp=" + currentTime;
-        for (int i = 0; i < unitTypes.length; i++) {
-            queryParams += "&unittype[]=" + unitTypes[i];
+        for (String unitType : unitTypes) {
+            queryParams += "&unittype[]=" + unitType;
         }
 
         String url = CMS_URL + "analytics/apis/price-trend.json?" + queryParams;
 
-        return restTemplate.getForObject(url, Object.class);
+        try{
+            Map<String, Object> response = (Map<String, Object>)restTemplate.getForObject(url, Object.class);
+            return response.get("price_trend");
+        }
+        catch(RestClientException e){
+            return null;
+        }
     }
 
 }
