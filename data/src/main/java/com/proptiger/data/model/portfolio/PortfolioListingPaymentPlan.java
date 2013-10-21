@@ -34,7 +34,7 @@ public class PortfolioListingPaymentPlan {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
-	@FieldMetaInfo(displayName = "Portfolio Listing Payment Plan Id", description = "Portfolio Listing Price Id")
+	@JsonIgnore
 	private Integer id;
 	
 	@Column(name = "installment_no")
