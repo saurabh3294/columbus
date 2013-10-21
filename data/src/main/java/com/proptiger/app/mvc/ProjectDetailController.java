@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Builder;
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
@@ -25,6 +26,7 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
+import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 
@@ -36,6 +38,9 @@ import com.proptiger.data.service.PropertyService;
 public class ProjectDetailController extends BaseController {
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private PropertyService propertyService;
@@ -50,25 +55,33 @@ public class ProjectDetailController extends BaseController {
         if(propertyDetailsSelector == null) {
             propertyDetailsSelector = new Selector();
         }
-                        
+
         List<Property> properties = propertyService.getProperties(projectId);
         ProjectSpecification projectSpecification = projectService.getProjectSpecifications(projectId);
         Builder builderDetails = builderService.getBuilderDetailsByProjectId(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
-        
+        projectInfo.setImages(imageService.getImages(DomainObject.project, null, projectId));
+        for (Property property : properties) {
+            projectInfo.getImages().addAll(imageService.getImages(DomainObject.property, null, property.getPropertyId()));
+        }
+
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
-               
+
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("specification", parseSpecification);
-        response.put("projectDetails", projectInfo );
+        response.put("projectDetails", projectInfo);
         response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
         
-        return new ProAPISuccessResponse(response);
+        return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }
     
     private Map<String, Object> parseSpecificationObject(ProjectSpecification projectSpecification){
+        if (projectSpecification == null) {
+            return null;
+        }
+
         String specsGroups[] = {"doors", "electricalFittings", "fittingsAndFixtures", "flooring", "id", "others", "walls",  "windows"};
         
         Field fields[] = projectSpecification.getClass().getDeclaredFields();

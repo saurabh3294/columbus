@@ -5,15 +5,18 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
 
 /**
  *
@@ -244,7 +247,10 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="FORCE RESALE", description="FORCE RESALE")
     @Column(name="FORCE_RESALE")
-    private int forceResale ;
+    private int forceResale;
+    
+    @Transient
+    private List<Image> images;
     
     public int getProjectId() {
         return projectId;
@@ -660,5 +666,13 @@ public class ProjectDB implements BaseModel{
 
     public void setTownship(String township) {
         this.township = township;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }
