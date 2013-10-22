@@ -38,7 +38,7 @@ import com.proptiger.data.model.resource.Resource;
  */
 @Entity
 @Table(name = "portfolio_listings")
-@ResourceMetaInfo(name = "PortfolioListing")
+@ResourceMetaInfo
 public class PortfolioListing implements NamedResource, Resource{
 
 	@Id

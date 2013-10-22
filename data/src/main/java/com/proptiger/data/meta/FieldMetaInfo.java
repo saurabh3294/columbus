@@ -20,5 +20,5 @@ public @interface FieldMetaInfo {
 	String displayName();
 	String description() ;
 	DataType dataType() default DataType.DEFAULT;
-	boolean editable() default false;
+	boolean editable() default true;
 }

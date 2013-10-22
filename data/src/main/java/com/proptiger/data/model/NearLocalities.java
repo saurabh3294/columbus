@@ -17,7 +17,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "NEAR_LOCALITY")
-@ResourceMetaInfo(name="Near Localities")
+@ResourceMetaInfo
 public class NearLocalities implements BaseModel{
     @Id
     @FieldMetaInfo( displayName = "Id",  description = "Id")

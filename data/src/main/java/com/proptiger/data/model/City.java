@@ -18,7 +18,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "CITY")
-@ResourceMetaInfo(name = "City")
+@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class City{
     @Id

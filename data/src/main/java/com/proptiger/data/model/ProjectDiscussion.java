@@ -14,7 +14,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity
 @Table(name="FORUM_USER_COMMENTS")
-@ResourceMetaInfo(name = "Project Discussion")
+@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class ProjectDiscussion implements BaseModel {
     @Column(name="COMMENT_ID")

@@ -18,7 +18,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name = "RESI_BUILDER")
-@ResourceMetaInfo(name = "Builder")
+@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class Builder implements BaseModel {
     @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")

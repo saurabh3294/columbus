@@ -25,7 +25,7 @@ import com.proptiger.data.model.resource.Resource;
  */
 @Entity
 @Table(name = "dashboard_widget_mapping")
-@ResourceMetaInfo(name = "DashboardWidgetMapping")
+@ResourceMetaInfo
 public class DashboardWidgetMapping implements Resource{
 
 	@Id

@@ -10,7 +10,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author Rajeev Pandey
  *
  */
-@ResourceMetaInfo(name = "PropertyDocument")
+@ResourceMetaInfo
 public class PropertyDocument {
 
 	@FieldMetaInfo(displayName = "Property Document Id", description = "Property Document Id")

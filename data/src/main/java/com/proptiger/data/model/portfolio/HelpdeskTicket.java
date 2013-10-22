@@ -10,7 +10,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author Rajeev Pandey
  *
  */
-@ResourceMetaInfo(name = "HelpdeskTicket")
+@ResourceMetaInfo
 public class HelpdeskTicket {
 
 	@FieldMetaInfo(displayName = "Helpdesk Ticket Id", description = "Helpdesk Ticket Id")

@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.Project_Amenity;
+import com.proptiger.data.model.ProjectAmenity;
 import com.proptiger.data.repo.ProjectAmenityDao;
 
 /**
@@ -20,9 +20,9 @@ public class ProjectAmenityService {
 	private ProjectAmenityDao projectAmenityDao;
 	
 	public List<String> getAmenitiesByProjectId(long projectId){
-		List<Project_Amenity> list = projectAmenityDao.findAmenitiesByProjectId(projectId);
+		List<ProjectAmenity> list = projectAmenityDao.findAmenitiesByProjectId(projectId);
 		List<String> amenityNameList = new ArrayList<String>();
-		for(Project_Amenity amenity: list){
+		for(ProjectAmenity amenity: list){
 			amenityNameList.add(amenity.getAmenityName());
 		}
 		return amenityNameList;

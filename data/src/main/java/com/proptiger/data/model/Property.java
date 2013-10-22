@@ -16,7 +16,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 
-@ResourceMetaInfo(name = "Property")
+@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class Property implements BaseModel {
     @FieldMetaInfo( displayName = "Property Id",  description = "Property Id")

@@ -20,7 +20,7 @@ import com.proptiger.data.model.portfolio.UnitType;
  */
 @Entity
 @Table(name="RESI_PROJECT_TYPES")
-@ResourceMetaInfo(name = "ProjectTypes")
+@ResourceMetaInfo
 public class ProjectType {
 
 	@Id

@@ -20,7 +20,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name="FORUM_USER")
-@ResourceMetaInfo(name = "ForumUser")
+@ResourceMetaInfo
 public class ForumUser {
     @Column(name = "USER_ID")
     @Id

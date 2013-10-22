@@ -59,7 +59,11 @@ public class MetaService {
 			ResourceModelMeta resourceModelMeta = new ResourceModelMeta();
 			Class<?> clazz = itr.next();
 			resourceAnnotation = clazz.getAnnotation(ResourceMetaInfo.class);
-			resourceModelMeta.setName((String)AnnotationUtils.getAnnotationAttributes(resourceAnnotation).get(NAME));
+			String resourceName = (String)AnnotationUtils.getAnnotationAttributes(resourceAnnotation).get(NAME);
+			if(resourceName == null || "".equals(resourceName)){
+				resourceName = clazz.getSimpleName();
+			}
+			resourceModelMeta.setName(resourceName);
 			
 			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {

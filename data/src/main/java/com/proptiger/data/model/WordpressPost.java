@@ -15,7 +15,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name = "wordpress.wp_posts")
-@ResourceMetaInfo(name="BlogPost")
+@ResourceMetaInfo
 public class WordpressPost {
 
 	@Id

@@ -12,7 +12,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author Rajeev Pandey
  *
  */
-@ResourceMetaInfo(name = "UserWishList")
+@ResourceMetaInfo
 public class UserWishList {
 
 	@FieldMetaInfo(displayName="Project Id", description="Project Id")

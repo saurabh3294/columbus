@@ -16,7 +16,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name = "REVIEW_COMMENTS")
-@ResourceMetaInfo(name = "Project Review")
+@ResourceMetaInfo
 public class ProjectReview{
 
 	@FieldMetaInfo( displayName = "Comment Id",  description = "Comment Id")

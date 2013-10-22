@@ -19,7 +19,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @Entity
-@ResourceMetaInfo(name = "Project Specification")
+@ResourceMetaInfo
 @Table(name="RESI_PROJ_SPECIFICATION")
 public class ProjectSpecification implements BaseModel{
     @FieldMetaInfo(displayName="PROJECT ID", description="PROJECT ID")
