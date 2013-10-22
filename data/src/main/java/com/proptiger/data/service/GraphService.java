@@ -4,6 +4,10 @@
  */
 package com.proptiger.data.service;
 
+import com.google.gson.Gson;
+import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.NearLocalities;
+import com.proptiger.data.pojo.Paging;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -18,7 +22,10 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.repo.CMSDao;
 import com.proptiger.data.repo.LocalityDao;
+import com.proptiger.data.repo.NearLocalitiesDao;
 import com.proptiger.data.repo.PropertyDao;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 /**
  *
@@ -34,6 +41,9 @@ public class GraphService {
     
     @Autowired
     private CMSDao cmsDao;
+    
+    @Autowired
+    private NearLocalitiesDao nearLocalitiesDao;
             
     public Map<String, Map<Integer, Integer>> getProjectDistrubtionOnStatus(Map<String, String> params){
         int bedroom_limit = Integer.parseInt( params.get("bedroom_upper_limit") );
@@ -263,8 +273,61 @@ public class GraphService {
     public Object getPropertyPriceTrends(Map<String, Object> paramObject){
         String locationType = (String)paramObject.get("location_type");
         Double locationId = (Double)paramObject.get("location_id");
-        String unitType = (String)paramObject.get("unit_type");
+        List<String> unitType = (List<String>)paramObject.get("unit_type");
+        locationType = locationType.toLowerCase();
                 
-        return cmsDao.getPropertyPriceTrends(locationType, locationId.longValue(), unitType.split(","));
+        return cmsDao.getPropertyPriceTrends(locationType, locationId.intValue(), unitType);
+    }
+    
+    public Object getPriceTrendComparisionLocalities(Map<String, Object> paramObject){
+        String locationType = (String)paramObject.get("location_type");
+        Double locationId = (Double)paramObject.get("location_id");
+        List<String> unitType = (List<String>)paramObject.get("unit_type");
+        locationType = locationType.toLowerCase();
+        // START getting the Top Rated locality in a city or suburb.
+        Pageable paging = new PageRequest(0,1);
+        int topRatedLocalityId;
+        List<Locality> locality = null;
+        switch (locationType) {
+            case "city":
+                locality = localityDao.findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(locationId.intValue(), true, true, paging);
+                break;
+            case "suburb":
+                locality = localityDao.findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(locationId.intValue(), true, true, paging);
+                break;
+        }
+        
+        if("locality".equals(locationType))
+            topRatedLocalityId = locationId.intValue();
+        else
+            topRatedLocalityId = locality.get(0).getLocalityId();
+        // END getting top rated Locality
+        
+        // START getting near by localities of Top Locality
+        paging = new PageRequest(0, 5);
+        List<NearLocalities> nearLocalitiesList = nearLocalitiesDao.findByMainLocalityOrderByDistanceAsc(topRatedLocalityId, paging);
+        // END getting near by localities of Top Locality
+        
+        // START Getting Data from CMS
+        Map<Object, Object> response = new LinkedHashMap<>();
+        Object cmsOutput = null;
+                        
+           // getting cms data of near localities of Top Rated Locality.
+        for(NearLocalities nearLocality : nearLocalitiesList)
+        {
+            cmsOutput = cmsDao.getPropertyPriceTrends("locality", nearLocality.getNearLocality(), unitType);
+            if(cmsOutput != null)
+                response.put(nearLocality.getNearLocality(), cmsOutput);
+        }
+        // END Getting Data from CMS
+        
+        // setting top Rated Locality in a seperate Key
+        response.put("topRatedLocality", topRatedLocalityId);
+        // minimum 3 localities cms data is required to plot graph.
+        // top Rated Locality CMS should not be null
+        if(response.size() < 3 || response.get(topRatedLocalityId) == null)
+            return null;
+        
+        return response;
     }
 }

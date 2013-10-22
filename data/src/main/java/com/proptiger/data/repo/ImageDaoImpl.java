@@ -95,6 +95,7 @@ public class ImageDaoImpl {
             image.setAltText(extraInfo.get("altText"));
             image.setTitle(extraInfo.get("title"));
             image.setDescription(extraInfo.get("description"));
+            image.setPriority(Integer.valueOf(extraInfo.get("priority")));
             
             return image;
         } catch (Exception e) {

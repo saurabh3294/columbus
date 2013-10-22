@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 
 /**
@@ -212,6 +213,8 @@ public class Project implements BaseModel {
     private String propertySizeMeasure;
 
     private Set<String> propertyUnitTypes;
+
+    private List<Image> images;
 
     public int getProjectId() {
         return projectId;
@@ -531,5 +534,13 @@ public class Project implements BaseModel {
 
     public void setMaxBedrooms(int maxBedrooms) {
         this.maxBedrooms = maxBedrooms;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }
