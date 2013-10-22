@@ -1,7 +1,6 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -79,7 +78,7 @@ public class PortfolioService extends AbstractService{
 			currentValue = originalValue;
 		}
 		portfolio.setCurrentValue(currentValue);
-		portfolio.setOriginalVaue(originalValue);
+		portfolio.setOriginalValue(originalValue);
 		OverallReturn overallReturn = getOverAllReturn(originalValue,
 				currentValue);
 		portfolio.setOverallReturn(overallReturn );

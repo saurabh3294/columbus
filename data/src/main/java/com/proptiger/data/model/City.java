@@ -10,6 +10,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import javax.persistence.Transient;
 
 /**
  * @author Rajeev Pandey
@@ -62,6 +63,7 @@ public class City{
     @Column(name="DISPLAY_PRIORITY")
     @Field(value="DISPLAY_PRIORITY")
     @FieldMetaInfo( displayName = "Display Priority",  description = "Display Priority")
+    @Transient
     private Integer displayPriority;
     
     @Column(name="DISPLAY_ORDER")
