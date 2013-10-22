@@ -399,8 +399,9 @@ public class PortfolioService extends AbstractService{
 		if (portfolioListing != null) {
 			/*
 			 * If PortfolioListing does not have any payment plan associated,
-			 * means user is accessing this listing first time, once a payment
-			 * plan is created or updated then, do not nedd to fetch payment
+			 * means user is accessing this listing first time, so payment
+			 * plan will be sent as template for associated project. once a payment
+			 * plan is created or updated then, do not need to fetch payment
 			 * plan template
 			 */
 			if (portfolioListing.getListingPaymentPlan() == null

@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.model.portfolio.PaymentPlan;
 
 /**
@@ -20,6 +21,7 @@ public class ProjectPaymentSchedule {
 
 	@Id
 	@Column(name = "PAYMENT_SCHEDULE_ID")
+	@JsonIgnore
 	private Integer paymentScheduleId;
 	
 	@Column(name = "PROJECT_ID")
