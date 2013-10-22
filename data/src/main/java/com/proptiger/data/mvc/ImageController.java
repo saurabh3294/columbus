@@ -68,13 +68,12 @@ public class ImageController extends BaseController {
         imageService.deleteImage(id);
         return new ProAPISuccessResponse();
     }
-    
-    
-    @RequestMapping(value = "{id}", method = RequestMethod.PUT)
+
+    @RequestMapping(value = "{id}", method = RequestMethod.POST)
     public @ResponseBody
-    Object updateImage(@PathVariable long id, @RequestParam MultipartFile image, @RequestParam(required = false) Boolean addWaterMark) {
-        Image imageObj = imageService.getImage(id);
-        Object obj = this.putImages(imageObj.getImageType().getObjectType().getType(), imageObj.getImageType().getType(), imageObj.getObjectId(), image, addWaterMark, imageObj.getAltText(), imageObj.getTitle(), imageObj.getDescription(), String.valueOf(imageObj.getPriority()));
+    Object updateImage(@PathVariable long id, @RequestParam MultipartFile imageFile) {
+        Image image = imageService.getImage(id);
+        Object obj = this.putImages(image.getImageType().getObjectType().getType(), image.getImageType().getType(), image.getObjectId(), imageFile, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getAltText(), image.getTitle(), image.getDescription(), image.getPriority() == null ? "" : String.valueOf(image.getPriority()));
         imageService.deleteImage(id);
         return obj;
     }
