@@ -18,8 +18,7 @@ public class ImageType {
 	private long id;
 	
 	@ManyToOne(targetEntity = ObjectType.class)
-	@Transient
-	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id")
+	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable=false, updatable=false)
 	private ObjectType objectType;
 	
 	@Column(name = "ObjectType_id")
