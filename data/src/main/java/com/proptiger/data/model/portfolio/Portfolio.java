@@ -18,7 +18,7 @@ public class Portfolio {
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "originalVaue", description = "Original Vaue")
 	@JsonSerialize(converter=DoubletoIntegerConverter.class)
-	private double originalVaue;
+	private double originalValue;
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "currentValue", description = "Current Value")
 	@JsonSerialize(converter=DoubletoIntegerConverter.class)
@@ -30,18 +30,12 @@ public class Portfolio {
 	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "properties", description = "Properties")
 	private List<PortfolioListing> listings;
 
-	/**
-	 * @return the originalVaue
-	 */
-	public double getOriginalVaue() {
-		return originalVaue;
+	public double getOriginalValue() {
+		return originalValue;
 	}
 
-	/**
-	 * @param originalVaue the originalVaue to set
-	 */
-	public void setOriginalVaue(double originalVaue) {
-		this.originalVaue = originalVaue;
+	public void setOriginalValue(double originalValue) {
+		this.originalValue = originalValue;
 	}
 
 	/**
