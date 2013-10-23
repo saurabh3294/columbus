@@ -358,6 +358,7 @@ public class PropertyDao {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         try{
+            System.out.println(solrQuery.toString());
             return properties.get(0);
         }catch(Exception e){
             return null;

@@ -43,19 +43,20 @@ public class RecommendationService {
             {10, 15, 15, 3},
             {10, 30, 15, 4}};
         
-        SolrResult solrResult = propertyDao.getProperty(propertyId);
-        if(solrResult == null)
+        SolrResult viewPropertyData = propertyDao.getProperty(propertyId);
+        if(viewPropertyData == null)
             return null;
         Gson gson = new Gson();
-        System.out.println(gson.toJson(solrResult));
+        System.out.println(gson.toJson(viewPropertyData));
         
-        List<List<SolrResult>> propertyData = getSimilarPropertiesData(solrResult, limit, params);
+        List<List<SolrResult>> searchPropertiesData = getSimilarPropertiesData(viewPropertyData, limit, params);
+        List<SolrResult> response = sortProperties(searchPropertiesData, viewPropertyData);
         return new Object();
     }
     
-    private List<List<SolrResult>> getSimilarPropertiesData(SolrResult solrResult, int limit, int[][] params){
-        Property property = solrResult.getProperty();
-        Project project = solrResult.getProject();
+    private List<List<SolrResult>> getSimilarPropertiesData(SolrResult viewPropertyData, int limit, int[][] params){
+        Property property = viewPropertyData.getProperty();
+        Project project = viewPropertyData.getProject();
         
         Double area = property.getSize();
         Double price = property.getPricePerUnitArea();
@@ -66,9 +67,9 @@ public class RecommendationService {
         Integer localityId = project.getLocalityId();
         
         List<Object> projectStatusGroup = (List)getProjectStatusGroups(projectStatus);
-        
+        System.out.println("started.");
         //if(!isSimilarPropertySearchValid(area, price, latitude, longitude, longitude, unitType, projectStatusGroup))
-        if( !isSimilarPropertySearchValid(solrResult, projectStatusGroup)[0])
+        if( !isSimilarPropertySearchValid(viewPropertyData, projectStatusGroup)[0])
             return null;
         
         if(checkDoubleObject(price))
@@ -79,37 +80,37 @@ public class RecommendationService {
         double minArea, maxArea, minPrice, maxPrice;
         // TODO to handle the cancelled and 
         
-        List<List<SolrResult>> propertyData= null;
-        List<SolrResult> tempProperty = null;
-        propertyData = new LinkedList<>();
+        List<List<SolrResult>> searchPropertiesData= null;
+        List<SolrResult> tempSearchProperties = null;
+        searchPropertiesData = new LinkedList<>();
         
-        for(int i=0; i<params.length &&propertyData.size()< limit; i++){
+        for(int i=0; i<params.length &&searchPropertiesData.size()< limit; i++){
             minArea = (100-params[i][2])*area/100;
             maxArea = (100+params[i][2])*area/100;
             minPrice = (100-params[i][1])*price/100;
             maxPrice = (100+params[i][1])*price/100;
             
-            tempProperty = propertyDao.getSimilarProperties(params[i][0], latitude, longitude, 
+            tempSearchProperties = propertyDao.getSimilarProperties(params[i][0], latitude, longitude, 
                     minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit);
-            propertyData.add(tempProperty);
-            System.out.println("i"+i+" : "+tempProperty.size());
+            searchPropertiesData.add(tempSearchProperties);
+            System.out.println("i"+i+" : "+tempSearchProperties.size());
         }
-        assignPriorityToProperty(propertyData);
-        System.out.println(" FINAL : "+propertyData.size());
+        assignPriorityToProperty(searchPropertiesData);
+        System.out.println(" FINAL : "+searchPropertiesData.size());
         //Double minArea = area*(100-params)
         
-        return propertyData;
+        return searchPropertiesData;
     }
     
-    private void assignPriorityToProperty(List<List<SolrResult>> propertyData){
+    private void assignPriorityToProperty(List<List<SolrResult>> searchPropertiesData){
         SolrResult solrResult;
-        List<SolrResult> listSolrResult = new ArrayList<>();
+        List<SolrResult> lowPriorityProperty = new ArrayList<>();
         
         List<Object> projectStatusGroup = new ArrayList<>();
         projectStatusGroup.add("");
         
         boolean[] dataStatus;
-        for(List<SolrResult> tempData:propertyData)
+        for(List<SolrResult> tempData:searchPropertiesData)
         {
             for(SolrResult tempResult:tempData)
             {
@@ -118,13 +119,13 @@ public class RecommendationService {
                 // then priority will be changed to last.
                 if(!dataStatus[2] && dataStatus[1])
                 {
-                    listSolrResult.add(tempResult);
+                    lowPriorityProperty.add(tempResult);
                     tempData.remove(tempResult);
                 }
             }
         }
-        if(listSolrResult.size() > 0)
-            propertyData.add(listSolrResult);
+        if(lowPriorityProperty.size() > 0)
+            searchPropertiesData.add(lowPriorityProperty);
     }
     
     private List<String> getProjectStatusGroups(String projectStatus){
@@ -171,10 +172,10 @@ public class RecommendationService {
     
    /* private boolean isSimilarPropertySearchValid(Double area, Double price, Double latitude, Double longitude
             , Double localityId, String unitType, List<Object> projectStatusGroup){*/
-    private boolean[] isSimilarPropertySearchValid(SolrResult solrResult, List<Object> projectStatusGroup)
+    private boolean[] isSimilarPropertySearchValid(SolrResult propertyData, List<Object> projectStatusGroup)
     {
-        Property property = solrResult.getProperty();
-        Project project = solrResult.getProject();
+        Property property = propertyData.getProperty();
+        Project project = propertyData.getProject();
         
         String unitType = project.getUnitTypes();
         Double area = property.getSize();
@@ -182,7 +183,9 @@ public class RecommendationService {
         Double latitude = property.getProcessedLatitue();
         Double longitude = property.getProcessedLongitude();
         Integer localityId = project.getLocalityId();
-        
+                
+        System.out.println("UNIT TYPE" + unitType+" area "+area+" price "+price+" latitude "+latitude+" longitude "+longitude+" localityId "+localityId);
+        System.out.println(" PROJECT STATUS "+projectStatusGroup.toString());
         boolean isValid = true;
         if(checkStringObject(unitType) || projectStatusGroup.size()<1)
             isValid = false;
@@ -200,17 +203,20 @@ public class RecommendationService {
         return response;
     }
     
-    private void sortProperties(List<List<SolrResult>> propertyData, final SolrResult viewedProperty){
-        List<SolrResult> finalPropertyResults = new LinkedList<>();
+    private List<SolrResult> sortProperties(List<List<SolrResult>> searchPropertiesData, final SolrResult viewedProperty){
+        List<SolrResult> finalPropertyResults = new ArrayList<>();
         PropertyComparer propertyComparer = new PropertyComparer(3, 
                 viewedProperty.getProperty().getBedrooms());
         
-        for(List<SolrResult> solrResults:propertyData)
+        if(searchPropertiesData == null)
+            return null;
+        
+        for(List<SolrResult> solrResults:searchPropertiesData)
         {
             Collections.sort(solrResults, propertyComparer);
-            //finalPropertyResults.
+            finalPropertyResults.addAll(finalPropertyResults.size(), solrResults);
         }
-        //Collections.sort(solrResults, new PropertyComparer(3, ));
-
+        
+        return finalPropertyResults;
     }
 }
