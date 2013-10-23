@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.data.dto.UserWishList;
+import com.proptiger.data.internal.dto.UserWishList;
 import com.proptiger.data.repo.portfolio.UserWishListDao;
 
 /**

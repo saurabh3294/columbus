@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.dto.DashboardDto;
+import com.proptiger.data.internal.dto.DashboardDto;
 import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.mvc.BaseController;

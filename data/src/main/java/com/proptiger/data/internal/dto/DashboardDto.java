@@ -1,4 +1,4 @@
-package com.proptiger.data.dto;
+package com.proptiger.data.internal.dto;
 
 import java.util.List;
 
