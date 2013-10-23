@@ -440,7 +440,7 @@ public class Project implements BaseModel {
         this.status = status;
     }
 
-    public boolean isResale() {
+    public boolean isIsResale() {
         return isResale;
     }
 

@@ -14,6 +14,8 @@ import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -45,7 +47,7 @@ public class RecommendationService {
         Gson gson = new Gson();
         System.out.println(gson.toJson(solrResult));
         
-        getSimilarPropertiesData(solrResult, limit, params);
+        List<List<SolrResult>> propertyData = getSimilarPropertiesData(solrResult, limit, params);
         return new Object();
     }
     
@@ -190,9 +192,16 @@ public class RecommendationService {
         // 1> area or location data is present.
         // 2> area and location data both is present.
         boolean[] response = new boolean[3];
-        response[0] = isValid&(locationStatus||areaStatus);
+        response[0] = isValid&&(locationStatus||areaStatus);
         response[1] = locationStatus||areaStatus;
         response[2] = locationStatus&&areaStatus;
         return response;
+    }
+    
+    private void sortProperties(List<List<SolrResult>> propertyData, final SolrResult viewedProperty){
+        List<SolrResult> solrResults = null;
+        //RecommendationPropertyComparer
+        //Collections.sort(solrResults, new PropertyComparer(3, viewedProperty.getProperty().getBedrooms()));
+
     }
 }
