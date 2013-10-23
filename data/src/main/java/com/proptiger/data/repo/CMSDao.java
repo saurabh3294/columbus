@@ -1,7 +1,4 @@
-    /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.proptiger.data.repo;
 
 import java.util.Date;
@@ -71,9 +68,17 @@ public class CMSDao {
         }
     }
 
-    public ProjectPriceHistoryDetail getProjectPriceHistory(Integer projectId, Integer typeId, Integer noOfMonths){
+    public ProjectPriceHistoryDetail getProjectPriceHistory(List<Integer> projectIdList, Integer typeId, Integer noOfMonths){
     	StringBuilder queryParam = new StringBuilder();
-    	queryParam.append("project_ids[]").append("=").append(projectId);
+    	boolean afterFirst = false;
+    	for(Integer projectId: projectIdList){
+    		if(afterFirst){
+    			queryParam.append("&");
+    		}
+    		queryParam.append("project_ids[]").append("=").append(projectId);
+    		afterFirst = true;
+    	}
+    	
     	if(noOfMonths != null && noOfMonths > 0){
     		queryParam.append("&");
     		queryParam.append("duration").append("=").append(noOfMonths);
