@@ -1,5 +1,7 @@
 package com.proptiger.data.mvc;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +20,7 @@ import com.proptiger.data.service.ProjectPriceHistoryService;
  *
  */
 @Controller
-@RequestMapping(value="data/v1/entity/user/{userId}/project/{projectId}/price-history")
+@RequestMapping(value="data/v1/entity/user/{userId}/project/price-history")
 public class ProjectPriceHistoryController {
 
 	@Autowired
@@ -27,10 +29,10 @@ public class ProjectPriceHistoryController {
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	public ProAPIResponse getProjectPriceHistory(@PathVariable Integer userId,
-			@PathVariable Integer projectId, @RequestParam(required = false) Integer typeId,
+			@RequestParam(required = true, value = "ids") List<Integer> ids, @RequestParam(required = false) Integer typeId,
 			@RequestParam(required = false) Integer months) {
 		
-		ProjectPriceHistory response = priceHistoryService.getProjectPriceHistory(projectId, typeId, months);
-		return new ProAPISuccessResponse(response, 1);
+		List<ProjectPriceHistory> response = priceHistoryService.getProjectPriceHistory(ids, typeId, months);
+		return new ProAPISuccessResponse(response, response.size());
 	}
 }
