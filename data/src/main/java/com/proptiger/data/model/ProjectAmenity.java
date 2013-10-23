@@ -8,8 +8,8 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity(name = "AMENITIES")
-@ResourceMetaInfo(name = "Amenities")
-public class Project_Amenity implements BaseModel {
+@ResourceMetaInfo
+public class ProjectAmenity implements BaseModel {
 
 	@Column(name = "ID")
 	@Id

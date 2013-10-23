@@ -1,50 +1,63 @@
-    /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.proptiger.data.repo;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import com.proptiger.data.util.HMAC_Client;
 import java.util.List;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+
+import com.proptiger.data.external.dto.ProjectPriceHistoryDetail;
+import com.proptiger.data.util.HMAC_Client;
+import com.proptiger.data.util.PropertyReader;
 
 /**
  * 
  * @author mukand
+ * @author Rajeev Pandey
  */
 @Component
 public class CMSDao {
-    RestTemplate restTemplate;
+	
+    private static final String ANALYTICS_APIS_PRICE_TREND_JSON = "analytics/apis/price-trend.json?";
+	private static final String APP_V1_PROJECT_PRICE_TREND = "app/v1/project-price-trend?";
+	private static final String TIMESTAMP = "timestamp";
+	private static final String TOKEN = "token";
+	private static final String USERNAME = "username";
 
-    // @TODO to move it to configuration file.
-    private final String CMS_USERNAME = "proptiger";
-    private final String CMS_PASSWORD = "PropTiger@123!";
-    private final String CMS_URL = "http://cms.proptiger.com/";
-    private String token;
-    Long currentTime;
+	
+	private RestTemplate restTemplate;
 
-    public CMSDao() throws NoSuchAlgorithmException {
-        currentTime = new Date().getTime() / 1000;
-        token = HMAC_Client.calculateHMAC(CMS_PASSWORD, currentTime.toString());
+    @Autowired
+    private PropertyReader propertyReader;
+    
+    private final String CMS_USERNAME = "cms_username";
+    private final String CMS_PASSWORD = "cms_password";
+    private final String CMS_BASE_URL = "cms_base_url";
+    private String securityToken;
+    private Long timeStamp;
+
+
+    @PostConstruct
+    private void init(){
+    	timeStamp = new Date().getTime() / 1000;
+        securityToken = HMAC_Client.calculateHMAC(propertyReader.getRequiredProperty(CMS_PASSWORD), timeStamp.toString());
         restTemplate = new RestTemplate();
     }
-
     public Object getPropertyPriceTrends(String locationType, Integer locationId, List<String> unitTypes) {
 
-        String queryParams = "username=" + CMS_USERNAME + "&token=" + token + "&"+ locationType+"="+locationId;
-        queryParams += "&timestamp=" + currentTime;
+        String queryParams = "username=" + propertyReader.getRequiredProperty(CMS_USERNAME) + "&token=" + securityToken + "&"+ locationType+"="+locationId;
+        queryParams += "&timestamp=" + timeStamp;
         for (String unitType : unitTypes) {
             queryParams += "&unittype[]=" + unitType;
         }
 
-        String url = CMS_URL + "analytics/apis/price-trend.json?" + queryParams;
+        String url =  propertyReader.getRequiredProperty(CMS_BASE_URL) + ANALYTICS_APIS_PRICE_TREND_JSON + queryParams;
 
         try{
             Map<String, Object> response = (Map<String, Object>)restTemplate.getForObject(url, Object.class);
@@ -55,4 +68,43 @@ public class CMSDao {
         }
     }
 
+    public ProjectPriceHistoryDetail getProjectPriceHistory(List<Integer> projectIdList, Integer typeId, Integer noOfMonths){
+    	StringBuilder queryParam = new StringBuilder();
+    	boolean afterFirst = false;
+    	for(Integer projectId: projectIdList){
+    		if(afterFirst){
+    			queryParam.append("&");
+    		}
+    		queryParam.append("project_ids[]").append("=").append(projectId);
+    		afterFirst = true;
+    	}
+    	
+    	if(noOfMonths != null && noOfMonths > 0){
+    		queryParam.append("&");
+    		queryParam.append("duration").append("=").append(noOfMonths);
+    	}
+    	
+    	return getResponseFromCms(APP_V1_PROJECT_PRICE_TREND, queryParam.toString(), ProjectPriceHistoryDetail.class);
+    }
+    
+    /**
+     * This method calls cms API and return the result as specified java type
+     * @param subUrl
+     * @param queryParams
+     * @param javaTypeResponse
+     * @return
+     */
+    public <T> T getResponseFromCms(String subUrl, String queryParams, Class<T> javaTypeResponse){
+    	Long timeStamp = new Date().getTime();
+    	String token = HMAC_Client.calculateHMAC(propertyReader.getRequiredProperty(CMS_PASSWORD), timeStamp.toString());
+    	
+    	StringBuilder url =  new StringBuilder(propertyReader.getRequiredProperty(CMS_BASE_URL));
+    	url.append(subUrl);
+    	url.append(USERNAME).append("=").append(propertyReader.getRequiredProperty(CMS_USERNAME));
+    	url.append("&").append(TOKEN).append("=").append(token);
+    	url.append("&").append(TIMESTAMP).append("=").append(timeStamp);
+    	url.append("&").append(queryParams);
+    	T response = restTemplate.getForObject(url.toString(), javaTypeResponse);
+    	return response;
+    }
 }

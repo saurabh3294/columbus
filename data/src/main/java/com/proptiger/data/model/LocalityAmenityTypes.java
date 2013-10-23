@@ -20,7 +20,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name = "NEAR_PLACE_TYPES")
-@ResourceMetaInfo(name = "Locality Amenity Types")
+@ResourceMetaInfo
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LocalityAmenityTypes implements BaseModel{

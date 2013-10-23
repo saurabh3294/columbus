@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.dto.DashboardDto;
+import com.proptiger.data.internal.dto.DashboardDto;
 import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.model.portfolio.WidgetDisplayStatus;

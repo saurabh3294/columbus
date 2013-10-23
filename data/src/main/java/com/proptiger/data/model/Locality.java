@@ -23,7 +23,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name = "LOCALITY")
-@ResourceMetaInfo(name = "Locality")
+@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")

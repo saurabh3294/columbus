@@ -1,4 +1,4 @@
-package com.proptiger.data.dto;
+package com.proptiger.data.internal.dto;
 
 import java.util.Date;
 
@@ -12,7 +12,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author Rajeev Pandey
  *
  */
-@ResourceMetaInfo(name = "UserWishList")
+@ResourceMetaInfo
 public class UserWishList {
 
 	@FieldMetaInfo(displayName="Project Id", description="Project Id")

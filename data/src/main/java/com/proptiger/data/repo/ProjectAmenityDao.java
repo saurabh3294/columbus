@@ -4,13 +4,13 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.proptiger.data.model.Project_Amenity;
+import com.proptiger.data.model.ProjectAmenity;
 
 /**
  * @author Rajeev Pandey
  *
  */
-public interface ProjectAmenityDao extends JpaRepository<Project_Amenity, Long>{
+public interface ProjectAmenityDao extends JpaRepository<ProjectAmenity, Long>{
 
-	public List<Project_Amenity> findAmenitiesByProjectId(long projectId);
+	public List<ProjectAmenity> findAmenitiesByProjectId(long projectId);
 }

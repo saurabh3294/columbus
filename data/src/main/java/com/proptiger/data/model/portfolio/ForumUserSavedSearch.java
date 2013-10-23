@@ -10,7 +10,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity
 @Table(name = "FORUM_USER_SAVED_SEARCHES")
-@ResourceMetaInfo(name = "ForumUserSavedSearch")
+@ResourceMetaInfo
 public class ForumUserSavedSearch {
 
 	@Id

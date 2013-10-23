@@ -28,7 +28,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name = "portfolio_listings_payment_plan")
-@ResourceMetaInfo(name = "PortfolioListingPaymentPlan")
+@ResourceMetaInfo
 public class PortfolioListingPaymentPlan {
 
 	@Id

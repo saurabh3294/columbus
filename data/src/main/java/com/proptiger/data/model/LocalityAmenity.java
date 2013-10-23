@@ -23,7 +23,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name = "LOCALITY_NEAR_PLACES")
-@ResourceMetaInfo(name = "Locality Amenity")
+@ResourceMetaInfo
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 //@JsonFilter("fieldFilter")

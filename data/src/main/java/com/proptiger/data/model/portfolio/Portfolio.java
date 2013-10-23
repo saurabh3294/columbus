@@ -13,7 +13,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  * @author Rajeev Pandey
  *
  */
-@ResourceMetaInfo(name = "Portfolio")
+@ResourceMetaInfo
 public class Portfolio {
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "originalVaue", description = "Original Vaue")

@@ -10,7 +10,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  * @author Rajeev Pandey
  *
  */
-@ResourceMetaInfo(name = "OverallReturn")
+@ResourceMetaInfo
 public class OverallReturn {
 	@FieldMetaInfo(dataType = DataType.STRING, displayName = "returnType", description = "Return Type")
 	private ReturnType returnType;

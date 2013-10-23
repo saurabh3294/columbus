@@ -27,7 +27,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  * 
  * @author mukand
  */
-@ResourceMetaInfo(name = "Project")
+@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class Project implements BaseModel {
     public static enum NestedProperties {

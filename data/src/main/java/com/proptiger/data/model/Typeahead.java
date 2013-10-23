@@ -21,7 +21,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonAutoDetect(fieldVisibility=Visibility.ANY, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
-@ResourceMetaInfo(name="Typeahead")
+@ResourceMetaInfo
 public class Typeahead implements BaseModel {
     @Field(value="id")
     private String id;
