@@ -351,7 +351,49 @@ public class PropertyDao {
 
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
-
+    
+    public SolrResult getProperty(long propertyId) {
+        SolrQuery solrQuery = createSolrQuery(null);
+        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY AND TYPE_ID:"+propertyId);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
+        try{
+            return properties.get(0);
+        }catch(Exception e){
+            return null;
+        }
+    }
+    
+    public List<SolrResult> getSimilarProperties(int distance, Double latitude, Double longitude, double minArea, 
+            double maxArea, double minPrice, double maxPrice, String unitType, List<Object> projectStatus,
+            int limit){
+        SolrQuery solrQuery = createSolrQuery(null);
+        
+        //TODO to remove the hardcoding the Property class variable Names like geo.
+        SolrQueryBuilder<Property> propertySolrQueryBuilder = new SolrQueryBuilder(solrQuery, Property.class);
+        
+        if(minPrice > 0 && maxPrice > 0)
+            propertySolrQueryBuilder.addRangeFilter("pricePerUnitArea", minPrice, maxPrice);
+        
+        if(minArea > 0 && maxArea > 0)
+            propertySolrQueryBuilder.addRangeFilter("size", minArea, maxArea);
+        
+        SolrQueryBuilder<Property> projectSolrQueryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
+        if(latitude != null && longitude != null)
+            projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
+        projectSolrQueryBuilder.addEqualsFilter("status", projectStatus);
+                
+        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
+        solrQuery.addFilterQuery("UNIT_TYPE:"+unitType);
+        solrQuery.setRows(limit);
+        
+        System.out.println("SOLR QUERY" + solrQuery.toString());
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
+        
+        return properties;
+    }
+    
     public static void main(String[] args) {
         Selector selector = new Selector();
 //        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");

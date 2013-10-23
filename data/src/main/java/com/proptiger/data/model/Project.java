@@ -201,7 +201,7 @@ public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
     @Field(value = "PROJECT_SIZE")
     private Double sizeInAcres;
-
+    
     @Field(value = "GEO")
     private List<String> geo;
 

@@ -61,6 +61,14 @@ public class Property implements BaseModel {
     @Field(value="PROPERTY_URL")
     private String URL;
 
+    @FieldMetaInfo( displayName = "Locality Latitude",  description = "Locality Latitude")
+    @Field(value="PROCESSED_LATITUDE")
+    private Double processedLatitue;
+    
+    @FieldMetaInfo( displayName = "Locality Longitude",  description = "Locality Longitude")
+    @Field(value="PROCESSED_LONGITUDE")
+    private Double processedLongitude;
+    
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     private Project project;
@@ -162,5 +170,21 @@ public class Property implements BaseModel {
 
     public void setImages(List<Image> images) {
         this.images = images;
+    }
+
+    public Double getProcessedLatitue() {
+        return processedLatitue;
+    }
+
+    public void setProcessedLatitue(Double processedLatitue) {
+        this.processedLatitue = processedLatitue;
+    }
+
+    public Double getProcessedLongitude() {
+        return processedLongitude;
+    }
+
+    public void setProcessedLongitude(Double processedLongitude) {
+        this.processedLongitude = processedLongitude;
     }
 }
