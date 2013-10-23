@@ -63,7 +63,6 @@ public class City{
     @Column(name="DISPLAY_PRIORITY")
     @Field(value="DISPLAY_PRIORITY")
     @FieldMetaInfo( displayName = "Display Priority",  description = "Display Priority")
-    @Transient
     private Integer displayPriority;
     
     @Column(name="DISPLAY_ORDER")
