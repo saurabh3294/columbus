@@ -11,11 +11,11 @@ import java.util.Comparator;
  *
  * @author mukand
  */
-class RecommendationPropertyComparer implements Comparator<SolrResult>{
+public class PropertyComparer implements Comparator<SolrResult>{
     int totalCompares;// = 3;
     int viewedPropertyBedroom;// = viewedProperty.getProperty().getBedrooms();
 
-    public RecommendationPropertyComparer(int totalCompares, int bedrooms) {
+    public PropertyComparer(int totalCompares, int bedrooms) {
         this.totalCompares = totalCompares;
         this.viewedPropertyBedroom = bedrooms;
     }

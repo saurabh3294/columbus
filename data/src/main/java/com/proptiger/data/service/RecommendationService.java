@@ -13,6 +13,7 @@ import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
+import com.proptiger.data.util.PropertyComparer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 
 /**
  *
@@ -200,8 +202,8 @@ public class RecommendationService {
     
     private void sortProperties(List<List<SolrResult>> propertyData, final SolrResult viewedProperty){
         List<SolrResult> solrResults = null;
-        //RecommendationPropertyComparer
-        //Collections.sort(solrResults, new PropertyComparer(3, viewedProperty.getProperty().getBedrooms()));
+        PropertyComparer propertyComparer = new PropertyComparer(3, viewedProperty.getProperty().getBedrooms());
+        //Collections.sort(solrResults, new PropertyComparer(3, ));
 
     }
 }
