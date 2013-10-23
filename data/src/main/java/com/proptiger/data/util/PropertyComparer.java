@@ -12,8 +12,8 @@ import java.util.Comparator;
  * @author mukand
  */
 public class PropertyComparer implements Comparator<SolrResult>{
-    int totalCompares;// = 3;
-    int viewedPropertyBedroom;// = viewedProperty.getProperty().getBedrooms();
+    int totalCompares;
+    int viewedPropertyBedroom;
 
     public PropertyComparer(int totalCompares, int bedrooms) {
         this.totalCompares = totalCompares;

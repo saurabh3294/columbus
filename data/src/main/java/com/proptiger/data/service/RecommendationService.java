@@ -201,8 +201,15 @@ public class RecommendationService {
     }
     
     private void sortProperties(List<List<SolrResult>> propertyData, final SolrResult viewedProperty){
-        List<SolrResult> solrResults = null;
-        PropertyComparer propertyComparer = new PropertyComparer(3, viewedProperty.getProperty().getBedrooms());
+        List<SolrResult> finalPropertyResults = new LinkedList<>();
+        PropertyComparer propertyComparer = new PropertyComparer(3, 
+                viewedProperty.getProperty().getBedrooms());
+        
+        for(List<SolrResult> solrResults:propertyData)
+        {
+            Collections.sort(solrResults, propertyComparer);
+            //finalPropertyResults.
+        }
         //Collections.sort(solrResults, new PropertyComparer(3, ));
 
     }
