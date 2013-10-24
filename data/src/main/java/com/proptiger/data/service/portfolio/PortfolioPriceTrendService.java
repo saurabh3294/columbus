@@ -5,11 +5,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +21,7 @@ import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * This class provides price trend for portfolio and for a particular listing of user
@@ -29,11 +31,40 @@ import com.proptiger.data.service.ProjectPriceTrendService;
 @Service
 public class PortfolioPriceTrendService {
 
+	private static Logger logger = LoggerFactory.getLogger(PortfolioPriceTrendService.class);
+	
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
 	@Autowired
 	private ProjectPriceTrendService projectPriceTrendService;
+	
+	/**
+	 * Get price trend for a listing associated with user
+	 * @param userId
+	 * @param listingId
+	 * @param noOfMonths
+	 * @return
+	 */
+	public ProjectPriceTrend getListingPriceTrend(Integer userId, Integer listingId, Integer noOfMonths){
+		logger.debug("Price trend for user id {} and listing id {} for months {}", userId, listingId, noOfMonths);
+		PortfolioListing listing = portfolioListingDao.findByUserIdAndId(userId, listingId);
+		if(listing == null){
+			throw new ResourceNotAvailableException("Listing id "+listingId +" not present for user id "+userId);
+		}
+		List<PortfolioListing> listings = new ArrayList<PortfolioListing>();
+		listings.add(listing);
+		Map<Integer, Integer> projectIdTypeIdMap = createProjectIdTypeIdMap(listings);
+		List<ProjectPriceTrend> projectPriceTrend = projectPriceTrendService
+				.getProjectPriceHistory(projectIdTypeIdMap, noOfMonths);
+		addPriceDetailsFromCurrentMonth(projectPriceTrend, noOfMonths);
+		updatePriceAsTotalListingPriceInTrend(projectPriceTrend, listings);
+		if(projectPriceTrend != null && projectPriceTrend.size() > 0){
+			return projectPriceTrend.get(0);
+		}
+		
+		return new ProjectPriceTrend();
+	}
 	
 	/**
 	 * Calculate Portfolio price trend for the properties associated with user
@@ -43,8 +74,12 @@ public class PortfolioPriceTrendService {
 	 */
 	public PortfolioPriceTrend getPortfolioPriceTrend(Integer userId,
 			Integer noOfMonths) {
+		logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
 		List<PortfolioListing> listings = portfolioListingDao
 				.findByUserId(userId);
+		if(listings == null || listings.size() == 0){
+			throw new ResourceNotAvailableException("No PortfolioListings for user id "+userId);
+		}
 		Map<Integer, Integer> projectIdTypeIdMap = createProjectIdTypeIdMap(listings);
 
 		List<ProjectPriceTrend> projectPriceTrend = projectPriceTrendService
