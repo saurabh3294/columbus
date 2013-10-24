@@ -22,6 +22,7 @@ import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
 
 /**
+ * This class provides price trend for portfolio and for a particular listing of user
  * @author Rajeev Pandey
  *
  */
@@ -34,6 +35,12 @@ public class PortfolioPriceTrendService {
 	@Autowired
 	private ProjectPriceTrendService projectPriceTrendService;
 	
+	/**
+	 * Calculate Portfolio price trend for the properties associated with user
+	 * @param userId
+	 * @param noOfMonths
+	 * @return
+	 */
 	public PortfolioPriceTrend getPortfolioPriceTrend(Integer userId,
 			Integer noOfMonths) {
 		List<PortfolioListing> listings = portfolioListingDao
@@ -50,6 +57,12 @@ public class PortfolioPriceTrendService {
 		return portfolioPriceTrend;
 	}
 
+	/**
+	 * Create List of PriceDetail object for portfolio price trend by adding corresponding 
+	 * price trend from all project price trends
+	 * @param portfolioPriceTrend
+	 * @param noOfMonths
+	 */
 	private void updatePriceTrendForPortfolio(
 			PortfolioPriceTrend portfolioPriceTrend, Integer noOfMonths) {
 		List<PriceDetail> portfolioPriceTrendDetals = new ArrayList<>();
@@ -131,6 +144,13 @@ public class PortfolioPriceTrendService {
 		
 	}
 
+	/**
+	 * CMS API gives per square unit price,
+	 * This method updates the prices receive from CMS API as total price for property size
+	 * 
+	 * @param projectPriceTrends
+	 * @param listings
+	 */
 	private void updatePriceAsTotalListingPriceInTrend(
 			List<ProjectPriceTrend> projectPriceTrends,
 			List<PortfolioListing> listings) {
@@ -153,6 +173,11 @@ public class PortfolioPriceTrendService {
 		}
 	}
 
+	/** 
+	 * Calculate total other price 
+	 * @param otherPrices
+	 * @return
+	 */
 	private double getTotalOtherPrice(Set<PortfolioListingPrice> otherPrices) {
 		double price = 0.0D;
 		for(PortfolioListingPrice listingPrice: otherPrices){
@@ -161,6 +186,11 @@ public class PortfolioPriceTrendService {
 		return price;
 	}
 
+	/**
+	 * @param projectPriceTrend
+	 * @param listings
+	 * @return
+	 */
 	private PortfolioListing getListingForProject(
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
