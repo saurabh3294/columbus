@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping(value = "data/v1/recommendation")
-public class RecommendationController {
+public class RecommendationController extends BaseController {
     @Autowired
     private RecommendationService recommendationService;
     
@@ -29,7 +29,7 @@ public class RecommendationController {
         if(limit == null)
             limit = 4;
         
-        return new ProAPISuccessResponse(recommendationService.getSimilarProperties(propertyId, limit));
+        return new ProAPISuccessResponse(super.filterFields(recommendationService.getSimilarProperties(propertyId, limit), null));
     }
     
 }
