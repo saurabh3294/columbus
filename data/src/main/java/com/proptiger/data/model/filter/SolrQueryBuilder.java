@@ -33,7 +33,19 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
         this.solrQuery = solrQuery;
         this.modelClass = clazz;
     }
+    
+    @Override
+    public void addNotEqualsFilter(String fieldName, List<Object> values) {
+        String colName = getColumnName(fieldName);
+        String quote = "";
+        if (values.get(0) instanceof String) {
+            quote = "\"";
+        }
 
+        String string = StringUtils.arrayToDelimitedString(values.toArray(), quote + " OR " + quote);
+        solrQuery.addFilterQuery("-" + colName + ":(" + quote + string + quote + ")");
+    }
+    
     @Override
     public void addEqualsFilter(String fieldName, List<Object> values) {
         String colName = getColumnName(fieldName);

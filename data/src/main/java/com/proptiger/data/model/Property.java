@@ -62,11 +62,11 @@ public class Property implements BaseModel {
     private String URL;
 
     @FieldMetaInfo( displayName = "Locality Latitude",  description = "Locality Latitude")
-    @Field(value="PROCESSED_LATITUDE")
-    private Double processedLatitue;
+    //@Field(value="PROCESSED_LATITUDE")
+    private Double processedLatitude;
     
     @FieldMetaInfo( displayName = "Locality Longitude",  description = "Locality Longitude")
-    @Field(value="PROCESSED_LONGITUDE")
+    //@Field(value="PROCESSED_LONGITUDE")
     private Double processedLongitude;
     
     @ManyToOne
@@ -173,11 +173,11 @@ public class Property implements BaseModel {
     }
 
     public Double getProcessedLatitue() {
-        return processedLatitue;
+        return processedLatitude;
     }
 
-    public void setProcessedLatitue(Double processedLatitue) {
-        this.processedLatitue = processedLatitue;
+    public void setProcessedLatitude(Double processedLatitude) {
+        this.processedLatitude = processedLatitude;
     }
 
     public Double getProcessedLongitude() {

@@ -14,14 +14,17 @@ import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.util.PropertyComparer;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,12 +49,12 @@ public class RecommendationService {
         SolrResult viewPropertyData = propertyDao.getProperty(propertyId);
         if(viewPropertyData == null)
             return null;
-        Gson gson = new Gson();
-        System.out.println(gson.toJson(viewPropertyData));
+        System.out.println("VIEWED PROPERTY");
+        printPropertyData(viewPropertyData);
         
         List<List<SolrResult>> searchPropertiesData = getSimilarPropertiesData(viewPropertyData, limit, params);
         List<SolrResult> response = sortProperties(searchPropertiesData, viewPropertyData);
-        return new Object();
+        return response;
     }
     
     private List<List<SolrResult>> getSimilarPropertiesData(SolrResult viewPropertyData, int limit, int[][] params){
@@ -83,17 +86,25 @@ public class RecommendationService {
         List<List<SolrResult>> searchPropertiesData= null;
         List<SolrResult> tempSearchProperties = null;
         searchPropertiesData = new LinkedList<>();
+        int totalProperties = 0;
+        List<Object> propertyIds = new ArrayList<>();
         
-        for(int i=0; i<params.length &&searchPropertiesData.size()< limit; i++){
+        for(int i=0; i<params.length &&totalProperties< limit; i++){
             minArea = (100-params[i][2])*area/100;
             maxArea = (100+params[i][2])*area/100;
             minPrice = (100-params[i][1])*price/100;
             maxPrice = (100+params[i][1])*price/100;
             
+            System.out.println("MIN AREA "+minArea+" MAX AREA "+maxArea+" MIN PRICE "+minPrice+" MAX PRICE "+maxPrice);
+            
             tempSearchProperties = propertyDao.getSimilarProperties(params[i][0], latitude, longitude, 
-                    minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit);
+                    minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit, propertyIds);
             searchPropertiesData.add(tempSearchProperties);
+            totalProperties += tempSearchProperties.size();
+            
+            insertPropertyIds(tempSearchProperties, propertyIds);
             System.out.println("i"+i+" : "+tempSearchProperties.size());
+            
         }
         assignPriorityToProperty(searchPropertiesData);
         System.out.println(" FINAL : "+searchPropertiesData.size());
@@ -107,22 +118,39 @@ public class RecommendationService {
         List<SolrResult> lowPriorityProperty = new ArrayList<>();
         
         List<Object> projectStatusGroup = new ArrayList<>();
-        projectStatusGroup.add("");
+        projectStatusGroup.add("dummy");
+        System.out.println(" PROPERTY BEING SEARCHED.");
         
         boolean[] dataStatus;
-        for(List<SolrResult> tempData:searchPropertiesData)
+        int i=0;
+        Iterator<SolrResult> it = null;
+        Iterator<List<SolrResult>> listIt = searchPropertiesData.iterator();
+        SolrResult tempResult;
+        List<SolrResult> tempData;
+        while(listIt.hasNext())
         {
-            for(SolrResult tempResult:tempData)
+        	tempData = listIt.next();
+        	System.out.println("SORT PRIORITY "+i+" number of projects. "+tempData.size());
+        	it = tempData.iterator();
+            while(it.hasNext())
             {
+            	tempResult = it.next();
+            	printPropertyData(tempResult);
                 dataStatus = isSimilarPropertySearchValid(tempResult, projectStatusGroup);
                 // area and location data both is false but either of them is present
                 // then priority will be changed to last.
                 if(!dataStatus[2] && dataStatus[1])
                 {
+                	System.out.println("property being moved");
                     lowPriorityProperty.add(tempResult);
-                    tempData.remove(tempResult);
+                    it.remove();
                 }
             }
+            // if all are removed. That list should be removed.
+            if(tempData.size() == 0)
+            	listIt.remove();
+        	System.out.println(" END SORT PRIORITY "+i+" number of projects. "+tempData.size());
+
         }
         if(lowPriorityProperty.size() > 0)
             searchPropertiesData.add(lowPriorityProperty);
@@ -177,12 +205,12 @@ public class RecommendationService {
         Property property = propertyData.getProperty();
         Project project = propertyData.getProject();
         
-        String unitType = project.getUnitTypes();
         Double area = property.getSize();
         Double price = property.getPricePerUnitArea();
         Double latitude = property.getProcessedLatitue();
         Double longitude = property.getProcessedLongitude();
         Integer localityId = project.getLocalityId();
+        String unitType = property.getUnitType();
                 
         System.out.println("UNIT TYPE" + unitType+" area "+area+" price "+price+" latitude "+latitude+" longitude "+longitude+" localityId "+localityId);
         System.out.println(" PROJECT STATUS "+projectStatusGroup.toString());
@@ -213,10 +241,49 @@ public class RecommendationService {
         
         for(List<SolrResult> solrResults:searchPropertiesData)
         {
+        	System.out.println("BEFORE SORTING");
+        	printList(solrResults);
             Collections.sort(solrResults, propertyComparer);
+            System.out.println("AFTER SORTING");
+            printList(solrResults);
             finalPropertyResults.addAll(finalPropertyResults.size(), solrResults);
         }
         
         return finalPropertyResults;
+    }
+    
+    private void printList(List<SolrResult> list){
+    	for(SolrResult solrResult:list)
+    		printPropertyData(solrResult);
+    }
+    
+    private void printPropertyData(SolrResult solrResult){
+    	Property property = solrResult.getProperty();
+    	Project project = solrResult.getProject();
+    	
+    	Map<String, Object> data = new LinkedHashMap<>();
+    	data.put("property id", property.getPropertyId());
+    	data.put("project_id", project.getProjectId());
+    	data.put("price", property.getPricePerUnitArea());
+    	data.put("area", property.getSize());
+    	data.put("latitude", property.getProcessedLatitue());
+    	data.put("longitude", property.getProcessedLongitude());
+    	data.put("display_order", project.getAssignedPriority());
+    	data.put("project_status", project.getStatus());
+    	data.put("unit type", property.getUnitType());
+    	data.put("is Resale", project.isIsResale());
+    	data.put("bedrooms", property.getBedrooms());
+    	data.put("localityId", project.getLocalityId());
+    	
+    	Gson gson = new Gson();
+    	System.out.println(gson.toJson(data));
+    	
+    }
+    
+    private void insertPropertyIds(List<SolrResult> propertiesData, List<Object> propertyIdList){
+    	
+    	for(SolrResult temp:propertiesData){
+    		propertyIdList.add(temp.getProperty().getPropertyId());
+    	}
     }
 }

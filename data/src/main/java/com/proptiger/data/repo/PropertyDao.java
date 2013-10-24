@@ -367,7 +367,7 @@ public class PropertyDao {
     
     public List<SolrResult> getSimilarProperties(int distance, Double latitude, Double longitude, double minArea, 
             double maxArea, double minPrice, double maxPrice, String unitType, List<Object> projectStatus,
-            int limit){
+            int limit, List<Object> propertyIds){
         SolrQuery solrQuery = createSolrQuery(null);
         
         //TODO to remove the hardcoding the Property class variable Names like geo.
@@ -378,12 +378,14 @@ public class PropertyDao {
         
         if(minArea > 0 && maxArea > 0)
             propertySolrQueryBuilder.addRangeFilter("size", minArea, maxArea);
+        if(propertyIds.size() > 0)
+        	propertySolrQueryBuilder.addNotEqualsFilter("propertyId", propertyIds);
         
         SolrQueryBuilder<Property> projectSolrQueryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
         if(latitude != null && longitude != null)
             projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
         projectSolrQueryBuilder.addEqualsFilter("status", projectStatus);
-                
+         
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
         solrQuery.addFilterQuery("UNIT_TYPE:"+unitType);
         solrQuery.setRows(limit);

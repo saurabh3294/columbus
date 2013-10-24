@@ -180,10 +180,16 @@ public class SolrResult {
     @FieldMetaInfo( displayName = "Text",  description = "Full text for search")
     @Field(value = "text")
     private String text;
+    
+    @Field(value="PROCESSED_LATITUDE")
+    private Double processedLatitude;
+    
+    @Field(value="PROCESSED_LONGITUDE")
+    private Double processedLongitude;
 
     @Field(value = "GEO")
     private List<String> geo;
-
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -472,5 +478,15 @@ public class SolrResult {
     @Field("MAX_BUDGET")
     public void setMaxPrice(Double maxPrice) {
         project.setMaxPrice(maxPrice);
+    }
+    
+    @Field("PROCESSED_LATITUDE")
+    public void setProcessedLatitude(Double processedLatitude){
+    	property.setProcessedLatitude(processedLatitude);
+    }
+    
+    @Field("PROCESSED_LONGITUDE")
+    public void setProcessedLongitude(Double processedLongitude){
+    	property.setProcessedLongitude(processedLongitude);
     }
 }
