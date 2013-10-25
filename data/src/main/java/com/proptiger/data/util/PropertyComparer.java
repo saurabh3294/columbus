@@ -22,14 +22,15 @@ public class PropertyComparer implements Comparator<SolrResult>{
 
     @Override
     public int compare(SolrResult o1, SolrResult o2) {
-        return compareRecursively(o1, o2, 3);
+    	System.out.println(" in ");
+        return compareRecursively(o1, o2, 0);
     }
 
     public int compareRecursively(SolrResult o1, SolrResult o2, int compareIndex) {
         if (compareIndex >= 3) {
             return 0;
         }
-
+        System.out.println(o1.getProperty().getPropertyId() + " "+o2.getProperty().getPropertyId()+" "+compareIndex);
         int compare = 0;
         switch (compareIndex) {
             // Project is resale or new.
@@ -38,14 +39,17 @@ public class PropertyComparer implements Comparator<SolrResult>{
                 break;
             // project sorting by display order.
             case 1:
-                compare = compareDisplayOrder(o1.getProject().getAssignedPriority(), o2.getProject().getAssignedLocalityPriority());
+                compare = compareDisplayOrder(o1.getProject().getAssignedPriority(), o2.getProject().getAssignedPriority());
                 break;
             // project of same bhk given more priority.    
             case 2:
                 compare = compareBedrooms(o1.getProperty().getBedrooms(), o1.getProperty().getBedrooms());
                 break;
         }
-        return 0;
+        System.out.println(" COMPARE RESULT "+compare);
+        if(compare == 0)
+        	return compareRecursively(o1, o2, compareIndex+1);
+        return compare;
     }
 
     public int compareResale(boolean o1, boolean o2) {
@@ -53,17 +57,17 @@ public class PropertyComparer implements Comparator<SolrResult>{
             return 0;
         } // New projects has more priority.
         else if (o1 == false) {
-            return 1;
-        } else {
             return -1;
+        } else {
+            return 1;
         }
     }
 
     public int compareDisplayOrder(int a, int b) {
         if (a < b) {
-            return 1;
-        } else if (a > b) {
             return -1;
+        } else if (a > b) {
+            return 1;
         } else {
             return 0;
         }
@@ -74,9 +78,9 @@ public class PropertyComparer implements Comparator<SolrResult>{
         if (bed1 == bed2) {
             return 0;
         } else if (bed1 == viewedPropertyBedroom) {
-            return 1;
-        } else {
             return -1;
+        } else {
+            return 1;
         }
     }
 
