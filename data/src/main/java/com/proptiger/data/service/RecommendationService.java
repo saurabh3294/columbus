@@ -66,9 +66,10 @@ public class RecommendationService {
         Double latitude = property.getProcessedLatitue();
         Double longitude = property.getProcessedLongitude();
         String unitType = property.getUnitType();
+        Double budget = property.getBudget();
         String projectStatus = project.getStatus().toLowerCase();
         Integer localityId = project.getLocalityId();
-        
+                
         List<Object> projectStatusGroup = (List)getProjectStatusGroups(projectStatus);
         System.out.println("started.");
         //if(!isSimilarPropertySearchValid(area, price, latitude, longitude, longitude, unitType, projectStatusGroup))
@@ -88,6 +89,7 @@ public class RecommendationService {
         searchPropertiesData = new LinkedList<>();
         int totalProperties = 0;
         List<Object> propertyIds = new ArrayList<>();
+        propertyIds.add(viewPropertyData.getProperty().getPropertyId());
         
         for(int i=0; i<params.length &&totalProperties< limit; i++){
             minArea = (100-params[i][2])*area/100;
@@ -98,7 +100,7 @@ public class RecommendationService {
             System.out.println("MIN AREA "+minArea+" MAX AREA "+maxArea+" MIN PRICE "+minPrice+" MAX PRICE "+maxPrice);
             
             tempSearchProperties = propertyDao.getSimilarProperties(params[i][0], latitude, longitude, 
-                    minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit, propertyIds);
+                    minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit, propertyIds, budget);
             searchPropertiesData.add(tempSearchProperties);
             totalProperties += tempSearchProperties.size();
             
@@ -232,9 +234,10 @@ public class RecommendationService {
     }
     
     private List<SolrResult> sortProperties(List<List<SolrResult>> searchPropertiesData, final SolrResult viewedProperty){
-        List<SolrResult> finalPropertyResults = new ArrayList<>();
+    	   	
+    	List<SolrResult> finalPropertyResults = new ArrayList<>();
         PropertyComparer propertyComparer = new PropertyComparer(3, 
-                viewedProperty.getProperty().getBedrooms());
+                viewedProperty.getProperty().getBedrooms(), viewedProperty.getProperty().getBudget());
         
         if(searchPropertiesData == null)
             return null;
@@ -274,6 +277,7 @@ public class RecommendationService {
     	data.put("is Resale", project.isIsResale());
     	data.put("bedrooms", property.getBedrooms());
     	data.put("localityId", project.getLocalityId());
+    	data.put("budget", property.getBudget());
     	
     	Gson gson = new Gson();
     	System.out.println(gson.toJson(data));

@@ -69,6 +69,10 @@ public class Property implements BaseModel {
     //@Field(value="PROCESSED_LONGITUDE")
     private Double processedLongitude;
     
+    @FieldMetaInfo( displayName = "Property Price",  description = "Property Price")
+    @Field(value="BUDGET")
+    private Double budget;
+    
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     private Project project;
@@ -187,4 +191,12 @@ public class Property implements BaseModel {
     public void setProcessedLongitude(Double processedLongitude) {
         this.processedLongitude = processedLongitude;
     }
+
+	public Double getBudget() {
+		return budget;
+	}
+
+	public void setBudget(Double budget) {
+		this.budget = budget;
+	}
 }

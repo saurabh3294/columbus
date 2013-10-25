@@ -151,7 +151,7 @@ public class SolrResult {
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price",  description = "Price")
     @Field(value="BUDGET")
-    private Double price;
+    private Double budget;
 
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
@@ -489,4 +489,9 @@ public class SolrResult {
     public void setProcessedLongitude(Double processedLongitude){
     	property.setProcessedLongitude(processedLongitude);
     }
+    
+    @Field("BUDGET")
+	public void setBudget(Double budget) {
+		property.setBudget(budget);
+	}
 }
