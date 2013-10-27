@@ -379,21 +379,19 @@ public class PropertyDao {
         if(minArea > 0 && maxArea > 0)
             propertySolrQueryBuilder.addRangeFilter("size", minArea, maxArea);
         if(propertyIds.size() > 0)
-        	propertySolrQueryBuilder.addNotEqualsFilter("propertyId", propertyIds);
+        	propertySolrQueryBuilder.addNotEqualsFilter("projectIdBedroom", propertyIds);
         
         SolrQueryBuilder<Property> projectSolrQueryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
         if(latitude != null && longitude != null)
             projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
         projectSolrQueryBuilder.addEqualsFilter("status", projectStatus);
         
+        solrQuery.set("group", true);
+		solrQuery.set("group.field", "PROJECT_ID_BEDROOM");
+		solrQuery.set("group.main", true);
+		solrQuery.set("group.limit", 1);
         if(budget != null)
-        {
-			solrQuery.set("group", true);
-			solrQuery.set("group.field", "PROJECT_ID_BEDROOM");
 			solrQuery.set("group.sort", "abs(sub(" + budget + ",BUDGET)) asc");
-			solrQuery.set("group.main", true);
-			solrQuery.set("group.limit", 1);
-        }
         
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
         solrQuery.addFilterQuery("UNIT_TYPE:"+unitType);

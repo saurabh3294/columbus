@@ -494,4 +494,9 @@ public class SolrResult {
 	public void setBudget(Double budget) {
 		property.setBudget(budget);
 	}
+    
+    @Field("PROJECT_ID_BEDROOM")
+    public void setProjectIdBedroom(String projectIdBedroom){
+    	property.setProjectIdBedroom(projectIdBedroom);
+    }
 }

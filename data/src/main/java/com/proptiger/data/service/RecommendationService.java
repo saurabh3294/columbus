@@ -88,8 +88,8 @@ public class RecommendationService {
         List<SolrResult> tempSearchProperties = null;
         searchPropertiesData = new LinkedList<>();
         int totalProperties = 0;
-        List<Object> propertyIds = new ArrayList<>();
-        propertyIds.add(viewPropertyData.getProperty().getPropertyId());
+        List<Object> projectIdBedroom = new ArrayList<>();
+        projectIdBedroom.add( viewPropertyData.getProperty().getProjectIdBedroom() );
         
         for(int i=0; i<params.length &&totalProperties< limit; i++){
             minArea = (100-params[i][2])*area/100;
@@ -100,11 +100,11 @@ public class RecommendationService {
             System.out.println("MIN AREA "+minArea+" MAX AREA "+maxArea+" MIN PRICE "+minPrice+" MAX PRICE "+maxPrice);
             
             tempSearchProperties = propertyDao.getSimilarProperties(params[i][0], latitude, longitude, 
-                    minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit, propertyIds, budget);
+                    minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit, projectIdBedroom, budget);
             searchPropertiesData.add(tempSearchProperties);
             totalProperties += tempSearchProperties.size();
             
-            insertPropertyIds(tempSearchProperties, propertyIds);
+            insertProjectIdBedrooms(tempSearchProperties, projectIdBedroom);
             System.out.println("i"+i+" : "+tempSearchProperties.size());
             
         }
@@ -284,10 +284,10 @@ public class RecommendationService {
     	
     }
     
-    private void insertPropertyIds(List<SolrResult> propertiesData, List<Object> propertyIdList){
+    private void insertProjectIdBedrooms(List<SolrResult> propertiesData, List<Object> projectIdBedroomList){
     	
     	for(SolrResult temp:propertiesData){
-    		propertyIdList.add(temp.getProperty().getPropertyId());
+    		projectIdBedroomList.add(temp.getProperty().getProjectIdBedroom());
     	}
     }
 }
