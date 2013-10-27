@@ -14,3 +14,9 @@ UPDATE `proptiger`.`RESI_BUILDER` SET migration_status = '';
 UPDATE `proptiger`.`LOCALITY_IMAGE` SET migration_status = '';
 UPDATE `proptiger`.`RESI_FLOOR_PLANS` SET migration_status = '';
 UPDATE `proptiger`.`PROJECT_PLAN_IMAGES` SET migration_status = '';
+
+UPDATE `proptiger`.`BANK_LIST_MIGRATION` SET migration_status = '';
+UPDATE `proptiger`.`RESI_BUILDER_MIGRATION` SET migration_status = '';
+UPDATE `proptiger`.`LOCALITY_IMAGE_MIGRATION` SET migration_status = '';
+UPDATE `proptiger`.`RESI_FLOOR_PLANS_MIGRATION` SET migration_status = '';
+UPDATE `proptiger`.`PROJECT_PLAN_IMAGES_MIGRATION` SET migration_status = '';
