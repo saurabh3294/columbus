@@ -74,6 +74,8 @@ class Object(object):
     conn = mysql.connect(**config['env'][env]['mysql'])
     cur = conn.cursor()
     conn.autocommit(True)
+    # Object table
+    table = '`proptiger`.`PROJECT_PLAN_IMAGES_MIGRATION`'
 
     # `PROJECT_PLAN_IMAGES` translation
     type_translate = dict(
@@ -111,32 +113,40 @@ class Object(object):
 
     @property
     def images(self):
-        sql = "SELECT PROJECT_ID, PLAN_IMAGE, TITLE, PROJECT_PLAN_ID FROM `proptiger`.`PROJECT_PLAN_IMAGES` WHERE PLAN_TYPE='%s' AND STATUS='1' AND migration_status!='Done';"
+        sql = "SELECT PROJECT_ID, PLAN_IMAGE, TITLE, PROJECT_PLAN_ID FROM "+ Object.table +" WHERE PLAN_TYPE='%s' AND STATUS='1' AND migration_status!='Done';"
         sql = sql % Object.type_translate[self.imageType]
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
+            # _xyz will not be used as params
             img = dict(
                 objectType      = self.objectType,
                 objectId        = i[0],
                 imageType       = self.imageType,
                 title           = i[2],
-                uniq_id         = i[3],
-                addWaterMark    = self.addWaterMark
+                addWaterMark    = self.addWaterMark,
+                _uniq_id        = i[3],
+                _relative_path  = i[1],
+                _response       = {}
             )
             # Decide `path`
             path  = i[1]
-            img.update(dict(orig_path = config['env'][env]['images_dir'] + path))
+            img.update(dict(
+                _orig_path = Object.create_path(path)
+            ))
             path = Object.add_bkp(path)
             img.update(dict(
-                path    =   Object.create_path(path),
+                _path   =  Object.create_path(path)
             ))
             yield img
 
     @classmethod
-    def update_status(cls, status, obj_id):
-        sql = "UPDATE `proptiger`.`PROJECT_PLAN_IMAGES` SET `migration_status` = %s WHERE `PROJECT_PLAN_IMAGES`.`PROJECT_PLAN_ID` = %s;"
-        Object.cur.execute(sql, (status, obj_id))
+    def update_status(cls, status, img):
+        sql = "UPDATE "+ Object.table +" SET `migration_status` = %s WHERE `PROJECT_PLAN_IMAGES`.`PROJECT_PLAN_ID` = %s;"
+        Object.cur.execute(sql, (status, img['_uniq_id']))
+        if status == 'Done':
+            sql = "UPDATE `project`.`project_plan_images` SET `SERVICE_IMAGE_ID` = %s WHERE `PLAN_IMAGE` = %s;"
+            Object.cur.execute(sql, (img['_response']['data']['id'], img['_relative_path']))
 
 
 # Upload Class
@@ -150,26 +160,32 @@ class Upload(object):
 
     @classmethod
     def validate(cls, img):
-        path = img['path']
+        path = img['_path']
         return os.path.isfile(path) and os.access(path, os.R_OK)
 
     @classmethod
+    def get_params(cls, d):
+        # _xyz will be dropped
+        params = dict([ (k, v) for k,v in d.iteritems() if not k.startswith('_') ])
+        return params
+
+    @classmethod
     def post(cls, img):
-        data, files = img.copy(), {}
-        files['image'] = open(data['path'], 'rb')
-        del data['path']
+        data, files = cls.get_params(img), {}
+        files['image'] = open(img['_path'], 'rb')
         r = requests.post(cls.url, files = files, data = data)
         if not r.json()['statusCode'].startswith('2'): # Temporary Check
             raise Exception('Error ! :: %s' % r.json())
+        img['_response'] = r.json()
 
     @classmethod
     def acknowledge(cls, img, status):
         ack = dict(text = status['text'])
         ack.update(img)
         # Update database
-        Object.update_status(status['text'], img['uniq_id'])
+        Object.update_status(status['text'], img)
         # Log
-        text = "%(objectType)s :: %(objectId)s :: %(imageType)s :: %(path)s :: %(text)s" % ack
+        text = "%(objectType)s :: %(objectId)s :: %(imageType)s :: %(_path)s :: %(text)s" % ack
         log = status['log']
         log(text)
 
@@ -178,9 +194,9 @@ class Upload(object):
         try:
             if not cls.validate(img):
                 not_found = True
-                if 'orig_path' in img:
-                    img['path'] = img['orig_path']
-                    del img['orig_path']
+                if '_orig_path' in img:
+                    img['_path'] = img['_orig_path']
+                    del img['_orig_path']
                     img['addWaterMark'] = 'false'
                     not_found = False if cls.validate(img) else not_found
                 if not_found:

@@ -62,6 +62,8 @@ class Object(object):
     conn = mysql.connect(**config['env'][env]['mysql'])
     cur = conn.cursor()
     conn.autocommit(True)
+    # Object table
+    table = '`proptiger`.`LOCALITY_IMAGE_MIGRATION`'
 
     def __init__(self, object_type, image_type, add_watermark):
         self.objectType = object_type
@@ -70,26 +72,32 @@ class Object(object):
 
     @property
     def images(self):
-        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID, IMAGE_DISPLAY_NAME, IMAGE_DESCRIPTION FROM `proptiger`.`LOCALITY_IMAGE` WHERE IMAGE_CATEGORY='%s' AND migration_status!='Done';" % self.imageType
+        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID, IMAGE_DISPLAY_NAME, IMAGE_DESCRIPTION FROM "+ Object.table +" WHERE IMAGE_CATEGORY='%s' AND migration_status!='Done';" % self.imageType
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
+            # _xyz will not be used as params
             img = dict(
                 objectType      = self.objectType,
                 objectId        = i[0],
                 imageType       = self.imageType,
-                path            = config['env'][env]['images_dir'] + i[1],
-                uniq_id         = i[2],
+                addWaterMark    = self.addWaterMark,
                 title           = i[3],
                 description     = i[4],
-                addWaterMark    = self.addWaterMark
+                _relative_path  = i[1],
+                _path           = config['env'][env]['images_dir'] + i[1],
+                _uniq_id        = i[2],
+                _response       = {}
             )
             yield img
 
     @classmethod
-    def update_status(cls, status, obj_id):
-        sql = "UPDATE `proptiger`.`LOCALITY_IMAGE` SET `migration_status` = %s WHERE `LOCALITY_IMAGE`.`IMAGE_ID` = %s;"
-        Object.cur.execute(sql, (status, obj_id))
+    def update_status(cls, status, img):
+        sql = "UPDATE "+ Object.table +" SET `migration_status` = %s WHERE `LOCALITY_IMAGE`.`IMAGE_ID` = %s;"
+        Object.cur.execute(sql, (status, img['_uniq_id']))
+        if status == 'Done':
+            sql = "UPDATE `project`.`locality_image` SET `SERVICE_IMAGE_ID` = %s WHERE `IMAGE_NAME` = %s;"
+            Object.cur.execute(sql, (img['_response']['data']['id'], img['_relative_path']))
 
 
 # Upload Class
@@ -103,26 +111,32 @@ class Upload(object):
 
     @classmethod
     def validate(cls, img):
-        path = img['path']
+        path = img['_path']
         return os.path.isfile(path) and os.access(path, os.R_OK)
 
     @classmethod
+    def get_params(cls, d):
+        # _xyz will be dropped
+        params = dict([ (k, v) for k,v in d.iteritems() if not k.startswith('_') ])
+        return params
+
+    @classmethod
     def post(cls, img):
-        data, files = img.copy(), {}
-        files['image'] = open(data['path'], 'rb')
-        del data['path']
+        data, files = cls.get_params(img), {}
+        files['image'] = open(img['_path'], 'rb')
         r = requests.post(cls.url, files = files, data = data)
         if not r.json()['statusCode'].startswith('2'): # Temporary Check
             raise Exception('Error ! :: %s' % r.json())
+        img['_response'] = r.json()
 
     @classmethod
     def acknowledge(cls, img, status):
         ack = dict(text = status['text'])
         ack.update(img)
         # Update database
-        Object.update_status(status['text'], img['uniq_id'])
+        Object.update_status(status['text'], img)
         # Log
-        text = "%(objectType)s :: %(objectId)s :: %(imageType)s :: %(path)s :: %(text)s" % ack
+        text = "%(objectType)s :: %(objectId)s :: %(imageType)s :: %(_path)s :: %(text)s" % ack
         log = status['log']
         log(text)
 

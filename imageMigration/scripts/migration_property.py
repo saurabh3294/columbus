@@ -63,6 +63,8 @@ class Object(object):
     conn = mysql.connect(**config['env'][env]['mysql'])
     cur = conn.cursor()
     conn.autocommit(True)
+    # Object table
+    table = '`proptiger`.`RESI_FLOOR_PLANS_MIGRATION`'
 
     def __init__(self, object_type, image_type, add_watermark):
         self.objectType = object_type
@@ -90,7 +92,7 @@ class Object(object):
             SELECT
                 FP.TYPE_ID, FP.IMAGE_URL, FP.FLOOR_PLAN_ID, FP.NAME, FP.DISPLAY_ORDER 
             FROM
-                `proptiger`.`RESI_FLOOR_PLANS` AS FP INNER JOIN `proptiger`.`RESI_PROJECT_TYPES` AS PT
+            """ + Object.table + """ AS FP INNER JOIN `proptiger`.`RESI_PROJECT_TYPES` AS PT
                 ON FP.TYPE_ID = PT.TYPE_ID
             WHERE
                 FP.migration_status!='Done';
@@ -98,13 +100,16 @@ class Object(object):
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
+            # _xyz will not be used as params
             img = dict(
                 objectType      = self.objectType,
                 objectId        = i[0],
                 imageType       = self.imageType,
-                uniq_id         = i[2],
                 title           = i[3],
                 priority        = i[4],
+                _uniq_id        = i[2],
+                _relative_path  = i[1],
+                _response       = {}
             )
             # Decide `waterMark` & `path`
             water = self.addWaterMark
@@ -112,20 +117,25 @@ class Object(object):
             if "floor-plan" not in path:
                 water = 'false'
             else:
-                img.update(dict(orig_path = config['env'][env]['images_dir'] + path))
+                img.update(dict(
+                    _orig_path = Object.create_path(path)
+                ))
                 path = Object.add_bkp(path)
                 if path.endswith(".gif"):
                     water = 'false'
             img.update(dict(
-                path            = Object.create_path(path),
+                _path           = Object.create_path(path),
                 addWaterMark    = water
             ))
             yield img
 
     @classmethod
-    def update_status(cls, status, obj_id):
-        sql = "UPDATE `proptiger`.`RESI_FLOOR_PLANS` SET `migration_status` = %s WHERE `RESI_FLOOR_PLANS`.`FLOOR_PLAN_ID` = %s;"
-        Object.cur.execute(sql, (status, obj_id))
+    def update_status(cls, status, img):
+        sql = "UPDATE "+ Object.table +" SET `migration_status` = %s WHERE `RESI_FLOOR_PLANS`.`FLOOR_PLAN_ID` = %s;"
+        Object.cur.execute(sql, (status, img['_uniq_id']))
+        if status == 'Done':
+            sql = "UPDATE `project`.`resi_floor_plans` SET `SERVICE_IMAGE_ID` = %s WHERE `IMAGE_URL` = %s;"
+            Object.cur.execute(sql, (img['_response']['data']['id'], img['_relative_path']))
 
 
 # Upload Class
@@ -139,26 +149,32 @@ class Upload(object):
 
     @classmethod
     def validate(cls, img):
-        path = img['path']
+        path = img['_path']
         return os.path.isfile(path) and os.access(path, os.R_OK)
 
     @classmethod
+    def get_params(cls, d):
+        # _xyz will be dropped
+        params = dict([ (k, v) for k,v in d.iteritems() if not k.startswith('_') ])
+        return params
+
+    @classmethod
     def post(cls, img):
-        data, files = img.copy(), {}
-        files['image'] = open(data['path'], 'rb')
-        del data['path']
+        data, files = cls.get_params(img), {}
+        files['image'] = open(img['_path'], 'rb')
         r = requests.post(cls.url, files = files, data = data)
         if not r.json()['statusCode'].startswith('2'): # Temporary Check
             raise Exception('Error ! :: %s' % r.json())
+        img['_response'] = r.json()
 
     @classmethod
     def acknowledge(cls, img, status):
         ack = dict(text = status['text'])
         ack.update(img)
         # Update database
-        Object.update_status(status['text'], img['uniq_id'])
+        Object.update_status(status['text'], img)
         # Log
-        text = "%(objectType)s :: %(objectId)s :: %(imageType)s :: %(path)s :: %(text)s" % ack
+        text = "%(objectType)s :: %(objectId)s :: %(imageType)s :: %(_path)s :: %(text)s" % ack
         log = status['log']
         log(text)
 
@@ -167,9 +183,9 @@ class Upload(object):
         try:
             if not cls.validate(img):
                 not_found = True
-                if 'orig_path' in img:
-                    img['path'] = img['orig_path']
-                    del img['orig_path']
+                if '_orig_path' in img:
+                    img['_path'] = img['_orig_path']
+                    del img['_orig_path']
                     img['addWaterMark'] = 'false'
                     not_found = False if cls.validate(img) else not_found
                 if not_found:
