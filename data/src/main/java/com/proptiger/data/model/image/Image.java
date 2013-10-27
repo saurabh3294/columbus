@@ -47,7 +47,7 @@ public class Image {
 
 	@JsonProperty
     public String getAbsolutePath() {
-        return ImageUtil.endpoint + "/" + ImageUtil.bucket + "/" + path + waterMarkName;
+        return ImageUtil.endpoint + "/" + path + waterMarkName;
     }
 
 	@Column(name = "created_at")
