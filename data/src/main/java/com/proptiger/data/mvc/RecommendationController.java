@@ -32,4 +32,12 @@ public class RecommendationController extends BaseController {
         return new ProAPISuccessResponse(super.filterFields(recommendationService.getSimilarProperties(propertyId, limit), null));
     }
     
+    @ResponseBody
+    @RequestMapping
+    public ProAPIResponse getSimilarProjects(@RequestParam(value = "projectId")int projectId, @RequestParam(value="limit", required = false)Integer limit){
+        if(limit == null)
+            limit = 4;
+        
+        return new ProAPISuccessResponse(super.filterFields(recommendationService.getSimilarProjects(projectId, limit), null));
+    }
 }

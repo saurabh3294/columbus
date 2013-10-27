@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.util.PropertyComparer;
@@ -19,11 +20,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +41,31 @@ public class RecommendationService {
     @Autowired
     private PropertyDao propertyDao;
     
-    public Object getSimilarProperties(long propertyId, int limit){
+    @Autowired
+    private ProjectDao projectDao;
+    
+    public Object getSimilarProjects(int projectId, int limit){
+    	List<Property> properties = propertyDao.getProperties(projectId);
+    	
+    	long propertyId;
+    	int similarProjectId;
+    	Set<Integer> similarProjectIds = new HashSet<>();
+    	List<SolrResult> similarProperties;
+    	for(Property property:properties)
+    	{
+    		propertyId = property.getPropertyId();
+    		similarProperties = getSimilarProperties(propertyId, limit);
+    		for(SolrResult solrResult:similarProperties)
+    		{
+    			similarProjectId = solrResult.getProject().getProjectId();
+    			similarProjectIds.add(similarProjectId);
+    		}
+    		similarProperties.clear();
+    	}
+    	
+    	return projectDao.getProjectsOnIds( similarProjectIds );
+    }
+    public List<SolrResult> getSimilarProperties(long propertyId, int limit){
         // distance, budget%, area%, sort Priority
         int[][] params = new int[][]{
             {5, 15, 15, 1},

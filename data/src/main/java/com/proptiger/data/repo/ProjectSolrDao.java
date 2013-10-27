@@ -5,6 +5,7 @@
 package com.proptiger.data.repo;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
@@ -90,7 +91,21 @@ public class ProjectSolrDao {
         return solrRes;
 
     }
-
+    
+    public Object getProjectsOnIds(Set<Integer> projectIds)
+    {
+    	SolrQuery solrQuery = new SolrQuery();
+    	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
+    	
+    	List<Object> projectIdList = new ArrayList<>();
+    	projectIdList.addAll(projectIds);
+    	
+    	SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
+    	queryBuilder.addEqualsFilter("projectId", projectIdList);
+    	
+    	return new Object();
+    }
+    
     public static void main(String[] args) {
         Selector projectFilter = new Selector();
         Set<String> fields = new HashSet<String>();
