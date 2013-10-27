@@ -180,7 +180,6 @@ public class ImageService {
 			uploadToS3(image, originalFile, jpgFile);
 			cleanUp(originalFile, jpgFile);
 			imageDao.markImageAsActive(image);
-			fileUpload.getInputStream().close();
 			return image;
 		} catch (IllegalStateException | IOException e) {
 			throw new RuntimeException("Something went wrong", e);
