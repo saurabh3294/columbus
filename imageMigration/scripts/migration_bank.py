@@ -68,7 +68,7 @@ class Object(object):
 
     @property
     def images(self):
-        sql = "SELECT BANK_ID, CONCAT('/bank_list/', BANK_LOGO) FROM "+ Object.table +" WHERE migration_status!='Done';"
+        sql = "SELECT BANK_ID, CONCAT('/bank_list/', BANK_LOGO), BANK_LOGO FROM "+ Object.table +" WHERE migration_status!='Done';"
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
@@ -78,7 +78,7 @@ class Object(object):
                 objectId        = i[0],
                 imageType       = self.imageType,
                 addWaterMark    = self.addWaterMark,
-                _relative_path  = i[1],
+                _relative_path  = i[2],
                 _path           = config['env'][env]['images_dir'] + i[1],
                 _response       = {}
             )
