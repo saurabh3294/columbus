@@ -142,7 +142,7 @@ class Object(object):
 
     @classmethod
     def update_status(cls, status, img):
-        sql = "UPDATE "+ Object.table +" SET `migration_status` = %s WHERE `PROJECT_PLAN_IMAGES`.`PROJECT_PLAN_ID` = %s;"
+        sql = "UPDATE "+ Object.table +" SET `migration_status` = %s WHERE `PROJECT_PLAN_ID` = %s;"
         Object.cur.execute(sql, (status, img['_uniq_id']))
         if status == 'Done':
             sql = "UPDATE `project`.`project_plan_images` SET `SERVICE_IMAGE_ID` = %s WHERE `PLAN_IMAGE` = %s;"
