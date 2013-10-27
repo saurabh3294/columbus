@@ -1,5 +1,12 @@
 -- Truncate Image Table
-truncate table Image;
+truncate table `proptiger`.`Image`;
+
+-- Reset SERVICE_IMAGE_ID's
+UPDATE `project`.`bank_list` SET SERVICE_IMAGE_ID = NULL;
+UPDATE `project`.`resi_builder` SET SERVICE_IMAGE_ID = NULL;
+UPDATE `project`.`locality_image` SET SERVICE_IMAGE_ID = NULL;
+UPDATE `project`.`resi_floor_plans` SET SERVICE_IMAGE_ID = NULL;
+UPDATE `project`.`project_plan_images` SET SERVICE_IMAGE_ID = NULL;
 
 -- Reset Migration statuses
 UPDATE `proptiger`.`BANK_LIST` SET migration_status = '';
