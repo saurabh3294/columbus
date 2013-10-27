@@ -72,7 +72,7 @@ class Object(object):
 
     @property
     def images(self):
-        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID, IMAGE_DISPLAY_NAME, IMAGE_DESCRIPTION FROM "+ Object.table +" WHERE IMAGE_CATEGORY='%s' AND migration_status!='Done';" % self.imageType
+        sql = "SELECT LOCALITY_ID, CONCAT('/locality/', IMAGE_NAME), IMAGE_ID, IMAGE_DISPLAY_NAME, IMAGE_DESCRIPTION, IMAGE_NAME FROM "+ Object.table +" WHERE IMAGE_CATEGORY='%s' AND migration_status!='Done';" % self.imageType
         Object.cur.execute(sql)
         res = Object.cur.fetchall()
         for i in res:
@@ -84,7 +84,7 @@ class Object(object):
                 addWaterMark    = self.addWaterMark,
                 title           = i[3],
                 description     = i[4],
-                _relative_path  = i[1],
+                _relative_path  = i[5],
                 _path           = config['env'][env]['images_dir'] + i[1],
                 _uniq_id        = i[2],
                 _response       = {}
