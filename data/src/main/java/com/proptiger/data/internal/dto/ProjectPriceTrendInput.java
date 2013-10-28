@@ -9,7 +9,8 @@ public class ProjectPriceTrendInput {
 
 	private Integer projectId;
 	private Integer typeId;
-	private String name;
+	private String listingName;
+	private String projectName;
 	
 	public Integer getProjectId() {
 		return projectId;
@@ -23,11 +24,17 @@ public class ProjectPriceTrendInput {
 	public void setTypeId(Integer typeId) {
 		this.typeId = typeId;
 	}
-	public String getName() {
-		return name;
+	public String getListingName() {
+		return listingName;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setListingName(String name) {
+		this.listingName = name;
+	}
+	public String getProjectName() {
+		return projectName;
+	}
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
 	}
 	
 }

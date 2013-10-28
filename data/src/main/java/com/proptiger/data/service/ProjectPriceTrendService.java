@@ -70,7 +70,8 @@ public class ProjectPriceTrendService {
 					ProjectPriceTrend projectPriceTrend = new ProjectPriceTrend();
 					projectPriceTrend.setProjectId(priceTrendInput.getProjectId());
 					projectPriceTrend.setTypeId(priceTrendInput.getTypeId());
-					projectPriceTrend.setListingName(priceTrendInput.getName());
+					projectPriceTrend.setListingName(priceTrendInput.getListingName());
+					projectPriceTrend.setProjectName(priceTrendInput.getProjectName());
 					
 					while(priceDateItr.hasNext()){
 						String dateKey = priceDateItr.next();
@@ -109,13 +110,15 @@ public class ProjectPriceTrendService {
 	 */
 	private void sortPricesByDateAsc(List<ProjectPriceTrend> projectHistoryList) {
 		for(ProjectPriceTrend priceTrend: projectHistoryList){
-			Collections.sort(priceTrend.getPrices(), new Comparator<PriceDetail>() {
-				@Override
-				public int compare(PriceDetail p1, PriceDetail p2) {
-					// TODO Auto-generated method stub
-					return p1.getEffectiveDate().compareTo(p2.getEffectiveDate());
-				}
-			});
+			if(priceTrend.getPrices() != null){
+				Collections.sort(priceTrend.getPrices(), new Comparator<PriceDetail>() {
+					@Override
+					public int compare(PriceDetail p1, PriceDetail p2) {
+						return p1.getEffectiveDate().compareTo(p2.getEffectiveDate());
+					}
+				});
+			}
+			
 		}
 		
 	}

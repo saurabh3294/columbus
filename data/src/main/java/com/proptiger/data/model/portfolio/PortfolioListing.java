@@ -49,6 +49,10 @@ public class PortfolioListing implements NamedResource, Resource{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer listingId;
 	
+	@Transient
+	@FieldMetaInfo(displayName = "Project Name", description = "Project Name")
+	private String projectName;
+	
 	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "type_id")
 	private Integer typeId;
@@ -300,6 +304,14 @@ public class PortfolioListing implements NamedResource, Resource{
 	public void setListingPaymentPlan(
 			Set<PortfolioListingPaymentPlan> listingPaymentPlans) {
 		this.listingPaymentPlan = listingPaymentPlans;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
 	}
 
 	@PreUpdate

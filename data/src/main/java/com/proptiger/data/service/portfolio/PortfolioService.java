@@ -21,6 +21,7 @@ import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
+import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.exception.ConstraintViolationException;
@@ -42,6 +43,9 @@ public class PortfolioService extends AbstractService{
 	private PortfolioListingDao portfolioListingDao;
 	
 	@Autowired
+	private ProjectDBDao projectDBDao;
+	
+	@Autowired
 	private ProjectPaymentScheduleDao paymentScheduleDao;
 	
 	/**
@@ -53,7 +57,7 @@ public class PortfolioService extends AbstractService{
 	public Portfolio getPortfolioByUserId(Integer userId){
 		Portfolio portfolio = new Portfolio();
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
-		portfolio.setPortfolioListings(listings);
+		//portfolio.setPortfolioListings(listings);
 		updatePriceInfoInPortfolio(portfolio, listings);
 		updatePaymentSchedule(listings);
 		if(listings != null){
@@ -72,7 +76,7 @@ public class PortfolioService extends AbstractService{
 	private void updatePriceInfoInPortfolio(Portfolio portfolio, List<PortfolioListing> listings) {
 		double originalValue = 0.0D;
 		double currentValue = 0.0D;
-		if(portfolio.getPortfolioListings() != null){
+		if(listings != null){
 			for(PortfolioListing property: listings){
 				originalValue += property.getTotalPrice();
 				property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
@@ -257,11 +261,13 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
 			}
 			updatePaymentSchedule(listings);
 		}
 		return listings;
 	}
+	
 	/**
 	 * Get a PortfolioProperty for particular user id and PortfolioProperty id
 	 * @param userId
@@ -275,6 +281,7 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
+		listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 		updatePaymentSchedule(listing);
 		return listing;

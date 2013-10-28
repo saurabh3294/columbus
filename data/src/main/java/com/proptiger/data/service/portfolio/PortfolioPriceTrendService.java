@@ -39,10 +39,10 @@ public class PortfolioPriceTrendService {
 	private PortfolioListingDao portfolioListingDao;
 	
 	@Autowired
-	private ProjectDBDao projectDBDao;
+	private ProjectPriceTrendService projectPriceTrendService;
 	
 	@Autowired
-	private ProjectPriceTrendService projectPriceTrendService;
+	private ProjectDBDao projectDBDao;
 	
 	/**
 	 * Get price trend for a listing associated with user
@@ -57,9 +57,11 @@ public class PortfolioPriceTrendService {
 		if(listing == null){
 			throw new ResourceNotAvailableException("Listing id "+listingId +" not present for user id "+userId);
 		}
+		
 		List<PortfolioListing> listings = new ArrayList<PortfolioListing>();
 		listings.add(listing);
-
+		updateProjectName(listings);
+		
 		List<ProjectPriceTrendInput> inputs = createProjectPriceTrendInputs(listings);
 		List<ProjectPriceTrend> projectPriceTrend = projectPriceTrendService
 				.getProjectPriceHistory(inputs, noOfMonths);
@@ -79,6 +81,17 @@ public class PortfolioPriceTrendService {
 	}
 	
 	/**
+	 * Setting project name in each portfolio listing
+	 * @param listings
+	 */
+	private void updateProjectName(List<PortfolioListing> listings) {
+		for(PortfolioListing listing: listings){
+			listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
+		}
+		
+	}
+
+	/**
 	 * Calculate Portfolio price trend for the properties associated with user
 	 * @param userId
 	 * @param noOfMonths
@@ -92,11 +105,7 @@ public class PortfolioPriceTrendService {
 		if(listings == null || listings.size() == 0){
 			throw new ResourceNotAvailableException("No PortfolioListings for user id "+userId);
 		}
-		/*Map<Integer, List<Integer>> projectIdTypeIdMap = createProjectIdTypeIdMap(listings);
-
-		List<ProjectPriceTrend> projectPriceTrend = projectPriceTrendService
-				.getProjectPriceHistory(projectIdTypeIdMap, noOfMonths);*/
-		
+		updateProjectName(listings);
 		List<ProjectPriceTrendInput> inputs = createProjectPriceTrendInputs(listings);
 		List<ProjectPriceTrend> projectPriceTrendTemp = projectPriceTrendService
 				.getProjectPriceHistory(inputs, noOfMonths);
@@ -114,6 +123,7 @@ public class PortfolioPriceTrendService {
 		return portfolioPriceTrend;
 	}
 
+	
 	/**
 	 * Create List of PriceDetail object for portfolio price trend by adding corresponding 
 	 * price trend from all project price trends
@@ -276,9 +286,10 @@ public class PortfolioPriceTrendService {
 		List<ProjectPriceTrendInput>  inputs = new ArrayList<ProjectPriceTrendInput>();
 		for(PortfolioListing listing: listings){
 			ProjectPriceTrendInput input = new ProjectPriceTrendInput();
-			input.setName(listing.getName());
+			input.setListingName(listing.getName());
 			input.setProjectId(listing.getProjectType().getProjectId());
 			input.setTypeId(listing.getTypeId());
+			input.setProjectName(listing.getProjectName());
 			inputs.add(input);
 		}
 		return inputs;
