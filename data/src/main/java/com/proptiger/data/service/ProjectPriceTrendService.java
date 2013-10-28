@@ -48,7 +48,7 @@ public class ProjectPriceTrendService {
 			projectIdSet.add(input.getProjectId());
 		}
 		ProjectPriceHistoryDetail response = cmsDao.getProjectPriceHistory(projectIdSet, noOfMonths);
-		return convertToInternalPriceHistory_(response, inputs);
+		return convertToInternalPriceTrend(response, inputs);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class ProjectPriceTrendService {
 	 * @param typeId
 	 * @return
 	 */
-	private List<ProjectPriceTrend> convertToInternalPriceHistory_(
+	private List<ProjectPriceTrend> convertToInternalPriceTrend(
 			ProjectPriceHistoryDetail response, List<ProjectPriceTrendInput> inputs) {
 		List<ProjectPriceTrend> projectPriceTrends = new ArrayList<>();
 		if(response != null){
@@ -83,14 +83,12 @@ public class ProjectPriceTrendService {
 								Map<String, ProjectPriceDetail> priceDetailsForTypeIdIdMap = projectsPriceMap
 										.get(priceTrendInput.getProjectId()
 												.toString());
-								if (priceDetailsForTypeIdIdMap != null) {
 									PriceDetail priceDetail = getPriceDetailObj(
 											priceTrendInput.getTypeId(),
 											priceDetailsForTypeIdIdMap);
 									if (priceDetail != null) {
 										projectPriceTrend.addPrice(priceDetail);
 									}
-								}
 								
 							}
 						}
