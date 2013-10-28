@@ -24,7 +24,7 @@ public class RecommendationController extends BaseController {
     private RecommendationService recommendationService;
     
     @ResponseBody
-    @RequestMapping
+    @RequestMapping(value="/similar-properties")
     public ProAPIResponse getSimilarProperties(@RequestParam(value = "propertyId")Long propertyId, @RequestParam(value="limit", required = false)Integer limit){
         if(limit == null)
             limit = 4;
@@ -33,7 +33,7 @@ public class RecommendationController extends BaseController {
     }
     
     @ResponseBody
-    @RequestMapping
+    @RequestMapping(value="/similar-projects")
     public ProAPIResponse getSimilarProjects(@RequestParam(value = "projectId")int projectId, @RequestParam(value="limit", required = false)Integer limit){
         if(limit == null)
             limit = 4;

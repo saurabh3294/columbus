@@ -44,7 +44,7 @@ public class RecommendationService {
     @Autowired
     private ProjectDao projectDao;
     
-    public Object getSimilarProjects(int projectId, int limit){
+    public List<SolrResult> getSimilarProjects(int projectId, int limit){
     	List<Property> properties = propertyDao.getProperties(projectId);
     	
     	long propertyId;
@@ -55,15 +55,18 @@ public class RecommendationService {
     	{
     		propertyId = property.getPropertyId();
     		similarProperties = getSimilarProperties(propertyId, limit);
+    		
     		for(SolrResult solrResult:similarProperties)
     		{
     			similarProjectId = solrResult.getProject().getProjectId();
     			similarProjectIds.add(similarProjectId);
+    			System.out.println(" SIMILAR PROJECT ID."+similarProjectId );
     		}
     		similarProperties.clear();
     	}
-    	
-    	return projectDao.getProjectsOnIds( similarProjectIds );
+    	if(similarProjectIds.size() > 0)
+    		return projectDao.getProjectsOnIds( similarProjectIds );
+    	return null;
     }
     public List<SolrResult> getSimilarProperties(long propertyId, int limit){
         // distance, budget%, area%, sort Priority
