@@ -3,6 +3,8 @@ package com.proptiger.data.model.portfolio;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -25,11 +27,15 @@ public class Portfolio {
 	private double currentValue;
 	
 	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
+	@JsonUnwrapped
 	private OverallReturn overallReturn;
 
-	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "properties", description = "Properties")
-	private List<PortfolioListing> listings;
+	@JsonIgnore
+	private List<PortfolioListing> portfolioListings;
 
+	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "Listing Ids", description = "Listing Ids")
+	private List<Integer> listings;
+	
 	public double getOriginalValue() {
 		return originalValue;
 	}
@@ -69,22 +75,36 @@ public class Portfolio {
 	/**
 	 * @return the listings
 	 */
-	public List<PortfolioListing> getListings() {
-		return listings;
+	public List<PortfolioListing> getPortfolioListings() {
+		return portfolioListings;
 	}
 
 	/**
 	 * @param listings the listings to set
 	 */
-	public void setListings(List<PortfolioListing> listings) {
-		this.listings = listings;
+	public void setPortfolioListings(List<PortfolioListing> listings) {
+		this.portfolioListings = listings;
 	}
 
-	public void addListings(PortfolioListing listing){
-		if(this.listings == null){
-			this.listings = new ArrayList<PortfolioListing>();
+	public void addPortfolioListings(PortfolioListing listing){
+		if(this.portfolioListings == null){
+			this.portfolioListings = new ArrayList<PortfolioListing>();
 		}
-		this.listings.add(listing);
+		this.portfolioListings.add(listing);
+	}
+
+	public List<Integer> getListings() {
+		return listings;
+	}
+
+	public void setListings(List<Integer> listings) {
+		this.listings = listings;
 	}
 	
+	public void addListings(Integer listingId){
+		if(this.listings == null){
+			this.listings = new ArrayList<>();
+		}
+		this.listings.add(listingId);
+	}
 }

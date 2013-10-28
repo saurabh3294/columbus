@@ -1,10 +1,10 @@
 
 package com.proptiger.data.repo;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -69,7 +69,7 @@ public class CMSDao {
         }
     }
 
-    public ProjectPriceHistoryDetail getProjectPriceHistory(Collection<Integer> projectIdList, Integer noOfMonths){
+    public ProjectPriceHistoryDetail getProjectPriceHistory(Set<Integer> projectIdList, Integer noOfMonths){
     	StringBuilder queryParam = new StringBuilder();
     	boolean afterFirst = false;
     	for(Integer projectId: projectIdList){
