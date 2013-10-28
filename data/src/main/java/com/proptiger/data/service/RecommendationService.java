@@ -99,6 +99,7 @@ public class RecommendationService {
         Double budget = property.getBudget();
         String projectStatus = project.getStatus().toLowerCase();
         Integer localityId = project.getLocalityId();
+        int projectId = project.getProjectId();
                 
         List<Object> projectStatusGroup = (List)getProjectStatusGroups(projectStatus);
         System.out.println("started.");
@@ -130,7 +131,7 @@ public class RecommendationService {
             System.out.println("MIN AREA "+minArea+" MAX AREA "+maxArea+" MIN PRICE "+minPrice+" MAX PRICE "+maxPrice);
             
             tempSearchProperties = propertyDao.getSimilarProperties(params[i][0], latitude, longitude, 
-                    minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit, projectIdBedroom, budget);
+                    minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit, projectIdBedroom, budget, projectId);
             searchPropertiesData.add(tempSearchProperties);
             totalProperties += tempSearchProperties.size();
             
