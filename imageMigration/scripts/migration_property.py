@@ -93,7 +93,7 @@ class Object(object):
                 FP.TYPE_ID, FP.IMAGE_URL, FP.FLOOR_PLAN_ID, FP.NAME, FP.DISPLAY_ORDER 
             FROM
             """ + Object.table + """ AS FP INNER JOIN `project`.`resi_project_options` AS PT
-                ON FP.TYPE_ID = PT.TYPE_ID
+                ON FP.TYPE_ID = PT.OPTIONS_ID
             WHERE
                 FP.migration_status!='Done';
         """
