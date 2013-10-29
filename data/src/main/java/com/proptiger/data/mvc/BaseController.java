@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.exception.ProAPIException;
 
@@ -127,16 +127,16 @@ public abstract class BaseController {
     
     public <T> ProAPIResponse postProcess(T val, int count, Selector selector){
     	if(selector != null && selector.getFields() != null){
-    		return new ProAPISuccessResponse(filterOutAllExcept(
+    		return new ProAPISuccessCountResponse(filterOutAllExcept(
     				val, selector.getFields()), count);
     	}
-    	return new ProAPISuccessResponse(val, count);
+    	return new ProAPISuccessCountResponse(val, count);
     }
     public <T> ProAPIResponse postProcess(List<T> val, int count, Selector selector){
     	if(selector != null && selector.getFields() != null){
-    		return new ProAPISuccessResponse(filterOutAllExcept(
+    		return new ProAPISuccessCountResponse(filterOutAllExcept(
     				val, selector.getFields()), count);
     	}
-    	return new ProAPISuccessResponse(val, count);
+    	return new ProAPISuccessCountResponse(val, count);
     }
 }

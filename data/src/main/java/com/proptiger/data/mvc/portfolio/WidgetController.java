@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.portfolio.Widget;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.portfolio.WidgetService;
 
@@ -29,14 +30,14 @@ public class WidgetController {
 	@ResponseBody
 	public ProAPIResponse getWidgets(){
 		List<Widget> widgets = widgetService.getAllWidgets();
-		return new ProAPISuccessResponse(widgets, widgets.size());
+		return new ProAPISuccessCountResponse(widgets, widgets.size());
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/{widgetId}")
 	@ResponseBody
 	public ProAPIResponse getWidget(@PathVariable Integer widgetId){
 		Widget widget = widgetService.getWidget(widgetId);
-		return new ProAPISuccessResponse(widget, 1);
+		return new ProAPISuccessResponse(widget);
 	}
 	
 }

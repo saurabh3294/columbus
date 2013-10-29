@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.City;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.portfolio.CityService;
 
@@ -33,6 +33,6 @@ public class CityController extends BaseController{
 		if(selector != null){
 			fieldsToSerialize = selector.getFields();
 		}
-		return new ProAPISuccessResponse(super.filterFields(list, fieldsToSerialize), list.size());
+		return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
 	}
 }

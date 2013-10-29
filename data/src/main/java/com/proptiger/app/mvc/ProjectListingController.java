@@ -21,7 +21,7 @@ import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
 import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
@@ -67,7 +67,7 @@ public class ProjectListingController extends BaseController {
             response.put("stats", propertyService.getStats(Arrays.asList(stats.split(",")), projectListingSelector));
         }
 
-        return new ProAPISuccessResponse(response, projects.getTotalResultCount());
+        return new ProAPISuccessCountResponse(response, projects.getTotalResultCount());
     }
 
     private void processFields(Set<String> fields) {

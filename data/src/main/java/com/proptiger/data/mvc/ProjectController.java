@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ProjectService;
@@ -42,7 +43,7 @@ public class ProjectController extends BaseController {
         SolrServiceResponse<List<Project>> response = projectService.getProjects(propRequestParam);
 
         Set<String> fieldsString = propRequestParam.getFields();
-        return new ProAPISuccessResponse(super.filterFields(response.getResult(), fieldsString),
+        return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
                 response.getTotalResultCount());
     }
 
@@ -58,7 +59,7 @@ public class ProjectController extends BaseController {
                 propRequestParam);
 
         Set<String> fieldsString = propRequestParam.getFields();
-        return new ProAPISuccessResponse(super.filterFields(response.getResult(), fieldsString),
+        return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
                 response.getTotalResultCount());
     }
 
