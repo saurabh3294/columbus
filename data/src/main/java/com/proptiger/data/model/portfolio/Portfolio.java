@@ -27,10 +27,10 @@ public class Portfolio {
 	private double currentValue;
 	
 	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
-	@JsonUnwrapped
+	//@JsonUnwrapped
 	private OverallReturn overallReturn;
 
-	@JsonIgnore
+	//@JsonIgnore
 	private List<PortfolioListing> portfolioListings;
 
 	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "Listing Ids", description = "Listing Ids")
