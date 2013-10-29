@@ -132,7 +132,7 @@ public class PortfolioListing implements NamedResource, Resource{
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "type_id",  nullable = false, insertable = false, updatable = false)
-	//@JsonUnwrapped
+	@JsonUnwrapped
 	private ProjectType projectType;
 	
 	@ManyToOne(fetch = FetchType.LAZY)

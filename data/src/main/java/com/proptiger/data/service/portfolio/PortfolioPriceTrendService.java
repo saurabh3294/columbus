@@ -75,7 +75,7 @@ public class PortfolioPriceTrendService {
 	 */
 	private void updateProjectName(List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
-			listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
+			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 		}
 		
 	}

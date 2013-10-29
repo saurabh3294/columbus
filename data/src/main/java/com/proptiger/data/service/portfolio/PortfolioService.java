@@ -57,7 +57,7 @@ public class PortfolioService extends AbstractService{
 	public Portfolio getPortfolioByUserId(Integer userId){
 		Portfolio portfolio = new Portfolio();
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
-		portfolio.setPortfolioListings(listings);
+		//portfolio.setPortfolioListings(listings);
 		updatePriceInfoInPortfolio(portfolio, listings);
 		updatePaymentSchedule(listings);
 		if(listings != null){
@@ -261,7 +261,7 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
-				listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
+				listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 			}
 			updatePaymentSchedule(listings);
 		}
@@ -281,7 +281,7 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
-		listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
+		listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 		updatePaymentSchedule(listing);
 		return listing;
