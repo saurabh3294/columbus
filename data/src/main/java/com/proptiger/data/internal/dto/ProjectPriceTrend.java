@@ -10,10 +10,29 @@ import java.util.List;
  */
 public class ProjectPriceTrend {
 
+	private String projectName;
+	private String listingName;
 	private Integer projectId;
 	private Integer typeId;
 	private List<PriceDetail> prices;
 	
+	
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+
+	public String getListingName() {
+		return listingName;
+	}
+
+	public void setListingName(String listingName) {
+		this.listingName = listingName;
+	}
+
 	public Integer getProjectId() {
 		return projectId;
 	}

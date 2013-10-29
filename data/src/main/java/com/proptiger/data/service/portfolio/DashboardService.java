@@ -6,7 +6,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.internal.dto.DashboardDto;
@@ -28,7 +29,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
  * @author Rajeev Pandey
  *
  */
-@Component
+@Service
 public class DashboardService extends AbstractService{
 
 	private static Logger logger = LoggerFactory.getLogger(DashboardService.class);
@@ -45,6 +46,7 @@ public class DashboardService extends AbstractService{
 	 * @return
 	 */
 	@Transactional(readOnly = true)
+	@Cacheable(value = "dashboard", key = "userId")
 	public List<Dashboard> getAllByUserId(Integer userId){
 		logger.debug("Finding all dashboards for userid {}"+userId);
 		List<Dashboard> result = dashboardDao.findByUserId(userId);
@@ -59,6 +61,7 @@ public class DashboardService extends AbstractService{
 	 * @return
 	 */
 	@Transactional(readOnly = true)
+	@Cacheable(value = "dashboard")
 	public Dashboard getDashboardById(Integer userId, Integer dashboardId){
 		logger.debug("Finding dashboard {} for userid {}",userId, dashboardId);
 		Dashboard result = dashboardDao.findByIdAndUserId(dashboardId, userId);

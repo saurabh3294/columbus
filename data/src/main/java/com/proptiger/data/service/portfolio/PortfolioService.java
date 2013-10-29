@@ -21,6 +21,7 @@ import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
+import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.exception.ConstraintViolationException;
@@ -42,6 +43,9 @@ public class PortfolioService extends AbstractService{
 	private PortfolioListingDao portfolioListingDao;
 	
 	@Autowired
+	private ProjectDBDao projectDBDao;
+	
+	@Autowired
 	private ProjectPaymentScheduleDao paymentScheduleDao;
 	
 	/**
@@ -53,9 +57,15 @@ public class PortfolioService extends AbstractService{
 	public Portfolio getPortfolioByUserId(Integer userId){
 		Portfolio portfolio = new Portfolio();
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
-		portfolio.setListings(listings);
-		updatePriceInfoInPortfolio(portfolio);
+		//portfolio.setPortfolioListings(listings);
+		updatePriceInfoInPortfolio(portfolio, listings);
 		updatePaymentSchedule(listings);
+		if(listings != null){
+			for(PortfolioListing l: listings){
+				portfolio.addListings(l.getId());
+			}
+		}
+		
 		return portfolio;
 	}
 	/**
@@ -63,11 +73,11 @@ public class PortfolioService extends AbstractService{
 	 * @param portfolio
 	 * @param listings
 	 */
-	private void updatePriceInfoInPortfolio(Portfolio portfolio) {
+	private void updatePriceInfoInPortfolio(Portfolio portfolio, List<PortfolioListing> listings) {
 		double originalValue = 0.0D;
 		double currentValue = 0.0D;
-		if(portfolio.getListings() != null){
-			for(PortfolioListing property: portfolio.getListings()){
+		if(listings != null){
+			for(PortfolioListing property: listings){
 				originalValue += property.getTotalPrice();
 				property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
 				currentValue += property.getCurrentPrice();
@@ -121,7 +131,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
 		List<PortfolioListing> presentListing = portfolioListingDao.findByUserId(userId);
-		List<PortfolioListing> toCreate = portfolio.getListings();
+		List<PortfolioListing> toCreate = portfolio.getPortfolioListings();
 		if (presentListing != null && presentListing.size() > 0) {
 			logger.error("Portfolio exists for userid {}", userId);
 			throw new ResourceAlreadyExistException("Portfolio exist for user id "+userId);
@@ -129,8 +139,8 @@ public class PortfolioService extends AbstractService{
 		createPortfolioListings(userId, toCreate);
 		Portfolio created = new Portfolio();
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
-		created.setListings(listings);
-		updatePriceInfoInPortfolio(created);
+		created.setPortfolioListings(listings);
+		updatePriceInfoInPortfolio(created, listings);
 		return created;
 	}
 	
@@ -165,18 +175,18 @@ public class PortfolioService extends AbstractService{
 			 * create new portfolio
 			 */
 			
-			createPortfolioListings(userId, portfolio.getListings());
+			createPortfolioListings(userId, portfolio.getPortfolioListings());
 			
 		}
 		else{
 			updated = createOrUpdatePortfolioListings(userId, portfolio, presentListingList);
 		}
 		List<PortfolioListing> updatedListings = portfolioListingDao.findByUserId(userId);
-		updated.setListings(updatedListings);
+		updated.setPortfolioListings(updatedListings);
 		/*
 		 * Updating price information in portfolio
 		 */
-		updatePriceInfoInPortfolio(updated);
+		updatePriceInfoInPortfolio(updated, updatedListings);
 		return updated;
 	}
 	
@@ -192,7 +202,7 @@ public class PortfolioService extends AbstractService{
 		 * to be created and few might need to update
 		 */
 		Portfolio updatedPortfolio = new Portfolio();
-		List<PortfolioListing> toUpdateList = toUpdatePortfolio.getListings();
+		List<PortfolioListing> toUpdateList = toUpdatePortfolio.getPortfolioListings();
 		for(PortfolioListing toUpdate: toUpdateList){
 			if(toUpdate.getId() == null){
 				/*
@@ -200,7 +210,7 @@ public class PortfolioService extends AbstractService{
 				 */
 				PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
 				updatedOrCreatedListings.add(newListing.getId());
-				updatedPortfolio.addListings(newListing);
+				updatedPortfolio.addPortfolioListings(newListing);
 			}
 			else{
 				/*
@@ -214,7 +224,7 @@ public class PortfolioService extends AbstractService{
 						present.update(toUpdate);
 						updatedOrCreatedListings.add(toUpdate.getId());
 						isUpdated = true;
-						updatedPortfolio.addListings(present);
+						updatedPortfolio.addPortfolioListings(present);
 						break;
 					}
 				}
@@ -225,7 +235,7 @@ public class PortfolioService extends AbstractService{
 					 */
 					PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
 					updatedOrCreatedListings.add(newListing.getId());
-					updatedPortfolio.addListings(newListing);
+					updatedPortfolio.addPortfolioListings(newListing);
 				}
 			}
 			
@@ -251,11 +261,13 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
 			}
 			updatePaymentSchedule(listings);
 		}
 		return listings;
 	}
+	
 	/**
 	 * Get a PortfolioProperty for particular user id and PortfolioProperty id
 	 * @param userId
@@ -264,11 +276,12 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(readOnly = true)
 	public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId){
-		PortfolioListing listing = portfolioListingDao.findByUserIdAndId(userId, listingId);
+		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		if(listing == null){
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
+		listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 		updatePaymentSchedule(listing);
 		return listing;
@@ -327,13 +340,13 @@ public class PortfolioService extends AbstractService{
 				listingPrice.setPortfolioListing(toCreate);
 				//setting id null, as while creating id should not be present,
 				//need to find better place to do this pre process work
-				listingPrice.setId(null);
+				listingPrice.setListingPriceId(null);
 			}
 		}
 		if(toCreate.getListingPaymentPlan() != null){
 			for(PortfolioListingPaymentPlan listingPaymentPlan:toCreate.getListingPaymentPlan()){
 				listingPaymentPlan.setPortfolioListing(toCreate);
-				listingPaymentPlan.setId(null);
+				listingPaymentPlan.setListingPaymentPlanId(null);
 			}
 		}
 		
@@ -381,7 +394,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(rollbackFor = ResourceNotAvailableException.class)
 	public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId){
-		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndId(userId, listingId);
+		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		portfolioListingDao.delete(propertyPresent);
 		return propertyPresent;
 	}

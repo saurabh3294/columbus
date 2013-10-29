@@ -35,7 +35,7 @@ public class PortfolioListingPaymentPlan {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")
 	@JsonIgnore
-	private Integer id;
+	private Integer ListingPaymentPlanId;
 	
 	@Column(name = "installment_no")
 	@FieldMetaInfo(displayName = "Installment Number", description = "Installment Number")
@@ -81,9 +81,11 @@ public class PortfolioListingPaymentPlan {
 	private Double componentValue;
 	
 	@Column(name = "created_at")
+	@JsonIgnore
 	private Date createdAt;
 	
 	@Column(name = "updated_at")
+	@JsonIgnore
 	private Date updatedAt;
 	
 	@ManyToOne
@@ -91,11 +93,11 @@ public class PortfolioListingPaymentPlan {
 	@JoinColumn(name = "portfolio_listings_id", referencedColumnName="id")
 	private PortfolioListing portfolioListing;
 	
-	public Integer getId() {
-		return id;
+	public Integer getListingPaymentPlanId() {
+		return ListingPaymentPlanId;
 	}
-	public void setId(Integer id) {
-		this.id = id;
+	public void setListingPaymentPlanId(Integer id) {
+		this.ListingPaymentPlanId = id;
 	}
 	public int getInstallmentNumber() {
 		return installmentNumber;
