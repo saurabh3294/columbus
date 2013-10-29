@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -31,7 +32,7 @@ public class Builder implements BaseModel {
     private String name;
 
     @FieldMetaInfo( displayName = "Image",  description = "Builder Image URL")
-    @Column(name = "BUILDER_IMAGE")
+    @Transient
     private String imageURL;
     
     @FieldMetaInfo( displayName = "Description",  description = "Description")

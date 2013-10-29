@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -120,7 +121,7 @@ public class Project implements BaseModel {
     private Date submittedDate;
 
     @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
-    @Field(value = "PROJECT_SMALL_IMAGE")
+    @Transient
     private String imageURL;
 
     @FieldMetaInfo( displayName = "Offer",  description = "Offer")
