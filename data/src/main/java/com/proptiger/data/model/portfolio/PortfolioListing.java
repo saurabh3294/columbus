@@ -124,6 +124,13 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Enumerated(EnumType.STRING)
 	private TransactionType transactionType;
 	
+	@Column(name = "interested_sell")
+	@FieldMetaInfo(displayName = "Interested To Sell", description = "Interested To Sell")
+	private Boolean interestedToSell = false;
+	
+	@Column(name = "interested_sell_on")
+	private Date interestedToSellOn;
+	
 	@Column(name = "created_at")
 	private Date createdAt;
 	
@@ -131,9 +138,9 @@ public class PortfolioListing implements NamedResource, Resource{
 	private Date updatedAt;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "type_id",  nullable = false, insertable = false, updatable = false)
+	@JoinColumn(name = "type_id", nullable = false, insertable = false, updatable = false)
 	@JsonUnwrapped
-	private ProjectType projectType;
+	private ProjectType projectType = null;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id",  nullable = false, insertable = false, updatable = false)
@@ -312,6 +319,22 @@ public class PortfolioListing implements NamedResource, Resource{
 
 	public void setProjectName(String projectName) {
 		this.projectName = projectName;
+	}
+
+	public Boolean getInterestedToSell() {
+		return interestedToSell;
+	}
+
+	public void setInterestedToSell(Boolean interestedToSell) {
+		this.interestedToSell = interestedToSell;
+	}
+
+	public Date getInterestedToSellOn() {
+		return interestedToSellOn;
+	}
+
+	public void setInterestedToSellOn(Date interestedToSellOn) {
+		this.interestedToSellOn = interestedToSellOn;
 	}
 
 	@PreUpdate

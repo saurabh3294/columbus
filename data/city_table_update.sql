@@ -1,5 +1,6 @@
-ALTER TABLE CITY ADD DISPLAY_PRIORITY TINYINT;
+ALTER TABLE CITY ADD DISPLAY_PRIORITY TINYINT after DISPLAY_ORDER;
 
+SET SQL_SAFE_UPDATES=0;
 UPDATE proptiger.CITY SET DISPLAY_PRIORITY = 1 where LABEL in ('Gurgaon','Noida','Mumbai','Pune','Bangalore','Chennai','Kolkata','Hyderabad','Ahmedabad');
 
 UPDATE proptiger.CITY SET DISPLAY_ORDER = 1 where LABEL='Gurgaon';
