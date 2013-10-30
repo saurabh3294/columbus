@@ -98,7 +98,7 @@ public class PortfolioPriceTrendService {
 				noOfMonths, listings);
 		PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
 		portfolioPriceTrend.setProjectPriceTrend(projectPriceTrendTemp);
-		updatePriceTrendForPortfolio(portfolioPriceTrend, noOfMonths);
+		//updatePriceTrendForPortfolio(portfolioPriceTrend, noOfMonths);
 		return portfolioPriceTrend;
 	}
 
@@ -147,7 +147,7 @@ public class PortfolioPriceTrendService {
 			priceDetail.setEffectiveDate(date);
 			portfolioPriceTrendDetals.add(priceDetail);
 		}
-		portfolioPriceTrend.setPortfolioPriceTrend(portfolioPriceTrendDetals);
+		//portfolioPriceTrend.setPortfolioPriceTrend(portfolioPriceTrendDetals);
 	}
 
 	/**
