@@ -139,14 +139,14 @@ public class RecommendationService {
             System.out.println("i"+i+" : "+tempSearchProperties.size());
             
         }
-        assignPriorityToProperty(searchPropertiesData);
+        assignPriorityToProperty(searchPropertiesData, viewPropertyData);
         System.out.println(" FINAL : "+searchPropertiesData.size());
         //Double minArea = area*(100-params)
         
         return searchPropertiesData;
     }
     
-    private void assignPriorityToProperty(List<List<SolrResult>> searchPropertiesData){
+    private void assignPriorityToProperty(List<List<SolrResult>> searchPropertiesData, SolrResult viewedPropertyData){
         SolrResult solrResult;
         List<SolrResult> lowPriorityProperty = new ArrayList<>();
         
@@ -178,6 +178,10 @@ public class RecommendationService {
                     lowPriorityProperty.add(tempResult);
                     it.remove();
                 }
+                // if both budget, lat long is not present and property do not belong to same locality
+                // then that property will be removed.
+                else if( !dataStatus[1] && !isPropertiesInSameLocality(tempResult, viewedPropertyData) )
+                	it.remove();
             }
             // if all are removed. That list should be removed.
             if(tempData.size() == 0)
@@ -252,7 +256,7 @@ public class RecommendationService {
             isValid = false;
         
         Boolean locationStatus = ( !checkDoubleObject(latitude)&&!checkDoubleObject(longitude) ) || checkDoubleObject(localityId.doubleValue());
-        Boolean areaStatus = !checkDoubleObject(price) || !checkDoubleObject(area);
+        Boolean areaStatus = !checkDoubleObject(price) && !checkDoubleObject(area);
         
         // 0> similar properties Data valid
         // 1> area or location data is present.
@@ -313,6 +317,10 @@ public class RecommendationService {
     	Gson gson = new Gson();
     	System.out.println(gson.toJson(data));
     	
+    }
+    
+    private boolean isPropertiesInSameLocality(SolrResult solrResult1, SolrResult solrResult2){
+    	return solrResult1.getProject().getLocalityId() == solrResult2.getProject().getLocalityId();
     }
     
     private void insertProjectIdBedrooms(List<SolrResult> propertiesData, List<Object> projectIdBedroomList){
