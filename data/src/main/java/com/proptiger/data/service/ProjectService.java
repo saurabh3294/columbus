@@ -19,6 +19,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectSpecificationDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  *
@@ -51,8 +52,12 @@ public class ProjectService {
        return projectSpecificationDao.findById(projectId);
     }
     
-    public ProjectDB getProjectDetails(int projectId){
-        return projectDao.findByProjectId(projectId);
+    public ProjectDB getProjectDetails(Integer projectId){
+        ProjectDB project = projectDao.findByProjectId(projectId);
+        if(project == null){
+        	throw new ResourceNotAvailableException("Project#id#"+projectId+" not available");
+        }
+        return project;
     }
 
     public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {

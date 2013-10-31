@@ -16,14 +16,16 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.LeadPostException;
 
 /**
+ * Lead generation service, using lead.php to submit leads
  * @author Rajeev Pandey
  *
  */
 @Service
 public class LeadGenerationService {
-	private static final String AMPERCENT = "&";
+	private static final String AMPERCEND = "&";
 	private static final String EQUAL = "=";
 	private static Logger logger = LoggerFactory.getLogger(LeadGenerationService.class);
 	@Autowired
@@ -39,9 +41,14 @@ public class LeadGenerationService {
 		}
 	}
 	
-	public void postLead(Enquiry enquiry){
+	/**
+	 * Creating connection with lead.php and submitting the lead request
+	 * @param enquiry
+	 */
+	public String postLead(Enquiry enquiry, LeadSaleType leadSaleType){
 		String result = "";
-		String leadData = createLeadData(enquiry);
+		String leadData = createLeadData(enquiry, leadSaleType);
+		logger.debug("Posting a lead {}",leadData);
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) url.openConnection();
@@ -52,68 +59,57 @@ public class LeadGenerationService {
 	        connection.setRequestProperty("Content-Type",
 	                "application/x-www-form-urlencoded");
 
-	        // Send the POST data
 	        DataOutputStream dataOut = new DataOutputStream(
 	                connection.getOutputStream());
 			dataOut.writeBytes(leadData);
 	        dataOut.flush();
 	        dataOut.close();
-
 	        DataInputStream in = new DataInputStream (connection.getInputStream ());
-
 	        String temp;
 	        while ((temp = in.readLine()) != null) {
 	            result += temp;
 	        }
 	        in.close();
-
+	        logger.error("Result from lead post="+result);
 	    } catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	    	throw new LeadPostException("Lead could not be posted", e);
 		} finally {
 	    	if(connection != null){
 	    		connection.disconnect();
 	    	}
 	    }
+		return result;
 	}
 
-	/*
-	 * lead_name=Rajeev+Pandey&lead_email=rajeev.pandey%40proptiger.com&
-	 * lead_phone
-	 * =9953813699&lead_country=1&lead_query=I+need+more+information
-	 * +about+this
-	 * +project.&submit=Submit&lead_projectId=1342&lead_projectName
-	 * =My+Woods&
-	 * lead_cityId=20&lead_cityName=Noida&lead_localityId=&lead_ui_flag
-	 * =enquiry
-	 * &lead_ui_page=PROJECTDETAIL&lead_ui_php=projects.php&lead_ui_source
-	 * =project_detail
-	 * &lead_extra_bedrooms=&lead_extra_propertyType=&lead_ui_typeid
-	 * =&lead_session_loc
-	 * =1268&resaleNlaunchFlg=&formlocationinfo=open-enquiry-right
+	/**
+	 * Creating lead data
+	 * @param enquiry
+	 * @param leadSaleType
+	 * @return
 	 */
-	private String createLeadData(Enquiry enquiry) {
+	private String createLeadData(Enquiry enquiry, LeadSaleType leadSaleType) {
 		StringBuilder leadData = new StringBuilder();
-		leadData.append("lead_name").append(EQUAL).append(enquiry.getName()).append(AMPERCENT);
-		leadData.append("lead_email").append(EQUAL).append(enquiry.getEmail()).append(AMPERCENT);
-		leadData.append("lead_phone").append(EQUAL).append(enquiry.getPhone()).append(AMPERCENT);
-		leadData.append("lead_country").append(EQUAL).append(enquiry.getCountryOfResidence()).append(AMPERCENT);
-		leadData.append("lead_query").append(EQUAL).append(enquiry.getQuery()).append(AMPERCENT);
-		leadData.append("lead_projectId").append(EQUAL).append(enquiry.getProjectId()).append(AMPERCENT);
-		leadData.append("lead_projectName").append(EQUAL).append(enquiry.getProjectName()).append(AMPERCENT);
-		leadData.append("lead_cityId").append(EQUAL).append(enquiry.getCityId()).append(AMPERCENT);
-		leadData.append("lead_cityName").append(EQUAL).append(enquiry.getCityName()).append(AMPERCENT);
-		leadData.append("lead_localityId").append(EQUAL).append(enquiry.getLocalityId()).append(AMPERCENT);
-		leadData.append("lead_ui_flag").append(EQUAL).append("").append(AMPERCENT);
-		leadData.append("lead_ui_page").append(EQUAL).append("").append(AMPERCENT);
-		leadData.append("lead_ui_php").append(EQUAL).append("").append(AMPERCENT);
-		leadData.append("lead_ui_source").append(EQUAL).append("").append(AMPERCENT);
-		leadData.append("lead_extra_bedrooms").append(EQUAL).append("").append(AMPERCENT);
-		leadData.append("lead_extra_propertyType").append(EQUAL).append("").append(AMPERCENT);
-		leadData.append("lead_ui_typeid").append(EQUAL).append("").append(AMPERCENT);
-		leadData.append("lead_session_loc").append(EQUAL).append("").append(AMPERCENT);
-		leadData.append("resaleNlaunchFlg").append(EQUAL).append("").append(AMPERCENT);
+		leadData.append("lead_name").append(EQUAL).append(enquiry.getName()).append(AMPERCEND);
+		leadData.append("lead_email").append(EQUAL).append(enquiry.getEmail()).append(AMPERCEND);
+		leadData.append("lead_phone").append(EQUAL).append(enquiry.getPhone()).append(AMPERCEND);
+		leadData.append("lead_country").append(EQUAL).append(enquiry.getCountryOfResidence()).append(AMPERCEND);
+		leadData.append("lead_query").append(EQUAL).append(enquiry.getQuery()).append(AMPERCEND);
+		leadData.append("lead_projectId").append(EQUAL).append(enquiry.getProjectId()).append(AMPERCEND);
+		leadData.append("lead_projectName").append(EQUAL).append(enquiry.getProjectName()).append(AMPERCEND);
+		leadData.append("lead_cityId").append(EQUAL).append(enquiry.getCityId()).append(AMPERCEND);
+		leadData.append("lead_cityName").append(EQUAL).append(enquiry.getCityName()).append(AMPERCEND);
+		leadData.append("lead_localityId").append(EQUAL).append(enquiry.getLocalityId()).append(AMPERCEND);
+		leadData.append("lead_ui_flag").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("lead_ui_page").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("lead_ui_php").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("lead_ui_source").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("lead_extra_bedrooms").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("lead_extra_propertyType").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("lead_ui_typeid").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("lead_session_loc").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("resaleNlaunchFlg").append(EQUAL).append(leadSaleType.getType()).append(AMPERCEND);
 		leadData.append("formlocationinfo").append(EQUAL).append("");
+		
 		return leadData.toString();
 	}
 }

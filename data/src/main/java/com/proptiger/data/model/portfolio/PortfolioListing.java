@@ -53,6 +53,11 @@ public class PortfolioListing implements NamedResource, Resource{
 	@FieldMetaInfo(displayName = "Project Name", description = "Project Name")
 	private String projectName;
 	
+	@Transient
+	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
+	@JsonUnwrapped
+	private OverallReturn overallReturn;
+	
 	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "type_id")
 	private Integer typeId;
@@ -335,6 +340,14 @@ public class PortfolioListing implements NamedResource, Resource{
 
 	public void setInterestedToSellOn(Date interestedToSellOn) {
 		this.interestedToSellOn = interestedToSellOn;
+	}
+
+	public OverallReturn getOverallReturn() {
+		return overallReturn;
+	}
+
+	public void setOverallReturn(OverallReturn overallReturn) {
+		this.overallReturn = overallReturn;
 	}
 
 	@PreUpdate

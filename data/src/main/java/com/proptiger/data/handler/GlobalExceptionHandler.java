@@ -23,6 +23,7 @@ import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
 import com.proptiger.exception.InvalidResourceNameException;
+import com.proptiger.exception.LeadPostException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
@@ -157,6 +158,14 @@ public class GlobalExceptionHandler {
 	protected ProAPIResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException exception){
 		logger.error("handle HttpMessageNotReadableException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST);
+	}
+	
+	@ExceptionHandler(LeadPostException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleLeadPostException(LeadPostException exception){
+		logger.error("handle LeadPostException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.LEAD_COULD_NOT_POST);
 	}
 	
 }

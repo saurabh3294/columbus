@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.portfolio.OverallReturn;
@@ -48,8 +50,10 @@ public class PortfolioService extends AbstractService{
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
-//	@Autowired
-//	private MailService mailService;
+	@Autowired
+	private LeadGenerationService leadGenerationService;
+	@Autowired
+	private MailService mailService;
 	
 	@Autowired
 	private ProjectDBDao projectDBDao;
@@ -91,10 +95,10 @@ public class PortfolioService extends AbstractService{
 		double originalValue = 0.0D;
 		double currentValue = 0.0D;
 		if(listings != null){
-			for(PortfolioListing property: listings){
-				originalValue += property.getTotalPrice();
-				property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
-				currentValue += property.getCurrentPrice();
+			for(PortfolioListing listing: listings){
+				originalValue += listing.getTotalPrice();
+				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				currentValue += listing.getCurrentPrice();
 			}
 		}
 		if(currentValue == 0.0D){
@@ -298,6 +302,9 @@ public class PortfolioService extends AbstractService{
 		listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 		updatePaymentSchedule(listing);
+		OverallReturn overallReturn = getOverAllReturn(listing.getTotalPrice(),
+				listing.getCurrentPrice());
+		listing.setOverallReturn(overallReturn);
 		return listing;
 	}
 
@@ -472,29 +479,68 @@ public class PortfolioService extends AbstractService{
 	}
 	
 	
+	/**
+	 * Updating user preference of sell interest for property based on listing id,
+	 * After changing preference sending lead request
+	 * @param userId
+	 * @param listingId
+	 * @param interestedToSell
+	 * @return
+	 */
 	public PortfolioListing interestedToSellListing(Integer userId, Integer listingId, Boolean interestedToSell){
+		logger.debug("Updating sell intereset for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
 		PortfolioListing listing = updateInterestedToSell(userId, listingId,
 				interestedToSell);
-		//TODO need to send mail to specified group
-//		ForumUser user = forumUserDao.findOne(userId);
-//		StringBuilder subject = new StringBuilder("User"); 
-//		subject.append(":").append(user.getEmail()).append(" ");
-//		Boolean toSell = listing.getInterestedToSell();
-//		String toAddress = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
-//		String[] toList = toAddress.split(",");
-//		if(toSell != null){
-//			if(toSell){
-//				subject.append("is interested to sell his property").append(listing.getListingId()+":"+listing.getName());
-//			}
-//			else{
-//				subject.append("is not interested to sell his property");
-//			}
-//		}
-//		StringBuilder content = new StringBuilder(subject);
-//		content.append(" interest shown at "+new Date().toString());
-//		mailService.sendMailUsingAws(toList, content.toString(), subject.toString());
+		ForumUser user = forumUserDao.findOne(userId);
+		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
+		Enquiry enquiry = createEnquiryObj(listing, user);
+		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE);
 		return listing;
 	}
+	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {
+		Enquiry enquiry = new Enquiry();
+		ProjectType projectType = listing.getProjectType();
+		ProjectDB project = projectDBDao.findOne(projectType.getProjectId());
+		
+		enquiry.setAdGrp("");
+		enquiry.setCampaign("");
+		enquiry.setCityId(project.getCityId());
+		enquiry.setCityName("");
+		enquiry.setCountryOfResidence(user.getCountryId()+"");
+		enquiry.setCreatedDate(new Date());
+		enquiry.setEmail(user.getEmail());
+		enquiry.setFormName("");
+		enquiry.setGaCampaign("");
+		enquiry.setGaKeywords("");
+		enquiry.setGaMedium("");
+		enquiry.setGaNetwork("");
+		enquiry.setGaSource("");
+		enquiry.setGaTimespent("");
+		enquiry.setGaUserId("");
+		enquiry.setHttpReferer("");
+		enquiry.setIp("");
+		enquiry.setKeywords("");
+		enquiry.setLocalityId(project.getLocalityId());
+		enquiry.setName(user.getUsername());
+		enquiry.setPageName("");
+		enquiry.setPageUrl("");
+		enquiry.setPhone(user.getContact()+"");
+		enquiry.setPpc("");
+		enquiry.setProjectId(Long.valueOf(projectType.getProjectId()));
+		enquiry.setProjectName(project.getProjectName());
+		enquiry.setQuery("");
+		enquiry.setSource("");
+		enquiry.setUser(user.getUsername());
+		enquiry.setUserMedium("");
+		return enquiry;
+	}
+	/**
+	 * Updating sell interest of user for listing
+	 * @param userId
+	 * @param listingId
+	 * @param interestedToSell
+	 * @return
+	 */
 	@Transactional
 	private PortfolioListing updateInterestedToSell(Integer userId,
 			Integer listingId, Boolean interestedToSell) {
