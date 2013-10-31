@@ -52,8 +52,6 @@ public class PortfolioService extends AbstractService{
 	
 	@Autowired
 	private LeadGenerationService leadGenerationService;
-	@Autowired
-	private MailService mailService;
 	
 	@Autowired
 	private ProjectDBDao projectDBDao;
