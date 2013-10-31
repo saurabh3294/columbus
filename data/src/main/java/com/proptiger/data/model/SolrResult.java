@@ -363,7 +363,7 @@ public class SolrResult {
 
     @Field("PROJECT_STATUS")
     public void setStatus(String status) {
-        project.setStatus(status);
+        project.setProjectStatus(status);
     }
 
     @Field("IS_RESALE")
