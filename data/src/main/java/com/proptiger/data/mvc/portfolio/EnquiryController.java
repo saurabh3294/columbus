@@ -34,7 +34,7 @@ public class EnquiryController extends BaseController{
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	public ProAPIResponse getEnquiredProperties(@PathVariable Integer userId){
-		List<Map<String, String>> result = enquiryService.getEnquiries(userId);
+		List<Map<String, Object>> result = enquiryService.getEnquiries(userId);
 		return new ProAPISuccessCountResponse(result, result.size());
 	}
 }

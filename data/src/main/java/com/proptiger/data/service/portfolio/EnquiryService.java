@@ -1,6 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,21 +25,23 @@ public class EnquiryService {
 	@Autowired
 	private ForumUserDao forumUserDao;
 	
-	public List<Map<String, String>> getEnquiries(Integer userId){
+	public List<Map<String, Object>> getEnquiries(Integer userId){
 		String email = forumUserDao.findEmailByUserId(userId);
 		List<Object[]> list = enquiryDao.findEnquiriesByEmail(email);
-		List<Map<String, String>> result = convertToMap(list);
+		List<Map<String, Object>> result = convertToMap(list);
 		return result;
 	}
 
-	private List<Map<String, String>> convertToMap(List<Object[]> list) {
-		List<Map<String, String>> result = new ArrayList<Map<String, String>>();
+	private List<Map<String, Object>> convertToMap(List<Object[]> list) {
+		List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
 		if(result != null){
 			for(Object[] rowValues: list){
-				Map<String, String> map = new HashMap<>();
-				map.put("projectName", (String)rowValues[0]);
-				map.put("cityName", (String)rowValues[1]);
-				map.put("projectUrl", (String)rowValues[2]);
+				int count = 0;
+				Map<String, Object> map = new HashMap<>();
+				map.put("projectName", (String)rowValues[count++]);
+				map.put("cityName", (String)rowValues[count++]);
+				map.put("projectUrl", (String)rowValues[count++]);
+				map.put("createdDate", (Date)rowValues[count++]);
 				result.add(map);
 			}
 		}
