@@ -48,8 +48,8 @@ public class PortfolioService extends AbstractService{
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
-	@Autowired
-	private MailService mailService;
+//	@Autowired
+//	private MailService mailService;
 	
 	@Autowired
 	private ProjectDBDao projectDBDao;
@@ -476,23 +476,23 @@ public class PortfolioService extends AbstractService{
 		PortfolioListing listing = updateInterestedToSell(userId, listingId,
 				interestedToSell);
 		//TODO need to send mail to specified group
-		ForumUser user = forumUserDao.findOne(userId);
-		StringBuilder subject = new StringBuilder("User"); 
-		subject.append(":").append(user.getEmail()).append(" ");
-		Boolean toSell = listing.getInterestedToSell();
-		String toAddress = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
-		String[] toList = toAddress.split(",");
-		if(toSell != null){
-			if(toSell){
-				subject.append("is interested to sell his property").append(listing.getListingId()+":"+listing.getName());
-			}
-			else{
-				subject.append("is not interested to sell his property");
-			}
-		}
-		StringBuilder content = new StringBuilder(subject);
-		content.append(" interest shown at "+new Date().toString());
-		mailService.sendMailUsingAws(toList, content.toString(), subject.toString());
+//		ForumUser user = forumUserDao.findOne(userId);
+//		StringBuilder subject = new StringBuilder("User"); 
+//		subject.append(":").append(user.getEmail()).append(" ");
+//		Boolean toSell = listing.getInterestedToSell();
+//		String toAddress = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
+//		String[] toList = toAddress.split(",");
+//		if(toSell != null){
+//			if(toSell){
+//				subject.append("is interested to sell his property").append(listing.getListingId()+":"+listing.getName());
+//			}
+//			else{
+//				subject.append("is not interested to sell his property");
+//			}
+//		}
+//		StringBuilder content = new StringBuilder(subject);
+//		content.append(" interest shown at "+new Date().toString());
+//		mailService.sendMailUsingAws(toList, content.toString(), subject.toString());
 		return listing;
 	}
 	@Transactional

@@ -25,7 +25,7 @@ import com.proptiger.data.util.PropertyReader;
  * @author Rajeev Pandey
  *
  */
-@Service
+//@Service
 public class AmazonMailSender {
 
 	private static Logger logger = LoggerFactory.getLogger(AmazonMailSender.class);
