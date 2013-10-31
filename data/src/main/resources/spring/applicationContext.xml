@@ -17,8 +17,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     <!-- Enables the Spring MVC @Controller programming model -->
     <mvc:annotation-driven conversion-service="conversionService"/>
 
-	<import resource="mailing-context.xml"/>
-	
     <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 	  <property name="maxUploadSize" value="104857600"/>
 	</bean>

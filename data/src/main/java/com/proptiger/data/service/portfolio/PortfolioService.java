@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.portfolio.OverallReturn;
@@ -23,13 +24,16 @@ import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
+import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
+import com.proptiger.mail.service.MailService;
 
 /**
  * This class provides CRUD operations over a property that is a addressable entity
@@ -45,11 +49,19 @@ public class PortfolioService extends AbstractService{
 	private PortfolioListingDao portfolioListingDao;
 	
 	@Autowired
+	private MailService mailService;
+	
+	@Autowired
 	private ProjectDBDao projectDBDao;
 	
 	@Autowired
 	private ProjectPaymentScheduleDao paymentScheduleDao;
 	
+	@Autowired
+	private PropertyReader propertyReader;
+	
+	@Autowired
+	private ForumUserDao forumUserDao;
 	/**
 	 * Get portfolio object for a particular user id
 	 * @param userId
@@ -459,12 +471,40 @@ public class PortfolioService extends AbstractService{
 		return list;
 	}
 	
-	@Transactional
+	
 	public PortfolioListing interestedToSellListing(Integer userId, Integer listingId, Boolean interestedToSell){
-		PortfolioListing listing = getPortfolioListingById(userId, listingId);
+		PortfolioListing listing = updateInterestedToSell(userId, listingId,
+				interestedToSell);
+		//TODO need to send mail to specified group
+		ForumUser user = forumUserDao.findOne(userId);
+		StringBuilder subject = new StringBuilder("User"); 
+		subject.append(":").append(user.getEmail()).append(" ");
+		Boolean toSell = listing.getInterestedToSell();
+		String toAddress = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
+		String[] toList = toAddress.split(",");
+		if(toSell != null){
+			if(toSell){
+				subject.append("is interested to sell his property").append(listing.getListingId()+":"+listing.getName());
+			}
+			else{
+				subject.append("is not interested to sell his property");
+			}
+		}
+		StringBuilder content = new StringBuilder(subject);
+		content.append(" interest shown at "+new Date().toString());
+		mailService.sendMailUsingAws(toList, content.toString(), subject.toString());
+		return listing;
+	}
+	@Transactional
+	private PortfolioListing updateInterestedToSell(Integer userId,
+			Integer listingId, Boolean interestedToSell) {
+		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
+		if(listing == null){
+			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
+			throw new ResourceNotAvailableException("Resource not available");
+		}
 		listing.setInterestedToSell(interestedToSell);
 		listing.setInterestedToSellOn(new Date());
-		//TODO need to send mail to specified group
 		return listing;
 	}
 }
