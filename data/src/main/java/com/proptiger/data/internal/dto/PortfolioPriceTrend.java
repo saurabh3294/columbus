@@ -8,18 +8,18 @@ import java.util.List;
  */
 public class PortfolioPriceTrend {
 	
-	private List<PriceDetail> portfolioPriceTrend;
+	//private List<PriceDetail> portfolioPriceTrend;
 	
 	private List<ProjectPriceTrend> projectPriceTrend;
 
 	
-	public List<PriceDetail> getPortfolioPriceTrend() {
-		return portfolioPriceTrend;
-	}
-
-	public void setPortfolioPriceTrend(List<PriceDetail> portfolioPriceTrend) {
-		this.portfolioPriceTrend = portfolioPriceTrend;
-	}
+//	public List<PriceDetail> getPortfolioPriceTrend() {
+//		return portfolioPriceTrend;
+//	}
+//
+//	public void setPortfolioPriceTrend(List<PriceDetail> portfolioPriceTrend) {
+//		this.portfolioPriceTrend = portfolioPriceTrend;
+//	}
 
 	public List<ProjectPriceTrend> getProjectPriceTrend() {
 		return projectPriceTrend;

@@ -12,6 +12,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 
 /**
+ * Portfolio model
  * @author Rajeev Pandey
  *
  */

@@ -1,6 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.portfolio.OverallReturn;
@@ -261,7 +263,7 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
-				listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
+				listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 			}
 			updatePaymentSchedule(listings);
 		}
@@ -281,7 +283,7 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
-		listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
+		listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 		updatePaymentSchedule(listing);
 		return listing;
@@ -307,6 +309,13 @@ public class PortfolioService extends AbstractService{
 	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	public PortfolioListing createPortfolioListing(Integer userId, PortfolioListing listing){
 		listing.setUserId(userId);
+		/*
+		 * Explicitly setting it to null due to use of @JsonUnwrapped, this annotation automatically
+		 * set value as non null, and that create problem while creating resource.
+		 * 
+		 * TODO need to find better solution
+		 */
+		listing.setProjectType(null);
 		return create(listing);
 	}
 	
@@ -450,4 +459,12 @@ public class PortfolioService extends AbstractService{
 		return list;
 	}
 	
+	@Transactional
+	public PortfolioListing interestedToSellListing(Integer userId, Integer listingId, Boolean interestedToSell){
+		PortfolioListing listing = getPortfolioListingById(userId, listingId);
+		listing.setInterestedToSell(interestedToSell);
+		listing.setInterestedToSellOn(new Date());
+		//TODO need to send mail to specified group
+		return listing;
+	}
 }

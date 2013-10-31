@@ -75,7 +75,7 @@ public class PortfolioPriceTrendService {
 	 */
 	private void updateProjectName(List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
-			listing.setProjectName(projectDBDao.getProjectName(listing.getProjectType().getProjectId()));
+			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 		}
 		
 	}
@@ -98,7 +98,7 @@ public class PortfolioPriceTrendService {
 				noOfMonths, listings);
 		PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
 		portfolioPriceTrend.setProjectPriceTrend(projectPriceTrendTemp);
-		updatePriceTrendForPortfolio(portfolioPriceTrend, noOfMonths);
+		//updatePriceTrendForPortfolio(portfolioPriceTrend, noOfMonths);
 		return portfolioPriceTrend;
 	}
 
@@ -147,7 +147,7 @@ public class PortfolioPriceTrendService {
 			priceDetail.setEffectiveDate(date);
 			portfolioPriceTrendDetals.add(priceDetail);
 		}
-		portfolioPriceTrend.setPortfolioPriceTrend(portfolioPriceTrendDetals);
+		//portfolioPriceTrend.setPortfolioPriceTrend(portfolioPriceTrendDetals);
 	}
 
 	/**

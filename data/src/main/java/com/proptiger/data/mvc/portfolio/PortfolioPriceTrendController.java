@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.portfolio.PortfolioPriceTrendService;
 
@@ -38,7 +39,7 @@ public class PortfolioPriceTrendController {
 		
 		PortfolioPriceTrend priceTrend = portfolioPriceTrendService
 				.getPortfolioPriceTrend(userId, months);
-		return new ProAPISuccessResponse(priceTrend);
+		return new ProAPISuccessCountResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend().size());
 	}
 	
 	/**
