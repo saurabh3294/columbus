@@ -51,10 +51,15 @@ public class RecommendationService {
     	int similarProjectId;
     	Set<Integer> similarProjectIds = new HashSet<>();
     	List<SolrResult> similarProperties;
+    	Map<String, Object> data;
     	for(Property property:properties)
     	{
     		propertyId = property.getPropertyId();
-    		similarProperties = getSimilarProperties(propertyId, limit);
+    		data = getSimilarProperties(propertyId, limit);
+    		if(data == null)
+    			continue;
+    		
+    		similarProperties = (List<SolrResult>)data.get("propertyData") ;
     		
     		for(SolrResult solrResult:similarProperties)
     		{
@@ -63,12 +68,13 @@ public class RecommendationService {
     			System.out.println(" SIMILAR PROJECT ID."+similarProjectId );
     		}
     		similarProperties.clear();
+    		data.clear();
     	}
     	if(similarProjectIds.size() > 0)
     		return projectDao.getProjectsOnIds( similarProjectIds );
     	return null;
     }
-    public List<SolrResult> getSimilarProperties(long propertyId, int limit){
+    public Map<String, Object> getSimilarProperties(long propertyId, int limit){
         // distance, budget%, area%, sort Priority
         int[][] params = new int[][]{
             {5, 15, 15, 1},
@@ -83,7 +89,12 @@ public class RecommendationService {
         printPropertyData(viewPropertyData);
         
         List<List<SolrResult>> searchPropertiesData = getSimilarPropertiesData(viewPropertyData, limit, params);
-        List<SolrResult> response = sortProperties(searchPropertiesData, viewPropertyData);
+        List<SolrResult> orderedSearchProperties = sortProperties(searchPropertiesData, viewPropertyData);
+        boolean propertyNearBy = isPropertySearchedNearBy(viewPropertyData);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("propertyData", orderedSearchProperties);
+        response.put("isPropertyNearBy", propertyNearBy);
         return response;
     }
     
@@ -328,5 +339,11 @@ public class RecommendationService {
     	for(SolrResult temp:propertiesData){
     		projectIdBedroomList.add(temp.getProperty().getProjectIdBedroom());
     	}
+    }
+    
+    private boolean isPropertySearchedNearBy(SolrResult solrResult){
+    	
+    	return !checkDoubleObject(solrResult.getProject().getLatitude()) &&  
+    			!checkDoubleObject(solrResult.getProject().getLongitude());
     }
 }
