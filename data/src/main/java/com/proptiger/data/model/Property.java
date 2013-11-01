@@ -61,6 +61,22 @@ public class Property implements BaseModel {
     @Field(value="PROPERTY_URL")
     private String URL;
 
+    @FieldMetaInfo( displayName = "Locality Latitude",  description = "Locality Latitude")
+    //@Field(value="PROCESSED_LATITUDE")
+    private Double processedLatitude;
+    
+    @FieldMetaInfo( displayName = "Locality Longitude",  description = "Locality Longitude")
+    //@Field(value="PROCESSED_LONGITUDE")
+    private Double processedLongitude;
+    
+    @FieldMetaInfo( displayName = "Property Price",  description = "Property Price")
+    @Field(value="BUDGET")
+    private Double budget;
+    
+    @FieldMetaInfo( displayName = "Project Id with Bedroom",  description = "Project Id with Bedroom")
+    @Field(value="PROJECT_ID_BEDROOM")
+    private String projectIdBedroom;
+    
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
     private Project project;
@@ -163,4 +179,36 @@ public class Property implements BaseModel {
     public void setImages(List<Image> images) {
         this.images = images;
     }
+
+    public Double getProcessedLatitue() {
+        return processedLatitude;
+    }
+
+    public void setProcessedLatitude(Double processedLatitude) {
+        this.processedLatitude = processedLatitude;
+    }
+
+    public Double getProcessedLongitude() {
+        return processedLongitude;
+    }
+
+    public void setProcessedLongitude(Double processedLongitude) {
+        this.processedLongitude = processedLongitude;
+    }
+
+	public Double getBudget() {
+		return budget;
+	}
+
+	public void setBudget(Double budget) {
+		this.budget = budget;
+	}
+
+	public String getProjectIdBedroom() {
+		return projectIdBedroom;
+	}
+
+	public void setProjectIdBedroom(String projectIdBedroom) {
+		this.projectIdBedroom = projectIdBedroom;
+	}
 }

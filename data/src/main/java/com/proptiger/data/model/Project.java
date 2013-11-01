@@ -201,7 +201,7 @@ public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
     @Field(value = "PROJECT_SIZE")
     private Double sizeInAcres;
-
+    
     @Field(value = "GEO")
     private List<String> geo;
 
@@ -440,7 +440,7 @@ public class Project implements BaseModel {
         this.status = status;
     }
 
-    public boolean isResale() {
+    public boolean isIsResale() {
         return isResale;
     }
 

@@ -85,6 +85,24 @@ public abstract class AbstractQueryBuilder<T> {
                             }
                             break;
 
+                        case notEqual:
+                            for (String jsonFieldName : fieldNameValueMap.keySet()) {
+                                List<Object> valuesList = new ArrayList<Object>();
+                                Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
+
+                                Object object = fieldNameValueMap.get(jsonFieldName);
+                                if (object instanceof List) {
+                                    for (Object obj: (List<?>) object) {
+                                        valuesList.add(convert(obj, field));
+                                    }
+                                } else {
+                                    valuesList.add(convert(object, field));
+                                }
+
+                                addNotEqualsFilter(jsonFieldName, valuesList);
+                            }
+                            break;
+
                         case range:
                             for (String jsonFieldName : fieldNameValueMap.keySet()) {
                                 Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
@@ -135,6 +153,8 @@ public abstract class AbstractQueryBuilder<T> {
     }
 
     protected abstract void buildGroupByClause(Selector selector);
+
+    protected abstract void addNotEqualsFilter(String fieldName, List<Object> values);
 
     protected abstract void addEqualsFilter(String fieldName, List<Object> values);
 

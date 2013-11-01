@@ -351,7 +351,62 @@ public class PropertyDao {
 
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
-
+    
+    public SolrResult getProperty(long propertyId) {
+        SolrQuery solrQuery = createSolrQuery(null);
+        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY AND TYPE_ID:"+propertyId);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
+        try{
+            System.out.println(solrQuery.toString());
+            return properties.get(0);
+        }catch(Exception e){
+            return null;
+        }
+    }
+    
+    public List<SolrResult> getSimilarProperties(int distance, Double latitude, Double longitude, double minArea, 
+            double maxArea, double minPrice, double maxPrice, String unitType, List<Object> projectStatus,
+            int limit, List<Object> propertyIds, Double budget, int projectId){
+        SolrQuery solrQuery = createSolrQuery(null);
+        
+        //TODO to remove the hardcoding the Property class variable Names like geo.
+        SolrQueryBuilder<Property> propertySolrQueryBuilder = new SolrQueryBuilder(solrQuery, Property.class);
+        
+        if(minPrice > 0 && maxPrice > 0)
+            propertySolrQueryBuilder.addRangeFilter("pricePerUnitArea", minPrice, maxPrice);
+        
+        if(minArea > 0 && maxArea > 0)
+            propertySolrQueryBuilder.addRangeFilter("size", minArea, maxArea);
+        if(propertyIds.size() > 0)
+        	propertySolrQueryBuilder.addNotEqualsFilter("projectIdBedroom", propertyIds);
+        
+        SolrQueryBuilder<Property> projectSolrQueryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
+        if(latitude != null && longitude != null)
+            projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
+        projectSolrQueryBuilder.addEqualsFilter("status", projectStatus);
+        
+        
+        solrQuery.set("group", true);
+		solrQuery.set("group.field", "PROJECT_ID_BEDROOM");
+		solrQuery.set("group.main", true);
+		solrQuery.set("group.limit", 1);
+        if(budget != null)
+			solrQuery.set("group.sort", "abs(sub(" + budget + ",BUDGET)) asc");
+        
+        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
+        solrQuery.addFilterQuery("UNIT_TYPE:"+unitType);
+        solrQuery.setRows(limit);
+        solrQuery.addFilterQuery("-PROJECT_ID:"+projectId);
+        
+        
+        System.out.println("SOLR QUERY" + solrQuery.toString());
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
+        
+        return properties;
+    }
+    
     public static void main(String[] args) {
         Selector selector = new Selector();
 //        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
