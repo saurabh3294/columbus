@@ -108,7 +108,7 @@ public class RecommendationService {
         Double longitude = property.getProcessedLongitude();
         String unitType = property.getUnitType();
         Double budget = property.getBudget();
-        String projectStatus = project.getStatus().toLowerCase();
+        String projectStatus = project.getProjectStatus().toLowerCase();
         Integer localityId = project.getLocalityId();
         int projectId = project.getProjectId();
                 
@@ -318,7 +318,7 @@ public class RecommendationService {
     	data.put("latitude", property.getProcessedLatitue());
     	data.put("longitude", property.getProcessedLongitude());
     	data.put("display_order", project.getAssignedPriority());
-    	data.put("project_status", project.getStatus());
+    	data.put("project_status", project.getProjectStatus());
     	data.put("unit type", property.getUnitType());
     	data.put("is Resale", project.isIsResale());
     	data.put("bedrooms", property.getBedrooms());
