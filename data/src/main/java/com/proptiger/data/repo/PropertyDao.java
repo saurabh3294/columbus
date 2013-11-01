@@ -384,7 +384,7 @@ public class PropertyDao {
         SolrQueryBuilder<Property> projectSolrQueryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
         if(latitude != null && longitude != null)
             projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
-        projectSolrQueryBuilder.addEqualsFilter("status", projectStatus);
+        projectSolrQueryBuilder.addEqualsFilter("projectStatus", projectStatus);
         
         
         solrQuery.set("group", true);
