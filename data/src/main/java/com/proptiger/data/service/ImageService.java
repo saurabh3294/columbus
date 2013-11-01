@@ -67,6 +67,7 @@ public class ImageService {
 		InputStream imageIS = new FileInputStream(image);
 		BufferedImage img = ImageIO.read(imageIS);
 		ImageIO.write(img, "jpg", jpg); // Writes at 0.7 compression quality
+		imageIS.close();
 	}
 
 	private BufferedImage resize(BufferedImage image, int width, int height) {
@@ -111,6 +112,7 @@ public class ImageService {
 			g.dispose();
 		}
 		ImageIO.write(image, "jpg", jpgFile);
+		waterMarkIS.close();
 	}
 
 	private void uploadToS3(Image image, File original, File waterMark) {

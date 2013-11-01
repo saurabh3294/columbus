@@ -12,7 +12,7 @@ import com.proptiger.data.model.portfolio.PortfolioListing;
  */
 public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Integer>{
 	public List<PortfolioListing> findByUserId(Integer userId);
-	public PortfolioListing findByUserIdAndId(Integer userId, Integer propertyId);
+	public PortfolioListing findByUserIdAndListingId(Integer userId, Integer listingId);
 	public PortfolioListing findByUserIdAndName(Integer userId, String name);
 	
 }

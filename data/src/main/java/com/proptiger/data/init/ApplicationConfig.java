@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -19,6 +18,7 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -43,29 +43,56 @@ public class ApplicationConfig {
 	private static final String HIBERNATE_SHOW_SQL = "hibernate.show_sql";
 	private static final String ENTITYMANAGER_PACKAGES_TO_SCAN = "entitymanager.packages.to.scan";
 
+	private static final String MIN_POOL_SIZE = "min.pool.size"; 
+	private static final String MAX_POOL_SIZE = "max.pool.size"; 
+	private static final String INITIAL_POOL_SIZE = "initial.pool.size"; 
+	
 	@Autowired
 	private PropertyReader propertyReader;
+	
 	/**
 	 * Creating Data source
+	 * @throws Exception 
 	 */
 	@Bean
-	public DataSource dataSource() {
-		DriverManagerDataSource dataSource = new DriverManagerDataSource();
-
+	public DataSource dataSource() throws Exception {
+		/*
+		 * C3P0 data source
+		 */
+		ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
+		comboPooledDataSource.setJdbcUrl(propertyReader.getRequiredProperty(DATABASE_URL));
+		comboPooledDataSource.setDriverClass(propertyReader
+				.getRequiredProperty(DATABASE_DRIVER));
+		comboPooledDataSource.setUser(propertyReader
+				.getRequiredProperty(DATABASE_USERNAME));
+		comboPooledDataSource.setPassword(propertyReader
+				.getRequiredProperty(DATABASE_PASSWORD));
+		
+		int minPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(MIN_POOL_SIZE));
+		int maxPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(MAX_POOL_SIZE));
+		int initialPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(INITIAL_POOL_SIZE));
+		
+		comboPooledDataSource.setMinPoolSize(minPoolSize);
+		comboPooledDataSource.setMaxPoolSize(maxPoolSize);
+		comboPooledDataSource.setInitialPoolSize(initialPoolSize);
+		/*
+		 * Spring data source that does not use pooling
+		 */
+		/*DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName(propertyReader
 				.getRequiredProperty(DATABASE_DRIVER));
 		dataSource.setUrl(propertyReader.getRequiredProperty(DATABASE_URL));
 		dataSource.setUsername(propertyReader
 				.getRequiredProperty(DATABASE_USERNAME));
 		dataSource.setPassword(propertyReader
-				.getRequiredProperty(DATABASE_PASSWORD));
+				.getRequiredProperty(DATABASE_PASSWORD));*/
 
-		return dataSource;
+		return comboPooledDataSource;
 	}
 
 	@Bean
 	@Autowired
-	public EntityManagerFactory entityManagerFactory() {
+	public EntityManagerFactory entityManagerFactory() throws Exception {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter.setGenerateDdl(false);
 		vendorAdapter.setShowSql(false);
@@ -100,7 +127,7 @@ public class ApplicationConfig {
     }
 	@Bean
 	@Autowired
-	public JpaTransactionManager transactionManager() {
+	public JpaTransactionManager transactionManager() throws Exception {
 		JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setEntityManagerFactory(entityManagerFactory());
 		return transactionManager;

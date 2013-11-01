@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.portfolio.ForumUserSavedSearch;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.portfolio.ForumUserSavedSearchesService;
 
@@ -38,6 +38,6 @@ public class ForumUserSavedSearchesController extends BaseController {
 		if(selector != null){
 			fieldsToSerialize = selector.getFields();
 		}
-		return new ProAPISuccessResponse(super.filterOutAllExcept(result, fieldsToSerialize), result.size());
+		return new ProAPISuccessCountResponse(super.filterOutAllExcept(result, fieldsToSerialize), result.size());
 	}
 }

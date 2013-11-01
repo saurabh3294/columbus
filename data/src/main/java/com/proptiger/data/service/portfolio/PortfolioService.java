@@ -1,6 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.proptiger.data.model.Enquiry;
+import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.portfolio.OverallReturn;
@@ -21,12 +26,16 @@ import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
+import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
+import com.proptiger.mail.service.MailService;
 
 /**
  * This class provides CRUD operations over a property that is a addressable entity
@@ -42,8 +51,19 @@ public class PortfolioService extends AbstractService{
 	private PortfolioListingDao portfolioListingDao;
 	
 	@Autowired
+	private LeadGenerationService leadGenerationService;
+	
+	@Autowired
+	private ProjectDBDao projectDBDao;
+	
+	@Autowired
 	private ProjectPaymentScheduleDao paymentScheduleDao;
 	
+	@Autowired
+	private PropertyReader propertyReader;
+	
+	@Autowired
+	private ForumUserDao forumUserDao;
 	/**
 	 * Get portfolio object for a particular user id
 	 * @param userId
@@ -53,9 +73,15 @@ public class PortfolioService extends AbstractService{
 	public Portfolio getPortfolioByUserId(Integer userId){
 		Portfolio portfolio = new Portfolio();
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
-		portfolio.setListings(listings);
-		updatePriceInfoInPortfolio(portfolio);
+		//portfolio.setPortfolioListings(listings);
+		updatePriceInfoInPortfolio(portfolio, listings);
 		updatePaymentSchedule(listings);
+		if(listings != null){
+			for(PortfolioListing l: listings){
+				portfolio.addListings(l.getId());
+			}
+		}
+		
 		return portfolio;
 	}
 	/**
@@ -63,14 +89,14 @@ public class PortfolioService extends AbstractService{
 	 * @param portfolio
 	 * @param listings
 	 */
-	private void updatePriceInfoInPortfolio(Portfolio portfolio) {
+	private void updatePriceInfoInPortfolio(Portfolio portfolio, List<PortfolioListing> listings) {
 		double originalValue = 0.0D;
 		double currentValue = 0.0D;
-		if(portfolio.getListings() != null){
-			for(PortfolioListing property: portfolio.getListings()){
-				originalValue += property.getTotalPrice();
-				property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
-				currentValue += property.getCurrentPrice();
+		if(listings != null){
+			for(PortfolioListing listing: listings){
+				originalValue += listing.getTotalPrice();
+				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				currentValue += listing.getCurrentPrice();
 			}
 		}
 		if(currentValue == 0.0D){
@@ -121,7 +147,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
 		List<PortfolioListing> presentListing = portfolioListingDao.findByUserId(userId);
-		List<PortfolioListing> toCreate = portfolio.getListings();
+		List<PortfolioListing> toCreate = portfolio.getPortfolioListings();
 		if (presentListing != null && presentListing.size() > 0) {
 			logger.error("Portfolio exists for userid {}", userId);
 			throw new ResourceAlreadyExistException("Portfolio exist for user id "+userId);
@@ -129,8 +155,8 @@ public class PortfolioService extends AbstractService{
 		createPortfolioListings(userId, toCreate);
 		Portfolio created = new Portfolio();
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
-		created.setListings(listings);
-		updatePriceInfoInPortfolio(created);
+		created.setPortfolioListings(listings);
+		updatePriceInfoInPortfolio(created, listings);
 		return created;
 	}
 	
@@ -165,18 +191,18 @@ public class PortfolioService extends AbstractService{
 			 * create new portfolio
 			 */
 			
-			createPortfolioListings(userId, portfolio.getListings());
+			createPortfolioListings(userId, portfolio.getPortfolioListings());
 			
 		}
 		else{
 			updated = createOrUpdatePortfolioListings(userId, portfolio, presentListingList);
 		}
 		List<PortfolioListing> updatedListings = portfolioListingDao.findByUserId(userId);
-		updated.setListings(updatedListings);
+		updated.setPortfolioListings(updatedListings);
 		/*
 		 * Updating price information in portfolio
 		 */
-		updatePriceInfoInPortfolio(updated);
+		updatePriceInfoInPortfolio(updated, updatedListings);
 		return updated;
 	}
 	
@@ -192,7 +218,7 @@ public class PortfolioService extends AbstractService{
 		 * to be created and few might need to update
 		 */
 		Portfolio updatedPortfolio = new Portfolio();
-		List<PortfolioListing> toUpdateList = toUpdatePortfolio.getListings();
+		List<PortfolioListing> toUpdateList = toUpdatePortfolio.getPortfolioListings();
 		for(PortfolioListing toUpdate: toUpdateList){
 			if(toUpdate.getId() == null){
 				/*
@@ -200,7 +226,7 @@ public class PortfolioService extends AbstractService{
 				 */
 				PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
 				updatedOrCreatedListings.add(newListing.getId());
-				updatedPortfolio.addListings(newListing);
+				updatedPortfolio.addPortfolioListings(newListing);
 			}
 			else{
 				/*
@@ -214,7 +240,7 @@ public class PortfolioService extends AbstractService{
 						present.update(toUpdate);
 						updatedOrCreatedListings.add(toUpdate.getId());
 						isUpdated = true;
-						updatedPortfolio.addListings(present);
+						updatedPortfolio.addPortfolioListings(present);
 						break;
 					}
 				}
@@ -225,7 +251,7 @@ public class PortfolioService extends AbstractService{
 					 */
 					PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
 					updatedOrCreatedListings.add(newListing.getId());
-					updatedPortfolio.addListings(newListing);
+					updatedPortfolio.addPortfolioListings(newListing);
 				}
 			}
 			
@@ -251,11 +277,13 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 			}
 			updatePaymentSchedule(listings);
 		}
 		return listings;
 	}
+	
 	/**
 	 * Get a PortfolioProperty for particular user id and PortfolioProperty id
 	 * @param userId
@@ -264,13 +292,17 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(readOnly = true)
 	public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId){
-		PortfolioListing listing = portfolioListingDao.findByUserIdAndId(userId, listingId);
+		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		if(listing == null){
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
+		listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 		updatePaymentSchedule(listing);
+		OverallReturn overallReturn = getOverAllReturn(listing.getTotalPrice(),
+				listing.getCurrentPrice());
+		listing.setOverallReturn(overallReturn);
 		return listing;
 	}
 
@@ -294,6 +326,13 @@ public class PortfolioService extends AbstractService{
 	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	public PortfolioListing createPortfolioListing(Integer userId, PortfolioListing listing){
 		listing.setUserId(userId);
+		/*
+		 * Explicitly setting it to null due to use of @JsonUnwrapped, this annotation automatically
+		 * set value as non null, and that create problem while creating resource.
+		 * 
+		 * TODO need to find better solution
+		 */
+		listing.setProjectType(null);
 		return create(listing);
 	}
 	
@@ -327,13 +366,13 @@ public class PortfolioService extends AbstractService{
 				listingPrice.setPortfolioListing(toCreate);
 				//setting id null, as while creating id should not be present,
 				//need to find better place to do this pre process work
-				listingPrice.setId(null);
+				listingPrice.setListingPriceId(null);
 			}
 		}
 		if(toCreate.getListingPaymentPlan() != null){
 			for(PortfolioListingPaymentPlan listingPaymentPlan:toCreate.getListingPaymentPlan()){
 				listingPaymentPlan.setPortfolioListing(toCreate);
-				listingPaymentPlan.setId(null);
+				listingPaymentPlan.setListingPaymentPlanId(null);
 			}
 		}
 		
@@ -381,7 +420,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(rollbackFor = ResourceNotAvailableException.class)
 	public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId){
-		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndId(userId, listingId);
+		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		portfolioListingDao.delete(propertyPresent);
 		return propertyPresent;
 	}
@@ -437,4 +476,79 @@ public class PortfolioService extends AbstractService{
 		return list;
 	}
 	
+	
+	/**
+	 * Updating user preference of sell interest for property based on listing id,
+	 * After changing preference sending lead request
+	 * @param userId
+	 * @param listingId
+	 * @param interestedToSell
+	 * @return
+	 */
+	public PortfolioListing interestedToSellListing(Integer userId, Integer listingId, Boolean interestedToSell){
+		logger.debug("Updating sell intereset for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
+		PortfolioListing listing = updateInterestedToSell(userId, listingId,
+				interestedToSell);
+		ForumUser user = forumUserDao.findOne(userId);
+		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
+		Enquiry enquiry = createEnquiryObj(listing, user);
+		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE);
+		return listing;
+	}
+	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {
+		Enquiry enquiry = new Enquiry();
+		ProjectType projectType = listing.getProjectType();
+		ProjectDB project = projectDBDao.findOne(projectType.getProjectId());
+		
+		enquiry.setAdGrp("");
+		enquiry.setCampaign("");
+		enquiry.setCityId(project.getCityId());
+		enquiry.setCityName("");
+		enquiry.setCountryOfResidence(user.getCountryId()+"");
+		enquiry.setCreatedDate(new Date());
+		enquiry.setEmail(user.getEmail());
+		enquiry.setFormName("");
+		enquiry.setGaCampaign("");
+		enquiry.setGaKeywords("");
+		enquiry.setGaMedium("");
+		enquiry.setGaNetwork("");
+		enquiry.setGaSource("");
+		enquiry.setGaTimespent("");
+		enquiry.setGaUserId("");
+		enquiry.setHttpReferer("");
+		enquiry.setIp("");
+		enquiry.setKeywords("");
+		enquiry.setLocalityId(project.getLocalityId());
+		enquiry.setName(user.getUsername());
+		enquiry.setPageName("");
+		enquiry.setPageUrl("");
+		enquiry.setPhone(user.getContact()+"");
+		enquiry.setPpc("");
+		enquiry.setProjectId(Long.valueOf(projectType.getProjectId()));
+		enquiry.setProjectName(project.getProjectName());
+		enquiry.setQuery("");
+		enquiry.setSource("");
+		enquiry.setUser(user.getUsername());
+		enquiry.setUserMedium("");
+		return enquiry;
+	}
+	/**
+	 * Updating sell interest of user for listing
+	 * @param userId
+	 * @param listingId
+	 * @param interestedToSell
+	 * @return
+	 */
+	@Transactional
+	private PortfolioListing updateInterestedToSell(Integer userId,
+			Integer listingId, Boolean interestedToSell) {
+		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
+		if(listing == null){
+			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
+			throw new ResourceNotAvailableException("Resource not available");
+		}
+		listing.setInterestedToSell(interestedToSell);
+		listing.setInterestedToSellOn(new Date());
+		return listing;
+	}
 }

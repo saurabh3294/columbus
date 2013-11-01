@@ -31,7 +31,8 @@ public class PortfolioListingPrice {
 	@FieldMetaInfo(displayName = "Portfolio Listing Price Id", description = "Portfolio Listing Price Id")
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	@JsonIgnore
+	private Integer listingPriceId;
 	
 	@FieldMetaInfo(displayName = "Amount", description = "Amount")
 	@Column(name = "amount")
@@ -53,11 +54,11 @@ public class PortfolioListingPrice {
 	private Date updatedAt;
 	
 	
-	public Integer getId() {
-		return id;
+	public Integer getListingPriceId() {
+		return listingPriceId;
 	}
-	public void setId(Integer id) {
-		this.id = id;
+	public void setListingPriceId(Integer id) {
+		this.listingPriceId = id;
 	}
 	public Double getAmount() {
 		return amount;

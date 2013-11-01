@@ -4,19 +4,20 @@
 package com.proptiger.data.mvc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -62,7 +63,7 @@ public abstract class BaseController {
 		try {
 			List<Map<String, Object>> result = new ArrayList<>();
 			for(T val: list){
-				Map<String, Object> map = mapper.convertValue(val, new TypeReference<HashMap<String,String>>(){});
+				Map map = mapper.convertValue(val, Map.class);
 				if(fields != null && fields.size() > 0){
 					Iterator<String> it = map.keySet().iterator();
 					while(it.hasNext()){
@@ -80,6 +81,30 @@ public abstract class BaseController {
             throw new ProAPIException("Could not serialize response", e);
         }
     }
+    
+    /**
+     * This method filters out all fields that in not in fields set
+     * @param list
+     * @param fields
+     * @return
+     */
+	protected <T> Map<String, Object> filterOutAllExcept(T val, Set<String> fields) {
+		try {
+			Map<String, Object> map = mapper.convertValue(val, Map.class);
+			if (fields != null && fields.size() > 0) {
+				Iterator<String> it = map.keySet().iterator();
+				while (it.hasNext()) {
+					String key = it.next();
+					if (!fields.contains(key)) {
+						it.remove();
+					}
+				}
+			}
+			return map;
+		} catch (Exception e) {
+			throw new ProAPIException("Could not serialize response", e);
+		}
+	}
     
     
     /**
@@ -99,4 +124,19 @@ public abstract class BaseController {
 			throw new ProAPIException("Could not parse request", e);
 		}
 	}
+    
+    public <T> ProAPIResponse postProcess(T val, int count, Selector selector){
+    	if(selector != null && selector.getFields() != null){
+    		return new ProAPISuccessCountResponse(filterOutAllExcept(
+    				val, selector.getFields()), count);
+    	}
+    	return new ProAPISuccessCountResponse(val, count);
+    }
+    public <T> ProAPIResponse postProcess(List<T> val, int count, Selector selector){
+    	if(selector != null && selector.getFields() != null){
+    		return new ProAPISuccessCountResponse(filterOutAllExcept(
+    				val, selector.getFields()), count);
+    	}
+    	return new ProAPISuccessCountResponse(val, count);
+    }
 }

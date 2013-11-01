@@ -22,6 +22,8 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -42,10 +44,19 @@ import com.proptiger.data.model.resource.Resource;
 public class PortfolioListing implements NamedResource, Resource{
 
 	@Id
-	@FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+	@FieldMetaInfo(displayName = "PortfolioListing Id", description = "PortfolioListing Id")
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
+	private Integer listingId;
+	
+	@Transient
+	@FieldMetaInfo(displayName = "Project Name", description = "Project Name")
+	private String projectName;
+	
+	@Transient
+	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
+	@JsonUnwrapped
+	private OverallReturn overallReturn;
 	
 	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "type_id")
@@ -118,6 +129,13 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Enumerated(EnumType.STRING)
 	private TransactionType transactionType;
 	
+	@Column(name = "interested_sell")
+	@FieldMetaInfo(displayName = "Interested To Sell", description = "Interested To Sell")
+	private Boolean interestedToSell = false;
+	
+	@Column(name = "interested_sell_on")
+	private Date interestedToSellOn;
+	
 	@Column(name = "created_at")
 	private Date createdAt;
 	
@@ -125,15 +143,18 @@ public class PortfolioListing implements NamedResource, Resource{
 	private Date updatedAt;
 
 	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "type_id",  nullable = false, insertable = false, updatable = false)
-	private ProjectType projectType;
+	@JoinColumn(name = "type_id", nullable = false, insertable = false, updatable = false)
+	@JsonUnwrapped
+	private ProjectType projectType = null;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id",  nullable = false, insertable = false, updatable = false)
+	@JsonIgnore
 	private ForumUser forumUser;
 	
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "bank_id",  nullable = false, insertable = false, updatable = false)
+	@JsonIgnore
 	private Bank bank;
 	
 	@OneToMany(mappedBy = "portfolioListing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -144,12 +165,21 @@ public class PortfolioListing implements NamedResource, Resource{
 	
 	@Override
 	public Integer getId() {
-		return id;
+		return listingId;
 	}
 
 	@Override
 	public void setId(Integer id) {
-		this.id = id;
+		this.listingId = id;
+	}
+
+	
+	public Integer getListingId() {
+		return listingId;
+	}
+
+	public void setListingId(Integer listingId) {
+		this.listingId = listingId;
 	}
 
 	public Integer getTypeId() {
@@ -286,6 +316,38 @@ public class PortfolioListing implements NamedResource, Resource{
 	public void setListingPaymentPlan(
 			Set<PortfolioListingPaymentPlan> listingPaymentPlans) {
 		this.listingPaymentPlan = listingPaymentPlans;
+	}
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+
+	public Boolean getInterestedToSell() {
+		return interestedToSell;
+	}
+
+	public void setInterestedToSell(Boolean interestedToSell) {
+		this.interestedToSell = interestedToSell;
+	}
+
+	public Date getInterestedToSellOn() {
+		return interestedToSellOn;
+	}
+
+	public void setInterestedToSellOn(Date interestedToSellOn) {
+		this.interestedToSellOn = interestedToSellOn;
+	}
+
+	public OverallReturn getOverallReturn() {
+		return overallReturn;
+	}
+
+	public void setOverallReturn(OverallReturn overallReturn) {
+		this.overallReturn = overallReturn;
 	}
 
 	@PreUpdate

@@ -14,11 +14,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 
@@ -31,6 +34,9 @@ import com.proptiger.data.service.pojo.SolrServiceResponse;
 public class ProjectController extends BaseController {
     @Autowired
     private ProjectService projectService;
+    
+    @Autowired
+    private ImageService imageService;
 
     @RequestMapping
     public @ResponseBody
@@ -39,10 +45,14 @@ public class ProjectController extends BaseController {
         if (propRequestParam == null) {
             propRequestParam = new Selector();
         }
+
         SolrServiceResponse<List<Project>> response = projectService.getProjects(propRequestParam);
+        for (Project project : response.getResult()) {
+            project.setImageURL(imageService.getImages(DomainObject.project, "main", project.getProjectId()).get(0).getAbsolutePath());
+        }
 
         Set<String> fieldsString = propRequestParam.getFields();
-        return new ProAPISuccessResponse(super.filterFields(response.getResult(), fieldsString),
+        return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
                 response.getTotalResultCount());
     }
 
@@ -58,7 +68,7 @@ public class ProjectController extends BaseController {
                 propRequestParam);
 
         Set<String> fieldsString = propRequestParam.getFields();
-        return new ProAPISuccessResponse(super.filterFields(response.getResult(), fieldsString),
+        return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
                 response.getTotalResultCount());
     }
 

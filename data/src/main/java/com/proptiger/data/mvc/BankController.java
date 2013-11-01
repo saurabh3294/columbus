@@ -7,11 +7,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.BankService;
 
@@ -31,13 +31,13 @@ public class BankController {
 	@ResponseBody
 	public ProAPIResponse getBankList(){
 		List<Bank> list = bankService.getBanks();
-		return new ProAPISuccessResponse(list, list.size());
+		return new ProAPISuccessCountResponse(list, list.size());
 	}
 	
 	@RequestMapping(value = "/{bankId}", method = RequestMethod.GET)
 	@ResponseBody
 	public ProAPIResponse getBank(@PathVariable Integer bankId){
 		Bank bank = bankService.getBank(bankId);
-		return new ProAPISuccessResponse(bank, 0);
+		return new ProAPISuccessResponse(bank);
 	}
 }

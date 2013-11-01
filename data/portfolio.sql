@@ -16,6 +16,8 @@ bank_id int,
 loan_amount double,
 loan_availed_amount double,
 transaction_type enum('PRIMARY','RESALE'),
+interested_sell boolean,
+interested_sell_on date,
 created_at datetime not null,
 updated_at datetime not null,
 foreign key fk_project_type (type_id) references RESI_PROJECT_TYPES(TYPE_ID),
@@ -54,3 +56,5 @@ updated_at datetime not null,
 foreign key fk_portfolio_listings (portfolio_listings_id) references portfolio_listings (id),
 primary key (id)
 );
+alter table portfolio_listings add interested_sell boolean after transaction_type;
+alter table portfolio_listings add interested_sell_on date after interested_sell;

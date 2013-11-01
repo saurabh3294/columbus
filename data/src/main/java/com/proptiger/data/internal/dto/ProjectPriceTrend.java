@@ -1,20 +1,38 @@
 package com.proptiger.data.internal.dto;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
- * This class contains price history for project id and type id.
+ * This class contains price trend for project id and type id.
  * @author Rajeev Pandey
  *
  */
-public class ProjectPriceHistory {
+public class ProjectPriceTrend {
 
+	private String projectName;
+	private String listingName;
 	private Integer projectId;
 	private Integer typeId;
 	private List<PriceDetail> prices;
 	
+	
+	public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+
+	public String getListingName() {
+		return listingName;
+	}
+
+	public void setListingName(String listingName) {
+		this.listingName = listingName;
+	}
+
 	public Integer getProjectId() {
 		return projectId;
 	}
@@ -44,28 +62,5 @@ public class ProjectPriceHistory {
 			this.prices = new ArrayList<PriceDetail>();
 		}
 		this.prices.add(price);
-	}
-	/**
-	 * Date wise price
-	 * @author Rajeev Pandey
-	 *
-	 */
-	public static class PriceDetail{
-		private double price;
-		private Date effectiveDate;
-		
-		public double getPrice() {
-			return price;
-		}
-		public void setPrice(double price) {
-			this.price = price;
-		}
-		public Date getEffectiveDate() {
-			return effectiveDate;
-		}
-		public void setEffectiveDate(Date effectiveDate) {
-			this.effectiveDate = effectiveDate;
-		}
-		
 	}
 }

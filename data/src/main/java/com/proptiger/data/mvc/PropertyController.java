@@ -16,10 +16,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
 
 /**
@@ -30,7 +32,10 @@ import com.proptiger.data.service.PropertyService;
 @RequestMapping(value = "data/v1/entity/property")
 public class PropertyController extends BaseController {
     @Autowired
-    PropertyService propertyService;
+    private PropertyService propertyService;
+    
+    @Autowired
+    private ImageService imageService;
 
     @RequestMapping
     public @ResponseBody ProAPIResponse getProperties(@RequestParam(required=false, value = "selector") String selector) throws Exception {
@@ -40,6 +45,11 @@ public class PropertyController extends BaseController {
     		propRequestParam = new Selector();
     	}
         List<Property> properties = propertyService.getProperties(propRequestParam);
+        for (Property property : properties) {
+            property.getProject().setImageURL(imageService.getImages(DomainObject.project, "main", property.getProjectId()).get(0).getAbsolutePath());
+            property.getProject().getBuilder().setImageURL(imageService.getImages(DomainObject.builder, "logo", property.getProject().getBuilderId()).get(0).getAbsolutePath());
+        }
+
         Set<String> fieldsSet = propRequestParam.getFields();
         
         return new ProAPISuccessResponse(super.filterFields(properties, fieldsSet));
