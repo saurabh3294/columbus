@@ -33,9 +33,21 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
         this.solrQuery = solrQuery;
         this.modelClass = clazz;
     }
-
+    
     @Override
-    protected void addEqualsFilter(String fieldName, List<Object> values) {
+    public void addNotEqualsFilter(String fieldName, List<Object> values) {
+        String colName = getColumnName(fieldName);
+        String quote = "";
+        if (values.get(0) instanceof String) {
+            quote = "\"";
+        }
+
+        String string = StringUtils.arrayToDelimitedString(values.toArray(), quote + " OR " + quote);
+        solrQuery.addFilterQuery("-" + colName + ":(" + quote + string + quote + ")");
+    }
+    
+    @Override
+    public void addEqualsFilter(String fieldName, List<Object> values) {
         String colName = getColumnName(fieldName);
         String quote = "";
         if (values.get(0) instanceof String) {
@@ -47,7 +59,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     }
 
     @Override
-    protected void addRangeFilter(String fieldName, Object from, Object to) {
+    public void addRangeFilter(String fieldName, Object from, Object to) {
         String colName = getColumnName(fieldName);
 
         String quote = "";
@@ -73,7 +85,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     }
 
     @Override
-    protected void addGeoFilter(String fieldName, double distance, double latitude, double longitude) {
+    public void addGeoFilter(String fieldName, double distance, double latitude, double longitude) {
         String colName = getColumnName(fieldName);
         solrQuery.addFilterQuery("{!geofilt}");
         solrQuery.add("pt", latitude + "," + longitude);
@@ -97,7 +109,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     }
 
     @Override
-    protected void buildOrderByClause(Selector selector) {
+    public void buildOrderByClause(Selector selector) {
         if (selector != null && selector.getSort() != null) {
             for (SortBy sortBy : selector.getSort()) {
                 String colName = getColumnName(sortBy.getField());
@@ -117,22 +129,22 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     }
 
     @Override
-    protected void buildJoinClause(Selector selector) {
+    public void buildJoinClause(Selector selector) {
 
     }
 
     @Override
-    protected void buildGroupByClause(Selector selector) {
+    public void buildGroupByClause(Selector selector) {
 
     }
 
     @Override
-    protected Class<T> getModelClass() {
+    public Class<T> getModelClass() {
         return this.modelClass;
     }
 
     @Override
-    protected void buildLimitClause(Selector selector) {
+    public void buildLimitClause(Selector selector) {
         // TODO Auto-generated method stub
 
     }
