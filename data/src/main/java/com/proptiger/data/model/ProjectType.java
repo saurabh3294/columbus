@@ -36,32 +36,30 @@ public class ProjectType {
 	@Column(name = "UNIT_NAME")
 	private String unitName;
 	
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Type Id", description = "Type Id")
+	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Unit Type", description = "Unit Type")
 	@Column(name = "UNIT_TYPE")
 	@Enumerated(EnumType.STRING)
 	private UnitType unitType;
 	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
+	@FieldMetaInfo(displayName = "size", description = "size")
 	@Column(name = "SIZE")
 	private Double size;
 	
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Type Id", description = "Type Id")
+	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Measure", description = "Measure")
 	@Column(name = "MEASURE")
 	private String measure;
 	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
+	@FieldMetaInfo(displayName = "Price Per Unit Area", description = "Price Per Unit Area")
 	@Column(name = "PRICE_PER_UNIT_AREA")
 	private Double pricePerUnitArea;
 	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "PRICE_PER_UNIT_AREA_DP")
 	private Double pricePerUnitAreaDP;
 	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "PRICE_PER_UNIT_AREA_FP")
 	private Double pricePerUnitAreaFP;
 	
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Type Id", description = "Type Id")
+	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Status", description = "Status")
 	@Column(name = "STATUS")
 	private String status;
 	
@@ -69,11 +67,10 @@ public class ProjectType {
 	@Column(name = "BEDROOMS")
 	private Integer bedrooms;
 
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "CREATED_DATE")
 	private Date createdDate;
 	
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
+	@FieldMetaInfo(displayName = "Bathrooms", description = "Bathrooms")
 	@Column(name = "BATHROOMS")
 	private int bathrooms;
 

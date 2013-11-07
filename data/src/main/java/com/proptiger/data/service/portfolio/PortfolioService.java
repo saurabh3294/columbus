@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.ProjectType;
@@ -27,6 +27,7 @@ import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
@@ -35,7 +36,6 @@ import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.service.MailService;
 
 /**
  * This class provides CRUD operations over a property that is a addressable entity
@@ -55,6 +55,9 @@ public class PortfolioService extends AbstractService{
 	
 	@Autowired
 	private ProjectDBDao projectDBDao;
+	
+	@Autowired
+	private LocalityDao localityDao;
 	
 	@Autowired
 	private ProjectPaymentScheduleDao paymentScheduleDao;
@@ -277,11 +280,25 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
-				listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
+				updateProjectSpecificData(listing);
 			}
 			updatePaymentSchedule(listings);
 		}
 		return listings;
+	}
+	private void updateProjectSpecificData(PortfolioListing listing) {
+		ProjectDB project = projectDBDao.findOne(listing.getProjectType().getProjectId());
+		if(project != null){
+			listing.setProjectName(project.getProjectName());
+			listing.setBuilderName(project.getBuilderName());
+			listing.setCompletionDate(project.getCompletionDate());
+			listing.setProjectStatus(project.getProjectStatus());
+			Locality locality = localityDao.findOne(project.getLocalityId());
+			if(locality != null){
+				listing.setLocality(locality.getLabel());
+			}
+		}
+		
 	}
 	
 	/**
@@ -297,7 +314,7 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
-		listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
+		updateProjectSpecificData(listing);
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 		updatePaymentSchedule(listing);
 		OverallReturn overallReturn = getOverAllReturn(listing.getTotalPrice(),
@@ -492,7 +509,7 @@ public class PortfolioService extends AbstractService{
 		ForumUser user = forumUserDao.findOne(userId);
 		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
 		Enquiry enquiry = createEnquiryObj(listing, user);
-		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE);
+		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE, LeadPageName.PORTFOLIO);
 		return listing;
 	}
 	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {

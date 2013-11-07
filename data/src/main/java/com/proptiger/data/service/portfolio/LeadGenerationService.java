@@ -45,9 +45,10 @@ public class LeadGenerationService {
 	 * Creating connection with lead.php and submitting the lead request
 	 * @param enquiry
 	 */
-	public String postLead(Enquiry enquiry, LeadSaleType leadSaleType){
+	public String postLead(Enquiry enquiry, LeadSaleType leadSaleType,
+			LeadPageName leadPageName) {
 		String result = "";
-		String leadData = createLeadData(enquiry, leadSaleType);
+		String leadData = createLeadData(enquiry, leadSaleType, leadPageName);
 		logger.debug("Posting a lead {}",leadData);
 		HttpURLConnection connection = null;
 		try {
@@ -85,9 +86,10 @@ public class LeadGenerationService {
 	 * Creating lead data
 	 * @param enquiry
 	 * @param leadSaleType
+	 * @param leadPageName 
 	 * @return
 	 */
-	private String createLeadData(Enquiry enquiry, LeadSaleType leadSaleType) {
+	private String createLeadData(Enquiry enquiry, LeadSaleType leadSaleType, LeadPageName leadPageName) {
 		StringBuilder leadData = new StringBuilder();
 		leadData.append("lead_name").append(EQUAL).append(enquiry.getName()).append(AMPERCEND);
 		leadData.append("lead_email").append(EQUAL).append(enquiry.getEmail()).append(AMPERCEND);
@@ -100,7 +102,7 @@ public class LeadGenerationService {
 		leadData.append("lead_cityName").append(EQUAL).append(enquiry.getCityName()).append(AMPERCEND);
 		leadData.append("lead_localityId").append(EQUAL).append(enquiry.getLocalityId()).append(AMPERCEND);
 		leadData.append("lead_ui_flag").append(EQUAL).append("").append(AMPERCEND);
-		leadData.append("lead_ui_page").append(EQUAL).append("").append(AMPERCEND);
+		leadData.append("lead_ui_page").append(EQUAL).append(leadPageName.getName()).append(AMPERCEND);
 		leadData.append("lead_ui_php").append(EQUAL).append("").append(AMPERCEND);
 		leadData.append("lead_ui_source").append(EQUAL).append("").append(AMPERCEND);
 		leadData.append("lead_extra_bedrooms").append(EQUAL).append("").append(AMPERCEND);
