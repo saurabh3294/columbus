@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 public class MailService {
 	
 	private static Logger logger = LoggerFactory.getLogger(MailService.class);
-	//@Autowired
+	@Autowired
 	private AmazonMailSender amazonMailSender;
 	
 	@Async

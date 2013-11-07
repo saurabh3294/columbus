@@ -49,9 +49,23 @@ public class PortfolioListing implements NamedResource, Resource{
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer listingId;
 	
+	//custom fields start
 	@Transient
 	@FieldMetaInfo(displayName = "Project Name", description = "Project Name")
 	private String projectName;
+	@Transient
+	private String builderName;
+	@Transient
+	private String locality;
+	@Transient
+	private String completionDate;
+	@Transient
+	private String projectStatus;
+	//custom fields ends
+	@Transient
+	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
+	@JsonUnwrapped
+	private OverallReturn overallReturn;
 	
 	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "type_id")
@@ -130,6 +144,12 @@ public class PortfolioListing implements NamedResource, Resource{
 	
 	@Column(name = "interested_sell_on")
 	private Date interestedToSellOn;
+	
+	@Column(name = "status")
+	@Enumerated(EnumType.STRING)
+	private ListingStatus listingStatus = ListingStatus.ACTIVE;
+	
+	
 	
 	@Column(name = "created_at")
 	private Date createdAt;
@@ -335,6 +355,55 @@ public class PortfolioListing implements NamedResource, Resource{
 
 	public void setInterestedToSellOn(Date interestedToSellOn) {
 		this.interestedToSellOn = interestedToSellOn;
+	}
+
+	public OverallReturn getOverallReturn() {
+		return overallReturn;
+	}
+
+	public void setOverallReturn(OverallReturn overallReturn) {
+		this.overallReturn = overallReturn;
+	}
+
+	public ListingStatus getListingStatus() {
+		return listingStatus;
+	}
+
+	public void setListingStatus(ListingStatus status) {
+		this.listingStatus = status;
+	}
+
+	
+	public String getBuilderName() {
+		return builderName;
+	}
+
+	public void setBuilderName(String builderName) {
+		this.builderName = builderName;
+	}
+
+	public String getLocality() {
+		return locality;
+	}
+
+	public void setLocality(String locality) {
+		this.locality = locality;
+	}
+
+	public String getCompletionDate() {
+		return completionDate;
+	}
+
+	public void setCompletionDate(String completionDate) {
+		this.completionDate = completionDate;
+	}
+
+	public String getProjectStatus() {
+		return projectStatus;
+	}
+
+	public void setProjectStatus(String projectStatus) {
+		this.projectStatus = projectStatus;
 	}
 
 	@PreUpdate

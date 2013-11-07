@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.portfolio.OverallReturn;
@@ -25,6 +27,7 @@ import com.proptiger.data.model.portfolio.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
@@ -33,7 +36,6 @@ import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.service.MailService;
 
 /**
  * This class provides CRUD operations over a property that is a addressable entity
@@ -48,11 +50,14 @@ public class PortfolioService extends AbstractService{
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
-//	@Autowired
-//	private MailService mailService;
+	@Autowired
+	private LeadGenerationService leadGenerationService;
 	
 	@Autowired
 	private ProjectDBDao projectDBDao;
+	
+	@Autowired
+	private LocalityDao localityDao;
 	
 	@Autowired
 	private ProjectPaymentScheduleDao paymentScheduleDao;
@@ -91,10 +96,10 @@ public class PortfolioService extends AbstractService{
 		double originalValue = 0.0D;
 		double currentValue = 0.0D;
 		if(listings != null){
-			for(PortfolioListing property: listings){
-				originalValue += property.getTotalPrice();
-				property.setCurrentPrice(property.getProjectType().getSize() * property.getProjectType().getPricePerUnitArea());
-				currentValue += property.getCurrentPrice();
+			for(PortfolioListing listing: listings){
+				originalValue += listing.getTotalPrice();
+				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				currentValue += listing.getCurrentPrice();
 			}
 		}
 		if(currentValue == 0.0D){
@@ -275,11 +280,25 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
-				listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
+				updateProjectSpecificData(listing);
 			}
 			updatePaymentSchedule(listings);
 		}
 		return listings;
+	}
+	private void updateProjectSpecificData(PortfolioListing listing) {
+		ProjectDB project = projectDBDao.findOne(listing.getProjectType().getProjectId());
+		if(project != null){
+			listing.setProjectName(project.getProjectName());
+			listing.setBuilderName(project.getBuilderName());
+			listing.setCompletionDate(project.getCompletionDate());
+			listing.setProjectStatus(project.getProjectStatus());
+			Locality locality = localityDao.findOne(project.getLocalityId());
+			if(locality != null){
+				listing.setLocality(locality.getLabel());
+			}
+		}
+		
 	}
 	
 	/**
@@ -295,9 +314,12 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
-		listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
+		updateProjectSpecificData(listing);
 		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
 		updatePaymentSchedule(listing);
+		OverallReturn overallReturn = getOverAllReturn(listing.getTotalPrice(),
+				listing.getCurrentPrice());
+		listing.setOverallReturn(overallReturn);
 		return listing;
 	}
 
@@ -472,29 +494,68 @@ public class PortfolioService extends AbstractService{
 	}
 	
 	
+	/**
+	 * Updating user preference of sell interest for property based on listing id,
+	 * After changing preference sending lead request
+	 * @param userId
+	 * @param listingId
+	 * @param interestedToSell
+	 * @return
+	 */
 	public PortfolioListing interestedToSellListing(Integer userId, Integer listingId, Boolean interestedToSell){
+		logger.debug("Updating sell intereset for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
 		PortfolioListing listing = updateInterestedToSell(userId, listingId,
 				interestedToSell);
-		//TODO need to send mail to specified group
-//		ForumUser user = forumUserDao.findOne(userId);
-//		StringBuilder subject = new StringBuilder("User"); 
-//		subject.append(":").append(user.getEmail()).append(" ");
-//		Boolean toSell = listing.getInterestedToSell();
-//		String toAddress = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
-//		String[] toList = toAddress.split(",");
-//		if(toSell != null){
-//			if(toSell){
-//				subject.append("is interested to sell his property").append(listing.getListingId()+":"+listing.getName());
-//			}
-//			else{
-//				subject.append("is not interested to sell his property");
-//			}
-//		}
-//		StringBuilder content = new StringBuilder(subject);
-//		content.append(" interest shown at "+new Date().toString());
-//		mailService.sendMailUsingAws(toList, content.toString(), subject.toString());
+		ForumUser user = forumUserDao.findOne(userId);
+		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
+		Enquiry enquiry = createEnquiryObj(listing, user);
+		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE, LeadPageName.PORTFOLIO);
 		return listing;
 	}
+	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {
+		Enquiry enquiry = new Enquiry();
+		ProjectType projectType = listing.getProjectType();
+		ProjectDB project = projectDBDao.findOne(projectType.getProjectId());
+		
+		enquiry.setAdGrp("");
+		enquiry.setCampaign("");
+		enquiry.setCityId(project.getCityId());
+		enquiry.setCityName("");
+		enquiry.setCountryOfResidence(user.getCountryId()+"");
+		enquiry.setCreatedDate(new Date());
+		enquiry.setEmail(user.getEmail());
+		enquiry.setFormName("");
+		enquiry.setGaCampaign("");
+		enquiry.setGaKeywords("");
+		enquiry.setGaMedium("");
+		enquiry.setGaNetwork("");
+		enquiry.setGaSource("");
+		enquiry.setGaTimespent("");
+		enquiry.setGaUserId("");
+		enquiry.setHttpReferer("");
+		enquiry.setIp("");
+		enquiry.setKeywords("");
+		enquiry.setLocalityId(project.getLocalityId());
+		enquiry.setName(user.getUsername());
+		enquiry.setPageName("");
+		enquiry.setPageUrl("");
+		enquiry.setPhone(user.getContact()+"");
+		enquiry.setPpc("");
+		enquiry.setProjectId(Long.valueOf(projectType.getProjectId()));
+		enquiry.setProjectName(project.getProjectName());
+		enquiry.setQuery("");
+		enquiry.setSource("");
+		enquiry.setUser(user.getUsername());
+		enquiry.setUserMedium("");
+		return enquiry;
+	}
+	/**
+	 * Updating sell interest of user for listing
+	 * @param userId
+	 * @param listingId
+	 * @param interestedToSell
+	 * @return
+	 */
 	@Transactional
 	private PortfolioListing updateInterestedToSell(Integer userId,
 			Integer listingId, Boolean interestedToSell) {

@@ -12,6 +12,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -98,6 +99,11 @@ public class Enquiry implements BaseModel {
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID")
     @JsonIgnore
     private Locality locality;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROJECT_ID" ,  nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private ProjectDB project;
 
     public Locality getLocality() {
         return locality;

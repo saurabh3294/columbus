@@ -17,4 +17,6 @@ public interface ResponseErrorMessages {
 	static String INVALID_REQUEST_METHOD_URL_AND_BODY = "Invalid combination of request method, url and body";
 	static String RESOURCE_ALREADY_EXIST = "Resource already exist";
 	static String INVALID_FORMAT_IN_REQUEST = "Invalid format in request parameter value";
+	static String LEAD_COULD_NOT_POST = "Lead could not post";
+	
 }
