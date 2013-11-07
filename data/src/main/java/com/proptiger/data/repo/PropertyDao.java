@@ -411,6 +411,14 @@ public class PropertyDao {
         return properties;
     }
     
+    public List<SolrResult> getPropertiesOnProjectId(int projectId) {
+        SolrQuery solrQuery = createSolrQuery(null);
+        solrQuery.addFilterQuery("PROJECT_ID:" + projectId);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
+        return properties;        
+    }
+    
     public static void main(String[] args) {
         Selector selector = new Selector();
 //        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");

@@ -45,16 +45,26 @@ public class RecommendationService {
     private ProjectDao projectDao;
     
     public List<SolrResult> getSimilarProjects(int projectId, int limit){
-    	List<Property> properties = propertyDao.getProperties(projectId);
+    	List<SolrResult> properties = propertyDao.getPropertiesOnProjectId(projectId);
     	
     	long propertyId;
     	int similarProjectId;
+    	int assignedPriority = 0;
+    	Double latitude=null, longitude=null;
     	Set<Integer> similarProjectIds = new HashSet<>();
     	List<SolrResult> similarProperties;
     	Map<String, Object> data;
-    	for(Property property:properties)
+    	Property property;
+    	for(SolrResult projectProperty:properties)
     	{
+    		property = projectProperty.getProperty();
+    		
     		propertyId = property.getPropertyId();
+    		latitude = property.getProcessedLatitue();
+    		longitude = property.getProcessedLongitude();
+    		
+    		assignedPriority = projectProperty.getProject().getAssignedPriority();
+    		
     		data = getSimilarProperties(propertyId, limit);
     		if(data == null)
     			continue;
@@ -69,9 +79,12 @@ public class RecommendationService {
     		}
     		similarProperties.clear();
     		data.clear();
+    		
     	}
+    	
     	if(similarProjectIds.size() > 0)
-    		return projectDao.getProjectsOnIds( similarProjectIds );
+    		return projectDao.sortingSimilarProjects(similarProjectIds, latitude, longitude, assignedPriority);
+    		//return projectDao.getProjectsOnIds( similarProjectIds );
     	return null;
     }
     public Map<String, Object> getSimilarProperties(long propertyId, int limit){
