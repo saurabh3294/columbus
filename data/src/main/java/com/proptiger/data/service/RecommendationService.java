@@ -326,6 +326,7 @@ public class RecommendationService {
     	Project project = solrResult.getProject();
     	
     	Map<String, Object> data = new LinkedHashMap<>();
+    	data.put("project Name", project.getName());
     	data.put("property id", property.getPropertyId());
     	data.put("project_id", project.getProjectId());
     	data.put("price", property.getPricePerUnitArea());
@@ -339,6 +340,7 @@ public class RecommendationService {
     	data.put("bedrooms", property.getBedrooms());
     	data.put("localityId", project.getLocalityId());
     	data.put("budget", property.getBudget());
+    	data.put("project description", project.getDescription());
     	
     	Gson gson = new Gson();
     	System.out.println(gson.toJson(data));

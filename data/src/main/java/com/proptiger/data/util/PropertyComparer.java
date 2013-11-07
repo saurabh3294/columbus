@@ -46,7 +46,7 @@ public class PropertyComparer implements Comparator<SolrResult>{
                 break;
             // project of same bhk given more priority.    
             case 2:
-                compare = compareBedrooms(o1.getProperty().getBedrooms(), o1.getProperty().getBedrooms());
+                compare = compareBedrooms(o1.getProperty().getBedrooms(), o2.getProperty().getBedrooms());
                 break;
                 
             case 3:
@@ -82,6 +82,7 @@ public class PropertyComparer implements Comparator<SolrResult>{
     }
 
     public int compareBedrooms(int bed1, int bed2) {
+    	System.out.println("BEDROOMS BED1: "+bed1+" NEXT PROJECT BEDS: "+bed2);
         if (bed1 == bed2) {
             return 0;
         } else if (bed1 == viewedPropertyBedroom) {
