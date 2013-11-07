@@ -83,7 +83,7 @@ public class RecommendationService {
     	}
     	
     	if(similarProjectIds.size() > 0)
-    		return projectDao.sortingSimilarProjects(similarProjectIds, latitude, longitude, assignedPriority);
+    		return projectDao.sortingSimilarProjects(similarProjectIds, latitude, longitude, assignedPriority, limit);
     		//return projectDao.getProjectsOnIds( similarProjectIds );
     	return null;
     }
