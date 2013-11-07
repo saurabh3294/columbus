@@ -122,6 +122,8 @@ public class RecommendationService {
             price = 0.0D;
         if(checkDoubleObject(area))
             area = 0.0D;
+        if(checkDoubleObject(budget))
+        	budget = 0.0D;
         
         double minArea, maxArea, minPrice, maxPrice;
         // TODO to handle the cancelled and 
@@ -136,8 +138,8 @@ public class RecommendationService {
         for(int i=0; i<params.length &&totalProperties< limit; i++){
             minArea = (100-params[i][2])*area/100;
             maxArea = (100+params[i][2])*area/100;
-            minPrice = (100-params[i][1])*price/100;
-            maxPrice = (100+params[i][1])*price/100;
+            minPrice = (100-params[i][1])*budget/100;
+            maxPrice = (100+params[i][1])*budget/100;
             
             System.out.println("MIN AREA "+minArea+" MAX AREA "+maxArea+" MIN PRICE "+minPrice+" MAX PRICE "+maxPrice);
             
