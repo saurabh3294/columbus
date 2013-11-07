@@ -8,12 +8,16 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  *
@@ -45,7 +49,7 @@ public class Enquiry implements BaseModel {
     @Column(name = "CITY_NAME")
     private String cityName;
     @Column(name = "LOCALITY_ID", insertable = false, updatable = false, nullable = true)
-    private int localityId;
+    private Integer localityId;
     @Column(name = "IP")
     private String ip;
     
@@ -91,9 +95,15 @@ public class Enquiry implements BaseModel {
     @Column(name = "GA_TIMESPENT")
     private String gaTimespent;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID")
+    @JsonIgnore
     private Locality locality;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROJECT_ID" ,  nullable = false, insertable = false, updatable = false)
+    @JsonIgnore
+    private ProjectDB project;
 
     public Locality getLocality() {
         return locality;

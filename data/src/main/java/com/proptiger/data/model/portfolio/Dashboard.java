@@ -17,6 +17,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
@@ -55,6 +56,7 @@ public class Dashboard implements NamedResource, Resource{
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id",  nullable = false, insertable = false, updatable = false)
+	@JsonIgnore
 	private ForumUser forumUser;
 	
 	@OneToMany(mappedBy = "dashboardId", fetch = FetchType.EAGER)

@@ -5,18 +5,22 @@
 package com.proptiger.data.repo;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.SolrResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Project;
+import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -90,7 +94,51 @@ public class ProjectSolrDao {
         return solrRes;
 
     }
-
+    
+    public List<SolrResult> getProjectsOnIds(Set<Integer> projectIds)
+    {
+    	SolrQuery solrQuery = new SolrQuery();
+    	
+    	solrQuery.setQuery("*:*");
+    	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
+    	
+    	List<Object> projectIdList = new ArrayList<>();
+    	projectIdList.addAll(projectIds);
+    	
+    	SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
+    	queryBuilder.addEqualsFilter("projectId", projectIdList);
+    	
+    	System.out.println(" PROJECT QUERY "+solrQuery.toString());
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	
+    	return queryResponse.getBeans(SolrResult.class);
+    }
+    
+    public List<SolrResult> sortingSimilarProjects(Set<Integer> projectIds, Double latitude, Double longitude, int projectImportance){
+    	
+    	List<Object> projectIdList = new ArrayList<>();
+    	projectIdList.addAll(projectIds);
+    	
+    	SolrQuery solrQuery = new SolrQuery();
+    	
+    	solrQuery.setQuery("*:*");
+    	SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
+    	queryBuilder.addEqualsFilter("projectId", projectIdList);
+    	
+    	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
+    	
+    	if(latitude>0 && longitude>0)
+    		solrQuery.addSort("geodist(GEO,"+latitude+","+longitude+")", ORDER.asc);
+    	
+    	solrQuery.addSort("abs(sub("+projectImportance+",DISPLAY_ORDER))", ORDER.asc);
+    	
+    	System.out.println(solrQuery.toString());
+    	
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	
+    	return queryResponse.getBeans(SolrResult.class);
+    }
+    
     public static void main(String[] args) {
         Selector projectFilter = new Selector();
         Set<String> fields = new HashSet<String>();

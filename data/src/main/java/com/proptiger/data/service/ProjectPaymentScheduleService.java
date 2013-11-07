@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * @author Rajeev Pandey
@@ -19,7 +20,11 @@ public class ProjectPaymentScheduleService {
 	private ProjectPaymentScheduleDao paymentScheduleDao;
 
 	public List<ProjectPaymentSchedule> getProjectPaymentSchedule(Integer projectId){
-		return paymentScheduleDao.findByProjectIdGroupByInstallmentNo(projectId);
+		List<ProjectPaymentSchedule> list = paymentScheduleDao.findByProjectIdGroupByInstallmentNo(projectId);
+		if(list == null || list.size() == 0){
+			throw new ResourceNotAvailableException("Payment plan not available for project id "+projectId);
+		}
+		return list;
 	}
 	
 	

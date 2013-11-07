@@ -24,7 +24,6 @@ foreign key fk_bank (bank_id) references BANK_LIST(BANK_ID),
 primary key(id)
 );
 
-
 create table portfolio_listings_price(
 id int not null auto_increment,
 portfolio_listings_id int not null,
@@ -54,3 +53,6 @@ updated_at datetime not null,
 foreign key fk_portfolio_listings (portfolio_listings_id) references portfolio_listings (id),
 primary key (id)
 );
+alter table portfolio_listings add interested_sell boolean after transaction_type;
+alter table portfolio_listings add interested_sell_on date after interested_sell;
+alter table portfolio_listings add status enum('ACTIVE','INACTIVE') after interested_sell_on;

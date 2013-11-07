@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.UserWishList;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.service.portfolio.UserWishListService;
 
 /**
@@ -29,7 +29,7 @@ public class UserWishListController extends BaseController{
 	@ResponseBody
 	public ProAPIResponse getUserWishList(@PathVariable Integer userId){
 		List<UserWishList> result = userWishListService.getUserWishList(userId);
-		return new ProAPISuccessResponse(result, result.size());
+		return new ProAPISuccessCountResponse(result, result.size());
 	}
 	
 }

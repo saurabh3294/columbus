@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.service.ProjectPaymentScheduleService;
 
 /**
@@ -29,6 +29,6 @@ public class ProjectPaymentScheduleController {
 	@ResponseBody
 	public ProAPIResponse getProjectPaymentSchedules(@PathVariable Integer projectId){
 		List<ProjectPaymentSchedule> result = paymentScheduleService.getProjectPaymentSchedule(projectId);
-		return new ProAPISuccessResponse(result, result.size());
+		return new ProAPISuccessCountResponse(result, result.size());
 	}
 }

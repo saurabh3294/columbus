@@ -51,7 +51,7 @@ public class PortfolioController extends BaseController{
 	@ResponseBody
 	public ProAPIResponse createPortfolio(@PathVariable Integer userId, @RequestBody Portfolio portfolio) {
 		Portfolio created = portfolioService.createPortfolio(userId, portfolio);
-		return new ProAPISuccessResponse(created, 1);
+		return new ProAPISuccessResponse(created);
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT)
@@ -59,7 +59,7 @@ public class PortfolioController extends BaseController{
 	@ResponseBody
 	public ProAPIResponse updatePortfolio(@PathVariable Integer userId, @RequestBody Portfolio portfolio) {
 		Portfolio updated = portfolioService.updatePortfolio(userId, portfolio);
-		return new ProAPISuccessResponse(updated, 1);
+		return new ProAPISuccessResponse(updated);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/listing")
@@ -89,7 +89,7 @@ public class PortfolioController extends BaseController{
 	public ProAPIResponse createListing(@PathVariable Integer userId,
 			@Validated  @RequestBody PortfolioListing portfolioProperty) {
 		PortfolioListing created = portfolioService.createPortfolioListing(userId, portfolioProperty);
-		return new ProAPISuccessResponse(created, 1);
+		return new ProAPISuccessResponse(created);
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}")
@@ -98,14 +98,21 @@ public class PortfolioController extends BaseController{
 	public ProAPIResponse updateListing(@PathVariable Integer userId, @PathVariable Integer listingId,
 			@RequestBody PortfolioListing portfolioProperty) {
 		PortfolioListing listing = portfolioService.updatePortfolioListing(userId, listingId, portfolioProperty);
-		return new ProAPISuccessResponse(listing, 1);
+		return new ProAPISuccessResponse(listing);
 	}
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = "/listing/{listingId}")
 	@ResponseBody
 	public ProAPIResponse deleteListing(@PathVariable Integer userId, @PathVariable Integer listingId) {
 		PortfolioListing listing = portfolioService.deletePortfolioListing(userId, listingId);
-		return new ProAPISuccessResponse(listing, 1);
+		return new ProAPISuccessResponse(listing);
 	}
 	
+	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/interested-to-sell")
+	@ResponseBody
+	public ProAPIResponse interestedToSell(@PathVariable Integer userId, @PathVariable Integer listingId,
+			@RequestBody(required = true) Boolean interestedToSell) {
+		PortfolioListing listing = portfolioService.interestedToSellListing(userId, listingId, interestedToSell);
+		return new ProAPISuccessResponse(listing);
+	}
 }

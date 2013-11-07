@@ -220,4 +220,10 @@ public class MySqlQueryBuilder<T> extends AbstractQueryBuilder<T>{
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	protected void addNotEqualsFilter(String fieldName, List<Object> values) {
+		// TODO Auto-generated method stub
+		
+	}
 }

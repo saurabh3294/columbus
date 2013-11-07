@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -120,7 +121,7 @@ public class Project implements BaseModel {
     private Date submittedDate;
 
     @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
-    @Field(value = "PROJECT_SMALL_IMAGE")
+    @Transient
     private String imageURL;
 
     @FieldMetaInfo( displayName = "Offer",  description = "Offer")
@@ -185,7 +186,7 @@ public class Project implements BaseModel {
 
     @FieldMetaInfo( displayName = "Project Status",  description = "Project Status")
     @Field(value = "PROJECT_STATUS")
-    private String status;
+    private String projectStatus;
 
     @Field(value = "IS_RESALE")
     private boolean isResale;
@@ -201,7 +202,7 @@ public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
     @Field(value = "PROJECT_SIZE")
     private Double sizeInAcres;
-
+    
     @Field(value = "GEO")
     private List<String> geo;
 
@@ -432,15 +433,15 @@ public class Project implements BaseModel {
         this.maxSize = maxSize;
     }
 
-    public String getStatus() {
-        return status;
+    public String getProjectStatus() {
+        return projectStatus;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setProjectStatus(String projectStatus) {
+        this.projectStatus = projectStatus;
     }
 
-    public boolean isResale() {
+    public boolean isIsResale() {
         return isResale;
     }
 

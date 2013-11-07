@@ -29,5 +29,5 @@ public interface ProjectDBDao extends PagingAndSortingRepository<ProjectDB, Seri
     public List<ProjectDiscussion> getChildrenProjectDiscussions(Integer commentId);
     
     @Query("SELECT p.projectName FROM ProjectDB p WHERE p.projectId = ?1")
-    public String getProjectName(Integer projectId);
+    public String getProjectNameById(Integer projectId);
 }

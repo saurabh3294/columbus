@@ -151,7 +151,7 @@ public class SolrResult {
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price",  description = "Price")
     @Field(value="BUDGET")
-    private Double price;
+    private Double budget;
 
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
@@ -180,10 +180,16 @@ public class SolrResult {
     @FieldMetaInfo( displayName = "Text",  description = "Full text for search")
     @Field(value = "text")
     private String text;
+    
+    @Field(value="PROCESSED_LATITUDE")
+    private Double processedLatitude;
+    
+    @Field(value="PROCESSED_LONGITUDE")
+    private Double processedLongitude;
 
     @Field(value = "GEO")
     private List<String> geo;
-
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -363,7 +369,7 @@ public class SolrResult {
 
     @Field("PROJECT_STATUS")
     public void setStatus(String status) {
-        project.setStatus(status);
+        project.setProjectStatus(status);
     }
 
     @Field("IS_RESALE")
@@ -472,5 +478,25 @@ public class SolrResult {
     @Field("MAX_BUDGET")
     public void setMaxPrice(Double maxPrice) {
         project.setMaxPrice(maxPrice);
+    }
+    
+    @Field("PROCESSED_LATITUDE")
+    public void setProcessedLatitude(Double processedLatitude){
+    	property.setProcessedLatitude(processedLatitude);
+    }
+    
+    @Field("PROCESSED_LONGITUDE")
+    public void setProcessedLongitude(Double processedLongitude){
+    	property.setProcessedLongitude(processedLongitude);
+    }
+    
+    @Field("BUDGET")
+	public void setBudget(Double budget) {
+		property.setBudget(budget);
+	}
+    
+    @Field("PROJECT_ID_BEDROOM")
+    public void setProjectIdBedroom(String projectIdBedroom){
+    	property.setProjectIdBedroom(projectIdBedroom);
     }
 }

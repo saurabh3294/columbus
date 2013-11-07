@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.service.TypeaheadService;
 
 /**
@@ -34,7 +34,7 @@ public class TypeaheadController extends BaseController {
 			@RequestParam(required = false) String typeAheadType,
 			@RequestParam(required = false) String city) {
 		List<Typeahead> list = typeaheadService.getTypeaheads(query, rows, typeAheadType, city);
-		return new ProAPISuccessResponse(super.filterFields(list, null), list.size());
+		return new ProAPISuccessCountResponse(super.filterFields(list, null), list.size());
 	}
     
    

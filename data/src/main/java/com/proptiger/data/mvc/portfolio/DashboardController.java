@@ -15,6 +15,7 @@ import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.portfolio.DashboardService;
 
@@ -39,7 +40,7 @@ public class DashboardController extends BaseController{
 	@ResponseBody
 	public ProAPIResponse getDashboards(@PathVariable Integer userId){
 		List<Dashboard> result = dashboardService.getAllByUserId(userId);
-		return new ProAPISuccessResponse(result, result.size());
+		return new ProAPISuccessCountResponse(result, result.size());
 	}
 	
 	/**
@@ -52,7 +53,7 @@ public class DashboardController extends BaseController{
 	@ResponseBody
 	public ProAPIResponse getDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId){
 		Dashboard result = dashboardService.getDashboardById(userId, dashboardId);
-		return new ProAPISuccessResponse(result, 1);
+		return new ProAPISuccessResponse(result);
 	}
 	
 	/**
@@ -86,7 +87,7 @@ public class DashboardController extends BaseController{
 		dashboardDto.setId(dashboardId);
 		dashboardDto.setUserId(userId);
 		Dashboard dashboard = dashboardService.updateDashboard(dashboardDto);
-		return new ProAPISuccessResponse(dashboard, 1);
+		return new ProAPISuccessResponse(dashboard);
 	}
 	
 	/**
@@ -101,7 +102,7 @@ public class DashboardController extends BaseController{
 			@PathVariable Integer userId,
 			@PathVariable Integer dashboardId){
 		Dashboard dashboard = dashboardService.getDashboardById(userId, dashboardId);
-		return new ProAPISuccessResponse(dashboard.getWidgets(), dashboard.getWidgets() == null? 0: dashboard.getWidgets().size());
+		return new ProAPISuccessCountResponse(dashboard.getWidgets(), dashboard.getWidgets() == null? 0: dashboard.getWidgets().size());
 	}
 	
 	/**
@@ -117,7 +118,7 @@ public class DashboardController extends BaseController{
 			@PathVariable Integer userId,
 			@PathVariable Integer dashboardId, @PathVariable Integer widgetId){
 		Dashboard dashboard = dashboardService.getDashboardById(userId, dashboardId);
-		return new ProAPISuccessResponse(dashboard.getWidgets(), dashboard.getWidgets() == null? 0: dashboard.getWidgets().size());
+		return new ProAPISuccessCountResponse(dashboard.getWidgets(), dashboard.getWidgets() == null? 0: dashboard.getWidgets().size());
 	}
 	
 	/**
@@ -133,7 +134,7 @@ public class DashboardController extends BaseController{
 			@PathVariable Integer dashboardId,
 			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping){
 		Dashboard dashboard = dashboardService.createSingleWidget(userId, dashboardId, dashboardWidgetMapping);
-		return new ProAPISuccessResponse(dashboard, 1);
+		return new ProAPISuccessResponse(dashboard);
 	}
 	/**
 	 * This method updates a provided widget id mapping with provided dashboard id 
@@ -151,7 +152,7 @@ public class DashboardController extends BaseController{
 			@PathVariable Integer widgetId,
 			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping){
 		Dashboard dashboard = dashboardService.updateWidgetMappingWithDashboard(userId, dashboardId, widgetId, dashboardWidgetMapping);
-		return new ProAPISuccessResponse(dashboard, 1);
+		return new ProAPISuccessResponse(dashboard);
 	}
 	
 	/**
@@ -169,12 +170,12 @@ public class DashboardController extends BaseController{
 			@PathVariable Integer widgetId,
 			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping){
 		Dashboard dashboard = dashboardService.deleteWidgetMappingWithDashboard(userId, dashboardId, widgetId, dashboardWidgetMapping);
-		return new ProAPISuccessResponse(dashboard, 1);
+		return new ProAPISuccessResponse(dashboard);
 	}
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{dashboardId}")
 	@ResponseBody
 	public ProAPIResponse deleteDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId){
 		Dashboard deleted = dashboardService.deleteDashboard(userId, dashboardId);
-		return new ProAPISuccessResponse(deleted, 1);
+		return new ProAPISuccessResponse(deleted);
 	}
 }

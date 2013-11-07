@@ -14,5 +14,6 @@ public enum Operator {
 	lat, 
 	lon, 
 	distance,
-	in;
+	in,
+	notEqual;
 }

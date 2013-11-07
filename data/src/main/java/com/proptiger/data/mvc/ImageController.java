@@ -43,7 +43,6 @@ public class ImageController extends BaseController {
         }
 
         return new ProAPISuccessResponse(super.filterFields(images, imageSelector.getFields()));
-
     }
 
     @RequestMapping(method = RequestMethod.POST)
