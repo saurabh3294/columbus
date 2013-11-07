@@ -114,7 +114,7 @@ public class ProjectSolrDao {
     	return queryResponse.getBeans(SolrResult.class);
     }
     
-    public List<SolrResult> sortingSimilarProjects(Set<Integer> projectIds, Double latitude, Double longitude, int projectImportance){
+    public List<SolrResult> sortingSimilarProjects(Set<Integer> projectIds, Double latitude, Double longitude, int projectImportance, int rows){
     	
     	List<Object> projectIdList = new ArrayList<>();
     	projectIdList.addAll(projectIds);
@@ -131,7 +131,7 @@ public class ProjectSolrDao {
     		solrQuery.addSort("geodist(GEO,"+latitude+","+longitude+")", ORDER.asc);
     	
     	solrQuery.addSort("abs(sub("+projectImportance+",DISPLAY_ORDER))", ORDER.asc);
-    	
+    	solrQuery.setRows(rows);
     	System.out.println(solrQuery.toString());
     	
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
