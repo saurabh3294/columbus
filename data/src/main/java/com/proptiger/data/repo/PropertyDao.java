@@ -51,6 +51,8 @@ public class PropertyDao {
     public List<Property> getProperties(int projectId) {
         SolrQuery solrQuery = createSolrQuery(null);
         solrQuery.addFilterQuery("PROJECT_ID:" + projectId);
+        solrQuery.setSort("TYPE_ID", ORDER.asc);
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Property> properties = queryResponse.getBeans(Property.class);
         return properties;        

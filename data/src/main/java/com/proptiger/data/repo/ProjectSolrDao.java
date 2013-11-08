@@ -86,11 +86,16 @@ public class ProjectSolrDao {
         queryBuilder.buildQuery(selector, null);
         
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-        List<Project> solrResults = queryResponse.getBeans(Project.class);
+        List<SolrResult> totalSolrResults = queryResponse.getBeans(SolrResult.class);
+        
+        List<Project> solrResults = new ArrayList<>();
+        for(SolrResult solr:totalSolrResults)
+        	solrResults.add(solr.getProject());
 
         SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
         solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
         solrRes.setResult(solrResults);
+        
         return solrRes;
 
     }
