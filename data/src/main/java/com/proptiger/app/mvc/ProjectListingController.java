@@ -52,7 +52,7 @@ public class ProjectListingController extends BaseController {
 
         SolrServiceResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
         for (Project project : projects.getResult()) {
-        	List<Image> images = imageService.getImages(DomainObject.project, "main", project.getProjectId());
+            List<Image> images = imageService.getImages(DomainObject.project, "main", project.getProjectId());
             if (images != null && !images.isEmpty()) {
                 project.setImageURL(images.get(0).getAbsolutePath());
             }
