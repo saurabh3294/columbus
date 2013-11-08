@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -18,7 +19,6 @@ import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -58,7 +58,6 @@ public class ApplicationConfig {
 	public DataSource dataSource() throws Exception {
 		/*
 		 * C3P0 data source
-		 */
 		ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
 		comboPooledDataSource.setJdbcUrl(propertyReader.getRequiredProperty(DATABASE_URL));
 		comboPooledDataSource.setDriverClass(propertyReader
@@ -78,16 +77,16 @@ public class ApplicationConfig {
 		/*
 		 * Spring data source that does not use pooling
 		 */
-		/*DriverManagerDataSource dataSource = new DriverManagerDataSource();
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
 		dataSource.setDriverClassName(propertyReader
 				.getRequiredProperty(DATABASE_DRIVER));
 		dataSource.setUrl(propertyReader.getRequiredProperty(DATABASE_URL));
 		dataSource.setUsername(propertyReader
 				.getRequiredProperty(DATABASE_USERNAME));
 		dataSource.setPassword(propertyReader
-				.getRequiredProperty(DATABASE_PASSWORD));*/
+				.getRequiredProperty(DATABASE_PASSWORD));
 
-		return comboPooledDataSource;
+		return dataSource;
 	}
 
 	@Bean
