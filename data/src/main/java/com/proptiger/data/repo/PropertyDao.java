@@ -67,6 +67,7 @@ public class PropertyDao {
 
     public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertySelector) {
         SolrQuery query = createSolrQuery(propertySelector);
+        query.setFacetMinCount(1);
         for (String field : fields) {
             query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         }
