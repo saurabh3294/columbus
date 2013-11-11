@@ -72,7 +72,7 @@ public class ReviewComments implements BaseModel{
     
     @FieldMetaInfo(displayName = "Status", description = "Status")
     @Column(name = "STATUS")
-    private int status;
+    private String status;
 
     public int getCommentId() {
         return commentId;
@@ -162,11 +162,11 @@ public class ReviewComments implements BaseModel{
         this.userName = userName;
     }
 
-    public int getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(short status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 }

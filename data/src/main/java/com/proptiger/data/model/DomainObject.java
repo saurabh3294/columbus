@@ -5,8 +5,10 @@ public enum DomainObject {
 	property("property"),
 	builder("builder"),
 	locality("locality"),
+    city("city"),
+    suburb("suburb"),
 	bank("bank");
-	
+
 	String text;
 	DomainObject(String x) {
 		text = x;

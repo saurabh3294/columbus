@@ -67,6 +67,10 @@ public class ProjectController extends BaseController {
         SolrServiceResponse<List<Project>> response = projectService.getNewProjectsByLaunchDate(cityName,
                 propRequestParam);
 
+        for (Project project : response.getResult()) {
+            project.setImageURL(imageService.getImages(DomainObject.project, "main", project.getProjectId()).get(0).getAbsolutePath());
+        }
+
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
                 response.getTotalResultCount());

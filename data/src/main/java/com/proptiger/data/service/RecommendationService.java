@@ -45,16 +45,26 @@ public class RecommendationService {
     private ProjectDao projectDao;
     
     public List<SolrResult> getSimilarProjects(int projectId, int limit){
-    	List<Property> properties = propertyDao.getProperties(projectId);
+    	List<SolrResult> properties = propertyDao.getPropertiesOnProjectId(projectId);
     	
     	long propertyId;
     	int similarProjectId;
+    	int assignedPriority = 0;
+    	Double latitude=null, longitude=null;
     	Set<Integer> similarProjectIds = new HashSet<>();
     	List<SolrResult> similarProperties;
     	Map<String, Object> data;
-    	for(Property property:properties)
+    	Property property;
+    	for(SolrResult projectProperty:properties)
     	{
+    		property = projectProperty.getProperty();
+    		
     		propertyId = property.getPropertyId();
+    		latitude = property.getProcessedLatitue();
+    		longitude = property.getProcessedLongitude();
+    		
+    		assignedPriority = projectProperty.getProject().getAssignedPriority();
+    		
     		data = getSimilarProperties(propertyId, limit);
     		if(data == null)
     			continue;
@@ -69,9 +79,12 @@ public class RecommendationService {
     		}
     		similarProperties.clear();
     		data.clear();
+    		
     	}
+    	
     	if(similarProjectIds.size() > 0)
-    		return projectDao.getProjectsOnIds( similarProjectIds );
+    		return projectDao.sortingSimilarProjects(similarProjectIds, latitude, longitude, assignedPriority, limit);
+    		//return projectDao.getProjectsOnIds( similarProjectIds );
     	return null;
     }
     public Map<String, Object> getSimilarProperties(long propertyId, int limit){
@@ -122,6 +135,8 @@ public class RecommendationService {
             price = 0.0D;
         if(checkDoubleObject(area))
             area = 0.0D;
+        if(checkDoubleObject(budget))
+        	budget = 0.0D;
         
         double minArea, maxArea, minPrice, maxPrice;
         // TODO to handle the cancelled and 
@@ -136,8 +151,8 @@ public class RecommendationService {
         for(int i=0; i<params.length &&totalProperties< limit; i++){
             minArea = (100-params[i][2])*area/100;
             maxArea = (100+params[i][2])*area/100;
-            minPrice = (100-params[i][1])*price/100;
-            maxPrice = (100+params[i][1])*price/100;
+            minPrice = (100-params[i][1])*budget/100;
+            maxPrice = (100+params[i][1])*budget/100;
             
             System.out.println("MIN AREA "+minArea+" MAX AREA "+maxArea+" MIN PRICE "+minPrice+" MAX PRICE "+maxPrice);
             
@@ -311,6 +326,7 @@ public class RecommendationService {
     	Project project = solrResult.getProject();
     	
     	Map<String, Object> data = new LinkedHashMap<>();
+    	data.put("project Name", project.getName());
     	data.put("property id", property.getPropertyId());
     	data.put("project_id", project.getProjectId());
     	data.put("price", property.getPricePerUnitArea());
@@ -324,6 +340,7 @@ public class RecommendationService {
     	data.put("bedrooms", property.getBedrooms());
     	data.put("localityId", project.getLocalityId());
     	data.put("budget", property.getBudget());
+    	data.put("project description", project.getDescription());
     	
     	Gson gson = new Gson();
     	System.out.println(gson.toJson(data));

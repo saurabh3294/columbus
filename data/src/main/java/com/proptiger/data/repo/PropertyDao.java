@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
 import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
@@ -50,6 +51,8 @@ public class PropertyDao {
     public List<Property> getProperties(int projectId) {
         SolrQuery solrQuery = createSolrQuery(null);
         solrQuery.addFilterQuery("PROJECT_ID:" + projectId);
+        solrQuery.setSort("TYPE_ID", ORDER.asc);
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Property> properties = queryResponse.getBeans(Property.class);
         return properties;        
@@ -66,6 +69,7 @@ public class PropertyDao {
 
     public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertySelector) {
         SolrQuery query = createSolrQuery(propertySelector);
+        query.setFacetMinCount(1);
         for (String field : fields) {
             query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         }
@@ -374,7 +378,7 @@ public class PropertyDao {
         SolrQueryBuilder<Property> propertySolrQueryBuilder = new SolrQueryBuilder(solrQuery, Property.class);
         
         if(minPrice > 0 && maxPrice > 0)
-            propertySolrQueryBuilder.addRangeFilter("pricePerUnitArea", minPrice, maxPrice);
+            propertySolrQueryBuilder.addRangeFilter("budget", minPrice, maxPrice);
         
         if(minArea > 0 && maxArea > 0)
             propertySolrQueryBuilder.addRangeFilter("size", minArea, maxArea);
@@ -383,7 +387,10 @@ public class PropertyDao {
         
         SolrQueryBuilder<Property> projectSolrQueryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
         if(latitude != null && longitude != null)
-            projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
+        {
+        	projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
+        	solrQuery.setSort("geodist()", ORDER.asc);
+        }
         projectSolrQueryBuilder.addEqualsFilter("projectStatus", projectStatus);
         
         
@@ -405,6 +412,14 @@ public class PropertyDao {
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         
         return properties;
+    }
+    
+    public List<SolrResult> getPropertiesOnProjectId(int projectId) {
+        SolrQuery solrQuery = createSolrQuery(null);
+        solrQuery.addFilterQuery("PROJECT_ID:" + projectId);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
+        return properties;        
     }
     
     public static void main(String[] args) {

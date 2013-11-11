@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
@@ -51,7 +52,10 @@ public class ProjectListingController extends BaseController {
 
         SolrServiceResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
         for (Project project : projects.getResult()) {
-            project.setImageURL(imageService.getImages(DomainObject.project, "main", project.getProjectId()).get(0).getAbsolutePath());
+            List<Image> images = imageService.getImages(DomainObject.project, "main", project.getProjectId());
+            if (images != null && !images.isEmpty()) {
+                project.setImageURL(images.get(0).getAbsolutePath());
+            }
         }
 
         Set<String> fields = projectListingSelector.getFields();

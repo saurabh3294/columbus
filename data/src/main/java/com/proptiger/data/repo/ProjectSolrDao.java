@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.SolrResponse;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,11 +86,16 @@ public class ProjectSolrDao {
         queryBuilder.buildQuery(selector, null);
         
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-        List<Project> solrResults = queryResponse.getBeans(Project.class);
+        List<SolrResult> totalSolrResults = queryResponse.getBeans(SolrResult.class);
+        
+        List<Project> solrResults = new ArrayList<>();
+        for(SolrResult solr:totalSolrResults)
+        	solrResults.add(solr.getProject());
 
         SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
         solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
         solrRes.setResult(solrResults);
+        
         return solrRes;
 
     }
@@ -108,6 +114,31 @@ public class ProjectSolrDao {
     	queryBuilder.addEqualsFilter("projectId", projectIdList);
     	
     	System.out.println(" PROJECT QUERY "+solrQuery.toString());
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	
+    	return queryResponse.getBeans(SolrResult.class);
+    }
+    
+    public List<SolrResult> sortingSimilarProjects(Set<Integer> projectIds, Double latitude, Double longitude, int projectImportance, int rows){
+    	
+    	List<Object> projectIdList = new ArrayList<>();
+    	projectIdList.addAll(projectIds);
+    	
+    	SolrQuery solrQuery = new SolrQuery();
+    	
+    	solrQuery.setQuery("*:*");
+    	SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
+    	queryBuilder.addEqualsFilter("projectId", projectIdList);
+    	
+    	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
+    	
+    	if(latitude>0 && longitude>0)
+    		solrQuery.addSort("geodist(GEO,"+latitude+","+longitude+")", ORDER.asc);
+    	
+    	solrQuery.addSort("abs(sub("+projectImportance+",DISPLAY_ORDER))", ORDER.asc);
+    	solrQuery.setRows(rows);
+    	System.out.println(solrQuery.toString());
+    	
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
     	
     	return queryResponse.getBeans(SolrResult.class);
