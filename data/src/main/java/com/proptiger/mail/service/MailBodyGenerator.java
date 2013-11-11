@@ -1,5 +1,7 @@
 package com.proptiger.mail.service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,6 +25,8 @@ public class MailBodyGenerator {
 
 		Map<String, Object> map = new HashMap<>();
 		map.put(mailTemplateName.getKey(), dataObject);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy");
+		map.put("currentDateTime", dateFormat.format(new Date()));
 	    String body = VelocityEngineUtils.mergeTemplateIntoString(
                  velocityEngine, mailTemplateName.getTemplateFileName(), "UTF-8", map);
 		

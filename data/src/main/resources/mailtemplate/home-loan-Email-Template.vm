@@ -15,7 +15,7 @@
                    <td width="24">
                       <table width="120" border="0" cellspacing="0" cellpadding="0">
                          <tr>
-                            <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">{date("jS M, Y")}</td>
+                            <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
                          </tr>
                          <tr>
                             <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
