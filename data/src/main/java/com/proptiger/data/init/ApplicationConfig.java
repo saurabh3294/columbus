@@ -46,6 +46,7 @@ public class ApplicationConfig {
 	private static final String MIN_POOL_SIZE = "min.pool.size"; 
 	private static final String MAX_POOL_SIZE = "max.pool.size"; 
 	private static final String INITIAL_POOL_SIZE = "initial.pool.size"; 
+	private static final String ACQUIRE_INCREMENT = "acquire.increment";
 	
 	@Autowired
 	private PropertyReader propertyReader;
@@ -71,10 +72,12 @@ public class ApplicationConfig {
 		int minPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(MIN_POOL_SIZE));
 		int maxPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(MAX_POOL_SIZE));
 		int initialPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(INITIAL_POOL_SIZE));
+		int acquireIncrement = Integer.parseInt(propertyReader.getRequiredProperty(ACQUIRE_INCREMENT));
 		
 		comboPooledDataSource.setMinPoolSize(minPoolSize);
 		comboPooledDataSource.setMaxPoolSize(maxPoolSize);
 		comboPooledDataSource.setInitialPoolSize(initialPoolSize);
+		comboPooledDataSource.setAcquireIncrement(acquireIncrement);
 		/*
 		 * Spring data source that does not use pooling
 		 */

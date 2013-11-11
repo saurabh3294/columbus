@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.internal.dto.mail.ListingAddMail;
+import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
+import com.proptiger.data.model.City;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Locality;
@@ -30,12 +33,16 @@ import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
+import com.proptiger.data.repo.portfolio.CityRepository;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
+import com.proptiger.mail.service.MailBodyGenerator;
+import com.proptiger.mail.service.MailService;
+import com.proptiger.mail.service.MailTemplateDetail;
 
 /**
  * This class provides CRUD operations over a property that is a addressable entity
@@ -67,6 +74,15 @@ public class PortfolioService extends AbstractService{
 	
 	@Autowired
 	private ForumUserDao forumUserDao;
+	
+	@Autowired
+	private MailService mailService;
+	
+	@Autowired
+	private MailBodyGenerator mailBodyGenerator;
+	
+	@Autowired
+	private CityRepository cityRepository;
 	/**
 	 * Get portfolio object for a particular user id
 	 * @param userId
@@ -293,6 +309,10 @@ public class PortfolioService extends AbstractService{
 			listing.setBuilderName(project.getBuilderName());
 			listing.setCompletionDate(project.getCompletionDate());
 			listing.setProjectStatus(project.getProjectStatus());
+			City city = cityRepository.findOne(project.getCityId());
+			if(city != null){
+				listing.setCityName(city.getLabel());
+			}
 			Locality locality = localityDao.findOne(project.getLocalityId());
 			if(locality != null){
 				listing.setLocality(locality.getLabel());
@@ -567,5 +587,49 @@ public class PortfolioService extends AbstractService{
 		listing.setInterestedToSell(interestedToSell);
 		listing.setInterestedToSellOn(new Date());
 		return listing;
+	}
+	
+	public void sendMail(Integer userId, Integer listingId, String mailType) {
+		PortfolioListing listing = getPortfolioListingById(userId, listingId);
+		ForumUser user = listing.getForumUser();
+		String body = "";
+		String subject = "";
+		MailTemplateDetail mailTemplateName = null;
+		switch (mailType) {
+		case "portfolio-listing-add":
+			mailTemplateName = MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING;
+			ListingAddMail listingAddMail = createListingAddMailObject(listing);
+			body = mailBodyGenerator.generateHtmlBody(mailTemplateName, listingAddMail);
+			subject = mailTemplateName.getSubject();
+			break;
+		case "portfolio-listing-loan":
+			mailTemplateName = MailTemplateDetail.PORTFOLIO_LISTING_LOAN_REQUEST;
+			ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
+			body = mailBodyGenerator.generateHtmlBody(mailTemplateName, listingLoanRequestMail);
+			subject = mailTemplateName.getSubject();
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid mail type");
+		}
+		
+		String toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
+		
+		mailService.sendMailUsingAws(toStr, body, subject);
+	}
+	private ListingLoanRequestMail createListingLoanRequestObj(
+			PortfolioListing listing) {
+		ListingLoanRequestMail listingLoanRequestMail = new ListingLoanRequestMail();
+		listingLoanRequestMail.setProjectCity(listing.getCityName());
+		listingLoanRequestMail.setProjectName(listing.getProjectName());
+		listingLoanRequestMail.setUserName(listing.getForumUser().getUsername());
+		return listingLoanRequestMail;
+	}
+	private ListingAddMail createListingAddMailObject(PortfolioListing listing) {
+		ListingAddMail listingAddMail = new ListingAddMail();
+		listingAddMail.setPropertyName(listing.getName());
+		listingAddMail.setPurchaseDate(listing.getPurchaseDate());
+		listingAddMail.setTotalPrice(listing.getTotalPrice());
+		listingAddMail.setUserName(listing.getForumUser().getUsername());
+		return listingAddMail;
 	}
 }

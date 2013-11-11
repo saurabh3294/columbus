@@ -1,7 +1,6 @@
 package com.proptiger.data.mvc.portfolio;
 
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -115,4 +114,13 @@ public class PortfolioController extends BaseController{
 		PortfolioListing listing = portfolioService.interestedToSellListing(userId, listingId, interestedToSell);
 		return new ProAPISuccessResponse(listing);
 	}
+	
+	@RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/mail")
+	@ResponseBody
+	public ProAPIResponse sendMailForListingAdd(@PathVariable Integer userId,
+			@PathVariable Integer listingId, @RequestParam(required = true, value = "mailType") String mailType) {
+		portfolioService.sendMail(userId, listingId, mailType);
+		return new ProAPISuccessResponse("Mail Sent");
+	}
+	
 }

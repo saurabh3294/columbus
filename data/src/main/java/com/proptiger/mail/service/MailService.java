@@ -22,25 +22,46 @@ import org.springframework.stereotype.Service;
  * @author Rajeev Pandey
  *
  */
-//@Service
+@Service
 public class MailService {
 	
 	private static Logger logger = LoggerFactory.getLogger(MailService.class);
 	@Autowired
 	private AmazonMailSender amazonMailSender;
 	
+	/**
+	 * Sending mail using amazon mail service in asynch manner, so call to this method will
+	 * return immediately.
+	 * @param mailTo
+	 * @param mailContent
+	 * @param subject
+	 */
 	@Async
 	public void sendMailUsingAws(String[] mailTo, String mailContent, String subject){
 		if(mailTo == null || mailTo.length == 0){
 			throw new IllegalArgumentException("To address is empty");
 		}
-		try {
-			amazonMailSender.sendMail(mailTo, mailContent, subject);
-		}catch (MailException ex) {
-			logger.error("Mail not sent", ex);
+		if(subject == null || subject.isEmpty()){
+			throw new IllegalArgumentException("Subject is empty");
+		}
+		amazonMailSender.sendMail(mailTo, mailContent, subject);
+	}
+	@Async
+	public void sendMailUsingAws(String mailTo, String mailContent, String subject){
+		if(mailTo != null && !mailTo.isEmpty()){
+			String[] toList = mailTo.split(",");
+			sendMailUsingAws(toList, mailContent, subject);
+		}
+		else{
+			throw new IllegalArgumentException("To address is empty");
 		}
 	}
-	
+	/**
+	 * @param mailTo
+	 * @param mailContent
+	 * @param subject
+	 * @return
+	 */
 	@Async
 	public Future<Boolean> sendMailUsingAwsWithAck(String[] mailTo, String mailContent, String subject){
 		if(mailTo == null || mailTo.length == 0){

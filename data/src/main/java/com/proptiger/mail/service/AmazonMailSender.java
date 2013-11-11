@@ -25,7 +25,7 @@ import com.proptiger.data.util.PropertyReader;
  * @author Rajeev Pandey
  *
  */
-//@Service
+@Service
 public class AmazonMailSender {
 
 	private static Logger logger = LoggerFactory.getLogger(AmazonMailSender.class);
@@ -55,7 +55,7 @@ public class AmazonMailSender {
         // Create the subject and body of the message.
         Content mailSubject = new Content().withData(subject);
         Content textBody = new Content().withData(mailContent); 
-        Body body = new Body().withText(textBody);
+        Body body = new Body().withHtml(textBody);
         
         // Create a message with the specified subject and body.
         Message message = new Message().withSubject(mailSubject).withBody(body);
