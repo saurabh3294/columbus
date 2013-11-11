@@ -1,4 +1,5 @@
 #parse("./mailtemplate/velocity_global.vm")
+#set( $subject = "PropTiger | Home Loan Requirement Confirmation" ) 
 <html>
 <head>
 <title>PropTiger | Home Loan Requirement Confirmation</title>

@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.internal.dto.mail.ListingAddMail;
 import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
+import com.proptiger.data.internal.dto.mail.ListingResaleMail;
+import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
@@ -43,6 +45,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.mail.service.MailBodyGenerator;
 import com.proptiger.mail.service.MailService;
 import com.proptiger.mail.service.MailTemplateDetail;
+import com.proptiger.mail.service.MailType;
 
 /**
  * This class provides CRUD operations over a property that is a addressable entity
@@ -530,6 +533,10 @@ public class PortfolioService extends AbstractService{
 		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
 		Enquiry enquiry = createEnquiryObj(listing, user);
 		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE, LeadPageName.PORTFOLIO);
+		/*
+		 * Sending mail to internal group
+		 */
+		sendMail(userId, listingId, MailType.INTERESTED_TO_SELL_PROPERTY_INTERNAL.toString());
 		return listing;
 	}
 	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {
@@ -592,21 +599,24 @@ public class PortfolioService extends AbstractService{
 	public void sendMail(Integer userId, Integer listingId, String mailType) {
 		PortfolioListing listing = getPortfolioListingById(userId, listingId);
 		ForumUser user = listing.getForumUser();
-		String body = "";
-		String subject = "";
-		MailTemplateDetail mailTemplateName = null;
-		switch (mailType) {
-		case "portfolio-listing-add":
-			mailTemplateName = MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING;
+		MailType mailTypeEnum = null;
+		mailTypeEnum = MailType.valueOfString(mailType);
+		if(mailTypeEnum == null){
+			throw new IllegalArgumentException("Invalid mail type");
+		}
+		MailBody mailBody = null;
+		switch (mailTypeEnum) {
+		case PORTFOLIO_LISTING_ADD:
 			ListingAddMail listingAddMail = createListingAddMailObject(listing);
-			body = mailBodyGenerator.generateHtmlBody(mailTemplateName, listingAddMail);
-			subject = mailTemplateName.getSubject();
+			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING, listingAddMail);
 			break;
-		case "portfolio-listing-loan":
-			mailTemplateName = MailTemplateDetail.PORTFOLIO_LISTING_LOAN_REQUEST;
+		case PORTFOLIO_LISTING_HOME_LOAN_REQUEST:
 			ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
-			body = mailBodyGenerator.generateHtmlBody(mailTemplateName, listingLoanRequestMail);
-			subject = mailTemplateName.getSubject();
+			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.PORTFOLIO_LISTING_LOAN_REQUEST, listingLoanRequestMail);
+			break;
+		case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
+			ListingResaleMail listingResaleMail = createListingResaleMailObj(listing);
+			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.RESALE_LISTING_INTERNAL, listingResaleMail);
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid mail type");
@@ -614,7 +624,19 @@ public class PortfolioService extends AbstractService{
 		
 		String toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
 		
-		mailService.sendMailUsingAws(toStr, body, subject);
+		mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+	}
+	private ListingResaleMail createListingResaleMailObj(
+			PortfolioListing listing) {
+		ListingResaleMail listingResaleMail = new ListingResaleMail();
+		listingResaleMail.setBuilder(listing.getBuilderName());
+		listingResaleMail.setLocality(listing.getLocality());
+		listingResaleMail.setProjectCity(listing.getCityName());
+		listingResaleMail.setProjectName(listing.getProjectName());
+		listingResaleMail.setPropertyLink("");
+		listingResaleMail.setPropertyName(listing.getName());
+		listingResaleMail.setUserName(listing.getForumUser().getUsername());
+		return listingResaleMail;
 	}
 	private ListingLoanRequestMail createListingLoanRequestObj(
 			PortfolioListing listing) {

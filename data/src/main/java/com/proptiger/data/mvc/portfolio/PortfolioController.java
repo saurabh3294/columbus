@@ -107,10 +107,10 @@ public class PortfolioController extends BaseController{
 		return new ProAPISuccessResponse(listing);
 	}
 	
-	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/interested-to-sell")
+	@RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/interested-to-sell")
 	@ResponseBody
 	public ProAPIResponse interestedToSell(@PathVariable Integer userId, @PathVariable Integer listingId,
-			@RequestBody(required = true) Boolean interestedToSell) {
+			@RequestParam(required = true, value = "interestedToSell") Boolean interestedToSell) {
 		PortfolioListing listing = portfolioService.interestedToSellListing(userId, listingId, interestedToSell);
 		return new ProAPISuccessResponse(listing);
 	}
