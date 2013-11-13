@@ -1,8 +1,6 @@
 package com.proptiger.data.mvc;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -51,29 +49,32 @@ public class ImageController extends BaseController {
             @RequestParam MultipartFile image, @RequestParam(required = false) Boolean addWaterMark,
             @RequestParam(required = false) String altText, @RequestParam(required = false) String title,
             @RequestParam(required = false) String description, @RequestParam(required = false) String priority) {
-        Map<String, String> extraInfo = new HashMap<String, String>();
-        extraInfo.put("altText", altText);
-        extraInfo.put("title", title);
-        extraInfo.put("description", description);
-        extraInfo.put("priority", priority);
-        Image img = imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image,
-                addWaterMark, extraInfo);
-        return new ProAPISuccessResponse(super.filterFields(img, null));
+        throw new RuntimeException();
+//        Map<String, String> extraInfo = new HashMap<String, String>();
+//        extraInfo.put("altText", altText);
+//        extraInfo.put("title", title);
+//        extraInfo.put("description", description);
+//        extraInfo.put("priority", priority);
+//        Image img = imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image,
+//                addWaterMark, extraInfo);
+//        return new ProAPISuccessResponse(super.filterFields(img, null));
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     public @ResponseBody
     Object deleteImage(@PathVariable long id) {
-        imageService.deleteImage(id);
-        return new ProAPISuccessResponse();
+        throw new RuntimeException();
+//        imageService.deleteImage(id);
+//        return new ProAPISuccessResponse();
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.POST)
     public @ResponseBody
     Object updateImage(@PathVariable long id, @RequestParam(value="image") MultipartFile file) {
-        Image image = imageService.getImage(id);
-        Object obj = this.putImages(image.getImageType().getObjectType().getType(), image.getImageType().getType(), image.getObjectId(), file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getAltText(), image.getTitle(), image.getDescription(), image.getPriority() == null ? "" : String.valueOf(image.getPriority()));
-        imageService.deleteImage(id);
-        return obj;
+        throw new RuntimeException();
+//        Image image = imageService.getImage(id);
+//        Object obj = this.putImages(image.getImageType().getObjectType().getType(), image.getImageType().getType(), image.getObjectId(), file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getAltText(), image.getTitle(), image.getDescription(), image.getPriority() == null ? "" : String.valueOf(image.getPriority()));
+//        imageService.deleteImage(id);
+//        return obj;
     }
 }
