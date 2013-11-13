@@ -70,6 +70,7 @@ public class PropertyDao {
     public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertySelector) {
         SolrQuery query = createSolrQuery(propertySelector);
         query.setFacetMinCount(1);
+        query.setFacetLimit(-1);
         for (String field : fields) {
             query.addFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         }
@@ -246,12 +247,12 @@ public class PropertyDao {
 //            }
 
             SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
+
             if (selector.getSort() == null) {
                 selector.setSort(new LinkedHashSet<SortBy>());
             }
 
             selector.getSort().addAll(getDefaultSort());
-
             queryBuilder.buildQuery(selector, null);
         }
 

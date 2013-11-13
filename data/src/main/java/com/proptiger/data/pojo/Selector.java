@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.pojo;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class Selector {
 	public Set<SortBy> getSort() {
 		return sort;
 	}
-	public void setSort(Set<SortBy> sort) {
+	public void setSort(LinkedHashSet<SortBy> sort) {
 		this.sort = sort;
 	}
 	@Override
