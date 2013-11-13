@@ -182,8 +182,6 @@
 		      <groupId>c3p0</groupId>
 		      <artifactId>c3p0</artifactId>
 		      <version>0.9.1.2</version>
-		      <type>jar</type>
-		      <scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.mail</groupId>
@@ -200,6 +198,11 @@
 			<artifactId>spring-context-support</artifactId>	
 			<version>3.2.4.RELEASE</version>		
 		</dependency> 
+		<dependency>
+			<groupId>org.apache.velocity</groupId>
+			<artifactId>velocity</artifactId>
+			<version>1.6.2</version>
+		</dependency>
     </dependencies>
     <repositories>
         <repository>

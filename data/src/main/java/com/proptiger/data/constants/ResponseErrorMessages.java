@@ -18,5 +18,6 @@ public interface ResponseErrorMessages {
 	static String RESOURCE_ALREADY_EXIST = "Resource already exist";
 	static String INVALID_FORMAT_IN_REQUEST = "Invalid format in request parameter value";
 	static String LEAD_COULD_NOT_POST = "Lead could not post";
+	static String MAIL_SENDING_ERROR = "Mail could not not be sent";
 	
 }

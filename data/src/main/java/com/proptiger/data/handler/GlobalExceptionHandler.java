@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mail.MailException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -168,4 +169,12 @@ public class GlobalExceptionHandler {
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.LEAD_COULD_NOT_POST);
 	}
 	
+	@ExceptionHandler(MailException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleMailException(MailException exception) {
+		logger.error("handle handleMailException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
+				ResponseErrorMessages.MAIL_SENDING_ERROR);
+	}
 }
