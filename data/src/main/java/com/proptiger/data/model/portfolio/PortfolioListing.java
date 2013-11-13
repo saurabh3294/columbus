@@ -61,6 +61,10 @@ public class PortfolioListing implements NamedResource, Resource{
 	private String completionDate;
 	@Transient
 	private String projectStatus;
+	
+	@Transient
+	@JsonIgnore
+	private String cityName;
 	//custom fields ends
 	@Transient
 	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
@@ -162,7 +166,7 @@ public class PortfolioListing implements NamedResource, Resource{
 	@JsonUnwrapped
 	private ProjectType projectType = null;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id",  nullable = false, insertable = false, updatable = false)
 	@JsonIgnore
 	private ForumUser forumUser;
@@ -404,6 +408,24 @@ public class PortfolioListing implements NamedResource, Resource{
 
 	public void setProjectStatus(String projectStatus) {
 		this.projectStatus = projectStatus;
+	}
+
+	
+	public ForumUser getForumUser() {
+		return forumUser;
+	}
+
+	public void setForumUser(ForumUser forumUser) {
+		this.forumUser = forumUser;
+	}
+
+	
+	public String getCityName() {
+		return cityName;
+	}
+
+	public void setCityName(String cityName) {
+		this.cityName = cityName;
 	}
 
 	@PreUpdate

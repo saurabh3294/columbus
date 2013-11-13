@@ -14,6 +14,7 @@ public class ProAPISuccessResponse implements ProAPIResponse {
 	
 	public ProAPISuccessResponse() {
 		super();
+		this.statusCode = ResponseCodes.SUCCESS;
 	}
 
 	public ProAPISuccessResponse(Object data) {
