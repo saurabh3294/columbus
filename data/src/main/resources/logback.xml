@@ -29,7 +29,7 @@
 		<appender-ref ref="proptiger-website" />
 	</logger>
 
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="proptiger-website" />
 		<appender-ref ref="STDOUT" />
 	</root>

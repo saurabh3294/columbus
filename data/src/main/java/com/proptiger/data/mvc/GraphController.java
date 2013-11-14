@@ -35,7 +35,7 @@ public class GraphController {
     @Autowired
     private GraphService graphService;
     
-    @Cacheable(value="cache")
+    //@Cacheable(value="cache")
     @RequestMapping(value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Map<String, Map<Integer, Integer>>> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){

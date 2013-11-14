@@ -55,8 +55,8 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
     </bean>
      
     <cache:annotation-driven />
-    <!-- aop:aspectj-autoproxy proxy-target-class="true"/>
-    <bean id="before" class="com.proptiger.data.util.ResponseCaching"/-->
+ 	<aop:aspectj-autoproxy/>
+    <!--bean id="before" class="com.proptiger.data.util.ResponseCaching"/-->
     
     <!-- Jedis ConnectionFactory -->
     <bean
