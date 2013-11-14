@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,9 +35,11 @@ public class GraphController {
     @Autowired
     private GraphService graphService;
     
+    @Cacheable(value="cache")
     @RequestMapping(value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Map<String, Map<Integer, Integer>>> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
+    	   System.out.println(" ************************************** CACHING ***********************");
            Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
            
