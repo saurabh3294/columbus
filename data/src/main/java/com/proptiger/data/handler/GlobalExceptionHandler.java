@@ -20,6 +20,7 @@ import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.exception.AuthenticationException;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
@@ -176,5 +177,14 @@ public class GlobalExceptionHandler {
 		logger.error("handle handleMailException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.MAIL_SENDING_ERROR);
+	}
+	
+	@ExceptionHandler(AuthenticationException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.OK)
+	protected ProAPIResponse handleAuthenticationException(AuthenticationException exception) {
+		logger.error("handle handleAuthenticationException - Caching ", exception);
+		return new ProAPIErrorResponse(ResponseCodes.AUTHENTICATION_ERROR,
+				ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
 	}
 }

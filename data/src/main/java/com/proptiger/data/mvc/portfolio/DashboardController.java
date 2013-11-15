@@ -2,15 +2,20 @@ package com.proptiger.data.mvc.portfolio;
 
 import java.util.List;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.proptiger.data.internal.dto.DashboardDto;
+import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.mvc.BaseController;
@@ -18,6 +23,7 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.portfolio.DashboardService;
+import com.proptiger.data.util.Constants;
 
 /**
  * This class provides the various API to interact with Dash board resource
@@ -38,8 +44,9 @@ public class DashboardController extends BaseController{
 	 */
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
-	public ProAPIResponse getDashboards(@PathVariable Integer userId){
-		List<Dashboard> result = dashboardService.getAllByUserId(userId);
+	public ProAPIResponse getDashboards(@PathVariable Integer userId,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		List<Dashboard> result = dashboardService.getAllByUserId(userInfo.getUserIdentifier());
 		return new ProAPISuccessCountResponse(result, result.size());
 	}
 	
@@ -51,8 +58,9 @@ public class DashboardController extends BaseController{
 	 */
 	@RequestMapping(method = RequestMethod.GET, value = "/{dashboardId}")
 	@ResponseBody
-	public ProAPIResponse getDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId){
-		Dashboard result = dashboardService.getDashboardById(userId, dashboardId);
+	public ProAPIResponse getDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		Dashboard result = dashboardService.getDashboardById(userInfo.getUserIdentifier(), dashboardId);
 		return new ProAPISuccessResponse(result);
 	}
 	
@@ -64,8 +72,9 @@ public class DashboardController extends BaseController{
 	 */
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseBody
-	public ProAPIResponse createDashboard(@PathVariable Integer userId, @RequestBody(required = true) DashboardDto dashboardDto){
-		dashboardDto.setUserId(userId);
+	public ProAPIResponse createDashboard(@PathVariable Integer userId, @RequestBody(required = true) DashboardDto dashboardDto,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		dashboardDto.setUserId(userInfo.getUserIdentifier());
 		Dashboard result = dashboardService.createDashboard(dashboardDto);
 		return new ProAPISuccessResponse(result);
 	}
@@ -83,9 +92,10 @@ public class DashboardController extends BaseController{
 	public ProAPIResponse updateDashboard(
 			@PathVariable Integer userId,
 			@PathVariable Integer dashboardId,
-			@RequestBody(required = true) DashboardDto dashboardDto){
+			@RequestBody(required = true) DashboardDto dashboardDto,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
 		dashboardDto.setId(dashboardId);
-		dashboardDto.setUserId(userId);
+		dashboardDto.setUserId(userInfo.getUserIdentifier());
 		Dashboard dashboard = dashboardService.updateDashboard(dashboardDto);
 		return new ProAPISuccessResponse(dashboard);
 	}
@@ -100,8 +110,9 @@ public class DashboardController extends BaseController{
 	@ResponseBody
 	public ProAPIResponse getWidgetMappingWithDashboard(
 			@PathVariable Integer userId,
-			@PathVariable Integer dashboardId){
-		Dashboard dashboard = dashboardService.getDashboardById(userId, dashboardId);
+			@PathVariable Integer dashboardId,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		Dashboard dashboard = dashboardService.getDashboardById(userInfo.getUserIdentifier(), dashboardId);
 		return new ProAPISuccessCountResponse(dashboard.getWidgets(), dashboard.getWidgets() == null? 0: dashboard.getWidgets().size());
 	}
 	
@@ -116,8 +127,9 @@ public class DashboardController extends BaseController{
 	@ResponseBody
 	public ProAPIResponse getSingleWidgetMappingWithDashboard(
 			@PathVariable Integer userId,
-			@PathVariable Integer dashboardId, @PathVariable Integer widgetId){
-		Dashboard dashboard = dashboardService.getDashboardById(userId, dashboardId);
+			@PathVariable Integer dashboardId, @PathVariable Integer widgetId,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		Dashboard dashboard = dashboardService.getDashboardById(userInfo.getUserIdentifier(), dashboardId);
 		return new ProAPISuccessCountResponse(dashboard.getWidgets(), dashboard.getWidgets() == null? 0: dashboard.getWidgets().size());
 	}
 	
@@ -132,8 +144,9 @@ public class DashboardController extends BaseController{
 	public ProAPIResponse createWidgetMappingWithDashboard(
 			@PathVariable Integer userId,
 			@PathVariable Integer dashboardId,
-			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping){
-		Dashboard dashboard = dashboardService.createSingleWidget(userId, dashboardId, dashboardWidgetMapping);
+			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		Dashboard dashboard = dashboardService.createSingleWidget(userInfo.getUserIdentifier(), dashboardId, dashboardWidgetMapping);
 		return new ProAPISuccessResponse(dashboard);
 	}
 	/**
@@ -150,8 +163,9 @@ public class DashboardController extends BaseController{
 			@PathVariable Integer userId,
 			@PathVariable Integer dashboardId,
 			@PathVariable Integer widgetId,
-			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping){
-		Dashboard dashboard = dashboardService.updateWidgetMappingWithDashboard(userId, dashboardId, widgetId, dashboardWidgetMapping);
+			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		Dashboard dashboard = dashboardService.updateWidgetMappingWithDashboard(userInfo.getUserIdentifier(), dashboardId, widgetId, dashboardWidgetMapping);
 		return new ProAPISuccessResponse(dashboard);
 	}
 	
@@ -168,14 +182,18 @@ public class DashboardController extends BaseController{
 			@PathVariable Integer userId,
 			@PathVariable Integer dashboardId,
 			@PathVariable Integer widgetId,
-			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping){
-		Dashboard dashboard = dashboardService.deleteWidgetMappingWithDashboard(userId, dashboardId, widgetId, dashboardWidgetMapping);
+			@RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		Dashboard dashboard = dashboardService
+				.deleteWidgetMappingWithDashboard(userInfo.getUserIdentifier(),
+						dashboardId, widgetId, dashboardWidgetMapping);
 		return new ProAPISuccessResponse(dashboard);
 	}
 	@RequestMapping(method = RequestMethod.DELETE, value = "/{dashboardId}")
 	@ResponseBody
-	public ProAPIResponse deleteDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId){
-		Dashboard deleted = dashboardService.deleteDashboard(userId, dashboardId);
+	public ProAPIResponse deleteDashboard(@PathVariable Integer userId, @PathVariable Integer dashboardId,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		Dashboard deleted = dashboardService.deleteDashboard(userInfo.getUserIdentifier(), dashboardId);
 		return new ProAPISuccessResponse(deleted);
 	}
 }

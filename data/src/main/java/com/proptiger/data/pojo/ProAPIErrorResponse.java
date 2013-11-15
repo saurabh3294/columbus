@@ -55,5 +55,19 @@ public class ProAPIErrorResponse implements ProAPIResponse {
 		public void setMsg(String msg) {
 			this.msg = msg;
 		}
+
+		@Override
+		public String toString() {
+			return "{msg=" + msg + "}";
+		}
+		
+		
 	}
+
+	@Override
+	public String toString() {
+		return "{statusCode=" + statusCode + ", error="
+				+ error + "}";
+	}
+	
 }
