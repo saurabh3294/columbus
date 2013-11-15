@@ -25,25 +25,25 @@ public class ResponseCaching {
 	@Around("execution(* com.proptiger.data.mvc.*.*(..))")
 	public Object getResponse(ProceedingJoinPoint jp) throws Throwable {
 		System.out.println(" AROUND ADVICE ");
-		print(jp);
+		//print(jp);
 		
 		Object response = getResponse(getCacheKey(jp));
 		if(response == null)
 			return jp.proceed();
 		
-		System.out.println(" END ADVICE");
+		//System.out.println(" END ADVICE");
 		return response;
 	}
 	
 	@AfterReturning(pointcut="execution(* com.proptiger.data.mvc.*.*(..))", returning="retVal")
 	public Object setResponse(JoinPoint jp, Object retVal) throws Throwable{
-		System.out.println("AFTER ADVICE");
-		print(jp);
+		//System.out.println("AFTER ADVICE");
+		//print(jp);
 		
 		caching.saveResponse(getCacheKey(jp), retVal);
 		
-		System.out.println(retVal);
-		System.out.println(" END ADVICE");
+		//System.out.println(retVal);
+		//System.out.println(" END ADVICE");
 		return new Object();
 	}
 	
@@ -80,8 +80,10 @@ public class ResponseCaching {
 	private Object getResponse(String key){
 		Object savedResponse = caching.getSavedResponse(key);
 		
-		if(savedResponse == null)
-			caching.deleteResponseFromCache(key);
+		try{
+			if(savedResponse == null)
+				caching.deleteResponseFromCache(key);
+		}catch(Exception e){}
 		
 		return savedResponse;
 	}

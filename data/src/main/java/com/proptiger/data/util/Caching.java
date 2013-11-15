@@ -17,7 +17,7 @@ public class Caching {
 		return response;
 	}
 	
-	@CacheEvict(value="cache", key="#key")
+	@CacheEvict(value="cache", key="#key", beforeInvocation=true)
 	public void deleteResponseFromCache(String key){
 		
 	}
