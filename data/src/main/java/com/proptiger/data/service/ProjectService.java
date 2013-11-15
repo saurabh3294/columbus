@@ -48,6 +48,13 @@ public class ProjectService {
         return projectDao.getNewProjectsByLaunchDate(cityName, projectFilter);
     }
     
+    public SolrServiceResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter){
+        if (logger.isDebugEnabled()) {
+			logger.debug("Get Projects, Request="+projectFilter);
+		}
+        return projectDao.getUpcomingNewProjects(cityName, projectFilter);
+    }
+    
     public ProjectSpecification getProjectSpecifications(int projectId){
        return projectSpecificationDao.findById(projectId);
     }
