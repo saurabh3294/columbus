@@ -1,20 +1,16 @@
 package com.proptiger.data.util;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-
-import com.google.gson.Gson;
 
 @Aspect
 @Component
@@ -25,9 +21,11 @@ public class ResponseCaching {
 	@Around("execution(* com.proptiger.data.mvc.*.*(..))")
 	public Object getResponse(ProceedingJoinPoint jp) throws Throwable {
 		System.out.println(" AROUND ADVICE ");
-		//print(jp);
+		print(jp);
 		
-		Object response = getResponse(getCacheKey(jp));
+		Class<?> proxyMethodReturnType = getProxyMethodReturnType(jp);
+		System.out.println(" RETURN TYPE CLASS NAME : "+proxyMethodReturnType.getName());
+		Object response = getResponse( getCacheKey(jp), proxyMethodReturnType);
 		if(response == null)
 			return jp.proceed();
 		
@@ -57,6 +55,7 @@ public class ResponseCaching {
 		System.out.println("SIGNATURE: "+jp.getSignature().toString());
 		System.out.println("PJP  "+jp.toString());
 		System.out.println("THIS :"+ jp.getThis().toString());
+		System.out.println(" Return TYPE CLASS = " + getProxyMethodReturnType(jp));
 		
 	}
 	
@@ -77,17 +76,21 @@ public class ResponseCaching {
 		return encodeKey;
 	}
 	
-	private Object getResponse(String key){
-		Object savedResponse = caching.getSavedResponse(key);
-		
-		try{
-			if(savedResponse == null)
-				caching.deleteResponseFromCache(key);
-		}catch(Exception e){}
+	private <T> T getResponse(String key, Class<T> returnType){
+		T savedResponse = caching.getSavedResponse(key, returnType);
+				
+		if(savedResponse == null)
+			caching.deleteResponseFromCache(key);
+		else
+			System.out.println("Class Name : "+savedResponse.getClass().getName());
 		
 		return savedResponse;
 	}
 	
-	
+	private Class<?> getProxyMethodReturnType(JoinPoint jp){
+		Method method = ((MethodSignature) jp.getSignature()).getMethod();
+		return method.getReturnType();
+		
+	}
 
 }

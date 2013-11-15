@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Caching {
 	@Cacheable(key ="#key", value ="cache")
-	public Object getSavedResponse(String key){
+	public <T> T getSavedResponse(String key, Class<T> className){
 		return null;
 	}
 	

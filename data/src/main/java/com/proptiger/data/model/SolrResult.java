@@ -17,7 +17,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
  * 
  */
 @JsonFilter("fieldFilter")
-public class SolrResult {
+public class SolrResult implements BaseModel{
     private Property property = new Property();
     private Project project = new Project();
     private Locality locality = new Locality();

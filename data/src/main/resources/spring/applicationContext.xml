@@ -70,13 +70,26 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
     <bean
         id="redisTemplate"
         class="org.springframework.data.redis.core.RedisTemplate"
-        p:connection-factory-ref="jedisConnectionFactory"/>
+        p:connection-factory-ref="jedisConnectionFactory">
+        
+     	<!--property name="keySerializer" ref=""/ -->
+		<property name="valueSerializer" ref="redisJsonSerializer" />
+		<!-- <property name="hashKeySerializer" ref=""/--> 
+		<!-- <property name="hashValueSerializer" ref="redisJsonSerializer"/> -->
+    </bean>
  
     <!-- declare Redis Cache Manager -->
     <bean
         id="cacheManager"
         class="org.springframework.data.redis.cache.RedisCacheManager"
         c:template-ref="redisTemplate"/>
+        
+   <bean id="redisJsonSerializer" class="org.springframework.data.redis.serializer.JacksonJsonRedisSerializer" >
+   		<constructor-arg value="java.lang.Object"></constructor-arg>
+   </bean>
+   <bean id="jdkSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer">
+   
+   </bean>
   
     
 </beans>
