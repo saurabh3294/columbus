@@ -2,35 +2,28 @@
 
 <configuration>
 
-	<appender name="proptiger-website" class="ch.qos.logback.core.FileAppender">
-		<file>/opt/log/proptiger-website.log</file>
+	<appender name="dal" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>/var/log/proptiger/dal/dal.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>dal-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+            <!-- keep 30 days' worth of history -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>		
 		<append>true</append>
 		<encoder>
-			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %C - %msg%n</pattern>
+			<pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
 		</encoder>
 	</appender>
 
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 	    <encoder>
-	      <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %C - %msg%n</pattern>
+	      <pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
 	    </encoder>
    </appender>
 
-	<logger name="locality.review" level="INFO" additivity="true">
-		<appender-ref ref="proptiger-website" />
-	</logger>
-	<logger name="project.review" level="INFO" additivity="true">
-		<appender-ref ref="proptiger-website" />
-	</logger>
-	<logger name="project" level="INFO" additivity="true">
-		<appender-ref ref="proptiger-website" />
-	</logger>
-	<logger name="property" level="INFO" additivity="true">
-		<appender-ref ref="proptiger-website" />
-	</logger>
-
-	<root level="DEBUG">
-		<appender-ref ref="proptiger-website" />
+	<root level="INFO">
+		<appender-ref ref="dal" />
 		<appender-ref ref="STDOUT" />
 	</root>
 
