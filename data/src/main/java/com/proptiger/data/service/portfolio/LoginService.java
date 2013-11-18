@@ -18,6 +18,11 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.util.Constants;
 
+/**
+ * Service class to provide methods for login and logout to shiro system
+ * @author Rajeev Pandey
+ *
+ */
 @Service
 public class LoginService {
 
@@ -26,8 +31,20 @@ public class LoginService {
 	
 	private static Logger logger = LoggerFactory.getLogger(LoginService.class);
 	
+	/**
+	 * Login to shiro system
+	 * @param email
+	 * @param password
+	 * @param rememberMe
+	 * @return
+	 */
 	public UserInfo login(String email, String password, boolean rememberMe){
 		Subject currentUser = SecurityUtils.getSubject();
+		if(currentUser != null && currentUser.getPrincipal() != null && !currentUser.getPrincipal().toString().equals(email)){
+			//new login request with different user
+			logger.error("Logout primary user {}", currentUser.getPrincipal());
+			logout();
+		}
 		UserInfo userInfo = new UserInfo();
 		if ( !currentUser.isAuthenticated() ) {
 		    UsernamePasswordToken token = new UsernamePasswordToken(email, password);
@@ -35,7 +52,7 @@ public class LoginService {
 			try {
 				logger.error("Login request for user {}", token);
 				currentUser.login(token);
-				ForumUser forumUser = forumUserDao.findByEmailIdAndPassword(email, password);
+				ForumUser forumUser = forumUserDao.findByEmail(email);
 				String sessionId = currentUser.getSession(false).getId()
 						.toString();
 				userInfo.setEmail(email);
@@ -45,13 +62,13 @@ public class LoginService {
 				currentUser.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, userInfo);
 				token.clear();
 			} catch ( UnknownAccountException uae ) {
-		        throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
+		        throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, uae);
 		    } catch ( IncorrectCredentialsException ice ) {
-		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
+		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, ice);
 		    } catch ( LockedAccountException lae ) {
-		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
+		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, lae);
 		    } catch ( AuthenticationException ae ) {
-		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
+		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, ae);
 		    }
 		}
 		else{
@@ -61,6 +78,9 @@ public class LoginService {
 		return userInfo;
 	}
 	
+	/**
+	 * Logout the current user from shiro system
+	 */
 	public void logout(){
 		Subject subject = SecurityUtils.getSubject();
 		logger.error("Logout request for user {}",subject.getPrincipal());

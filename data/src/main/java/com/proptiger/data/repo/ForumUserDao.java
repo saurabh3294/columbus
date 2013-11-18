@@ -14,6 +14,5 @@ public interface ForumUserDao extends JpaRepository<ForumUser, Integer>{
 	@Query("select U.email from ForumUser U where U.userId=?1")
 	public String findEmailByUserId(Integer userId);
 	
-	@Query("select U from ForumUser U where U.email=?1 and U.password=?2")
-	public ForumUser findByEmailIdAndPassword(String email, String password);
+	public ForumUser findByEmail(String email);
 }

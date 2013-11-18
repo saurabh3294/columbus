@@ -22,47 +22,37 @@ import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Service
 public class ProjectService {
     @Autowired
     private ProjectDao projectDao;
+
     @Autowired
     private ProjectSpecificationDao projectSpecificationDao;
-    
-    private static Logger logger = LoggerFactory.getLogger(ProjectService.class);
-    	
-    public SolrServiceResponse<List<Project>>  getProjects(Selector projectFilter){
-    	if (logger.isDebugEnabled()) {
-			logger.debug("Get Projects, Request="+projectFilter);
-		}
+
+    public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
         return projectDao.getProjects(projectFilter);
     }
-    
-    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter){
-        if (logger.isDebugEnabled()) {
-			logger.debug("Get Projects, Request="+projectFilter);
-		}
+
+    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter) {
         return projectDao.getNewProjectsByLaunchDate(cityName, projectFilter);
     }
-    
-    public SolrServiceResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter){
-        if (logger.isDebugEnabled()) {
-			logger.debug("Get Projects, Request="+projectFilter);
-		}
+
+    public SolrServiceResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
         return projectDao.getUpcomingNewProjects(cityName, projectFilter);
     }
-    
-    public ProjectSpecification getProjectSpecifications(int projectId){
-       return projectSpecificationDao.findById(projectId);
+
+    public ProjectSpecification getProjectSpecifications(int projectId) {
+        return projectSpecificationDao.findById(projectId);
     }
-    
-    public ProjectDB getProjectDetails(Integer projectId){
+
+    public ProjectDB getProjectDetails(Integer projectId) {
         ProjectDB project = projectDao.findByProjectId(projectId);
-        if(project == null){
-        	throw new ResourceNotAvailableException("Project#id#"+projectId+" not available");
+        if (project == null) {
+            throw new ResourceNotAvailableException("Project#id#" + projectId + " not available");
         }
         return project;
     }
