@@ -40,7 +40,7 @@ public class LoginService {
 			try {
 				logger.error("Login request for user {}", token);
 				currentUser.login(token);
-				ForumUser forumUser = forumUserDao.findByEmailIdAndPassword(email, password);
+				ForumUser forumUser = forumUserDao.findByEmail(email);
 				String sessionId = currentUser.getSession(false).getId()
 						.toString();
 				userInfo.setEmail(email);
