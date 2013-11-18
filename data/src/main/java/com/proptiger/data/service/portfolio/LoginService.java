@@ -28,6 +28,11 @@ public class LoginService {
 	
 	public UserInfo login(String email, String password, boolean rememberMe){
 		Subject currentUser = SecurityUtils.getSubject();
+		if(currentUser != null && currentUser.getPrincipal() != null && !currentUser.getPrincipal().toString().equals(email)){
+			//new login request with different user
+			logger.error("Logout primary user {}", currentUser.getPrincipal());
+			logout();
+		}
 		UserInfo userInfo = new UserInfo();
 		if ( !currentUser.isAuthenticated() ) {
 		    UsernamePasswordToken token = new UsernamePasswordToken(email, password);
@@ -45,13 +50,13 @@ public class LoginService {
 				currentUser.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, userInfo);
 				token.clear();
 			} catch ( UnknownAccountException uae ) {
-		        throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
+		        throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, uae);
 		    } catch ( IncorrectCredentialsException ice ) {
-		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
+		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, ice);
 		    } catch ( LockedAccountException lae ) {
-		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
+		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, lae);
 		    } catch ( AuthenticationException ae ) {
-		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
+		    	throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, ae);
 		    }
 		}
 		else{
