@@ -19,6 +19,7 @@ import com.proptiger.data.model.resource.Resource;
 import com.proptiger.data.repo.portfolio.DashboardDao;
 import com.proptiger.data.repo.portfolio.DashboardWidgetMappingDao;
 import com.proptiger.data.repo.portfolio.WidgetDao;
+import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
@@ -50,6 +51,28 @@ public class DashboardService extends AbstractService{
 	public List<Dashboard> getAllByUserId(Integer userId){
 		logger.debug("Finding all dashboards for userid {}"+userId);
 		List<Dashboard> result = dashboardDao.findByUserId(userId);
+		
+		if(result != null && result.size() == 0){
+			// No dashboard exists for this user, need to create defaule dashboard
+			//and and dashboard widget mapping by taking input from admin's mapping 
+			List<Dashboard> adminsDashboard = dashboardDao.findByUserId(Constants.ADMIN_USER_ID);
+			//need to create copy for current user
+			if(adminsDashboard != null && !adminsDashboard.isEmpty()){
+				for(Dashboard dashboard: adminsDashboard){
+					DashboardDto dashboardDto = new DashboardDto();
+					dashboardDto.setName(dashboard.getName());
+					dashboardDto.setTotalColumn(dashboard.getTotalColumn());
+					dashboardDto.setTotalRow(dashboard.getTotalRow());
+					dashboardDto.setUserId(userId);
+					dashboardDto.setWidgets(dashboard.getWidgets());
+					createDashboard(dashboardDto);
+				}
+				//again retrieving dashboards for user after creation
+				result = dashboardDao.findByUserId(userId);
+			}
+			
+			
+		}
 		return result;
 	}
 	
@@ -196,6 +219,8 @@ public class DashboardService extends AbstractService{
 		List<DashboardWidgetMapping> createdWidgetsMapping = new ArrayList<DashboardWidgetMapping>();
 		if(toCreate != null){
 			for(DashboardWidgetMapping mapping: toCreate){
+				//explicitly setting id to null as it would be auto created
+				mapping.setId(null);
 				mapping.setDashboardId(dashboardId);
 				if(mapping.getStatus() == null){
 					mapping.setStatus(WidgetDisplayStatus.MAX);
