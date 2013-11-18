@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.web.bind.annotation.SessionAttributes;
+
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -26,6 +29,7 @@ import com.proptiger.exception.ProAPIException;
  * @author Rajeev Pandey
  *
  */
+@SessionAttributes({Constants.LOGIN_INFO_OBJECT_NAME})
 public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 

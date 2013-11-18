@@ -19,5 +19,6 @@ public interface ResponseErrorMessages {
 	static String INVALID_FORMAT_IN_REQUEST = "Invalid format in request parameter value";
 	static String LEAD_COULD_NOT_POST = "Lead could not post";
 	static String MAIL_SENDING_ERROR = "Mail could not not be sent";
-	
+	static String USER_NAME_PASSWORD_INCORRECT = "User name or password not correct";
+	static String AUTHENTICATION_ERROR = "Authentication error";
 }

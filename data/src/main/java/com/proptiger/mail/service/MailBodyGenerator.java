@@ -22,6 +22,7 @@ public class MailBodyGenerator {
 
 	@Autowired
 	private VelocityEngine velocityEngine;
+	private static String ENCODING_UTF8 = "UTF-8";
 	
 	public MailBody generateHtmlBody(MailTemplateDetail mailTemplateName, Object dataObject){
 
@@ -30,11 +31,12 @@ public class MailBodyGenerator {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM, yyyy");
 		map.put("currentDateTime", dateFormat.format(new Date()));
 		
-	    String body = VelocityEngineUtils.mergeTemplateIntoString(
-                 velocityEngine, mailTemplateName.getBodyTemplate(), "UTF-8", map);
+	    
+		String body = VelocityEngineUtils.mergeTemplateIntoString(
+                 velocityEngine, mailTemplateName.getBodyTemplate(), ENCODING_UTF8, map);
 	    
 	    String subject = VelocityEngineUtils.mergeTemplateIntoString(
-                velocityEngine, mailTemplateName.getSubjectTemplate(), "UTF-8", map);
+                velocityEngine, mailTemplateName.getSubjectTemplate(), ENCODING_UTF8, map);
 	    
 	    MailBody mailbody = new MailBody();
 	    mailbody.setBody(body);

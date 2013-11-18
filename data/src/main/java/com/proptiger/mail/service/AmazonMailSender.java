@@ -38,8 +38,9 @@ public class AmazonMailSender {
 	@PostConstruct
 	protected void init() throws IOException{
 		PropertiesCredentials credentials = new PropertiesCredentials(
-				AmazonMailSender.class
-                        .getResourceAsStream("amazon-credential.properties"));
+				this.getClass()
+		        .getClassLoader()
+		        .getResourceAsStream("amazon-credential.properties"));
 		// Retrieve the AWS Access Key ID and Secret Key from amazon-credential.properties.
 		credentials.getAWSAccessKeyId();
         credentials.getAWSSecretKey();
