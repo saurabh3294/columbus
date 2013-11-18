@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -56,7 +57,15 @@ public class ProjectController extends BaseController {
                 response.getTotalResultCount());
     }
 
-    @RequestMapping(value = "/new-projects-by-launch-date")
+    /**
+     * Commenting this method for now as there is requirement to return new projects by upcoming status.
+     * It is not possible to create new url for now as it will be difficult to change for now. Do not 
+     * delete the code.
+     * @param cityName
+     * @param selector
+     * @return
+     */
+    /*@RequestMapping(value = "/new-projects-by-launch-date")
     @ResponseBody
     public ProAPIResponse getNewProjectsByLaunchDate(@RequestParam(required = false) String cityName,
             @RequestParam(required = false) String selector) {
@@ -74,12 +83,40 @@ public class ProjectController extends BaseController {
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
                 response.getTotalResultCount());
-    }
+    }*/
 
     @RequestMapping(value = "/{projectId}/discussions")
     @ResponseBody
     public ProAPIResponse getDiscussions(@RequestParam(required = false) Integer commentId, @PathVariable int projectId) {
         List<ProjectDiscussion> comments = projectService.getDiscussions(projectId, commentId);
         return new ProAPISuccessResponse(super.filterFields(comments, null));
+    }
+    
+    /*
+     * The Request Mapping url has to be changed to new-projects-by-upcoming-project-status. Temporarily using
+     * this url. It has to be removed.
+     */
+    @RequestMapping(value = "/new-projects-by-launch-date")
+    @ResponseBody
+    public ProAPIResponse getUpcomingNewProjects(@RequestParam(required = false) String cityName,
+            @RequestParam(required = false) String selector) {
+        Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+        if (propRequestParam == null) {
+            propRequestParam = new Selector();
+        }
+        SolrServiceResponse<List<Project>> response = projectService.getUpcomingNewProjects(cityName,
+                propRequestParam);
+        List<Image> imageList = null;
+        for (Project project : response.getResult()) {
+        	imageList = imageService.getImages(DomainObject.project, "main", project.getProjectId());
+        	if(imageList.size() > 0)
+        		project.setImageURL(imageList.get(0).getAbsolutePath());
+        		//project.setImageURL(imageService.getImages(DomainObject.project, "main", project.getProjectId()).get(0).getAbsolutePath());
+        	
+        }
+
+        Set<String> fieldsString = propRequestParam.getFields();
+        return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
+                response.getTotalResultCount());
     }
 }

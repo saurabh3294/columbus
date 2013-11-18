@@ -144,6 +144,42 @@ public class ProjectSolrDao {
     	return queryResponse.getBeans(SolrResult.class);
     }
     
+    public SolrServiceResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector selector){
+    	SolrQuery solrQuery = new SolrQuery();
+
+        if (cityName == null || cityName.length() <= 0)
+            solrQuery.setQuery("*:*");
+        else
+            solrQuery.setQuery("CITY:" + cityName);
+
+        String fq = "DOCUMENT_TYPE:PROJECT AND (PROJECT_STATUS:\"pre launch\" OR PROJECT_STATUS:\"not launched\")";
+        solrQuery.setFilterQueries(fq);
+
+        solrQuery.setRows(selector.getPaging().getRows());
+        solrQuery.addSort("DISPLAY_ORDER", SolrQuery.ORDER.asc);
+        solrQuery.addSort("PROJECT_PRIORITY", SolrQuery.ORDER.asc);
+        solrQuery.addSort("PROJECT_ID", SolrQuery.ORDER.asc);
+        solrQuery.addSort("BEDROOMS", SolrQuery.ORDER.asc);
+        solrQuery.addSort("SIZE", SolrQuery.ORDER.asc);
+        
+        System.out.println(solrQuery.toString());
+        SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
+        queryBuilder.buildQuery(selector, null);
+        
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> totalSolrResults = queryResponse.getBeans(SolrResult.class);
+        
+        List<Project> solrResults = new ArrayList<>();
+        for(SolrResult solr:totalSolrResults)
+        	solrResults.add(solr.getProject());
+
+        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
+        solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
+        solrRes.setResult(solrResults);
+        
+        return solrRes;
+    }
+    
     public static void main(String[] args) {
         Selector projectFilter = new Selector();
         Set<String> fields = new HashSet<String>();
