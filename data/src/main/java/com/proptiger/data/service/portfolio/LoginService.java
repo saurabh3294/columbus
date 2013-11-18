@@ -18,6 +18,11 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.util.Constants;
 
+/**
+ * Service class to provide methods for login and logout to shiro system
+ * @author Rajeev Pandey
+ *
+ */
 @Service
 public class LoginService {
 
@@ -26,6 +31,13 @@ public class LoginService {
 	
 	private static Logger logger = LoggerFactory.getLogger(LoginService.class);
 	
+	/**
+	 * Login to shiro system
+	 * @param email
+	 * @param password
+	 * @param rememberMe
+	 * @return
+	 */
 	public UserInfo login(String email, String password, boolean rememberMe){
 		Subject currentUser = SecurityUtils.getSubject();
 		if(currentUser != null && currentUser.getPrincipal() != null && !currentUser.getPrincipal().toString().equals(email)){
@@ -66,6 +78,9 @@ public class LoginService {
 		return userInfo;
 	}
 	
+	/**
+	 * Logout the current user from shiro system
+	 */
 	public void logout(){
 		Subject subject = SecurityUtils.getSubject();
 		logger.error("Logout request for user {}",subject.getPrincipal());

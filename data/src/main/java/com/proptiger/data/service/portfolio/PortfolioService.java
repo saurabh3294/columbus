@@ -431,7 +431,7 @@ public class PortfolioService extends AbstractService{
 		PortfolioListing toUpdate = (PortfolioListing) resource;
 		PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
 		PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndName(toUpdate.getUserId(), toUpdate.getName());
-		if(resourceWithSameName != null){
+		if(resourceWithSameName != null && !resourcePresent.getId().equals(resourceWithSameName.getId())){
 			logger.error("Duplicate resource id {} and name {}",resourceWithSameName.getId(), resourceWithSameName.getName());
 			throw new DuplicateNameResourceException("Resource with same name exist");
 		}
