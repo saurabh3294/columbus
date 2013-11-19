@@ -11,6 +11,7 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.SecurityUtils;
@@ -60,15 +61,17 @@ public class DataAPIAuthenticationFilter implements Filter{
 				 * So need to set other user's userid in session managed UserInfo object, so that
 				 * all other controllers will get other user's id from session
 				 */
-//				String requestURI = ((HttpServletRequest)request).getRequestURI();
-//				Pattern pattern = Pattern.compile(".*"+servletPath+"/(.*)");
-//	            Matcher matcher = pattern.matcher(requestURI);
-//	            if (matcher.matches())
-//	            {
-//	            String param = matcher.group(1);
-//	            // do stuff with param here..
-//	            }
-				System.out.println("------------");
+				/*String requestURI = ((HttpServletRequest)request).getRequestURI();
+				String servletPath = ((HttpServletRequest)request).getServletPath();
+				Pattern pattern = Pattern.compile(".*"+servletPath+"/(.*)");
+	            Matcher matcher = pattern.matcher(requestURI);
+	            if (matcher.matches())
+	            {
+	            	String param = matcher.group(1);
+	            	System.out.println("------------");
+	            }
+	            userInfo.setUserIdentifier(123456);
+				System.out.println("------------");*/
 			}
 			chain.doFilter(request, response);
 		}
