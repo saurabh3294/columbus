@@ -150,8 +150,8 @@ public class PortfolioController extends BaseController {
 			@PathVariable Integer listingId,
 			@RequestParam(required = true, value = "mailType") String mailType,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		portfolioService.sendMail(userInfo.getUserIdentifier(), listingId, mailType);
-		return new ProAPISuccessResponse("Mail Sent");
+		boolean status = portfolioService.sendMail(userInfo.getUserIdentifier(), listingId, mailType);
+		return new ProAPISuccessResponse(status);
 	}
 
 }

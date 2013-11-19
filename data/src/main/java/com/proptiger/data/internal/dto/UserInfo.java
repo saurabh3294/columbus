@@ -11,6 +11,8 @@ public class UserInfo {
 	private String email;
 	private Integer userIdentifier;
 	private String sessionId;
+	private long contact;
+	
 	public String getName() {
 		return name;
 	}
@@ -34,6 +36,12 @@ public class UserInfo {
 	}
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
+	}
+	public long getContact() {
+		return contact;
+	}
+	public void setContact(long contact) {
+		this.contact = contact;
 	}
 	
 	

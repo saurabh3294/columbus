@@ -15,7 +15,11 @@ public enum MailTemplateDetail {
 	
 	RESALE_LISTING_INTERNAL("ListingResaleMail",
 			"mailtemplate/resale-listing-internal-Email.vm"
-			,"mailtemplate/resale-listing-internal-Email-subject.vm");
+			,"mailtemplate/resale-listing-internal-Email-subject.vm"),
+	
+	UNMATCHED_PROJECT_ADDED("UnmatchedProjectDetails",
+			"mailtemplate/unmatched-property-internal-Email.vm"
+			,"mailtemplate/unmatched-property-internal-Email-subject.vm");
 	
 	private MailTemplateDetail(String key, String filename, String subject){
 		this.key = key;

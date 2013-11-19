@@ -50,7 +50,7 @@ public class LoginService {
 		    UsernamePasswordToken token = new UsernamePasswordToken(email, password);
 		    token.setRememberMe(rememberMe);
 			try {
-				logger.error("Login request for user {}", token);
+				logger.error("Login request for user {} and remember me {}", email, rememberMe);
 				currentUser.login(token);
 				ForumUser forumUser = forumUserDao.findByEmail(email);
 				String sessionId = currentUser.getSession(false).getId()
@@ -59,8 +59,10 @@ public class LoginService {
 				userInfo.setName(forumUser.getUsername());
 				userInfo.setSessionId(sessionId);
 				userInfo.setUserIdentifier(forumUser.getUserId());
+				userInfo.setContact(forumUser.getContact());
 				currentUser.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, userInfo);
 				token.clear();
+				logger.error("User {} logged in", email);
 			} catch ( UnknownAccountException uae ) {
 		        throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, uae);
 		    } catch ( IncorrectCredentialsException ice ) {

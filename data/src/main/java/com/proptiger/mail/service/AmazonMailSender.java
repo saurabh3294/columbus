@@ -48,7 +48,7 @@ public class AmazonMailSender {
 		from = propertyReader.getRequiredProperty("mail.from.noreply");
 	}
 	
-	public void sendMail(String[] mailTo, String mailContent, String subject)
+	public boolean sendMail(String[] mailTo, String mailContent, String subject)
 			throws MailException {
 		// Construct an object to contain the recipient address.
         Destination destination = new Destination().withToAddresses(mailTo);
@@ -67,5 +67,6 @@ public class AmazonMailSender {
 		logger.debug("Sending mails to "+mailTo);
         SendEmailResult result = emailServiceClient.sendEmail(request);
         logger.debug("Message sent, id-"+result.getMessageId());
+        return true;
 	}
 }
