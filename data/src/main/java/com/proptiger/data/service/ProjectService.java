@@ -58,7 +58,7 @@ public class ProjectService {
     public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
         List<ProjectDiscussion> discussions = projectDao.getDiscussions(projectId, commentId);
         for (ProjectDiscussion projectDiscussion : discussions) {
-            if ("proptiger".equalsIgnoreCase(projectDiscussion.getUser().getUsername())) {
+            if ("proptiger".equals(projectDiscussion.getUser().getUsername())) {
                 projectDiscussion.getUser().setUsername(projectDiscussion.getAdminUserName());
             }
         }
