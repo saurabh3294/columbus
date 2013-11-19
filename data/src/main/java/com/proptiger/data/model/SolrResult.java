@@ -118,7 +118,7 @@ public class SolrResult {
     private String propertySizeMeasure;
 
     @FieldMetaInfo( displayName = "Launch Date",  description = "Launch Date")
-    @Field(value = "VALID_LAUNCH_DATE")
+    @Field(value = "LAUNCH_DATE")
     private Date launchDate;
 
     @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
