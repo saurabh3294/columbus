@@ -15,7 +15,15 @@
 			<pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
 		</encoder>
 	</appender>
-
+	
+	
+	<category name="org.hibernate">
+        <priority value="WARN"/>
+    </category>
+    <category name="org.apache.shiro">
+        <priority value="DEBUG"/>
+    </category>
+	
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 	    <encoder>
 	      <pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
