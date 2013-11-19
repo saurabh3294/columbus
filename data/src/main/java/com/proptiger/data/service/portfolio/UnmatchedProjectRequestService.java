@@ -30,6 +30,9 @@ public class UnmatchedProjectRequestService {
 	 */
 	public boolean handleUnmatchedProjectRequest(
 			UnmatchedProjectDetails unmatchedProjectDetails, UserInfo userInfo) {
+		unmatchedProjectDetails.setUserEmail(userInfo.getEmail());
+		unmatchedProjectDetails.setContact(userInfo.getContact());
+		unmatchedProjectDetails.setUserName(userInfo.getName());
 		MailBody mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.UNMATCHED_PROJECT_ADDED, unmatchedProjectDetails);
 		String toAddress = propertyReader.getRequiredProperty("mail.unmatched-project.internal.reciepient");
 		return mailService.sendMailUsingAws(toAddress, mailBody.getBody(), mailBody.getSubject());

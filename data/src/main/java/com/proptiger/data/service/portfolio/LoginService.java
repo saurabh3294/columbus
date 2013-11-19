@@ -83,11 +83,12 @@ public class LoginService {
 	/**
 	 * Logout the current user from shiro system
 	 */
-	public void logout(){
+	public boolean logout(){
 		Subject subject = SecurityUtils.getSubject();
 		logger.error("Logout request for user {}",subject.getPrincipal());
 		if(subject.isAuthenticated()){
 			SecurityUtils.getSubject().logout();
 		}
+		return true;
 	}
 }

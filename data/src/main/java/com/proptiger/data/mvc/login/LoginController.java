@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.Login;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.portfolio.LoginService;
 
@@ -36,7 +37,7 @@ public class LoginController {
 	@RequestMapping(method = RequestMethod.POST, value = "/logout")
 	@ResponseBody
 	public ProAPIResponse logout() {
-		loginService.logout();
-		return new ProAPISuccessResponse();
+		boolean status = loginService.logout();
+		return new ProAPISuccessCountResponse(status, 1);
 	}
 }
