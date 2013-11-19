@@ -132,7 +132,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
 	@ResponseBody
-	@ResponseStatus(value = HttpStatus.OK)
+	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 	protected ProAPIResponse handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception) {
 		logger.error("handle ConstraintViolationException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTENT_TYPE);

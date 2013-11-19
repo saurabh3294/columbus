@@ -230,7 +230,12 @@ public class DashboardService extends AbstractService{
 			/*
 			 * Saving newly created dashboard and widget mapping
 			 */
-			createdWidgetsMapping = dashboardWidgetMappingDao.save(toCreate);
+			try{
+				createdWidgetsMapping = dashboardWidgetMappingDao.save(toCreate);
+			}catch(Exception e){
+				throw new ConstraintViolationException(e.getMessage(), e);
+			}
+			
 		}
 		
 		return createdWidgetsMapping;

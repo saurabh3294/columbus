@@ -144,6 +144,14 @@ public class PortfolioController extends BaseController {
 		return new ProAPISuccessResponse(listing);
 	}
 
+	/**
+	 * This method send various types of mail related to a listing object.
+	 * @param userId
+	 * @param listingId
+	 * @param mailType
+	 * @param userInfo
+	 * @return
+	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/mail")
 	@ResponseBody
 	public ProAPIResponse sendMailForListingAdd(@PathVariable Integer userId,
