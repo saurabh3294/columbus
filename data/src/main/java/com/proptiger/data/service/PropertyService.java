@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
@@ -56,9 +57,8 @@ public class PropertyService {
     	list.add(searchType);
     	filter.put("and", list);
     	selector.setFilters(filter);
+    	selector.setPaging(new Paging(0, 1000));
     	
     	return propertyDao.getProperties(selector);
-    	
-        //return propertyDao.getProperties(projectId);
     }
 }

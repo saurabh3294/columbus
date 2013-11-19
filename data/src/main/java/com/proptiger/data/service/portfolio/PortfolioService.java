@@ -596,7 +596,7 @@ public class PortfolioService extends AbstractService{
 		return listing;
 	}
 	
-	public void sendMail(Integer userId, Integer listingId, String mailType) {
+	public boolean sendMail(Integer userId, Integer listingId, String mailType) {
 		PortfolioListing listing = getPortfolioListingById(userId, listingId);
 		ForumUser user = listing.getForumUser();
 		MailType mailTypeEnum = null;
@@ -624,7 +624,7 @@ public class PortfolioService extends AbstractService{
 		
 		String toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
 		
-		mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+		return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
 	}
 	private ListingResaleMail createListingResaleMailObj(
 			PortfolioListing listing) {

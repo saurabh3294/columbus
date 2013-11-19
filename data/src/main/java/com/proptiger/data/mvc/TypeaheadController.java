@@ -50,7 +50,7 @@ public class TypeaheadController extends BaseController {
 		
 		List<String> filterQueries = new ArrayList<String>();
 		if (typeAheadType != null && typeAheadType.trim() != "")
-			filterQueries.add("TYPEAHEAD_TYPE:"+typeAheadType);
+			filterQueries.add("TYPEAHEAD_TYPE:"+typeAheadType.toUpperCase());
 		
 		if (city != null && city.trim() != "") {
 			filterQueries.add("TYPEAHEAD_CITY:"+city);

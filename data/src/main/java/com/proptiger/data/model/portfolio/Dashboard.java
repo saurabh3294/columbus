@@ -229,4 +229,15 @@ public class Dashboard implements NamedResource, Resource{
     	this.totalColumn = totalColumns;
     	this.totalRow = totalRows;
     }
+
+	@Override
+	public String toString() {
+		return "Dashboard [id=" + id + ", name=" + name + ", totalRow="
+				+ totalRow + ", totalColumn=" + totalColumn + ", userId="
+				+ userId + ", createdAt=" + createdAt + ", updatedAt="
+				+ updatedAt + ", forumUser=" + forumUser + ", widgets="
+				+ widgets + "]";
+	}
+    
+    
 }

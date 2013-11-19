@@ -6,8 +6,6 @@ package com.proptiger.data.service;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,6 +56,13 @@ public class ProjectService {
     }
 
     public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
-        return projectDao.getDiscussions(projectId, commentId);
+        List<ProjectDiscussion> discussions = projectDao.getDiscussions(projectId, commentId);
+        for (ProjectDiscussion projectDiscussion : discussions) {
+            if ("proptiger".equals(projectDiscussion.getUser().getUsername())) {
+                projectDiscussion.getUser().setUsername(projectDiscussion.getAdminUserName());
+            }
+        }
+
+        return discussions;
     }
 }

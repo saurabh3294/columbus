@@ -4,6 +4,7 @@
 package com.proptiger.data.model.filter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -147,6 +148,10 @@ public abstract class AbstractQueryBuilder<T> {
             }
 
             return new ISO8601DateFormat().format(date);
+        }
+
+        if (List.class.isAssignableFrom(field.getType())) {
+            return typeConverter.convertIfNecessary(obj, (Class<?>)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0]);
         }
 
         return typeConverter.convertIfNecessary(obj, field.getType());

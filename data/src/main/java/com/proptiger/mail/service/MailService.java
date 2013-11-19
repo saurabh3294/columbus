@@ -16,6 +16,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.internal.dto.mail.MailBody;
+
 
 /**
  * Mail service to provide methods to send mails
@@ -26,6 +28,9 @@ import org.springframework.stereotype.Service;
 public class MailService {
 	
 	private static Logger logger = LoggerFactory.getLogger(MailService.class);
+	
+	@Autowired
+	private MailBodyGenerator mailBodyGenerator;
 	@Autowired
 	private AmazonMailSender amazonMailSender;
 	
@@ -37,20 +42,28 @@ public class MailService {
 	 * @param subject
 	 */
 	@Async
-	public void sendMailUsingAws(String[] mailTo, String mailContent, String subject){
+	public boolean sendMailUsingAws(String[] mailTo, String mailContent, String subject){
 		if(mailTo == null || mailTo.length == 0){
 			throw new IllegalArgumentException("To address is empty");
 		}
 		if(subject == null || subject.isEmpty()){
 			throw new IllegalArgumentException("Subject is empty");
 		}
-		amazonMailSender.sendMail(mailTo, mailContent, subject);
+		return amazonMailSender.sendMail(mailTo, mailContent, subject);
 	}
+	/**
+	 * This method accepts to address as string, and expects to be comma separated if that string contains multiple
+	 * email ids
+	 * @param mailTo
+	 * @param mailContent
+	 * @param subject
+	 * @return
+	 */
 	@Async
-	public void sendMailUsingAws(String mailTo, String mailContent, String subject){
+	public boolean sendMailUsingAws(String mailTo, String mailContent, String subject){
 		if(mailTo != null && !mailTo.isEmpty()){
 			String[] toList = mailTo.split(",");
-			sendMailUsingAws(toList, mailContent, subject);
+			return sendMailUsingAws(toList, mailContent, subject);
 		}
 		else{
 			throw new IllegalArgumentException("To address is empty");
@@ -75,5 +88,5 @@ public class MailService {
 			return new AsyncResult<Boolean>(false);
 		}
 	}
-
+	
 }

@@ -144,14 +144,22 @@ public class PortfolioController extends BaseController {
 		return new ProAPISuccessResponse(listing);
 	}
 
+	/**
+	 * This method send various types of mail related to a listing object.
+	 * @param userId
+	 * @param listingId
+	 * @param mailType
+	 * @param userInfo
+	 * @return
+	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/mail")
 	@ResponseBody
 	public ProAPIResponse sendMailForListingAdd(@PathVariable Integer userId,
 			@PathVariable Integer listingId,
 			@RequestParam(required = true, value = "mailType") String mailType,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		portfolioService.sendMail(userInfo.getUserIdentifier(), listingId, mailType);
-		return new ProAPISuccessResponse("Mail Sent");
+		boolean status = portfolioService.sendMail(userInfo.getUserIdentifier(), listingId, mailType);
+		return new ProAPISuccessResponse(status);
 	}
 
 }

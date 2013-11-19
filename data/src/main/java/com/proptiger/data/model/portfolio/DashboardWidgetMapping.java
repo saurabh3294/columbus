@@ -155,4 +155,15 @@ public class DashboardWidgetMapping implements Resource{
 	public void setId(Integer id) {
 		this.id = id;
 	}
+
+	@Override
+	public String toString() {
+		return "DashboardWidgetMapping [id=" + id + ", dashboardId="
+				+ dashboardId + ", widgetId=" + widgetId
+				+ ", widgetRowPosition=" + widgetRowPosition
+				+ ", widgetColumnPosition=" + widgetColumnPosition
+				+ ", status=" + status + ", createdAt=" + createdAt
+				+ ", updatedAt=" + updatedAt + "]";
+	}
+	
 }

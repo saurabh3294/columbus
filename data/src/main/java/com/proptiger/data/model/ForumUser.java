@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
@@ -47,6 +48,7 @@ public class ForumUser {
     @Column(name = "IMAGE")
     private String  image;
     
+    @JsonIgnore
     @Column(name = "PASSWORD")
     private String  password;
     
@@ -64,7 +66,7 @@ public class ForumUser {
     private Date  createdDate;
     
     @Column(name = "STATUS")
-    private int status;
+    private String status;
     
     @Column(name = "IS_SUBSCRIBED")
     private byte  isSubscribed;
@@ -175,14 +177,6 @@ public class ForumUser {
 
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 
     public byte getIsSubscribed() {

@@ -53,9 +53,13 @@ public class DashboardService extends AbstractService{
 		List<Dashboard> result = dashboardDao.findByUserId(userId);
 		
 		if(result != null && result.size() == 0){
-			// No dashboard exists for this user, need to create defaule dashboard
-			//and and dashboard widget mapping by taking input from admin's mapping 
+			logger.debug("creating default dashboard and widgets as of admin for user {}",userId);
+			/*
+			 * No dashboard exists for this user, need to create defaule dashboard
+			 * and and dashboard widget mapping by taking input from admin's mapping 
+			 */
 			List<Dashboard> adminsDashboard = dashboardDao.findByUserId(Constants.ADMIN_USER_ID);
+			logger.debug("Dasboard and widgets for admin is {}",adminsDashboard);
 			//need to create copy for current user
 			if(adminsDashboard != null && !adminsDashboard.isEmpty()){
 				for(Dashboard dashboard: adminsDashboard){
@@ -70,8 +74,6 @@ public class DashboardService extends AbstractService{
 				//again retrieving dashboards for user after creation
 				result = dashboardDao.findByUserId(userId);
 			}
-			
-			
 		}
 		return result;
 	}
@@ -230,7 +232,12 @@ public class DashboardService extends AbstractService{
 			/*
 			 * Saving newly created dashboard and widget mapping
 			 */
-			createdWidgetsMapping = dashboardWidgetMappingDao.save(toCreate);
+			try{
+				createdWidgetsMapping = dashboardWidgetMappingDao.save(toCreate);
+			}catch(Exception e){
+				throw new ConstraintViolationException(e.getMessage(), e);
+			}
+			
 		}
 		
 		return createdWidgetsMapping;
