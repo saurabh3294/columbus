@@ -215,7 +215,9 @@ public class DashboardService extends AbstractService{
 		/*
 		 * creating dashboard and widget association
 		 */
-		List<DashboardWidgetMapping> widgetMappings = createDashboardWidgetMappings(created.getId(), dashboardDto.getWidgets());
+		List<DashboardWidgetMapping> widgetMappings = createDashboardWidgetMappings(
+				dashboardDto.getUserId(), created.getId(),
+				dashboardDto.getWidgets());
 		created.setWidgets(widgetMappings);
 		return created;
 	}
@@ -225,8 +227,8 @@ public class DashboardService extends AbstractService{
 	 * @param created
 	 */
 	@Transactional(rollbackFor = ConstraintViolationException.class)
-	private List<DashboardWidgetMapping> createDashboardWidgetMappings(Integer dashboardId, List<DashboardWidgetMapping> toCreate) {
-		
+	private List<DashboardWidgetMapping> createDashboardWidgetMappings(Integer userId, Integer dashboardId, List<DashboardWidgetMapping> toCreate) {
+		logger.debug("Creating dashboard widget mapping for user {} and dashboard {}",userId, dashboardId);
 		List<DashboardWidgetMapping> createdWidgetsMapping = new ArrayList<DashboardWidgetMapping>();
 		if(toCreate != null){
 			for(DashboardWidgetMapping mapping: toCreate){
@@ -243,6 +245,7 @@ public class DashboardService extends AbstractService{
 			try{
 				createdWidgetsMapping = dashboardWidgetMappingDao.save(toCreate);
 			}catch(Exception e){
+				logger.error("Exception while creating dashboard widget mapping-"+e.getMessage());
 				throw new ConstraintViolationException(e.getMessage(), e);
 			}
 			
