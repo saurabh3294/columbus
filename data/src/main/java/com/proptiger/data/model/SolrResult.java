@@ -177,6 +177,9 @@ public class SolrResult {
     @Field(value = "PROJECT_ADDRESS")
     private String address;
 
+    @Field(value = "LOCALITY_OR_SUBURB")
+    private List<String> localityOrSuburbLabel;
+
     @FieldMetaInfo( displayName = "Text",  description = "Full text for search")
     @Field(value = "text")
     private String text;

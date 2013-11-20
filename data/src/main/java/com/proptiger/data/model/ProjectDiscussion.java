@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -23,6 +24,9 @@ public class ProjectDiscussion implements BaseModel {
 
     @Column(name="PARENT_ID")
     private int parentId;
+    
+    @Column(name="ADMIN_USERNAME")
+    private String adminUserName;
 
     @Column(name="PROJECT_ID")
     private int projectId;
@@ -43,9 +47,25 @@ public class ProjectDiscussion implements BaseModel {
     private Date createdDate;
 
     @Column(name="STATUS")
-    private int status;
+    private String status;
     
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "USER_ID", insertable=false, updatable=false)
     private ForumUser user;
+
+    public ForumUser getUser() {
+        return user;
+    }
+
+    public void setUser(ForumUser user) {
+        this.user = user;
+    }
+
+    public String getAdminUserName() {
+        return adminUserName;
+    }
+
+    public void setAdminUserName(String adminUserName) {
+        this.adminUserName = adminUserName;
+    }
 }
