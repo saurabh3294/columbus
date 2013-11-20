@@ -409,8 +409,8 @@ public class PortfolioService extends AbstractService{
 		 * Creating back reference to parent in child entity, so that while saving
 		 * parent, child will be saved.
 		 */
-		if(toCreate.getListingPrice() != null){
-			for (PortfolioListingPrice listingPrice : toCreate.getListingPrice()) {
+		if(toCreate.getOtherPrices() != null){
+			for (PortfolioListingPrice listingPrice : toCreate.getOtherPrices()) {
 				listingPrice.setPortfolioListing(toCreate);
 				//setting id null, as while creating id should not be present,
 				//need to find better place to do this pre process work

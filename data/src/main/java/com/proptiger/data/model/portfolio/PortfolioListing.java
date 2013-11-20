@@ -177,7 +177,7 @@ public class PortfolioListing implements NamedResource, Resource{
 	private Bank bank;
 	
 	@OneToMany(mappedBy = "portfolioListing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	private Set<PortfolioListingPrice> listingPrice;
+	private Set<PortfolioListingPrice> otherPrices;
 	
 	@OneToMany(mappedBy = "portfolioListing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Set<PortfolioListingPaymentPlan> listingPaymentPlan;
@@ -319,12 +319,12 @@ public class PortfolioListing implements NamedResource, Resource{
 		this.bankId = bankId;
 	}
 
-	public Set<PortfolioListingPrice> getListingPrice() {
-		return listingPrice;
+	public Set<PortfolioListingPrice> getOtherPrices() {
+		return otherPrices;
 	}
 
-	public void setListingPrice(Set<PortfolioListingPrice> listingPrice) {
-		this.listingPrice = listingPrice;
+	public void setOtherPrices(Set<PortfolioListingPrice> listingPrice) {
+		this.otherPrices = listingPrice;
 	}
 
 	
