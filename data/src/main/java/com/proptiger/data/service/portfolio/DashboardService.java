@@ -68,7 +68,16 @@ public class DashboardService extends AbstractService{
 					dashboardDto.setTotalColumn(dashboard.getTotalColumn());
 					dashboardDto.setTotalRow(dashboard.getTotalRow());
 					dashboardDto.setUserId(userId);
-					dashboardDto.setWidgets(dashboard.getWidgets());
+					List<DashboardWidgetMapping> widgetMappintToCreate = new ArrayList<>();
+					for(DashboardWidgetMapping widgetMapping: dashboard.getWidgets()){
+						DashboardWidgetMapping dashboardWidgetMapping = new DashboardWidgetMapping();
+						dashboardWidgetMapping.setStatus(widgetMapping.getStatus());
+						dashboardWidgetMapping.setWidgetColumnPosition(widgetMapping.getWidgetColumnPosition());
+						dashboardWidgetMapping.setWidgetId(widgetMapping.getWidgetId());
+						dashboardWidgetMapping.setWidgetRowPosition(widgetMapping.getWidgetRowPosition());
+						widgetMappintToCreate.add(dashboardWidgetMapping);
+					}
+					dashboardDto.setWidgets(widgetMappintToCreate);
 					createDashboard(dashboardDto);
 				}
 				//again retrieving dashboards for user after creation
