@@ -1,4 +1,4 @@
-#parse("./mailtemplate/velocity_global.vm")
+#parse("./mailtemplate/VM_global_library.vm")
 <html>
 <head>
 <title>Proptiger | Resale Listing Interest –“ <externalUser> would like to sell <propertyName> in <projectCity>”</title>

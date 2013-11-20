@@ -42,7 +42,7 @@ public class LoginService {
 		Subject currentUser = SecurityUtils.getSubject();
 		if(currentUser != null && currentUser.getPrincipal() != null && !currentUser.getPrincipal().toString().equals(email)){
 			//new login request with different user
-			logger.error("Logout primary user {}", currentUser.getPrincipal());
+			logger.debug("Logout primary user {}", currentUser.getPrincipal());
 			logout();
 		}
 		UserInfo userInfo = new UserInfo();
@@ -50,7 +50,7 @@ public class LoginService {
 		    UsernamePasswordToken token = new UsernamePasswordToken(email, password);
 		    token.setRememberMe(rememberMe);
 			try {
-				logger.error("Login request for user {} and remember me {}", email, rememberMe);
+				logger.debug("Login request for user {} and remember me {}", email, rememberMe);
 				currentUser.login(token);
 				ForumUser forumUser = forumUserDao.findByEmail(email);
 				String sessionId = currentUser.getSession(false).getId()
@@ -60,9 +60,16 @@ public class LoginService {
 				userInfo.setSessionId(sessionId);
 				userInfo.setUserIdentifier(forumUser.getUserId());
 				userInfo.setContact(forumUser.getContact());
+				if (userInfo.getUserIdentifier()
+						.equals(Constants.ADMIN_USER_ID)) {
+					logger.debug(
+							"Login request for admin user id {} and email {}",
+							userInfo.getUserIdentifier(), userInfo.getEmail());
+					userInfo.setAdmin(true);
+				}
 				currentUser.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, userInfo);
 				token.clear();
-				logger.error("User {} logged in", email);
+				logger.debug("User {} logged in", email);
 			} catch ( UnknownAccountException uae ) {
 		        throw new com.proptiger.exception.AuthenticationException(ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT, uae);
 		    } catch ( IncorrectCredentialsException ice ) {
@@ -85,7 +92,7 @@ public class LoginService {
 	 */
 	public boolean logout(){
 		Subject subject = SecurityUtils.getSubject();
-		logger.error("Logout request for user {}",subject.getPrincipal());
+		logger.debug("Logout request for user {}",subject.getPrincipal());
 		if(subject.isAuthenticated()){
 			SecurityUtils.getSubject().logout();
 		}

@@ -1,4 +1,4 @@
-#parse("./mailtemplate/velocity_global.vm")
+#parse("./mailtemplate/VM_global_library.vm")
 <html>
 <head>
 <title>Proptiger | New Unmatched Property added in database –“<propertyName>” in <projectCity></title>

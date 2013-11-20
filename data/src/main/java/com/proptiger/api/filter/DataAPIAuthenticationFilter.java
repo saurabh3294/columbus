@@ -2,6 +2,7 @@ package com.proptiger.api.filter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,7 +54,8 @@ public class DataAPIAuthenticationFilter implements Filter{
 		}
 		else{
 			UserInfo userInfo = (UserInfo) currentUser.getSession().getAttribute(Constants.LOGIN_INFO_OBJECT_NAME);
-			if(userInfo != null && userInfo.getUserIdentifier().equals(Constants.ADMIN_USER_ID)){
+			if(userInfo.isAdmin()){
+				logger.debug("Request from admin user {}", userInfo.getUserIdentifier());
 				/*
 				 * This request is considered as special request from admin to modify some other 
 				 * user's data on behalf on Admin
@@ -61,17 +63,39 @@ public class DataAPIAuthenticationFilter implements Filter{
 				 * So need to set other user's userid in session managed UserInfo object, so that
 				 * all other controllers will get other user's id from session
 				 */
-				/*String requestURI = ((HttpServletRequest)request).getRequestURI();
-				String servletPath = ((HttpServletRequest)request).getServletPath();
-				Pattern pattern = Pattern.compile(".*"+servletPath+"/(.*)");
-	            Matcher matcher = pattern.matcher(requestURI);
-	            if (matcher.matches())
-	            {
-	            	String param = matcher.group(1);
-	            	System.out.println("------------");
+				HttpServletRequest httpRequest = ((HttpServletRequest)request);
+	            Enumeration<String> parameterNames = httpRequest.getParameterNames();
+	            boolean found = false;
+	            Integer userIdOnBehalfOfAdmin = null;
+				while (parameterNames.hasMoreElements()) {
+					String[] values = httpRequest
+							.getParameterValues(Constants.REQ_PARAMETER_FOR_USER_ID);
+					if(values != null && values.length > 0){
+						try {
+							userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
+							found = true;
+							break;
+						} catch (NumberFormatException e) {
+							logger.error("Working on behalf of other user failed");
+							logger.error("NumberFormatException", e);
+						}
+					}
+
+				}
+	            if(found){
+	            	/*
+	            	 * Admin is trying to do something on behalf of other user, so modify user info
+	            	 * object in session that will be assessed by all controllers, and will do work
+	            	 * for this user
+	            	 */
+	            	logger.debug("Changing admin user info with user id {}", userIdOnBehalfOfAdmin);
+	            	userInfo.setUserIdentifier(userIdOnBehalfOfAdmin);
 	            }
-	            userInfo.setUserIdentifier(123456);
-				System.out.println("------------");*/
+	            else{
+	            	//that means admin is not trying to do thing on befalf of some other user
+	            	//set user identifer back to admin
+	            	userInfo.setUserIdentifier(Constants.ADMIN_USER_ID);
+	            }
 			}
 			chain.doFilter(request, response);
 		}

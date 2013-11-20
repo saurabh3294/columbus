@@ -46,10 +46,10 @@ public class DashboardService extends AbstractService{
 	 * @param userId
 	 * @return
 	 */
-	@Transactional(readOnly = true)
+	@Transactional
 	@Cacheable(value = "dashboard", key = "userId")
 	public List<Dashboard> getAllByUserId(Integer userId){
-		logger.debug("Finding all dashboards for userid {}"+userId);
+		logger.debug("Finding all dashboards for userid {}",userId);
 		List<Dashboard> result = dashboardDao.findByUserId(userId);
 		
 		if(result != null && result.size() == 0){
@@ -88,7 +88,7 @@ public class DashboardService extends AbstractService{
 	@Transactional(readOnly = true)
 	@Cacheable(value = "dashboard")
 	public Dashboard getDashboardById(Integer userId, Integer dashboardId){
-		logger.debug("Finding dashboard {} for userid {}",userId, dashboardId);
+		logger.debug("Finding dashboard id {} for userid {}",userId, dashboardId);
 		Dashboard result = dashboardDao.findByIdAndUserId(dashboardId, userId);
 		if(result == null){
 			logger.error("Dashboard id {} not found for userid {}",dashboardId, userId);
@@ -222,7 +222,6 @@ public class DashboardService extends AbstractService{
 		if(toCreate != null){
 			for(DashboardWidgetMapping mapping: toCreate){
 				//explicitly setting id to null as it would be auto created
-				mapping.setId(null);
 				mapping.setDashboardId(dashboardId);
 				if(mapping.getStatus() == null){
 					mapping.setStatus(WidgetDisplayStatus.MAX);

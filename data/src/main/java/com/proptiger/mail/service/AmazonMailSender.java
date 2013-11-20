@@ -64,9 +64,9 @@ public class AmazonMailSender {
         // Assemble the email.
 		SendEmailRequest request = new SendEmailRequest().withSource(from)
 				.withDestination(destination).withMessage(message);
-		logger.debug("Sending mails to "+mailTo);
+		logger.debug("Sending mails to {}", mailTo.toString());
         SendEmailResult result = emailServiceClient.sendEmail(request);
-        logger.debug("Message sent, id-"+result.getMessageId());
+        logger.debug("Mail sent id {}", result.getMessageId());
         return true;
 	}
 }

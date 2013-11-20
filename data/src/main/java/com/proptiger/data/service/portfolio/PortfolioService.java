@@ -93,10 +93,11 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(readOnly = true)
 	public Portfolio getPortfolioByUserId(Integer userId){
+		logger.debug("Getting portfolio details for user id {}",userId);
 		Portfolio portfolio = new Portfolio();
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
 		//portfolio.setPortfolioListings(listings);
-		updatePriceInfoInPortfolio(portfolio, listings);
+		updatePriceInfoInPortfolio(userId, portfolio, listings);
 		updatePaymentSchedule(listings);
 		if(listings != null){
 			for(PortfolioListing l: listings){
@@ -111,7 +112,7 @@ public class PortfolioService extends AbstractService{
 	 * @param portfolio
 	 * @param listings
 	 */
-	private void updatePriceInfoInPortfolio(Portfolio portfolio, List<PortfolioListing> listings) {
+	private void updatePriceInfoInPortfolio(Integer userId, Portfolio portfolio, List<PortfolioListing> listings) {
 		double originalValue = 0.0D;
 		double currentValue = 0.0D;
 		if(listings != null){
@@ -122,7 +123,7 @@ public class PortfolioService extends AbstractService{
 			}
 		}
 		if(currentValue == 0.0D){
-			logger.debug("Current value not available for Portfolio");
+			logger.debug("Current value not available for Portfolio of user {}", userId);
 			currentValue = originalValue;
 		}
 		portfolio.setCurrentValue(currentValue);
@@ -178,7 +179,7 @@ public class PortfolioService extends AbstractService{
 		Portfolio created = new Portfolio();
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
 		created.setPortfolioListings(listings);
-		updatePriceInfoInPortfolio(created, listings);
+		updatePriceInfoInPortfolio(userId, created, listings);
 		return created;
 	}
 	
@@ -224,7 +225,7 @@ public class PortfolioService extends AbstractService{
 		/*
 		 * Updating price information in portfolio
 		 */
-		updatePriceInfoInPortfolio(updated, updatedListings);
+		updatePriceInfoInPortfolio(userId, updated, updatedListings);
 		return updated;
 	}
 	
@@ -604,6 +605,7 @@ public class PortfolioService extends AbstractService{
 		if(mailTypeEnum == null){
 			throw new IllegalArgumentException("Invalid mail type");
 		}
+		String toStr = user.getEmail();
 		MailBody mailBody = null;
 		switch (mailTypeEnum) {
 		case PORTFOLIO_LISTING_ADD:
@@ -617,13 +619,11 @@ public class PortfolioService extends AbstractService{
 		case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
 			ListingResaleMail listingResaleMail = createListingResaleMailObj(listing);
 			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.RESALE_LISTING_INTERNAL, listingResaleMail);
+			toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
 			break;
 		default:
 			throw new IllegalArgumentException("Invalid mail type");
 		}
-		
-		String toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
-		
 		return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
 	}
 	private ListingResaleMail createListingResaleMailObj(

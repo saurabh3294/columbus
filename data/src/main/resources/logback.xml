@@ -2,33 +2,40 @@
 
 <configuration>
 
-	<appender name="dal" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	<appender name="dal"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>/var/log/proptiger/dal/dal.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- daily rollover -->
-            <fileNamePattern>dal-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
-            <!-- keep 30 days' worth of history -->
-            <maxHistory>30</maxHistory>
-        </rollingPolicy>		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>dal-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
 		<append>true</append>
 		<encoder>
 			<pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
 		</encoder>
 	</appender>
-	
-	
-	<category name="org.hibernate">
-        <priority value="WARN"/>
-    </category>
-    <category name="org.apache.shiro">
-        <priority value="DEBUG"/>
-    </category>
-	
+
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-	    <encoder>
-	      <pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
-	    </encoder>
-   </appender>
+		<encoder>
+			<pattern>[%d{HH:mm:ss.SSS} %thread %-5level %C:%L] %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="com.proptiger.data.service.portfolio">
+		<level value="DEBUG" />
+	</logger>
+	<logger name="org.springframework.beans.factory">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.springframework.web">
+		<level value="WARN" />
+	</logger>
+	<logger name="org.hibernate">
+		<level value="WARN" />
+	</logger>
+
 
 	<root level="INFO">
 		<appender-ref ref="dal" />

@@ -2,6 +2,8 @@ package com.proptiger.data.internal.dto;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 /**
  * @author Rajeev Pandey
@@ -15,6 +17,8 @@ public class UserInfo implements Serializable{
 	private Integer userIdentifier;
 	private String sessionId;
 	private long contact;
+	@JsonIgnore
+	public boolean admin = false;
 	
 	public String getName() {
 		return name;
@@ -45,6 +49,12 @@ public class UserInfo implements Serializable{
 	}
 	public void setContact(long contact) {
 		this.contact = contact;
+	}
+	public boolean isAdmin() {
+		return admin;
+	}
+	public void setAdmin(boolean isAdmin) {
+		this.admin = isAdmin;
 	}
 	
 	
