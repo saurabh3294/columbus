@@ -169,6 +169,7 @@ public class PortfolioService extends AbstractService{
 	 * @return
 	 */
 	public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
+		logger.debug("Creating portfolio for user id {}",userId);
 		List<PortfolioListing> presentListing = portfolioListingDao.findByUserId(userId);
 		List<PortfolioListing> toCreate = portfolio.getPortfolioListings();
 		if (presentListing != null && presentListing.size() > 0) {
@@ -206,6 +207,7 @@ public class PortfolioService extends AbstractService{
 	 * @return
 	 */
 	public Portfolio updatePortfolio(Integer userId, Portfolio portfolio){
+		logger.debug("Update portfolio details for user id {}",userId);
 		List<PortfolioListing> presentListingList = portfolioListingDao.findByUserId(userId);
 		Portfolio updated = new Portfolio();
 		if (presentListingList == null || presentListingList.size() == 0) {
@@ -232,6 +234,7 @@ public class PortfolioService extends AbstractService{
 	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	private Portfolio createOrUpdatePortfolioListings(Integer userId,
 			Portfolio toUpdatePortfolio, List<PortfolioListing> presentListingList) {
+		logger.debug("Create or update portfolio details for user id {}",userId);
 		/*
 		 * Either a new Listing will be created if not already present otherwise will be updated
 		 */
@@ -296,6 +299,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(readOnly = true)
 	public List<PortfolioListing> getAllPortfolioListings(Integer userId){
+		logger.debug("Getting all portfolio listings for user id {}",userId);
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
 		if(listings != null){
 			for(PortfolioListing listing: listings){
@@ -333,6 +337,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(readOnly = true)
 	public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId){
+		logger.debug("Getting portfolio listing {} for user id {}",listingId, userId);
 		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		if(listing == null){
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
@@ -366,6 +371,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	public PortfolioListing createPortfolioListing(Integer userId, PortfolioListing listing){
+		logger.debug("Create portfolio listing for user id {}", userId);
 		listing.setUserId(userId);
 		/*
 		 * Explicitly setting it to null due to use of @JsonUnwrapped, this annotation automatically
@@ -386,6 +392,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(rollbackFor = ResourceNotAvailableException.class)
 	public PortfolioListing updatePortfolioListing(Integer userId, Integer propertyId, PortfolioListing property){
+		logger.debug("Update portfolio listing {} for user id {}",propertyId, userId);
 		property.setUserId(userId);
 		property.setId(propertyId);
 		return update(property);
@@ -461,6 +468,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional(rollbackFor = ResourceNotAvailableException.class)
 	public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId){
+		logger.debug("Delete Portfolio Listing id {} for userid {}",listingId,userId);
 		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		portfolioListingDao.delete(propertyPresent);
 		return propertyPresent;
