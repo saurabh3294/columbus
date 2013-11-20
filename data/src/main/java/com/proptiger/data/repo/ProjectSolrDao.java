@@ -131,7 +131,7 @@ public class ProjectSolrDao {
     	
     	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
     	
-    	if(latitude>0 && longitude>0)
+    	if(latitude != null && longitude != null)
     		solrQuery.addSort("geodist(GEO,"+latitude+","+longitude+")", ORDER.asc);
     	
     	solrQuery.addSort("abs(sub("+projectImportance+",DISPLAY_ORDER))", ORDER.asc);
