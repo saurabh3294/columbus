@@ -2,10 +2,10 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>proptiger</groupId>
-    <artifactId>data</artifactId>
+    <artifactId>dal</artifactId>
     <packaging>war</packaging>
     <version>0.0.1-SNAPSHOT</version>
-    <name>data Maven Webapp</name>
+    <name>DAL Maven Webapp</name>
     <url>http://maven.apache.org</url>
     <properties>
         <spring.version>3.2.2.RELEASE</spring.version>
@@ -16,7 +16,7 @@
        <shiro.version>1.2.1</shiro.version>
     </properties>
     <build>
-        <finalName>data</finalName>
+        <finalName>dal</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
