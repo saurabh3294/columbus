@@ -42,9 +42,48 @@ public class DataAPIAuthenticationFilter implements Filter{
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
+		
+		HttpServletRequest httpRequest = ((HttpServletRequest)request);
+        boolean userIdFound = false;
+        Integer userIdOnBehalfOfAdmin = null;
+        String jsessionIdPassed = null;
+        
+        String[] jsessionIdsVal = httpRequest
+				.getParameterValues(Constants.JSESSIONID);
+        if(jsessionIdsVal != null && jsessionIdsVal.length > 0){
+        	jsessionIdPassed = jsessionIdsVal[0];
+        }
+        /*
+         * If jsession id found then try to find user id, becoz this request may be from admin
+         */
+        if(jsessionIdPassed != null){
+        	String[] values = httpRequest
+    				.getParameterValues(Constants.REQ_PARAMETER_FOR_USER_ID);
+    		if (values != null && values.length > 0) {
+    			try {
+    				userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
+    				userIdFound = true;
+    			} catch (NumberFormatException e) {
+    				logger.error("Working on behalf of other user failed",e);
+    			}
+    		}
+        }
+        Subject currentUser = null;
+		if(userIdFound){
+			/*
+			 * So JSESSIONID and user id passed in request url, construct Subject based on session id passed,
+			 * and remove extra information passed in url
+			 */
+			currentUser = new Subject.Builder().sessionId(jsessionIdPassed).buildSubject();
+			httpRequest.removeAttribute(Constants.JSESSIONID);
+			httpRequest.removeAttribute(Constants.REQ_PARAMETER_FOR_USER_ID);
+		}
+		else{
+			currentUser = SecurityUtils.getSubject();
+		}
 		HttpServletResponse httpResponce = (HttpServletResponse) response;
 		httpResponce.addHeader("Access-Control-Allow-Origin", "*");
-		Subject currentUser = SecurityUtils.getSubject();
+		
 		if (!currentUser.isAuthenticated()) {
 			try{
 				DelegatingSubject delegatingSubject = (DelegatingSubject) currentUser;
@@ -72,26 +111,7 @@ public class DataAPIAuthenticationFilter implements Filter{
 				 * So need to set other user's userid in session managed UserInfo object, so that
 				 * all other controllers will get other user's id from session
 				 */
-				HttpServletRequest httpRequest = ((HttpServletRequest)request);
-	            Enumeration<String> parameterNames = httpRequest.getParameterNames();
-	            boolean found = false;
-	            Integer userIdOnBehalfOfAdmin = null;
-				while (parameterNames.hasMoreElements()) {
-					String[] values = httpRequest
-							.getParameterValues(Constants.REQ_PARAMETER_FOR_USER_ID);
-					if(values != null && values.length > 0){
-						try {
-							userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
-							found = true;
-							break;
-						} catch (NumberFormatException e) {
-							logger.error("Working on behalf of other user failed");
-							logger.error("NumberFormatException", e);
-						}
-					}
-
-				}
-	            if(found){
+	            if(userIdFound){
 	            	/*
 	            	 * Admin is trying to do something on behalf of other user, so modify user info
 	            	 * object in session that will be assessed by all controllers, and will do work
