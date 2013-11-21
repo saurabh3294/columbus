@@ -172,20 +172,22 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio exists for userid {}", userId);
 			throw new ResourceAlreadyExistException("Portfolio exist for user id "+userId);
 		}
-		createPortfolioListings(userId, toCreate);
+		
 		Portfolio created = new Portfolio();
-		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
+		List<PortfolioListing> listings = createPortfolioListings(userId, toCreate);
 		created.setPortfolioListings(listings);
 		updatePriceInfoInPortfolio(userId, created, listings);
 		return created;
 	}
 	
-	private void createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList){
+	private List<PortfolioListing> createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList){
+		List<PortfolioListing> created = new ArrayList<>();
 		if(toCreateList != null){
 			for(PortfolioListing toCreate: toCreateList){
-				createPortfolioListing(userId, toCreate);
+				created.add(createPortfolioListing(userId, toCreate));
 			}
 		}
+		return created;
 	}
 	/**
 	 * This method update portfolio for user id. If no portfolio listing exist then it will
@@ -382,7 +384,6 @@ public class PortfolioService extends AbstractService{
 	 * @param listing
 	 * @return
 	 */
-	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	public PortfolioListing createPortfolioListing(Integer userId, PortfolioListing listing){
 		logger.debug("Create portfolio listing for user id {}", userId);
 		listing.setUserId(userId);
@@ -393,7 +394,10 @@ public class PortfolioService extends AbstractService{
 		 * TODO need to find better solution
 		 */
 		listing.setProjectType(null);
-		return create(listing);
+		PortfolioListing created = create(listing);
+		created = portfolioListingDao.findByUserIdAndListingId(userId, created.getId());
+		updateProjectSpecificData(created);
+		return created;
 	}
 	
 	/**
@@ -408,11 +412,14 @@ public class PortfolioService extends AbstractService{
 		logger.debug("Update portfolio listing {} for user id {}",propertyId, userId);
 		property.setUserId(userId);
 		property.setId(propertyId);
-		return update(property);
+		PortfolioListing updated = update(property);
+		updateProjectSpecificData(updated);
+		return updated;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
+	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	protected <T extends Resource> T create(T resource) {
 		PortfolioListing toCreate = (PortfolioListing) resource;
 		logger.debug("Creating PortfolioProperty for userid {}",toCreate.getUserId());
