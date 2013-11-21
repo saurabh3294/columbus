@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
+import org.apache.shiro.subject.support.DelegatingSubject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,14 @@ public class DataAPIAuthenticationFilter implements Filter{
 		httpResponce.addHeader("Access-Control-Allow-Origin", "*");
 		Subject currentUser = SecurityUtils.getSubject();
 		if (!currentUser.isAuthenticated()) {
+			try{
+				DelegatingSubject delegatingSubject = (DelegatingSubject) currentUser;
+				if(delegatingSubject != null && delegatingSubject.getHost() != null){
+					logger.error("Unauthenticated API call from host {}",delegatingSubject.getHost());
+				}
+			}catch(Exception e){
+				logger.error("Could not cast to DelegatingSubject- "+e.getMessage());
+			}
 			PrintWriter out = response.getWriter();
 			ProAPIErrorResponse res = new ProAPIErrorResponse(
 					ResponseCodes.AUTHENTICATION_ERROR,

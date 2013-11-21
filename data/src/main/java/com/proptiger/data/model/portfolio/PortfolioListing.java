@@ -61,11 +61,10 @@ public class PortfolioListing implements NamedResource, Resource{
 	private String completionDate;
 	@Transient
 	private String projectStatus;
-	
 	@Transient
-	@JsonIgnore
 	private String cityName;
 	//custom fields ends
+	
 	@Transient
 	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
 	@JsonUnwrapped

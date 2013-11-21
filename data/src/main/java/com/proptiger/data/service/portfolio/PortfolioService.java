@@ -118,13 +118,9 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				originalValue += listing.getTotalPrice();
-				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				listing.setCurrentPrice(getListingCurrentPrice(listing));
 				currentValue += listing.getCurrentPrice();
 			}
-		}
-		if(currentValue == 0.0D){
-			logger.debug("Current value not available for Portfolio of user {}", userId);
-			currentValue = originalValue;
 		}
 		portfolio.setCurrentValue(currentValue);
 		portfolio.setOriginalValue(originalValue);
@@ -303,12 +299,29 @@ public class PortfolioService extends AbstractService{
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
 		if(listings != null){
 			for(PortfolioListing listing: listings){
-				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				listing.setCurrentPrice(getListingCurrentPrice(listing));
 				updateProjectSpecificData(listing);
 			}
 			updatePaymentSchedule(listings);
 		}
 		return listings;
+	}
+	/**
+	 * This method returns current value of listing and if that is 0 then it will return total price as 
+	 * current price.
+	 * @param listing
+	 * @return
+	 */
+	private double getListingCurrentPrice(PortfolioListing listing){
+		double currPrice = 0.0D;
+		currPrice = listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea();
+		if (currPrice == 0.0D) {
+			logger.debug(
+					"Current value not available for Listing {} and project type {}",
+					listing.getId(), listing.getProjectType().getTypeId());
+			currPrice = listing.getTotalPrice();
+		}
+		return currPrice;
 	}
 	private void updateProjectSpecificData(PortfolioListing listing) {
 		ProjectDB project = projectDBDao.findOne(listing.getProjectType().getProjectId());
@@ -344,7 +357,7 @@ public class PortfolioService extends AbstractService{
 			throw new ResourceNotAvailableException("Resource not available");
 		}
 		updateProjectSpecificData(listing);
-		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+		listing.setCurrentPrice(getListingCurrentPrice(listing));
 		updatePaymentSchedule(listing);
 		OverallReturn overallReturn = getOverAllReturn(listing.getTotalPrice(),
 				listing.getCurrentPrice());
