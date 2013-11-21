@@ -452,5 +452,6 @@ public class PortfolioListing implements NamedResource, Resource{
     	this.tower = toUpdate.tower;
     	this.transactionType = toUpdate.transactionType;
     	this.unitNo = toUpdate.unitNo;
+    	this.bankId = toUpdate.bankId;
     }
 }
