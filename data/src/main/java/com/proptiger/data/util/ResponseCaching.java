@@ -12,6 +12,8 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.pojo.ProAPIResponse;
+
 @Aspect
 @Component
 public class ResponseCaching {
@@ -37,7 +39,7 @@ public class ResponseCaching {
 	public Object setResponse(JoinPoint jp, Object retVal) throws Throwable{
 		//System.out.println("AFTER ADVICE");
 		//print(jp);
-		
+		System.out.println("RESPONSE CLASS NAME : "+retVal.getClass().getName());
 		caching.saveResponse(getCacheKey(jp), retVal);
 		
 		//System.out.println(retVal);
