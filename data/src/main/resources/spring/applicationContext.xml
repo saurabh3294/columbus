@@ -73,7 +73,7 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
         p:connection-factory-ref="jedisConnectionFactory">
         
      	<!--property name="keySerializer" ref=""/ -->
-		<property name="valueSerializer" ref="oxmSerializer" />
+		<property name="valueSerializer" ref="redisJsonSerializer" />
 		<!-- <property name="hashKeySerializer" ref=""/--> 
 		<!-- <property name="hashValueSerializer" ref="redisJsonSerializer"/> -->
     </bean>
@@ -84,9 +84,14 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
         class="org.springframework.data.redis.cache.RedisCacheManager"
         c:template-ref="redisTemplate"/>
         
-<!--    <bean id="redisJsonSerializer" class="org.springframework.data.redis.serializer.JacksonJsonRedisSerializer" > -->
-<!--    		<constructor-arg value="java.lang.Object"></constructor-arg> -->
-<!--    </bean> -->
+   <bean id="genericToStringSerializer" class="org.springframework.data.redis.serializer.GenericToStringSerializer">
+   		<constructor-arg value="java.lang.Object"></constructor-arg>
+   </bean>
+        
+   <bean id="redisJsonSerializer" class="org.springframework.data.redis.serializer.JacksonJsonRedisSerializer" >
+   		<constructor-arg value="java.lang.Object"></constructor-arg>
+   </bean>
+
    <bean id="jdkSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
    
    <bean id="oxmSerializer" class="org.springframework.data.redis.serializer.OxmSerializer">
