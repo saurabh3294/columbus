@@ -54,7 +54,8 @@ public class DataAPIAuthenticationFilter implements Filter{
         	jsessionIdPassed = jsessionIdsVal[0];
         }
         /*
-         * If jsession id found then try to find user id, becoz this request may be from admin
+         * If jsession id found then try to find user id, because this request may be from Admin,
+         * on behalf of some other user to create or update something
          */
         if(jsessionIdPassed != null){
         	String[] values = httpRequest
@@ -65,13 +66,20 @@ public class DataAPIAuthenticationFilter implements Filter{
     				userIdFound = true;
     			} catch (NumberFormatException e) {
     				logger.error("Working on behalf of other user failed",e);
+    				PrintWriter out = response.getWriter();
+    				ProAPIErrorResponse res = new ProAPIErrorResponse(
+    						ResponseCodes.BAD_REQUEST,
+    						ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST);
+    				ObjectMapper mapper = new ObjectMapper();
+    				out.println(mapper.writeValueAsString(res));
+    				return;
     			}
     		}
         }
         Subject currentUser = null;
 		if(userIdFound){
 			/*
-			 * So JSESSIONID and user id passed in request url, construct Subject based on session id passed,
+			 * JSESSIONID and user id passed in request url, construct Subject based on session id passed,
 			 * and remove extra information passed in url
 			 */
 			currentUser = new Subject.Builder().sessionId(jsessionIdPassed).buildSubject();
@@ -121,8 +129,8 @@ public class DataAPIAuthenticationFilter implements Filter{
 	            	userInfo.setUserIdentifier(userIdOnBehalfOfAdmin);
 	            }
 	            else{
-	            	//that means admin is not trying to do thing on befalf of some other user
-	            	//set user identifer back to admin
+	            	//that means admin is not trying to do thing on behalf of some other user
+	            	//set user identifier back to Admin
 	            	userInfo.setUserIdentifier(Constants.ADMIN_USER_ID);
 	            }
 			}

@@ -58,6 +58,8 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Transient
 	private String locality;
 	@Transient
+	private Integer localityId;
+	@Transient
 	private String completionDate;
 	@Transient
 	private String projectStatus;
@@ -419,6 +421,14 @@ public class PortfolioListing implements NamedResource, Resource{
 	}
 
 	
+	public Integer getLocalityId() {
+		return localityId;
+	}
+
+	public void setLocalityId(Integer localityId) {
+		this.localityId = localityId;
+	}
+
 	public String getCityName() {
 		return cityName;
 	}

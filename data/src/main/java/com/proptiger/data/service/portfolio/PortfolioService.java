@@ -339,6 +339,7 @@ public class PortfolioService extends AbstractService{
 			Locality locality = localityDao.findOne(project.getLocalityId());
 			if(locality != null){
 				listing.setLocality(locality.getLabel());
+				listing.setLocalityId(locality.getLocalityId());
 			}
 		}
 		
