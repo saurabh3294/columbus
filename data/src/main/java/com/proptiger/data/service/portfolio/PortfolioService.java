@@ -98,12 +98,12 @@ public class PortfolioService extends AbstractService{
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
 		//portfolio.setPortfolioListings(listings);
 		updatePriceInfoInPortfolio(userId, portfolio, listings);
-		updatePaymentSchedule(listings);
-		if(listings != null){
-			for(PortfolioListing l: listings){
-				portfolio.addListings(l.getId());
-			}
-		}
+//		updatePaymentSchedule(listings);
+//		if(listings != null){
+//			for(PortfolioListing l: listings){
+//				portfolio.addListings(l.getId());
+//			}
+//		}
 		
 		return portfolio;
 	}
