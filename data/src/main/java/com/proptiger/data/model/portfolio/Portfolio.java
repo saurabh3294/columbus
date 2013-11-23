@@ -1,5 +1,6 @@
 package com.proptiger.data.model.portfolio;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,12 +21,10 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 public class Portfolio {
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "originalVaue", description = "Original Vaue")
-	@JsonSerialize(converter=DoubletoIntegerConverter.class)
-	private double originalValue;
+	private BigDecimal originalValue;
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "currentValue", description = "Current Value")
-	@JsonSerialize(converter=DoubletoIntegerConverter.class)
-	private double currentValue;
+	private BigDecimal currentValue;
 	
 	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
 	@JsonUnwrapped
@@ -37,25 +36,25 @@ public class Portfolio {
 	@FieldMetaInfo(dataType = DataType.ARRAY, displayName = "Listing Ids", description = "Listing Ids")
 	private List<Integer> listings;
 	
-	public double getOriginalValue() {
+	public BigDecimal getOriginalValue() {
 		return originalValue;
 	}
 
-	public void setOriginalValue(double originalValue) {
+	public void setOriginalValue(BigDecimal originalValue) {
 		this.originalValue = originalValue;
 	}
 
 	/**
 	 * @return the currentValue
 	 */
-	public double getCurrentValue() {
+	public BigDecimal getCurrentValue() {
 		return currentValue;
 	}
 
 	/**
 	 * @param currentValue the currentValue to set
 	 */
-	public void setCurrentValue(double currentValue) {
+	public void setCurrentValue(BigDecimal currentValue) {
 		this.currentValue = currentValue;
 	}
 
