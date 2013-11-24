@@ -1,10 +1,10 @@
 package com.proptiger.data.model.portfolio;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.math.BigDecimal;
+
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.util.DoubletoIntegerConverter;
 
 /**
  * @author Rajeev Pandey
@@ -16,11 +16,10 @@ public class OverallReturn {
 	private ReturnType returnType;
 	
 	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "changeAmount", description = "Change Amount")
-	@JsonSerialize(converter=DoubletoIntegerConverter.class)
-	private double changeAmount;
+	private BigDecimal changeAmount;
 	
-	@FieldMetaInfo(displayName = "changePercent", description = "Change Percent")
-	private double changePercent;
+	@FieldMetaInfo(dataType = DataType.DOUBLE, displayName = "changePercent", description = "Change Percent")
+	private BigDecimal changePercent;
 
 	public ReturnType getReturnType() {
 		return returnType;
@@ -30,19 +29,19 @@ public class OverallReturn {
 		this.returnType = returnType;
 	}
 
-	public double getChangeAmount() {
+	public BigDecimal getChangeAmount() {
 		return changeAmount;
 	}
 
-	public void setChangeAmount(double changeAmount) {
+	public void setChangeAmount(BigDecimal changeAmount) {
 		this.changeAmount = changeAmount;
 	}
 
-	public double getChangePercent() {
+	public BigDecimal getChangePercent() {
 		return changePercent;
 	}
 
-	public void setChangePercent(double changePercent) {
+	public void setChangePercent(BigDecimal changePercent) {
 		this.changePercent = changePercent;
 	}
 	

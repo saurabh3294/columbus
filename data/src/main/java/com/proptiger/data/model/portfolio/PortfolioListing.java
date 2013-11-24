@@ -58,14 +58,15 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Transient
 	private String locality;
 	@Transient
+	private Integer localityId;
+	@Transient
 	private String completionDate;
 	@Transient
 	private String projectStatus;
-	
 	@Transient
-	@JsonIgnore
 	private String cityName;
 	//custom fields ends
+	
 	@Transient
 	@FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
 	@JsonUnwrapped
@@ -420,6 +421,14 @@ public class PortfolioListing implements NamedResource, Resource{
 	}
 
 	
+	public Integer getLocalityId() {
+		return localityId;
+	}
+
+	public void setLocalityId(Integer localityId) {
+		this.localityId = localityId;
+	}
+
 	public String getCityName() {
 		return cityName;
 	}
@@ -453,5 +462,6 @@ public class PortfolioListing implements NamedResource, Resource{
     	this.tower = toUpdate.tower;
     	this.transactionType = toUpdate.transactionType;
     	this.unitNo = toUpdate.unitNo;
+    	this.bankId = toUpdate.bankId;
     }
 }

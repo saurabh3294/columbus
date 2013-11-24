@@ -1,5 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -98,7 +100,7 @@ public class PortfolioService extends AbstractService{
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
 		//portfolio.setPortfolioListings(listings);
 		updatePriceInfoInPortfolio(userId, portfolio, listings);
-		updatePaymentSchedule(listings);
+//		updatePaymentSchedule(listings);
 		if(listings != null){
 			for(PortfolioListing l: listings){
 				portfolio.addListings(l.getId());
@@ -113,18 +115,14 @@ public class PortfolioService extends AbstractService{
 	 * @param listings
 	 */
 	private void updatePriceInfoInPortfolio(Integer userId, Portfolio portfolio, List<PortfolioListing> listings) {
-		double originalValue = 0.0D;
-		double currentValue = 0.0D;
+		BigDecimal originalValue = new BigDecimal(0);
+		BigDecimal currentValue = new BigDecimal(0);
 		if(listings != null){
 			for(PortfolioListing listing: listings){
-				originalValue += listing.getTotalPrice();
-				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
-				currentValue += listing.getCurrentPrice();
+				originalValue = originalValue.add(new BigDecimal(listing.getTotalPrice()));
+				listing.setCurrentPrice(getListingCurrentPrice(listing));
+				currentValue = currentValue.add(new BigDecimal(getListingCurrentPrice(listing)));
 			}
-		}
-		if(currentValue == 0.0D){
-			logger.debug("Current value not available for Portfolio of user {}", userId);
-			currentValue = originalValue;
 		}
 		portfolio.setCurrentValue(currentValue);
 		portfolio.setOriginalValue(originalValue);
@@ -138,21 +136,23 @@ public class PortfolioService extends AbstractService{
 	 * @param currentValue
 	 * @return
 	 */
-	private OverallReturn getOverAllReturn(double originalValue,
-			double currentValue) {
+	private OverallReturn getOverAllReturn(BigDecimal originalValue,
+			BigDecimal currentValue) {
 		OverallReturn overallReturn = new OverallReturn();
-		double changeAmt = currentValue - originalValue;
-		overallReturn.setChangeAmount(Math.abs(changeAmt));
-		if(originalValue == 0.0D){
-			overallReturn.setChangePercent(0.0D);
+		BigDecimal changeAmt = currentValue.subtract(originalValue);
+		overallReturn.setChangeAmount(changeAmt);
+		if(originalValue.doubleValue() == 0.0D){
+			overallReturn.setChangePercent(new BigDecimal(0));
 		}
 		else{
-			overallReturn.setChangePercent((Math.abs(changeAmt)/originalValue)*100);
+			BigDecimal div = changeAmt.abs().divide(originalValue, 3, RoundingMode.HALF_DOWN);
+			div = div.multiply(new BigDecimal(100));
+			overallReturn.setChangePercent(div);
 		}
-		if(changeAmt < 0){
+		if(changeAmt.intValue() < 0){
 			overallReturn.setReturnType(ReturnType.DECLINE);
 		}
-		else if(changeAmt > 0){
+		else if(changeAmt.intValue() > 0){
 			overallReturn.setReturnType(ReturnType.APPRECIATION);
 		}
 		else{
@@ -176,20 +176,22 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio exists for userid {}", userId);
 			throw new ResourceAlreadyExistException("Portfolio exist for user id "+userId);
 		}
-		createPortfolioListings(userId, toCreate);
+		
 		Portfolio created = new Portfolio();
-		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
+		List<PortfolioListing> listings = createPortfolioListings(userId, toCreate);
 		created.setPortfolioListings(listings);
 		updatePriceInfoInPortfolio(userId, created, listings);
 		return created;
 	}
 	
-	private void createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList){
+	private List<PortfolioListing> createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList){
+		List<PortfolioListing> created = new ArrayList<>();
 		if(toCreateList != null){
 			for(PortfolioListing toCreate: toCreateList){
-				createPortfolioListing(userId, toCreate);
+				created.add(createPortfolioListing(userId, toCreate));
 			}
 		}
+		return created;
 	}
 	/**
 	 * This method update portfolio for user id. If no portfolio listing exist then it will
@@ -303,12 +305,29 @@ public class PortfolioService extends AbstractService{
 		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
 		if(listings != null){
 			for(PortfolioListing listing: listings){
-				listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+				listing.setCurrentPrice(getListingCurrentPrice(listing));
 				updateProjectSpecificData(listing);
 			}
 			updatePaymentSchedule(listings);
 		}
 		return listings;
+	}
+	/**
+	 * This method returns current value of listing and if that is 0 then it will return total price as 
+	 * current price.
+	 * @param listing
+	 * @return
+	 */
+	private double getListingCurrentPrice(PortfolioListing listing){
+		double currPrice = 0.0D;
+		currPrice = listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea();
+		if (currPrice == 0.0D) {
+			logger.debug(
+					"Current value not available for Listing {} and project type {}",
+					listing.getId(), listing.getProjectType().getTypeId());
+			currPrice = listing.getTotalPrice();
+		}
+		return currPrice;
 	}
 	private void updateProjectSpecificData(PortfolioListing listing) {
 		ProjectDB project = projectDBDao.findOne(listing.getProjectType().getProjectId());
@@ -324,6 +343,7 @@ public class PortfolioService extends AbstractService{
 			Locality locality = localityDao.findOne(project.getLocalityId());
 			if(locality != null){
 				listing.setLocality(locality.getLabel());
+				listing.setLocalityId(locality.getLocalityId());
 			}
 		}
 		
@@ -344,10 +364,10 @@ public class PortfolioService extends AbstractService{
 			throw new ResourceNotAvailableException("Resource not available");
 		}
 		updateProjectSpecificData(listing);
-		listing.setCurrentPrice(listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea());
+		listing.setCurrentPrice(getListingCurrentPrice(listing));
 		updatePaymentSchedule(listing);
-		OverallReturn overallReturn = getOverAllReturn(listing.getTotalPrice(),
-				listing.getCurrentPrice());
+		OverallReturn overallReturn = getOverAllReturn(new BigDecimal(listing.getTotalPrice()),
+				new BigDecimal(listing.getCurrentPrice()));
 		listing.setOverallReturn(overallReturn);
 		return listing;
 	}
@@ -369,7 +389,6 @@ public class PortfolioService extends AbstractService{
 	 * @param listing
 	 * @return
 	 */
-	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	public PortfolioListing createPortfolioListing(Integer userId, PortfolioListing listing){
 		logger.debug("Create portfolio listing for user id {}", userId);
 		listing.setUserId(userId);
@@ -380,7 +399,10 @@ public class PortfolioService extends AbstractService{
 		 * TODO need to find better solution
 		 */
 		listing.setProjectType(null);
-		return create(listing);
+		PortfolioListing created = create(listing);
+		created = portfolioListingDao.findByUserIdAndListingId(userId, created.getId());
+		updateProjectSpecificData(created);
+		return created;
 	}
 	
 	/**
@@ -395,11 +417,14 @@ public class PortfolioService extends AbstractService{
 		logger.debug("Update portfolio listing {} for user id {}",propertyId, userId);
 		property.setUserId(userId);
 		property.setId(propertyId);
-		return update(property);
+		PortfolioListing updated = update(property);
+		updateProjectSpecificData(updated);
+		return updated;
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
+	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	protected <T extends Resource> T create(T resource) {
 		PortfolioListing toCreate = (PortfolioListing) resource;
 		logger.debug("Creating PortfolioProperty for userid {}",toCreate.getUserId());

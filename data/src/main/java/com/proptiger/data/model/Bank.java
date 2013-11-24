@@ -6,11 +6,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+
 /**
  * @author Rajeev Pandey
  *
  */
 @Entity(name = "BANK_LIST")
+@JsonFilter("fieldFilter")
 public class Bank{
 	@Id
 	@Column(name = "BANK_ID")

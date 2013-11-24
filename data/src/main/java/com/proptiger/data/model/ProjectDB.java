@@ -25,6 +25,7 @@ import com.proptiger.data.model.image.Image;
 @Entity
 @Table(name="RESI_PROJECT")
 @ResourceMetaInfo
+@Deprecated
 public class ProjectDB implements BaseModel{
     @FieldMetaInfo(displayName="PROJECT ID", description="PROJECT ID")
     @Column(name="PROJECT_ID")
