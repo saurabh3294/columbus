@@ -73,7 +73,7 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
         p:connection-factory-ref="jedisConnectionFactory">
         
      	<!--property name="keySerializer" ref=""/ -->
-		<property name="valueSerializer" ref="redisJsonSerializer" />
+		<property name="valueSerializer" ref="jdkSerializer" />
 		<!-- <property name="hashKeySerializer" ref=""/--> 
 		<!-- <property name="hashValueSerializer" ref="redisJsonSerializer"/> -->
     </bean>

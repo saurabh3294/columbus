@@ -24,18 +24,18 @@ public class ResponseCaching {
 	@Autowired
 	private RedisTemplate redisTemplate;
 	
-//	@Around("execution(* com.proptiger.data.mvc.*.*(..))")
-//	public Object getResponse(ProceedingJoinPoint jp) throws Throwable {
-//		Class<?> proxyMethodReturnType = getProxyMethodReturnType(jp);
-//	
-//		Object response = getResponse( getCacheKey(jp), proxyMethodReturnType);
-//		if(response == null)
-//			return jp.proceed();
-//		
-//		return response;
-//	}
-
 	@Around("execution(* com.proptiger.data.mvc.*.*(..))")
+	public Object getResponse(ProceedingJoinPoint jp) throws Throwable {
+		Class<?> proxyMethodReturnType = getProxyMethodReturnType(jp);
+	
+		Object response = getResponse( getCacheKey(jp), proxyMethodReturnType);
+		if(response == null)
+			return jp.proceed();
+		
+		return response;
+	}
+
+	/*@Around("execution(* com.proptiger.data.mvc.*.*(..))")
 	public Object getResponse(ProceedingJoinPoint jp) throws Throwable {
 		Object response = caching.getSavedResponse(getCacheKey(jp), getProxyMethodReturnType(jp));
 
@@ -43,52 +43,58 @@ public class ResponseCaching {
 			return jp.proceed();
 
 		return response;
-	}	
+	}	*/
 
 	@AfterReturning(pointcut="execution(* com.proptiger.data.mvc.*.*(..))", returning="retVal")
-	public void setResponse(JoinPoint jp, String retVal) throws Throwable {
-		System.out.println("*****************************After*****************************");
-		System.out.println(ToStringBuilder.reflectionToString(retVal));
+	public void setResponse(JoinPoint jp, Object retVal) throws Throwable {
+		//System.out.println("*****************************After*****************************");
+		//System.out.println(ToStringBuilder.reflectionToString(retVal));
 		Class<?> className = getProxyMethodReturnType(jp);
 		
-		System.out.println(retVal.getClass().getName());
-		System.out.println("***********************************END AFTER **********************************");
+		//System.out.println(retVal.getClass().getName());
+		//System.out.println("***********************************END AFTER **********************************");
 		caching.saveResponse(getCacheKey(jp), retVal);//getProxyMethodReturnType(jp).cast(retVal));
 	}
 
 	@AfterThrowing(pointcut="execution(* com.proptiger.data.mvc.*.*(..))", throwing="ex")
 	public <T> void setResponse(JoinPoint jp, Exception ex) {
-		System.out.println("*****************************AfterThrowing*****************************");
+		//System.out.println("*****************************AfterThrowing*****************************");
 		System.out.println(ToStringBuilder.reflectionToString(ex));
-		System.out.println("***********************************END AFTER Throwing**********************************");
+		//System.out.println("***********************************END AFTER Throwing**********************************");
 	}
 
 	
-//	private <T> T getResponse(String key, Class<T> returnType){
-//		T savedResponse = caching.getSavedResponse(key, returnType);
-//				
-//		if(savedResponse == null)
-//			caching.deleteResponseFromCache(key);
-//		else
-//			System.out.println("Class Name : "+savedResponse.getClass().getName());
-//		
-//		return savedResponse;
-//	}
+	private <T> T getResponse(String key, Class<T> returnType){
+		T savedResponse = caching.getSavedResponse(key, returnType);
+				
+		if(savedResponse == null)
+			caching.deleteResponseFromCache(key);
+		else
+			System.out.println("Class Name : "+savedResponse.getClass().getName());
+		
+		return savedResponse;
+	}
 	
 	private String getCacheKey(JoinPoint jp){
 		String encodeKey = "";
 		String key=jp.getSignature().toString() + ":ARG:";
 		
 		Object[] args = jp.getArgs();
-		for(int i=0; i<args.length; i++)
+		//System.out.println(" LENGTH "+args.length);
+		//System.out.println(" data "+args.toString());
+		for(int i=0; i<args.length-1; i++)
+		{
+			//System.out.println("i"+i+" arguments ");
+			//System.out.println(args[i].toString());
 			key += "i"+args[i].toString();
+		}
 		
 		try{
 			encodeKey = new HMAC_Client().calculateMD5(key);
 		}catch(Exception e){
 			return key;
 		}
-		System.out.println("######## KEY ####### :"+encodeKey);
+		//System.out.println("######## KEY ####### :"+encodeKey);
 		return encodeKey;
 	}
 	

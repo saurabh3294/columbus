@@ -11,7 +11,7 @@ import javax.persistence.Id;
  *
  */
 @Entity(name = "BANK_LIST")
-public class Bank{
+public class Bank implements BaseModel{
 	@Id
 	@Column(name = "BANK_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)

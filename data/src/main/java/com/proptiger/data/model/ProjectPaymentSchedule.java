@@ -17,7 +17,7 @@ import com.proptiger.data.model.portfolio.PaymentPlan;
  */
 @Entity
 @Table(name = "PROJ_PAYMENT_SCHEDULE")
-public class ProjectPaymentSchedule {
+public class ProjectPaymentSchedule implements BaseModel{
 
 	@Id
 	@Column(name = "PAYMENT_SCHEDULE_ID")

@@ -21,7 +21,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name="FORUM_USER")
 @ResourceMetaInfo
-public class ForumUser {
+public class ForumUser implements BaseModel{
     @Column(name = "USER_ID")
     @Id
     private Integer userId;
