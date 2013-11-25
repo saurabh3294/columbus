@@ -7,7 +7,7 @@
 		<file>/var/log/proptiger/dal/dal.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!-- daily rollover -->
-			<fileNamePattern>dal-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+			<fileNamePattern>/var/log/proptiger/dal/dal-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
 			<!-- keep 30 days' worth of history -->
 			<maxHistory>30</maxHistory>
 		</rollingPolicy>
