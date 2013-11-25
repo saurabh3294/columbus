@@ -13,7 +13,7 @@ public class Caching {
 	}
 	
 	@CachePut(key="#key", value="cache")
-	public Object saveResponse(String key, Object response){
+	public <T> T saveResponse(String key, T response){
 		return response;
 	}
 	
