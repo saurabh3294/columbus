@@ -1,5 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
@@ -99,11 +101,11 @@ public class PortfolioService extends AbstractService{
 		//portfolio.setPortfolioListings(listings);
 		updatePriceInfoInPortfolio(userId, portfolio, listings);
 //		updatePaymentSchedule(listings);
-//		if(listings != null){
-//			for(PortfolioListing l: listings){
-//				portfolio.addListings(l.getId());
-//			}
-//		}
+		if(listings != null){
+			for(PortfolioListing l: listings){
+				portfolio.addListings(l.getId());
+			}
+		}
 		
 		return portfolio;
 	}
@@ -113,13 +115,13 @@ public class PortfolioService extends AbstractService{
 	 * @param listings
 	 */
 	private void updatePriceInfoInPortfolio(Integer userId, Portfolio portfolio, List<PortfolioListing> listings) {
-		double originalValue = 0.0D;
-		double currentValue = 0.0D;
+		BigDecimal originalValue = new BigDecimal(0);
+		BigDecimal currentValue = new BigDecimal(0);
 		if(listings != null){
 			for(PortfolioListing listing: listings){
-				originalValue += listing.getTotalPrice();
+				originalValue = originalValue.add(new BigDecimal(listing.getTotalPrice()));
 				listing.setCurrentPrice(getListingCurrentPrice(listing));
-				currentValue += listing.getCurrentPrice();
+				currentValue = currentValue.add(new BigDecimal(getListingCurrentPrice(listing)));
 			}
 		}
 		portfolio.setCurrentValue(currentValue);
@@ -134,21 +136,23 @@ public class PortfolioService extends AbstractService{
 	 * @param currentValue
 	 * @return
 	 */
-	private OverallReturn getOverAllReturn(double originalValue,
-			double currentValue) {
+	private OverallReturn getOverAllReturn(BigDecimal originalValue,
+			BigDecimal currentValue) {
 		OverallReturn overallReturn = new OverallReturn();
-		double changeAmt = currentValue - originalValue;
-		overallReturn.setChangeAmount(Math.abs(changeAmt));
-		if(originalValue == 0.0D){
-			overallReturn.setChangePercent(0.0D);
+		BigDecimal changeAmt = currentValue.subtract(originalValue);
+		overallReturn.setChangeAmount(changeAmt);
+		if(originalValue.doubleValue() == 0.0D){
+			overallReturn.setChangePercent(new BigDecimal(0));
 		}
 		else{
-			overallReturn.setChangePercent((Math.abs(changeAmt)/originalValue)*100);
+			BigDecimal div = changeAmt.abs().divide(originalValue, 3, RoundingMode.HALF_DOWN);
+			div = div.multiply(new BigDecimal(100));
+			overallReturn.setChangePercent(div);
 		}
-		if(changeAmt < 0){
+		if(changeAmt.intValue() < 0){
 			overallReturn.setReturnType(ReturnType.DECLINE);
 		}
-		else if(changeAmt > 0){
+		else if(changeAmt.intValue() > 0){
 			overallReturn.setReturnType(ReturnType.APPRECIATION);
 		}
 		else{
@@ -362,8 +366,8 @@ public class PortfolioService extends AbstractService{
 		updateProjectSpecificData(listing);
 		listing.setCurrentPrice(getListingCurrentPrice(listing));
 		updatePaymentSchedule(listing);
-		OverallReturn overallReturn = getOverAllReturn(listing.getTotalPrice(),
-				listing.getCurrentPrice());
+		OverallReturn overallReturn = getOverAllReturn(new BigDecimal(listing.getTotalPrice()),
+				new BigDecimal(listing.getCurrentPrice()));
 		listing.setOverallReturn(overallReturn);
 		return listing;
 	}

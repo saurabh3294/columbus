@@ -160,6 +160,13 @@ public class DashboardService extends AbstractService{
 				.setTotalRows(dashboardDto.getTotalRow())
 				.setId(dashboardDto.getId()).build();
 		Dashboard updated = update(dashboard);
+		if(dashboardDto.getWidgets() != null){
+			for (DashboardWidgetMapping mapping : dashboardDto.getWidgets()) {
+				updateWidgetMappingWithDashboard(dashboardDto.getUserId(),
+						dashboardDto.getId(), mapping.getWidgetId(), mapping);
+			}
+		}
+		updated = getDashboardById(dashboardDto.getUserId(), dashboardDto.getId());
 		return updated;
 		
 	}
@@ -177,6 +184,13 @@ public class DashboardService extends AbstractService{
 		if(dashboardPresent == null){
 			logger.error("Dashboard id {} not found",toUpdate.getId());
 			throw new ResourceNotAvailableException("Resource "+toUpdate.getId()+" not available");
+		}
+		if(toUpdate.getWidgets() != null){
+			for(DashboardWidgetMapping mapping: toUpdate.getWidgets()){
+				if(mapping.getWidgetId() == null){
+					throw new IllegalArgumentException("Invalid widget Id");
+				}
+			}
 		}
 		return (T) dashboardPresent;
 	}
@@ -325,6 +339,9 @@ public class DashboardService extends AbstractService{
 			DashboardWidgetMapping dashboardWidgetMapping){
 		Dashboard dashboard = getDashboardById(userId, dashboardId);
 		DashboardWidgetMapping existingMapping = getDashboardWidgetMapping(dashboardId, widgetId);
+		if(existingMapping == null){
+			throw new ResourceNotAvailableException("Widget Mapping "+widgetId+" not available");
+		}
 		existingMapping.update(dashboardWidgetMapping.getWidgetRowPosition(),
 				dashboardWidgetMapping.getWidgetColumnPosition(),
 				dashboardWidgetMapping.getStatus());
