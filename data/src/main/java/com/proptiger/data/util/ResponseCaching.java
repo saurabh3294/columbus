@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
+import com.proptiger.data.pojo.ProAPIErrorResponse;
+import com.proptiger.exception.ProAPIException;
 
 @Aspect
 @Component
@@ -41,6 +43,11 @@ public class ResponseCaching {
 	 */
 	@AfterReturning(pointcut="execution(* com.proptiger.*.mvc.*.*(..))", returning="retVal")
 	public void setResponse(JoinPoint jp, Object retVal) throws Throwable {
+		// if response is not valid, then response will not be saved.
+		Class<?> className = retVal.getClass();
+		if(className == ProAPIErrorResponse.class || className == ProAPIException.class)
+			return;
+		
 		caching.saveResponse(getCacheKey(jp), retVal);
 	}
 
