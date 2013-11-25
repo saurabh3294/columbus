@@ -31,8 +31,7 @@ public class RecommendationController extends BaseController {
     public ProAPISuccessResponse getSimilarProperties(@RequestParam(value = "propertyId")Long propertyId, @RequestParam(value="limit", required = false)Integer limit){
         if(limit == null)
             limit = 4;
- 	   	System.out.println("\n\n ###########************************************** CACHING ***********************########## "+propertyId+"\n\n");
-
+ 	   	
         return new ProAPISuccessResponse(super.filterFields(recommendationService.getSimilarProperties(propertyId, limit), null));
     }
     
@@ -41,7 +40,7 @@ public class RecommendationController extends BaseController {
     public ProAPIResponse getSimilarProjects(@RequestParam(value = "projectId")int projectId, @RequestParam(value="limit", required = false)Integer limit){
         if(limit == null)
             limit = 4;
-        System.out.println("\n\n ###########************************************** CACHING ***********************########## "+projectId+"\n\n");
+        
         return new ProAPISuccessResponse(super.filterFields(recommendationService.getSimilarProjects(projectId, limit), null));
     }
 }

@@ -39,8 +39,7 @@ public class GraphController {
     @RequestMapping(value="/project-distribution-status-bedroom", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Map<String, Map<Integer, Integer>>> getProjectDistrubtionOnStatus(@RequestParam(value="params") String params){
-    	   System.out.println("\n\n ###########************************************** CACHING ***********************########## \n\n");
-           Type type = new TypeToken<Map<String, String>>() {}.getType();
+    	   Type type = new TypeToken<Map<String, String>>() {}.getType();
            Map<String, String> paramObject = gson.fromJson(params, type);
            
            if( !paramObject.containsKey("bedroom_upper_limit") )

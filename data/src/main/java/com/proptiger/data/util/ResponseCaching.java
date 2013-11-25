@@ -55,7 +55,7 @@ public class ResponseCaching {
 	/*
 	 * This method will get data from cache. If returned data is null then
 	 * that cache key will be invalidated. This has to be done as for getting
-	 * the data from cache , Cacheable annotation is used. This annotation
+	 * the data from cache , @Cacheable annotation is used. This annotation
 	 * will be save and get data. Hence, null checking and cache eviction is
 	 * necessary.
 	 */
@@ -89,8 +89,7 @@ public class ResponseCaching {
 		}catch(Exception e){
 			return key;
 		}
-		//System.out.println("KEY: "+key);
-		//System.out.println("######## KEY ####### :"+encodeKey);
+		
 		return encodeKey;
 	}
 	

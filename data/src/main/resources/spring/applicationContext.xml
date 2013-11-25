@@ -83,24 +83,6 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
         id="cacheManager"
         class="org.springframework.data.redis.cache.RedisCacheManager"
         c:template-ref="redisTemplate"/>
-        
-   <bean id="genericToStringSerializer" class="org.springframework.data.redis.serializer.GenericToStringSerializer">
-   		<constructor-arg value="java.lang.Object"></constructor-arg>
-   </bean>
-        
-   <bean id="redisJsonSerializer" class="org.springframework.data.redis.serializer.JacksonJsonRedisSerializer" >
-   		<constructor-arg value="java.lang.Object"></constructor-arg>
-   </bean>
-
-   <bean id="jdkSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
-   
-   <bean id="oxmSerializer" class="org.springframework.data.redis.serializer.OxmSerializer">
-   	<constructor-arg><ref bean="castorMarshaller"/></constructor-arg>
-   	<constructor-arg><ref bean="castorMarshaller"/></constructor-arg>	
-   </bean>
-   <bean id="castorMarshaller" class="org.springframework.oxm.castor.CastorMarshaller" />
-   <bean id="jaxbMarshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller" >
-    	<property name="packagesToScan" value="com.proptiger.*"/>
-   </bean>
-    
+    <!--  Serializer for redis. -->
+    <bean id="jdkSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
 </beans>
