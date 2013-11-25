@@ -3,10 +3,8 @@ package com.proptiger.data.service.portfolio;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -198,27 +196,64 @@ public class PortfolioPriceTrendService {
 				monthCounter = cal.get(Calendar.MONTH);
 				prices.add(prices.size(), detail);
 			}
+			// add at first
+			PriceDetail firstPriceTrend = prices.get(0);
+			Date firstDatePresent = firstPriceTrend.getEffectiveDate();
+			cal.setTime(firstDatePresent);
+			while (prices.size() < noOfMonths) {
+				PriceDetail detail = new PriceDetail();
+				detail.setPrice(firstPriceTrend.getPrice());
+				cal.add(Calendar.MONTH, -1);
+				detail.setEffectiveDate(cal.getTime());
+				prices.add(0, detail);
+			}
+			
+			/*
+			 * Check if any month data is missing in between
+			 */
+			if(prices.size() > 1){
+				int pricesSize = prices.size();
+				PriceDetail last = prices.get(prices.size() - 1);
+				cal.setTime(last.getEffectiveDate());
+				int lastMonth = cal.get(Calendar.MONTH);
+				for(int counter = pricesSize - 2; counter >= 0; counter--){
+					PriceDetail temp = prices.get(counter);
+					cal.setTime(temp.getEffectiveDate());
+					int tempLatsMonth = cal.get(Calendar.MONTH);
+					int currMonth = cal.get(Calendar.MONTH);
+					if(currMonth + 1 == lastMonth){
+						// nothing to do
+					}
+					else{
+						// add missing month price details taking last price detail data
+						int i = 1;
+						while(currMonth + 1 < lastMonth){
+							PriceDetail newPriceDetail = new PriceDetail();
+							cal.add(Calendar.MONTH, 1);
+							currMonth = cal.get(Calendar.MONTH);
+							newPriceDetail.setEffectiveDate(cal.getTime());
+							newPriceDetail.setPrice(last.getPrice());
+							prices.add(counter + i++, newPriceDetail);
+							currentMonth ++;
+						}
+					}
+					last = temp;
+					lastMonth = tempLatsMonth;
+				}
+			}
+			/*
+			 * If there are more price details than required then remove from first
+			 */
 			if (prices.size() > noOfMonths) {
 				// remove from first
 				int removeCounter = 0;
 				int toRemove = prices.size() - noOfMonths;
 				while (removeCounter < toRemove) {
-					prices.remove(removeCounter);
+					prices.remove(0);
 					removeCounter++;
 				}
-			} else {
-				// add at first
-				PriceDetail firstPriceTrend = prices.get(0);
-				Date firstDatePresent = firstPriceTrend.getEffectiveDate();
-				cal.setTime(firstDatePresent);
-				while (prices.size() < noOfMonths) {
-					PriceDetail detail = new PriceDetail();
-					detail.setPrice(firstPriceTrend.getPrice());
-					cal.add(Calendar.MONTH, -1);
-					detail.setEffectiveDate(cal.getTime());
-					prices.add(0, detail);
-				}
 			}
+			
 		}
 	}
 
