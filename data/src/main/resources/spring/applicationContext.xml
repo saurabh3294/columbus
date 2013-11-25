@@ -59,30 +59,20 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
     <!--bean id="before" class="com.proptiger.data.util.ResponseCaching"/-->
     
     <!-- Jedis ConnectionFactory -->
-    <bean
-        id="jedisConnectionFactory"
-        class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-        p:host-name="localhost"
-        p:port="6379"
-        p:use-pool="true"/>
+    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+        p:host-name="localhost" p:port="6379" p:use-pool="true" />
  
     <!-- redis template definition -->
-    <bean
-        id="redisTemplate"
-        class="org.springframework.data.redis.core.RedisTemplate"
-        p:connection-factory-ref="jedisConnectionFactory">
-        
-     	<!--property name="keySerializer" ref=""/ -->
-		<property name="valueSerializer" ref="jdkSerializer" />
-		<!-- <property name="hashKeySerializer" ref=""/--> 
-		<!-- <property name="hashValueSerializer" ref="redisJsonSerializer"/> -->
-    </bean>
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate" p:connection-factory-ref="jedisConnectionFactory">
+        <property name="valueSerializer" ref="jdkSerializer" />
+	</bean>
  
     <!-- declare Redis Cache Manager -->
-    <bean
-        id="cacheManager"
-        class="org.springframework.data.redis.cache.RedisCacheManager"
-        c:template-ref="redisTemplate"/>
+    <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager" c:template-ref="redisTemplate">
+    	<!--  Setting default Expiration time in seconds. Currently setting as 1 day. -->
+    	<property name="defaultExpiration" value="86400"></property>
+    </bean>
+    
     <!--  Serializer for redis. -->
     <bean id="jdkSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
 </beans>
