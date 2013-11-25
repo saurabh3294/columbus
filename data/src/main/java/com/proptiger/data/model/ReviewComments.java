@@ -8,7 +8,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -74,6 +77,10 @@ public class ReviewComments implements BaseModel{
     @Column(name = "STATUS")
     private String status;
 
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name="USER_ID", insertable=false, updatable=false)
+    private ForumUser forumUser;
+    
     public int getCommentId() {
         return commentId;
     }
