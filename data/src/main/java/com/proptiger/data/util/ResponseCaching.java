@@ -24,7 +24,7 @@ public class ResponseCaching {
 	/*
 	 * This method will be called to check and get the cache response.
 	 */
-	@Around("execution(* com.proptiger.data.mvc.*.*(..))")
+	@Around("execution(* com.proptiger.*.mvc.*.*(..))")
 	public Object getResponse(ProceedingJoinPoint jp) throws Throwable {
 		Class<?> proxyMethodReturnType = getProxyMethodReturnType(jp);
 	
@@ -39,7 +39,7 @@ public class ResponseCaching {
 	 * This method will be called when method returns the response successfully. Then that
 	 * data will be saved in the cache.
 	 */
-	@AfterReturning(pointcut="execution(* com.proptiger.data.mvc.*.*(..))", returning="retVal")
+	@AfterReturning(pointcut="execution(* com.proptiger.*.mvc.*.*(..))", returning="retVal")
 	public void setResponse(JoinPoint jp, Object retVal) throws Throwable {
 		caching.saveResponse(getCacheKey(jp), retVal);
 	}
