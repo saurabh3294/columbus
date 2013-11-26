@@ -56,7 +56,14 @@ public class ImageController extends BaseController {
         extraInfo.put("title", title);
         extraInfo.put("description", description);
         extraInfo.put("priority", priority);
-        Image img = imageService.uploadImage(DomainObject.valueOf(objectType), imageType, objectId, image,
+        
+        DomainObject domainObject = DomainObject.valueOf(objectType);
+        int domainObjectValueStart = domainObject.getStartId();
+        long normalizedObjectId = objectId;
+        if(objectId>domainObjectValueStart)
+        	normalizedObjectId = objectId-domainObjectValueStart; 
+        System.out.println(" OLD ID: "+objectId+" normalized id: "+normalizedObjectId);
+        Image img = imageService.uploadImage(domainObject, imageType, normalizedObjectId, image,
                 addWaterMark, extraInfo);
         return new ProAPISuccessResponse(super.filterFields(img, null));
     }
