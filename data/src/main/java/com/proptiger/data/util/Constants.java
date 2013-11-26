@@ -11,4 +11,5 @@ public interface Constants {
 	public static final Integer ADMIN_USER_ID = 57594;
 	public static final String REQ_PARAMETER_FOR_USER_ID = "_user_id";
 	public static final String JSESSIONID = "JSESSIONID";
+	public static final String PHPSESSID_KEY = "PHPSESSID";
 }
