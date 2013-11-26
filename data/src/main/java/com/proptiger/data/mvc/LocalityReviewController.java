@@ -34,14 +34,10 @@ public class LocalityReviewController {
             if(localityId == null || localityId < 1)
                 return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
             
-            System.out.println("***************"+numberOfReviews);
             Pageable pageable = null;
             if(numberOfReviews != null && numberOfReviews > 0)
                 pageable = new PageRequest(0, numberOfReviews);
-            else
-                pageable = new PageRequest(0, 5);
-            
-            
+        
             Object list = localityReviewService.findReviewByLocalityId(localityId, pageable);
             return new ProAPISuccessResponse(list);
 	}

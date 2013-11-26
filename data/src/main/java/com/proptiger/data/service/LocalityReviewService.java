@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -40,11 +41,15 @@ public class LocalityReviewService {
 		if(logger.isDebugEnabled()){
 			logger.debug("findReviewByLocalityId, id="+localityId);
 		}
-                                
-                //Pageable pageable = new PageRequest(0, 5);
-                                        
+                
+				Long totalReviews = localityReviewDao.getTotalReviewsByLocalityId(localityId);
+				
+				if(pageable == null && totalReviews!=null && totalReviews.longValue() > 0)
+					pageable = new PageRequest(0, totalReviews.intValue());
+				else if(pageable == null)
+					pageable = new PageRequest(0, 5);
+                
                 List<Object> reviewComments = localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
-                Long totalReviews = localityReviewDao.getTotalReviewsByLocalityId(localityId);
                 Object[] total = localityRatingDao.getAvgAndTotalRatingByLocalityId(localityId);
                 
                 Map<String, Object> reviewCommentsMaps;
