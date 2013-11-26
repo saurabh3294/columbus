@@ -148,44 +148,45 @@ public class DataAPIAuthenticationFilter implements Filter{
 		HttpServletRequest httpRequest = ((HttpServletRequest)request);
 		String userIpAddress = httpRequest.getRemoteAddr();
 		UserInfo userInfo = null;
+		
+		Cookie[] cookies = httpRequest.getCookies();
+		String sessionId = null;
+		if(cookies != null){
+			for(Cookie c: cookies){
+				if(c.getName().equals(Constants.PHPSESSID_KEY)){
+					sessionId = c.getValue();
+					break;
+				}
+			}
+		}
+		logger.debug("PHPSESSIONID from request cookie {}",sessionId);
+		String jsessionIdPassed = null;
+		Integer userIdOnBehalfOfAdmin = null;
+		String[] jsessionIdsVal = httpRequest
+				.getParameterValues(Constants.JSESSIONID);
+		if (jsessionIdsVal != null && jsessionIdsVal.length > 0) {
+			jsessionIdPassed = jsessionIdsVal[0];
+			
+			String[] values = httpRequest
+					.getParameterValues(Constants.REQ_PARAMETER_FOR_USER_ID);
+			if (values != null && values.length > 0) {
+				try {
+					userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
+				} catch (NumberFormatException e) {
+					logger.error("Invalid user Id in url, {}",e.getMessage());
+					writeErrorToResponse(response,
+							ResponseCodes.BAD_REQUEST,
+							ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST, userIpAddress);
+					return;
+				}
+			}
+		}
+
 		if(enabled){
 			/*
 			 * If authentication enabled then only logged in user will be served, and user details
 			 * will be picked from memcache
 			 */
-			Cookie[] cookies = httpRequest.getCookies();
-			String sessionId = null;
-			if(cookies != null){
-				for(Cookie c: cookies){
-					if(c.getName().equals(Constants.PHPSESSID_KEY)){
-						sessionId = c.getValue();
-						break;
-					}
-				}
-			}
-
-			String jsessionIdPassed = null;
-			Integer userIdOnBehalfOfAdmin = null;
-			String[] jsessionIdsVal = httpRequest
-					.getParameterValues(Constants.JSESSIONID);
-			if (jsessionIdsVal != null && jsessionIdsVal.length > 0) {
-				jsessionIdPassed = jsessionIdsVal[0];
-				
-				String[] values = httpRequest
-						.getParameterValues(Constants.REQ_PARAMETER_FOR_USER_ID);
-				if (values != null && values.length > 0) {
-					try {
-						userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
-					} catch (NumberFormatException e) {
-						logger.error("Invalid user Id in url, {}",e.getMessage());
-						writeErrorToResponse(response,
-								ResponseCodes.BAD_REQUEST,
-								ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST, userIpAddress);
-						return;
-					}
-				}
-			}
-
 			if (jsessionIdPassed == null && sessionId == null) {
 				logger.error("Authentication error session id null");
 				writeErrorToResponse(response, ResponseCodes.UNAUTHORIZED,
@@ -194,7 +195,7 @@ public class DataAPIAuthenticationFilter implements Filter{
 			}
 			else if (sessionId != null && jsessionIdPassed != null
 					&& !sessionId.equals(jsessionIdPassed)) {
-				logger.error("Authentication error session id null");
+				logger.error("Admin Authentication error session id null");
 				writeErrorToResponse(response, ResponseCodes.UNAUTHORIZED,
 						ResponseErrorMessages.AUTHENTICATION_ERROR, userIpAddress);
 				return;
@@ -203,9 +204,9 @@ public class DataAPIAuthenticationFilter implements Filter{
 				/*
 				 * If this is the case then user may be admin
 				 */
+				logger.debug("Taking session id from url");
 				sessionId = jsessionIdPassed;
 			}
-			logger.debug("Session id in request {}",sessionId);
 			try {
 				userInfo = getUserInfoFromMemcache(sessionId);
 				if (userInfo.getUserIdentifier()
@@ -215,11 +216,12 @@ public class DataAPIAuthenticationFilter implements Filter{
 						// If user id is present in request parameter then admin
 						// might try to
 						// do something on behalf of other user
+						logger.debug("Admin user {} doing on behalf of user {}",userInfo.getUserIdentifier(), userIdOnBehalfOfAdmin);
 						userInfo.setUserIdentifier(userIdOnBehalfOfAdmin);
 					}
 				}
 			} catch (Exception e1) {
-				logger.error("Auth error- {}",e1.getMessage());
+				logger.error("User not found, {}",e1.getMessage());
 				writeErrorToResponse(response, ResponseCodes.UNAUTHORIZED,
 						ResponseErrorMessages.AUTHENTICATION_ERROR, userIpAddress);
 				return;
@@ -237,7 +239,7 @@ public class DataAPIAuthenticationFilter implements Filter{
 				try {
 					userId = Integer.parseInt(matcher.group(1));
 				} catch (NumberFormatException e) {
-					logger.error("Invalid user Id in memcache {}",e.getMessage());
+					logger.error("Invalid user Id in request url {}",e.getMessage());
 					writeErrorToResponse(response, ResponseCodes.UNAUTHORIZED,
 							ResponseErrorMessages.AUTHENTICATION_ERROR, userIpAddress);
 					return;
@@ -272,6 +274,9 @@ public class DataAPIAuthenticationFilter implements Filter{
 	 * @return
 	 */
 	private UserInfo getUserInfoFromMemcache(String sessionId) {
+		if(sessionId == null){
+			throw new AuthenticationException("Session id null");
+		}
 		UserInfo userInfo = new UserInfo();
 		Integer userId = null;
 		String userName = null;
@@ -285,7 +290,8 @@ public class DataAPIAuthenticationFilter implements Filter{
 					try {
 						userId = Integer.parseInt(matcher.group(1));
 					} catch (NumberFormatException e) {
-						throw new AuthenticationException("User not found in memcache for sessionkey "+sessionId);
+						logger.error("Number format exception {}",e.getMessage());
+						throw new AuthenticationException("Number format error in memcache for sessionkey "+sessionId);
 					}
 					userName = matcher.group(2);
 					email = matcher.group(3);
@@ -294,7 +300,7 @@ public class DataAPIAuthenticationFilter implements Filter{
 			}
 		}
 		if(userId == null){
-			throw new AuthenticationException(ResponseErrorMessages.AUTHENTICATION_ERROR);
+			throw new AuthenticationException("session data not found in memcache for sessionkey "+sessionId);
 		}
 		else{
 			userInfo.setEmail(email);
