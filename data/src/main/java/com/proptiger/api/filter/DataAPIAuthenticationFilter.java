@@ -146,6 +146,7 @@ public class DataAPIAuthenticationFilter implements Filter{
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest httpRequest = ((HttpServletRequest)request);
+		String userIpAddress = httpRequest.getRemoteAddr();
 		UserInfo userInfo = null;
 		if(enabled){
 			/*
@@ -176,25 +177,26 @@ public class DataAPIAuthenticationFilter implements Filter{
 					try {
 						userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
 					} catch (NumberFormatException e) {
-						logger.error("Working on behalf of other user failed",
-								e);
+						logger.error("Invalid user Id in url, {}",e.getMessage());
 						writeErrorToResponse(response,
 								ResponseCodes.BAD_REQUEST,
-								ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST);
+								ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST, userIpAddress);
 						return;
 					}
 				}
 			}
 
 			if (jsessionIdPassed == null && sessionId == null) {
+				logger.error("Authentication error session id null");
 				writeErrorToResponse(response, ResponseCodes.UNAUTHORIZED,
-						ResponseErrorMessages.AUTHENTICATION_ERROR);
+						ResponseErrorMessages.AUTHENTICATION_ERROR, userIpAddress);
 				return;
 			}
 			else if (sessionId != null && jsessionIdPassed != null
 					&& !sessionId.equals(jsessionIdPassed)) {
+				logger.error("Authentication error session id null");
 				writeErrorToResponse(response, ResponseCodes.UNAUTHORIZED,
-						ResponseErrorMessages.AUTHENTICATION_ERROR);
+						ResponseErrorMessages.AUTHENTICATION_ERROR, userIpAddress);
 				return;
 			}
 			else if(jsessionIdPassed != null){
@@ -203,7 +205,7 @@ public class DataAPIAuthenticationFilter implements Filter{
 				 */
 				sessionId = jsessionIdPassed;
 			}
-			
+			logger.debug("Session id in request {}",sessionId);
 			try {
 				userInfo = getUserInfoFromMemcache(sessionId);
 				if (userInfo.getUserIdentifier()
@@ -217,8 +219,9 @@ public class DataAPIAuthenticationFilter implements Filter{
 					}
 				}
 			} catch (Exception e1) {
+				logger.error("Auth error- {}",e1.getMessage());
 				writeErrorToResponse(response, ResponseCodes.UNAUTHORIZED,
-						ResponseErrorMessages.AUTHENTICATION_ERROR);
+						ResponseErrorMessages.AUTHENTICATION_ERROR, userIpAddress);
 				return;
 			}
 		}
@@ -234,12 +237,13 @@ public class DataAPIAuthenticationFilter implements Filter{
 				try {
 					userId = Integer.parseInt(matcher.group(1));
 				} catch (NumberFormatException e) {
-					logger.error("Invalid user Id in memcache");
+					logger.error("Invalid user Id in memcache {}",e.getMessage());
 					writeErrorToResponse(response, ResponseCodes.UNAUTHORIZED,
-							ResponseErrorMessages.AUTHENTICATION_ERROR);
+							ResponseErrorMessages.AUTHENTICATION_ERROR, userIpAddress);
 					return;
 				}
 			}
+			logger.debug("Skipping authentication, serve request for user id {}",userId);
 			userInfo = new UserInfo();
 			userInfo.setUserIdentifier(userId);
 		}
@@ -251,12 +255,15 @@ public class DataAPIAuthenticationFilter implements Filter{
 		chain.doFilter(request, response);
 	}
 
-	private void writeErrorToResponse(ServletResponse response, String code, String msg)
-			throws IOException, JsonProcessingException {
+	private void writeErrorToResponse(ServletResponse response, String code,
+			String msg, String userIpAddress) throws IOException,
+			JsonProcessingException {
+		logger.error("Unauthenticated call from host {}", userIpAddress);
 		PrintWriter out = response.getWriter();
-		ProAPIErrorResponse res = new ProAPIErrorResponse(code,	msg);
+		ProAPIErrorResponse res = new ProAPIErrorResponse(code, msg);
 		ObjectMapper mapper = new ObjectMapper();
 		out.println(mapper.writeValueAsString(res));
+		return;
 	}
 
 	/**
@@ -278,8 +285,7 @@ public class DataAPIAuthenticationFilter implements Filter{
 					try {
 						userId = Integer.parseInt(matcher.group(1));
 					} catch (NumberFormatException e) {
-						logger.error("Invalid user Id in memcache");
-						throw new AuthenticationException(ResponseErrorMessages.AUTHENTICATION_ERROR, e);
+						throw new AuthenticationException("User not found in memcache for sessionkey "+sessionId);
 					}
 					userName = matcher.group(2);
 					email = matcher.group(3);
