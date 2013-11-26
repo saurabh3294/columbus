@@ -216,7 +216,16 @@ public class Project implements BaseModel {
     private Set<String> propertyUnitTypes;
 
     private List<Image> images;
+    
+    @Field(value="LOCALITY_LABEL_PRIORITY")
+    private String localityLabelPriority;
+    
+    @Field(value="SUBURB_LABEL_PRIORITY")
+    private String suburbLabelPriority;
 
+    @Field(value="BUILDER_LABEL_PRIORITY")
+    private String builderLabelPriority;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -544,4 +553,28 @@ public class Project implements BaseModel {
     public void setImages(List<Image> images) {
         this.images = images;
     }
+
+	public String getLocalityLabelPriority() {
+		return localityLabelPriority;
+	}
+
+	public void setLocalityLabelPriority(String localityLabelPriority) {
+		this.localityLabelPriority = localityLabelPriority;
+	}
+
+	public String getSuburbLabelPriority() {
+		return suburbLabelPriority;
+	}
+
+	public void setSuburbLabelPriority(String suburbLabelPriority) {
+		this.suburbLabelPriority = suburbLabelPriority;
+	}
+
+	public String getBuilderLabelPriority() {
+		return builderLabelPriority;
+	}
+
+	public void setBuilderLabelPriority(String builderLabelPriority) {
+		this.builderLabelPriority = builderLabelPriority;
+	}
 }

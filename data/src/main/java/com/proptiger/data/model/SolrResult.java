@@ -193,6 +193,15 @@ public class SolrResult {
     @Field(value = "GEO")
     private List<String> geo;
     
+    @Field("LOCALITY_LABEL_PRIORITY")
+    private String localityLabelPriority;
+    
+    @Field("SUBURB_LABEL_PRIORITY")
+    private String suburbLabelPriority;
+    
+    @Field("BUILDER_LABEL_PRIORITY")
+    private String builderLabelPriority;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -501,5 +510,20 @@ public class SolrResult {
     @Field("PROJECT_ID_BEDROOM")
     public void setProjectIdBedroom(String projectIdBedroom){
     	property.setProjectIdBedroom(projectIdBedroom);
+    }
+    
+    @Field("LOCALITY_LABEL_PRIORITY")
+    public void setLocalityLabelPriority(String localityLabelPriority){
+    	project.setLocalityLabelPriority(localityLabelPriority);
+    }
+    
+    @Field("SUBURB_LABEL_PRIORITY")
+    public void setSuburbLabelPriority(String suburbLabelPriority){
+    	project.setSuburbLabelPriority(suburbLabelPriority);
+    }
+    
+    @Field("BUILDER_LABEL_PRIORITY")
+    public void setBuilderLabelPriority(String builderLabelPriority){
+    	project.setBuilderLabelPriority(builderLabelPriority);
     }
 }
