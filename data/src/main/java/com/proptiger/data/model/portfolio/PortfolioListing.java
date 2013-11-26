@@ -92,6 +92,10 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Column(name = "floor_no")
 	private int floorNo;
 	
+	@FieldMetaInfo(displayName = "Listing Size", description = "Listing Size")
+	@Column(name = "size")
+	private Double size;
+	
 	@FieldMetaInfo(dataType = DataType.DATE, displayName = "Purchase Date", description = "Purchase Date")
 	@Column(name = "purchased_date")
 	private Date purchaseDate;
@@ -436,6 +440,12 @@ public class PortfolioListing implements NamedResource, Resource{
 	public void setCityName(String cityName) {
 		this.cityName = cityName;
 	}
+	public Double getSize() {
+		return size;
+	}
+	public void setSize(Double size) {
+		this.size = size;
+	}
 
 	@PreUpdate
     public void preUpdate(){
@@ -463,5 +473,6 @@ public class PortfolioListing implements NamedResource, Resource{
     	this.transactionType = toUpdate.transactionType;
     	this.unitNo = toUpdate.unitNo;
     	this.bankId = toUpdate.bankId;
+    	this.size = toUpdate.size;
     }
 }

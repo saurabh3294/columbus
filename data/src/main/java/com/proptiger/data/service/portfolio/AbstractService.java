@@ -2,8 +2,7 @@ package com.proptiger.data.service.portfolio;
 
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
-import com.proptiger.exception.InvalidResourceNameException;
-import com.proptiger.exception.ResourceNotAvailableException;
+import com.proptiger.data.util.ResourceType;
 
 /**
  * @author Rajeev Pandey
@@ -61,7 +60,7 @@ public abstract class AbstractService {
 	 */
 	protected void validateId(Resource resource) {
 		if(resource.getId() == null){
-			throw new ResourceNotAvailableException("Resource "+resource.getId()+" not available");
+			//throw new InvalidResourceException();
 		}
 	}
 	
@@ -71,7 +70,9 @@ public abstract class AbstractService {
 	 */
 	protected void validateName(NamedResource resource) {
 		if(resource.getName() == null || "".equals(resource.getName())){
-			throw new InvalidResourceNameException("Inva");
+			//throw new InvalidResourceException("Invalid resource name");
 		}
 	}
+	
+	protected abstract ResourceType  getResourceType();
 }

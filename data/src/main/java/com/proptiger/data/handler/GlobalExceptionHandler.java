@@ -24,7 +24,7 @@ import com.proptiger.exception.AuthenticationException;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
-import com.proptiger.exception.InvalidResourceNameException;
+import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.LeadPostException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -98,12 +98,12 @@ public class GlobalExceptionHandler {
 				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
 	}
 	
-	@ExceptionHandler(InvalidResourceNameException.class)
+	@ExceptionHandler(InvalidResourceException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected ProAPIResponse handleInvalidNameException(InvalidResourceNameException exception) {
+	protected ProAPIResponse handleInvalidNameException(InvalidResourceException exception) {
 		logger.error("handle InvalidResourceNameException - Caching ", exception);
-		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_NAME_ATTRIBUTE);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage());
 	}
 	
 	@ExceptionHandler(DuplicateNameResourceException.class)

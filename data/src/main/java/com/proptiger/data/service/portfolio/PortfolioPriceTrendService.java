@@ -272,7 +272,10 @@ public class PortfolioPriceTrendService {
 			ProjectPriceTrend projectPriceTrend = priceTrendItr.next();
 			PortfolioListing listing = getListingForProject(projectPriceTrend, listings);
 			if(listing != null){
-				Double size = listing.getProjectType().getSize();
+				Double size = listing.getSize();
+				if(size == null){
+					size = 0.0D;
+				}
 				//double totalOtherPrice = getTotalOtherPrice(listing.getOtherPrices());
 				double totalOtherPrice = 0.0D;
 				if(projectPriceTrend.getPrices() != null){

@@ -40,8 +40,11 @@ import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.CityRepository;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeField;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
+import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.mail.service.MailBodyGenerator;
@@ -320,7 +323,11 @@ public class PortfolioService extends AbstractService{
 	 */
 	private double getListingCurrentPrice(PortfolioListing listing){
 		double currPrice = 0.0D;
-		currPrice = listing.getProjectType().getSize() * listing.getProjectType().getPricePerUnitArea();
+		Double size = listing.getSize();
+		if(size == null){
+			size = 0.0D;
+		}
+		currPrice = size * listing.getProjectType().getPricePerUnitArea();
 		if (currPrice == 0.0D) {
 			logger.debug(
 					"Current value not available for Listing {} and project type {}",
@@ -380,6 +387,9 @@ public class PortfolioService extends AbstractService{
 		if(propertyPresent != null){
 			logger.error("Duplicate resource id {} and name {}",propertyPresent.getId(), propertyPresent.getName());
 			throw new DuplicateNameResourceException("Resource with same name exist");
+		}
+		if(toCreate.getSize() == null || toCreate.getSize() <= 0){
+			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
 	}
 	
@@ -481,6 +491,9 @@ public class PortfolioService extends AbstractService{
 		if(resourcePresent == null){
 			logger.error("PortfolioProperty id {} not found",toUpdate.getId());
 			throw new ResourceNotAvailableException("Resource "+toUpdate.getId()+" not available");
+		}
+		if(toUpdate.getSize() == null || toUpdate.getSize() <= 0){
+			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
 		return (T) resourcePresent;
 	}
@@ -686,5 +699,10 @@ public class PortfolioService extends AbstractService{
 		listingAddMail.setTotalPrice(listing.getTotalPrice());
 		listingAddMail.setUserName(listing.getForumUser().getUsername());
 		return listingAddMail;
+	}
+	
+	@Override
+	protected ResourceType getResourceType() {
+		return ResourceType.LISTING;
 	}
 }
