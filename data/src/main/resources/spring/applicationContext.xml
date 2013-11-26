@@ -53,14 +53,17 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
             </value>
         </property>
     </bean>
-     
+    
+    <context:property-placeholder location="classpath:/application.properties"/>
+    
+    <!-- Configuration for caching and annotation driven. --> 
     <cache:annotation-driven />
  	<aop:aspectj-autoproxy/>
     <!--bean id="before" class="com.proptiger.data.util.ResponseCaching"/-->
     
     <!-- Jedis ConnectionFactory -->
     <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-        p:host-name="localhost" p:port="6379" p:use-pool="true" />
+        p:host-name="${redis.hostName}" p:port="${redis.port}" p:use-pool="${redis.usePool}" />
  
     <!-- redis template definition -->
     <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate" p:connection-factory-ref="jedisConnectionFactory">
@@ -70,7 +73,7 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
     <!-- declare Redis Cache Manager -->
     <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager" c:template-ref="redisTemplate">
     	<!--  Setting default Expiration time in seconds. Currently setting as 1 day. -->
-    	<property name="defaultExpiration" value="86400"></property>
+    	<property name="defaultExpiration" value="${redis.defaultExpirationTime}"></property>
     </bean>
     
     <!--  Serializer for redis. -->
