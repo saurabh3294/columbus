@@ -11,4 +11,8 @@ public class AuthenticationException  extends ProAPIException{
 	public AuthenticationException(String msg, Throwable t){
 		super(msg, t);
 	}
+	
+	public AuthenticationException(String msg){
+		super(msg);
+	}
 }

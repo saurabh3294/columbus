@@ -1,5 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,7 @@ public class UnmatchedProjectRequestService {
 	@Autowired
 	private PropertyReader propertyReader;
 	
+	private static Logger logger = LoggerFactory.getLogger(UnmatchedProjectRequestService.class);
 	/**
 	 * @param unmatchedProjectDetails
 	 * @param userInfo
@@ -35,6 +38,7 @@ public class UnmatchedProjectRequestService {
 		unmatchedProjectDetails.setUserName(userInfo.getName());
 		MailBody mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.UNMATCHED_PROJECT_ADDED, unmatchedProjectDetails);
 		String toAddress = propertyReader.getRequiredProperty("mail.unmatched-project.internal.reciepient");
+		logger.debug("Unmatched project request mail to {}",toAddress);
 		return mailService.sendMailUsingAws(toAddress, mailBody.getBody(), mailBody.getSubject());
 	}
 }

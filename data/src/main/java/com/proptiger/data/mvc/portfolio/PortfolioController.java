@@ -82,7 +82,7 @@ public class PortfolioController extends BaseController {
 
 		List<PortfolioListing> listings = portfolioService
 				.getAllPortfolioListings(userInfo.getUserIdentifier());
-		return postProcess(listings, 1, selector);
+		return postProcess(listings, listings.size(), selector);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/listing/{listingId}")
