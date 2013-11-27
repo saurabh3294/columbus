@@ -1,5 +1,6 @@
 package com.proptiger.data.util;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -13,7 +14,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.Gson;
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.exception.ProAPIException;
 
@@ -48,6 +49,8 @@ public class ResponseCaching {
 		if(className == ProAPIErrorResponse.class || className == ProAPIException.class)
 			return;
 		
+		if( !isCacheEnabled(jp) )
+			return;
 		caching.saveResponse(getCacheKey(jp), retVal);
 	}
 
@@ -108,8 +111,35 @@ public class ResponseCaching {
 		return method.getReturnType();
 		
 	}
+	/*
+	 * This method will check the Disable Caching Annotation in the
+	 * target Class or target Method. If it is present then caching
+	 * will not be done.
+	 */
+	private boolean isCacheEnabled(JoinPoint jp){
+		//print(jp);
+		Object target = jp.getTarget();
+		Class<? extends Object> targetClass = target.getClass();
+		Annotation classAnnotation = targetClass.getAnnotation(DisableCaching.class);
+		if(classAnnotation != null)
+			return false;
+		
+		// checking DisableCaching Annotation in Method
+		MethodSignature methodSignature = (MethodSignature)jp.getSignature();
+		Method method = null;
+		try
+		{
+			method = targetClass.getMethod(methodSignature.getName(), methodSignature.getParameterTypes());
+			Annotation methodAnnotation = method.getAnnotation(DisableCaching.class);
+			if(methodAnnotation!=null)
+				return false;
+		}
+		catch(Exception e){}
+		
+		return true;
+	}
 	
-/*	private void print(JoinPoint jp){
+	/*private void print(JoinPoint jp){
 		//System.out.println(" REQUEST "+ gson.toJson(request));
 		Object[] args = jp.getArgs();
 		for(int i=0; i<args.length; i++)
@@ -124,6 +154,36 @@ public class ResponseCaching {
 		System.out.println("THIS :"+ jp.getThis().toString());
 		System.out.println(" Return TYPE CLASS = " + getProxyMethodReturnType(jp));
 		
+		printAnnotation(jp);
+		
+	}
+	
+	private void printAnnotation(JoinPoint jp){
+		 System.out.println("Target: " + jp.getTarget());
+		  Object target = jp.getTarget();
+		  Class<? extends Object> targetClass = target.getClass();
+		  printAnnotationArray(targetClass.getAnnotations());
+		  
+		  MethodSignature methodSignature = (MethodSignature)jp.getSignature();
+		  Method method = null;
+		  try{
+			  method = targetClass.getMethod(methodSignature.getName(), methodSignature.getParameterTypes());
+		  }catch(Exception e){
+			  e.printStackTrace();
+		  }
+		  if(method!=null){
+			  System.out.println("METHODS ");
+			  printAnnotationArray(method.getAnnotations());
+			  Annotation annotation = method.getAnnotation(DisableCaching.class);
+			  if(annotation!=null)
+				  System.out.println("DISABLE ANNOTATION PRESENT");
+		  }
+		  // TODO: Print method annotations
+	}
+	
+	private void printAnnotationArray(Annotation[] annotation){
+		for(int i=0; i<annotation.length; i++)
+			  System.out.println("i: "+i+" Class Annotation: " + annotation[i].toString());
+		  
 	}*/
-
 }
