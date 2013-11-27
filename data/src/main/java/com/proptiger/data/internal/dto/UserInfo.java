@@ -15,7 +15,6 @@ public class UserInfo implements Serializable{
 	private String name;
 	private Integer userIdentifier;
 	private String sessionId;
-	private long contact;
 	@JsonIgnore
 	public boolean admin = false;
 	
@@ -36,12 +35,6 @@ public class UserInfo implements Serializable{
 	}
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
-	}
-	public long getContact() {
-		return contact;
-	}
-	public void setContact(long contact) {
-		this.contact = contact;
 	}
 	public boolean isAdmin() {
 		return admin;
