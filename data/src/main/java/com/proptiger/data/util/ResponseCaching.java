@@ -42,7 +42,7 @@ public class ResponseCaching {
 	 * This method will be called when method returns the response successfully. Then that
 	 * data will be saved in the cache.
 	 */
-	@AfterReturning(pointcut="execution(* com.proptiger.*.mvc.*.*(..))", returning="retVal")
+	@AfterReturning(pointcut="execution(* com.proptiger.*.mvc.*.*(..)) && !execution(* com.proptiger.*.mvc.portfolio.*(..))", returning="retVal")
 	public void setResponse(JoinPoint jp, Object retVal) throws Throwable {
 		// if response is not valid, then response will not be saved.
 		Class<?> className = retVal.getClass();
@@ -117,7 +117,6 @@ public class ResponseCaching {
 	 * will not be done.
 	 */
 	private boolean isCacheEnabled(JoinPoint jp){
-		//print(jp);
 		Object target = jp.getTarget();
 		Class<? extends Object> targetClass = target.getClass();
 		Annotation classAnnotation = targetClass.getAnnotation(DisableCaching.class);
