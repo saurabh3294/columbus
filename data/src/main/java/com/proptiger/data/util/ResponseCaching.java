@@ -124,6 +124,7 @@ public class ResponseCaching {
 	 */
 	private boolean isCacheEnabled(JoinPoint jp){
 		//print(jp);
+		isValidUrlForCache();
 		Object target = jp.getTarget();
 		Class<? extends Object> targetClass = target.getClass();
 		Annotation classAnnotation = targetClass.getAnnotation(DisableCaching.class);
@@ -142,9 +143,19 @@ public class ResponseCaching {
 		}
 		catch(Exception e){}
 		
+		if(!isValidUrlForCache())
+			return false;
 		return true;
 	}
 	
+	private boolean isValidUrlForCache(){
+		String url = httpServletRequest.getRequestURI();
+		
+		if(url.matches("/url/"))
+			return false;
+		
+		return true;
+	}
 	/*private void print(JoinPoint jp){
 		//System.out.println(" REQUEST "+ gson.toJson(request));
 		Object[] args = jp.getArgs();

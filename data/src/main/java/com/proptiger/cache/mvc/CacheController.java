@@ -9,7 +9,7 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 
 @Controller
-@RequestMapping(value = "data/v1/entity/cache")
+@RequestMapping(value = "cache")
 public class CacheController {
 	
 	@RequestMapping(value="/clear-cache")
