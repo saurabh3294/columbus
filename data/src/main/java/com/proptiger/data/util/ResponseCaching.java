@@ -3,6 +3,8 @@ package com.proptiger.data.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,6 +16,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.Gson;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.exception.ProAPIException;
@@ -23,6 +26,9 @@ import com.proptiger.exception.ProAPIException;
 public class ResponseCaching {
 	@Autowired
 	private Caching caching;
+	
+	@Autowired
+	private HttpServletRequest httpServletRequest;
 	
 	/*
 	 * This method will be called to check and get the cache response.
@@ -117,6 +123,7 @@ public class ResponseCaching {
 	 * will not be done.
 	 */
 	private boolean isCacheEnabled(JoinPoint jp){
+		//print(jp);
 		Object target = jp.getTarget();
 		Class<? extends Object> targetClass = target.getClass();
 		Annotation classAnnotation = targetClass.getAnnotation(DisableCaching.class);
@@ -153,6 +160,9 @@ public class ResponseCaching {
 		System.out.println("THIS :"+ jp.getThis().toString());
 		System.out.println(" Return TYPE CLASS = " + getProxyMethodReturnType(jp));
 		
+		Gson gson = new Gson();
+		System.out.println("HTTP REQUEST OBJECT : "+gson.toJson(httpServletRequest)+" \n END \n");
+		System.out.println(httpServletRequest.getRequestURI());
 		printAnnotation(jp);
 		
 	}
