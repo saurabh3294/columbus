@@ -5,7 +5,7 @@ package com.proptiger.data.constants;
  *
  */
 public interface ResponseErrorMessages {
-	static String SOME_ERROR_OCCURED = "Some error occured, please try again later";
+	static String SOME_ERROR_OCCURED = "Some error occurred, please try again later";
 	static String DATABASE_CONNECTION_ERROR = "Database connection error";
 	static String REQUEST_PARAM_CONVERSION_ERROR = "request parameter is not valid";
 	static String REQUEST_PARAM_INVALID = "Request parameter is not valid";

@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
 	protected ProAPIResponse handleDatabaseException(PersistenceException ex) {
 		logger.error("handleDatabaseException - Caching ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
-				ResponseErrorMessages.DATABASE_CONNECTION_ERROR);
+				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(ConversionNotSupportedException.class)
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
 	protected ProAPIResponse handleSolrException(SolrServerException exception) {
 		logger.error("handleSolrException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
-				ResponseErrorMessages.SOLR_DOWN);
+				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(IllegalArgumentException.class)
@@ -167,7 +167,7 @@ public class GlobalExceptionHandler {
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleLeadPostException(LeadPostException exception){
 		logger.error("handle LeadPostException - Caching ", exception);
-		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.LEAD_COULD_NOT_POST);
+		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(MailException.class)
@@ -176,7 +176,7 @@ public class GlobalExceptionHandler {
 	protected ProAPIResponse handleMailException(MailException exception) {
 		logger.error("handle handleMailException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
-				ResponseErrorMessages.MAIL_SENDING_ERROR);
+				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(AuthenticationException.class)

@@ -100,7 +100,7 @@ public class PortfolioService extends AbstractService{
 	public Portfolio getPortfolioByUserId(Integer userId){
 		logger.debug("Getting portfolio details for user id {}",userId);
 		Portfolio portfolio = new Portfolio();
-		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
+		List<PortfolioListing> listings = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
 		//portfolio.setPortfolioListings(listings);
 		updatePriceInfoInPortfolio(userId, portfolio, listings);
 //		updatePaymentSchedule(listings);
@@ -173,7 +173,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
 		logger.debug("Creating portfolio for user id {}",userId);
-		List<PortfolioListing> presentListing = portfolioListingDao.findByUserId(userId);
+		List<PortfolioListing> presentListing = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
 		List<PortfolioListing> toCreate = portfolio.getPortfolioListings();
 		if (presentListing != null && presentListing.size() > 0) {
 			logger.error("Portfolio exists for userid {}", userId);
@@ -213,7 +213,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	public Portfolio updatePortfolio(Integer userId, Portfolio portfolio){
 		logger.debug("Update portfolio details for user id {}",userId);
-		List<PortfolioListing> presentListingList = portfolioListingDao.findByUserId(userId);
+		List<PortfolioListing> presentListingList = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
 		Portfolio updated = new Portfolio();
 		if (presentListingList == null || presentListingList.size() == 0) {
 			logger.debug("No portfolio listing exists for userid {}", userId);
@@ -227,7 +227,7 @@ public class PortfolioService extends AbstractService{
 		else{
 			updated = createOrUpdatePortfolioListings(userId, portfolio, presentListingList);
 		}
-		List<PortfolioListing> updatedListings = portfolioListingDao.findByUserId(userId);
+		List<PortfolioListing> updatedListings = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
 		updated.setPortfolioListings(updatedListings);
 		/*
 		 * Updating price information in portfolio
@@ -305,7 +305,7 @@ public class PortfolioService extends AbstractService{
 	@Transactional(readOnly = true)
 	public List<PortfolioListing> getAllPortfolioListings(Integer userId){
 		logger.debug("Getting all portfolio listings for user id {}",userId);
-		List<PortfolioListing> listings = portfolioListingDao.findByUserId(userId);
+		List<PortfolioListing> listings = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(getListingCurrentPrice(listing));
