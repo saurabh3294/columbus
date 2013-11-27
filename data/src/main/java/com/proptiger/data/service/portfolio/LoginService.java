@@ -55,7 +55,6 @@ public class LoginService {
 				ForumUser forumUser = forumUserDao.findByEmail(email);
 				String sessionId = currentUser.getSession(false).getId()
 						.toString();
-				userInfo.setEmail(email);
 				userInfo.setName(forumUser.getUsername());
 				userInfo.setSessionId(sessionId);
 				userInfo.setUserIdentifier(forumUser.getUserId());
@@ -63,8 +62,8 @@ public class LoginService {
 				if (userInfo.getUserIdentifier()
 						.equals(Constants.ADMIN_USER_ID)) {
 					logger.debug(
-							"Login request for admin user id {} and email {}",
-							userInfo.getUserIdentifier(), userInfo.getEmail());
+							"Login request for admin user id {} ",
+							userInfo.getUserIdentifier());
 					userInfo.setAdmin(true);
 				}
 				currentUser.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, userInfo);

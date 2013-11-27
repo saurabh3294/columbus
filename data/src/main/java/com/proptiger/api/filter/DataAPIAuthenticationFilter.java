@@ -314,7 +314,6 @@ public class DataAPIAuthenticationFilter implements Filter{
 			throw new AuthenticationException("session data not found in memcache for sessionkey "+sessionId);
 		}
 		else{
-			userInfo.setEmail(email);
 			userInfo.setName(userName);
 			userInfo.setUserIdentifier(userId);
 		}
