@@ -279,7 +279,7 @@ public class PortfolioPriceTrendService {
 			ProjectPriceTrend projectPriceTrend = priceTrendItr.next();
 			PortfolioListing listing = getListingForProject(projectPriceTrend, listings);
 			if(listing != null){
-				Double size = listing.getSize();
+				Double size = listing.getListingSize();
 				if(size == null){
 					size = 0.0D;
 				}

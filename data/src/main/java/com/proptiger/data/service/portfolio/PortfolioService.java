@@ -323,7 +323,7 @@ public class PortfolioService extends AbstractService{
 	 */
 	private double getListingCurrentPrice(PortfolioListing listing){
 		double currPrice = 0.0D;
-		Double size = listing.getSize();
+		Double size = listing.getListingSize();
 		if(size == null){
 			size = 0.0D;
 		}
@@ -388,7 +388,7 @@ public class PortfolioService extends AbstractService{
 			logger.error("Duplicate resource id {} and name {}",propertyPresent.getId(), propertyPresent.getName());
 			throw new DuplicateNameResourceException("Resource with same name exist");
 		}
-		if(toCreate.getSize() == null || toCreate.getSize() <= 0){
+		if(toCreate.getListingSize() == null || toCreate.getListingSize() <= 0){
 			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
 	}
@@ -492,7 +492,7 @@ public class PortfolioService extends AbstractService{
 			logger.error("PortfolioProperty id {} not found",toUpdate.getId());
 			throw new ResourceNotAvailableException("Resource "+toUpdate.getId()+" not available");
 		}
-		if(toUpdate.getSize() == null || toUpdate.getSize() <= 0){
+		if(toUpdate.getListingSize() == null || toUpdate.getListingSize() <= 0){
 			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
 		return (T) resourcePresent;
