@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Enquiry;
@@ -45,6 +46,7 @@ public class LeadGenerationService {
 	 * Creating connection with lead.php and submitting the lead request
 	 * @param enquiry
 	 */
+	@Async
 	public String postLead(Enquiry enquiry, LeadSaleType leadSaleType,
 			LeadPageName leadPageName) {
 		String result = "";

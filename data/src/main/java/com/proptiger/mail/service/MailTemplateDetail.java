@@ -9,7 +9,7 @@ public enum MailTemplateDetail {
 			"mailtemplate/add_new_portfolio_listing.vm"
 			,"mailtemplate/add_new_portfolio_listing_subject.vm"),
 	
-	PORTFOLIO_LISTING_LOAN_REQUEST("ListingLoanRequestMail",
+	PORTFOLIO_LISTING_LOAN_REQUEST_USER("ListingLoanRequestMail",
 			"mailtemplate/home-loan-Email-Template.vm"
 			,"mailtemplate/home-loan-Email-Template-subject.vm"),
 	

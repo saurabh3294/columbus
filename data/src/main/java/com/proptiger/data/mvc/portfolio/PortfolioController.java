@@ -131,7 +131,7 @@ public class PortfolioController extends BaseController {
 		return new ProAPISuccessResponse(listing);
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/interested-to-sell")
+	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/interested-to-sell")
 	@ResponseBody
 	public ProAPIResponse interestedToSell(
 			@PathVariable Integer userId,
@@ -140,6 +140,18 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.interestedToSellListing(
 				userInfo.getUserIdentifier(), listingId, interestedToSell);
+		return new ProAPISuccessResponse(listing);
+	}
+	
+	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/loan-request")
+	@ResponseBody
+	public ProAPIResponse interestedToHomeLoan(
+			@PathVariable Integer userId,
+			@PathVariable Integer listingId,
+			@RequestParam(required = false, defaultValue = "true", value = "loan") Boolean interestedToLoan,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+		PortfolioListing listing = portfolioService.interestedToHomeLoan(
+				userInfo.getUserIdentifier(), listingId, interestedToLoan);
 		return new ProAPISuccessResponse(listing);
 	}
 
@@ -153,11 +165,11 @@ public class PortfolioController extends BaseController {
 	 */
 	@RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/mail")
 	@ResponseBody
-	public ProAPIResponse sendMailForListingAdd(@PathVariable Integer userId,
+	public ProAPIResponse sendMailForListing(@PathVariable Integer userId,
 			@PathVariable Integer listingId,
 			@RequestParam(required = true, value = "mailType") String mailType,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		boolean status = portfolioService.sendMail(userInfo.getUserIdentifier(), listingId, mailType);
+		boolean status = portfolioService.handleMailRequest(userInfo.getUserIdentifier(), listingId, mailType);
 		return new ProAPISuccessResponse(status);
 	}
 

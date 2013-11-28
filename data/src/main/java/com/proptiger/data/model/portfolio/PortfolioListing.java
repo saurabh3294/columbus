@@ -154,6 +154,13 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Column(name = "interested_sell_on")
 	private Date interestedToSellOn;
 	
+	@Column(name = "interested_loan")
+	@FieldMetaInfo(displayName = "Interested To Home Loan", description = "Interested To Home Loan")
+	private Boolean interestedToLoan = false;
+	
+	@Column(name = "interested_loan_on")
+	private Date interestedToLoanOn;
+	
 	@Column(name = "status")
 	@Enumerated(EnumType.STRING)
 	private ListingStatus listingStatus = ListingStatus.ACTIVE;
@@ -445,6 +452,23 @@ public class PortfolioListing implements NamedResource, Resource{
 	}
 	public void setListingSize(Double size) {
 		this.listingSize = size;
+	}
+
+	
+	public Boolean getInterestedToLoan() {
+		return interestedToLoan;
+	}
+
+	public void setInterestedToLoan(Boolean interestedToLoan) {
+		this.interestedToLoan = interestedToLoan;
+	}
+
+	public Date getInterestedToLoanOn() {
+		return interestedToLoanOn;
+	}
+
+	public void setInterestedToLoanOn(Date interestedToLoanOn) {
+		this.interestedToLoanOn = interestedToLoanOn;
 	}
 
 	@PreUpdate

@@ -513,6 +513,9 @@ public class PortfolioService extends AbstractService{
 	public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId){
 		logger.debug("Delete Portfolio Listing id {} for userid {}",listingId,userId);
 		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
+		if(propertyPresent == null){
+			throw new ResourceNotAvailableException("Listing "+listingId+" not available");
+		}
 		portfolioListingDao.delete(propertyPresent);
 		return propertyPresent;
 	}
@@ -577,10 +580,17 @@ public class PortfolioService extends AbstractService{
 	 * @param interestedToSell
 	 * @return
 	 */
+	@Transactional(rollbackFor = ResourceNotAvailableException.class)
 	public PortfolioListing interestedToSellListing(Integer userId, Integer listingId, Boolean interestedToSell){
 		logger.debug("Updating sell intereset for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
-		PortfolioListing listing = updateInterestedToSell(userId, listingId,
-				interestedToSell);
+		PortfolioListing listing = portfolioListingDao.findOne(listingId);
+		if(listing == null || !listing.getUserId().equals(userId)){
+			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
+			throw new ResourceNotAvailableException("Resource not available");
+		}
+		updateInterestedToSell(userId, listingId,
+				interestedToSell, listing);
+		updateProjectSpecificData(listing);
 		ForumUser user = forumUserDao.findOne(userId);
 		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
 		Enquiry enquiry = createEnquiryObj(listing, user);
@@ -588,9 +598,36 @@ public class PortfolioService extends AbstractService{
 		/*
 		 * Sending mail to internal group
 		 */
-		sendMail(userId, listingId, MailType.INTERESTED_TO_SELL_PROPERTY_INTERNAL.toString());
+		//sendMail(userId, listingId, MailType.INTERESTED_TO_SELL_PROPERTY_INTERNAL.toString());
 		return listing;
 	}
+	
+	/**
+	 * Updating user preference of loan interest for property based on listing id,
+	 * After changing preference sending lead request 
+	 * @param userId
+	 * @param listingId
+	 * @param interestedToLoan
+	 * @return
+	 */
+	@Transactional(rollbackFor = ResourceNotAvailableException.class)
+	public PortfolioListing interestedToHomeLoan(Integer userId, Integer listingId, Boolean interestedToLoan){
+		logger.debug("Updating loan intereset for user id {} and listing id {} with loan interest {}",userId,listingId,interestedToLoan);
+		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
+		if(listing == null){
+			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
+			throw new ResourceNotAvailableException("Resource not available");
+		}
+		updateLoanIntereset(userId, listingId, interestedToLoan, listing);
+		updateProjectSpecificData(listing);
+//		ForumUser user = forumUserDao.findOne(userId);
+//		logger.debug("Posting lead request for user id {} and listing id {} with loan interest {}",userId,listingId,interestedToLoan);
+//		Enquiry enquiry = createEnquiryObj(listing, user);
+//		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE, LeadPageName.PORTFOLIO);
+		sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_USER);
+		return listing;
+	}
+	
 	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {
 		Enquiry enquiry = new Enquiry();
 		ProjectType projectType = listing.getProjectType();
@@ -637,45 +674,70 @@ public class PortfolioService extends AbstractService{
 	 */
 	@Transactional
 	private PortfolioListing updateInterestedToSell(Integer userId,
-			Integer listingId, Boolean interestedToSell) {
-		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
-		if(listing == null){
-			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
-			throw new ResourceNotAvailableException("Resource not available");
-		}
+			Integer listingId, Boolean interestedToSell, PortfolioListing listing) {
 		listing.setInterestedToSell(interestedToSell);
 		listing.setInterestedToSellOn(new Date());
 		return listing;
 	}
 	
-	public boolean sendMail(Integer userId, Integer listingId, String mailType) {
-		PortfolioListing listing = getPortfolioListingById(userId, listingId);
-		ForumUser user = listing.getForumUser();
+	/**
+	 * Updating loan interest of user for listing
+	 * @param userId
+	 * @param listingId
+	 * @param interestedToLoan
+	 * @return
+	 */
+	@Transactional
+	private PortfolioListing updateLoanIntereset(Integer userId,
+			Integer listingId, Boolean interestedToLoan, PortfolioListing listing) {
+		listing.setInterestedToLoan(interestedToLoan);
+		listing.setInterestedToLoanOn(new Date());
+		return listing;
+	}
+	/**
+	 * @param userId
+	 * @param listingId
+	 * @param mailType
+	 * @return
+	 */
+	public boolean handleMailRequest(Integer userId, Integer listingId, String mailType){
 		MailType mailTypeEnum = null;
 		mailTypeEnum = MailType.valueOfString(mailType);
 		if(mailTypeEnum == null){
 			throw new IllegalArgumentException("Invalid mail type");
 		}
+		PortfolioListing listing = getPortfolioListingById(userId, listingId);
+		return sendMail(userId, listing, mailTypeEnum);
+	}
+	/**
+	 * Based on mail type, this method will create body and subject and send mail using amazon service
+	 * @param userId
+	 * @param listingId
+	 * @param mailType
+	 * @return
+	 */
+	private boolean sendMail(Integer userId, PortfolioListing listing , MailType mailTypeEnum) {
+		ForumUser user = listing.getForumUser();
 		String toStr = user.getEmail();
 		MailBody mailBody = null;
 		switch (mailTypeEnum) {
-		case PORTFOLIO_LISTING_ADD:
+		case LISTING_ADD_MAIL_TO_USER:
 			ListingAddMail listingAddMail = createListingAddMailObject(listing);
 			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING, listingAddMail);
-			break;
-		case PORTFOLIO_LISTING_HOME_LOAN_REQUEST:
+			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+		case LISTING_HOME_LOAN_CONFIRM_TO_USER:
 			ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
-			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.PORTFOLIO_LISTING_LOAN_REQUEST, listingLoanRequestMail);
-			break;
+			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.PORTFOLIO_LISTING_LOAN_REQUEST_USER, listingLoanRequestMail);
+			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
 		case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
 			ListingResaleMail listingResaleMail = createListingResaleMailObj(listing);
 			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.RESALE_LISTING_INTERNAL, listingResaleMail);
 			toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
-			break;
+			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
 		default:
 			throw new IllegalArgumentException("Invalid mail type");
 		}
-		return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+		
 	}
 	private ListingResaleMail createListingResaleMailObj(
 			PortfolioListing listing) {
