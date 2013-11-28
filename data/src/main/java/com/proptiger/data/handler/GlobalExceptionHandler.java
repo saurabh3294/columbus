@@ -24,7 +24,7 @@ import com.proptiger.exception.AuthenticationException;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
-import com.proptiger.exception.InvalidResourceNameException;
+import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.LeadPostException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
 	protected ProAPIResponse handleDatabaseException(PersistenceException ex) {
 		logger.error("handleDatabaseException - Caching ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
-				ResponseErrorMessages.DATABASE_CONNECTION_ERROR);
+				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(ConversionNotSupportedException.class)
@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
 	protected ProAPIResponse handleSolrException(SolrServerException exception) {
 		logger.error("handleSolrException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
-				ResponseErrorMessages.SOLR_DOWN);
+				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(IllegalArgumentException.class)
@@ -98,12 +98,12 @@ public class GlobalExceptionHandler {
 				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
 	}
 	
-	@ExceptionHandler(InvalidResourceNameException.class)
+	@ExceptionHandler(InvalidResourceException.class)
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
-	protected ProAPIResponse handleInvalidNameException(InvalidResourceNameException exception) {
+	protected ProAPIResponse handleInvalidNameException(InvalidResourceException exception) {
 		logger.error("handle InvalidResourceNameException - Caching ", exception);
-		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_NAME_ATTRIBUTE);
+		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage());
 	}
 	
 	@ExceptionHandler(DuplicateNameResourceException.class)
@@ -167,7 +167,7 @@ public class GlobalExceptionHandler {
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleLeadPostException(LeadPostException exception){
 		logger.error("handle LeadPostException - Caching ", exception);
-		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.LEAD_COULD_NOT_POST);
+		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(MailException.class)
@@ -176,7 +176,7 @@ public class GlobalExceptionHandler {
 	protected ProAPIResponse handleMailException(MailException exception) {
 		logger.error("handle handleMailException - Caching ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
-				ResponseErrorMessages.MAIL_SENDING_ERROR);
+				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
 	@ExceptionHandler(AuthenticationException.class)

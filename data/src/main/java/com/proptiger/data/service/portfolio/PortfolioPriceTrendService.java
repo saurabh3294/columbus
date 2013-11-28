@@ -33,6 +33,7 @@ public class PortfolioPriceTrendService {
 
 	private static Logger logger = LoggerFactory.getLogger(PortfolioPriceTrendService.class);
 	
+	private static Integer MONTHS_IN_YEAR = 12;
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
@@ -88,7 +89,7 @@ public class PortfolioPriceTrendService {
 			Integer noOfMonths) {
 		logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
 		List<PortfolioListing> listings = portfolioListingDao
-				.findByUserId(userId);
+				.findByUserIdOrderByListingIdDesc(userId);
 		if(listings == null || listings.size() == 0){
 			throw new ResourceNotAvailableException("No PortfolioListings for user id "+userId);
 		}
@@ -167,6 +168,9 @@ public class PortfolioPriceTrendService {
 		int currentMonth = cal.get(Calendar.MONTH);
 		
 		for (ProjectPriceTrend priceTrend : projectPriceTrends) {
+			logger.debug(
+					"Adding price detail from current month for project id {} and name {}",
+					priceTrend.getProjectId(), priceTrend.getProjectName());
 			List<PriceDetail> prices = priceTrend.getPrices();
 			if (prices == null) {
 				// Could not get price trend for this project id from CMS API,
@@ -188,6 +192,7 @@ public class PortfolioPriceTrendService {
 			int lastMonthPresent = cal.get(Calendar.MONTH);
 			int monthCounter = lastMonthPresent;
 
+			//Add price detail at last till current month
 			while (monthCounter != currentMonth) {
 				PriceDetail detail = new PriceDetail();
 				detail.setPrice(lastPriceTrend.getPrice());
@@ -196,7 +201,7 @@ public class PortfolioPriceTrendService {
 				monthCounter = cal.get(Calendar.MONTH);
 				prices.add(prices.size(), detail);
 			}
-			// add at first
+			// add price detail at first
 			PriceDetail firstPriceTrend = prices.get(0);
 			Date firstDatePresent = firstPriceTrend.getEffectiveDate();
 			cal.setTime(firstDatePresent);
@@ -216,30 +221,32 @@ public class PortfolioPriceTrendService {
 				PriceDetail last = prices.get(prices.size() - 1);
 				cal.setTime(last.getEffectiveDate());
 				int lastMonth = cal.get(Calendar.MONTH);
+				logger.debug("In adding missing month block");
 				for(int counter = pricesSize - 2; counter >= 0; counter--){
 					PriceDetail temp = prices.get(counter);
 					cal.setTime(temp.getEffectiveDate());
-					int tempLatsMonth = cal.get(Calendar.MONTH);
-					int currMonth = cal.get(Calendar.MONTH);
-					if(currMonth + 1 == lastMonth){
-						// nothing to do
+					int tempLastMonth = cal.get(Calendar.MONTH);
+					int currMonth = tempLastMonth;
+					if((currMonth + 1)%MONTHS_IN_YEAR == lastMonth){
+						// Found continuous month, so skip 
 					}
 					else{
 						// add missing month price details taking last price detail data
 						int i = 1;
-						while(currMonth + 1 < lastMonth){
+						while((currMonth + 1)%MONTHS_IN_YEAR != lastMonth){
 							PriceDetail newPriceDetail = new PriceDetail();
 							cal.add(Calendar.MONTH, 1);
 							currMonth = cal.get(Calendar.MONTH);
 							newPriceDetail.setEffectiveDate(cal.getTime());
 							newPriceDetail.setPrice(last.getPrice());
 							prices.add(counter + i++, newPriceDetail);
-							currentMonth ++;
+							currentMonth = cal.get(Calendar.MONTH);
 						}
 					}
 					last = temp;
-					lastMonth = tempLatsMonth;
+					lastMonth = tempLastMonth;
 				}
+				logger.debug("After adding missing month block");
 			}
 			/*
 			 * If there are more price details than required then remove from first
@@ -272,7 +279,10 @@ public class PortfolioPriceTrendService {
 			ProjectPriceTrend projectPriceTrend = priceTrendItr.next();
 			PortfolioListing listing = getListingForProject(projectPriceTrend, listings);
 			if(listing != null){
-				Double size = listing.getProjectType().getSize();
+				Double size = listing.getListingSize();
+				if(size == null){
+					size = 0.0D;
+				}
 				//double totalOtherPrice = getTotalOtherPrice(listing.getOtherPrices());
 				double totalOtherPrice = 0.0D;
 				if(projectPriceTrend.getPrices() != null){

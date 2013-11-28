@@ -20,6 +20,7 @@ import com.proptiger.data.repo.portfolio.DashboardDao;
 import com.proptiger.data.repo.portfolio.DashboardWidgetMappingDao;
 import com.proptiger.data.repo.portfolio.WidgetDao;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.ResourceType;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
@@ -396,5 +397,10 @@ public class DashboardService extends AbstractService{
 		dashboardWidgetMappingDao.delete(existingMapping);
 		dashboard = getDashboardById(userId, dashboardId);
 		return dashboard;
+	}
+
+	@Override
+	protected ResourceType getResourceType() {
+		return ResourceType.DASHBOARD;
 	}
 }

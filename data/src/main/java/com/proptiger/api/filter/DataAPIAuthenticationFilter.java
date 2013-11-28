@@ -167,21 +167,21 @@ public class DataAPIAuthenticationFilter implements Filter{
 		if (jsessionIdsVal != null && jsessionIdsVal.length > 0) {
 			jsessionIdPassed = jsessionIdsVal[0];
 			
-			String[] values = httpRequest
-					.getParameterValues(Constants.REQ_PARAMETER_FOR_USER_ID);
-			if (values != null && values.length > 0) {
-				try {
-					userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
-				} catch (NumberFormatException e) {
-					logger.error("Invalid user Id in url, {}",e.getMessage());
-					writeErrorToResponse(response,
-							ResponseCodes.BAD_REQUEST,
-							ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST, userIpAddress);
-					return;
-				}
-			}
 		}
 
+		String[] values = httpRequest
+				.getParameterValues(Constants.REQ_PARAMETER_FOR_USER_ID);
+		if (values != null && values.length > 0) {
+			try {
+				userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
+			} catch (NumberFormatException e) {
+				logger.error("Invalid user Id in url, {}",e.getMessage());
+				writeErrorToResponse(response,
+						ResponseCodes.BAD_REQUEST,
+						ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST, userIpAddress);
+				return;
+			}
+		}
 		if(enabled){
 			/*
 			 * If authentication enabled then only logged in user will be served, and user details
@@ -248,6 +248,17 @@ public class DataAPIAuthenticationFilter implements Filter{
 			logger.debug("Skipping authentication, serve request for user id {}",userId);
 			userInfo = new UserInfo();
 			userInfo.setUserIdentifier(userId);
+			if (userInfo.getUserIdentifier()
+					.equals(Constants.ADMIN_USER_ID)) {
+				userInfo.setAdmin(true);
+				if (userIdOnBehalfOfAdmin != null) {
+					// If user id is present in request parameter then admin
+					// might try to
+					// do something on behalf of other user
+					logger.debug("Admin user {} doing on behalf of user {}",userInfo.getUserIdentifier(), userIdOnBehalfOfAdmin);
+					userInfo.setUserIdentifier(userIdOnBehalfOfAdmin);
+				}
+			}
 		}
 		/*
 		 * Set in request session to be accessible in controllers
@@ -303,7 +314,6 @@ public class DataAPIAuthenticationFilter implements Filter{
 			throw new AuthenticationException("session data not found in memcache for sessionkey "+sessionId);
 		}
 		else{
-			userInfo.setEmail(email);
 			userInfo.setName(userName);
 			userInfo.setUserIdentifier(userId);
 		}

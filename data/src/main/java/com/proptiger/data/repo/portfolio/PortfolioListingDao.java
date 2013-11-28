@@ -11,7 +11,7 @@ import com.proptiger.data.model.portfolio.PortfolioListing;
  *
  */
 public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Integer>{
-	public List<PortfolioListing> findByUserId(Integer userId);
+	public List<PortfolioListing> findByUserIdOrderByListingIdDesc(Integer userId);
 	public PortfolioListing findByUserIdAndListingId(Integer userId, Integer listingId);
 	public PortfolioListing findByUserIdAndName(Integer userId, String name);
 	

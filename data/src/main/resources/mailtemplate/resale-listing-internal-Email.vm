@@ -29,7 +29,7 @@
                    <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
                    <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                       Hi Team,<br /><br />
-					 A new property has been registered for resale by the user {ListingResaleMail.userName} at ,${currentDateTime}. The details of the property for resale are as following:<br /><br />
+					 A new property has been registered for resale by the user ${ListingResaleMail.userName} at ,${currentDateTime}. The details of the property for resale are as following:<br /><br />
 					   <strong>Property Name:</strong> ${ListingResaleMail.propertyName}<br />
 					   <strong>Project City:</strong> ${ListingResaleMail.projectCity}<br />
 					   <strong>Locality:</strong> ${ListingResaleMail.locality}<br />

@@ -1,6 +1,7 @@
 package com.proptiger.mail.service;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.annotation.PostConstruct;
 
@@ -64,7 +65,7 @@ public class AmazonMailSender {
         // Assemble the email.
 		SendEmailRequest request = new SendEmailRequest().withSource(from)
 				.withDestination(destination).withMessage(message);
-		logger.debug("Sending mails to {}", mailTo.toString());
+		logger.debug("Sending mails to {}", Arrays.toString(mailTo));
         SendEmailResult result = emailServiceClient.sendEmail(request);
         logger.debug("Mail sent id {}", result.getMessageId());
         return true;

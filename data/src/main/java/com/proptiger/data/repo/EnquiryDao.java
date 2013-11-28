@@ -21,6 +21,6 @@ public interface EnquiryDao extends JpaRepository<Enquiry, Serializable>{
     
     @Query("select E.projectName, E.cityName, P.projectUrl, E.createdDate " +
     		" from  Enquiry E join E.project P " +
-    		" where E.email=?1")
+    		" where E.email=?1 group by E.projectName, E.cityName")
     public List<Object[]> findEnquiriesByEmail(String email);
 }

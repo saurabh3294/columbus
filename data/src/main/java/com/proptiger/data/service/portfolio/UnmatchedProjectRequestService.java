@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.mail.service.MailBodyGenerator;
 import com.proptiger.mail.service.MailService;
@@ -23,6 +25,9 @@ public class UnmatchedProjectRequestService {
 	private MailBodyGenerator mailBodyGenerator;
 	
 	@Autowired
+	private ForumUserDao forumUserDao;
+	
+	@Autowired
 	private PropertyReader propertyReader;
 	
 	private static Logger logger = LoggerFactory.getLogger(UnmatchedProjectRequestService.class);
@@ -33,9 +38,10 @@ public class UnmatchedProjectRequestService {
 	 */
 	public boolean handleUnmatchedProjectRequest(
 			UnmatchedProjectDetails unmatchedProjectDetails, UserInfo userInfo) {
-		unmatchedProjectDetails.setUserEmail(userInfo.getEmail());
-		unmatchedProjectDetails.setContact(userInfo.getContact());
-		unmatchedProjectDetails.setUserName(userInfo.getName());
+		ForumUser forumUser = forumUserDao.findOne(userInfo.getUserIdentifier());
+		unmatchedProjectDetails.setUserEmail(forumUser.getEmail());
+		unmatchedProjectDetails.setContact(forumUser.getContact());
+		unmatchedProjectDetails.setUserName(forumUser.getUsername());
 		MailBody mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.UNMATCHED_PROJECT_ADDED, unmatchedProjectDetails);
 		String toAddress = propertyReader.getRequiredProperty("mail.unmatched-project.internal.reciepient");
 		logger.debug("Unmatched project request mail to {}",toAddress);

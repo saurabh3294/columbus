@@ -92,6 +92,10 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Column(name = "floor_no")
 	private int floorNo;
 	
+	@FieldMetaInfo(displayName = "Listing Size", description = "Listing Size")
+	@Column(name = "size")
+	private Double listingSize;
+	
 	@FieldMetaInfo(dataType = DataType.DATE, displayName = "Purchase Date", description = "Purchase Date")
 	@Column(name = "purchased_date")
 	private Date purchaseDate;
@@ -149,6 +153,13 @@ public class PortfolioListing implements NamedResource, Resource{
 	
 	@Column(name = "interested_sell_on")
 	private Date interestedToSellOn;
+	
+	@Column(name = "interested_loan")
+	@FieldMetaInfo(displayName = "Interested To Home Loan", description = "Interested To Home Loan")
+	private Boolean interestedToLoan = false;
+	
+	@Column(name = "interested_loan_on")
+	private Date interestedToLoanOn;
 	
 	@Column(name = "status")
 	@Enumerated(EnumType.STRING)
@@ -436,6 +447,29 @@ public class PortfolioListing implements NamedResource, Resource{
 	public void setCityName(String cityName) {
 		this.cityName = cityName;
 	}
+	public Double getListingSize() {
+		return listingSize;
+	}
+	public void setListingSize(Double size) {
+		this.listingSize = size;
+	}
+
+	
+	public Boolean getInterestedToLoan() {
+		return interestedToLoan;
+	}
+
+	public void setInterestedToLoan(Boolean interestedToLoan) {
+		this.interestedToLoan = interestedToLoan;
+	}
+
+	public Date getInterestedToLoanOn() {
+		return interestedToLoanOn;
+	}
+
+	public void setInterestedToLoanOn(Date interestedToLoanOn) {
+		this.interestedToLoanOn = interestedToLoanOn;
+	}
 
 	@PreUpdate
     public void preUpdate(){
@@ -463,5 +497,6 @@ public class PortfolioListing implements NamedResource, Resource{
     	this.transactionType = toUpdate.transactionType;
     	this.unitNo = toUpdate.unitNo;
     	this.bankId = toUpdate.bankId;
+    	this.listingSize = toUpdate.listingSize;
     }
 }

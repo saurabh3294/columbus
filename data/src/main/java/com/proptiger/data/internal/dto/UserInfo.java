@@ -13,10 +13,8 @@ public class UserInfo implements Serializable{
 
 	private static final long serialVersionUID = -3022788419586557079L;
 	private String name;
-	private String email;
 	private Integer userIdentifier;
 	private String sessionId;
-	private long contact;
 	@JsonIgnore
 	public boolean admin = false;
 	
@@ -25,12 +23,6 @@ public class UserInfo implements Serializable{
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
 	}
 	public Integer getUserIdentifier() {
 		return userIdentifier;
@@ -43,12 +35,6 @@ public class UserInfo implements Serializable{
 	}
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
-	}
-	public long getContact() {
-		return contact;
-	}
-	public void setContact(long contact) {
-		this.contact = contact;
 	}
 	public boolean isAdmin() {
 		return admin;
