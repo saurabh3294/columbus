@@ -29,6 +29,9 @@
 	<logger name="com.proptiger.api.filter">
 		<level value="DEBUG" />
 	</logger>
+	<logger name="com.proptiger.mail.service">
+		<level value="DEBUG" />
+	</logger>
 	<logger name="org.springframework.beans.factory">
 		<level value="WARN" />
 	</logger>

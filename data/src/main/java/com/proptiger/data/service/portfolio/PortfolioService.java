@@ -25,6 +25,7 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.ProjectType;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.portfolio.OverallReturn;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
@@ -39,6 +40,7 @@ import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.CityRepository;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
+import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeField;
@@ -67,6 +69,9 @@ public class PortfolioService extends AbstractService{
 	
 	@Autowired
 	private LeadGenerationService leadGenerationService;
+	
+	@Autowired
+	private PropertyService propertyService;
 	
 	@Autowired
 	private ProjectDBDao projectDBDao;
@@ -674,12 +679,27 @@ public class PortfolioService extends AbstractService{
 	}
 	private ListingResaleMail createListingResaleMailObj(
 			PortfolioListing listing) {
+		List<Property> properties = propertyService.getProperties(listing.getProjectType().getProjectId());
+		StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty("proptiger.url"));
+		if(properties != null && !properties.isEmpty()){
+			Property required = null;
+			for(Property property: properties){
+				if(property.getPropertyId() == listing.getProjectType().getTypeId().intValue()){
+					required = property;
+					break;
+				}
+			}
+			if(required != null){
+				url.append(required.getURL());
+			}
+			
+		}
 		ListingResaleMail listingResaleMail = new ListingResaleMail();
 		listingResaleMail.setBuilder(listing.getBuilderName());
 		listingResaleMail.setLocality(listing.getLocality());
 		listingResaleMail.setProjectCity(listing.getCityName());
 		listingResaleMail.setProjectName(listing.getProjectName());
-		listingResaleMail.setPropertyLink("");
+		listingResaleMail.setPropertyLink(url.toString());
 		listingResaleMail.setPropertyName(listing.getName());
 		listingResaleMail.setUserName(listing.getForumUser().getUsername());
 		return listingResaleMail;
