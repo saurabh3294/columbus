@@ -57,3 +57,5 @@ alter table portfolio_listings add interested_sell boolean after transaction_typ
 alter table portfolio_listings add interested_sell_on date after interested_sell;
 alter table portfolio_listings add status enum('ACTIVE','INACTIVE') after interested_sell_on;
 ALTER TABLE portfolio_listings ADD size double after floor_no;
+ALTER TABLE portfolio_listings ADD interested_loan boolean after interested_sell_on;
+ALTER TABLE portfolio_listings ADD interested_loan_on date after interested_loan;
