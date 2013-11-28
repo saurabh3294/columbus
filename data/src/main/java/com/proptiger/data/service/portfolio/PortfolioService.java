@@ -129,7 +129,7 @@ public class PortfolioService extends AbstractService{
 			for(PortfolioListing listing: listings){
 				originalValue = originalValue.add(new BigDecimal(listing.getTotalPrice()));
 				listing.setCurrentPrice(getListingCurrentPrice(listing));
-				currentValue = currentValue.add(new BigDecimal(getListingCurrentPrice(listing)));
+				currentValue = currentValue.add(new BigDecimal(listing.getCurrentPrice()));
 			}
 		}
 		portfolio.setCurrentValue(currentValue);
@@ -157,10 +157,10 @@ public class PortfolioService extends AbstractService{
 			div = div.multiply(new BigDecimal(100));
 			overallReturn.setChangePercent(div);
 		}
-		if(changeAmt.intValue() < 0){
+		if(changeAmt.signum() < 0){
 			overallReturn.setReturnType(ReturnType.DECLINE);
 		}
-		else if(changeAmt.intValue() > 0){
+		else if(changeAmt.signum() > 0){
 			overallReturn.setReturnType(ReturnType.APPRECIATION);
 		}
 		else{
@@ -327,19 +327,28 @@ public class PortfolioService extends AbstractService{
 	 * @return
 	 */
 	private double getListingCurrentPrice(PortfolioListing listing){
-		double currPrice = 0.0D;
+		BigDecimal currentValue = new BigDecimal(0);
 		Double size = listing.getListingSize();
 		if(size == null){
 			size = 0.0D;
 		}
-		currPrice = size * listing.getProjectType().getPricePerUnitArea();
-		if (currPrice == 0.0D) {
+		currentValue = new BigDecimal(size * listing.getProjectType().getPricePerUnitArea());
+		
+		if (currentValue.signum() == 0) {
 			logger.debug(
 					"Current value not available for Listing {} and project type {}",
 					listing.getId(), listing.getProjectType().getTypeId());
-			currPrice = listing.getTotalPrice();
+			currentValue = new BigDecimal(listing.getTotalPrice());
 		}
-		return currPrice;
+		else{
+			if(listing.getOtherPrices() != null && !listing.getOtherPrices().isEmpty()){
+				for(PortfolioListingPrice listingPrice:listing.getOtherPrices()){
+					currentValue = currentValue.add(new BigDecimal(listingPrice.getAmount())) ;
+				}
+			}
+		}
+		
+		return currentValue.doubleValue();
 	}
 	private void updateProjectSpecificData(PortfolioListing listing) {
 		ProjectDB project = projectDBDao.findOne(listing.getProjectType().getProjectId());

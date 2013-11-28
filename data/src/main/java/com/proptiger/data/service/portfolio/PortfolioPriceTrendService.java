@@ -283,8 +283,14 @@ public class PortfolioPriceTrendService {
 				if(size == null){
 					size = 0.0D;
 				}
-				//double totalOtherPrice = getTotalOtherPrice(listing.getOtherPrices());
-				double totalOtherPrice = 0.0D;
+				/*
+				 * Adding other pricess too in price trend becoz while getting portfolio/listing we
+				 * add other prices in current price
+				 * 
+				 * TODO change this if we change in get portfolio or listing
+				 */
+				double totalOtherPrice = getTotalOtherPrice(listing.getOtherPrices());
+				//double totalOtherPrice = 0.0D;
 				if(projectPriceTrend.getPrices() != null){
 					for(PriceDetail priceDetail: projectPriceTrend.getPrices()){
 						if(priceDetail.getPrice() == 0.0D){

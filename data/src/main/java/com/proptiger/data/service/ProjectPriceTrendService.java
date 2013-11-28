@@ -153,16 +153,17 @@ public class ProjectPriceTrendService {
 			}
 			/*
 			 * If type id is null then found will be false and this block of code
-			 * will take average of price of all phase id and type id combination
+			 * will take max of price from all phase id and type id combination
 			 */
 			if(!found){
+				double maxVal = 0.0D;
 				for(ProjectPriceDetail priceDetailObj: priceDetailsForTypeIdIdMap.values()){
-					price = price + priceDetailObj.getPrice();
-					if(date == null){
+					if(priceDetailObj.getPrice() > maxVal){
 						date = priceDetailObj.getEffective_date();
+						price = priceDetailObj.getPrice();
+						maxVal = priceDetailObj.getPrice();
 					}
 				}
-				price = (price/priceDetailsForTypeIdIdMap.values().size());
 			}
 			priceDetail.setEffectiveDate(date);
 			priceDetail.setPrice((int)price);
