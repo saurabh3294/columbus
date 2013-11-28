@@ -42,7 +42,7 @@ public class LocalityReviewService {
 			logger.debug("findReviewByLocalityId, id="+localityId);
 		}
                 
-				Long totalReviews = localityReviewDao.getTotalReviewsByLocalityId(localityId);
+				Long totalReviews = getTotalLocalityReviews(localityId);
 				
 				if(pageable == null && totalReviews!=null && totalReviews.longValue() > 0)
 					pageable = new PageRequest(0, totalReviews.intValue());
@@ -77,4 +77,8 @@ public class LocalityReviewService {
                  
                 return response;
         }
+	
+	public Long getTotalLocalityReviews(int localityId){
+		return localityReviewDao.getTotalReviewsByLocalityId(localityId);
+	}
 }

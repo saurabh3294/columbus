@@ -13,6 +13,7 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityDao;
 
+
 /**
  * @author mandeep
  *
@@ -21,8 +22,9 @@ import com.proptiger.data.repo.LocalityDao;
 public class LocalityService {
     @Autowired
     private LocalityDao localityDao;
-
+    
     public List<Locality> getLocalities(Selector selector) {
         return Lists.newArrayList(localityDao.getLocalities(selector));
     }
+    
 }
