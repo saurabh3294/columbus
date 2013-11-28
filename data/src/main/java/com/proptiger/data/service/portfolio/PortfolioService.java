@@ -625,6 +625,7 @@ public class PortfolioService extends AbstractService{
 //		Enquiry enquiry = createEnquiryObj(listing, user);
 //		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE, LeadPageName.PORTFOLIO);
 		sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_USER);
+		sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL);
 		return listing;
 	}
 	
@@ -727,7 +728,12 @@ public class PortfolioService extends AbstractService{
 			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
 		case LISTING_HOME_LOAN_CONFIRM_TO_USER:
 			ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
-			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.PORTFOLIO_LISTING_LOAN_REQUEST_USER, listingLoanRequestMail);
+			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.LISTING_LOAN_REQUEST_USER, listingLoanRequestMail);
+			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+		case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
+			ListingLoanRequestMail listingLoanRequestMailInternal = createListingLoanRequestObj(listing);
+			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL, listingLoanRequestMailInternal);
+			toStr = propertyReader.getRequiredProperty("mail.home.loan.internal.reciepient");
 			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
 		case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
 			ListingResaleMail listingResaleMail = createListingResaleMailObj(listing);

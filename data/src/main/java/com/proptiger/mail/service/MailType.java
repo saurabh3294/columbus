@@ -10,7 +10,7 @@ import java.util.Map;
 public enum MailType {
 	LISTING_ADD_MAIL_TO_USER("portfolio_listing_add"),
 	LISTING_HOME_LOAN_CONFIRM_TO_USER("portfolio_listing_loan"),
-	LISTING_HOME_LOAN_REQUEST_TO_INTERNAL("listing_loan_internal"),
+	LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL("listing_loan_internal"),
 	INTERESTED_TO_SELL_PROPERTY_INTERNAL("interested_to_sell_internal");
 	
 	private static Map<String, MailType> mailTypeMap = new HashMap<>();
@@ -18,7 +18,7 @@ public enum MailType {
 	static{
 		mailTypeMap.put("portfolio_listing_add", LISTING_ADD_MAIL_TO_USER);
 		mailTypeMap.put("portfolio_listing_loan", LISTING_HOME_LOAN_CONFIRM_TO_USER);
-		mailTypeMap.put("listing_loan_internal", LISTING_HOME_LOAN_REQUEST_TO_INTERNAL);
+		mailTypeMap.put("listing_loan_internal", LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL);
 		mailTypeMap.put("interested_to_sell_internal", INTERESTED_TO_SELL_PROPERTY_INTERNAL);
 	}
 	private MailType(String str){

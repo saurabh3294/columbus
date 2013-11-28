@@ -1,7 +1,7 @@
 #parse("./mailtemplate/VM_global_library.vm")
 <html>
 <head>
-<title>PropTiger | Home Loan Requirement Confirmation</title>
+<title>PropTiger | Home Loan Requirement</title>
 </head>
 
 <body>
@@ -28,12 +28,11 @@
                 <tr>
                    <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
                    <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
-                      Dear ${ListingLoanRequestMail.userName},<br /><br />
-					  Greetings from PropTiger.com.<br /><br />
-					  We have received your enquiry regarding home loan in ${ListingLoanRequestMail.projectCity} for the ${ListingLoanRequestMail.projectName} project. Our home loan team will get in touch with you soon.<br /><br />
-					  You can also contact us at ${HELP_DESK_MOBILE_NO} or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:${SUPPORT_MAIL_ID}">${SUPPORT_MAIL_ID}</a>.<br /><br />
-					  Please add <a href="mailto:${SUPPORT_MAIL_ID}" style="color:#1155cc; text-decoration:none;">${SUPPORT_MAIL_ID}</a> to your contacts, to easily send and get messages from 
-					  PropTiger.com.<br /><br />
+                      Hi Team,<br /><br />
+					  
+					  A new home loan request have been posted by user ${ListingLoanRequestMail.userName} in city ${ListingLoanRequestMail.projectCity} for ${ListingLoanRequestMail.projectName} project. Please contact the user for more details<br /><br />
+					  
+					  
 					  Yours sincerely, <br /><br />
                       The PropTiger Family<br />
                       <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
