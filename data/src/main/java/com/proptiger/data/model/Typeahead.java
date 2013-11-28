@@ -36,7 +36,10 @@ public class Typeahead implements BaseModel {
     @Field(value="TYPEAHEAD_CITY")
     private String city;
     
-    @Field(value="TYPEAHEAD_REDIRECT_URL")
+    @Field(value="tp_locality")
+    private String locality;
+
+	@Field(value="TYPEAHEAD_REDIRECT_URL")
     private String redirectUrl;
     
     @Field(value="TYPEAHEAD_TYPE")
@@ -82,6 +85,14 @@ public class Typeahead implements BaseModel {
     public void setCity(String city) {
         this.city = city;
     }
+    
+    public String getLocality() {
+		return locality;
+	}
+
+	public void setLocality(String locality) {
+		this.locality = locality;
+	}
 
     public String getRedirectUrl() {
         return redirectUrl;

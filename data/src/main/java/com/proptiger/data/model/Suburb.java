@@ -5,6 +5,7 @@ package com.proptiger.data.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -36,7 +37,7 @@ public class Suburb implements BaseModel {
     @Column(name = "LABEL")
     private String label;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="CITY_ID", insertable = false, updatable = false)
     private City city;
 
