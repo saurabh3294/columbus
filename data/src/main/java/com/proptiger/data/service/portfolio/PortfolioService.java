@@ -824,7 +824,7 @@ public class PortfolioService extends AbstractService{
 				for(Listing listing: property.getListings()){
 					ListingPrice listingPrice = getLatestPricePerUnitArea(listing.getListingPrice());
 					if (listingPrice != null) {
-						if (priceDate == null || priceDate.after(listingPrice.getEffectiveDate())) {
+						if (priceDate == null || priceDate.before(listingPrice.getEffectiveDate())) {
 							priceDate = listingPrice.getEffectiveDate();
 							pricePerUnitArea = listingPrice.getPricePerUnitArea();
 						}
