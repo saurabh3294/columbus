@@ -3,6 +3,8 @@ package com.proptiger.data.service.portfolio;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,12 +21,14 @@ import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.City;
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
-import com.proptiger.data.model.ProjectType;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.portfolio.OverallReturn;
 import com.proptiger.data.model.portfolio.Portfolio;
@@ -62,6 +66,7 @@ import com.proptiger.mail.service.MailType;
  */
 @Service
 public class PortfolioService extends AbstractService{
+	
 
 	private static Logger logger = LoggerFactory.getLogger(PortfolioService.class);
 	@Autowired
@@ -314,7 +319,7 @@ public class PortfolioService extends AbstractService{
 		if(listings != null){
 			for(PortfolioListing listing: listings){
 				listing.setCurrentPrice(getListingCurrentPrice(listing));
-				updateProjectSpecificData(listing);
+				updateOtherSpecificData(listing);
 			}
 			updatePaymentSchedule(listings);
 		}
@@ -332,12 +337,12 @@ public class PortfolioService extends AbstractService{
 		if(size == null){
 			size = 0.0D;
 		}
-		currentValue = new BigDecimal(size * listing.getProjectType().getPricePerUnitArea());
+		currentValue = new BigDecimal(size * getPropertyPricePerUnitArea(listing.getProperty()));
 		
 		if (currentValue.signum() == 0) {
 			logger.debug(
 					"Current value not available for Listing {} and project type {}",
-					listing.getId(), listing.getProjectType().getTypeId());
+					listing.getId(), listing.getProperty().getPropertyId());
 			currentValue = new BigDecimal(listing.getTotalPrice());
 		}
 		else{
@@ -350,8 +355,9 @@ public class PortfolioService extends AbstractService{
 		
 		return currentValue.doubleValue();
 	}
-	private void updateProjectSpecificData(PortfolioListing listing) {
-		ProjectDB project = projectDBDao.findOne(listing.getProjectType().getProjectId());
+	private void updateOtherSpecificData(PortfolioListing listing) {
+		Integer projectId = listing.getProjectId();
+		ProjectDB project = projectDBDao.findOne(projectId);
 		if(project != null){
 			listing.setProjectName(project.getProjectName());
 			listing.setBuilderName(project.getBuilderName());
@@ -367,7 +373,6 @@ public class PortfolioService extends AbstractService{
 				listing.setLocalityId(locality.getLocalityId());
 			}
 		}
-		
 	}
 	
 	/**
@@ -384,7 +389,7 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException("Resource not available");
 		}
-		updateProjectSpecificData(listing);
+		updateOtherSpecificData(listing);
 		listing.setCurrentPrice(getListingCurrentPrice(listing));
 		updatePaymentSchedule(listing);
 		OverallReturn overallReturn = getOverAllReturn(new BigDecimal(listing.getTotalPrice()),
@@ -405,6 +410,11 @@ public class PortfolioService extends AbstractService{
 		if(toCreate.getListingSize() == null || toCreate.getListingSize() <= 0){
 			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
+		//TODO need to change this once we will move to cms database
+		if(toCreate.getTypeId() != null){
+			toCreate.setTypeId(toCreate.getTypeId() + DomainObject.property.getStartId());
+		}
+		
 	}
 	
 	/**
@@ -422,10 +432,10 @@ public class PortfolioService extends AbstractService{
 		 * 
 		 * TODO need to find better solution
 		 */
-		listing.setProjectType(null);
+		listing.setProperty(null);
 		PortfolioListing created = create(listing);
 		created = portfolioListingDao.findByUserIdAndListingId(userId, created.getId());
-		updateProjectSpecificData(created);
+		updateOtherSpecificData(created);
 		return created;
 	}
 	
@@ -442,7 +452,7 @@ public class PortfolioService extends AbstractService{
 		property.setUserId(userId);
 		property.setId(propertyId);
 		PortfolioListing updated = update(property);
-		updateProjectSpecificData(updated);
+		updateOtherSpecificData(updated);
 		return updated;
 	}
 	
@@ -509,6 +519,9 @@ public class PortfolioService extends AbstractService{
 		if(toUpdate.getListingSize() == null || toUpdate.getListingSize() <= 0){
 			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
+		if(toUpdate.getTypeId() != null && toUpdate.getTypeId() < DomainObject.property.getStartId()){
+			toUpdate.setTypeId(toUpdate.getTypeId() + DomainObject.property.getStartId());
+		}
 		return (T) resourcePresent;
 	}
 
@@ -549,10 +562,9 @@ public class PortfolioService extends AbstractService{
 			 */
 			if (portfolioListing.getListingPaymentPlan() == null
 					|| portfolioListing.getListingPaymentPlan().size() == 0) {
-				ProjectType projectType = portfolioListing.getProjectType();
-				if (projectType != null && projectType.getProjectId() != null) {
+				if (portfolioListing.getProperty() != null) {
 					List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
-							.findByProjectIdGroupByInstallmentNo(projectType.getProjectId());
+							.findByProjectIdGroupByInstallmentNo(portfolioListing.getProjectId());
 					Set<PortfolioListingPaymentPlan> listingPaymentPlan = convertToPortfolioListingPaymentPlan(paymentScheduleList);
 					portfolioListing.setListingPaymentPlan(listingPaymentPlan);
 				}
@@ -599,7 +611,7 @@ public class PortfolioService extends AbstractService{
 		}
 		updateInterestedToSell(userId, listingId,
 				interestedToSell, listing);
-		updateProjectSpecificData(listing);
+		updateOtherSpecificData(listing);
 		ForumUser user = forumUserDao.findOne(userId);
 		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
 		Enquiry enquiry = createEnquiryObj(listing, user);
@@ -628,7 +640,7 @@ public class PortfolioService extends AbstractService{
 			throw new ResourceNotAvailableException("Resource not available");
 		}
 		updateLoanIntereset(userId, listingId, interestedToLoan, listing);
-		updateProjectSpecificData(listing);
+		updateOtherSpecificData(listing);
 //		ForumUser user = forumUserDao.findOne(userId);
 //		logger.debug("Posting lead request for user id {} and listing id {} with loan interest {}",userId,listingId,interestedToLoan);
 //		Enquiry enquiry = createEnquiryObj(listing, user);
@@ -640,8 +652,8 @@ public class PortfolioService extends AbstractService{
 	
 	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {
 		Enquiry enquiry = new Enquiry();
-		ProjectType projectType = listing.getProjectType();
-		ProjectDB project = projectDBDao.findOne(projectType.getProjectId());
+		Property property = listing.getProperty();
+		ProjectDB project = projectDBDao.findOne(listing.getProjectId());
 		
 		enquiry.setAdGrp("");
 		enquiry.setCampaign("");
@@ -667,7 +679,7 @@ public class PortfolioService extends AbstractService{
 		enquiry.setPageUrl("");
 		enquiry.setPhone(user.getContact()+"");
 		enquiry.setPpc("");
-		enquiry.setProjectId(Long.valueOf(projectType.getProjectId()));
+		enquiry.setProjectId(Long.valueOf(listing.getProjectId()));
 		enquiry.setProjectName(project.getProjectName());
 		enquiry.setQuery("");
 		enquiry.setSource("");
@@ -756,12 +768,12 @@ public class PortfolioService extends AbstractService{
 	}
 	private ListingResaleMail createListingResaleMailObj(
 			PortfolioListing listing) {
-		List<Property> properties = propertyService.getProperties(listing.getProjectType().getProjectId());
+		List<Property> properties = propertyService.getProperties(listing.getProjectId());
 		StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty("proptiger.url"));
 		if(properties != null && !properties.isEmpty()){
 			Property required = null;
 			for(Property property: properties){
-				if(property.getPropertyId() == listing.getProjectType().getTypeId().intValue()){
+				if(property.getPropertyId() == listing.getTypeId().intValue()){
 					required = property;
 					break;
 				}
@@ -798,6 +810,59 @@ public class PortfolioService extends AbstractService{
 		return listingAddMail;
 	}
 	
+	/**
+	 * This method get the price per unit area from Property object, this object is mapped to cms database
+	 * 
+	 * @param property
+	 * @return
+	 */
+	public double getPropertyPricePerUnitArea(Property property){
+		Double pricePerUnitArea = 0.0;
+		Date priceDate = null;
+		if(property != null){
+			if(property.getListings() != null){
+				for(Listing listing: property.getListings()){
+					ListingPrice listingPrice = getLatestPricePerUnitArea(listing.getListingPrice());
+					if (listingPrice != null) {
+						if (priceDate == null || priceDate.after(listingPrice.getEffectiveDate())) {
+							priceDate = listingPrice.getEffectiveDate();
+							pricePerUnitArea = listingPrice.getPricePerUnitArea();
+						}
+						else if (priceDate.equals(listingPrice.getEffectiveDate()) && listingPrice.getPricePerUnitArea() > pricePerUnitArea) {
+							pricePerUnitArea = listingPrice.getPricePerUnitArea();
+						}
+					}
+				}
+			}
+		}
+
+		return pricePerUnitArea;
+	}
+	
+	/**
+	 * These would be multiple prices date wise, so this method will pick latest price
+	 * @param listingPrice
+	 * @return
+	 */
+	private ListingPrice getLatestPricePerUnitArea(Set<ListingPrice> listingPrice) {
+		ListingPrice price = null;
+		if(listingPrice != null && !listingPrice.isEmpty()){
+			List<ListingPrice> list = new ArrayList<>();
+			for(ListingPrice p: listingPrice){
+				list.add(p);
+			}
+			Collections.sort(list, new Comparator<ListingPrice>() {
+				@Override
+				public int compare(ListingPrice price1, ListingPrice price2) {
+					return price2.getEffectiveDate().compareTo(price1.getEffectiveDate());
+				}
+			});
+			//Now get first as price per unit area
+			price = list.get(0);
+		}
+		
+		return price;
+	}
 	@Override
 	protected ResourceType getResourceType() {
 		return ResourceType.LISTING;

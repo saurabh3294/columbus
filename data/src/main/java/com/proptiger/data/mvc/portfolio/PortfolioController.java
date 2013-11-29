@@ -1,6 +1,7 @@
 package com.proptiger.data.mvc.portfolio;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.portfolio.PortfolioService;
@@ -46,7 +48,11 @@ public class PortfolioController extends BaseController {
 				.parseJsonToObject(selectorStr, Selector.class);
 		Portfolio portfolio = portfolioService.getPortfolioByUserId(userInfo
 				.getUserIdentifier());
-		return postProcess(portfolio, 1, selector);
+		Set<String> fields = null;
+		if(selector != null){
+			fields = selector.getFields();
+		}
+		return new ProAPISuccessCountResponse(super.filterFields(portfolio, fields), 1);
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
@@ -82,7 +88,12 @@ public class PortfolioController extends BaseController {
 
 		List<PortfolioListing> listings = portfolioService
 				.getAllPortfolioListings(userInfo.getUserIdentifier());
-		return postProcess(listings, listings.size(), selector);
+		Set<String> fields = null;
+		if(selector != null){
+			fields = selector.getFields();
+		}
+		return new ProAPISuccessCountResponse(super.filterFields(listings, fields), 1);
+		//return postProcess(listings, listings.size(), selector);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/listing/{listingId}")
@@ -96,7 +107,12 @@ public class PortfolioController extends BaseController {
 				.parseJsonToObject(selectorStr, Selector.class);
 		PortfolioListing listing = portfolioService.getPortfolioListingById(
 				userInfo.getUserIdentifier(), listingId);
-		return postProcess(listing, 1, selector);
+		//super.filterFields(listing, selector.getFields());
+		Set<String> fields = null;
+		if(selector != null){
+			fields = selector.getFields();
+		}
+		return new ProAPISuccessCountResponse(super.filterFields(listing, fields), 1);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/listing")

@@ -1,14 +1,22 @@
 package com.proptiger.data.model;
 
 import java.util.List;
+import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -18,71 +26,94 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
+@Entity
+@Table(name = "cms.resi_project_options")
 public class Property implements BaseModel {
     @FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
     @Field(value="TYPE_ID")
+    @Column(name = "OPTIONS_ID")
+    @Id
+    
     private int propertyId;
 
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value="PROJECT_ID")
+    @Column(name = "PROJECT_ID")
     private int projectId;
 
     @FieldMetaInfo( displayName = "Bedrooms",  description = "Number of bedrooms")
     @Field(value="BEDROOMS")
+    @Column(name = "BEDROOMS")
     private int bedrooms;
     
     @FieldMetaInfo( displayName = "Bathrooms",  description = "Number of bathrooms")
     @Field(value="BATHROOMS")
+    @Column(name = "BATHROOMS")
     private int bathrooms;
     
     @FieldMetaInfo( displayName = "Unit type",  description = "Unit type")
     @Field(value="UNIT_TYPE")
+    @Column(name = "OPTION_TYPE")
     private String unitType;
     
     @FieldMetaInfo( displayName = "Unit name",  description = "Unit name")
     @Field(value="UNIT_NAME")
+    @Column(name = "OPTION_NAME")
     private String unitName;
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
     @Field(value="PRICE_PER_UNIT_AREA")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)    
+    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @Transient
     private Double pricePerUnitArea;
 
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @Column(name = "SIZE")
     private Double size;
 
     @FieldMetaInfo( displayName = "Measure",  description = "Measure")
     @Field(value="MEASURE")
+    @Transient
     private String measure;
 
     @FieldMetaInfo( displayName = "URL",  description = "URL")
     @Field(value="PROPERTY_URL")
+    @Transient
     private String URL;
 
     @FieldMetaInfo( displayName = "Locality Latitude",  description = "Locality Latitude")
     //@Field(value="PROCESSED_LATITUDE")
+    @Transient
     private Double processedLatitude;
     
     @FieldMetaInfo( displayName = "Locality Longitude",  description = "Locality Longitude")
     //@Field(value="PROCESSED_LONGITUDE")
+    @Transient
     private Double processedLongitude;
     
     @FieldMetaInfo( displayName = "Property Price",  description = "Property Price")
     @Field(value="BUDGET")
+    @Transient
     private Double budget;
     
     @FieldMetaInfo( displayName = "Project Id with Bedroom",  description = "Project Id with Bedroom")
     @Field(value="PROJECT_ID_BEDROOM")
+    @Transient
     private String projectIdBedroom;
     
     @ManyToOne
     @JoinColumn(name="PROJECT_ID")
+    @Transient
     private Project project;
 
     @Transient
     private List<Image> images;
+    
+    @OneToMany(mappedBy = "property", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private Set<Listing> listings;
 
     public int getProjectId() {
         return projectId;
@@ -211,4 +242,13 @@ public class Property implements BaseModel {
 	public void setProjectIdBedroom(String projectIdBedroom) {
 		this.projectIdBedroom = projectIdBedroom;
 	}
+
+	public Set<Listing> getListings() {
+		return listings;
+	}
+
+	public void setListings(Set<Listing> listings) {
+		this.listings = listings;
+	}
+	
 }

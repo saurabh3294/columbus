@@ -37,6 +37,7 @@ public class PortfolioPriceTrendService {
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
+	private PortfolioService portfolioService;
 	@Autowired
 	private ProjectPriceTrendService projectPriceTrendService;
 	
@@ -74,13 +75,14 @@ public class PortfolioPriceTrendService {
 	 */
 	private void updateProjectName(List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
-			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
+			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectId()));
 		}
 		
 	}
 
 	/**
-	 * Calculate Portfolio price trend for the properties associated with user
+	 * Calculate Portfolio price trend for the properties associated with user,
+	 * In case of no listing present for user, empty response will be returned
 	 * @param userId
 	 * @param noOfMonths
 	 * @return
@@ -91,7 +93,7 @@ public class PortfolioPriceTrendService {
 		List<PortfolioListing> listings = portfolioListingDao
 				.findByUserIdOrderByListingIdDesc(userId);
 		if(listings == null || listings.size() == 0){
-			throw new ResourceNotAvailableException("No PortfolioListings for user id "+userId);
+			return new PortfolioPriceTrend();
 		}
 		List<ProjectPriceTrend> projectPriceTrendTemp = getProjectPriceTrends(
 				noOfMonths, listings);
@@ -181,8 +183,7 @@ public class PortfolioPriceTrendService {
 				PortfolioListing listingForCurrentProject = getListingForProject(
 						priceTrend, listings);
 				priceDetail.setEffectiveDate(cal.getTime());
-				priceDetail.setPrice(listingForCurrentProject.getProjectType()
-						.getPricePerUnitArea());
+				priceDetail.setPrice(portfolioService.getPropertyPricePerUnitArea(listingForCurrentProject.getProperty()));
 				prices.add(priceDetail);
 				priceTrend.setPrices(prices);
 			}
@@ -336,7 +337,7 @@ public class PortfolioPriceTrendService {
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
 			if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
-					&& listing.getProjectType().getProjectId().equals(projectPriceTrend.getProjectId())) {
+					&& listing.getProjectId() == projectPriceTrend.getProjectId().intValue()) {
 				return listing;
 			}
 		}
@@ -352,7 +353,7 @@ public class PortfolioPriceTrendService {
 		for(PortfolioListing listing: listings){
 			ProjectPriceTrendInput input = new ProjectPriceTrendInput();
 			input.setListingName(listing.getName());
-			input.setProjectId(listing.getProjectType().getProjectId());
+			input.setProjectId(listing.getProjectId());
 			input.setTypeId(listing.getTypeId());
 			input.setProjectName(listing.getProjectName());
 			inputs.add(input);
