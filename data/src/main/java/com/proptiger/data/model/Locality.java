@@ -88,7 +88,7 @@ public class Locality implements BaseModel {
     @Column(name = "LONGITUDE")
     private Double longitude;
 
-    @OneToMany(mappedBy = "locality", targetEntity = Enquiry.class)
+    @OneToMany(mappedBy = "locality")
     @JsonIgnore
     private Set<Enquiry> enquiry = new HashSet<Enquiry>();
 

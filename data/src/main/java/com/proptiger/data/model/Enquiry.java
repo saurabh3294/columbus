@@ -95,8 +95,8 @@ public class Enquiry implements BaseModel {
     @Column(name = "GA_TIMESPENT")
     private String gaTimespent;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID")
+    @ManyToOne
+    @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
     @JsonIgnore
     private Locality locality;
     

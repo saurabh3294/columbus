@@ -22,7 +22,7 @@ import com.proptiger.data.util.Constants;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/recently-viewed")
+@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/wish-list")
 public class UserWishListController extends BaseController{
 
 	@Autowired
