@@ -64,6 +64,7 @@ public abstract class BaseController {
      * @param fields
      * @return
      */
+    @Deprecated
     protected <T> List<Map<String, Object>> filterOutAllExcept(List<T> list, Set<String> fields) {
 		try {
 			List<Map<String, Object>> result = new ArrayList<>();

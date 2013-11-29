@@ -14,6 +14,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
@@ -25,6 +26,7 @@ import com.proptiger.data.model.image.Image;
 @Entity
 @Table(name="RESI_PROJECT")
 @ResourceMetaInfo
+@JsonFilter("fieldFilter")
 @Deprecated
 public class ProjectDB implements BaseModel{
     @FieldMetaInfo(displayName="PROJECT ID", description="PROJECT ID")
