@@ -3,10 +3,17 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xmlns:mvc="http://www.springframework.org/schema/mvc"
 xmlns:context="http://www.springframework.org/schema/context"
+xmlns:aop="http://www.springframework.org/schema/aop"
+xmlns:cache="http://www.springframework.org/schema/cache"
+xmlns:c="http://www.springframework.org/schema/c"
+xmlns:p="http://www.springframework.org/schema/p"
 xsi:schemaLocation="
 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
+
 
     <!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
 
@@ -46,4 +53,29 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
             </value>
         </property>
     </bean>
+    
+    <context:property-placeholder location="classpath:/application.properties"/>
+    
+    <!-- Configuration for caching and annotation driven. --> 
+    <cache:annotation-driven />
+ 	<aop:aspectj-autoproxy/>
+    <!--bean id="before" class="com.proptiger.data.util.ResponseCaching"/-->
+    
+    <!-- Jedis ConnectionFactory -->
+    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+        p:host-name="${redis.hostName}" p:port="${redis.port}" p:use-pool="${redis.usePool}" />
+ 
+    <!-- redis template definition -->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate" p:connection-factory-ref="jedisConnectionFactory">
+        <property name="valueSerializer" ref="jdkSerializer" />
+	</bean>
+ 
+    <!-- declare Redis Cache Manager -->
+    <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager" c:template-ref="redisTemplate">
+    	<!--  Setting default Expiration time in seconds. Currently setting as 1 day. -->
+    	<property name="defaultExpiration" value="${redis.defaultExpirationTime}"></property>
+    </bean>
+    
+    <!--  Serializer for redis. -->
+    <bean id="jdkSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
 </beans>

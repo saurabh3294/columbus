@@ -3,6 +3,8 @@
  */
 package com.proptiger.data.model;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -17,6 +19,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 // DO NOT UNCOMMENT IT.
 //@JsonFilter("fieldFilter")
-public interface BaseModel {
+public interface BaseModel extends Serializable{
     
 }

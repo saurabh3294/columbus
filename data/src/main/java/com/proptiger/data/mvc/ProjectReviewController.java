@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectReview;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -26,6 +27,7 @@ public class ProjectReviewController {
 	
 	@RequestMapping(method = RequestMethod.GET,  value = "data/v1/entity/project/{projectId}/review")
 	@ResponseBody
+	@DisableCaching
 	public ProAPIResponse getProjectReviewByProjectId(
 			@PathVariable Long projectId){
 		List<ProjectReview> list = projectReviewService.getProjectReviewByProjectId(projectId);
