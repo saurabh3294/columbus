@@ -13,6 +13,7 @@
         <jdk.version>1.7</jdk.version>
         <slf4j.version>1.7.5</slf4j.version>
         <logback.version>1.0.13</logback.version>
+        <aspectj.version>1.6.11</aspectj.version>
     </properties>
     <build>
         <finalName>data</finalName>
@@ -220,13 +221,13 @@
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjrt</artifactId>
-			<version>1.6.11</version>
+			<version>${aspectj.version}</version>
 		</dependency>
  
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
-			<version>1.6.11</version>
+			<version>${aspectj.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.data</groupId>
@@ -238,12 +239,12 @@
 			<artifactId>jedis</artifactId>
 			<version>2.1.0</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>commons-pool</groupId>
 			<artifactId>commons-pool</artifactId>
 			<version>20030825.183949</version>
-		</dependency>
-		<dependency>
+		</dependency> -->
+		<!-- <dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
@@ -272,7 +273,7 @@
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-impl</artifactId>
 			<version>2.2-promoted-b65</version>
-		</dependency>
+		</dependency> -->
               
         
     </dependencies>

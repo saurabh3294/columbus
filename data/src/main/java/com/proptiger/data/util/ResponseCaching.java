@@ -61,14 +61,6 @@ public class ResponseCaching {
 	}
 
 	/*
-	 * This method will be called when some error is thrown during any of advices execution.
-	 */
-	@AfterThrowing(pointcut="execution(* com.proptiger.data.mvc.*.*(..))", throwing="ex")
-	public <T> void setResponse(JoinPoint jp, Exception ex) {
-		System.out.println(ToStringBuilder.reflectionToString(ex));
-	}
-
-	/*
 	 * This method will get data from cache. If returned data is null then
 	 * that cache key will be invalidated. This has to be done as for getting
 	 * the data from cache , @Cacheable annotation is used. This annotation
@@ -123,8 +115,7 @@ public class ResponseCaching {
 	 * will not be done.
 	 */
 	private boolean isCacheEnabled(JoinPoint jp){
-		//print(jp);
-		isValidUrlForCache();
+		// checking Disable Caching Annotation on a Controller Class.		
 		Object target = jp.getTarget();
 		Class<? extends Object> targetClass = target.getClass();
 		Annotation classAnnotation = targetClass.getAnnotation(DisableCaching.class);
@@ -151,59 +142,10 @@ public class ResponseCaching {
 	private boolean isValidUrlForCache(){
 		String url = httpServletRequest.getRequestURI();
 		
-		if(url.matches("/url/"))
+		if(url.matches("/user/"))
 			return false;
 		
 		return true;
 	}
-	/*private void print(JoinPoint jp){
-		//System.out.println(" REQUEST "+ gson.toJson(request));
-		Object[] args = jp.getArgs();
-		for(int i=0; i<args.length; i++)
-		{
-			if(args[i] != null)
-				System.out.println("ARG "+i+" : "+args[i].toString());
-		}
-		System.out.println("Target: "+jp.getTarget().toString());
-		System.out.println("KIND: "+jp.getKind().toString());
-		System.out.println("SIGNATURE: "+jp.getSignature().toString());
-		System.out.println("PJP  "+jp.toString());
-		System.out.println("THIS :"+ jp.getThis().toString());
-		System.out.println(" Return TYPE CLASS = " + getProxyMethodReturnType(jp));
-		
-		Gson gson = new Gson();
-		System.out.println("HTTP REQUEST OBJECT : "+gson.toJson(httpServletRequest)+" \n END \n");
-		System.out.println(httpServletRequest.getRequestURI());
-		printAnnotation(jp);
-		
-	}
 	
-	private void printAnnotation(JoinPoint jp){
-		 System.out.println("Target: " + jp.getTarget());
-		  Object target = jp.getTarget();
-		  Class<? extends Object> targetClass = target.getClass();
-		  printAnnotationArray(targetClass.getAnnotations());
-		  
-		  MethodSignature methodSignature = (MethodSignature)jp.getSignature();
-		  Method method = null;
-		  try{
-			  method = targetClass.getMethod(methodSignature.getName(), methodSignature.getParameterTypes());
-		  }catch(Exception e){
-			  e.printStackTrace();
-		  }
-		  if(method!=null){
-			  System.out.println("METHODS ");
-			  printAnnotationArray(method.getAnnotations());
-			  Annotation annotation = method.getAnnotation(DisableCaching.class);
-			  if(annotation!=null)
-				  System.out.println("DISABLE ANNOTATION PRESENT");
-		  }
-		  // TODO: Print method annotations
-	}
-	
-	private void printAnnotationArray(Annotation[] annotation){
-		for(int i=0; i<annotation.length; i++)
-			  System.out.println("i: "+i+" Class Annotation: " + annotation[i].toString());
-		  
-	}*/
 }
