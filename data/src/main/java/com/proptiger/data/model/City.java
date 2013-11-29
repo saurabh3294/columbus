@@ -20,7 +20,7 @@ import javax.persistence.Transient;
 @Table(name = "CITY")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class City{
+public class City implements BaseModel{
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")

@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "wordpress.wp_terms")
-public class WordpressTerms {
+public class WordpressTerms implements BaseModel{
 
 	@Id
 	@Column(name = "term_id")

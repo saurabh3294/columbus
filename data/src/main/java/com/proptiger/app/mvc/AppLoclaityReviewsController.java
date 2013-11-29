@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -30,6 +31,7 @@ public class AppLoclaityReviewsController {
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
+    @DisableCaching
     public ProAPIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId,@RequestParam(required = false) Integer numberOfReviews){
         if(localityId == null || localityId < 1)
             return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");

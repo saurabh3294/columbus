@@ -48,7 +48,6 @@ public class DashboardService extends AbstractService{
 	 * @return
 	 */
 	@Transactional
-	@Cacheable(value = "dashboard", key = "userId")
 	public List<Dashboard> getAllByUserId(Integer userId){
 		logger.debug("Finding all dashboards for userid {}",userId);
 		List<Dashboard> result = dashboardDao.findByUserId(userId);
@@ -96,7 +95,6 @@ public class DashboardService extends AbstractService{
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	@Cacheable(value = "dashboard")
 	public Dashboard getDashboardById(Integer userId, Integer dashboardId){
 		logger.debug("Finding dashboard id {} for userid {}",userId, dashboardId);
 		Dashboard result = dashboardDao.findByIdAndUserId(dashboardId, userId);

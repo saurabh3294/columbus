@@ -16,7 +16,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "wordpress.wp_posts")
 @ResourceMetaInfo
-public class WordpressPost {
+public class WordpressPost implements BaseModel{
 
 	@Id
 	@Column(name = "ID")

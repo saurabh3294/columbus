@@ -17,7 +17,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "LOCALITY_REVIEW")
 @ResourceMetaInfo
-public class LocalityReview{
+public class LocalityReview implements BaseModel{
     @FieldMetaInfo(displayName = "Review Id", description = "Review Id")
     @Column(name = "REVIEW_ID")
     @Id

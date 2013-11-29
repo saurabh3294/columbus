@@ -79,7 +79,7 @@ public class ProjectDetailController extends BaseController {
         response.put("projectDetails", projectInfo);
         response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
-        response.put("totalProjectDiscussion", totalProjectDiscussion);
+        response.put("totalProjectDiscussions", totalProjectDiscussion);
         
         return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }

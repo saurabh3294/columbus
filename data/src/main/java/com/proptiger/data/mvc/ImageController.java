@@ -60,9 +60,10 @@ public class ImageController extends BaseController {
         DomainObject domainObject = DomainObject.valueOf(objectType);
         int domainObjectValueStart = domainObject.getStartId();
         long normalizedObjectId = objectId;
-        if(objectId>domainObjectValueStart)
-        	normalizedObjectId = objectId-domainObjectValueStart; 
-        System.out.println(" OLD ID: "+objectId+" normalized id: "+normalizedObjectId);
+        if (objectId > domainObjectValueStart) {
+        	normalizedObjectId = objectId - domainObjectValueStart;
+        }
+        
         Image img = imageService.uploadImage(domainObject, imageType, normalizedObjectId, image,
                 addWaterMark, extraInfo);
         return new ProAPISuccessResponse(super.filterFields(img, null));

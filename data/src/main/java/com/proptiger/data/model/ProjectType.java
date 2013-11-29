@@ -21,7 +21,7 @@ import com.proptiger.data.model.portfolio.UnitType;
 @Entity
 @Table(name="RESI_PROJECT_TYPES")
 @ResourceMetaInfo
-public class ProjectType {
+public class ProjectType implements BaseModel{
 
 	@Id
 	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
