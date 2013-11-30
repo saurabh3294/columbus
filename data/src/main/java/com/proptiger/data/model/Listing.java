@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
@@ -20,7 +21,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @Entity
 @Table(name = "cms.listings")
-public class Listing {
+@JsonFilter("fieldFilter")
+public class Listing implements BaseModel{
 
 	@Id
 	@Column(name = "id")

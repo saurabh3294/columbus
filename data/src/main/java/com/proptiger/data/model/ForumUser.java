@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -22,6 +23,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name="FORUM_USER")
 @ResourceMetaInfo
+@JsonFilter("fieldFilter")
 public class ForumUser implements BaseModel{
     @Column(name = "USER_ID")
     @Id

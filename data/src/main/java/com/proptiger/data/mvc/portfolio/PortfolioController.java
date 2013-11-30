@@ -1,5 +1,6 @@
 package com.proptiger.data.mvc.portfolio;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -92,7 +93,7 @@ public class PortfolioController extends BaseController {
 		if(selector != null){
 			fields = selector.getFields();
 		}
-		return new ProAPISuccessCountResponse(super.filterFields(listings, fields), 1);
+		return new ProAPISuccessCountResponse(super.filterFields(listings, fields), listings.size());
 		//return postProcess(listings, listings.size(), selector);
 	}
 
@@ -112,7 +113,9 @@ public class PortfolioController extends BaseController {
 		if(selector != null){
 			fields = selector.getFields();
 		}
-		return new ProAPISuccessCountResponse(super.filterFields(listing, fields), 1);
+		List<PortfolioListing> list = new ArrayList<>();
+		list.add(listing);
+		return new ProAPISuccessCountResponse(super.filterFields(list, fields), 1);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/listing")

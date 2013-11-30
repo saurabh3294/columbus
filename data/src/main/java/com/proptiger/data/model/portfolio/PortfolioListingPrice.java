@@ -2,7 +2,6 @@ package com.proptiger.data.model.portfolio;
 
 import java.util.Date;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,9 +13,11 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.BaseModel;
 
 /**
  * @author Rajeev Pandey
@@ -25,7 +26,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "portfolio_listings_price")
 @ResourceMetaInfo
-public class PortfolioListingPrice {
+@JsonFilter("fieldFilter")
+public class PortfolioListingPrice implements BaseModel {
 
 	@Id
 	@FieldMetaInfo(displayName = "Portfolio Listing Price Id", description = "Portfolio Listing Price Id")

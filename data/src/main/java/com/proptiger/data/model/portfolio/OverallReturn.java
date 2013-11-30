@@ -2,16 +2,19 @@ package com.proptiger.data.model.portfolio;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.BaseModel;
 
 /**
  * @author Rajeev Pandey
  *
  */
 @ResourceMetaInfo
-public class OverallReturn {
+@JsonFilter("fieldFilter")
+public class OverallReturn implements BaseModel {
 	@FieldMetaInfo(dataType = DataType.STRING, displayName = "returnType", description = "Return Type")
 	private ReturnType returnType;
 	
