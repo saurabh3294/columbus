@@ -18,7 +18,7 @@ public class IdConverterForDatabase {
 		Integer typeId = 0;
 		if (propertyId != null
 				&& propertyId > DomainObject.property.getStartId()) {
-			typeId = propertyId	- DomainObject.project.getStartId();
+			typeId = propertyId	- DomainObject.property.getStartId();
 		}
 		return typeId;
 	}
