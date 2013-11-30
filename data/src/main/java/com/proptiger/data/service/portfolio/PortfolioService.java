@@ -45,6 +45,7 @@ import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.CityRepository;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeField;
@@ -356,7 +357,7 @@ public class PortfolioService extends AbstractService{
 		return currentValue.doubleValue();
 	}
 	private void updateOtherSpecificData(PortfolioListing listing) {
-		Integer projectId = listing.getProperty().getProjectId();
+		Integer projectId = IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty());
 		ProjectDB project = projectDBDao.findOne(projectId);
 		if(project != null){
 			listing.setProjectName(project.getProjectName());
@@ -566,7 +567,9 @@ public class PortfolioService extends AbstractService{
 					|| portfolioListing.getListingPaymentPlan().size() == 0) {
 				if (portfolioListing.getProperty() != null) {
 					List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
-							.findByProjectIdGroupByInstallmentNo(portfolioListing.getProperty().getProjectId());
+							.findByProjectIdGroupByInstallmentNo(IdConverterForDatabase
+									.convertProjectIdFromCMSToProptiger(portfolioListing
+											.getProperty()));
 					Set<PortfolioListingPaymentPlan> listingPaymentPlan = convertToPortfolioListingPaymentPlan(paymentScheduleList);
 					portfolioListing.setListingPaymentPlan(listingPaymentPlan);
 				}
@@ -655,7 +658,7 @@ public class PortfolioService extends AbstractService{
 	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {
 		Enquiry enquiry = new Enquiry();
 		Property property = listing.getProperty();
-		ProjectDB project = projectDBDao.findOne(property.getProjectId());
+		ProjectDB project = projectDBDao.findOne(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(property));
 		
 		enquiry.setAdGrp("");
 		enquiry.setCampaign("");
@@ -681,7 +684,7 @@ public class PortfolioService extends AbstractService{
 		enquiry.setPageUrl("");
 		enquiry.setPhone(user.getContact()+"");
 		enquiry.setPpc("");
-		enquiry.setProjectId(Long.valueOf(property.getProjectId()));
+		enquiry.setProjectId(Long.valueOf(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(property)));
 		enquiry.setProjectName(project.getProjectName());
 		enquiry.setQuery("");
 		enquiry.setSource("");
@@ -770,20 +773,23 @@ public class PortfolioService extends AbstractService{
 	}
 	private ListingResaleMail createListingResaleMailObj(
 			PortfolioListing listing) {
-		List<Property> properties = propertyService.getProperties(listing.getProperty().getProjectId());
-		StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty("proptiger.url"));
-		if(properties != null && !properties.isEmpty()){
+		List<Property> properties = propertyService
+				.getProperties(IdConverterForDatabase
+						.convertProjectIdFromCMSToProptiger(listing.getProperty()));
+		StringBuilder url = new StringBuilder(
+				propertyReader.getRequiredProperty("proptiger.url"));
+		if (properties != null && !properties.isEmpty()) {
 			Property required = null;
-			for(Property property: properties){
-				if(property.getPropertyId() == listing.getTypeId().intValue()){
+			for (Property property : properties) {
+				if (property.getPropertyId() == listing.getTypeId().intValue()) {
 					required = property;
 					break;
 				}
 			}
-			if(required != null){
+			if (required != null) {
 				url.append(required.getURL());
 			}
-			
+
 		}
 		ListingResaleMail listingResaleMail = new ListingResaleMail();
 		listingResaleMail.setBuilder(listing.getBuilderName());

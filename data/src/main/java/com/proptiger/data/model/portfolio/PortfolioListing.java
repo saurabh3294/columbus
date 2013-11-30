@@ -57,6 +57,8 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	@FieldMetaInfo(displayName = "Project Name", description = "Project Name")
 	private String projectName;
 	@Transient
+	private Integer oldProjectId;
+	@Transient
 	private String builderName;
 	@Transient
 	private String locality;
@@ -470,12 +472,6 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	}
 	
 	public Property getProperty() {
-		if (this.property != null
-				&& this.property.getProjectId() > DomainObject.project
-						.getStartId()) {
-			this.property.setProjectId(this.property.getProjectId()
-					- DomainObject.project.getStartId());
-		}
 		return property;
 	}
 
@@ -490,7 +486,14 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	public void setListingMeasure(String listingMeasure) {
 		this.listingMeasure = listingMeasure;
 	}
+	
+	public Integer getOldProjectId() {
+		return oldProjectId;
+	}
 
+	public void setOldProjectId(Integer projectId){
+		this.oldProjectId = projectId;
+	}
 	@PreUpdate
     public void preUpdate(){
     	updatedAt = new Date();

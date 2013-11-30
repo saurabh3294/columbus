@@ -16,11 +16,14 @@ import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
+import com.proptiger.data.model.DomainObject;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
+import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -75,7 +78,7 @@ public class PortfolioPriceTrendService {
 	 */
 	private void updateProjectName(List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
-			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
+			listing.setProjectName(projectDBDao.getProjectNameById(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty())));
 		}
 		
 	}
@@ -335,9 +338,12 @@ public class PortfolioPriceTrendService {
 	 */
 	private PortfolioListing getListingForProject(
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
-		for(PortfolioListing listing: listings){
+		for (PortfolioListing listing : listings) {
 			if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
-					&& listing.getProperty().getProjectId() == projectPriceTrend.getProjectId().intValue()) {
+					&& IdConverterForDatabase
+							.convertProjectIdFromCMSToProptiger(listing
+									.getProperty()) == projectPriceTrend
+							.getProjectId().intValue()) {
 				return listing;
 			}
 		}
@@ -353,11 +359,12 @@ public class PortfolioPriceTrendService {
 		for(PortfolioListing listing: listings){
 			ProjectPriceTrendInput input = new ProjectPriceTrendInput();
 			input.setListingName(listing.getName());
-			input.setProjectId(listing.getProperty().getProjectId());
+			input.setProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
 			input.setTypeId(listing.getTypeId());
 			input.setProjectName(listing.getProjectName());
 			inputs.add(input);
 		}
 		return inputs;
 	}
+	
 }

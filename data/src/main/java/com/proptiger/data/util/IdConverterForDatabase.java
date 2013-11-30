@@ -1,0 +1,17 @@
+package com.proptiger.data.util;
+
+import com.proptiger.data.model.DomainObject;
+import com.proptiger.data.model.Property;
+
+public class IdConverterForDatabase {
+
+	public static Integer convertProjectIdFromCMSToProptiger(Property property){
+		Integer projectId = 0;
+		if (property != null
+				&& property.getProjectId() > DomainObject.project
+						.getStartId()) {
+			projectId = property.getProjectId()	- DomainObject.project.getStartId();
+		}
+		return projectId;
+	}
+}
