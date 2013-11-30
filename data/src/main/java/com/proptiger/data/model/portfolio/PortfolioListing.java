@@ -99,6 +99,9 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	@Column(name = "size")
 	private Double listingSize;
 	
+	@Transient
+	private String listingMeasure = "sq ft";
+	
 	@FieldMetaInfo(dataType = DataType.DATE, displayName = "Purchase Date", description = "Purchase Date")
 	@Column(name = "purchased_date")
 	private Date purchaseDate;
@@ -479,14 +482,15 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	public void setProperty(Property property) {
 		this.property = property;
 	}
+	
+	public String getListingMeasure() {
+		return listingMeasure;
+	}
 
-//	public Integer getProjectId(){
-//		Integer projectId = null;
-//		if(this.property != null && this.property.getProjectId() > DomainObject.project.getStartId()){
-//			projectId = this.property.getProjectId() - DomainObject.project.getStartId();
-//		}
-//		return projectId;
-//	}
+	public void setListingMeasure(String listingMeasure) {
+		this.listingMeasure = listingMeasure;
+	}
+
 	@PreUpdate
     public void preUpdate(){
     	updatedAt = new Date();
