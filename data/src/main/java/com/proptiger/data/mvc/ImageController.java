@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -24,6 +25,7 @@ import com.proptiger.data.service.ImageService;
  * 
  */
 @Controller
+@DisableCaching
 @RequestMapping(value = "data/v1/entity/image")
 public class ImageController extends BaseController {
     @Autowired
@@ -45,6 +47,7 @@ public class ImageController extends BaseController {
         return new ProAPISuccessResponse(super.filterFields(images, imageSelector.getFields()));
     }
 
+    @DisableCaching
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody
     Object putImages(@RequestParam String objectType, @RequestParam String imageType, @RequestParam long objectId,
@@ -66,7 +69,7 @@ public class ImageController extends BaseController {
         
         Image img = imageService.uploadImage(domainObject, imageType, normalizedObjectId, image,
                 addWaterMark, extraInfo);
-        return new ProAPISuccessResponse(super.filterFields(img, null));
+        return new ProAPISuccessResponse(super.filterFieldsWithTree(img, null));
     }
 
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
