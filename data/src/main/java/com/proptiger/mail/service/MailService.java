@@ -2,21 +2,15 @@ package com.proptiger.mail.service;
 
 import java.util.concurrent.Future;
 
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.exception.ProAPIException;
 
 
 /**
@@ -44,10 +38,10 @@ public class MailService {
 	@Async
 	public boolean sendMailUsingAws(String[] mailTo, String mailContent, String subject){
 		if(mailTo == null || mailTo.length == 0){
-			throw new IllegalArgumentException("To address is empty");
+			throw new ProAPIException("To address is empty");
 		}
 		if(subject == null || subject.isEmpty()){
-			throw new IllegalArgumentException("Subject is empty");
+			throw new ProAPIException("Subject is empty");
 		}
 		return amazonMailSender.sendMail(mailTo, mailContent, subject);
 	}
@@ -66,7 +60,7 @@ public class MailService {
 			return sendMailUsingAws(toList, mailContent, subject);
 		}
 		else{
-			throw new IllegalArgumentException("To address is empty");
+			throw new ProAPIException("To address is empty");
 		}
 	}
 	/**
@@ -78,7 +72,7 @@ public class MailService {
 	@Async
 	public Future<Boolean> sendMailUsingAwsWithAck(String[] mailTo, String mailContent, String subject){
 		if(mailTo == null || mailTo.length == 0){
-			throw new IllegalArgumentException("To address is empty");
+			throw new ProAPIException("To address is empty");
 		}
 		try {
 			amazonMailSender.sendMail(mailTo, mailContent, subject);

@@ -26,6 +26,7 @@ import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
 import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.LeadPostException;
+import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
@@ -46,6 +47,16 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	protected ProAPIResponse handleGenericException(Exception ex){
+		logger.error("handleGenericException - Catching ",ex);
+		
+		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
+				ResponseErrorMessages.SOME_ERROR_OCCURED);
+	}
+	
+	@ExceptionHandler(ProAPIException.class)
+	@ResponseBody
+	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+	protected ProAPIResponse handleProAPIException(ProAPIException ex){
 		logger.error("handleGenericException - Catching ",ex);
 		
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
