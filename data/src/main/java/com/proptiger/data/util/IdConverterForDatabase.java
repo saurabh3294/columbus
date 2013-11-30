@@ -14,4 +14,12 @@ public class IdConverterForDatabase {
 		}
 		return projectId;
 	}
+	public static Integer convertPropertyIdFromCMSToProptiger(Integer propertyId){
+		Integer typeId = 0;
+		if (propertyId != null
+				&& propertyId > DomainObject.property.getStartId()) {
+			typeId = propertyId	- DomainObject.project.getStartId();
+		}
+		return typeId;
+	}
 }

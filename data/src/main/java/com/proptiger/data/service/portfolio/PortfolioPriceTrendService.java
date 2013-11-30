@@ -339,7 +339,7 @@ public class PortfolioPriceTrendService {
 	private PortfolioListing getListingForProject(
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
 		for (PortfolioListing listing : listings) {
-			if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
+			if (IdConverterForDatabase.convertPropertyIdFromCMSToProptiger(listing.getTypeId()).equals(projectPriceTrend.getTypeId())
 					&& IdConverterForDatabase
 							.convertProjectIdFromCMSToProptiger(listing
 									.getProperty()) == projectPriceTrend
