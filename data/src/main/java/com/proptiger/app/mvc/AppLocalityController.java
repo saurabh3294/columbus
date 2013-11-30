@@ -22,13 +22,7 @@ public class AppLocalityController {
 	@ResponseBody
 	@DisableCaching
 	public ProAPIResponse getLocalityListingData(@RequestParam int cityId){
-		Object object = null;
-		try{
-			object = localityService.getProjectStatusCountOnLocalityByCity(cityId);
-		}
-		catch(Exception e){
-			e.printStackTrace();
-		}
+		Object object = localityService.getProjectStatusCountOnLocalityByCity(cityId);
 		return new ProAPISuccessResponse(object);
 	}
 	

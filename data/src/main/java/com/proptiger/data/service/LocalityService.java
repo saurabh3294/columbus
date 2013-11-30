@@ -35,7 +35,7 @@ public class LocalityService {
         return Lists.newArrayList(localityDao.getLocalities(selector));
     }
     
-   /* public void setProjectStatusCountOnLocality(List<Locality> localities, int cityId){
+    public void setProjectStatusCountOnLocality(List<Locality> localities, int cityId){
     	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(cityId);
     	
     	int size = localities.size();
@@ -47,12 +47,10 @@ public class LocalityService {
     		//localityProjectStatusCount.remove(locality.getLocalityId());
     	}
 
-    }*/
+    }
     
     public Map<Integer, Map<String, Integer>> getProjectStatusCountOnLocalityByCity(int cityId) {
-    	return new HashMap<>();
-    	/*Map<String, Integer> solrProjectStatusCount = projectDao.getProjectStatusCountOnLocalityByCity(cityId);
-    	
+    	Map<String, Integer> solrProjectStatusCount = projectDao.getProjectStatusCountOnLocalityByCity(cityId);
     	Map<Integer, Map<String, Integer>> localityProjectStatusCount = new HashMap<Integer, Map<String,Integer>>();
     	String[] split;
     	Integer localityId;
@@ -70,7 +68,7 @@ public class LocalityService {
     		localityProjectStatusCount.put(localityId, projectStatusCount);
     	
     	}
-    	return localityProjectStatusCount;*/
+    	return localityProjectStatusCount;
    }
     
 }

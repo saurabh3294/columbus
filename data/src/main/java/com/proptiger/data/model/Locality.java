@@ -94,7 +94,6 @@ public class Locality implements BaseModel {
     @JsonIgnore
     private Set<Enquiry> enquiry = new HashSet<Enquiry>();
     
-    @FieldMetaInfo(displayName = "Project Status Counts", description = "Project Status Counts")
     @Transient
     Map<String, Integer> projectStatusCount;
     
