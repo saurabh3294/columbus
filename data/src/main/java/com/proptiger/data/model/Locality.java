@@ -1,6 +1,7 @@
     package com.proptiger.data.model;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -91,7 +93,11 @@ public class Locality implements BaseModel {
     @OneToMany(mappedBy = "locality", targetEntity = Enquiry.class)
     @JsonIgnore
     private Set<Enquiry> enquiry = new HashSet<Enquiry>();
-
+    
+    @FieldMetaInfo(displayName = "Project Status Counts", description = "Project Status Counts")
+    @Transient
+    Map<String, Integer> projectStatusCount;
+    
     public int getLocalityId() {
         return localityId;
     }
@@ -219,4 +225,12 @@ public class Locality implements BaseModel {
     public void setDeletedFlag(boolean deletedFlag) {
         this.deletedFlag = deletedFlag;
     }
+
+	public Map<String, Integer> getProjectStatusCount() {
+		return projectStatusCount;
+	}
+
+	public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
+		this.projectStatusCount = projectStatusCount;
+	}
 }
