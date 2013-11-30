@@ -63,7 +63,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		Portfolio created = portfolioService.createPortfolio(
 				userInfo.getUserIdentifier(), portfolio);
-		return new ProAPISuccessResponse(created);
+		return new ProAPISuccessCountResponse(super.filterFieldsWithTree(created, null), 1);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT)
@@ -121,7 +121,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing created = portfolioService.createPortfolioListing(
 				userInfo.getUserIdentifier(), portfolioProperty);
-		return new ProAPISuccessResponse(created);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(created, null));
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}")
@@ -133,7 +133,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.updatePortfolioListing(
 				userInfo.getUserIdentifier(), listingId, portfolioProperty);
-		return new ProAPISuccessResponse(listing);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/listing/{listingId}")
@@ -143,7 +143,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.deletePortfolioListing(
 				userInfo.getUserIdentifier(), listingId);
-		return new ProAPISuccessResponse(listing);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/interested-to-sell")
@@ -155,7 +155,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.interestedToSellListing(
 				userInfo.getUserIdentifier(), listingId, interestedToSell);
-		return new ProAPISuccessResponse(listing);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/loan-request")
@@ -167,7 +167,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.interestedToHomeLoan(
 				userInfo.getUserIdentifier(), listingId, interestedToLoan);
-		return new ProAPISuccessResponse(listing);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 
 	/**
