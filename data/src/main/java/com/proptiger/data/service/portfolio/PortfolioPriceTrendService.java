@@ -16,11 +16,14 @@ import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
+import com.proptiger.data.model.DomainObject;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
+import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -37,6 +40,8 @@ public class PortfolioPriceTrendService {
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
+	@Autowired
+	private PortfolioService portfolioService;
 	@Autowired
 	private ProjectPriceTrendService projectPriceTrendService;
 	
@@ -74,13 +79,14 @@ public class PortfolioPriceTrendService {
 	 */
 	private void updateProjectName(List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
-			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectType().getProjectId()));
+			listing.setProjectName(projectDBDao.getProjectNameById(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty())));
 		}
 		
 	}
 
 	/**
-	 * Calculate Portfolio price trend for the properties associated with user
+	 * Calculate Portfolio price trend for the properties associated with user,
+	 * In case of no listing present for user, empty response will be returned
 	 * @param userId
 	 * @param noOfMonths
 	 * @return
@@ -91,7 +97,7 @@ public class PortfolioPriceTrendService {
 		List<PortfolioListing> listings = portfolioListingDao
 				.findByUserIdOrderByListingIdDesc(userId);
 		if(listings == null || listings.size() == 0){
-			throw new ResourceNotAvailableException("No PortfolioListings for user id "+userId);
+			return new PortfolioPriceTrend();
 		}
 		List<ProjectPriceTrend> projectPriceTrendTemp = getProjectPriceTrends(
 				noOfMonths, listings);
@@ -181,8 +187,7 @@ public class PortfolioPriceTrendService {
 				PortfolioListing listingForCurrentProject = getListingForProject(
 						priceTrend, listings);
 				priceDetail.setEffectiveDate(cal.getTime());
-				priceDetail.setPrice(listingForCurrentProject.getProjectType()
-						.getPricePerUnitArea());
+				priceDetail.setPrice(portfolioService.getPropertyPricePerUnitArea(listingForCurrentProject.getProperty()));
 				prices.add(priceDetail);
 				priceTrend.setPrices(prices);
 			}
@@ -334,9 +339,12 @@ public class PortfolioPriceTrendService {
 	 */
 	private PortfolioListing getListingForProject(
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
-		for(PortfolioListing listing: listings){
+		for (PortfolioListing listing : listings) {
 			if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
-					&& listing.getProjectType().getProjectId().equals(projectPriceTrend.getProjectId())) {
+					&& IdConverterForDatabase
+							.convertProjectIdFromCMSToProptiger(listing
+									.getProperty()) == projectPriceTrend
+							.getProjectId().intValue()) {
 				return listing;
 			}
 		}
@@ -352,11 +360,12 @@ public class PortfolioPriceTrendService {
 		for(PortfolioListing listing: listings){
 			ProjectPriceTrendInput input = new ProjectPriceTrendInput();
 			input.setListingName(listing.getName());
-			input.setProjectId(listing.getProjectType().getProjectId());
+			input.setProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
 			input.setTypeId(listing.getTypeId());
 			input.setProjectName(listing.getProjectName());
 			inputs.add(input);
 		}
 		return inputs;
 	}
+	
 }

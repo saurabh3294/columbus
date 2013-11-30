@@ -51,8 +51,6 @@ public abstract class BaseController {
 			}
 
 			return mapper.readValue(mapper.writer(filterProvider).writeValueAsString(object), object.getClass());
-			//return mapper.readTree(mapper.writer(filterProvider).writeValueAsString(object));
-
 		}
         catch (Exception e) {
             throw new ProAPIException("Could not serialize response", e);
@@ -64,6 +62,7 @@ public abstract class BaseController {
      * @param fields
      * @return
      */
+    @Deprecated
     protected <T> List<Map<String, Object>> filterOutAllExcept(List<T> list, Set<String> fields) {
 		try {
 			List<Map<String, Object>> result = new ArrayList<>();
@@ -143,5 +142,26 @@ public abstract class BaseController {
     				val, selector.getFields()), count);
     	}
     	return new ProAPISuccessCountResponse(val, count);
+    }
+
+    public Object filterFieldsWithTree(Object object, Set<String> fields) {
+        try {
+            Set<String> fieldSet = new HashSet<String>();
+            FilterProvider filterProvider = new SimpleFilterProvider()
+                    .addFilter("fieldFilter", SimpleBeanPropertyFilter
+                            .serializeAllExcept(fieldSet));
+
+            if (fields != null) {
+                filterProvider = new SimpleFilterProvider().addFilter(
+                        "fieldFilter",
+                        SimpleBeanPropertyFilter.filterOutAllExcept(fields));
+            }
+
+            return mapper.readTree(mapper.writer(filterProvider).writeValueAsString(object));
+
+        }
+        catch (Exception e) {
+            throw new ProAPIException("Could not serialize response", e);
+        }
     }
 }

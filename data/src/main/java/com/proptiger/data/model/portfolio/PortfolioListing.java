@@ -1,7 +1,6 @@
 package com.proptiger.data.model.portfolio;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -22,14 +21,17 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.Bank;
+import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.ProjectType;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 
@@ -41,7 +43,8 @@ import com.proptiger.data.model.resource.Resource;
 @Entity
 @Table(name = "portfolio_listings")
 @ResourceMetaInfo
-public class PortfolioListing implements NamedResource, Resource{
+@JsonFilter("fieldFilter")
+public class PortfolioListing implements NamedResource, Resource, BaseModel{
 
 	@Id
 	@FieldMetaInfo(displayName = "PortfolioListing Id", description = "PortfolioListing Id")
@@ -53,6 +56,8 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Transient
 	@FieldMetaInfo(displayName = "Project Name", description = "Project Name")
 	private String projectName;
+	@Transient
+	private Integer oldProjectId;
 	@Transient
 	private String builderName;
 	@Transient
@@ -95,6 +100,9 @@ public class PortfolioListing implements NamedResource, Resource{
 	@FieldMetaInfo(displayName = "Listing Size", description = "Listing Size")
 	@Column(name = "size")
 	private Double listingSize;
+	
+	@Transient
+	private String listingMeasure = "sq ft";
 	
 	@FieldMetaInfo(dataType = DataType.DATE, displayName = "Purchase Date", description = "Purchase Date")
 	@Column(name = "purchased_date")
@@ -165,8 +173,6 @@ public class PortfolioListing implements NamedResource, Resource{
 	@Enumerated(EnumType.STRING)
 	private ListingStatus listingStatus = ListingStatus.ACTIVE;
 	
-	
-	
 	@Column(name = "created_at")
 	private Date createdAt;
 	
@@ -176,7 +182,7 @@ public class PortfolioListing implements NamedResource, Resource{
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "type_id", nullable = false, insertable = false, updatable = false)
 	@JsonUnwrapped
-	private ProjectType projectType = null;
+	private Property property;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id",  nullable = false, insertable = false, updatable = false)
@@ -292,12 +298,6 @@ public class PortfolioListing implements NamedResource, Resource{
 	}
 	public void setTransactionType(TransactionType transactionType) {
 		this.transactionType = transactionType;
-	}
-	public ProjectType getProjectType() {
-		return projectType;
-	}
-	public void setProjectType(ProjectType projectTypes) {
-		this.projectType = projectTypes;
 	}
 	public Integer getUserId() {
 		return userId;
@@ -470,7 +470,30 @@ public class PortfolioListing implements NamedResource, Resource{
 	public void setInterestedToLoanOn(Date interestedToLoanOn) {
 		this.interestedToLoanOn = interestedToLoanOn;
 	}
+	
+	public Property getProperty() {
+		return property;
+	}
 
+	public void setProperty(Property property) {
+		this.property = property;
+	}
+	
+	public String getListingMeasure() {
+		return listingMeasure;
+	}
+
+	public void setListingMeasure(String listingMeasure) {
+		this.listingMeasure = listingMeasure;
+	}
+	
+	public Integer getOldProjectId() {
+		return oldProjectId;
+	}
+
+	public void setOldProjectId(Integer projectId){
+		this.oldProjectId = projectId;
+	}
 	@PreUpdate
     public void preUpdate(){
     	updatedAt = new Date();

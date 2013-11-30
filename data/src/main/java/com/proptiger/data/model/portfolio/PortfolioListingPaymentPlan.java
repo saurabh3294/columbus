@@ -14,12 +14,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.BaseModel;
 
 /**
  * Payment plan model
@@ -29,7 +30,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "portfolio_listings_payment_plan")
 @ResourceMetaInfo
-public class PortfolioListingPaymentPlan {
+@JsonFilter("fieldFilter")
+public class PortfolioListingPaymentPlan implements BaseModel {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

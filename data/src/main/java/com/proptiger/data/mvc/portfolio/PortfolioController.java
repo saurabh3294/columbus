@@ -1,6 +1,7 @@
 package com.proptiger.data.mvc.portfolio;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,14 +16,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.portfolio.PortfolioService;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.IdConverterForDatabase;
 
 /**
  * @author Rajeev Pandey
@@ -46,7 +50,11 @@ public class PortfolioController extends BaseController {
 				.parseJsonToObject(selectorStr, Selector.class);
 		Portfolio portfolio = portfolioService.getPortfolioByUserId(userInfo
 				.getUserIdentifier());
-		return postProcess(portfolio, 1, selector);
+		Set<String> fields = null;
+		if(selector != null){
+			fields = selector.getFields();
+		}
+		return new ProAPISuccessCountResponse(super.filterFieldsWithTree(portfolio, fields), 1);
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
@@ -57,7 +65,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		Portfolio created = portfolioService.createPortfolio(
 				userInfo.getUserIdentifier(), portfolio);
-		return new ProAPISuccessResponse(created);
+		return new ProAPISuccessCountResponse(super.filterFieldsWithTree(created, null), 1);
 	}
 
 	@RequestMapping(method = RequestMethod.PUT)
@@ -82,7 +90,12 @@ public class PortfolioController extends BaseController {
 
 		List<PortfolioListing> listings = portfolioService
 				.getAllPortfolioListings(userInfo.getUserIdentifier());
-		return postProcess(listings, listings.size(), selector);
+		updateOldProjectId(listings);
+		Set<String> fields = null;
+		if(selector != null){
+			fields = selector.getFields();
+		}
+		return new ProAPISuccessCountResponse(super.filterFields(listings, fields), listings.size());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/listing/{listingId}")
@@ -96,7 +109,12 @@ public class PortfolioController extends BaseController {
 				.parseJsonToObject(selectorStr, Selector.class);
 		PortfolioListing listing = portfolioService.getPortfolioListingById(
 				userInfo.getUserIdentifier(), listingId);
-		return postProcess(listing, 1, selector);
+		updateOldProjectId(listing);
+		Set<String> fields = null;
+		if(selector != null){
+			fields = selector.getFields();
+		}
+		return new ProAPISuccessCountResponse(super.filterFieldsWithTree(listing, fields), 1);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/listing")
@@ -106,7 +124,8 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing created = portfolioService.createPortfolioListing(
 				userInfo.getUserIdentifier(), portfolioProperty);
-		return new ProAPISuccessResponse(created);
+		updateOldProjectId(created);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(created, null));
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}")
@@ -118,7 +137,8 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.updatePortfolioListing(
 				userInfo.getUserIdentifier(), listingId, portfolioProperty);
-		return new ProAPISuccessResponse(listing);
+		updateOldProjectId(listing);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/listing/{listingId}")
@@ -128,7 +148,8 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.deletePortfolioListing(
 				userInfo.getUserIdentifier(), listingId);
-		return new ProAPISuccessResponse(listing);
+		updateOldProjectId(listing);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/interested-to-sell")
@@ -140,7 +161,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.interestedToSellListing(
 				userInfo.getUserIdentifier(), listingId, interestedToSell);
-		return new ProAPISuccessResponse(listing);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/loan-request")
@@ -152,7 +173,7 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.interestedToHomeLoan(
 				userInfo.getUserIdentifier(), listingId, interestedToLoan);
-		return new ProAPISuccessResponse(listing);
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 
 	/**
@@ -173,4 +194,15 @@ public class PortfolioController extends BaseController {
 		return new ProAPISuccessResponse(status);
 	}
 
+	private void updateOldProjectId(PortfolioListing listing){
+		if(listing.getProperty() != null && listing.getProperty().getProjectId() > DomainObject.project.getStartId()){
+			listing.setOldProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
+		}
+	}
+	private void updateOldProjectId(List<PortfolioListing> listings){
+		for(PortfolioListing listing: listings){
+			updateOldProjectId(listing);
+		}
+		
+	}
 }
