@@ -40,6 +40,7 @@ public class PortfolioPriceTrendService {
 	@Autowired
 	private PortfolioListingDao portfolioListingDao;
 	
+	@Autowired
 	private PortfolioService portfolioService;
 	@Autowired
 	private ProjectPriceTrendService projectPriceTrendService;
@@ -339,7 +340,7 @@ public class PortfolioPriceTrendService {
 	private PortfolioListing getListingForProject(
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
 		for (PortfolioListing listing : listings) {
-			if (IdConverterForDatabase.convertPropertyIdFromCMSToProptiger(listing.getTypeId()).equals(projectPriceTrend.getTypeId())
+			if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
 					&& IdConverterForDatabase
 							.convertProjectIdFromCMSToProptiger(listing
 									.getProperty()) == projectPriceTrend
