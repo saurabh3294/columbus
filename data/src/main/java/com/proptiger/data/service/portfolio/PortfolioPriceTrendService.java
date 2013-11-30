@@ -75,7 +75,7 @@ public class PortfolioPriceTrendService {
 	 */
 	private void updateProjectName(List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
-			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProjectId()));
+			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
 		}
 		
 	}
@@ -337,7 +337,7 @@ public class PortfolioPriceTrendService {
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
 			if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
-					&& listing.getProjectId() == projectPriceTrend.getProjectId().intValue()) {
+					&& listing.getProperty().getProjectId() == projectPriceTrend.getProjectId().intValue()) {
 				return listing;
 			}
 		}
@@ -353,7 +353,7 @@ public class PortfolioPriceTrendService {
 		for(PortfolioListing listing: listings){
 			ProjectPriceTrendInput input = new ProjectPriceTrendInput();
 			input.setListingName(listing.getName());
-			input.setProjectId(listing.getProjectId());
+			input.setProjectId(listing.getProperty().getProjectId());
 			input.setTypeId(listing.getTypeId());
 			input.setProjectName(listing.getProjectName());
 			inputs.add(input);

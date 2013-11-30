@@ -356,7 +356,7 @@ public class PortfolioService extends AbstractService{
 		return currentValue.doubleValue();
 	}
 	private void updateOtherSpecificData(PortfolioListing listing) {
-		Integer projectId = listing.getProjectId();
+		Integer projectId = listing.getProperty().getProjectId();
 		ProjectDB project = projectDBDao.findOne(projectId);
 		if(project != null){
 			listing.setProjectName(project.getProjectName());
@@ -411,8 +411,10 @@ public class PortfolioService extends AbstractService{
 			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
 		//TODO need to change this once we will move to cms database
-		if(toCreate.getTypeId() != null){
-			toCreate.setTypeId(toCreate.getTypeId() + DomainObject.property.getStartId());
+		if (toCreate.getTypeId() != null
+				&& toCreate.getTypeId() < DomainObject.property.getStartId()) {
+			toCreate.setTypeId(toCreate.getTypeId()
+					+ DomainObject.property.getStartId());
 		}
 		
 	}
@@ -564,7 +566,7 @@ public class PortfolioService extends AbstractService{
 					|| portfolioListing.getListingPaymentPlan().size() == 0) {
 				if (portfolioListing.getProperty() != null) {
 					List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
-							.findByProjectIdGroupByInstallmentNo(portfolioListing.getProjectId());
+							.findByProjectIdGroupByInstallmentNo(portfolioListing.getProperty().getProjectId());
 					Set<PortfolioListingPaymentPlan> listingPaymentPlan = convertToPortfolioListingPaymentPlan(paymentScheduleList);
 					portfolioListing.setListingPaymentPlan(listingPaymentPlan);
 				}
@@ -653,7 +655,7 @@ public class PortfolioService extends AbstractService{
 	private Enquiry createEnquiryObj(PortfolioListing listing, ForumUser user) {
 		Enquiry enquiry = new Enquiry();
 		Property property = listing.getProperty();
-		ProjectDB project = projectDBDao.findOne(listing.getProjectId());
+		ProjectDB project = projectDBDao.findOne(property.getProjectId());
 		
 		enquiry.setAdGrp("");
 		enquiry.setCampaign("");
@@ -679,7 +681,7 @@ public class PortfolioService extends AbstractService{
 		enquiry.setPageUrl("");
 		enquiry.setPhone(user.getContact()+"");
 		enquiry.setPpc("");
-		enquiry.setProjectId(Long.valueOf(listing.getProjectId()));
+		enquiry.setProjectId(Long.valueOf(property.getProjectId()));
 		enquiry.setProjectName(project.getProjectName());
 		enquiry.setQuery("");
 		enquiry.setSource("");
@@ -768,7 +770,7 @@ public class PortfolioService extends AbstractService{
 	}
 	private ListingResaleMail createListingResaleMailObj(
 			PortfolioListing listing) {
-		List<Property> properties = propertyService.getProperties(listing.getProjectId());
+		List<Property> properties = propertyService.getProperties(listing.getProperty().getProjectId());
 		StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty("proptiger.url"));
 		if(properties != null && !properties.isEmpty()){
 			Property required = null;

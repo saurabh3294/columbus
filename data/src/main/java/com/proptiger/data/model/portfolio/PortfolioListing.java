@@ -467,6 +467,12 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	}
 	
 	public Property getProperty() {
+		if (this.property != null
+				&& this.property.getProjectId() > DomainObject.project
+						.getStartId()) {
+			this.property.setProjectId(this.property.getProjectId()
+					- DomainObject.project.getStartId());
+		}
 		return property;
 	}
 
@@ -474,13 +480,13 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 		this.property = property;
 	}
 
-	public Integer getProjectId(){
-		Integer projectId = null;
-		if(this.property != null && this.property.getProjectId() > DomainObject.project.getStartId()){
-			projectId = this.property.getProjectId() - DomainObject.project.getStartId();
-		}
-		return projectId;
-	}
+//	public Integer getProjectId(){
+//		Integer projectId = null;
+//		if(this.property != null && this.property.getProjectId() > DomainObject.project.getStartId()){
+//			projectId = this.property.getProjectId() - DomainObject.project.getStartId();
+//		}
+//		return projectId;
+//	}
 	@PreUpdate
     public void preUpdate(){
     	updatedAt = new Date();
