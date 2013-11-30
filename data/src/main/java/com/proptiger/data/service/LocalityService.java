@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -35,6 +36,11 @@ public class LocalityService {
         return Lists.newArrayList(localityDao.getLocalities(selector));
     }
     
+    public List<Locality> getLocalityListing(int cityId){
+    	List<Locality> localities = localityDao.findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(cityId, true, true, null);
+    	setProjectStatusCountOnLocality(localities, cityId);
+    	return localities;
+    }
     public void setProjectStatusCountOnLocality(List<Locality> localities, int cityId){
     	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(cityId);
     	

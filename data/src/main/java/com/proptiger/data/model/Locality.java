@@ -27,7 +27,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "LOCALITY")
 @ResourceMetaInfo
-@JsonFilter("fieldFilter")
+//@JsonFilter("fieldFilter")
 public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
@@ -95,7 +95,7 @@ public class Locality implements BaseModel {
     private Set<Enquiry> enquiry = new HashSet<Enquiry>();
     
     @Transient
-    Map<String, Integer> projectStatusCount;
+    Map<String, Integer> derivedProjectStatusCount;
     
     public int getLocalityId() {
         return localityId;
@@ -226,10 +226,10 @@ public class Locality implements BaseModel {
     }
 
 	public Map<String, Integer> getProjectStatusCount() {
-		return projectStatusCount;
+		return derivedProjectStatusCount;
 	}
 
 	public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
-		this.projectStatusCount = projectStatusCount;
+		this.derivedProjectStatusCount = projectStatusCount;
 	}
 }
