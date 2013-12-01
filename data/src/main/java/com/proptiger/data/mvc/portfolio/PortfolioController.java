@@ -90,7 +90,6 @@ public class PortfolioController extends BaseController {
 
 		List<PortfolioListing> listings = portfolioService
 				.getAllPortfolioListings(userInfo.getUserIdentifier());
-		updateOldProjectId(listings);
 		Set<String> fields = null;
 		if(selector != null){
 			fields = selector.getFields();
@@ -109,7 +108,6 @@ public class PortfolioController extends BaseController {
 				.parseJsonToObject(selectorStr, Selector.class);
 		PortfolioListing listing = portfolioService.getPortfolioListingById(
 				userInfo.getUserIdentifier(), listingId);
-		updateOldProjectId(listing);
 		Set<String> fields = null;
 		if(selector != null){
 			fields = selector.getFields();
@@ -124,7 +122,6 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing created = portfolioService.createPortfolioListing(
 				userInfo.getUserIdentifier(), portfolioProperty);
-		updateOldProjectId(created);
 		return new ProAPISuccessResponse(super.filterFieldsWithTree(created, null));
 	}
 
@@ -137,7 +134,6 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.updatePortfolioListing(
 				userInfo.getUserIdentifier(), listingId, portfolioProperty);
-		updateOldProjectId(listing);
 		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 
@@ -148,7 +144,6 @@ public class PortfolioController extends BaseController {
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		PortfolioListing listing = portfolioService.deletePortfolioListing(
 				userInfo.getUserIdentifier(), listingId);
-		updateOldProjectId(listing);
 		return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
 	}
 
@@ -194,15 +189,15 @@ public class PortfolioController extends BaseController {
 		return new ProAPISuccessResponse(status);
 	}
 
-	private void updateOldProjectId(PortfolioListing listing){
-		if(listing.getProperty() != null && listing.getProperty().getProjectId() > DomainObject.project.getStartId()){
-			listing.setOldProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
-		}
-	}
-	private void updateOldProjectId(List<PortfolioListing> listings){
-		for(PortfolioListing listing: listings){
-			updateOldProjectId(listing);
-		}
-		
-	}
+//	private void updateOldProjectId(PortfolioListing listing){
+//		if(listing.getProperty() != null && listing.getProperty().getProjectId() > DomainObject.project.getStartId()){
+//			listing.setOldProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
+//		}
+//	}
+//	private void updateOldProjectId(List<PortfolioListing> listings){
+//		for(PortfolioListing listing: listings){
+//			updateOldProjectId(listing);
+//		}
+//		
+//	}
 }

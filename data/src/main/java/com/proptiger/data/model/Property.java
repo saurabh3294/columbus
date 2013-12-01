@@ -27,13 +27,13 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @Entity
-@Table(name = "cms.resi_project_options")
+@Table(name = "RESI_PROJECT_TYPES")
 public class Property implements BaseModel {
-    @FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
-    @Field(value="TYPE_ID")
-    @Column(name = "OPTIONS_ID")
-    @Id
     
+	@FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
+    @Field(value="TYPE_ID")
+    @Column(name = "TYPE_ID")
+    @Id
     private int propertyId;
 
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
@@ -53,20 +53,24 @@ public class Property implements BaseModel {
     
     @FieldMetaInfo( displayName = "Unit type",  description = "Unit type")
     @Field(value="UNIT_TYPE")
-    @Column(name = "OPTION_TYPE")
+    @Column(name = "UNIT_TYPE")
     private String unitType;
     
     @FieldMetaInfo( displayName = "Unit name",  description = "Unit name")
     @Field(value="UNIT_NAME")
-    @Column(name = "OPTION_NAME")
+    @Column(name = "UNIT_NAME")
     private String unitName;
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
     @Field(value="PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
-    @Transient
+    @Column(name = "PRICE_PER_UNIT_AREA")
     private Double pricePerUnitArea;
 
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
+    @Column(name = "PRICE_PER_UNIT_AREA_CMS")
+    private Double pricePerUnitAreaCms;
+    
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
@@ -75,7 +79,7 @@ public class Property implements BaseModel {
 
     @FieldMetaInfo( displayName = "Measure",  description = "Measure")
     @Field(value="MEASURE")
-    @Transient
+    @Column(name = "MEASURE")
     private String measure;
 
     @FieldMetaInfo( displayName = "URL",  description = "URL")
@@ -111,10 +115,6 @@ public class Property implements BaseModel {
     @Transient
     private List<Image> images;
     
-    @OneToMany(mappedBy = "property", fetch = FetchType.EAGER)
-    @JsonIgnore
-    private Set<Listing> listings;
-
     public int getProjectId() {
         return projectId;
     }
@@ -243,12 +243,12 @@ public class Property implements BaseModel {
 		this.projectIdBedroom = projectIdBedroom;
 	}
 
-	public Set<Listing> getListings() {
-		return listings;
+	public Double getPricePerUnitAreaCms() {
+		return pricePerUnitAreaCms;
 	}
 
-	public void setListings(Set<Listing> listings) {
-		this.listings = listings;
+	public void setPricePerUnitAreaCms(Double pricePerUnitAreaCms) {
+		this.pricePerUnitAreaCms = pricePerUnitAreaCms;
 	}
 	
 }

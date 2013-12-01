@@ -59,3 +59,4 @@ alter table portfolio_listings add status enum('ACTIVE','INACTIVE') after intere
 ALTER TABLE portfolio_listings ADD size double after floor_no;
 ALTER TABLE portfolio_listings ADD interested_loan boolean after interested_sell_on;
 ALTER TABLE portfolio_listings ADD interested_loan_on date after interested_loan;
+alter table proptiger.RESI_PROJECT_TYPES add PRICE_PER_UNIT_AREA_CMS double after MEASURE;

@@ -79,7 +79,8 @@ public class PortfolioPriceTrendService {
 	 */
 	private void updateProjectName(List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
-			listing.setProjectName(projectDBDao.getProjectNameById(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty())));
+			//listing.setProjectName(projectDBDao.getProjectNameById(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty())));
+			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
 		}
 		
 	}
@@ -187,7 +188,12 @@ public class PortfolioPriceTrendService {
 				PortfolioListing listingForCurrentProject = getListingForProject(
 						priceTrend, listings);
 				priceDetail.setEffectiveDate(cal.getTime());
-				priceDetail.setPrice(portfolioService.getPropertyPricePerUnitArea(listingForCurrentProject.getProperty()));
+				//priceDetail.setPrice(portfolioService.getPropertyPricePerUnitArea(listingForCurrentProject.getProperty()));
+				Double pricePerUnitArea = listingForCurrentProject.getProperty().getPricePerUnitAreaCms();
+				if(pricePerUnitArea == null){
+					pricePerUnitArea = listingForCurrentProject.getProperty().getPricePerUnitArea();
+				}
+				priceDetail.setPrice(pricePerUnitArea);
 				prices.add(priceDetail);
 				priceTrend.setPrices(prices);
 			}
@@ -341,9 +347,7 @@ public class PortfolioPriceTrendService {
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
 		for (PortfolioListing listing : listings) {
 			if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
-					&& IdConverterForDatabase
-							.convertProjectIdFromCMSToProptiger(listing
-									.getProperty()) == projectPriceTrend
+					&& listing.getProperty().getProjectId() == projectPriceTrend
 							.getProjectId().intValue()) {
 				return listing;
 			}
@@ -360,7 +364,8 @@ public class PortfolioPriceTrendService {
 		for(PortfolioListing listing: listings){
 			ProjectPriceTrendInput input = new ProjectPriceTrendInput();
 			input.setListingName(listing.getName());
-			input.setProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
+			//input.setProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
+			input.setProjectId(listing.getProperty().getProjectId());
 			input.setTypeId(listing.getTypeId());
 			input.setProjectName(listing.getProjectName());
 			inputs.add(input);
