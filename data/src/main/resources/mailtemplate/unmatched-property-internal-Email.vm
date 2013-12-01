@@ -29,7 +29,7 @@
                    <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
                    <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                       Hi Team,<br /><br />
-					 A new unmatched property has been added to the Proptiger system by the user ${UnmatchedProjectDetails.userName} at ,${currentDateTime}. The details of the property are as following:<br /><br />
+					 A new unmatched property has been added to the Proptiger system by the user ${UnmatchedProjectDetails.userName} at ${currentDateTime}. The details of the property are as following:<br /><br />
 					   <strong>Client Name:</strong>$UnmatchedProjectDetails.userName <PropertyName><br />
 					   <strong>Client's Email Id:</strong>$UnmatchedProjectDetails.userEmail <PropertyName><br />
 					   #if($UnmatchedProjectDetails.contact != 0)
@@ -37,8 +37,7 @@
 					   #else
 					   #end
 					   <strong>Project Name:</strong>${UnmatchedProjectDetails.projectName} <PropertyName><br />
-					   <strong>Project City:</strong> ${UnmatchedProjectDetails.projectCity}<br />
-					   <strong>Locality:</strong> ${UnmatchedProjectDetails.locality}<br /><br />
+					   <strong>Project City:</strong> ${UnmatchedProjectDetails.projectCity}<br /><br />
 						Thanks and Regards,<br /><br />
 					  
                    </td>
