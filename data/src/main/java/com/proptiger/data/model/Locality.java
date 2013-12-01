@@ -1,6 +1,7 @@
     package com.proptiger.data.model;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -25,7 +27,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "LOCALITY")
 @ResourceMetaInfo
-@JsonFilter("fieldFilter")
+//@JsonFilter("fieldFilter")
 public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
@@ -91,7 +93,10 @@ public class Locality implements BaseModel {
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
     private Set<Enquiry> enquiry = new HashSet<Enquiry>();
-
+    
+    @Transient
+    Map<String, Integer> derivedProjectStatusCount;
+    
     public int getLocalityId() {
         return localityId;
     }
@@ -219,4 +224,12 @@ public class Locality implements BaseModel {
     public void setDeletedFlag(boolean deletedFlag) {
         this.deletedFlag = deletedFlag;
     }
+
+	public Map<String, Integer> getProjectStatusCount() {
+		return derivedProjectStatusCount;
+	}
+
+	public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
+		this.derivedProjectStatusCount = projectStatusCount;
+	}
 }

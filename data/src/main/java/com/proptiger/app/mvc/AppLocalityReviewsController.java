@@ -25,7 +25,7 @@ import com.proptiger.data.service.LocalityReviewService;
  */
 @Controller
 @RequestMapping(value = "app/v1/locality-reviews")
-public class AppLoclaityReviewsController {
+public class AppLocalityReviewsController {
     @Autowired
     private LocalityReviewService localityReviewService;
     

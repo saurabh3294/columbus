@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -25,6 +26,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.util.SolrResponseReader;
 
 /**
  * 
@@ -35,6 +37,8 @@ public class ProjectSolrDao {
 
     @Autowired
     private SolrDao solrDao;
+    
+    private SolrResponseReader solrResponseReader = new SolrResponseReader();
    /* @Autowired
     private FilterQueryBuilder filterQueryBuilder;*/
 
@@ -179,6 +183,37 @@ public class ProjectSolrDao {
         return solrRes;
     }
     
+    public Map<String, Integer> getProjectStatusCountOnLocalityByCity(int cityId){
+    	SolrQuery solrQuery = new SolrQuery();
+    	
+    	solrQuery.setQuery("CITY_ID:"+cityId);
+    	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
+    	solrQuery.setFacetLimit(-1);
+    	solrQuery.setFacetMinCount(1);
+    	solrQuery.addFacetField("LOCALITY_ID_PROJECT_STATUS");
+    	solrQuery.setFacet(true);
+    	
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	
+    	return solrResponseReader.getFacetResults(queryResponse.getResponse()).get("LOCALITY_ID_PROJECT_STATUS");
+    }
+    
+    public List<SolrResult> getProjectsByGEODistanceByLocality(int localityId, double latitude, double longitude, int rows){
+    	SolrQuery solrQuery = new SolrQuery();
+    	
+    	solrQuery.setQuery("LOCALITY_ID:"+localityId);
+    	solrQuery.setFilterQueries("DOCUMENT_TYPE:PROJECT");
+    	solrQuery.setRows(rows);
+    	
+    	SolrQueryBuilder<Project> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
+    	solrQueryBuilder.addGeoFilter("geo", 0, latitude, longitude);
+    	solrQuery.setSort("geodist()", ORDER.desc);
+    	solrQuery.add("fl", "* __dist__");
+    	
+    	
+    	return solrDao.executeQuery(solrQuery).getBeans(SolrResult.class);
+    	
+    }
     public static void main(String[] args) {
         Selector projectFilter = new Selector();
         Set<String> fields = new HashSet<String>();
