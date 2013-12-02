@@ -24,6 +24,8 @@ import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
 import com.proptiger.data.util.IdConverterForDatabase;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -59,7 +61,7 @@ public class PortfolioPriceTrendService {
 		logger.debug("Price trend for user id {} and listing id {} for months {}", userId, listingId, noOfMonths);
 		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		if(listing == null){
-			throw new ResourceNotAvailableException("Listing id "+listingId +" not present for user id "+userId);
+			throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
 		}
 		
 		List<PortfolioListing> listings = new ArrayList<PortfolioListing>();
@@ -94,15 +96,17 @@ public class PortfolioPriceTrendService {
 	 */
 	public PortfolioPriceTrend getPortfolioPriceTrend(Integer userId,
 			Integer noOfMonths) {
+		PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
 		logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
 		List<PortfolioListing> listings = portfolioListingDao
 				.findByUserIdOrderByListingIdDesc(userId);
 		if(listings == null || listings.size() == 0){
-			return new PortfolioPriceTrend();
+			List<ProjectPriceTrend> list = new ArrayList<>();
+			portfolioPriceTrend.setProjectPriceTrend(list);
+			return portfolioPriceTrend;
 		}
 		List<ProjectPriceTrend> projectPriceTrendTemp = getProjectPriceTrends(
 				noOfMonths, listings);
-		PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
 		portfolioPriceTrend.setProjectPriceTrend(projectPriceTrendTemp);
 		//updatePriceTrendForPortfolio(portfolioPriceTrend, noOfMonths);
 		return portfolioPriceTrend;

@@ -19,6 +19,8 @@ import com.proptiger.data.external.dto.ProjectPriceHistoryDetail;
 import com.proptiger.data.service.portfolio.PortfolioPriceTrendService;
 import com.proptiger.data.util.HMAC_Client;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -97,7 +99,7 @@ public class CMSDao {
 				ProjectPriceHistoryDetail.class);
 		if(responce.getStatus().equals(CMS_API_ERROR)){
 			logger.error("Error in CMS API: "+responce.getMessage());
-			throw new ResourceNotAvailableException("Price trend not available as of now, please try again later");
+			throw new ResourceNotAvailableException(ResourceType.PRICE_TREND, ResourceTypeAction.GET);
 		}
     	return responce;
     }

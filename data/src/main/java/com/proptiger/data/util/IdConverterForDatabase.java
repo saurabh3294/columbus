@@ -1,5 +1,8 @@
 package com.proptiger.data.util;
 
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
+
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Property;
 
@@ -22,4 +25,5 @@ public class IdConverterForDatabase {
 		}
 		return typeId;
 	}
+	
 }

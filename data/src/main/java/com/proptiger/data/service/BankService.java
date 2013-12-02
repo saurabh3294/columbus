@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.repo.BankDao;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -34,7 +36,7 @@ public class BankService {
 		Bank bank = bankDao.findOne(bankId);
 		if(bank == null){
 			logger.error("Bank id {} not found",bankId);
-			throw new ResourceNotAvailableException("Resource not available");
+			throw new ResourceNotAvailableException(ResourceType.BANK,bankId, ResourceTypeAction.GET);
 		}
 		return bank;
 	}

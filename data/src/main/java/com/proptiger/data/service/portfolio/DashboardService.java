@@ -21,6 +21,7 @@ import com.proptiger.data.repo.portfolio.DashboardWidgetMappingDao;
 import com.proptiger.data.repo.portfolio.WidgetDao;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
@@ -100,7 +101,7 @@ public class DashboardService extends AbstractService{
 		Dashboard result = dashboardDao.findByIdAndUserId(dashboardId, userId);
 		if(result == null){
 			logger.error("Dashboard id {} not found for userid {}",dashboardId, userId);
-			throw new ResourceNotAvailableException("Resource not available");
+			throw new ResourceNotAvailableException(ResourceType.DASHBOARD, ResourceTypeAction.GET);
 		}
 		return result;
 	}
@@ -125,7 +126,7 @@ public class DashboardService extends AbstractService{
 		}
 		if(toFind == null){
 			logger.error("Widget id {} not found for dashboard id {}",widgetId, dashboardId);
-			throw new ResourceNotAvailableException("Resource not available");
+			throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.GET);
 		}
 		return toFind;
 	}
@@ -182,7 +183,7 @@ public class DashboardService extends AbstractService{
 		Dashboard dashboardPresent = dashboardDao.findOne(toUpdate.getId());
 		if(dashboardPresent == null){
 			logger.error("Dashboard id {} not found",toUpdate.getId());
-			throw new ResourceNotAvailableException("Resource "+toUpdate.getId()+" not available");
+			throw new ResourceNotAvailableException(ResourceType.DASHBOARD, ResourceTypeAction.UPDATE);
 		}
 		if(toUpdate.getWidgets() != null){
 			for(DashboardWidgetMapping mapping: toUpdate.getWidgets()){
@@ -339,7 +340,7 @@ public class DashboardService extends AbstractService{
 		Dashboard dashboard = getDashboardById(userId, dashboardId);
 		DashboardWidgetMapping existingMapping = getDashboardWidgetMapping(dashboardId, widgetId);
 		if(existingMapping == null){
-			throw new ResourceNotAvailableException("Widget Mapping "+widgetId+" not available");
+			throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.UPDATE);
 		}
 		existingMapping.update(dashboardWidgetMapping.getWidgetRowPosition(),
 				dashboardWidgetMapping.getWidgetColumnPosition(),
@@ -358,7 +359,7 @@ public class DashboardService extends AbstractService{
 		DashboardWidgetMapping existingMapping = dashboardWidgetMappingDao.findByDashboardIdAndWidgetId(dashboardId, widgetId);
 		if(existingMapping == null){
 			logger.error("DashboardWidgetMapping not found for dashboardId {} and widgetId {}",dashboardId, widgetId);
-			throw new ResourceNotAvailableException("Resource not available");
+			throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.GET);
 		}
 		return existingMapping;
 	}

@@ -45,6 +45,7 @@ import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.data.util.ResourceTypeField;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
@@ -390,7 +391,7 @@ public class PortfolioService extends AbstractService{
 		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		if(listing == null){
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
-			throw new ResourceNotAvailableException("Resource not available");
+			throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
 		}
 		updateOtherSpecificData(listing);
 		listing.setCurrentPrice(getListingCurrentPrice(listing));
@@ -523,7 +524,7 @@ public class PortfolioService extends AbstractService{
 		PortfolioListing resourcePresent = portfolioListingDao.findOne(toUpdate.getId());
 		if(resourcePresent == null){
 			logger.error("PortfolioProperty id {} not found",toUpdate.getId());
-			throw new ResourceNotAvailableException("Resource "+toUpdate.getId()+" not available");
+			throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.UPDATE);
 		}
 		if(toUpdate.getListingSize() == null || toUpdate.getListingSize() <= 0){
 			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
@@ -545,7 +546,7 @@ public class PortfolioService extends AbstractService{
 		logger.debug("Delete Portfolio Listing id {} for userid {}",listingId,userId);
 		PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		if(propertyPresent == null){
-			throw new ResourceNotAvailableException("Listing "+listingId+" not available");
+			throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.DELETE);
 		}
 		portfolioListingDao.delete(propertyPresent);
 		return propertyPresent;
@@ -617,7 +618,7 @@ public class PortfolioService extends AbstractService{
 		PortfolioListing listing = portfolioListingDao.findOne(listingId);
 		if(listing == null || !listing.getUserId().equals(userId)){
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
-			throw new ResourceNotAvailableException("Resource not available");
+			throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
 		}
 		updateInterestedToSell(userId, listingId,
 				interestedToSell, listing);
@@ -647,7 +648,7 @@ public class PortfolioService extends AbstractService{
 		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		if(listing == null){
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
-			throw new ResourceNotAvailableException("Resource not available");
+			throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
 		}
 		updateLoanIntereset(userId, listingId, interestedToLoan, listing);
 		updateOtherSpecificData(listing);
