@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.data.model.portfolio.Widget;
 import com.proptiger.data.repo.portfolio.WidgetDao;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -33,7 +35,7 @@ public class WidgetService {
 		Widget result = widgetDao.findOne(widgetId);
 		if(result == null){
 			logger.error("Widget id {} not found for userid {}",widgetId);
-			throw new ResourceNotAvailableException("Resource not available");
+			throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.GET);
 		}
 		return result;
 	}

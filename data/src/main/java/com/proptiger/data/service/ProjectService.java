@@ -17,6 +17,8 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectSpecificationDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -50,7 +52,7 @@ public class ProjectService {
     public ProjectDB getProjectDetails(Integer projectId) {
         ProjectDB project = projectDao.findByProjectId(projectId);
         if (project == null) {
-            throw new ResourceNotAvailableException("Project#id#" + projectId + " not available");
+        	throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }
         return project;
     }

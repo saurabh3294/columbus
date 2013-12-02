@@ -24,6 +24,8 @@ import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
 import com.proptiger.data.util.IdConverterForDatabase;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -59,7 +61,7 @@ public class PortfolioPriceTrendService {
 		logger.debug("Price trend for user id {} and listing id {} for months {}", userId, listingId, noOfMonths);
 		PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
 		if(listing == null){
-			throw new ResourceNotAvailableException("Listing id "+listingId +" not present for user id "+userId);
+			throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
 		}
 		
 		List<PortfolioListing> listings = new ArrayList<PortfolioListing>();
@@ -79,7 +81,8 @@ public class PortfolioPriceTrendService {
 	 */
 	private void updateProjectName(List<PortfolioListing> listings) {
 		for(PortfolioListing listing: listings){
-			listing.setProjectName(projectDBDao.getProjectNameById(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty())));
+			//listing.setProjectName(projectDBDao.getProjectNameById(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty())));
+			listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
 		}
 		
 	}
@@ -93,15 +96,17 @@ public class PortfolioPriceTrendService {
 	 */
 	public PortfolioPriceTrend getPortfolioPriceTrend(Integer userId,
 			Integer noOfMonths) {
+		PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
 		logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
 		List<PortfolioListing> listings = portfolioListingDao
 				.findByUserIdOrderByListingIdDesc(userId);
 		if(listings == null || listings.size() == 0){
-			return new PortfolioPriceTrend();
+			List<ProjectPriceTrend> list = new ArrayList<>();
+			portfolioPriceTrend.setProjectPriceTrend(list);
+			return portfolioPriceTrend;
 		}
 		List<ProjectPriceTrend> projectPriceTrendTemp = getProjectPriceTrends(
 				noOfMonths, listings);
-		PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
 		portfolioPriceTrend.setProjectPriceTrend(projectPriceTrendTemp);
 		//updatePriceTrendForPortfolio(portfolioPriceTrend, noOfMonths);
 		return portfolioPriceTrend;
@@ -187,7 +192,12 @@ public class PortfolioPriceTrendService {
 				PortfolioListing listingForCurrentProject = getListingForProject(
 						priceTrend, listings);
 				priceDetail.setEffectiveDate(cal.getTime());
-				priceDetail.setPrice(portfolioService.getPropertyPricePerUnitArea(listingForCurrentProject.getProperty()));
+				//priceDetail.setPrice(portfolioService.getPropertyPricePerUnitArea(listingForCurrentProject.getProperty()));
+				Double pricePerUnitArea = listingForCurrentProject.getProperty().getPricePerUnitAreaCms();
+				if(pricePerUnitArea == null){
+					pricePerUnitArea = listingForCurrentProject.getProperty().getPricePerUnitArea();
+				}
+				priceDetail.setPrice(pricePerUnitArea);
 				prices.add(priceDetail);
 				priceTrend.setPrices(prices);
 			}
@@ -341,9 +351,7 @@ public class PortfolioPriceTrendService {
 			ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
 		for (PortfolioListing listing : listings) {
 			if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
-					&& IdConverterForDatabase
-							.convertProjectIdFromCMSToProptiger(listing
-									.getProperty()) == projectPriceTrend
+					&& listing.getProperty().getProjectId() == projectPriceTrend
 							.getProjectId().intValue()) {
 				return listing;
 			}
@@ -360,7 +368,8 @@ public class PortfolioPriceTrendService {
 		for(PortfolioListing listing: listings){
 			ProjectPriceTrendInput input = new ProjectPriceTrendInput();
 			input.setListingName(listing.getName());
-			input.setProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
+			//input.setProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
+			input.setProjectId(listing.getProperty().getProjectId());
 			input.setTypeId(listing.getTypeId());
 			input.setProjectName(listing.getProjectName());
 			inputs.add(input);

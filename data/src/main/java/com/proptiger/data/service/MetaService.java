@@ -23,6 +23,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.meta.FieldMetaData;
 import com.proptiger.data.model.meta.ResourceModelMeta;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -111,7 +113,7 @@ public class MetaService {
 		}
 		ResourceModelMeta resourceModelMeta = resourceMetaMap.get(resourceName);
 		if(resourceModelMeta == null){
-			throw new ResourceNotAvailableException("Invalid resource name:"+resourceName);
+			throw new ResourceNotAvailableException(ResourceType.RESOURCE, ResourceTypeAction.GET);
 		}
 		List<ResourceModelMeta> list = new ArrayList<ResourceModelMeta>();
 		list.add(resourceModelMeta);
