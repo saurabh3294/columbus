@@ -458,6 +458,10 @@ public class PortfolioService extends AbstractService{
 		property.setId(propertyId);
 		PortfolioListing updated = update(property);
 		updateOtherSpecificData(updated);
+		/*
+		 * Update current price
+		 */
+		updated.setCurrentPrice(getListingCurrentPrice(updated));
 		return updated;
 	}
 	
