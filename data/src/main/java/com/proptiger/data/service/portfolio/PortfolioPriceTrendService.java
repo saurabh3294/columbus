@@ -175,10 +175,12 @@ public class PortfolioPriceTrendService {
 	 */
 	private void addPriceDetailsFromCurrentMonth(
 			List<ProjectPriceTrend> projectPriceTrends, Integer noOfMonths, List<PortfolioListing> listings) {
-		Calendar cal = Calendar.getInstance();
-		int currentMonth = cal.get(Calendar.MONTH);
+		
 		
 		for (ProjectPriceTrend priceTrend : projectPriceTrends) {
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.MONTH, -1);
+			int currentMonth = cal.get(Calendar.MONTH);
 			logger.debug(
 					"Adding price detail from current month for project id {} and name {}",
 					priceTrend.getProjectId(), priceTrend.getProjectName());
