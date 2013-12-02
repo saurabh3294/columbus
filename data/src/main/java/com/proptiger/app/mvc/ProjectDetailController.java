@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.DomainObject;
+import com.proptiger.data.model.ProjectAmenity;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
@@ -28,6 +29,7 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageService;
+import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 
@@ -48,6 +50,9 @@ public class ProjectDetailController extends BaseController {
     
     @Autowired
     private BuilderService builderService;
+    
+    @Autowired
+    private ProjectAmenityService projectAmenityService;
     
     @RequestMapping(value="app/v1/project-detail")
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
@@ -71,7 +76,9 @@ public class ProjectDetailController extends BaseController {
         List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
         if(projectDiscussionList!=null)
         	totalProjectDiscussion = projectDiscussionList.size();
-        
+        // getting project Amenities
+        List<String> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
+                
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -80,6 +87,7 @@ public class ProjectDetailController extends BaseController {
         response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
         response.put("totalProjectDiscussions", totalProjectDiscussion);
+        response.put("projectAmenity", listProjectAmenities);
         
         return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }
