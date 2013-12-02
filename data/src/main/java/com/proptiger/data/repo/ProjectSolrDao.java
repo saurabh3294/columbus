@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
@@ -183,7 +184,7 @@ public class ProjectSolrDao {
         return solrRes;
     }
     
-    public Map<String, Integer> getProjectStatusCountOnLocalityByCity(int cityId){
+    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocalityByCity(int cityId){
     	SolrQuery solrQuery = new SolrQuery();
     	
     	solrQuery.setQuery("CITY_ID:"+cityId);
@@ -191,11 +192,25 @@ public class ProjectSolrDao {
     	solrQuery.setFacetLimit(-1);
     	solrQuery.setFacetMinCount(1);
     	solrQuery.addFacetField("LOCALITY_ID_PROJECT_STATUS");
+    	solrQuery.addFacetField("LOCALITY_ID");
     	solrQuery.setFacet(true);
+    	solrQuery.setRows(0);
+    	System.out.println(solrQuery.toString());
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	    	
+    	return solrResponseReader.getFacetResults(queryResponse.getResponse());	
+    }
+    
+    public long getProjectCountCity(int cityId){
+    	SolrQuery solrQuery = new SolrQuery();
+    	
+    	solrQuery.setQuery("CITY_ID:"+cityId);
+    	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
+    	solrQuery.setRows(0);
     	
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-    	
-    	return solrResponseReader.getFacetResults(queryResponse.getResponse()).get("LOCALITY_ID_PROJECT_STATUS");
+    	    	
+    	return solrDao.executeQuery(solrQuery).getResults().getNumFound();	
     }
     
     public List<SolrResult> getProjectsByGEODistanceByLocality(int localityId, double latitude, double longitude, int rows){

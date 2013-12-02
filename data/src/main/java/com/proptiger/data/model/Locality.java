@@ -97,6 +97,9 @@ public class Locality implements BaseModel {
     @Transient
     Map<String, Integer> derivedProjectStatusCount;
     
+    @Transient
+    private int projectCount;
+    
     public int getLocalityId() {
         return localityId;
     }
@@ -231,5 +234,13 @@ public class Locality implements BaseModel {
 
 	public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
 		this.derivedProjectStatusCount = projectStatusCount;
+	}
+
+	public int getProjectCount() {
+		return projectCount;
+	}
+
+	public void setProjectCount(int projectCount) {
+		this.projectCount = projectCount;
 	}
 }

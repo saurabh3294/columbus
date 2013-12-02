@@ -38,25 +38,35 @@ public class LocalityService {
     
     public List<Locality> getLocalityListing(int cityId){
     	List<Locality> localities = localityDao.findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(cityId, true, true, null);
-    	setProjectStatusCountOnLocality(localities, cityId);
+    	setProjectStatusCountAndProjectCountOnLocality(localities, cityId);
     	return localities;
     }
-    public void setProjectStatusCountOnLocality(List<Locality> localities, int cityId){
-    	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(cityId);
+    
+    public void setProjectStatusCountAndProjectCountOnLocality(List<Locality> localities, int cityId){
+    	Map<String,Map<String, Integer>> solrProjectStatusCountAndProjectCount = projectDao.getProjectStatusCountAndProjectOnLocalityByCity(cityId);
+    	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(cityId, 
+    																										solrProjectStatusCountAndProjectCount.get("LOCALITY_ID_PROJECT_STATUS"));
+    	Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount.get("LOCALITY_ID");
+    	long totalProjectCountsOnCity = projectDao.getProjectCountCity(cityId);
     	
     	int size = localities.size();
     	Locality locality;
+    	Integer projectCount;
     	for(int i=0; i<size; i++)
     	{
     		locality = localities.get(i);
     		locality.setProjectStatusCount( localityProjectStatusCount.get(locality.getLocalityId()) );
+    		projectCount = projectCountOnLocality.get( locality.getLocalityId()+"" );
+    		if( projectCount != null )
+    			locality.setProjectCount( projectCount.intValue() );
+    		
+    		locality.getSuburb().getCity().setProjectsCount(totalProjectCountsOnCity);
     		//localityProjectStatusCount.remove(locality.getLocalityId());
     	}
 
     }
     
-    public Map<Integer, Map<String, Integer>> getProjectStatusCountOnLocalityByCity(int cityId) {
-    	Map<String, Integer> solrProjectStatusCount = projectDao.getProjectStatusCountOnLocalityByCity(cityId);
+    public Map<Integer, Map<String, Integer>> getProjectStatusCountOnLocalityByCity(int cityId, Map<String, Integer> solrProjectStatusCount) {
     	Map<Integer, Map<String, Integer>> localityProjectStatusCount = new HashMap<Integer, Map<String,Integer>>();
     	String[] split;
     	Integer localityId;
