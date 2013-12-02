@@ -97,6 +97,12 @@ public class Locality implements BaseModel {
     @Transient
     Map<String, Integer> derivedProjectStatusCount;
     
+    @Transient
+    private int derivedProjectCount;
+    
+    @Transient
+    private double derivedMaxRadius;
+    
     public int getLocalityId() {
         return localityId;
     }
@@ -231,5 +237,21 @@ public class Locality implements BaseModel {
 
 	public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
 		this.derivedProjectStatusCount = projectStatusCount;
+	}
+
+	public int getProjectCount() {
+		return derivedProjectCount;
+	}
+
+	public void setProjectCount(int projectCount) {
+		this.derivedProjectCount = projectCount;
+	}
+
+	public double getDerivedMaxRadius() {
+		return derivedMaxRadius;
+	}
+
+	public void setDerivedMaxRadius(double derivedMaxRadius) {
+		this.derivedMaxRadius = (double)Math.round(derivedMaxRadius*1000)/1000;
 	}
 }

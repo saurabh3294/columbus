@@ -25,5 +25,5 @@ public class AppLocalityController {
 		Object object = localityService.getLocalityListing(cityId);//getProjectStatusCountOnLocalityByCity(cityId);
 		return new ProAPISuccessResponse(object);
 	}
-	
+		
 }

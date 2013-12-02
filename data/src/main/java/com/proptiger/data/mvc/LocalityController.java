@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPIResponse;
@@ -62,4 +63,11 @@ public class LocalityController extends BaseController {
     	
     	return new ProAPISuccessResponse(response);
     }
+    
+    @RequestMapping("/{localityId}/radius")
+	@ResponseBody
+	@DisableCaching
+	public ProAPIResponse getLocalityRadiusOnProject(@PathVariable int localityId){
+		return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
+	}
 }

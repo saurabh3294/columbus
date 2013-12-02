@@ -87,12 +87,15 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     public void addGeoFilter(String fieldName, double distance, double latitude, double longitude) {
         String colName = getColumnName(fieldName);
-        solrQuery.addFilterQuery("{!geofilt}");
+        
         solrQuery.add("pt", latitude + "," + longitude);
         solrQuery.add("sfield", colName);
         // if valid distance value then apply the field.
         if(distance!=0)
+        {
+        	solrQuery.addFilterQuery("{!geofilt}");
         	solrQuery.add("d", String.valueOf(distance));
+        }
     }
 
     private String getColumnName(String jsonFieldName) {

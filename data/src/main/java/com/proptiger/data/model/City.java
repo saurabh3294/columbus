@@ -70,6 +70,9 @@ public class City implements BaseModel{
     @FieldMetaInfo( displayName = "Display Order",  description = "Display Order")
     private Integer displayOrder;
     
+    @Transient
+    private long derivedProjectsCount;
+    
     public int getId() {
         return id;
     }
@@ -148,6 +151,14 @@ public class City implements BaseModel{
 
 	public void setDisplayOrder(Integer displayOrder) {
 		this.displayOrder = displayOrder;
+	}
+
+	public long getProjectsCount() {
+		return derivedProjectsCount;
+	}
+
+	public void setProjectsCount(long projectsCount) {
+		this.derivedProjectsCount = projectsCount;
 	}
     
 }
