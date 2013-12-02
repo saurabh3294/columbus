@@ -87,4 +87,13 @@ public class LocalityService {
     	return localityProjectStatusCount;
    }
     
+   public Double getMaxRadiusForLocalityOnProject(int localityId){
+	   Locality locality = localityDao.findByLocalityId(localityId);
+	   List<SolrResult> projectSolrResults = projectDao.getProjectsByGEODistanceByLocality(localityId, locality.getLatitude()
+			   , locality.getLongitude(), 1);
+	   
+	   if(projectSolrResults.size() > 0)
+		   return projectSolrResults.get(0).getProject().getLocality().getDerivedMaxRadius();
+	   return null;
+   }
 }

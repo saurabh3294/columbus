@@ -526,4 +526,9 @@ public class SolrResult implements BaseModel{
     public void setBuilderLabelPriority(String builderLabelPriority){
     	project.setBuilderLabelPriority(builderLabelPriority);
     }
+    
+    @Field("__RADIUS__")
+    public void setDerivedMaxRadius(double radius){
+    	project.getLocality().setDerivedMaxRadius(radius);
+    }
 }

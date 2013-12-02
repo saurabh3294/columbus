@@ -54,4 +54,6 @@ import com.proptiger.data.pojo.Paging;
     public List<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging);
     
     public List<Locality> findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging);
+    
+    public Locality findByLocalityId(int localityId);
 }

@@ -223,8 +223,8 @@ public class ProjectSolrDao {
     	SolrQueryBuilder<Project> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
     	solrQueryBuilder.addGeoFilter("geo", 0, latitude, longitude);
     	solrQuery.setSort("geodist()", ORDER.desc);
-    	solrQuery.add("fl", "* __dist__");
-    	
+    	solrQuery.add("fl", "* __RADIUS__:geodist()");
+    	System.out.println(solrQuery.toString());
     	
     	return solrDao.executeQuery(solrQuery).getBeans(SolrResult.class);
     	
