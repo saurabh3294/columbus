@@ -71,7 +71,7 @@ public class City implements BaseModel{
     private Integer displayOrder;
     
     @Transient
-    private long projectsCount;
+    private long derivedProjectsCount;
     
     public int getId() {
         return id;
@@ -154,11 +154,11 @@ public class City implements BaseModel{
 	}
 
 	public long getProjectsCount() {
-		return projectsCount;
+		return derivedProjectsCount;
 	}
 
 	public void setProjectsCount(long projectsCount) {
-		this.projectsCount = projectsCount;
+		this.derivedProjectsCount = projectsCount;
 	}
     
 }
