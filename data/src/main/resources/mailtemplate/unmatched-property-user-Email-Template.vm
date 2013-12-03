@@ -28,9 +28,9 @@
                 <tr>
                    <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
                    <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
-                      Dear Dear ${UnmatchedProjectDetails.userName},<br /><br />
+                      Dear ${UnmatchedProjectDetails.userName},<br /><br />
 					  Greetings from PropTiger.com and thank you for using Proptiger services.<br /><br />
-					  This e-mail is to confirm that your property has been added to your portfolio. The property is currently being processed by the Proptiger team and will be updated with additional details within the next 48-72 hours. The details of the new property are as follows:<br /><br />
+					  We have received the request to add a new property in your portfolio. The property is currently being processed by the Proptiger team and will be updated with additional details within the next 48-72 hours. The details of the new property are as follows:<br /><br />
 					    <strong>Project Name:</strong> ${UnmatchedProjectDetails.projectName}<br />
 					   <strong>Project City:</strong> ${UnmatchedProjectDetails.projectCity}<br /><br />
 					  You can also contact us at ${HELP_DESK_MOBILE_NO} or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:${SUPPORT_MAIL_ID}">${SUPPORT_MAIL_ID}</a>.<br /><br />
