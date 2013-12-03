@@ -16,19 +16,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.DomainObject;
+import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.ProjectAmenity;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
+import com.proptiger.data.model.ProjectSecondaryPrice;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.Suburb;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageService;
+import com.proptiger.data.service.LocalityAmenityService;
 import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
@@ -54,7 +60,11 @@ public class ProjectDetailController extends BaseController {
     @Autowired
     private ProjectAmenityService projectAmenityService;
     
+    @Autowired
+    private LocalityAmenityService localityAmenityService;
+    
     @RequestMapping(value="app/v1/project-detail")
+    @DisableCaching // to be removed.
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
         Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
@@ -78,6 +88,14 @@ public class ProjectDetailController extends BaseController {
         	totalProjectDiscussion = projectDiscussionList.size();
         // getting project Amenities
         List<String> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
+        // getting Project Secondary Prices;
+        ProjectSecondaryPrice projectSecondaryPrice = projectService.getProjectSecondaryPriceByProjectId(projectId);
+        // getting Project Neighborhood.
+        List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getAmenitiesByLocalityIdAndAmenity(projectInfo.getLocalityId(), null);
+        // getting Locality, Suburb, City Details.
+        Locality locality = null;
+        if(properties.size() > 0)
+        	locality = properties.get(0).getProject().getLocality();
                 
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
@@ -88,6 +106,9 @@ public class ProjectDetailController extends BaseController {
         response.put("properties", super.filterFields(properties, propertyFieldString));
         response.put("totalProjectDiscussions", totalProjectDiscussion);
         response.put("projectAmenity", listProjectAmenities);
+        response.put("projectResalePrice", projectSecondaryPrice);
+        response.put("neighborhood", listLocalityAmenity);
+        response.put("localtiy", locality);
         
         return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }
