@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
@@ -26,7 +25,6 @@ import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageService;
-import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 
@@ -42,12 +40,8 @@ public class ProjectListingController extends BaseController {
 
     @Autowired
     private ImageService imageService;
-    
-    @Autowired
-    private ProjectService projectService;
 
     @RequestMapping
-    @DisableCaching    // To be Removed.
     public @ResponseBody
     Object getProjectListings(@RequestParam(required = false) String selector,
             @RequestParam(required = false) String facets, @RequestParam(required = false) String stats) {
@@ -63,7 +57,7 @@ public class ProjectListingController extends BaseController {
                 project.setImageURL(images.get(0).getAbsolutePath());
             }
         }
-        
+
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
         Map<String, Object> response = new HashMap<String, Object>();

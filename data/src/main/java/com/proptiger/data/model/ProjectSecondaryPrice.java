@@ -20,7 +20,7 @@ public class ProjectSecondaryPrice implements BaseModel{
 	@Id
 	@FieldMetaInfo(displayName = "Id", description = "Id")
 	@Column(name="ID")
-	private int id;
+	private int Id;
 	
 	@Column(name="PROJECT_ID")
 	@FieldMetaInfo(displayName = "Project Id", description = "Project Id")
@@ -44,11 +44,11 @@ public class ProjectSecondaryPrice implements BaseModel{
 	private Date effectiveDate;
 
 	public int getId() {
-		return id;
+		return Id;
 	}
 
 	public void setId(int id) {
-		id = id;
+		Id = id;
 	}
 
 	public int getProjectId() {

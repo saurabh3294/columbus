@@ -26,16 +26,4 @@ public class IdConverterForDatabase {
 		return typeId;
 	}
 	
-	public static int getNormalizedIdForDomainTypes(String domainType, int id){
-		DomainObject domainObject = DomainObject.valueOf(domainType);
-		if(domainObject == null)
-			return id;
-		
-		int startId = domainObject.getStartId();
-		if(id > startId)
-			return id-startId;
-		
-		return id;
-	}
-	
 }
