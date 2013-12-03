@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,6 +44,7 @@ import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.CityRepository;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
+import com.proptiger.data.repo.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
@@ -73,6 +76,9 @@ public class PortfolioService extends AbstractService{
 	
 	@Autowired
 	private LeadGenerationService leadGenerationService;
+	
+	@Autowired
+	private PortfolioListingPriceDao listingPriceDao;
 	
 	@Autowired
 	private PropertyService propertyService;
@@ -513,9 +519,46 @@ public class PortfolioService extends AbstractService{
 			throw new DuplicateNameResourceException("Resource with same name exist");
 		}
 		resourcePresent.update(toUpdate);
+		/*
+		 * Now need to update other price details if any
+		 */
+		createOrUpdateOtherPrices(resourcePresent, toUpdate);
 		return (T) resourcePresent;
 	}
 
+	@Transactional
+	private void createOrUpdateOtherPrices(PortfolioListing present, PortfolioListing toUpdate){
+		if((present.getOtherPrices() == null || present.getOtherPrices().isEmpty())
+				&& (toUpdate.getOtherPrices() == null || toUpdate.getOtherPrices().isEmpty())){
+			return;
+		}
+		if ((present.getOtherPrices() == null || present.getOtherPrices()
+				.isEmpty()) && toUpdate.getOtherPrices() != null){
+			/*
+			 * create new other price, before that creating mapping
+			 */
+			for (PortfolioListingPrice listingPrice : toUpdate.getOtherPrices()) {
+				listingPrice.setPortfolioListing(present);
+				listingPrice.setListingPriceId(null);
+			}
+			List<PortfolioListingPrice> created = listingPriceDao.save(toUpdate.getOtherPrices());
+			present.setOtherPrices(new HashSet<>(created));
+		}
+		else if(present.getOtherPrices().size() == toUpdate.getOtherPrices().size()){
+			/*
+			 * Althought  there would be only one other price for
+			 * each listing, but not applying that check here, so in case
+			 * if there sizes mismatch it will not update that
+			 */
+			Iterator<PortfolioListingPrice> presentItr = present.getOtherPrices().iterator();
+			Iterator<PortfolioListingPrice> toUpdatetItr = toUpdate.getOtherPrices().iterator();
+			while(presentItr.hasNext() && toUpdatetItr.hasNext()){
+				PortfolioListingPrice pricePresent = presentItr.next();
+				PortfolioListingPrice priceToUpdate = toUpdatetItr.next();
+				pricePresent.update(priceToUpdate);
+			}
+		}
+	}
 	@Override
 	@SuppressWarnings("unchecked")
 	protected <T extends Resource> T preProcessUpdate(T resource) {
@@ -529,9 +572,6 @@ public class PortfolioService extends AbstractService{
 		if(toUpdate.getListingSize() == null || toUpdate.getListingSize() <= 0){
 			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
-//		if(toUpdate.getTypeId() != null && toUpdate.getTypeId() < DomainObject.property.getStartId()){
-//			toUpdate.setTypeId(toUpdate.getTypeId() + DomainObject.property.getStartId());
-//		}
 		return (T) resourcePresent;
 	}
 

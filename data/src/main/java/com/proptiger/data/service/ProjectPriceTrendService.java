@@ -133,6 +133,7 @@ public class ProjectPriceTrendService {
 		
 		boolean found = false;
 		if(priceDetailsForTypeIdIdMap != null){
+			List<ProjectPriceDetail> projectPriceDetailsForTypeId = new ArrayList<>();
 			PriceDetail priceDetail = new PriceDetail();
 			double price = 0.0D;
 			Date date = null;
@@ -143,10 +144,11 @@ public class ProjectPriceTrendService {
 					String key = keyItr.next();
 					if(key.endsWith(phaseIdTypeIdKey)){
 						ProjectPriceDetail priceObj = priceDetailsForTypeIdIdMap.get(key);
-						price = priceObj.getPrice();
-						date = priceObj.getEffective_date();
+						projectPriceDetailsForTypeId.add(priceObj);
+//						price = priceObj.getPrice();
+//						date = priceObj.getEffective_date();
 						found = true;
-						break;
+//						break;
 					}
 				}
 				
@@ -164,9 +166,25 @@ public class ProjectPriceTrendService {
 						maxVal = priceDetailObj.getPrice();
 					}
 				}
+				priceDetail.setEffectiveDate(date);
+				priceDetail.setPrice((int)price);
 			}
-			priceDetail.setEffectiveDate(date);
-			priceDetail.setPrice((int)price);
+			else{
+				/*
+				 * take the max value from list of prices returned from cms API
+				 * for phaseId_typeId combination, for required type id
+				 */
+				ProjectPriceDetail prideDetailWithMaxVal = null;
+				double maxVal = 0.0D;
+				for(ProjectPriceDetail projectPriceDetail:projectPriceDetailsForTypeId){
+					if(projectPriceDetail.getPrice() > maxVal){
+						prideDetailWithMaxVal = projectPriceDetail;
+					}
+				}
+				priceDetail.setEffectiveDate(prideDetailWithMaxVal.getEffective_date());
+				priceDetail.setPrice((int)prideDetailWithMaxVal.getPrice());
+			}
+			
 			return priceDetail;
 		}
 		
