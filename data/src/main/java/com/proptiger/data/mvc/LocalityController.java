@@ -66,7 +66,6 @@ public class LocalityController extends BaseController {
     
     @RequestMapping("/{localityId}/radius")
 	@ResponseBody
-	@DisableCaching
 	public ProAPIResponse getLocalityRadiusOnProject(@PathVariable int localityId){
 		return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
 	}
