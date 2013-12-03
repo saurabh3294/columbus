@@ -50,9 +50,11 @@ public class PortfolioListingPrice implements BaseModel {
 	private PortfolioListing portfolioListing;
 	
 	@Column(name = "created_at")
+	@JsonIgnore
 	private Date createdAt;
 	
 	@Column(name = "updated_at")
+	@JsonIgnore
 	private Date updatedAt;
 	
 	
@@ -85,5 +87,10 @@ public class PortfolioListingPrice implements BaseModel {
     public void prePersist(){
     	createdAt = new Date();
     	updatedAt = createdAt;
+    }
+    
+    public void update(PortfolioListingPrice listingPrice){
+    	this.amount = listingPrice.amount;
+    	this.componentName = listingPrice.componentName;
     }
 }
