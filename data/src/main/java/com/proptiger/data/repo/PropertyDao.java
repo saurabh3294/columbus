@@ -113,7 +113,7 @@ public class PropertyDao {
         solrQuery.add("group.field", "PROJECT_ID");
 
         List<Project> projects = new ArrayList<Project>();
-
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
             for (Group group : groupCommand.getValues()) {
@@ -135,6 +135,7 @@ public class PropertyDao {
                     project.setMinSize(min(size, project.getMinSize()));
                     project.setMaxSize(max(size, project.getMaxSize()));
                     project.setMaxBedrooms(Math.max(property.getBedrooms(), project.getMaxBedrooms()));
+                    project.setBedrooms(property.getBedrooms());
                     
                     if (project.getMinBedrooms() == 0) {
                         project.setMinBedrooms(property.getBedrooms());

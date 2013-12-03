@@ -20,9 +20,8 @@ public class AppLocalityController {
 	
 	@RequestMapping
 	@ResponseBody
-	@DisableCaching
 	public ProAPIResponse getLocalityListingData(@RequestParam int cityId){
-		Object object = localityService.getLocalityListing(cityId);//getProjectStatusCountOnLocalityByCity(cityId);
+		Object object = localityService.getLocalityListing(cityId);
 		return new ProAPISuccessResponse(object);
 	}
 		
