@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	protected ProAPIResponse handleGenericException(Exception ex){
-		logger.error("handleGenericException - Catching ",ex);
+		logger.error("handleGenericException -  ",ex);
 		
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
@@ -57,7 +57,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 	protected ProAPIResponse handleProAPIException(ProAPIException ex){
-		logger.error("handleGenericException - Catching ",ex);
+		logger.error("handleGenericException -  ",ex);
 		
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleDatabaseException(PersistenceException ex) {
-		logger.error("handleDatabaseException - Catching ", ex);
+		logger.error("handleDatabaseException -  ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.DATABASE_CONNECTION_ERROR,
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleConversionNotSupportedException(ConversionNotSupportedException ex){
-		logger.error("handleConversionNotSupportedException - Catching ", ex);
+		logger.error("handleConversionNotSupportedException -  ", ex);
 		return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_INVALID,
 				ResponseErrorMessages.REQUEST_PARAM_INVALID);
 		
@@ -86,7 +86,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleSolrException(SolrServerException exception) {
-		logger.error("handleSolrException - Catching ", exception);
+		logger.error("handleSolrException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleIllegalArgumentException(IllegalArgumentException exception) {
-		logger.error("handleIllegalArgumentException - Catching ", exception);
+		logger.error("handleIllegalArgumentException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
 				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
 	}
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleResourceNotAvailableException(ResourceNotAvailableException exception) {
-		logger.error("handle ResourceNotAvailableException - Catching ", exception);
+		logger.error("handle ResourceNotAvailableException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST,
 				exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
 	}
@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleInvalidNameException(InvalidResourceException exception) {
-		logger.error("handle InvalidResourceNameException - Catching ", exception);
+		logger.error("handle InvalidResourceNameException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage());
 	}
 	
@@ -121,7 +121,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleDuplicateNameResourceException(DuplicateNameResourceException exception) {
-		logger.error("handle DuplicateNameResourceException - Catching ", exception);
+		logger.error("handle DuplicateNameResourceException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_NAME_RESOURCE);
 	}
 	
@@ -129,7 +129,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleDuplicateResourceException(DuplicateResourceException exception) {
-		logger.error("handle DuplicateResourceException - Catching ", exception);
+		logger.error("handle DuplicateResourceException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_RESOURCE);
 	}
 
@@ -137,7 +137,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleConstraintVoilationException(ConstraintViolationException exception) {
-		logger.error("handle ConstraintViolationException - Catching ", exception);
+		logger.error("handle ConstraintViolationException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.REQUEST_PARAM_INVALID);
 	}
 	
@@ -145,7 +145,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 	protected ProAPIResponse handleHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exception) {
-		logger.error("handle ConstraintViolationException - Catching ", exception);
+		logger.error("handleHttpMediaTypeNotSupportedException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTENT_TYPE);
 	}
 	
@@ -153,7 +153,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse hanldeHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exception){
-		logger.error("handle HttpRequestMethodNotSupportedException - Catching ", exception);
+		logger.error("handle HttpRequestMethodNotSupportedException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_REQUEST_METHOD_URL_AND_BODY);
 	}
 	
@@ -161,7 +161,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleResourceAlreadyExistException(ResourceAlreadyExistException exception){
-		logger.error("handle HttpRequestMethodNotSupportedException - Catching ", exception);
+		logger.error("handle HttpRequestMethodNotSupportedException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.RESOURCE_ALREADY_EXIST);
 	}
 	
@@ -169,7 +169,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException exception){
-		logger.error("handle HttpMessageNotReadableException - Catching ", exception);
+		logger.error("handle HttpMessageNotReadableException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST);
 	}
 	
@@ -177,7 +177,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleLeadPostException(LeadPostException exception){
-		logger.error("handle LeadPostException - Catching ", exception);
+		logger.error("handle LeadPostException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
 	
@@ -185,7 +185,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleMailException(MailException exception) {
-		logger.error("handle handleMailException - Catching ", exception);
+		logger.error("handle handleMailException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR,
 				ResponseErrorMessages.SOME_ERROR_OCCURED);
 	}
@@ -194,7 +194,7 @@ public class GlobalExceptionHandler {
 	@ResponseBody
 	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleAuthenticationException(AuthenticationException exception) {
-		logger.error("handle handleAuthenticationException - Catching ", exception);
+		logger.error("handle handleAuthenticationException -  ", exception);
 		return new ProAPIErrorResponse(ResponseCodes.AUTHENTICATION_ERROR,
 				ResponseErrorMessages.USER_NAME_PASSWORD_INCORRECT);
 	}
