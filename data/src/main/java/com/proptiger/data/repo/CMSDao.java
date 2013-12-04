@@ -1,6 +1,7 @@
 
 package com.proptiger.data.repo;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +113,8 @@ public class CMSDao {
      * @return
      */
     public <T> T getResponseFromCms(String subUrl, String queryParams, Class<T> javaTypeResponse){
-    	Long timeStamp = new Date().getTime();
+    	Long timeStamp = new Timestamp(new Date().getTime()/1000).getTime();
+    
     	String token = HMAC_Client.calculateHMAC(propertyReader.getRequiredProperty(CMS_PASSWORD), timeStamp.toString());
     	
     	StringBuilder url =  new StringBuilder(propertyReader.getRequiredProperty(CMS_BASE_URL));
