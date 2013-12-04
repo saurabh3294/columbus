@@ -129,13 +129,13 @@ public class PropertyDao {
                     properties.add(property);
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
-
+                
                     project.setMinPricePerUnitArea(min(pricePerUnitArea, project.getMinPricePerUnitArea()));
                     project.setMaxPricePerUnitArea(max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
                     project.setMinSize(min(size, project.getMinSize()));
                     project.setMaxSize(max(size, project.getMaxSize()));
                     project.setMaxBedrooms(Math.max(property.getBedrooms(), project.getMaxBedrooms()));
-                    project.setBedrooms(property.getBedrooms());
+                    project.addBedrooms(property.getBedrooms());
                     
                     if (project.getMinBedrooms() == 0) {
                         project.setMinBedrooms(property.getBedrooms());
@@ -150,10 +150,10 @@ public class PropertyDao {
                         project.setMaxPrice(max(price, project.getMaxPrice()));
                     }
                 }
-
                 project.setPropertyUnitTypes(unitTypes);
                 project.setProperties(properties);
                 projects.add(project);
+                
             }
         }
 

@@ -4,10 +4,12 @@
  */
 package com.proptiger.data.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -227,7 +229,6 @@ public class Project implements BaseModel {
     @Field(value="BUILDER_LABEL_PRIORITY")
     private String builderLabelPriority;
     
-    @Transient
     private Set<Integer> bedrooms = new HashSet<>();
     
     private ProjectSecondaryPrice projectSecondaryPrice;
@@ -592,7 +593,7 @@ public class Project implements BaseModel {
 		this.bedrooms = bedrooms;
 	}
 	
-	public void setBedrooms(int bedroom){
+	public void addBedrooms(int bedroom){
 		this.bedrooms.add(bedroom);
 	}
 
