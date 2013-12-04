@@ -256,10 +256,10 @@ public class ProjectDB implements BaseModel{
     private List<Image> images;
     
     @Transient
-    private double minPricePerUnitArea = 0;
+    private double derivedMinPricePerUnitArea = 0;
     
     @Transient
-    private double maxPricePerUnitArea = 0;
+    private double derivedMaxPricePerUnitArea = 0;
     
     @Transient
     private ProjectSecondaryPrice projectSecondaryPrice;
@@ -689,19 +689,19 @@ public class ProjectDB implements BaseModel{
     }
 
 	public double getMinPricePerUnitArea() {
-		return minPricePerUnitArea;
+		return derivedMinPricePerUnitArea;
 	}
 
 	public void setMinPricePerUnitArea(double minPricePerUnitArea) {
-		this.minPricePerUnitArea = minPricePerUnitArea;
+		this.derivedMinPricePerUnitArea = minPricePerUnitArea;
 	}
 
 	public double getMaxPricePerUnitArea() {
-		return maxPricePerUnitArea;
+		return derivedMaxPricePerUnitArea;
 	}
 
 	public void setMaxPricePerUnitArea(double maxPricePerUnitArea) {
-		this.maxPricePerUnitArea = maxPricePerUnitArea;
+		this.derivedMaxPricePerUnitArea = maxPricePerUnitArea;
 	}
 
 	public ProjectSecondaryPrice getProjectSecondaryPrice() {

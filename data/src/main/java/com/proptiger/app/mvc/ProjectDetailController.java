@@ -64,7 +64,6 @@ public class ProjectDetailController extends BaseController {
     private LocalityAmenityService localityAmenityService;
     
     @RequestMapping(value="app/v1/project-detail")
-    @DisableCaching // to be removed.
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
         Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
