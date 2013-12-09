@@ -16,18 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
-import com.proptiger.data.model.ProjectAmenity;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSecondaryPrice;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.Suburb;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;

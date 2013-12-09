@@ -13,7 +13,6 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.portfolio.UnmatchedProjectRequestService;
 import com.proptiger.data.util.Constants;
 

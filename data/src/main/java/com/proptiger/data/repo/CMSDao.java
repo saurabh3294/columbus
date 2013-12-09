@@ -17,7 +17,6 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.data.external.dto.ProjectPriceHistoryDetail;
-import com.proptiger.data.service.portfolio.PortfolioPriceTrendService;
 import com.proptiger.data.util.HMAC_Client;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;

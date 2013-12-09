@@ -4,8 +4,9 @@
  */
 package com.proptiger.data.util;
 
-import com.proptiger.data.model.SolrResult;
 import java.util.Comparator;
+
+import com.proptiger.data.model.SolrResult;
 
 /**
  *

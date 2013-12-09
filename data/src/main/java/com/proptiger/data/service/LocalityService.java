@@ -8,11 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.pojo.Selector;
