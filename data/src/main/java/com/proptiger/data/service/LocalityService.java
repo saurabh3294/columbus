@@ -81,7 +81,6 @@ public class LocalityService {
     			locality.setProjectCount( projectCount.intValue() );
     		
     		locality.getSuburb().getCity().setProjectsCount(totalProjectCountsOnCity);
-    		//localityProjectStatusCount.remove(locality.getLocalityId());
     	}
 
     }
