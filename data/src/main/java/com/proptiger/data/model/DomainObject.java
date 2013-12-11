@@ -7,7 +7,9 @@ public enum DomainObject {
 	locality("locality", 50000),
     city("city", 0),
     suburb("suburb", 10000),
-	bank("bank", 0);
+	bank("bank", 0),
+	brokerCompany("brokerCompany", 0),
+	sellerCompany("sellerCompany", 0);
 
 	String text;
 	int startId;

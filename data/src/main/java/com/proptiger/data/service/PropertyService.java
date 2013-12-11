@@ -16,7 +16,6 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectSecondaryPrice;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;

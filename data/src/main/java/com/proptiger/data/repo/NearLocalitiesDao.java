@@ -4,12 +4,13 @@
  */
 package com.proptiger.data.repo;
 
-import com.proptiger.data.model.NearLocalities;
 import java.io.Serializable;
 import java.util.List;
+
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
+
+import com.proptiger.data.model.NearLocalities;
 
 /**
  *

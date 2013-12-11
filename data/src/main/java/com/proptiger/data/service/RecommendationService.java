@@ -4,21 +4,8 @@
  */
 package com.proptiger.data.service;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableBiMap;
-import com.google.gson.Gson;
-import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.repo.ProjectDao;
-import com.proptiger.data.repo.PropertyDao;
-import com.proptiger.data.repo.SolrDao;
-import com.proptiger.data.util.PropertyComparer;
-
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,6 +17,14 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.google.gson.Gson;
+import com.proptiger.data.model.Project;
+import com.proptiger.data.model.Property;
+import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.repo.ProjectDao;
+import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.util.PropertyComparer;
 
 
 /**

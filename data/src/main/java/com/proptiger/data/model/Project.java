@@ -227,8 +227,7 @@ public class Project implements BaseModel {
     @Field(value="BUILDER_LABEL_PRIORITY")
     private String builderLabelPriority;
     
-    @Transient
-    private Set<Integer> bedrooms = new HashSet<>();
+    private Set<Integer> derivedBedrooms = new HashSet<>();
     
     private ProjectSecondaryPrice projectSecondaryPrice;
     
@@ -585,15 +584,15 @@ public class Project implements BaseModel {
 	}
 
 	public Set<Integer> getBedrooms() {
-		return bedrooms;
+		return derivedBedrooms;
 	}
 
 	public void setBedrooms(Set<Integer> bedrooms) {
-		this.bedrooms = bedrooms;
+		this.derivedBedrooms = bedrooms;
 	}
 	
-	public void setBedrooms(int bedroom){
-		this.bedrooms.add(bedroom);
+	public void addBedrooms(int bedroom){
+		this.derivedBedrooms.add(bedroom);
 	}
 
 	public ProjectSecondaryPrice getProjectSecondaryPrice() {

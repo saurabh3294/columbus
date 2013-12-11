@@ -23,8 +23,8 @@ import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.CacheClientUtil;
+import com.proptiger.data.util.Constants;
 import com.proptiger.exception.AuthenticationException;
 
 /**

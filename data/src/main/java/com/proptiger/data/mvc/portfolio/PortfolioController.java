@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.mvc.BaseController;
@@ -26,7 +25,6 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.portfolio.PortfolioService;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.IdConverterForDatabase;
 
 /**
  * @author Rajeev Pandey

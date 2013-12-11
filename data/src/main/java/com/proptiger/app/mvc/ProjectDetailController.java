@@ -16,18 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
-import com.proptiger.data.model.ProjectAmenity;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSecondaryPrice;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.Suburb;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -64,7 +61,6 @@ public class ProjectDetailController extends BaseController {
     private LocalityAmenityService localityAmenityService;
     
     @RequestMapping(value="app/v1/project-detail")
-    @DisableCaching // to be removed.
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
         Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
@@ -90,12 +86,28 @@ public class ProjectDetailController extends BaseController {
         List<String> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
         // getting Project Secondary Prices;
         ProjectSecondaryPrice projectSecondaryPrice = projectService.getProjectSecondaryPriceByProjectId(projectId);
+        projectInfo.setProjectSecondaryPrice(projectSecondaryPrice);
         // getting Project Neighborhood.
         List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getAmenitiesByLocalityIdAndAmenity(projectInfo.getLocalityId(), null);
-        // getting Locality, Suburb, City Details.
+        // getting Locality, Suburb, City Details and getting project price ranges from properties data.
         Locality locality = null;
+        Double pricePerUnitArea;
         if(properties.size() > 0)
+        {
         	locality = properties.get(0).getProject().getLocality();
+        	
+        	projectInfo.setMinPricePerUnitArea(Double.MAX_VALUE);
+        	for(int i=0; i<properties.size(); i++){
+           		pricePerUnitArea = properties.get(i).getPricePerUnitArea();
+           		if(pricePerUnitArea == null)
+           			pricePerUnitArea = 0D;
+           			
+           		projectInfo.setMinPricePerUnitArea( Math.min(pricePerUnitArea, projectInfo.getMinPricePerUnitArea() ) );
+           		projectInfo.setMaxPricePerUnitArea( Math.max(pricePerUnitArea, projectInfo.getMaxPricePerUnitArea() ) );
+        	}
+        }
+        
+        
                 
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
@@ -106,7 +118,6 @@ public class ProjectDetailController extends BaseController {
         response.put("properties", super.filterFields(properties, propertyFieldString));
         response.put("totalProjectDiscussions", totalProjectDiscussion);
         response.put("projectAmenity", listProjectAmenities);
-        response.put("projectResalePrice", projectSecondaryPrice);
         response.put("neighborhood", listLocalityAmenity);
         response.put("localtiy", locality);
         

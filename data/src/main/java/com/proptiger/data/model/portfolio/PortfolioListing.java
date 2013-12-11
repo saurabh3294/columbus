@@ -29,7 +29,6 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.resource.NamedResource;

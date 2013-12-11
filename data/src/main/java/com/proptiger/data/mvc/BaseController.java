@@ -92,6 +92,7 @@ public abstract class BaseController {
      * @param fields
      * @return
      */
+    @Deprecated
 	protected <T> Map<String, Object> filterOutAllExcept(T val, Set<String> fields) {
 		try {
 			Map<String, Object> map = mapper.convertValue(val, Map.class);
