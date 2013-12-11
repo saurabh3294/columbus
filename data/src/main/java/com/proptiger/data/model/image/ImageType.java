@@ -9,10 +9,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ObjectType;
 
 @Entity(name = "ImageType")
-public class ImageType {
+@JsonFilter("fieldFilter")
+public class ImageType implements BaseModel{
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;

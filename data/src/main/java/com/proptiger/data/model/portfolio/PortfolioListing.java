@@ -1,6 +1,7 @@
 package com.proptiger.data.model.portfolio;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -31,6 +32,7 @@ import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 
@@ -69,6 +71,8 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	private String projectStatus;
 	@Transient
 	private String cityName;
+	@Transient
+	private List<Image> propertyImages;
 	//custom fields ends
 	
 	@Transient
@@ -493,6 +497,15 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	public void setOldProjectId(Integer projectId){
 		this.oldProjectId = projectId;
 	}
+	
+	public List<Image> getPropertyImages() {
+		return propertyImages;
+	}
+
+	public void setPropertyImages(List<Image> propertyImages) {
+		this.propertyImages = propertyImages;
+	}
+
 	@PreUpdate
     public void preUpdate(){
     	updatedAt = new Date();
