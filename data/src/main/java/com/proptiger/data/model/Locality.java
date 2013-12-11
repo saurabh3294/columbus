@@ -1,6 +1,7 @@
     package com.proptiger.data.model;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
 
 /**
  * Locality entity class
@@ -92,10 +94,22 @@ public class Locality implements BaseModel {
 
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
-    private Set<Enquiry> enquiry = new HashSet<Enquiry>();
+    private Set<Enquiry> enquiry;
     
     @Transient
-    Map<String, Integer> derivedProjectStatusCount;
+    private Map<String, Integer> derivedProjectStatusCount;
+    @Transient
+    private Map<String, Integer> derivedAmenityTypeCount;
+    @Transient
+    private List<String> derivedImagesPath;
+    @Transient
+    private int derivedImageCount;
+    @Transient
+    private long derivedTotalReviews;
+    @Transient
+    private double derivedAverageRating;
+    @Transient
+    private long derivedTotalRating;
     
     @Transient
     private int derivedProjectCount;
@@ -254,4 +268,55 @@ public class Locality implements BaseModel {
 	public void setDerivedMaxRadius(double derivedMaxRadius) {
 		this.derivedMaxRadius = (double)Math.round(derivedMaxRadius*1000)/1000;
 	}
+
+	public Map<String, Integer> getDerivedAmenityTypeCount() {
+		return derivedAmenityTypeCount;
+	}
+
+	public void setDerivedAmenityTypeCount(
+			Map<String, Integer> derivedAmenityTypeCount) {
+		this.derivedAmenityTypeCount = derivedAmenityTypeCount;
+	}
+
+
+	public int getDerivedImageCount() {
+		return derivedImageCount;
+	}
+
+	public void setDerivedImageCount(int derivedImageCount) {
+		this.derivedImageCount = derivedImageCount;
+	}
+
+	public long getDerivedTotalReviews() {
+		return derivedTotalReviews;
+	}
+
+	public void setDerivedTotalReviews(long derivedTotalReviews) {
+		this.derivedTotalReviews = derivedTotalReviews;
+	}
+
+	public double getDerivedAverageRating() {
+		return derivedAverageRating;
+	}
+
+	public void setDerivedAverageRating(double derivedAverageRating) {
+		this.derivedAverageRating = derivedAverageRating;
+	}
+
+	public long getDerivedTotalRating() {
+		return derivedTotalRating;
+	}
+
+	public void setDerivedTotalRating(long derivedTotalRating) {
+		this.derivedTotalRating = derivedTotalRating;
+	}
+
+	public List<String> getDerivedImagesPath() {
+		return derivedImagesPath;
+	}
+
+	public void setDerivedImagesPath(List<String> derivedImagesPath) {
+		this.derivedImagesPath = derivedImagesPath;
+	}
+	
 }

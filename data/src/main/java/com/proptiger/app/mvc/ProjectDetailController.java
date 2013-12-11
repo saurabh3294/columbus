@@ -88,7 +88,7 @@ public class ProjectDetailController extends BaseController {
         ProjectSecondaryPrice projectSecondaryPrice = projectService.getProjectSecondaryPriceByProjectId(projectId);
         projectInfo.setProjectSecondaryPrice(projectSecondaryPrice);
         // getting Project Neighborhood.
-        List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getAmenitiesByLocalityIdAndAmenity(projectInfo.getLocalityId(), null);
+        List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(projectInfo.getLocalityId(), null);
         // getting Locality, Suburb, City Details and getting project price ranges from properties data.
         Locality locality = null;
         Double pricePerUnitArea;

@@ -8,6 +8,7 @@ import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -18,7 +19,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo
-//@JsonFilter("fieldFilter")
+@JsonFilter("fieldFilter")
 public class City implements BaseModel{
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")

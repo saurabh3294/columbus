@@ -28,7 +28,7 @@ public class LocalityAmenityController extends BaseController{
     @RequestMapping(value="{id}/amenity", method = RequestMethod.GET)
     @ResponseBody
     public Object getAmenitiesByLocalityIdAndAmenity(@PathVariable("id")int localityId, @RequestParam(value = "amenity", required = false) String amenityName){
-        return new ProAPISuccessResponse(localityAmenityService.getAmenitiesByLocalityIdAndAmenity(localityId, amenityName));
+        return new ProAPISuccessResponse(localityAmenityService.getLocalityAmenities(localityId, amenityName));
         
     }
 }

@@ -3,16 +3,24 @@
  */
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.LocalityAmenity;
+import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
@@ -20,12 +28,26 @@ import com.proptiger.data.repo.ProjectDao;
 
 /**
  * @author mandeep
+ * @author Rajeev Pandey
  *
  */
 @Service
 public class LocalityService {
-    @Autowired
+	private static Logger logger = LoggerFactory.getLogger(LocalityService.class);
+
+	@Autowired
+	private LocalityAmenityTypeService amenityTypeService;
+	@Autowired
     private LocalityDao localityDao;
+    
+    @Autowired
+    private LocalityReviewService localityReviewService;
+    
+    @Autowired
+    private LocalityAmenityService localityAmenityService;
+    
+    @Autowired 
+    private ImageService imageService;
     
     @Autowired
     private ProjectDao projectDao;
@@ -94,4 +116,87 @@ public class LocalityService {
 		   return projectSolrResults.get(0).getProject().getLocality().getDerivedMaxRadius();
 	   return null;
    }
+   
+	/**
+	 * Get locality for locality id
+	 * @param localityId
+	 * @return
+	 */
+	public Locality getLocality(int localityId) {
+		return localityDao.findOne(localityId);
+	}
+	
+	/**
+	 * This method get locality information with some more application specific data.
+	 * @param localityId
+	 * @return
+	 */
+	public Locality getLocalityInfo(int localityId, Integer imageCount) {
+		logger.debug("Get locality info for locality id {}",localityId);
+		Locality locality = getLocality(localityId);
+
+		Map<String, Object> localityReviewDetails = localityReviewService
+				.findReviewByLocalityId(localityId, null);
+
+		int totalImages = 0;
+		List<Image> images = imageService.getImages(DomainObject.locality,
+				null, localityId);
+		if (images != null) {
+			totalImages = images.size();
+		}
+		List<LocalityAmenity> amenities = localityAmenityService
+				.getLocalityAmenities(localityId, null);
+		Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
+
+		locality.setDerivedAmenityTypeCount(localityAmenityCountMap);
+		locality.setDerivedAverageRating(localityReviewDetails
+				.get(LocalityReviewService.AVERAGE_RATINGS) == null ? 0
+				: (Double) localityReviewDetails
+						.get(LocalityReviewService.AVERAGE_RATINGS));
+		locality.setDerivedImageCount(totalImages);
+		if(images != null){
+			Iterator<Image> imageItr = images.iterator();
+			int counter = 0;
+			List<String> imagePath = new ArrayList<>();
+			while(imageItr.hasNext() && counter++ < imageCount){
+				Image image = imageItr.next();
+				imagePath.add(image.getAbsolutePath());
+			}
+			locality.setDerivedImagesPath(imagePath);
+		}
+		locality.setDerivedTotalRating(localityReviewDetails
+				.get(LocalityReviewService.TOTAL_RATINGS) == null ? 0
+				: (Long) localityReviewDetails
+						.get(LocalityReviewService.TOTAL_RATINGS));
+		locality.setDerivedTotalReviews(localityReviewDetails
+				.get(LocalityReviewService.TOTAL_REVIEWS) == null ? 0
+				: (Long) localityReviewDetails
+						.get(LocalityReviewService.TOTAL_REVIEWS));
+		return locality;
+	}
+
+	/**
+	 * This methods returns the number of each amenities.
+	 * @param amenities
+	 * @return
+	 */
+	private Map<String, Integer> getLocalityAmenitiesCount(
+			List<LocalityAmenity> amenities) {
+		Map<Integer, LocalityAmenityTypes> amenityTypes = amenityTypeService.getLocalityAmenityTypes();
+		Map<String, Integer> localityAmenityCountMap = new HashMap<>();
+		for(LocalityAmenity amenity: amenities){
+			LocalityAmenityTypes amenityType = amenityTypes.get(amenity.getPlaceTypeId());
+			if(amenityType != null){
+				Integer count = localityAmenityCountMap.get(amenityType.getDisplayName());
+				if(count == null){
+					count = 1;
+				}
+				else{
+					count = count + 1;
+				}
+				localityAmenityCountMap.put(amenityType.getDisplayName(), count);
+			}
+		}
+		return localityAmenityCountMap;
+	}
 }
