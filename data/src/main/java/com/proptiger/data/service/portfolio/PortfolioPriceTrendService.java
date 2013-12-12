@@ -172,11 +172,13 @@ public class PortfolioPriceTrendService {
 	 */
 	private void addPriceDetailsFromCurrentMonth(
 			List<ProjectPriceTrend> projectPriceTrends, Integer noOfMonths, List<PortfolioListing> listings) {
-		
-		
+		/*
+		 * Adding one month extra price trend, as we have to remove current month price trend.
+		 */
+		noOfMonths = noOfMonths + 1;
 		for (ProjectPriceTrend priceTrend : projectPriceTrends) {
 			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.MONTH, -1);
+			//cal.add(Calendar.MONTH, -1);
 			int currentMonth = cal.get(Calendar.MONTH);
 			logger.debug(
 					"Adding price detail from current month for project id {} and name {}",
@@ -262,6 +264,10 @@ public class PortfolioPriceTrendService {
 				}
 				logger.debug("After adding missing month block");
 			}
+			/*
+			 * Removing current month price trend data
+			 */
+			prices.remove(prices.size() - 1);
 			/*
 			 * If there are more price details than required then remove from first
 			 */

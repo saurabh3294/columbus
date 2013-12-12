@@ -35,4 +35,10 @@ public class BuilderService {
 
         return builder;
     }
+    
+    public Builder getBuilderInfo(Integer builderId){
+    	Builder builder = builderDao.findOne(builderId);
+    	
+    	return builder;
+    }
 }

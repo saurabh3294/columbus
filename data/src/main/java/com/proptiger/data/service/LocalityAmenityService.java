@@ -28,7 +28,14 @@ public class LocalityAmenityService {
     @Autowired
     private LocalityDao localityDao;
     
-    public List<LocalityAmenity> getAmenitiesByLocalityIdAndAmenity(int localityId, String amenityName){
+    /**
+     * Get the locality amenities based on locality id and amenity name.
+     * If amenity name not provided the it will return all amenities present in locality
+     * @param localityId
+     * @param amenityName
+     * @return
+     */
+    public List<LocalityAmenity> getLocalityAmenities(int localityId, String amenityName){
         List<LocalityAmenity> output = null;
         
         if(amenityName == null || amenityName.isEmpty() )

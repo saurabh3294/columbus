@@ -25,60 +25,75 @@ import com.proptiger.data.repo.LocalityReviewDao;
 @Service
 public class LocalityReviewService {
 
+	public static final String COMMENT_TIME = "commentTime";
+	public static final String USERNAME = "username";
+	public static final String REVIEW_LABEL = "reviewLabel";
+	public static final String REVIEW = "review";
+	public static final String REVIEWS = "reviews";
+	public static final String TOTAL_RATINGS = "totalRatings";
+	public static final String AVERAGE_RATINGS = "averageRatings";
+	public static final String TOTAL_REVIEWS = "totalReviews";
+	
 	@Resource
 	private LocalityReviewDao localityReviewDao;
-        @Resource
-        private LocalityRatingDao localityRatingDao;
+	@Resource
+	private LocalityRatingDao localityRatingDao;
 	
-	private static Logger logger = LoggerFactory.getLogger("locality.review");
+	private static Logger logger = LoggerFactory.getLogger(LocalityReviewService.class);
 	/**
 	 * Finds all review for a locality based on locality id
 	 * 
 	 * @param localityId
 	 * @return
 	 */
-	public Map<String, Object> findReviewByLocalityId(int localityId, Pageable pageable){
-		if(logger.isDebugEnabled()){
-			logger.debug("findReviewByLocalityId, id="+localityId);
+	public Map<String, Object> findReviewByLocalityId(int localityId,
+			Pageable pageable) {
+		logger.debug("findReviewByLocalityId, id=" + localityId);
+
+		Long totalReviews = getLocalityReviewCount(localityId);
+
+		if (pageable == null && totalReviews != null
+				&& totalReviews.longValue() > 0)
+			pageable = new PageRequest(0, totalReviews.intValue());
+		else if (pageable == null)
+			pageable = new PageRequest(0, 5);
+
+		List<Object> reviewComments = localityReviewDao
+				.getReviewCommentsByLocalityId(localityId, pageable);
+		Object[] total = localityRatingDao
+				.getAvgAndTotalRatingByLocalityId(localityId);
+
+		Map<String, Object> reviewCommentsMaps;
+		Object[] reviewCommentsRow;
+		int totalElements = reviewComments.size();
+		for (int i = 0; i < totalElements; i++) {
+			reviewCommentsRow = (Object[]) reviewComments.get(i);
+
+			reviewCommentsMaps = new LinkedHashMap<String, Object>();
+			reviewCommentsMaps.put(REVIEW, reviewCommentsRow[0]);
+			reviewCommentsMaps.put(REVIEW_LABEL, reviewCommentsRow[1]);
+			reviewCommentsMaps.put(USERNAME, reviewCommentsRow[2]);
+			reviewCommentsMaps.put(COMMENT_TIME, reviewCommentsRow[3]);
+
+			reviewComments.set(i, reviewCommentsMaps);
 		}
-                
-				Long totalReviews = getTotalLocalityReviews(localityId);
-				
-				if(pageable == null && totalReviews!=null && totalReviews.longValue() > 0)
-					pageable = new PageRequest(0, totalReviews.intValue());
-				else if(pageable == null)
-					pageable = new PageRequest(0, 5);
-                
-                List<Object> reviewComments = localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
-                Object[] total = localityRatingDao.getAvgAndTotalRatingByLocalityId(localityId);
-                
-                Map<String, Object> reviewCommentsMaps;
-                Object[] reviewCommentsRow;
-                int totalElements = reviewComments.size();
-                for(int i=0; i<totalElements; i++)
-                {
-                    reviewCommentsRow = (Object[])reviewComments.get(i);
-                    
-                    reviewCommentsMaps = new LinkedHashMap<String, Object>();
-                    reviewCommentsMaps.put("review", reviewCommentsRow[0]);
-                    reviewCommentsMaps.put("reviewLabel", reviewCommentsRow[1]);
-                    reviewCommentsMaps.put("username", reviewCommentsRow[2]);
-                    reviewCommentsMaps.put("commentTime", reviewCommentsRow[3]);
-                    
-                    reviewComments.set(i, reviewCommentsMaps);
-                }
-                
-                Map<String, Object> response = new LinkedHashMap<String, Object>();
-                
-                response.put("totalReviews", totalReviews);
-                response.put("averageRatings", total[0]);
-                response.put("totalRatings", total[1]);
-                response.put("reviews", reviewComments);
-                 
-                return response;
-        }
+
+		Map<String, Object> response = new LinkedHashMap<String, Object>();
+
+		response.put(TOTAL_REVIEWS, totalReviews);
+		response.put(AVERAGE_RATINGS, total[0]);
+		response.put(TOTAL_RATINGS, total[1]);
+		response.put(REVIEWS, reviewComments);
+
+		return response;
+	}
 	
-	public Long getTotalLocalityReviews(int localityId){
+	/**
+	 * Get locality review count
+	 * @param localityId
+	 * @return
+	 */
+	public Long getLocalityReviewCount(int localityId){
 		return localityReviewDao.getTotalReviewsByLocalityId(localityId);
 	}
 }

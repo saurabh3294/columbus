@@ -23,6 +23,7 @@ import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.City;
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ListingPrice;
@@ -30,6 +31,7 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.portfolio.OverallReturn;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
@@ -45,6 +47,7 @@ import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.CityRepository;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingPriceDao;
+import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
@@ -106,6 +109,10 @@ public class PortfolioService extends AbstractService{
 	
 	@Autowired
 	private CityRepository cityRepository;
+	
+	@Autowired
+	private ImageService imageService;
+	
 	/**
 	 * Get portfolio object for a particular user id
 	 * @param userId
@@ -369,6 +376,18 @@ public class PortfolioService extends AbstractService{
 		Integer projectId = listing.getProperty().getProjectId();
 		ProjectDB project = projectDBDao.findOne(projectId);
 		if(project != null){
+			/*
+			 * Adding both property and project images
+			 */
+			List<Image> propertyImages = imageService.getImages(DomainObject.property, null, listing.getTypeId());
+			listing.setPropertyImages(propertyImages);
+			List<Image> projectImages = imageService.getImages(DomainObject.project, null, projectId);
+			if(listing.getPropertyImages() != null){
+				listing.getPropertyImages().addAll(projectImages);
+			}
+			else{
+				listing.setPropertyImages(projectImages);
+			}
 			listing.setProjectName(project.getProjectName());
 			listing.setBuilderName(project.getBuilderName());
 			listing.setCompletionDate(project.getCompletionDate());

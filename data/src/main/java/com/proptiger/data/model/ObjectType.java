@@ -8,7 +8,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+
 @Entity(name = "ObjectType")
+@JsonFilter("fieldFilter")
 public class ObjectType implements Serializable {
 	/**
      * 

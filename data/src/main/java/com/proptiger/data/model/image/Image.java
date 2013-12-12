@@ -15,12 +15,13 @@ import javax.persistence.ManyToOne;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.util.ImageUtil;
 
 @Entity(name = "Image")
 @Access(AccessType.FIELD)
 @JsonFilter("fieldFilter")
-public class Image {
+public class Image implements BaseModel{
 	@Id
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
@@ -49,7 +50,11 @@ public class Image {
     public String getAbsolutePath() {
         return ImageUtil.endpoint + "/" + path + waterMarkName;
     }
-
+	
+	@JsonProperty
+    public void setAbsolutePath(String str) {
+    }
+	
 	@Column(name = "created_at")
 	private Date createdAt;
 	
