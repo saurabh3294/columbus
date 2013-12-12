@@ -14,7 +14,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
+import org.apache.solr.client.solrj.beans.Field;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -27,27 +30,32 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "LOCALITY")
 @ResourceMetaInfo
-@JsonFilter("fieldFilter")
+//@JsonFilter("fieldFilter")
 public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
     @Id
+    @Field("LOCALITY_ID")
     private int localityId;
 
     @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
+    @Field("SUBURB_ID")
     private int suburbId;
 
     @ManyToOne(fetch=FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "SUBURB_ID", insertable = false, updatable = false)
     private Suburb suburb;
 
     // XXX TODO - This is to be removed
     @Column(name = "CITY_ID")
+    @Field("CITY_ID")
     private int cityId;
 
     @FieldMetaInfo(displayName = "Label", description = "Label")
     @Column(name = "LABEL")
+    @Field("LOCALITY")
     private String label;
 
     @FieldMetaInfo(displayName = "Title", description = "Title")
@@ -64,6 +72,7 @@ public class Locality implements BaseModel {
 
     @FieldMetaInfo(displayName = "Url", description = "Url")
     @Column(name = "URL")
+    @Field("LOCALITY_URL")
     private String url;
 
     @FieldMetaInfo(displayName = "Active", description = "Active")
@@ -76,18 +85,22 @@ public class Locality implements BaseModel {
     
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
+    @Field("LOCALITY_DESCRIPTION")
     private String description;
 
     @FieldMetaInfo(displayName = "Priority", description = "Priority")
     @Column(name = "PRIORITY")
+    @Field("LOCALITY_PRIORITY")
     private int priority;
 
     @FieldMetaInfo(displayName = "Latitude", description = "Latitude")
     @Column(name = "LATITUDE")
+    @Field("LATITUDE")
     private Double latitude;
 
     @FieldMetaInfo(displayName = "Longitude", description = "Longitude")
     @Column(name = "LONGITUDE")
+    @Field("LONGITUDE")
     private Double longitude;
 
     @OneToMany(mappedBy = "locality")
@@ -102,6 +115,12 @@ public class Locality implements BaseModel {
     
     @Transient
     private double derivedMaxRadius;
+    
+    @Transient
+    private int derivedTotalImages = 0;
+    
+    @Transient
+    private int derivedReviewsCount = 0;
     
     public int getLocalityId() {
         return localityId;
@@ -253,5 +272,21 @@ public class Locality implements BaseModel {
 
 	public void setDerivedMaxRadius(double derivedMaxRadius) {
 		this.derivedMaxRadius = (double)Math.round(derivedMaxRadius*1000)/1000;
+	}
+
+	public int getDerivedTotalImages() {
+		return derivedTotalImages;
+	}
+
+	public void setDerivedTotalImages(int derivedTotalImages) {
+		this.derivedTotalImages = derivedTotalImages;
+	}
+
+	public int getDerivedReviewsCount() {
+		return derivedReviewsCount;
+	}
+
+	public void setDerivedReviewsCount(int derivedReviewsCount) {
+		this.derivedReviewsCount = derivedReviewsCount;
 	}
 }

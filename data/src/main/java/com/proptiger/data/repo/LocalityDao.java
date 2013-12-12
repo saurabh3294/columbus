@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.Locality;
 
@@ -18,7 +19,8 @@ import com.proptiger.data.model.Locality;
  *
  * @author mukand
  */
-    public interface LocalityDao extends PagingAndSortingRepository<Locality, Integer>, LocalityCustomDao {
+@Repository
+public interface LocalityDao extends PagingAndSortingRepository<Locality, Integer>, LocalityCustomDao {
     
     @Query("SELECT COUNT(*) "
             + " FROM Locality L join L.enquiry E WHERE L.localityId=E.localityId AND "
@@ -40,7 +42,7 @@ import com.proptiger.data.model.Locality;
             + " L.localityId=?2")
     public Object[] findEnquiryCountOnLoc(@Param Long timediff, @Param int localityId);
     
-    public Page<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityDesc(int cityId, boolean active, boolean deletedFlag, Pageable pageable);
+    /*public Page<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityDesc(int cityId, boolean active, boolean deletedFlag, Pageable pageable);
     
     public Page<Locality> findByLocalityIdInAndIsActiveAndDeletedFlagOrderByPriorityDescLabelAsc(List<Integer> localityIds, boolean active, boolean deletedFlag, Pageable pageable);
     
@@ -48,5 +50,5 @@ import com.proptiger.data.model.Locality;
     
     public List<Locality> findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging);
     
-    public Locality findByLocalityId(int localityId);
+    public Locality findByLocalityId(int localityId);*/
 }

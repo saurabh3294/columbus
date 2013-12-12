@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 
@@ -35,7 +37,7 @@ public class LocalityService {
     }
     
     public List<Locality> getLocalityListing(int cityId){
-    	List<Locality> localities = localityDao.findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(cityId, true, true, null);
+    	List<Locality> localities = localityDao.findByLocationOrderByPriority(cityId, "city", new Paging(0, Integer.MAX_VALUE), SortOrder.ASC);//findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(cityId, true, true, null);
     	setProjectStatusCountAndProjectCountOnLocality(localities, cityId);
     	return localities;
     }
@@ -86,7 +88,11 @@ public class LocalityService {
    }
     
    public Double getMaxRadiusForLocalityOnProject(int localityId){
-	   Locality locality = localityDao.findByLocalityId(localityId);
+	   List<Locality> localities = localityDao.findByLocationOrderByPriority(localityId, "locality", null, null);//findByLocalityId(localityId);
+	   if(localities.size() < 1)
+		   return null;
+	   Locality locality = localities.get(0);
+		   
 	   List<SolrResult> projectSolrResults = projectDao.getProjectsByGEODistanceByLocality(localityId, locality.getLatitude()
 			   , locality.getLongitude(), 1);
 	   

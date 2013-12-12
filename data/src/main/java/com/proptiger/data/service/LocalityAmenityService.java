@@ -7,13 +7,12 @@ package com.proptiger.data.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
+import com.proptiger.data.pojo.Paging;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityAmenityDao;
 import com.proptiger.data.repo.LocalityDao;
 
@@ -41,14 +40,14 @@ public class LocalityAmenityService {
     }
     
     public List<LocalityAmenity> getAmenitiesByHighPriorityLocalityId(Integer cityId, List<Integer> localityIds){
-        Pageable pageable = new PageRequest(0, 1);
-        Page<Locality> localityInfo = null;
+        Paging paging = new Paging(0, 1);
+        List<Locality> localityInfo = null;
         if(localityIds != null)
-            localityInfo = localityDao.findByLocalityIdInAndIsActiveAndDeletedFlagOrderByPriorityDescLabelAsc(localityIds, true, true, pageable);
+            localityInfo = localityDao.findByLocationOrderByPriority(localityIds, "locality", paging, SortOrder.ASC);//findByLocalityIdInOrderByPriorityDescLabelAsc(localityIds, paging);
         else
-            localityInfo = localityDao.findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityDesc(cityId, true, true, pageable);
+            localityInfo = localityDao.findByLocationOrderByPriority(cityId, "city", paging, SortOrder.ASC);//findByCityIdOrderByPriority(cityId, paging, SortOrder.DESC);
                 
-        Integer localityId = localityInfo.getContent().get(0).getLocalityId();
+        Integer localityId = localityInfo.get(0).getLocalityId();
         
         List<LocalityAmenity> data = localityAmenityDao.getAmenitiesByLocalityId(localityId);
         

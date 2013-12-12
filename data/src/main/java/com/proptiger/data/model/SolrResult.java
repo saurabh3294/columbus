@@ -429,6 +429,7 @@ public class SolrResult implements BaseModel{
     public void setCityId(int cityId) {
         suburb.setCityId(cityId);
         city.setId(cityId);
+        locality.setCityId(cityId);
     }
 
     @Field("CITY")
@@ -530,5 +531,45 @@ public class SolrResult implements BaseModel{
     @Field("__RADIUS__")
     public void setDerivedMaxRadius(double radius){
     	project.getLocality().setDerivedMaxRadius(radius);
+    }
+    
+    @Field("LOCALITY_URL")
+    public void setLocalityURL(String url){
+    	locality.setUrl(url);
+    }
+    
+    @Field("SUBURB_URL")
+    public void setSuburbURL(String url){
+    	suburb.setUrl(url);
+    }
+    
+    @Field("CITY_URL")
+    public void setCityURL(String url){
+    	city.setUrl(url);
+    }
+    
+    @Field("LOCALITY_LATITUDE")
+    public void setLocalityLatitude(Double latitude){
+    	locality.setLatitude(latitude);
+    }
+    
+    @Field("LOCALITY_LONGITUDE")
+    public void setLocalityLongitude(Double longitude){
+    	locality.setLongitude(longitude);
+    }
+    
+    @Field("LOCALITY_DESCRIPTION")
+    public void setLocalityDescription(String description){
+    	locality.setDescription(description);
+    }
+    
+    @Field("SUBURB_DESCRIPTION")
+    public void setSuburbDescription(String description){
+    	suburb.setDescription(description);
+    }
+    
+    @Field("CITY_DESCRIPTION")
+    public void setCityDescription(String description){
+    	city.setDescription(description);
     }
 }
