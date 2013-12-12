@@ -1,6 +1,5 @@
     package com.proptiger.data.model;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,13 +15,10 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.image.Image;
 
 /**
  * Locality entity class
