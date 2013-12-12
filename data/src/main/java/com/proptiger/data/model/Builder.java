@@ -3,6 +3,9 @@
  */
 package com.proptiger.data.model;
 
+import java.util.Date;
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -39,6 +42,17 @@ public class Builder implements BaseModel {
     @Column(name = "DESCRIPTION")
     private String description;
     
+    @Transient
+    private Date estabilishedDate;
+    @Transient
+    private int derivedTotalProject;
+    @Transient
+    private int derivedTotalOngoingProject;
+    @Transient
+    private List<Project> derivedProjects;
+    
+    
+    
     public int getId() {
         return id;
     }
@@ -71,4 +85,36 @@ public class Builder implements BaseModel {
         this.description = description;
     }
 
+	public Date getEstabilishedDate() {
+		return estabilishedDate;
+	}
+
+	public void setEstabilishedDate(Date estabilishedDate) {
+		this.estabilishedDate = estabilishedDate;
+	}
+
+	public int getDerivedTotalProject() {
+		return derivedTotalProject;
+	}
+
+	public void setDerivedTotalProject(int derivedTotalProject) {
+		this.derivedTotalProject = derivedTotalProject;
+	}
+
+	public int getDerivedTotalOngoingProject() {
+		return derivedTotalOngoingProject;
+	}
+
+	public void setDerivedTotalOngoingProject(int derivedTotalOngoingProject) {
+		this.derivedTotalOngoingProject = derivedTotalOngoingProject;
+	}
+
+	public List<Project> getDerivedProjects() {
+		return derivedProjects;
+	}
+
+	public void setDerivedProjects(List<Project> derivedProjects) {
+		this.derivedProjects = derivedProjects;
+	}
+    
 }
