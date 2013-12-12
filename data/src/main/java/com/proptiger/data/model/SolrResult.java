@@ -572,4 +572,14 @@ public class SolrResult implements BaseModel{
     public void setCityDescription(String description){
     	city.setDescription(description);
     }
+    
+    @Field("DISPLAY_PRIORITY")
+    public void setDisplayPriority(int displayPriority){
+    	city.setDisplayPriority(displayPriority);
+    }	
+    
+    @Field("CITY_DISPLAY_ORDER")
+    public void setCityDisplayOrder(int cityDisplayOrder){
+    	city.setDisplayOrder(cityDisplayOrder);
+    }	
 }

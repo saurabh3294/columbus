@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
@@ -15,6 +12,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
@@ -23,48 +21,51 @@ import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 
 /**
- * @author mandeep
+ * @author Rajeev Pandey
  *
  */
 @Repository
-public class SuburbDaoImpl {
+public class CityDao {
 	@Autowired
     private SolrDao solrDao;
-
-	public List<Suburb> getSuburbs(Selector selector){
+	
+	public List<City> getCities(Selector selector){
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries("DOCUMENT_TYPE:SUBURB");
+		solrQuery.setFilterQueries("DOCUMENT_TYPE:CITY");
 		
-		SolrQueryBuilder<Suburb> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Suburb.class);
+		SolrQueryBuilder<City> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, City.class);
 		solrQueryBuilder.buildQuery(selector, null);
 		
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		
 		System.out.println(solrQuery.toString());
-		List<Suburb> data = new ArrayList<>();
+		List<City> data = new ArrayList<>();
 		for(int i=0; i<response.size(); i++)
 		{
-			data.add(response.get(i).getProject().getLocality().getSuburb());
+			data.add(response.get(i).getProject().getLocality().getSuburb().getCity());
 		}
 		
 		return data;
 	}
-    /*@Autowired
-    private EntityManagerFactory emf;
-        
-    public List<Suburb> getSuburbs(Selector selector) {
-        EntityManager em = emf.createEntityManager();
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        List<Suburb> result = new ArrayList<Suburb>();
+	
+	/*@Autowired
+	private EntityManagerFactory emf;
+	
+	public List<City> getCities(Selector selector) {
 
-        MySqlQueryBuilder<Suburb> mySqlQueryBuilder = new MySqlQueryBuilder<Suburb>(builder, Suburb.class);
-        
-        mySqlQueryBuilder.buildQuery(selector, null);
-        //executing query to get result
-        result = em.createQuery(mySqlQueryBuilder.getQuery()).getResultList();
+		EntityManager em = emf.createEntityManager();
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		List<City> result = new ArrayList<City>();
 
-        return result;
-    }*/
+		MySqlQueryBuilder<City> mySqlQueryBuilder = new MySqlQueryBuilder<City>(builder, City.class);
+		
+		mySqlQueryBuilder.buildQuery(selector, null);
+		//executing query to get result
+		result = em.createQuery(mySqlQueryBuilder.getQuery()).getResultList();
+
+		return result;
+	}*/
+	
 }
