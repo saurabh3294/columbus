@@ -3,16 +3,24 @@
  */
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.LocalityAmenity;
+import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortOrder;
