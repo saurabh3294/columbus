@@ -101,38 +101,6 @@ public class LocalityDaoImpl {
     	return getLocalities(selector);
 	}
     
-    /*public List<Locality> findByLocalityIdInOrderByPriorityDescLabelAsc(List<Integer> localityIds, Paging paging){
-    	Selector selector = new Selector();
-		
-    	Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
-    	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
-    	Map<String, Map<String, Object>> searchType = new HashMap<>();
-    	Map<String, Object> filterCriteria = new HashMap<>();
-    	LinkedHashSet<SortBy> sorting = new LinkedHashSet<>();
-    	SortBy sortBy = new SortBy();
-    	
-    	sortBy.setField("priority");
-    	sortBy.setSortOrder(SortOrder.DESC);
-    	sorting.add(sortBy);
-    	
-    	filterCriteria.put("localityId", localityIds);
-    	searchType.put("equal", filterCriteria);
-    	list.add(searchType);
-    	filter.put("and", list);
-    	
-    	selector.setFilters(filter);
-    	selector.setPaging(paging);
-    	selector.setSort(sorting);
-    	
-    	return getLocalities(selector);
-    }
-        
-    public List<Locality> findBySuburbIdOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging){
-    	
-    }
-    
-    public Locality findByLocalityId(int localityId);*/
-		
 //	
 //    @Autowired
 //    private EntityManagerFactory emf;
