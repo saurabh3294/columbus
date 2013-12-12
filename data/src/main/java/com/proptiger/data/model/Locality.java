@@ -45,6 +45,7 @@ public class Locality implements BaseModel {
     private Suburb suburb;
 
     // XXX TODO - This is to be removed
+    @Deprecated
     @Column(name = "CITY_ID")
     private int cityId;
 
@@ -141,10 +142,12 @@ public class Locality implements BaseModel {
         this.suburb = suburb;
     }
 
+    @Deprecated
     public int getCityId() {
         return cityId;
     }
 
+    @Deprecated
     public void setCityId(int cityId) {
         this.cityId = cityId;
     }

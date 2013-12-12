@@ -99,7 +99,7 @@ public class ProjectService {
     }
     
     public ProjectSecondaryPrice getProjectSecondaryPriceByProjectId(int projectId){
-    		int startId = DomainObject.valueOf("project").getStartId();
+    		int startId = DomainObject.project.getStartId();
     		Pageable pageable = new PageRequest(0, 1);
     		
     		List<ProjectSecondaryPrice> listProjectSecondaryPrice = projectSecondaryPriceDao.findByProjectIdOrderByIdDesc(projectId+startId, pageable);

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
@@ -46,8 +47,15 @@ public class PropertyController extends BaseController {
     	}
         List<Property> properties = propertyService.getProperties(propRequestParam);
         for (Property property : properties) {
-            property.getProject().setImageURL(imageService.getImages(DomainObject.project, "main", property.getProjectId()).get(0).getAbsolutePath());
-            property.getProject().getBuilder().setImageURL(imageService.getImages(DomainObject.builder, "logo", property.getProject().getBuilderId()).get(0).getAbsolutePath());
+            List<Image> images = imageService.getImages(DomainObject.project, "main", property.getProjectId());
+            if (images != null && !images.isEmpty()) {
+                property.getProject().setImageURL(images.get(0).getAbsolutePath());
+            }
+
+            images = imageService.getImages(DomainObject.builder, "logo", property.getProject().getBuilderId());
+            if (images != null && !images.isEmpty()) {
+                property.getProject().getBuilder().setImageURL(images.get(0).getAbsolutePath());
+            }
         }
 
         Set<String> fieldsSet = propRequestParam.getFields();
