@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -33,12 +34,7 @@ public class LocalityDaoImpl {
 	private SolrDao solrDao;
 	
 	public List<Locality> getLocalities(Selector selector){
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries("DOCUMENT_TYPE:LOCALITY");
-		
-		SolrQueryBuilder<Locality> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Locality.class);
-		solrQueryBuilder.buildQuery(selector, null);
+		SolrQuery solrQuery = createSolrQuery(selector);
 		
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
@@ -52,6 +48,7 @@ public class LocalityDaoImpl {
 		
 		return data;
 	}
+	
 	public List<Locality> findByLocationOrderByPriority(Object locationId, String locationType, Paging paging, SortOrder sortOrder){
 		if(sortOrder == null)
 			sortOrder = SortOrder.DESC;
@@ -100,7 +97,64 @@ public class LocalityDaoImpl {
     	
     	return getLocalities(selector);
 	}
+	
+	public List<Locality> findByLocalityIds(List<Integer> localityIds, Selector propertySelector){
+		
+		Selector selector = new Selector();
+		
+		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
+    	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+    	Map<String, Map<String, Object>> searchType = new HashMap<>();
+    	Map<String, Object> filterCriteria = new HashMap<>();
+    	    	    	    	    	
+    	filterCriteria.put("localityId", localityIds);
+    	searchType.put("equal", filterCriteria);
+    	list.add(searchType);
+    	filter.put("and", list);
+    	
+    	selector.setFilters(filter);
+    	selector.setFields(propertySelector.getFields());
+    	selector.setPaging(propertySelector.getPaging());
+    	if( selector.getPaging() == null )
+    		selector.setPaging( new Paging(0, localityIds.size()));
+    	
+    	return getLocalities(selector);
+	}
     
+
+	private SolrQuery createSolrQuery(Selector selector){
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("*:*");
+		solrQuery.setFilterQueries("DOCUMENT_TYPE:LOCALITY");
+		
+		
+		
+		if (selector.getSort() == null) {
+            selector.setSort(new LinkedHashSet<SortBy>());
+        }
+
+        selector.getSort().addAll(getDefaultSort());
+        
+        SolrQueryBuilder<Locality> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Locality.class);
+		solrQueryBuilder.buildQuery(selector, null);
+		
+		return solrQuery;
+	}
+		
+	private Set<SortBy> getDefaultSort() {
+        Set<SortBy> sortBySet = new LinkedHashSet<SortBy>();
+        SortBy sortBy = new SortBy();
+        sortBy.setField("priority");
+        sortBy.setSortOrder(SortOrder.ASC);
+        sortBySet.add(sortBy);
+
+        sortBy = new SortBy();
+        sortBy.setField("label");
+        sortBy.setSortOrder(SortOrder.ASC);
+        sortBySet.add(sortBy);
+                
+        return sortBySet;
+    }
 //	
 //    @Autowired
 //    private EntityManagerFactory emf;
