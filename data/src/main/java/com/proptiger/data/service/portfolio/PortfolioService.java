@@ -376,8 +376,18 @@ public class PortfolioService extends AbstractService{
 		Integer projectId = listing.getProperty().getProjectId();
 		ProjectDB project = projectDBDao.findOne(projectId);
 		if(project != null){
-			List<Image> images = imageService.getImages(DomainObject.property, null, listing.getTypeId());
-			listing.setPropertyImages(images);
+			/*
+			 * Adding both property and project images
+			 */
+			List<Image> propertyImages = imageService.getImages(DomainObject.property, null, listing.getTypeId());
+			listing.setPropertyImages(propertyImages);
+			List<Image> projectImages = imageService.getImages(DomainObject.project, null, projectId);
+			if(listing.getPropertyImages() != null){
+				listing.getPropertyImages().addAll(projectImages);
+			}
+			else{
+				listing.setPropertyImages(projectImages);
+			}
 			listing.setProjectName(project.getProjectName());
 			listing.setBuilderName(project.getBuilderName());
 			listing.setCompletionDate(project.getCompletionDate());
