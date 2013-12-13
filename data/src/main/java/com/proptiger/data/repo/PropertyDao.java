@@ -206,7 +206,7 @@ public class PropertyDao {
 
     private List<SolrResult> getSolrResultsForProperties(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
-        System.out.println(solrQuery.toString());
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
         return solrResults;
@@ -364,7 +364,6 @@ public class PropertyDao {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         try{
-            System.out.println(solrQuery.toString());
             return properties.get(0);
         }catch(Exception e){
             return null;
@@ -408,8 +407,6 @@ public class PropertyDao {
         solrQuery.setRows(limit);
         solrQuery.addFilterQuery("-PROJECT_ID:"+projectId);
         
-        
-        System.out.println("SOLR QUERY" + solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         
@@ -447,7 +444,6 @@ public class PropertyDao {
     	solrQuery.add("group.facet", "true");
     	solrQuery.add("group.field", "PROJECT_ID");
     	
-    	System.out.println(solrQuery.toString());
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
     	    	
     	return solrResponseReader.getFacetResults(queryResponse.getResponse());	

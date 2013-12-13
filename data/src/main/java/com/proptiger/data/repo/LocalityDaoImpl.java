@@ -39,7 +39,6 @@ public class LocalityDaoImpl {
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		
-		System.out.println(solrQuery.toString());
 		List<Locality> data = new ArrayList<>();
 		for(int i=0; i<response.size(); i++)
 		{

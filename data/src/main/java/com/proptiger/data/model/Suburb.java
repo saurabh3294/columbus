@@ -58,6 +58,11 @@ public class Suburb implements BaseModel {
     @FieldMetaInfo( displayName = "Description",  description = "Description")
     private String description;
 
+    @Column(name="PRIORITY")
+    @Field("SUBURB_PRIORITY")
+    @FieldMetaInfo( displayName = "Priority",  description = "Priority")
+    private int priority;
+    
     public int getId() {
         return id;
     }
@@ -104,5 +109,13 @@ public class Suburb implements BaseModel {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 }
