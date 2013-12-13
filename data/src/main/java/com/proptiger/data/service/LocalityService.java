@@ -76,7 +76,6 @@ public class LocalityService {
     	List<Integer> localityIds = getLocalityIdsOnPropertySelector(solrProjectStatusCountAndProjectCount);
     	
     	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
-    	//List<Locality> localities = localityDao.findByLocationOrderByPriority(cityId, "city", new Paging(0, Integer.MAX_VALUE), SortOrder.ASC);//findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(cityId, true, true, null);
     	setProjectStatusCountAndProjectCountOnLocality(localities, solrProjectStatusCountAndProjectCount);
     	return localities;
     }
