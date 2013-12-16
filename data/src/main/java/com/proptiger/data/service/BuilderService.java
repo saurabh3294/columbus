@@ -5,6 +5,7 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -57,7 +58,7 @@ public class BuilderService {
      * @return
      */
     public Builder getBuilderInfo(Integer builderId, Selector selector){
-    	int projectsToShow = 5;
+    	int projectsToShow = 3;
     	Builder builder = builderDao.findOne(builderId);
     	List<String> projectStatusNotIn = new ArrayList<>();
     	projectStatusNotIn.add("On Hold");
@@ -107,6 +108,7 @@ public class BuilderService {
     	}
     	
     	builder.setDerivedProjects(projectsToReturn);
+    	//TODO need to remove this as this will come from back end
     	return builder;
     }
 

@@ -15,13 +15,27 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 
+/**
+ * Builder details API
+ * @author Rajeev Pandey
+ *
+ */
 @Controller
-@RequestMapping(value="app/v1/builder")
-public class AppBuilderController extends BaseController{
+@RequestMapping(value="app/v1/builder-detail")
+public class AppBuilderDetailController extends BaseController{
 
 	@Autowired
 	private BuilderService builderService;
 	
+	/**
+	 * This methods get builder details by combining data from builder model and
+	 * some other derived data of builder. Selector can be used to filter out
+	 * unnecessary fields
+	 * 
+	 * @param builderId
+	 * @param selectorStr
+	 * @return
+	 */
 	@ResponseBody
 	@DisableCaching
     @RequestMapping(method = RequestMethod.GET, value = "/{builderId}")

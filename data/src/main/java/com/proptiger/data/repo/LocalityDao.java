@@ -7,6 +7,8 @@ package com.proptiger.data.repo;
 import java.util.List;
 
 import org.jboss.logging.Param;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -40,4 +42,29 @@ public interface LocalityDao extends PagingAndSortingRepository<Locality, Intege
             + " L.localityId=?2")
     public Object[] findEnquiryCountOnLoc(@Param Long timediff, @Param int localityId);
     
+    public Page<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityDesc(int cityId, boolean active, boolean deletedFlag, Pageable pageable);
+    
+    public Page<Locality> findByLocalityIdInAndIsActiveAndDeletedFlagOrderByPriorityDescLabelAsc(List<Integer> localityIds, boolean active, boolean deletedFlag, Pageable pageable);
+    
+    public List<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging);
+    
+    public List<Locality> findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging);
+    
+    public Locality findByLocalityId(int localityId);
+    
+    /**
+     * This method is getting all the popular localities of city, criteria of popularity is first with priority in asc
+     * and in case of tie total enquiry in desc 
+     * @param cityId
+     * @param suburbId 
+     * @param enquiryCreationDate 
+     * @return
+     */
+	@Query("SELECT L, COUNT(E.id) AS TOT_ENQ "
+			+ " FROM Locality L left join L.enquiry E WHERE "
+			+ " (E.createdDate IS NULL OR UNIX_TIMESTAMP(E.createdDate) >= ?3) "
+			+ " AND (L.cityId = ?1 OR L.suburbId = ?2) "
+			+ " group by L.localityId order by L.priority ASC , TOT_ENQ DESC ")
+	public List<Object[]> getPopularLocalitiesOfCityOrderByPriorityASCAndTotalEnquiryDESC(
+			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp);
 }
