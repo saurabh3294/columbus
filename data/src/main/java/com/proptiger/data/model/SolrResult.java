@@ -593,4 +593,13 @@ public class SolrResult implements BaseModel{
     	suburb.setPriority(suburbPriority);
     }
     
+    @Field("RESALE_PRICE_PER_UNIT_AREA")
+    public void setResalePricePerUnitArea(double resalePricePerUnitArea){
+    	property.setResalePricePerUnitArea(resalePricePerUnitArea);
+    }
+    
+    @Field("RESALE_PRICE")
+    public void setResalePrice(double resalePrice){
+    	property.setResalePrice(resalePrice);
+    }
 }

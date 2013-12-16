@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
@@ -46,6 +47,7 @@ public class ProjectListingController extends BaseController {
     private ProjectService projectService;
 
     @RequestMapping
+    @DisableCaching // to be removed.
     public @ResponseBody
     Object getProjectListings(@RequestParam(required = false) String selector,
             @RequestParam(required = false) String facets, @RequestParam(required = false) String stats) {

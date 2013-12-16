@@ -231,6 +231,10 @@ public class Project implements BaseModel {
     
     private ProjectSecondaryPrice projectSecondaryPrice;
     
+    private double minResalePrice;
+    
+    private double maxResalePrice;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -601,5 +605,21 @@ public class Project implements BaseModel {
 
 	public void setProjectSecondaryPrice(ProjectSecondaryPrice projectSecondaryPrice) {
 		this.projectSecondaryPrice = projectSecondaryPrice;
+	}
+
+	public double getMinResalePrice() {
+		return minResalePrice;
+	}
+
+	public void setMinResalePrice(double minResalePrice) {
+		this.minResalePrice = minResalePrice;
+	}
+
+	public double getMaxResalePrice() {
+		return maxResalePrice;
+	}
+
+	public void setMaxResalePrice(double maxResalePrice) {
+		this.maxResalePrice = maxResalePrice;
 	}
 }

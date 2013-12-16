@@ -119,13 +119,15 @@ public class PropertyDao {
             for (Group group : groupCommand.getValues()) {
                 List<SolrResult> solrResults = convertSolrResult(group.getResult());
                 Project project = solrResults.get(0).getProject();
-
+                
                 Set<String> unitTypes = new HashSet<String>();
                 List<Property> properties = new ArrayList<Property>();
+                double resalePrice;
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
                     Double pricePerUnitArea = property.getPricePerUnitArea();
                     Double size = property.getSize();
+                    resalePrice = property.getResalePrice();
                     properties.add(property);
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
@@ -136,6 +138,8 @@ public class PropertyDao {
                     project.setMaxSize(max(size, project.getMaxSize()));
                     project.setMaxBedrooms(Math.max(property.getBedrooms(), project.getMaxBedrooms()));
                     project.addBedrooms(property.getBedrooms());
+                    project.setMinResalePrice( min( resalePrice, project.getMinResalePrice() ) );
+                    project.setMaxResalePrice( max( resalePrice, project.getMaxResalePrice() ) );
                     
                     if (project.getMinBedrooms() == 0) {
                         project.setMinBedrooms(property.getBedrooms());
