@@ -151,14 +151,15 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
 
     @Override
     public void buildLimitClause(Selector selector) {
-        // TODO Auto-generated method stub
-    	Paging paging = selector.getPaging();
-    	if(paging == null)
-    		return;
-    	
-    	this.solrQuery.setStart(paging.getStart());
-    	if(paging.getRows() > 0)
-    		this.solrQuery.setRows(paging.getRows());
+        if (selector != null) {
+            Paging paging = selector.getPaging();
+            if(paging != null) {
+                this.solrQuery.setStart(paging.getStart());
 
+                if (paging.getRows() > 0) {
+                    this.solrQuery.setRows(paging.getRows());
+                }
+            }
+        }
     }
 }
