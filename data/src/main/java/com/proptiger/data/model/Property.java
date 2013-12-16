@@ -111,6 +111,16 @@ public class Property implements BaseModel {
     @Transient
     private List<Image> images;
     
+    @Transient
+    @FieldMetaInfo( displayName = "Resale price per unit area",  description = "Resale price per unit area")
+    @Field(value="RESALE_PRICE_PER_UNIT_AREA")
+    private double resalePricePerUnitArea;
+    
+    @Transient
+    @FieldMetaInfo( displayName = "Resale Price",  description = "Resale Price")
+    @Field(value="RESALE_PRICE")
+    private double resalePrice;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -245,6 +255,22 @@ public class Property implements BaseModel {
 
 	public void setPricePerUnitAreaCms(Double pricePerUnitAreaCms) {
 		this.pricePerUnitAreaCms = pricePerUnitAreaCms;
+	}
+
+	public double getResalePricePerUnitArea() {
+		return resalePricePerUnitArea;
+	}
+
+	public void setResalePricePerUnitArea(double resalePricePerUnitArea) {
+		this.resalePricePerUnitArea = resalePricePerUnitArea;
+	}
+
+	public double getResalePrice() {
+		return resalePrice;
+	}
+
+	public void setResalePrice(double resalePrice) {
+		this.resalePrice = resalePrice;
 	}
 	
 }

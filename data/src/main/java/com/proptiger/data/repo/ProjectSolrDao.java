@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -181,35 +180,6 @@ public class ProjectSolrDao {
         solrRes.setResult(solrResults);
         
         return solrRes;
-    }
-    
-    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocalityByCity(int cityId){
-    	SolrQuery solrQuery = new SolrQuery();
-    	
-    	solrQuery.setQuery("CITY_ID:"+cityId);
-    	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
-    	solrQuery.setFacetLimit(-1);
-    	solrQuery.setFacetMinCount(1);
-    	solrQuery.addFacetField("LOCALITY_ID_PROJECT_STATUS");
-    	solrQuery.addFacetField("LOCALITY_ID");
-    	solrQuery.setFacet(true);
-    	solrQuery.setRows(0);
-    	System.out.println(solrQuery.toString());
-    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-    	    	
-    	return solrResponseReader.getFacetResults(queryResponse.getResponse());	
-    }
-    
-    public long getProjectCountCity(int cityId){
-    	SolrQuery solrQuery = new SolrQuery();
-    	
-    	solrQuery.setQuery("CITY_ID:"+cityId);
-    	solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
-    	solrQuery.setRows(0);
-    	
-    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-    	    	
-    	return solrDao.executeQuery(solrQuery).getResults().getNumFound();	
     }
     
     public List<SolrResult> getProjectsByGEODistanceByLocality(int localityId, double latitude, double longitude, int rows){

@@ -37,6 +37,7 @@ public abstract class AbstractQueryBuilder<T> {
         buildSelectClause(selector);
         buildOrderByClause(selector);
         buildFilterClause(selector, userId);
+        buildLimitClause(selector);
     }
 
     protected abstract void buildSelectClause(Selector selector);

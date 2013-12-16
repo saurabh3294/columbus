@@ -8,7 +8,6 @@ import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -19,7 +18,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo
-@JsonFilter("fieldFilter")
+//@JsonFilter("fieldFilter")
 public class City implements BaseModel{
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
@@ -28,6 +27,7 @@ public class City implements BaseModel{
 
     @FieldMetaInfo( displayName = "Label",  description = "City label")
     @Column(name = "LABEL")
+    @Field("CITY")
     private String label;
 
     @FieldMetaInfo( displayName = "North east latitude",  description = "North east latitude")
@@ -69,6 +69,16 @@ public class City implements BaseModel{
     @Field(value="DISPLAY_ORDER")
     @FieldMetaInfo( displayName = "Display Order",  description = "Display Order")
     private Integer displayOrder;
+    
+    @Column(name="URL")
+    @Field("CITY_URL")
+    @FieldMetaInfo( displayName = "URL",  description = "URL")
+    private String url;
+    
+    @Column(name="DESCRIPTION")
+    @Field("DESCRIPTION")
+    @FieldMetaInfo( displayName = "Description",  description = "Description")
+    private String description;
     
     @Transient
     private long derivedProjectsCount;
@@ -159,6 +169,22 @@ public class City implements BaseModel{
 
 	public void setProjectsCount(long projectsCount) {
 		this.derivedProjectsCount = projectsCount;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
     
 }

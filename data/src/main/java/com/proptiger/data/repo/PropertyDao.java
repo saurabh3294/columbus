@@ -35,6 +35,7 @@ import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.SolrResponseReader;
+import com.proptiger.data.util.UtilityClass;
 
 /**
  * @author mandeep
@@ -119,23 +120,27 @@ public class PropertyDao {
             for (Group group : groupCommand.getValues()) {
                 List<SolrResult> solrResults = convertSolrResult(group.getResult());
                 Project project = solrResults.get(0).getProject();
-
+                
                 Set<String> unitTypes = new HashSet<String>();
                 List<Property> properties = new ArrayList<Property>();
+                double resalePrice;
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
                     Double pricePerUnitArea = property.getPricePerUnitArea();
                     Double size = property.getSize();
+                    resalePrice = property.getResalePrice();
                     properties.add(property);
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
                 
-                    project.setMinPricePerUnitArea(min(pricePerUnitArea, project.getMinPricePerUnitArea()));
-                    project.setMaxPricePerUnitArea(max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
-                    project.setMinSize(min(size, project.getMinSize()));
-                    project.setMaxSize(max(size, project.getMaxSize()));
+                    project.setMinPricePerUnitArea(UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea()));
+                    project.setMaxPricePerUnitArea(UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
+                    project.setMinSize(UtilityClass.min(size, project.getMinSize()));
+                    project.setMaxSize(UtilityClass.max(size, project.getMaxSize()));
                     project.setMaxBedrooms(Math.max(property.getBedrooms(), project.getMaxBedrooms()));
                     project.addBedrooms(property.getBedrooms());
+                    project.setMinResalePrice( UtilityClass.min( resalePrice, project.getMinResalePrice() ) );
+                    project.setMaxResalePrice( UtilityClass.max( resalePrice, project.getMaxResalePrice() ) );
                     
                     if (project.getMinBedrooms() == 0) {
                         project.setMinBedrooms(property.getBedrooms());
@@ -146,8 +151,8 @@ public class PropertyDao {
 
                     if (pricePerUnitArea != null && size != null) {
                         Double price = pricePerUnitArea * size;
-                        project.setMinPrice(min(price, project.getMinPrice()));
-                        project.setMaxPrice(max(price, project.getMaxPrice()));
+                        project.setMinPrice(UtilityClass.min(price, project.getMinPrice()));
+                        project.setMaxPrice(UtilityClass.max(price, project.getMaxPrice()));
                     }
                 }
                 project.setPropertyUnitTypes(unitTypes);
@@ -164,49 +169,13 @@ public class PropertyDao {
         return solrRes;
     }
 
-    /**
-     * Returns non zero max of given 2 numbers - null otherwise
-     * @param a
-     * @param b
-     * @return
-     */
-    private Double max(Double a, Double b) {
-        Double c = a;
-        if (a == null) {
-            c = b;
-        }
-        else if (b != null) {
-            c = Math.max(a, b);
-        }
-
-        return c;
-    }
-
-    /**
-     * Returns non zero min of given 2 numbers - null otherwise
-     * @param a
-     * @param b
-     * @return
-     */
-    private Double min(Double a, Double b) {
-        Double c = a;
-        if (a == null || a == 0) {
-            c = b;
-        }
-        else if (b != null && b != 0) {
-            c = Math.min(a, b);
-        }
-
-        return c;
-    }
-
     private List<SolrResult> convertSolrResult(SolrDocumentList result) {
         return new DocumentObjectBinder().getBeans(SolrResult.class, result);
     }
 
     private List<SolrResult> getSolrResultsForProperties(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
-
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
         return solrResults;
@@ -364,7 +333,6 @@ public class PropertyDao {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         try{
-            System.out.println(solrQuery.toString());
             return properties.get(0);
         }catch(Exception e){
             return null;
@@ -408,8 +376,6 @@ public class PropertyDao {
         solrQuery.setRows(limit);
         solrQuery.addFilterQuery("-PROJECT_ID:"+projectId);
         
-        
-        System.out.println("SOLR QUERY" + solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         
@@ -422,6 +388,52 @@ public class PropertyDao {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         return properties;        
+    }
+    
+    /**
+     * This method will take selector Object. This method will get the count of project status and projects
+     * locality wise based on the conditions provided in the selector object. This method will take count of 
+     * distinct projects. 
+     * @param selector
+     * @return  
+     */
+    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocalityByCity(Selector selector){
+    	SolrQuery solrQuery = createSolrQuery(selector);
+    	    	
+    	// bug in solr. in case of facet grouping, the negative value will not 
+    	// work to get all data. Hence, providing random Max value.
+    	solrQuery.setFacetLimit(100000);
+    	solrQuery.setFacetMinCount(1);
+    	solrQuery.addFacetField("LOCALITY_ID_PROJECT_STATUS");
+    	solrQuery.addFacetField("LOCALITY_ID");
+    	solrQuery.setFacet(true);
+    	solrQuery.setRows(0);
+    	
+    	solrQuery.add("group", "true");
+    	solrQuery.add("group.facet", "true");
+    	solrQuery.add("group.field", "PROJECT_ID");
+    	
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	    	
+    	return solrResponseReader.getFacetResults(queryResponse.getResponse());	
+    }
+    
+    /**
+     * This method will accept the selector object and return the total number
+     * of projects found based on selector conditions.
+     * @param selector
+     * @return int
+     */
+    public int getProjectCount(Selector selector){
+    	SolrQuery solrQuery = createSolrQuery(selector);
+    	
+    	solrQuery.setRows(0);
+    	
+    	solrQuery.add("group", "true");
+    	solrQuery.add("group.field", "PROJECT_ID");
+    	solrQuery.add("group.ngroups", "true");
+    	
+    	return solrDao.executeQuery(solrQuery).getGroupResponse().getValues().get(0).getNGroups();	
     }
     
     public static void main(String[] args) {
@@ -450,21 +462,8 @@ public class PropertyDao {
         selector.setPaging(paging);
         ObjectMapper mapper = new ObjectMapper();
 
-        try {
-            System.out.println(mapper.writeValueAsString(selector));
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 //        new PropertyDao().getPropertiesGroupedToProjects(selector);
 //        new PropertyDao().getStats(Collections.singletonList("bedrooms"));
         PropertyDao propertyDao = new PropertyDao();
-        System.out.println(propertyDao.min(null, 76.9));
-        System.out.println(propertyDao.min(87.9, 76.9));
-        System.out.println(propertyDao.min(65.9, 76.9));
-        System.out.println(propertyDao.min(null, null));
-        System.out.println(propertyDao.min(null, 0.0));
-        System.out.println(propertyDao.min(0.0, null));
-        System.out.println(propertyDao.min(0.0, 0.0));
     }
 }

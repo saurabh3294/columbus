@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
+import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
@@ -37,9 +38,18 @@ public class AppLocalityController extends BaseController {
 	 */
 	@RequestMapping
 	@ResponseBody
-	public ProAPIResponse getLocalityListingData(@RequestParam int cityId) {
-		Object object = localityService.getLocalityListing(cityId);
-		return new ProAPISuccessResponse(object);
+	public ProAPIResponse getLocalityListingData(@RequestParam String selector) {
+		Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+        if (propRequestParam == null) {
+            propRequestParam = new Selector();
+        }
+        // all localities are needed by default. Hence, setting max value.
+        if(propRequestParam.getPaging() == null)
+        	propRequestParam.setPaging(new Paging(0, 1000000));
+        
+		Object object = localityService.getLocalityListing(propRequestParam);
+		
+		return new ProAPISuccessResponse(super.filterFields(object, propRequestParam.getFields()));
 	}
 
 	/**

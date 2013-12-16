@@ -229,7 +229,9 @@ public class Project implements BaseModel {
     
     private Set<Integer> derivedBedrooms = new HashSet<>();
     
-    private ProjectSecondaryPrice projectSecondaryPrice;
+    private Double derivedMinResalePrice;
+    
+    private Double derivedMaxResalePrice;
     
     public int getProjectId() {
         return projectId;
@@ -595,11 +597,19 @@ public class Project implements BaseModel {
 		this.derivedBedrooms.add(bedroom);
 	}
 
-	public ProjectSecondaryPrice getProjectSecondaryPrice() {
-		return projectSecondaryPrice;
+	public Double getMinResalePrice() {
+		return derivedMinResalePrice;
 	}
 
-	public void setProjectSecondaryPrice(ProjectSecondaryPrice projectSecondaryPrice) {
-		this.projectSecondaryPrice = projectSecondaryPrice;
+	public void setMinResalePrice(Double minResalePrice) {
+		this.derivedMinResalePrice = minResalePrice;
+	}
+
+	public Double getMaxResalePrice() {
+		return derivedMaxResalePrice;
+	}
+
+	public void setMaxResalePrice(Double maxResalePrice) {
+		this.derivedMaxResalePrice = maxResalePrice;
 	}
 }

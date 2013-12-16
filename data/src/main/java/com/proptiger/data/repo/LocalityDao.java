@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.Locality;
 
@@ -18,7 +19,8 @@ import com.proptiger.data.model.Locality;
  *
  * @author mukand
  */
-    public interface LocalityDao extends PagingAndSortingRepository<Locality, Integer>, LocalityCustomDao {
+@Repository
+public interface LocalityDao extends PagingAndSortingRepository<Locality, Integer>, LocalityCustomDao {
     
     @Query("SELECT COUNT(*) "
             + " FROM Locality L join L.enquiry E WHERE L.localityId=E.localityId AND "
@@ -49,4 +51,20 @@ import com.proptiger.data.model.Locality;
     public List<Locality> findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(int cityId, boolean active, boolean deletedFlag, Pageable paging);
     
     public Locality findByLocalityId(int localityId);
+    
+    /**
+     * This method is getting all the popular localities of city, criteria of popularity is first with priority in asc
+     * and in case of tie total enquiry in desc 
+     * @param cityId
+     * @param suburbId 
+     * @param enquiryCreationDate 
+     * @return
+     */
+	@Query("SELECT L, COUNT(E.id) AS TOT_ENQ "
+			+ " FROM Locality L left join L.enquiry E WHERE "
+			+ " (E.createdDate IS NULL OR UNIX_TIMESTAMP(E.createdDate) >= ?3) "
+			+ " AND (L.cityId = ?1 OR L.suburbId = ?2) "
+			+ " group by L.localityId order by L.priority ASC , TOT_ENQ DESC ")
+	public List<Object[]> getPopularLocalitiesOfCityOrderByPriorityASCAndTotalEnquiryDESC(
+			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp);
 }
