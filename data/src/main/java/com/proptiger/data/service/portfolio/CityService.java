@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.City;
 import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.repo.portfolio.CityDao;
+import com.proptiger.data.repo.CityDao;
 
 @Service
 public class CityService {

@@ -206,7 +206,7 @@ public class PropertyDao {
 
     private List<SolrResult> getSolrResultsForProperties(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
-
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
         return solrResults;
@@ -407,7 +407,6 @@ public class PropertyDao {
         solrQuery.setRows(limit);
         solrQuery.addFilterQuery("-PROJECT_ID:"+projectId);
         
-        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         
@@ -420,6 +419,52 @@ public class PropertyDao {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         return properties;        
+    }
+    
+    /**
+     * This method will take selector Object. This method will get the count of project status and projects
+     * locality wise based on the conditions provided in the selector object. This method will take count of 
+     * distinct projects. 
+     * @param selector
+     * @return  
+     */
+    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocalityByCity(Selector selector){
+    	SolrQuery solrQuery = createSolrQuery(selector);
+    	    	
+    	// bug in solr. in case of facet grouping, the negative value will not 
+    	// work to get all data. Hence, providing random Max value.
+    	solrQuery.setFacetLimit(100000);
+    	solrQuery.setFacetMinCount(1);
+    	solrQuery.addFacetField("LOCALITY_ID_PROJECT_STATUS");
+    	solrQuery.addFacetField("LOCALITY_ID");
+    	solrQuery.setFacet(true);
+    	solrQuery.setRows(0);
+    	
+    	solrQuery.add("group", "true");
+    	solrQuery.add("group.facet", "true");
+    	solrQuery.add("group.field", "PROJECT_ID");
+    	
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	    	
+    	return solrResponseReader.getFacetResults(queryResponse.getResponse());	
+    }
+    
+    /**
+     * This method will accept the selector object and return the total number
+     * of projects found based on selector conditions.
+     * @param selector
+     * @return int
+     */
+    public int getProjectCount(Selector selector){
+    	SolrQuery solrQuery = createSolrQuery(selector);
+    	
+    	solrQuery.setRows(0);
+    	
+    	solrQuery.add("group", "true");
+    	solrQuery.add("group.field", "PROJECT_ID");
+    	solrQuery.add("group.ngroups", "true");
+    	
+    	return solrDao.executeQuery(solrQuery).getGroupResponse().getValues().get(0).getNGroups();	
     }
     
     public static void main(String[] args) {

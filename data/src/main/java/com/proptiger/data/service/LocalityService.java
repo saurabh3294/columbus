@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -19,21 +21,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.LocalityDaoImpl;
 import com.proptiger.data.repo.ProjectDao;
+import com.proptiger.data.repo.PropertyDao;
 
 
 /**
  * @author mandeep
- * @author Rajeev Pandey
  *
  */
 @Service
@@ -60,23 +66,33 @@ public class LocalityService {
     @Autowired
     private ProjectDao projectDao;
     
+    @Autowired
+    private PropertyDao propertyDao;
+    
     public List<Locality> getLocalities(Selector selector) {
         return Lists.newArrayList(localityDao.getLocalities(selector));
     }
     
-    public List<Locality> getLocalityListing(int cityId){
-    	List<Locality> localities = localityDao.findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(cityId, true, true, null);
-    	setProjectStatusCountAndProjectCountOnLocality(localities, cityId);
+    public List<Locality> getLocalityListing(Selector selector){
+    	if(selector.getFields() == null)
+		{
+			selector.setFields(new HashSet<String>());
+		}
+		selector.getFields().add("localityId");
+    	Map<String,Map<String, Integer>> solrProjectStatusCountAndProjectCount = propertyDao.getProjectStatusCountAndProjectOnLocalityByCity(selector);
+    	
+    	List<Integer> localityIds = getLocalityIdsOnPropertySelector(solrProjectStatusCountAndProjectCount);
+    	
+    	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
+    	setProjectStatusCountAndProjectCountOnLocality(localities, solrProjectStatusCountAndProjectCount);
     	return localities;
     }
     
-    public void setProjectStatusCountAndProjectCountOnLocality(List<Locality> localities, int cityId){
-    	Map<String,Map<String, Integer>> solrProjectStatusCountAndProjectCount = projectDao.getProjectStatusCountAndProjectOnLocalityByCity(cityId);
-    	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(cityId, 
-    																										solrProjectStatusCountAndProjectCount.get("LOCALITY_ID_PROJECT_STATUS"));
-    	Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount.get("LOCALITY_ID");
-    	long totalProjectCountsOnCity = projectDao.getProjectCountCity(cityId);
+    public void setProjectStatusCountAndProjectCountOnLocality(List<Locality> localities, Map<String,Map<String, Integer>> solrProjectStatusCountAndProjectCount){
     	
+    	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(solrProjectStatusCountAndProjectCount.get("LOCALITY_ID_PROJECT_STATUS"));
+    	Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount.get("LOCALITY_ID");
+    	    	
     	int size = localities.size();
     	Locality locality;
     	Integer projectCount;
@@ -88,12 +104,11 @@ public class LocalityService {
     		if( projectCount != null )
     			locality.setProjectCount( projectCount.intValue() );
     		
-    		locality.getSuburb().getCity().setProjectsCount(totalProjectCountsOnCity);
     	}
 
     }
     
-    public Map<Integer, Map<String, Integer>> getProjectStatusCountOnLocalityByCity(int cityId, Map<String, Integer> solrProjectStatusCount) {
+    public Map<Integer, Map<String, Integer>> getProjectStatusCountOnLocalityByCity(Map<String, Integer> solrProjectStatusCount) {
     	Map<Integer, Map<String, Integer>> localityProjectStatusCount = new HashMap<Integer, Map<String,Integer>>();
     	String[] split;
     	Integer localityId;
@@ -115,7 +130,11 @@ public class LocalityService {
    }
     
    public Double getMaxRadiusForLocalityOnProject(int localityId){
-	   Locality locality = localityDao.findByLocalityId(localityId);
+	   List<Locality> localities = localityDao.findByLocationOrderByPriority(localityId, "locality", null, null);//findByLocalityId(localityId);
+	   if(localities.size() < 1)
+		   return null;
+	   Locality locality = localities.get(0);
+		   
 	   List<SolrResult> projectSolrResults = projectDao.getProjectsByGEODistanceByLocality(localityId, locality.getLatitude()
 			   , locality.getLongitude(), 1);
 	   
@@ -233,5 +252,15 @@ public class LocalityService {
 		
 		List<Locality> result = localityDaoImpl.getPopularLocalities(cityId, suburbId, timeStmap);
 		return result;
+	}
+	private List<Integer> getLocalityIdsOnPropertySelector(Map<String,Map<String, Integer>> solrMap){
+		Map<String, Integer> projectCountOnLocality = solrMap.get("LOCALITY_ID");
+		
+		List<Integer> localities = new ArrayList<>();
+		for	(Map.Entry<String, Integer> entry : projectCountOnLocality.entrySet()){
+			localities.add( Integer.parseInt( entry.getKey() ) );
+		}
+    	    	    	
+    	return localities;
 	}
 }

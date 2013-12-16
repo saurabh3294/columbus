@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.NearLocalities;
+import com.proptiger.data.pojo.Paging;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.CMSDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.NearLocalitiesDao;
@@ -283,27 +285,29 @@ public class GraphService {
         List<String> unitType = (List<String>)paramObject.get("unit_type");
         locationType = locationType.toLowerCase();
         // START getting the Top Rated locality in a city or suburb.
-        Pageable paging = new PageRequest(0,1);
+        Paging paging = new Paging(0, 1);
         int topRatedLocalityId;
         List<Locality> locality = null;
         switch (locationType) {
             case "city":
-                locality = localityDao.findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(locationId.intValue(), true, true, paging);
+                locality = localityDao.findByLocationOrderByPriority(locationId, "city", paging, SortOrder.ASC);//findByCityIdOrderByPriority(locationId.intValue(), paging, SortOrder.ASC);
                 break;
             case "suburb":
-                locality = localityDao.findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(locationId.intValue(), true, true, paging);
+                locality = localityDao.findByLocationOrderByPriority(locationId, "suburb", paging, SortOrder.ASC);//findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(locationId.intValue(), true, true, paging);
                 break;
         }
         
         if("locality".equals(locationType))
             topRatedLocalityId = locationId.intValue();
-        else
+        else if(locality.size() > 0)
             topRatedLocalityId = locality.get(0).getLocalityId();
+        else
+        	return null;
         // END getting top rated Locality
         
         // START getting near by localities of Top Locality
-        paging = new PageRequest(0, 5);
-        List<NearLocalities> nearLocalitiesList = nearLocalitiesDao.findByMainLocalityOrderByDistanceAsc(topRatedLocalityId, paging);
+        Pageable pageable = new PageRequest(0, 5);
+        List<NearLocalities> nearLocalitiesList = nearLocalitiesDao.findByMainLocalityOrderByDistanceAsc(topRatedLocalityId, pageable);
         // END getting near by localities of Top Locality
         
         // START Getting Data from CMS
