@@ -9,15 +9,16 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.springframework.util.StringUtils;
 
+import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 
 /**
- * This class is responcible to create all clauses of solr query
+ * This class is responsible to create all clauses of solr query
  * 
- * @author mandeep
+ * @author Mandeep
  * @author Rajeev Pandey
- *
+ * 
  * @param <T>
  *
  */
@@ -151,6 +152,13 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     public void buildLimitClause(Selector selector) {
         // TODO Auto-generated method stub
+    	Paging paging = selector.getPaging();
+    	if(paging == null)
+    		return;
+    	
+    	this.solrQuery.setStart(paging.getStart());
+    	if(paging.getRows() > 0)
+    		this.solrQuery.setRows(paging.getRows());
 
     }
 }
