@@ -262,7 +262,12 @@ public class ProjectDB implements BaseModel{
     private double derivedMaxPricePerUnitArea = 0;
     
     @Transient
-    private ProjectSecondaryPrice projectSecondaryPrice;
+    @FieldMetaInfo(displayName="Min Resale Price", description="Min Resale Price")
+    private double minResalePrice;
+    
+    @Transient
+    @FieldMetaInfo(displayName="Max Resale Price", description="Max Resale Price")
+    private double maxResalePrice;
     
     public int getProjectId() {
         return projectId;
@@ -704,11 +709,19 @@ public class ProjectDB implements BaseModel{
 		this.derivedMaxPricePerUnitArea = maxPricePerUnitArea;
 	}
 
-	public ProjectSecondaryPrice getProjectSecondaryPrice() {
-		return projectSecondaryPrice;
+	public double getMinResalePrice() {
+		return minResalePrice;
 	}
 
-	public void setProjectSecondaryPrice(ProjectSecondaryPrice projectSecondaryPrice) {
-		this.projectSecondaryPrice = projectSecondaryPrice;
+	public void setMinResalePrice(double minResalePrice) {
+		this.minResalePrice = minResalePrice;
+	}
+
+	public double getMaxResalePrice() {
+		return maxResalePrice;
+	}
+
+	public void setMaxResalePrice(double maxResalePrice) {
+		this.maxResalePrice = maxResalePrice;
 	}
 }

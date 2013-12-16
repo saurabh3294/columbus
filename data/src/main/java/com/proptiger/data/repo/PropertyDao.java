@@ -35,6 +35,7 @@ import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.SolrResponseReader;
+import com.proptiger.data.util.UtilityClass;
 
 /**
  * @author mandeep
@@ -132,14 +133,14 @@ public class PropertyDao {
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
                 
-                    project.setMinPricePerUnitArea(min(pricePerUnitArea, project.getMinPricePerUnitArea()));
-                    project.setMaxPricePerUnitArea(max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
-                    project.setMinSize(min(size, project.getMinSize()));
-                    project.setMaxSize(max(size, project.getMaxSize()));
+                    project.setMinPricePerUnitArea(UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea()));
+                    project.setMaxPricePerUnitArea(UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
+                    project.setMinSize(UtilityClass.min(size, project.getMinSize()));
+                    project.setMaxSize(UtilityClass.max(size, project.getMaxSize()));
                     project.setMaxBedrooms(Math.max(property.getBedrooms(), project.getMaxBedrooms()));
                     project.addBedrooms(property.getBedrooms());
-                    project.setMinResalePrice( min( resalePrice, project.getMinResalePrice() ) );
-                    project.setMaxResalePrice( max( resalePrice, project.getMaxResalePrice() ) );
+                    project.setMinResalePrice( UtilityClass.min( resalePrice, project.getMinResalePrice() ) );
+                    project.setMaxResalePrice( UtilityClass.max( resalePrice, project.getMaxResalePrice() ) );
                     
                     if (project.getMinBedrooms() == 0) {
                         project.setMinBedrooms(property.getBedrooms());
@@ -150,8 +151,8 @@ public class PropertyDao {
 
                     if (pricePerUnitArea != null && size != null) {
                         Double price = pricePerUnitArea * size;
-                        project.setMinPrice(min(price, project.getMinPrice()));
-                        project.setMaxPrice(max(price, project.getMaxPrice()));
+                        project.setMinPrice(UtilityClass.min(price, project.getMinPrice()));
+                        project.setMaxPrice(UtilityClass.max(price, project.getMaxPrice()));
                     }
                 }
                 project.setPropertyUnitTypes(unitTypes);
@@ -166,42 +167,6 @@ public class PropertyDao {
         solrRes.setResult(projects);
 
         return solrRes;
-    }
-
-    /**
-     * Returns non zero max of given 2 numbers - null otherwise
-     * @param a
-     * @param b
-     * @return
-     */
-    private Double max(Double a, Double b) {
-        Double c = a;
-        if (a == null) {
-            c = b;
-        }
-        else if (b != null) {
-            c = Math.max(a, b);
-        }
-
-        return c;
-    }
-
-    /**
-     * Returns non zero min of given 2 numbers - null otherwise
-     * @param a
-     * @param b
-     * @return
-     */
-    private Double min(Double a, Double b) {
-        Double c = a;
-        if (a == null || a == 0) {
-            c = b;
-        }
-        else if (b != null && b != 0) {
-            c = Math.min(a, b);
-        }
-
-        return c;
     }
 
     private List<SolrResult> convertSolrResult(SolrDocumentList result) {

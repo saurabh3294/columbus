@@ -3,20 +3,13 @@ package com.proptiger.data.repo;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.criteria.CriteriaBuilder;
-
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.City;
-import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.Suburb;
-import com.proptiger.data.model.filter.MySqlQueryBuilder;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 
