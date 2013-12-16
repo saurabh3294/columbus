@@ -39,6 +39,9 @@ public abstract class BaseController {
 
     protected Object filterFields(Object object, Set<String> fields) {
 		try {
+			if(object == null)
+				return null;
+			
 			Set<String> fieldSet = new HashSet<String>();
 			FilterProvider filterProvider = new SimpleFilterProvider()
 					.addFilter("fieldFilter", SimpleBeanPropertyFilter
