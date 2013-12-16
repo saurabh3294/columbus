@@ -4,10 +4,14 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.EntityManagerFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +27,7 @@ import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityDao;
+import com.proptiger.data.repo.LocalityDaoImpl;
 import com.proptiger.data.repo.ProjectDao;
 
 
@@ -39,6 +44,9 @@ public class LocalityService {
 	private LocalityAmenityTypeService amenityTypeService;
 	@Autowired
     private LocalityDao localityDao;
+	
+	@Autowired
+	private LocalityDaoImpl localityDaoImpl;
     
     @Autowired
     private LocalityReviewService localityReviewService;
@@ -197,5 +205,33 @@ public class LocalityService {
 			}
 		}
 		return localityAmenityCountMap;
+	}
+	
+	/**
+	 * Get popular localities of city or suburb based on priority and in case of
+	 * tie base on enquiry in last enquiryInWeeks weeks in desc order
+	 * 
+	 * So in case of wrong city id and suburb id combination provided then wrong
+	 * data will be returned
+	 * 
+	 * @param cityId
+	 * @param suburbId
+	 * @param enquiryInWeeks 
+	 * @return
+	 */
+	public List<Locality> getPopularLocalities(Integer cityId,
+			Integer suburbId, Integer enquiryInWeeks) {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.WEEK_OF_YEAR, -enquiryInWeeks);
+	
+		Date enquiryCreationDate = cal.getTime();
+		Long timeStmap = enquiryCreationDate.getTime()/1000;
+		//TODO need to change this to get from localityDao
+//		List<Object[]> localities = localityDao
+//				.getPopularLocalitiesOfCityOrderByPriorityASCAndTotalEnquiryDESC(
+//						cityId, suburbId, timeStmap);
+		
+		List<Locality> result = localityDaoImpl.getPopularLocalities(cityId, suburbId, timeStmap);
+		return result;
 	}
 }

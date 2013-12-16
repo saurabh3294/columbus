@@ -364,7 +364,6 @@ public class PropertyDao {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         try{
-            System.out.println(solrQuery.toString());
             return properties.get(0);
         }catch(Exception e){
             return null;
@@ -409,7 +408,6 @@ public class PropertyDao {
         solrQuery.addFilterQuery("-PROJECT_ID:"+projectId);
         
         
-        System.out.println("SOLR QUERY" + solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
         
@@ -450,21 +448,8 @@ public class PropertyDao {
         selector.setPaging(paging);
         ObjectMapper mapper = new ObjectMapper();
 
-        try {
-            System.out.println(mapper.writeValueAsString(selector));
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
 //        new PropertyDao().getPropertiesGroupedToProjects(selector);
 //        new PropertyDao().getStats(Collections.singletonList("bedrooms"));
         PropertyDao propertyDao = new PropertyDao();
-        System.out.println(propertyDao.min(null, 76.9));
-        System.out.println(propertyDao.min(87.9, 76.9));
-        System.out.println(propertyDao.min(65.9, 76.9));
-        System.out.println(propertyDao.min(null, null));
-        System.out.println(propertyDao.min(null, 0.0));
-        System.out.println(propertyDao.min(0.0, null));
-        System.out.println(propertyDao.min(0.0, 0.0));
     }
 }
