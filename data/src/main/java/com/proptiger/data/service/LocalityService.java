@@ -85,7 +85,7 @@ public class LocalityService {
     	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
     	
     	Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats = propertyDao.getStatsFacetsAsMaps(selector, 
-    			Arrays.asList("budget", "resalePrice"), Arrays.asList("localityId") );
+    			Arrays.asList("pricePerUnitArea", "resalePrice"), Arrays.asList("localityId") );
     	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities, solrProjectStatusCountAndProjectCount, priceStats);
     	return localities;
     }
