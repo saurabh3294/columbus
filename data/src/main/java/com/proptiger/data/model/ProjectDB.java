@@ -256,10 +256,10 @@ public class ProjectDB implements BaseModel{
     private List<Image> images;
     
     @Transient
-    private double derivedMinPricePerUnitArea = 0;
+    private double minPricePerUnitArea = 0;
     
     @Transient
-    private double derivedMaxPricePerUnitArea = 0;
+    private double maxPricePerUnitArea = 0;
     
     @Transient
     @FieldMetaInfo(displayName="Min Resale Price", description="Min Resale Price")
@@ -694,19 +694,19 @@ public class ProjectDB implements BaseModel{
     }
 
 	public double getMinPricePerUnitArea() {
-		return derivedMinPricePerUnitArea;
+		return minPricePerUnitArea;
 	}
 
 	public void setMinPricePerUnitArea(double minPricePerUnitArea) {
-		this.derivedMinPricePerUnitArea = minPricePerUnitArea;
+		this.minPricePerUnitArea = minPricePerUnitArea;
 	}
 
 	public double getMaxPricePerUnitArea() {
-		return derivedMaxPricePerUnitArea;
+		return maxPricePerUnitArea;
 	}
 
 	public void setMaxPricePerUnitArea(double maxPricePerUnitArea) {
-		this.derivedMaxPricePerUnitArea = maxPricePerUnitArea;
+		this.maxPricePerUnitArea = maxPricePerUnitArea;
 	}
 
 	public double getMinResalePrice() {

@@ -227,11 +227,11 @@ public class Project implements BaseModel {
     @Field(value="BUILDER_LABEL_PRIORITY")
     private String builderLabelPriority;
     
-    private Set<Integer> derivedBedrooms = new HashSet<>();
+    private Set<Integer> distinctBedrooms = new HashSet<>();
     
-    private Double derivedMinResalePrice;
+    private Double minResalePrice;
     
-    private Double derivedMaxResalePrice;
+    private Double maxResalePrice;
     
     public int getProjectId() {
         return projectId;
@@ -585,31 +585,31 @@ public class Project implements BaseModel {
 		this.builderLabelPriority = builderLabelPriority;
 	}
 
-	public Set<Integer> getBedrooms() {
-		return derivedBedrooms;
+	public Set<Integer> getDistinctBedrooms() {
+		return distinctBedrooms;
 	}
 
-	public void setBedrooms(Set<Integer> bedrooms) {
-		this.derivedBedrooms = bedrooms;
+	public void setDistinctBedrooms(Set<Integer> bedrooms) {
+		this.distinctBedrooms = bedrooms;
 	}
 	
 	public void addBedrooms(int bedroom){
-		this.derivedBedrooms.add(bedroom);
+		this.distinctBedrooms.add(bedroom);
 	}
 
 	public Double getMinResalePrice() {
-		return derivedMinResalePrice;
+		return minResalePrice;
 	}
 
 	public void setMinResalePrice(Double minResalePrice) {
-		this.derivedMinResalePrice = minResalePrice;
+		this.minResalePrice = minResalePrice;
 	}
 
 	public Double getMaxResalePrice() {
-		return derivedMaxResalePrice;
+		return maxResalePrice;
 	}
 
 	public void setMaxResalePrice(Double maxResalePrice) {
-		this.derivedMaxResalePrice = maxResalePrice;
+		this.maxResalePrice = maxResalePrice;
 	}
 }

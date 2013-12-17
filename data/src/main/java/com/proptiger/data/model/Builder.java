@@ -45,11 +45,11 @@ public class Builder implements BaseModel {
     @Transient
     private Date estabilishedDate;
     @Transient
-    private int derivedTotalProject;
+    private int totalProjects;
     @Transient
-    private int derivedTotalOngoingProject;
+    private int totalOngoingProjects;
     @Transient
-    private List<Project> derivedProjects;
+    private List<Project> projects;
     
     
     
@@ -93,28 +93,28 @@ public class Builder implements BaseModel {
 		this.estabilishedDate = estabilishedDate;
 	}
 
-	public int getDerivedTotalProject() {
-		return derivedTotalProject;
+	public int getTotalProjects() {
+		return totalProjects;
 	}
 
-	public void setDerivedTotalProject(int derivedTotalProject) {
-		this.derivedTotalProject = derivedTotalProject;
+	public void setTotalProjects(int totalProjects) {
+		this.totalProjects = totalProjects;
 	}
 
-	public int getDerivedTotalOngoingProject() {
-		return derivedTotalOngoingProject;
+	public int getTotalOngoingProjects() {
+		return totalOngoingProjects;
 	}
 
-	public void setDerivedTotalOngoingProject(int derivedTotalOngoingProject) {
-		this.derivedTotalOngoingProject = derivedTotalOngoingProject;
+	public void setTotalOngoingProjects(int totalOngoingProjects) {
+		this.totalOngoingProjects = totalOngoingProjects;
 	}
 
-	public List<Project> getDerivedProjects() {
-		return derivedProjects;
+	public List<Project> getProjects() {
+		return projects;
 	}
 
-	public void setDerivedProjects(List<Project> derivedProjects) {
-		this.derivedProjects = derivedProjects;
+	public void setProjects(List<Project> projects) {
+		this.projects = projects;
 	}
     
 }

@@ -12,12 +12,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
@@ -76,6 +80,7 @@ public class LocalityService {
     	
     	List<Integer> localityIds = getLocalityIdsOnPropertySelector(solrProjectStatusCountAndProjectCount);
     	
+    	//getLocalityResalePriceStats(selector);
     	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
     	setProjectStatusCountAndProjectCountOnLocality(localities, solrProjectStatusCountAndProjectCount);
     	return localities;
@@ -132,7 +137,7 @@ public class LocalityService {
 			   , locality.getLongitude(), 1);
 	   
 	   if(projectSolrResults.size() > 0)
-		   return projectSolrResults.get(0).getProject().getLocality().getDerivedMaxRadius();
+		   return projectSolrResults.get(0).getProject().getLocality().getMaxRadius();
 	   return null;
    }
    
@@ -167,12 +172,12 @@ public class LocalityService {
 				.getLocalityAmenities(localityId, null);
 		Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
 
-		locality.setDerivedAmenityTypeCount(localityAmenityCountMap);
-		locality.setDerivedAverageRating(localityReviewDetails
+		locality.setAmenityTypeCount(localityAmenityCountMap);
+		locality.setAverageRating(localityReviewDetails
 				.get(LocalityReviewService.AVERAGE_RATINGS) == null ? 0
 				: (Double) localityReviewDetails
 						.get(LocalityReviewService.AVERAGE_RATINGS));
-		locality.setDerivedImageCount(totalImages);
+		locality.setImageCount(totalImages);
 		if(images != null){
 			Iterator<Image> imageItr = images.iterator();
 			int counter = 0;
@@ -181,13 +186,13 @@ public class LocalityService {
 				Image image = imageItr.next();
 				imagePath.add(image.getAbsolutePath());
 			}
-			locality.setDerivedImagesPath(imagePath);
+			locality.setImagesPath(imagePath);
 		}
-		locality.setDerivedTotalRating(localityReviewDetails
+		locality.setTotalRating(localityReviewDetails
 				.get(LocalityReviewService.TOTAL_RATINGS) == null ? 0
 				: (Long) localityReviewDetails
 						.get(LocalityReviewService.TOTAL_RATINGS));
-		locality.setDerivedTotalReviews(localityReviewDetails
+		locality.setTotalReviews(localityReviewDetails
 				.get(LocalityReviewService.TOTAL_REVIEWS) == null ? 0
 				: (Long) localityReviewDetails
 						.get(LocalityReviewService.TOTAL_REVIEWS));
@@ -246,6 +251,7 @@ public class LocalityService {
 		List<Locality> result = localityDaoImpl.getPopularLocalities(cityId, suburbId, timeStmap);
 		return result;
 	}
+	
 	private List<Integer> getLocalityIdsOnPropertySelector(Map<String,Map<String, Integer>> solrMap){
 		Map<String, Integer> projectCountOnLocality = solrMap.get("LOCALITY_ID");
 		
@@ -255,5 +261,18 @@ public class LocalityService {
 		}
     	    	    	
     	return localities;
+	}
+	
+	private Object getLocalityResalePriceStats(Selector selector){
+		List<String> fields = new ArrayList<>();
+		List<String> facet = new ArrayList<>();
+		
+		fields.add("resalePrice");
+		fields.add("budget");
+		facet.add("localityId");
+		
+		Map<String, FieldStatsInfo> stats = propertyDao.getStats(fields, selector, facet);
+		System.out.println(stats.keySet());
+		return stats;
 	}
 }

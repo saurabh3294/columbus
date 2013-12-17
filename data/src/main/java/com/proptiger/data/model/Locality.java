@@ -106,31 +106,49 @@ public class Locality implements BaseModel {
     private Set<Enquiry> enquiry;
     
     @Transient
-    private Map<String, Integer> derivedProjectStatusCount;
+    private Map<String, Integer> projectStatusCount;
     @Transient
-    private Map<String, Integer> derivedAmenityTypeCount;
+    private Map<String, Integer> amenityTypeCount;
     @Transient
-    private List<String> derivedImagesPath;
+    private List<String> imagesPath;
     @Transient
-    private int derivedImageCount;
+    private int imageCount;
     @Transient
-    private long derivedTotalReviews;
+    private long totalReviews;
     @Transient
-    private double derivedAverageRating;
+    private double averageRating;
     @Transient
-    private long derivedTotalRating;
+    private long totalRating;
     
     @Transient
-    private int derivedProjectCount;
+    private int projectCount;
     
     @Transient
-    private double derivedMaxRadius;
+    private double maxRadius;
     
     @Transient
-    private int derivedTotalImages = 0;
+    private int totalImages = 0;
     
     @Transient
-    private int derivedReviewsCount = 0;
+    private int reviewsCount = 0;
+    
+    @Transient
+    private Double minResalePrice;
+    
+    @Transient
+    private Double maxResalePrice;
+    
+    @Transient
+    private Double avgResalePrice;
+    
+    @Transient
+    private Double minPrice;
+    
+    @Transient
+    private Double maxPrice;
+    
+    @Transient
+    private Double avgPrice;
     
     public int getLocalityId() {
         return localityId;
@@ -263,92 +281,138 @@ public class Locality implements BaseModel {
     }
 
 	public Map<String, Integer> getProjectStatusCount() {
-		return derivedProjectStatusCount;
+		return projectStatusCount;
 	}
 
 	public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
-		this.derivedProjectStatusCount = projectStatusCount;
+		this.projectStatusCount = projectStatusCount;
 	}
 
 	public int getProjectCount() {
-		return derivedProjectCount;
+		return projectCount;
 	}
 
 	public void setProjectCount(int projectCount) {
-		this.derivedProjectCount = projectCount;
+		this.projectCount = projectCount;
 	}
 
-	public double getDerivedMaxRadius() {
-		return derivedMaxRadius;
+	public Map<String, Integer> getAmenityTypeCount() {
+		return amenityTypeCount;
 	}
 
-	public void setDerivedMaxRadius(double derivedMaxRadius) {
-		this.derivedMaxRadius = (double)Math.round(derivedMaxRadius*1000)/1000;
+	public void setAmenityTypeCount(Map<String, Integer> amenityTypeCount) {
+		this.amenityTypeCount = amenityTypeCount;
 	}
 
-	public int getDerivedTotalImages() {
-		return derivedTotalImages;
+	public List<String> getImagesPath() {
+		return imagesPath;
 	}
 
-	public void setDerivedTotalImages(int derivedTotalImages) {
-		this.derivedTotalImages = derivedTotalImages;
+	public void setImagesPath(List<String> imagesPath) {
+		this.imagesPath = imagesPath;
 	}
 
-	public int getDerivedReviewsCount() {
-		return derivedReviewsCount;
+	public int getImageCount() {
+		return imageCount;
 	}
 
-	public void setDerivedReviewsCount(int derivedReviewsCount) {
-		this.derivedReviewsCount = derivedReviewsCount;
+	public void setImageCount(int imageCount) {
+		this.imageCount = imageCount;
 	}
 
-	public long getDerivedTotalReviews() {
-		return derivedTotalReviews;
+	public long getTotalReviews() {
+		return totalReviews;
 	}
 
-	public void setDerivedTotalReviews(long derivedTotalReviews) {
-		this.derivedTotalReviews = derivedTotalReviews;
+	public void setTotalReviews(long totalReviews) {
+		this.totalReviews = totalReviews;
 	}
 
-	public double getDerivedAverageRating() {
-		return derivedAverageRating;
+	public double getAverageRating() {
+		return averageRating;
 	}
 
-	public void setDerivedAverageRating(double derivedAverageRating) {
-		this.derivedAverageRating = derivedAverageRating;
+	public void setAverageRating(double averageRating) {
+		this.averageRating = averageRating;
 	}
 
-	public long getDerivedTotalRating() {
-		return derivedTotalRating;
+	public long getTotalRating() {
+		return totalRating;
 	}
 
-	public void setDerivedTotalRating(long derivedTotalRating) {
-		this.derivedTotalRating = derivedTotalRating;
+	public void setTotalRating(long totalRating) {
+		this.totalRating = totalRating;
 	}
 
-	public List<String> getDerivedImagesPath() {
-		return derivedImagesPath;
+	public double getMaxRadius() {
+		return maxRadius;
 	}
 
-	public void setDerivedImagesPath(List<String> derivedImagesPath) {
-		this.derivedImagesPath = derivedImagesPath;
-	}
-public Map<String, Integer> getDerivedAmenityTypeCount() {
-		return derivedAmenityTypeCount;
+	public void setMaxRadius(double maxRadius) {
+		this.maxRadius = maxRadius;
 	}
 
-	public void setDerivedAmenityTypeCount(
-			Map<String, Integer> derivedAmenityTypeCount) {
-		this.derivedAmenityTypeCount = derivedAmenityTypeCount;
+	public int getTotalImages() {
+		return totalImages;
 	}
 
-
-	public int getDerivedImageCount() {
-		return derivedImageCount;
+	public void setTotalImages(int totalImages) {
+		this.totalImages = totalImages;
 	}
 
-	public void setDerivedImageCount(int derivedImageCount) {
-		this.derivedImageCount = derivedImageCount;
+	public int getReviewsCount() {
+		return reviewsCount;
 	}
-	
+
+	public void setReviewsCount(int reviewsCount) {
+		this.reviewsCount = reviewsCount;
+	}
+
+	public Double getMinResalePrice() {
+		return minResalePrice;
+	}
+
+	public void setMinResalePrice(Double minResalePrice) {
+		this.minResalePrice = minResalePrice;
+	}
+
+	public Double getMaxResalePrice() {
+		return maxResalePrice;
+	}
+
+	public void setMaxResalePrice(Double maxResalePrice) {
+		this.maxResalePrice = maxResalePrice;
+	}
+
+	public Double getAvgResalePrice() {
+		return avgResalePrice;
+	}
+
+	public void setAvgResalePrice(Double avgResalePrice) {
+		this.avgResalePrice = avgResalePrice;
+	}
+
+	public Double getMinPrice() {
+		return minPrice;
+	}
+
+	public void setMinPrice(Double minPrice) {
+		this.minPrice = minPrice;
+	}
+
+	public Double getMaxPrice() {
+		return maxPrice;
+	}
+
+	public void setMaxPrice(Double maxPrice) {
+		this.maxPrice = maxPrice;
+	}
+
+	public Double getAvgPrice() {
+		return avgPrice;
+	}
+
+	public void setAvgPrice(Double avgPrice) {
+		this.avgPrice = avgPrice;
+	}
 }

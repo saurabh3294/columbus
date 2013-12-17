@@ -89,14 +89,19 @@ public class PropertyDao {
         return resultMap;
     }
 
-    public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertySelector) {
+    public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertySelector, List<String> facetFields) {
         SolrQuery query = createSolrQuery(propertySelector);
         query.add("stats", "true");
 
         for (String field : fields) {
             query.add("stats.field", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         }
-
+        if(facetFields != null){
+        	for(String field: facetFields){
+        		query.add("stats.facet", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
+        	}
+        }
+        System.out.println(query.toString());
         Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
         Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
         for (String field : fields) {

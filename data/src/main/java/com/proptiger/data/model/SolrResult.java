@@ -201,6 +201,9 @@ public class SolrResult implements BaseModel{
     
     @Field("BUILDER_LABEL_PRIORITY")
     private String builderLabelPriority;
+
+    @Field("RESALE_PRICE")
+    private Double resalePrice;
     
     public SolrResult() {
         property.setProject(project);
@@ -530,7 +533,7 @@ public class SolrResult implements BaseModel{
     
     @Field("__RADIUS__")
     public void setDerivedMaxRadius(double radius){
-    	project.getLocality().setDerivedMaxRadius(radius);
+    	project.getLocality().setMaxRadius(radius);
     }
     
     @Field("LOCALITY_URL")

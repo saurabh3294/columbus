@@ -81,7 +81,7 @@ public class City implements BaseModel{
     private String description;
     
     @Transient
-    private long derivedProjectsCount;
+    private long projectsCount;
     
     public int getId() {
         return id;
@@ -164,11 +164,11 @@ public class City implements BaseModel{
 	}
 
 	public long getProjectsCount() {
-		return derivedProjectsCount;
+		return projectsCount;
 	}
 
 	public void setProjectsCount(long projectsCount) {
-		this.derivedProjectsCount = projectsCount;
+		this.projectsCount = projectsCount;
 	}
 
 	public String getUrl() {
