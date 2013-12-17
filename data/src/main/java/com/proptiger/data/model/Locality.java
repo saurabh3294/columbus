@@ -148,7 +148,7 @@ public class Locality implements BaseModel {
     private Double maxPrice;
     
     @Transient
-    private Double avgPrice = 3456.0;
+    private Double avgPricePerUnitArea;
     
     @Transient
     private Double avgPriceRisePercentage = 4.5;
@@ -398,12 +398,12 @@ public class Locality implements BaseModel {
         this.maxPrice = maxPrice;
     }
 
-    public Double getAvgPrice() {
-        return avgPrice;
+    public Double getAvgPricePerUnitArea() {
+        return avgPricePerUnitArea;
     }
 
-    public void setAvgPrice(Double avgPrice) {
-        this.avgPrice = avgPrice;
+    public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
+        this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
 
     public Double getAvgPriceRisePercentage() {

@@ -97,7 +97,7 @@ public class LocalityService {
     	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(solrProjectStatusCountAndProjectCount.get("LOCALITY_ID_PROJECT_STATUS"));
     	Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount.get("LOCALITY_ID");
     	Map<String, FieldStatsInfo> resalePriceStats = priceStats.get("resalePrice").get("LOCALITY_ID");
-    	Map<String, FieldStatsInfo> primaryPriceStats = priceStats.get("budget").get("LOCALITY_ID");
+    	Map<String, FieldStatsInfo> primaryPriceStats = priceStats.get("pricePerUnitArea").get("LOCALITY_ID");
     	    	
     	int size = localities.size();
     	Locality locality;
@@ -126,7 +126,7 @@ public class LocalityService {
     		fieldStatsInfo = primaryPriceStats.get(localityIdStr);
     		if(fieldStatsInfo != null)
     		{
-    			locality.setAvgPrice( (Double)fieldStatsInfo.getMean() );
+    			locality.setAvgPricePerUnitArea( (Double)fieldStatsInfo.getMean() );
     		}
     	}
 
