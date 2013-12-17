@@ -126,7 +126,7 @@ public class ProjectDetailController extends BaseController {
         response.put("totalProjectDiscussions", totalProjectDiscussion);
         response.put("projectAmenity", listProjectAmenities);
         response.put("neighborhood", listLocalityAmenity);
-        response.put("localtiy", locality);
+        response.put("locality", locality);
         
         return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }
