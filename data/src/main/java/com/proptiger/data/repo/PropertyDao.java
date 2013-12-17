@@ -441,6 +441,36 @@ public class PropertyDao {
     	return solrDao.executeQuery(solrQuery).getGroupResponse().getValues().get(0).getNGroups();	
     }
     
+    public Map<String, Map<String, Map<String, FieldStatsInfo>>> getStatsFacetsAsMaps(Selector selector, List<String> fields,
+			List<String> facet){
+    	
+		Map<String, FieldStatsInfo> stats = getStats(fields, selector, facet);
+		Map<String, Map<String, Map<String, FieldStatsInfo>>> newStats = new HashMap<>();
+		
+		String fieldName, facetName;
+		for( Map.Entry<String, FieldStatsInfo> entry : stats.entrySet() )
+		{
+			fieldName = entry.getKey();
+			Map<String, Map<String, FieldStatsInfo>> facetsInfo = new HashMap<>();
+			for(Map.Entry<String, List<FieldStatsInfo>> e : entry.getValue().getFacets().entrySet() )
+			{
+				facetName = e.getKey();
+				List<FieldStatsInfo> details = e.getValue();
+				Map<String, FieldStatsInfo> facetsMap = new HashMap<>();
+				for(int i=0; i<details.size(); i++)
+				{
+					FieldStatsInfo fieldStatsInfo = details.get(i);
+					if(fieldStatsInfo.getCount() > 0)
+						facetsMap.put( fieldStatsInfo.getName() , fieldStatsInfo);
+				}
+				facetsInfo.put(facetName, facetsMap);
+			}
+			newStats.put(fieldName, facetsInfo);
+		}
+		
+		return newStats;
+	}
+    
     public static void main(String[] args) {
         Selector selector = new Selector();
 //        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");

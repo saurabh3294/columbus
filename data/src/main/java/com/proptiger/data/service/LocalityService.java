@@ -4,6 +4,7 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -82,7 +83,10 @@ public class LocalityService {
     	List<Integer> localityIds = getLocalityIdsOnPropertySelector(solrProjectStatusCountAndProjectCount);
     	
     	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
-    	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities, solrProjectStatusCountAndProjectCount, getLocalityResalePriceStats(selector));
+    	
+    	Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats = propertyDao.getStatsFacetsAsMaps(selector, 
+    			Arrays.asList("budget", "resalePrice"), Arrays.asList("localityId") );
+    	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities, solrProjectStatusCountAndProjectCount, priceStats);
     	return localities;
     }
     
@@ -284,39 +288,5 @@ public class LocalityService {
     	    	    	
     	return localities;
 	}
-	
-	private Map<String, Map<String, Map<String, FieldStatsInfo>>> getLocalityResalePriceStats(Selector selector){
-		List<String> fields = new ArrayList<>();
-		List<String> facet = new ArrayList<>();
 		
-		fields.add("resalePrice");
-		fields.add("budget");
-		facet.add("localityId");
-		
-		Map<String, FieldStatsInfo> stats = propertyDao.getStats(fields, selector, facet);
-		Map<String, Map<String, Map<String, FieldStatsInfo>>> newStats = new HashMap<>();
-		
-		String fieldName, facetName;
-		for( Map.Entry<String, FieldStatsInfo> entry : stats.entrySet() )
-		{
-			fieldName = entry.getKey();
-			Map<String, Map<String, FieldStatsInfo>> facetsInfo = new HashMap<>();
-			for(Map.Entry<String, List<FieldStatsInfo>> e : entry.getValue().getFacets().entrySet() )
-			{
-				facetName = e.getKey();
-				List<FieldStatsInfo> details = e.getValue();
-				Map<String, FieldStatsInfo> facetsMap = new HashMap<>();
-				for(int i=0; i<details.size(); i++)
-				{
-					FieldStatsInfo fieldStatsInfo = details.get(i);
-					if(fieldStatsInfo.getCount() > 0)
-						facetsMap.put( fieldStatsInfo.getName() , fieldStatsInfo);
-				}
-				facetsInfo.put(facetName, facetsMap);
-			}
-			newStats.put(fieldName, facetsInfo);
-		}
-		
-		return newStats;
-	}
 }

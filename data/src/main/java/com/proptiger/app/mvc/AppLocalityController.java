@@ -38,8 +38,7 @@ public class AppLocalityController extends BaseController {
 	 */
 	@RequestMapping
 	@ResponseBody
-	@DisableCaching // to be removed.
-	public ProAPIResponse getLocalityListingData(@RequestParam String selector) {
+	public ProAPIResponse getLocalityListingData(@RequestParam(required = false) String selector) {
 		Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
         if (propRequestParam == null) {
             propRequestParam = new Selector();
