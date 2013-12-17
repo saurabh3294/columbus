@@ -128,7 +128,7 @@ public class PropertyDao {
                 
                 Set<String> unitTypes = new HashSet<String>();
                 List<Property> properties = new ArrayList<Property>();
-                double resalePrice;
+                Double resalePrice = null;
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
                     Double pricePerUnitArea = property.getPricePerUnitArea();

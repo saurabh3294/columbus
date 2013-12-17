@@ -134,18 +134,18 @@ public class Locality implements BaseModel {
     
     @Transient
     private Integer totalImages;
-        
-    @Transient
-    private Double minResalePrice = 3000000.0;
-    
-    @Transient
-    private Double maxResalePrice = 4500000.0;
 
     @Transient
-    private Double minPrice = 3500000.0;
+    private Double minResalePrice;
     
     @Transient
-    private Double maxPrice = 4800000.0;
+    private Double maxResalePrice;
+
+    @Transient
+    private Double minPrice;
+    
+    @Transient
+    private Double maxPrice;
     
     @Transient
     private Double avgPrice = 3456.0;
