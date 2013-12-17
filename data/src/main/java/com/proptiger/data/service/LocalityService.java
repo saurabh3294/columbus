@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.lucene.analysis.util.CharArrayMap.EntrySet;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,28 +81,49 @@ public class LocalityService {
     	
     	List<Integer> localityIds = getLocalityIdsOnPropertySelector(solrProjectStatusCountAndProjectCount);
     	
-    	//getLocalityResalePriceStats(selector);
     	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
-    	setProjectStatusCountAndProjectCountOnLocality(localities, solrProjectStatusCountAndProjectCount);
+    	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities, solrProjectStatusCountAndProjectCount, getLocalityResalePriceStats(selector));
     	return localities;
     }
     
-    public void setProjectStatusCountAndProjectCountOnLocality(List<Locality> localities, Map<String,Map<String, Integer>> solrProjectStatusCountAndProjectCount){
+    public void setProjectStatusCountAndProjectCountAndPriceOnLocality(List<Locality> localities, Map<String, 
+    		Map<String, Integer>> solrProjectStatusCountAndProjectCount,
+    		Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats){
     	
     	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(solrProjectStatusCountAndProjectCount.get("LOCALITY_ID_PROJECT_STATUS"));
     	Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount.get("LOCALITY_ID");
+    	Map<String, FieldStatsInfo> resalePriceStats = priceStats.get("resalePrice").get("LOCALITY_ID");
+    	Map<String, FieldStatsInfo> primaryPriceStats = priceStats.get("budget").get("LOCALITY_ID");
     	    	
     	int size = localities.size();
     	Locality locality;
     	Integer projectCount;
+    	int localityId;
     	for(int i=0; i<size; i++)
     	{
     		locality = localities.get(i);
-    		locality.setProjectStatusCount( localityProjectStatusCount.get(locality.getLocalityId()) );
-    		projectCount = projectCountOnLocality.get( locality.getLocalityId()+"" );
+    		localityId = locality.getLocalityId();
+    		String localityIdStr = localityId+"";
+    		// setting Project Count
+    		locality.setProjectStatusCount( localityProjectStatusCount.get(localityId) );
+    		projectCount = projectCountOnLocality.get( localityIdStr );
     		if( projectCount != null )
     			locality.setProjectCount( projectCount.intValue() );
     		
+    		// setting Resale Prices
+    		FieldStatsInfo fieldStatsInfo = resalePriceStats.get(localityIdStr);
+    		if(fieldStatsInfo != null)
+    		{
+    			locality.setMinResalePrice( (Double)fieldStatsInfo.getMin() );
+    			locality.setMaxResalePrice( (Double)fieldStatsInfo.getMax() );
+    		}
+    		
+    		// setting Primary Prices
+    		fieldStatsInfo = primaryPriceStats.get(localityIdStr);
+    		if(fieldStatsInfo != null)
+    		{
+    			locality.setAvgPrice( (Double)fieldStatsInfo.getMean() );
+    		}
     	}
 
     }
@@ -263,7 +285,7 @@ public class LocalityService {
     	return localities;
 	}
 	
-	private Object getLocalityResalePriceStats(Selector selector){
+	private Map<String, Map<String, Map<String, FieldStatsInfo>>> getLocalityResalePriceStats(Selector selector){
 		List<String> fields = new ArrayList<>();
 		List<String> facet = new ArrayList<>();
 		
@@ -272,7 +294,29 @@ public class LocalityService {
 		facet.add("localityId");
 		
 		Map<String, FieldStatsInfo> stats = propertyDao.getStats(fields, selector, facet);
-		System.out.println(stats.keySet());
-		return stats;
+		Map<String, Map<String, Map<String, FieldStatsInfo>>> newStats = new HashMap<>();
+		
+		String fieldName, facetName;
+		for( Map.Entry<String, FieldStatsInfo> entry : stats.entrySet() )
+		{
+			fieldName = entry.getKey();
+			Map<String, Map<String, FieldStatsInfo>> facetsInfo = new HashMap<>();
+			for(Map.Entry<String, List<FieldStatsInfo>> e : entry.getValue().getFacets().entrySet() )
+			{
+				facetName = e.getKey();
+				List<FieldStatsInfo> details = e.getValue();
+				Map<String, FieldStatsInfo> facetsMap = new HashMap<>();
+				for(int i=0; i<details.size(); i++)
+				{
+					FieldStatsInfo fieldStatsInfo = details.get(i);
+					if(fieldStatsInfo.getCount() > 0)
+						facetsMap.put( fieldStatsInfo.getName() , fieldStatsInfo);
+				}
+				facetsInfo.put(facetName, facetsMap);
+			}
+			newStats.put(fieldName, facetsInfo);
+		}
+		
+		return newStats;
 	}
 }
