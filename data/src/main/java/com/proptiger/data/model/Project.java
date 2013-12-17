@@ -233,6 +233,10 @@ public class Project implements BaseModel {
     
     private Double maxResalePrice;
     
+    private Double avgPriceRisePercentage = 5.7;
+    
+    private Integer avgPriceRiseMonths = 6;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -612,4 +616,24 @@ public class Project implements BaseModel {
 	public void setMaxResalePrice(Double maxResalePrice) {
 		this.maxResalePrice = maxResalePrice;
 	}
+
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
+
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
+
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
+
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
+
+    public boolean isResale() {
+        return isResale;
+    }
 }

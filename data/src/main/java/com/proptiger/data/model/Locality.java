@@ -1,4 +1,4 @@
-    package com.proptiger.data.model;
+package com.proptiger.data.model;
 
 import java.util.List;
 import java.util.Map;
@@ -107,49 +107,55 @@ public class Locality implements BaseModel {
     
     @Transient
     private Map<String, Integer> projectStatusCount;
+
     @Transient
     private Map<String, Integer> amenityTypeCount;
+
     @Transient
     private List<String> imagesPath;
+
     @Transient
-    private int imageCount;
+    private Integer imageCount;
+
     @Transient
-    private long totalReviews;
+    private Long totalReviews;
+
     @Transient
-    private double averageRating;
+    private Double averageRating;
+
     @Transient
-    private long totalRating;
+    private Long ratingsCount;
     
     @Transient
-    private int projectCount;
+    private Integer projectCount;
     
     @Transient
-    private double maxRadius;
+    private Double maxRadius;
     
     @Transient
-    private int totalImages = 0;
+    private Integer totalImages;
+        
+    @Transient
+    private Double minResalePrice = 3000000.0;
     
     @Transient
-    private int reviewsCount = 0;
+    private Double maxResalePrice = 4500000.0;
+
+    @Transient
+    private Double minPrice = 3500000.0;
     
     @Transient
-    private Double minResalePrice;
+    private Double maxPrice = 4800000.0;
     
     @Transient
-    private Double maxResalePrice;
+    private Double avgPrice = 3456.0;
     
     @Transient
-    private Double avgResalePrice;
+    private Double avgPriceRisePercentage = 4.5;
     
     @Transient
-    private Double minPrice;
-    
-    @Transient
-    private Double maxPrice;
-    
-    @Transient
-    private Double avgPrice;
-    
+    private Integer avgPriceRiseMonths = 3;
+
     public int getLocalityId() {
         return localityId;
     }
@@ -224,6 +230,22 @@ public class Locality implements BaseModel {
         this.url = url;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public boolean isDeletedFlag() {
+        return deletedFlag;
+    }
+
+    public void setDeletedFlag(boolean deletedFlag) {
+        this.deletedFlag = deletedFlag;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -238,22 +260,6 @@ public class Locality implements BaseModel {
 
     public void setPriority(int priority) {
         this.priority = priority;
-    }
-
-    public Set<Enquiry> getEnquiry() {
-        return enquiry;
-    }
-
-    public void setEnquiry(Set<Enquiry> enquiry) {
-        this.enquiry = enquiry;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
     }
 
     public Double getLatitude() {
@@ -272,147 +278,147 @@ public class Locality implements BaseModel {
         this.longitude = longitude;
     }
 
-    public boolean isDeletedFlag() {
-        return deletedFlag;
+    public Set<Enquiry> getEnquiry() {
+        return enquiry;
     }
 
-    public void setDeletedFlag(boolean deletedFlag) {
-        this.deletedFlag = deletedFlag;
+    public void setEnquiry(Set<Enquiry> enquiry) {
+        this.enquiry = enquiry;
     }
 
-	public Map<String, Integer> getProjectStatusCount() {
-		return projectStatusCount;
-	}
+    public Map<String, Integer> getProjectStatusCount() {
+        return projectStatusCount;
+    }
 
-	public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
-		this.projectStatusCount = projectStatusCount;
-	}
+    public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
+        this.projectStatusCount = projectStatusCount;
+    }
 
-	public int getProjectCount() {
-		return projectCount;
-	}
+    public Map<String, Integer> getAmenityTypeCount() {
+        return amenityTypeCount;
+    }
 
-	public void setProjectCount(int projectCount) {
-		this.projectCount = projectCount;
-	}
+    public void setAmenityTypeCount(Map<String, Integer> amenityTypeCount) {
+        this.amenityTypeCount = amenityTypeCount;
+    }
 
-	public Map<String, Integer> getAmenityTypeCount() {
-		return amenityTypeCount;
-	}
+    public List<String> getImagesPath() {
+        return imagesPath;
+    }
 
-	public void setAmenityTypeCount(Map<String, Integer> amenityTypeCount) {
-		this.amenityTypeCount = amenityTypeCount;
-	}
+    public void setImagesPath(List<String> imagesPath) {
+        this.imagesPath = imagesPath;
+    }
 
-	public List<String> getImagesPath() {
-		return imagesPath;
-	}
+    public Integer getImageCount() {
+        return imageCount;
+    }
 
-	public void setImagesPath(List<String> imagesPath) {
-		this.imagesPath = imagesPath;
-	}
+    public void setImageCount(Integer imageCount) {
+        this.imageCount = imageCount;
+    }
 
-	public int getImageCount() {
-		return imageCount;
-	}
+    public Long getTotalReviews() {
+        return totalReviews;
+    }
 
-	public void setImageCount(int imageCount) {
-		this.imageCount = imageCount;
-	}
+    public void setTotalReviews(Long totalReviews) {
+        this.totalReviews = totalReviews;
+    }
 
-	public long getTotalReviews() {
-		return totalReviews;
-	}
+    public Double getAverageRating() {
+        return averageRating;
+    }
 
-	public void setTotalReviews(long totalReviews) {
-		this.totalReviews = totalReviews;
-	}
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
 
-	public double getAverageRating() {
-		return averageRating;
-	}
+    public Long getRatingsCount() {
+        return ratingsCount;
+    }
 
-	public void setAverageRating(double averageRating) {
-		this.averageRating = averageRating;
-	}
+    public void setRatingsCount(Long totalRating) {
+        this.ratingsCount = totalRating;
+    }
 
-	public long getTotalRating() {
-		return totalRating;
-	}
+    public Integer getProjectCount() {
+        return projectCount;
+    }
 
-	public void setTotalRating(long totalRating) {
-		this.totalRating = totalRating;
-	}
+    public void setProjectCount(Integer projectCount) {
+        this.projectCount = projectCount;
+    }
 
-	public double getMaxRadius() {
-		return maxRadius;
-	}
+    public Double getMaxRadius() {
+        return maxRadius;
+    }
 
-	public void setMaxRadius(double maxRadius) {
-		this.maxRadius = maxRadius;
-	}
+    public void setMaxRadius(Double maxRadius) {
+        this.maxRadius = maxRadius;
+    }
 
-	public int getTotalImages() {
-		return totalImages;
-	}
+    public Integer getTotalImages() {
+        return totalImages;
+    }
 
-	public void setTotalImages(int totalImages) {
-		this.totalImages = totalImages;
-	}
+    public void setTotalImages(Integer totalImages) {
+        this.totalImages = totalImages;
+    }
 
-	public int getReviewsCount() {
-		return reviewsCount;
-	}
+    public Double getMinResalePrice() {
+        return minResalePrice;
+    }
 
-	public void setReviewsCount(int reviewsCount) {
-		this.reviewsCount = reviewsCount;
-	}
+    public void setMinResalePrice(Double minResalePrice) {
+        this.minResalePrice = minResalePrice;
+    }
 
-	public Double getMinResalePrice() {
-		return minResalePrice;
-	}
+    public Double getMaxResalePrice() {
+        return maxResalePrice;
+    }
 
-	public void setMinResalePrice(Double minResalePrice) {
-		this.minResalePrice = minResalePrice;
-	}
+    public void setMaxResalePrice(Double maxResalePrice) {
+        this.maxResalePrice = maxResalePrice;
+    }
 
-	public Double getMaxResalePrice() {
-		return maxResalePrice;
-	}
+    public Double getMinPrice() {
+        return minPrice;
+    }
 
-	public void setMaxResalePrice(Double maxResalePrice) {
-		this.maxResalePrice = maxResalePrice;
-	}
+    public void setMinPrice(Double minPrice) {
+        this.minPrice = minPrice;
+    }
 
-	public Double getAvgResalePrice() {
-		return avgResalePrice;
-	}
+    public Double getMaxPrice() {
+        return maxPrice;
+    }
 
-	public void setAvgResalePrice(Double avgResalePrice) {
-		this.avgResalePrice = avgResalePrice;
-	}
+    public void setMaxPrice(Double maxPrice) {
+        this.maxPrice = maxPrice;
+    }
 
-	public Double getMinPrice() {
-		return minPrice;
-	}
+    public Double getAvgPrice() {
+        return avgPrice;
+    }
 
-	public void setMinPrice(Double minPrice) {
-		this.minPrice = minPrice;
-	}
+    public void setAvgPrice(Double avgPrice) {
+        this.avgPrice = avgPrice;
+    }
 
-	public Double getMaxPrice() {
-		return maxPrice;
-	}
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
 
-	public void setMaxPrice(Double maxPrice) {
-		this.maxPrice = maxPrice;
-	}
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
 
-	public Double getAvgPrice() {
-		return avgPrice;
-	}
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
 
-	public void setAvgPrice(Double avgPrice) {
-		this.avgPrice = avgPrice;
-	}
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
 }

@@ -214,7 +214,7 @@ public class LocalityService {
 			}
 			locality.setImagesPath(imagePath);
 		}
-		locality.setTotalRating(localityReviewDetails
+		locality.setRatingsCount(localityReviewDetails
 				.get(LocalityReviewService.TOTAL_RATINGS) == null ? 0
 				: (Long) localityReviewDetails
 						.get(LocalityReviewService.TOTAL_RATINGS));
