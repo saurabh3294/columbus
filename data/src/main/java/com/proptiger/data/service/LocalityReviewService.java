@@ -60,8 +60,7 @@ public class LocalityReviewService {
 
 		List<Object> reviewComments = localityReviewDao
 				.getReviewCommentsByLocalityId(localityId, pageable);
-		Object[] total = localityRatingDao
-				.getAvgAndTotalRatingByLocalityId(localityId);
+		Object[] total = getLocalityRating(localityId);
 
 		Map<String, Object> reviewCommentsMaps;
 		Object[] reviewCommentsRow;
@@ -95,5 +94,10 @@ public class LocalityReviewService {
 	 */
 	public Long getLocalityReviewCount(int localityId){
 		return localityReviewDao.getTotalReviewsByLocalityId(localityId);
+	}
+	
+	public Object[] getLocalityRating(int localityId){
+		return localityRatingDao
+		.getAvgAndTotalRatingByLocalityId(localityId);
 	}
 }

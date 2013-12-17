@@ -32,6 +32,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityAmenityService;
+import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
@@ -61,6 +62,9 @@ public class ProjectDetailController extends BaseController {
     @Autowired
     private LocalityAmenityService localityAmenityService;
     
+    @Autowired
+    private LocalityReviewService localityReviewService;
+    
     @RequestMapping(value="app/v1/project-detail")
     @DisableCaching // to be removed.
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
@@ -77,7 +81,7 @@ public class ProjectDetailController extends BaseController {
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
         projectInfo.setImages(imageService.getImages(DomainObject.project, null, projectId));
         
-        double resalePrice;
+        Double resalePrice;
         for (Property property : properties) {
         	// setting resale Price
         	resalePrice = property.getResalePrice();
@@ -114,7 +118,10 @@ public class ProjectDetailController extends BaseController {
         	}
         }
         
-        
+        // getting localityRatings
+        Object[] localityRatings = localityReviewService.getLocalityRating( locality.getLocalityId() );
+        if(localityRatings != null)
+        	locality.setAverageRating( (Double) localityRatings[0] );
                 
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
