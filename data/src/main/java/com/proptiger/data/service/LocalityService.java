@@ -13,17 +13,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.lucene.analysis.util.CharArrayMap.EntrySet;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
@@ -39,6 +37,7 @@ import com.proptiger.data.repo.PropertyDao;
 
 /**
  * @author mandeep
+ * @author Rajeev Pandey
  *
  */
 @Service
@@ -277,7 +276,58 @@ public class LocalityService {
 		List<Locality> result = localityDaoImpl.getPopularLocalities(cityId, suburbId, timeStmap);
 		return result;
 	}
+
+	/**
+	 * Get top localities either of city or suburb id. In case of city id get
+	 * top localities based on their rating is >= α , and in case of suburb id
+	 * get localities where rating is >= α in X km radius
+	 * 
+	 * α = 3 star, X = 5
+	 * 
+	 * @param cityId
+	 * @param suburbId
+	 * @param selector
+	 * @return
+	 */
+	public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
+			Selector selector) {
+		List<Locality> result = new ArrayList<>();
+		float minimumLocalityRating = 3;
+		Pageable pageable = new PageRequest(0, 10);
+		if (selector.getPaging() != null) {
+			pageable = new PageRequest(selector.getPaging().getStart(),
+					selector.getPaging().getRows());
+		}
+		if (cityId != null && suburbId != null) {
+
+		} else if (cityId != null) {
+			List<Object[]> list = localityDao
+					.getTopLocalityByCityIdAndAvgRatingGreaterThan(cityId,
+							minimumLocalityRating, pageable);
+			for (Object[] objects : list) {
+				if (objects.length == 2) {
+					Locality locality = (Locality) objects[0];
+					locality.setAverageRating((double) objects[1]);
+					result.add(locality);
+				}
+
+			}
+		}
+
+		return result;
+	}
 	
+	/**
+	 * Get top localities around provided locality id
+	 * @param localityId
+	 * @param selector
+	 * @return
+	 */
+	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId, Selector selector){
+		List<Locality> result = new ArrayList<>();
+		
+		return result;
+	}
 	private List<Integer> getLocalityIdsOnPropertySelector(Map<String,Map<String, Integer>> solrMap){
 		Map<String, Integer> projectCountOnLocality = solrMap.get("LOCALITY_ID");
 		
