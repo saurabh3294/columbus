@@ -16,6 +16,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name="cms.project_secondary_price")
 @ResourceMetaInfo
+@Deprecated
 public class ProjectSecondaryPrice implements BaseModel{
 	@Id
 	@FieldMetaInfo(displayName = "Id", description = "Id")

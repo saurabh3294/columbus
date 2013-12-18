@@ -12,9 +12,7 @@ import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectSecondaryPrice;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -38,20 +36,7 @@ public class PropertyService {
     }
 
     public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
-        SolrServiceResponse<List<Project>>  solrServiceprojects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
-        List<Project> projects = solrServiceprojects.getResult();
-        Map<Integer, ProjectSecondaryPrice> resalePrice = projectService.getAllProjectPrices();
-        Gson gson = new Gson();
-        int len = projects.size();
-        Project project;
-        for(int i=0; i<len; i++){
-        	project = projects.get(i);
-        	System.out.println(project.getProjectId());
-        	project.setProjectSecondaryPrice(resalePrice.get( project.getProjectId() ));
-        	System.out.println( gson.toJson( resalePrice.get( project.getProjectId() ) ) );
-        }
-        
-        return solrServiceprojects;
+        return propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
     }
 
     public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertyListingSelector) {
@@ -59,7 +44,7 @@ public class PropertyService {
     }
 
     public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertyListingSelector) {
-        return propertyDao.getStats(fields, propertyListingSelector);
+        return propertyDao.getStats(fields, propertyListingSelector, null);
     }
 
     public List<Property> getProperties(int projectId) {

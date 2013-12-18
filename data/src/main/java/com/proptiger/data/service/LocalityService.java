@@ -4,6 +4,7 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,26 +82,51 @@ public class LocalityService {
     	List<Integer> localityIds = getLocalityIdsOnPropertySelector(solrProjectStatusCountAndProjectCount);
     	
     	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
-    	setProjectStatusCountAndProjectCountOnLocality(localities, solrProjectStatusCountAndProjectCount);
+    	
+    	Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats = propertyDao.getStatsFacetsAsMaps(selector, 
+    			Arrays.asList("pricePerUnitArea", "resalePrice"), Arrays.asList("localityId") );
+    	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities, solrProjectStatusCountAndProjectCount, priceStats);
     	return localities;
     }
     
-    public void setProjectStatusCountAndProjectCountOnLocality(List<Locality> localities, Map<String,Map<String, Integer>> solrProjectStatusCountAndProjectCount){
+    public void setProjectStatusCountAndProjectCountAndPriceOnLocality(List<Locality> localities, Map<String, 
+    		Map<String, Integer>> solrProjectStatusCountAndProjectCount,
+    		Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats){
     	
     	Map<Integer, Map<String, Integer>> localityProjectStatusCount = getProjectStatusCountOnLocalityByCity(solrProjectStatusCountAndProjectCount.get("LOCALITY_ID_PROJECT_STATUS"));
     	Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount.get("LOCALITY_ID");
+    	Map<String, FieldStatsInfo> resalePriceStats = priceStats.get("resalePrice").get("LOCALITY_ID");
+    	Map<String, FieldStatsInfo> primaryPriceStats = priceStats.get("pricePerUnitArea").get("LOCALITY_ID");
     	    	
     	int size = localities.size();
     	Locality locality;
     	Integer projectCount;
+    	int localityId;
     	for(int i=0; i<size; i++)
     	{
     		locality = localities.get(i);
-    		locality.setProjectStatusCount( localityProjectStatusCount.get(locality.getLocalityId()) );
-    		projectCount = projectCountOnLocality.get( locality.getLocalityId()+"" );
+    		localityId = locality.getLocalityId();
+    		String localityIdStr = localityId+"";
+    		// setting Project Count
+    		locality.setProjectStatusCount( localityProjectStatusCount.get(localityId) );
+    		projectCount = projectCountOnLocality.get( localityIdStr );
     		if( projectCount != null )
     			locality.setProjectCount( projectCount.intValue() );
     		
+    		// setting Resale Prices
+    		FieldStatsInfo fieldStatsInfo = resalePriceStats.get(localityIdStr);
+    		if(fieldStatsInfo != null)
+    		{
+    			locality.setMinResalePrice( (Double)fieldStatsInfo.getMin() );
+    			locality.setMaxResalePrice( (Double)fieldStatsInfo.getMax() );
+    		}
+    		
+    		// setting Primary Prices
+    		fieldStatsInfo = primaryPriceStats.get(localityIdStr);
+    		if(fieldStatsInfo != null)
+    		{
+    			locality.setAvgPricePerUnitArea( (Double)fieldStatsInfo.getMean() );
+    		}
     	}
 
     }
@@ -135,7 +162,7 @@ public class LocalityService {
 			   , locality.getLongitude(), 1);
 	   
 	   if(projectSolrResults.size() > 0)
-		   return projectSolrResults.get(0).getProject().getLocality().getDerivedMaxRadius();
+		   return projectSolrResults.get(0).getProject().getLocality().getMaxRadius();
 	   return null;
    }
    
@@ -170,12 +197,12 @@ public class LocalityService {
 				.getLocalityAmenities(localityId, null);
 		Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
 
-		locality.setDerivedAmenityTypeCount(localityAmenityCountMap);
-		locality.setDerivedAverageRating(localityReviewDetails
+		locality.setAmenityTypeCount(localityAmenityCountMap);
+		locality.setAverageRating(localityReviewDetails
 				.get(LocalityReviewService.AVERAGE_RATINGS) == null ? 0
 				: (Double) localityReviewDetails
 						.get(LocalityReviewService.AVERAGE_RATINGS));
-		locality.setDerivedImageCount(totalImages);
+		locality.setImageCount(totalImages);
 		if(images != null){
 			Iterator<Image> imageItr = images.iterator();
 			int counter = 0;
@@ -184,13 +211,13 @@ public class LocalityService {
 				Image image = imageItr.next();
 				imagePath.add(image.getAbsolutePath());
 			}
-			locality.setDerivedImagesPath(imagePath);
+			locality.setImagesPath(imagePath);
 		}
-		locality.setDerivedTotalRating(localityReviewDetails
+		locality.setRatingsCount(localityReviewDetails
 				.get(LocalityReviewService.TOTAL_RATINGS) == null ? 0
 				: (Long) localityReviewDetails
 						.get(LocalityReviewService.TOTAL_RATINGS));
-		locality.setDerivedTotalReviews(localityReviewDetails
+		locality.setTotalReviews(localityReviewDetails
 				.get(LocalityReviewService.TOTAL_REVIEWS) == null ? 0
 				: (Long) localityReviewDetails
 						.get(LocalityReviewService.TOTAL_REVIEWS));
@@ -275,13 +302,12 @@ public class LocalityService {
 
 		} else if (cityId != null) {
 			List<Object[]> list = localityDao
-					.getTopLocalityByCityIdAndRatingGreaterThan(cityId,
+					.getTopLocalityByCityIdAndAvgRatingGreaterThan(cityId,
 							minimumLocalityRating, pageable);
 			for (Object[] objects : list) {
 				if (objects.length == 2) {
 					Locality locality = (Locality) objects[0];
-					float overAllRating = (float) objects[1];
-					locality.setDerivedTotalRating((long) overAllRating);
+					locality.setAverageRating((double) objects[1]);
 					result.add(locality);
 				}
 
@@ -312,4 +338,5 @@ public class LocalityService {
     	    	    	
     	return localities;
 	}
+		
 }

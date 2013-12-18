@@ -80,9 +80,9 @@ public interface LocalityDao extends
 	public List<Locality> getPopularLocalitiesOfCityOrderByPriorityASCAndTotalEnquiryDESC(
 			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp);
 
-	@Query("Select L, LR.overallRating as totRating from Locality L, LocalityReview LR "
+	@Query("Select L, AVG(LR.overallRating) as avgRating from Locality L, LocalityReview LR "
 			+ " where L.localityId = LR.localityId AND L.cityId=?1 "
-			+ " AND LR.overallRating >= ?2 order by totRating DESC")
-	public List<Object[]> getTopLocalityByCityIdAndRatingGreaterThan(
+			+ " AND LR.overallRating >= ?2 order by avgRating DESC")
+	public List<Object[]> getTopLocalityByCityIdAndAvgRatingGreaterThan(
 			Integer cityId, float rating, Pageable pageable);
 }

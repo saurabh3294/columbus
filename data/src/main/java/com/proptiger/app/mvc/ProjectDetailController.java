@@ -16,13 +16,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.model.ProjectSecondaryPrice;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.mvc.BaseController;
@@ -32,9 +32,11 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityAmenityService;
+import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.util.UtilityClass;
 
 /**
  * @author mandeep
@@ -60,7 +62,11 @@ public class ProjectDetailController extends BaseController {
     @Autowired
     private LocalityAmenityService localityAmenityService;
     
+    @Autowired
+    private LocalityReviewService localityReviewService;
+    
     @RequestMapping(value="app/v1/project-detail")
+    @DisableCaching // to be removed.
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
         Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
@@ -74,7 +80,14 @@ public class ProjectDetailController extends BaseController {
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
         projectInfo.setImages(imageService.getImages(DomainObject.project, null, projectId));
+        
+        Double resalePrice;
         for (Property property : properties) {
+        	// setting resale Price
+        	resalePrice = property.getResalePrice();
+        	projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
+        	projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
+        	
             property.setImages(imageService.getImages(DomainObject.property, null, property.getPropertyId()));
         }
         // getting project discussions.
@@ -84,9 +97,7 @@ public class ProjectDetailController extends BaseController {
         	totalProjectDiscussion = projectDiscussionList.size();
         // getting project Amenities
         List<String> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
-        // getting Project Secondary Prices;
-        ProjectSecondaryPrice projectSecondaryPrice = projectService.getProjectSecondaryPriceByProjectId(projectId);
-        projectInfo.setProjectSecondaryPrice(projectSecondaryPrice);
+        
         // getting Project Neighborhood.
         List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(projectInfo.getLocalityId(), null);
         // getting Locality, Suburb, City Details and getting project price ranges from properties data.
@@ -107,7 +118,10 @@ public class ProjectDetailController extends BaseController {
         	}
         }
         
-        
+        // getting localityRatings
+        Object[] localityRatings = localityReviewService.getLocalityRating( locality.getLocalityId() );
+        if(localityRatings != null)
+        	locality.setAverageRating( (Double) localityRatings[0] );
                 
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
@@ -119,7 +133,7 @@ public class ProjectDetailController extends BaseController {
         response.put("totalProjectDiscussions", totalProjectDiscussion);
         response.put("projectAmenity", listProjectAmenities);
         response.put("neighborhood", listLocalityAmenity);
-        response.put("localtiy", locality);
+        response.put("locality", locality);
         
         return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }

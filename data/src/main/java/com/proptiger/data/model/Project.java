@@ -227,9 +227,15 @@ public class Project implements BaseModel {
     @Field(value="BUILDER_LABEL_PRIORITY")
     private String builderLabelPriority;
     
-    private Set<Integer> derivedBedrooms = new HashSet<>();
+    private Set<Integer> distinctBedrooms = new HashSet<>();
     
-    private ProjectSecondaryPrice projectSecondaryPrice;
+    private Double minResalePrice;
+    
+    private Double maxResalePrice;
+    
+    private Double avgPriceRisePercentage = 5.7;
+    
+    private Integer avgPriceRiseMonths = 6;
     
     public int getProjectId() {
         return projectId;
@@ -583,23 +589,51 @@ public class Project implements BaseModel {
 		this.builderLabelPriority = builderLabelPriority;
 	}
 
-	public Set<Integer> getBedrooms() {
-		return derivedBedrooms;
+	public Set<Integer> getDistinctBedrooms() {
+		return distinctBedrooms;
 	}
 
-	public void setBedrooms(Set<Integer> bedrooms) {
-		this.derivedBedrooms = bedrooms;
+	public void setDistinctBedrooms(Set<Integer> bedrooms) {
+		this.distinctBedrooms = bedrooms;
 	}
 	
 	public void addBedrooms(int bedroom){
-		this.derivedBedrooms.add(bedroom);
+		this.distinctBedrooms.add(bedroom);
 	}
 
-	public ProjectSecondaryPrice getProjectSecondaryPrice() {
-		return projectSecondaryPrice;
+	public Double getMinResalePrice() {
+		return minResalePrice;
 	}
 
-	public void setProjectSecondaryPrice(ProjectSecondaryPrice projectSecondaryPrice) {
-		this.projectSecondaryPrice = projectSecondaryPrice;
+	public void setMinResalePrice(Double minResalePrice) {
+		this.minResalePrice = minResalePrice;
 	}
+
+	public Double getMaxResalePrice() {
+		return maxResalePrice;
+	}
+
+	public void setMaxResalePrice(Double maxResalePrice) {
+		this.maxResalePrice = maxResalePrice;
+	}
+
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
+
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
+
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
+
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
+
+    public boolean isResale() {
+        return isResale;
+    }
 }

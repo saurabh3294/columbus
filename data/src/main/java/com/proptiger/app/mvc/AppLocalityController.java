@@ -8,13 +8,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.gson.Gson;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.LocalityService;
@@ -40,8 +38,7 @@ public class AppLocalityController extends BaseController {
 	 */
 	@RequestMapping
 	@ResponseBody
-	@DisableCaching // to be removed.
-	public ProAPIResponse getLocalityListingData(@RequestParam String selector) {
+	public ProAPIResponse getLocalityListingData(@RequestParam(required = false) String selector) {
 		Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
         if (propRequestParam == null) {
             propRequestParam = new Selector();

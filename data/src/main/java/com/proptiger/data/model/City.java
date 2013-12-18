@@ -79,9 +79,15 @@ public class City implements BaseModel{
     @Field("DESCRIPTION")
     @FieldMetaInfo( displayName = "Description",  description = "Description")
     private String description;
+
+    @Transient
+    private Integer minZoomLevel = 12;
+
+    @Transient
+    private Integer maxZoomLevel = 14;
     
     @Transient
-    private long derivedProjectsCount;
+    private long projectsCount;
     
     public int getId() {
         return id;
@@ -164,11 +170,11 @@ public class City implements BaseModel{
 	}
 
 	public long getProjectsCount() {
-		return derivedProjectsCount;
+		return projectsCount;
 	}
 
 	public void setProjectsCount(long projectsCount) {
-		this.derivedProjectsCount = projectsCount;
+		this.projectsCount = projectsCount;
 	}
 
 	public String getUrl() {
@@ -186,5 +192,21 @@ public class City implements BaseModel{
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+    public Integer getMinZoomLevel() {
+        return minZoomLevel;
+    }
+
+    public void setMinZoomLevel(Integer minZoomLevel) {
+        this.minZoomLevel = minZoomLevel;
+    }
+
+    public Integer getMaxZoomLevel() {
+        return maxZoomLevel;
+    }
+
+    public void setMaxZoomLevel(Integer maxZoomLevel) {
+        this.maxZoomLevel = maxZoomLevel;
+    }
     
 }

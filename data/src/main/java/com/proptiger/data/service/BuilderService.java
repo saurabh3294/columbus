@@ -5,7 +5,6 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -67,13 +66,13 @@ public class BuilderService {
     	Selector totalProjectSelector = createSelectorForTotalProjectOfBuilder(builderId, projectStatusNotIn, selector);
     	SolrServiceResponse<List<Project>> totalProjects = projectService.getProjects(totalProjectSelector);
     	
-    	builder.setDerivedTotalProject(((Long)totalProjects.getTotalResultCount()).intValue());
+    	builder.setTotalProjects(((Long)totalProjects.getTotalResultCount()).intValue());
     	
     	projectStatusNotIn.add("Occupied");
     	projectStatusNotIn.add("Ready for Possession");
     	Selector selectorForOnGoingProject = createSelectorForTotalProjectOfBuilder(builderId, projectStatusNotIn, selector);
     	SolrServiceResponse<List<Project>> ongoingProjects = projectService.getProjects(selectorForOnGoingProject);
-    	builder.setDerivedTotalOngoingProject(((Long)ongoingProjects.getTotalResultCount()).intValue());
+    	builder.setTotalOngoingProjects(((Long)ongoingProjects.getTotalResultCount()).intValue());
 
     	Iterator<Project> totalProjectItr = totalProjects.getResult().iterator();
     	Iterator<Project> ongoingProjectItr = ongoingProjects.getResult().iterator();
@@ -107,7 +106,7 @@ public class BuilderService {
     		projectsToReturn.add(project);
     	}
     	
-    	builder.setDerivedProjects(projectsToReturn);
+    	builder.setProjects(projectsToReturn);
     	//TODO need to remove this as this will come from back end
     	return builder;
     }
