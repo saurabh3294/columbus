@@ -11,27 +11,22 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.persistence.EntityManagerFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
 import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
-import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.LocalityDaoImpl;
 import com.proptiger.data.repo.ProjectDao;
@@ -40,6 +35,7 @@ import com.proptiger.data.repo.PropertyDao;
 
 /**
  * @author mandeep
+ * @author Rajeev Pandey
  *
  */
 @Service
@@ -251,6 +247,59 @@ public class LocalityService {
 //						cityId, suburbId, timeStmap);
 		
 		List<Locality> result = localityDaoImpl.getPopularLocalities(cityId, suburbId, timeStmap);
+		return result;
+	}
+
+	/**
+	 * Get top localities either of city or suburb id. In case of city id get
+	 * top localities based on their rating is >= α , and in case of suburb id
+	 * get localities where rating is >= α in X km radius
+	 * 
+	 * α = 3 star, X = 5
+	 * 
+	 * @param cityId
+	 * @param suburbId
+	 * @param selector
+	 * @return
+	 */
+	public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
+			Selector selector) {
+		List<Locality> result = new ArrayList<>();
+		float minimumLocalityRating = 3;
+		Pageable pageable = new PageRequest(0, 10);
+		if (selector.getPaging() != null) {
+			pageable = new PageRequest(selector.getPaging().getStart(),
+					selector.getPaging().getRows());
+		}
+		if (cityId != null && suburbId != null) {
+
+		} else if (cityId != null) {
+			List<Object[]> list = localityDao
+					.getTopLocalityByCityIdAndRatingGreaterThan(cityId,
+							minimumLocalityRating, pageable);
+			for (Object[] objects : list) {
+				if (objects.length == 2) {
+					Locality locality = (Locality) objects[0];
+					float overAllRating = (float) objects[1];
+					locality.setDerivedTotalRating((long) overAllRating);
+					result.add(locality);
+				}
+
+			}
+		}
+
+		return result;
+	}
+	
+	/**
+	 * Get top localities around provided locality id
+	 * @param localityId
+	 * @param selector
+	 * @return
+	 */
+	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId, Selector selector){
+		List<Locality> result = new ArrayList<>();
+		
 		return result;
 	}
 	private List<Integer> getLocalityIdsOnPropertySelector(Map<String,Map<String, Integer>> solrMap){

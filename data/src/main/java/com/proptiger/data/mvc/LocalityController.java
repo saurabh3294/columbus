@@ -38,7 +38,8 @@ public class LocalityController extends BaseController {
     private ImageService imageService;
     
     @RequestMapping
-    public @ResponseBody ProAPIResponse getLocalities(@RequestParam(required=false) String selector) {
+    @ResponseBody
+    public ProAPIResponse getLocalities(@RequestParam(required=false) String selector) {
         Selector localitySelector = new Selector();
         if (selector != null) {
             localitySelector = super.parseJsonToObject(selector, Selector.class);
@@ -57,9 +58,8 @@ public class LocalityController extends BaseController {
 	 * @return
 	 */
     @RequestMapping(value = "/popular")
-    @DisableCaching // to be removed.
-	public @ResponseBody
-	ProAPIResponse getPopularLocalitiesOfCity(
+    @ResponseBody
+	public ProAPIResponse getPopularLocalitiesOfCity(
 			@RequestParam(required = false, value = "cityId") Integer cityId,
 			@RequestParam(required = false, value = "suburbId") Integer suburbId,
 			@RequestParam(required = false, value = "enquiryInWeeks", defaultValue = "8") Integer enquiryInWeeks,
@@ -74,6 +74,52 @@ public class LocalityController extends BaseController {
 		return new ProAPISuccessCountResponse(super.filterFields(
 				popularLocalities, localitySelector.getFields()),
 				popularLocalities.size());
+	}
+    
+    /**
+     * Get top localities for city id or suburb id
+     * @param cityId
+     * @param suburbId
+     * @param selector
+     * @return
+     */
+    @RequestMapping(value = "/top")
+    @DisableCaching // to be removed.
+    @ResponseBody
+	public ProAPIResponse getTopLocalitiesOfCityOrSuburb(
+			@RequestParam(required = false, value = "cityId") Integer cityId,
+			@RequestParam(required = false, value = "suburbId") Integer suburbId,
+			@RequestParam(required = false) String selector) {
+		Selector localitySelector = new Selector();
+		if (selector != null) {
+			localitySelector = super
+					.parseJsonToObject(selector, Selector.class);
+		}
+		List<Locality> result = localityService.getTopLocalities(cityId, suburbId, localitySelector);
+		return new ProAPISuccessCountResponse(super.filterFields(
+				result, localitySelector.getFields()),	result.size());
+	}
+
+    /**
+     * Get top localities around X km from provided locality id
+     * @param localityId
+     * @param selector
+     * @return
+     */
+    @RequestMapping(value = "{localityId}/top")
+    @DisableCaching // to be removed.
+    @ResponseBody
+	public ProAPIResponse getTopLocalitiesAroundLocality(
+			@PathVariable Integer localityId,
+			@RequestParam(required = false) String selector) {
+		Selector localitySelector = new Selector();
+		if (selector != null) {
+			localitySelector = super
+					.parseJsonToObject(selector, Selector.class);
+		}
+		List<Locality> result = localityService.getTopLocalitiesAroundLocality(localityId, localitySelector);
+		return new ProAPISuccessCountResponse(super.filterFields(
+				result, localitySelector.getFields()),	result.size());
 	}
 
     @RequestMapping("/{localityId}/radius")
