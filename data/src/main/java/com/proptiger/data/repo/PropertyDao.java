@@ -119,7 +119,7 @@ public class PropertyDao {
         solrQuery.add("group.field", "PROJECT_ID");
 
         List<Project> projects = new ArrayList<Project>();
-        
+        System.out.println(solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
             for (Group group : groupCommand.getValues()) {
@@ -137,7 +137,8 @@ public class PropertyDao {
                     properties.add(property);
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
-                
+                    
+                    System.out.println(resalePrice);
                     project.setMinPricePerUnitArea(UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea()));
                     project.setMaxPricePerUnitArea(UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
                     project.setMinSize(UtilityClass.min(size, project.getMinSize()));
