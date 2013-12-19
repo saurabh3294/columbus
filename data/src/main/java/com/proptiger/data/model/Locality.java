@@ -1,4 +1,4 @@
-    package com.proptiger.data.model;
+package com.proptiger.data.model;
 
 import java.util.List;
 import java.util.Map;
@@ -16,6 +16,7 @@ import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -28,7 +29,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "LOCALITY")
 @ResourceMetaInfo
-//@JsonFilter("fieldFilter")
+@JsonFilter("fieldFilter")
 public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
@@ -93,44 +94,75 @@ public class Locality implements BaseModel {
 
     @FieldMetaInfo(displayName = "Latitude", description = "Latitude")
     @Column(name = "LATITUDE")
-    @Field("LATITUDE")
+    @Field("LOCALITY_LATITUDE")
     private Double latitude;
 
     @FieldMetaInfo(displayName = "Longitude", description = "Longitude")
     @Column(name = "LONGITUDE")
-    @Field("LONGITUDE")
+    @Field("LOCALITY_LONGITUDE")
     private Double longitude;
 
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
     private Set<Enquiry> enquiry;
     
-    @Transient
-    private Map<String, Integer> derivedProjectStatusCount;
-    @Transient
-    private Map<String, Integer> derivedAmenityTypeCount;
-    @Transient
-    private List<String> derivedImagesPath;
-    @Transient
-    private int derivedImageCount;
-    @Transient
-    private long derivedTotalReviews;
-    @Transient
-    private double derivedAverageRating;
-    @Transient
-    private long derivedTotalRating;
+    @OneToMany(mappedBy = "locality")
+    @JsonIgnore
+    private Set<LocalityReview> localityReviews;
     
     @Transient
-    private int derivedProjectCount;
+    private Map<String, Integer> projectStatusCount;
+
+    @Transient
+    private Map<String, Integer> amenityTypeCount;
+
+    @Transient
+    private List<String> imagesPath;
+
+    @Transient
+    private Integer imageCount;
+
+    @Transient
+    private Long totalReviews;
+
+    @Transient
+    private Double averageRating;
+
+    @Transient
+    private Long ratingsCount;
     
     @Transient
-    private double derivedMaxRadius;
+    private Integer projectCount;
     
     @Transient
-    private int derivedTotalImages = 0;
+    private Double maxRadius;
     
     @Transient
-    private int derivedReviewsCount = 0;
+    private Integer totalImages;
+
+    @Transient
+    private Double minResalePrice;
+    
+    @Transient
+    private Double maxResalePrice;
+
+    @Transient
+    private Double minPrice;
+    
+    @Transient
+    private Double maxPrice;
+
+    @Field("SUBURB_PRICE_RISE")
+    @Transient
+    private Double avgPriceRisePercentage;
+
+    @Field("SUBURB_PRICE_RISE_TIME")
+    @Transient
+    private Integer avgPriceRiseMonths;
+    
+    @Transient
+    @Field("LOCALITY_PRICE_PER_UNIT_AREA")
+    private Double avgPricePerUnitArea;
     
     public int getLocalityId() {
         return localityId;
@@ -206,6 +238,22 @@ public class Locality implements BaseModel {
         this.url = url;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public boolean isDeletedFlag() {
+        return deletedFlag;
+    }
+
+    public void setDeletedFlag(boolean deletedFlag) {
+        this.deletedFlag = deletedFlag;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -220,22 +268,6 @@ public class Locality implements BaseModel {
 
     public void setPriority(int priority) {
         this.priority = priority;
-    }
-
-    public Set<Enquiry> getEnquiry() {
-        return enquiry;
-    }
-
-    public void setEnquiry(Set<Enquiry> enquiry) {
-        this.enquiry = enquiry;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
     }
 
     public Double getLatitude() {
@@ -254,101 +286,147 @@ public class Locality implements BaseModel {
         this.longitude = longitude;
     }
 
-    public boolean isDeletedFlag() {
-        return deletedFlag;
+    public Set<Enquiry> getEnquiry() {
+        return enquiry;
     }
 
-    public void setDeletedFlag(boolean deletedFlag) {
-        this.deletedFlag = deletedFlag;
+    public void setEnquiry(Set<Enquiry> enquiry) {
+        this.enquiry = enquiry;
     }
 
-	public Map<String, Integer> getProjectStatusCount() {
-		return derivedProjectStatusCount;
-	}
+    public Map<String, Integer> getProjectStatusCount() {
+        return projectStatusCount;
+    }
 
-	public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
-		this.derivedProjectStatusCount = projectStatusCount;
-	}
+    public void setProjectStatusCount(Map<String, Integer> projectStatusCount) {
+        this.projectStatusCount = projectStatusCount;
+    }
 
-	public int getProjectCount() {
-		return derivedProjectCount;
-	}
+    public Map<String, Integer> getAmenityTypeCount() {
+        return amenityTypeCount;
+    }
 
-	public void setProjectCount(int projectCount) {
-		this.derivedProjectCount = projectCount;
-	}
+    public void setAmenityTypeCount(Map<String, Integer> amenityTypeCount) {
+        this.amenityTypeCount = amenityTypeCount;
+    }
 
-	public double getDerivedMaxRadius() {
-		return derivedMaxRadius;
-	}
+    public List<String> getImagesPath() {
+        return imagesPath;
+    }
 
-	public void setDerivedMaxRadius(double derivedMaxRadius) {
-		this.derivedMaxRadius = (double)Math.round(derivedMaxRadius*1000)/1000;
-	}
+    public void setImagesPath(List<String> imagesPath) {
+        this.imagesPath = imagesPath;
+    }
 
-	public int getDerivedTotalImages() {
-		return derivedTotalImages;
-	}
+    public Integer getImageCount() {
+        return imageCount;
+    }
 
-	public void setDerivedTotalImages(int derivedTotalImages) {
-		this.derivedTotalImages = derivedTotalImages;
-	}
+    public void setImageCount(Integer imageCount) {
+        this.imageCount = imageCount;
+    }
 
-	public int getDerivedReviewsCount() {
-		return derivedReviewsCount;
-	}
+    public Long getTotalReviews() {
+        return totalReviews;
+    }
 
-	public void setDerivedReviewsCount(int derivedReviewsCount) {
-		this.derivedReviewsCount = derivedReviewsCount;
-	}
+    public void setTotalReviews(Long totalReviews) {
+        this.totalReviews = totalReviews;
+    }
 
-	public long getDerivedTotalReviews() {
-		return derivedTotalReviews;
-	}
+    public Double getAverageRating() {
+        return averageRating;
+    }
 
-	public void setDerivedTotalReviews(long derivedTotalReviews) {
-		this.derivedTotalReviews = derivedTotalReviews;
-	}
+    public void setAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
+    }
 
-	public double getDerivedAverageRating() {
-		return derivedAverageRating;
-	}
+    public Long getRatingsCount() {
+        return ratingsCount;
+    }
 
-	public void setDerivedAverageRating(double derivedAverageRating) {
-		this.derivedAverageRating = derivedAverageRating;
-	}
+    public void setRatingsCount(Long totalRating) {
+        this.ratingsCount = totalRating;
+    }
 
-	public long getDerivedTotalRating() {
-		return derivedTotalRating;
-	}
+    public Integer getProjectCount() {
+        return projectCount;
+    }
 
-	public void setDerivedTotalRating(long derivedTotalRating) {
-		this.derivedTotalRating = derivedTotalRating;
-	}
+    public void setProjectCount(Integer projectCount) {
+        this.projectCount = projectCount;
+    }
 
-	public List<String> getDerivedImagesPath() {
-		return derivedImagesPath;
-	}
+    public Double getMaxRadius() {
+        return maxRadius;
+    }
 
-	public void setDerivedImagesPath(List<String> derivedImagesPath) {
-		this.derivedImagesPath = derivedImagesPath;
-	}
-public Map<String, Integer> getDerivedAmenityTypeCount() {
-		return derivedAmenityTypeCount;
-	}
+    public void setMaxRadius(Double maxRadius) {
+        this.maxRadius = maxRadius;
+    }
 
-	public void setDerivedAmenityTypeCount(
-			Map<String, Integer> derivedAmenityTypeCount) {
-		this.derivedAmenityTypeCount = derivedAmenityTypeCount;
-	}
+    public Integer getTotalImages() {
+        return totalImages;
+    }
 
+    public void setTotalImages(Integer totalImages) {
+        this.totalImages = totalImages;
+    }
 
-	public int getDerivedImageCount() {
-		return derivedImageCount;
-	}
+    public Double getMinResalePrice() {
+        return minResalePrice;
+    }
 
-	public void setDerivedImageCount(int derivedImageCount) {
-		this.derivedImageCount = derivedImageCount;
-	}
-	
+    public void setMinResalePrice(Double minResalePrice) {
+        this.minResalePrice = minResalePrice;
+    }
+
+    public Double getMaxResalePrice() {
+        return maxResalePrice;
+    }
+
+    public void setMaxResalePrice(Double maxResalePrice) {
+        this.maxResalePrice = maxResalePrice;
+    }
+
+    public Double getMinPrice() {
+        return minPrice;
+    }
+
+    public void setMinPrice(Double minPrice) {
+        this.minPrice = minPrice;
+    }
+
+    public Double getMaxPrice() {
+        return maxPrice;
+    }
+
+    public void setMaxPrice(Double maxPrice) {
+        this.maxPrice = maxPrice;
+    }
+
+    public Double getAvgPricePerUnitArea() {
+        return avgPricePerUnitArea;
+    }
+
+    public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
+        this.avgPricePerUnitArea = avgPricePerUnitArea;
+    }
+
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
+
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
+
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
+
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
 }

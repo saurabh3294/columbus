@@ -44,7 +44,7 @@ public class PropertyService {
     }
 
     public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertyListingSelector) {
-        return propertyDao.getStats(fields, propertyListingSelector);
+        return propertyDao.getStats(fields, propertyListingSelector, null);
     }
 
     public List<Property> getProperties(int projectId) {

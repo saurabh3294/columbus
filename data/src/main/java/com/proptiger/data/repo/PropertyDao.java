@@ -89,14 +89,19 @@ public class PropertyDao {
         return resultMap;
     }
 
-    public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertySelector) {
+    public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertySelector, List<String> facetFields) {
         SolrQuery query = createSolrQuery(propertySelector);
         query.add("stats", "true");
 
         for (String field : fields) {
             query.add("stats.field", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         }
-
+        if(facetFields != null){
+        	for(String field: facetFields){
+        		query.add("stats.facet", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
+        	}
+        }
+        System.out.println(query.toString());
         Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
         Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
         for (String field : fields) {
@@ -114,7 +119,7 @@ public class PropertyDao {
         solrQuery.add("group.field", "PROJECT_ID");
 
         List<Project> projects = new ArrayList<Project>();
-        
+        System.out.println(solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
             for (Group group : groupCommand.getValues()) {
@@ -123,7 +128,7 @@ public class PropertyDao {
                 
                 Set<String> unitTypes = new HashSet<String>();
                 List<Property> properties = new ArrayList<Property>();
-                double resalePrice;
+                Double resalePrice = null;
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
                     Double pricePerUnitArea = property.getPricePerUnitArea();
@@ -132,7 +137,8 @@ public class PropertyDao {
                     properties.add(property);
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
-                
+                    
+                    System.out.println(resalePrice);
                     project.setMinPricePerUnitArea(UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea()));
                     project.setMaxPricePerUnitArea(UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
                     project.setMinSize(UtilityClass.min(size, project.getMinSize()));
@@ -435,6 +441,36 @@ public class PropertyDao {
     	
     	return solrDao.executeQuery(solrQuery).getGroupResponse().getValues().get(0).getNGroups();	
     }
+    
+    public Map<String, Map<String, Map<String, FieldStatsInfo>>> getStatsFacetsAsMaps(Selector selector, List<String> fields,
+			List<String> facet){
+    	
+		Map<String, FieldStatsInfo> stats = getStats(fields, selector, facet);
+		Map<String, Map<String, Map<String, FieldStatsInfo>>> newStats = new HashMap<>();
+		
+		String fieldName, facetName;
+		for( Map.Entry<String, FieldStatsInfo> entry : stats.entrySet() )
+		{
+			fieldName = entry.getKey();
+			Map<String, Map<String, FieldStatsInfo>> facetsInfo = new HashMap<>();
+			for(Map.Entry<String, List<FieldStatsInfo>> e : entry.getValue().getFacets().entrySet() )
+			{
+				facetName = e.getKey();
+				List<FieldStatsInfo> details = e.getValue();
+				Map<String, FieldStatsInfo> facetsMap = new HashMap<>();
+				for(int i=0; i<details.size(); i++)
+				{
+					FieldStatsInfo fieldStatsInfo = details.get(i);
+					if(fieldStatsInfo.getCount() > 0)
+						facetsMap.put( fieldStatsInfo.getName() , fieldStatsInfo);
+				}
+				facetsInfo.put(facetName, facetsMap);
+			}
+			newStats.put(fieldName, facetsInfo);
+		}
+		
+		return newStats;
+	}
     
     public static void main(String[] args) {
         Selector selector = new Selector();

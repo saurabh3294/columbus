@@ -1,4 +1,4 @@
-package com.proptiger.data.model;
+package com.proptiger.data.model.enums;
 
 public enum DomainObject {
 	project("project", 500000),

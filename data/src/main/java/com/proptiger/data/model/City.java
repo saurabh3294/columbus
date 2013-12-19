@@ -79,9 +79,27 @@ public class City implements BaseModel{
     @Field("DESCRIPTION")
     @FieldMetaInfo( displayName = "Description",  description = "Description")
     private String description;
+
+    @Transient
+    @Field("CITY_PRICE_PER_UNIT_AREA")
+    private Double avgPricePerUnitArea;
+
+    @Transient
+    @Field("CITY_PRICE_RISE")
+    private Double avgPriceRisePercentage;
+
+    @Transient
+    @Field("CITY_PRICE_RISE_TIME")
+    private Integer avgPriceRiseMonths;
+
+    @Transient
+    private Integer minZoomLevel = 12;
+
+    @Transient
+    private Integer maxZoomLevel = 14;
     
     @Transient
-    private long derivedProjectsCount;
+    private long projectsCount;
     
     public int getId() {
         return id;
@@ -164,11 +182,11 @@ public class City implements BaseModel{
 	}
 
 	public long getProjectsCount() {
-		return derivedProjectsCount;
+		return projectsCount;
 	}
 
 	public void setProjectsCount(long projectsCount) {
-		this.derivedProjectsCount = projectsCount;
+		this.projectsCount = projectsCount;
 	}
 
 	public String getUrl() {
@@ -186,5 +204,45 @@ public class City implements BaseModel{
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+    public Integer getMinZoomLevel() {
+        return minZoomLevel;
+    }
+
+    public void setMinZoomLevel(Integer minZoomLevel) {
+        this.minZoomLevel = minZoomLevel;
+    }
+
+    public Integer getMaxZoomLevel() {
+        return maxZoomLevel;
+    }
+
+    public void setMaxZoomLevel(Integer maxZoomLevel) {
+        this.maxZoomLevel = maxZoomLevel;
+    }
+
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
+
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
+
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
+
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
+
+    public Double getAvgPricePerUnitArea() {
+        return avgPricePerUnitArea;
+    }
+
+    public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
+        this.avgPricePerUnitArea = avgPricePerUnitArea;
+    }
     
 }

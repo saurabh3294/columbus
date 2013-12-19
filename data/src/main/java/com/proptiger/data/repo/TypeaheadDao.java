@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 import com.google.common.base.Joiner;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Typeahead;
-import com.proptiger.data.service.portfolio.CityService;
+import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.portfolio.DashboardService;
 
 /**

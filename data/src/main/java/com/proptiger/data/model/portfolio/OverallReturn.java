@@ -7,6 +7,7 @@ import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.portfolio.enums.ReturnType;
 
 /**
  * @author Rajeev Pandey

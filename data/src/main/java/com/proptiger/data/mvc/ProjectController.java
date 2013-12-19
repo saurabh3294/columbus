@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -50,7 +50,10 @@ public class ProjectController extends BaseController {
 
         SolrServiceResponse<List<Project>> response = projectService.getProjects(propRequestParam);
         for (Project project : response.getResult()) {
-            project.setImageURL(imageService.getImages(DomainObject.project, "main", project.getProjectId()).get(0).getAbsolutePath());
+            List<Image> images = imageService.getImages(DomainObject.project, "main", project.getProjectId());
+            if (images != null && !images.isEmpty()) {
+                project.setImageURL(images.get(0).getAbsolutePath());
+            }
         }
 
         Set<String> fieldsString = propRequestParam.getFields();

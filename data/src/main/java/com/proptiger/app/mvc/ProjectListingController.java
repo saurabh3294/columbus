@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;

@@ -18,6 +18,8 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -31,6 +33,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  */
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class Project implements BaseModel {
     public static enum NestedProperties {
         builderLabel(new String[]{"builder", "name"}),
@@ -227,11 +230,15 @@ public class Project implements BaseModel {
     @Field(value="BUILDER_LABEL_PRIORITY")
     private String builderLabelPriority;
     
-    private Set<Integer> derivedBedrooms = new HashSet<>();
+    private Set<Integer> distinctBedrooms = new HashSet<>();
     
-    private Double derivedMinResalePrice;
+    private Double minResalePrice;
     
-    private Double derivedMaxResalePrice;
+    private Double maxResalePrice;
+    
+    private Double avgPriceRisePercentage;
+    
+    private Integer avgPriceRiseMonths;
     
     public int getProjectId() {
         return projectId;
@@ -585,31 +592,51 @@ public class Project implements BaseModel {
 		this.builderLabelPriority = builderLabelPriority;
 	}
 
-	public Set<Integer> getBedrooms() {
-		return derivedBedrooms;
+	public Set<Integer> getDistinctBedrooms() {
+		return distinctBedrooms;
 	}
 
-	public void setBedrooms(Set<Integer> bedrooms) {
-		this.derivedBedrooms = bedrooms;
+	public void setDistinctBedrooms(Set<Integer> bedrooms) {
+		this.distinctBedrooms = bedrooms;
 	}
 	
 	public void addBedrooms(int bedroom){
-		this.derivedBedrooms.add(bedroom);
+		this.distinctBedrooms.add(bedroom);
 	}
 
 	public Double getMinResalePrice() {
-		return derivedMinResalePrice;
+		return minResalePrice;
 	}
 
 	public void setMinResalePrice(Double minResalePrice) {
-		this.derivedMinResalePrice = minResalePrice;
+		this.minResalePrice = minResalePrice;
 	}
 
 	public Double getMaxResalePrice() {
-		return derivedMaxResalePrice;
+		return maxResalePrice;
 	}
 
 	public void setMaxResalePrice(Double maxResalePrice) {
-		this.derivedMaxResalePrice = maxResalePrice;
+		this.maxResalePrice = maxResalePrice;
 	}
+
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
+
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
+
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
+
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
+
+    public boolean isResale() {
+        return isResale;
+    }
 }

@@ -97,6 +97,10 @@ public class SolrResult implements BaseModel{
     @Field(value = "PROJECT_PRIORITY")
     private Double computedPriority;
 
+    @FieldMetaInfo( displayName = "Assigned priority of locality",  description = "Locality priorities assigned manually")
+    @Field(value = "LOCALITY_PRIORITY")
+    private Integer localityPriority;
+
     @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
     private int localityId;
@@ -201,6 +205,9 @@ public class SolrResult implements BaseModel{
     
     @Field("BUILDER_LABEL_PRIORITY")
     private String builderLabelPriority;
+
+    @Field("RESALE_PRICE")
+    private Double resalePrice;
     
     public SolrResult() {
         property.setProject(project);
@@ -530,7 +537,7 @@ public class SolrResult implements BaseModel{
     
     @Field("__RADIUS__")
     public void setDerivedMaxRadius(double radius){
-    	project.getLocality().setDerivedMaxRadius(radius);
+    	project.getLocality().setMaxRadius(radius);
     }
     
     @Field("LOCALITY_URL")
@@ -584,7 +591,7 @@ public class SolrResult implements BaseModel{
     }	
     
     @Field("LOCALITY_PRIORITY")
-    public void setLocalityPriority(int localityPriority){
+    public void setLocalityPriority(Integer localityPriority){
     	locality.setPriority(localityPriority);
     }
     
@@ -594,12 +601,67 @@ public class SolrResult implements BaseModel{
     }
     
     @Field("RESALE_PRICE_PER_UNIT_AREA")
-    public void setResalePricePerUnitArea(double resalePricePerUnitArea){
+    public void setResalePricePerUnitArea(Double resalePricePerUnitArea){
     	property.setResalePricePerUnitArea(resalePricePerUnitArea);
     }
     
     @Field("RESALE_PRICE")
-    public void setResalePrice(double resalePrice){
+    public void setResalePrice(Double resalePrice){
     	property.setResalePrice(resalePrice);
+    }
+
+    @Field("CITY_PRICE_PER_UNIT_AREA")
+    public void setCityPricePerUnitArea(Double cityPricePerUnitArea) {
+        city.setAvgPricePerUnitArea(cityPricePerUnitArea);
+    }
+
+    @Field("LOCALITY_PRICE_PER_UNIT_AREA")
+    public void setLocalityPricePerUnitArea(Double localityPricePerUnitArea) {
+        locality.setAvgPricePerUnitArea(localityPricePerUnitArea);
+    }
+
+    @Field("SUBURB_PRICE_PER_UNIT_AREA")
+    public void setSuburbPricePerUnitArea(Double suburbPricePerUnitArea) {
+        suburb.setAvgPricePerUnitArea(suburbPricePerUnitArea);
+    }
+    
+    @Field("PROJECT_PRICE_RISE_TIME")
+    public void setProjectPriceRiseTime(String projectPriceRiseTime) {
+        project.setAvgPriceRiseMonths(Integer.valueOf(projectPriceRiseTime));
+    }
+    
+    @Field("PROJECT_PRICE_RISE")
+    public void setProjectPriceRise(Double projectPriceRise) {
+        project.setAvgPriceRisePercentage(projectPriceRise);
+    }
+
+    @Field("CITY_PRICE_RISE_TIME")
+    public void setCityPriceRiseTime(Integer cityPriceRiseTime) {
+        city.setAvgPriceRiseMonths(cityPriceRiseTime);
+    }
+    
+    @Field("CITY_PRICE_RISE")
+    public void setCityPriceRise(Double cityPriceRise) {
+        city.setAvgPriceRisePercentage(cityPriceRise);
+    }
+    
+    @Field("SUBURB_PRICE_RISE_TIME")
+    public void setSuburbPriceRiseTime(Integer suburbPriceRiseTime) {
+        suburb.setAvgPriceRiseMonths(suburbPriceRiseTime);
+    }
+    
+    @Field("SUBURB_PRICE_RISE")
+    public void setSuburbPriceRise(Double suburbPriceRise) {
+        suburb.setAvgPriceRisePercentage(suburbPriceRise);
+    }
+    
+    @Field("LOCALITY_PRICE_RISE_TIME")
+    public void setLocalityPriceRiseTime(Integer localityPriceRiseTime) {
+        locality.setAvgPriceRiseMonths(localityPriceRiseTime);
+    }
+    
+    @Field("LOCALITY_PRICE_RISE")
+    public void setLocalityPriceRise(Double localityPriceRise) {
+        locality.setAvgPriceRisePercentage(localityPriceRise);
     }
 }

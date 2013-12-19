@@ -271,7 +271,7 @@ public class DataAPIAuthenticationFilter implements Filter{
 	private void writeErrorToResponse(ServletResponse response, String code,
 			String msg, String userIpAddress) throws IOException,
 			JsonProcessingException {
-		logger.error("Unauthenticated call from host {}", userIpAddress);
+		logger.warn("Unauthenticated call from host {}", userIpAddress);
 		PrintWriter out = response.getWriter();
 		ProAPIErrorResponse res = new ProAPIErrorResponse(code, msg);
 		ObjectMapper mapper = new ObjectMapper();

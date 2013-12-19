@@ -33,6 +33,10 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.portfolio.enums.ListingStatus;
+import com.proptiger.data.model.portfolio.enums.LoanStatus;
+import com.proptiger.data.model.portfolio.enums.PurchasedFor;
+import com.proptiger.data.model.portfolio.enums.TransactionType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 
@@ -66,7 +70,7 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	@Transient
 	private Integer localityId;
 	@Transient
-	private String completionDate;
+	private Date completionDate;
 	@Transient
 	private String projectStatus;
 	@Transient
@@ -409,11 +413,11 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 		this.locality = locality;
 	}
 
-	public String getCompletionDate() {
+	public Date getCompletionDate() {
 		return completionDate;
 	}
 
-	public void setCompletionDate(String completionDate) {
+	public void setCompletionDate(Date completionDate) {
 		this.completionDate = completionDate;
 	}
 
