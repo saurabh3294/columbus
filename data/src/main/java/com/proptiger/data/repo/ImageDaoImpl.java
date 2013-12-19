@@ -17,8 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.drew.imaging.ImageProcessingException;
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.ObjectType;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.image.ImageType;
 import com.proptiger.data.util.ImageUtil;

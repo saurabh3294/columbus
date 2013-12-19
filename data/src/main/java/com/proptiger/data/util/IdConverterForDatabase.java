@@ -1,7 +1,7 @@
 package com.proptiger.data.util;
 
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.enums.DomainObject;
 
 public class IdConverterForDatabase {
 

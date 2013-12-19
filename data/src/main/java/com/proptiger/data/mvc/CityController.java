@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc.portfolio;
+package com.proptiger.data.mvc;
 
 import java.util.List;
 import java.util.Set;
@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.City;
-import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.service.portfolio.CityService;
+import com.proptiger.data.service.CityService;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Controller
 @RequestMapping(value = "data/v1/entity/city")
 public class CityController extends BaseController{
@@ -24,6 +27,14 @@ public class CityController extends BaseController{
 	@Autowired
 	private CityService cityService;
 	
+	/**
+	 * This methods get city details, If no filter provided in selector then it
+	 * will fetch all city details Single city can be fetched by using filter of
+	 * selector object
+	 * 
+	 * @param selectorStr
+	 * @return
+	 */
 	@RequestMapping(method = RequestMethod.GET)
 	@ResponseBody
 	public ProAPIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr){

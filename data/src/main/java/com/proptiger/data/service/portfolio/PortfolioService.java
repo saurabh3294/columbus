@@ -23,7 +23,6 @@ import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.City;
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ListingPrice;
@@ -31,20 +30,21 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.portfolio.OverallReturn;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.model.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.portfolio.PortfolioListingPrice;
-import com.proptiger.data.model.portfolio.ReturnType;
+import com.proptiger.data.model.portfolio.enums.ReturnType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
+import com.proptiger.data.repo.CityRepository;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
-import com.proptiger.data.repo.portfolio.CityRepository;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.ImageService;
@@ -390,14 +390,14 @@ public class PortfolioService extends AbstractService{
 			}
 			listing.setProjectName(project.getProjectName());
 			listing.setBuilderName(project.getBuilderName());
-			listing.setCompletionDate(project.getCompletionDate());
+			listing.setCompletionDate(project.getPromisedCompletionDate());
 			listing.setProjectStatus(project.getProjectStatus());
 			City city = cityRepository.findOne(project.getCityId());
 			if(city != null){
 				listing.setCityName(city.getLabel());
 			}
-			List<Locality> localities = localityDao.findByLocationOrderByPriority(project.getLocalityId(), "locality", null, null);//findOne(project.getLocalityId());
-			if(localities.size()>0 && localities != null){
+			List<Locality> localities = localityDao.findByLocationOrderByPriority(project.getLocalityId(), "locality", null, null);
+			if(localities != null && localities.size() > 0){
 				Locality locality = localities.get(0);
 				listing.setLocality(locality.getLabel());
 				listing.setLocalityId(locality.getLocalityId());
@@ -684,13 +684,24 @@ public class PortfolioService extends AbstractService{
 				interestedToSell, listing);
 		updateOtherSpecificData(listing);
 		ForumUser user = forumUserDao.findOne(userId);
-		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
-		Enquiry enquiry = createEnquiryObj(listing, user);
-		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE, LeadPageName.PORTFOLIO);
+		/*
+		 * Removing lead generation code in case of interested to sell option
+		 * from portfolio, because we do not have support for this in our
+		 * backend system
+		 */
+//		logger.debug("Posting lead request for user id {} and listing id {} with sell interest {}",userId,listingId,interestedToSell);
+//		Enquiry enquiry = createEnquiryObj(listing, user);
+//		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE, LeadPageName.PORTFOLIO);
 		/*
 		 * Sending mail to internal group
 		 */
-		//sendMail(userId, listingId, MailType.INTERESTED_TO_SELL_PROPERTY_INTERNAL.toString());
+		logger.debug("Sending interested to sell mail to internal group for listing {}", listingId);
+		sendMail(userId, listing, MailType.INTERESTED_TO_SELL_PROPERTY_INTERNAL);
+		/*
+		 * Sending interested to sell confirmation mail to user
+		 */
+		logger.debug("Sending interested to sell mail to user for listing {}", listingId);
+		sendMail(userId, listing, MailType.INTERESTED_TO_SELL_PROPERTY_USER);
 		return listing;
 	}
 	
@@ -828,9 +839,13 @@ public class PortfolioService extends AbstractService{
 			toStr = propertyReader.getRequiredProperty("mail.home.loan.internal.reciepient");
 			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
 		case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
-			ListingResaleMail listingResaleMail = createListingResaleMailObj(listing);
-			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.RESALE_LISTING_INTERNAL, listingResaleMail);
+			ListingResaleMail listingResaleMailInternal = createListingResaleMailObj(listing);
+			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL, listingResaleMailInternal);
 			toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
+			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+		case INTERESTED_TO_SELL_PROPERTY_USER:
+			ListingResaleMail listingResaleMailUser = createListingResaleMailObj(listing);
+			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER, listingResaleMailUser);
 			return mailService.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
 		default:
 			throw new IllegalArgumentException("Invalid mail type");

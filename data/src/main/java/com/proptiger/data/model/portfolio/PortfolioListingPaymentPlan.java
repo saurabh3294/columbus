@@ -21,6 +21,9 @@ import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.portfolio.enums.PaymentPlan;
+import com.proptiger.data.model.portfolio.enums.PaymentSource;
+import com.proptiger.data.model.portfolio.enums.PaymentStatus;
 
 /**
  * Payment plan model

@@ -16,6 +16,7 @@ import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -28,7 +29,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "LOCALITY")
 @ResourceMetaInfo
-//@JsonFilter("fieldFilter")
+@JsonFilter("fieldFilter")
 public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
@@ -93,17 +94,21 @@ public class Locality implements BaseModel {
 
     @FieldMetaInfo(displayName = "Latitude", description = "Latitude")
     @Column(name = "LATITUDE")
-    @Field("LATITUDE")
+    @Field("LOCALITY_LATITUDE")
     private Double latitude;
 
     @FieldMetaInfo(displayName = "Longitude", description = "Longitude")
     @Column(name = "LONGITUDE")
-    @Field("LONGITUDE")
+    @Field("LOCALITY_LONGITUDE")
     private Double longitude;
 
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
     private Set<Enquiry> enquiry;
+    
+    @OneToMany(mappedBy = "locality")
+    @JsonIgnore
+    private Set<LocalityReview> localityReviews;
     
     @Transient
     private Map<String, Integer> projectStatusCount;

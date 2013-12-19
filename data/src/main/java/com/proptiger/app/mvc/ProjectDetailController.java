@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -81,15 +81,6 @@ public class ProjectDetailController extends BaseController {
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
         projectInfo.setImages(imageService.getImages(DomainObject.project, null, projectId));
         
-        Double resalePrice;
-        for (Property property : properties) {
-        	// setting resale Price
-        	resalePrice = property.getResalePrice();
-        	projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
-        	projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
-        	
-            property.setImages(imageService.getImages(DomainObject.property, null, property.getPropertyId()));
-        }
         // getting project discussions.
         int totalProjectDiscussion=0;
         List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
@@ -103,18 +94,31 @@ public class ProjectDetailController extends BaseController {
         // getting Locality, Suburb, City Details and getting project price ranges from properties data.
         Locality locality = null;
         Double pricePerUnitArea;
+        Double resalePrice;
         if(properties.size() > 0)
         {
         	locality = properties.get(0).getProject().getLocality();
-        	
-        	projectInfo.setMinPricePerUnitArea(Double.MAX_VALUE);
+        	Property property;
         	for(int i=0; i<properties.size(); i++){
-           		pricePerUnitArea = properties.get(i).getPricePerUnitArea();
+        		property = properties.get(i);
+           		pricePerUnitArea = property.getPricePerUnitArea();
+           		
            		if(pricePerUnitArea == null)
            			pricePerUnitArea = 0D;
            			
-           		projectInfo.setMinPricePerUnitArea( Math.min(pricePerUnitArea, projectInfo.getMinPricePerUnitArea() ) );
-           		projectInfo.setMaxPricePerUnitArea( Math.max(pricePerUnitArea, projectInfo.getMaxPricePerUnitArea() ) );
+           		// set Primary Prices.
+           		projectInfo.setMinPricePerUnitArea( UtilityClass.min(pricePerUnitArea, projectInfo.getMinPricePerUnitArea() ) );
+           		projectInfo.setMaxPricePerUnitArea( UtilityClass.max(pricePerUnitArea, projectInfo.getMaxPricePerUnitArea() ) );
+           		// setting distinct bedrooms
+           		projectInfo.addDistinctBedrooms(property.getBedrooms());
+           		projectInfo.addPropertyUnitTypes(property.getUnitType());
+           		
+           		// setting resale Price
+            	resalePrice = property.getResalePrice();
+            	projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
+            	projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
+            	// setting images.
+                property.setImages(imageService.getImages(DomainObject.property, null, property.getPropertyId()));
         	}
         }
         

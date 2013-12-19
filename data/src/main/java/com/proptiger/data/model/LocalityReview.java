@@ -3,8 +3,11 @@ package com.proptiger.data.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -58,6 +61,11 @@ public class LocalityReview implements BaseModel{
     @FieldMetaInfo(displayName = "Civic", description = "Civic")
     private float civic;
 
+    @ManyToOne
+    @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
+    @JsonIgnore
+    private Locality locality;
+    
     public long getReviewId() {
         return reviewId;
     }

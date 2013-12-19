@@ -62,27 +62,10 @@ public interface LocalityDao extends
 
 	public Locality findByLocalityId(int localityId);
 
-	/**
-	 * This method is getting all the popular localities of city, criteria of
-	 * popularity is first with priority in asc and in case of tie total enquiry
-	 * in desc
-	 * 
-	 * @param cityId
-	 * @param suburbId
-	 * @param enquiryCreationDate
-	 * @return
-	 */
-	@Query("SELECT L, COUNT(E.id) AS TOT_ENQ "
-			+ " FROM Locality L left join L.enquiry E WHERE "
-			+ " (E.createdDate IS NULL OR UNIX_TIMESTAMP(E.createdDate) >= ?3) "
-			+ " AND (L.cityId = ?1 OR L.suburbId = ?2) "
-			+ " group by L.localityId order by L.priority ASC , TOT_ENQ DESC ")
-	public List<Locality> getPopularLocalitiesOfCityOrderByPriorityASCAndTotalEnquiryDESC(
-			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp);
-
-	@Query("Select L, AVG(LR.overallRating) as avgRating from Locality L, LocalityReview LR "
-			+ " where L.localityId = LR.localityId AND L.cityId=?1 "
-			+ " AND LR.overallRating >= ?2 order by avgRating DESC")
-	public List<Object[]> getTopLocalityByCityIdAndAvgRatingGreaterThan(
-			Integer cityId, float rating, Pageable pageable);
+	@Query("Select L, AVG(LR.overallRating) as overallAvgRating from Locality L left join L.localityReviews LR "
+			+ " where L.localityId = LR.localityId AND (L.cityId=?1 OR L.suburbId=?2)"
+			+ " group by L.localityId having AVG(LR.overallRating) >= ?3 order by overallAvgRating DESC")
+	public List<Object[]> getTopLocalityByCityIdOrSuburbIdAndRatingGreaterThan(
+			Integer cityId, Integer suburbId, double rating);
+	
 }
