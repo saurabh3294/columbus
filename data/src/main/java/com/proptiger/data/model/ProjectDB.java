@@ -5,7 +5,9 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -118,9 +120,9 @@ public class ProjectDB implements BaseModel{
     @Column(name="FEATURED")
     private int featured ;
     
-    @FieldMetaInfo(displayName="COMPLETION Date", description="COMPLETION Date")
+    /*@FieldMetaInfo(displayName="COMPLETION Date", description="COMPLETION Date")
     @Column(name="COMPLETION_DATE")
-    private String completionDate ;
+    private String completionDate ;*/
     
     @FieldMetaInfo(displayName="PRICE DISCLAIMER", description="PRICE DISCLAIMER")
     @Column(name="PRICE_DISCLAIMER")
@@ -143,10 +145,10 @@ public class ProjectDB implements BaseModel{
     @Column(name="SUBMITTED_BY")
     private int submittedBy ;
     
-    @FieldMetaInfo(displayName="MODIFIED Date", description="MODIFIED Date")
+    /*@FieldMetaInfo(displayName="MODIFIED Date", description="MODIFIED Date")
     @Column(name="MODIFIED_DATE")
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Date modifiedDate ;
+    private Date modifiedDate ;*/
     
     @FieldMetaInfo(displayName="MODIFIED BY", description="MODIFIED BY")
     @Column(name="MODIFIED_BY")
@@ -241,7 +243,7 @@ public class ProjectDB implements BaseModel{
     
     @FieldMetaInfo(displayName="PROJECT SIZE", description="PROJECT SIZE")
     @Column(name="PROJECT_SIZE")
-    private double projectSize ;
+    private Double projectSize ;
     
     @FieldMetaInfo(displayName="LAST MODIFIED Date", description="LAST MODIFIED Date")
     @Column(name="LAST_MODIFIED_DATE")
@@ -256,18 +258,30 @@ public class ProjectDB implements BaseModel{
     private List<Image> images;
     
     @Transient
-    private double minPricePerUnitArea = 0;
+    private Double minPricePerUnitArea;
     
     @Transient
-    private double maxPricePerUnitArea = 0;
+    private Double maxPricePerUnitArea;
     
     @Transient
     @FieldMetaInfo(displayName="Min Resale Price", description="Min Resale Price")
-    private double minResalePrice;
+    private Double minResalePrice;
     
     @Transient
     @FieldMetaInfo(displayName="Max Resale Price", description="Max Resale Price")
-    private double maxResalePrice;
+    private Double maxResalePrice;
+    
+    @Transient
+    private Double avgPriceRisePercentage = 5.7;
+    
+    @Transient
+    private Integer avgPriceRiseMonths = 6;
+    
+    @Transient
+    private Set<String> propertyUnitTypes = new HashSet<String>();
+
+    @Transient
+    private Set<Integer> distinctBedrooms = new HashSet<Integer>();
     
     public int getProjectId() {
         return projectId;
@@ -413,14 +427,6 @@ public class ProjectDB implements BaseModel{
         this.projectUrl = projectUrl;
     }
 
-    public String getCompletionDate() {
-        return completionDate;
-    }
-
-    public void setCompletionDate(String completionDate) {
-        this.completionDate = completionDate;
-    }
-
     public String getPriceDisclaimer() {
         return priceDisclaimer;
     }
@@ -459,14 +465,6 @@ public class ProjectDB implements BaseModel{
 
     public void setSubmittedBy(int submittedBy) {
         this.submittedBy = submittedBy;
-    }
-
-    public Date getModifiedDate() {
-        return modifiedDate;
-    }
-
-    public void setModifiedDate(Date modifiedDate) {
-        this.modifiedDate = modifiedDate;
     }
 
     public int getModifiedBy() {
@@ -605,11 +603,11 @@ public class ProjectDB implements BaseModel{
         this.preLaunchDate = preLaunchDate;
     }
 
-    public double getProjectSize() {
+    public Double getProjectSize() {
         return projectSize;
     }
 
-    public void setProjectSize(double projectSize) {
+    public void setProjectSize(Double projectSize) {
         this.projectSize = projectSize;
     }
 
@@ -693,35 +691,75 @@ public class ProjectDB implements BaseModel{
         this.images = images;
     }
 
-	public double getMinPricePerUnitArea() {
+	public Double getMinPricePerUnitArea() {
 		return minPricePerUnitArea;
 	}
 
-	public void setMinPricePerUnitArea(double minPricePerUnitArea) {
+	public void setMinPricePerUnitArea(Double minPricePerUnitArea) {
 		this.minPricePerUnitArea = minPricePerUnitArea;
 	}
 
-	public double getMaxPricePerUnitArea() {
+	public Double getMaxPricePerUnitArea() {
 		return maxPricePerUnitArea;
 	}
 
-	public void setMaxPricePerUnitArea(double maxPricePerUnitArea) {
+	public void setMaxPricePerUnitArea(Double maxPricePerUnitArea) {
 		this.maxPricePerUnitArea = maxPricePerUnitArea;
 	}
 
-	public double getMinResalePrice() {
+	public Double getMinResalePrice() {
 		return minResalePrice;
 	}
 
-	public void setMinResalePrice(double minResalePrice) {
+	public void setMinResalePrice(Double minResalePrice) {
 		this.minResalePrice = minResalePrice;
 	}
 
-	public double getMaxResalePrice() {
+	public Double getMaxResalePrice() {
 		return maxResalePrice;
 	}
 
-	public void setMaxResalePrice(double maxResalePrice) {
+	public void setMaxResalePrice(Double maxResalePrice) {
 		this.maxResalePrice = maxResalePrice;
+	}
+
+	public Double getAvgPriceRisePercentage() {
+		return avgPriceRisePercentage;
+	}
+
+	public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+		this.avgPriceRisePercentage = avgPriceRisePercentage;
+	}
+
+	public Integer getAvgPriceRiseMonths() {
+		return avgPriceRiseMonths;
+	}
+
+	public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+		this.avgPriceRiseMonths = avgPriceRiseMonths;
+	}
+
+	public Set<String> getPropertyUnitTypes() {
+		return propertyUnitTypes;
+	}
+
+	public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
+		this.propertyUnitTypes = propertyUnitTypes;
+	}
+	
+	public void addPropertyUnitTypes(String propertyUnitType){
+		this.propertyUnitTypes.add(propertyUnitType);
+	}
+	
+	public Set<Integer> getDistinctBedrooms() {
+		return distinctBedrooms;
+	}
+
+	public void setDistinctBedrooms(Set<Integer> distinctBedrooms) {
+		this.distinctBedrooms = distinctBedrooms;
+	}
+	
+	public void addDistinctBedrooms(int bedroom){
+		this.distinctBedrooms.add(bedroom); 
 	}
 }

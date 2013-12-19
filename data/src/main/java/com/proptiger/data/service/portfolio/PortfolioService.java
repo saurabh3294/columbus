@@ -390,7 +390,7 @@ public class PortfolioService extends AbstractService{
 			}
 			listing.setProjectName(project.getProjectName());
 			listing.setBuilderName(project.getBuilderName());
-			listing.setCompletionDate(project.getCompletionDate());
+			listing.setCompletionDate(project.getPromisedCompletionDate());
 			listing.setProjectStatus(project.getProjectStatus());
 			City city = cityRepository.findOne(project.getCityId());
 			if(city != null){
