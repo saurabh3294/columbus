@@ -68,12 +68,12 @@ public class LocalityDaoImpl {
     	LinkedHashSet<SortBy> sorting = new LinkedHashSet<>();
     	SortBy sortBy = new SortBy();
     	
-    	sortBy.setField("priority");
+    	sortBy.setField("localityPriority");
     	sortBy.setSortOrder(sortOrder);
     	sorting.add(sortBy);
     	
     	sortBy = new SortBy();
-    	sortBy.setField("label");
+    	sortBy.setField("localityLabel");
     	sortBy.setSortOrder(SortOrder.ASC);
     	sorting.add(sortBy);
     	

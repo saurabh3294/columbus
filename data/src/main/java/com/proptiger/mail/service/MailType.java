@@ -11,7 +11,8 @@ public enum MailType {
 	LISTING_ADD_MAIL_TO_USER("portfolio_listing_add"),
 	LISTING_HOME_LOAN_CONFIRM_TO_USER("portfolio_listing_loan"),
 	LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL("listing_loan_internal"),
-	INTERESTED_TO_SELL_PROPERTY_INTERNAL("interested_to_sell_internal");
+	INTERESTED_TO_SELL_PROPERTY_INTERNAL("interested_to_sell_internal"),
+	INTERESTED_TO_SELL_PROPERTY_USER("interested_to_sell_user");
 	
 	private static Map<String, MailType> mailTypeMap = new HashMap<>();
 	

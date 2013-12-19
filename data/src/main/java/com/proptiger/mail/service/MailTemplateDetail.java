@@ -1,8 +1,11 @@
 package com.proptiger.mail.service;
 
 /**
+ * This file contains the mail template files and subject file matching for
+ * different types fo mails
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public enum MailTemplateDetail {
 	ADD_NEW_PORTFOLIO_LISTING("ListingAddMail",
@@ -17,9 +20,13 @@ public enum MailTemplateDetail {
 					"mailtemplate/home-loan-Email-internal.vm"
 					,"mailtemplate/home-loan-Email-internal-subject.vm"),
 	
-	RESALE_LISTING_INTERNAL("ListingResaleMail",
+	INTERESTED_TO_SELL_PROPERTY_INTERNAL("ListingResaleMail",
 			"mailtemplate/resale-listing-internal-Email.vm"
 			,"mailtemplate/resale-listing-internal-Email-subject.vm"),
+			
+	INTERESTED_TO_SELL_PROPERTY_USER("ListingResaleMail",
+					"mailtemplate/interested-selling-property-Email-User.html"
+					,"mailtemplate/interested-selling-property-Email-User-subject.vm"),
 	
 	UNMATCHED_PROJECT_INTERNAL("UnmatchedProjectDetails",
 			"mailtemplate/unmatched-property-internal-Email.vm"
