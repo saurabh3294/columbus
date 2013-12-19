@@ -18,6 +18,8 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -31,6 +33,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  */
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class Project implements BaseModel {
     public static enum NestedProperties {
         builderLabel(new String[]{"builder", "name"}),
@@ -233,9 +236,9 @@ public class Project implements BaseModel {
     
     private Double maxResalePrice;
     
-    private Double avgPriceRisePercentage = 5.7;
+    private Double avgPriceRisePercentage;
     
-    private Integer avgPriceRiseMonths = 6;
+    private Integer avgPriceRiseMonths;
     
     public int getProjectId() {
         return projectId;

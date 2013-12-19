@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.hibernate.annotations.Fetch;
@@ -62,6 +63,18 @@ public class Suburb implements BaseModel {
     @Field("SUBURB_PRIORITY")
     @FieldMetaInfo( displayName = "Priority",  description = "Priority")
     private int priority;
+
+    @Transient
+    @Field("SUBURB_PRICE_PER_UNIT_AREA")
+    private Double avgPricePerUnitArea;
+
+    @Transient
+    @Field("SUBURB_PRICE_RISE")
+    private Double avgPriceRisePercentage;
+
+    @Transient
+    @Field("SUBURB_PRICE_RISE_TIME")
+    private Integer avgPriceRiseMonths;
     
     public int getId() {
         return id;
@@ -118,4 +131,28 @@ public class Suburb implements BaseModel {
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
+
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
+
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
+
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
+
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
+
+    public Double getAvgPricePerUnitArea() {
+        return avgPricePerUnitArea;
+    }
+
+    public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
+        this.avgPricePerUnitArea = avgPricePerUnitArea;
+    }
 }
