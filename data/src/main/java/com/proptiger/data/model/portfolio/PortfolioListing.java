@@ -33,6 +33,10 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.portfolio.enums.ListingStatus;
+import com.proptiger.data.model.portfolio.enums.LoanStatus;
+import com.proptiger.data.model.portfolio.enums.PurchasedFor;
+import com.proptiger.data.model.portfolio.enums.TransactionType;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
 

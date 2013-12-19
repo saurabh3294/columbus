@@ -15,8 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Builder;
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Project;
+import com.proptiger.data.model.enums.DomainObject;
+import com.proptiger.data.model.enums.ProjectStatus;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -66,16 +67,16 @@ public class BuilderService {
     		throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
     	}
     	List<String> projectStatusNotIn = new ArrayList<>();
-    	projectStatusNotIn.add("On Hold");
-    	projectStatusNotIn.add("Cancelled");
-    	projectStatusNotIn.add("Not Launched");
+    	projectStatusNotIn.add(ProjectStatus.ON_HOLD.getStatus());
+    	projectStatusNotIn.add(ProjectStatus.CANCELLED.getStatus());
+    	projectStatusNotIn.add(ProjectStatus.NOT_LAUNCHED.getStatus());
     	Selector totalProjectSelector = createSelectorForTotalProjectOfBuilder(builderId, projectStatusNotIn, selector);
     	SolrServiceResponse<List<Project>> totalProjects = projectService.getProjects(totalProjectSelector);
     	
     	builder.setTotalProjects(((Long)totalProjects.getTotalResultCount()).intValue());
     	
-    	projectStatusNotIn.add("Occupied");
-    	projectStatusNotIn.add("Ready for Possession");
+    	projectStatusNotIn.add(ProjectStatus.OCCUPIED.getStatus());
+    	projectStatusNotIn.add(ProjectStatus.READY_FOR_POSSESSION.getStatus());
     	Selector selectorForOnGoingProject = createSelectorForTotalProjectOfBuilder(builderId, projectStatusNotIn, selector);
     	SolrServiceResponse<List<Project>> ongoingProjects = projectService.getProjects(selectorForOnGoingProject);
     	builder.setTotalOngoingProjects(((Long)ongoingProjects.getTotalResultCount()).intValue());

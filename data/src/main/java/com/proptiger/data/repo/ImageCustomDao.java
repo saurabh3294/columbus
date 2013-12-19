@@ -6,7 +6,7 @@ package com.proptiger.data.repo;
 import java.io.File;
 import java.util.Map;
 
-import com.proptiger.data.model.DomainObject;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 
 /**

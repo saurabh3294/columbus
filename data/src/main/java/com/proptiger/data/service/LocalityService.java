@@ -21,11 +21,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
-import com.proptiger.data.model.DomainObject;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Selector;

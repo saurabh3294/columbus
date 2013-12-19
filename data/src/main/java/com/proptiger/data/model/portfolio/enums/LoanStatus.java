@@ -1,4 +1,4 @@
-package com.proptiger.data.model.portfolio;
+package com.proptiger.data.model.portfolio.enums;
 
 
 /**
