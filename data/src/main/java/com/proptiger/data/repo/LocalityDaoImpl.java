@@ -131,15 +131,13 @@ public class LocalityDaoImpl {
 		solrQuery.setQuery("*:*");
 		solrQuery.setFilterQueries("DOCUMENT_TYPE:LOCALITY");
 		
-		
-		
 		if (selector.getSort() == null) {
             selector.setSort(new LinkedHashSet<SortBy>());
         }
 
         selector.getSort().addAll(getDefaultSort());
         
-        SolrQueryBuilder<Locality> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Locality.class);
+        SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
 		solrQueryBuilder.buildQuery(selector, null);
 		
 		return solrQuery;
@@ -148,12 +146,12 @@ public class LocalityDaoImpl {
 	private Set<SortBy> getDefaultSort() {
         Set<SortBy> sortBySet = new LinkedHashSet<SortBy>();
         SortBy sortBy = new SortBy();
-        sortBy.setField("priority");
+        sortBy.setField("localityPriority");
         sortBy.setSortOrder(SortOrder.ASC);
         sortBySet.add(sortBy);
 
         sortBy = new SortBy();
-        sortBy.setField("label");
+        sortBy.setField("localityLabel");
         sortBy.setSortOrder(SortOrder.ASC);
         sortBySet.add(sortBy);
                 

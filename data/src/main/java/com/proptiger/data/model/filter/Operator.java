@@ -11,6 +11,7 @@ public enum Operator {
 	equal, 
 	from, to, 
 	geoDistance, 
+	geo,
 	lat, 
 	lon, 
 	distance,
