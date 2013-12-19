@@ -17,8 +17,7 @@ import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -27,12 +26,16 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.LocalityDaoImpl;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 
 /**
@@ -66,6 +69,22 @@ public class LocalityService {
     
     @Autowired
     private PropertyDao propertyDao;
+    
+    @Value("${minimum.rating.for.top.locality}")
+    private Double minimumRatingForTopLocality;
+    
+    @Value("${radius.one.for.top.locality}")
+    private Double radiusOneForTopLocality;
+    
+    @Value("${radius.two.for.top.locality}")
+    private Double radiusTwoForTopLocality;
+    
+    @Value("${radius.three.for.top.locality}")
+    private Double radiusThreeForTopLocality;
+   
+    @Value("${popular.locality.threshold.count}")
+    private Integer popularLocalityThresholdCount;
+    
     
     public List<Locality> getLocalities(Selector selector) {
         return Lists.newArrayList(localityDao.getLocalities(selector));
@@ -273,7 +292,7 @@ public class LocalityService {
 //				.getPopularLocalitiesOfCityOrderByPriorityASCAndTotalEnquiryDESC(
 //						cityId, suburbId, timeStmap);
 		
-		List<Locality> result = localityDaoImpl.getPopularLocalities(cityId, suburbId, timeStmap);
+		List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, timeStmap);
 		return result;
 	}
 
@@ -292,28 +311,27 @@ public class LocalityService {
 	public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
 			Selector selector) {
 		List<Locality> result = new ArrayList<>();
-		float minimumLocalityRating = 3;
-		Pageable pageable = new PageRequest(0, 10);
-		if (selector.getPaging() != null) {
-			pageable = new PageRequest(selector.getPaging().getStart(),
-					selector.getPaging().getRows());
-		}
+		List<Object[]> list = null;
 		if (cityId != null && suburbId != null) {
 
-		} else if (cityId != null) {
-			List<Object[]> list = localityDao
-					.getTopLocalityByCityIdAndAvgRatingGreaterThan(cityId,
-							minimumLocalityRating, pageable);
+		} else{
+			list = localityDao.getTopLocalityByCityIdOrSuburbIdAndRatingGreaterThan(
+					cityId, suburbId, minimumRatingForTopLocality);
+		}
+
+		/*
+		 * setting average rating of locality
+		 */
+		if(list != null){
 			for (Object[] objects : list) {
 				if (objects.length == 2) {
 					Locality locality = (Locality) objects[0];
 					locality.setAverageRating((double) objects[1]);
 					result.add(locality);
 				}
-
 			}
 		}
-
+		
 		return result;
 	}
 	
@@ -323,10 +341,74 @@ public class LocalityService {
 	 * @param selector
 	 * @return
 	 */
-	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId, Selector selector){
-		List<Locality> result = new ArrayList<>();
+	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId, Selector localitySelector){
+		List<Locality> localities = localityDao.findByLocalityIds(Arrays.asList(localityId), localitySelector);
+		if(localities == null || localities.size() == 0){
+			throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
+		}
+		Locality mainLocality = localities.get(0);
 		
-		return result;
+		Selector geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(mainLocality.getLocalityId(),
+				mainLocality.getLatitude(), mainLocality.getLongitude(),
+				radiusOneForTopLocality);
+		List<Locality> localitiesAroundMainLocality = localityDao.getLocalities(geoSelector);
+		/*
+		 * If locality not found or there count is less than popularLocalityThresholdCount in first radius then try
+		 * finding localities in radius radiusTwoForTopLocality
+		 */
+		if (localitiesAroundMainLocality == null
+				|| localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
+			geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(mainLocality.getLocalityId(),
+					mainLocality.getLatitude(), mainLocality.getLongitude(),
+					radiusTwoForTopLocality);
+		}
+		/*
+		 * If locality not found or there count is less than popularLocalityThresholdCount in first radius then try
+		 * finding localities in radius radiusThreeForTopLocality
+		 */
+		localitiesAroundMainLocality = localityDao.getLocalities(geoSelector);
+		if (localitiesAroundMainLocality == null
+				|| localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
+			geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(mainLocality.getLocalityId(),
+					mainLocality.getLatitude(), mainLocality.getLongitude(),
+					radiusThreeForTopLocality);
+		}
+		return localitiesAroundMainLocality;
+	}
+
+	/**
+	 * Creating selector object to find all localities around provided locality
+	 * id under given radius from lat, lon
+	 * 
+	 * @param localityId
+	 * @param lat
+	 * @param lon
+	 * @param radius
+	 * @return
+	 */
+	private Selector createSelectorForTopLocalityWithRadiusAroundLocality(Integer localityId, Double lat, Double lon, Double radius) {
+		Selector selector = new Selector();
+    	Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
+    	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+    	Map<String, Map<String, Object>> searchType = new HashMap<>();
+    	Map<String, Object> geoFilter = new HashMap<>();
+    	
+    	Map<String, Object> geoValueMap = new HashMap<>();
+    	geoValueMap.put(Operator.distance.name(), radius);
+    	geoValueMap.put(Operator.lat.name(), lat);
+    	geoValueMap.put(Operator.lon.name(), lon);
+    	
+    	geoFilter.put(Operator.geo.name(), geoValueMap);
+    	searchType.put(Operator.geoDistance.name(), geoFilter);
+    	
+    	Map<String, Object> notEqualFilter = new HashMap<>();
+    	notEqualFilter.put("localityId", localityId);
+    	searchType.put(Operator.notEqual.name(), notEqualFilter);
+    	
+    	list.add(searchType);
+    	filter.put(Operator.and.name(), list);
+    	selector.setFilters(filter);
+    	return selector;
 	}
 	private List<Integer> getLocalityIdsOnPropertySelector(Map<String,Map<String, Integer>> solrMap){
 		Map<String, Integer> projectCountOnLocality = solrMap.get("LOCALITY_ID");

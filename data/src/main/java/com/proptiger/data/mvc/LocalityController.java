@@ -44,8 +44,9 @@ public class LocalityController extends BaseController {
         if (selector != null) {
             localitySelector = super.parseJsonToObject(selector, Selector.class);
         }
-        
-        return new ProAPISuccessResponse(super.filterFields(localityService.getLocalities(localitySelector), localitySelector.getFields()));
+        List<Locality> localityList = localityService.getLocalities(localitySelector);
+		return new ProAPISuccessCountResponse(super.filterFields(localityList,
+				localitySelector.getFields()), localityList.size());
     }
     
 	/**

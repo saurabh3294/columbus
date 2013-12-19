@@ -396,8 +396,8 @@ public class PortfolioService extends AbstractService{
 			if(city != null){
 				listing.setCityName(city.getLabel());
 			}
-			List<Locality> localities = localityDao.findByLocationOrderByPriority(project.getLocalityId(), "locality", null, null);//findOne(project.getLocalityId());
-			if(localities.size()>0 && localities != null){
+			List<Locality> localities = localityDao.findByLocationOrderByPriority(project.getLocalityId(), "locality", null, null);
+			if(localities != null && localities.size() > 0){
 				Locality locality = localities.get(0);
 				listing.setLocality(locality.getLabel());
 				listing.setLocalityId(locality.getLocalityId());
