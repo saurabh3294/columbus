@@ -194,6 +194,9 @@ public class GraphService {
     public Map<String, Integer> getProjectDistributionOnPrice(Map<String, Object> params){
         
         Map<String, Integer> solrData = propertyDao.getProjectDistributionOnPrice(params).get("PRICE_PER_UNIT_AREA");
+        if(solrData.isEmpty())
+        	return null;
+        
         Map<String, Double> customPriceRange = (Map<String, Double>)params.get("custom_price_range");
         Map<String, Integer> response = new LinkedHashMap<String, Integer>();
         
