@@ -81,6 +81,18 @@ public class City implements BaseModel{
     private String description;
 
     @Transient
+    @Field("CITY_PRICE_PER_UNIT_AREA")
+    private Double avgPricePerUnitArea;
+
+    @Transient
+    @Field("CITY_PRICE_RISE")
+    private Double avgPriceRisePercentage;
+
+    @Transient
+    @Field("CITY_PRICE_RISE_TIME")
+    private Integer avgPriceRiseMonths;
+
+    @Transient
     private Integer minZoomLevel = 12;
 
     @Transient
@@ -207,6 +219,30 @@ public class City implements BaseModel{
 
     public void setMaxZoomLevel(Integer maxZoomLevel) {
         this.maxZoomLevel = maxZoomLevel;
+    }
+
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
+
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
+
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
+
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
+
+    public Double getAvgPricePerUnitArea() {
+        return avgPricePerUnitArea;
+    }
+
+    public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
+        this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
     
 }

@@ -151,16 +151,19 @@ public class Locality implements BaseModel {
     
     @Transient
     private Double maxPrice;
+
+    @Field("SUBURB_PRICE_RISE")
+    @Transient
+    private Double avgPriceRisePercentage;
+
+    @Field("SUBURB_PRICE_RISE_TIME")
+    @Transient
+    private Integer avgPriceRiseMonths;
     
     @Transient
+    @Field("LOCALITY_PRICE_PER_UNIT_AREA")
     private Double avgPricePerUnitArea;
     
-    @Transient
-    private Double avgPriceRisePercentage = 4.5;
-    
-    @Transient
-    private Integer avgPriceRiseMonths = 3;
-
     public int getLocalityId() {
         return localityId;
     }

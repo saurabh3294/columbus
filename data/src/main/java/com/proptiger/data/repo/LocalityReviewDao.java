@@ -24,7 +24,7 @@ public interface LocalityReviewDao extends PagingAndSortingRepository<ReviewComm
     
     @Query("SELECT R.review , R.reviewLabel, U.username, R.commenttime FROM ReviewComments AS R left join"
             + "  R.forumUser as U WHERE R.status = '1' AND R.localityId = ?1 "
-            + " ORDER BY U.username DESC, R.commenttime DESC ")
+            + " ORDER BY R.commenttime DESC ")
     public List<Object> getReviewCommentsByLocalityId(int localityId, Pageable pageable);
     
 }
