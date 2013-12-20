@@ -18,6 +18,7 @@ import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ProjectStatus;
+import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -32,6 +33,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
 /**
  * 
  * @author mukand
+ * @author Rajeev Pandey
  */
 @Service
 public class BuilderService {
@@ -70,11 +72,16 @@ public class BuilderService {
     	projectStatusNotIn.add(ProjectStatus.ON_HOLD.getStatus());
     	projectStatusNotIn.add(ProjectStatus.CANCELLED.getStatus());
     	projectStatusNotIn.add(ProjectStatus.NOT_LAUNCHED.getStatus());
+    	/*
+    	 * creating selector to find total projects of builder
+    	 */
     	Selector totalProjectSelector = createSelectorForTotalProjectOfBuilder(builderId, projectStatusNotIn, selector);
     	SolrServiceResponse<List<Project>> totalProjects = projectService.getProjects(totalProjectSelector);
     	
     	builder.setTotalProjects(((Long)totalProjects.getTotalResultCount()).intValue());
-    	
+    	/*
+    	 * Updating selector to find total ongoing projects of builder
+    	 */
     	projectStatusNotIn.add(ProjectStatus.OCCUPIED.getStatus());
     	projectStatusNotIn.add(ProjectStatus.READY_FOR_POSSESSION.getStatus());
     	Selector selectorForOnGoingProject = createSelectorForTotalProjectOfBuilder(builderId, projectStatusNotIn, selector);
@@ -114,7 +121,7 @@ public class BuilderService {
     	}
     	
     	builder.setProjects(projectsToReturn);
-    	//TODO need to remove this as this will come from back end
+    	
     	return builder;
     }
 
@@ -132,8 +139,8 @@ public class BuilderService {
     	Map<String, Object> equalFilterCriteria = new HashMap<>();
 		if(selectorPassed != null && selectorPassed.getFilters() != null){
 			filter = selectorPassed.getFilters(); 
-			if(filter.get("and") != null){
-				list = filter.get("and");
+			if(filter.get(Operator.and.name()) != null){
+				list = filter.get(Operator.and.name());
 				if(list != null && !list.isEmpty()){
 					searchType = list.get(0);
 				}
@@ -141,20 +148,20 @@ public class BuilderService {
 		}
 		Selector selector = new Selector();
     	
-    	if(searchType.get("equal") != null){
-    		equalFilterCriteria = searchType.get("equal");
+    	if(searchType.get(Operator.equal.name()) != null){
+    		equalFilterCriteria = searchType.get(Operator.equal.name());
     	}
     	equalFilterCriteria.put("builderId", builderId);
-    	searchType.put("equal", equalFilterCriteria);
+    	searchType.put(Operator.equal.name(), equalFilterCriteria);
     	
     	Map<String, Object> notEqualCriteria = new HashMap<>();
-    	if(searchType.get("notEqual") != null){
-    		notEqualCriteria = searchType.get("notEqual");
+    	if(searchType.get(Operator.notEqual.name()) != null){
+    		notEqualCriteria = searchType.get(Operator.notEqual.name());
     	}
     	notEqualCriteria.put("projectStatus", projectStatusNotIn);
-    	searchType.put("notEqual", notEqualCriteria);
+    	searchType.put(Operator.equal.name(), notEqualCriteria);
     	list.add(searchType);
-    	filter.put("and", list);
+    	filter.put(Operator.and.name(), list);
     	selector.setFilters(filter);
     	selector.setPaging(new Paging(0, 100));
     	LinkedHashSet<SortBy> sortingSet = new LinkedHashSet<>();
