@@ -71,7 +71,7 @@ public class LocalityReviewService {
 			reviewCommentsMaps = new LinkedHashMap<String, Object>();
 			reviewCommentsMaps.put(REVIEW, reviewCommentsRow[0]);
 			reviewCommentsMaps.put(REVIEW_LABEL, reviewCommentsRow[1]);
-			reviewCommentsMaps.put(USERNAME, reviewCommentsRow[2]);
+			reviewCommentsMaps.put(USERNAME, reviewCommentsRow[2] == null ? reviewCommentsRow[4] : reviewCommentsRow[2]);
 			reviewCommentsMaps.put(COMMENT_TIME, reviewCommentsRow[3]);
 
 			reviewComments.set(i, reviewCommentsMaps);

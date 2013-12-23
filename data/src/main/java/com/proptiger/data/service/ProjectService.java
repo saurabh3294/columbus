@@ -32,31 +32,63 @@ public class ProjectService {
 
     @Autowired
     private ProjectSpecificationDao projectSpecificationDao;
-    
-   public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
+
+    public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
         return projectDao.getProjects(projectFilter);
     }
 
+    /**
+     * Returns projects ordered by launch date (descending)
+     *
+     * @param cityName
+     * @param projectFilter
+     * @return
+     */
     public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter) {
         return projectDao.getNewProjectsByLaunchDate(cityName, projectFilter);
     }
 
+    /**
+     * Returns projects with status 'Pre Launch' and 'Not Launched'.
+     *
+     * @param cityName
+     * @param projectFilter
+     * @return
+     */
     public SolrServiceResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
         return projectDao.getUpcomingNewProjects(cityName, projectFilter);
     }
 
+    /**
+     * Returns specifications of a project
+     *
+     * @param projectId
+     * @return
+     */
     public ProjectSpecification getProjectSpecifications(int projectId) {
         return projectSpecificationDao.findById(projectId);
     }
 
+    /**
+     * Returns all details of a project
+     * @param projectId
+     * @return
+     */
     public ProjectDB getProjectDetails(Integer projectId) {
         ProjectDB project = projectDao.findByProjectId(projectId);
         if (project == null) {
-        	throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+            throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }
         return project;
     }
 
+    /**
+     * Returns all discussions for a project
+     *
+     * @param projectId
+     * @param commentId
+     * @return
+     */
     public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
         List<ProjectDiscussion> discussions = projectDao.getDiscussions(projectId, commentId);
         for (ProjectDiscussion projectDiscussion : discussions) {
@@ -67,5 +99,4 @@ public class ProjectService {
 
         return discussions;
     }
-        
 }
