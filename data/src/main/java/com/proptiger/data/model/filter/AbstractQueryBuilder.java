@@ -117,8 +117,10 @@ public abstract class AbstractQueryBuilder<T> {
                         case geoDistance:
                             for (String jsonFieldName : fieldNameValueMap.keySet()) {
                                 Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap.get(jsonFieldName);
-                                addGeoFilter(jsonFieldName, (Double) obj.get(Operator.distance.name()),
-                                        (Double) obj.get(Operator.lat.name()), (Double) obj.get(Operator.lon.name()));
+                                addGeoFilter(jsonFieldName,
+                                        typeConverter.convertIfNecessary(obj.get(Operator.distance.name()), Double.class),
+                                        typeConverter.convertIfNecessary(obj.get(Operator.lat.name()), Double.class),
+                                        typeConverter.convertIfNecessary(obj.get(Operator.lon.name()), Double.class));
                             }
                             break;
 
