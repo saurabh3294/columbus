@@ -1,10 +1,6 @@
 package com.proptiger.data.service;
 
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.IndexColorModel;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,6 +13,10 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 
+import org.im4java.core.CompositeCmd;
+import org.im4java.core.IM4JavaException;
+import org.im4java.core.IMOperation;
+import org.im4java.core.MogrifyCmd;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,48 +70,38 @@ public class ImageService {
 		imageIS.close();
 	}
 
-	private BufferedImage resize(BufferedImage image, int width, int height) {
-		BufferedImage resized = new BufferedImage(width, height,
-				BufferedImage.TYPE_BYTE_INDEXED,
-				(IndexColorModel) image.getColorModel());
-		Graphics2D g = resized.createGraphics();
-		// Optimizations
-		g.setComposite(AlphaComposite.Src);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-				RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g.setRenderingHint(RenderingHints.KEY_RENDERING,
-				RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
-		// Draw
-		g.drawImage(image, 0, 0, width, height, 0, 0, image.getWidth(),
-				image.getHeight(), null);
-		g.dispose();
-		return resized;
-	}
-
 	private void applyWaterMark(File jpgFile) throws IOException {
 		URL url = this.getClass().getClassLoader().getResource("watermark.png");
 		InputStream waterMarkIS = new FileInputStream(url.getFile());
 		BufferedImage waterMark = ImageIO.read(waterMarkIS);
 
 		BufferedImage image = ImageIO.read(jpgFile);
-		Graphics2D g = image.createGraphics();
+		
+		IMOperation imOps = new IMOperation();
+		imOps.size(image.getWidth(), image.getHeight());
+		imOps.dissolve(50);
+		imOps.addImage(2);
+		imOps.geometry(image.getWidth() / 2, image.getHeight() / 2, image.getWidth() / 4, image.getHeight() / 4);
+        imOps.addImage();
+        CompositeCmd cmd = new CompositeCmd();
 
-		// Resize watermark image
-		int calWidth = (int) (0.5 * image.getWidth());
-		int calHeight = (int) (0.5 * image.getHeight());
-		BufferedImage resizedWaterMark = resize(waterMark, calWidth, calHeight);
+        File outputFile = File.createTempFile("outputImage", ".jpg", tempDir);
 
 		try {
-			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
-					0.5f)); // 50% transparent
-			g.drawImage(resizedWaterMark, (image.getWidth() - calWidth) / 2,
-					(image.getHeight() - calHeight) / 2, null);
-		} finally {
-			g.dispose();
-		}
-		ImageIO.write(image, "jpg", jpgFile);
+            cmd.run(imOps, waterMark, image, outputFile.getAbsolutePath());
+            imOps = new IMOperation();
+            imOps.strip();
+            imOps.quality(85.0);
+            imOps.interlace("Plane");
+            imOps.addImage();
+            MogrifyCmd command = new MogrifyCmd();
+            command.run(imOps, outputFile.getAbsolutePath());
+        } catch (InterruptedException | IM4JavaException e) {
+            throw new RuntimeException("Could not watermark image", e);
+        }
+
+		BufferedImage output = ImageIO.read(new File(outputFile.getAbsolutePath()));
+		ImageIO.write(output, "jpg", jpgFile);
 		waterMarkIS.close();
 	}
 
