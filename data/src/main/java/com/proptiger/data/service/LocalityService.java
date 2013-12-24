@@ -91,14 +91,23 @@ public class LocalityService {
     }
     
     public List<Locality> getLocalityListing(Selector selector){
+    	// adding the locality in the selector as we needed localityId 
+    	boolean isSelectorFieldsEmpty = false;
     	if(selector.getFields() == null)
 		{
+    		isSelectorFieldsEmpty = true;
 			selector.setFields(new HashSet<String>());
 		}
 		selector.getFields().add("localityId");
+		
     	Map<String,Map<String, Integer>> solrProjectStatusCountAndProjectCount = propertyDao.getProjectStatusCountAndProjectOnLocalityByCity(selector);
     	
     	List<Integer> localityIds = getLocalityIdsOnPropertySelector(solrProjectStatusCountAndProjectCount);
+    	
+    	// as the selector was empty, hence making fields empty again as now it will affect the
+    	// fields returned.
+    	if(isSelectorFieldsEmpty)
+    		selector.setFields(null);
     	
     	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
     	
