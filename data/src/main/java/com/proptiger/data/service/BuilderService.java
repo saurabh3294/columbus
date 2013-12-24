@@ -64,7 +64,7 @@ public class BuilderService {
      */
     public Builder getBuilderInfo(Integer builderId, Selector selector){
     	int projectsToShow = 3;
-    	Builder builder = builderDao.findOne(builderId);
+    	Builder builder = builderDao.getBuilderById(builderId);
     	if(builder == null){
     		throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
     	}

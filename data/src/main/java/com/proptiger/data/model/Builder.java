@@ -12,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.apache.solr.client.solrj.beans.Field;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -28,10 +30,12 @@ public class Builder implements BaseModel {
     @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
     @Column(name = "BUILDER_ID")
     @Id
+    @Field("BUILDER_ID")
     private int id;
 
     @FieldMetaInfo( displayName = "Name",  description = "Builder Name")
     @Column(name = "BUILDER_NAME")
+    @Field("BUILDER_NAME")
     private String name;
 
     @FieldMetaInfo( displayName = "Image",  description = "Builder Image URL")
@@ -40,10 +44,13 @@ public class Builder implements BaseModel {
     
     @FieldMetaInfo( displayName = "Description",  description = "Description")
     @Column(name = "DESCRIPTION")
+    @Field("BUILDER_DESCRIPTION")
     private String description;
     
     @Transient
+    @Field("ESTABLISHED_DATE")
     private Date estabilishedDate;
+    
     @Transient
     private int totalProjects;
     @Transient
@@ -51,7 +58,9 @@ public class Builder implements BaseModel {
     @Transient
     private List<Project> projects;
     
-    
+    @Column(name="DISPLAY_ORDER")
+    @Field("BUILDER_PRIORITY")
+    private int priority;
     
     public int getId() {
         return id;
@@ -115,6 +124,14 @@ public class Builder implements BaseModel {
 
 	public void setProjects(List<Project> projects) {
 		this.projects = projects;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
     
 }
