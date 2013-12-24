@@ -103,6 +103,10 @@ public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "Computed Priority",  description = "Computed Priority")
     @Field(value = "PROJECT_PRIORITY")
     private double computedPriority;
+    
+    @FieldMetaInfo( displayName = "Project enquiry count",  description = "Project enquiry count")
+    @Field(value = "PROJECT_ENQUIRY_COUNT")
+    private int projectEnquiryCount;
 
     @FieldMetaInfo( displayName = "Assigned Priority",  description = "Assigned Priority")
     @Field(value = "DISPLAY_ORDER")
@@ -328,7 +332,16 @@ public class Project implements BaseModel {
         this.computedPriority = computedPriority;
     }
 
-    public int getAssignedPriority() {
+    
+    public int getProjectEnquiryCount() {
+		return projectEnquiryCount;
+	}
+
+	public void setProjectEnquiryCount(int projectEnquiryCount) {
+		this.projectEnquiryCount = projectEnquiryCount;
+	}
+
+	public int getAssignedPriority() {
         return assignedPriority;
     }
 

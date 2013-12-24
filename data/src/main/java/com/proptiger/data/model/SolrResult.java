@@ -97,6 +97,10 @@ public class SolrResult implements BaseModel{
     @Field(value = "PROJECT_PRIORITY")
     private Double computedPriority;
 
+    @FieldMetaInfo( displayName = "Project enquiry count",  description = "Project enquiry count")
+    @Field(value = "PROJECT_ENQUIRY_COUNT")
+    private int projectEnquiryCount;
+    
     @FieldMetaInfo( displayName = "Assigned priority of locality",  description = "Locality priorities assigned manually")
     @Field(value = "LOCALITY_PRIORITY")
     private Integer localityPriority;
@@ -306,7 +310,12 @@ public class SolrResult implements BaseModel{
         project.setComputedPriority(computedPriority);
     }
 
-    @Field("DISPLAY_ORDER")
+    @Field("PROJECT_ENQUIRY_COUNT")
+	public void setProjectEnquiryCount(int projectEnquiryCount) {
+		this.projectEnquiryCount = projectEnquiryCount;
+	}
+
+	@Field("DISPLAY_ORDER")
     public void setAssignedPriority(int assignedPriority) {
         project.setAssignedPriority(assignedPriority);
     }
