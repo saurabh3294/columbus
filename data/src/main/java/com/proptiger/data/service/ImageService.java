@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import org.im4java.core.CompositeCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
+import org.im4java.core.MogrifyCmd;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -88,6 +89,13 @@ public class ImageService {
 
 		try {
             cmd.run(imOps, waterMark, image, outputFile.getAbsolutePath());
+            imOps = new IMOperation();
+            imOps.strip();
+            imOps.quality(85.0);
+            imOps.interlace("Plane");
+            imOps.addImage();
+            MogrifyCmd command = new MogrifyCmd();
+            command.run(imOps, outputFile.getAbsolutePath());
         } catch (InterruptedException | IM4JavaException e) {
             throw new RuntimeException("Could not watermark image", e);
         }
