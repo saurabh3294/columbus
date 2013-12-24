@@ -64,7 +64,7 @@ import com.proptiger.mail.service.MailTemplateDetail;
 import com.proptiger.mail.service.MailType;
 
 /**
- * This class provides CRUD operations over a property that is a addressable entity
+ * This class provides CRUD operations over a property listing that is a addressable entity
  * 
  * @author Rajeev Pandey
  *
@@ -209,6 +209,12 @@ public class PortfolioService extends AbstractService{
 		return created;
 	}
 	
+	/**
+	 * Creating list of PortfolioListing objects
+	 * @param userId
+	 * @param toCreateList
+	 * @return
+	 */
 	private List<PortfolioListing> createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList){
 		List<PortfolioListing> created = new ArrayList<>();
 		if(toCreateList != null){
@@ -258,6 +264,15 @@ public class PortfolioService extends AbstractService{
 		return updated;
 	}
 	
+	/**
+	 * This method either create a new listing objects if not already present
+	 * otherwise updates a existing listing object
+	 * 
+	 * @param userId
+	 * @param toUpdatePortfolio
+	 * @param presentListingList
+	 * @return
+	 */
 	@Transactional(rollbackFor = {ConstraintViolationException.class, DuplicateNameResourceException.class})
 	private Portfolio createOrUpdatePortfolioListings(Integer userId,
 			Portfolio toUpdatePortfolio, List<PortfolioListing> presentListingList) {
@@ -320,7 +335,10 @@ public class PortfolioService extends AbstractService{
 		}
 		return updatedPortfolio;
 	}
+
 	/**
+	 * Get all listing object for userId
+	 * 
 	 * @param userId
 	 * @return
 	 */
@@ -337,9 +355,11 @@ public class PortfolioService extends AbstractService{
 		}
 		return listings;
 	}
+
 	/**
-	 * This method returns current value of listing and if that is 0 then it will return total price as 
-	 * current price.
+	 * This method returns current value of listing and if that is 0 then it
+	 * will return total price as current price.
+	 * 
 	 * @param listing
 	 * @return
 	 */
@@ -372,6 +392,12 @@ public class PortfolioService extends AbstractService{
 		
 		return currentValue.doubleValue();
 	}
+
+	/**
+	 * Updating derived data in listing objects
+	 * 
+	 * @param listing
+	 */
 	private void updateOtherSpecificData(PortfolioListing listing) {
 		Integer projectId = listing.getProperty().getProjectId();
 		ProjectDB project = projectDBDao.findOne(projectId);
@@ -428,6 +454,9 @@ public class PortfolioService extends AbstractService{
 		return listing;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.proptiger.data.service.portfolio.AbstractService#preProcessCreate(com.proptiger.data.model.resource.Resource)
+	 */
 	@Override
 	protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
 		super.preProcessCreate(resource);
@@ -440,13 +469,6 @@ public class PortfolioService extends AbstractService{
 		if(toCreate.getListingSize() == null || toCreate.getListingSize() <= 0){
 			throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
 		}
-		//TODO need to change this once we will move to cms database
-//		if (toCreate.getTypeId() != null
-//				&& toCreate.getTypeId() < DomainObject.property.getStartId()) {
-//			toCreate.setTypeId(toCreate.getTypeId()
-//					+ DomainObject.property.getStartId());
-//		}
-		
 	}
 	
 	/**
@@ -546,6 +568,12 @@ public class PortfolioService extends AbstractService{
 		return (T) resourcePresent;
 	}
 
+	/**
+	 * Creating or updating other price details in listing object
+	 * 
+	 * @param present
+	 * @param toUpdate
+	 */
 	@Transactional
 	private void createOrUpdateOtherPrices(PortfolioListing present, PortfolioListing toUpdate){
 		if((present.getOtherPrices() == null || present.getOtherPrices().isEmpty())
@@ -706,8 +734,9 @@ public class PortfolioService extends AbstractService{
 	}
 	
 	/**
-	 * Updating user preference of loan interest for property based on listing id,
-	 * After changing preference sending lead request 
+	 * Updating user preference of loan interest for property based on listing
+	 * id, After changing preference sending emails
+	 * 
 	 * @param userId
 	 * @param listingId
 	 * @param interestedToLoan
@@ -721,12 +750,8 @@ public class PortfolioService extends AbstractService{
 			logger.error("Portfolio Listing id {} not found for userid {}",listingId, userId);
 			throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
 		}
-		updateLoanIntereset(userId, listingId, interestedToLoan, listing);
+		updateLoanInterest(userId, listingId, interestedToLoan, listing);
 		updateOtherSpecificData(listing);
-//		ForumUser user = forumUserDao.findOne(userId);
-//		logger.debug("Posting lead request for user id {} and listing id {} with loan interest {}",userId,listingId,interestedToLoan);
-//		Enquiry enquiry = createEnquiryObj(listing, user);
-//		leadGenerationService.postLead(enquiry, LeadSaleType.RESALE, LeadPageName.PORTFOLIO);
 		sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_USER);
 		sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL);
 		return listing;
@@ -792,7 +817,7 @@ public class PortfolioService extends AbstractService{
 	 * @return
 	 */
 	@Transactional
-	private PortfolioListing updateLoanIntereset(Integer userId,
+	private PortfolioListing updateLoanInterest(Integer userId,
 			Integer listingId, Boolean interestedToLoan, PortfolioListing listing) {
 		listing.setInterestedToLoan(interestedToLoan);
 		listing.setInterestedToLoanOn(new Date());
@@ -852,6 +877,11 @@ public class PortfolioService extends AbstractService{
 		}
 		
 	}
+	/**
+	 * Creating listing resale mail object
+	 * @param listing
+	 * @return
+	 */
 	private ListingResaleMail createListingResaleMailObj(
 			PortfolioListing listing) {
 		List<Property> properties = propertyService
@@ -871,6 +901,7 @@ public class PortfolioService extends AbstractService{
 			}
 
 		}
+		ForumUser forumUser = listing.getForumUser();
 		ListingResaleMail listingResaleMail = new ListingResaleMail();
 		listingResaleMail.setBuilder(listing.getBuilderName());
 		listingResaleMail.setLocality(listing.getLocality());
@@ -878,9 +909,19 @@ public class PortfolioService extends AbstractService{
 		listingResaleMail.setProjectName(listing.getProjectName());
 		listingResaleMail.setPropertyLink(url.toString());
 		listingResaleMail.setPropertyName(listing.getName());
-		listingResaleMail.setUserName(listing.getForumUser().getUsername());
+		listingResaleMail.setUserName(forumUser.getUsername());
+		listingResaleMail.setEmail(forumUser.getEmail());
+		listingResaleMail.setMobile(forumUser.getContact()+"");
+		listingResaleMail.setListingSize(listing.getListingSize());
+		listingResaleMail.setMeasure(listing.getProperty().getMeasure());
+		listingResaleMail.setUnitName(listing.getProperty().getUnitName());
 		return listingResaleMail;
 	}
+	/**
+	 * Creating listing loan request object details
+	 * @param listing
+	 * @return
+	 */
 	private ListingLoanRequestMail createListingLoanRequestObj(
 			PortfolioListing listing) {
 		ListingLoanRequestMail listingLoanRequestMail = new ListingLoanRequestMail();
@@ -889,6 +930,11 @@ public class PortfolioService extends AbstractService{
 		listingLoanRequestMail.setUserName(listing.getForumUser().getUsername());
 		return listingLoanRequestMail;
 	}
+	/**
+	 * Creating listing add mail object
+	 * @param listing
+	 * @return
+	 */
 	private ListingAddMail createListingAddMailObject(PortfolioListing listing) {
 		ListingAddMail listingAddMail = new ListingAddMail();
 		listingAddMail.setPropertyName(listing.getName());
