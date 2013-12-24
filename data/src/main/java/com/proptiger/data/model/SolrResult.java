@@ -312,7 +312,7 @@ public class SolrResult implements BaseModel{
 
     @Field("PROJECT_ENQUIRY_COUNT")
 	public void setProjectEnquiryCount(int projectEnquiryCount) {
-		this.projectEnquiryCount = projectEnquiryCount;
+		project.setProjectEnquiryCount(projectEnquiryCount);
 	}
 
 	@Field("DISPLAY_ORDER")
