@@ -169,7 +169,7 @@ public class LocalityDaoImpl {
     public List<Locality> getPopularLocalities(
 			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp){
 		EntityManager em = emf.createEntityManager();
-		Query query = em.createNativeQuery("select *, count(enquiry1_.ID) as col_1_0_ from proptiger.LOCALITY locality0_ "
+		Query query = em.createNativeQuery("select *, count(enquiry1_.ID) as ENQUIRY_COUNT from proptiger.LOCALITY locality0_ "
 				+ " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
 				+ " UNIX_TIMESTAMP(enquiry1_.CREATED_DATE) >"
 				+ " "+enquiryCreationTimeStamp +")"
@@ -177,7 +177,7 @@ public class LocalityDaoImpl {
 				+ " "+cityId
 				+ " or locality0_.SUBURB_ID = "
 				+ " "+suburbId+ ")"
-				+ " group by locality0_.LOCALITY_ID order by locality0_.PRIORITY ASC , col_1_0_ DESC", Locality.class);
+				+ " group by locality0_.LOCALITY_ID order by locality0_.PRIORITY ASC , ENQUIRY_COUNT DESC", Locality.class);
 		List<Locality> result = query.getResultList();
 		return result;
     }
