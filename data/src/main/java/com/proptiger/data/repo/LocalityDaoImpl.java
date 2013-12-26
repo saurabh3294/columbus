@@ -21,6 +21,8 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.enums.DocumentType;
+import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -91,9 +93,9 @@ public class LocalityDaoImpl {
     	}
     	
     	filterCriteria.put(param, locationId);
-    	searchType.put("equal", filterCriteria);
+    	searchType.put(Operator.equal.name(), filterCriteria);
     	list.add(searchType);
-    	filter.put("and", list);
+    	filter.put(Operator.and.name(), list);
     	
     	selector.setFilters(filter);
     	selector.setPaging(paging);
@@ -112,9 +114,9 @@ public class LocalityDaoImpl {
     	Map<String, Object> filterCriteria = new HashMap<>();
     	    	    	    	    	
     	filterCriteria.put("localityId", localityIds);
-    	searchType.put("equal", filterCriteria);
+    	searchType.put(Operator.equal.name(), filterCriteria);
     	list.add(searchType);
-    	filter.put("and", list);
+    	filter.put(Operator.and.name(), list);
     	
     	selector.setFilters(filter);
     	selector.setFields(propertySelector.getFields());
@@ -127,10 +129,7 @@ public class LocalityDaoImpl {
     
 
 	private SolrQuery createSolrQuery(Selector selector){
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries("DOCUMENT_TYPE:LOCALITY");
-		
+		SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.LOCALITY);
 		if (selector.getSort() == null) {
             selector.setSort(new LinkedHashSet<SortBy>());
         }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 
@@ -27,9 +28,7 @@ public class CityDao {
     private SolrDao solrDao;
 	
 	public List<City> getCities(Selector selector){
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries("DOCUMENT_TYPE:CITY");
+		SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.CITY);
 		
 		SolrQueryBuilder<City> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, City.class);
 		solrQueryBuilder.buildQuery(selector, null);
