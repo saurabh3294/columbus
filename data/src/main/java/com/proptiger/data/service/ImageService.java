@@ -91,7 +91,7 @@ public class ImageService {
             cmd.run(imOps, waterMark, image, outputFile.getAbsolutePath());
             imOps = new IMOperation();
             imOps.strip();
-            imOps.quality(85.0);
+            imOps.quality(95.0);
             imOps.interlace("Plane");
             imOps.addImage();
             MogrifyCmd command = new MogrifyCmd();
@@ -102,6 +102,7 @@ public class ImageService {
 
 		BufferedImage output = ImageIO.read(new File(outputFile.getAbsolutePath()));
 		ImageIO.write(output, "jpg", jpgFile);
+		outputFile.delete();
 		waterMarkIS.close();
 	}
 

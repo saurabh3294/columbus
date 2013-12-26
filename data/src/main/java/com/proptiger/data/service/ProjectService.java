@@ -4,6 +4,7 @@
  */
 package com.proptiger.data.service;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.SortBy;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectSpecificationDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
@@ -24,6 +27,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
 /**
  * 
  * @author mukand
+ * @author Rajeev Pandey
  */
 @Service
 public class ProjectService {
@@ -99,4 +103,57 @@ public class ProjectService {
 
         return discussions;
     }
+    
+	/**
+	 * This methods get popular projects for city/locality id provided in
+	 * filter. Popular will be selected based on number of queries in last π
+	 * week, in case of tie use assigned priority and dynamic priority part of
+	 * selector object
+	 * 
+	 * π = 8 weeks that is configured in solr while inserting enquiry count
+	 * 
+	 * @param projectSelector
+	 * 
+	 * @return
+	 */
+    public List<Project> getPopularProjects(Selector projectSelector){
+    	LinkedHashSet<SortBy> sortBySet = createdSortingForPopularProjects();
+    	projectSelector.setSort(sortBySet);
+    	SolrServiceResponse<List<Project>> result = getProjects(projectSelector);
+    	return result.getResult();
+    }
+
+	/**
+	 * Creating sorting part of selector object to get popular projects
+	 * 
+	 * @return
+	 */
+	private LinkedHashSet<SortBy> createdSortingForPopularProjects() {
+		LinkedHashSet<SortBy> sortBySet = new LinkedHashSet<SortBy>();
+    	SortBy sortByEnquiryCount = new SortBy();
+    	sortByEnquiryCount.setField("projectEnquiryCount");
+    	sortByEnquiryCount.setSortOrder(SortOrder.DESC);
+    	
+    	SortBy sortByAssignedPriority = new SortBy();
+    	sortByAssignedPriority.setField("assignedPriority");
+    	sortByAssignedPriority.setSortOrder(SortOrder.ASC);
+    	
+    	SortBy sortByComputedPriority = new SortBy();
+    	sortByComputedPriority.setField("computedPriority");
+    	sortByComputedPriority.setSortOrder(SortOrder.ASC);
+    	
+    	SortBy sortByProjectId = new SortBy();
+    	sortByProjectId.setField("projectId");
+    	sortByProjectId.setSortOrder(SortOrder.ASC);
+    	
+    	//first sorting by enquiry count 
+    	sortBySet.add(sortByEnquiryCount);
+    	//second sorting by assigned priority
+    	sortBySet.add(sortByAssignedPriority);
+    	//third sorting by computed priority
+    	sortBySet.add(sortByComputedPriority);
+    	//fourth sorth by project id
+    	sortBySet.add(sortByProjectId);
+		return sortBySet;
+	}
 }

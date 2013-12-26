@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +21,8 @@ import com.proptiger.data.pojo.Selector;
  */
 @Repository
 public class CityDao {
+	private static Logger logger = LoggerFactory.getLogger(CityDao.class);
+	
 	@Autowired
     private SolrDao solrDao;
 	
@@ -33,7 +37,7 @@ public class CityDao {
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		
-		System.out.println(solrQuery.toString());
+		logger.debug("City solr query {}", solrQuery.toString());
 		List<City> data = new ArrayList<>();
 		for(int i=0; i<response.size(); i++)
 		{
