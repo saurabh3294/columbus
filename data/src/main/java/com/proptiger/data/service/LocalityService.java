@@ -141,19 +141,27 @@ public class LocalityService {
     		if( projectCount != null )
     			locality.setProjectCount( projectCount.intValue() );
     		
+    		FieldStatsInfo fieldStatsInfo;
     		// setting Resale Prices
-    		FieldStatsInfo fieldStatsInfo = resalePriceStats.get(localityIdStr);
-    		if(fieldStatsInfo != null)
+    		if(resalePriceStats != null)
     		{
-    			locality.setMinResalePrice( (Double)fieldStatsInfo.getMin() );
-    			locality.setMaxResalePrice( (Double)fieldStatsInfo.getMax() );
+    			fieldStatsInfo = resalePriceStats.get(localityIdStr);
+    			if(fieldStatsInfo != null)
+    			{
+    				locality.setMinResalePrice( (Double)fieldStatsInfo.getMin() );
+    				locality.setMaxResalePrice( (Double)fieldStatsInfo.getMax() );
+    			}
     		}
     		
     		// setting Primary Prices
-    		fieldStatsInfo = primaryPriceStats.get(localityIdStr);
-    		if(fieldStatsInfo != null)
-    		{
-    			locality.setAvgPricePerUnitArea( (Double)fieldStatsInfo.getMean() );
+    		if(primaryPriceStats != null)
+    		{	
+    			fieldStatsInfo = primaryPriceStats.get(localityIdStr);
+    		
+    			if(fieldStatsInfo != null)
+    			{
+    				locality.setAvgPricePerUnitArea( (Double)fieldStatsInfo.getMean() );
+    			}
     		}
     	}
 
