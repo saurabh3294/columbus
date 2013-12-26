@@ -172,4 +172,14 @@ public class BuilderService {
 		selector.setSort(sortingSet);
 		return selector;
 	}
+
+	/**
+	 * Get popular builders
+	 * @param builderSelector
+	 * @return
+	 */
+	public List<Builder> getPopularBuilders(
+			Selector builderSelector) {
+		return null;
+	}
 }
