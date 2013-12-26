@@ -453,6 +453,13 @@ public class PropertyDao {
 		{
 			fieldName = entry.getKey();
 			Map<String, Map<String, FieldStatsInfo>> facetsInfo = new HashMap<>();
+			
+			if(entry.getValue().getFacets() == null)
+			{
+				newStats.put(fieldName, facetsInfo);
+				continue;
+			}
+				
 			for(Map.Entry<String, List<FieldStatsInfo>> e : entry.getValue().getFacets().entrySet() )
 			{
 				facetName = e.getKey();
@@ -466,7 +473,6 @@ public class PropertyDao {
 				}
 				facetsInfo.put(facetName, facetsMap);
 			}
-			newStats.put(fieldName, facetsInfo);
 		}
 		
 		return newStats;
