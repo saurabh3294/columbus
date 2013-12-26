@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -124,4 +125,21 @@ public class ProjectController extends BaseController {
         return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
                 response.getTotalResultCount());
     }
+    
+	@RequestMapping(value = "/popular", method = RequestMethod.GET)
+	@ResponseBody
+	@DisableCaching
+	public ProAPIResponse getPopularProjects(
+			@RequestParam(required = false, value = "selector") String selector) {
+		Selector projectSelector = super.parseJsonToObject(selector,
+				Selector.class);
+		if (projectSelector == null) {
+			projectSelector = new Selector();
+		}
+		List<Project> popularProjects = projectService
+				.getPopularProjects(projectSelector);
+		return new ProAPISuccessCountResponse(super.filterFields(
+				popularProjects, projectSelector.getFields()),
+				popularProjects.size());
+	}
 }

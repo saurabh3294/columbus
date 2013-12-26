@@ -177,7 +177,7 @@ public class LocalityDaoImpl {
 				+ " "+cityId
 				+ " or locality0_.SUBURB_ID = "
 				+ " "+suburbId+ ")"
-				+ " group by locality0_.LOCALITY_ID order by locality0_.PRIORITY ASC , ENQUIRY_COUNT DESC", Locality.class);
+				+ " group by locality0_.LOCALITY_ID order by ENQUIRY_COUNT DESC, locality0_.PRIORITY ASC ", Locality.class);
 		List<Locality> result = query.getResultList();
 		return result;
     }

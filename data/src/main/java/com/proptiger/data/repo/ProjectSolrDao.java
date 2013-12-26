@@ -14,6 +14,8 @@ import java.util.Set;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -33,7 +35,7 @@ import com.proptiger.data.util.SolrResponseReader;
  */
 @Repository
 public class ProjectSolrDao {
-
+	private static Logger logger = LoggerFactory.getLogger(ProjectSolrDao.class);
     @Autowired
     private SolrDao solrDao;
     
@@ -48,21 +50,19 @@ public class ProjectSolrDao {
         solrQuery.setRows(selector.getPaging().getRows());
         solrQuery.setStart(selector.getPaging().getStart());
 
-        SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
+        SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
         
         queryBuilder.buildQuery(selector, null);
-        
-        //filterQueryBuilder.applyFilter(queryBuilder, selector, Project.class);
-     /*   queryBuilder.addSort(selector.getSort());
-        FieldsQueryBuilder.applyFields(queryBuilder, selector);*/
-
-        System.out.println(solrQuery);
+        logger.debug("Solr query for get projects {}",solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-        List<Project> solrResults = queryResponse.getBeans(Project.class);
-
+        List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
+        List<Project> projectList = new ArrayList<Project>();
+        for(SolrResult solrResult: solrResults){
+        	projectList.add(solrResult.getProject());
+        }
         SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
         solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
-        solrRes.setResult(solrResults);
+        solrRes.setResult(projectList);
         return solrRes;
     }
 
@@ -114,8 +114,7 @@ public class ProjectSolrDao {
     	
     	SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
     	queryBuilder.addEqualsFilter("projectId", projectIdList);
-    	
-    	System.out.println(" PROJECT QUERY "+solrQuery.toString());
+    	logger.debug("Solr query for get projects by ids {}",solrQuery.toString());
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
     	
     	return queryResponse.getBeans(SolrResult.class);
@@ -139,8 +138,7 @@ public class ProjectSolrDao {
     	
     	solrQuery.addSort("abs(sub("+projectImportance+",DISPLAY_ORDER))", ORDER.asc);
     	solrQuery.setRows(rows);
-    	System.out.println(solrQuery.toString());
-    	
+    	logger.debug("Solr query for get similar projects {}",solrQuery.toString());
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
     	
     	return queryResponse.getBeans(SolrResult.class);
@@ -163,8 +161,7 @@ public class ProjectSolrDao {
         solrQuery.addSort("PROJECT_ID", SolrQuery.ORDER.asc);
         solrQuery.addSort("BEDROOMS", SolrQuery.ORDER.asc);
         solrQuery.addSort("SIZE", SolrQuery.ORDER.asc);
-        
-        System.out.println(solrQuery.toString());
+        logger.debug("Solr query for get upcomming new projects {}",solrQuery.toString());
         SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
         queryBuilder.buildQuery(selector, null);
         
@@ -193,8 +190,7 @@ public class ProjectSolrDao {
     	solrQueryBuilder.addGeoFilter("geo", 0, latitude, longitude);
     	solrQuery.setSort("geodist()", ORDER.desc);
     	solrQuery.add("fl", "* __RADIUS__:geodist()");
-    	System.out.println(solrQuery.toString());
-    	
+    	logger.debug("Solr query for get projects by GEO {}",solrQuery.toString());
     	return solrDao.executeQuery(solrQuery).getBeans(SolrResult.class);
     	
     }
