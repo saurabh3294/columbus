@@ -100,7 +100,7 @@ public class City implements BaseModel{
     private Integer maxZoomLevel = 14;
     
     @Transient
-    private long projectsCount;
+    private Long projectsCount;
     
     public int getId() {
         return id;
@@ -182,11 +182,11 @@ public class City implements BaseModel{
 		this.displayOrder = displayOrder;
 	}
 
-	public long getProjectsCount() {
+	public Long getProjectsCount() {
 		return projectsCount;
 	}
 
-	public void setProjectsCount(long projectsCount) {
+	public void setProjectsCount(Long projectsCount) {
 		this.projectsCount = projectsCount;
 	}
 
