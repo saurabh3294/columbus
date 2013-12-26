@@ -104,10 +104,13 @@ public class LocalityDaoImpl {
     	return getLocalities(selector);
 	}
 	
-	public List<Locality> findByLocalityIds(List<Integer> localityIds, Selector propertySelector){
-		
+	public List<Locality> findByLocalityIds(List<Integer> localityIds, Selector propertySelector) {
+	    if (localityIds == null || localityIds.isEmpty()) {
+	        return new ArrayList<>();
+	    }
+
 		Selector selector = new Selector();
-		
+
 		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
     	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
     	Map<String, Map<String, Object>> searchType = new HashMap<>();
