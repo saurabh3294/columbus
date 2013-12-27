@@ -125,7 +125,7 @@ public class LocalityService {
     	Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount.get("LOCALITY_ID");
     	Map<String, FieldStatsInfo> resalePriceStats = priceStats.get("resalePrice").get("LOCALITY_ID");
     	Map<String, FieldStatsInfo> primaryPriceStats = priceStats.get("pricePerUnitArea").get("LOCALITY_ID");
-    	    	
+
     	int size = localities.size();
     	Locality locality;
     	Integer projectCount;
