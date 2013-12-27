@@ -54,7 +54,7 @@ public class ResponseCaching {
 		
 		if( !isCacheEnabled(jp) )
 			return;
-		caching.saveResponse(getCacheKey(jp), retVal);
+		caching.saveResponse(getCacheKey(jp), retVal, null);
 	}
 
 	/*
@@ -65,10 +65,10 @@ public class ResponseCaching {
 	 * necessary.
 	 */
 	private <T> T getResponse(String key, Class<T> returnType){
-		T savedResponse = caching.getSavedResponse(key, returnType);
+		T savedResponse = caching.getSavedResponse(key, returnType, null);
 				
 		if(savedResponse == null)
-			caching.deleteResponseFromCache(key);
+			caching.deleteResponseFromCache(key, null);
 		
 		return savedResponse;
 	}
