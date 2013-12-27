@@ -42,6 +42,8 @@ public class ImageEnricher {
          
 		 if(allImages == null || allImages == true)
 			 project.setImages(images);
+		 
+		 setBuilderImages("logo", project.getBuilder());
 	}
 	
 	@Deprecated
@@ -65,7 +67,7 @@ public class ImageEnricher {
 		List<Image> images = imageService.getImages( DomainObject.property, imageTypeStr, property.getPropertyId() );
 		property.setImages(images);
 		setProjectImages("main", property.getProject(), false);
-		setBuilderImages("logo", property.getProject().getBuilder());
+		
 	}
 	
 	public void setBuildersImages(String imageTypeStr, List<Builder> builders){
@@ -91,7 +93,7 @@ public class ImageEnricher {
 	}
 	
 	public void setLocalityImages(String imageTypeStr, Locality locality, Integer numberOfImages){
-		List<Image> images = imageService.getImages( DomainObject.builder, imageTypeStr, locality.getLocalityId() );
+		List<Image> images = imageService.getImages( DomainObject.locality, imageTypeStr, locality.getLocalityId() );
 		if(images!=null && images.size() > 0)
 		{
 			locality.setImageCount(images.size());

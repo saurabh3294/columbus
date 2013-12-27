@@ -221,7 +221,8 @@ public class ImageService {
         image.setWaterMarkName(image.getId() + "_v1.jpg");
         return image;
     }
-public void deleteImageInCache(long id){
+    
+    public void deleteImageInCache(long id){
     	Image image = getImage(id);
     	DomainObject domainObject = DomainObject.valueOf( image.getImageType().getObjectType().getType() );
     	
