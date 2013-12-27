@@ -48,7 +48,6 @@ public class ProjectListingController extends BaseController {
     private ProjectService projectService;
     
     @RequestMapping
-    @DisableCaching // to be removed.
     public @ResponseBody
     Object getProjectListings(@RequestParam(required = false) String selector,
             @RequestParam(required = false) String facets, @RequestParam(required = false) String stats) {
