@@ -30,6 +30,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.google.common.io.Files;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
@@ -79,12 +80,12 @@ public class ImageService {
 		imageIS.close();
 	}
 
-	private void applyWaterMark(File jpgFile) throws IOException {
+	private void applyWaterMark(File file) throws IOException {
 		URL url = this.getClass().getClassLoader().getResource("watermark.png");
 		InputStream waterMarkIS = new FileInputStream(url.getFile());
 		BufferedImage waterMark = ImageIO.read(waterMarkIS);
 
-		BufferedImage image = ImageIO.read(jpgFile);
+		BufferedImage image = ImageIO.read(file);
 		
 		IMOperation imOps = new IMOperation();
 		imOps.size(image.getWidth(), image.getHeight());
@@ -109,14 +110,20 @@ public class ImageService {
             throw new RuntimeException("Could not watermark image", e);
         }
 
-		BufferedImage output = ImageIO.read(new File(outputFile.getAbsolutePath()));
-		ImageIO.write(output, "jpg", jpgFile);
+		Files.copy(outputFile, file);
 		outputFile.delete();
 		waterMarkIS.close();
 	}
 
 	private void uploadToS3(Image image, File original, File waterMark) {
-		String accessKeyId = propertyReader.getRequiredProperty("accessKeyId");
+		AmazonS3 s3 = createS3Instance();
+		s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
+		image.assignWatermarkName();
+		s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
+	}
+
+    private AmazonS3 createS3Instance() {
+        String accessKeyId = propertyReader.getRequiredProperty("accessKeyId");
 		String secretAccessKey = propertyReader.getRequiredProperty("secretAccessKey");
 
 		ClientConfiguration config = new ClientConfiguration();
@@ -125,10 +132,8 @@ public class ImageService {
 
 		AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
 		AmazonS3 s3 = new AmazonS3Client(credentials, config);
-		s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
-		image.assignWatermarkName();
-		s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
-	}
+        return s3;
+    }
 
 	private void cleanUp(File original, File waterMark) {
 		original.delete();
@@ -141,7 +146,6 @@ public class ImageService {
 	@Cacheable(value="image", key="#object.getText()+#imageTypeStr+#objectId")
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
-		
 		if (imageTypeStr == null) {
 			return imageDao.getImagesForObject(object.getText(), objectId);
 		} else {
@@ -173,16 +177,18 @@ public class ImageService {
 						"Uploaded file is not an image");
 			}
 			// Image uploaded
-			File jpgFile = File.createTempFile("jpgImage", ".jpeg", tempDir);
-			convertToJPG(originalFile, jpgFile);
+			File processedFile = File.createTempFile("jpgImage", ".jpg", tempDir);
+			convertToJPG(originalFile, processedFile);
+
 			if (addWaterMark) {
-				applyWaterMark(jpgFile);
+				applyWaterMark(processedFile);
 			}
+
 			// Persist
 			Image image = imageDao.insertImage(object, imageTypeStr, objectId,
-					originalFile, jpgFile, extraInfo);
-			uploadToS3(image, originalFile, jpgFile);
-			cleanUp(originalFile, jpgFile);
+					originalFile, processedFile, extraInfo);
+			uploadToS3(image, originalFile, processedFile);
+			cleanUp(originalFile, processedFile);
 			imageDao.markImageAsActive(image);
 			return image;
 		} catch (IllegalStateException | IOException e) {
@@ -198,8 +204,24 @@ public class ImageService {
     public Image getImage(long id) {
         return imageDao.findOne(id);
     }
-    
-    public void deleteImageInCache(long id){
+
+    public Image createNewImage(long imageId, MultipartFile imageFile) {
+        Image image = getImage(imageId);
+        File originalFile;
+        try {
+            originalFile = File.createTempFile("originalImage", ".jpg", tempDir);
+            imageFile.transferTo(originalFile);
+            applyWaterMark(originalFile);
+        } catch (IllegalStateException | IOException e) {
+            throw new RuntimeException("Could not watermark image", e);
+        }
+
+        AmazonS3 s3 = createS3Instance();
+        s3.putObject(ImageUtil.bucket, image.getPath() + image.getId() + "_v1.jpg", originalFile);
+        image.setWaterMarkName(image.getId() + "_v1.jpg");
+        return image;
+    }
+public void deleteImageInCache(long id){
     	Image image = getImage(id);
     	DomainObject domainObject = DomainObject.valueOf( image.getImageType().getObjectType().getType() );
     	
