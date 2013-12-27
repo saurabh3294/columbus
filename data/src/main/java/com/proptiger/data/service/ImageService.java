@@ -138,37 +138,25 @@ public class ImageService {
 	/*
 	 * Public method to get images
 	 */
+	@Cacheable(value="image", key="#object.getText()+#imageTypeStr+#objectId")
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
 		
-		String cacheKey = getImageCacheKey(object, imageTypeStr, objectId);
-		
-		List<Image> images= caching.getCachedSavedResponse(cacheKey, null, this.cacheName);
-		if(images != null)
-			return images;
-		
-		caching.deleteResponseFromCache(cacheKey, this.cacheName);
-		
 		if (imageTypeStr == null) {
-			images = imageDao.getImagesForObject(object.getText(), objectId);
+			return imageDao.getImagesForObject(object.getText(), objectId);
 		} else {
-			images = imageDao.getImagesForObjectWithImageType(object.getText(),
+			return imageDao.getImagesForObjectWithImageType(object.getText(),
 					imageTypeStr, objectId);
 		}
-		caching.saveResponse(cacheKey, images, this.cacheName);
-		return images;
 	}
 
 	/*
 	 * Public method to upload images
 	 */
+	@CacheEvict(value="image", key="#object.getText()+#imageTypeStr+#objectId")
 	public Image uploadImage(DomainObject object, String imageTypeStr,
 			long objectId, MultipartFile fileUpload, Boolean addWaterMark,
 			Map<String, String> extraInfo) {
-		
-		// caching code.
-		String cacheKey = getImageCacheKey(object, imageTypeStr, objectId);
-		caching.deleteResponseFromCache(cacheKey, this.cacheName);
 		
 		// WaterMark by default (true)
 		addWaterMark = (addWaterMark != null) ? addWaterMark : true;
