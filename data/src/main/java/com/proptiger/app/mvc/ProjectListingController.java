@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
 import com.proptiger.data.model.enums.DomainObject;
@@ -24,6 +25,7 @@ import com.proptiger.data.model.image.Image;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
@@ -44,8 +46,9 @@ public class ProjectListingController extends BaseController {
     
     @Autowired
     private ProjectService projectService;
-
+    
     @RequestMapping
+    @DisableCaching // to be removed.
     public @ResponseBody
     Object getProjectListings(@RequestParam(required = false) String selector,
             @RequestParam(required = false) String facets, @RequestParam(required = false) String stats) {
@@ -55,13 +58,7 @@ public class ProjectListingController extends BaseController {
         }
 
         SolrServiceResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
-        for (Project project : projects.getResult()) {
-            List<Image> images = imageService.getImages(DomainObject.project, "main", project.getProjectId());
-            if (images != null && !images.isEmpty()) {
-                project.setImageURL(images.get(0).getAbsolutePath());
-            }
-        }
-        
+               
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
         Map<String, Object> response = new HashMap<String, Object>();

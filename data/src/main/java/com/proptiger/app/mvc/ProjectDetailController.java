@@ -79,8 +79,7 @@ public class ProjectDetailController extends BaseController {
         Builder builderDetails = builderService.getBuilderDetailsByProjectId(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
-        projectInfo.setImages(imageService.getImages(DomainObject.project, null, projectId));
-        
+                
         // getting project discussions.
         int totalProjectDiscussion=0;
         List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);

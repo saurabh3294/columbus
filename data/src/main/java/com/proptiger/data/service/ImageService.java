@@ -18,6 +18,9 @@ import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.MogrifyCmd;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +33,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
+import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.ImageUtil;
 import com.proptiger.data.util.PropertyReader;
 
@@ -43,6 +47,11 @@ public class ImageService {
 
 	@Autowired
 	protected PropertyReader propertyReader;
+	
+	@Autowired
+	private Caching caching;
+	
+	private String cacheName = "image";
 
 	@PostConstruct
 	private void init() {
@@ -131,12 +140,23 @@ public class ImageService {
 	 */
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
+		
+		String cacheKey = getImageCacheKey(object, imageTypeStr, objectId);
+		
+		List<Image> images= caching.getCachedSavedResponse(cacheKey, null, this.cacheName);
+		if(images != null)
+			return images;
+		
+		caching.deleteResponseFromCache(cacheKey, this.cacheName);
+		
 		if (imageTypeStr == null) {
-			return imageDao.getImagesForObject(object.getText(), objectId);
+			images = imageDao.getImagesForObject(object.getText(), objectId);
 		} else {
-			return imageDao.getImagesForObjectWithImageType(object.getText(),
+			images = imageDao.getImagesForObjectWithImageType(object.getText(),
 					imageTypeStr, objectId);
 		}
+		caching.saveResponse(cacheKey, images, this.cacheName);
+		return images;
 	}
 
 	/*
@@ -145,6 +165,11 @@ public class ImageService {
 	public Image uploadImage(DomainObject object, String imageTypeStr,
 			long objectId, MultipartFile fileUpload, Boolean addWaterMark,
 			Map<String, String> extraInfo) {
+		
+		// caching code.
+		String cacheKey = getImageCacheKey(object, imageTypeStr, objectId);
+		caching.deleteResponseFromCache(cacheKey, this.cacheName);
+		
 		// WaterMark by default (true)
 		addWaterMark = (addWaterMark != null) ? addWaterMark : true;
 		try {
@@ -178,10 +203,26 @@ public class ImageService {
 	}
 
     public void deleteImage(long id) {
+    	deleteImage(id);
         imageDao.setActiveFalse(id);
     }
 
     public Image getImage(long id) {
         return imageDao.findOne(id);
+    }
+    
+    public void deleteImageInCache(long id){
+    	Image image = getImage(id);
+    	DomainObject domainObject = DomainObject.valueOf( image.getImageType().getObjectType().getType() );
+    	
+    	String cacheKey = getImageCacheKey(domainObject, image.getImageType().getType(), image.getId());
+    	
+    	caching.deleteResponseFromCache(cacheKey, this.cacheName);
+    }
+    
+    public String getImageCacheKey(DomainObject object, String imageTypeStr,
+			long objectId){
+    	
+    	return object.getText()+imageTypeStr+objectId;
     }
 }

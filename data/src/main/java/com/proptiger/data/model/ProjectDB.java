@@ -283,6 +283,9 @@ public class ProjectDB implements BaseModel{
     @Transient
     private Set<Integer> distinctBedrooms = new HashSet<Integer>();
     
+    @Transient
+    private String imageURL;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -761,5 +764,13 @@ public class ProjectDB implements BaseModel{
 	
 	public void addDistinctBedrooms(int bedroom){
 		this.distinctBedrooms.add(bedroom); 
+	}
+
+	public String getImageURL() {
+		return imageURL;
+	}
+
+	public void setImageURL(String imageUrl) {
+		this.imageURL = imageUrl;
 	}
 }

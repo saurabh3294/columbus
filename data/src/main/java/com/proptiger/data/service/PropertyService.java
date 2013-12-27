@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
@@ -31,12 +32,18 @@ public class PropertyService {
     @Autowired
     ProjectService projectService;
     
+    @Autowired
+    ImageEnricher imageEnricher;
+    
     public List<Property> getProperties(Selector propertyFilter) {
         return propertyDao.getProperties(propertyFilter);
     }
 
     public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
-        return propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+    	SolrServiceResponse<List<Project>> projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+    	imageEnricher.setProjectsImages(DomainObject.project, "main", projects.getResult());
+    	
+    	return projects;
     }
 
     public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertyListingSelector) {
