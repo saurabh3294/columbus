@@ -44,7 +44,7 @@ public class PropertyService {
 
     public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
     	SolrServiceResponse<List<Project>> projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
-    	imageEnricher.setProjectsImages("main", projects.getResult());
+    	imageEnricher.setProjectsImages("main", projects.getResult(), null);
     	
     	return projects;
     }

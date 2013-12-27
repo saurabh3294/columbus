@@ -24,21 +24,23 @@ public class ImageEnricher {
 	@Autowired
 	private ImageDao imageDao;
 	
-	public void setProjectsImages(String imageTypeStr, List<Project> projects){
+	public void setProjectsImages(String imageTypeStr, List<Project> projects, Boolean allImages){
 			
 		Project project;
 		for(int i=0; i<projects.size(); i++){
 			project = projects.get(i);
-			setProjectImages(imageTypeStr, project);
+			setProjectImages(imageTypeStr, project, null);
 		}
 	}
 	
-	public void setProjectImages(String imageTypeStr, Project project){
+	public void setProjectImages(String imageTypeStr, Project project, Boolean allImages){
 		List<Image> images = imageService.getImages( DomainObject.project, imageTypeStr, project.getProjectId() );
-		project.setImages(images);
-		 if (images != null && !images.isEmpty()) {
-                project.setImageURL(images.get(0).getAbsolutePath());
-            }
+		
+		 if (images != null && !images.isEmpty()) 
+			 project.setImageURL(images.get(0).getAbsolutePath());
+         
+		 if(allImages == null || allImages == true)
+			 project.setImages(images);
 	}
 	
 	@Deprecated
@@ -61,9 +63,8 @@ public class ImageEnricher {
 	public void setPropertyImages(String imageTypeStr, Property property){
 		List<Image> images = imageService.getImages( DomainObject.property, imageTypeStr, property.getPropertyId() );
 		property.setImages(images);
-		setProjectImages("main", property.getProject());
+		setProjectImages("main", property.getProject(), false);
 		setBuilderImages("logo", property.getProject().getBuilder());
-		property.getProject().setImages(null);
 	}
 	
 	public void setBuildersImages(String imageTypeStr, List<Builder> builders){

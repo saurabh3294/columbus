@@ -30,6 +30,7 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
+import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityAmenityService;
 import com.proptiger.data.service.LocalityReviewService;
@@ -48,7 +49,7 @@ public class ProjectDetailController extends BaseController {
     private ProjectService projectService;
 
     @Autowired
-    private ImageService imageService;
+    private ImageEnricher imageEnricher;
 
     @Autowired
     private PropertyService propertyService;
@@ -96,6 +97,8 @@ public class ProjectDetailController extends BaseController {
         Double resalePrice;
         if(properties.size() > 0)
         {
+        	// setting images.
+        	imageEnricher.setPropertiesImages(null, properties);
         	locality = properties.get(0).getProject().getLocality();
         	Property property;
         	for(int i=0; i<properties.size(); i++){
@@ -116,8 +119,7 @@ public class ProjectDetailController extends BaseController {
             	resalePrice = property.getResalePrice();
             	projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
             	projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
-            	// setting images.
-                property.setImages(imageService.getImages(DomainObject.property, null, property.getPropertyId()));
+            	
         	}
         }
         

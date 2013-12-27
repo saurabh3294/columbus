@@ -43,7 +43,7 @@ public class ProjectService {
 
     public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
     	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
-    	imageEnricher.setProjectsImages("main", projects.getResult());
+    	imageEnricher.setProjectsImages("main", projects.getResult(), null);
     	
     	return projects;
     }
