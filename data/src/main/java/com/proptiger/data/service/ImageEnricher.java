@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.data.model.Builder;
+import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.Property;
@@ -79,6 +80,27 @@ public class ImageEnricher {
 		List<Image> images = imageService.getImages( DomainObject.builder, imageTypeStr, builder.getId() );
 		if(images!=null && images.size() > 0)
 			builder.setImageURL(images.get(0).getAbsolutePath());
+	}
+	
+	public void setLocalitiesImages(String imageTypeStr, List<Locality> localities){
+		Locality locality;
+		for(int i=0; i<localities.size(); i++){
+			locality = localities.get(i);
+			setLocalityImages(imageTypeStr, locality, null);
+		}
+	}
+	
+	public void setLocalityImages(String imageTypeStr, Locality locality, Integer numberOfImages){
+		List<Image> images = imageService.getImages( DomainObject.builder, imageTypeStr, locality.getLocalityId() );
+		if(images!=null && images.size() > 0)
+		{
+			locality.setImageCount(images.size());
+			
+			if(numberOfImages == null || numberOfImages < 0 || numberOfImages > images.size())
+				numberOfImages = images.size();
+			
+			locality.setImages(images.subList(0, numberOfImages));
+		}
 	}
 	
 }

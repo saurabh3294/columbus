@@ -62,7 +62,7 @@ public class LocalityService {
     private LocalityAmenityService localityAmenityService;
     
     @Autowired 
-    private ImageService imageService;
+    private ImageEnricher imageEnricher;
     
     @Autowired
     private ProjectDao projectDao;
@@ -239,21 +239,7 @@ public class LocalityService {
 		 * Hit image service only if images are required
 		 */
 		if(imageCount != null && imageCount > 0){
-			int totalImages = 0;
-			List<Image> images = imageService.getImages(DomainObject.locality,
-					null, localityId);
-			if(images != null){
-				totalImages = images.size();
-				locality.setImageCount(totalImages);
-				Iterator<Image> imageItr = images.iterator();
-				int counter = 0;
-				List<String> imagePath = new ArrayList<>();
-				while(imageItr.hasNext() && counter++ < imageCount){
-					Image image = imageItr.next();
-					imagePath.add(image.getAbsolutePath());
-				}
-				locality.setImagesPath(imagePath);
-			}
+			imageEnricher.setLocalityImages(null, locality, imageCount);
 		}
 		/*
 		 * Setting total rating counts
