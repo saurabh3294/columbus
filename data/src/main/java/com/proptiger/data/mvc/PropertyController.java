@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
@@ -46,18 +47,6 @@ public class PropertyController extends BaseController {
     		propRequestParam = new Selector();
     	}
         List<Property> properties = propertyService.getProperties(propRequestParam);
-        for (Property property : properties) {
-            List<Image> images = imageService.getImages(DomainObject.project, "main", property.getProjectId());
-            if (images != null && !images.isEmpty()) {
-                property.getProject().setImageURL(images.get(0).getAbsolutePath());
-            }
-
-            images = imageService.getImages(DomainObject.builder, "logo", property.getProject().getBuilderId());
-            if (images != null && !images.isEmpty()) {
-                property.getProject().getBuilder().setImageURL(images.get(0).getAbsolutePath());
-            }
-        }
-
         Set<String> fieldsSet = propRequestParam.getFields();
         
         return new ProAPISuccessResponse(super.filterFields(properties, fieldsSet));

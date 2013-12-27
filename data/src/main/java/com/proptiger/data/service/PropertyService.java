@@ -36,12 +36,15 @@ public class PropertyService {
     ImageEnricher imageEnricher;
     
     public List<Property> getProperties(Selector propertyFilter) {
-        return propertyDao.getProperties(propertyFilter);
+        List<Property> properties = propertyDao.getProperties(propertyFilter);
+        imageEnricher.setPropertiesImages(null, properties);
+        
+        return properties;
     }
 
     public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
     	SolrServiceResponse<List<Project>> projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
-    	imageEnricher.setProjectsImages(DomainObject.project, "main", projects.getResult());
+    	imageEnricher.setProjectsImages("main", projects.getResult());
     	
     	return projects;
     }

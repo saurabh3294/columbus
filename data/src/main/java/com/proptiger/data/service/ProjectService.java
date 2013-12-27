@@ -42,7 +42,10 @@ public class ProjectService {
     private ImageEnricher imageEnricher;
 
     public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
-        return projectDao.getProjects(projectFilter);
+    	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
+    	imageEnricher.setProjectsImages("main", projects.getResult());
+    	
+    	return projects;
     }
 
     /**
@@ -84,7 +87,7 @@ public class ProjectService {
      */
     public ProjectDB getProjectDetails(Integer projectId) {
         ProjectDB project = projectDao.findByProjectId(projectId);
-        imageEnricher.setProjectImages(DomainObject.project, null, project);
+        imageEnricher.setProjectDBImages(null, project);
         if (project == null) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }

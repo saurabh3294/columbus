@@ -44,15 +44,12 @@ public class BuilderService {
     private ProjectService projectService;
     
     @Autowired
-    private ImageService imageService;
+    private ImageEnricher imageEnricher;
 
     public Builder getBuilderDetailsByProjectId(int projectId) {
         Builder builder = builderDao.findByProjectId(projectId);
-        List<Image> images = imageService.getImages(DomainObject.builder, "logo", builder.getId());
-        if (images != null && !images.isEmpty()) {
-            builder.setImageURL(images.get(0).getAbsolutePath());
-        }
-
+        imageEnricher.setBuilderImages("logo", builder);
+      
         return builder;
     }
     
@@ -94,29 +91,17 @@ public class BuilderService {
     	List<Project> projectsToReturn = new ArrayList<>();
     	while(ongoingProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = ongoingProjectItr.next();
-    		List<Image> projectImages = imageService.getImages(DomainObject.project, "main", project.getProjectId());
-    		if(projectImages != null && projectImages.size() > 1){
-    			List<Image> list = new ArrayList<>();
-    			list.add(projectImages.get(0));
-    			project.setImages(list);
-    		}
-    		else{
-    			project.setImages(projectImages);
-    		}
+    		imageEnricher.setProjectImages("main", project);
+    		project.setImages( project.getImages().subList(0, 1) );
+    		
     		projectsToReturn.add(project);
     	}
     	
     	while(totalProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = totalProjectItr.next();
-    		List<Image> projectImages = imageService.getImages(DomainObject.project, null, project.getProjectId());
-    		if(projectImages != null && projectImages.size() > 1){
-    			List<Image> list = new ArrayList<>();
-    			list.add(projectImages.get(0));
-    			project.setImages(list);
-    		}
-    		else{
-    			project.setImages(projectImages);
-    		}
+    		imageEnricher.setProjectImages(null, project);
+    		project.setImages( project.getImages().subList(0, 1) );
+    		
     		projectsToReturn.add(project);
     	}
     	

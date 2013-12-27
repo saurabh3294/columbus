@@ -50,12 +50,6 @@ public class ProjectController extends BaseController {
         }
 
         SolrServiceResponse<List<Project>> response = projectService.getProjects(propRequestParam);
-        for (Project project : response.getResult()) {
-            List<Image> images = imageService.getImages(DomainObject.project, "main", project.getProjectId());
-            if (images != null && !images.isEmpty()) {
-                project.setImageURL(images.get(0).getAbsolutePath());
-            }
-        }
 
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
