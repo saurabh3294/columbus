@@ -7,23 +7,23 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Caching {
-	@Cacheable(key ="#key", value ="#{cacheName==null? \"cache\" : cacheName}")
-	public <T> T getSavedResponse(String key, Class<T> object, String cacheName){
+	@Cacheable(key ="#key", value ="cache")
+	public <T> T getSavedResponse(String key, Class<T> object){
 		return null;
 	}
 	
-	@CachePut(key="#key", value="#{cacheName==null? \"cache\" : cacheName}")
-	public <T> T saveResponse(String key, T response, String cacheName){
+	@CachePut(key="#key", value="cache")
+	public <T> T saveResponse(String key, T response){
 		return response;
 	}
 	
-	@CacheEvict(key="#key", value="#{cacheName==null? \"cache\" : cacheName}", beforeInvocation=true)
-	public void deleteResponseFromCache(String key, String cacheName){
+	@CacheEvict(key="#key", value="cache", beforeInvocation=true)
+	public void deleteResponseFromCache(String key){
 		
 	}
 	
-	@Cacheable(key="#key", value="#{cacheName==null? \"cache\" : cacheName}")
-	public <T> T getCachedSavedResponse(String key, T data, String cacheName){
+	@Cacheable(key="#key", value="cache")
+	public <T> T getCachedSavedResponse(String key, T data){
 		return data;
 	}
 }

@@ -52,7 +52,7 @@ public class ImageService {
 	@Autowired
 	private Caching caching;
 	
-	private String cacheName = "image";
+	private String cacheName = "cache";
 
 	@PostConstruct
 	private void init() {
@@ -143,7 +143,7 @@ public class ImageService {
 	/*
 	 * Public method to get images
 	 */
-	@Cacheable(value="image", key="#object.getText()+#imageTypeStr+#objectId")
+	@Cacheable(value="cache", key="#object.getText()+#imageTypeStr+#objectId")
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
 		if (imageTypeStr == null) {
@@ -157,7 +157,7 @@ public class ImageService {
 	/*
 	 * Public method to upload images
 	 */
-	@CacheEvict(value="image", key="#object.getText()+#imageTypeStr+#objectId")
+	@CacheEvict(value="cache", key="#object.getText()+#imageTypeStr+#objectId")
 	public Image uploadImage(DomainObject object, String imageTypeStr,
 			long objectId, MultipartFile fileUpload, Boolean addWaterMark,
 			Map<String, String> extraInfo) {
@@ -227,7 +227,7 @@ public void deleteImageInCache(long id){
     	
     	String cacheKey = getImageCacheKey(domainObject, image.getImageType().getType(), image.getId());
     	
-    	caching.deleteResponseFromCache(cacheKey, this.cacheName);
+    	caching.deleteResponseFromCache(cacheKey);
     }
     
     public String getImageCacheKey(DomainObject object, String imageTypeStr,
