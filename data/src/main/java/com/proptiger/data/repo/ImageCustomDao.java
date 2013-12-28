@@ -15,7 +15,7 @@ import com.proptiger.data.model.image.Image;
  */
 public interface ImageCustomDao {
     public Image insertImage(DomainObject objectStr, String imageTypeStr, long objectId, File orignalImage,
-            File watermarkImage, Map<String, String> extraInfo);
+            File watermarkImage, Map<String, String> extraInfo, String format);
 
     public void markImageAsActive(Image image);
 }

@@ -67,15 +67,6 @@ public class ImageUtil {
         return format.toLowerCase();
     }
 
-    public static boolean isValidImage(File file) {
-        try {
-            getImageFormat(file);
-            return true;
-        } catch (IOException | IllegalArgumentException e) {
-            return false;
-        }
-    }
-
     public static void populateImageMetaInfo(File imageFile, Image image) throws IOException {
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
         BufferedImage buffImage = ImageIO.read(iis);
