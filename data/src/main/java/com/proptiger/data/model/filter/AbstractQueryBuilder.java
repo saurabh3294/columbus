@@ -56,7 +56,6 @@ public abstract class AbstractQueryBuilder<T> {
      */
     @SuppressWarnings("unchecked")
     protected void buildFilterClause(Selector selector, Integer userId) {
-
         if (selector != null && selector.getFilters() != null) {
             Map<String, List<Map<String, Map<String, Object>>>> filters = selector.getFilters();
             List<Map<String, Map<String, Object>>> andFilters = filters.get(Operator.and.name());
@@ -64,11 +63,8 @@ public abstract class AbstractQueryBuilder<T> {
             if (andFilters != null && filters.size() == 1) {
                 for (Map<String, Map<String, Object>> andFilter : andFilters) {
                     for (String operator : andFilter.keySet()) {
-
                         Map<String, Object> fieldNameValueMap = andFilter.get(operator);
-
                         switch (Operator.valueOf(operator)) {
-
                         case equal:
                             for (String jsonFieldName : fieldNameValueMap.keySet()) {
                                 List<Object> valuesList = new ArrayList<Object>();

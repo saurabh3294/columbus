@@ -101,7 +101,7 @@ public class PropertyDao {
         		query.add("stats.facet", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         	}
         }
-        System.out.println(query.toString());
+        
         Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
         Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
         for (String field : fields) {
@@ -418,7 +418,7 @@ public class PropertyDao {
     	solrQuery.add("group", "true");
     	solrQuery.add("group.facet", "true");
     	solrQuery.add("group.field", "PROJECT_ID");
-    	
+    	System.out.println(solrQuery.toString());
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
     	    	
     	return solrResponseReader.getFacetResults(queryResponse.getResponse());	
@@ -454,12 +454,11 @@ public class PropertyDao {
 			fieldName = entry.getKey();
 			Map<String, Map<String, FieldStatsInfo>> facetsInfo = new HashMap<>();
 			
-			if(entry.getValue().getFacets() == null)
-			{
-				newStats.put(fieldName, facetsInfo);
+			newStats.put(fieldName, facetsInfo);
+			
+			if(entry.getValue() == null || entry.getValue().getFacets() == null)
 				continue;
-			}
-				
+						
 			for(Map.Entry<String, List<FieldStatsInfo>> e : entry.getValue().getFacets().entrySet() )
 			{
 				facetName = e.getKey();

@@ -87,4 +87,17 @@ public class ImageController extends BaseController {
         imageService.deleteImage(id);
         return obj;
     }
+
+    @RequestMapping(value="create-new", method = RequestMethod.POST)
+    public @ResponseBody
+    Object createNewImages(@RequestParam long imageId, @RequestParam MultipartFile image) {
+        Map<String, String> extraInfo = new HashMap<String, String>();
+        extraInfo.put("altText", null);
+        extraInfo.put("title", null);
+        extraInfo.put("description", null);
+        extraInfo.put("priority", null);
+        
+        Image img = imageService.createNewImage(imageId, image);
+        return new ProAPISuccessResponse(super.filterFieldsWithTree(img, null));
+    }    
 }

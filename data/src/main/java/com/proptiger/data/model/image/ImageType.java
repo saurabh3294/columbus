@@ -2,11 +2,15 @@ package com.proptiger.data.model.image;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.BaseModel;
@@ -19,7 +23,8 @@ public class ImageType implements BaseModel{
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
-	@ManyToOne(targetEntity = ObjectType.class)
+	@ManyToOne(targetEntity = ObjectType.class, fetch=FetchType.EAGER)
+	@Fetch(FetchMode.JOIN)
 	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable=false, updatable=false)
 	private ObjectType objectType;
 	

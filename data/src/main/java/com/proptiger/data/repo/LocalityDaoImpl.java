@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.Operator;
@@ -28,6 +29,7 @@ import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 
 /**
  * @author mandeep
@@ -40,9 +42,9 @@ public class LocalityDaoImpl {
 	private SolrDao solrDao;
 	@Autowired
 	private EntityManagerFactory emf;
-	public List<Locality> getLocalities(Selector selector){
+	public SolrServiceResponse<List<Locality>> getLocalities(Selector selector){
 		SolrQuery solrQuery = createSolrQuery(selector);
-		
+		System.out.println(solrQuery.toString());
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		
@@ -52,7 +54,11 @@ public class LocalityDaoImpl {
 			data.add(response.get(i).getProject().getLocality());
 		}
 		
-		return data;
+		SolrServiceResponse<List<Locality>> solrRes = new SolrServiceResponse<List<Locality>>();
+        solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
+        solrRes.setResult(data);
+        
+		return solrRes;
 	}
 	
 	public List<Locality> findByLocationOrderByPriority(Object locationId, String locationType, Paging paging, SortOrder sortOrder){
@@ -101,13 +107,19 @@ public class LocalityDaoImpl {
     	selector.setPaging(paging);
     	selector.setSort(sorting);
     	
-    	return getLocalities(selector);
+    	return getLocalities(selector).getResult();
 	}
 	
-	public List<Locality> findByLocalityIds(List<Integer> localityIds, Selector propertySelector){
-		
+	public SolrServiceResponse<List<Locality>> findByLocalityIds(List<Integer> localityIds, Selector propertySelector) {
+	    if (localityIds == null || localityIds.isEmpty()){
+	    	SolrServiceResponse<List<Locality>> a = new SolrServiceResponse<>();
+	    	a.setTotalResultCount(0);
+	    	a.setResult(new ArrayList<Locality>());
+	    	return a;
+	    }
+
 		Selector selector = new Selector();
-		
+
 		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
     	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
     	Map<String, Map<String, Object>> searchType = new HashMap<>();
