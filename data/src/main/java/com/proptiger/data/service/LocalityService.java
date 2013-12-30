@@ -33,6 +33,7 @@ import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.LocalityDaoImpl;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -90,7 +91,7 @@ public class LocalityService {
         return Lists.newArrayList(localityDao.getLocalities(selector));
     }
     
-    public List<Locality> getLocalityListing(Selector selector){
+    public SolrServiceResponse<List<Locality>> getLocalityListing(Selector selector){
     	// adding the locality in the selector as we needed localityId 
     	boolean isSelectorFieldsEmpty = false;
     	if(selector.getFields() == null)
@@ -109,11 +110,11 @@ public class LocalityService {
     	if(isSelectorFieldsEmpty)
     		selector.setFields(null);
     	
-    	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
+    	SolrServiceResponse<List<Locality>> localities = localityDao.findByLocalityIds(localityIds, selector);
     	
     	Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats = propertyDao.getStatsFacetsAsMaps(selector, 
     			Arrays.asList("pricePerUnitArea", "resalePrice"), Arrays.asList("localityId") );
-    	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities, solrProjectStatusCountAndProjectCount, priceStats);
+    	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities.getResult(), solrProjectStatusCountAndProjectCount, priceStats);
     	return localities;
     }
     
@@ -361,7 +362,7 @@ public class LocalityService {
 	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId,
 			Selector localitySelector) {
 		List<Locality> localities = localityDao.findByLocalityIds(
-				Arrays.asList(localityId), localitySelector);
+				Arrays.asList(localityId), localitySelector).getResult();
 		if (localities == null || localities.size() == 0) {
 			throw new ResourceNotAvailableException(ResourceType.LOCALITY,
 					ResourceTypeAction.GET);
