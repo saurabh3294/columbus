@@ -27,7 +27,7 @@ public class BuilderController extends BaseController{
 	@Autowired
 	private BuilderService builderService;
 	
-	@RequestMapping(value = "/popular", method = RequestMethod.GET)
+	@RequestMapping(value = "/top", method = RequestMethod.GET)
     @ResponseBody
 	public ProAPIResponse getPopularBuilder(
 			@RequestParam(required = false) String selector) {
@@ -36,7 +36,7 @@ public class BuilderController extends BaseController{
 			builderSelector = super.parseJsonToObject(selector, Selector.class);
 		}
 		List<Builder> builders = builderService
-				.getPopularBuilders(builderSelector);
+				.getTopBuilders(builderSelector);
 		
 		return new ProAPISuccessCountResponse(super.filterFields(builders,
 				builderSelector.getFields()), builders.size());

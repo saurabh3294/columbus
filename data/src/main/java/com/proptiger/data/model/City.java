@@ -24,6 +24,7 @@ public class City implements BaseModel{
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")
+    @Field("CITY_ID")
     private Integer id;
 
     @FieldMetaInfo( displayName = "Label",  description = "City label")

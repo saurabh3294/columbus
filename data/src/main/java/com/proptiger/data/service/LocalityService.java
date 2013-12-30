@@ -318,10 +318,10 @@ public class LocalityService {
 	}
 
 	/**
-	 * Get top localities either of city or suburb id. In case of city id get
+	 * Get top localities either of city or suburb id. In case of city id or suburb id get
 	 * top localities based on their rating is >= α 
 	 * 
-	 * α = 3 star
+	 * α = 3 star, specfied in property file
 	 * 
 	 * @param cityId
 	 * @param suburbId
