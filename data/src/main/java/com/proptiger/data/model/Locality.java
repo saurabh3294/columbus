@@ -430,4 +430,12 @@ public class Locality implements BaseModel {
     public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
         this.avgPriceRiseMonths = avgPriceRiseMonths;
     }
+
+	public Set<LocalityReview> getLocalityReviews() {
+		return localityReviews;
+	}
+
+	public void setLocalityReviews(Set<LocalityReview> localityReviews) {
+		this.localityReviews = localityReviews;
+	}
 }

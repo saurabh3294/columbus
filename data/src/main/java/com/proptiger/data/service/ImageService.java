@@ -197,7 +197,7 @@ public class ImageService {
 	}
 
     public void deleteImage(long id) {
-    	deleteImage(id);
+    	deleteImageInCache(id);
         imageDao.setActiveFalse(id);
     }
 

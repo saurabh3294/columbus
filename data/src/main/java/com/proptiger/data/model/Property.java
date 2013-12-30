@@ -272,5 +272,9 @@ public class Property implements BaseModel {
 	public void setResalePrice(Double resalePrice) {
 		this.resalePrice = resalePrice;
 	}
+
+	public Double getProcessedLatitude() {
+		return processedLatitude;
+	}
 	
 }

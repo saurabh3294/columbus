@@ -14,6 +14,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -40,6 +41,9 @@ public class ProjectService {
     
     @Autowired
     private ImageEnricher imageEnricher;
+    
+    @Autowired
+    private PropertyService propertyService;
 
     public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
     	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
@@ -93,7 +97,22 @@ public class ProjectService {
         }
         return project;
     }
-
+    
+    /**
+     * Returns all details of a project on the Project Model Object.
+     * @param projectId
+     * @return Project Model Object
+     */
+    public Project getProjectInfoDetails(Selector propertySelector, Integer projectId){
+    	Project project  = projectDao.findProjectByProjectId(projectId);
+    	List<Property> properties = propertyService.getProperties(projectId);
+    	for(int i=0; i<properties.size(); i++)
+    		properties.get(i).setProject(null);
+    	project.setProperties(properties);
+    	
+    	return project;
+    }
+    
     /**
      * Returns all discussions for a project
      *

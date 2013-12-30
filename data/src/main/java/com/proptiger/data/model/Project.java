@@ -9,9 +9,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -34,6 +39,8 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
+@Entity
+@Table(name="RESI_PROJECT")
 public class Project implements BaseModel {
     public static enum NestedProperties {
         builderLabel(new String[]{"builder", "name"}),
@@ -61,10 +68,17 @@ public class Project implements BaseModel {
         }
     };
     
+    @Id
+    @FieldMetaInfo( displayName = "DB Project Id",  description = "DB Project Id")
+    @Column(name="PROJECT_ID")
+    private int id;
+    
+    @Transient
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     private int projectId;
-
+	
+	@Transient
     @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
     private int localityId;
@@ -73,176 +87,239 @@ public class Project implements BaseModel {
     @JoinColumn(name="LOCALITY_ID")
     private Locality locality;
 
+	@Transient
     @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
     private int builderId;
 
     @ManyToOne
-    @JoinColumn(name="BUILDER_ID")
+    @JoinColumn(name="BUILDER_ID", insertable=false, updatable=false)
     private Builder builder;
 
+    @Transient
     @OneToMany(mappedBy="project")
     private List<Property> properties;
     
     @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
     @Field(value = "PROJECT_NAME")
+    @Column(name="PROJECT_NAME")
     private String name;
 
     @FieldMetaInfo( displayName = "Project Types",  description = "Project Types")
     @Field(value = "PROJECT_TYPES")
+    @Column(name="PROJECT_TYPES")
     private String unitTypes;
 
     @FieldMetaInfo( displayName = "Launch Date",  description = "Launch Date")
     @Field(value = "VALID_LAUNCH_DATE")
+    @Column(name="LAUNCH_DATE")
     private Date launchDate;
 
     @FieldMetaInfo( displayName = "Address",  description = "Address")
     @Field(value = "PROJECT_ADDRESS")
+    @Column(name="PROJECT_ADDRESS")
     private String address;
 
+    @Transient
     @FieldMetaInfo( displayName = "Computed Priority",  description = "Computed Priority")
     @Field(value = "PROJECT_PRIORITY")
     private double computedPriority;
     
+    @Transient
     @FieldMetaInfo( displayName = "Project enquiry count",  description = "Project enquiry count")
     @Field(value = "PROJECT_ENQUIRY_COUNT")
     private int projectEnquiryCount;
 
     @FieldMetaInfo( displayName = "Assigned Priority",  description = "Assigned Priority")
     @Field(value = "DISPLAY_ORDER")
+    @Column(name="DISPLAY_ORDER")
     private int assignedPriority;
 
     @FieldMetaInfo( displayName = "Assigned Locality Priority",  description = "Assigned Locality Priority")
     @Field(value = "DISPLAY_ORDER_LOCALITY")
+    @Column(name="DISPLAY_ORDER_LOCALITY")
     private int assignedLocalityPriority;
 
     @FieldMetaInfo( displayName = "Assigned Suburb Priority",  description = "Assigned Suburb Priority")
     @Field(value = "DISPLAY_ORDER_SUBURB")
+    @Column(name="DISPLAY_ORDER_SUBURB")
     private int assignedSuburbPriority;
-
+    
+    @Transient
     @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
     @Field(value = "PROMISED_COMPLETION_DATE")
     private Date possessionDate;
 
     @FieldMetaInfo( displayName = "Submitted Date",  description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
+    @Column(name="SUBMITTED_DATE")
     private Date submittedDate;
 
     @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
     @Transient
     private String imageURL;
 
+    @Transient
     @FieldMetaInfo( displayName = "Offer",  description = "Offer")
     @Field(value = "OFFER")
     private String offer;
 
     @FieldMetaInfo( displayName = "Offer Heading",  description = "Offer Heading")
     @Field(value = "OFFER_HEADING")
+    @Column(name="OFFER_HEADING")
     private String offerHeading;
 
     @FieldMetaInfo( displayName = "Offer Description",  description = "Offer Description")
     @Field(value = "OFFER_DESC")
+    @Column(name="OFFER_DESC")
     private String offerDesc;
 
     @FieldMetaInfo( displayName = "URL",  description = "URL")
     @Field(value = "PROJECT_URL")
+    @Column(name="PROJECT_URL")
     private String URL;
 
     @FieldMetaInfo( displayName = "Latitude",  description = "Latitude")
     @Field(value = "LATITUDE")
+    @Column(name="LATITUDE")
     private Double latitude;
 
     @FieldMetaInfo( displayName = "Longitude",  description = "Longitude")
     @Field(value = "LONGITUDE")
+    @Column(name="LONGITUDE")
     private Double longitude;
 
+    @Transient
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
     @Field(value = "MIN_PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double minPricePerUnitArea;
 
+    @Transient
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
     @Field(value = "MAX_PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double maxPricePerUnitArea;
 
+    @Transient
     @FieldMetaInfo( displayName = "Min Size",  description = "Min Size")
     @Field(value = "MINSIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double minSize;
 
+    @Transient
     @FieldMetaInfo( displayName = "Max Size",  description = "Max Size")
     @Field(value = "MAXSIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double maxSize;
 
+    @Transient
     @FieldMetaInfo( displayName = "Min Price",  description = "Min Price")
     @Field(value = "MIN_BUDGET")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double minPrice;
 
+    @Transient
     @FieldMetaInfo( displayName = "Max Price",  description = "Max Price")
     @Field(value = "MAX_BUDGET")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
     private Double maxPrice;
 
+    @Transient
     @FieldMetaInfo( displayName = "Min Bedroooms",  description = "Min Bedroooms")
     private int minBedrooms;
 
+    @Transient
     @FieldMetaInfo( displayName = "Max Bedroooms",  description = "Max Bedroooms")
     private int maxBedrooms;
 
     @FieldMetaInfo( displayName = "Project Status",  description = "Project Status")
     @Field(value = "PROJECT_STATUS")
+    @Column(name="PROJECT_STATUS")
     private String projectStatus;
 
     @Field(value = "IS_RESALE")
+    @Column(name="FORCE_RESALE")
     private boolean isResale;
 
     @FieldMetaInfo( displayName = "Project Description",  description = "Project Description")
     @Field(value = "PROJECT_DESCRIPTION")
+    @Column(name="PROJECT_DESCRIPTION")
     private String description;
 
+    @Transient
     @FieldMetaInfo( displayName = "Total Units",  description = "Total Units")
     @Field(value = "TOTAL_UNITS")
     private Integer totalUnits;
 
     @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
     @Field(value = "PROJECT_SIZE")
+    @Column(name="PROJECT_SIZE")
     private Double sizeInAcres;
-    
+
+    @Transient
     @Field(value = "GEO")
     private List<String> geo;
 
+    @Transient
     @Field(value="PROJECT_STATUS_BEDROOM")
     @JsonIgnore
     private String projectStatusBedroom;
 
+    @Transient
     @Field(value="MEASURE")
     private String propertySizeMeasure;
 
+    @Transient
     private Set<String> propertyUnitTypes;
 
+    @Transient
     private List<Image> images;
     
+    @Transient
     @Field(value="LOCALITY_LABEL_PRIORITY")
     private String localityLabelPriority;
     
+    @Transient
     @Field(value="SUBURB_LABEL_PRIORITY")
     private String suburbLabelPriority;
 
+    @Transient
     @Field(value="BUILDER_LABEL_PRIORITY")
     private String builderLabelPriority;
     
+    @Transient
     private Set<Integer> distinctBedrooms = new HashSet<>();
     
+    @Transient
     private Double minResalePrice;
     
+    @Transient
     private Double maxResalePrice;
     
+    @Transient
     private Double avgPriceRisePercentage;
     
+    @Transient
     private Integer avgPriceRiseMonths;
+
+ 	@FieldMetaInfo(displayName="ACTIVE", description="ACTIVE")
+    @Column(name="ACTIVE")
+    private int active ;
+
+	@FieldMetaInfo(displayName="PROMISED COMPLETION Date", description="PROMISED COMPLETION Date")
+    @Column(name="PROMISED_COMPLETION_DATE")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date promisedCompletionDate ;
+    
+    @FieldMetaInfo(displayName="AVAILABILITY", description="AVAILABILITY")
+    @Column(name="AVAILABILITY")
+    private Integer availability ;
+
+	@FieldMetaInfo(displayName="PRE LAUNCH Date", description="PRE LAUNCH Date")
+    @Column(name="PRE_LAUNCH_DATE")
+    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+    private Date preLaunchDate ;
     
     public int getProjectId() {
         return projectId;
@@ -652,4 +729,44 @@ public class Project implements BaseModel {
     public boolean isResale() {
         return isResale;
     }
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public int getActive() {
+		return active;
+	}
+
+	public void setActive(int active) {
+		this.active = active;
+	}
+
+	public Date getPromisedCompletionDate() {
+		return promisedCompletionDate;
+	}
+
+	public void setPromisedCompletionDate(Date promisedCompletionDate) {
+		this.promisedCompletionDate = promisedCompletionDate;
+	}
+
+	public Integer getAvailability() {
+		return availability;
+	}
+
+	public void setAvailability(Integer availability) {
+		this.availability = availability;
+	}
+
+	public Date getPreLaunchDate() {
+		return preLaunchDate;
+	}
+
+	public void setPreLaunchDate(Date preLaunchDate) {
+		this.preLaunchDate = preLaunchDate;
+	}
 }

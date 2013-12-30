@@ -102,13 +102,13 @@ public class City implements BaseModel{
     @Transient
     private Long projectsCount;
     
-    public int getId() {
+    public Integer getId() {
         return id;
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    
+    public void setId(Integer id) {
+		this.id = id;
+	}
 
     public String getLabel() {
         return label;
@@ -245,5 +245,7 @@ public class City implements BaseModel{
     public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
         this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
+
+	
     
 }
