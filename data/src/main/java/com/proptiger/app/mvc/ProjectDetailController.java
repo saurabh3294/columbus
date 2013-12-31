@@ -30,6 +30,7 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
+import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityAmenityService;
 import com.proptiger.data.service.LocalityReviewService;
@@ -48,7 +49,7 @@ public class ProjectDetailController extends BaseController {
     private ProjectService projectService;
 
     @Autowired
-    private ImageService imageService;
+    private ImageEnricher imageEnricher;
 
     @Autowired
     private PropertyService propertyService;
@@ -66,7 +67,6 @@ public class ProjectDetailController extends BaseController {
     private LocalityReviewService localityReviewService;
     
     @RequestMapping(value="app/v1/project-detail")
-    @DisableCaching // to be removed.
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
         Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
@@ -79,8 +79,7 @@ public class ProjectDetailController extends BaseController {
         Builder builderDetails = builderService.getBuilderDetailsByProjectId(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
-        projectInfo.setImages(imageService.getImages(DomainObject.project, null, projectId));
-        
+                
         // getting project discussions.
         int totalProjectDiscussion=0;
         List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
@@ -97,6 +96,8 @@ public class ProjectDetailController extends BaseController {
         Double resalePrice;
         if(properties.size() > 0)
         {
+        	// setting images.
+        	imageEnricher.setPropertiesImages(null, properties);
         	locality = properties.get(0).getProject().getLocality();
         	Property property;
         	for(int i=0; i<properties.size(); i++){
@@ -117,8 +118,7 @@ public class ProjectDetailController extends BaseController {
             	resalePrice = property.getResalePrice();
             	projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
             	projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
-            	// setting images.
-                property.setImages(imageService.getImages(DomainObject.property, null, property.getPropertyId()));
+            	
         	}
         }
         

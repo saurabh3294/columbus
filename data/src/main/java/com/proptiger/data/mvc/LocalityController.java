@@ -85,7 +85,6 @@ public class LocalityController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/top")
-    @DisableCaching // to be removed.
     @ResponseBody
 	public ProAPIResponse getTopLocalitiesOfCityOrSuburb(
 			@RequestParam(required = false, value = "cityId") Integer cityId,
@@ -108,7 +107,6 @@ public class LocalityController extends BaseController {
      * @return
      */
     @RequestMapping(value = "{localityId}/top")
-    @DisableCaching // to be removed.
     @ResponseBody
 	public ProAPIResponse getTopLocalitiesAroundLocality(
 			@PathVariable Integer localityId,

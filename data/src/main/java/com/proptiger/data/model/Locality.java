@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
 
 /**
  * Locality entity class
@@ -117,7 +118,7 @@ public class Locality implements BaseModel {
     private Map<String, Integer> amenityTypeCount;
 
     @Transient
-    private List<String> imagesPath;
+    private List<Image> images;
 
     @Transient
     private Integer imageCount;
@@ -310,12 +311,12 @@ public class Locality implements BaseModel {
         this.amenityTypeCount = amenityTypeCount;
     }
 
-    public List<String> getImagesPath() {
-        return imagesPath;
+    public List<Image> getImages() {
+        return images;
     }
 
-    public void setImagesPath(List<String> imagesPath) {
-        this.imagesPath = imagesPath;
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 
     public Integer getImageCount() {

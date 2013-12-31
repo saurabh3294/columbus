@@ -14,6 +14,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
@@ -36,9 +37,15 @@ public class ProjectService {
 
     @Autowired
     private ProjectSpecificationDao projectSpecificationDao;
+    
+    @Autowired
+    private ImageEnricher imageEnricher;
 
     public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
-        return projectDao.getProjects(projectFilter);
+    	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
+    	imageEnricher.setProjectsImages("main", projects.getResult(), null);
+    	
+    	return projects;
     }
 
     /**
@@ -80,6 +87,7 @@ public class ProjectService {
      */
     public ProjectDB getProjectDetails(Integer projectId) {
         ProjectDB project = projectDao.findByProjectId(projectId);
+        imageEnricher.setProjectDBImages(null, project);
         if (project == null) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }
@@ -118,6 +126,7 @@ public class ProjectService {
 	 */
     public List<Project> getPopularProjects(Selector projectSelector){
     	LinkedHashSet<SortBy> sortBySet = createdSortingForPopularProjects();
+    	//sorting provided in api call will not be considered
     	projectSelector.setSort(sortBySet);
     	SolrServiceResponse<List<Project>> result = getProjects(projectSelector);
     	return result.getResult();
@@ -152,7 +161,7 @@ public class ProjectService {
     	sortBySet.add(sortByAssignedPriority);
     	//third sorting by computed priority
     	sortBySet.add(sortByComputedPriority);
-    	//fourth sorth by project id
+    	//fourth sorting by project id
     	sortBySet.add(sortByProjectId);
 		return sortBySet;
 	}

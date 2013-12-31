@@ -33,6 +33,7 @@ import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.LocalityDaoImpl;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -62,7 +63,7 @@ public class LocalityService {
     private LocalityAmenityService localityAmenityService;
     
     @Autowired 
-    private ImageService imageService;
+    private ImageEnricher imageEnricher;
     
     @Autowired
     private ProjectDao projectDao;
@@ -90,7 +91,7 @@ public class LocalityService {
         return Lists.newArrayList(localityDao.getLocalities(selector));
     }
     
-    public List<Locality> getLocalityListing(Selector selector){
+    public SolrServiceResponse<List<Locality>> getLocalityListing(Selector selector){
     	// adding the locality in the selector as we needed localityId 
     	boolean isSelectorFieldsEmpty = false;
     	if(selector.getFields() == null)
@@ -109,11 +110,11 @@ public class LocalityService {
     	if(isSelectorFieldsEmpty)
     		selector.setFields(null);
     	
-    	List<Locality> localities = localityDao.findByLocalityIds(localityIds, selector);
+    	SolrServiceResponse<List<Locality>> localities = localityDao.findByLocalityIds(localityIds, selector);
     	
     	Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats = propertyDao.getStatsFacetsAsMaps(selector, 
     			Arrays.asList("pricePerUnitArea", "resalePrice"), Arrays.asList("localityId") );
-    	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities, solrProjectStatusCountAndProjectCount, priceStats);
+    	setProjectStatusCountAndProjectCountAndPriceOnLocality(localities.getResult(), solrProjectStatusCountAndProjectCount, priceStats);
     	return localities;
     }
     
@@ -239,21 +240,7 @@ public class LocalityService {
 		 * Hit image service only if images are required
 		 */
 		if(imageCount != null && imageCount > 0){
-			int totalImages = 0;
-			List<Image> images = imageService.getImages(DomainObject.locality,
-					null, localityId);
-			if(images != null){
-				totalImages = images.size();
-				locality.setImageCount(totalImages);
-				Iterator<Image> imageItr = images.iterator();
-				int counter = 0;
-				List<String> imagePath = new ArrayList<>();
-				while(imageItr.hasNext() && counter++ < imageCount){
-					Image image = imageItr.next();
-					imagePath.add(image.getAbsolutePath());
-				}
-				locality.setImagesPath(imagePath);
-			}
+			imageEnricher.setLocalityImages(null, locality, imageCount);
 		}
 		/*
 		 * Setting total rating counts
@@ -326,10 +313,10 @@ public class LocalityService {
 	}
 
 	/**
-	 * Get top localities either of city or suburb id. In case of city id get
+	 * Get top localities either of city or suburb id. In case of city id or suburb id get
 	 * top localities based on their rating is >= α 
 	 * 
-	 * α = 3 star
+	 * α = 3 star, specfied in property file
 	 * 
 	 * @param cityId
 	 * @param suburbId
@@ -375,7 +362,7 @@ public class LocalityService {
 	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId,
 			Selector localitySelector) {
 		List<Locality> localities = localityDao.findByLocalityIds(
-				Arrays.asList(localityId), localitySelector);
+				Arrays.asList(localityId), localitySelector).getResult();
 		if (localities == null || localities.size() == 0) {
 			throw new ResourceNotAvailableException(ResourceType.LOCALITY,
 					ResourceTypeAction.GET);

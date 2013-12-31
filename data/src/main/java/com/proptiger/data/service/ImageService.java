@@ -17,6 +17,9 @@ import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.MogrifyCmd;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +33,7 @@ import com.google.common.io.Files;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
+import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.ImageUtil;
 import com.proptiger.data.util.PropertyReader;
 
@@ -46,6 +50,11 @@ public class ImageService {
 
 	@Autowired
 	protected PropertyReader propertyReader;
+	
+	@Autowired
+	private Caching caching;
+	
+	private String cacheName = "cache";
 
 	@PostConstruct
 	private void init() {
@@ -59,7 +68,25 @@ public class ImageService {
 		}
 	}
 
+<<<<<<< HEAD
 	private void applyWaterMark(File file, String format) throws IOException {
+=======
+	@Resource
+	private ImageDao imageDao;
+
+	private boolean isEmpty(MultipartFile file) {
+		return (file.getSize() == 0) ? true : false;
+	}
+
+	private void convertToJPG(File image, File jpg) throws IOException {
+		InputStream imageIS = new FileInputStream(image);
+		BufferedImage img = ImageIO.read(imageIS);
+		ImageIO.write(img, "jpg", jpg); // Writes at 0.7 compression quality
+		imageIS.close();
+	}
+
+	private void applyWaterMark(File file) throws IOException {
+>>>>>>> 730933040815a1056944ccdfe1a3e1745ffb10f6
 		URL url = this.getClass().getClassLoader().getResource("watermark.png");
 		InputStream waterMarkIS = new FileInputStream(url.getFile());
 		BufferedImage waterMark = ImageIO.read(waterMarkIS);
@@ -80,8 +107,8 @@ public class ImageService {
             cmd.run(imOps, waterMark, image, outputFile.getAbsolutePath());
             imOps = new IMOperation();
             imOps.strip();
-            imOps.interlace("Plane");
             imOps.quality(95.0);
+            imOps.interlace("Plane");
             imOps.addImage();
             MogrifyCmd command = new MogrifyCmd();
             command.run(imOps, outputFile.getAbsolutePath());
@@ -116,6 +143,7 @@ public class ImageService {
 	/*
 	 * Public method to get images
 	 */
+	@Cacheable(value="cache", key="#object.getText()+#imageTypeStr+#objectId")
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
 		if (imageTypeStr == null) {
@@ -129,9 +157,11 @@ public class ImageService {
 	/*
 	 * Public method to upload images
 	 */
+	@CacheEvict(value="cache", key="#object.getText()+#imageTypeStr+#objectId")
 	public Image uploadImage(DomainObject object, String imageTypeStr,
 			long objectId, MultipartFile fileUpload, Boolean addWaterMark,
 			Map<String, String> extraInfo) {
+		
 		// WaterMark by default (true)
 		addWaterMark = (addWaterMark != null) ? addWaterMark : true;
 		try {
@@ -165,6 +195,7 @@ public class ImageService {
 	}
 
     public void deleteImage(long id) {
+    	deleteImage(id);
         imageDao.setActiveFalse(id);
     }
 
@@ -187,5 +218,20 @@ public class ImageService {
         s3.putObject(ImageUtil.bucket, image.getPath() + image.getId() + "_v1.jpg", originalFile);
         image.setWaterMarkName(image.getId() + "_v1.jpg");
         return image;
+    }
+    
+    public void deleteImageInCache(long id){
+    	Image image = getImage(id);
+    	DomainObject domainObject = DomainObject.valueOf( image.getImageType().getObjectType().getType() );
+    	
+    	String cacheKey = getImageCacheKey(domainObject, image.getImageType().getType(), image.getId());
+    	
+    	caching.deleteResponseFromCache(cacheKey);
+    }
+    
+    public String getImageCacheKey(DomainObject object, String imageTypeStr,
+			long objectId){
+    	
+    	return object.getText()+imageTypeStr+objectId;
     }
 }

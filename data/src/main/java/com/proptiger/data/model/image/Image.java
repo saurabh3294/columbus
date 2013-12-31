@@ -7,11 +7,15 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,11 +31,20 @@ public class Image implements BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+<<<<<<< HEAD
     private long id;
 
     @ManyToOne
     @JoinColumn(name = "ImageType_id", insertable = false, updatable = false)
     private ImageType imageType;
+=======
+	private long id;
+	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.JOIN)
+	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
+	private ImageType imageType;
+>>>>>>> 730933040815a1056944ccdfe1a3e1745ffb10f6
 
     @Column(name = "ImageType_id")
     private long imageTypeId;

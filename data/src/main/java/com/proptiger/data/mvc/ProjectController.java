@@ -24,6 +24,7 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
@@ -39,7 +40,7 @@ public class ProjectController extends BaseController {
     private ProjectService projectService;
     
     @Autowired
-    private ImageService imageService;
+    private ImageEnricher imageEnricher;
 
     @RequestMapping
     public @ResponseBody
@@ -50,12 +51,6 @@ public class ProjectController extends BaseController {
         }
 
         SolrServiceResponse<List<Project>> response = projectService.getProjects(propRequestParam);
-        for (Project project : response.getResult()) {
-            List<Image> images = imageService.getImages(DomainObject.project, "main", project.getProjectId());
-            if (images != null && !images.isEmpty()) {
-                project.setImageURL(images.get(0).getAbsolutePath());
-            }
-        }
 
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
@@ -112,15 +107,8 @@ public class ProjectController extends BaseController {
         }
         SolrServiceResponse<List<Project>> response = projectService.getUpcomingNewProjects(cityName,
                 propRequestParam);
-        List<Image> imageList = null;
-        for (Project project : response.getResult()) {
-        	imageList = imageService.getImages(DomainObject.project, "main", project.getProjectId());
-        	if(imageList.size() > 0)
-        		project.setImageURL(imageList.get(0).getAbsolutePath());
-        		//project.setImageURL(imageService.getImages(DomainObject.project, "main", project.getProjectId()).get(0).getAbsolutePath());
-        	
-        }
-
+        imageEnricher.setProjectsImages("main", response.getResult(), false);
+        
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),
                 response.getTotalResultCount());

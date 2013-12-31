@@ -42,7 +42,7 @@ public class SolrDao {
      * @param query
      * @return
      */
-    protected QueryResponse executeQuery(SolrQuery query) {
+    public QueryResponse executeQuery(SolrQuery query) {
         try {
         	logger.debug("SolrQuery {}",query);
             return httpSolrServer.query(query);
@@ -53,7 +53,7 @@ public class SolrDao {
     }
     
     /**
-     * Creating basic solr query
+     * Creating basic solr query for document type
      * @param documentType
      * @return
      */
