@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.lucene.analysis.util.CharArrayMap.EntrySet;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
@@ -224,7 +226,9 @@ public class LocalityService {
 	public Locality getLocalityInfo(int localityId, Integer imageCount) {
 		logger.debug("Get locality info for locality id {}", localityId);
 		Locality locality = getLocality(localityId);
-
+		if(locality == null)
+			return null;
+		
 		Map<String, Object> localityReviewDetails = localityReviewService
 				.findReviewByLocalityId(localityId, null);
 
@@ -257,6 +261,12 @@ public class LocalityService {
 				.get(LocalityReviewService.TOTAL_REVIEWS) == null ? 0
 				: (Long) localityReviewDetails
 						.get(LocalityReviewService.TOTAL_REVIEWS));
+		
+		/*
+		 * Setting the average price BHK wise
+		 */
+		getAvgPricePerUnitAreaBHKWise(locality);
+		
 		return locality;
 	}
 
@@ -507,5 +517,19 @@ public class LocalityService {
 
 		return localities;
 	}
-
+	
+	private Object getAvgPricePerUnitAreaBHKWise(Locality locality){
+		Map<String, Map<String, Map<String, FieldStatsInfo>>> stats = propertyDao.getAvgPricePerUnitAreaBHKWise("localityId", locality.getLocalityId(), locality.getDominantUnitType());
+		
+		if(stats == null || stats.get("pricePerUnitArea").get("BEDROOMS") == null)
+			return null;
+		
+		Map<String, FieldStatsInfo> priceStats = stats.get("pricePerUnitArea").get("BEDROOMS");
+		Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
+		for(Map.Entry<String, FieldStatsInfo> entry : priceStats.entrySet()){
+			avgPrice.put(Integer.parseInt( entry.getKey() ) , (Double)entry.getValue().getMean());
+		}
+		locality.setAvgBHKPrice(avgPrice);
+		return new Object();
+	}
 }
