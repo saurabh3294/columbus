@@ -31,20 +31,12 @@ public class Image implements BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-<<<<<<< HEAD
-    private long id;
-
-    @ManyToOne
-    @JoinColumn(name = "ImageType_id", insertable = false, updatable = false)
-    private ImageType imageType;
-=======
 	private long id;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.JOIN)
 	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
 	private ImageType imageType;
->>>>>>> 730933040815a1056944ccdfe1a3e1745ffb10f6
 
     @Column(name = "ImageType_id")
     private long imageTypeId;

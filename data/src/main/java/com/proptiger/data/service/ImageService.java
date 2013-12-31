@@ -68,25 +68,7 @@ public class ImageService {
 		}
 	}
 
-<<<<<<< HEAD
 	private void applyWaterMark(File file, String format) throws IOException {
-=======
-	@Resource
-	private ImageDao imageDao;
-
-	private boolean isEmpty(MultipartFile file) {
-		return (file.getSize() == 0) ? true : false;
-	}
-
-	private void convertToJPG(File image, File jpg) throws IOException {
-		InputStream imageIS = new FileInputStream(image);
-		BufferedImage img = ImageIO.read(imageIS);
-		ImageIO.write(img, "jpg", jpg); // Writes at 0.7 compression quality
-		imageIS.close();
-	}
-
-	private void applyWaterMark(File file) throws IOException {
->>>>>>> 730933040815a1056944ccdfe1a3e1745ffb10f6
 		URL url = this.getClass().getClassLoader().getResource("watermark.png");
 		InputStream waterMarkIS = new FileInputStream(url.getFile());
 		BufferedImage waterMark = ImageIO.read(waterMarkIS);
