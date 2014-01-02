@@ -101,12 +101,6 @@ public class LocalityReviewService {
 		return localityReviewDao.getTotalReviewsByLocalityId(localityId);
 	}
 	
-	@Deprecated
-	public Object[] getLocalityRating(int localityId){
-		return localityRatingDao
-		.getAvgAndTotalRatingByLocalityId(localityId);
-	}
-	
 	public Map<String, Object> getTotalUsersByRatingByLocalityId(int localityId){
 		List<Object[]> ratingDetails = localityRatingDao.getTotalUsersByRating(localityId);
 		if(ratingDetails == null || ratingDetails.size() < 1)
