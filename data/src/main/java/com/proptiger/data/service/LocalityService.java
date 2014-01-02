@@ -265,7 +265,7 @@ public class LocalityService {
 		/*
 		 * Setting the average price BHK wise
 		 */
-		getAvgPricePerUnitAreaBHKWise(locality);
+		locality.setAvgBHKPrice( getAvgPricePerUnitAreaBHKWise("localityId", locality.getLocalityId(), locality.getDominantUnitType()) );
 		
 		return locality;
 	}
@@ -518,8 +518,8 @@ public class LocalityService {
 		return localities;
 	}
 	
-	private Object getAvgPricePerUnitAreaBHKWise(Locality locality){
-		Map<String, Map<String, Map<String, FieldStatsInfo>>> stats = propertyDao.getAvgPricePerUnitAreaBHKWise("localityId", locality.getLocalityId(), locality.getDominantUnitType());
+	public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType){
+		Map<String, Map<String, Map<String, FieldStatsInfo>>> stats = propertyDao.getAvgPricePerUnitAreaBHKWise(locationType, locationId, unitType);
 		
 		if(stats == null || stats.get("pricePerUnitArea").get("BEDROOMS") == null)
 			return null;
@@ -529,7 +529,7 @@ public class LocalityService {
 		for(Map.Entry<String, FieldStatsInfo> entry : priceStats.entrySet()){
 			avgPrice.put(Integer.parseInt( entry.getKey() ) , (Double)entry.getValue().getMean());
 		}
-		locality.setAvgBHKPrice(avgPrice);
-		return new Object();
+		
+		return avgPrice;
 	}
 }

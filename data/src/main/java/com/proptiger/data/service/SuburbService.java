@@ -21,8 +21,20 @@ import com.proptiger.data.repo.SuburbDao;
 public class SuburbService {
     @Autowired
     private SuburbDao suburbDao;
+    
+    @Autowired
+    private LocalityService localityService;
 
     public List<Suburb> getSuburbs(Selector selector) {
         return Lists.newArrayList(suburbDao.getSuburbs(selector));
+    }
+    
+    public Suburb getSuburb(int suburbId){
+    	Suburb suburb = suburbDao.getSuburb(suburbId);
+    	if(suburb == null)
+    		return null;
+    	
+    	suburb.setAvgBHKPrice( localityService.getAvgPricePerUnitAreaBHKWise( "suburbId", suburbId, suburb.getDominantUnitType() ) );
+    	return suburb;
     }
 }

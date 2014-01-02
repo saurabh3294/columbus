@@ -489,7 +489,9 @@ public class PropertyDao {
     	Map<String, Object> filterCriteria = new HashMap<>();
     	
     	filterCriteria.put(locationType, locationId);
-    	//filterCriteria.put("unitType", unitType);
+    	
+    	if(unitType != null)
+    		filterCriteria.put("unitType", unitType);
     	searchType.put(Operator.equal.name(), filterCriteria);
     	list.add(searchType);
     	filter.put(Operator.and.name(), list);
