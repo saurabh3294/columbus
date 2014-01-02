@@ -1,30 +1,32 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.enums.DomainObject;
+import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.enums.ProjectStatus;
 import com.proptiger.data.model.filter.Operator;
-import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.BuilderDao;
+import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -41,6 +43,9 @@ public class BuilderService {
     private BuilderDao builderDao;
     
     @Autowired
+    private SolrDao solrDao;
+    
+    @Autowired
     private ProjectService projectService;
     
     @Autowired
@@ -49,7 +54,7 @@ public class BuilderService {
     public Builder getBuilderDetailsByProjectId(int projectId) {
         Builder builder = builderDao.findByProjectId(projectId);
         imageEnricher.setBuilderImages("logo", builder);
-      
+
         return builder;
     }
     
@@ -92,16 +97,14 @@ public class BuilderService {
     	while(ongoingProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = ongoingProjectItr.next();
     		imageEnricher.setProjectImages("main", project, null);
-    		project.setImages( project.getImages().subList(0, 1) );
-    		
+     		project.setImages( project.getImages().subList(0, 1) );
     		projectsToReturn.add(project);
     	}
     	
     	while(totalProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = totalProjectItr.next();
     		imageEnricher.setProjectImages(null, project, null);
-    		project.setImages( project.getImages().subList(0, 1) );
-    		
+     		project.setImages( project.getImages().subList(0, 1) );
     		projectsToReturn.add(project);
     	}
     	
@@ -159,12 +162,39 @@ public class BuilderService {
 	}
 
 	/**
-	 * Get popular builders
+	 * Get top builders, use the builders in that suburb/localities only.
+	 * However if priority of all builders is same then use the popular projects
+	 * and extract the unique builder of popular projects
+	 * 
 	 * @param builderSelector
 	 * @return
 	 */
-	public List<Builder> getPopularBuilders(
+	public List<Builder> getTopBuilders(
 			Selector builderSelector) {
-		return null;
+		SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.PROJECT);
+    	solrQuery.add("group", "true");
+    	solrQuery.add("group.field", "BUILDER_ID");
+    	solrQuery.add("group.ngroups", "true");
+    	solrQuery.add("group.main", "true");
+    	
+    	SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
+		solrQueryBuilder.buildQuery(builderSelector, null);
+		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
+		List<Builder> topBuilders = new ArrayList<>();
+		for (SolrResult result: response) {
+			topBuilders.add(result.getProject().getBuilder());
+		}
+		sortByPriorityAsc(topBuilders);
+		return topBuilders;
+	}
+	
+	private void sortByPriorityAsc(List<Builder> topBuilders) {
+		Collections.sort(topBuilders, new Comparator<Builder>() {
+			@Override
+			public int compare(Builder b1, Builder b2) {
+				return (b1.getPriority() - b2.getPriority());
+			}
+		});
 	}
 }

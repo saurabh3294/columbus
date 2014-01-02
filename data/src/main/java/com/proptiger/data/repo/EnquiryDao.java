@@ -23,4 +23,6 @@ public interface EnquiryDao extends JpaRepository<Enquiry, Serializable>{
     		" from  Enquiry E left join E.project P join E.locality L" +
     		" where E.email=?1 order by E.createdDate DESC")
     public List<Object[]> findEnquiriesByEmail(String email);
+    
+    public Enquiry findEnquiryByEmailAndProjectId(String email, Long projectId);
 }

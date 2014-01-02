@@ -126,6 +126,7 @@ public class ProjectService {
 	 */
     public List<Project> getPopularProjects(Selector projectSelector){
     	LinkedHashSet<SortBy> sortBySet = createdSortingForPopularProjects();
+    	//sorting provided in api call will not be considered
     	projectSelector.setSort(sortBySet);
     	SolrServiceResponse<List<Project>> result = getProjects(projectSelector);
     	return result.getResult();
@@ -160,7 +161,7 @@ public class ProjectService {
     	sortBySet.add(sortByAssignedPriority);
     	//third sorting by computed priority
     	sortBySet.add(sortByComputedPriority);
-    	//fourth sorth by project id
+    	//fourth sorting by project id
     	sortBySet.add(sortByProjectId);
 		return sortBySet;
 	}

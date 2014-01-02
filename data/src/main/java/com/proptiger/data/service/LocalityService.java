@@ -40,6 +40,7 @@ import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
+
 /**
  * @author mandeep
  * @author Rajeev Pandey
@@ -207,18 +208,16 @@ public class LocalityService {
 
 	/**
 	 * Get locality for locality id
-	 * 
 	 * @param localityId
 	 * @return
 	 */
 	public Locality getLocality(int localityId) {
 		return localityDao.findOne(localityId);
 	}
-
+	
 	/**
-	 * This method get locality information with some more application specific
-	 * data. Pass the image count if you need images of this locality.
-	 * 
+	 * This method get locality information with some more application specific data.
+	 * Pass the image count if you need images of this locality.
 	 * @param localityId
 	 * @param imageCount
 	 * @return
@@ -232,6 +231,7 @@ public class LocalityService {
 		Map<String, Object> localityReviewDetails = localityReviewService
 				.findReviewByLocalityId(localityId, null);
 
+		
 		List<LocalityAmenity> amenities = localityAmenityService
 				.getLocalityAmenities(localityId, null);
 		Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
@@ -330,10 +330,10 @@ public class LocalityService {
 	}
 
 	/**
-	 * Get top localities either of city or suburb id. In case of city id get
-	 * top localities based on their rating is >= α
+	 * Get top localities either of city or suburb id. In case of city id or suburb id get
+	 * top localities based on their rating is >= α 
 	 * 
-	 * α = 3 star
+	 * α = 3 star, specfied in property file
 	 * 
 	 * @param cityId
 	 * @param suburbId

@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.imageio.ImageIO;
 
 import org.im4java.core.CompositeCmd;
@@ -44,7 +43,10 @@ import com.proptiger.data.util.PropertyReader;
  */
 @Service
 public class ImageService {
-	private static File tempDir;
+    private static File tempDir;
+
+    @Autowired
+    private ImageDao imageDao;
 
 	@Autowired
 	protected PropertyReader propertyReader;
@@ -66,21 +68,7 @@ public class ImageService {
 		}
 	}
 
-	@Resource
-	private ImageDao imageDao;
-
-	private boolean isEmpty(MultipartFile file) {
-		return (file.getSize() == 0) ? true : false;
-	}
-
-	private void convertToJPG(File image, File jpg) throws IOException {
-		InputStream imageIS = new FileInputStream(image);
-		BufferedImage img = ImageIO.read(imageIS);
-		ImageIO.write(img, "jpg", jpg); // Writes at 0.7 compression quality
-		imageIS.close();
-	}
-
-	private void applyWaterMark(File file) throws IOException {
+	private void applyWaterMark(File file, String format) throws IOException {
 		URL url = this.getClass().getClassLoader().getResource("watermark.png");
 		InputStream waterMarkIS = new FileInputStream(url.getFile());
 		BufferedImage waterMark = ImageIO.read(waterMarkIS);
@@ -95,7 +83,7 @@ public class ImageService {
         imOps.addImage();
         CompositeCmd cmd = new CompositeCmd();
 
-        File outputFile = File.createTempFile("outputImage", ".jpg", tempDir);
+        File outputFile = File.createTempFile("outputImage", Image.DOT + format, tempDir);
 
 		try {
             cmd.run(imOps, waterMark, image, outputFile.getAbsolutePath());
@@ -115,10 +103,9 @@ public class ImageService {
 		waterMarkIS.close();
 	}
 
-	private void uploadToS3(Image image, File original, File waterMark) {
+	private void uploadToS3(Image image, File original, File waterMark) throws IllegalArgumentException, IOException {
 		AmazonS3 s3 = createS3Instance();
 		s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
-		image.assignWatermarkName();
 		s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
 	}
 
@@ -134,11 +121,6 @@ public class ImageService {
 		AmazonS3 s3 = new AmazonS3Client(credentials, config);
         return s3;
     }
-
-	private void cleanUp(File original, File waterMark) {
-		original.delete();
-		waterMark.delete();
-	}
 
 	/*
 	 * Public method to get images
@@ -166,33 +148,31 @@ public class ImageService {
 		addWaterMark = (addWaterMark != null) ? addWaterMark : true;
 		try {
 			// Upload file
-			File originalFile = File.createTempFile("originalImage", ".tmp",
-					tempDir);
-			if (isEmpty(fileUpload))
+			File originalFile = File.createTempFile("originalImage", ".tmp", tempDir);
+
+			if (fileUpload.isEmpty())
 				throw new IllegalArgumentException("Empty file uploaded");
 			fileUpload.transferTo(originalFile);
-			if (!ImageUtil.isValidImage(originalFile)) {
-				originalFile.delete();
-				throw new IllegalArgumentException(
-						"Uploaded file is not an image");
-			}
+			String format = ImageUtil.getImageFormat(originalFile);
+
 			// Image uploaded
-			File processedFile = File.createTempFile("jpgImage", ".jpg", tempDir);
-			convertToJPG(originalFile, processedFile);
+			File processedFile = File.createTempFile("processedImage", Image.DOT + format, tempDir);
+			Files.copy(originalFile, processedFile);
 
 			if (addWaterMark) {
-				applyWaterMark(processedFile);
+				applyWaterMark(processedFile, format);
 			}
 
 			// Persist
 			Image image = imageDao.insertImage(object, imageTypeStr, objectId,
-					originalFile, processedFile, extraInfo);
+					originalFile, processedFile, extraInfo, format);
 			uploadToS3(image, originalFile, processedFile);
-			cleanUp(originalFile, processedFile);
+			originalFile.delete();
+		    processedFile.delete();
 			imageDao.markImageAsActive(image);
 			return image;
 		} catch (IllegalStateException | IOException e) {
-			throw new RuntimeException("Something went wrong", e);
+			throw new RuntimeException("Could not process image", e);
 		}
 	}
 
@@ -211,7 +191,7 @@ public class ImageService {
         try {
             originalFile = File.createTempFile("originalImage", ".jpg", tempDir);
             imageFile.transferTo(originalFile);
-            applyWaterMark(originalFile);
+            applyWaterMark(originalFile, null);
         } catch (IllegalStateException | IOException e) {
             throw new RuntimeException("Could not watermark image", e);
         }
