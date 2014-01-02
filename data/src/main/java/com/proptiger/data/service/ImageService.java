@@ -177,7 +177,7 @@ public class ImageService {
 	}
 
     public void deleteImage(long id) {
-    	deleteImage(id);
+    	deleteImageInCache(id);
         imageDao.setActiveFalse(id);
     }
 
@@ -206,7 +206,7 @@ public class ImageService {
     	Image image = getImage(id);
     	DomainObject domainObject = DomainObject.valueOf( image.getImageType().getObjectType().getType() );
     	
-    	String cacheKey = getImageCacheKey(domainObject, image.getImageType().getType(), image.getId());
+    	String cacheKey = getImageCacheKey(domainObject, image.getImageType().getType(), image.getObjectId());
     	
     	caching.deleteResponseFromCache(cacheKey);
     }
