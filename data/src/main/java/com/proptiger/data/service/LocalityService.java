@@ -228,39 +228,23 @@ public class LocalityService {
 		if(locality == null)
 			return null;
 		
-		Map<String, Object> localityReviewDetails = localityReviewService
-				.findReviewByLocalityId(localityId, null);
-
-		
 		List<LocalityAmenity> amenities = localityAmenityService
 				.getLocalityAmenities(localityId, null);
 		Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
 
 		locality.setAmenityTypeCount(localityAmenityCountMap);
-		locality.setAverageRating(localityReviewDetails
-				.get(LocalityReviewService.AVERAGE_RATINGS) == null ? 0
-				: (Double) localityReviewDetails
-						.get(LocalityReviewService.AVERAGE_RATINGS));
+		
 		/*
 		 * Hit image service only if images are required
 		 */
 		if (imageCount != null && imageCount > 0) {
 			imageEnricher.setLocalityImages(null, locality, imageCount);
 		}
+		
 		/*
-		 * Setting total rating counts
+		 * Setting Rating and Review Details. 
 		 */
-		locality.setRatingsCount(localityReviewDetails
-				.get(LocalityReviewService.TOTAL_RATINGS) == null ? 0
-				: (Long) localityReviewDetails
-						.get(LocalityReviewService.TOTAL_RATINGS));
-		/*
-		 * Setting total reviews counts
-		 */
-		locality.setTotalReviews(localityReviewDetails
-				.get(LocalityReviewService.TOTAL_REVIEWS) == null ? 0
-				: (Long) localityReviewDetails
-						.get(LocalityReviewService.TOTAL_REVIEWS));
+		setLocalityRatingAndReviewDetails(locality);
 		
 		/*
 		 * Setting the average price BHK wise
@@ -531,5 +515,36 @@ public class LocalityService {
 		}
 		
 		return avgPrice;
+	}
+	
+	public void setLocalityRatingAndReviewDetails(Locality locality){
+		
+		Map<String, Object> localityReviewDetails = localityReviewService
+				.findReviewByLocalityId(locality.getLocalityId(), null);
+
+		locality.setAverageRating(localityReviewDetails
+				.get(LocalityReviewService.AVERAGE_RATINGS) == null ? 0
+				: (Double) localityReviewDetails
+						.get(LocalityReviewService.AVERAGE_RATINGS));
+		
+		/*
+		 * Setting total rating counts
+		 */
+		locality.setRatingsCount(localityReviewDetails
+				.get(LocalityReviewService.TOTAL_RATINGS) == null ? 0
+				: (Long) localityReviewDetails
+						.get(LocalityReviewService.TOTAL_RATINGS));
+		/*
+		 * Setting total reviews counts
+		 */
+		locality.setTotalReviews(localityReviewDetails
+				.get(LocalityReviewService.TOTAL_REVIEWS) == null ? 0
+				: (Long) localityReviewDetails
+						.get(LocalityReviewService.TOTAL_REVIEWS));
+		
+		/*
+		 * Setting the Rating distribution 
+		 */
+		locality.setNumberOfUsersByRating( (Map<Double , Long>) localityReviewDetails.get(LocalityReviewService.TOTAL_USERS_BY_RATING) );
 	}
 }

@@ -172,6 +172,9 @@ public class Locality implements BaseModel {
     @Transient
     private Map<Integer, Double> avgBHKPrice;
     
+    @Transient
+    private Map<Double, Long> numberOfUsersByRating;
+    
     public int getLocalityId() {
         return localityId;
     }
@@ -460,5 +463,13 @@ public class Locality implements BaseModel {
 
 	public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
 		this.avgBHKPrice = avgBHKPrice;
+	}
+
+	public Map<Double, Long> getNumberOfUsersByRating() {
+		return numberOfUsersByRating;
+	}
+
+	public void setNumberOfUsersByRating(Map<Double, Long> numberOfUsersByRating) {
+		this.numberOfUsersByRating = numberOfUsersByRating;
 	}
 }

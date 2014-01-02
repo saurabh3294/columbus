@@ -35,6 +35,7 @@ import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityAmenityService;
 import com.proptiger.data.service.LocalityReviewService;
+import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
@@ -66,6 +67,9 @@ public class ProjectDetailController extends BaseController {
     
     @Autowired
     private LocalityReviewService localityReviewService;
+    
+    @Autowired
+    private LocalityService localityService;
     
     @RequestMapping(value="app/v1/project-detail")
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
@@ -123,11 +127,11 @@ public class ProjectDetailController extends BaseController {
         	}
         }
         
-        // getting localityRatings
-        Object[] localityRatings = localityReviewService.getLocalityRating( locality.getLocalityId() );
-        if(localityRatings != null)
-        	locality.setAverageRating( (Double) localityRatings[0] );
-                
+        /*
+         *  Setting locality Ratings And Reviews
+         */
+        localityService.setLocalityRatingAndReviewDetails(locality);
+        
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
