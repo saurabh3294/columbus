@@ -12,6 +12,7 @@ import java.util.TreeMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -34,6 +35,7 @@ import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityAmenityService;
 import com.proptiger.data.service.LocalityReviewService;
+import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectAmenityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
@@ -65,6 +67,9 @@ public class ProjectDetailController extends BaseController {
     
     @Autowired
     private LocalityReviewService localityReviewService;
+    
+    @Autowired
+    private LocalityService localityService;
     
     @RequestMapping(value="app/v1/project-detail")
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
@@ -122,11 +127,11 @@ public class ProjectDetailController extends BaseController {
         	}
         }
         
-        // getting localityRatings
-        Object[] localityRatings = localityReviewService.getLocalityRating( locality.getLocalityId() );
-        if(localityRatings != null)
-        	locality.setAverageRating( (Double) localityRatings[0] );
-                
+        /*
+         *  Setting locality Ratings And Reviews
+         */
+        localityService.setLocalityRatingAndReviewDetails(locality);
+        
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -140,6 +145,17 @@ public class ProjectDetailController extends BaseController {
         response.put("locality", locality);
         
         return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
+    }
+    
+    @RequestMapping(value="app/v2/project-detail")
+    @ResponseBody
+    public ProAPIResponse getProjectDetails2(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
+    	Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
+        if(propertyDetailsSelector == null) {
+            propertyDetailsSelector = new Selector();
+        }
+        
+    	return new ProAPISuccessResponse();
     }
     
     private Map<String, Object> parseSpecificationObject(ProjectSpecification projectSpecification){
@@ -204,5 +220,6 @@ public class ProjectDetailController extends BaseController {
         
         return parseMap;
     }
+    
     
 }

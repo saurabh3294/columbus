@@ -14,7 +14,7 @@ import com.proptiger.data.model.ProjectDiscussion;
 
 /**
  *
- * @author mukand
+ * @author Mukand
  */
 @Repository
 public class ProjectDao extends ProjectSolrDao {

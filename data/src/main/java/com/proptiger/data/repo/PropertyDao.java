@@ -4,6 +4,7 @@
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -28,6 +29,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.FieldsMapLoader;
+import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -101,7 +103,7 @@ public class PropertyDao {
         		query.add("stats.facet", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         	}
         }
-        
+        System.out.println(query.toString());
         Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
         Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
         for (String field : fields) {
@@ -476,6 +478,29 @@ public class PropertyDao {
 		
 		return newStats;
 	}
+    
+    public Map<String, Map<String, Map<String, FieldStatsInfo>>> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType){
+
+		Selector selector = new Selector();
+
+		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
+    	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+    	Map<String, Map<String, Object>> searchType = new HashMap<>();
+    	Map<String, Object> filterCriteria = new HashMap<>();
+    	
+    	filterCriteria.put(locationType, locationId);
+    	
+    	if(unitType != null)
+    		filterCriteria.put("unitType", unitType);
+    	searchType.put(Operator.equal.name(), filterCriteria);
+    	list.add(searchType);
+    	filter.put(Operator.and.name(), list);
+    	
+    	selector.setFilters(filter);
+    	selector.setPaging( new Paging(0, 0) );
+    	
+    	return getStatsFacetsAsMaps(selector,Arrays.asList("pricePerUnitArea"), Arrays.asList("bedrooms"));
+    }
     
     public static void main(String[] args) {
         Selector selector = new Selector();

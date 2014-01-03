@@ -1,5 +1,7 @@
 package com.proptiger.data.model;
 
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -103,13 +105,19 @@ public class City implements BaseModel{
     @Transient
     private Long projectsCount;
     
-    public int getId() {
+    @Transient
+    private String dominantUnitType;
+    
+    @Transient
+    private Map<Integer, Double> avgBHKPrice;
+    
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public void setId(Integer id) {
+		this.id = id;
+	}
 
     public String getLabel() {
         return label;
@@ -246,5 +254,21 @@ public class City implements BaseModel{
     public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
         this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
-    
+
+	public String getDominantUnitType() {
+		return dominantUnitType;
+	}
+
+	public void setDominantUnitType(String dominantUnitType) {
+		this.dominantUnitType = dominantUnitType;
+	}
+
+	public Map<Integer, Double> getAvgBHKPrice() {
+		return avgBHKPrice;
+	}
+
+	public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
+		this.avgBHKPrice = avgBHKPrice;
+	}
+
 }

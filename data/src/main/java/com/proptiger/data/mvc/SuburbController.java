@@ -5,6 +5,7 @@ package com.proptiger.data.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,12 +26,19 @@ public class SuburbController extends BaseController {
     private SuburbService suburbService;
     
     @RequestMapping
-    public @ResponseBody ProAPIResponse getLocalities(@RequestParam(required=false) String selector) {
+    public @ResponseBody ProAPIResponse getSuburbs(@RequestParam(required=false) String selector) {
         Selector suburbSelector = new Selector();
         if (selector != null) {
             suburbSelector = super.parseJsonToObject(selector, Selector.class);
         }
         
         return new ProAPISuccessResponse(super.filterFields(suburbService.getSuburbs(suburbSelector), suburbSelector.getFields()));
+    }
+    
+    @RequestMapping("/{suburbId}")
+    @ResponseBody
+    public ProAPIResponse getSuburb(@PathVariable int suburbId){
+    	
+    	return new ProAPISuccessResponse( super.filterFields( suburbService.getSuburb(suburbId), null) );
     }
 }

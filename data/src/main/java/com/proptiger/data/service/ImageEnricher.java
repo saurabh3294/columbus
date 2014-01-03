@@ -48,6 +48,9 @@ public class ImageEnricher {
 	
 	@Deprecated
 	public void setProjectDBImages(String imageTypeStr, ProjectDB project){
+		if(project == null)
+			return ;
+		
 		List<Image> images = imageService.getImages( DomainObject.project, imageTypeStr, project.getProjectId() );
 		project.setImages(images);
 		 if (images != null && !images.isEmpty()) {
@@ -79,6 +82,9 @@ public class ImageEnricher {
 	}
 	
 	public void setBuilderImages(String imageTypeStr, Builder builder){
+		if(builder == null)
+			return;
+		
 		List<Image> images = imageService.getImages( DomainObject.builder, imageTypeStr, builder.getId() );
 		if(images!=null && images.size() > 0)
 			builder.setImageURL(images.get(0).getAbsolutePath());

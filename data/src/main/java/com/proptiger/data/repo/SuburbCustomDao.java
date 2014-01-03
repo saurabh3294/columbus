@@ -14,4 +14,5 @@ import com.proptiger.data.pojo.Selector;
  */
 public interface SuburbCustomDao {
     public List<Suburb> getSuburbs(Selector selector);
+    public Suburb getSuburb(int subUrbId);
 }

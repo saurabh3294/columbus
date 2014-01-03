@@ -165,6 +165,16 @@ public class Locality implements BaseModel {
     @Field("LOCALITY_PRICE_PER_UNIT_AREA")
     private Double avgPricePerUnitArea;
     
+    @Transient
+    @Field("DOMINANT_UNIT_TYPE")
+    private String dominantUnitType;
+    
+    @Transient
+    private Map<Integer, Double> avgBHKPrice;
+    
+    @Transient
+    private Map<Double, Long> numberOfUsersByRating;
+    
     public int getLocalityId() {
         return localityId;
     }
@@ -430,4 +440,36 @@ public class Locality implements BaseModel {
     public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
         this.avgPriceRiseMonths = avgPriceRiseMonths;
     }
+
+	public Set<LocalityReview> getLocalityReviews() {
+		return localityReviews;
+	}
+
+	public void setLocalityReviews(Set<LocalityReview> localityReviews) {
+		this.localityReviews = localityReviews;
+	}
+
+	public String getDominantUnitType() {
+		return dominantUnitType;
+	}
+
+	public void setDominantUnitType(String dominantUnitType) {
+		this.dominantUnitType = dominantUnitType;
+	}
+
+	public Map<Integer, Double> getAvgBHKPrice() {
+		return avgBHKPrice;
+	}
+
+	public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
+		this.avgBHKPrice = avgBHKPrice;
+	}
+
+	public Map<Double, Long> getNumberOfUsersByRating() {
+		return numberOfUsersByRating;
+	}
+
+	public void setNumberOfUsersByRating(Map<Double, Long> numberOfUsersByRating) {
+		this.numberOfUsersByRating = numberOfUsersByRating;
+	}
 }

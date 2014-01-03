@@ -20,6 +20,9 @@ public class CityService {
 	@Autowired
 	private CityDao cityDao;
 	
+	@Autowired
+	private LocalityService localityService;
+	
 	/**
 	 * Get list of city details
 	 * @param selector
@@ -27,5 +30,14 @@ public class CityService {
 	 */
 	public List<City> getCityList(Selector selector){
 		return cityDao.getCities(selector);
+	}
+	
+	public City getCityInfo(int cityId){
+		City city = cityDao.getCity(cityId);
+		if(city==null)
+			return null;
+		
+		city.setAvgBHKPrice( localityService.getAvgPricePerUnitAreaBHKWise( "cityId", cityId, city.getDominantUnitType() ) );
+		return city;
 	}
 }

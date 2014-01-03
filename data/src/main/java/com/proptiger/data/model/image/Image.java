@@ -1,5 +1,6 @@
 package com.proptiger.data.model.image;
 
+import java.io.File;
 import java.util.Date;
 
 import javax.persistence.Access;
@@ -25,8 +26,10 @@ import com.proptiger.data.util.ImageUtil;
 @Entity(name = "Image")
 @Access(AccessType.FIELD)
 @JsonFilter("fieldFilter")
-public class Image implements BaseModel{
-	@Id
+public class Image implements BaseModel {
+    public static final String DOT = ".";
+
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
@@ -35,77 +38,73 @@ public class Image implements BaseModel{
 	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
 	private ImageType imageType;
 
-	@Column(name = "ImageType_id")
+    @Column(name = "ImageType_id")
     private long imageTypeId;
-	
-	@Column(name = "object_id")
-	private long objectId;
-	
-	private String path;
 
-    public void assignWatermarkName() {
-        waterMarkName = id + ".jpg";
-    }
+    @Column(name = "object_id")
+    private long objectId;
 
-    public void assignOriginalName(String format) {
-        originalName = originalHash + '.' + format;
-    }
+    private String path;
 
-	@JsonProperty
-    public String getAbsolutePath() {
-        return ImageUtil.endpoint + "/" + path + waterMarkName;
-    }
-	
-	@JsonProperty
-    public void setAbsolutePath(String str) {
-    }
-	
-	@Column(name = "created_at")
-	private Date createdAt;
-	
-	@Column(name = "taken_at", nullable = true)
-	private Date takenAt;
-	
-	@Column(name = "size_in_bytes")
-	private long sizeInBytes;
-	
-	private int width;
-	
-	private int height;
-	
-	private Double latitude;
-	
-	private Double longitude;
-	
-	@Column(name = "alt_text", nullable = true)
-	private String altText;
-	
-	private String title;
-	
-	private String description;
-	
-	@Column(name = "json_dump", nullable = true)
-	private String jsonDump;
-	
-	private Integer priority;
+    @Column(name = "created_at")
+    private Date createdAt;
 
-	@Column(name = "original_hash")
-	@JsonIgnore
-	private String originalHash;
+    @Column(name = "taken_at", nullable = true)
+    private Date takenAt;
 
-	@Column(name = "original_name")
+    @Column(name = "size_in_bytes")
+    private long sizeInBytes;
+
+    private int width;
+
+    private int height;
+
+    private Double latitude;
+
+    private Double longitude;
+
+    @Column(name = "alt_text", nullable = true)
+    private String altText;
+
+    private String title;
+
+    private String description;
+
+    @Column(name = "json_dump", nullable = true)
+    private String jsonDump;
+
+    private Integer priority;
+
+    @Column(name = "original_hash")
+    @JsonIgnore
+    private String originalHash;
+
+    @Column(name = "original_name")
     @JsonIgnore
     private String originalName;
 
-	@JsonIgnore
-	@Column(name = "watermark_hash")
-	private String waterMarkHash;
+    @JsonIgnore
+    @Column(name = "watermark_hash")
+    private String waterMarkHash;
 
-	@JsonIgnore
-	@Column(name = "watermark_name")
-	private String waterMarkName;
+    @JsonIgnore
+    @Column(name = "watermark_name")
+    private String waterMarkName;
 
-	private boolean active;
+    private boolean active;
+
+    public void assignWatermarkName(String format) {
+        waterMarkName = id + DOT + format;
+    }
+
+    public void assignOriginalName(String format) {
+        originalName = originalHash + DOT + format;
+    }
+
+    @JsonProperty
+    public String getAbsolutePath() {
+        return ImageUtil.endpoint + File.separator + path + waterMarkName;
+    }
 
     public long getId() {
         return id;
