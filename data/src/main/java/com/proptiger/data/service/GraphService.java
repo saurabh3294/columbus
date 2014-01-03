@@ -45,6 +45,16 @@ public class GraphService {
     @Autowired
     private NearLocalitiesDao nearLocalitiesDao;
             
+    /**
+     * This method will return the number of projects for a project status group and bedrooms wise
+     * for a locality or suburb or city. 
+     * @param params of type Map<String, String> . The map contain three parameters:
+     *        1: location_type: city or suburb or locality
+     *        2: location_id: id of the corresponding location type
+     *        3: optional: bedroom upper limit(default 3). meaning the bedrooms above this will be grouped.
+     * @return Map<String, Map<Integer, Integer>> String is the project status. next integer is the bedroom
+     *         and next integer is the project count.
+     */
     public Map<String, Map<Integer, Integer>> getProjectDistrubtionOnStatus(Map<String, String> params){
         int bedroom_limit = Integer.parseInt( params.get("bedroom_upper_limit") );
         
@@ -122,6 +132,18 @@ public class GraphService {
         return response;
     }
     
+    /**
+     * This method will return the enquiry distribution of the localities in a city or suburb. The enquiry distribution will
+     * pick the localities with maximum enquiries. In case of location_type locality, the top enquiry localities will be 
+     * picked including the current locality only if the enquiry percentage is > 1.
+     *  
+     * @param params of type Map<String, String> . The map contain three parameters:
+     *        1: location_type: city or suburb or locality
+     *        2: location_id: id of the corresponding location type
+     *        3: number_of_localities: The number of localities to return in response for enquiry distribution.
+     *        4: last_number_of_months: number of months of data to be returned.
+     * @return Map<String, Double> String is the locality name and Double is the percentage of enquiry distribution.
+     */
     public Map<String, Double> getEnquiryDistributionOnLocality(Map<String, Object> params){
         
         Double locationId = (Double)params.get("location_id");
@@ -191,6 +213,18 @@ public class GraphService {
         return response;
     }
     
+    /**
+     * This method will get the prices of all projects for a locality or suburb or city. Then it will group the projects
+     * based on their price. The price range will be based on the custom_price_range params. 
+     * @param params of type Map<String, String> . The map contain three parameters:
+     *        1: location_type: city or suburb or locality
+     *        2: location_id: id of the corresponding location type
+     *        3: custom_price_range(Map<String, Double>): The range of price by which the projects will be grouped. 
+     *           Here String will the range of price. Double will be number of times this range will be repeated.
+     *           
+     * @return Map<String, Integer> Here String will contain the price range and the Integer will contain the project
+     *         count in this range.
+     */
     public Map<String, Integer> getProjectDistributionOnPrice(Map<String, Object> params){
         
         Map<String, Integer> solrData = propertyDao.getProjectDistributionOnPrice(params).get("PRICE_PER_UNIT_AREA");
@@ -273,6 +307,16 @@ public class GraphService {
         return response;
     }
     
+    /**
+     * This method will return the Property Price Trends on city or suburb or locality. It
+     * will retrieve the data from the CMS api.
+     * @param paramObject The map contain three parameters:
+     * 		  1: location_type: city or suburb or locality
+     *        2: location_id: id of the corresponding location type
+     *        3: unit_type: unit type of the property.
+     *        
+     * @return Object.
+     */
     public Object getPropertyPriceTrends(Map<String, Object> paramObject){
         String locationType = (String)paramObject.get("location_type");
         Double locationId = (Double)paramObject.get("location_id");
@@ -282,6 +326,17 @@ public class GraphService {
         return cmsDao.getPropertyPriceTrends(locationType, locationId.intValue(), unitType);
     }
     
+    
+    /**
+     * This method will select the top locality in a city or suburb. Then it will get near 
+     * localities of the  top locality. Then it will fetch data for localities selected from
+     * cms.
+     * @param paramObject
+     * 		  1: location_type: city or suburb or locality
+     *        2: location_id: id of the corresponding location type
+     *        3: unit_type: unit type of the property.
+     * @return Object
+     */
     public Object getPriceTrendComparisionLocalities(Map<String, Object> paramObject){
         String locationType = (String)paramObject.get("location_type");
         Double locationId = (Double)paramObject.get("location_id");
