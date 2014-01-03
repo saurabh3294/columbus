@@ -41,6 +41,12 @@ public class ProjectService {
     @Autowired
     private ImageEnricher imageEnricher;
 
+    /**
+     * This method will return the list of projects and total projects found based on the selector.
+     * @param projectFilter
+     * @return SolrServiceResponse<List<Project>> it will contain the list of localities and
+     *         total projects found.
+     */
     public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
     	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
     	imageEnricher.setProjectsImages("main", projects.getResult(), null);

@@ -189,6 +189,11 @@ public class BuilderService {
 		return topBuilders;
 	}
 	
+	
+	/**
+	 * The method is used to sort the builders based on their priority.
+	 * @param topBuilders
+	 */
 	private void sortByPriorityAsc(List<Builder> topBuilders) {
 		Collections.sort(topBuilders, new Comparator<Builder>() {
 			@Override
