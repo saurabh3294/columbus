@@ -4,8 +4,10 @@
  */
 package com.proptiger.data.service;
 
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
-import com.proptiger.data.model.enums.DomainObject;
+import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
@@ -24,6 +26,7 @@ import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
+import com.proptiger.mail.service.MailSender;
 
 /**
  * 
@@ -41,6 +44,9 @@ public class ProjectService {
     @Autowired
     private ImageEnricher imageEnricher;
 
+    @Autowired
+	private MailSender mailSender;
+    
     public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
     	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
     	imageEnricher.setProjectsImages("main", projects.getResult(), null);
@@ -164,5 +170,30 @@ public class ProjectService {
     	//fourth sorting by project id
     	sortBySet.add(sortByProjectId);
 		return sortBySet;
+	}
+	
+	/**
+	 * Get project details and send required project details to provided mail id
+	 * 
+	 * @param to
+	 * @param projectId
+	 * @return
+	 */
+	public boolean sendProjectDetailsMail(String to, Integer projectId){
+		boolean sent = false;
+		Set<Integer> projectIdSet = new HashSet<Integer>();
+		projectIdSet.add(projectId);
+		List<SolrResult> projects = projectDao.getProjectsOnIds(projectIdSet);
+		if (projects != null && projects.size() >= 1) {
+			Project project = projects.get(0).getProject();
+			// TODO waiting for html template
+			sent = mailSender.sendMailUsingAws(to,
+					"test mail content for ptoject id=" + projectId,
+					"test subject for ptoject id=" + projectId);
+		}
+		else{
+			throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+		}
+		return sent;
 	}
 }

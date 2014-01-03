@@ -46,7 +46,7 @@ public class BuilderService {
     private SolrDao solrDao;
     
     @Autowired
-    private ProjectService projectService;
+    private PropertyService propertyService;
     
     @Autowired
     private ImageEnricher imageEnricher;
@@ -78,7 +78,7 @@ public class BuilderService {
     	 * creating selector to find total projects of builder
     	 */
     	Selector totalProjectSelector = createSelectorForTotalProjectOfBuilder(builderId, projectStatusNotIn, selector);
-    	SolrServiceResponse<List<Project>> totalProjects = projectService.getProjects(totalProjectSelector);
+    	SolrServiceResponse<List<Project>> totalProjects = propertyService.getPropertiesGroupedToProjects(totalProjectSelector);
     	
     	builder.setTotalProjects(((Long)totalProjects.getTotalResultCount()).intValue());
     	/*
@@ -87,7 +87,7 @@ public class BuilderService {
     	projectStatusNotIn.add(ProjectStatus.OCCUPIED.getStatus());
     	projectStatusNotIn.add(ProjectStatus.READY_FOR_POSSESSION.getStatus());
     	Selector selectorForOnGoingProject = createSelectorForTotalProjectOfBuilder(builderId, projectStatusNotIn, selector);
-    	SolrServiceResponse<List<Project>> ongoingProjects = projectService.getProjects(selectorForOnGoingProject);
+    	SolrServiceResponse<List<Project>> ongoingProjects = propertyService.getPropertiesGroupedToProjects(selectorForOnGoingProject);
     	builder.setTotalOngoingProjects(((Long)ongoingProjects.getTotalResultCount()).intValue());
 
     	Iterator<Project> totalProjectItr = totalProjects.getResult().iterator();
