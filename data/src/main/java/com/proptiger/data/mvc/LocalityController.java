@@ -123,6 +123,7 @@ public class LocalityController extends BaseController {
 
     @RequestMapping("/{localityId}/radius")
 	@ResponseBody
+	@Deprecated
 	public ProAPIResponse getLocalityRadiusOnProject(@PathVariable int localityId){
 		return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
 	}

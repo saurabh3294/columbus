@@ -161,7 +161,10 @@ public class LocalityService {
 				.get("LOCALITY_ID_PROJECT_STATUS"));
 		Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount
 				.get("LOCALITY_ID");
-		Map<String, FieldStatsInfo> resalePriceStats = priceStats.get(
+		Map<String, FieldStatsInfo> resalePriceStats = null;
+		
+		if(priceStats != null)
+		resalePriceStats = priceStats.get(
 				"resalePrice").get("LOCALITY_ID");
 		
 		int size = localities.size();
@@ -607,5 +610,12 @@ public class LocalityService {
 		 * Setting the Rating distribution 
 		 */
 		locality.setNumberOfUsersByRating( (Map<Double , Long>) localityReviewDetails.get(LocalityReviewService.TOTAL_USERS_BY_RATING) );
+		
+		/*
+		 * setting the project status counts and project counts.
+		 */
+		Map<String, Map<String, Integer>> projectAndProjectStatusCounts = propertyDao.getProjectStatusCountAndProjectOnLocality(locality.getLocalityId());
+		setProjectStatusCountAndProjectCountAndPriceOnLocality(Arrays.asList(locality), projectAndProjectStatusCounts, null);
 	}
+	
 }
