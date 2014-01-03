@@ -89,10 +89,27 @@ public class LocalityService {
 	@Value("${popular.locality.threshold.count}")
 	private Integer popularLocalityThresholdCount;
 
+	
+	/**
+	 * This method will return the List of localities selected based on the selector provided.
+	 * @param selector
+	 * @return List<Locality>
+	 */
 	public List<Locality> getLocalities(Selector selector) {
 		return Lists.newArrayList(localityDao.getLocalities(selector));
 	}
 
+	
+	/**
+	 * This method will return the list of localities for locality listing. The localities
+	 * will be selected based on the selector provided. The list of seperate data added is :
+	 * 1: project status count for each locality
+	 * 2: resale Price info.
+	 * 3: number of projects in a locality.
+	 * @param selector
+	 * @return SolrServiceResponse<List<Locality>> it will contain the list of localities based on 
+	 * paging in the selector and the total localities found based on selector in the object.
+	 */
 	public SolrServiceResponse<List<Locality>> getLocalityListing(
 			Selector selector) {
 		// adding the locality in the selector as we needed localityId
@@ -126,7 +143,15 @@ public class LocalityService {
 				priceStats);
 		return localities;
 	}
-
+	
+	/**
+	 * This method will take the list of localities , Price stats and project status count and project count
+	 * from solr. This method will iterate on localities and set the data for each locality in the locality
+	 * object.
+	 * @param localities
+	 * @param solrProjectStatusCountAndProjectCount
+	 * @param priceStats
+	 */
 	public void setProjectStatusCountAndProjectCountAndPriceOnLocality(
 			List<Locality> localities,
 			Map<String, Map<String, Integer>> solrProjectStatusCountAndProjectCount,
@@ -167,6 +192,14 @@ public class LocalityService {
 
 	}
 
+	/**
+	 * This method will take the solr Output of locality project status count and convert it into a map
+	 * where key will be the locality Id and project status and their counts.
+	 * @param solrProjectStatusCount Map<String Integer> Here String will be the localityId:project_status
+	 *        and Integer will the count of project status on that locality.
+	 * @return Map<Integer, Map<String, Integer>> Here Integer will be the localityId, String will be the 
+	 *         project status and then Integer will be the project status count on that locality.
+	 */
 	public Map<Integer, Map<String, Integer>> getProjectStatusCountOnLocalityByCity(
 			Map<String, Integer> solrProjectStatusCount) {
 		Map<Integer, Map<String, Integer>> localityProjectStatusCount = new HashMap<Integer, Map<String, Integer>>();
@@ -209,7 +242,7 @@ public class LocalityService {
 	/**
 	 * Get locality for locality id
 	 * @param localityId
-	 * @return
+	 * @return Locality
 	 */
 	public Locality getLocality(int localityId) {
 		return localityDao.findOne(localityId);
@@ -217,10 +250,14 @@ public class LocalityService {
 	
 	/**
 	 * This method get locality information with some more application specific data.
-	 * Pass the image count if you need images of this locality.
+	 * Pass the image count if you need images of this locality. The more information
+	 * inserted in the locality data is as follows:
+	 * 1: The average rating and total rating users.
+	 * 2: The distribution of ratings by users.
+	 * 3: The average price per BHK.
 	 * @param localityId
 	 * @param imageCount
-	 * @return
+	 * @return Locality 
 	 */
 	public Locality getLocalityInfo(int localityId, Integer imageCount) {
 		logger.debug("Get locality info for locality id {}", localityId);
@@ -258,7 +295,8 @@ public class LocalityService {
 	 * This methods returns the number of each amenities.
 	 * 
 	 * @param amenities
-	 * @return
+	 * @return Map<String, Integer> Here String will represent the amenity type and the
+	 * Integer will mean the count of amenities found.
 	 */
 	private Map<String, Integer> getLocalityAmenitiesCount(
 			List<LocalityAmenity> amenities) {
@@ -294,7 +332,7 @@ public class LocalityService {
 	 * @param cityId
 	 * @param suburbId
 	 * @param enquiryInWeeks
-	 * @return
+	 * @return List<Locality>
 	 */
 	public List<Locality> getPopularLocalities(Integer cityId,
 			Integer suburbId, Integer enquiryInWeeks) {
@@ -322,7 +360,7 @@ public class LocalityService {
 	 * @param cityId
 	 * @param suburbId
 	 * @param selector
-	 * @return
+	 * @return List<Locality>
 	 */
 	public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
 			Selector selector) {
@@ -359,7 +397,7 @@ public class LocalityService {
 	 * 
 	 * @param localityId
 	 * @param selector
-	 * @return
+	 * @return List<Locality>
 	 */
 	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId,
 			Selector localitySelector) {
@@ -487,7 +525,13 @@ public class LocalityService {
 		selector.setFilters(filter);
 		return selector;
 	}
-
+	
+	
+	/**
+	 * This method will return the List of locality ids based on the property selector.
+	 * @param solrMap
+	 * @return List<Integer> list of locality ids.
+	 */
 	private List<Integer> getLocalityIdsOnPropertySelector(
 			Map<String, Map<String, Integer>> solrMap) {
 		Map<String, Integer> projectCountOnLocality = solrMap
@@ -502,6 +546,14 @@ public class LocalityService {
 		return localities;
 	}
 	
+	/**
+	 * This method will return the average price per bhk on the properties found in a locality.
+	 * @param locationType city or suburb or locality.
+	 * @param locationId
+	 * @param unitType
+	 * @return Map<Integer, Double> Here Integer will number of bedrooms and Double the average price
+	 *         on that bedroom.
+	 */
 	public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType){
 		Map<String, Map<String, Map<String, FieldStatsInfo>>> stats = propertyDao.getAvgPricePerUnitAreaBHKWise(locationType, locationId, unitType);
 		
@@ -517,6 +569,15 @@ public class LocalityService {
 		return avgPrice;
 	}
 	
+	/**
+	 * This method will retrieve the reviews and rating details about a locality and set the data on the
+	 * locality Object. The data set on the locality Object is as follows:
+	 * 1: Number of Reviews on the locality.
+	 * 2: Average Rating
+	 * 3: Total Rating Users.
+	 * 4: Rating Distribution by total users.
+	 * @param locality
+	 */
 	public void setLocalityRatingAndReviewDetails(Locality locality){
 		
 		Map<String, Object> localityReviewDetails = localityReviewService
