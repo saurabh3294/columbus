@@ -24,7 +24,13 @@ import com.proptiger.data.service.SuburbService;
 public class SuburbController extends BaseController {
     @Autowired
     private SuburbService suburbService;
-    
+
+    /**
+     * Returns subuebs given a selector
+     *
+     * @param selector
+     * @return
+     */
     @RequestMapping
     public @ResponseBody ProAPIResponse getSuburbs(@RequestParam(required=false) String selector) {
         Selector suburbSelector = new Selector();
@@ -34,7 +40,13 @@ public class SuburbController extends BaseController {
         
         return new ProAPISuccessResponse(super.filterFields(suburbService.getSuburbs(suburbSelector), suburbSelector.getFields()));
     }
-    
+
+    /**
+     * Returns a suburb alongwith its details
+     *
+     * @param suburbId
+     * @return
+     */
     @RequestMapping("/{suburbId}")
     @ResponseBody
     public ProAPIResponse getSuburb(@PathVariable int suburbId){

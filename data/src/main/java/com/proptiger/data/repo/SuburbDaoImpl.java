@@ -17,7 +17,6 @@ import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 
 /**

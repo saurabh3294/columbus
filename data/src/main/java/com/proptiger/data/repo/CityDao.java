@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;

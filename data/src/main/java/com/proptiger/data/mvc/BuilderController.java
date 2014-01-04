@@ -18,27 +18,31 @@ import com.proptiger.data.service.BuilderService;
 /**
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @RequestMapping("data/v1/entity/builder")
 @Controller
-public class BuilderController extends BaseController{ 
-	
-	@Autowired
-	private BuilderService builderService;
-	
-	@RequestMapping(value = "/top", method = RequestMethod.GET)
+public class BuilderController extends BaseController {
+
+    @Autowired
+    private BuilderService builderService;
+
+    /**
+     * Returns popular builders as per any selector
+     * 
+     * @param selector
+     * @return
+     */
+    @RequestMapping(value = "/top", method = RequestMethod.GET)
     @ResponseBody
-	public ProAPIResponse getPopularBuilder(
-			@RequestParam(required = false) String selector) {
-		Selector builderSelector = new Selector();
-		if (selector != null) {
-			builderSelector = super.parseJsonToObject(selector, Selector.class);
-		}
-		List<Builder> builders = builderService
-				.getTopBuilders(builderSelector);
-		
-		return new ProAPISuccessCountResponse(super.filterFields(builders,
-				builderSelector.getFields()), builders.size());
-	}
+    public ProAPIResponse getPopularBuilder(@RequestParam(required = false) String selector) {
+        Selector builderSelector = new Selector();
+        if (selector != null) {
+            builderSelector = super.parseJsonToObject(selector, Selector.class);
+        }
+        List<Builder> builders = builderService.getTopBuilders(builderSelector);
+
+        return new ProAPISuccessCountResponse(super.filterFields(builders, builderSelector.getFields()),
+                builders.size());
+    }
 }
