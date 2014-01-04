@@ -10,13 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
+import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module.Feature;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
@@ -32,9 +37,22 @@ import com.proptiger.exception.ProAPIException;
 @SessionAttributes({Constants.LOGIN_INFO_OBJECT_NAME})
 public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
+	private static Logger logger = LoggerFactory.getLogger(BaseController.class);
+	private static Hibernate4Module hm = null;
+	private static SimpleFilterProvider filterProvider = null;
+
+	static {
+        hm = new Hibernate4Module();
+        hm.disable(Feature.FORCE_LAZY_LOADING);
+        filterProvider = new SimpleFilterProvider();
+        filterProvider.setFailOnUnknownId(false);	    
+	}
 
 	public BaseController() {
 	    mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        mapper.registerModule(hm);
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        mapper.setFilters(filterProvider);
 	}
 
     protected Object filterFields(Object object, Set<String> fields) {
@@ -43,7 +61,7 @@ public abstract class BaseController {
 				return null;
 			
 			Set<String> fieldSet = new HashSet<String>();
-			FilterProvider filterProvider = new SimpleFilterProvider()
+			SimpleFilterProvider filterProvider = new SimpleFilterProvider()
 					.addFilter("fieldFilter", SimpleBeanPropertyFilter
 							.serializeAllExcept(fieldSet));
 

@@ -37,10 +37,10 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  * @author mukand
  */
 @ResourceMetaInfo
-@JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name="RESI_PROJECT")
+@JsonFilter("fieldFilter")
 public class Project implements BaseModel {
     public static enum NestedProperties {
         builderLabel(new String[]{"builder", "name"}),

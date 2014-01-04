@@ -10,16 +10,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
@@ -29,14 +27,12 @@ import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageEnricher;
-import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityAmenityService;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.ProjectAmenityService;
@@ -71,7 +67,7 @@ public class ProjectDetailController extends BaseController {
     @Autowired
     private LocalityReviewService localityReviewService;
     
-    private static Logger logger = Logger.getLogger(ProjectDetailController.class);
+    private static Logger logger = LoggerFactory.getLogger(ProjectDetailController.class);
     
     @RequestMapping(value="app/v1/project-detail")
     public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
@@ -150,20 +146,14 @@ public class ProjectDetailController extends BaseController {
     }
     
     @RequestMapping(value="app/v2/project-detail")
-    @ResponseBody
-    public ProAPIResponse getProjectDetails2(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
+    @DisableCaching
+    public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
     	Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
         if(propertyDetailsSelector == null) {
             propertyDetailsSelector = new Selector();
         }
         
-        logger.error("Before making service call");
-        
         Project project = projectService.getProjectInfoDetails(propertyDetailsSelector, projectId);
-        project.getLocality().setEnquiry(null);
-        project.getLocality().setLocalityReviews(null);
-        //logger.error(new Gson().toJson(project));
-        System.out.println(new Gson().toJson(project));
     	return new ProAPISuccessResponse( super.filterFields(project, propertyDetailsSelector.getFields() ) );
     }
     
