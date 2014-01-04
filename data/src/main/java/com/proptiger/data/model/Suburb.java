@@ -81,6 +81,7 @@ public class Suburb implements BaseModel {
     private Integer avgPriceRiseMonths;
     
     @Transient
+    @Field("SUBURB_DOMINANT_UNIT_TYPE")
     private String dominantUnitType;
     
     @Transient

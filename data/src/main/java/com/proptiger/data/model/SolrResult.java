@@ -14,7 +14,6 @@ import com.proptiger.data.meta.FieldMetaInfo;
 
 /**
  * @author mandeep
- * 
  */
 @JsonFilter("fieldFilter")
 public class SolrResult implements BaseModel{

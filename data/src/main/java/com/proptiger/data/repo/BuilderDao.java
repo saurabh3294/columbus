@@ -17,7 +17,7 @@ import com.proptiger.data.model.Builder;
 @Repository
 public interface BuilderDao extends
 		PagingAndSortingRepository<Builder, Integer>, BuilderCustomDao {
-	@Query("SELECT B FROM Builder B, ProjectDB P WHERE B.id=P.builderId"
+	@Query("SELECT B FROM Builder B, ProjectDB P WHERE B.id = P.builderId"
 			+ " AND P.projectId=?1")
 	public Builder findByProjectId(int projectId);
 }

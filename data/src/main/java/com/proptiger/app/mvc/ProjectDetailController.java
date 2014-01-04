@@ -77,10 +77,10 @@ public class ProjectDetailController extends BaseController {
 
         List<Property> properties = propertyService.getProperties(projectId);
         ProjectSpecification projectSpecification = projectService.getProjectSpecifications(projectId);
-        Builder builderDetails = builderService.getBuilderDetailsByProjectId(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
+        Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);
         Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
-                
+
         // getting project discussions.
         int totalProjectDiscussion=0;
         List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);

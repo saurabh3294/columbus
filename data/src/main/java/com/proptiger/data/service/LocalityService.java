@@ -28,7 +28,6 @@ import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityDao;
-import com.proptiger.data.repo.LocalityDaoImpl;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
@@ -51,9 +50,6 @@ public class LocalityService {
 	private LocalityAmenityTypeService amenityTypeService;
 	@Autowired
 	private LocalityDao localityDao;
-
-	@Autowired
-	private LocalityDaoImpl localityDaoImpl;
 
 	@Autowired
 	private LocalityReviewService localityReviewService;
@@ -85,14 +81,13 @@ public class LocalityService {
 	@Value("${popular.locality.threshold.count}")
 	private Integer popularLocalityThresholdCount;
 
-	
 	/**
 	 * This method will return the List of localities selected based on the selector provided.
 	 * @param selector
 	 * @return List<Locality>
 	 */
 	public List<Locality> getLocalities(Selector selector) {
-		return Lists.newArrayList(localityDao.getLocalities(selector));
+		return Lists.newArrayList(localityDao.getLocalities(selector).getResult());
 	}
 
 	
@@ -419,7 +414,7 @@ public class LocalityService {
 				mainLocality.getLongitude(), radiusOneForTopLocality);
 
 		List<Locality> localitiesAroundMainLocality = localityDao
-				.getLocalities(geoSelector);
+				.getLocalities(geoSelector).getResult();
 		/*
 		 * If locality not found or there count is less than
 		 * popularLocalityThresholdCount in first radius then try finding
@@ -437,7 +432,7 @@ public class LocalityService {
 					mainLocality.getLocalityId(), mainLocality.getLatitude(),
 					mainLocality.getLongitude(), radiusTwoForTopLocality);
 			localitiesAroundMainLocality = localityDao
-					.getLocalities(geoSelector);
+					.getLocalities(geoSelector).getResult();
 			/*
 			 * If locality not found or there count is less than
 			 * popularLocalityThresholdCount in first radius then try finding
@@ -457,7 +452,7 @@ public class LocalityService {
 						mainLocality.getLongitude(), radiusThreeForTopLocality);
 
 				localitiesAroundMainLocality = localityDao
-						.getLocalities(geoSelector);
+						.getLocalities(geoSelector).getResult();
 			}
 		}
 		/*
