@@ -672,4 +672,19 @@ public class SolrResult implements BaseModel{
     public void setLocalityPriceRise(Double localityPriceRise) {
         locality.setAvgPriceRisePercentage(localityPriceRise);
     }
+    
+    @Field("LOCALITY_DOMINANT_UNIT_TYPE")
+    public void setLocalityDominantUnitType(String dominantUnitType) {
+        locality.setDominantUnitType(dominantUnitType);
+    }
+
+    @Field("SUBURB_DOMINANT_UNIT_TYPE")
+    public void setSuburbDominantUnitType(String dominantUnitType) {
+        suburb.setDominantUnitType(dominantUnitType);
+    }
+
+    @Field("CITY_DOMINANT_UNIT_TYPE")
+    public void setCityDominantUnitType(String dominantUnitType) {
+        city.setDominantUnitType(dominantUnitType);
+    }
 }
