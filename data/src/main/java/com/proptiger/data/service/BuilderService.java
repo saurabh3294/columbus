@@ -96,14 +96,14 @@ public class BuilderService {
     	List<Project> projectsToReturn = new ArrayList<>();
     	while(ongoingProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = ongoingProjectItr.next();
-    		imageEnricher.setProjectImages("main", project, null);
+    		imageEnricher.setProjectImages(project);
      		project.setImages( project.getImages().subList(0, 1) );
     		projectsToReturn.add(project);
     	}
     	
     	while(totalProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = totalProjectItr.next();
-    		imageEnricher.setProjectImages(null, project, null);
+    		imageEnricher.setProjectImages(project);
      		project.setImages( project.getImages().subList(0, 1) );
     		projectsToReturn.add(project);
     	}
