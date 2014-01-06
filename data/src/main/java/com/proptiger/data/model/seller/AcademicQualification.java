@@ -1,15 +1,19 @@
 package com.proptiger.data.model.seller;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.proptiger.data.model.BaseModel;
 
 /**
  * @author Rajeev Pandey
  *
  */
-@Table(name = "academic_qualifications")
-public class AcademicQualification {
+@Entity
+@Table(name = "cms.academic_qualifications")
+public class AcademicQualification  implements BaseModel{
 	@Id
 	@Column(name = "id")
 	private Integer id;

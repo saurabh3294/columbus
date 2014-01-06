@@ -3,15 +3,22 @@ package com.proptiger.data.model.seller;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.enums.ActivationStatus;
 
 /**
  * @author Rajeev Pandey
  *
  */
-@Table(name = "brokers")
-public class Broker {
+@Entity
+@Table(name = "cms.brokers")
+public class Broker  implements BaseModel{
 	@Id
 	@Column(name = "id")
 	private Integer id;
@@ -20,6 +27,7 @@ public class Broker {
 	private String brokerName;
 	
 	@Column(name = "status")
+	@Enumerated(EnumType.STRING)
 	private ActivationStatus status;
 	
 	@Column(name = "description")
