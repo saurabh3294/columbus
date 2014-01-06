@@ -327,6 +327,9 @@ public class Project implements BaseModel {
 	 @Fetch(FetchMode.JOIN)
 	 @JoinColumn(insertable=false, updatable=false, name="PROJECT_ID")
 	 private List<ProjectAmenity> projectAmenity;
+	 
+	 @Transient
+	 private Integer totalProjectDiscussion;
     
     public int getProjectId() {
         return projectId;
@@ -791,5 +794,13 @@ public class Project implements BaseModel {
 
 	public void setProjectAmenity(List<ProjectAmenity> projectAmenity) {
 		this.projectAmenity = projectAmenity;
+	}
+
+	public Integer getTotalProjectDiscussion() {
+		return totalProjectDiscussion;
+	}
+
+	public void setTotalProjectDiscussion(Integer totalProjectDiscussion) {
+		this.totalProjectDiscussion = totalProjectDiscussion;
 	}
 }

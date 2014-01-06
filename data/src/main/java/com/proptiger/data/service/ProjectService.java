@@ -109,6 +109,8 @@ public class ProjectService {
     	for(int i=0; i<properties.size(); i++)
     		properties.get(i).setProject(null);
     	project.setProperties(properties);
+    	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
+    	
     	
     	return project;
     }
@@ -182,5 +184,15 @@ public class ProjectService {
     	//fourth sorth by project id
     	sortBySet.add(sortByProjectId);
 		return sortBySet;
+	}
+	
+	private Integer getTotalProjectDiscussionCount(int projectId){
+		
+		Integer totalProjectDiscussion = 0;
+		List<ProjectDiscussion> projectDiscussionList = getDiscussions(projectId, null);
+        if(projectDiscussionList!=null)
+        	totalProjectDiscussion = projectDiscussionList.size();
+        
+        return totalProjectDiscussion;
 	}
 }

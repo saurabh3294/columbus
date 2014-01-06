@@ -77,6 +77,7 @@ public class Locality implements BaseModel {
 
     @FieldMetaInfo(displayName = "Active", description = "Active")
     @Column(name = "ACTIVE")
+    @JsonIgnore
     private boolean isActive;
     
     @FieldMetaInfo(displayName = "Description", description = "Description")
