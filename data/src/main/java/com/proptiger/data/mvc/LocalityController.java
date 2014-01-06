@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -32,11 +31,19 @@ import com.proptiger.data.service.LocalityService;
 public class LocalityController extends BaseController {
     @Autowired
     private LocalityService localityService;
+
     @Autowired
     private LocalityReviewService localityReviewService;
+
     @Autowired 
     private ImageService imageService;
-    
+
+    /**
+     * Returns localities given a selector
+     *
+     * @param selector
+     * @return
+     */
     @RequestMapping
     @ResponseBody
     public ProAPIResponse getLocalities(@RequestParam(required=false) String selector) {
@@ -123,6 +130,7 @@ public class LocalityController extends BaseController {
 
     @RequestMapping("/{localityId}/radius")
 	@ResponseBody
+	@Deprecated
 	public ProAPIResponse getLocalityRadiusOnProject(@PathVariable int localityId){
 		return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
 	}

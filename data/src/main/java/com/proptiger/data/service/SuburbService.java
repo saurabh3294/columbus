@@ -25,10 +25,20 @@ public class SuburbService {
     @Autowired
     private LocalityService localityService;
 
+    /**
+     * This method will return the list of localities based on the selector.
+     * @param selector
+     * @return List<Suburb>
+     */
     public List<Suburb> getSuburbs(Selector selector) {
         return Lists.newArrayList(suburbDao.getSuburbs(selector));
     }
     
+    /**
+     * This method will return the Suburb Object based on suburb Id.
+     * @param suburbId
+     * @return Suburb
+     */
     public Suburb getSuburb(int suburbId){
     	Suburb suburb = suburbDao.getSuburb(suburbId);
     	if(suburb == null)

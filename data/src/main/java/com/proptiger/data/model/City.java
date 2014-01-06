@@ -106,6 +106,7 @@ public class City implements BaseModel{
     private Long projectsCount;
     
     @Transient
+    @Field("CITY_DOMINANT_UNIT_TYPE")
     private String dominantUnitType;
     
     @Transient

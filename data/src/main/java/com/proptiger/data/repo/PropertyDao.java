@@ -420,10 +420,36 @@ public class PropertyDao {
     	solrQuery.add("group", "true");
     	solrQuery.add("group.facet", "true");
     	solrQuery.add("group.field", "PROJECT_ID");
-    	System.out.println(solrQuery.toString());
+    	
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
     	    	
     	return solrResponseReader.getFacetResults(queryResponse.getResponse());	
+    }
+    
+    /**
+     * This method will take the locality Id and retrieve the project status counts and project counts
+     * for a locality.
+     * @param localityId
+     * @return
+     * @see getProjectStatusCountAndProjectOnLocalityByCity
+     */
+    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocality(int localityId){
+    	Selector selector = new Selector();
+
+		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
+    	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+    	Map<String, Map<String, Object>> searchType = new HashMap<>();
+    	Map<String, Object> filterCriteria = new HashMap<>();
+    	
+    	filterCriteria.put("localityId", localityId);
+    	
+    	searchType.put(Operator.equal.name(), filterCriteria);
+    	list.add(searchType);
+    	filter.put(Operator.and.name(), list);
+    	
+    	selector.setFilters(filter);
+    	
+    	return getProjectStatusCountAndProjectOnLocalityByCity(selector);
     }
     
     /**

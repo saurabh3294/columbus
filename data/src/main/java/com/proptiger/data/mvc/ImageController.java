@@ -1,6 +1,7 @@
 package com.proptiger.data.mvc;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.enums.DomainObject;
+import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
@@ -86,6 +88,11 @@ public class ImageController extends BaseController {
         Object obj = this.putImages(image.getImageType().getObjectType().getType(), image.getImageType().getType(), image.getObjectId(), file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getAltText(), image.getTitle(), image.getDescription(), image.getPriority() == null ? "" : String.valueOf(image.getPriority()));
         imageService.deleteImage(id);
         return obj;
+    }
+
+    @RequestMapping(value="resolution-enumerations")
+    public @ResponseBody Object getResolutionEnumerations() {
+        return new ProAPISuccessResponse(ImageResolution.values());
     }
 
     @RequestMapping(value="create-new", method = RequestMethod.POST)

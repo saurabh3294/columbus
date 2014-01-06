@@ -18,14 +18,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.model.enums.DomainObject;
-import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageEnricher;
-import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
 

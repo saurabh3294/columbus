@@ -46,7 +46,10 @@ public class LocalityReviewService {
 	 * Finds all review for a locality based on locality id
 	 * 
 	 * @param localityId
-	 * @return
+	 * @param Pageable number of reviews to return.
+	 * @return Map<String, Object> the output is as follows:
+	 *         TOTAL_REVIEWS : total reviews found on the locality.
+	 *         REVIEWS: Reviews found filtered by pageable.
 	 */
 	public Map<String, Object> findReviewByLocalityId(int localityId,
 			Pageable pageable) {
@@ -95,12 +98,21 @@ public class LocalityReviewService {
 	/**
 	 * Get locality review count
 	 * @param localityId
-	 * @return
+	 * @return Long Number of reviews
 	 */
 	public Long getLocalityReviewCount(int localityId){
 		return localityReviewDao.getTotalReviewsByLocalityId(localityId);
 	}
 	
+	/**
+	 * This method will return the distribution of rating by their total users, average rating.
+	 * @param localityId
+	 * @return Map<String, Object> The information contained is as:
+	 *         1: TOTAL_USERS_BY_RATING => Map<Double, Long> Here Double will be rating and Long 
+	 *                                     will be number of users.
+	 *         2: AVERAGE_RATING => The average rating of locality.
+	 *         3: TOTAL_RATINGS => total rating users.        
+	 */
 	public Map<String, Object> getTotalUsersByRatingByLocalityId(int localityId){
 		List<Object[]> ratingDetails = localityRatingDao.getTotalUsersByRating(localityId);
 		if(ratingDetails == null || ratingDetails.size() < 1)

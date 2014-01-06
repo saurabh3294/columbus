@@ -16,6 +16,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -44,9 +45,15 @@ public class ProjectService {
     @Autowired
     private ImageEnricher imageEnricher;
 
-    @Autowired
+ 	@Autowired
 	private MailSender mailSender;
-    
+
+    /**
+     * This method will return the list of projects and total projects found based on the selector.
+     * @param projectFilter
+     * @return SolrServiceResponse<List<Project>> it will contain the list of localities and
+     *         total projects found.
+     */
     public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
     	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
     	imageEnricher.setProjectsImages("main", projects.getResult(), null);

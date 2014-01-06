@@ -166,7 +166,7 @@ public class Locality implements BaseModel {
     private Double avgPricePerUnitArea;
     
     @Transient
-    @Field("DOMINANT_UNIT_TYPE")
+    @Field("LOCALITY_DOMINANT_UNIT_TYPE")
     private String dominantUnitType;
     
     @Transient
