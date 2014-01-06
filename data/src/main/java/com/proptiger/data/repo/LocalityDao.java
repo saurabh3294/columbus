@@ -47,19 +47,6 @@ public interface LocalityDao extends
 	public Object[] findEnquiryCountOnLoc(@Param Long timediff,
 			@Param int localityId);
 
-	public Page<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityDesc(
-			int cityId, boolean active, boolean deletedFlag, Pageable pageable);
-
-	public Page<Locality> findByLocalityIdInAndIsActiveAndDeletedFlagOrderByPriorityDescLabelAsc(
-			List<Integer> localityIds, boolean active, boolean deletedFlag,
-			Pageable pageable);
-
-	public List<Locality> findByCityIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(
-			int cityId, boolean active, boolean deletedFlag, Pageable paging);
-
-	public List<Locality> findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(
-			int cityId, boolean active, boolean deletedFlag, Pageable paging);
-
 	public Locality findByLocalityId(int localityId);
 
 	@Query("Select L, AVG(LR.overallRating) as overallAvgRating from Locality L left join L.localityReviews LR "

@@ -87,7 +87,7 @@ public class LocalityService {
 	private Integer popularLocalityThresholdCount;
 
 	public List<Locality> getLocalities(Selector selector) {
-		return Lists.newArrayList(localityDao.getLocalities(selector));
+		return Lists.newArrayList(localityDao.getLocalities(selector).getResult());
 	}
 
 	public SolrServiceResponse<List<Locality>> getLocalityListing(
@@ -388,7 +388,7 @@ public class LocalityService {
 				mainLocality.getLongitude(), radiusOneForTopLocality);
 
 		List<Locality> localitiesAroundMainLocality = localityDao
-				.getLocalities(geoSelector);
+				.getLocalities(geoSelector).getResult();
 		/*
 		 * If locality not found or there count is less than
 		 * popularLocalityThresholdCount in first radius then try finding
@@ -406,7 +406,7 @@ public class LocalityService {
 					mainLocality.getLocalityId(), mainLocality.getLatitude(),
 					mainLocality.getLongitude(), radiusTwoForTopLocality);
 			localitiesAroundMainLocality = localityDao
-					.getLocalities(geoSelector);
+					.getLocalities(geoSelector).getResult();
 			/*
 			 * If locality not found or there count is less than
 			 * popularLocalityThresholdCount in first radius then try finding
@@ -426,7 +426,7 @@ public class LocalityService {
 						mainLocality.getLongitude(), radiusThreeForTopLocality);
 
 				localitiesAroundMainLocality = localityDao
-						.getLocalities(geoSelector);
+						.getLocalities(geoSelector).getResult();
 			}
 		}
 		/*

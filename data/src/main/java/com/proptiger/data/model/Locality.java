@@ -79,10 +79,6 @@ public class Locality implements BaseModel {
     @Column(name = "ACTIVE")
     private boolean isActive;
     
-    @FieldMetaInfo(displayName = "DELETED_FLAG", description = "DELETED_FLAG")
-    @Column(name = "DELETED_FLAG")
-    private boolean deletedFlag;
-    
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
     @Field("LOCALITY_DESCRIPTION")
@@ -237,22 +233,6 @@ public class Locality implements BaseModel {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    public boolean isDeletedFlag() {
-        return deletedFlag;
-    }
-
-    public void setDeletedFlag(boolean deletedFlag) {
-        this.deletedFlag = deletedFlag;
     }
 
     public String getDescription() {
@@ -437,5 +417,13 @@ public class Locality implements BaseModel {
 
 	public void setLocalityReviews(Set<LocalityReview> localityReviews) {
 		this.localityReviews = localityReviews;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 }

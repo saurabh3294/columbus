@@ -52,15 +52,15 @@ public class Builder implements BaseModel {
     private Date estabilishedDate;
     
     @Transient
-    private int totalProjects;
+    private Integer totalProjects;
     @Transient
-    private int totalOngoingProjects;
+    private Integer totalOngoingProjects;
     @Transient
     private List<Project> projects;
     
     @Column(name="DISPLAY_ORDER")
     @Field("BUILDER_PRIORITY")
-    private int priority;
+    private Integer priority;
     
     public int getId() {
         return id;
@@ -102,19 +102,19 @@ public class Builder implements BaseModel {
 		this.estabilishedDate = estabilishedDate;
 	}
 
-	public int getTotalProjects() {
+	public Integer getTotalProjects() {
 		return totalProjects;
 	}
 
-	public void setTotalProjects(int totalProjects) {
+	public void setTotalProjects(Integer totalProjects) {
 		this.totalProjects = totalProjects;
 	}
 
-	public int getTotalOngoingProjects() {
+	public Integer getTotalOngoingProjects() {
 		return totalOngoingProjects;
 	}
 
-	public void setTotalOngoingProjects(int totalOngoingProjects) {
+	public void setTotalOngoingProjects(Integer totalOngoingProjects) {
 		this.totalOngoingProjects = totalOngoingProjects;
 	}
 
@@ -126,11 +126,11 @@ public class Builder implements BaseModel {
 		this.projects = projects;
 	}
 
-	public int getPriority() {
+	public Integer getPriority() {
 		return priority;
 	}
 
-	public void setPriority(int priority) {
+	public void setPriority(Integer priority) {
 		this.priority = priority;
 	}
     

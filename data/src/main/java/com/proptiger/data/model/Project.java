@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -20,6 +21,8 @@ import javax.persistence.Temporal;
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -105,9 +108,9 @@ public class Project implements BaseModel {
     @Column(name="PROJECT_NAME")
     private String name;
 
+    @Transient
     @FieldMetaInfo( displayName = "Project Types",  description = "Project Types")
     @Field(value = "PROJECT_TYPES")
-    @Column(name="PROJECT_TYPES")
     private String unitTypes;
 
     @FieldMetaInfo( displayName = "Launch Date",  description = "Launch Date")
@@ -145,9 +148,9 @@ public class Project implements BaseModel {
     @Column(name="DISPLAY_ORDER_SUBURB")
     private int assignedSuburbPriority;
     
-    @Transient
     @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
     @Field(value = "PROMISED_COMPLETION_DATE")
+    @Column(name="PROMISED_COMPLETION_DATE")
     private Date possessionDate;
 
     @FieldMetaInfo( displayName = "Submitted Date",  description = "Submitted Date")
@@ -271,7 +274,7 @@ public class Project implements BaseModel {
     private String propertySizeMeasure;
 
     @Transient
-    private Set<String> propertyUnitTypes;
+    private Set<String> propertyUnitTypes = new HashSet<>();
 
     @Transient
     private List<Image> images;
@@ -303,23 +306,27 @@ public class Project implements BaseModel {
     @Transient
     private Integer avgPriceRiseMonths;
 
- 	@FieldMetaInfo(displayName="ACTIVE", description="ACTIVE")
-    @Column(name="ACTIVE")
-    private int active ;
-
-	@FieldMetaInfo(displayName="PROMISED COMPLETION Date", description="PROMISED COMPLETION Date")
-    @Column(name="PROMISED_COMPLETION_DATE")
-    @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date promisedCompletionDate ;
-    
     @FieldMetaInfo(displayName="AVAILABILITY", description="AVAILABILITY")
     @Column(name="AVAILABILITY")
-    private Integer availability ;
+    private Integer derivedAvailability ;
 
 	@FieldMetaInfo(displayName="PRE LAUNCH Date", description="PRE LAUNCH Date")
     @Column(name="PRE_LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date preLaunchDate ;
+	
+	 @FieldMetaInfo(displayName="YOUTUBE VEDIO", description="YOUTUBE VEDIO")
+	 @Column(name="YOUTUBE_VEDIO")
+	 private String youtubeVideo ;
+	 
+	 @FieldMetaInfo(displayName="NO OF FLATS", description="NO OF FLATS")
+	 @Column(name="NO_OF_FLATES")
+	 private Integer supply ;
+	 
+	 @OneToMany(fetch=FetchType.EAGER)
+	 @Fetch(FetchMode.JOIN)
+	 @JoinColumn(insertable=false, updatable=false, name="PROJECT_ID")
+	 private List<ProjectAmenity> projectAmenity;
     
     public int getProjectId() {
         return projectId;
@@ -738,28 +745,12 @@ public class Project implements BaseModel {
 		this.id = id;
 	}
 
-	public int getActive() {
-		return active;
-	}
-
-	public void setActive(int active) {
-		this.active = active;
-	}
-
-	public Date getPromisedCompletionDate() {
-		return promisedCompletionDate;
-	}
-
-	public void setPromisedCompletionDate(Date promisedCompletionDate) {
-		this.promisedCompletionDate = promisedCompletionDate;
-	}
-
 	public Integer getAvailability() {
-		return availability;
+		return derivedAvailability;
 	}
 
 	public void setAvailability(Integer availability) {
-		this.availability = availability;
+		this.derivedAvailability = availability;
 	}
 
 	public Date getPreLaunchDate() {
@@ -768,5 +759,37 @@ public class Project implements BaseModel {
 
 	public void setPreLaunchDate(Date preLaunchDate) {
 		this.preLaunchDate = preLaunchDate;
+	}
+
+	public Integer getDerivedAvailability() {
+		return derivedAvailability;
+	}
+
+	public void setDerivedAvailability(Integer derivedAvailability) {
+		this.derivedAvailability = derivedAvailability;
+	}
+
+	public String getYoutubeVideo() {
+		return youtubeVideo;
+	}
+
+	public void setYoutubeVideo(String youtubeVideo) {
+		this.youtubeVideo = youtubeVideo;
+	}
+
+	public Integer getSupply() {
+		return supply;
+	}
+
+	public void setSupply(Integer supply) {
+		this.supply = supply;
+	}
+
+	public List<ProjectAmenity> getProjectAmenity() {
+		return projectAmenity;
+	}
+
+	public void setProjectAmenity(List<ProjectAmenity> projectAmenity) {
+		this.projectAmenity = projectAmenity;
 	}
 }
