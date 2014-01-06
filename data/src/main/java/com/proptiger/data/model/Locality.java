@@ -18,6 +18,8 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
@@ -31,6 +33,7 @@ import com.proptiger.data.model.image.Image;
 @Table(name = "LOCALITY")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")

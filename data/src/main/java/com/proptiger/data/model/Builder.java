@@ -15,6 +15,8 @@ import javax.persistence.Transient;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -26,6 +28,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "RESI_BUILDER")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class Builder implements BaseModel {
     @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
     @Column(name = "BUILDER_ID")

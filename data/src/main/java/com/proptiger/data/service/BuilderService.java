@@ -97,20 +97,12 @@ public class BuilderService {
     	while(ongoingProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = ongoingProjectItr.next();
     		imageEnricher.setProjectImages(project);
-    		
-    		if(project.getImages() != null)
-    			project.setImages( project.getImages().subList(0, 1) );
-    		
     		projectsToReturn.add(project);
     	}
     	
     	while(totalProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = totalProjectItr.next();
-    		imageEnricher.setProjectImages(project);
-    		
-    		if(project.getImages() != null)
-    			project.setImages( project.getImages().subList(0, 1) );
-    		
+    		imageEnricher.setProjectImages(project);    		
     		projectsToReturn.add(project);
     	}
     	

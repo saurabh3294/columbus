@@ -19,6 +19,8 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -31,6 +33,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "SUBURB")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class Suburb implements BaseModel {
     @Id
     @FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
