@@ -42,7 +42,7 @@ public class PropertyService {
      */
     public List<Property> getProperties(Selector propertyFilter) {
         List<Property> properties = propertyDao.getProperties(propertyFilter);
-        imageEnricher.setPropertiesImages(null, properties);
+        imageEnricher.setPropertiesImages(properties);
         
         return properties;
     }

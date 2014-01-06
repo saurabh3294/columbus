@@ -100,7 +100,7 @@ public class ProjectService {
      */
     public ProjectDB getProjectDetails(Integer projectId) {
         ProjectDB project = projectDao.findByProjectId(projectId);
-        imageEnricher.setProjectDBImages(null, project);
+        imageEnricher.setProjectDBImages(project);
         if (project == null) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }

@@ -98,7 +98,7 @@ public class ProjectDetailController extends BaseController {
         if(properties.size() > 0)
         {
         	// setting images.
-        	imageEnricher.setPropertiesImages(null, properties);
+        	imageEnricher.setPropertiesImages(properties);
         	locality = properties.get(0).getProject().getLocality();
         	Property property;
         	for(int i=0; i<properties.size(); i++){

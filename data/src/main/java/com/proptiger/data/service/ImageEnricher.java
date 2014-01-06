@@ -24,12 +24,18 @@ public class ImageEnricher {
     private ImageDao imageDao;
 
     public void setProjectsImages(List<Project> projects) {
+    	if(projects == null)
+    		return;
+    	
         for (Project project : projects) {
             setProjectImages(project);
         }
     }
 
     public void setProjectImages(Project project) {
+    	if(project == null)
+    		return;
+    	
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
         List<Image> mainImages = imageService.getImages(DomainObject.project, "main", project.getProjectId());
 
@@ -38,69 +44,83 @@ public class ImageEnricher {
 
         project.setImages(images);
 
-        setBuilderImages("logo", project.getBuilder());
+        setBuilderImages(project.getBuilder());
     }
 
     @Deprecated
-    public void setProjectDBImages(String imageTypeStr, ProjectDB project) {
+    public void setProjectDBImages(ProjectDB project) {
         if (project == null)
             return;
 
-        List<Image> images = imageService.getImages(DomainObject.project, imageTypeStr, project.getProjectId());
+        List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
+        List<Image> mainImages = imageService.getImages(DomainObject.project, "main", project.getProjectId());
+        
         project.setImages(images);
-        if (images != null && !images.isEmpty()) {
-            project.setImageURL(images.get(0).getAbsolutePath());
+        if (mainImages != null && !mainImages.isEmpty()) {
+            project.setImageURL(mainImages.get(0).getAbsolutePath());
         }
     }
 
-    public void setPropertiesImages(String imageTypeStr, List<Property> properties) {
-        Property property;
-        for (int i = 0; i < properties.size(); i++) {
-            property = properties.get(i);
-            setPropertyImages(imageTypeStr, property);
+    public void setPropertiesImages(List<Property> properties) {
+    	if(properties == null)
+    		return;
+    	
+        for (Property property: properties) {
+           setPropertyImages(property);
         }
     }
 
-    public void setPropertyImages(String imageTypeStr, Property property) {
-        List<Image> images = imageService.getImages(DomainObject.property, imageTypeStr, property.getPropertyId());
+    public void setPropertyImages(Property property) {
+    	if(property == null)
+    		return;
+    	
+        List<Image> images = imageService.getImages(DomainObject.property, null, property.getPropertyId());
         property.setImages(images);
         setProjectImages(property.getProject());
 
     }
 
-    public void setBuildersImages(String imageTypeStr, List<Builder> builders) {
-        Builder builder;
-        for (int i = 0; i < builders.size(); i++) {
-            builder = builders.get(i);
-            setBuilderImages(imageTypeStr, builder);
+    public void setBuildersImages(List<Builder> builders) {
+    	if(builders == null)
+    		return;
+    	
+        for (Builder builder: builders) {
+           setBuilderImages(builder);
         }
     }
 
-    public void setBuilderImages(String imageTypeStr, Builder builder) {
+    public void setBuilderImages(Builder builder) {
         if (builder == null)
             return;
 
-        List<Image> images = imageService.getImages(DomainObject.builder, imageTypeStr, builder.getId());
-        if (images != null && images.size() > 0)
-            builder.setImageURL(images.get(0).getAbsolutePath());
+        List<Image> images = imageService.getImages(DomainObject.builder, null, builder.getId());
+        List<Image> logoImages = imageService.getImages(DomainObject.builder, "logo", builder.getId());
+        if (logoImages != null && logoImages.size() > 0)
+            builder.setImageURL(logoImages.get(0).getAbsolutePath());
     }
 
-    public void setLocalitiesImages(String imageTypeStr, List<Locality> localities) {
+    public void setLocalitiesImages(List<Locality> localities) {
+    	if(localities == null)
+    		return;
+    	
         Locality locality;
         for (int i = 0; i < localities.size(); i++) {
             locality = localities.get(i);
-            setLocalityImages(imageTypeStr, locality, null);
+            setLocalityImages(locality, null);
         }
     }
 
-    public void setLocalityImages(String imageTypeStr, Locality locality, Integer numberOfImages) {
-        List<Image> images = imageService.getImages(DomainObject.locality, imageTypeStr, locality.getLocalityId());
+    public void setLocalityImages(Locality locality, Integer numberOfImages) {
+    	if(locality == null)
+    		return;
+    	
+        List<Image> images = imageService.getImages(DomainObject.locality, null, locality.getLocalityId());
         if (images != null && images.size() > 0) {
             locality.setImageCount(images.size());
 
             if (numberOfImages == null || numberOfImages < 0 || numberOfImages > images.size())
                 numberOfImages = images.size();
-
+            
             locality.setImages(images.subList(0, numberOfImages));
         }
     }
