@@ -1,7 +1,6 @@
 package com.proptiger.data.model.seller;
 
 import java.util.Date;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,10 +9,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.enums.ActivationStatus;
 
@@ -23,6 +22,7 @@ import com.proptiger.data.model.enums.ActivationStatus;
  */
 @Entity
 @Table(name = "cms.brokers")
+@JsonFilter("fieldFilter")
 public class Broker  implements BaseModel{
 	@Id
 	@Column(name = "id")
@@ -37,12 +37,6 @@ public class Broker  implements BaseModel{
 	
 	@Column(name = "description")
 	private String description;
-	
-	@Column(name = "primary_address_id")
-	private Integer primaryAddressId;
-	
-	@Column(name = "fax_number_id")
-	private Integer faxNumberId;
 	
 	@Column(name = "primary_email")
 	private String primaryEmail;
@@ -59,9 +53,6 @@ public class Broker  implements BaseModel{
 	@Column(name = "cc_contact_id")
 	private Integer ccContactId;
 
-	@OneToMany(mappedBy = "broker", fetch = FetchType.EAGER)
-	private Set<ProjectAssignmentRule> projectAssignmentRules;
-	
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "primary_address_id",  nullable = false, insertable = false, updatable = false)
 	private Address primaryAddress;
@@ -106,22 +97,6 @@ public class Broker  implements BaseModel{
 		this.description = description;
 	}
 
-	public Integer getPrimaryAddressId() {
-		return primaryAddressId;
-	}
-
-	public void setPrimaryAddressId(Integer primaryAddressId) {
-		this.primaryAddressId = primaryAddressId;
-	}
-
-	public Integer getFaxNumberId() {
-		return faxNumberId;
-	}
-
-	public void setFaxNumberId(Integer faxNumberId) {
-		this.faxNumberId = faxNumberId;
-	}
-
 	public String getPrimaryEmail() {
 		return primaryEmail;
 	}
@@ -160,15 +135,6 @@ public class Broker  implements BaseModel{
 
 	public void setCcContactId(Integer ccContactId) {
 		this.ccContactId = ccContactId;
-	}
-
-	public Set<ProjectAssignmentRule> getProjectAssignmentRules() {
-		return projectAssignmentRules;
-	}
-
-	public void setProjectAssignmentRules(
-			Set<ProjectAssignmentRule> projectAssignmentRules) {
-		this.projectAssignmentRules = projectAssignmentRules;
 	}
 
 	public Address getPrimaryAddress() {

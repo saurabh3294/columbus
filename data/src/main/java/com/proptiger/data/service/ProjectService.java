@@ -4,6 +4,7 @@
  */
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -211,9 +212,9 @@ public class ProjectService {
 		boolean sent = false;
 		Set<Integer> projectIdSet = new HashSet<Integer>();
 		projectIdSet.add(projectId);
-		List<SolrResult> projects = projectDao.getProjectsOnIds(projectIdSet);
+		List<Project> projects = getProjectsByIds(projectIdSet);
 		if (projects != null && projects.size() >= 1) {
-			Project project = projects.get(0).getProject();
+			Project project = projects.get(0);
 			// TODO waiting for html template
 			sent = mailSender.sendMailUsingAws(to,
 					"test mail content for ptoject id=" + projectId,
@@ -223,6 +224,22 @@ public class ProjectService {
 			throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
 		}
 		return sent;
+	}
+
+/**
+	 * Get projects by project ids
+	 * @param ids
+	 * @return
+	 */
+	public List<Project> getProjectsByIds(Set<Integer> ids){
+		List<SolrResult> result = projectDao.getProjectsOnIds(ids);
+		List<Project> projects = new ArrayList<Project>();
+		if(result != null){
+			for(SolrResult solrResult: result){
+				projects.add(solrResult.getProject());
+			}
+		}
+		return projects;
 	}
 
 	private Integer getTotalProjectDiscussionCount(int projectId){

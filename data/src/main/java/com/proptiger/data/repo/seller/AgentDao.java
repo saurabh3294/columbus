@@ -1,4 +1,4 @@
-package com.proptiger.data.repo;
+package com.proptiger.data.repo.seller;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

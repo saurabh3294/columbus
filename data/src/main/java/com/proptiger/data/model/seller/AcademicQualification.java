@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.BaseModel;
 
 /**
@@ -13,6 +14,7 @@ import com.proptiger.data.model.BaseModel;
  */
 @Entity
 @Table(name = "cms.academic_qualifications")
+@JsonFilter("fieldFilter")
 public class AcademicQualification  implements BaseModel{
 	@Id
 	@Column(name = "id")
