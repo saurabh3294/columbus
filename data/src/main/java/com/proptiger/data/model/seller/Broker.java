@@ -1,12 +1,17 @@
 package com.proptiger.data.model.seller;
 
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.proptiger.data.model.BaseModel;
@@ -54,6 +59,21 @@ public class Broker  implements BaseModel{
 	@Column(name = "cc_contact_id")
 	private Integer ccContactId;
 
+	@OneToMany(mappedBy = "broker", fetch = FetchType.EAGER)
+	private Set<ProjectAssignmentRule> projectAssignmentRules;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "primary_address_id",  nullable = false, insertable = false, updatable = false)
+	private Address primaryAddress;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "fax_number_id",  nullable = false, insertable = false, updatable = false)
+	private ContactNumber faxNumberDetail;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "primary_broker_contact_id",  nullable = false, insertable = false, updatable = false)
+	private BrokerContact primaryBrokerContact;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -140,6 +160,39 @@ public class Broker  implements BaseModel{
 
 	public void setCcContactId(Integer ccContactId) {
 		this.ccContactId = ccContactId;
+	}
+
+	public Set<ProjectAssignmentRule> getProjectAssignmentRules() {
+		return projectAssignmentRules;
+	}
+
+	public void setProjectAssignmentRules(
+			Set<ProjectAssignmentRule> projectAssignmentRules) {
+		this.projectAssignmentRules = projectAssignmentRules;
+	}
+
+	public Address getPrimaryAddress() {
+		return primaryAddress;
+	}
+
+	public void setPrimaryAddress(Address primaryAddress) {
+		this.primaryAddress = primaryAddress;
+	}
+
+	public ContactNumber getFaxNumberDetail() {
+		return faxNumberDetail;
+	}
+
+	public void setFaxNumberDetail(ContactNumber faxNumberDetail) {
+		this.faxNumberDetail = faxNumberDetail;
+	}
+
+	public BrokerContact getPrimaryBrokerContact() {
+		return primaryBrokerContact;
+	}
+
+	public void setPrimaryBrokerContact(BrokerContact primaryBrokerContact) {
+		this.primaryBrokerContact = primaryBrokerContact;
 	}
 	
 	

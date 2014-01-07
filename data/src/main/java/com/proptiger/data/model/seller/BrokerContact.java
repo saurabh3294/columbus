@@ -2,6 +2,8 @@ package com.proptiger.data.model.seller;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -33,6 +35,7 @@ public class BrokerContact  implements BaseModel{
 	private String email;
 	
 	@Column(name = "type")
+	@Enumerated(EnumType.STRING)
 	private BrokerType type;
 
 	public Integer getId() {

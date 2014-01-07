@@ -1,6 +1,7 @@
 package com.proptiger.data.model.seller;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,9 +11,12 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.enums.ActivationStatus;
 
 /**
@@ -31,12 +35,6 @@ public class Agent implements BaseModel{
 	@Enumerated(EnumType.STRING)
 	private ActivationStatus status;
 
-	@Column(name = "broker_id")
-	private Integer brokerId;
-	
-	@Column(name = "academic_qualification_id")
-	private Integer academicQualificationId;
-	
 	@Column(name = "rating")
 	private Double rating;
 	
@@ -56,6 +54,13 @@ public class Agent implements BaseModel{
 	@JoinColumn(name = "broker_id",  nullable = false, insertable = false, updatable = false)
 	private Broker broker;
 	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "academic_qualification_id",  nullable = false, insertable = false, updatable = false)
+	private AcademicQualification academicQualification;
+	
+	@Transient
+	private List<Locality> localitiesServiced;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -70,22 +75,6 @@ public class Agent implements BaseModel{
 
 	public void setStatus(ActivationStatus status) {
 		this.status = status;
-	}
-
-	public Integer getBrokerId() {
-		return brokerId;
-	}
-
-	public void setBrokerId(Integer brokerId) {
-		this.brokerId = brokerId;
-	}
-
-	public Integer getAcademicQualificationId() {
-		return academicQualificationId;
-	}
-
-	public void setAcademicQualificationId(Integer academicQualificationId) {
-		this.academicQualificationId = academicQualificationId;
 	}
 
 	public Double getRating() {
@@ -134,6 +123,22 @@ public class Agent implements BaseModel{
 
 	public void setBroker(Broker broker) {
 		this.broker = broker;
+	}
+
+	public AcademicQualification getAcademicQualification() {
+		return academicQualification;
+	}
+
+	public void setAcademicQualification(AcademicQualification academicQualification) {
+		this.academicQualification = academicQualification;
+	}
+
+	public List<Locality> getLocalitiesServiced() {
+		return localitiesServiced;
+	}
+
+	public void setLocalitiesServiced(List<Locality> localitiesServiced) {
+		this.localitiesServiced = localitiesServiced;
 	}
 	
 	
