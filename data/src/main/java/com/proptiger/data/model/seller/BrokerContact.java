@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.enums.BrokerType;
 
@@ -16,6 +17,7 @@ import com.proptiger.data.model.enums.BrokerType;
  */
 @Entity
 @Table(name = "cms.broker_contacts")
+@JsonFilter("fieldFilter")
 public class BrokerContact  implements BaseModel{
 
 	@Id

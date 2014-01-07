@@ -7,6 +7,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.model.BaseModel;
 
@@ -16,6 +17,7 @@ import com.proptiger.data.model.BaseModel;
  */
 @Entity
 @Table(name = "cms.project_assignment_rules")
+@JsonFilter("fieldFilter")
 public class ProjectAssignmentRule implements BaseModel{
 	@Id
 	@Column(name = "id")
@@ -24,10 +26,8 @@ public class ProjectAssignmentRule implements BaseModel{
 	@Column(name = "rule_name")
 	private String ruleName;
 
-	@ManyToOne
-	@JsonIgnore
-	@JoinColumn(name = "broker_id", referencedColumnName="id")
-	private Broker broker;
+	@Column(name = "broker_id")
+	private Integer brokerId;
 	
 	public Integer getId() {
 		return id;

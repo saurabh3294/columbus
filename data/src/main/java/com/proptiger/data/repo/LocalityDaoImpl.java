@@ -130,8 +130,11 @@ public class LocalityDaoImpl {
     	filter.put(Operator.and.name(), list);
     	
     	selector.setFilters(filter);
-    	selector.setFields(propertySelector.getFields());
-    	selector.setPaging(propertySelector.getPaging());
+    	if(propertySelector != null){
+    		selector.setFields(propertySelector.getFields());
+        	selector.setPaging(propertySelector.getPaging());
+    	}
+    	
     	if( selector.getPaging() == null )
     		selector.setPaging( new Paging(0, localityIds.size()));
     	

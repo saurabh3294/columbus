@@ -46,6 +46,6 @@ public class AppBuilderDetailController extends BaseController{
             selector = new Selector();
         }
 		Builder builder = builderService.getBuilderInfo(builderId, selector);
-		return new ProAPISuccessResponse(super.filterFieldsWithTree(builder, null));
+		return new ProAPISuccessResponse(super.filterFieldsWithTree(builder, selector.getFields()));
 	}
 }

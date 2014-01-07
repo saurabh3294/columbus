@@ -15,6 +15,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.enums.ActivationStatus;
@@ -25,6 +26,7 @@ import com.proptiger.data.model.enums.ActivationStatus;
  */
 @Entity
 @Table(name = "cms.agents")
+@JsonFilter("fieldFilter")
 public class Agent implements BaseModel{
 
 	@Id
