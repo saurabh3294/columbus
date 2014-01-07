@@ -104,7 +104,7 @@ public class ProjectController extends BaseController {
         }
         SolrServiceResponse<List<Project>> response = projectService.getUpcomingNewProjects(cityName,
                 propRequestParam);
-        imageEnricher.setProjectsImages("main", response.getResult(), false);
+        imageEnricher.setProjectsImages(response.getResult());
         
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessCountResponse(super.filterFields(response.getResult(), fieldsString),

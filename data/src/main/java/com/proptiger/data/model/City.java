@@ -11,77 +11,80 @@ import javax.persistence.Transient;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class City implements BaseModel{
+@JsonInclude(Include.NON_NULL)
+public class City implements BaseModel {
     @Id
-    @FieldMetaInfo( displayName = "City Id",  description = "City Id")
+    @FieldMetaInfo(displayName = "City Id", description = "City Id")
     @Column(name = "CITY_ID")
     @Field("CITY_ID")
     private Integer id;
 
-    @FieldMetaInfo( displayName = "Label",  description = "City label")
+    @FieldMetaInfo(displayName = "Label", description = "City label")
     @Column(name = "LABEL")
     @Field("CITY")
     private String label;
 
-    @FieldMetaInfo( displayName = "North east latitude",  description = "North east latitude")
-    @Column(name="NORTH_EAST_LATITUDE")
-    @Field(value="NORTH_EAST_LATITUDE")
+    @FieldMetaInfo(displayName = "North east latitude", description = "North east latitude")
+    @Column(name = "NORTH_EAST_LATITUDE")
+    @Field(value = "NORTH_EAST_LATITUDE")
     private Double northEastLatitude;
-    
-    @FieldMetaInfo( displayName = "North east longitude",  description = "North east longitude")
-    @Column(name="NORTH_EAST_LONGITUDE")
-    @Field(value="NORTH_EAST_LONGITUDE")
+
+    @FieldMetaInfo(displayName = "North east longitude", description = "North east longitude")
+    @Column(name = "NORTH_EAST_LONGITUDE")
+    @Field(value = "NORTH_EAST_LONGITUDE")
     private Double northEastLongitude;
-    
-    @FieldMetaInfo( displayName = "South west latitude",  description = "South west latitude")
-    @Column(name="SOUTH_WEST_LATITUDE")
-    @Field(value="SOUTH_WEST_LATITUDE")
+
+    @FieldMetaInfo(displayName = "South west latitude", description = "South west latitude")
+    @Column(name = "SOUTH_WEST_LATITUDE")
+    @Field(value = "SOUTH_WEST_LATITUDE")
     private Double southWestLatitude;
-    
-    @FieldMetaInfo( displayName = "South west longitude",  description = "South west latitude")
-    @Column(name="SOUTH_WEST_LONGITUDE")
-    @Field(value="SOUTH_WEST_LONGITUDE")
+
+    @FieldMetaInfo(displayName = "South west longitude", description = "South west latitude")
+    @Column(name = "SOUTH_WEST_LONGITUDE")
+    @Field(value = "SOUTH_WEST_LONGITUDE")
     private Double southWestLongitude;
-    
-    @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
-    @Column(name="CENTER_LATITUDE")
-    @Field(value="CENTER_LATITUDE")
+
+    @FieldMetaInfo(displayName = "Center latitude", description = "Center latitude")
+    @Column(name = "CENTER_LATITUDE")
+    @Field(value = "CENTER_LATITUDE")
     private Double centerLatitude;
-    
-    @FieldMetaInfo( displayName = "Center latitude",  description = "Center latitude")
-    @Column(name="CENTER_LONGITUDE")
-    @Field(value="CENTER_LONGITUDE")
+
+    @FieldMetaInfo(displayName = "Center latitude", description = "Center latitude")
+    @Column(name = "CENTER_LONGITUDE")
+    @Field(value = "CENTER_LONGITUDE")
     private Double centerLongitude;
 
-    @Column(name="DISPLAY_PRIORITY")
-    @Field(value="DISPLAY_PRIORITY")
-    @FieldMetaInfo( displayName = "Display Priority",  description = "Display Priority")
+    @Column(name = "DISPLAY_PRIORITY")
+    @Field(value = "DISPLAY_PRIORITY")
+    @FieldMetaInfo(displayName = "Display Priority", description = "Display Priority")
     private Integer displayPriority;
-    
-    @Column(name="DISPLAY_ORDER")
-    @Field(value="CITY_DISPLAY_ORDER")
-    @FieldMetaInfo( displayName = "Display Order",  description = "Display Order")
+
+    @Column(name = "DISPLAY_ORDER")
+    @Field(value = "CITY_DISPLAY_ORDER")
+    @FieldMetaInfo(displayName = "Display Order", description = "Display Order")
     private Integer displayOrder;
-    
-    @Column(name="URL")
+
+    @Column(name = "URL")
     @Field("CITY_URL")
-    @FieldMetaInfo( displayName = "URL",  description = "URL")
+    @FieldMetaInfo(displayName = "URL", description = "URL")
     private String url;
-    
-    @Column(name="DESCRIPTION")
+
+    @Column(name = "DESCRIPTION")
     @Field("DESCRIPTION")
-    @FieldMetaInfo( displayName = "Description",  description = "Description")
+    @FieldMetaInfo(displayName = "Description", description = "Description")
     private String description;
 
     @Transient
@@ -101,24 +104,24 @@ public class City implements BaseModel{
 
     @Transient
     private Integer maxZoomLevel = 14;
-    
+
     @Transient
     private Long projectsCount;
-    
+
     @Transient
     @Field("CITY_DOMINANT_UNIT_TYPE")
     private String dominantUnitType;
-    
+
     @Transient
     private Map<Integer, Double> avgBHKPrice;
-    
+
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
-		this.id = id;
-	}
+        this.id = id;
+    }
 
     public String getLabel() {
         return label;
@@ -176,45 +179,45 @@ public class City implements BaseModel{
         this.centerLongitude = centerLongitude;
     }
 
-	public Integer getDisplayPriority() {
-		return displayPriority;
-	}
+    public Integer getDisplayPriority() {
+        return displayPriority;
+    }
 
-	public void setDisplayPriority(Integer displayPriority) {
-		this.displayPriority = displayPriority;
-	}
+    public void setDisplayPriority(Integer displayPriority) {
+        this.displayPriority = displayPriority;
+    }
 
-	public Integer getDisplayOrder() {
-		return displayOrder;
-	}
+    public Integer getDisplayOrder() {
+        return displayOrder;
+    }
 
-	public void setDisplayOrder(Integer displayOrder) {
-		this.displayOrder = displayOrder;
-	}
+    public void setDisplayOrder(Integer displayOrder) {
+        this.displayOrder = displayOrder;
+    }
 
-	public Long getProjectsCount() {
-		return projectsCount;
-	}
+    public Long getProjectsCount() {
+        return projectsCount;
+    }
 
-	public void setProjectsCount(Long projectsCount) {
-		this.projectsCount = projectsCount;
-	}
+    public void setProjectsCount(Long projectsCount) {
+        this.projectsCount = projectsCount;
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public Integer getMinZoomLevel() {
         return minZoomLevel;
@@ -256,20 +259,20 @@ public class City implements BaseModel{
         this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
 
-	public String getDominantUnitType() {
-		return dominantUnitType;
-	}
+    public String getDominantUnitType() {
+        return dominantUnitType;
+    }
 
-	public void setDominantUnitType(String dominantUnitType) {
-		this.dominantUnitType = dominantUnitType;
-	}
+    public void setDominantUnitType(String dominantUnitType) {
+        this.dominantUnitType = dominantUnitType;
+    }
 
-	public Map<Integer, Double> getAvgBHKPrice() {
-		return avgBHKPrice;
-	}
+    public Map<Integer, Double> getAvgBHKPrice() {
+        return avgBHKPrice;
+    }
 
-	public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
-		this.avgBHKPrice = avgBHKPrice;
-	}
+    public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
+        this.avgBHKPrice = avgBHKPrice;
+    }
 
 }

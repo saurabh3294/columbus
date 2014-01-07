@@ -53,7 +53,7 @@ public class BuilderService {
 
     public Builder getBuilderDetailsByProjectId(int projectId) {
         Builder builder = builderDao.findByProjectId(projectId);
-        imageEnricher.setBuilderImages("logo", builder);
+        imageEnricher.setBuilderImages(builder);
 
         return builder;
     }
@@ -96,15 +96,13 @@ public class BuilderService {
     	List<Project> projectsToReturn = new ArrayList<>();
     	while(ongoingProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = ongoingProjectItr.next();
-    		imageEnricher.setProjectImages("main", project, null);
-     		project.setImages( project.getImages().subList(0, 1) );
+    		imageEnricher.setProjectImages(project);
     		projectsToReturn.add(project);
     	}
     	
     	while(totalProjectItr.hasNext() && counter++ < projectsToShow){
     		Project project = totalProjectItr.next();
-    		imageEnricher.setProjectImages(null, project, null);
-     		project.setImages( project.getImages().subList(0, 1) );
+    		imageEnricher.setProjectImages(project);    		
     		projectsToReturn.add(project);
     	}
     	

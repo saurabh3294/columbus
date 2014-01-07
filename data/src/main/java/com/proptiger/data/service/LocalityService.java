@@ -269,7 +269,7 @@ public class LocalityService {
 		 * Hit image service only if images are required
 		 */
 		if (imageCount != null && imageCount > 0) {
-			imageEnricher.setLocalityImages(null, locality, imageCount);
+			imageEnricher.setLocalityImages(locality, imageCount);
 		}
 		
 		/*
