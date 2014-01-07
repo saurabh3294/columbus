@@ -14,7 +14,6 @@ public class ProjectAmenity implements BaseModel {
 
 	@Column(name = "ID")
 	@Id
-	@JsonIgnore
 	private Long id;
 	
 	@FieldMetaInfo(displayName = "Project Id", description = "Project Id")

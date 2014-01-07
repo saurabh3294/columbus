@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -24,18 +23,17 @@ import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.Project;
+import com.proptiger.data.model.ProjectAmenity;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageEnricher;
-import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityAmenityService;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.LocalityService;
@@ -96,7 +94,7 @@ public class ProjectDetailController extends BaseController {
         if(projectDiscussionList!=null)
         	totalProjectDiscussion = projectDiscussionList.size();
         // getting project Amenities
-        List<String> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
+        List<ProjectAmenity> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
         
         // getting Project Neighborhood.
         List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(projectInfo.getLocalityId(), null);

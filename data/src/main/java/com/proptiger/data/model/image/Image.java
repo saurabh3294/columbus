@@ -1,6 +1,5 @@
 package com.proptiger.data.model.image;
 
-import java.io.File;
 import java.util.Date;
 
 import javax.persistence.Access;
