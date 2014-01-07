@@ -16,6 +16,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.pojo.Selector;
@@ -44,6 +45,9 @@ public class ProjectService {
     
     @Autowired
     private ImageEnricher imageEnricher;
+    
+    @Autowired
+    private PropertyService propertyService;
 
  	@Autowired
 	private MailSender mailSender;
@@ -106,7 +110,25 @@ public class ProjectService {
         }
         return project;
     }
-
+    
+    /**
+     * Returns all details of a project on the Project Model Object.
+     * @param projectId
+     * @return Project Model Object
+     */
+    public Project getProjectInfoDetails(Selector propertySelector, Integer projectId){
+    	Project project  = projectDao.findProjectByProjectId(projectId);
+    	List<Property> properties = propertyService.getProperties(projectId);
+    	for(int i=0; i<properties.size(); i++)
+    		properties.get(i).setProject(null);
+    	
+    	project.setProperties(properties);
+    	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
+    	imageEnricher.setProjectImages(null, project, null);
+    	
+    	return project;
+    }
+    
     /**
      * Returns all discussions for a project
      *
@@ -202,5 +224,15 @@ public class ProjectService {
 			throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
 		}
 		return sent;
+	}
+
+	private Integer getTotalProjectDiscussionCount(int projectId){
+		
+		Integer totalProjectDiscussion = 0;
+		List<ProjectDiscussion> projectDiscussionList = getDiscussions(projectId, null);
+        if(projectDiscussionList!=null)
+        	totalProjectDiscussion = projectDiscussionList.size();
+        
+        return totalProjectDiscussion;
 	}
 }

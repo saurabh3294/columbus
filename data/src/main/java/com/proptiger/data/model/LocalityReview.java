@@ -7,6 +7,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -20,6 +21,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "LOCALITY_REVIEW")
 @ResourceMetaInfo
+@JsonFilter("fieldFilter")
 public class LocalityReview implements BaseModel{
     @FieldMetaInfo(displayName = "Review Id", description = "Review Id")
     @Column(name = "REVIEW_ID")

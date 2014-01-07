@@ -87,13 +87,15 @@ public class Property implements BaseModel {
     private String URL;
 
     @FieldMetaInfo( displayName = "Locality Latitude",  description = "Locality Latitude")
-    //@Field(value="PROCESSED_LATITUDE")
+    @Field(value="PROCESSED_LATITUDE")
     @Transient
+    @JsonIgnore
     private Double processedLatitude;
     
     @FieldMetaInfo( displayName = "Locality Longitude",  description = "Locality Longitude")
-    //@Field(value="PROCESSED_LONGITUDE")
+    @Field(value="PROCESSED_LONGITUDE")
     @Transient
+    @JsonIgnore
     private Double processedLongitude;
     
     @FieldMetaInfo( displayName = "Property Price",  description = "Property Price")
@@ -274,6 +276,10 @@ public class Property implements BaseModel {
 
 	public void setResalePrice(Double resalePrice) {
 		this.resalePrice = resalePrice;
+	}
+
+	public Double getProcessedLatitude() {
+		return processedLatitude;
 	}
 	
 }

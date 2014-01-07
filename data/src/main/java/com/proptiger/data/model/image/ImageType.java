@@ -18,19 +18,19 @@ import com.proptiger.data.model.ObjectType;
 
 @Entity(name = "ImageType")
 @JsonFilter("fieldFilter")
-public class ImageType implements BaseModel{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+public class ImageType implements BaseModel {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
-	@ManyToOne(targetEntity = ObjectType.class, fetch=FetchType.EAGER)
+
+	@ManyToOne(targetEntity = ObjectType.class, fetch = FetchType.EAGER)
 	@Fetch(FetchMode.JOIN)
-	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable=false, updatable=false)
+	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable = false, updatable = false)
 	private ObjectType objectType;
-	
+
 	@Column(name = "ObjectType_id")
 	private String objectTypeId;
-	
+
 	@Column(name = "type")
 	private String type;
 
@@ -42,7 +42,8 @@ public class ImageType implements BaseModel{
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(long id) {
 		this.id = id;
@@ -56,7 +57,8 @@ public class ImageType implements BaseModel{
 	}
 
 	/**
-	 * @param objectType the objectType to set
+	 * @param objectType
+	 *            the objectType to set
 	 */
 	public void setObjectType(ObjectType objectType) {
 		this.objectType = objectType;
@@ -70,7 +72,8 @@ public class ImageType implements BaseModel{
 	}
 
 	/**
-	 * @param objectTypeId the objectTypeId to set
+	 * @param objectTypeId
+	 *            the objectTypeId to set
 	 */
 	public void setObjectTypeId(String objectTypeId) {
 		this.objectTypeId = objectTypeId;
@@ -84,7 +87,8 @@ public class ImageType implements BaseModel{
 	}
 
 	/**
-	 * @param type the type to set
+	 * @param type
+	 *            the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
