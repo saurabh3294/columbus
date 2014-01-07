@@ -26,7 +26,7 @@ public class SuburbController extends BaseController {
     private SuburbService suburbService;
 
     /**
-     * Returns subuebs given a selector
+     * Returns suburbs given a selector
      *
      * @param selector
      * @return
@@ -42,7 +42,7 @@ public class SuburbController extends BaseController {
     }
 
     /**
-     * Returns a suburb alongwith its details
+     * Returns a suburb along with its details
      *
      * @param suburbId
      * @return
