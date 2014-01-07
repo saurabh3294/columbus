@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -26,7 +27,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-//@JsonFilter("fieldFilter")
+@JsonFilter("fieldFilter")
 public class LocalityAmenity implements BaseModel{
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")

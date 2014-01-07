@@ -38,73 +38,77 @@ public class Image implements BaseModel {
 	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
 	private ImageType imageType;
 
-    @Column(name = "ImageType_id")
+	@Column(name = "ImageType_id")
     private long imageTypeId;
-
-    @Column(name = "object_id")
-    private long objectId;
-
-    private String path;
-
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Column(name = "taken_at", nullable = true)
-    private Date takenAt;
-
-    @Column(name = "size_in_bytes")
-    private long sizeInBytes;
-
-    private int width;
-
-    private int height;
-
-    private Double latitude;
-
-    private Double longitude;
-
-    @Column(name = "alt_text", nullable = true)
-    private String altText;
-
-    private String title;
-
-    private String description;
-
-    @Column(name = "json_dump", nullable = true)
-    private String jsonDump;
-
-    private Integer priority;
-
-    @Column(name = "original_hash")
-    @JsonIgnore
-    private String originalHash;
-
-    @Column(name = "original_name")
-    @JsonIgnore
-    private String originalName;
-
-    @JsonIgnore
-    @Column(name = "watermark_hash")
-    private String waterMarkHash;
-
-    @JsonIgnore
-    @Column(name = "watermark_name")
-    private String waterMarkName;
-
-    private boolean active;
+	
+	@Column(name = "object_id")
+	private long objectId;
+	
+	private String path;
 
     public void assignWatermarkName(String format) {
-        waterMarkName = id + DOT + format;
+        waterMarkName = id + this.DOT +format;
     }
 
     public void assignOriginalName(String format) {
-        originalName = originalHash + DOT + format;
+        originalName = originalHash + this.DOT + format;
     }
 
-    @JsonProperty
+	@JsonProperty
     public String getAbsolutePath() {
-        return ImageUtil.endpoint + File.separator + path + waterMarkName;
+        return ImageUtil.endpoint + "/" + path + waterMarkName;
     }
+	
+	@JsonProperty
+    public void setAbsolutePath(String str) {
+    }
+	
+	@Column(name = "created_at")
+	private Date createdAt;
+	
+	@Column(name = "taken_at", nullable = true)
+	private Date takenAt;
+	
+	@Column(name = "size_in_bytes")
+	private long sizeInBytes;
+	
+	private int width;
+	
+	private int height;
+	
+	private Double latitude;
+	
+	private Double longitude;
+	
+	@Column(name = "alt_text", nullable = true)
+	private String altText;
+	
+	private String title;
+	
+	private String description;
+	
+	@Column(name = "json_dump", nullable = true)
+	private String jsonDump;
+	
+	private Integer priority;
+
+	@Column(name = "original_hash")
+	@JsonIgnore
+	private String originalHash;
+
+	@Column(name = "original_name")
+    @JsonIgnore
+    private String originalName;
+
+	@JsonIgnore
+	@Column(name = "watermark_hash")
+	private String waterMarkHash;
+
+	@JsonIgnore
+	@Column(name = "watermark_name")
+	private String waterMarkName;
+
+	private boolean active;
 
     public long getId() {
         return id;

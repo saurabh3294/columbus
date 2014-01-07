@@ -80,11 +80,8 @@ public class Locality implements BaseModel {
 
     @FieldMetaInfo(displayName = "Active", description = "Active")
     @Column(name = "ACTIVE")
+    @JsonIgnore
     private boolean isActive;
-    
-    @FieldMetaInfo(displayName = "DELETED_FLAG", description = "DELETED_FLAG")
-    @Column(name = "DELETED_FLAG")
-    private boolean deletedFlag;
     
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
@@ -258,14 +255,6 @@ public class Locality implements BaseModel {
 
     public void setActive(boolean isActive) {
         this.isActive = isActive;
-    }
-
-    public boolean isDeletedFlag() {
-        return deletedFlag;
-    }
-
-    public void setDeletedFlag(boolean deletedFlag) {
-        this.deletedFlag = deletedFlag;
     }
 
     public String getDescription() {

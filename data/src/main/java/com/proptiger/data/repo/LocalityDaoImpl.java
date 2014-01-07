@@ -43,7 +43,6 @@ public class LocalityDaoImpl {
 	private EntityManagerFactory emf;
 	public SolrServiceResponse<List<Locality>> getLocalities(Selector selector){
 		SolrQuery solrQuery = createSolrQuery(selector);
-		System.out.println(solrQuery.toString());
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		

@@ -23,7 +23,7 @@ public class ProjectAmenityService {
 		List<ProjectAmenity> list = projectAmenityDao.findAmenitiesByProjectId(projectId);
 		List<String> amenityNameList = new ArrayList<String>();
 		for(ProjectAmenity amenity: list){
-			amenityNameList.add(amenity.getAmenityName());
+			amenityNameList.add(amenity.getName());
 		}
 		return amenityNameList;
 	}

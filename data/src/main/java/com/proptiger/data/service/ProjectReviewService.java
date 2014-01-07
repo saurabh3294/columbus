@@ -17,6 +17,7 @@ import com.proptiger.data.repo.ProjectReviewDao;
  *
  */
 @Service
+@Deprecated
 public class ProjectReviewService {
 	@Autowired
 	private ProjectReviewDao projectReviewDao;
