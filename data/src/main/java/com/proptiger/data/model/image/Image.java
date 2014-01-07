@@ -46,12 +46,12 @@ public class Image implements BaseModel {
 	
 	private String path;
 
-    public void assignWatermarkName() {
-        waterMarkName = id + ".jpg";
+    public void assignWatermarkName(String format) {
+        waterMarkName = id + this.DOT +format;
     }
 
     public void assignOriginalName(String format) {
-        originalName = originalHash + '.' + format;
+        originalName = originalHash + this.DOT + format;
     }
 
 	@JsonProperty

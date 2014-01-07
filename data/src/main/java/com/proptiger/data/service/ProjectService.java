@@ -124,7 +124,7 @@ public class ProjectService {
     	
     	project.setProperties(properties);
     	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
-    	imageEnricher.setProjectImages(null, project, null);
+    	imageEnricher.setProjectImages(project);
     	
     	return project;
     }
