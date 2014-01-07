@@ -36,7 +36,7 @@ public class ImageEnricher {
 	
 	public void setProjectImages(String imageTypeStr, Project project, Boolean allImages){
 		List<Image> images = imageService.getImages( DomainObject.project, imageTypeStr, project.getProjectId() );
-		
+		System.out.println("image size "+images.size());
 		 if (images != null && !images.isEmpty()) 
 			 project.setImageURL(images.get(0).getAbsolutePath());
          

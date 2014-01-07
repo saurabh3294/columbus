@@ -108,9 +108,10 @@ public class ProjectService {
     	List<Property> properties = propertyService.getProperties(projectId);
     	for(int i=0; i<properties.size(); i++)
     		properties.get(i).setProject(null);
+    	
     	project.setProperties(properties);
     	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
-    	
+    	imageEnricher.setProjectImages(null, project, null);
     	
     	return project;
     }

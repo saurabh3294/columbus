@@ -73,12 +73,12 @@ public class Project implements BaseModel {
     
     @Id
     @FieldMetaInfo( displayName = "DB Project Id",  description = "DB Project Id")
-    @Column(name="PROJECT_ID")
+    @Column(name="PROJECT_ID", insertable=false, updatable=false)
     private int id;
     
-    @Transient
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
+    @Column(name="PROJECT_ID", insertable=false, updatable=false)
     private int projectId;
 	
 	@Transient
@@ -353,6 +353,7 @@ public class Project implements BaseModel {
 
     public void setLocality(Locality locality) {
         this.locality = locality;
+        this.setLocalityId(locality.getLocalityId());
     }
 
     public int getBuilderId() {
