@@ -76,7 +76,6 @@ public class ImageService {
 		
 		IMOperation imOps = new IMOperation();
 		imOps.size(image.getWidth(), image.getHeight());
-		imOps.dissolve(50);
 		imOps.addImage(2);
 		imOps.geometry(image.getWidth() / 2, image.getHeight() / 2, image.getWidth() / 4, image.getHeight() / 4);
         imOps.addImage();
