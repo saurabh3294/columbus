@@ -8,23 +8,28 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
+import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.TableAttributes;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.ProjectDao;
-import com.proptiger.data.repo.ProjectSpecificationDao;
+import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -41,9 +46,6 @@ public class ProjectService {
     private ProjectDao projectDao;
 
     @Autowired
-    private ProjectSpecificationDao projectSpecificationDao;
-    
-    @Autowired
     private ImageEnricher imageEnricher;
     
     @Autowired
@@ -51,6 +53,12 @@ public class ProjectService {
 
  	@Autowired
 	private MailSender mailSender;
+ 	
+ 	@Autowired
+ 	private LocalityAmenityService localityAmenityService;
+ 	
+ 	@Autowired
+ 	private TableAttributesDao tableAttributesDao;
 
     /**
      * This method will return the list of projects and total projects found based on the selector.
@@ -94,7 +102,7 @@ public class ProjectService {
      * @return
      */
     public ProjectSpecification getProjectSpecifications(int projectId) {
-        return projectSpecificationDao.findById(projectId);
+        return null;//projectSpecificationDao.findById(projectId);
     }
 
     /**
@@ -118,13 +126,18 @@ public class ProjectService {
      */
     public Project getProjectInfoDetails(Selector propertySelector, Integer projectId){
     	Project project  = projectDao.findProjectByProjectId(projectId);
+    	if(project == null)
+    		return null;
+    	
     	List<Property> properties = propertyService.getProperties(projectId);
     	for(int i=0; i<properties.size(); i++)
     		properties.get(i).setProject(null);
     	
     	project.setProperties(properties);
     	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
+    	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
     	imageEnricher.setProjectImages(project);
+    	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
     	
     	return project;
     }
@@ -250,5 +263,18 @@ public class ProjectService {
         	totalProjectDiscussion = projectDiscussionList.size();
         
         return totalProjectDiscussion;
+	}
+	
+	public ProjectSpecification getProjectSpecificationsV2(int projectId){
+		
+		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes("project", projectId);
+		List<TableAttributes> specifications = tableAttributesDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
+		
+		/*Map<String, Object> specification = new ProjectSpecification(specifications).getSpecifications(); 
+		//projectSp
+		Gson gson = new Gson();
+		System.out.println(gson.toJson(specification));*/
+		//return projectSpecification;
+		return new ProjectSpecification(specifications);
 	}
 }

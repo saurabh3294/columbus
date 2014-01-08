@@ -83,11 +83,10 @@ public class ProjectDetailController extends BaseController {
         }
 
         List<Property> properties = propertyService.getProperties(projectId);
-        ProjectSpecification projectSpecification = projectService.getProjectSpecifications(projectId);
+        ProjectSpecification projectSpecification = projectService.getProjectSpecificationsV2(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);
-        Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
-                
+                        
         // getting project discussions.
         int totalProjectDiscussion=0;
         List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
@@ -138,7 +137,7 @@ public class ProjectDetailController extends BaseController {
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("specification", parseSpecification);
+        response.put("specification", projectSpecification.getSpecifications());
         response.put("projectDetails", projectInfo);
         response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
@@ -161,69 +160,5 @@ public class ProjectDetailController extends BaseController {
         Project project = projectService.getProjectInfoDetails(propertyDetailsSelector, projectId);
     	return new ProAPISuccessResponse( super.filterFields(project, propertyDetailsSelector.getFields() ) );
     }
-    
-    private Map<String, Object> parseSpecificationObject(ProjectSpecification projectSpecification){
-        if (projectSpecification == null) {
-            return null;
-        }
-
-        String specsGroups[] = {"doors", "electricalFittings", "fittingsAndFixtures", "flooring", "id", "others", "walls",  "windows"};
-        
-        Field fields[] = projectSpecification.getClass().getDeclaredFields();
-        
-        Map<String, Integer> fieldsMap = new TreeMap<>();
-        
-        for(int i=0; i<fields.length; i++)
-            fieldsMap.put(fields[i].getName(), i);
-        
-        Map<String, Object> parseMap = new LinkedHashMap<String, Object>();
-        Map<String, Object> splitKeys;
-        
-        int i=0;
-        String key;
-        String keySuffix;
-        boolean found = false;
-        int index;
-        Object value = null;
-        for(Map.Entry<String, Integer> entry: fieldsMap.entrySet())
-        {
-            key = entry.getKey();
-            found = false;
-            while(!found && i<specsGroups.length)
-            {
-                found = key.startsWith(specsGroups[i++]);
-            }
-            if(!found)
-                break;
-            
-            i--;
-            keySuffix = key.substring(specsGroups[i].length());
-            if( !parseMap.containsKey(specsGroups[i]) )
-                splitKeys = new LinkedHashMap<String, Object>();
-            else
-                splitKeys = (Map<String, Object>)parseMap.get(specsGroups[i]);
-            
-            index = entry.getValue();
-            try{
-                fields[index].setAccessible(true);
-                value = fields[index].get(projectSpecification);
-            }catch(Exception e){
-                value = null;
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
-            
-            if(keySuffix.length() <= 0)
-                parseMap.put(specsGroups[i], value);
-            else
-            {
-                splitKeys.put(keySuffix, value);
-                parseMap.put(specsGroups[i], splitKeys);
-            }
-        }
-        
-        return parseMap;
-    }
-    
     
 }

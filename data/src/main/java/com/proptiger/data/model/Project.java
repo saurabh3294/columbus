@@ -27,6 +27,7 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
@@ -330,6 +331,13 @@ public class Project implements BaseModel {
 	 
 	 @Transient
 	 private Integer totalProjectDiscussion;
+	 
+	 @Transient
+	 private List<LocalityAmenity> neighborhood;
+	 
+	 @JsonUnwrapped
+	 @Transient
+	 private ProjectSpecification projectSpecification;
     
     public int getProjectId() {
         return projectId;
@@ -370,6 +378,7 @@ public class Project implements BaseModel {
 
     public void setBuilder(Builder builder) {
         this.builder = builder;
+        this.setBuilderId(builder.getId());
     }
 
     public List<Property> getProperties() {
@@ -803,5 +812,21 @@ public class Project implements BaseModel {
 
 	public void setTotalProjectDiscussion(Integer totalProjectDiscussion) {
 		this.totalProjectDiscussion = totalProjectDiscussion;
+	}
+
+	public List<LocalityAmenity> getNeighborhood() {
+		return neighborhood;
+	}
+
+	public void setNeighborhood(List<LocalityAmenity> neighborhood) {
+		this.neighborhood = neighborhood;
+	}
+
+	public ProjectSpecification getProjectSpecification() {
+		return projectSpecification;
+	}
+
+	public void setProjectSpecification(ProjectSpecification projectSpecification) {
+		this.projectSpecification = projectSpecification;
 	}
 }
