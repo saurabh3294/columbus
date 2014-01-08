@@ -51,7 +51,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     public void addEqualsFilter(String fieldName, List<Object> values) {
         String colName = getColumnName(fieldName);
         String quote = "";
-        if (values.get(0) instanceof String) {
+        if (values.size() >0 && values.get(0) instanceof String) {
             quote = "\"";
         }
 

@@ -7,12 +7,16 @@ package com.proptiger.data.repo;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.response.FacetField;
+import org.apache.solr.client.solrj.response.FacetField.Count;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -223,5 +228,28 @@ public class ProjectSolrDao {
             e.printStackTrace();
         }
         // new ProjectSolrDao().getProjects(projectFilter);
+    }
+    
+    /**
+     * This method get project count by project status for provided filter.
+     * @param selector
+     * @return
+     */
+    public Map<String, Long> getProjectStatusCount(Selector selector){
+    	Map<String, Long> projectStatusCount = new HashMap<String, Long>();
+    	SolrQuery solrQuery =SolrDao.createSolrQuery(DocumentType.PROJECT);
+    	
+    	solrQuery.add("facet", "true");
+    	solrQuery.add("facet.field", "PROJECT_STATUS");
+    	SolrQueryBuilder<Project> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
+    	solrQueryBuilder.buildQuery(selector, null);
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	FacetField facetField = queryResponse.getFacetField("PROJECT_STATUS");
+    	if(facetField != null){
+    		for(Count count: facetField.getValues()){
+    			projectStatusCount.put(count.getName(), count.getCount());
+    		}
+    	}
+    	return projectStatusCount;
     }
 }
