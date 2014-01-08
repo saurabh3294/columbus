@@ -74,61 +74,78 @@ public class ProjectDetailController extends BaseController {
 
 	private static Logger logger = LoggerFactory.getLogger(ProjectDetailController.class);
     
-    @RequestMapping(value="app/v1/project-detail")
-    public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
-        
-        Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
-        if(propertyDetailsSelector == null) {
-            propertyDetailsSelector = new Selector();
-        }
+	@RequestMapping(value = "app/v1/project-detail")
+	public @ResponseBody
+	ProAPIResponse getProjectDetails(
+			@RequestParam(required = false) String propertySelector,
+			@RequestParam int projectId) throws Exception {
 
-        List<Property> properties = propertyService.getProperties(projectId);
-        ProjectSpecification projectSpecification = projectService.getProjectSpecifications(projectId);
-        ProjectDB projectInfo = projectService.getProjectDetails(projectId);
-        Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);
-        Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
-                
-        // getting project discussions.
-        int totalProjectDiscussion=0;
-        List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
-        if(projectDiscussionList!=null)
-        	totalProjectDiscussion = projectDiscussionList.size();
-        // getting project Amenities
-        List<ProjectAmenity> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
-        
-        // getting Project Neighborhood.
-        List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(projectInfo.getLocalityId(), null);
-        // getting Locality, Suburb, City Details and getting project price ranges from properties data.
-        Locality locality = null;
-        Double pricePerUnitArea;
-        Double resalePrice;
-        if(properties.size() > 0)
-        {
-        	// setting images.
-        	imageEnricher.setPropertiesImages(properties);
-        	locality = properties.get(0).getProject().getLocality();
-        	Property property;
-        	for(int i=0; i<properties.size(); i++){
-        		property = properties.get(i);
-           		pricePerUnitArea = property.getPricePerUnitArea();
-           		
-           		if(pricePerUnitArea == null)
-           			pricePerUnitArea = 0D;
-           			
-           		// set Primary Prices.
-           		projectInfo.setMinPricePerUnitArea( UtilityClass.min(pricePerUnitArea, projectInfo.getMinPricePerUnitArea() ) );
-           		projectInfo.setMaxPricePerUnitArea( UtilityClass.max(pricePerUnitArea, projectInfo.getMaxPricePerUnitArea() ) );
-           		// setting distinct bedrooms
-           		projectInfo.addDistinctBedrooms(property.getBedrooms());
-           		projectInfo.addPropertyUnitTypes(property.getUnitType());
-           		
-           		// setting resale Price
-            	resalePrice = property.getResalePrice();
-            	projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
-            	projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
-            	
-        	}
-        }
+		Selector propertyDetailsSelector = super.parseJsonToObject(
+				propertySelector, Selector.class);
+		if (propertyDetailsSelector == null) {
+			propertyDetailsSelector = new Selector();
+		}
+
+		List<Property> properties = propertyService.getProperties(projectId);
+		ProjectSpecification projectSpecification = projectService
+				.getProjectSpecifications(projectId);
+		ProjectDB projectInfo = projectService.getProjectDetails(projectId);
+		Builder builderDetails = builderService.getBuilderInfo(
+				projectInfo.getBuilderId(), null);
+		Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
+
+		// getting project discussions.
+		int totalProjectDiscussion = 0;
+		List<ProjectDiscussion> projectDiscussionList = projectService
+				.getDiscussions(projectId, null);
+		if (projectDiscussionList != null)
+			totalProjectDiscussion = projectDiscussionList.size();
+		// getting project Amenities
+		List<ProjectAmenity> listProjectAmenities = projectAmenityService
+				.getAmenitiesByProjectId(projectId);
+
+		// getting Project Neighborhood.
+		List<LocalityAmenity> listLocalityAmenity = localityAmenityService
+				.getLocalityAmenities(projectInfo.getLocalityId(), null);
+		// getting Locality, Suburb, City Details and getting project price
+		// ranges from properties data.
+		Locality locality = null;
+		Double pricePerUnitArea;
+		Double resalePrice;
+		if (properties.size() > 0) {
+			// setting images.
+			imageEnricher.setPropertiesImages(properties);
+			locality = properties.get(0).getProject().getLocality();
+			Property property;
+			for (int i = 0; i < properties.size(); i++) {
+				property = properties.get(i);
+				pricePerUnitArea = property.getPricePerUnitArea();
+
+				if (pricePerUnitArea == null)
+					pricePerUnitArea = 0D;
+
+				// set Primary Prices.
+				projectInfo
+						.setMinPricePerUnitArea(UtilityClass.min(
+								pricePerUnitArea,
+								projectInfo.getMinPricePerUnitArea()));
+				projectInfo
+						.setMaxPricePerUnitArea(UtilityClass.max(
+								pricePerUnitArea,
+								projectInfo.getMaxPricePerUnitArea()));
+				// setting distinct bedrooms
+				projectInfo.addDistinctBedrooms(property.getBedrooms());
+				projectInfo.addPropertyUnitTypes(property.getUnitType());
+
+				// setting resale Price
+				resalePrice = property.getResalePrice();
+				projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice,
+						projectInfo.getMaxResalePrice()));
+				projectInfo.setMinResalePrice(UtilityClass.min(resalePrice,
+						projectInfo.getMinResalePrice()));
+
+			}
+		}
         
         /*
          *  Setting locality Ratings And Reviews
