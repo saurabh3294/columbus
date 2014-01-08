@@ -13,4 +13,5 @@ import com.proptiger.data.model.seller.RuleProjectMapping;
 public interface RuleProjectMappingDao extends JpaRepository<RuleProjectMapping, Integer>{
 
 	public List<RuleProjectMapping> findByRuleIdIn(List<Integer> ids);
+	public List<RuleProjectMapping> findByProjectId(Integer projectId);
 }

@@ -5,6 +5,7 @@ package com.proptiger.data.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -55,15 +56,14 @@ public class Builder implements BaseModel {
     private Date estabilishedDate;
     
     @Transient
-    private Integer totalProjects;
-    @Transient
-    private Integer totalOngoingProjects;
-    @Transient
     private List<Project> projects;
     
     @Column(name="DISPLAY_ORDER")
     @Field("BUILDER_PRIORITY")
     private Integer priority;
+    
+    @Transient
+    private Map<String, Long> projectStatusCount;
     
     public int getId() {
         return id;
@@ -105,22 +105,6 @@ public class Builder implements BaseModel {
 		this.estabilishedDate = estabilishedDate;
 	}
 
-	public Integer getTotalProjects() {
-		return totalProjects;
-	}
-
-	public void setTotalProjects(Integer totalProjects) {
-		this.totalProjects = totalProjects;
-	}
-
-	public Integer getTotalOngoingProjects() {
-		return totalOngoingProjects;
-	}
-
-	public void setTotalOngoingProjects(Integer totalOngoingProjects) {
-		this.totalOngoingProjects = totalOngoingProjects;
-	}
-
 	public List<Project> getProjects() {
 		return projects;
 	}
@@ -135,6 +119,14 @@ public class Builder implements BaseModel {
 
 	public void setPriority(Integer priority) {
 		this.priority = priority;
+	}
+
+	public Map<String, Long> getProjectStatusCount() {
+		return projectStatusCount;
+	}
+
+	public void setProjectStatusCount(Map<String, Long> projectStatusCount) {
+		this.projectStatusCount = projectStatusCount;
 	}
     
 }

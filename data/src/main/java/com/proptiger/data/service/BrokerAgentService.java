@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Locality;
@@ -27,6 +29,7 @@ import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
+ * Service class to get agent related details
  * @author Rajeev Pandey
  *
  */
@@ -61,6 +64,7 @@ public class BrokerAgentService {
 	 * @param agentId
 	 * @return
 	 */
+	@Cacheable(value="cache", key="#agentId")
 	public Agent getAgent(Integer agentId){
 		Agent agent = agentDao.findOne(agentId);
 		if(agent == null){
@@ -97,35 +101,37 @@ public class BrokerAgentService {
 			}
 		}
 		List<Integer> localityIds = new ArrayList<Integer>();
-		/*
-		 * ruleIdList populated either for agent specific rules or for broker
-		 * rules. Now find if rules are mapped with project or locality, and get
-		 * all unique locality ids
-		 */
-		Iterable<RuleProjectMapping> projectRules = ruleProjectMappingDao
-				.findByRuleIdIn(ruleIdList);
-		if (projectRules == null) {
-			// no project rules so find locality rules
-			List<RuleLocalityMapping> localityRules = ruleLocalityMappingDao
+		if(ruleIdList.size() > 0){
+			/*
+			 * ruleIdList populated either for agent specific rules or for broker
+			 * rules. Now find if rules are mapped with project or locality, and get
+			 * all unique locality ids
+			 */
+			Iterable<RuleProjectMapping> projectRules = ruleProjectMappingDao
 					.findByRuleIdIn(ruleIdList);
-			if (localityRules != null) {
-				for (RuleLocalityMapping rule : localityRules) {
-					if (localityIds.contains(rule.getRuleId())) {
-						localityIds.add(rule.getRuleId());
+			if (projectRules == null) {
+				// no project rules so find locality rules
+				List<RuleLocalityMapping> localityRules = ruleLocalityMappingDao
+						.findByRuleIdIn(ruleIdList);
+				if (localityRules != null) {
+					for (RuleLocalityMapping rule : localityRules) {
+						if (localityIds.contains(rule.getRuleId())) {
+							localityIds.add(rule.getRuleId());
+						}
 					}
 				}
-			}
-		} else {
-			Set<Integer> projectIds = new HashSet<Integer>();
-			for (RuleProjectMapping rule : projectRules) {
-				projectIds.add(rule.getProjectId());
-			}
-			List<Project> projectList = projectService
-					.getProjectsByIds(projectIds);
-			if (projectList != null) {
-				for (Project project : projectList) {
-					if (!localityIds.contains(project.getLocalityId())) {
-						localityIds.add(project.getLocalityId());
+			} else {
+				Set<Integer> projectIds = new HashSet<Integer>();
+				for (RuleProjectMapping rule : projectRules) {
+					projectIds.add(rule.getProjectId());
+				}
+				List<Project> projectList = projectService
+						.getProjectsByIds(projectIds);
+				if (projectList != null) {
+					for (Project project : projectList) {
+						if (!localityIds.contains(project.getLocalityId())) {
+							localityIds.add(project.getLocalityId());
+						}
 					}
 				}
 			}
@@ -135,5 +141,34 @@ public class BrokerAgentService {
 			localities.add(localityService.getLocalityInfo(localityId, DEFAULT_LOCALITY_IMAGE_COUNT));
 		}
 		agent.setLocalitiesServiced(localities);
+	}
+	
+	/**
+	 * Get agents for given project id
+	 * @param projectId
+	 * @return
+	 */
+	@Cacheable(value="cache", key="#projectId")
+	public List<Agent> getAgentsForProject(Integer projectId){
+		List<RuleProjectMapping> projectRules = ruleProjectMappingDao.findByProjectId(projectId);
+		List<Integer> ruleIds = new ArrayList<Integer>();
+		if(projectRules == null || projectRules.size() == 0){
+			
+		}
+		else{
+			for(RuleProjectMapping rule: projectRules){
+				ruleIds.add(rule.getRuleId());
+			}
+		}
+		/*
+		 * Now get rule id and agent mapping to get all agents
+		 */
+		List<Integer> agentIds = ruleAgentMappingDao.findAgentsIdsWhereRuleIdsIn(ruleIds);
+		List<Agent> agentList = new ArrayList<Agent>();
+		for(Integer agentId: agentIds){
+			Agent agent = getAgent(agentId);
+			agentList.add(agent);
+		}
+		return agentList;
 	}
 }

@@ -161,4 +161,5 @@ public class ProjectDetailController extends BaseController {
     	return new ProAPISuccessResponse( super.filterFields(project, propertyDetailsSelector.getFields() ) );
     }
     
+
 }
