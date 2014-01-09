@@ -651,6 +651,10 @@ public class Project implements BaseModel {
     public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
         this.propertyUnitTypes = propertyUnitTypes;
     }
+    
+    public void addPropertyUnitType(String propertyUnitType){
+    	this.propertyUnitTypes.add(propertyUnitType);
+    }
 
     public int getMinBedrooms() {
         return minBedrooms;

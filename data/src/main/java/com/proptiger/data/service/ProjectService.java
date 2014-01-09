@@ -5,17 +5,15 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
-import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -32,6 +30,7 @@ import com.proptiger.data.service.pojo.SolrServiceResponse;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
+import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.mail.service.MailSender;
 
@@ -59,6 +58,12 @@ public class ProjectService {
  	
  	@Autowired
  	private TableAttributesDao tableAttributesDao;
+ 	
+ 	@Autowired
+ 	private LocalityService localityService;
+ 	
+ 	@Autowired
+ 	private BuilderService builderService;
 
     /**
      * This method will return the list of projects and total projects found based on the selector.
@@ -131,14 +136,52 @@ public class ProjectService {
     	
     	List<Property> properties = propertyService.getProperties(projectId);
     	for(int i=0; i<properties.size(); i++)
-    		properties.get(i).setProject(null);
+    	{
+    		                                    
+    		Property property = properties.get(i);
+    		property.setProject(null);
+       		Double pricePerUnitArea = property.getPricePerUnitArea();
+       		
+       		if(pricePerUnitArea == null)
+       			pricePerUnitArea = 0D;
+       			
+       		// set Primary Prices.
+       		project.setMinPricePerUnitArea( UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea() ) );
+       		project.setMaxPricePerUnitArea( UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea() ) );
+       		// setting distinct bedrooms
+       		project.addBedrooms(property.getBedrooms());
+       		project.addPropertyUnitType(property.getUnitType());
+       		
+       		// setting resale Price
+        	Double resalePrice = property.getResalePrice();
+        	project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
+        	project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
+    	}
     	
     	project.setProperties(properties);
     	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
     	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
     	imageEnricher.setProjectImages(project);
     	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
+    	project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
     	
+    	/*
+    	 * setting Price Rise 
+    	 */
+    	List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(project.getProjectId())));
+    	
+    	if(solrProjects != null && solrProjects.size() > 0)
+    	{
+    		Project solrProject = solrProjects.get(0);
+    		project.setAvgPriceRisePercentage(solrProject.getAvgPriceRisePercentage());
+    		project.setAvgPriceRiseMonths(solrProject.getAvgPriceRiseMonths());
+    	}
+    	
+    	/*
+         *  Setting locality Ratings And Reviews
+         */
+        localityService.setLocalityRatingAndReviewDetails(project.getLocality());
+        
     	return project;
     }
     
