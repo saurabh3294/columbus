@@ -151,14 +151,14 @@ public class ProjectDetailController extends BaseController {
     
     @RequestMapping(value="app/v2/project-detail")
     @DisableCaching
-    public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
-    	Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
-        if(propertyDetailsSelector == null) {
-            propertyDetailsSelector = new Selector();
+    public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId) throws Exception {
+    	Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if(projectSelector == null) {
+            projectSelector = new Selector();
         }
         
-        Project project = projectService.getProjectInfoDetails(propertyDetailsSelector, projectId);
-    	return new ProAPISuccessResponse( super.filterFields(project, propertyDetailsSelector.getFields() ) );
+        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
+    	return new ProAPISuccessResponse( super.filterFields(project, projectSelector.getFields() ) );
     }
     
 

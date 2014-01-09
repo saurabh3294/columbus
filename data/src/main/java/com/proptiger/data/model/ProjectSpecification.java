@@ -16,6 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -24,7 +26,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  *
  * @author mukand
  */
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonFilter("fieldFilter")
 public class ProjectSpecification implements BaseModel{
 	
 	private static enum SpecificationTypes{

@@ -82,20 +82,18 @@ public class Project implements BaseModel {
     @Column(name="PROJECT_ID", insertable=false, updatable=false)
     private int projectId;
 	
-	@Transient
-	@Deprecated
-    @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
+	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
+	@Column(name="LOCALITY_ID")
     private int localityId;
 
     @ManyToOne
-    @JoinColumn(name="LOCALITY_ID")
+    @JoinColumn(name="LOCALITY_ID", insertable=false, updatable=false)
     private Locality locality;
 
-	@Transient
-	@Deprecated
     @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
+	@Column(name="BUILDER_ID")
     private int builderId;
 
     @ManyToOne
@@ -362,9 +360,7 @@ public class Project implements BaseModel {
     }
 
     public void setLocality(Locality locality) {
-    	System.out.println("locality object set: "+locality.getLocalityId());
-        this.locality = locality;
-        this.setLocalityId(locality.getLocalityId());
+    	this.locality = locality;
     }
 
     public int getBuilderId() {
@@ -381,7 +377,6 @@ public class Project implements BaseModel {
 
     public void setBuilder(Builder builder) {
         this.builder = builder;
-        this.setBuilderId(builder.getId());
     }
 
     public List<Property> getProperties() {

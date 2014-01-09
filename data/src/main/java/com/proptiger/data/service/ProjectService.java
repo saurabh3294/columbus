@@ -135,7 +135,7 @@ public class ProjectService {
     	
     	project.setProperties(properties);
     	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
-    	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocality().getLocalityId(), null) );
+    	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
     	imageEnricher.setProjectImages(project);
     	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
     	

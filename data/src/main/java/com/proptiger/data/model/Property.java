@@ -106,6 +106,7 @@ public class Property implements BaseModel {
     
     @FieldMetaInfo( displayName = "Project Id with Bedroom",  description = "Project Id with Bedroom")
     @Field(value="PROJECT_ID_BEDROOM")
+    @JsonIgnore
     @Transient
     private String projectIdBedroom;
     
