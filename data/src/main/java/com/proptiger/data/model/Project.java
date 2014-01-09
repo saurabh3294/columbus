@@ -83,6 +83,7 @@ public class Project implements BaseModel {
     private int projectId;
 	
 	@Transient
+	@Deprecated
     @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
     private int localityId;
@@ -92,6 +93,7 @@ public class Project implements BaseModel {
     private Locality locality;
 
 	@Transient
+	@Deprecated
     @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
     private int builderId;
@@ -360,6 +362,7 @@ public class Project implements BaseModel {
     }
 
     public void setLocality(Locality locality) {
+    	System.out.println("locality object set: "+locality.getLocalityId());
         this.locality = locality;
         this.setLocalityId(locality.getLocalityId());
     }
