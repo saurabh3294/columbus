@@ -136,7 +136,7 @@ public class Locality implements BaseModel {
     private Integer projectCount;
     
     @Transient
-    private Double maxRadius;
+    private Double maxRadius = 3.0;
     
     @Transient
     private Integer totalImages;
@@ -170,7 +170,7 @@ public class Locality implements BaseModel {
     private String dominantUnitType;
     
     @Transient
-    private Map<Integer, Double> avgBHKPrice;
+    private Map<Integer, Double> avgBHKPricePerUnitArea;
     
     @Transient
     private Map<Double, Long> numberOfUsersByRating;
@@ -449,12 +449,12 @@ public class Locality implements BaseModel {
 		this.dominantUnitType = dominantUnitType;
 	}
 
-	public Map<Integer, Double> getAvgBHKPrice() {
-		return avgBHKPrice;
+	public Map<Integer, Double> getAvgBHKPricePerUnitArea() {
+		return avgBHKPricePerUnitArea;
 	}
 
-	public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
-		this.avgBHKPrice = avgBHKPrice;
+	public void setAvgBHKPriceUnitArea(Map<Integer, Double> avgBHKPrice) {
+		this.avgBHKPricePerUnitArea = avgBHKPrice;
 	}
 
 	public Map<Double, Long> getNumberOfUsersByRating() {

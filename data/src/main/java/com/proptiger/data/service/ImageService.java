@@ -134,6 +134,15 @@ public class ImageService {
 		}
 	}
 
+    /*
+     * Public method to get images of multiple object ids
+     */
+    public List<Image> getImages(DomainObject object, String imageTypeStr,
+            List<Long> objectIds) {
+            return imageDao.getImagesForObjectIds(object.getText(),
+                    imageTypeStr, objectIds);
+    }
+	
 	/*
 	 * Public method to upload images
 	 */

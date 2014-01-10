@@ -72,14 +72,6 @@ public class SolrResult implements BaseModel{
     @Field(value = "PROJECT_NAME")
     private String name;
 
-    @FieldMetaInfo( displayName = "Project Image URL",  description = "Project Image URL")
-    @Field(value = "PROJECT_SMALL_IMAGE")
-    private String imageURL;
-
-    @FieldMetaInfo( displayName = "Builder Image URL",  description = "Builder Image URL")
-    @Field(value = "BUILDER_IMAGE")
-    private String builderImageURL;
-
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     private int projectId;
@@ -339,11 +331,6 @@ public class SolrResult implements BaseModel{
         project.setSubmittedDate(submittedDate);
     }
 
-    @Field("PROJECT_SMALL_IMAGE")
-    public void setProjectImageURL(String projectImageURL) {
-        project.setImageURL(projectImageURL);
-    }
-
     @Field("OFFER")
     public void setOffer(String offer) {
         project.setOffer(offer);
@@ -417,11 +404,6 @@ public class SolrResult implements BaseModel{
     @Field("BUILDER_NAME")
     public void setBuilderName(String builderName) {
         builder.setName(builderName);
-    }
-
-    @Field("BUILDER_IMAGE")
-    public void setBuilderImageURL(String builderImageURL) {
-        builder.setImageURL(builderImageURL);
     }
 
     @Field("SUBURB_ID")
