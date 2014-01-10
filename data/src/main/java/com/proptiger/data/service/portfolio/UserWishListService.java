@@ -7,7 +7,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.UserWishList;
+import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.repo.portfolio.UserWishListDao;
 
 /**
@@ -31,6 +33,18 @@ public class UserWishListService {
 		return convertedResult;
 	}
 
+	public int saveUserWishList(UserWishlist userWishlist, UserInfo userInfo){
+		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
+			return -1;
+		
+		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userInfo.getUserIdentifier());
+		if(alreadyUserWishlist != null)
+			return 0;
+		
+		return userWishListDao.save(userWishlist) != null? 1: -2;
+		
+	}
+	
 	/**
 	 * A utility method to convert Object[] list to domain object list 
 	 * @param result
