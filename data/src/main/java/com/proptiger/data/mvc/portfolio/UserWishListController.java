@@ -42,8 +42,7 @@ public class UserWishListController extends BaseController{
 	@RequestMapping(method=RequestMethod.POST)
 	@ResponseBody
 	public ProAPIResponse setUserWishList(@ModelAttribute UserWishlist userWishlist, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
-		int status = userWishListService.saveUserWishList(userWishlist, userInfo);
-		return new ProAPISuccessResponse(status);
+		return new ProAPISuccessResponse(userWishListService.saveUserWishList(userWishlist, userInfo));
 	}
 	
 }

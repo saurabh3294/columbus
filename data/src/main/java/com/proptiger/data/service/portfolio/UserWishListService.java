@@ -11,6 +11,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.UserWishList;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.repo.portfolio.UserWishListDao;
+import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
  * @author Rajeev Pandey
@@ -33,15 +34,15 @@ public class UserWishListService {
 		return convertedResult;
 	}
 
-	public int saveUserWishList(UserWishlist userWishlist, UserInfo userInfo){
+	public UserWishlist saveUserWishList(UserWishlist userWishlist, UserInfo userInfo){
 		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
-			return -1;
+			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
 		
 		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userInfo.getUserIdentifier());
 		if(alreadyUserWishlist != null)
-			return 0;
+			throw new ResourceAlreadyExistException("Project Id already exists as Favourite.");
 		
-		return userWishListDao.save(userWishlist) != null? 1: -2;
+		return userWishListDao.save(userWishlist);
 		
 	}
 	

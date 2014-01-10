@@ -55,8 +55,6 @@ public class ForumUserSavedSearchesController extends BaseController {
 	@RequestMapping(method=RequestMethod.POST)
 	@ResponseBody
 	public ProAPIResponse saveSearch(@ModelAttribute ForumUserSavedSearch saveSearch, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo ){
-		int status = savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier());
-			
-		return new ProAPISuccessResponse(status);
+		return new ProAPISuccessResponse(savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier()));
 	}
 }
