@@ -327,10 +327,11 @@ public class LocalityService {
 	 * @param cityId
 	 * @param suburbId
 	 * @param enquiryInWeeks
+	 * @param selector 
 	 * @return List<Locality>
 	 */
 	public List<Locality> getPopularLocalities(Integer cityId,
-			Integer suburbId, Integer enquiryInWeeks) {
+			Integer suburbId, Integer enquiryInWeeks, Selector selector) {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.WEEK_OF_YEAR, -enquiryInWeeks);
 
@@ -342,7 +343,7 @@ public class LocalityService {
 		// cityId, suburbId, timeStmap);
 
 		List<Locality> result = localityDao.getPopularLocalities(cityId,
-				suburbId, timeStmap);
+				suburbId, timeStmap, selector);
 		return result;
 	}
 
