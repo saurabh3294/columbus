@@ -8,6 +8,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.model.filter.MySqlQueryBuilder;
@@ -19,30 +20,6 @@ import com.proptiger.data.pojo.Selector;
  *
  */
 @Component
-public class ForumUserSavedSearchDao {
-
-	@Autowired
-	private EntityManagerFactory emf;
-	
-	/**
-	 * This method takes a selector object and form a database query to find user saved searches
-	 * @param selector
-	 * @param userId
-	 * @return List<ForumUserSavedSearch>
-	 */
-	public List<ForumUserSavedSearch> getUserSavedSearches(Selector selector,
-			Integer userId) {
-
-		EntityManager em = emf.createEntityManager();
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		
-		List<ForumUserSavedSearch> result = new ArrayList<ForumUserSavedSearch>();
-		MySqlQueryBuilder<ForumUserSavedSearch> mySqlQueryBuilder = new MySqlQueryBuilder<ForumUserSavedSearch>(
-				builder, ForumUserSavedSearch.class);
-
-		mySqlQueryBuilder.buildQuery(selector, userId);
-		result = em.createQuery(mySqlQueryBuilder.getQuery()).getResultList();
-		
-		return result;
-	}
+public interface ForumUserSavedSearchDao extends PagingAndSortingRepository<ForumUserSavedSearch, Integer>, ForumUserSavedSearchCustomDao {
+	ForumUserSavedSearch findBySearchQueryAndUserIdOrNameAndUserId(String searchQuery, int userId, String name, int user_id);
 }

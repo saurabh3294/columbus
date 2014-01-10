@@ -22,4 +22,16 @@ public class ForumUserSavedSearchesService {
 	public List<ForumUserSavedSearch> getUserSavedSearches(Selector selector, Integer userId){
 		return savedSearchDao.getUserSavedSearches(selector, userId);
 	}
+	
+	public int setUserSearch(ForumUserSavedSearch saveSearch, Integer userId){
+		if(saveSearch.getName().isEmpty() || saveSearch.getSearchQuery().isEmpty())
+			return -1;
+		
+		ForumUserSavedSearch alreadySavedSearch = savedSearchDao.findBySearchQueryAndUserIdOrNameAndUserId(saveSearch.getSearchQuery(), userId, saveSearch.getName(), userId);
+		if(alreadySavedSearch != null)
+			return 0;
+		
+		saveSearch.setUserId(userId);
+		return savedSearchDao.save(saveSearch)!= null? 1: -2;
+	}
 }
