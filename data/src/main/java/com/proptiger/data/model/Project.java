@@ -27,6 +27,7 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
@@ -71,28 +72,29 @@ public class Project implements BaseModel {
         }
     };
     
-    @Id
+   /* @Id
     @FieldMetaInfo( displayName = "DB Project Id",  description = "DB Project Id")
     @Column(name="PROJECT_ID", insertable=false, updatable=false)
-    private int id;
+    private Integer id;*/
     
+    @Id	
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     @Column(name="PROJECT_ID", insertable=false, updatable=false)
     private int projectId;
 	
-	@Transient
-    @FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
+	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
+	@Column(name="LOCALITY_ID")
     private int localityId;
 
     @ManyToOne
-    @JoinColumn(name="LOCALITY_ID")
+    @JoinColumn(name="LOCALITY_ID", insertable=false, updatable=false)
     private Locality locality;
 
-	@Transient
     @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
     @Field(value = "BUILDER_ID")
+	@Column(name="BUILDER_ID")
     private int builderId;
 
     @ManyToOne
@@ -330,6 +332,13 @@ public class Project implements BaseModel {
 	 
 	 @Transient
 	 private Integer totalProjectDiscussion;
+	 
+	 @Transient
+	 private List<LocalityAmenity> neighborhood;
+	 
+	 @JsonUnwrapped
+	 @Transient
+	 private ProjectSpecification projectSpecification;
     
     public int getProjectId() {
         return projectId;
@@ -352,8 +361,7 @@ public class Project implements BaseModel {
     }
 
     public void setLocality(Locality locality) {
-        this.locality = locality;
-        this.setLocalityId(locality.getLocalityId());
+    	this.locality = locality;
     }
 
     public int getBuilderId() {
@@ -644,6 +652,10 @@ public class Project implements BaseModel {
     public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
         this.propertyUnitTypes = propertyUnitTypes;
     }
+    
+    public void addPropertyUnitType(String propertyUnitType){
+    	this.propertyUnitTypes.add(propertyUnitType);
+    }
 
     public int getMinBedrooms() {
         return minBedrooms;
@@ -741,14 +753,14 @@ public class Project implements BaseModel {
         return isResale;
     }
 
-	public int getId() {
+	/*public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
-
+*/
 	public Integer getAvailability() {
 		return derivedAvailability;
 	}
@@ -803,5 +815,21 @@ public class Project implements BaseModel {
 
 	public void setTotalProjectDiscussion(Integer totalProjectDiscussion) {
 		this.totalProjectDiscussion = totalProjectDiscussion;
+	}
+
+	public List<LocalityAmenity> getNeighborhood() {
+		return neighborhood;
+	}
+
+	public void setNeighborhood(List<LocalityAmenity> neighborhood) {
+		this.neighborhood = neighborhood;
+	}
+
+	public ProjectSpecification getProjectSpecification() {
+		return projectSpecification;
+	}
+
+	public void setProjectSpecification(ProjectSpecification projectSpecification) {
+		this.projectSpecification = projectSpecification;
 	}
 }

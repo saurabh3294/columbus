@@ -101,7 +101,7 @@ public class GraphController {
     public ProAPIResponse getPropertyPriceTrends(@RequestParam String params){
         Type type = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> paramObject = gson.fromJson(params, type);
-        System.out.println("testing");
+        
         Map<String, Object> response = new LinkedHashMap();
         
         Object priceTrends = graphService.getPropertyPriceTrends(paramObject);

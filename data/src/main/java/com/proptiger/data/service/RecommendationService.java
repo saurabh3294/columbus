@@ -76,7 +76,6 @@ public class RecommendationService {
     		{
     			similarProjectId = solrResult.getProject().getProjectId();
     			similarProjectIds.add(similarProjectId);
-    			System.out.println(" SIMILAR PROJECT ID."+similarProjectId );
     		}
     		similarProperties.clear();
     		data.clear();

@@ -23,4 +23,6 @@ public interface UserWishListDao extends JpaRepository<UserWishlist, Integer>{
            " ")
 	public List<Object[]> findUserWishList(Integer userId);
 	
+	public UserWishlist findByProjectIdAndUserId(int projectId, int userId);
+	
 }

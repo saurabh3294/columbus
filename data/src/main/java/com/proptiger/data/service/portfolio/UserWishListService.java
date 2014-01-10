@@ -7,8 +7,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.UserWishList;
+import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.repo.portfolio.UserWishListDao;
+import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
  * @author Rajeev Pandey
@@ -31,6 +34,18 @@ public class UserWishListService {
 		return convertedResult;
 	}
 
+	public UserWishlist saveUserWishList(UserWishlist userWishlist, UserInfo userInfo){
+		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
+			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
+		
+		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userInfo.getUserIdentifier());
+		if(alreadyUserWishlist != null)
+			throw new ResourceAlreadyExistException("Project Id already exists as Favourite.");
+		
+		return userWishListDao.save(userWishlist);
+		
+	}
+	
 	/**
 	 * A utility method to convert Object[] list to domain object list 
 	 * @param result

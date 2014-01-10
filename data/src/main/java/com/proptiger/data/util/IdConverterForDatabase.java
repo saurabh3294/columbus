@@ -23,7 +23,7 @@ public class IdConverterForDatabase {
 		return typeId;
 	}
 	
-	public static int getNormalizedIdForDomainTypes(String domainType, int id){
+	public static int getProptigerDomainIdForDomainTypes(String domainType, int id){
 		DomainObject domainObject = DomainObject.valueOf(domainType);
 		if(domainObject == null)
 			return id;
@@ -31,6 +31,18 @@ public class IdConverterForDatabase {
 		int startId = domainObject.getStartId();
 		if(id > startId)
 			return id-startId;
+		
+		return id;
+	}
+	
+	public static int getCMSDomainIdForDomainTypes(String domainType, int id){
+		DomainObject domainObject = DomainObject.valueOf(domainType);
+		if(domainObject == null)
+			return id;
+		
+		int startId = domainObject.getStartId();
+		if(id < startId)
+			return id+startId;
 		
 		return id;
 	}

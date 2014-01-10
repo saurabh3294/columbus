@@ -37,7 +37,7 @@ public class LocalityAmenityService {
      */
     public List<LocalityAmenity> getLocalityAmenities(int localityId, String amenityName){
         List<LocalityAmenity> output = null;
-        
+        System.out.println("localityId"+localityId);
         if(amenityName == null || amenityName.isEmpty() )
             output = localityAmenityDao.getAmenitiesByLocalityId(localityId);
         else

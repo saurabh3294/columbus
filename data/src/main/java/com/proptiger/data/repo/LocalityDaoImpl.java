@@ -43,6 +43,7 @@ public class LocalityDaoImpl {
 	private EntityManagerFactory emf;
 	public SolrServiceResponse<List<Locality>> getLocalities(Selector selector){
 		SolrQuery solrQuery = createSolrQuery(selector);
+		System.out.println(solrQuery.toString());
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		
@@ -197,5 +198,13 @@ public class LocalityDaoImpl {
 				+ " LIMIT "+ paging.getRows()+" OFFSET "+paging.getStart(), Locality.class);
 		List<Locality> result = query.getResultList();
 		return result;
+    }
+    
+    public Locality getLocality(int localityId){
+    	List<Locality> localities = findByLocationOrderByPriority(localityId, "locality", null, null);
+    	if(localities == null || localities.size() < 1)
+    		return null;
+    	
+    	return localities.get(0);
     }
 }

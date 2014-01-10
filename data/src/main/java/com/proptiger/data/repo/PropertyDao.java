@@ -140,7 +140,6 @@ public class PropertyDao {
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
                     
-                    System.out.println(resalePrice);
                     project.setMinPricePerUnitArea(UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea()));
                     project.setMaxPricePerUnitArea(UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
                     project.setMinSize(UtilityClass.min(size, project.getMinSize()));

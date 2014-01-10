@@ -74,79 +74,61 @@ public class ProjectDetailController extends BaseController {
 
 	private static Logger logger = LoggerFactory.getLogger(ProjectDetailController.class);
     
-	@RequestMapping(value = "app/v1/project-detail")
-	public @ResponseBody
-	ProAPIResponse getProjectDetails(
-			@RequestParam(required = false) String propertySelector,
-			@RequestParam int projectId) throws Exception {
-
-		Selector propertyDetailsSelector = super.parseJsonToObject(
-				propertySelector, Selector.class);
-		if (propertyDetailsSelector == null) {
-			propertyDetailsSelector = new Selector();
-		}
-
-		List<Property> properties = propertyService.getProperties(projectId);
-		ProjectSpecification projectSpecification = projectService
-				.getProjectSpecifications(projectId);
-		ProjectDB projectInfo = projectService.getProjectDetails(projectId);
-		Builder builderDetails = builderService.getBuilderInfo(
-				projectInfo.getBuilderId(), null);
-		Map<String, Object> parseSpecification = parseSpecificationObject(projectSpecification);
-
-		// getting project discussions.
-		int totalProjectDiscussion = 0;
-		List<ProjectDiscussion> projectDiscussionList = projectService
-				.getDiscussions(projectId, null);
-		if (projectDiscussionList != null)
-			totalProjectDiscussion = projectDiscussionList.size();
-		// getting project Amenities
-		List<ProjectAmenity> listProjectAmenities = projectAmenityService
-				.getAmenitiesByProjectId(projectId);
-
-		// getting Project Neighborhood.
-		List<LocalityAmenity> listLocalityAmenity = localityAmenityService
-				.getLocalityAmenities(projectInfo.getLocalityId(), null);
-		// getting Locality, Suburb, City Details and getting project price
-		// ranges from properties data.
-		Locality locality = null;
-		Double pricePerUnitArea;
-		Double resalePrice;
-		if (properties.size() > 0) {
-			// setting images.
-			imageEnricher.setPropertiesImages(properties);
-			locality = properties.get(0).getProject().getLocality();
-			Property property;
-			for (int i = 0; i < properties.size(); i++) {
-				property = properties.get(i);
-				pricePerUnitArea = property.getPricePerUnitArea();
-
-				if (pricePerUnitArea == null)
-					pricePerUnitArea = 0D;
-
-				// set Primary Prices.
-				projectInfo
-						.setMinPricePerUnitArea(UtilityClass.min(
-								pricePerUnitArea,
-								projectInfo.getMinPricePerUnitArea()));
-				projectInfo
-						.setMaxPricePerUnitArea(UtilityClass.max(
-								pricePerUnitArea,
-								projectInfo.getMaxPricePerUnitArea()));
-				// setting distinct bedrooms
-				projectInfo.addDistinctBedrooms(property.getBedrooms());
-				projectInfo.addPropertyUnitTypes(property.getUnitType());
-
-				// setting resale Price
-				resalePrice = property.getResalePrice();
-				projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice,
-						projectInfo.getMaxResalePrice()));
-				projectInfo.setMinResalePrice(UtilityClass.min(resalePrice,
-						projectInfo.getMinResalePrice()));
-
-			}
-		}
+    @RequestMapping(value="app/v1/project-detail")
+    public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
         
+        Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
+        if(propertyDetailsSelector == null) {
+            propertyDetailsSelector = new Selector();
+        }
+
+        List<Property> properties = propertyService.getProperties(projectId);
+        ProjectSpecification projectSpecification = projectService.getProjectSpecificationsV2(projectId);
+        ProjectDB projectInfo = projectService.getProjectDetails(projectId);
+        Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);
+                        
+        // getting project discussions.
+        int totalProjectDiscussion=0;
+        List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
+        if(projectDiscussionList!=null)
+        	totalProjectDiscussion = projectDiscussionList.size();
+        // getting project Amenities
+        List<ProjectAmenity> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
+        
+        // getting Project Neighborhood.
+        List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(projectInfo.getLocalityId(), null);
+        
+        Double pricePerUnitArea;
+        Double resalePrice;
+        if(properties.size() > 0)
+        {
+        	// setting images.
+        	imageEnricher.setPropertiesImages(properties);
+        	Property property;
+        	for(int i=0; i<properties.size(); i++){
+        		property = properties.get(i);
+           		pricePerUnitArea = property.getPricePerUnitArea();
+           		
+           		if(pricePerUnitArea == null)
+           			pricePerUnitArea = 0D;
+           			
+           		// set Primary Prices.
+           		projectInfo.setMinPricePerUnitArea( UtilityClass.min(pricePerUnitArea, projectInfo.getMinPricePerUnitArea() ) );
+           		projectInfo.setMaxPricePerUnitArea( UtilityClass.max(pricePerUnitArea, projectInfo.getMaxPricePerUnitArea() ) );
+           		// setting distinct bedrooms
+           		projectInfo.addDistinctBedrooms(property.getBedrooms());
+           		projectInfo.addPropertyUnitTypes(property.getUnitType());
+           		
+           		// setting resale Price
+            	resalePrice = property.getResalePrice();
+            	projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
+            	projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
+            	
+        	}
+        }
+        
+        // getting Locality, Suburb, City Details and getting project price ranges from properties data.
+        Locality locality = localityService.getLocality(projectInfo.getLocalityId());
         /*
          *  Setting locality Ratings And Reviews
          */
@@ -155,7 +137,7 @@ public class ProjectDetailController extends BaseController {
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("specification", parseSpecification);
+        response.put("specification", projectSpecification.getSpecifications());
         response.put("projectDetails", projectInfo);
         response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
@@ -169,78 +151,15 @@ public class ProjectDetailController extends BaseController {
     
     @RequestMapping(value="app/v2/project-detail")
     @DisableCaching
-    public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
-    	Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
-        if(propertyDetailsSelector == null) {
-            propertyDetailsSelector = new Selector();
+    public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId) throws Exception {
+    	Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if(projectSelector == null) {
+            projectSelector = new Selector();
         }
         
-        Project project = projectService.getProjectInfoDetails(propertyDetailsSelector, projectId);
-    	return new ProAPISuccessResponse( super.filterFields(project, propertyDetailsSelector.getFields() ) );
+        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
+    	return new ProAPISuccessResponse( super.filterFields(project, projectSelector.getFields() ) );
     }
     
-    private Map<String, Object> parseSpecificationObject(ProjectSpecification projectSpecification){
-        if (projectSpecification == null) {
-            return null;
-        }
 
-        String specsGroups[] = {"doors", "electricalFittings", "fittingsAndFixtures", "flooring", "id", "others", "walls",  "windows"};
-        
-        Field fields[] = projectSpecification.getClass().getDeclaredFields();
-        
-        Map<String, Integer> fieldsMap = new TreeMap<>();
-        
-        for(int i=0; i<fields.length; i++)
-            fieldsMap.put(fields[i].getName(), i);
-        
-        Map<String, Object> parseMap = new LinkedHashMap<String, Object>();
-        Map<String, Object> splitKeys;
-        
-        int i=0;
-        String key;
-        String keySuffix;
-        boolean found = false;
-        int index;
-        Object value = null;
-        for(Map.Entry<String, Integer> entry: fieldsMap.entrySet())
-        {
-            key = entry.getKey();
-            found = false;
-            while(!found && i<specsGroups.length)
-            {
-                found = key.startsWith(specsGroups[i++]);
-            }
-            if(!found)
-                break;
-            
-            i--;
-            keySuffix = key.substring(specsGroups[i].length());
-            if( !parseMap.containsKey(specsGroups[i]) )
-                splitKeys = new LinkedHashMap<String, Object>();
-            else
-                splitKeys = (Map<String, Object>)parseMap.get(specsGroups[i]);
-            
-            index = entry.getValue();
-            try{
-                fields[index].setAccessible(true);
-                value = fields[index].get(projectSpecification);
-            }catch(Exception e){
-                value = null;
-                System.out.println(e.getMessage());
-                e.printStackTrace();
-            }
-            
-            if(keySuffix.length() <= 0)
-                parseMap.put(specsGroups[i], value);
-            else
-            {
-                splitKeys.put(keySuffix, value);
-                parseMap.put(specsGroups[i], splitKeys);
-            }
-        }
-        
-        return parseMap;
-    }
-    
-    
 }

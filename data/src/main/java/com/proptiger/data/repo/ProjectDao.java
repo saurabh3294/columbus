@@ -30,7 +30,7 @@ public class ProjectDao extends ProjectSolrDao {
         }
         
         public Project findProjectByProjectId(int projectId){
-        	return projectDatabaseDao.findById(projectId);
+        	return projectDatabaseDao.findByProjectId(projectId);
         }
 
         public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {

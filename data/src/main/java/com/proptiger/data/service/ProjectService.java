@@ -5,6 +5,7 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,14 +20,17 @@ import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.TableAttributes;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.ProjectDao;
-import com.proptiger.data.repo.ProjectSpecificationDao;
+import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
+import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.mail.service.MailSender;
 
@@ -41,9 +45,6 @@ public class ProjectService {
     private ProjectDao projectDao;
 
     @Autowired
-    private ProjectSpecificationDao projectSpecificationDao;
-    
-    @Autowired
     private ImageEnricher imageEnricher;
     
     @Autowired
@@ -51,6 +52,18 @@ public class ProjectService {
 
  	@Autowired
 	private MailSender mailSender;
+ 	
+ 	@Autowired
+ 	private LocalityAmenityService localityAmenityService;
+ 	
+ 	@Autowired
+ 	private TableAttributesDao tableAttributesDao;
+ 	
+ 	@Autowired
+ 	private LocalityService localityService;
+ 	
+ 	@Autowired
+ 	private BuilderService builderService;
 
     /**
      * This method will return the list of projects and total projects found based on the selector.
@@ -94,7 +107,7 @@ public class ProjectService {
      * @return
      */
     public ProjectSpecification getProjectSpecifications(int projectId) {
-        return projectSpecificationDao.findById(projectId);
+        return null;//projectSpecificationDao.findById(projectId);
     }
 
     /**
@@ -118,14 +131,59 @@ public class ProjectService {
      */
     public Project getProjectInfoDetails(Selector propertySelector, Integer projectId){
     	Project project  = projectDao.findProjectByProjectId(projectId);
+    	if(project == null)
+    		return null;
+    	
     	List<Property> properties = propertyService.getProperties(projectId);
+    	imageEnricher.setPropertiesImages(properties);
     	for(int i=0; i<properties.size(); i++)
-    		properties.get(i).setProject(null);
+    	{
+    		Property property = properties.get(i);
+       		Double pricePerUnitArea = property.getPricePerUnitArea();
+       		
+       		if(pricePerUnitArea == null)
+       			pricePerUnitArea = 0D;
+       			
+       		// set Primary Prices.
+       		project.setMinPricePerUnitArea( UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea() ) );
+       		project.setMaxPricePerUnitArea( UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea() ) );
+       		// setting distinct bedrooms
+       		project.addBedrooms(property.getBedrooms());
+       		project.addPropertyUnitType(property.getUnitType());
+       		
+       		// setting resale Price
+        	Double resalePrice = property.getResalePrice();
+        	project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
+        	project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
+        	project.setResale(property.getProject().isIsResale() | project.isIsResale());
+        	
+        	property.setProject(null);
+    	}
     	
     	project.setProperties(properties);
     	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
+    	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
     	imageEnricher.setProjectImages(project);
+    	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
+    	project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
     	
+    	/*
+    	 * setting Price Rise 
+    	 */
+    	List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(project.getProjectId())));
+    	
+    	if(solrProjects != null && solrProjects.size() > 0)
+    	{
+    		Project solrProject = solrProjects.get(0);
+    		project.setAvgPriceRisePercentage(solrProject.getAvgPriceRisePercentage());
+    		project.setAvgPriceRiseMonths(solrProject.getAvgPriceRiseMonths());
+    	}
+    	
+    	/*
+         *  Setting locality Ratings And Reviews
+         */
+        localityService.setLocalityRatingAndReviewDetails(project.getLocality());
+        
     	return project;
     }
     
@@ -250,5 +308,18 @@ public class ProjectService {
         	totalProjectDiscussion = projectDiscussionList.size();
         
         return totalProjectDiscussion;
+	}
+	
+	public ProjectSpecification getProjectSpecificationsV2(int projectId){
+		
+		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes("project", projectId);
+		List<TableAttributes> specifications = tableAttributesDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
+		
+		/*Map<String, Object> specification = new ProjectSpecification(specifications).getSpecifications(); 
+		//projectSp
+		Gson gson = new Gson();
+		System.out.println(gson.toJson(specification));*/
+		//return projectSpecification;
+		return new ProjectSpecification(specifications);
 	}
 }

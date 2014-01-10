@@ -239,7 +239,8 @@ public class LocalityService {
 	 * @return Locality
 	 */
 	public Locality getLocality(int localityId) {
-		return localityDao.findOne(localityId);
+		return localityDao.getLocality(localityId);
+		//return localityDao.findOne(localityId);
 	}
 	
 	/**
@@ -280,7 +281,7 @@ public class LocalityService {
 		/*
 		 * Setting the average price BHK wise
 		 */
-		locality.setAvgBHKPrice( getAvgPricePerUnitAreaBHKWise("localityId", locality.getLocalityId(), locality.getDominantUnitType()) );
+		locality.setAvgBHKPriceUnitArea( getAvgPricePerUnitAreaBHKWise("localityId", locality.getLocalityId(), locality.getDominantUnitType()) );
 		
 		return locality;
 	}
