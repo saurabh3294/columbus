@@ -135,11 +135,10 @@ public class ProjectService {
     		return null;
     	
     	List<Property> properties = propertyService.getProperties(projectId);
+    	imageEnricher.setPropertiesImages(properties);
     	for(int i=0; i<properties.size(); i++)
     	{
-    		                                    
     		Property property = properties.get(i);
-    		property.setProject(null);
        		Double pricePerUnitArea = property.getPricePerUnitArea();
        		
        		if(pricePerUnitArea == null)
@@ -156,6 +155,9 @@ public class ProjectService {
         	Double resalePrice = property.getResalePrice();
         	project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
         	project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
+        	project.setResale(property.getProject().isIsResale() | project.isIsResale());
+        	
+        	property.setProject(null);
     	}
     	
     	project.setProperties(properties);
