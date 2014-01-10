@@ -78,7 +78,7 @@ public class LocalityController extends BaseController {
 					.parseJsonToObject(selector, Selector.class);
 		}
 		List<Locality> popularLocalities = localityService
-				.getPopularLocalities(cityId, suburbId, enquiryInWeeks);
+				.getPopularLocalities(cityId, suburbId, enquiryInWeeks, localitySelector);
 		return new ProAPISuccessCountResponse(super.filterFields(
 				popularLocalities, localitySelector.getFields()),
 				popularLocalities.size());

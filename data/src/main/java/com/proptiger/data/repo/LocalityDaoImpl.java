@@ -179,7 +179,11 @@ public class LocalityDaoImpl {
      * @return
      */
     public List<Locality> getPopularLocalities(
-			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp){
+			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp, Selector selector){
+    	Paging paging = new Paging();
+    	if(selector != null && selector.getPaging() != null){
+    		paging = selector.getPaging();
+    	}
 		EntityManager em = emf.createEntityManager();
 		Query query = em.createNativeQuery("select *, count(enquiry1_.ID) as ENQUIRY_COUNT from proptiger.LOCALITY locality0_ "
 				+ " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
@@ -189,7 +193,8 @@ public class LocalityDaoImpl {
 				+ " "+cityId
 				+ " or locality0_.SUBURB_ID = "
 				+ " "+suburbId+ ")"
-				+ " group by locality0_.LOCALITY_ID order by ENQUIRY_COUNT DESC, locality0_.PRIORITY ASC ", Locality.class);
+				+ " group by locality0_.LOCALITY_ID order by ENQUIRY_COUNT DESC, locality0_.PRIORITY ASC"
+				+ " LIMIT "+ paging.getRows()+" OFFSET "+paging.getStart(), Locality.class);
 		List<Locality> result = query.getResultList();
 		return result;
     }
