@@ -280,7 +280,7 @@ public class LocalityService {
 		/*
 		 * Setting the average price BHK wise
 		 */
-		locality.setAvgBHKPrice( getAvgPricePerUnitAreaBHKWise("localityId", locality.getLocalityId(), locality.getDominantUnitType()) );
+		locality.setAvgBHKPriceUnitArea( getAvgPricePerUnitAreaBHKWise("localityId", locality.getLocalityId(), locality.getDominantUnitType()) );
 		
 		return locality;
 	}

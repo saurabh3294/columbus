@@ -1,6 +1,9 @@
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,15 +35,39 @@ public class ImageEnricher {
         }
     }
 
+    public void setProjectMainImage(List<Project> projects) {
+        List<Long> projectIds = new ArrayList<>();
+        for (Project project: projects) {
+            projectIds.add(new Long(project.getProjectId()));
+        }
+
+        List<Image> images = imageService.getImages(DomainObject.project, "main", projectIds);
+        Map<Integer, String> imagesMap = new HashMap<>();
+        if (images != null) {
+            for (Image image: images) {
+                imagesMap.put((int)image.getObjectId(), image.getAbsolutePath());
+            }
+        }
+        
+        for (Project project: projects) {
+            project.setImageURL(imagesMap.get(project.getProjectId()));
+        }
+    }
+
     public void setProjectImages(Project project) {
     	if(project == null)
     		return;
     	
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
-        List<Image> mainImages = imageService.getImages(DomainObject.project, "main", project.getProjectId());
 
-        if (mainImages != null && !mainImages.isEmpty())
-            project.setImageURL(mainImages.get(0).getAbsolutePath());
+        if (images != null) {
+            for (Image image : images) {
+                if (image.getImageType().getType().equals("main")) {
+                    project.setImageURL(image.getAbsolutePath());
+                    break;
+                }
+            }
+        }
 
         project.setImages(images);
 
@@ -53,12 +80,18 @@ public class ImageEnricher {
             return;
 
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
-        List<Image> mainImages = imageService.getImages(DomainObject.project, "main", project.getProjectId());
-        
-        project.setImages(images);
-        if (mainImages != null && !mainImages.isEmpty()) {
-            project.setImageURL(mainImages.get(0).getAbsolutePath());
+
+        if (images != null) {
+            for (Image image : images) {
+                if (image.getImageType().getType().equals("main")) {
+                    project.setImageURL(image.getAbsolutePath());
+                    break;
+                }
+            }
         }
+
+        project.setImages(images);
+        
     }
 
     public void setPropertiesImages(List<Property> properties) {
@@ -94,9 +127,15 @@ public class ImageEnricher {
             return;
 
         List<Image> images = imageService.getImages(DomainObject.builder, null, builder.getId());
-        List<Image> logoImages = imageService.getImages(DomainObject.builder, "logo", builder.getId());
-        if (logoImages != null && logoImages.size() > 0)
-            builder.setImageURL(logoImages.get(0).getAbsolutePath());
+        if (images != null) {
+            for (Image image : images) {
+                if (image.getImageType().getType().equals("logo")) {
+                    builder.setImageURL(image.getAbsolutePath());
+                    break;
+                }
+            }
+        }
+        
     }
 
     public void setLocalitiesImages(List<Locality> localities) {
