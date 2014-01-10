@@ -188,7 +188,7 @@ public class ProjectSolrDao {
     	SolrQuery solrQuery = new SolrQuery();
     	
     	solrQuery.setQuery("LOCALITY_ID:"+localityId);
-    	solrQuery.setFilterQueries("DOCUMENT_TYPE:PROJECT");
+    	solrQuery.setFilterQueries("DOCUMENT_TYPE:PROJECT AND HAS_GEO:1");
     	solrQuery.setRows(rows);
     	
     	SolrQueryBuilder<Project> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
