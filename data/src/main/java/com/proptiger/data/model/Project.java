@@ -72,11 +72,12 @@ public class Project implements BaseModel {
         }
     };
     
-    @Id
+   /* @Id
     @FieldMetaInfo( displayName = "DB Project Id",  description = "DB Project Id")
     @Column(name="PROJECT_ID", insertable=false, updatable=false)
-    private int id;
+    private Integer id;*/
     
+    @Id	
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     @Column(name="PROJECT_ID", insertable=false, updatable=false)
@@ -752,14 +753,14 @@ public class Project implements BaseModel {
         return isResale;
     }
 
-	public int getId() {
+	/*public Integer getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
-
+*/
 	public Integer getAvailability() {
 		return derivedAvailability;
 	}

@@ -97,15 +97,13 @@ public class ProjectDetailController extends BaseController {
         
         // getting Project Neighborhood.
         List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(projectInfo.getLocalityId(), null);
-        // getting Locality, Suburb, City Details and getting project price ranges from properties data.
-        Locality locality = null;
+        
         Double pricePerUnitArea;
         Double resalePrice;
         if(properties.size() > 0)
         {
         	// setting images.
         	imageEnricher.setPropertiesImages(properties);
-        	locality = properties.get(0).getProject().getLocality();
         	Property property;
         	for(int i=0; i<properties.size(); i++){
         		property = properties.get(i);
@@ -129,6 +127,8 @@ public class ProjectDetailController extends BaseController {
         	}
         }
         
+        // getting Locality, Suburb, City Details and getting project price ranges from properties data.
+        Locality locality = localityService.getLocality(projectInfo.getLocalityId());
         /*
          *  Setting locality Ratings And Reviews
          */

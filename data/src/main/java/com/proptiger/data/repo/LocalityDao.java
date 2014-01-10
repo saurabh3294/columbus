@@ -45,8 +45,6 @@ public interface LocalityDao extends
 	public Object[] findEnquiryCountOnLoc(@Param Long timediff,
 			@Param int localityId);
 
-	public Locality findByLocalityId(int localityId);
-
 	@Query("Select L, AVG(LR.overallRating) as overallAvgRating from Locality L left join L.localityReviews LR "
 			+ " where L.localityId = LR.localityId AND (L.cityId=?1 OR L.suburbId=?2)"
 			+ " group by L.localityId having AVG(LR.overallRating) >= ?3 order by overallAvgRating DESC")
