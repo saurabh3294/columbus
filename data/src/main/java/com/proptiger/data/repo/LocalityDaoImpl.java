@@ -194,4 +194,12 @@ public class LocalityDaoImpl {
 		List<Locality> result = query.getResultList();
 		return result;
     }
+    
+    public Locality getLocality(int localityId){
+    	List<Locality> localities = findByLocationOrderByPriority(localityId, "locality", null, null);
+    	if(localities == null || localities.size() < 1)
+    		return null;
+    	
+    	return localities.get(0);
+    }
 }

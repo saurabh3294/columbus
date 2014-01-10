@@ -239,7 +239,8 @@ public class LocalityService {
 	 * @return Locality
 	 */
 	public Locality getLocality(int localityId) {
-		return localityDao.findOne(localityId);
+		return localityDao.getLocality(localityId);
+		//return localityDao.findOne(localityId);
 	}
 	
 	/**
