@@ -77,7 +77,7 @@ public class Project implements BaseModel {
     @Column(name="PROJECT_ID", insertable=false, updatable=false)
     private Integer id;*/
     
-    @Id
+    @Id	
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
     @Column(name="PROJECT_ID", insertable=false, updatable=false)
