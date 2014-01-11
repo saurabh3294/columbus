@@ -82,9 +82,9 @@ public class ImageController extends BaseController {
 
     @RequestMapping(value = "{id}", method = RequestMethod.POST)
     public @ResponseBody
-    Object updateImage(@PathVariable long id, @RequestParam(value="image") MultipartFile file) {
+    Object updateImage(@PathVariable long id, @RequestParam(value="image") MultipartFile file, @RequestParam(required = false) String priority) {
         Image image = imageService.getImage(id);
-        Object obj = this.putImages(image.getImageType().getObjectType().getType(), image.getImageType().getType(), image.getObjectId(), file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getAltText(), image.getTitle(), image.getDescription(), image.getPriority() == null ? "" : String.valueOf(image.getPriority()));
+        Object obj = this.putImages(image.getImageType().getObjectType().getType(), image.getImageType().getType(), image.getObjectId(), file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getAltText(), image.getTitle(), image.getDescription(), priority == null ? (image.getPriority() == null ? "" : String.valueOf(image.getPriority())) : priority);
         imageService.deleteImage(id);
         return obj;
     }

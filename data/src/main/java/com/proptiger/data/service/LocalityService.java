@@ -21,9 +21,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.pojo.Selector;
@@ -31,6 +33,9 @@ import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.thirdparty.Circle;
+import com.proptiger.data.thirdparty.Point;
+import com.proptiger.data.thirdparty.SEC;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -60,6 +65,9 @@ public class LocalityService {
 	@Autowired
 	private ImageEnricher imageEnricher;
 
+	@Autowired
+	private ProjectService projectService;
+	
 	@Autowired
 	private ProjectDao projectDao;
 
@@ -610,5 +618,24 @@ public class LocalityService {
 		Map<String, Map<String, Integer>> projectAndProjectStatusCounts = propertyDao.getProjectStatusCountAndProjectOnLocality(locality.getLocalityId());
 		setProjectStatusCountAndProjectCountAndPriceOnLocality(Arrays.asList(locality), projectAndProjectStatusCounts, null);
 	}
-	
+
+
+    public Point computeCenter(int localityId) {
+        Point[] p = new Point[1000];
+        int n = 0;
+        Point[] b = new Point[3];
+
+        for (Project project: projectService.getProjects(new Gson().fromJson("{\"paging\":{\"rows\":1500},\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId + "}}]}}", Selector.class)).getResult()) {
+            if (project.getLatitude() != null) {
+                p[n++] = new Point(project.getLatitude(), project.getLongitude());                
+            }
+        }
+
+        if (n > 0) {
+            Circle sec = SEC.findSec(n, p, 0, b);
+            return sec.getCenter();            
+        }
+
+        return null;
+    }
 }
