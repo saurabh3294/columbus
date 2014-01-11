@@ -66,7 +66,7 @@ public class LocalityService {
 	private ImageEnricher imageEnricher;
 
 	@Autowired
-	private ProjectService projectService;
+	private PropertyService propertyService;
 	
 	@Autowired
 	private ProjectDao projectDao;
@@ -625,7 +625,7 @@ public class LocalityService {
         int n = 0;
         Point[] b = new Point[3];
 
-        for (Project project: projectService.getProjects(new Gson().fromJson("{\"paging\":{\"rows\":1500},\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId + "}}]}}", Selector.class)).getResult()) {
+        for (Project project: propertyService.getPropertiesGroupedToProjects(new Gson().fromJson("{\"paging\":{\"rows\":1500},\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId + "}}]}}", Selector.class)).getResult()) {
             if (project.getLatitude() != null) {
                 p[n++] = new Point(project.getLatitude(), project.getLongitude());                
             }
