@@ -316,15 +316,10 @@ public class ProjectService {
 		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes("project", projectId);
 		List<TableAttributes> specifications = tableAttributesDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
 		
-		/*Map<String, Object> specification = new ProjectSpecification(specifications).getSpecifications(); 
-		//projectSp
-		Gson gson = new Gson();
-		System.out.println(gson.toJson(specification));*/
-		//return projectSpecification;
 		return new ProjectSpecification(specifications);
 	}
 	
-	public List<Object> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, long lastNumberOfWeeks, int minProjectDiscussionCount){
+	public List<Project> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, long lastNumberOfWeeks, int minProjectDiscussionCount){
 		long timediff = lastNumberOfWeeks*24*60*60;
 		
 		int locationType;
@@ -342,8 +337,9 @@ public class ProjectService {
 			default:
 				throw new IllegalArgumentException("The possbile values are : suburb or locality or city.");
 		}
+		List<Integer> projectIds = projectDao.getMostDiscussedProjectInNWeeksOnLocation(timediff, locationType, locationId, minProjectDiscussionCount);
 		
-		return projectDao.getMostDiscussedProjectInNWeeksOnLocation(timediff, locationType, locationId, minProjectDiscussionCount);
+		return getProjectsByIds(new HashSet<Integer>(projectIds) );
 	}
 
    public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {

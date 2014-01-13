@@ -51,8 +51,8 @@ public class ProjectDao extends ProjectSolrDao {
             }
         }
         
-        public List<Object> getMostDiscussedProjectInNWeeksOnLocation(long timediff, int locationType, int locationId, int minCount){
-        	return projectDatabaseDao.getMostDiscussedProjects(timediff, locationType, locationId, minCount);
+        public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(long timediff, int locationType, int locationId, int minCount){
+        	return projectDatabaseDao.getRecentlyMostDiscussedProjects(timediff, locationType, locationId, minCount);
         }
 
         public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {

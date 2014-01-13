@@ -32,6 +32,6 @@ public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, 
     		+ "WHERE pd.projectId=p.projectId AND UNIX_TIMESTAMP(pd.createdDate) >= (UNIX_TIMESTAMP() -?1)"
     		+ " AND CASE ?2 WHEN 1 THEN p.locality.suburb.city.id  WHEN 2 THEN p.locality.suburb.id WHEN 3 THEN p.localityId END = ?3 "
     		+ " GROUP BY pd.projectId HAVING COUNT(*) > ?4 ORDER BY COUNT(*) DESC , p.assignedPriority ASC")
-    public List<Object> getMostDiscussedProjects(@Param long timediff, @Param int localityType, @Param int cityId, @Param long minCount);
+    public List<Integer> getRecentlyMostDiscussedProjects(@Param long timediff, @Param int localityType, @Param int cityId, @Param long minCount);
       
 }

@@ -161,12 +161,5 @@ public class ProjectDetailController extends BaseController {
     	return new ProAPISuccessResponse( super.filterFields(project, projectSelector.getFields() ) );
     }
     
-    @RequestMapping(value="app/v2/recently_discussed_project")
-    @ResponseBody
-    @DisableCaching
-    public ProAPIResponse getRecentlyDiscussedProjects(@RequestParam String locationType, @RequestParam int locationId, 
-    		@RequestParam(required=false, defaultValue="4") long lastNumberOfWeeks, @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount){
-    	
-    	return new ProAPISuccessResponse(projectService.getMostRecentlyDiscussedProjects(locationType.toLowerCase(), locationId, lastNumberOfWeeks, minProjectDiscussionCount));
-    }
+   
 }
