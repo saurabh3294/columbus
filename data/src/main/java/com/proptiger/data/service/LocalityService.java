@@ -662,7 +662,20 @@ public class LocalityService {
         return null;
     }
 	
-    public Object getTopReviewedLocalities(String locationType, int locationId){
-    	return localityReviewService.getTopReviewedLocalityOnCityOrSuburb(1, locationId, 2);
+    public List<Integer> getTopReviewedLocalities(String locationTypeStr, int locationId){
+    	int locationType;
+    	switch(locationTypeStr.toLowerCase())
+    	{
+    		case "city":
+    			locationType = 1;
+    			break;
+    		case "suburb":
+    			locationType = 2;
+    			break;
+    		default:
+    			throw new IllegalArgumentException("location Type must be either city or locality or suburb");
+    	}
+    	
+    	return localityReviewService.getTopReviewedLocalityOnCityOrSuburb(locationType, locationId, 2);
     }
 }
