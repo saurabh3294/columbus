@@ -1,5 +1,6 @@
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -147,7 +148,19 @@ public class LocalityReviewService {
 		return ratingResponse;
 	}
 	
-	public List<Integer> getTopReviewedLocalityOnCityOrSuburb(int locationType, int locationId, int minCount){
-		return localityReviewDao.getTopReviewsLocalityOnSuburbOrCity(locationType, locationId, minCount);
+	public List<Integer> getTopReviewedLocalityOnCityOrSuburb(int locationType, int locationId, int minCount, Pageable pageable){
+		return localityReviewDao.getTopReviewLocalitiesOnSuburbOrCity(locationType, locationId, minCount, pageable);
+	}
+	
+	public List<Integer> getTopReviewedNearLocalitiesForLocality(int localityId, int minCount, Pageable pageable){
+		int distance[] = {0, 5, 10, 15};
+		int limit = pageable.getPageSize();
+		
+		List<Integer> localities = new ArrayList<>();
+		for(int i=0; i<distance.length-1 && localities.size()<limit; i++){
+			localities.addAll(localityReviewDao.getTopReviewLocalitiesNearALocality(localityId, minCount, distance[i], distance[i+1], pageable));
+		}
+		limit = localities.size()<limit ? localities.size(): limit;
+		return localities.subList(0, limit);
 	}
 }

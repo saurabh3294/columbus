@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -662,7 +664,8 @@ public class LocalityService {
         return null;
     }
 	
-    public List<Integer> getTopReviewedLocalities(String locationTypeStr, int locationId){
+    public List<Integer> getTopReviewedLocalities(String locationTypeStr, int locationId, int minReviewCount, int numberOfLocalities){
+    	Pageable pageable = new PageRequest(0, numberOfLocalities);
     	int locationType;
     	switch(locationTypeStr.toLowerCase())
     	{
@@ -672,10 +675,12 @@ public class LocalityService {
     		case "suburb":
     			locationType = 2;
     			break;
+    		case "locality":
+    			return localityReviewService.getTopReviewedNearLocalitiesForLocality(locationId, minReviewCount, pageable);
     		default:
     			throw new IllegalArgumentException("location Type must be either city or locality or suburb");
     	}
     	
-    	return localityReviewService.getTopReviewedLocalityOnCityOrSuburb(locationType, locationId, 2);
+    	return localityReviewService.getTopReviewedLocalityOnCityOrSuburb(locationType, locationId, minReviewCount, pageable);
     }
 }

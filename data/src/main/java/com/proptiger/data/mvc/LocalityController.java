@@ -150,7 +150,8 @@ public class LocalityController extends BaseController {
     
     @RequestMapping(value = "top_reviewed")
     @ResponseBody
-    public ProAPIResponse getTopReviewedLocality(@RequestParam String locationType, @RequestParam int locationId){
-    	return new ProAPISuccessResponse(localityService.getTopReviewedLocalities(locationType, locationId));
+    public ProAPIResponse getTopReviewedLocality(@RequestParam String locationType, @RequestParam int locationId, 
+    		@RequestParam(required=false, defaultValue="2") int minReviewCount, @RequestParam(required=false, defaultValue="5") int numberOfLocalities){
+    	return new ProAPISuccessResponse(localityService.getTopReviewedLocalities(locationType, locationId, minReviewCount, numberOfLocalities));
     }
 }
