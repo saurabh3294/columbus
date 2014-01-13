@@ -329,9 +329,9 @@ public class LocalityService {
 	}
 
 	/**
-	 * Get popular localities of city or suburb based on priority and in case of
-	 * tie based on enquiry count in last {enquiryInWeeks} weeks in descending
-	 * order
+	 * Get popular localities of city or suburb based on enquiry count in last
+	 * {enquiryInWeeks} weeks in descending and in case of tie based on priority
+	 * order ASC
 	 * 
 	 * So in case of wrong city id and suburb id combination provided then wrong
 	 * data will be returned
@@ -339,7 +339,7 @@ public class LocalityService {
 	 * @param cityId
 	 * @param suburbId
 	 * @param enquiryInWeeks
-	 * @param selector 
+	 * @param selector
 	 * @return List<Locality>
 	 */
 	public List<Locality> getPopularLocalities(Integer cityId,

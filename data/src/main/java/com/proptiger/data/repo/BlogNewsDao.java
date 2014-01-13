@@ -17,4 +17,7 @@ public interface BlogNewsDao extends JpaRepository<WordpressPost, Long>{
             " A.name= ?1 AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' ORDER BY D.postDate DESC ")
 	
 	public List<WordpressPost> findPublishedBlogNewsByCity(String cityName);
+	
+	@Query("Select WP.guid from WordpressPost WP where WP.parentId=?1 and WP.postMimeType like 'image%' order by WP.postDate")
+	public List<String> findImageUrlsForPost(Long postId);
 }
