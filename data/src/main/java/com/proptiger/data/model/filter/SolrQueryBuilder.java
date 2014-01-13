@@ -214,7 +214,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     protected void buildFilterClause(FIQLSelector selector) {
         if (selector != null && selector.getFilters() != null && !selector.getFilters().isEmpty()) {
-            FiqlParser<SearchBean> fiqlParser = new FiqlParser<SearchBean>(SearchBean.class, Collections.singletonMap(FiqlParser.SUPPORT_SINGLE_EQUALS, Boolean.TRUE.toString()));
+            FiqlParser<SearchBean> fiqlParser = new FiqlParser<SearchBean>(SearchBean.class);
             SearchCondition<SearchBean> searchCondition = fiqlParser.parse(selector.getFilters());
             LuceneQueryVisitor<SearchBean> luceneQueryVisitor = new LuceneQueryVisitor<SearchBean>(getDaoFieldsMap(modelClass));
             luceneQueryVisitor.visit(searchCondition);
