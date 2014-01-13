@@ -4,6 +4,7 @@
  */
 package com.proptiger.data.repo;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -51,8 +52,8 @@ public class ProjectDao extends ProjectSolrDao {
             }
         }
         
-        public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(long timediff, int locationType, int locationId, int minCount){
-        	return projectDatabaseDao.getRecentlyMostDiscussedProjects(timediff, locationType, locationId, minCount);
+        public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(Date date, int locationType, int locationId, int minCount){
+        	return projectDatabaseDao.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
         }
 
         public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {

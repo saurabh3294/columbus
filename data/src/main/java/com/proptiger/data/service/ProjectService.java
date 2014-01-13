@@ -4,8 +4,11 @@
  */
 package com.proptiger.data.service;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -319,9 +322,12 @@ public class ProjectService {
 		return new ProjectSpecification(specifications);
 	}
 	
-	public List<Project> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, long lastNumberOfWeeks, int minProjectDiscussionCount){
-		long timediff = lastNumberOfWeeks*24*60*60;
+	public List<Project> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, int lastNumberOfWeeks, int minProjectDiscussionCount){
 		
+		int numberOfDays = lastNumberOfWeeks * 7*-1;
+		Calendar cal = Calendar.getInstance();//intialize your date to any date 
+		cal.add(Calendar.DATE, numberOfDays);
+				
 		int locationType;
 		switch(locationTypeStr)
 		{
@@ -337,7 +343,10 @@ public class ProjectService {
 			default:
 				throw new IllegalArgumentException("The possbile values are : suburb or locality or city.");
 		}
-		List<Integer> projectIds = projectDao.getMostDiscussedProjectInNWeeksOnLocation(timediff, locationType, locationId, minProjectDiscussionCount);
+		List<Integer> projectIds = projectDao.getMostDiscussedProjectInNWeeksOnLocation(cal.getTime(), locationType, locationId, minProjectDiscussionCount);
+		
+		if(projectIds == null || projectIds.size() < 1)
+			return null;
 		
 		return getProjectsByIds(new HashSet<Integer>(projectIds) );
 	}

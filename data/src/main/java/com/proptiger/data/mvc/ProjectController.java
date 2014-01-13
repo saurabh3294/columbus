@@ -141,7 +141,7 @@ public class ProjectController extends BaseController {
 	 @ResponseBody
 	 @DisableCaching
 	 public ProAPIResponse getRecentlyDiscussedProjects(@RequestParam String locationType, @RequestParam int locationId, 
-			 @RequestParam(required=false, defaultValue="4") long lastNumberOfWeeks, @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount){
+			 @RequestParam(required=false, defaultValue="4") int lastNumberOfWeeks, @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount){
 		 return new ProAPISuccessResponse(projectService.getMostRecentlyDiscussedProjects(locationType.toLowerCase(), locationId, lastNumberOfWeeks, minProjectDiscussionCount));
 	 }
 }
