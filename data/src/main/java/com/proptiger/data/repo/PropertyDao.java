@@ -104,7 +104,6 @@ public class PropertyDao {
         		query.add("stats.facet", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         	}
         }
-        System.out.println(query.toString());
         Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
         Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
         for (String field : fields) {
@@ -473,6 +472,9 @@ public class PropertyDao {
     public Map<String, Map<String, Map<String, FieldStatsInfo>>> getStatsFacetsAsMaps(Selector selector, List<String> fields,
 			List<String> facet){
     	
+    	Paging pagingBackUp = selector.getPaging();
+    	selector.setPaging(new Paging(0,0));
+    	
 		Map<String, FieldStatsInfo> stats = getStats(fields, selector, facet);
 		Map<String, Map<String, Map<String, FieldStatsInfo>>> newStats = new HashMap<>();
 		
@@ -502,6 +504,7 @@ public class PropertyDao {
 			}
 		}
 		
+		selector.setPaging(pagingBackUp);
 		return newStats;
 	}
     
