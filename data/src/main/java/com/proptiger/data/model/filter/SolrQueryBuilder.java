@@ -5,9 +5,7 @@ package com.proptiger.data.model.filter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,7 +19,6 @@ import org.apache.cxf.jaxrs.ext.search.lucene.LuceneQueryVisitor;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.data.redis.connection.SortParameters.Order;
 import org.springframework.util.StringUtils;
 
 import com.proptiger.data.pojo.FIQLSelector;
@@ -217,7 +214,8 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     protected void buildFilterClause(FIQLSelector selector) {
         if (selector != null && selector.getFilters() != null && !selector.getFilters().isEmpty()) {
-            SearchCondition<SearchBean> searchCondition = new FiqlParser<SearchBean>(SearchBean.class, Collections.singletonMap("search.date-format", "yyyy-MM-ddTHH:mm:ss")).parse(selector.getFilters());
+            FiqlParser<SearchBean> fiqlParser = new FiqlParser<SearchBean>(SearchBean.class, Collections.singletonMap(FiqlParser.SUPPORT_SINGLE_EQUALS, Boolean.TRUE.toString()));
+            SearchCondition<SearchBean> searchCondition = fiqlParser.parse(selector.getFilters());
             LuceneQueryVisitor<SearchBean> luceneQueryVisitor = new LuceneQueryVisitor<SearchBean>(getDaoFieldsMap(modelClass));
             luceneQueryVisitor.visit(searchCondition);
             org.apache.lucene.search.Query termQuery = luceneQueryVisitor.getQuery();

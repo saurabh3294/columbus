@@ -2,6 +2,8 @@ package com.proptiger.data.model.filter;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -263,7 +265,8 @@ public class MySqlQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     protected void buildFilterClause(FIQLSelector selector) {
         if (selector != null && selector.getFilters() != null && !selector.getFilters().isEmpty()) {
-            SearchCondition<T> searchCondition = new FiqlParser<T>(domainClazz).parse(selector.getFilters());
+            FiqlParser<T> fiqlParser = new FiqlParser<T>(domainClazz, Collections.singletonMap(FiqlParser.SUPPORT_SINGLE_EQUALS, Boolean.TRUE.toString()));
+            SearchCondition<T> searchCondition = fiqlParser.parse(selector.getFilters());
             JPATypedQueryVisitor<T> jpaCriteriaQueryVisitor = new JPATypedQueryVisitor<>(entityManager, domainClazz, getDaoFieldsMap(domainClazz));
             searchCondition.accept(jpaCriteriaQueryVisitor);
             query = jpaCriteriaQueryVisitor.getCriteriaQuery();
