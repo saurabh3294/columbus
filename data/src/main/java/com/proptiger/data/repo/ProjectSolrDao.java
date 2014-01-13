@@ -195,7 +195,7 @@ public class ProjectSolrDao {
     	solrQueryBuilder.addGeoFilter("geo", 0, latitude, longitude);
     	solrQuery.setSort("geodist()", ORDER.desc);
     	solrQuery.add("fl", "* __RADIUS__:geodist()");
-    	logger.debug("Solr query for get projects by GEO {}",solrQuery.toString());
+    	logger.info("Solr query for get projects by GEO {}",solrQuery.toString());
     	return solrDao.executeQuery(solrQuery).getBeans(SolrResult.class);
     	
     }

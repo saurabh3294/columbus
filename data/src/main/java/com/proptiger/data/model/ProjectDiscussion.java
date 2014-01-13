@@ -9,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -44,6 +46,7 @@ public class ProjectDiscussion implements BaseModel {
     private boolean isReplied;
 
     @Column(name="CREATED_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
     @Column(name="STATUS")

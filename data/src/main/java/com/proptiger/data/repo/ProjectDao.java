@@ -41,4 +41,8 @@ public class ProjectDao extends ProjectSolrDao {
                 return projectDBDao.getChildrenProjectDiscussions(commentId);
             }
         }
+        
+        public List<Object> getMostDiscussedProjectInNWeeksOnLocation(long timediff, int locationType, int locationId, int minCount){
+        	return projectDatabaseDao.getMostDiscussedProjects(timediff, locationType, locationId, minCount);
+        }
 }

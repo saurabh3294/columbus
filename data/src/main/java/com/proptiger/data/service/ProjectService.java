@@ -322,4 +322,26 @@ public class ProjectService {
 		//return projectSpecification;
 		return new ProjectSpecification(specifications);
 	}
+	
+	public List<Object> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, long lastNumberOfWeeks, int minProjectDiscussionCount){
+		long timediff = lastNumberOfWeeks*24*60*60;
+		
+		int locationType;
+		switch(locationTypeStr)
+		{
+			case "city":
+				locationType = 1;
+				break;
+			case "suburb":
+				locationType = 2;
+				break;
+			case "locality":
+				locationType = 3;
+				break;
+			default:
+				throw new IllegalArgumentException("The possbile values are : suburb or locality or city.");
+		}
+		
+		return projectDao.getMostDiscussedProjectInNWeeksOnLocation(timediff, locationType, locationId, minProjectDiscussionCount);
+	}
 }
