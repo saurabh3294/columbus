@@ -1,5 +1,6 @@
 package com.proptiger.data.service;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ public class LocalityReviewService {
 	public static final String TOTAL_RATINGS = "totalRatings";
 	public static final String AVERAGE_RATINGS = "averageRatings";
 	public static final String TOTAL_REVIEWS = "totalReviews";
+	public static final String TOTAL_USERS_BY_RATING = "totalUsersByRating";
 	
 	@Resource
 	private LocalityReviewDao localityReviewDao;
@@ -44,7 +46,10 @@ public class LocalityReviewService {
 	 * Finds all review for a locality based on locality id
 	 * 
 	 * @param localityId
-	 * @return
+	 * @param Pageable number of reviews to return.
+	 * @return Map<String, Object> the output is as follows:
+	 *         TOTAL_REVIEWS : total reviews found on the locality.
+	 *         REVIEWS: Reviews found filtered by pageable.
 	 */
 	public Map<String, Object> findReviewByLocalityId(int localityId,
 			Pageable pageable) {
@@ -60,7 +65,8 @@ public class LocalityReviewService {
 
 		List<Object> reviewComments = localityReviewDao
 				.getReviewCommentsByLocalityId(localityId, pageable);
-		Object[] total = getLocalityRating(localityId);
+		
+		Map<String, Object> ratingDetails = getTotalUsersByRatingByLocalityId(localityId);
 
 		Map<String, Object> reviewCommentsMaps;
 		Object[] reviewCommentsRow;
@@ -80,9 +86,11 @@ public class LocalityReviewService {
 		Map<String, Object> response = new LinkedHashMap<String, Object>();
 
 		response.put(TOTAL_REVIEWS, totalReviews);
-		response.put(AVERAGE_RATINGS, total[0]);
-		response.put(TOTAL_RATINGS, total[1]);
 		response.put(REVIEWS, reviewComments);
+		if(ratingDetails != null)
+		{
+			response.putAll(ratingDetails);
+		}
 
 		return response;
 	}
@@ -90,14 +98,52 @@ public class LocalityReviewService {
 	/**
 	 * Get locality review count
 	 * @param localityId
-	 * @return
+	 * @return Long Number of reviews
 	 */
 	public Long getLocalityReviewCount(int localityId){
 		return localityReviewDao.getTotalReviewsByLocalityId(localityId);
 	}
 	
-	public Object[] getLocalityRating(int localityId){
-		return localityRatingDao
-		.getAvgAndTotalRatingByLocalityId(localityId);
+	/**
+	 * This method will return the distribution of rating by their total users, average rating.
+	 * @param localityId
+	 * @return Map<String, Object> The information contained is as:
+	 *         1: TOTAL_USERS_BY_RATING => Map<Double, Long> Here Double will be rating and Long 
+	 *                                     will be number of users.
+	 *         2: AVERAGE_RATING => The average rating of locality.
+	 *         3: TOTAL_RATINGS => total rating users.        
+	 */
+	public Map<String, Object> getTotalUsersByRatingByLocalityId(int localityId){
+		List<Object[]> ratingDetails = localityRatingDao.getTotalUsersByRating(localityId);
+		if(ratingDetails == null || ratingDetails.size() < 1)
+			return  null;
+		
+		Map<Double, Long> ratingMap = new LinkedHashMap<>();
+				
+		Object[] ratingInfo;
+		double avgRating = 0, rating = 0;
+		long totalRating = 0, users = 0;
+		
+		Float ratingValue;
+				
+		for(int i=0; i<ratingDetails.size(); i++){
+			ratingInfo = ratingDetails.get(i);
+			rating = (ratingValue = (Float)ratingInfo[0]).doubleValue();
+			users = (Long)ratingInfo[1];
+			
+			avgRating += rating*users;
+			totalRating += users;
+			ratingMap.put( rating, users);
+		}
+		if(totalRating < 1)
+			totalRating = 1;
+		avgRating /= totalRating;
+				
+		Map<String, Object> ratingResponse = new HashMap<>();
+		ratingResponse.put(TOTAL_USERS_BY_RATING, ratingMap);
+		ratingResponse.put(AVERAGE_RATINGS, avgRating);
+		ratingResponse.put(TOTAL_RATINGS, totalRating);
+		
+		return ratingResponse;
 	}
 }

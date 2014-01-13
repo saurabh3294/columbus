@@ -12,14 +12,14 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.mail.service.MailBodyGenerator;
-import com.proptiger.mail.service.MailService;
+import com.proptiger.mail.service.MailSender;
 import com.proptiger.mail.service.MailTemplateDetail;
 
 @Service
 public class UnmatchedProjectRequestService {
 
 	@Autowired
-	private MailService mailService;
+	private MailSender mailSender;
 	
 	@Autowired
 	private MailBodyGenerator mailBodyGenerator;
@@ -45,11 +45,11 @@ public class UnmatchedProjectRequestService {
 		MailBody mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.UNMATCHED_PROJECT_INTERNAL, unmatchedProjectDetails);
 		String toAddress = propertyReader.getRequiredProperty("mail.unmatched-project.internal.reciepient");
 		logger.debug("Unmatched project request mail to internal {}",toAddress);
-		boolean userMailStatus =  mailService.sendMailUsingAws(toAddress, mailBody.getBody(), mailBody.getSubject());
+		boolean userMailStatus =  mailSender.sendMailUsingAws(toAddress, mailBody.getBody(), mailBody.getSubject());
 		toAddress = forumUser.getEmail();
 		logger.debug("Unmatched project request mail to user {}",toAddress);
 		mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.UNMATCHED_PROJECT_USER, unmatchedProjectDetails);
-		boolean internalMailStatus = mailService.sendMailUsingAws(toAddress, mailBody.getBody(), mailBody.getSubject());
+		boolean internalMailStatus = mailSender.sendMailUsingAws(toAddress, mailBody.getBody(), mailBody.getSubject());
 		
 		return (userMailStatus && internalMailStatus);
 	}

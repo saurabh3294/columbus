@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.enums.DomainObject;
+import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
@@ -81,10 +82,28 @@ public class ImageController extends BaseController {
 
     @RequestMapping(value = "{id}", method = RequestMethod.POST)
     public @ResponseBody
-    Object updateImage(@PathVariable long id, @RequestParam(value="image") MultipartFile file) {
+    Object updateImage(@PathVariable long id, @RequestParam(value="image") MultipartFile file, @RequestParam(required = false) String priority) {
         Image image = imageService.getImage(id);
-        Object obj = this.putImages(image.getImageType().getObjectType().getType(), image.getImageType().getType(), image.getObjectId(), file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getAltText(), image.getTitle(), image.getDescription(), image.getPriority() == null ? "" : String.valueOf(image.getPriority()));
+        Object obj = this.putImages(image.getImageType().getObjectType().getType(), image.getImageType().getType(), image.getObjectId(), file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getAltText(), image.getTitle(), image.getDescription(), priority == null ? (image.getPriority() == null ? "" : String.valueOf(image.getPriority())) : priority);
         imageService.deleteImage(id);
         return obj;
     }
+
+    @RequestMapping(value="resolution-enumerations")
+    public @ResponseBody Object getResolutionEnumerations() {
+        return new ProAPISuccessResponse(ImageResolution.values());
+    }
+
+    @RequestMapping(value="create-new", method = RequestMethod.POST)
+    public @ResponseBody
+    Object createNewImages(@RequestParam long imageId, @RequestParam MultipartFile image) {
+        Map<String, String> extraInfo = new HashMap<String, String>();
+        extraInfo.put("altText", null);
+        extraInfo.put("title", null);
+        extraInfo.put("description", null);
+        extraInfo.put("priority", null);
+        
+        Image img = imageService.createNewImage(imageId, image);
+        return new ProAPISuccessResponse(super.filterFieldsWithTree(img, null));
+    }    
 }

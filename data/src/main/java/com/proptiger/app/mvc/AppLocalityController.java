@@ -1,5 +1,7 @@
 package com.proptiger.app.mvc;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,9 +15,11 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * Locality related data for specific need. Means many form of data will be
@@ -45,11 +49,11 @@ public class AppLocalityController extends BaseController {
         }
         // all localities are needed by default. Hence, setting max value.
         if(propRequestParam.getPaging() == null)
-        	propRequestParam.setPaging(new Paging(0, 1000000));
+        	propRequestParam.setPaging(new Paging(0, 10));
         
-		Object object = localityService.getLocalityListing(propRequestParam);
+		PaginatedResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
 		
-		return new ProAPISuccessResponse(super.filterFields(object, propRequestParam.getFields()));
+		return new ProAPISuccessCountResponse(super.filterFields(solrRes.getResults(), propRequestParam.getFields()), solrRes.getTotalCount());
 	}
 
 	/**

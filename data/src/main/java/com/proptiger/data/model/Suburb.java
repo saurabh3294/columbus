@@ -3,6 +3,8 @@
  */
 package com.proptiger.data.model;
 
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -16,6 +18,9 @@ import org.apache.solr.client.solrj.beans.Field;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -26,7 +31,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "SUBURB")
 @ResourceMetaInfo
-//@JsonFilter("fieldFilter")
+@JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class Suburb implements BaseModel {
     @Id
     @FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
@@ -55,7 +61,7 @@ public class Suburb implements BaseModel {
     private String url;
     
     @Column(name="DESCRIPTION")
-    @Field("DESCRIPTION")
+    @Field("SUBURB_DESCRIPTION")
     @FieldMetaInfo( displayName = "Description",  description = "Description")
     private String description;
 
@@ -76,6 +82,13 @@ public class Suburb implements BaseModel {
     @Field("SUBURB_PRICE_RISE_TIME")
     private Integer avgPriceRiseMonths;
     
+    @Transient
+    @Field("SUBURB_DOMINANT_UNIT_TYPE")
+    private String dominantUnitType;
+    
+    @Transient
+    private Map<Integer, Double> avgBHKPrice;
+        
     public int getId() {
         return id;
     }
@@ -155,4 +168,20 @@ public class Suburb implements BaseModel {
     public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
         this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
+
+	public String getDominantUnitType() {
+		return dominantUnitType;
+	}
+
+	public void setDominantUnitType(String dominantUnitType) {
+		this.dominantUnitType = dominantUnitType;
+	}
+
+	public Map<Integer, Double> getAvgBHKPrice() {
+		return avgBHKPrice;
+	}
+
+	public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
+		this.avgBHKPrice = avgBHKPrice;
+	}
 }

@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -32,11 +31,19 @@ import com.proptiger.data.service.LocalityService;
 public class LocalityController extends BaseController {
     @Autowired
     private LocalityService localityService;
+
     @Autowired
     private LocalityReviewService localityReviewService;
+
     @Autowired 
     private ImageService imageService;
-    
+
+    /**
+     * Returns localities given a selector
+     *
+     * @param selector
+     * @return
+     */
     @RequestMapping
     @ResponseBody
     public ProAPIResponse getLocalities(@RequestParam(required=false) String selector) {
@@ -71,7 +78,7 @@ public class LocalityController extends BaseController {
 					.parseJsonToObject(selector, Selector.class);
 		}
 		List<Locality> popularLocalities = localityService
-				.getPopularLocalities(cityId, suburbId, enquiryInWeeks);
+				.getPopularLocalities(cityId, suburbId, enquiryInWeeks, localitySelector);
 		return new ProAPISuccessCountResponse(super.filterFields(
 				popularLocalities, localitySelector.getFields()),
 				popularLocalities.size());
@@ -85,7 +92,6 @@ public class LocalityController extends BaseController {
      * @return
      */
     @RequestMapping(value = "/top")
-    @DisableCaching // to be removed.
     @ResponseBody
 	public ProAPIResponse getTopLocalitiesOfCityOrSuburb(
 			@RequestParam(required = false, value = "cityId") Integer cityId,
@@ -102,13 +108,25 @@ public class LocalityController extends BaseController {
 	}
 
     /**
+     * Computes center of a given locality as per
+     * http://web.nmsu.edu/~xiumin/project/smallest_enclosing_circle/SEC.java
+     * 
+     * @param localityId
+     * @return
+     */
+    @RequestMapping(value = "{localityId}/center")
+    @ResponseBody
+    public ProAPIResponse getCenter(@PathVariable int localityId) {
+        return new ProAPISuccessResponse(localityService.computeCenter(localityId));
+    }
+
+    /**
      * Get top localities around X km from provided locality id
      * @param localityId
      * @param selector
      * @return
      */
     @RequestMapping(value = "{localityId}/top")
-    @DisableCaching // to be removed.
     @ResponseBody
 	public ProAPIResponse getTopLocalitiesAroundLocality(
 			@PathVariable Integer localityId,
@@ -125,6 +143,7 @@ public class LocalityController extends BaseController {
 
     @RequestMapping("/{localityId}/radius")
 	@ResponseBody
+	@Deprecated
 	public ProAPIResponse getLocalityRadiusOnProject(@PathVariable int localityId){
 		return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
 	}

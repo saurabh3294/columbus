@@ -12,6 +12,7 @@ import com.proptiger.data.model.ProjectReview;
 * @author Rajeev Pandey
 *
 */
+@Deprecated
 public interface ProjectReviewDao extends JpaRepository<ProjectReview, Long>{
 
 	/**

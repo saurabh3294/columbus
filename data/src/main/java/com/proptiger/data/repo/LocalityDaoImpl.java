@@ -21,11 +21,14 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.enums.DocumentType;
+import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep
@@ -38,9 +41,9 @@ public class LocalityDaoImpl {
 	private SolrDao solrDao;
 	@Autowired
 	private EntityManagerFactory emf;
-	public List<Locality> getLocalities(Selector selector){
+	public PaginatedResponse<List<Locality>> getLocalities(Selector selector){
 		SolrQuery solrQuery = createSolrQuery(selector);
-		
+		System.out.println(solrQuery.toString());
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		
@@ -50,7 +53,11 @@ public class LocalityDaoImpl {
 			data.add(response.get(i).getProject().getLocality());
 		}
 		
-		return data;
+		PaginatedResponse<List<Locality>> solrRes = new PaginatedResponse<List<Locality>>();
+        solrRes.setTotalCount(queryResponse.getResults().getNumFound());
+        solrRes.setResults(data);
+        
+		return solrRes;
 	}
 	
 	public List<Locality> findByLocationOrderByPriority(Object locationId, String locationType, Paging paging, SortOrder sortOrder){
@@ -91,34 +98,43 @@ public class LocalityDaoImpl {
     	}
     	
     	filterCriteria.put(param, locationId);
-    	searchType.put("equal", filterCriteria);
+    	searchType.put(Operator.equal.name(), filterCriteria);
     	list.add(searchType);
-    	filter.put("and", list);
+    	filter.put(Operator.and.name(), list);
     	
     	selector.setFilters(filter);
     	selector.setPaging(paging);
     	selector.setSort(sorting);
     	
-    	return getLocalities(selector);
+    	return getLocalities(selector).getResults();
 	}
 	
-	public List<Locality> findByLocalityIds(List<Integer> localityIds, Selector propertySelector){
-		
+	public PaginatedResponse<List<Locality>> findByLocalityIds(List<Integer> localityIds, Selector propertySelector) {
+	    if (localityIds == null || localityIds.isEmpty()){
+	    	PaginatedResponse<List<Locality>> a = new PaginatedResponse<>();
+	    	a.setTotalCount(0);
+	    	a.setResults(new ArrayList<Locality>());
+	    	return a;
+	    }
+
 		Selector selector = new Selector();
-		
+
 		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
     	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
     	Map<String, Map<String, Object>> searchType = new HashMap<>();
     	Map<String, Object> filterCriteria = new HashMap<>();
     	    	    	    	    	
     	filterCriteria.put("localityId", localityIds);
-    	searchType.put("equal", filterCriteria);
+    	searchType.put(Operator.equal.name(), filterCriteria);
     	list.add(searchType);
-    	filter.put("and", list);
+    	filter.put(Operator.and.name(), list);
     	
     	selector.setFilters(filter);
-    	selector.setFields(propertySelector.getFields());
-    	selector.setPaging(propertySelector.getPaging());
+    	if(propertySelector != null){
+    		selector.setFields(propertySelector.getFields());
+        	selector.setPaging(propertySelector.getPaging());
+    	}
+    	
     	if( selector.getPaging() == null )
     		selector.setPaging( new Paging(0, localityIds.size()));
     	
@@ -127,10 +143,7 @@ public class LocalityDaoImpl {
     
 
 	private SolrQuery createSolrQuery(Selector selector){
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("*:*");
-		solrQuery.setFilterQueries("DOCUMENT_TYPE:LOCALITY");
-		
+		SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.LOCALITY);
 		if (selector.getSort() == null) {
             selector.setSort(new LinkedHashSet<SortBy>());
         }
@@ -167,7 +180,11 @@ public class LocalityDaoImpl {
      * @return
      */
     public List<Locality> getPopularLocalities(
-			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp){
+			Integer cityId, Integer suburbId, Long enquiryCreationTimeStamp, Selector selector){
+    	Paging paging = new Paging();
+    	if(selector != null && selector.getPaging() != null){
+    		paging = selector.getPaging();
+    	}
 		EntityManager em = emf.createEntityManager();
 		Query query = em.createNativeQuery("select *, count(enquiry1_.ID) as ENQUIRY_COUNT from proptiger.LOCALITY locality0_ "
 				+ " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
@@ -177,8 +194,17 @@ public class LocalityDaoImpl {
 				+ " "+cityId
 				+ " or locality0_.SUBURB_ID = "
 				+ " "+suburbId+ ")"
-				+ " group by locality0_.LOCALITY_ID order by locality0_.PRIORITY ASC , ENQUIRY_COUNT DESC", Locality.class);
+				+ " group by locality0_.LOCALITY_ID order by ENQUIRY_COUNT DESC, locality0_.PRIORITY ASC"
+				+ " LIMIT "+ paging.getRows()+" OFFSET "+paging.getStart(), Locality.class);
 		List<Locality> result = query.getResultList();
 		return result;
+    }
+    
+    public Locality getLocality(int localityId){
+    	List<Locality> localities = findByLocationOrderByPriority(localityId, "locality", null, null);
+    	if(localities == null || localities.size() < 1)
+    		return null;
+    	
+    	return localities.get(0);
     }
 }

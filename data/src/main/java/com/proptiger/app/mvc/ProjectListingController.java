@@ -19,15 +19,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Project.NestedProperties;
-import com.proptiger.data.model.enums.DomainObject;
-import com.proptiger.data.model.image.Image;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep
@@ -44,7 +42,7 @@ public class ProjectListingController extends BaseController {
     
     @Autowired
     private ProjectService projectService;
-
+    
     @RequestMapping
     public @ResponseBody
     Object getProjectListings(@RequestParam(required = false) String selector,
@@ -54,18 +52,12 @@ public class ProjectListingController extends BaseController {
             projectListingSelector = new Selector();
         }
 
-        SolrServiceResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
-        for (Project project : projects.getResult()) {
-            List<Image> images = imageService.getImages(DomainObject.project, "main", project.getProjectId());
-            if (images != null && !images.isEmpty()) {
-                project.setImageURL(images.get(0).getAbsolutePath());
-            }
-        }
-        
+        PaginatedResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
+               
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
         Map<String, Object> response = new HashMap<String, Object>();
-        response.put("items", super.filterFields(projects.getResult(), fields));
+        response.put("items", super.filterFields(projects.getResults(), fields));
 
         if (facets != null) {
             response.put("facets", propertyService.getFacets(Arrays.asList(facets.split(",")), projectListingSelector));
@@ -75,7 +67,7 @@ public class ProjectListingController extends BaseController {
             response.put("stats", propertyService.getStats(Arrays.asList(stats.split(",")), projectListingSelector));
         }
 
-        return new ProAPISuccessCountResponse(response, projects.getTotalResultCount());
+        return new ProAPISuccessCountResponse(response, projects.getTotalCount());
     }
 
     private void processFields(Set<String> fields) {

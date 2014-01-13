@@ -20,6 +20,7 @@ import com.proptiger.data.service.ProjectReviewService;
  *
  */
 @Controller
+@Deprecated
 public class ProjectReviewController {
 
 	@Autowired

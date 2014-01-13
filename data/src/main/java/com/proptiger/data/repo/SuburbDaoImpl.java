@@ -4,7 +4,9 @@
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
+import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 
@@ -44,6 +47,29 @@ public class SuburbDaoImpl {
 		}
 		
 		return data;
+	}
+	
+	public Suburb getSuburb(int suburbId){
+
+		Selector selector = new Selector();
+
+		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
+    	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+    	Map<String, Map<String, Object>> searchType = new HashMap<>();
+    	Map<String, Object> filterCriteria = new HashMap<>();
+    	
+    	filterCriteria.put("id", suburbId);
+    	searchType.put(Operator.equal.name(), filterCriteria);
+    	list.add(searchType);
+    	filter.put(Operator.and.name(), list);
+    	
+    	selector.setFilters(filter);
+    	
+    	List<Suburb> suburbs = getSuburbs(selector);
+    	if(suburbs == null || suburbs.size() < 1)
+    		return null;
+    	
+    	return suburbs.get(0);
 	}
     /*@Autowired
     private EntityManagerFactory emf;

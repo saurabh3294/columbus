@@ -6,11 +6,15 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -21,12 +25,15 @@ import com.proptiger.data.util.ImageUtil;
 @Entity(name = "Image")
 @Access(AccessType.FIELD)
 @JsonFilter("fieldFilter")
-public class Image implements BaseModel{
-	@Id
+public class Image implements BaseModel {
+    public static final String DOT = ".";
+
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 	
-	@ManyToOne
+	@ManyToOne(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.JOIN)
 	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
 	private ImageType imageType;
 
@@ -38,12 +45,12 @@ public class Image implements BaseModel{
 	
 	private String path;
 
-    public void assignWatermarkName() {
-        waterMarkName = id + ".jpg";
+    public void assignWatermarkName(String format) {
+        waterMarkName = id + this.DOT +format;
     }
 
     public void assignOriginalName(String format) {
-        originalName = originalHash + '.' + format;
+        originalName = originalHash + this.DOT + format;
     }
 
 	@JsonProperty

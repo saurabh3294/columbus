@@ -18,8 +18,11 @@ import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
 
 /**
  * Locality entity class
@@ -30,6 +33,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "LOCALITY")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class Locality implements BaseModel {
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
@@ -76,11 +80,8 @@ public class Locality implements BaseModel {
 
     @FieldMetaInfo(displayName = "Active", description = "Active")
     @Column(name = "ACTIVE")
+    @JsonIgnore
     private boolean isActive;
-    
-    @FieldMetaInfo(displayName = "DELETED_FLAG", description = "DELETED_FLAG")
-    @Column(name = "DELETED_FLAG")
-    private boolean deletedFlag;
     
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
@@ -117,7 +118,7 @@ public class Locality implements BaseModel {
     private Map<String, Integer> amenityTypeCount;
 
     @Transient
-    private List<String> imagesPath;
+    private List<Image> images;
 
     @Transient
     private Integer imageCount;
@@ -135,7 +136,7 @@ public class Locality implements BaseModel {
     private Integer projectCount;
     
     @Transient
-    private Double maxRadius;
+    private Double maxRadius = 3.0;
     
     @Transient
     private Integer totalImages;
@@ -163,6 +164,16 @@ public class Locality implements BaseModel {
     @Transient
     @Field("LOCALITY_PRICE_PER_UNIT_AREA")
     private Double avgPricePerUnitArea;
+    
+    @Transient
+    @Field("LOCALITY_DOMINANT_UNIT_TYPE")
+    private String dominantUnitType;
+    
+    @Transient
+    private Map<Integer, Double> avgBHKPricePerUnitArea;
+    
+    @Transient
+    private Map<Double, Long> numberOfUsersByRating;
     
     public int getLocalityId() {
         return localityId;
@@ -246,14 +257,6 @@ public class Locality implements BaseModel {
         this.isActive = isActive;
     }
 
-    public boolean isDeletedFlag() {
-        return deletedFlag;
-    }
-
-    public void setDeletedFlag(boolean deletedFlag) {
-        this.deletedFlag = deletedFlag;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -310,12 +313,12 @@ public class Locality implements BaseModel {
         this.amenityTypeCount = amenityTypeCount;
     }
 
-    public List<String> getImagesPath() {
-        return imagesPath;
+    public List<Image> getImages() {
+        return images;
     }
 
-    public void setImagesPath(List<String> imagesPath) {
-        this.imagesPath = imagesPath;
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 
     public Integer getImageCount() {
@@ -429,4 +432,36 @@ public class Locality implements BaseModel {
     public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
         this.avgPriceRiseMonths = avgPriceRiseMonths;
     }
+
+	public Set<LocalityReview> getLocalityReviews() {
+		return localityReviews;
+	}
+
+	public void setLocalityReviews(Set<LocalityReview> localityReviews) {
+		this.localityReviews = localityReviews;
+	}
+
+	public String getDominantUnitType() {
+		return dominantUnitType;
+	}
+
+	public void setDominantUnitType(String dominantUnitType) {
+		this.dominantUnitType = dominantUnitType;
+	}
+
+	public Map<Integer, Double> getAvgBHKPricePerUnitArea() {
+		return avgBHKPricePerUnitArea;
+	}
+
+	public void setAvgBHKPriceUnitArea(Map<Integer, Double> avgBHKPrice) {
+		this.avgBHKPricePerUnitArea = avgBHKPrice;
+	}
+
+	public Map<Double, Long> getNumberOfUsersByRating() {
+		return numberOfUsersByRating;
+	}
+
+	public void setNumberOfUsersByRating(Map<Double, Long> numberOfUsersByRating) {
+		this.numberOfUsersByRating = numberOfUsersByRating;
+	}
 }

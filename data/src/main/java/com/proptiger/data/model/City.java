@@ -1,5 +1,7 @@
 package com.proptiger.data.model;
 
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -8,6 +10,9 @@ import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -18,11 +23,13 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "CITY")
 @ResourceMetaInfo
-//@JsonFilter("fieldFilter")
-public class City implements BaseModel{
+@JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
+public class City implements BaseModel {
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")
+    @Field("CITY_ID")
     private Integer id;
 
     @FieldMetaInfo( displayName = "Label",  description = "City label")
@@ -99,13 +106,20 @@ public class City implements BaseModel{
     private Integer maxZoomLevel = 14;
     
     @Transient
-    private long projectsCount;
-    
-    public int getId() {
+    private Long projectsCount;
+
+    @Transient
+    @Field("CITY_DOMINANT_UNIT_TYPE")
+    private String dominantUnitType;
+
+    @Transient
+    private Map<Integer, Double> avgBHKPrice;
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -181,11 +195,11 @@ public class City implements BaseModel{
 		this.displayOrder = displayOrder;
 	}
 
-	public long getProjectsCount() {
+	public Long getProjectsCount() {
 		return projectsCount;
 	}
 
-	public void setProjectsCount(long projectsCount) {
+	public void setProjectsCount(Long projectsCount) {
 		this.projectsCount = projectsCount;
 	}
 
@@ -244,5 +258,21 @@ public class City implements BaseModel{
     public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
         this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
-    
+
+    public String getDominantUnitType() {
+        return dominantUnitType;
+    }
+
+    public void setDominantUnitType(String dominantUnitType) {
+        this.dominantUnitType = dominantUnitType;
+    }
+
+    public Map<Integer, Double> getAvgBHKPrice() {
+        return avgBHKPrice;
+    }
+
+    public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
+        this.avgBHKPrice = avgBHKPrice;
+    }
+
 }

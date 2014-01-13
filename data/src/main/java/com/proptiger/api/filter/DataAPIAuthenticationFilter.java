@@ -42,106 +42,6 @@ public class DataAPIAuthenticationFilter implements Filter{
 	 */
 	private boolean enabled = true;
 	
-//	@Override
-//	public void doFilter(ServletRequest request, ServletResponse response,
-//			FilterChain chain) throws IOException, ServletException {
-//		
-//		  HttpServletRequest httpRequest = ((HttpServletRequest)request);
-//        boolean userIdFound = false;
-//        Integer userIdOnBehalfOfAdmin = null;
-//        String jsessionIdPassed = null;
-//        
-//        String[] jsessionIdsVal = httpRequest
-//				.getParameterValues(Constants.JSESSIONID);
-//        if(jsessionIdsVal != null && jsessionIdsVal.length > 0){
-//        	jsessionIdPassed = jsessionIdsVal[0];
-//        }
-//        /*
-//         * If jsession id found then try to find user id, because this request may be from Admin,
-//         * on behalf of some other user to create or update something
-//         */
-//        if(jsessionIdPassed != null){
-//        	String[] values = httpRequest
-//    				.getParameterValues(Constants.REQ_PARAMETER_FOR_USER_ID);
-//    		if (values != null && values.length > 0) {
-//    			try {
-//    				userIdOnBehalfOfAdmin = Integer.parseInt(values[0]);
-//    				userIdFound = true;
-//    			} catch (NumberFormatException e) {
-//    				logger.error("Working on behalf of other user failed",e);
-//    				PrintWriter out = response.getWriter();
-//    				ProAPIErrorResponse res = new ProAPIErrorResponse(
-//    						ResponseCodes.BAD_REQUEST,
-//    						ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST);
-//    				ObjectMapper mapper = new ObjectMapper();
-//    				out.println(mapper.writeValueAsString(res));
-//    				return;
-//    			}
-//    		}
-//        }
-//        Subject currentUser = null;
-//		if(userIdFound){
-//			/*
-//			 * JSESSIONID and user id passed in request url, construct Subject based on session id passed,
-//			 * and remove extra information passed in url
-//			 */
-//			currentUser = new Subject.Builder().sessionId(jsessionIdPassed).buildSubject();
-//			httpRequest.removeAttribute(Constants.JSESSIONID);
-//			httpRequest.removeAttribute(Constants.REQ_PARAMETER_FOR_USER_ID);
-//		}
-//		else{
-//			currentUser = SecurityUtils.getSubject();
-//		}
-//		HttpServletResponse httpResponce = (HttpServletResponse) response;
-//		httpResponce.addHeader("Access-Control-Allow-Origin", "*");
-//		
-//		if (!currentUser.isAuthenticated()) {
-//			try{
-//				DelegatingSubject delegatingSubject = (DelegatingSubject) currentUser;
-//				if(delegatingSubject != null && delegatingSubject.getHost() != null){
-//					logger.error("Unauthenticated API call from host {}",delegatingSubject.getHost());
-//				}
-//			}catch(Exception e){
-//				logger.error("Could not cast to DelegatingSubject- "+e.getMessage());
-//			}
-//			PrintWriter out = response.getWriter();
-//			ProAPIErrorResponse res = new ProAPIErrorResponse(
-//					ResponseCodes.AUTHENTICATION_ERROR,
-//					ResponseErrorMessages.AUTHENTICATION_ERROR);
-//			ObjectMapper mapper = new ObjectMapper();
-//			out.println(mapper.writeValueAsString(res));
-//		}
-//		else{
-//			UserInfo userInfo = (UserInfo) currentUser.getSession().getAttribute(Constants.LOGIN_INFO_OBJECT_NAME);
-//			if(userInfo.isAdmin()){
-//				logger.debug("Request from admin user {}", userInfo.getUserIdentifier());
-//				/*
-//				 * This request is considered as special request from admin to modify some other 
-//				 * user's data on behalf on Admin
-//				 * 
-//				 * So need to set other user's userid in session managed UserInfo object, so that
-//				 * all other controllers will get other user's id from session
-//				 */
-//	            if(userIdFound){
-//	            	/*
-//	            	 * Admin is trying to do something on behalf of other user, so modify user info
-//	            	 * object in session that will be assessed by all controllers, and will do work
-//	            	 * for this user
-//	            	 */
-//	            	logger.debug("Changing admin user info with user id {}", userIdOnBehalfOfAdmin);
-//	            	userInfo.setUserIdentifier(userIdOnBehalfOfAdmin);
-//	            }
-//	            else{
-//	            	//that means admin is not trying to do thing on behalf of some other user
-//	            	//set user identifier back to Admin
-//	            	userInfo.setUserIdentifier(Constants.ADMIN_USER_ID);
-//	            }
-//			}
-//			chain.doFilter(request, response);
-//		}
-//	}
-
-	
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
@@ -244,6 +144,20 @@ public class DataAPIAuthenticationFilter implements Filter{
 							ResponseErrorMessages.AUTHENTICATION_ERROR, userIpAddress);
 					return;
 				}
+			}
+			if(userId == null){
+				/*
+				 * Auth is disabled and the api does not have user id in url, then
+				 * get user id in request parameter, this will not hanle admin case
+				 */
+				userId = userIdOnBehalfOfAdmin;
+			}
+			if(userId == null){
+				logger.error("Invalid user Id in url, {}",userId);
+				writeErrorToResponse(response,
+						ResponseCodes.BAD_REQUEST,
+						ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST, userIpAddress);
+				return;
 			}
 			logger.debug("Skipping authentication, serve request for user id {}",userId);
 			userInfo = new UserInfo();

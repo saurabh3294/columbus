@@ -35,7 +35,7 @@ public class CMSDao {
 
 	private static Logger logger = LoggerFactory.getLogger(CMSDao.class);
 	
-    private static final String ANALYTICS_APIS_PRICE_TREND_JSON = "analytics/apis/price-trend.json?";
+    private static final String ANALYTICS_APIS_PRICE_TREND_JSON = "app/v1/locality-price-trend?";//"analytics/apis/price-trend.json?";
 	private static final String APP_V1_PROJECT_PRICE_TREND = "app/v1/project-price-trend?";
 	private static final String TIMESTAMP = "timestamp";
 	private static final String TOKEN = "token";
@@ -60,16 +60,16 @@ public class CMSDao {
         securityToken = HMAC_Client.calculateHMAC(propertyReader.getRequiredProperty(CMS_PASSWORD), timeStamp.toString());
         restTemplate = new RestTemplate();
     }
-    public Object getPropertyPriceTrends(String locationType, Integer locationId, List<String> unitTypes) {
+    public Object getPropertyPriceTrends(String locationType, Integer locationId, List<String> unitTypes, int lastNumberOfMonths) {
 
-        String queryParams = "username=" + propertyReader.getRequiredProperty(CMS_USERNAME) + "&token=" + securityToken + "&"+ locationType+"="+locationId;
+        String queryParams = "username=" + propertyReader.getRequiredProperty(CMS_USERNAME) + "&token=" + securityToken + "&"+ locationType+"="+locationId+"&duration="+lastNumberOfMonths;
         queryParams += "&timestamp=" + timeStamp;
         for (String unitType : unitTypes) {
             queryParams += "&unittype[]=" + unitType;
         }
 
         String url =  propertyReader.getRequiredProperty(CMS_BASE_URL) + ANALYTICS_APIS_PRICE_TREND_JSON + queryParams;
-
+        System.out.println(url);
         try{
             Map<String, Object> response = (Map<String, Object>)restTemplate.getForObject(url, Object.class);
             return response.get("price_trend");

@@ -23,29 +23,17 @@
 		</encoder>
 	</appender>
 
-	<logger name="com.proptiger.data.service.portfolio">
-		<level value="DEBUG" />
-	</logger>
-	<logger name="com.proptiger.api.filter">
-		<level value="DEBUG" />
-	</logger>
-	<logger name="com.proptiger.mail.service">
-		<level value="DEBUG" />
-	</logger>
-	<logger name="org.springframework.beans.factory">
-		<level value="WARN" />
-	</logger>
-	<logger name="org.springframework.web">
-		<level value="WARN" />
-	</logger>
-	<logger name="org.hibernate">
-		<level value="WARN" />
-	</logger>
-
+	<appender name="EMAIL" class="ch.qos.logback.classic.net.SMTPAppender">
+		<to></to>
+		<from>dal-errors@proptiger.com</from>
+		<subject>DAL ERROR: %logger{20} - %m</subject>
+		<layout class="ch.qos.logback.classic.html.HTMLLayout" />
+	</appender>
 
 	<root level="INFO">
 		<appender-ref ref="dal" />
 		<appender-ref ref="STDOUT" />
+		<appender-ref ref="EMAIL" />
 	</root>
 
 </configuration>
