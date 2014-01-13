@@ -25,6 +25,13 @@ public class TypeaheadService {
     @Autowired
     private TypeaheadDao typeaheadDao; 
     
+    /**
+     * This method will return the list of typeahead results based on the params.
+     * @param query
+     * @param rows
+     * @param filterQueries
+     * @return List<Typeahead>
+     */
     public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
         return typeaheadDao.getTypeaheads(query, rows, filterQueries);
     }

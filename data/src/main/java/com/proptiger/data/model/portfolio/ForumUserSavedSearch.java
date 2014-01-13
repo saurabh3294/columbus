@@ -2,6 +2,7 @@ package com.proptiger.data.model.portfolio;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -14,6 +15,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 public class ForumUserSavedSearch {
 
 	@Id
+	@GeneratedValue
 	@FieldMetaInfo(displayName = "Saved Search Id", description = "Saved Search Id")
 	@Column(name = "ID")
 	private Integer id;

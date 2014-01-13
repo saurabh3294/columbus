@@ -19,11 +19,11 @@ import com.proptiger.data.model.LocalityAmenity;
  */
 public interface LocalityAmenityDao extends JpaRepository<LocalityAmenity, Serializable>{
     
-    @Query("SELECT LA FROM LocalityAmenity LA JOIN LA.localityAmenityTypes as LAT WHERE "
+    @Query("SELECT LA FROM LocalityAmenity LA JOIN FETCH LA.localityAmenityTypes as LAT WHERE "
             + " LA.placeTypeId = LAT.id AND LA.localityId = ?1 ")
     public List<LocalityAmenity> getAmenitiesByLocalityId(@Param Integer localityId);
     
-    @Query("SELECT LA FROM LocalityAmenity LA JOIN LA.localityAmenityTypes as LAT WHERE "
+    @Query("SELECT LA FROM LocalityAmenity LA JOIN FETCH LA.localityAmenityTypes as LAT WHERE "
             + " LA.placeTypeId = LAT.id AND LA.localityId = ?1 AND LAT.name = ?2 ")
     public List<LocalityAmenity> getAmenitiesByLocalityIdAndAmenity(@Param Integer localityId, @Param String AmenityName);
 }

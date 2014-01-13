@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +17,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
@@ -39,6 +37,14 @@ public class RecommendationService {
     @Autowired
     private ProjectDao projectDao;
     
+    /**
+     * This method will get all properties of a project. Then get the similar properties of each 
+     * property of the project. Now taking all project ids of all similar properties found and
+     * sorting them and return n number of similar projects based on limit. 
+     * @param projectId
+     * @param limit number of similar projects.
+     * @return List<SolrResult> similar projects.
+     */
     public List<SolrResult> getSimilarProjects(int projectId, int limit){
     	List<SolrResult> properties = propertyDao.getPropertiesOnProjectId(projectId);
     	
@@ -70,7 +76,6 @@ public class RecommendationService {
     		{
     			similarProjectId = solrResult.getProject().getProjectId();
     			similarProjectIds.add(similarProjectId);
-    			System.out.println(" SIMILAR PROJECT ID."+similarProjectId );
     		}
     		similarProperties.clear();
     		data.clear();
@@ -82,6 +87,17 @@ public class RecommendationService {
     		//return projectDao.getProjectsOnIds( similarProjectIds );
     	return null;
     }
+    
+    /**
+     * This method will get the similar properties of a property Id. It will sort the similar properties.
+     * If the viewed property has non valid lat/long and no localityId then isPropertyNearBy flag will
+     * be false.
+     * @param propertyId viewed property
+     * @param limit number of similar properties to return.
+     * @return Map<String, Object> It contains:
+     *         1: propertyData: List<SolrResult> similar properties found.
+     *         2: isPropertyNearBy: boolean whether similar properties found are in nearbyrange.
+     */
     public Map<String, Object> getSimilarProperties(long propertyId, int limit){
         // distance, budget%, area%, sort Priority
         int[][] params = new int[][]{
@@ -93,8 +109,6 @@ public class RecommendationService {
         SolrResult viewPropertyData = propertyDao.getProperty(propertyId);
         if(viewPropertyData == null)
             return null;
-        System.out.println("VIEWED PROPERTY");
-        printPropertyData(viewPropertyData);
         
         List<List<SolrResult>> searchPropertiesData = getSimilarPropertiesData(viewPropertyData, limit, params);
         List<SolrResult> orderedSearchProperties = sortProperties(searchPropertiesData, viewPropertyData);
@@ -106,6 +120,16 @@ public class RecommendationService {
         return response;
     }
     
+    /**
+     * This method will take the viewedProperty Object and return the number of similar properties found.
+     * Based on the params, it will iterate through all params until it finds the limit number of similar
+     * properties. These params will define the filtering criteria for finding the similar property. Then 
+     * assign the priority to each property based on lat/long, price, size, status. 
+     * @param viewPropertyData
+     * @param limit
+     * @param params
+     * @return List<List<SolrResult>>
+     */
     private List<List<SolrResult>> getSimilarPropertiesData(SolrResult viewPropertyData, int limit, int[][] params){
         Property property = viewPropertyData.getProperty();
         Project project = viewPropertyData.getProject();
@@ -121,8 +145,10 @@ public class RecommendationService {
         int projectId = project.getProjectId();
                 
         List<Object> projectStatusGroup = (List)getProjectStatusGroups(projectStatus);
-        System.out.println("started.");
-        //if(!isSimilarPropertySearchValid(area, price, latitude, longitude, longitude, unitType, projectStatusGroup))
+                
+        /*
+         * If the viewed property is not valid then function will return.
+         */
         if( !isSimilarPropertySearchValid(viewPropertyData, projectStatusGroup)[0])
             return null;
         
@@ -134,7 +160,6 @@ public class RecommendationService {
         	budget = 0.0D;
         
         double minArea, maxArea, minPrice, maxPrice;
-        // TODO to handle the cancelled and 
         
         List<List<SolrResult>> searchPropertiesData= null;
         List<SolrResult> tempSearchProperties = null;
@@ -149,32 +174,32 @@ public class RecommendationService {
             minPrice = (100-params[i][1])*budget/100;
             maxPrice = (100+params[i][1])*budget/100;
             
-            System.out.println("MIN AREA "+minArea+" MAX AREA "+maxArea+" MIN PRICE "+minPrice+" MAX PRICE "+maxPrice);
-            
             tempSearchProperties = propertyDao.getSimilarProperties(params[i][0], latitude, longitude, 
                     minArea, maxArea, minPrice, maxPrice, unitType, projectStatusGroup, limit, projectIdBedroom, budget, projectId);
             searchPropertiesData.add(tempSearchProperties);
             totalProperties += tempSearchProperties.size();
             
             insertProjectIdBedrooms(tempSearchProperties, projectIdBedroom);
-            System.out.println("i"+i+" : "+tempSearchProperties.size());
-            
         }
         assignPriorityToProperty(searchPropertiesData, viewPropertyData);
-        System.out.println(" FINAL : "+searchPropertiesData.size());
-        //Double minArea = area*(100-params)
-        
+
         return searchPropertiesData;
     }
     
+    
+    /**
+     * This method will assign priority by moving the properties from high priority list to low priority list. The list 
+     * with index lower has high priority. 
+     * @param searchPropertiesData
+     * @param viewedPropertyData
+     */
     private void assignPriorityToProperty(List<List<SolrResult>> searchPropertiesData, SolrResult viewedPropertyData){
         SolrResult solrResult;
         List<SolrResult> lowPriorityProperty = new ArrayList<>();
         
         List<Object> projectStatusGroup = new ArrayList<>();
         projectStatusGroup.add("dummy");
-        System.out.println(" PROPERTY BEING SEARCHED.");
-        
+                
         boolean[] dataStatus;
         int i=0;
         Iterator<SolrResult> it = null;
@@ -184,18 +209,15 @@ public class RecommendationService {
         while(listIt.hasNext())
         {
         	tempData = listIt.next();
-        	System.out.println("SORT PRIORITY "+i+" number of projects. "+tempData.size());
         	it = tempData.iterator();
             while(it.hasNext())
             {
             	tempResult = it.next();
-            	printPropertyData(tempResult);
-                dataStatus = isSimilarPropertySearchValid(tempResult, projectStatusGroup);
+            	dataStatus = isSimilarPropertySearchValid(tempResult, projectStatusGroup);
                 // area and location data both is false but either of them is present
                 // then priority will be changed to last.
                 if(!dataStatus[2] && dataStatus[1])
                 {
-                	System.out.println("property being moved");
                     lowPriorityProperty.add(tempResult);
                     it.remove();
                 }
@@ -207,13 +229,17 @@ public class RecommendationService {
             // if all are removed. That list should be removed.
             if(tempData.size() == 0)
             	listIt.remove();
-        	System.out.println(" END SORT PRIORITY "+i+" number of projects. "+tempData.size());
-
         }
         if(lowPriorityProperty.size() > 0)
             searchPropertiesData.add(lowPriorityProperty);
     }
     
+    /**
+     * This method will take the project status of the property and return the groups where
+     * it belongs.
+     * @param projectStatus
+     * @return List<String> list of all project status of the group.
+     */
     private List<String> getProjectStatusGroups(String projectStatus){
         List<Map<String, Integer>> projectStatusGrouping = getProjectStatusGrouping();
         
@@ -229,6 +255,10 @@ public class RecommendationService {
         return projectStatusGroup;
     }
     
+    /**
+     * This method will return the project status grouping for the similar properties.
+     * @return List<Map<String, Integer>>
+     */
     private List<Map<String, Integer>> getProjectStatusGrouping(){
         List<Map<String, Integer>> projectStatus = new LinkedList<>();
         
@@ -248,16 +278,36 @@ public class RecommendationService {
         return projectStatus;
     }
     
+    /**
+     * This method will check where object is null or not.
+     * @param object
+     * @return boolean true if object is null.
+     */
     private boolean checkDoubleObject(Double object){
         return object == null || object.isNaN();
     }
     
+    /**
+     * This method will check whether string is null or empty.
+     * @param str
+     * @return boolean if string is null or empty.
+     */
     private boolean checkStringObject(String str){
         return str == null || str.length()<1;
     }
     
-   /* private boolean isSimilarPropertySearchValid(Double area, Double price, Double latitude, Double longitude
-            , Double localityId, String unitType, List<Object> projectStatusGroup){*/
+    /**
+     * This method will check the data of property to get the validity of similar property.
+     * It will check the following conditions:
+     * 1: whether area is null or not. Price is null or not.
+     * 2: where it has valid lat/long or localityId
+     * @param propertyData
+     * @param projectStatusGroup
+     * @return boolean array
+     *         0 => similar properties Data valid
+     *         1 => area or location data is present.
+     *         2 => area and location data both is present.
+     */
     private boolean[] isSimilarPropertySearchValid(SolrResult propertyData, List<Object> projectStatusGroup)
     {
         Property property = propertyData.getProperty();
@@ -270,8 +320,6 @@ public class RecommendationService {
         Integer localityId = project.getLocalityId();
         String unitType = property.getUnitType();
                 
-        System.out.println("UNIT TYPE" + unitType+" area "+area+" price "+price+" latitude "+latitude+" longitude "+longitude+" localityId "+localityId);
-        System.out.println(" PROJECT STATUS "+projectStatusGroup.toString());
         boolean isValid = true;
         if(checkStringObject(unitType) || projectStatusGroup.size()<1)
             isValid = false;
@@ -289,6 +337,13 @@ public class RecommendationService {
         return response;
     }
     
+    
+    /**
+     * This method will sort the similar properties and return sorted results.
+     * @param searchPropertiesData
+     * @param viewedProperty
+     * @return List<SolrResult> sorted similar properties.
+     */
     private List<SolrResult> sortProperties(List<List<SolrResult>> searchPropertiesData, final SolrResult viewedProperty){
     	   	
     	List<SolrResult> finalPropertyResults = new ArrayList<>();
@@ -300,52 +355,29 @@ public class RecommendationService {
         
         for(List<SolrResult> solrResults:searchPropertiesData)
         {
-        	System.out.println("BEFORE SORTING");
-        	printList(solrResults);
-            Collections.sort(solrResults, propertyComparer);
-            System.out.println("AFTER SORTING");
-            printList(solrResults);
+        	Collections.sort(solrResults, propertyComparer);
             finalPropertyResults.addAll(finalPropertyResults.size(), solrResults);
         }
         
         return finalPropertyResults;
     }
+            
     
-    private void printList(List<SolrResult> list){
-    	for(SolrResult solrResult:list)
-    		printPropertyData(solrResult);
-    }
-    
-    private void printPropertyData(SolrResult solrResult){
-    	Property property = solrResult.getProperty();
-    	Project project = solrResult.getProject();
-    	
-    	Map<String, Object> data = new LinkedHashMap<>();
-    	data.put("project Name", project.getName());
-    	data.put("property id", property.getPropertyId());
-    	data.put("project_id", project.getProjectId());
-    	data.put("price", property.getPricePerUnitArea());
-    	data.put("area", property.getSize());
-    	data.put("latitude", property.getProcessedLatitue());
-    	data.put("longitude", property.getProcessedLongitude());
-    	data.put("display_order", project.getAssignedPriority());
-    	data.put("project_status", project.getProjectStatus());
-    	data.put("unit type", property.getUnitType());
-    	data.put("is Resale", project.isIsResale());
-    	data.put("bedrooms", property.getBedrooms());
-    	data.put("localityId", project.getLocalityId());
-    	data.put("budget", property.getBudget());
-    	data.put("project description", project.getDescription());
-    	
-    	Gson gson = new Gson();
-    	System.out.println(gson.toJson(data));
-    	
-    }
-    
+    /**
+     * This method will check whether two properties belong to same locality.
+     * @param solrResult1
+     * @param solrResult2
+     * @return boolean true if property belongs to same locality.
+     */
     private boolean isPropertiesInSameLocality(SolrResult solrResult1, SolrResult solrResult2){
     	return solrResult1.getProject().getLocalityId() == solrResult2.getProject().getLocalityId();
     }
     
+    /**
+     * This method will insert the projectIdbedrooms in the list.
+     * @param propertiesData
+     * @param projectIdBedroomList
+     */
     private void insertProjectIdBedrooms(List<SolrResult> propertiesData, List<Object> projectIdBedroomList){
     	
     	for(SolrResult temp:propertiesData){
@@ -353,6 +385,12 @@ public class RecommendationService {
     	}
     }
     
+    /**
+     * This method will determine whether similar properties found was in the property
+     * near by area or not.
+     * @param solrResult
+     * @return boolean true if similar property is nearby.
+     */
     private boolean isPropertySearchedNearBy(SolrResult solrResult){
     	
     	return !checkDoubleObject(solrResult.getProject().getLatitude()) &&  

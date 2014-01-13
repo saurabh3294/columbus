@@ -3,6 +3,7 @@ package com.proptiger.data.model;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -13,6 +14,9 @@ import javax.persistence.Transient;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -24,6 +28,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @JsonFilter("fieldFilter")
 @Entity
 @Table(name = "RESI_PROJECT_TYPES")
+@JsonInclude(Include.NON_NULL)
 public class Property implements BaseModel {
     
 	@FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
@@ -84,13 +89,15 @@ public class Property implements BaseModel {
     private String URL;
 
     @FieldMetaInfo( displayName = "Locality Latitude",  description = "Locality Latitude")
-    //@Field(value="PROCESSED_LATITUDE")
+    @Field(value="PROCESSED_LATITUDE")
     @Transient
+    @JsonIgnore
     private Double processedLatitude;
     
     @FieldMetaInfo( displayName = "Locality Longitude",  description = "Locality Longitude")
-    //@Field(value="PROCESSED_LONGITUDE")
+    @Field(value="PROCESSED_LONGITUDE")
     @Transient
+    @JsonIgnore
     private Double processedLongitude;
     
     @FieldMetaInfo( displayName = "Property Price",  description = "Property Price")
@@ -100,6 +107,7 @@ public class Property implements BaseModel {
     
     @FieldMetaInfo( displayName = "Project Id with Bedroom",  description = "Project Id with Bedroom")
     @Field(value="PROJECT_ID_BEDROOM")
+    @JsonIgnore
     @Transient
     private String projectIdBedroom;
     
@@ -271,6 +279,10 @@ public class Property implements BaseModel {
 
 	public void setResalePrice(Double resalePrice) {
 		this.resalePrice = resalePrice;
+	}
+
+	public Double getProcessedLatitude() {
+		return processedLatitude;
 	}
 	
 }

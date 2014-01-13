@@ -19,9 +19,9 @@ import com.proptiger.exception.ProAPIException;
  *
  */
 @Service
-public class MailService {
+public class MailSender {
 	
-	private static Logger logger = LoggerFactory.getLogger(MailService.class);
+	private static Logger logger = LoggerFactory.getLogger(MailSender.class);
 	
 	@Autowired
 	private MailBodyGenerator mailBodyGenerator;
@@ -81,6 +81,11 @@ public class MailService {
 			logger.error("Mail not sent", ex);
 			return new AsyncResult<Boolean>(false);
 		}
+	}
+	
+	public boolean sendMail(MailType mailTypeEnum, String toStr, Object mailDataContainer){
+		
+		return true;
 	}
 	
 }

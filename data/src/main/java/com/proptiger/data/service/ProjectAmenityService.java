@@ -19,12 +19,16 @@ public class ProjectAmenityService {
 	@Autowired
 	private ProjectAmenityDao projectAmenityDao;
 	
-	public List<String> getAmenitiesByProjectId(long projectId){
-		List<ProjectAmenity> list = projectAmenityDao.findAmenitiesByProjectId(projectId);
+	public List<String> getAmenitiesNameByProjectId(long projectId){
+		List<ProjectAmenity> list = getAmenitiesByProjectId(projectId);
 		List<String> amenityNameList = new ArrayList<String>();
 		for(ProjectAmenity amenity: list){
-			amenityNameList.add(amenity.getAmenityName());
+			amenityNameList.add(amenity.getName());
 		}
 		return amenityNameList;
+	}
+	
+	public List<ProjectAmenity> getAmenitiesByProjectId(long projectId){
+		return projectAmenityDao.findAmenitiesByProjectId(projectId);
 	}
 }

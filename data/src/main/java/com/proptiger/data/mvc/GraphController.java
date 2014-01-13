@@ -101,15 +101,18 @@ public class GraphController {
     public ProAPIResponse getPropertyPriceTrends(@RequestParam String params){
         Type type = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> paramObject = gson.fromJson(params, type);
-        System.out.println("testing");
-        Map<String, Object> response = new LinkedHashMap();
+        
+        if(paramObject.get("last_number_of_months") == null)
+        	paramObject.put("last_number_of_months", (Integer)3);
+        
+   /*     Map<String, Object> response = new LinkedHashMap();
         
         Object priceTrends = graphService.getPropertyPriceTrends(paramObject);
         Object priceTrendsComparisionLocalities = graphService.getPriceTrendComparisionLocalities(paramObject);
         
         response.put("price_trends", priceTrends);
-        response.put("price_trends_comparison_localites", priceTrendsComparisionLocalities);
+        response.put("price_trends_comparison_localites", priceTrendsComparisionLocalities);*/
         
-        return new ProAPISuccessResponse(response);
+        return new ProAPISuccessResponse(graphService.getPriceTrendsGraphs(paramObject));
     }
 }

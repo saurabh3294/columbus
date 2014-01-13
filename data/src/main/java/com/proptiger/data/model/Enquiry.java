@@ -371,5 +371,25 @@ public class Enquiry implements BaseModel {
     public void setGaTimespent(String gaTimespent) {
         this.gaTimespent = gaTimespent;
     }
+
+	public ProjectDB getProject() {
+		return project;
+	}
+
+	public void setProject(ProjectDB project) {
+		this.project = project;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public void setCityId(Integer cityId) {
+		this.cityId = cityId;
+	}
+
+	public void setLocalityId(Integer localityId) {
+		this.localityId = localityId;
+	}
     
 }

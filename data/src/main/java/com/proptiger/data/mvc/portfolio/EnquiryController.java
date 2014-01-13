@@ -20,21 +20,22 @@ import com.proptiger.data.util.Constants;
 
 /**
  * Providing API to get enquired property of user
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/user/{userId}/enquired-property")
-public class EnquiryController extends BaseController{
+public class EnquiryController extends BaseController {
 
-	@Autowired
-	private EnquiryService enquiryService;
-	
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getEnquiredProperties(@PathVariable Integer userId,
-			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
-		List<Map<String, Object>> result = enquiryService.getEnquiries(userInfo.getUserIdentifier());
-		return new ProAPISuccessCountResponse(result, result.size());
-	}
+    @Autowired
+    private EnquiryService enquiryService;
+
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getEnquiredProperties(@PathVariable Integer userId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        List<Map<String, Object>> result = enquiryService.getEnquiries(userInfo.getUserIdentifier());
+        return new ProAPISuccessCountResponse(result, result.size());
+    }
 }

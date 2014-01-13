@@ -14,7 +14,6 @@ import com.proptiger.data.meta.FieldMetaInfo;
 
 /**
  * @author mandeep
- * 
  */
 @JsonFilter("fieldFilter")
 public class SolrResult implements BaseModel{
@@ -72,14 +71,6 @@ public class SolrResult implements BaseModel{
     @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
     @Field(value = "PROJECT_NAME")
     private String name;
-
-    @FieldMetaInfo( displayName = "Project Image URL",  description = "Project Image URL")
-    @Field(value = "PROJECT_SMALL_IMAGE")
-    private String imageURL;
-
-    @FieldMetaInfo( displayName = "Builder Image URL",  description = "Builder Image URL")
-    @Field(value = "BUILDER_IMAGE")
-    private String builderImageURL;
 
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
@@ -312,7 +303,7 @@ public class SolrResult implements BaseModel{
 
     @Field("PROJECT_ENQUIRY_COUNT")
 	public void setProjectEnquiryCount(int projectEnquiryCount) {
-		this.projectEnquiryCount = projectEnquiryCount;
+		project.setProjectEnquiryCount(projectEnquiryCount);
 	}
 
 	@Field("DISPLAY_ORDER")
@@ -338,11 +329,6 @@ public class SolrResult implements BaseModel{
     @Field("SUBMITTED_DATE")
     public void setSubmittedDate(Date submittedDate) {
         project.setSubmittedDate(submittedDate);
-    }
-
-    @Field("PROJECT_SMALL_IMAGE")
-    public void setProjectImageURL(String projectImageURL) {
-        project.setImageURL(projectImageURL);
     }
 
     @Field("OFFER")
@@ -418,11 +404,6 @@ public class SolrResult implements BaseModel{
     @Field("BUILDER_NAME")
     public void setBuilderName(String builderName) {
         builder.setName(builderName);
-    }
-
-    @Field("BUILDER_IMAGE")
-    public void setBuilderImageURL(String builderImageURL) {
-        builder.setImageURL(builderImageURL);
     }
 
     @Field("SUBURB_ID")
@@ -672,5 +653,20 @@ public class SolrResult implements BaseModel{
     @Field("LOCALITY_PRICE_RISE")
     public void setLocalityPriceRise(Double localityPriceRise) {
         locality.setAvgPriceRisePercentage(localityPriceRise);
+    }
+    
+    @Field("LOCALITY_DOMINANT_UNIT_TYPE")
+    public void setLocalityDominantUnitType(String dominantUnitType) {
+        locality.setDominantUnitType(dominantUnitType);
+    }
+
+    @Field("SUBURB_DOMINANT_UNIT_TYPE")
+    public void setSuburbDominantUnitType(String dominantUnitType) {
+        suburb.setDominantUnitType(dominantUnitType);
+    }
+
+    @Field("CITY_DOMINANT_UNIT_TYPE")
+    public void setCityDominantUnitType(String dominantUnitType) {
+        city.setDominantUnitType(dominantUnitType);
     }
 }

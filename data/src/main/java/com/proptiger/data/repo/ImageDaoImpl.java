@@ -56,7 +56,7 @@ public class ImageDaoImpl {
      * @throws ImageProcessingException
      */
     public Image insertImage(DomainObject objectStr, String imageTypeStr, long objectId, File orignalImage,
-            File watermarkImage, Map<String, String> extraInfo) {
+            File watermarkImage, Map<String, String> extraInfo, String format) {
         try {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -74,7 +74,7 @@ public class ImageDaoImpl {
             String[] directories = { String.valueOf(objType.getId()), String.valueOf(objectId),
                     String.valueOf(imageType.getId()), "" };
 
-            String path = StringUtils.join(directories, "/");
+            String path = StringUtils.join(directories, File.separator);
             image.setPath(path);
 
             // MetaData
@@ -83,13 +83,13 @@ public class ImageDaoImpl {
             // DateTime
             image.setOriginalHash(originalHash);
             image.setWaterMarkHash(watermarkHash);
-            image.assignOriginalName(ImageUtil.getImageFormat(orignalImage));
+            image.assignOriginalName(format);
             image.setWaterMarkName("");
             image.setActive(false);
             em.getTransaction().begin();
             em.persist(image);
             em.getTransaction().commit();
-            image.assignWatermarkName();
+            image.assignWatermarkName(format);
             
             // ExtraInfo
             image.setAltText(extraInfo.get("altText"));

@@ -12,7 +12,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -26,7 +30,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-//@JsonFilter("fieldFilter")
+@JsonFilter("fieldFilter")
 public class LocalityAmenity implements BaseModel{
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
@@ -94,6 +98,7 @@ public class LocalityAmenity implements BaseModel{
     private String  restDetails;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "place_type_id", referencedColumnName = "id")
     private LocalityAmenityTypes localityAmenityTypes;
     

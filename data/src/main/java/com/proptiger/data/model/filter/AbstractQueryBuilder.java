@@ -14,6 +14,7 @@ import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverter;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.util.LongToDateConverter;
 import com.proptiger.data.util.StringToDateConverter;
@@ -40,6 +41,18 @@ public abstract class AbstractQueryBuilder<T> {
         buildLimitClause(selector);
     }
 
+    public void buildQuery(FIQLSelector selector) {
+        buildFilterClause(selector);
+        buildOrderByClause(selector);        
+        buildLimitClause(selector);
+    }
+
+    protected abstract void buildLimitClause(FIQLSelector selector);
+
+    protected abstract void buildFilterClause(FIQLSelector selector);
+
+    protected abstract void buildOrderByClause(FIQLSelector selector);
+
     protected abstract void buildSelectClause(Selector selector);
 
     protected abstract void buildOrderByClause(Selector selector);
@@ -56,7 +69,6 @@ public abstract class AbstractQueryBuilder<T> {
      */
     @SuppressWarnings("unchecked")
     protected void buildFilterClause(Selector selector, Integer userId) {
-
         if (selector != null && selector.getFilters() != null) {
             Map<String, List<Map<String, Map<String, Object>>>> filters = selector.getFilters();
             List<Map<String, Map<String, Object>>> andFilters = filters.get(Operator.and.name());
@@ -64,11 +76,8 @@ public abstract class AbstractQueryBuilder<T> {
             if (andFilters != null && filters.size() == 1) {
                 for (Map<String, Map<String, Object>> andFilter : andFilters) {
                     for (String operator : andFilter.keySet()) {
-
                         Map<String, Object> fieldNameValueMap = andFilter.get(operator);
-
                         switch (Operator.valueOf(operator)) {
-
                         case equal:
                             for (String jsonFieldName : fieldNameValueMap.keySet()) {
                                 List<Object> valuesList = new ArrayList<Object>();

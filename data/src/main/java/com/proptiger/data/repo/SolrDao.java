@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ProAPIException;
 
@@ -41,7 +42,7 @@ public class SolrDao {
      * @param query
      * @return
      */
-    protected QueryResponse executeQuery(SolrQuery query) {
+    public QueryResponse executeQuery(SolrQuery query) {
         try {
         	logger.debug("SolrQuery {}",query);
             return httpSolrServer.query(query);
@@ -50,4 +51,16 @@ public class SolrDao {
             throw new ProAPIException("Could not run Solr query", e);
         }
     }
+    
+    /**
+     * Creating basic solr query for document type
+     * @param documentType
+     * @return
+     */
+    public static SolrQuery createSolrQuery(DocumentType documentType) {
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery("*:*");
+		solrQuery.addFilterQuery(DocumentType.getDocumentTypeFilter(documentType));
+		return solrQuery;
+	}
 }

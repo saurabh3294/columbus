@@ -6,6 +6,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
@@ -22,6 +23,7 @@ public class UserWishlist implements Serializable{
 	private static final long serialVersionUID = -5523514441836021198L;
 
 	@Id
+	@GeneratedValue
     @Column(name="ID")
 	private Integer id;
 	

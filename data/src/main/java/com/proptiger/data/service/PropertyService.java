@@ -8,16 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.filter.SolrQueryBuilder;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep
@@ -26,27 +29,70 @@ import com.proptiger.data.service.pojo.SolrServiceResponse;
 @Service
 public class PropertyService {
     @Autowired
-    PropertyDao propertyDao;
+    private PropertyDao propertyDao;
     
     @Autowired
-    ProjectService projectService;
+    private ProjectService projectService;
     
+    @Autowired
+    private ImageEnricher imageEnricher;
+
+    /**
+     * Returns properties given a selector
+     *
+     * @param propertyFilter
+     * @return
+     */
     public List<Property> getProperties(Selector propertyFilter) {
-        return propertyDao.getProperties(propertyFilter);
+        List<Property> properties = propertyDao.getProperties(propertyFilter);
+        imageEnricher.setPropertiesImages(properties);
+        
+        return properties;
     }
 
-    public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
-        return propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+    /**
+     * Returns projects given a selector on property attributes and a few more like cityLabel etc.
+     * This is needed to address listing page requirements where filters could be applied on
+     * property attributes to fetch project objects.
+     *
+     * @param propertyListingSelector
+     * @return
+     */
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
+    	PaginatedResponse<List<Project>> projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+    	imageEnricher.setProjectMainImage(projects.getResults());
+    	
+    	return projects;
     }
 
+    /**
+     * Generic method to retrieve facets from Solr on properties.
+     *
+     * @param fields    fields on which facets need to be evaluated
+     * @param propertyListingSelector
+     * @return
+     */
     public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertyListingSelector) {
         return propertyDao.getFacets(fields, propertyListingSelector);
     }
 
+    /**
+     * Generic method to retrieve stats(min, max, average etc.) from Solr on properties.
+     *
+     * @param fields    fields on which stats need to be computed
+     * @param propertyListingSelector
+     * @return
+     */
     public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertyListingSelector) {
         return propertyDao.getStats(fields, propertyListingSelector, null);
     }
 
+    /**
+     * Retrieves properties given a project id
+     *
+     * @param projectId
+     * @return
+     */
     public List<Property> getProperties(int projectId) {
     	Selector selector = new Selector();
     	Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
@@ -59,8 +105,12 @@ public class PropertyService {
     	list.add(searchType);
     	filter.put("and", list);
     	selector.setFilters(filter);
-    	selector.setPaging(new Paging(0, 1000));
+    	selector.setPaging(new Paging(0, Integer.MAX_VALUE));
     	
     	return propertyDao.getProperties(selector);
+    }
+
+    public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
+        return propertyDao.getProperties(selector);        
     }
 }

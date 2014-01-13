@@ -13,6 +13,7 @@ import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
 
 /**
+ * Enquiry service class to provide enquiry details done by user
  * @author Rajeev Pandey
  *
  */
@@ -25,6 +26,11 @@ public class EnquiryService {
 	@Autowired
 	private ForumUserDao forumUserDao;
 	
+	/**
+	 * Get enquiries for user
+	 * @param userId
+	 * @return
+	 */
 	public List<Map<String, Object>> getEnquiries(Integer userId){
 		String email = forumUserDao.findEmailByUserId(userId);
 		List<Object[]> list = enquiryDao.findEnquiriesByEmail(email);
