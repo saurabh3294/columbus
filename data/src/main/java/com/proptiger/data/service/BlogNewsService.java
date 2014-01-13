@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.WordpressPost;
+import com.proptiger.data.pojo.Paging;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.BlogNewsDao;
 
 /**
@@ -20,11 +22,21 @@ public class BlogNewsService {
 	@Autowired
 	private BlogNewsDao blogNewsDao;
 
-	public List<WordpressPost> getBlogNewsPostsByCity(String cityName, int contentLimit) {
+	public List<WordpressPost> getBlogNewsPostsByCity(String cityName, int contentLimit, Selector selector) {
 		if(contentLimit <= 0){
 			throw new IllegalArgumentException("Invalid content limit");
 		}
+		Paging paging = new Paging();
+		if(selector != null && selector.getPaging() != null){
+			paging = selector.getPaging();
+		}
 		List<WordpressPost> list = blogNewsDao.findPublishedBlogNewsByCity(cityName);
+		for(WordpressPost post: list){
+			List<String> urlList = blogNewsDao.findImageUrlsForPost(post.getId());
+			if(urlList != null && urlList.size() > 0){
+				post.setPrimaryImageUrl(urlList.get(0));
+			}
+		}
 		removeHtmlTagsFromPostContent(list, contentLimit);
 		return list;
 	}
