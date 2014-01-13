@@ -14,6 +14,7 @@ import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverter;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.util.LongToDateConverter;
 import com.proptiger.data.util.StringToDateConverter;
@@ -39,6 +40,18 @@ public abstract class AbstractQueryBuilder<T> {
         buildFilterClause(selector, userId);
         buildLimitClause(selector);
     }
+
+    public void buildQuery(FIQLSelector selector) {
+        buildFilterClause(selector);
+        buildOrderByClause(selector);        
+        buildLimitClause(selector);
+    }
+
+    protected abstract void buildLimitClause(FIQLSelector selector);
+
+    protected abstract void buildFilterClause(FIQLSelector selector);
+
+    protected abstract void buildOrderByClause(FIQLSelector selector);
 
     protected abstract void buildSelectClause(Selector selector);
 

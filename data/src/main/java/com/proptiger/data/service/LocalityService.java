@@ -32,7 +32,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;
@@ -95,7 +95,7 @@ public class LocalityService {
 	 * @return List<Locality>
 	 */
 	public List<Locality> getLocalities(Selector selector) {
-		return Lists.newArrayList(localityDao.getLocalities(selector).getResult());
+		return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
 	}
 
 	
@@ -109,7 +109,7 @@ public class LocalityService {
 	 * @return SolrServiceResponse<List<Locality>> it will contain the list of localities based on 
 	 * paging in the selector and the total localities found based on selector in the object.
 	 */
-	public SolrServiceResponse<List<Locality>> getLocalityListing(
+	public PaginatedResponse<List<Locality>> getLocalityListing(
 			Selector selector) {
 		// adding the locality in the selector as we needed localityId
 		boolean isSelectorFieldsEmpty = false;
@@ -130,7 +130,7 @@ public class LocalityService {
 		if (isSelectorFieldsEmpty)
 			selector.setFields(null);
 
-		SolrServiceResponse<List<Locality>> localities = localityDao
+		PaginatedResponse<List<Locality>> localities = localityDao
 				.findByLocalityIds(localityIds, selector);
 
 		Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats = propertyDao
@@ -138,7 +138,7 @@ public class LocalityService {
 						Arrays.asList("resalePrice"),
 						Arrays.asList("localityId"));
 		setProjectStatusCountAndProjectCountAndPriceOnLocality(
-				localities.getResult(), solrProjectStatusCountAndProjectCount,
+				localities.getResults(), solrProjectStatusCountAndProjectCount,
 				priceStats);
 		return localities;
 	}
@@ -406,7 +406,7 @@ public class LocalityService {
 	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId,
 			Selector localitySelector) {
 		List<Locality> localities = localityDao.findByLocalityIds(
-				Arrays.asList(localityId), localitySelector).getResult();
+				Arrays.asList(localityId), localitySelector).getResults();
 		if (localities == null || localities.size() == 0) {
 			throw new ResourceNotAvailableException(ResourceType.LOCALITY,
 					ResourceTypeAction.GET);
@@ -424,7 +424,7 @@ public class LocalityService {
 				mainLocality.getLongitude(), radiusOneForTopLocality);
 
 		List<Locality> localitiesAroundMainLocality = localityDao
-				.getLocalities(geoSelector).getResult();
+				.getLocalities(geoSelector).getResults();
 		/*
 		 * If locality not found or there count is less than
 		 * popularLocalityThresholdCount in first radius then try finding
@@ -442,7 +442,7 @@ public class LocalityService {
 					mainLocality.getLocalityId(), mainLocality.getLatitude(),
 					mainLocality.getLongitude(), radiusTwoForTopLocality);
 			localitiesAroundMainLocality = localityDao
-					.getLocalities(geoSelector).getResult();
+					.getLocalities(geoSelector).getResults();
 			/*
 			 * If locality not found or there count is less than
 			 * popularLocalityThresholdCount in first radius then try finding
@@ -462,7 +462,7 @@ public class LocalityService {
 						mainLocality.getLongitude(), radiusThreeForTopLocality);
 
 				localitiesAroundMainLocality = localityDao
-						.getLocalities(geoSelector).getResult();
+						.getLocalities(geoSelector).getResults();
 			}
 		}
 		/*
@@ -625,7 +625,7 @@ public class LocalityService {
         int n = 0;
         Point[] b = new Point[3];
 
-        for (Project project: propertyService.getPropertiesGroupedToProjects(new Gson().fromJson("{\"paging\":{\"rows\":1500},\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId + "}}]}}", Selector.class)).getResult()) {
+        for (Project project: propertyService.getPropertiesGroupedToProjects(new Gson().fromJson("{\"paging\":{\"rows\":1500},\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId + "}}]}}", Selector.class)).getResults()) {
             if (project.getLatitude() != null) {
                 p[n++] = new Point(project.getLatitude(), project.getLongitude());                
             }

@@ -19,7 +19,7 @@ import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.LocalityService;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * Locality related data for specific need. Means many form of data will be
@@ -51,9 +51,9 @@ public class AppLocalityController extends BaseController {
         if(propRequestParam.getPaging() == null)
         	propRequestParam.setPaging(new Paging(0, 10));
         
-		SolrServiceResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
+		PaginatedResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
 		
-		return new ProAPISuccessCountResponse(super.filterFields(solrRes.getResult(), propRequestParam.getFields()), solrRes.getTotalResultCount());
+		return new ProAPISuccessCountResponse(super.filterFields(solrRes.getResults(), propRequestParam.getFields()), solrRes.getTotalCount());
 	}
 
 	/**

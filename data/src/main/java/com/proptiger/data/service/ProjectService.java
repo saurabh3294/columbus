@@ -21,12 +21,13 @@ import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.TableAttributes;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.TableAttributesDao;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -71,9 +72,9 @@ public class ProjectService {
      * @return SolrServiceResponse<List<Project>> it will contain the list of localities and
      *         total projects found.
      */
-    public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
-    	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
-    	imageEnricher.setProjectsImages(projects.getResult());
+    public PaginatedResponse<List<Project>> getProjects(Selector projectFilter) {
+    	PaginatedResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
+    	imageEnricher.setProjectsImages(projects.getResults());
     	
     	return projects;
     }
@@ -85,7 +86,7 @@ public class ProjectService {
      * @param projectFilter
      * @return
      */
-    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter) {
+    public PaginatedResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter) {
         return projectDao.getNewProjectsByLaunchDate(cityName, projectFilter);
     }
 
@@ -96,7 +97,7 @@ public class ProjectService {
      * @param projectFilter
      * @return
      */
-    public SolrServiceResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
+    public PaginatedResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
         return projectDao.getUpcomingNewProjects(cityName, projectFilter);
     }
 
@@ -221,8 +222,8 @@ public class ProjectService {
     	LinkedHashSet<SortBy> sortBySet = createdSortingForPopularProjects();
     	//sorting provided in api call will not be considered
     	projectSelector.setSort(sortBySet);
-    	SolrServiceResponse<List<Project>> result = getProjects(projectSelector);
-    	return result.getResult();
+    	PaginatedResponse<List<Project>> result = getProjects(projectSelector);
+    	return result.getResults();
     }
 
 	/**
@@ -322,4 +323,8 @@ public class ProjectService {
 		//return projectSpecification;
 		return new ProjectSpecification(specifications);
 	}
+
+    public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
+        return projectDao.getProjects(selector);
+    }
 }
