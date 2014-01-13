@@ -26,7 +26,9 @@ import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
+import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
@@ -609,6 +611,28 @@ public class LocalityService {
 		 */
 		Map<String, Map<String, Integer>> projectAndProjectStatusCounts = propertyDao.getProjectStatusCountAndProjectOnLocality(locality.getLocalityId());
 		setProjectStatusCountAndProjectCountAndPriceOnLocality(Arrays.asList(locality), projectAndProjectStatusCounts, null);
+	}
+	
+	public int getTopRatedLocalityInCityOrSuburb(String locationType, int locationId){
+		
+		Paging paging = new Paging(0, 1);
+        int topRatedLocalityId;
+        List<Locality> locality = null;
+        switch (locationType) {
+            case "city":
+                locality = localityDao.findByLocationOrderByPriority(locationId, "city", paging, SortOrder.ASC);//findByCityIdOrderByPriority(locationId.intValue(), paging, SortOrder.ASC);
+                break;
+            case "suburb":
+                locality = localityDao.findByLocationOrderByPriority(locationId, "suburb", paging, SortOrder.ASC);//findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(locationId.intValue(), true, true, paging);
+                break;
+        }
+        
+        if("locality".equals(locationType))
+            return locationId;
+        else if(locality.size() > 0)
+            return locality.get(0).getLocalityId();
+        else
+        	return -1;
 	}
 	
 }
