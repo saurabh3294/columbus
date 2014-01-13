@@ -662,4 +662,7 @@ public class LocalityService {
         return null;
     }
 	
+    public Object getTopReviewedLocalities(String locationType, int locationId){
+    	return localityReviewService.getTopReviewedLocalityOnCityOrSuburb(1, locationId, 2);
+    }
 }

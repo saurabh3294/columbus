@@ -146,4 +146,8 @@ public class LocalityReviewService {
 		
 		return ratingResponse;
 	}
+	
+	public Object getTopReviewedLocalityOnCityOrSuburb(int locationType, int locationId, int minCount){
+		return localityReviewDao.getTopReviewsLocalityOnSuburbOrCity(locationId, minCount);
+	}
 }

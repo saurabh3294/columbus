@@ -27,4 +27,9 @@ public interface LocalityReviewDao extends PagingAndSortingRepository<ReviewComm
             + " ORDER BY R.commenttime DESC ")
     public List<Object> getReviewCommentsByLocalityId(int localityId, Pageable pageable);
     
+    @Query("SELECT R.localityId FROM ReviewComments AS R, Locality AS L WHERE R.localityId = L.localityId AND L.suburbId = ?1"
+    		+ " AND L.isActive = 1 AND R.status = '1' "
+    		+ " GROUP BY R.localityId HAVING COUNT(*) > ?2 ORDER BY COUNT(*) DESC , L.priority ASC")
+    public List<Object> getTopReviewsLocalityOnSuburbOrCity(int locationId, long minCount);
+    
 }

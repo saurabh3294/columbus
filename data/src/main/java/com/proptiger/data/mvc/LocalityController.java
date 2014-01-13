@@ -147,4 +147,10 @@ public class LocalityController extends BaseController {
 	public ProAPIResponse getLocalityRadiusOnProject(@PathVariable int localityId){
 		return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
 	}
+    
+    @RequestMapping(value = "top_reviewed")
+    @ResponseBody
+    public ProAPIResponse getTopReviewedLocality(@RequestParam String locationType, @RequestParam int locationId){
+    	return new ProAPISuccessResponse(localityService.getTopReviewedLocalities(locationType, locationId));
+    }
 }
