@@ -23,7 +23,7 @@ import com.proptiger.data.repo.seller.ProjectAssignmentRuleDao;
 import com.proptiger.data.repo.seller.RuleAgentMappingDao;
 import com.proptiger.data.repo.seller.RuleLocalityMappingDao;
 import com.proptiger.data.repo.seller.RuleProjectMappingDao;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;

@@ -108,6 +108,19 @@ public class LocalityController extends BaseController {
 	}
 
     /**
+     * Computes center of a given locality as per
+     * http://web.nmsu.edu/~xiumin/project/smallest_enclosing_circle/SEC.java
+     * 
+     * @param localityId
+     * @return
+     */
+    @RequestMapping(value = "{localityId}/center")
+    @ResponseBody
+    public ProAPIResponse getCenter(@PathVariable int localityId) {
+        return new ProAPISuccessResponse(localityService.computeCenter(localityId));
+    }
+
+    /**
      * Get top localities around X km from provided locality id
      * @param localityId
      * @param selector

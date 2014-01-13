@@ -4,8 +4,11 @@
  */
 package com.proptiger.data.service;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -21,12 +24,13 @@ import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.TableAttributes;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.TableAttributesDao;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -71,9 +75,9 @@ public class ProjectService {
      * @return SolrServiceResponse<List<Project>> it will contain the list of localities and
      *         total projects found.
      */
-    public SolrServiceResponse<List<Project>> getProjects(Selector projectFilter) {
-    	SolrServiceResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
-    	imageEnricher.setProjectsImages(projects.getResult());
+    public PaginatedResponse<List<Project>> getProjects(Selector projectFilter) {
+    	PaginatedResponse<List<Project>> projects =  projectDao.getProjects(projectFilter);
+    	imageEnricher.setProjectsImages(projects.getResults());
     	
     	return projects;
     }
@@ -85,7 +89,7 @@ public class ProjectService {
      * @param projectFilter
      * @return
      */
-    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter) {
+    public PaginatedResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector projectFilter) {
         return projectDao.getNewProjectsByLaunchDate(cityName, projectFilter);
     }
 
@@ -96,7 +100,7 @@ public class ProjectService {
      * @param projectFilter
      * @return
      */
-    public SolrServiceResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
+    public PaginatedResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
         return projectDao.getUpcomingNewProjects(cityName, projectFilter);
     }
 
@@ -221,8 +225,8 @@ public class ProjectService {
     	LinkedHashSet<SortBy> sortBySet = createdSortingForPopularProjects();
     	//sorting provided in api call will not be considered
     	projectSelector.setSort(sortBySet);
-    	SolrServiceResponse<List<Project>> result = getProjects(projectSelector);
-    	return result.getResult();
+    	PaginatedResponse<List<Project>> result = getProjects(projectSelector);
+    	return result.getResults();
     }
 
 	/**
@@ -315,11 +319,39 @@ public class ProjectService {
 		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes("project", projectId);
 		List<TableAttributes> specifications = tableAttributesDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
 		
-		/*Map<String, Object> specification = new ProjectSpecification(specifications).getSpecifications(); 
-		//projectSp
-		Gson gson = new Gson();
-		System.out.println(gson.toJson(specification));*/
-		//return projectSpecification;
 		return new ProjectSpecification(specifications);
 	}
+	
+	public List<Project> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, int lastNumberOfWeeks, int minProjectDiscussionCount){
+		
+		int numberOfDays = lastNumberOfWeeks * 7*-1;
+		Calendar cal = Calendar.getInstance();//intialize your date to any date 
+		cal.add(Calendar.DATE, numberOfDays);
+				
+		int locationType;
+		switch(locationTypeStr)
+		{
+			case "city":
+				locationType = 1;
+				break;
+			case "suburb":
+				locationType = 2;
+				break;
+			case "locality":
+				locationType = 3;
+				break;
+			default:
+				throw new IllegalArgumentException("The possbile values are : suburb or locality or city.");
+		}
+		List<Integer> projectIds = projectDao.getMostDiscussedProjectInNWeeksOnLocation(cal.getTime(), locationType, locationId, minProjectDiscussionCount);
+		
+		if(projectIds == null || projectIds.size() < 1)
+			return null;
+		
+		return getProjectsByIds(new HashSet<Integer>(projectIds) );
+	}
+
+   public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
+        return projectDao.getProjects(selector);
+    }
 }

@@ -25,13 +25,13 @@ import com.proptiger.data.util.Constants;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/wish-list")
+@RequestMapping(value = "data/v1/entity/user/{userId}")
 public class UserWishListController extends BaseController{
 
 	@Autowired
 	private UserWishListService userWishListService;
 	
-	@RequestMapping
+	@RequestMapping(value={"/portfolio/wish-list", "wish-list"}, method=RequestMethod.GET)
 	@ResponseBody
 	public ProAPIResponse getUserWishList(@PathVariable Integer userId,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
@@ -39,7 +39,7 @@ public class UserWishListController extends BaseController{
 		return new ProAPISuccessCountResponse(result, result.size());
 	}
 	
-	@RequestMapping(method=RequestMethod.POST)
+	@RequestMapping(value="/wish-list", method=RequestMethod.POST)
 	@ResponseBody
 	public ProAPIResponse setUserWishList(@ModelAttribute UserWishlist userWishlist, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
 		return new ProAPISuccessResponse(userWishListService.saveUserWishList(userWishlist, userInfo));

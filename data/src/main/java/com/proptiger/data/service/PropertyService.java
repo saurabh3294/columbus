@@ -8,16 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.filter.SolrQueryBuilder;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep
@@ -55,9 +58,9 @@ public class PropertyService {
      * @param propertyListingSelector
      * @return
      */
-    public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
-    	SolrServiceResponse<List<Project>> projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
-    	imageEnricher.setProjectMainImage(projects.getResult());
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
+    	PaginatedResponse<List<Project>> projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+    	imageEnricher.setProjectMainImage(projects.getResults());
     	
     	return projects;
     }
@@ -105,5 +108,9 @@ public class PropertyService {
     	selector.setPaging(new Paging(0, Integer.MAX_VALUE));
     	
     	return propertyDao.getProperties(selector);
+    }
+
+    public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
+        return propertyDao.getProperties(selector);        
     }
 }

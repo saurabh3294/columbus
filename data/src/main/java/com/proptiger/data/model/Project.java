@@ -83,11 +83,12 @@ public class Project implements BaseModel {
     @Column(name="PROJECT_ID", insertable=false, updatable=false)
     private int projectId;
 	
+    @Deprecated
 	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
     @Field(value = "LOCALITY_ID")
 	@Column(name="LOCALITY_ID")
     private int localityId;
-
+	
     @ManyToOne
     @JoinColumn(name="LOCALITY_ID", insertable=false, updatable=false)
     private Locality locality;
@@ -832,4 +833,5 @@ public class Project implements BaseModel {
 	public void setProjectSpecification(ProjectSpecification projectSpecification) {
 		this.projectSpecification = projectSpecification;
 	}
+
 }

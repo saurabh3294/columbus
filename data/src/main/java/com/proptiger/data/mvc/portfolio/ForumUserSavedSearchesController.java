@@ -27,13 +27,13 @@ import com.proptiger.data.util.Constants;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/user/{userId}/portfolio/saved-searches")
+@RequestMapping(value = "data/v1/entity/user/{userId}")
 public class ForumUserSavedSearchesController extends BaseController {
 
 	@Autowired
 	private ForumUserSavedSearchesService savedSearchesService;
 	
-	@RequestMapping
+	@RequestMapping(value = {"/portfolio/saved-searches", "/saved-searches"}, method=RequestMethod.GET)
 	@ResponseBody
 	public ProAPIResponse getSavedSearches(
 			@PathVariable Integer userId,
@@ -52,7 +52,8 @@ public class ForumUserSavedSearchesController extends BaseController {
 				fieldsToSerialize), result.size());
 	}
 	
-	@RequestMapping(method=RequestMethod.POST)
+	
+	@RequestMapping(value="/saved-searches", method=RequestMethod.POST)
 	@ResponseBody
 	public ProAPIResponse saveSearch(@ModelAttribute ForumUserSavedSearch saveSearch, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo ){
 		return new ProAPISuccessResponse(savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier()));

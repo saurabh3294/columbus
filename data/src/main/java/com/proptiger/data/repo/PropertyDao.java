@@ -31,11 +31,12 @@ import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.FieldsMapLoader;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.SolrResponseReader;
 import com.proptiger.data.util.UtilityClass;
 
@@ -103,7 +104,6 @@ public class PropertyDao {
         		query.add("stats.facet", FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
         	}
         }
-        System.out.println(query.toString());
         Map<String, FieldStatsInfo> response = solrDao.executeQuery(query).getFieldStatsInfo();
         Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
         for (String field : fields) {
@@ -113,7 +113,7 @@ public class PropertyDao {
         return resultMap;
     }
 
-    public SolrServiceResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         SolrQuery solrQuery = createSolrQuery(propertyListingSelector);
         solrQuery.add("group", "true");
         solrQuery.add("group.ngroups", "true");
@@ -169,9 +169,9 @@ public class PropertyDao {
             }
         }
 
-        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
-        solrRes.setTotalResultCount(queryResponse.getGroupResponse().getValues().get(0).getNGroups());
-        solrRes.setResult(projects);
+        PaginatedResponse<List<Project>> solrRes = new PaginatedResponse<List<Project>>();
+        solrRes.setTotalCount(queryResponse.getGroupResponse().getValues().get(0).getNGroups());
+        solrRes.setResults(projects);
 
         return solrRes;
     }
@@ -472,6 +472,9 @@ public class PropertyDao {
     public Map<String, Map<String, Map<String, FieldStatsInfo>>> getStatsFacetsAsMaps(Selector selector, List<String> fields,
 			List<String> facet){
     	
+    	Paging pagingBackUp = selector.getPaging();
+    	selector.setPaging(new Paging(0,0));
+    	
 		Map<String, FieldStatsInfo> stats = getStats(fields, selector, facet);
 		Map<String, Map<String, Map<String, FieldStatsInfo>>> newStats = new HashMap<>();
 		
@@ -501,6 +504,7 @@ public class PropertyDao {
 			}
 		}
 		
+		selector.setPaging(pagingBackUp);
 		return newStats;
 	}
     
@@ -556,5 +560,24 @@ public class PropertyDao {
 //        new PropertyDao().getPropertiesGroupedToProjects(selector);
 //        new PropertyDao().getStats(Collections.singletonList("bedrooms"));
         PropertyDao propertyDao = new PropertyDao();
+    }
+
+    public  PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
+        SolrQuery query = new SolrQuery();
+        query.setQuery("*:*");
+        query.setFilterQueries("DOCUMENT_TYPE:PROPERTY");
+        SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<>(query, SolrResult.class);
+        queryBuilder.buildQuery(selector);
+        QueryResponse response = solrDao.executeQuery(query);
+        List<Property> properties = new ArrayList<>();
+        for (SolrResult r: response.getBeans(SolrResult.class)) {
+            properties.add(r.getProperty());
+        }
+        
+        PaginatedResponse<List<Property>> paginatedResponse = new PaginatedResponse<List<Property>>();
+        paginatedResponse.setResults(properties);
+        paginatedResponse.setTotalCount(response.getResults().getNumFound());
+        
+        return paginatedResponse;
     }
 }

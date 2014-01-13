@@ -44,6 +44,9 @@ public class GraphService {
     
     @Autowired
     private NearLocalitiesDao nearLocalitiesDao;
+    
+    @Autowired
+    private LocalityService localityService;
             
     /**
      * This method will return the number of projects for a project status group and bedrooms wise
@@ -306,10 +309,32 @@ public class GraphService {
         
         return response;
     }
+
     
+    public Object getPriceTrendsGraphs(Map<String, Object> paramObject){
+    	String locationType = (String)paramObject.get("location_type");
+        Double locationId = (Double)paramObject.get("location_id");
+        List<String> unitType = (List<String>)paramObject.get("unit_type");
+        locationType = locationType.toLowerCase();
+        Integer lastNumberOfMonths = (Integer)paramObject.get("last_number_of_months");
+        
+    	// START getting the Top Rated locality in a city or suburb.
+        int topRatedLocalityId = localityService.getTopRatedLocalityInCityOrSuburb(locationType, locationId.intValue());
+        if(topRatedLocalityId == -1)
+        	return null;
+        // END getting top rated Locality
+        
+        Map<String, Object> response = new HashMap<String, Object>();
+        
+        response.put("price_trends", getPropertyPriceTrends("locality", topRatedLocalityId, unitType, lastNumberOfMonths) );
+        response.put("price_trends_comparison_localites", getPriceTrendComparisionLocalities("locality", topRatedLocalityId, unitType, lastNumberOfMonths) );
+        // getting the Property Price Trends for Top Rated Locality.
+        
+        return response;
+    }
     /**
-     * This method will return the Property Price Trends on city or suburb or locality. It
-     * will retrieve the data from the CMS api.
+     * This method will return the Property Price Trends for top rated locality on city or suburb or locality. 
+     * It will retrieve the data from the CMS api.
      * @param paramObject The map contain three parameters:
      * 		  1: location_type: city or suburb or locality
      *        2: location_id: id of the corresponding location type
@@ -317,15 +342,9 @@ public class GraphService {
      *        
      * @return Object.
      */
-    public Object getPropertyPriceTrends(Map<String, Object> paramObject){
-        String locationType = (String)paramObject.get("location_type");
-        Double locationId = (Double)paramObject.get("location_id");
-        List<String> unitType = (List<String>)paramObject.get("unit_type");
-        locationType = locationType.toLowerCase();
-                
-        return cmsDao.getPropertyPriceTrends(locationType, locationId.intValue(), unitType);
+    public Object getPropertyPriceTrends(String locationType, int locationId, List<String> unitType, int lastNumberOfMonths){
+        return cmsDao.getPropertyPriceTrends(locationType, locationId, unitType, lastNumberOfMonths);
     }
-    
     
     /**
      * This method will select the top locality in a city or suburb. Then it will get near 
@@ -337,35 +356,10 @@ public class GraphService {
      *        3: unit_type: unit type of the property.
      * @return Object
      */
-    public Object getPriceTrendComparisionLocalities(Map<String, Object> paramObject){
-        String locationType = (String)paramObject.get("location_type");
-        Double locationId = (Double)paramObject.get("location_id");
-        List<String> unitType = (List<String>)paramObject.get("unit_type");
-        locationType = locationType.toLowerCase();
-        // START getting the Top Rated locality in a city or suburb.
-        Paging paging = new Paging(0, 1);
-        int topRatedLocalityId;
-        List<Locality> locality = null;
-        switch (locationType) {
-            case "city":
-                locality = localityDao.findByLocationOrderByPriority(locationId, "city", paging, SortOrder.ASC);//findByCityIdOrderByPriority(locationId.intValue(), paging, SortOrder.ASC);
-                break;
-            case "suburb":
-                locality = localityDao.findByLocationOrderByPriority(locationId, "suburb", paging, SortOrder.ASC);//findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(locationId.intValue(), true, true, paging);
-                break;
-        }
-        
-        if("locality".equals(locationType))
-            topRatedLocalityId = locationId.intValue();
-        else if(locality.size() > 0)
-            topRatedLocalityId = locality.get(0).getLocalityId();
-        else
-        	return null;
-        // END getting top rated Locality
-        
+    public Object getPriceTrendComparisionLocalities(String locationType, int locationId, List<String> unitType, int lastNumberOfMonths){
         // START getting near by localities of Top Locality
         Pageable pageable = new PageRequest(0, 5);
-        List<NearLocalities> nearLocalitiesList = nearLocalitiesDao.findByMainLocalityOrderByDistanceAsc(topRatedLocalityId, pageable);
+        List<NearLocalities> nearLocalitiesList = nearLocalitiesDao.findByMainLocalityOrderByDistanceAsc(locationId, pageable);
         // END getting near by localities of Top Locality
         
         // START Getting Data from CMS
@@ -375,17 +369,17 @@ public class GraphService {
            // getting cms data of near localities of Top Rated Locality.
         for(NearLocalities nearLocality : nearLocalitiesList)
         {
-            cmsOutput = cmsDao.getPropertyPriceTrends("locality", nearLocality.getNearLocality(), unitType);
+            cmsOutput = cmsDao.getPropertyPriceTrends("locality", nearLocality.getNearLocality(), unitType, lastNumberOfMonths);
             if(cmsOutput != null)
                 response.put(nearLocality.getNearLocality(), cmsOutput);
         }
         // END Getting Data from CMS
         
         // setting top Rated Locality in a seperate Key
-        response.put("topRatedLocality", topRatedLocalityId);
+        response.put("topRatedLocality", locationId);
         // minimum 3 localities cms data is required to plot graph.
         // top Rated Locality CMS should not be null
-        if(response.size() < 3 || response.get(topRatedLocalityId) == null)
+        if(response.size() < 3 || response.get(locationId) == null)
             return null;
         
         return response;
