@@ -31,7 +31,7 @@ import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.SolrResponseReader;
 
 /**
@@ -48,7 +48,7 @@ public class ProjectSolrDao {
    /* @Autowired
     private FilterQueryBuilder filterQueryBuilder;*/
 
-    public SolrServiceResponse<List<Project>> getProjects(Selector selector) {
+    public PaginatedResponse<List<Project>> getProjects(Selector selector) {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROJECT");
@@ -65,14 +65,14 @@ public class ProjectSolrDao {
         for(SolrResult solrResult: solrResults){
         	projectList.add(solrResult.getProject());
         }
-        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
-        solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
-        solrRes.setResult(projectList);
+        PaginatedResponse<List<Project>> solrRes = new PaginatedResponse<List<Project>>();
+        solrRes.setTotalCount(queryResponse.getResults().getNumFound());
+        solrRes.setResults(projectList);
         return solrRes;
     }
 
     // TODO to integrate with existing getProject functions.
-    public SolrServiceResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector selector) {
+    public PaginatedResponse<List<Project>> getNewProjectsByLaunchDate(String cityName, Selector selector) {
         SolrQuery solrQuery = new SolrQuery();
 
         if (cityName == null || cityName.length() <= 0)
@@ -99,9 +99,9 @@ public class ProjectSolrDao {
         for(SolrResult solr:totalSolrResults)
         	solrResults.add(solr.getProject());
 
-        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
-        solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
-        solrRes.setResult(solrResults);
+        PaginatedResponse<List<Project>> solrRes = new PaginatedResponse<List<Project>>();
+        solrRes.setTotalCount(queryResponse.getResults().getNumFound());
+        solrRes.setResults(solrResults);
         
         return solrRes;
 
@@ -149,7 +149,7 @@ public class ProjectSolrDao {
     	return queryResponse.getBeans(SolrResult.class);
     }
     
-    public SolrServiceResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector selector){
+    public PaginatedResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector selector){
     	SolrQuery solrQuery = new SolrQuery();
 
         if (cityName == null || cityName.length() <= 0)
@@ -177,9 +177,9 @@ public class ProjectSolrDao {
         for(SolrResult solr:totalSolrResults)
         	solrResults.add(solr.getProject());
 
-        SolrServiceResponse<List<Project>> solrRes = new SolrServiceResponse<List<Project>>();
-        solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
-        solrRes.setResult(solrResults);
+        PaginatedResponse<List<Project>> solrRes = new PaginatedResponse<List<Project>>();
+        solrRes.setTotalCount(queryResponse.getResults().getNumFound());
+        solrRes.setResults(solrResults);
         
         return solrRes;
     }
@@ -188,7 +188,7 @@ public class ProjectSolrDao {
     	SolrQuery solrQuery = new SolrQuery();
     	
     	solrQuery.setQuery("LOCALITY_ID:"+localityId);
-    	solrQuery.setFilterQueries("DOCUMENT_TYPE:PROJECT");
+    	solrQuery.setFilterQueries("DOCUMENT_TYPE:PROJECT AND HAS_GEO:1");
     	solrQuery.setRows(rows);
     	
     	SolrQueryBuilder<Project> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);

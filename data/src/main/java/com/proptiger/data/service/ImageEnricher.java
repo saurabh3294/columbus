@@ -36,6 +36,10 @@ public class ImageEnricher {
     }
 
     public void setProjectMainImage(List<Project> projects) {
+        if (projects == null || projects.isEmpty()) {
+            return;
+        }
+
         List<Long> projectIds = new ArrayList<>();
         for (Project project: projects) {
             projectIds.add(new Long(project.getProjectId()));

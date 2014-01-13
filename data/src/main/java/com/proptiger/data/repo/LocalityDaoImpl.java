@@ -28,7 +28,7 @@ import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
-import com.proptiger.data.service.pojo.SolrServiceResponse;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep
@@ -41,7 +41,7 @@ public class LocalityDaoImpl {
 	private SolrDao solrDao;
 	@Autowired
 	private EntityManagerFactory emf;
-	public SolrServiceResponse<List<Locality>> getLocalities(Selector selector){
+	public PaginatedResponse<List<Locality>> getLocalities(Selector selector){
 		SolrQuery solrQuery = createSolrQuery(selector);
 		System.out.println(solrQuery.toString());
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
@@ -53,9 +53,9 @@ public class LocalityDaoImpl {
 			data.add(response.get(i).getProject().getLocality());
 		}
 		
-		SolrServiceResponse<List<Locality>> solrRes = new SolrServiceResponse<List<Locality>>();
-        solrRes.setTotalResultCount(queryResponse.getResults().getNumFound());
-        solrRes.setResult(data);
+		PaginatedResponse<List<Locality>> solrRes = new PaginatedResponse<List<Locality>>();
+        solrRes.setTotalCount(queryResponse.getResults().getNumFound());
+        solrRes.setResults(data);
         
 		return solrRes;
 	}
@@ -106,14 +106,14 @@ public class LocalityDaoImpl {
     	selector.setPaging(paging);
     	selector.setSort(sorting);
     	
-    	return getLocalities(selector).getResult();
+    	return getLocalities(selector).getResults();
 	}
 	
-	public SolrServiceResponse<List<Locality>> findByLocalityIds(List<Integer> localityIds, Selector propertySelector) {
+	public PaginatedResponse<List<Locality>> findByLocalityIds(List<Integer> localityIds, Selector propertySelector) {
 	    if (localityIds == null || localityIds.isEmpty()){
-	    	SolrServiceResponse<List<Locality>> a = new SolrServiceResponse<>();
-	    	a.setTotalResultCount(0);
-	    	a.setResult(new ArrayList<Locality>());
+	    	PaginatedResponse<List<Locality>> a = new PaginatedResponse<>();
+	    	a.setTotalCount(0);
+	    	a.setResults(new ArrayList<Locality>());
 	    	return a;
 	    }
 
