@@ -664,23 +664,50 @@ public class LocalityService {
         return null;
     }
 	
-    public List<Integer> getTopReviewedLocalities(String locationTypeStr, int locationId, int minReviewCount, int numberOfLocalities){
+    public PaginatedResponse<List<Locality>> getNearLocalitiesOnLocalityOnConcentricCircle(Locality locality, int minDistance, int maxDistance){
+		return localityDao.getNearLocalitiesByDistance(locality, minDistance, maxDistance);
+	}
+    
+    public List<Integer> getNearLocalityIdOnLocalityOnConcentricCircle(Locality locality, int minDistance, int maxDistance){
+    	PaginatedResponse<List<Locality>> localities = getNearLocalitiesOnLocalityOnConcentricCircle(locality, minDistance, maxDistance);
+    	
+    	return getLocalityIds(localities.getResults());
+    }
+    
+    public List<Integer> getLocalityIds(List<Locality> localities){
+    	List<Integer> localityIds = new ArrayList<>();
+    	
+    	for(Locality locality:localities)
+    	{
+    		localityIds.add(locality.getLocalityId());
+    	}
+    	return localityIds;
+    }
+    
+    public PaginatedResponse<List<Locality>> getTopReviewedLocalities(String locationTypeStr, int locationId, int minReviewCount, int numberOfLocalities){
     	Pageable pageable = new PageRequest(0, numberOfLocalities);
     	int locationType;
+    	List<Integer> localities = null;
     	switch(locationTypeStr.toLowerCase())
     	{
     		case "city":
     			locationType = 1;
+    			localities = localityReviewService.getTopReviewedLocalityOnCityOrSuburb(locationType, locationId, minReviewCount, pageable);
     			break;
     		case "suburb":
     			locationType = 2;
+    			localities = localityReviewService.getTopReviewedLocalityOnCityOrSuburb(locationType, locationId, minReviewCount, pageable);
     			break;
     		case "locality":
-    			return localityReviewService.getTopReviewedNearLocalitiesForLocality(locationId, minReviewCount, pageable);
+    			localities = localityReviewService.getTopReviewedNearLocalitiesForLocality(locationId, minReviewCount, pageable);
+    			break;
     		default:
     			throw new IllegalArgumentException("location Type must be either city or locality or suburb");
     	}
     	
-    	return localityReviewService.getTopReviewedLocalityOnCityOrSuburb(locationType, locationId, minReviewCount, pageable);
+    	if(localities == null || localities.size() < 1)
+    		return null;
+    	
+    	return localityDao.findByLocalityIds(localities, null);
     }
 }

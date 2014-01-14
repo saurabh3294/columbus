@@ -22,8 +22,4 @@ import com.proptiger.data.model.NearLocalities;
 public interface NearLocalitiesDao extends PagingAndSortingRepository<NearLocalities, Serializable>{
     public List<NearLocalities> findByMainLocalityOrderByDistanceAsc(Integer mainLocality, Pageable pageable);
     
-    /*@Query("SELECT NR.nearLocality FROM NearLocalities NR , Locality L WHERE NR.nearLocality = L.localityId "
-    		+ " AND L.isActive = 1 AND LR.mainLocality = ?1 AND LR.distance = ?2")
-    public List<Integer> getActiveLocalityByDistance(int localityId, int distance);*/
-    
 }
