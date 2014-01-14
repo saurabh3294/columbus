@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.WordpressPost;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.BlogNewsDao;
@@ -30,7 +31,8 @@ public class BlogNewsService {
 		if(selector != null && selector.getPaging() != null){
 			paging = selector.getPaging();
 		}
-		List<WordpressPost> list = blogNewsDao.findPublishedBlogNewsByCity(cityName);
+		LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(paging.getStart(), paging.getRows());
+		List<WordpressPost> list = blogNewsDao.findPublishedBlogNewsByCity(cityName, pageable);
 		for(WordpressPost post: list){
 			List<String> urlList = blogNewsDao.findImageUrlsForPost(post.getId());
 			if(urlList != null && urlList.size() > 0){

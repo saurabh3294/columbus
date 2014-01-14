@@ -2,12 +2,13 @@ package com.proptiger.data.repo;
 
 import java.util.List;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.proptiger.data.model.WordpressPost;
 
-public interface BlogNewsDao extends JpaRepository<WordpressPost, Long>{
+public interface BlogNewsDao extends PagingAndSortingRepository<WordpressPost, Long>{
 
 	@Query("SELECT D " +
             " FROM WordpressTerms AS A, WordpressTermTaxonomy AS B, WordpressTermRelationship AS C, WordpressPost AS D "+
@@ -16,7 +17,7 @@ public interface BlogNewsDao extends JpaRepository<WordpressPost, Long>{
                 "  D.id = C.objectId AND"+
             " A.name= ?1 AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' ORDER BY D.postDate DESC ")
 	
-	public List<WordpressPost> findPublishedBlogNewsByCity(String cityName);
+	public List<WordpressPost> findPublishedBlogNewsByCity(String cityName, Pageable pageable);
 	
 	@Query("Select WP.guid from WordpressPost WP where WP.parentId=?1 and WP.postMimeType like 'image%' order by WP.postDate")
 	public List<String> findImageUrlsForPost(Long postId);
