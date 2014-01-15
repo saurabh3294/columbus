@@ -68,9 +68,9 @@ public class LocalityReviewService {
 
 		if (pageable == null && totalReviews != null
 				&& totalReviews.longValue() > 0)
-			pageable = new PageRequest(0, totalReviews.intValue());
+			pageable = new LimitOffsetPageRequest(0, totalReviews.intValue());
 		else if (pageable == null)
-			pageable = new PageRequest(0, 5);
+			pageable = new LimitOffsetPageRequest(0, 5);
 
 		List<Object> reviewComments = localityReviewDao
 				.getReviewCommentsByLocalityId(localityId, pageable);

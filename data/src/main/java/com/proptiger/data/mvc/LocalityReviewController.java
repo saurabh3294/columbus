@@ -1,7 +1,6 @@
 package com.proptiger.data.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -38,7 +38,7 @@ public class LocalityReviewController {
             
             Pageable pageable = null;
             if(numberOfReviews != null && numberOfReviews > 0)
-                pageable = new PageRequest(0, numberOfReviews);
+                pageable = new LimitOffsetPageRequest(0, numberOfReviews);
         
             Object list = localityReviewService.findReviewByLocalityId(localityId, pageable);
             return new ProAPISuccessResponse(list);
