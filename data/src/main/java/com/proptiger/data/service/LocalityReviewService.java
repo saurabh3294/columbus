@@ -2,9 +2,11 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -19,7 +21,6 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.LocalityRatingDao;
 import com.proptiger.data.repo.LocalityReviewDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 
 
 /**
@@ -173,6 +174,7 @@ public class LocalityReviewService {
 		if(localityIds.size() < limit)
 			localityIds.addAll(getTopReviewedLocalityOnCityOrSuburb(1, locality.getSuburb().getCityId(), minCount, pageable));
 		
-		return localityIds;
+		// sending the unique localityIds.
+		return new ArrayList<Integer>(new HashSet<Integer>(localityIds) );
 	}
 }
