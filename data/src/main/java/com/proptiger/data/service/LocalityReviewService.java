@@ -10,12 +10,16 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.Locality;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.LocalityRatingDao;
 import com.proptiger.data.repo.LocalityReviewDao;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 
 /**
@@ -41,6 +45,9 @@ public class LocalityReviewService {
 	private LocalityReviewDao localityReviewDao;
 	@Resource
 	private LocalityRatingDao localityRatingDao;
+	
+	@Autowired
+	private LocalityService localityService;
 	
 	private static Logger logger = LoggerFactory.getLogger(LocalityReviewService.class);
 	/**
@@ -151,16 +158,21 @@ public class LocalityReviewService {
 	public List<Integer> getTopReviewedLocalityOnCityOrSuburb(int locationType, int locationId, int minCount, Pageable pageable){
 		return localityReviewDao.getTopReviewLocalitiesOnSuburbOrCity(locationType, locationId, minCount, pageable);
 	}
-	
+		
 	public List<Integer> getTopReviewedNearLocalitiesForLocality(int localityId, int minCount, Pageable pageable){
 		int distance[] = {0, 5, 10, 15};
 		int limit = pageable.getPageSize();
+		Locality locality = localityService.getLocality(localityId);
 		
-		List<Integer> localities = new ArrayList<>();
-		for(int i=0; i<distance.length-1 && localities.size()<limit; i++){
-			localities.addAll(localityReviewDao.getTopReviewLocalitiesNearALocality(localityId, minCount, distance[i], distance[i+1], pageable));
+		List<Integer> localityIds = new ArrayList<>();
+		for(int i=0; i<distance.length-1 && localityIds.size()<limit; i++){
+			List<Integer> localities = localityService.getNearLocalityIdOnLocalityOnConcentricCircle(locality, distance[i], distance[i+1]);  
+			localityIds.addAll( localityReviewDao.getTopReviewNearLocalitiesOnLocality(localities, minCount, pageable) );
+			pageable = new LimitOffsetPageRequest(0, limit - localityIds.size());
 		}
-		limit = localities.size()<limit ? localities.size(): limit;
-		return localities.subList(0, limit);
+		if(localityIds.size() < limit)
+			localityIds.addAll(getTopReviewedLocalityOnCityOrSuburb(1, locality.getSuburb().getCityId(), minCount, pageable));
+		
+		return localityIds;
 	}
 }

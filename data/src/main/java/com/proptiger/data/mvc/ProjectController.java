@@ -137,11 +137,20 @@ public class ProjectController extends BaseController {
 				popularProjects.size());
 	}
 	
-	 @RequestMapping(value="data/v1/entity/project/recently_discussed")
+	 @RequestMapping(value="data/v1/entity/project/recently-discussed")
 	 @ResponseBody
 	 @DisableCaching
 	 public ProAPIResponse getRecentlyDiscussedProjects(@RequestParam String locationType, @RequestParam int locationId, 
-			 @RequestParam(required=false, defaultValue="4") int lastNumberOfWeeks, @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount){
-		 return new ProAPISuccessResponse(projectService.getMostRecentlyDiscussedProjects(locationType.toLowerCase(), locationId, lastNumberOfWeeks, minProjectDiscussionCount));
+			 @RequestParam(required=false, defaultValue="4") int lastNumberOfWeeks, 
+			 @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount, @RequestParam(required= false) String selector){
+		 
+		 Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+	     if (propRequestParam == null) {
+	            propRequestParam = new Selector();
+	     }
+	     List<Project> projects = projectService.getMostRecentlyDiscussedProjects(locationType.toLowerCase(), locationId, lastNumberOfWeeks, minProjectDiscussionCount);
+	     int projectCount = projects == null? 0: projects.size();
+	     
+		 return new ProAPISuccessCountResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
 	 }
 }

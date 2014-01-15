@@ -1,12 +1,14 @@
 package com.proptiger.data.service.pojo;
 
+import java.io.Serializable;
+
 /**
  * A intermediate response object that will act as response carrier from Dao layer to backwards.
  * @author Rajeev Pandey
  *
  * @param <T>
  */
-public class PaginatedResponse<T> {	
+public class PaginatedResponse<T> implements Serializable {	
 	/**
 	 * This contains the total number of results fetched from data source
 	 */

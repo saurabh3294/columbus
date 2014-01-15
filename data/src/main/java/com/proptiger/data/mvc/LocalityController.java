@@ -20,6 +20,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep
@@ -148,10 +149,17 @@ public class LocalityController extends BaseController {
 		return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
 	}
     
-    @RequestMapping(value = "top_reviewed")
+    @RequestMapping(value = "top-reviewed")
     @ResponseBody
     public ProAPIResponse getTopReviewedLocality(@RequestParam String locationType, @RequestParam int locationId, 
-    		@RequestParam(required=false, defaultValue="2") int minReviewCount, @RequestParam(required=false, defaultValue="5") int numberOfLocalities){
-    	return new ProAPISuccessResponse(localityService.getTopReviewedLocalities(locationType, locationId, minReviewCount, numberOfLocalities));
+    		@RequestParam(required=false, defaultValue="2") int minReviewCount, @RequestParam(required=false, defaultValue="5") int numberOfLocalities, @RequestParam(required=false) String selector){
+    	
+    	Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+        
+        PaginatedResponse<List<Locality>> localities = localityService.getTopReviewedLocalities(locationType, locationId, minReviewCount, numberOfLocalities); 
+    	return new ProAPISuccessResponse(super.filterFields(localities, localitySelector.getFields()));
     }
 }
