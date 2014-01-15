@@ -14,14 +14,11 @@ import java.util.NoSuchElementException;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.NearLocalities;
-import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.SortOrder;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.CMSDao;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.NearLocalitiesDao;
@@ -358,7 +355,7 @@ public class GraphService {
      */
     public Object getPriceTrendComparisionLocalities(String locationType, int locationId, List<String> unitType, int lastNumberOfMonths){
         // START getting near by localities of Top Locality
-        Pageable pageable = new PageRequest(0, 5);
+        Pageable pageable = new LimitOffsetPageRequest(0, 5);
         List<NearLocalities> nearLocalitiesList = nearLocalitiesDao.findByMainLocalityOrderByDistanceAsc(locationId, pageable);
         // END getting near by localities of Top Locality
         

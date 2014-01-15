@@ -10,10 +10,10 @@ import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.LocalityRatingDao;
 import com.proptiger.data.repo.LocalityReviewDao;
 
@@ -60,9 +60,9 @@ public class LocalityReviewService {
 
 		if (pageable == null && totalReviews != null
 				&& totalReviews.longValue() > 0)
-			pageable = new PageRequest(0, totalReviews.intValue());
+			pageable = new LimitOffsetPageRequest(0, totalReviews.intValue());
 		else if (pageable == null)
-			pageable = new PageRequest(0, 5);
+			pageable = new LimitOffsetPageRequest(0, 5);
 
 		List<Object> reviewComments = localityReviewDao
 				.getReviewCommentsByLocalityId(localityId, pageable);
