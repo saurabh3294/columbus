@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,7 +56,7 @@ public class ForumUserSavedSearchesController extends BaseController {
 	
 	@RequestMapping(value="/saved-searches", method=RequestMethod.POST)
 	@ResponseBody
-	public ProAPIResponse saveSearch(@ModelAttribute ForumUserSavedSearch saveSearch, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo ){
+	public ProAPIResponse saveSearch(@RequestBody ForumUserSavedSearch saveSearch, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo ){
 		return new ProAPISuccessResponse(savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier()));
 	}
 }

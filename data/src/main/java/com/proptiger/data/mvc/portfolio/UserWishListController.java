@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -41,8 +42,8 @@ public class UserWishListController extends BaseController{
 	
 	@RequestMapping(value="/wish-list", method=RequestMethod.POST)
 	@ResponseBody
-	public ProAPIResponse setUserWishList(@ModelAttribute UserWishlist userWishlist, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
-		return new ProAPISuccessResponse(userWishListService.saveUserWishList(userWishlist, userInfo));
+	public ProAPIResponse setUserWishList(@RequestBody UserWishlist userWishlist, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		return new ProAPISuccessResponse(userWishListService.saveUserWishList(userWishlist, userInfo.getUserIdentifier()));
 	}
 	
 }

@@ -34,14 +34,15 @@ public class UserWishListService {
 		return convertedResult;
 	}
 
-	public UserWishlist saveUserWishList(UserWishlist userWishlist, UserInfo userInfo){
+	public UserWishlist saveUserWishList(UserWishlist userWishlist, Integer userId){
 		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
 			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
 		
-		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userInfo.getUserIdentifier());
+		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userId);
 		if(alreadyUserWishlist != null)
 			throw new ResourceAlreadyExistException("Project Id already exists as Favourite.");
 		
+		userWishlist.setUserId(userId);
 		return userWishListDao.save(userWishlist);
 		
 	}
