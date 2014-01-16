@@ -27,6 +27,7 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -326,9 +327,11 @@ public class Project implements BaseModel {
 	 @Column(name="NO_OF_FLATES")
 	 private Integer supply ;
 	 
-	 @OneToMany(fetch=FetchType.EAGER)
+	 @OneToMany(fetch=FetchType.LAZY)
 	 @Fetch(FetchMode.JOIN)
 	 @JoinColumn(insertable=false, updatable=false, name="PROJECT_ID")
+	 @Transient
+	 @Deprecated
 	 private List<ProjectAmenity> projectAmenity;
 	 
 	 @Transient
@@ -340,6 +343,9 @@ public class Project implements BaseModel {
 	 @JsonUnwrapped
 	 @Transient
 	 private ProjectSpecification projectSpecification;
+	 
+	 @Transient
+	 private List<ProjectCMSAmenity> projectAmenities;
     
     public int getProjectId() {
         return projectId;
@@ -832,6 +838,14 @@ public class Project implements BaseModel {
 
 	public void setProjectSpecification(ProjectSpecification projectSpecification) {
 		this.projectSpecification = projectSpecification;
+	}
+
+	public List<ProjectCMSAmenity> getProjectAmenities() {
+		return projectAmenities;
+	}
+
+	public void setProjectAmenities(List<ProjectCMSAmenity> projectAmenities) {
+		this.projectAmenities = projectAmenities;
 	}
 
 }

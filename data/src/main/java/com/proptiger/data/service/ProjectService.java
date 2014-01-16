@@ -68,6 +68,9 @@ public class ProjectService {
  	
  	@Autowired
  	private BuilderService builderService;
+ 	
+ 	@Autowired
+ 	private ProjectAmenityService projectAmenityService;
 
     /**
      * This method will return the list of projects and total projects found based on the selector.
@@ -170,6 +173,7 @@ public class ProjectService {
     	imageEnricher.setProjectImages(project);
     	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
     	project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
+    	project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
     	
     	/*
     	 * setting Price Rise 
