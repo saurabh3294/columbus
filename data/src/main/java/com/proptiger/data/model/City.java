@@ -99,11 +99,13 @@ public class City implements BaseModel {
     @Field("CITY_PRICE_RISE_TIME")
     private Integer avgPriceRiseMonths;
 
-    @Transient
-    private Integer minZoomLevel = 12;
+    @Column(name="MIN_ZOOM_LEVEL")
+    @Field("CITY_MIN_ZOOM_LEVEL")
+    private Integer minZoomLevel;
 
-    @Transient
-    private Integer maxZoomLevel = 14;
+    @Column(name="MAX_ZOOM_LEVEL")
+    @Field("CITY_MAX_ZOOM_LEVEL")
+    private Integer maxZoomLevel;
     
     @Transient
     private Long projectsCount;

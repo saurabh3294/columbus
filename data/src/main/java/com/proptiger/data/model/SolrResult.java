@@ -464,6 +464,16 @@ public class SolrResult implements BaseModel{
         city.setCenterLongitude(centerLongitude);
     }
 
+    @Field("CITY_MIN_ZOOM_LEVEL")
+    public void setMinZoomLevel(Integer minZoomLevel){
+    	city.setMinZoomLevel(minZoomLevel);
+    }
+    
+    @Field("CITY_MAX_ZOOM_LEVEL")
+    public void setMaxZoomLevel(Integer maxZoomLevel){
+    	city.setMaxZoomLevel(maxZoomLevel);
+    }
+    
     public Property getProperty() {
         return property;
     }
