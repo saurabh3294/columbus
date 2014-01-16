@@ -2,15 +2,20 @@ package com.proptiger.data.model;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * User wish list model object corresponding to USER_WISHLIST table
@@ -39,14 +44,16 @@ public class UserWishlist implements Serializable{
 	@Column(name = "DATETIME")
 	private Date datetime;
 
-	@ManyToMany(targetEntity = ProjectDB.class)
-	@JoinColumn(name = "projectId", referencedColumnName = "PROJECT_ID", table = "RESI_PROJECT")
-	private Set<ProjectDB> projectDB;
+	@ManyToOne(fetch=FetchType.EAGER)
+	@Fetch(FetchMode.JOIN)
+	@JsonIgnore
+	@JoinColumn(name = "PROJECT_ID", insertable=false, updatable=false)
+	private Project project;
 	
-	
-	@ManyToMany(targetEntity = ProjectType.class)
-	@JoinColumn(name = "typeId", referencedColumnName = "TYPE_ID")
-	private Set<ProjectType> projectTypes;
+	@ManyToOne(fetch=FetchType.LAZY)
+	@JoinColumn(name = "TYPE_ID", insertable=false, updatable=false)
+	@JsonIgnore
+	private Property property;
 
 
 	public Integer getId() {
@@ -96,6 +103,26 @@ public class UserWishlist implements Serializable{
 
 	public void setDatetime(Date datetime) {
 		this.datetime = datetime;
+	}
+
+
+	public Project getProject() {
+		return project;
+	}
+
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+
+	public Property getProperty() {
+		return property;
+	}
+
+
+	public void setProperty(Property property) {
+		this.property = property;
 	}
 
 
