@@ -49,7 +49,7 @@ public class UserWishlist implements Serializable{
 	@JsonIgnore
 	@JoinColumn(name = "PROJECT_ID", insertable=false, updatable=false)
 	private Project project;
-	
+
 	@ManyToOne(fetch=FetchType.LAZY)
 	@JoinColumn(name = "TYPE_ID", insertable=false, updatable=false)
 	@JsonIgnore
@@ -124,6 +124,4 @@ public class UserWishlist implements Serializable{
 	public void setProperty(Property property) {
 		this.property = property;
 	}
-
-
 }

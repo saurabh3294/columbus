@@ -28,6 +28,7 @@ import com.proptiger.exception.ResourceAlreadyExistException;
 public class UserWishListService {
 
 	private static Logger logger = LoggerFactory.getLogger(UserWishListService.class);
+
 	@Autowired
 	private UserWishListDao userWishListDao;
 	
@@ -41,6 +42,10 @@ public class UserWishListService {
 		List<UserWishlist> list = userWishListDao.findByUserId(userId);
 		List<UserWishList> convertedResult = convertDaoResultToDtoObject(list);
 		return convertedResult;
+	}
+
+	public void deleteWishlist(int wishlistId) {
+	    userWishListDao.delete(wishlistId);
 	}
 
 	public UserWishlist saveUserWishList(UserWishlist userWishlist, Integer userId){

@@ -23,27 +23,37 @@ import com.proptiger.data.util.Constants;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/user/{userId}")
-public class UserWishListController extends BaseController{
+public class UserWishListController extends BaseController {
 
-	@Autowired
-	private UserWishListService userWishListService;
-	
-	@RequestMapping(value={"/portfolio/wish-list", "wish-list"}, method=RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getUserWishList(@PathVariable Integer userId,
-			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
-		List<UserWishList> result = userWishListService.getUserWishList(userInfo.getUserIdentifier());
-		return new ProAPISuccessCountResponse(result, result.size());
-	}
-	
-	@RequestMapping(value="/wish-list", method=RequestMethod.POST)
-	@ResponseBody
-	public ProAPIResponse setUserWishList(@RequestBody UserWishlist userWishlist, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
-		return new ProAPISuccessResponse(userWishListService.saveUserWishList(userWishlist, userInfo.getUserIdentifier()));
-	}
-	
+    @Autowired
+    private UserWishListService userWishListService;
+
+    @RequestMapping(value = { "/portfolio/wish-list", "wish-list" }, method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getUserWishList(@PathVariable Integer userId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        List<UserWishList> result = userWishListService.getUserWishList(userInfo.getUserIdentifier());
+        return new ProAPISuccessCountResponse(result, result.size());
+    }
+
+    @RequestMapping(value = "/wish-list", method = RequestMethod.POST)
+    @ResponseBody
+    public ProAPIResponse setUserWishList(@RequestBody UserWishlist userWishlist,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        return new ProAPISuccessResponse(userWishListService.saveUserWishList(userWishlist,
+                userInfo.getUserIdentifier()));
+    }
+
+    @RequestMapping(value = "/wish-list/{wishlistId}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ProAPIResponse deleteUserWishList(@PathVariable int wishlistId, @PathVariable Integer userId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo)
+    {
+        userWishListService.deleteWishlist(wishlistId);
+        return getUserWishList(userId, userInfo);
+    }
 }
