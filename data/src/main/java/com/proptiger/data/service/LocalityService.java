@@ -450,7 +450,7 @@ public class LocalityService {
 					.getLocalities(geoSelector).getResults();
 			/*
 			 * If locality not found or there count is less than
-			 * popularLocalityThresholdCount in first radius then try finding
+			 * popularLocalityThresholdCount in second radius then try finding
 			 * localities in radius radiusThreeForTopLocality
 			 */
 			if (localitiesAroundMainLocality == null
