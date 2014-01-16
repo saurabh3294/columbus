@@ -209,17 +209,28 @@ public class DataAPIAuthenticationFilter implements Filter{
 		if(sessionId != null){
 			String value = (String) CacheClientUtil.getValue(sessionId);
 			if(value != null){
-				Pattern userIdPattern = Pattern.compile("USER_ID.+?\"(\\d+?)\".*USERNAME.+?\"([a-z|A-Z].+?)\".*EMAIL.+?\"(.+?)\"");
-				Matcher matcher = userIdPattern.matcher(value);
-				while(matcher.find()){
+				
+				Pattern userIdPattern = Pattern.compile("USER_ID.+?\"(\\d+?)\"");
+				Pattern userNamePattern = Pattern.compile("USERNAME.+?\"([a-z|A-Z|0-9].+?)\"");
+				Pattern emailPattern = Pattern.compile("EMAIL.+?\"(.+?)\"");
+				
+				Matcher userIdMatcher = userIdPattern.matcher(value);
+				Matcher userNameMatcher = userNamePattern.matcher(value);
+				Matcher emailMatcher = emailPattern.matcher(value);
+				while(userIdMatcher.find()){
 					try {
-						userId = Integer.parseInt(matcher.group(1));
+						userId = Integer.parseInt(userIdMatcher.group(1));
+						break;
 					} catch (NumberFormatException e) {
 						logger.error("Number format exception {}",e.getMessage());
-						throw new AuthenticationException("Number format error in memcache for sessionkey "+sessionId);
 					}
-					userName = matcher.group(2);
-					email = matcher.group(3);
+				}
+				while (userNameMatcher.find()) {
+					userName = userNameMatcher.group(1);
+					break;
+				}
+				while (emailMatcher.find()) {
+					email = emailMatcher.group(1);
 					break;
 				}
 			}
@@ -249,5 +260,46 @@ public class DataAPIAuthenticationFilter implements Filter{
 		this.enabled = enabled;
 	}
 	
-	
+	public static void main(String args[]){
+		String value = "USER_ID|s:6:\"125394\";PAGENAME|s:4:\"HOME\";USER_LINK|s:0:\"\";USER_SEARCH|i:0;USER_CRITERIA|s:0:\"\";USERNAME|s:3:\"123\";EMAIL|s:11:\"123@123.com\";CITY|N;PROVIDER|N;IMAGE|N;hideHeader|i:1;";
+		//String value = "USER_ID|s:5:\"57594\";PAGENAME|s:9:\"TYPEAHEAD\";USER_LINK|s:0:\"\";USER_SEARCH|i:0;USER_CRITERIA|s:0:\"\";USERNAME|s:13:\"nakul moudgil\";EMAIL|s:27:\"nakul.moudgil@proptiger.com\";CITY|s:0:\"\";UNIQUE_USER_ID|s:26:\"g8kv1mauii7cf9j3ott8v7if13\";PROVIDER|s:0:\"\";IMAGE|s:0:\"\";hideHeader|i:1;LEAD_CITY|s:2:\"18\";LEAD_PAGE|s:4:\"CITY\";";
+		Pattern userIdPattern = Pattern.compile("USER_ID.+?\"(\\d+?)\"");
+		Pattern userNamePattern = Pattern.compile("USERNAME.+?\"([a-z|A-Z|0-9].+?)\"");
+		Pattern emailPattern = Pattern.compile("EMAIL.+?\"(.+?)\"");
+		
+		
+		Matcher userIdMatcher = userIdPattern.matcher(value);
+		Matcher userNameMatcher = userNamePattern.matcher(value);
+		Matcher emailMatcher = emailPattern.matcher(value);
+		
+		Integer userId = null;
+		String userName = null;
+		String email = null;
+		
+		while(userIdMatcher.find()){
+			try {
+				userId = Integer.parseInt(userIdMatcher.group(1));
+				break;
+			} catch (NumberFormatException e) {
+				logger.error("Number format exception {}",e.getMessage());
+			}
+		}
+		while(userNameMatcher.find()){
+			try {
+				userName = userNameMatcher.group(1);
+				break;
+			} catch (NumberFormatException e) {
+				logger.error("Number format exception {}",e.getMessage());
+			}
+		}
+		while(emailMatcher.find()){
+			try {
+				email = emailMatcher.group(1);
+				break;
+			} catch (NumberFormatException e) {
+				logger.error("Number format exception {}",e.getMessage());
+			}
+		}
+		System.out.println();
+	}
 }
