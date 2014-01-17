@@ -157,7 +157,10 @@ public class BuilderService {
 		Collections.sort(topBuilders, new Comparator<Builder>() {
 			@Override
 			public int compare(Builder b1, Builder b2) {
-				return (b1.getPriority() - b2.getPriority());
+				if(b1.getPriority() != null && b2.getPriority() != null){
+					return (b1.getPriority() - b2.getPriority());
+				}
+				return 0;
 			}
 		});
 	}
