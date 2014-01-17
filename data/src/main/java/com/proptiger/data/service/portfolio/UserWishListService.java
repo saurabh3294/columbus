@@ -48,11 +48,22 @@ public class UserWishListService {
 		List<UserWishList> convertedResult = convertDaoResultToDtoObject(list);
 		return convertedResult;
 	}
-
+	/**
+	 * This method will delete the wish list based on the wish list id.
+	 * @param wishlistId
+	 */
 	public void deleteWishlist(int wishlistId) {
 	    userWishListDao.delete(wishlistId);
 	}
 
+	/**
+	 * This method will save the project Id in the Wish List. It will only take project Id to be saved.
+	 * It will validate the project Id whether it exists in the database or already present in the wish list.
+	 * If not then it will save and return the get response of the new id created.
+	 * @param userWishlist
+	 * @param userId
+	 * @return
+	 */
 	public UserWishList saveUserWishList(UserWishlist userWishlist, Integer userId){
 		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
 			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");

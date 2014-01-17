@@ -19,11 +19,23 @@ public class SavedSearchService {
 
 	@Autowired
 	private SavedSearchDao savedSearchDao;
-	
+	/**
+	 * This method will get the save Searches Info based on the user Id. It will filter the responses using selector.
+	 * @param selector
+	 * @param userId
+	 * @return
+	 */
 	public List<SavedSearch> getUserSavedSearches(Selector selector, Integer userId){
 		return savedSearchDao.getUserSavedSearches(selector, userId);
 	}
 	
+	/**
+	 * This method will save the user searches. It will check whether name or searchQuery already exists. If it not then it will save
+	 * and return the saved object.
+	 * @param saveSearch
+	 * @param userId
+	 * @return
+	 */
 	public SavedSearch setUserSearch(SavedSearch saveSearch, Integer userId){
 		if(saveSearch.getName().isEmpty() || saveSearch.getSearchQuery().isEmpty())
 			throw new IllegalArgumentException("Name or Search Query both should not be null.");
@@ -36,6 +48,10 @@ public class SavedSearchService {
 		return savedSearchDao.save(saveSearch);
 	}
 
+	/**
+	 * It will delete the save search based on it Id.
+	 * @param savedSearchId
+	 */
     public void deleteSavedSearch(int savedSearchId) {
         savedSearchDao.delete(savedSearchId);
     }
