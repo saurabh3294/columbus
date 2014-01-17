@@ -19,6 +19,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.repo.portfolio.UserWishListDao;
+import com.proptiger.data.service.ProjectService;
 import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
@@ -32,6 +33,9 @@ public class UserWishListService {
 
 	@Autowired
 	private UserWishListDao userWishListDao;
+	
+	@Autowired
+	private ProjectService projectService;
 	
 	/**
 	 * This method returns user wish list or favourite projects/properties details based on user id
@@ -56,6 +60,8 @@ public class UserWishListService {
 		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userId);
 		if(alreadyUserWishlist != null)
 			throw new ResourceAlreadyExistException("Project Id already exists as Favourite.");
+		if( projectService.getProjectDetails( userWishlist.getProjectId() ) == null)
+			throw new IllegalArgumentException("Project Id does not exists.");
 		
 		userWishlist.setUserId(userId);
 		UserWishlist savedObject = userWishListDao.save(userWishlist);
