@@ -1,6 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class UserWishListService {
 	    userWishListDao.delete(wishlistId);
 	}
 
-	public UserWishlist saveUserWishList(UserWishlist userWishlist, Integer userId){
+	public UserWishList saveUserWishList(UserWishlist userWishlist, Integer userId){
 		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
 			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
 		
@@ -57,7 +58,8 @@ public class UserWishListService {
 			throw new ResourceAlreadyExistException("Project Id already exists as Favourite.");
 		
 		userWishlist.setUserId(userId);
-		return userWishListDao.save(userWishlist);
+		UserWishlist savedObject = userWishListDao.save(userWishlist);
+		return convertDaoResultToDtoObject( Arrays.asList(userWishListDao.findOne(savedObject.getId())) ).get(0);
 		
 	}
 	
