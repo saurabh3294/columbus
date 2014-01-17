@@ -30,7 +30,6 @@ import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortOrder;
@@ -371,7 +370,8 @@ public class LocalityService {
 	 * @param selector
 	 * @return List<Locality>
 	 */
-	public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
+	@SuppressWarnings("unchecked")
+    public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
 			Selector selector, Integer imageCount) {
 		List<Locality> result = new ArrayList<>();
 		List<Object[]> list = null;
@@ -388,11 +388,14 @@ public class LocalityService {
 				if (objects.length == 2) {
 					Locality locality = (Locality) objects[0];
 					locality.setAverageRating((double) objects[1]);
+					Map<String, Object> localityReviewDetails = localityReviewService.getTotalUsersByRatingByLocalityId(locality.getLocalityId());
+					locality.setNumberOfUsersByRating( (Map<Double , Long>) localityReviewDetails.get(LocalityReviewService.TOTAL_USERS_BY_RATING) );
 					result.add(locality);
 				}
 			}
 		}
 		imageEnricher.setLocalitiesImages(result, imageCount);
+		
 		return result;
 	}
 

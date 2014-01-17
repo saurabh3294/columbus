@@ -145,6 +145,7 @@ public class BuilderService {
 			topBuilders.add(result.getProject().getBuilder());
 		}
 		sortByPriorityAsc(topBuilders);
+		imageEnricher.setBuildersImages(topBuilders);
 		return topBuilders;
 	}
 	
