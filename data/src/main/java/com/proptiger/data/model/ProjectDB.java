@@ -119,11 +119,7 @@ public class ProjectDB implements BaseModel{
     @FieldMetaInfo(displayName="FEATURED", description="FEATURED")
     @Column(name="FEATURED")
     private int featured ;
-    
-    /*@FieldMetaInfo(displayName="COMPLETION Date", description="COMPLETION Date")
-    @Column(name="COMPLETION_DATE")
-    private String completionDate ;*/
-    
+        
     @FieldMetaInfo(displayName="PRICE DISCLAIMER", description="PRICE DISCLAIMER")
     @Column(name="PRICE_DISCLAIMER")
     private String priceDisclaimer ;
@@ -144,12 +140,7 @@ public class ProjectDB implements BaseModel{
     @FieldMetaInfo(displayName="SUBMITTED BY", description="SUBMITTED BY")
     @Column(name="SUBMITTED_BY")
     private int submittedBy ;
-    
-    /*@FieldMetaInfo(displayName="MODIFIED Date", description="MODIFIED Date")
-    @Column(name="MODIFIED_DATE")
-    @Temporal(javax.persistence.TemporalType.DATE)
-    private Date modifiedDate ;*/
-    
+        
     @FieldMetaInfo(displayName="MODIFIED BY", description="MODIFIED BY")
     @Column(name="MODIFIED_BY")
     private int modifiedBy ;
@@ -174,11 +165,7 @@ public class ProjectDB implements BaseModel{
     @FieldMetaInfo(displayName="OFFLINE TYPE", description="OFFLINE TYPE")
     @Column(name="OFFLINE_TYPE")
     private int offlineType ;
-    
-    /*@FieldMetaInfo(displayName="OFFER", description="OFFER")
-    @Column(name="OFFER")
-    private enum('none','so','nl','ne') OFFER ;*/
-    
+        
     @FieldMetaInfo(displayName="DISPLAY FLAG", description="DISPLAY FLAG")
     @Column(name="DISPLAY_FLAG")
     private int displayFlag ;
@@ -272,10 +259,10 @@ public class ProjectDB implements BaseModel{
     private Double maxResalePrice;
     
     @Transient
-    private Double avgPriceRisePercentage = 5.7;
+    private Double avgPriceRisePercentage;
     
     @Transient
-    private Integer avgPriceRiseMonths = 6;
+    private Integer avgPriceRiseMonths;
     
     @Transient
     private Set<String> propertyUnitTypes = new HashSet<String>();

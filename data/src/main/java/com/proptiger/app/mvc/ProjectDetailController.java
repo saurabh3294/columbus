@@ -3,12 +3,10 @@
  */
 package com.proptiger.app.mvc;
 
-import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +21,6 @@ import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectAmenity;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
@@ -92,8 +89,6 @@ public class ProjectDetailController extends BaseController {
         List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
         if(projectDiscussionList!=null)
         	totalProjectDiscussion = projectDiscussionList.size();
-        // getting project Amenities
-        List<ProjectAmenity> listProjectAmenities = projectAmenityService.getAmenitiesByProjectId(projectId);
         
         // getting Project Neighborhood.
         List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(projectInfo.getLocalityId(), null);
@@ -142,7 +137,7 @@ public class ProjectDetailController extends BaseController {
         response.put("builderDetails", super.filterFields(builderDetails, null));
         response.put("properties", super.filterFields(properties, propertyFieldString));
         response.put("totalProjectDiscussions", totalProjectDiscussion);
-        response.put("projectAmenity", listProjectAmenities);
+        response.put("projectAmenity", projectAmenityService.getCMSAmenitiesByProjectId(projectId));
         response.put("neighborhood", listLocalityAmenity);
         response.put("locality", locality);
         
