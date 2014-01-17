@@ -679,4 +679,9 @@ public class SolrResult implements BaseModel{
     public void setCityDominantUnitType(String dominantUnitType) {
         city.setDominantUnitType(dominantUnitType);
     }
+    
+    @Field("LOCALITY_MAX_RADIUS")
+    public void setLocalityMaxRadius(Double dominantUnitType) {
+        locality.setMaxRadius(dominantUnitType);
+    }
 }

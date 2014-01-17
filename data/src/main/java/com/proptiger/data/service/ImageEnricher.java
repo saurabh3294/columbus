@@ -142,14 +142,14 @@ public class ImageEnricher {
         
     }
 
-    public void setLocalitiesImages(List<Locality> localities) {
+    public void setLocalitiesImages(List<Locality> localities, Integer imageCount) {
     	if(localities == null)
     		return;
     	
         Locality locality;
         for (int i = 0; i < localities.size(); i++) {
             locality = localities.get(i);
-            setLocalityImages(locality, null);
+            setLocalityImages(locality, imageCount);
         }
     }
 

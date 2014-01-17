@@ -372,7 +372,7 @@ public class LocalityService {
 	 * @return List<Locality>
 	 */
 	public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
-			Selector selector) {
+			Selector selector, Integer imageCount) {
 		List<Locality> result = new ArrayList<>();
 		List<Object[]> list = null;
 
@@ -392,7 +392,7 @@ public class LocalityService {
 				}
 			}
 		}
-
+		imageEnricher.setLocalitiesImages(result, imageCount);
 		return result;
 	}
 
@@ -409,7 +409,7 @@ public class LocalityService {
 	 * @return List<Locality>
 	 */
 	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId,
-			Selector localitySelector) {
+			Selector localitySelector, Integer imageCount) {
 		List<Locality> localities = localityDao.findByLocalityIds(
 				Arrays.asList(localityId), localitySelector).getResults();
 		if (localities == null || localities.size() == 0) {
@@ -496,6 +496,7 @@ public class LocalityService {
 				localityItr.remove();
 			}
 		}
+		imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
 		return localitiesAroundMainLocality;
 	}
 

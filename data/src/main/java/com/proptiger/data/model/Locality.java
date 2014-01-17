@@ -136,7 +136,8 @@ public class Locality implements BaseModel {
     private Integer projectCount;
     
     @Transient
-    private Double maxRadius = 3.0;
+    @Field("LOCALITY_MAX_RADIUS")
+    private Double maxRadius;
     
     @Transient
     private Integer totalImages;
