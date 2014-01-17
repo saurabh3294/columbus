@@ -1,6 +1,7 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.repo.portfolio.UserWishListDao;
+import com.proptiger.data.service.ProjectService;
 import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
@@ -28,8 +30,12 @@ import com.proptiger.exception.ResourceAlreadyExistException;
 public class UserWishListService {
 
 	private static Logger logger = LoggerFactory.getLogger(UserWishListService.class);
+
 	@Autowired
 	private UserWishListDao userWishListDao;
+	
+	@Autowired
+	private ProjectService projectService;
 	
 	/**
 	 * This method returns user wish list or favourite projects/properties details based on user id
@@ -42,17 +48,35 @@ public class UserWishListService {
 		List<UserWishList> convertedResult = convertDaoResultToDtoObject(list);
 		return convertedResult;
 	}
+	/**
+	 * This method will delete the wish list based on the wish list id.
+	 * @param wishlistId
+	 */
+	public void deleteWishlist(int wishlistId) {
+	    userWishListDao.delete(wishlistId);
+	}
 
-	public UserWishlist saveUserWishList(UserWishlist userWishlist, Integer userId){
+	/**
+	 * This method will save the project Id in the Wish List. It will only take project Id to be saved.
+	 * It will validate the project Id whether it exists in the database or already present in the wish list.
+	 * If not then it will save and return the get response of the new id created.
+	 * @param userWishlist
+	 * @param userId
+	 * @return
+	 */
+	public UserWishList saveUserWishList(UserWishlist userWishlist, Integer userId){
 		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
 			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
 		
 		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userId);
 		if(alreadyUserWishlist != null)
 			throw new ResourceAlreadyExistException("Project Id already exists as Favourite.");
+		if( projectService.getProjectDetails( userWishlist.getProjectId() ) == null)
+			throw new IllegalArgumentException("Project Id does not exists.");
 		
 		userWishlist.setUserId(userId);
-		return userWishListDao.save(userWishlist);
+		UserWishlist savedObject = userWishListDao.save(userWishlist);
+		return convertDaoResultToDtoObject( Arrays.asList(userWishListDao.findOne(savedObject.getId())) ).get(0);
 		
 	}
 	

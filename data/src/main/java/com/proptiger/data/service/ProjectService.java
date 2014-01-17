@@ -293,7 +293,7 @@ public class ProjectService {
 		return sent;
 	}
 
-/**
+	/**
 	 * Get projects by project ids
 	 * @param ids
 	 * @return
@@ -308,7 +308,12 @@ public class ProjectService {
 		}
 		return projects;
 	}
-
+	
+	/**
+	 * This method will return the total number of project discussions in the project.
+	 * @param projectId
+	 * @return total project discussions.
+	 */
 	private Integer getTotalProjectDiscussionCount(int projectId){
 		
 		Integer totalProjectDiscussion = 0;
@@ -319,6 +324,12 @@ public class ProjectService {
         return totalProjectDiscussion;
 	}
 	
+	/**
+	 * This method will return the project specifications From CMS by new database for a project.
+	 * architecture.
+	 * @param projectId
+	 * @return
+	 */
 	public ProjectSpecification getProjectSpecificationsV2(int projectId){
 		
 		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes("project", projectId);
@@ -327,7 +338,52 @@ public class ProjectService {
 		return new ProjectSpecification(specifications);
 	}
 	
+	/**
+	 * This Method will return the Most Recently Discussed Projects in a city or suburb or locality.
+	 * @param locationTypeStr
+	 * @param locationId
+	 * @param lastNumberOfWeeks
+	 * @param minProjectDiscussionCount
+	 * @return List of recently discussed  projects.
+	 */
 	public List<Project> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, int lastNumberOfWeeks, int minProjectDiscussionCount){
+		
+		int numberOfDays = lastNumberOfWeeks * 7*-1;
+		Calendar cal = Calendar.getInstance();//intialize your date to any date 
+		cal.add(Calendar.DATE, numberOfDays);
+				
+		int locationType;
+		switch(locationTypeStr)
+		{
+			case "city":
+				locationType = 1;
+				break;
+			case "suburb":
+				locationType = 2;
+				break;
+			case "locality":
+				locationType = 3;
+				break;
+			default:
+				throw new IllegalArgumentException("The possbile values are : suburb or locality or city.");
+		}
+		List<Integer> projectIds = projectDao.getMostRecentlyDiscussedProjectInNWeeksOnLocation(cal.getTime(), locationType, locationId, minProjectDiscussionCount);
+		
+		if(projectIds == null || projectIds.size() < 1)
+			return null;
+		
+		return getProjectsByIds(new HashSet<Integer>(projectIds) );
+	}
+	
+	/**
+	 * This method will return the most discussed projects in a city or suburb or locality.
+	 * @param locationTypeStr
+	 * @param locationId
+	 * @param lastNumberOfWeeks
+	 * @param minProjectDiscussionCount
+	 * @return List of Most discussed Projects.
+	 */
+	public List<Project> getMostDiscussedProjects(String locationTypeStr, int locationId, int lastNumberOfWeeks, int minProjectDiscussionCount){
 		
 		int numberOfDays = lastNumberOfWeeks * 7*-1;
 		Calendar cal = Calendar.getInstance();//intialize your date to any date 
@@ -355,6 +411,7 @@ public class ProjectService {
 		
 		return getProjectsByIds(new HashSet<Integer>(projectIds) );
 	}
+
 
    public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
         return projectDao.getProjects(selector);

@@ -10,10 +10,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.proptiger.data.model.filter.MySqlQueryBuilder;
-import com.proptiger.data.model.portfolio.ForumUserSavedSearch;
+import com.proptiger.data.model.portfolio.SavedSearch;
 import com.proptiger.data.pojo.Selector;
 
-public class ForumUserSavedSearchDaoImpl {
+public class SavedSearchDaoImpl {
 	@Autowired
 	private EntityManagerFactory emf;
 	
@@ -23,15 +23,15 @@ public class ForumUserSavedSearchDaoImpl {
 	 * @param userId
 	 * @return List<ForumUserSavedSearch>
 	 */
-	public List<ForumUserSavedSearch> getUserSavedSearches(Selector selector,
+	public List<SavedSearch> getUserSavedSearches(Selector selector,
 			Integer userId) {
 
 		EntityManager em = emf.createEntityManager();
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		
-		List<ForumUserSavedSearch> result = new ArrayList<ForumUserSavedSearch>();
-		MySqlQueryBuilder<ForumUserSavedSearch> mySqlQueryBuilder = new MySqlQueryBuilder<ForumUserSavedSearch>(
-				builder, ForumUserSavedSearch.class);
+		List<SavedSearch> result = new ArrayList<SavedSearch>();
+		MySqlQueryBuilder<SavedSearch> mySqlQueryBuilder = new MySqlQueryBuilder<SavedSearch>(
+				builder, SavedSearch.class);
 
 		mySqlQueryBuilder.buildQuery(selector, userId);
 		result = em.createQuery(mySqlQueryBuilder.getQuery()).getResultList();

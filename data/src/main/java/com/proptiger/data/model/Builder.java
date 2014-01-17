@@ -52,7 +52,7 @@ public class Builder implements BaseModel {
     private String description;
     
     @Transient
-    @Field("ESTABLISHED_DATE")
+    @Field("BUILDER_ESTABLISHED_DATE")
     private Date estabilishedDate;
     
     @Transient
