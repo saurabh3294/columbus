@@ -12,14 +12,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.B2b;
 import com.proptiger.data.model.Bank;
-import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.B2bService;
 import com.proptiger.data.service.BankService;
-import com.proptiger.data.service.LocalityService;
 
 @Controller
 @RequestMapping(value="test")
