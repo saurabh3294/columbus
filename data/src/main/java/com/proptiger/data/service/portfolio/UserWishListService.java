@@ -64,7 +64,7 @@ public class UserWishListService {
 	 * @param userId
 	 * @return
 	 */
-	public UserWishList saveUserWishList(UserWishlist userWishlist, Integer userId){
+	public List<UserWishList> saveUserWishList(UserWishlist userWishlist, Integer userId){
 		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
 			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
 		
@@ -76,7 +76,7 @@ public class UserWishListService {
 		
 		userWishlist.setUserId(userId);
 		UserWishlist savedObject = userWishListDao.save(userWishlist);
-		return convertDaoResultToDtoObject( Arrays.asList(userWishListDao.findOne(savedObject.getId())) ).get(0);
+		return convertDaoResultToDtoObject( Arrays.asList(userWishListDao.findOne(savedObject.getId())) );
 		
 	}
 	
