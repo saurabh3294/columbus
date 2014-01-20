@@ -8,7 +8,8 @@ package com.proptiger.data.model.enums;
 public enum DocumentType {
 	LOCALITY("LOCALITY"),
 	BUILDER("BUILDER"),
-	CITY("CITY"), 
+	CITY("CITY"),
+	B2B("B2B"),
 	PROJECT("PROJECT");
 	
 	

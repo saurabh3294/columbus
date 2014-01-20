@@ -24,8 +24,17 @@ public class SolrResult extends BaseModel{
     private Suburb suburb = new Suburb();
     private City city = new City();
     private Builder builder = new Builder();
+    private B2b b2b = new B2b();
 
-    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
+    public B2b getB2b() {
+		return b2b;
+	}
+
+	public void setB2b(B2b b2b) {
+		this.b2b = b2b;
+	}
+
+	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
     @Field(value = "MIN_PRICE_PER_UNIT_AREA")
     private Double minPricePerUnitArea;
 
