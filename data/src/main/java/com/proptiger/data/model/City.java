@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -117,6 +118,9 @@ public class City implements BaseModel {
     @Transient
     private Map<Integer, Double> avgBHKPrice;
 
+    @Transient
+    private List<LocalityAmenity> amenities;
+    
     public Integer getId() {
         return id;
     }
@@ -277,4 +281,12 @@ public class City implements BaseModel {
         this.avgBHKPrice = avgBHKPrice;
     }
 
+	public List<LocalityAmenity> getAmenities() {
+		return amenities;
+	}
+
+	public void setAmenities(List<LocalityAmenity> amenities) {
+		this.amenities = amenities;
+	}
+    
 }

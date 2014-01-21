@@ -37,7 +37,6 @@ public class LocalityAmenityService {
      */
     public List<LocalityAmenity> getLocalityAmenities(int localityId, String amenityName){
         List<LocalityAmenity> output = null;
-        System.out.println("localityId"+localityId);
         if(amenityName == null || amenityName.isEmpty() )
             output = localityAmenityDao.getAmenitiesByLocalityId(localityId);
         else
@@ -46,6 +45,23 @@ public class LocalityAmenityService {
         return output;
     }
     
+    
+    /**
+     * Get amenities for city, if no amenity name provided then fetch all amenities
+     * @param cityId
+     * @param amenityName
+     * @return
+     */
+    public List<LocalityAmenity> getCityAmenities(Integer cityId, String amenityName){
+    	 List<LocalityAmenity> amenities = null;
+    	 if(amenityName == null || amenityName.isEmpty()){
+    		 amenities = localityAmenityDao.getAmenitiesByCityId(cityId);
+    	 }
+    	 else{
+    		 amenities = localityAmenityDao.getAmenitiesByCityIdAndAmenityName(cityId, amenityName);
+    	 }
+    	 return amenities;
+    }
     /**
      * This method will take the cityId or list of localities and select the locality with highest 
      * priority. Then return the amenites of that locality.

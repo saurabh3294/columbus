@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.City;
+import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.CityDao;
+import com.proptiger.data.util.Constants;
 
 /**
  * Service class to get city data
@@ -23,13 +25,18 @@ public class CityService {
 	@Autowired
 	private LocalityService localityService;
 	
+	@Autowired
+	private LocalityAmenityService localityAmenityService;
+	
 	/**
 	 * Get list of city details
 	 * @param selector
 	 * @return List<City>
 	 */
 	public List<City> getCityList(Selector selector){
-		return cityDao.getCities(selector);
+		List<City> cities = cityDao.getCities(selector);
+		updateAirportInfo(cities);
+		return cities;
 	}
 	
 	/**
@@ -39,10 +46,36 @@ public class CityService {
 	 */
 	public City getCityInfo(int cityId){
 		City city = cityDao.getCity(cityId);
-		if(city==null)
+		if(city==null){
 			return null;
+		}
+		updateAirportInfo(city);	
 		
 		city.setAvgBHKPrice( localityService.getAvgPricePerUnitAreaBHKWise( "cityId", cityId, city.getDominantUnitType() ) );
 		return city;
+	}
+	
+	/**
+	 * Updating airport informtaion in cities list
+	 * @param cities
+	 */
+	private void updateAirportInfo(List<City> cities){
+		if(cities != null){
+			for(City city: cities){
+				updateAirportInfo(city);
+			}
+		}
+	}
+	/**
+	 * Updating airport 
+	 * @param city
+	 */
+	private void updateAirportInfo(City city) {
+		if (city != null) {
+			List<LocalityAmenity> amenities = localityAmenityService
+					.getCityAmenities(city.getId(),
+							Constants.AmenityName.AIRPORT);
+			city.setAmenities(amenities);
+		}
 	}
 }
