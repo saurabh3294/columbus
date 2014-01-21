@@ -73,7 +73,7 @@ public class City implements BaseModel {
     private Integer displayPriority;
     
     @Column(name="DISPLAY_ORDER")
-    @Field(value="DISPLAY_ORDER")
+    @Field(value="CITY_DISPLAY_ORDER")
     @FieldMetaInfo( displayName = "Display Order",  description = "Display Order")
     private Integer displayOrder;
     

@@ -388,8 +388,11 @@ public class LocalityService {
 				if (objects.length == 2) {
 					Locality locality = (Locality) objects[0];
 					locality.setAverageRating((double) objects[1]);
-					Map<String, Object> localityReviewDetails = localityReviewService.getTotalUsersByRatingByLocalityId(locality.getLocalityId());
-					locality.setNumberOfUsersByRating( (Map<Double , Long>) localityReviewDetails.get(LocalityReviewService.TOTAL_USERS_BY_RATING) );
+					Map<String, Object> localityReviewDetails = localityReviewService
+							.getTotalUsersByRatingByLocalityId(locality
+									.getLocalityId());
+					locality.setNumberOfUsersByRating((Map<Double, Long>) localityReviewDetails
+							.get(LocalityReviewService.TOTAL_USERS_BY_RATING));
 					result.add(locality);
 				}
 			}
@@ -498,6 +501,13 @@ public class LocalityService {
 				// remove the locality as rating is less that threshold
 				localityItr.remove();
 			}
+		}
+		for(Locality locality: localitiesAroundMainLocality){
+			Map<String, Object> localityReviewDetails = localityReviewService
+					.getTotalUsersByRatingByLocalityId(locality
+							.getLocalityId());
+			locality.setNumberOfUsersByRating((Map<Double, Long>) localityReviewDetails
+					.get(LocalityReviewService.TOTAL_USERS_BY_RATING));
 		}
 		imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
 		return localitiesAroundMainLocality;
