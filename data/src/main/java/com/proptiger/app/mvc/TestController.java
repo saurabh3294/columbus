@@ -11,21 +11,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.B2b;
-import com.proptiger.data.model.Bank;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.B2bService;
-import com.proptiger.data.service.BankService;
 
 @Controller
 @RequestMapping(value="test")
 public class TestController extends BaseController {
-	
-	@Autowired
-	private BankService bankService;
-	
 	@Autowired
     private B2bService b2bService;
 	
@@ -33,7 +27,6 @@ public class TestController extends BaseController {
 	@ResponseBody
 	public ProAPIResponse test(@RequestParam(required = false, value = "selector") String selectorStr){
 		Selector testSelector = super.parseJsonToObject(selectorStr, Selector.class);
-		List<Bank> list = bankService.getBanks();
 		
 		List<B2b> docList = b2bService.getFilteredDocuments(testSelector);
 		
@@ -42,7 +35,6 @@ public class TestController extends BaseController {
 		if(testSelector != null){
 			fieldsToSerialize = testSelector.getFields();
 		}
-		//return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
-		return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
+		return new ProAPISuccessCountResponse(super.filterFields(docList, fieldsToSerialize), docList.size());
 	}
 }
