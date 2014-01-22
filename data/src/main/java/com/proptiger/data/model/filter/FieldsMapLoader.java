@@ -32,7 +32,15 @@ public class FieldsMapLoader {
         if (!fieldsMap.containsKey(clazz)) {
             loadClassFields(clazz);
         }
-        Annotation fieldAnnotation = fieldsMap.get(clazz).get(name).getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
+        
+        System.out.println(name);
+        Field field = fieldsMap.get(clazz).get(name);
+        Annotation fieldAnnotation = field.getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
+
+        if (fieldAnnotation == null) {
+			return field.getName();
+        }
+
         return (String) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get("value");
     }
 
