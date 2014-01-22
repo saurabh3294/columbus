@@ -414,4 +414,16 @@ public class ProjectService {
    public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
         return projectDao.getProjects(selector);
     }
+   
+   public Project getProjectData(int projectId){
+	   Set<Integer> projectIds = new HashSet<>();
+	   projectIds.add(projectId);
+	   
+	   List<Project> projects = getProjectsByIds(projectIds);
+	   
+	   if(projects != null && projects.size() > 0)
+		   return projects.get(0);
+	   
+	   throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+   }
 }

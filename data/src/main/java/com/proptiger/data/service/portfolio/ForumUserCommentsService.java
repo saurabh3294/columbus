@@ -42,7 +42,7 @@ public class ForumUserCommentsService {
 			throw new IllegalArgumentException("Comments cannot be null");
 		}
 		
-		if( projectService.getProjectDetails(forumUserComments.getProjectId()) == null){
+		if( projectService.getProjectData(forumUserComments.getProjectId()) == null){
 			throw new IllegalArgumentException("Enter valid Project Id");
 		}
 		
