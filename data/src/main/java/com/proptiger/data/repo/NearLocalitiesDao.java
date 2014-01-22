@@ -7,10 +7,7 @@ package com.proptiger.data.repo;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.ws.rs.QueryParam;
-
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.proptiger.data.model.NearLocalities;

@@ -6,11 +6,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.gson.Gson;
 import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUserComments;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
@@ -26,9 +25,15 @@ public class ForumUserCommentsController extends BaseController{
 	private ForumUserCommentsService forumUserCommentsService;
 	
 	@ResponseBody
-	@RequestMapping(method=RequestMethod.POST)
+	@RequestMapping(method= RequestMethod.POST)
 	public ProAPIResponse saveProjectComments(@RequestBody ForumUserComments forumUserComments, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
 		return new ProAPISuccessResponse( forumUserCommentsService.saveProjectComments(forumUserComments, userInfo ) );
+	}
+	
+	@ResponseBody
+	@RequestMapping(value="/likes", method= RequestMethod.POST)
+	public ProAPIResponse incrementProjectCommentLikes(@RequestParam long commentId, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+		return new ProAPISuccessResponse(forumUserCommentsService.incrementProjectCommentLikes(commentId, userInfo));
 	}
 
 }
