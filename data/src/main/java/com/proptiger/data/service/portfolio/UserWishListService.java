@@ -76,7 +76,8 @@ public class UserWishListService {
 		
 		userWishlist.setUserId(userId);
 		UserWishlist savedObject = userWishListDao.save(userWishlist);
-		return convertDaoResultToDtoObject( Arrays.asList(userWishListDao.findOne(savedObject.getId())) );
+		//returning all wish list of user after creation
+		return getUserWishList(userId);
 		
 	}
 	

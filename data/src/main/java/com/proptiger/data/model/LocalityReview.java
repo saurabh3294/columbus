@@ -13,7 +13,8 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
- * Locality review model class
+ * Locality review model class, this class is basically consiting locality
+ * ratings relate data.
  * 
  * @author Rajeev Pandey
  * 
@@ -23,7 +24,9 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class LocalityReview implements BaseModel{
-    @FieldMetaInfo(displayName = "Review Id", description = "Review Id")
+	private static final long serialVersionUID = 7492287125669474763L;
+
+	@FieldMetaInfo(displayName = "Review Id", description = "Review Id")
     @Column(name = "REVIEW_ID")
     @Id
     private long reviewId;

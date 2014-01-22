@@ -1,8 +1,11 @@
 package com.proptiger.data.util;
 
 /**
+ * Define all constants in this class, either make a group of constants related
+ * to particular entity or put that on global scope.
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public class Constants {
 
@@ -12,6 +15,7 @@ public class Constants {
 	public static final String REQ_PARAMETER_FOR_USER_ID = "_user_id";
 	public static final String JSESSIONID = "JSESSIONID";
 	public static final String PHPSESSID_KEY = "PHPSESSID";
+	public static final int DEFAULT_NO_OF_ROWS = 10;
 	
 	public class AmenityName{
 		public static final String AIRPORT = "airport";

@@ -6,19 +6,20 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.LocalityReview;
+import com.proptiger.data.model.ReviewComments;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityRatingDao;
 import com.proptiger.data.repo.LocalityReviewDao;
 
@@ -176,5 +177,68 @@ public class LocalityReviewService {
 		
 		// sending the unique localityIds.
 		return new ArrayList<Integer>(new HashSet<Integer>(localityIds) );
+	}
+	
+	/**
+	 * Get locality reviews for locality id. If user id is not null then reviews
+	 * for that user id and locality id will be returned
+	 * 
+	 * @param localityId
+	 * @param userId
+	 * @param selector
+	 * @return
+	 */
+	public List<ReviewComments> getLocalityReview(Integer localityId,
+			Integer userId, Selector selector) {
+		
+		Pageable pageable = new LimitOffsetPageRequest();
+		if (selector != null && selector.getPaging() != null) {
+			pageable = new LimitOffsetPageRequest(selector.getPaging()
+					.getStart(), selector.getPaging().getRows());
+		}
+		List<ReviewComments> reviews = null;
+
+		//in case it call is for specific user
+		if (userId != null) {
+			reviews = localityReviewDao.getReviewsByLocalityIdAndUserId(
+					localityId, userId, pageable);
+		}
+		else{
+			reviews = localityReviewDao
+					.getReviewsByLocalityId(localityId, pageable);
+		}
+		return reviews;
+	}
+
+	/**
+	 * Create new locality review by user for locality
+	 * @param localityId
+	 * @param reviewComment
+	 * @param userId
+	 * @return
+	 */
+	public ReviewComments createReviewComment(Integer localityId,
+			ReviewComments reviewComment, Integer userId) {
+		validateReviewComment(reviewComment);
+		ReviewComments reviewPresent = localityReviewDao.getByLocalityIdAndUserId(localityId, userId);
+		if(reviewPresent != null){
+			//TODO if review already present then probably update this
+			
+			return reviewPresent;
+		}
+		else{
+			//create new review
+			reviewComment.setUserId(userId);
+			ReviewComments createComment = localityReviewDao.save(reviewComment);
+			return createComment;
+		}
+	}
+
+	/**
+	 * Validate fields of ReviewComment.
+	 * @param reviewComment
+	 */
+	private void validateReviewComment(ReviewComments reviewComment) {
+		
 	}
 }

@@ -43,4 +43,12 @@ public interface LocalityReviewDao extends PagingAndSortingRepository<ReviewComm
     		+ " GROUP BY R.localityId HAVING COUNT(*) > ?2 ORDER BY COUNT(*) DESC, L.priority ASC ")
     public List<Integer> getTopReviewNearLocalitiesOnLocality(List<Integer> locationIds, long minCount, Pageable pageable);
     
+    @Query("SELECT RC FROM ReviewComments RC WHERE Status = '1' AND localityId = ?1")
+    public List<ReviewComments> getReviewsByLocalityId(Integer localityId, Pageable pageable);
+    
+    @Query("SELECT RC FROM ReviewComments RC WHERE Status = '1' AND localityId = ?1 AND userId=?2")
+    public List<ReviewComments> getReviewsByLocalityIdAndUserId(Integer localityId, Integer userId, Pageable pageable);
+    
+    
+    public ReviewComments getByLocalityIdAndUserId(Integer localityId, Integer userId);
 }

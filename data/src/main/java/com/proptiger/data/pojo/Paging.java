@@ -1,5 +1,7 @@
 package com.proptiger.data.pojo;
 
+import com.proptiger.data.util.Constants;
+
 /**
  * @author Rajeev Pandey
  *
@@ -7,7 +9,7 @@ package com.proptiger.data.pojo;
 public class Paging {
 
 	private int start = 0;
-	private int rows = 10;
+	private int rows = Constants.DEFAULT_NO_OF_ROWS;
 	
 	public Paging() {
 		
