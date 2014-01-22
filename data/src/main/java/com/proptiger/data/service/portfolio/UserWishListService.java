@@ -1,8 +1,6 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
@@ -13,8 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.internal.dto.UserWishList;
+import com.proptiger.data.internal.dto.UserWishListDto;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.UserWishlist;
@@ -43,9 +40,9 @@ public class UserWishListService {
 	 * @return
 	 */
 	@Transactional
-	public List<UserWishList> getUserWishList(Integer userId){
+	public List<UserWishListDto> getUserWishList(Integer userId){
 		List<UserWishlist> list = userWishListDao.findByUserId(userId);
-		List<UserWishList> convertedResult = convertDaoResultToDtoObject(list);
+		List<UserWishListDto> convertedResult = convertDaoResultToDtoObject(list);
 		return convertedResult;
 	}
 	/**
@@ -64,7 +61,7 @@ public class UserWishListService {
 	 * @param userId
 	 * @return
 	 */
-	public List<UserWishList> saveUserWishList(UserWishlist userWishlist, Integer userId){
+	public UserWishListDto createUserWishList(UserWishlist userWishlist, Integer userId){
 		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
 			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
 		
@@ -76,8 +73,7 @@ public class UserWishListService {
 		
 		userWishlist.setUserId(userId);
 		UserWishlist savedObject = userWishListDao.save(userWishlist);
-		//returning all wish list of user after creation
-		return getUserWishList(userId);
+		return convertToUserListDto(savedObject);
 		
 	}
 	
@@ -86,49 +82,53 @@ public class UserWishListService {
 	 * @param result
 	 * @return
 	 */
-	private List<UserWishList> convertDaoResultToDtoObject(List<UserWishlist> result) {
-		List<UserWishList> list = new ArrayList<UserWishList>();
+	private List<UserWishListDto> convertDaoResultToDtoObject(List<UserWishlist> result) {
+		List<UserWishListDto> list = new ArrayList<UserWishListDto>();
 		if(result != null){
 			for(UserWishlist userWishlist: result){
-				UserWishList userWishListDto = new UserWishList();
-				Project project = userWishlist.getProject();
-				Property property = userWishlist.getProperty();
-				
-				String city = null;
-				String projectName = null;
-				String projectUrl = null;
-				String builderName = null;
-				if(project != null){
-					projectName = project.getName();
-					projectUrl = project.getURL();
-					city = project.getLocality().getSuburb().getCity().getLabel();
-					builderName = project.getBuilder().getName();
-				}
-				String unitName = null;
-				Integer bedrooms = null;
-				if(property != null){
-					try {
-						unitName = property.getUnitName();
-						bedrooms = property.getBedrooms();
-					} catch (EntityNotFoundException e) {
-						logger.debug("Property not found in table for id {}",userWishlist.getTypeId());
-					}
-				}
-				
-				userWishListDto.setProjectId(userWishlist.getProjectId());
-				userWishListDto.setProjectName(projectName);
-				userWishListDto.setProjectUrl(projectUrl);
-				userWishListDto.setTypeId(userWishlist.getTypeId());
-				userWishListDto.setBedrooms(bedrooms);
-				userWishListDto.setWishListId(userWishlist.getId());
-				userWishListDto.setCityLabel(city);
-				userWishListDto.setUnitName(unitName);
-				userWishListDto.setBuilderName(builderName);
-				userWishListDto.setDatetime(userWishlist.getDatetime());
+				UserWishListDto userWishListDto = convertToUserListDto(userWishlist);
 				
 				list.add(userWishListDto);
 			}
 		}
 		return list;
+	}
+	private UserWishListDto convertToUserListDto(UserWishlist userWishlist) {
+		UserWishListDto userWishListDto = new UserWishListDto();
+		Project project = userWishlist.getProject();
+		Property property = userWishlist.getProperty();
+		
+		String city = null;
+		String projectName = null;
+		String projectUrl = null;
+		String builderName = null;
+		if(project != null){
+			projectName = project.getName();
+			projectUrl = project.getURL();
+			city = project.getLocality().getSuburb().getCity().getLabel();
+			builderName = project.getBuilder().getName();
+		}
+		String unitName = null;
+		Integer bedrooms = null;
+		if(property != null){
+			try {
+				unitName = property.getUnitName();
+				bedrooms = property.getBedrooms();
+			} catch (EntityNotFoundException e) {
+				logger.debug("Property not found in table for id {}",userWishlist.getTypeId());
+			}
+		}
+		
+		userWishListDto.setProjectId(userWishlist.getProjectId());
+		userWishListDto.setProjectName(projectName);
+		userWishListDto.setProjectUrl(projectUrl);
+		userWishListDto.setTypeId(userWishlist.getTypeId());
+		userWishListDto.setBedrooms(bedrooms);
+		userWishListDto.setWishListId(userWishlist.getId());
+		userWishListDto.setCityLabel(city);
+		userWishListDto.setUnitName(unitName);
+		userWishListDto.setBuilderName(builderName);
+		userWishListDto.setDatetime(userWishlist.getDatetime());
+		return userWishListDto;
 	}
 }

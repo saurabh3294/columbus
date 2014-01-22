@@ -26,7 +26,7 @@ import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.util.Constants;
 
 /**
- * Controller for fetching data related to locality review
+ * Controller for get/create/update/delete API related to locality review
  * 
  * @author Rajeev Pandey
  *

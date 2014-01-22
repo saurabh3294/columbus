@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.internal.dto.UserWishList;
+import com.proptiger.data.internal.dto.UserWishListDto;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
@@ -36,16 +36,16 @@ public class UserWishListController extends BaseController {
     @ResponseBody
     public ProAPIResponse getUserWishList(@PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        List<UserWishList> result = userWishListService.getUserWishList(userInfo.getUserIdentifier());
+        List<UserWishListDto> result = userWishListService.getUserWishList(userInfo.getUserIdentifier());
         return new ProAPISuccessCountResponse(result, result.size());
     }
 
     @RequestMapping(value = "/wish-list", method = RequestMethod.POST)
     @ResponseBody
-    public ProAPIResponse setUserWishList(@RequestBody UserWishlist userWishlist,
+    public ProAPIResponse createUserWishList(@RequestBody UserWishlist userWishlist,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        return new ProAPISuccessResponse(userWishListService.saveUserWishList(userWishlist,
-                userInfo.getUserIdentifier()));
+    	userWishListService.createUserWishList(userWishlist, userInfo.getUserIdentifier());
+        return getUserWishList(userInfo.getUserIdentifier(), userInfo);
     }
 
     @RequestMapping(value = "/wish-list/{wishlistId}", method = RequestMethod.DELETE)
@@ -54,6 +54,6 @@ public class UserWishListController extends BaseController {
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo)
     {
         userWishListService.deleteWishlist(wishlistId);
-        return getUserWishList(userId, userInfo);
+        return getUserWishList(userInfo.getUserIdentifier(), userInfo);
     }
 }
