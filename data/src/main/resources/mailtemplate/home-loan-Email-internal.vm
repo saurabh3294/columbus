@@ -30,8 +30,13 @@
                    <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                       Hi Team,<br /><br />
 					  
-					  A new home loan request have been posted by user ${ListingLoanRequestMail.userName} in city ${ListingLoanRequestMail.projectCity} for ${ListingLoanRequestMail.projectName} project. Please contact the user for more details<br /><br />
+					  A new home loan request have been posted by user ${ListingLoanRequestMail.userName} in city ${ListingLoanRequestMail.projectCity} for ${ListingLoanRequestMail.projectName} project. 
+					  Please contact the user for more details.<br /><br />
 					  
+					   <strong>Client Name:</strong> ${ListingLoanRequestMail.userName}<br />
+					   <strong>Client Email:</strong> ${ListingLoanRequestMail.email}<br />
+					   <strong>Client Mobile:</strong> ${ListingLoanRequestMail.mobile}<br />
+					   <br />
 					  
 					  Yours sincerely, <br /><br />
                       The PropTiger Family<br />
