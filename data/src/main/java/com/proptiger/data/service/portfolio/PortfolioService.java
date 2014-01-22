@@ -924,10 +924,13 @@ public class PortfolioService extends AbstractService{
 	 */
 	private ListingLoanRequestMail createListingLoanRequestObj(
 			PortfolioListing listing) {
+		ForumUser forumUser = listing.getForumUser();
 		ListingLoanRequestMail listingLoanRequestMail = new ListingLoanRequestMail();
 		listingLoanRequestMail.setProjectCity(listing.getCityName());
 		listingLoanRequestMail.setProjectName(listing.getProjectName());
 		listingLoanRequestMail.setUserName(listing.getForumUser().getUsername());
+		listingLoanRequestMail.setEmail(forumUser.getEmail());
+		listingLoanRequestMail.setMobile(forumUser.getContact()+"");
 		return listingLoanRequestMail;
 	}
 	/**
