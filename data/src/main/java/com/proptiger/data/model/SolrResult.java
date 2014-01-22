@@ -68,6 +68,12 @@ public class SolrResult implements BaseModel{
     @Field(value = "MAX_BUDGET")
     private Double maxPrice;
 
+    @Field(value = "PRIMARY_OR_RESALE_BUDGET")
+    private List<Double> primaryOrResaleBudget;
+
+    @Field(value = "PRIMARY_OR_RESALE_PRICE_PER_UNIT_AREA")
+    private List<Double> primaryOrResalePricePerUnitArea;
+
     @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
     @Field(value = "PROJECT_NAME")
     private String name;
