@@ -8,7 +8,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -22,6 +25,7 @@ import javax.persistence.TemporalType;
 public class ForumUserComments implements BaseModel{
     @Column(name = "COMMENT_ID")
     @Id
+    @GeneratedValue
     private long  commentId;
     
     @Column(name = "USER_ID")
@@ -31,7 +35,7 @@ public class ForumUserComments implements BaseModel{
     private String  adminUsername;
     
     @Column(name = "PARENT_ID")
-    private int  parentId;
+    private long  parentId;
     
     @Column(name = "LEVEL")
     private int  level;
@@ -39,26 +43,31 @@ public class ForumUserComments implements BaseModel{
     @Column(name = "PROJECT_ID")
     private int  projectId;
     
-    @Column(name = "TITLE")
-    private String  title;
+    @Column(name = "TITLE", nullable = true)
+    private String  title = "";
     
-    @Column(name = "URL")
-    private String  url;
+    @Column(name = "URL", nullable = true)
+    private String  url = "";
     
     @Column(name = "COMMENTS")
     private String  comments;
     
-    @Column(name = "LIKES")
-    private int  likes;
+    @Column(name = "LIKES", nullable = true)
+    private int  likes = 0;
     
-    //private enum('T','F')  REPLY ;
+    @Column(name = "REPLY", nullable = true)
+    private String reply;
     
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_DATE")
     private Date  createdDate;
     
     @Column(name = "STATUS")
-    private int status;
+    private String status = "0";
+    
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "APPROVED_DATE")
+    private Date approvedDate;
 
     public long getCommentId() {
         return commentId;
@@ -84,11 +93,11 @@ public class ForumUserComments implements BaseModel{
         this.adminUsername = adminUsername;
     }
 
-    public int getParentId() {
+    public long getParentId() {
         return parentId;
     }
 
-    public void setParentId(int parentId) {
+    public void setParentId(long parentId) {
         this.parentId = parentId;
     }
 
@@ -148,12 +157,33 @@ public class ForumUserComments implements BaseModel{
         this.createdDate = createdDate;
     }
 
-    public int getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(String status) {
         this.status = status;
     }
+    
+    @PrePersist
+    public void prePersist(){
+    	this.createdDate = new Date();
+    	this.approvedDate = new Date();
+    }
 
+	public String getReply() {
+		return reply;
+	}
+
+	public void setReply(String reply) {
+		this.reply = reply;
+	}
+
+	public Date getApprovedDate() {
+		return approvedDate;
+	}
+
+	public void setApprovedDate(Date approvedDate) {
+		this.approvedDate = approvedDate;
+	}
 }
