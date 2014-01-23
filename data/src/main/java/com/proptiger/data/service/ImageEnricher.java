@@ -54,7 +54,9 @@ public class ImageEnricher {
         }
         
         for (Project project: projects) {
-            project.setImageURL(imagesMap.get(project.getProjectId()));
+            if (imagesMap.containsKey(project.getProjectId())) {
+                project.setImageURL(imagesMap.get(project.getProjectId()));
+            }
         }
     }
 
