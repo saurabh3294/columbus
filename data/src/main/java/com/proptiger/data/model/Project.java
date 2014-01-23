@@ -161,9 +161,10 @@ public class Project implements BaseModel {
     @Column(name="SUBMITTED_DATE")
     private Date submittedDate;
 
+    // XXX - In order to make itnot null and avoid App crash
     @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
     @Transient
-    private String imageURL;
+    private String imageURL = "";
 
     @Transient
     @FieldMetaInfo( displayName = "Offer",  description = "Offer")
