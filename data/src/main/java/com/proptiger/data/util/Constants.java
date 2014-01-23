@@ -32,7 +32,7 @@ public class Constants {
 	}
 	
 	public class ForumUserComments{
-		public static final String FalseReply = "F";
-		public static final String TrueReply = "T";
+		public static final boolean FalseReply = false;
+		public static final boolean TrueReply = true;
 	}
 }

@@ -5,15 +5,28 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.FetchProfile.FetchOverride;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 /**
  *
@@ -67,6 +80,15 @@ public class ForumUserComments implements BaseModel{
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "APPROVED_DATE")
     private Date approvedDate;
+    
+    @Transient
+    private List<ForumUserComments> childComments = null;
+    
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name = "USER_ID", insertable = false, updatable = false, referencedColumnName = "USER_ID")
+    @JsonIgnore
+    @Fetch(FetchMode.JOIN)
+    private ForumUser forumUser;
 
     public long getCommentId() {
         return commentId;
@@ -184,5 +206,13 @@ public class ForumUserComments implements BaseModel{
 
 	public void setApprovedDate(Date approvedDate) {
 		this.approvedDate = approvedDate;
+	}
+
+	public List<ForumUserComments> getChildComments() {
+		return childComments;
+	}
+
+	public void setChildComments(List<ForumUserComments> childComments) {
+		this.childComments = childComments;
 	}
 }
