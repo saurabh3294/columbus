@@ -1,5 +1,8 @@
 package com.proptiger.data.pojo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 /**
  * This class represents a error response.
  * 
@@ -10,12 +13,20 @@ public class ProAPIErrorResponse implements ProAPIResponse {
 
 	private String statusCode;
 	private ProError error;
+	
+	@JsonInclude(Include.NON_NULL)
+	private Object data;
 
 	public ProAPIErrorResponse(String statusCode, String errorMsg) {
-		super();
 		this.statusCode = statusCode;
 		this.error = new ProError(errorMsg);
 	}
+
+	public ProAPIErrorResponse(String statusCode, String errorMsg, Object data) {
+        this.statusCode = statusCode;
+        this.error = new ProError(errorMsg);
+        this.data = data;
+    }
 
 	@Override
 	public String getStatusCode() {
@@ -69,5 +80,13 @@ public class ProAPIErrorResponse implements ProAPIResponse {
 		return "{statusCode=" + statusCode + ", error="
 				+ error + "}";
 	}
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
+    }
 	
 }

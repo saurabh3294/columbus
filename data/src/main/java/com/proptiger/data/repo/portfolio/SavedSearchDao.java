@@ -11,5 +11,6 @@ import com.proptiger.data.model.portfolio.SavedSearch;
  */
 @Component
 public interface SavedSearchDao extends PagingAndSortingRepository<SavedSearch, Integer>, SavedSearchCustomDao {
-	SavedSearch findBySearchQueryAndUserIdOrNameAndUserId(String searchQuery, int userId, String name, int user_id);
+    SavedSearch findBySearchQueryAndUserId(String searchQuery, Integer userId);
+    SavedSearch findByNameAndUserId(String name, Integer userId);
 }
