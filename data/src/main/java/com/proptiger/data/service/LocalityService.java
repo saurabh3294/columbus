@@ -29,6 +29,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
+import com.proptiger.data.model.LocalityReview.LocalityAverageRatingCategory;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
@@ -70,6 +71,9 @@ public class LocalityService {
 	@Autowired
 	private LocalityAmenityService localityAmenityService;
 
+	@Autowired
+	private LocalityRatingService localityRatingService;
+	
 	@Autowired
 	private ImageEnricher imageEnricher;
 
@@ -313,6 +317,10 @@ public class LocalityService {
 		if(locality == null)
 			return null;
 		
+		LocalityAverageRatingCategory avgRatingsOfLocalityCategory = localityRatingService
+				.getAvgRagingsOfLocalityCategory(localityId);
+		locality.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
+
 		List<LocalityAmenity> amenities = localityAmenityService
 				.getLocalityAmenities(localityId, null);
 		Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
