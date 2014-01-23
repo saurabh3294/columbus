@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.LocalityReview.LocalityAverageRatingCategory;
 import com.proptiger.data.model.image.Image;
 
 /**
@@ -175,6 +176,9 @@ public class Locality implements BaseModel {
     
     @Transient
     private Map<Double, Long> numberOfUsersByRating;
+    
+    @Transient
+    private LocalityAverageRatingCategory avgRatingsByCategory;
     
     public int getLocalityId() {
         return localityId;
@@ -465,4 +469,14 @@ public class Locality implements BaseModel {
 	public void setNumberOfUsersByRating(Map<Double, Long> numberOfUsersByRating) {
 		this.numberOfUsersByRating = numberOfUsersByRating;
 	}
+
+	public LocalityAverageRatingCategory getAvgRatingsByCategory() {
+		return avgRatingsByCategory;
+	}
+
+	public void setAvgRatingsByCategory(
+			LocalityAverageRatingCategory avgRatingsByCategory) {
+		this.avgRatingsByCategory = avgRatingsByCategory;
+	}
+	
 }

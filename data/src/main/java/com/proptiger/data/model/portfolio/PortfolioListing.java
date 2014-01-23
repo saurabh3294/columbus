@@ -102,7 +102,7 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	
 	@FieldMetaInfo(displayName = "Floor Number", description = "Floor Number")
 	@Column(name = "floor_no")
-	private int floorNo;
+	private String floorNo;
 	
 	@FieldMetaInfo(displayName = "Listing Size", description = "Listing Size")
 	@Column(name = "size")
@@ -246,10 +246,10 @@ public class PortfolioListing implements NamedResource, Resource, BaseModel{
 	public void setUnitNo(String unitNo) {
 		this.unitNo = unitNo;
 	}
-	public int getFloorNo() {
+	public String getFloorNo() {
 		return floorNo;
 	}
-	public void setFloorNo(int floorNo) {
+	public void setFloorNo(String floorNo) {
 		this.floorNo = floorNo;
 	}
 	public Date getPurchaseDate() {

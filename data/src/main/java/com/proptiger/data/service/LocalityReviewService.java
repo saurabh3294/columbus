@@ -134,11 +134,9 @@ public class LocalityReviewService {
 		double avgRating = 0, rating = 0;
 		long totalRating = 0, users = 0;
 		
-		Float ratingValue;
-				
 		for(int i=0; i<ratingDetails.size(); i++){
 			ratingInfo = ratingDetails.get(i);
-			rating = (ratingValue = (Float)ratingInfo[0]).doubleValue();
+			rating = Double.valueOf((Double)ratingInfo[0]);
 			users = (Long)ratingInfo[1];
 			
 			avgRating += rating*users;
