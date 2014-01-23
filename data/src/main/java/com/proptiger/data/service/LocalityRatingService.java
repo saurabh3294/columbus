@@ -8,7 +8,6 @@ import com.proptiger.data.model.LocalityReview;
 import com.proptiger.data.model.LocalityReview.LocalityAverageRatingCategory;
 import com.proptiger.data.repo.LocalityRatingDao;
 import com.proptiger.exception.ConstraintViolationException;
-import com.proptiger.exception.DuplicateNameResourceException;
 
 /**
  * Service class to provide CRUD operations over locality ratings
