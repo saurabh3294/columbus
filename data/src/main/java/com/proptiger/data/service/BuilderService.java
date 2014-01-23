@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
  */
 @Service
 public class BuilderService {
+	private static Logger logger = LoggerFactory.getLogger(BuilderService.class);
     @Autowired
     private BuilderDao builderDao;
     
@@ -67,6 +70,7 @@ public class BuilderService {
     public Builder getBuilderInfo(Integer builderId, Selector selector){
     	Builder builder = builderDao.getBuilderById(builderId);
     	if(builder == null){
+    		logger.error("Builder id {} not found",builderId);
     		throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
     	}
     	

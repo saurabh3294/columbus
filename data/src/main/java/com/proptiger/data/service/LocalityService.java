@@ -6,6 +6,8 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +29,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
+import com.proptiger.data.model.LocalityReview.LocalityAverageRatingCategory;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
@@ -55,6 +58,8 @@ public class LocalityService {
 	private static Logger logger = LoggerFactory
 			.getLogger(LocalityService.class);
 
+	private static int LOCALITY_PAGE_SIZE = 15;
+
 	@Autowired
 	private LocalityAmenityTypeService amenityTypeService;
 	@Autowired
@@ -66,6 +71,9 @@ public class LocalityService {
 	@Autowired
 	private LocalityAmenityService localityAmenityService;
 
+	@Autowired
+	private LocalityRatingService localityRatingService;
+	
 	@Autowired
 	private ImageEnricher imageEnricher;
 
@@ -144,10 +152,47 @@ public class LocalityService {
 		setProjectStatusCountAndProjectCountAndPriceOnLocality(
 				localities.getResults(), solrProjectStatusCountAndProjectCount,
 				priceStats);
+		
+		sortLocalities(localities.getResults());
 		return localities;
 	}
 	
 	/**
+	 * Sorts localities as per the logic that first X ones are either priority based or project count based.
+	 * Remaining ones are alphabetically sorted.
+	 * @param localities
+	 */
+	private void sortLocalities(List<Locality> localities) {
+        if (!localities.isEmpty()) {
+            if (localities.get(0).getPriority() == Locality.MAX_PRIORITY) {
+                Collections.sort(localities, new Comparator<Locality>() {
+
+                    @Override
+                    public int compare(Locality o1, Locality o2) {
+                        return o2.getProjectCount() - o1.getProjectCount();
+                    }
+                    
+                });
+
+                if (localities.size() > LOCALITY_PAGE_SIZE) {
+                    List<Locality> remainingLocalities = localities.subList(LOCALITY_PAGE_SIZE, localities.size() - 1);                
+                    Collections.sort(remainingLocalities, new Comparator<Locality>() {
+
+                        @Override
+                        public int compare(Locality o1, Locality o2) {
+                            return o1.getLabel().compareToIgnoreCase(o2.getLabel());
+                        }
+                    });
+
+                    localities = localities.subList(0, LOCALITY_PAGE_SIZE - 1);
+                    localities.addAll(remainingLocalities);
+                }
+            }
+        }
+    }
+
+
+    /**
 	 * This method will take the list of localities , Price stats and project status count and project count
 	 * from solr. This method will iterate on localities and set the data for each locality in the locality
 	 * object.
@@ -272,6 +317,10 @@ public class LocalityService {
 		if(locality == null)
 			return null;
 		
+		LocalityAverageRatingCategory avgRatingsOfLocalityCategory = localityRatingService
+				.getAvgRagingsOfLocalityCategory(localityId);
+		locality.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
+
 		List<LocalityAmenity> amenities = localityAmenityService
 				.getLocalityAmenities(localityId, null);
 		Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);

@@ -2,6 +2,8 @@ package com.proptiger.data.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -27,151 +29,225 @@ public class LocalityReview implements BaseModel{
 	private static final long serialVersionUID = 7492287125669474763L;
 
 	@FieldMetaInfo(displayName = "Review Id", description = "Review Id")
-    @Column(name = "REVIEW_ID")
-    @Id
-    private long reviewId;
-    @FieldMetaInfo(displayName = "User Id", description = "User Id")
-    @Column(name = "USER_ID")
-    private long userId;
-    @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
-    @Column(name = "LOCALITY_ID")
-    private int localityId;
-    @FieldMetaInfo(displayName = "Overall Rating", description = "Overall Rating")
-    @Column(name = "OVERALL_RATING")
-    private float overallRating;
-    @FieldMetaInfo(displayName = "Location", description = "Location")
-    @Column(name = "LOCATION")
-    private float location;
-    @FieldMetaInfo(displayName = "Safety", description = "Safety")
-    @Column(name = "SAFETY")
-    private float safety;
-    @FieldMetaInfo(displayName = "Public Transport", description = "Public Transport")
-    @Column(name = "PUB_TRANS")
-    private float pubTrans;
-    @FieldMetaInfo(displayName = "Rest Shop", description = "Rest Shop")
-    @Column(name = "REST_SHOP")
-    private float restShop;
-    @FieldMetaInfo(displayName = "Schools", description = "Schools")
-    @Column(name = "SCHOOLS")
-    private float schools;
-    @FieldMetaInfo(displayName = "Parks", description = "Parks")
-    @Column(name = "PARKS")
-    private float parks;
-    @FieldMetaInfo(displayName = "Traffic", description = "Traffic")
-    @Column(name = "TRAFFIC")
-    private float traffic;
-    @FieldMetaInfo(displayName = "Hospitals", description = "Hospitals")
-    @Column(name = "HOSPITALS")
-    private float hospitals;
-    @FieldMetaInfo(displayName = "Civic", description = "Civic")
-    private float civic;
+	@Column(name = "REVIEW_ID")
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long reviewId;
+	@FieldMetaInfo(displayName = "User Id", description = "User Id")
+	@Column(name = "USER_ID")
+	private Integer userId;
+	@FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
+	@Column(name = "LOCALITY_ID")
+	private Integer localityId;
+	@FieldMetaInfo(displayName = "Overall Rating", description = "Overall Rating")
+	@Column(name = "OVERALL_RATING")
+	private double overallRating;
+	@FieldMetaInfo(displayName = "Location", description = "Location")
+	@Column(name = "LOCATION")
+	private double location;
+	@FieldMetaInfo(displayName = "Safety", description = "Safety")
+	@Column(name = "SAFETY")
+	private double safety;
+	@FieldMetaInfo(displayName = "Public Transport", description = "Public Transport")
+	@Column(name = "PUB_TRANS")
+	private double pubTrans;
+	@FieldMetaInfo(displayName = "Rest Shop", description = "Rest Shop")
+	@Column(name = "REST_SHOP")
+	private double restShop;
+	@FieldMetaInfo(displayName = "Schools", description = "Schools")
+	@Column(name = "SCHOOLS")
+	private double schools;
+	@FieldMetaInfo(displayName = "Parks", description = "Parks")
+	@Column(name = "PARKS")
+	private double parks;
+	@FieldMetaInfo(displayName = "Traffic", description = "Traffic")
+	@Column(name = "TRAFFIC")
+	private double traffic;
+	@FieldMetaInfo(displayName = "Hospitals", description = "Hospitals")
+	@Column(name = "HOSPITALS")
+	private double hospitals;
+	@FieldMetaInfo(displayName = "Civic", description = "Civic")
+	@Column(name = "CIVIC")
+	private double civic;
 
-    @ManyToOne
-    @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
-    @JsonIgnore
-    private Locality locality;
-    
-    public long getReviewId() {
-        return reviewId;
-    }
+	@ManyToOne
+	@JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
+	@JsonIgnore
+	private Locality locality;
 
-    public void setReviewId(long reviewId) {
-        this.reviewId = reviewId;
-    }
+	public Long getReviewId() {
+		return reviewId;
+	}
 
-    public long getUserId() {
-        return userId;
-    }
+	public void setReviewId(Long reviewId) {
+		this.reviewId = reviewId;
+	}
 
-    public void setUserId(long userId) {
-        this.userId = userId;
-    }
+	public Integer getUserId() {
+		return userId;
+	}
 
-    public int getLocalityId() {
-        return localityId;
-    }
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
 
-    public void setLocalityId(int localityId) {
-        this.localityId = localityId;
-    }
+	public Integer getLocalityId() {
+		return localityId;
+	}
 
-    public float getOverallRating() {
-        return overallRating;
-    }
+	public void setLocalityId(Integer localityId) {
+		this.localityId = localityId;
+	}
 
-    public void setOverallRating(float overallRating) {
-        this.overallRating = overallRating;
-    }
+	public double getOverallRating() {
+		return overallRating;
+	}
 
-    public float getLocation() {
-        return location;
-    }
+	public void setOverallRating(double overallRating) {
+		this.overallRating = overallRating;
+	}
 
-    public void setLocation(float location) {
-        this.location = location;
-    }
+	public double getLocation() {
+		return location;
+	}
 
-    public float getSafety() {
-        return safety;
-    }
+	public void setLocation(double location) {
+		this.location = location;
+	}
 
-    public void setSafety(float safety) {
-        this.safety = safety;
-    }
+	public double getSafety() {
+		return safety;
+	}
 
-    public float getPubTrans() {
-        return pubTrans;
-    }
+	public void setSafety(double safety) {
+		this.safety = safety;
+	}
 
-    public void setPubTrans(float pubTrans) {
-        this.pubTrans = pubTrans;
-    }
+	public double getPubTrans() {
+		return pubTrans;
+	}
 
-    public float getRestShop() {
-        return restShop;
-    }
+	public void setPubTrans(double pubTrans) {
+		this.pubTrans = pubTrans;
+	}
 
-    public void setRestShop(float restShop) {
-        this.restShop = restShop;
-    }
+	public double getRestShop() {
+		return restShop;
+	}
 
-    public float getSchools() {
-        return schools;
-    }
+	public void setRestShop(double restShop) {
+		this.restShop = restShop;
+	}
 
-    public void setSchools(float schools) {
-        this.schools = schools;
-    }
+	public double getSchools() {
+		return schools;
+	}
 
-    public float getParks() {
-        return parks;
-    }
+	public void setSchools(double schools) {
+		this.schools = schools;
+	}
 
-    public void setParks(float parks) {
-        this.parks = parks;
-    }
+	public double getParks() {
+		return parks;
+	}
 
-    public float getTraffic() {
-        return traffic;
-    }
+	public void setParks(double parks) {
+		this.parks = parks;
+	}
 
-    public void setTraffic(float traffic) {
-        this.traffic = traffic;
-    }
+	public double getTraffic() {
+		return traffic;
+	}
 
-    public float getHospitals() {
-        return hospitals;
-    }
+	public void setTraffic(double traffic) {
+		this.traffic = traffic;
+	}
 
-    public void setHospitals(float hospitals) {
-        this.hospitals = hospitals;
-    }
+	public double getHospitals() {
+		return hospitals;
+	}
 
-    public float getCivic() {
-        return civic;
-    }
+	public void setHospitals(double hospitals) {
+		this.hospitals = hospitals;
+	}
 
-    public void setCivic(float civic) {
-        this.civic = civic;
-    }
+	public double getCivic() {
+		return civic;
+	}
+
+	public void setCivic(double civic) {
+		this.civic = civic;
+	}
+
+	public void update(LocalityReview newRatings) {
+		this.setCivic(newRatings.getCivic());
+		this.setHospitals(newRatings.getHospitals());
+		this.setLocation(newRatings.getLocation());
+		this.setOverallRating(newRatings.getOverallRating());
+		this.setParks(newRatings.getParks());
+		this.setPubTrans(newRatings.getPubTrans());
+		this.setRestShop(newRatings.getRestShop());
+		this.setSafety(newRatings.getSafety());
+		this.setSchools(newRatings.getSchools());
+		this.setTraffic(newRatings.getTraffic());
+	}
+	
+	public static class LocalityAverageRatingCategory{
+		public LocalityAverageRatingCategory(double overallRating, double location, double safety,
+				double pubTrans, double restShop, double schools, double parks,
+				double traffic, double hospitals, double civic) {
+			this.overallRating = overallRating;
+			this.location = location;
+			this.safety = safety;
+			this.pubTrans = pubTrans;
+			this.restShop = restShop;
+			this.schools = schools;
+			this.parks = parks;
+			this.traffic = traffic;
+			this.hospitals = hospitals;
+			this.civic = civic;
+		}
+		private double overallRating;
+		private double location;
+		private double safety;
+		private double pubTrans;
+		private double restShop;
+		private double schools;
+		private double parks;
+		private double traffic;
+		private double hospitals;
+		private double civic;
+		
+		public double getOverallRating() {
+			return overallRating;
+		}
+		public double getLocation() {
+			return location;
+		}
+		public double getSafety() {
+			return safety;
+		}
+		public double getPubTrans() {
+			return pubTrans;
+		}
+		public double getRestShop() {
+			return restShop;
+		}
+		public double getSchools() {
+			return schools;
+		}
+		public double getParks() {
+			return parks;
+		}
+		public double getTraffic() {
+			return traffic;
+		}
+		public double getHospitals() {
+			return hospitals;
+		}
+		public double getCivic() {
+			return civic;
+		}
+		
+	}
 }

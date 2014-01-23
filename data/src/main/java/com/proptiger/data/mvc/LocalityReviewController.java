@@ -71,11 +71,10 @@ public class LocalityReviewController extends BaseController{
 				selector.getFields()), reviews.size());
 	}
 	
-	@RequestMapping(value = "data/v1/entity/user/{userId}/locality/{localityId}/review", method = RequestMethod.GET)
+	@RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.GET)
 	@ResponseBody
 	@DisableCaching
 	public ProAPIResponse getLocalityReviewsByUser(
-			@PathVariable Integer userId,
 			@PathVariable Integer localityId,
 			@RequestParam(required = false, value = "selector") String selectorStr,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
@@ -88,11 +87,10 @@ public class LocalityReviewController extends BaseController{
 		return new ProAPISuccessCountResponse(super.filterFields(reviews,
 				selector.getFields()), reviews.size());
 	}
-	@RequestMapping(value = "data/v1/entity/user/{userId}/locality/{localityId}/review", method = RequestMethod.POST)
+	@RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.POST)
 	@ResponseBody
 	@DisableCaching
 	public ProAPIResponse createReview(
-			@PathVariable Integer userId,
 			@PathVariable Integer localityId,
 			@RequestBody ReviewComments reviewComments,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
