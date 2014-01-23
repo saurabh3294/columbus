@@ -31,7 +31,7 @@ import com.proptiger.data.service.portfolio.DashboardService;
 @RequestMapping(value="app/v1/typeahead")
 public class TypeaheadController extends BaseController {
     @Autowired
-    TypeaheadService typeaheadService;
+    private TypeaheadService typeaheadService;
     
     private static Logger logger = LoggerFactory.getLogger(DashboardService.class);
     

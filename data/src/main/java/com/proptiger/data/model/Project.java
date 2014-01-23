@@ -27,9 +27,8 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -162,9 +161,10 @@ public class Project implements BaseModel {
     @Column(name="SUBMITTED_DATE")
     private Date submittedDate;
 
+    // XXX - In order to make itnot null and avoid App crash
     @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
     @Transient
-    private String imageURL;
+    private String imageURL = "";
 
     @Transient
     @FieldMetaInfo( displayName = "Offer",  description = "Offer")

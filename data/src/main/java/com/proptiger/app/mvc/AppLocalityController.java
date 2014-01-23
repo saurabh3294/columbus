@@ -47,9 +47,6 @@ public class AppLocalityController extends BaseController {
         if (propRequestParam == null) {
             propRequestParam = new Selector();
         }
-        // all localities are needed by default. Hence, setting max value.
-        if(propRequestParam.getPaging() == null)
-        	propRequestParam.setPaging(new Paging(0, 10));
         
 		PaginatedResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
 		

@@ -25,4 +25,14 @@ public class Constants {
 		public static final String RESTAURANT = "restaurant";
 		public static final String GAS_STATION = "gas_station";
 	}
+	
+	public class SubscriptionType{
+		public static final String FORUM = "forum";
+		public static final String REVIEW = "review";
+	}
+	
+	public class ForumUserComments{
+		public static final String FalseReply = "F";
+		public static final String TrueReply = "T";
+	}
 }
