@@ -42,7 +42,7 @@ public class ProjectDao extends ProjectSolrDao {
         	return projectDatabaseDao.findByProjectId(projectId);
         }
 
-        public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
+        public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
             if (commentId == null) {
                 return projectDBDao.getProjectDiscussions(projectId);
             }

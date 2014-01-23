@@ -11,6 +11,8 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -192,10 +194,11 @@ public class LocalityReview implements BaseModel{
 		this.setTraffic(newRatings.getTraffic());
 	}
 	
+	@JsonInclude(Include.NON_NULL)
 	public static class LocalityAverageRatingCategory{
-		public LocalityAverageRatingCategory(double overallRating, double location, double safety,
-				double pubTrans, double restShop, double schools, double parks,
-				double traffic, double hospitals, double civic) {
+		public LocalityAverageRatingCategory(Double overallRating, Double location, Double safety,
+				Double pubTrans, Double restShop, Double schools, Double parks,
+				Double traffic, Double hospitals, Double civic) {
 			this.overallRating = overallRating;
 			this.location = location;
 			this.safety = safety;
@@ -207,45 +210,45 @@ public class LocalityReview implements BaseModel{
 			this.hospitals = hospitals;
 			this.civic = civic;
 		}
-		private double overallRating;
-		private double location;
-		private double safety;
-		private double pubTrans;
-		private double restShop;
-		private double schools;
-		private double parks;
-		private double traffic;
-		private double hospitals;
-		private double civic;
+		private Double overallRating;
+		private Double location;
+		private Double safety;
+		private Double pubTrans;
+		private Double restShop;
+		private Double schools;
+		private Double parks;
+		private Double traffic;
+		private Double hospitals;
+		private Double civic;
 		
-		public double getOverallRating() {
+		public Double getOverallRating() {
 			return overallRating;
 		}
-		public double getLocation() {
+		public Double getLocation() {
 			return location;
 		}
-		public double getSafety() {
+		public Double getSafety() {
 			return safety;
 		}
-		public double getPubTrans() {
+		public Double getPubTrans() {
 			return pubTrans;
 		}
-		public double getRestShop() {
+		public Double getRestShop() {
 			return restShop;
 		}
-		public double getSchools() {
+		public Double getSchools() {
 			return schools;
 		}
-		public double getParks() {
+		public Double getParks() {
 			return parks;
 		}
-		public double getTraffic() {
+		public Double getTraffic() {
 			return traffic;
 		}
-		public double getHospitals() {
+		public Double getHospitals() {
 			return hospitals;
 		}
-		public double getCivic() {
+		public Double getCivic() {
 			return civic;
 		}
 		

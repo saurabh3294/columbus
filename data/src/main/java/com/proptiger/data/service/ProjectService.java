@@ -201,7 +201,7 @@ public class ProjectService {
      * @param commentId
      * @return
      */
-    public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
+    public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
         List<ProjectDiscussion> discussions = projectDao.getDiscussions(projectId, commentId);
         for (ProjectDiscussion projectDiscussion : discussions) {
             if ("proptiger".equals(projectDiscussion.getUser().getUsername())) {
