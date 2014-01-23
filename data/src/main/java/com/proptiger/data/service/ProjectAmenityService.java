@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.ec2.model.DomainType;
 import com.proptiger.data.model.ProjectAmenity;
 import com.proptiger.data.model.ProjectCMSAmenity;
 import com.proptiger.data.repo.ProjectAmenityDao;

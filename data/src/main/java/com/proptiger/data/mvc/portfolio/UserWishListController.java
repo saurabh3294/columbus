@@ -17,7 +17,6 @@ import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.portfolio.UserWishListService;
 import com.proptiger.data.util.Constants;
 

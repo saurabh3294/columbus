@@ -4,8 +4,6 @@
  */
 package com.proptiger.data.service;
 
-import java.sql.Date;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -124,10 +122,10 @@ public class ProjectService {
      */
     public ProjectDB getProjectDetails(Integer projectId) {
         ProjectDB project = projectDao.findByProjectId(projectId);
-        imageEnricher.setProjectDBImages(project);
         if (project == null) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }
+        imageEnricher.setProjectDBImages(project);
         return project;
     }
     
@@ -416,4 +414,16 @@ public class ProjectService {
    public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
         return projectDao.getProjects(selector);
     }
+   
+   public Project getProjectData(int projectId){
+	   Set<Integer> projectIds = new HashSet<>();
+	   projectIds.add(projectId);
+	   
+	   List<Project> projects = getProjectsByIds(projectIds);
+	   
+	   if(projects != null && projects.size() > 0)
+		   return projects.get(0);
+	   
+	   throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+   }
 }

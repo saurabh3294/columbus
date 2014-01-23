@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity
 @Table(name = "cms.table_attributes")

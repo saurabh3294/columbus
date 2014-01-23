@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +16,11 @@ import com.proptiger.data.model.seller.ProjectAssignmentRule;
 import com.proptiger.data.model.seller.RuleAgentMapping;
 import com.proptiger.data.model.seller.RuleLocalityMapping;
 import com.proptiger.data.model.seller.RuleProjectMapping;
-import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.seller.AgentDao;
 import com.proptiger.data.repo.seller.ProjectAssignmentRuleDao;
 import com.proptiger.data.repo.seller.RuleAgentMappingDao;
 import com.proptiger.data.repo.seller.RuleLocalityMappingDao;
 import com.proptiger.data.repo.seller.RuleProjectMappingDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;

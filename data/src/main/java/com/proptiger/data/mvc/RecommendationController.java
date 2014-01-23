@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.ImageEnricher;
