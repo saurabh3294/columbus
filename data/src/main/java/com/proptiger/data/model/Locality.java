@@ -35,6 +35,8 @@ import com.proptiger.data.model.image.Image;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Locality implements BaseModel {
+    public static int MAX_PRIORITY = 100;
+    
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
     @Id
