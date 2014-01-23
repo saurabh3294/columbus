@@ -1,6 +1,5 @@
 package com.proptiger.data.model;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -26,10 +25,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.util.ReplySerializer;

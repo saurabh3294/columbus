@@ -16,14 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.ForumUserComments;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.portfolio.ProjectCommentLikes;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.repo.ForumUserDao;
-import com.proptiger.data.repo.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.repo.portfolio.ProjectCommentLikesDao;
+import com.proptiger.data.repo.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
