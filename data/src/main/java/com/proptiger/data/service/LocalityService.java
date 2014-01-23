@@ -181,7 +181,7 @@ public class LocalityService {
                     });
 
                     localities = localities.subList(0, LOCALITY_PAGE_SIZE - 1);
-                    localities.addAll(LOCALITY_PAGE_SIZE, remainingLocalities);
+                    localities.addAll(remainingLocalities);
                 }
             }
         }
