@@ -9,13 +9,17 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -30,7 +34,8 @@ public class ReviewComments implements BaseModel{
     @FieldMetaInfo(displayName = "Comment Id", description = "Comment Id")
     @Column(name = "COMMENT_ID")
     @Id
-    private int commentId;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer commentId;
     
     @FieldMetaInfo(displayName = "User Id", description = "User Id")
     @Column(name = "USER_ID")
@@ -62,7 +67,7 @@ public class ReviewComments implements BaseModel{
     
     @FieldMetaInfo(displayName = "You know", description = "You Know")
     @Column(name = "YOU_KNOW")
-    private int youKnow;
+    private String youKnow;
     
     @FieldMetaInfo(displayName = "Comment Time", description = "Comment Time")
     @Column(name = "COMMENTTIME")
@@ -79,13 +84,14 @@ public class ReviewComments implements BaseModel{
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="USER_ID", insertable=false, updatable=false)
+    @JsonIgnore
     private ForumUser forumUser;
     
-    public int getCommentId() {
+    public Integer getCommentId() {
         return commentId;
     }
 
-    public void setCommentId(int commentId) {
+    public void setCommentId(Integer commentId) {
         this.commentId = commentId;
     }
 
@@ -145,11 +151,11 @@ public class ReviewComments implements BaseModel{
         this.recommend = recommend;
     }
 
-    public int getYouKnow() {
+    public String getYouKnow() {
         return youKnow;
     }
 
-    public void setYouKnow(short youKnow) {
+    public void setYouKnow(String youKnow) {
         this.youKnow = youKnow;
     }
 
@@ -175,5 +181,9 @@ public class ReviewComments implements BaseModel{
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    @PrePersist
+    public void prePersist(){
+    	commenttime = new Date();
     }
 }

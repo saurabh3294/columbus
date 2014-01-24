@@ -1,5 +1,6 @@
 package com.proptiger.data.repo;
 
+import java.util.Date;
 import java.util.List;
 
 import org.jboss.logging.Param;
@@ -29,9 +30,15 @@ public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, 
     public String getProjectNameById(Integer projectId);
     
     @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd "
-    		+ "WHERE pd.projectId=p.projectId AND UNIX_TIMESTAMP(pd.createdDate) >= (UNIX_TIMESTAMP() -?1)"
+    		+ "WHERE pd.projectId=p.projectId AND pd.createdDate >= ?1"
+    		+ " AND CASE ?2 WHEN 1 THEN p.locality.suburb.city.id  WHEN 2 THEN p.locality.suburb.id WHEN 3 THEN p.localityId END = ?3 "
+    		+ " GROUP BY pd.projectId HAVING COUNT(*) > ?4 ORDER BY pd.createdDate DESC, COUNT(*) DESC , p.assignedPriority ASC")
+    public List<Integer> getRecentlyMostDiscussedProjects(@Param Date date, @Param int localityType, @Param int cityId, @Param long minCount);
+    
+    @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd "
+    		+ "WHERE pd.projectId=p.projectId AND pd.createdDate >= ?1"
     		+ " AND CASE ?2 WHEN 1 THEN p.locality.suburb.city.id  WHEN 2 THEN p.locality.suburb.id WHEN 3 THEN p.localityId END = ?3 "
     		+ " GROUP BY pd.projectId HAVING COUNT(*) > ?4 ORDER BY COUNT(*) DESC , p.assignedPriority ASC")
-    public List<Object> getMostDiscussedProjects(@Param long timediff, @Param int localityType, @Param int cityId, @Param long minCount);
+    public List<Integer> getMostDiscussedProjects(@Param Date date, @Param int localityType, @Param int cityId, @Param long minCount);
       
 }

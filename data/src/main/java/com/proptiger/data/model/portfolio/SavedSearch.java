@@ -12,7 +12,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "FORUM_USER_SAVED_SEARCHES")
 @ResourceMetaInfo
-public class ForumUserSavedSearch {
+public class SavedSearch {
 
 	@Id
 	@GeneratedValue
@@ -63,6 +63,4 @@ public class ForumUserSavedSearch {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	
 }

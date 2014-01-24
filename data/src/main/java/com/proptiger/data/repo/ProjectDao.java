@@ -4,9 +4,9 @@
  */
 package com.proptiger.data.repo;
 
+import java.util.Date;
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class ProjectDao extends ProjectSolrDao {
         	return projectDatabaseDao.findByProjectId(projectId);
         }
 
-        public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
+        public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
             if (commentId == null) {
                 return projectDBDao.getProjectDiscussions(projectId);
             }
@@ -51,8 +51,12 @@ public class ProjectDao extends ProjectSolrDao {
             }
         }
         
-        public List<Object> getMostDiscussedProjectInNWeeksOnLocation(long timediff, int locationType, int locationId, int minCount){
-        	return projectDatabaseDao.getMostDiscussedProjects(timediff, locationType, locationId, minCount);
+        public List<Integer> getMostRecentlyDiscussedProjectInNWeeksOnLocation(Date date, int locationType, int locationId, int minCount){
+        	return projectDatabaseDao.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
+        }
+        
+        public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(Date date, int locationType, int locationId, int minCount){
+        	return projectDatabaseDao.getMostDiscussedProjects(date, locationType, locationId, minCount);
         }
 
         public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {

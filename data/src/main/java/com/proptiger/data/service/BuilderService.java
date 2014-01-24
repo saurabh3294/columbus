@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
  */
 @Service
 public class BuilderService {
+	private static Logger logger = LoggerFactory.getLogger(BuilderService.class);
     @Autowired
     private BuilderDao builderDao;
     
@@ -67,14 +70,15 @@ public class BuilderService {
     public Builder getBuilderInfo(Integer builderId, Selector selector){
     	Builder builder = builderDao.getBuilderById(builderId);
     	if(builder == null){
+    		logger.error("Builder id {} not found",builderId);
     		throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
     	}
     	
     	Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
     	Map<String, Long> projectStatusCountMap = projectDao.getProjectStatusCount(tempSelector);
     	builder.setProjectStatusCount(projectStatusCountMap);
-    	
-    	
+    	imageEnricher.setBuilderImages(builder);
+
     	return builder;
     }
 
@@ -145,6 +149,7 @@ public class BuilderService {
 			topBuilders.add(result.getProject().getBuilder());
 		}
 		sortByPriorityAsc(topBuilders);
+		imageEnricher.setBuildersImages(topBuilders);
 		return topBuilders;
 	}
 	
@@ -157,7 +162,10 @@ public class BuilderService {
 		Collections.sort(topBuilders, new Comparator<Builder>() {
 			@Override
 			public int compare(Builder b1, Builder b2) {
-				return (b1.getPriority() - b2.getPriority());
+				if(b1.getPriority() != null && b2.getPriority() != null){
+					return (b1.getPriority() - b2.getPriority());
+				}
+				return 0;
 			}
 		});
 	}

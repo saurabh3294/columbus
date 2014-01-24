@@ -65,7 +65,7 @@ public abstract class BaseController {
 					.addFilter("fieldFilter", SimpleBeanPropertyFilter
 							.serializeAllExcept(fieldSet));
 
-			if (fields != null) {
+			if (fields != null && !fields.isEmpty()) {
 				filterProvider = new SimpleFilterProvider().addFilter(
 						"fieldFilter",
 						SimpleBeanPropertyFilter.filterOutAllExcept(fields));

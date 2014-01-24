@@ -12,7 +12,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -94,7 +93,7 @@ public class ProjectController extends BaseController {
     @RequestMapping("data/v1/entity/project/{projectId}/discussions")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse getDiscussions(@RequestParam(required = false) Integer commentId, @PathVariable int projectId) {
+    public ProAPIResponse getDiscussions(@RequestParam(required = false) Long commentId, @PathVariable int projectId) {
         List<ProjectDiscussion> comments = projectService.getDiscussions(projectId, commentId);
         return new ProAPISuccessResponse(super.filterFields(comments, null));
     }
@@ -136,4 +135,38 @@ public class ProjectController extends BaseController {
 				popularProjects, projectSelector.getFields()),
 				popularProjects.size());
 	}
+	
+	 @RequestMapping(value="data/v1/entity/project/recently-discussed")
+	 @ResponseBody
+	 @DisableCaching
+	 public ProAPIResponse getRecentlyDiscussedProjects(@RequestParam String locationType, @RequestParam int locationId, 
+			 @RequestParam(required=false, defaultValue="4") int lastNumberOfWeeks, 
+			 @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount, @RequestParam(required= false) String selector){
+		 
+		 Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+	     if (propRequestParam == null) {
+	            propRequestParam = new Selector();
+	     }
+	     List<Project> projects = projectService.getMostRecentlyDiscussedProjects(locationType.toLowerCase(), locationId, lastNumberOfWeeks, minProjectDiscussionCount);
+	     int projectCount = projects == null? 0: projects.size();
+	     
+		 return new ProAPISuccessCountResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
+	 }
+	 
+	 @RequestMapping(value="data/v1/entity/project/most-discussed")
+	 @ResponseBody
+	 @DisableCaching
+	 public ProAPIResponse getMostDiscussedProjects(@RequestParam String locationType, @RequestParam int locationId, 
+			 @RequestParam(required=false, defaultValue="4") int lastNumberOfWeeks, 
+			 @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount, @RequestParam(required= false) String selector){
+		 
+		 Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+	     if (propRequestParam == null) {
+	            propRequestParam = new Selector();
+	     }
+	     List<Project> projects = projectService.getMostDiscussedProjects(locationType.toLowerCase(), locationId, lastNumberOfWeeks, minProjectDiscussionCount);
+	     int projectCount = projects == null? 0: projects.size();
+	     
+		 return new ProAPISuccessCountResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
+	 }
 }

@@ -15,6 +15,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -46,18 +47,8 @@ public class LocalityDaoImpl {
 		System.out.println(solrQuery.toString());
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
-		
-		List<Locality> data = new ArrayList<>();
-		for(int i=0; i<response.size(); i++)
-		{
-			data.add(response.get(i).getProject().getLocality());
-		}
-		
-		PaginatedResponse<List<Locality>> solrRes = new PaginatedResponse<List<Locality>>();
-        solrRes.setTotalCount(queryResponse.getResults().getNumFound());
-        solrRes.setResults(data);
-        
-		return solrRes;
+		        
+		return getPaginatedResponse(response, queryResponse);
 	}
 	
 	public List<Locality> findByLocationOrderByPriority(Object locationId, String locationType, Paging paging, SortOrder sortOrder){
@@ -206,5 +197,45 @@ public class LocalityDaoImpl {
     		return null;
     	
     	return localities.get(0);
+    }
+    
+    public PaginatedResponse<List<Locality>> getPaginatedResponse(List<SolrResult> response, QueryResponse queryResponse){
+    	List<Locality> data = new ArrayList<>();
+		for(int i=0; i<response.size(); i++)
+		{
+			data.add(response.get(i).getProject().getLocality());
+		}
+		
+		PaginatedResponse<List<Locality>> solrRes = new PaginatedResponse<List<Locality>>();
+        solrRes.setTotalCount(queryResponse.getResults().getNumFound());
+        solrRes.setResults(data);
+        
+        return solrRes;
+    }
+    
+    public PaginatedResponse<List<Locality>> getNearLocalitiesByDistance(Locality locality, int minDistance, int maxDistance){
+    	if(locality == null || locality.getLatitude() == null || locality.getLongitude() == null)
+    		return null;
+    	
+    	SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.LOCALITY);
+    	
+    	solrQuery.add("pt", locality.getLatitude()+","+locality.getLongitude());
+    	solrQuery.add("sfield", "GEO");
+    	
+    	/*
+    	 * incl means lower limit inclusive or not. by default true.
+    	 * incu means upper limit inclusive or not. by default true.
+    	 */
+    	solrQuery.addFilterQuery("{!frange l="+minDistance+" u="+maxDistance+" incl=false}geodist()");
+    	solrQuery.addFilterQuery("HAS_GEO:1");
+    	solrQuery.addFilterQuery("CITY_ID:"+locality.getSuburb().getCityId());
+    	solrQuery.addSort("geodist()", ORDER.asc);
+    	solrQuery.addSort("LOCALITY_PRIORITY", ORDER.asc);
+    	solrQuery.setRows(Integer.MAX_VALUE);
+    	
+    	System.out.println(solrQuery.toString());
+    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+    	
+    	return getPaginatedResponse(queryResponse.getBeans(SolrResult.class), queryResponse);
     }
 }

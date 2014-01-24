@@ -1,16 +1,22 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.internal.dto.UserWishList;
+import com.proptiger.data.internal.dto.UserWishListDto;
+import com.proptiger.data.model.Project;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.repo.portfolio.UserWishListDao;
+import com.proptiger.data.service.ProjectService;
 import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
@@ -20,29 +26,54 @@ import com.proptiger.exception.ResourceAlreadyExistException;
 @Component
 public class UserWishListService {
 
+	private static Logger logger = LoggerFactory.getLogger(UserWishListService.class);
+
 	@Autowired
 	private UserWishListDao userWishListDao;
+	
+	@Autowired
+	private ProjectService projectService;
 	
 	/**
 	 * This method returns user wish list or favourite projects/properties details based on user id
 	 * @param userId
 	 * @return
 	 */
-	public List<UserWishList> getUserWishList(Integer userId){
-		List<Object[]> result = userWishListDao.findUserWishList(userId);
-		List<UserWishList> convertedResult = convertDaoResultToDtoObject(result);
+	@Transactional
+	public List<UserWishListDto> getUserWishList(Integer userId){
+		List<UserWishlist> list = userWishListDao.findByUserId(userId);
+		List<UserWishListDto> convertedResult = convertDaoResultToDtoObject(list);
 		return convertedResult;
 	}
+	/**
+	 * This method will delete the wish list based on the wish list id.
+	 * @param wishlistId
+	 */
+	public void deleteWishlist(int wishlistId) {
+	    userWishListDao.delete(wishlistId);
+	}
 
-	public UserWishlist saveUserWishList(UserWishlist userWishlist, UserInfo userInfo){
+	/**
+	 * This method will save the project Id in the Wish List. It will only take project Id to be saved.
+	 * It will validate the project Id whether it exists in the database or already present in the wish list.
+	 * If not then it will save and return the get response of the new id created.
+	 * @param userWishlist
+	 * @param userId
+	 * @return
+	 */
+	public UserWishListDto createUserWishList(UserWishlist userWishlist, Integer userId){
 		if(userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null )
 			throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
 		
-		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userInfo.getUserIdentifier());
+		UserWishlist alreadyUserWishlist = userWishListDao.findByProjectIdAndUserId(userWishlist.getProjectId(), userId);
 		if(alreadyUserWishlist != null)
 			throw new ResourceAlreadyExistException("Project Id already exists as Favourite.");
+		if( projectService.getProjectDetails( userWishlist.getProjectId() ) == null)
+			throw new IllegalArgumentException("Project Id does not exists.");
 		
-		return userWishListDao.save(userWishlist);
+		userWishlist.setUserId(userId);
+		UserWishlist savedObject = userWishListDao.save(userWishlist);
+		return convertToUserListDto(savedObject);
 		
 	}
 	
@@ -51,28 +82,53 @@ public class UserWishListService {
 	 * @param result
 	 * @return
 	 */
-	private List<UserWishList> convertDaoResultToDtoObject(List<Object[]> result) {
-		List<UserWishList> list = new ArrayList<UserWishList>();
+	private List<UserWishListDto> convertDaoResultToDtoObject(List<UserWishlist> result) {
+		List<UserWishListDto> list = new ArrayList<UserWishListDto>();
 		if(result != null){
-			for(Object[] rowValues: result){
-				if(rowValues.length != 10){
-					throw new IllegalArgumentException("Unexpected result length");
-				}
-				UserWishList userWishListDto = new UserWishList();
-				userWishListDto.setProjectId((Integer)rowValues[0]);
-				userWishListDto.setProjectName((String)rowValues[1]);
-				userWishListDto.setProjectUrl((String)rowValues[2]);
-				userWishListDto.setTypeId((Integer)rowValues[3]);
-				userWishListDto.setBedrooms((Integer)rowValues[4]);
-				userWishListDto.setWishListId((Integer)rowValues[5]);
-				userWishListDto.setCityLabel((String)rowValues[6]);
-				userWishListDto.setUnitName((String)rowValues[7]);
-				userWishListDto.setBuilderName((String)rowValues[8]);
-				userWishListDto.setDatetime((Date)rowValues[9]);
+			for(UserWishlist userWishlist: result){
+				UserWishListDto userWishListDto = convertToUserListDto(userWishlist);
 				
 				list.add(userWishListDto);
 			}
 		}
 		return list;
+	}
+	private UserWishListDto convertToUserListDto(UserWishlist userWishlist) {
+		UserWishListDto userWishListDto = new UserWishListDto();
+		Project project = userWishlist.getProject();
+		Property property = userWishlist.getProperty();
+		
+		String city = null;
+		String projectName = null;
+		String projectUrl = null;
+		String builderName = null;
+		if(project != null){
+			projectName = project.getName();
+			projectUrl = project.getURL();
+			city = project.getLocality().getSuburb().getCity().getLabel();
+			builderName = project.getBuilder().getName();
+		}
+		String unitName = null;
+		Integer bedrooms = null;
+		if(property != null){
+			try {
+				unitName = property.getUnitName();
+				bedrooms = property.getBedrooms();
+			} catch (EntityNotFoundException e) {
+				logger.debug("Property not found in table for id {}",userWishlist.getTypeId());
+			}
+		}
+		
+		userWishListDto.setProjectId(userWishlist.getProjectId());
+		userWishListDto.setProjectName(projectName);
+		userWishListDto.setProjectUrl(projectUrl);
+		userWishListDto.setTypeId(userWishlist.getTypeId());
+		userWishListDto.setBedrooms(bedrooms);
+		userWishListDto.setWishListId(userWishlist.getId());
+		userWishListDto.setCityLabel(city);
+		userWishListDto.setUnitName(unitName);
+		userWishListDto.setBuilderName(builderName);
+		userWishListDto.setDatetime(userWishlist.getDatetime());
+		return userWishListDto;
 	}
 }

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BlogNewsService;
 
 /**
@@ -28,10 +29,15 @@ public class BlogNewsController extends BaseController {
 	@ResponseBody
 	public ProAPIResponse getBlogNewsForCity(
 			@RequestParam(required = true, value = "cityName") String cityName,
-			@RequestParam(required = false, defaultValue = "200", value = "contentLimit") int contentLimit) {
+			@RequestParam(required = false, defaultValue = "200", value = "contentLimit") int contentLimit,
+			@RequestParam(required = false, value = "selector") String selector) {
 
+		Selector blogSelector = super.parseJsonToObject(selector, Selector.class);
+        if (blogSelector == null) {
+        	blogSelector = new Selector();
+        }
 		List<WordpressPost> newsList = blogNewsService
-				.getBlogNewsPostsByCity(cityName, contentLimit);
+				.getBlogNewsPostsByCity(cityName, contentLimit, blogSelector);
 		return new ProAPISuccessResponse(newsList);
 	}
 }

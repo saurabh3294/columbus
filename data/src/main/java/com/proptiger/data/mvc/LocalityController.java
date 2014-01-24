@@ -20,6 +20,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep
@@ -96,13 +97,14 @@ public class LocalityController extends BaseController {
 	public ProAPIResponse getTopLocalitiesOfCityOrSuburb(
 			@RequestParam(required = false, value = "cityId") Integer cityId,
 			@RequestParam(required = false, value = "suburbId") Integer suburbId,
+			@RequestParam(required = false, defaultValue = "4", value = "imageCount") Integer imageCount,
 			@RequestParam(required = false) String selector) {
 		Selector localitySelector = new Selector();
 		if (selector != null) {
 			localitySelector = super
 					.parseJsonToObject(selector, Selector.class);
 		}
-		List<Locality> result = localityService.getTopLocalities(cityId, suburbId, localitySelector);
+		List<Locality> result = localityService.getTopLocalities(cityId, suburbId, localitySelector, imageCount);
 		return new ProAPISuccessCountResponse(super.filterFields(
 				result, localitySelector.getFields()),	result.size());
 	}
@@ -130,13 +132,14 @@ public class LocalityController extends BaseController {
     @ResponseBody
 	public ProAPIResponse getTopLocalitiesAroundLocality(
 			@PathVariable Integer localityId,
+			@RequestParam(required = false, defaultValue = "4", value = "imageCount") Integer imageCount,
 			@RequestParam(required = false) String selector) {
 		Selector localitySelector = new Selector();
 		if (selector != null) {
 			localitySelector = super
 					.parseJsonToObject(selector, Selector.class);
 		}
-		List<Locality> result = localityService.getTopLocalitiesAroundLocality(localityId, localitySelector);
+		List<Locality> result = localityService.getTopLocalitiesAroundLocality(localityId, localitySelector, imageCount);
 		return new ProAPISuccessCountResponse(super.filterFields(
 				result, localitySelector.getFields()),	result.size());
 	}
@@ -147,4 +150,18 @@ public class LocalityController extends BaseController {
 	public ProAPIResponse getLocalityRadiusOnProject(@PathVariable int localityId){
 		return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
 	}
+    
+    @RequestMapping(value = "top-reviewed")
+    @ResponseBody
+    public ProAPIResponse getTopReviewedLocality(@RequestParam String locationType, @RequestParam int locationId, 
+    		@RequestParam(required=false, defaultValue="2") int minReviewCount, @RequestParam(required=false, defaultValue="5") int numberOfLocalities, @RequestParam(required=false) String selector){
+    	
+    	Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+        
+        PaginatedResponse<List<Locality>> localities = localityService.getTopReviewedLocalities(locationType, locationId, minReviewCount, numberOfLocalities); 
+    	return new ProAPISuccessResponse(super.filterFields(localities, localitySelector.getFields()));
+    }
 }

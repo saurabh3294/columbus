@@ -54,7 +54,9 @@ public class ImageEnricher {
         }
         
         for (Project project: projects) {
-            project.setImageURL(imagesMap.get(project.getProjectId()));
+            if (imagesMap.containsKey(project.getProjectId())) {
+                project.setImageURL(imagesMap.get(project.getProjectId()));
+            }
         }
     }
 
@@ -142,14 +144,14 @@ public class ImageEnricher {
         
     }
 
-    public void setLocalitiesImages(List<Locality> localities) {
+    public void setLocalitiesImages(List<Locality> localities, Integer imageCount) {
     	if(localities == null)
     		return;
     	
         Locality locality;
         for (int i = 0; i < localities.size(); i++) {
             locality = localities.get(i);
-            setLocalityImages(locality, null);
+            setLocalityImages(locality, imageCount);
         }
     }
 

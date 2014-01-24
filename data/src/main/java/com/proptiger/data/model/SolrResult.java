@@ -68,6 +68,12 @@ public class SolrResult implements BaseModel{
     @Field(value = "MAX_BUDGET")
     private Double maxPrice;
 
+    @Field(value = "PRIMARY_OR_RESALE_BUDGET")
+    private List<Double> primaryOrResaleBudget;
+
+    @Field(value = "PRIMARY_OR_RESALE_PRICE_PER_UNIT_AREA")
+    private List<Double> primaryOrResalePricePerUnitArea;
+
     @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
     @Field(value = "PROJECT_NAME")
     private String name;
@@ -464,6 +470,16 @@ public class SolrResult implements BaseModel{
         city.setCenterLongitude(centerLongitude);
     }
 
+    @Field("CITY_MIN_ZOOM_LEVEL")
+    public void setMinZoomLevel(Integer minZoomLevel){
+    	city.setMinZoomLevel(minZoomLevel);
+    }
+    
+    @Field("CITY_MAX_ZOOM_LEVEL")
+    public void setMaxZoomLevel(Integer maxZoomLevel){
+    	city.setMaxZoomLevel(maxZoomLevel);
+    }
+    
     public Property getProperty() {
         return property;
     }
@@ -668,5 +684,10 @@ public class SolrResult implements BaseModel{
     @Field("CITY_DOMINANT_UNIT_TYPE")
     public void setCityDominantUnitType(String dominantUnitType) {
         city.setDominantUnitType(dominantUnitType);
+    }
+    
+    @Field("LOCALITY_MAX_RADIUS")
+    public void setLocalityMaxRadius(Double dominantUnitType) {
+        locality.setMaxRadius(dominantUnitType);
     }
 }

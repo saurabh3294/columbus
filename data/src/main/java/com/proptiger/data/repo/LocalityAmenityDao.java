@@ -25,5 +25,14 @@ public interface LocalityAmenityDao extends JpaRepository<LocalityAmenity, Seria
     
     @Query("SELECT LA FROM LocalityAmenity LA JOIN FETCH LA.localityAmenityTypes as LAT WHERE "
             + " LA.placeTypeId = LAT.id AND LA.localityId = ?1 AND LAT.name = ?2 ")
-    public List<LocalityAmenity> getAmenitiesByLocalityIdAndAmenity(@Param Integer localityId, @Param String AmenityName);
+    public List<LocalityAmenity> getAmenitiesByLocalityIdAndAmenity(@Param Integer localityId, @Param String amenityName);
+    
+    
+    @Query("SELECT LA FROM LocalityAmenity LA JOIN FETCH LA.localityAmenityTypes as LAT WHERE "
+            + " LA.placeTypeId = LAT.id AND LA.cityId = ?1 ")
+    public List<LocalityAmenity> getAmenitiesByCityId(@Param Integer cityId);
+    
+    @Query("SELECT LA FROM LocalityAmenity LA JOIN FETCH LA.localityAmenityTypes as LAT WHERE "
+            + " LA.placeTypeId = LAT.id AND LA.cityId = ?1 AND LAT.name = ?2 ")
+    public List<LocalityAmenity> getAmenitiesByCityIdAndAmenityName(@Param Integer cityId, @Param String amenityName);
 }

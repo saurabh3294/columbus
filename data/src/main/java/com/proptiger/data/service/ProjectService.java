@@ -6,6 +6,7 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -65,6 +66,9 @@ public class ProjectService {
  	
  	@Autowired
  	private BuilderService builderService;
+ 	
+ 	@Autowired
+ 	private ProjectAmenityService projectAmenityService;
 
     /**
      * This method will return the list of projects and total projects found based on the selector.
@@ -118,10 +122,10 @@ public class ProjectService {
      */
     public ProjectDB getProjectDetails(Integer projectId) {
         ProjectDB project = projectDao.findByProjectId(projectId);
-        imageEnricher.setProjectDBImages(project);
         if (project == null) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }
+        imageEnricher.setProjectDBImages(project);
         return project;
     }
     
@@ -167,6 +171,7 @@ public class ProjectService {
     	imageEnricher.setProjectImages(project);
     	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
     	project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
+    	project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
     	
     	/*
     	 * setting Price Rise 
@@ -184,6 +189,7 @@ public class ProjectService {
          *  Setting locality Ratings And Reviews
          */
         localityService.setLocalityRatingAndReviewDetails(project.getLocality());
+        imageEnricher.setLocalityImages(project.getLocality(), null);
         
     	return project;
     }
@@ -195,7 +201,7 @@ public class ProjectService {
      * @param commentId
      * @return
      */
-    public List<ProjectDiscussion> getDiscussions(int projectId, Integer commentId) {
+    public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
         List<ProjectDiscussion> discussions = projectDao.getDiscussions(projectId, commentId);
         for (ProjectDiscussion projectDiscussion : discussions) {
             if ("proptiger".equals(projectDiscussion.getUser().getUsername())) {
@@ -285,7 +291,7 @@ public class ProjectService {
 		return sent;
 	}
 
-/**
+	/**
 	 * Get projects by project ids
 	 * @param ids
 	 * @return
@@ -300,7 +306,12 @@ public class ProjectService {
 		}
 		return projects;
 	}
-
+	
+	/**
+	 * This method will return the total number of project discussions in the project.
+	 * @param projectId
+	 * @return total project discussions.
+	 */
 	private Integer getTotalProjectDiscussionCount(int projectId){
 		
 		Integer totalProjectDiscussion = 0;
@@ -311,22 +322,34 @@ public class ProjectService {
         return totalProjectDiscussion;
 	}
 	
+	/**
+	 * This method will return the project specifications From CMS by new database for a project.
+	 * architecture.
+	 * @param projectId
+	 * @return
+	 */
 	public ProjectSpecification getProjectSpecificationsV2(int projectId){
 		
 		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes("project", projectId);
 		List<TableAttributes> specifications = tableAttributesDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
 		
-		/*Map<String, Object> specification = new ProjectSpecification(specifications).getSpecifications(); 
-		//projectSp
-		Gson gson = new Gson();
-		System.out.println(gson.toJson(specification));*/
-		//return projectSpecification;
 		return new ProjectSpecification(specifications);
 	}
 	
-	public List<Object> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, long lastNumberOfWeeks, int minProjectDiscussionCount){
-		long timediff = lastNumberOfWeeks*24*60*60;
+	/**
+	 * This Method will return the Most Recently Discussed Projects in a city or suburb or locality.
+	 * @param locationTypeStr
+	 * @param locationId
+	 * @param lastNumberOfWeeks
+	 * @param minProjectDiscussionCount
+	 * @return List of recently discussed  projects.
+	 */
+	public List<Project> getMostRecentlyDiscussedProjects(String locationTypeStr, int locationId, int lastNumberOfWeeks, int minProjectDiscussionCount){
 		
+		int numberOfDays = lastNumberOfWeeks * 7*-1;
+		Calendar cal = Calendar.getInstance();//intialize your date to any date 
+		cal.add(Calendar.DATE, numberOfDays);
+				
 		int locationType;
 		switch(locationTypeStr)
 		{
@@ -342,11 +365,65 @@ public class ProjectService {
 			default:
 				throw new IllegalArgumentException("The possbile values are : suburb or locality or city.");
 		}
+		List<Integer> projectIds = projectDao.getMostRecentlyDiscussedProjectInNWeeksOnLocation(cal.getTime(), locationType, locationId, minProjectDiscussionCount);
 		
-		return projectDao.getMostDiscussedProjectInNWeeksOnLocation(timediff, locationType, locationId, minProjectDiscussionCount);
+		if(projectIds == null || projectIds.size() < 1)
+			return null;
+		
+		return getProjectsByIds(new HashSet<Integer>(projectIds) );
 	}
+	
+	/**
+	 * This method will return the most discussed projects in a city or suburb or locality.
+	 * @param locationTypeStr
+	 * @param locationId
+	 * @param lastNumberOfWeeks
+	 * @param minProjectDiscussionCount
+	 * @return List of Most discussed Projects.
+	 */
+	public List<Project> getMostDiscussedProjects(String locationTypeStr, int locationId, int lastNumberOfWeeks, int minProjectDiscussionCount){
+		
+		int numberOfDays = lastNumberOfWeeks * 7*-1;
+		Calendar cal = Calendar.getInstance();//intialize your date to any date 
+		cal.add(Calendar.DATE, numberOfDays);
+				
+		int locationType;
+		switch(locationTypeStr)
+		{
+			case "city":
+				locationType = 1;
+				break;
+			case "suburb":
+				locationType = 2;
+				break;
+			case "locality":
+				locationType = 3;
+				break;
+			default:
+				throw new IllegalArgumentException("The possbile values are : suburb or locality or city.");
+		}
+		List<Integer> projectIds = projectDao.getMostDiscussedProjectInNWeeksOnLocation(cal.getTime(), locationType, locationId, minProjectDiscussionCount);
+		
+		if(projectIds == null || projectIds.size() < 1)
+			return null;
+		
+		return getProjectsByIds(new HashSet<Integer>(projectIds) );
+	}
+
 
    public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
         return projectDao.getProjects(selector);
     }
+   
+   public Project getProjectData(int projectId){
+	   Set<Integer> projectIds = new HashSet<>();
+	   projectIds.add(projectId);
+	   
+	   List<Project> projects = getProjectsByIds(projectIds);
+	   
+	   if(projects != null && projects.size() > 0)
+		   return projects.get(0);
+	   
+	   throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+   }
 }

@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -73,7 +74,7 @@ public class City implements BaseModel {
     private Integer displayPriority;
     
     @Column(name="DISPLAY_ORDER")
-    @Field(value="DISPLAY_ORDER")
+    @Field(value="CITY_DISPLAY_ORDER")
     @FieldMetaInfo( displayName = "Display Order",  description = "Display Order")
     private Integer displayOrder;
     
@@ -99,11 +100,13 @@ public class City implements BaseModel {
     @Field("CITY_PRICE_RISE_TIME")
     private Integer avgPriceRiseMonths;
 
-    @Transient
-    private Integer minZoomLevel = 12;
+    @Column(name="MIN_ZOOM_LEVEL")
+    @Field("CITY_MIN_ZOOM_LEVEL")
+    private Integer minZoomLevel;
 
-    @Transient
-    private Integer maxZoomLevel = 14;
+    @Column(name="MAX_ZOOM_LEVEL")
+    @Field("CITY_MAX_ZOOM_LEVEL")
+    private Integer maxZoomLevel;
     
     @Transient
     private Long projectsCount;
@@ -115,6 +118,9 @@ public class City implements BaseModel {
     @Transient
     private Map<Integer, Double> avgBHKPrice;
 
+    @Transient
+    private List<LocalityAmenity> amenities;
+    
     public Integer getId() {
         return id;
     }
@@ -275,4 +281,12 @@ public class City implements BaseModel {
         this.avgBHKPrice = avgBHKPrice;
     }
 
+	public List<LocalityAmenity> getAmenities() {
+		return amenities;
+	}
+
+	public void setAmenities(List<LocalityAmenity> amenities) {
+		this.amenities = amenities;
+	}
+    
 }

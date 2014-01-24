@@ -13,7 +13,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  *
  */
 @ResourceMetaInfo
-public class UserWishList {
+public class UserWishListDto {
 
 	@FieldMetaInfo(displayName="Project Id", description="Project Id")
 	private Integer projectId;

@@ -45,7 +45,7 @@ public class RecommendationService {
      * @param limit number of similar projects.
      * @return List<SolrResult> similar projects.
      */
-    public List<SolrResult> getSimilarProjects(int projectId, int limit){
+    public List<Project> getSimilarProjects(int projectId, int limit){
     	List<SolrResult> properties = propertyDao.getPropertiesOnProjectId(projectId);
     	
     	long propertyId;
@@ -53,8 +53,8 @@ public class RecommendationService {
     	int assignedPriority = 0;
     	Double latitude=null, longitude=null;
     	Set<Integer> similarProjectIds = new HashSet<>();
-    	List<SolrResult> similarProperties;
-    	Map<String, Object> data;
+    	List<Property> similarProperties;
+    	//Map<String, Object> data;
     	Property property;
     	for(SolrResult projectProperty:properties)
     	{
@@ -66,25 +66,33 @@ public class RecommendationService {
     		
     		assignedPriority = projectProperty.getProject().getAssignedPriority();
     		
-    		data = getSimilarProperties(propertyId, limit);
+    	/*	data = getSimilarProperties(propertyId, limit);
     		if(data == null)
-    			continue;
+    			continue;*/
     		
-    		similarProperties = (List<SolrResult>)data.get("propertyData") ;
+    		//similarProperties = (List<SolrResult>)data.get("propertyData") ;
+    		similarProperties = getSimilarProperties(propertyId, limit);
     		
-    		for(SolrResult solrResult:similarProperties)
+    		for(Property similarProperty:similarProperties)
     		{
-    			similarProjectId = solrResult.getProject().getProjectId();
+    			similarProjectId = similarProperty.getProject().getProjectId();
     			similarProjectIds.add(similarProjectId);
     		}
     		similarProperties.clear();
-    		data.clear();
+    		//data.clear();
     		
     	}
     	
     	if(similarProjectIds.size() > 0)
-    		return projectDao.sortingSimilarProjects(similarProjectIds, latitude, longitude, assignedPriority, limit);
-    		//return projectDao.getProjectsOnIds( similarProjectIds );
+    	{
+    		List<SolrResult> solrResults = projectDao.sortingSimilarProjects(similarProjectIds, latitude, longitude, assignedPriority, limit);
+    		List<Project> projects = new ArrayList<>();
+    		for(SolrResult solrResult: solrResults)
+    			projects.add(solrResult.getProject());
+    		
+    		return projects;
+    	}
+    		
     	return null;
     }
     
@@ -98,7 +106,7 @@ public class RecommendationService {
      *         1: propertyData: List<SolrResult> similar properties found.
      *         2: isPropertyNearBy: boolean whether similar properties found are in nearbyrange.
      */
-    public Map<String, Object> getSimilarProperties(long propertyId, int limit){
+    public List<Property> getSimilarProperties(long propertyId, int limit){
         // distance, budget%, area%, sort Priority
         int[][] params = new int[][]{
             {5, 15, 15, 1},
@@ -114,10 +122,13 @@ public class RecommendationService {
         List<SolrResult> orderedSearchProperties = sortProperties(searchPropertiesData, viewPropertyData);
         boolean propertyNearBy = isPropertySearchedNearBy(viewPropertyData);
         
-        Map<String, Object> response = new HashMap<>();
+        List<Property> properties = new ArrayList<>();
+        for(SolrResult solrResult: orderedSearchProperties)
+        	properties.add(solrResult.getProperty());
+        /*Map<String, Object> response = new HashMap<>();
         response.put("propertyData", orderedSearchProperties);
-        response.put("isPropertyNearBy", propertyNearBy);
-        return response;
+        response.put("isPropertyNearBy", propertyNearBy);*/
+        return properties;
     }
     
     /**
