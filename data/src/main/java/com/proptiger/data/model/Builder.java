@@ -62,6 +62,10 @@ public class Builder implements BaseModel {
     @Field("BUILDER_PRIORITY")
     private Integer priority;
     
+    @Field("BUILDER_URL")
+    @Column(name = "URL")
+    private String url;
+    
     @Transient
     private Map<String, Long> projectStatusCount;
     

@@ -282,8 +282,8 @@ public class ProjectService {
 			Project project = projects.get(0);
 			// TODO waiting for html template
 			sent = mailSender.sendMailUsingAws(to,
-					"test mail content for ptoject id=" + projectId,
-					"test subject for ptoject id=" + projectId);
+					null,
+					null, "test mail content for ptoject id=" + projectId, "test subject for ptoject id=" + projectId);
 		}
 		else{
 			throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);

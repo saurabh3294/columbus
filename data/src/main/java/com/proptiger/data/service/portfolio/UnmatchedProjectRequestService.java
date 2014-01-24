@@ -45,11 +45,11 @@ public class UnmatchedProjectRequestService {
 		MailBody mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.UNMATCHED_PROJECT_INTERNAL, unmatchedProjectDetails);
 		String toAddress = propertyReader.getRequiredProperty("mail.unmatched-project.internal.reciepient");
 		logger.debug("Unmatched project request mail to internal {}",toAddress);
-		boolean userMailStatus =  mailSender.sendMailUsingAws(toAddress, mailBody.getBody(), mailBody.getSubject());
+		boolean userMailStatus =  mailSender.sendMailUsingAws(toAddress, null, null, mailBody.getBody(), mailBody.getSubject());
 		toAddress = forumUser.getEmail();
 		logger.debug("Unmatched project request mail to user {}",toAddress);
 		mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.UNMATCHED_PROJECT_USER, unmatchedProjectDetails);
-		boolean internalMailStatus = mailSender.sendMailUsingAws(toAddress, mailBody.getBody(), mailBody.getSubject());
+		boolean internalMailStatus = mailSender.sendMailUsingAws(toAddress, null, null, mailBody.getBody(), mailBody.getSubject());
 		
 		return (userMailStatus && internalMailStatus);
 	}
