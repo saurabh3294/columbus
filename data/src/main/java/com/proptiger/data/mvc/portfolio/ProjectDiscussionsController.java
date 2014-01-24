@@ -39,15 +39,5 @@ public class ProjectDiscussionsController extends BaseController{
 	public ProAPIResponse incrementProjectCommentLikes(@PathVariable long commentId, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
 		return new ProAPISuccessResponse(projectDiscussionsService.incrementProjectCommentLikes(commentId, userInfo));
 	}
-
-	@ResponseBody
-	@RequestMapping(method= RequestMethod.GET)
-	public ProAPIResponse getProjectComments(@RequestParam int projectId, @RequestParam(required = false) String selector){
-		Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
-	    if (propRequestParam == null) {
-	    	propRequestParam = new Selector();
-	    }
-	    Set<String> fields = propRequestParam.getFields();
-		return new ProAPISuccessResponse( super.filterFields( projectDiscussionsService.getProjectComments(projectId, propRequestParam.getPaging()), fields) );
-	}
+	
 }

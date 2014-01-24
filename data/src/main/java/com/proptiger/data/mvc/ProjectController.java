@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -26,6 +27,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.service.portfolio.ProjectDiscussionsService;
 
 /**
  * 
@@ -39,6 +41,9 @@ public class ProjectController extends BaseController {
     
     @Autowired
     private ImageEnricher imageEnricher;
+    
+    @Autowired
+    private ProjectDiscussionsService projectDiscussionsService;
 
     @RequestMapping("data/v1/entity/project")
     public @ResponseBody
@@ -169,4 +174,21 @@ public class ProjectController extends BaseController {
 	     
 		 return new ProAPISuccessCountResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
 	 }
+	 
+	@ResponseBody
+	@RequestMapping(value="/data/v2/entity/project/{projectId}/discussions", method = RequestMethod.GET)
+	public ProAPIResponse getProjectComments(@PathVariable int projectId,
+			@RequestParam(required = false) String selector) {
+		
+		Selector propRequestParam = super.parseJsonToObject(selector,
+				Selector.class);
+		if (propRequestParam == null) {
+			propRequestParam = new Selector();
+		}
+		
+		Set<String> fields = propRequestParam.getFields();
+		return new ProAPISuccessResponse(super.filterFields(
+				projectDiscussionsService.getProjectComments(projectId,
+						propRequestParam.getPaging()), fields));
+	}
 }

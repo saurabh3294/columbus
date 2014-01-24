@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import javax.persistence.Table;
+import javax.servlet.http.Cookie;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,8 +85,9 @@ public class ProjectDiscussionsService {
 		if(projectDiscussion.getParentId() > 0)
 		{
 			parentProjectDiscussion = projectDiscussionDao.findByIdAndProjectId(projectDiscussion.getParentId(), projectDiscussion.getProjectId());
-			if(parentProjectDiscussion == null)
+			if(parentProjectDiscussion == null){
 				throw new IllegalArgumentException("Parent Comment Id project should belong to Project Id supplied.");
+			}
 			
 			projectDiscussion.setLevel(parentProjectDiscussion.getLevel()+1);
 			projectDiscussion.setReplied(ProjectDiscussion.Replies.T);
@@ -106,8 +108,9 @@ public class ProjectDiscussionsService {
 			return null;
 		}
 		// User has already liked the comment
-		if( createProjectCommentLikes(commentId, userInfo.getUserIdentifier()) == null )
+		if( createProjectCommentLikes(commentId, userInfo.getUserIdentifier()) == null ){
 			throw new ResourceAlreadyExistException("User has already liked the comment.", ResponseCodes.NAME_ALREADY_EXISTS);
+		}
 		
 		projectDiscussion.setNumLikes(projectDiscussion.getNumLikes() +1);
 		
@@ -120,9 +123,9 @@ public class ProjectDiscussionsService {
 	
 	public ProjectCommentLikes createProjectCommentLikes(long commentId, int userId){
 		ProjectCommentLikes alreadyLikes = findProjectCommentLikesOnUserIdAndCommentId(commentId, userId);
-		if(alreadyLikes != null)
+		if(alreadyLikes != null){
 			return null;
-			
+		}
 			
 		ProjectCommentLikes projectCommentLikes = new ProjectCommentLikes();
 		
@@ -135,6 +138,8 @@ public class ProjectDiscussionsService {
 	public PaginatedResponse<List<ProjectDiscussion>> getProjectComments(int projectId, Paging paging){
 		
 		List<ProjectDiscussion> allComments = projectDiscussionDao.getDiscussionsByProjectIdOrderByCreatedDateDesc(projectId);
+		if(allComments == null || allComments.size() < 1)
+			return null;
 		
 		Map<Long, List<ProjectDiscussion>> parentChildComments = new HashMap<>();
 		long parentId;
@@ -159,13 +164,7 @@ public class ProjectDiscussionsService {
 			}
 		}
 		int totalRootComments = allComments.size();
-		
-		// setting paging of the root comments
-		if(paging == null)
-		{
-			paging = new Paging();
-		}
-		allComments = allComments.subList(paging.getStart(), paging.getRows()+paging.getStart());
+		allComments = setPagingOnProjectDiscussion(allComments, paging);
 		
 		Queue<ProjectDiscussion> queue = new LinkedList<>(allComments);
 		while( !queue.isEmpty() )
@@ -184,6 +183,24 @@ public class ProjectDiscussionsService {
 		response.setTotalCount(totalRootComments);
 		
 		return response;
+	}
+	
+	private List<ProjectDiscussion> setPagingOnProjectDiscussion(List<ProjectDiscussion> comments, Paging paging){
+		int totalRootComments = comments.size();
+		// setting paging of the root comments
+		if (paging == null) {
+			paging = new Paging();
+		}
+		if (paging.getStart() > totalRootComments) {
+			throw new ArrayIndexOutOfBoundsException(
+					"Max comments in the project is: " + totalRootComments);
+		}
+
+		int pagingRows = paging.getRows() + paging.getStart();
+		pagingRows = pagingRows > totalRootComments ? totalRootComments
+				: pagingRows;
+
+		return comments.subList(paging.getStart(), pagingRows);
 	}
 	
 	private boolean sendMailOnProjectComment(ForumUser forumUser,
