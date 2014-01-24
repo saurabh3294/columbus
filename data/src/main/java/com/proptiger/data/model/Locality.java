@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.LocalityReview.LocalityAverageRatingCategory;
+import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingCategory;
 import com.proptiger.data.model.image.Image;
 
 /**
@@ -112,7 +112,7 @@ public class Locality implements BaseModel {
     
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
-    private Set<LocalityReview> localityReviews;
+    private Set<LocalityRatings> localityRatings;
     
     @Transient
     private Map<String, Integer> projectStatusCount;
@@ -440,12 +440,12 @@ public class Locality implements BaseModel {
         this.avgPriceRiseMonths = avgPriceRiseMonths;
     }
 
-	public Set<LocalityReview> getLocalityReviews() {
-		return localityReviews;
+	public Set<LocalityRatings> getLocalityRatings() {
+		return localityRatings;
 	}
 
-	public void setLocalityReviews(Set<LocalityReview> localityReviews) {
-		this.localityReviews = localityReviews;
+	public void setLocalityRatings(Set<LocalityRatings> localityReviews) {
+		this.localityRatings = localityReviews;
 	}
 
 	public String getDominantUnitType() {

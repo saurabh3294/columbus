@@ -8,7 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.model.ReviewComments;
+import com.proptiger.data.model.LocalityReviewComments;
+import com.proptiger.data.model.LocalityReviewComments.LocalityReviewDetail;
 
 /**
  * Dao class to handle CRUD operation for Locality review
@@ -17,38 +18,39 @@ import com.proptiger.data.model.ReviewComments;
  *
  */
 @Repository
-public interface LocalityReviewDao extends PagingAndSortingRepository<ReviewComments, Long>{
+public interface LocalityReviewDao extends PagingAndSortingRepository<LocalityReviewComments, Long>{
 
-    @Query("SELECT COUNT(*) FROM ReviewComments WHERE Status = '1' AND localityId = ?1")
+    @Query("SELECT COUNT(*) FROM LocalityReviewComments WHERE Status = '1' AND localityId = ?1")
     public Long getTotalReviewsByLocalityId(int localityId);
     
-    @Query("SELECT R.review , R.reviewLabel, U.username, R.commenttime, R.userName FROM ReviewComments AS R left join"
+    @Query("SELECT NEW com.proptiger.data.model.LocalityReviewComments$LocalityReviewDetail(R.review , R.reviewLabel, U.username, R.commenttime, R.userName)" +
+    		" FROM LocalityReviewComments AS R left join"
             + "  R.forumUser as U WHERE R.status = '1' AND R.localityId = ?1 "
             + " ORDER BY R.commenttime DESC ")
-    public List<Object> getReviewCommentsByLocalityId(int localityId, Pageable pageable);
+    public List<LocalityReviewDetail> getReviewCommentsByLocalityId(int localityId, Pageable pageable);
     
-    @Query("SELECT R.localityId FROM ReviewComments AS R, Locality AS L WHERE R.localityId = L.localityId AND "
+    @Query("SELECT R.localityId FROM LocalityReviewComments AS R, Locality AS L WHERE R.localityId = L.localityId AND "
     		+ " CASE ?1 WHEN 1 THEN L.suburb.cityId WHEN 2 THEN L.suburbId END = ?2 "
     		+ " AND L.isActive = 1 AND R.status = '1' "
     		+ " GROUP BY R.localityId HAVING COUNT(*) > ?3 ORDER BY COUNT(*) DESC , L.priority ASC")
     public List<Integer> getTopReviewLocalitiesOnSuburbOrCity(int locationType, int locationId, long minCount, Pageable pageable);
     
-   /* @Query("SELECT R.localityId FROM ReviewComments AS R, Locality AS L, NearLocalities As NR WHERE R.localityId = L.localityId AND"
+   /* @Query("SELECT R.localityId FROM LocalityReviewComments AS R, Locality AS L, NearLocalities As NR WHERE R.localityId = L.localityId AND"
     		+ " NR.nearLocality = L.localityId AND L.isActive = 1 AND NR.mainLocality = ?1 AND NR.distance > ?3 AND "
     		+ " NR.distance <= ?4 AND L.isActive = 1 AND R.status = '1' "
     		+ " GROUP BY R.localityId HAVING COUNT(*) > ?2 ORDER BY COUNT(*) DESC , L.priority ASC")
     public List<Integer> getTopReviewLocalitiesNearALocality(int localityId, long minCount, int minDistance, int maxDistance, Pageable pageable);*/
     
-    @Query("SELECT R.localityId FROM ReviewComments AS R, Locality L WHERE R.localityId = L.localityId AND R.localityId IN (?1) AND R.status = '1' "
+    @Query("SELECT R.localityId FROM LocalityReviewComments AS R, Locality L WHERE R.localityId = L.localityId AND R.localityId IN (?1) AND R.status = '1' "
     		+ " GROUP BY R.localityId HAVING COUNT(*) > ?2 ORDER BY COUNT(*) DESC, L.priority ASC ")
     public List<Integer> getTopReviewNearLocalitiesOnLocality(List<Integer> locationIds, long minCount, Pageable pageable);
     
-    @Query("SELECT RC FROM ReviewComments RC WHERE Status = '1' AND localityId = ?1")
-    public List<ReviewComments> getReviewsByLocalityId(Integer localityId, Pageable pageable);
+    @Query("SELECT RC FROM LocalityReviewComments RC WHERE Status = '1' AND localityId = ?1")
+    public List<LocalityReviewComments> getReviewsByLocalityId(Integer localityId, Pageable pageable);
     
-    @Query("SELECT RC FROM ReviewComments RC WHERE Status = '1' AND localityId = ?1 AND userId=?2")
-    public List<ReviewComments> getReviewsByLocalityIdAndUserId(Integer localityId, Integer userId, Pageable pageable);
+    @Query("SELECT RC FROM LocalityReviewComments RC WHERE Status = '1' AND localityId = ?1 AND userId=?2")
+    public List<LocalityReviewComments> getReviewsByLocalityIdAndUserId(Integer localityId, Integer userId, Pageable pageable);
     
     
-    public ReviewComments getByLocalityIdAndUserId(Integer localityId, Integer userId);
+    public LocalityReviewComments getByLocalityIdAndUserId(Integer localityId, Integer userId);
 }
