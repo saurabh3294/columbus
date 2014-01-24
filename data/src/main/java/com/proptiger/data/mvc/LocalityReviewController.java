@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.ReviewComments;
+import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
@@ -65,7 +65,7 @@ public class LocalityReviewController extends BaseController{
 		if (selectorStr != null) {
 			selector = super.parseJsonToObject(selectorStr, Selector.class);
 		}
-		List<ReviewComments> reviews = localityReviewService.getLocalityReview(
+		List<LocalityReviewComments> reviews = localityReviewService.getLocalityReview(
 				localityId, null, selector);
 		return new ProAPISuccessCountResponse(super.filterFields(reviews,
 				selector.getFields()), reviews.size());
@@ -82,7 +82,7 @@ public class LocalityReviewController extends BaseController{
 		if (selectorStr != null) {
 			selector = super.parseJsonToObject(selectorStr, Selector.class);
 		}
-		List<ReviewComments> reviews = localityReviewService.getLocalityReview(
+		List<LocalityReviewComments> reviews = localityReviewService.getLocalityReview(
 				localityId, userInfo.getUserIdentifier(), selector);
 		return new ProAPISuccessCountResponse(super.filterFields(reviews,
 				selector.getFields()), reviews.size());
@@ -92,9 +92,9 @@ public class LocalityReviewController extends BaseController{
 	@DisableCaching
 	public ProAPIResponse createReview(
 			@PathVariable Integer localityId,
-			@RequestBody ReviewComments reviewComments,
+			@RequestBody LocalityReviewComments reviewComments,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		ReviewComments created = localityReviewService.createReviewComment(
+		LocalityReviewComments created = localityReviewService.createLocalityReviewComment(
 				localityId, reviewComments, userInfo.getUserIdentifier());
 		return new ProAPISuccessResponse(created);
 	}

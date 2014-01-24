@@ -9,13 +9,15 @@ package com.proptiger.data.util;
  */
 public class Constants {
 
-	// Single sign on
+	//Global constants start
 	public static final String LOGIN_INFO_OBJECT_NAME = "_const_user_object_";
 	public static final Integer ADMIN_USER_ID = 57594;
 	public static final String REQ_PARAMETER_FOR_USER_ID = "_user_id";
 	public static final String JSESSIONID = "JSESSIONID";
 	public static final String PHPSESSID_KEY = "PHPSESSID";
 	public static final int DEFAULT_NO_OF_ROWS = 10;
+	public static final String USERNAME = "username";
+	//Global constants end
 	
 	public class AmenityName{
 		public static final String AIRPORT = "airport";
@@ -34,5 +36,28 @@ public class Constants {
 	public class ForumUserComments{
 		public static final boolean FalseReply = false;
 		public static final boolean TrueReply = true;
+	}
+	
+	/**
+	 * Locality review related constants
+	 * @author Rajeev Pandey
+	 *
+	 */
+	public class LocalityReview{
+		public static final String COMMENT_TIME = "commentTime";
+		public static final String REVIEW_LABEL = "reviewLabel";
+		public static final String REVIEW = "review";
+		public static final String REVIEWS = "reviews";
+		public static final String TOTAL_REVIEWS = "totalReviews";
+		public static final String TOTAL_USERS_BY_RATING = "totalUsersByRating";
+	}
+	/**
+	 * Locality rating related constants
+	 * @author Rajeev Pandey
+	 *
+	 */
+	public class LocalityRating{
+		public static final String TOTAL_RATINGS = "totalRatings";
+		public static final String AVERAGE_RATINGS = "averageRatings";
 	}
 }
