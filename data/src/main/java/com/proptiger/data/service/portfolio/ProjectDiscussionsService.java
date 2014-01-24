@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -26,7 +28,11 @@ import com.proptiger.data.repo.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
+import com.proptiger.mail.service.MailBodyGenerator;
+import com.proptiger.mail.service.MailSender;
+import com.proptiger.mail.service.MailTemplateDetail;
 
 @Service
 public class ProjectDiscussionsService {
@@ -46,13 +52,22 @@ public class ProjectDiscussionsService {
 	@Autowired
 	private ProjectCommentLikesDao projectCommentLikesDao;
 	
+	@Autowired
+	private MailBodyGenerator mailBodyGenerator;
+	
+	@Autowired
+	private MailSender mailSender;
+	
+	@Autowired
+	private PropertyReader propertyReader;
+	
 	public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, UserInfo userInfo){
 		
 		if(projectDiscussion.getComment() == null || projectDiscussion.getComment().isEmpty() ){
 			throw new IllegalArgumentException("Comments cannot be null");
 		}
-		
-		if( projectService.getProjectData(projectDiscussion.getProjectId()) == null){
+		Project project = projectService.getProjectData(projectDiscussion.getProjectId()); 
+		if( project == null){
 			throw new IllegalArgumentException("Enter valid Project Id");
 		}
 		
@@ -78,6 +93,8 @@ public class ProjectDiscussionsService {
 		ProjectDiscussion savedProjectDiscussions = projectDiscussionDao.save(projectDiscussion);
 		
 		subscriptionService.enableOrAddUserSubscription(userInfo.getUserIdentifier(), projectDiscussion.getProjectId(), Project.class.getAnnotation(Table.class).name(), Constants.SubscriptionType.FORUM);
+		
+		sendMailOnProjectComment(forumUser, project, savedProjectDiscussions);
 		return savedProjectDiscussions;
 	}
 	
@@ -90,7 +107,7 @@ public class ProjectDiscussionsService {
 		}
 		// User has already liked the comment
 		if( createProjectCommentLikes(commentId, userInfo.getUserIdentifier()) == null )
-			throw new ResourceAlreadyExistException("User has already liked the comment.");
+			throw new ResourceAlreadyExistException("User has already liked the comment.", ResponseCodes.NAME_ALREADY_EXISTS);
 		
 		projectDiscussion.setNumLikes(projectDiscussion.getNumLikes() +1);
 		
@@ -167,6 +184,51 @@ public class ProjectDiscussionsService {
 		response.setTotalCount(totalRootComments);
 		
 		return response;
+	}
+	
+	private boolean sendMailOnProjectComment(ForumUser forumUser,
+		Project project, ProjectDiscussion projectDiscussion) {
+		
+		String[] mailTo = propertyReader.getRequiredProperty(
+				"mail.project.comment.to.recipient").split(",");
+		
+		String[] mailCC = propertyReader.getRequiredProperty(
+				"mail.project.comment.cc.recipient").split(",");
+		
+		MailBody mailBody = mailBodyGenerator.generateHtmlBody(
+				MailTemplateDetail.ADD_NEW_PROJECT_COMMENT,
+				new ProjectDiscussionMailDTO(project, forumUser,
+						projectDiscussion));
+		
+		return mailSender.sendMailUsingAws(mailTo, mailCC, null,
+				mailBody.getBody(), mailBody.getSubject());
+
+	}
+
+	public static class ProjectDiscussionMailDTO {
+		public Project project;
+		public ForumUser forumUser;
+		public ProjectDiscussion projectDiscussion;
+
+		public ProjectDiscussionMailDTO(Project project, ForumUser forumUser,
+				ProjectDiscussion projectDiscussion) {
+			this.project = project;
+			this.forumUser = forumUser;
+			this.projectDiscussion = projectDiscussion;
+		}
+
+		public Project getProject() {
+			return project;
+		}
+
+		public ForumUser getForumUser() {
+			return forumUser;
+		}
+
+		public ProjectDiscussion getProjectDiscussion() {
+			return projectDiscussion;
+		}
+
 	}
 
 }
