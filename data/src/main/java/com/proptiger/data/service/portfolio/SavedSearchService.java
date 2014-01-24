@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.portfolio.SavedSearch;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.portfolio.SavedSearchDao;
@@ -37,13 +38,21 @@ public class SavedSearchService {
 	 * @return
 	 */
 	public SavedSearch setUserSearch(SavedSearch saveSearch, Integer userId){
-		if(saveSearch.getName().isEmpty() || saveSearch.getSearchQuery().isEmpty())
-			throw new IllegalArgumentException("Name or Search Query both should not be null.");
-			
-		SavedSearch alreadySavedSearch = savedSearchDao.findBySearchQueryAndUserIdOrNameAndUserId(saveSearch.getSearchQuery(), userId, saveSearch.getName(), userId);
-		if(alreadySavedSearch != null)
-			throw new ResourceAlreadyExistException("Name or Search Query Already Exists.");
-		
+		String searchQuery = saveSearch.getSearchQuery();
+        String name = saveSearch.getName();
+        if(name == null || name.isEmpty() || searchQuery == null || searchQuery.isEmpty())
+			throw new IllegalArgumentException("Empty name or search query");
+
+		SavedSearch alreadySavedSearch = savedSearchDao.findBySearchQueryAndUserId(searchQuery, userId);
+        if(alreadySavedSearch != null) {
+            throw new ResourceAlreadyExistException("Search query already exists", ResponseCodes.SEARCH_QUERY_ALREADY_EXISTS, alreadySavedSearch);
+        }
+
+		alreadySavedSearch = savedSearchDao.findByNameAndUserId(name, userId);
+        if(alreadySavedSearch != null) {
+            throw new ResourceAlreadyExistException("Name already exists", ResponseCodes.NAME_ALREADY_EXISTS, alreadySavedSearch);
+        }
+
 		saveSearch.setUserId(userId);
 		return savedSearchDao.save(saveSearch);
 	}

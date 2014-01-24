@@ -1,13 +1,26 @@
 package com.proptiger.exception;
 
-public class ResourceAlreadyExistException extends ProAPIException{
+import com.proptiger.data.constants.ResponseCodes;
 
-	/**
+public class ResourceAlreadyExistException extends ProAPIException {
+
+    /**
 	 * 
 	 */
-	private static final long serialVersionUID = 8841380016882708109L;
+    private static final long serialVersionUID = 8841380016882708109L;
 
-	public ResourceAlreadyExistException(String msg){
-		super(msg);
-	}
+    public ResourceAlreadyExistException(String msg, String responseCode, Object data) {
+        this(msg, responseCode);
+        this.data = data;
+    }
+
+    public ResourceAlreadyExistException(String msg, String responseCode) {
+        super(msg);
+        this.responseCode = responseCode;
+    }
+
+    public ResourceAlreadyExistException(String msg) {
+        super(msg);
+        this.responseCode = ResponseCodes.BAD_REQUEST;
+    }
 }
