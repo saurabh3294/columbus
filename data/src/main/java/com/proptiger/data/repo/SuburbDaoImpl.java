@@ -39,7 +39,6 @@ public class SuburbDaoImpl {
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		
-		System.out.println(solrQuery.toString());
 		List<Suburb> data = new ArrayList<>();
 		for(int i=0; i<response.size(); i++)
 		{

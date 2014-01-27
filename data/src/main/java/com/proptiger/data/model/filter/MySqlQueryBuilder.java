@@ -45,7 +45,6 @@ public class MySqlQueryBuilder<T> extends AbstractQueryBuilder<T> {
             }
         }
 
-        System.out.println(fieldsMap);
         fieldToDaoFieldMap.put(clazz, fieldsMap);
     }
 

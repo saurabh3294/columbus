@@ -203,12 +203,13 @@ public class LocalityReviewComments implements BaseModel{
 	 * 
 	 */
     @JsonInclude(Include.NON_NULL)
-    public static class LocalityReviewDetail{
-    	private String review;
+    public static class LocalityReviewCustomDetail implements BaseModel{
+		private static final long serialVersionUID = -4616992564291158711L;
+		private String review;
     	private String reviewLabel;
     	private String username;
     	private Date commentTime;
-		public LocalityReviewDetail(String review, String reviewLabel,
+		public LocalityReviewCustomDetail(String review, String reviewLabel,
 				String username, Date commentTime, String commentUserName) {
 			super();
 			this.review = review;
@@ -240,16 +241,17 @@ public class LocalityReviewComments implements BaseModel{
 	 * 
 	 */
     @JsonInclude(Include.NON_NULL)
-	public static class LocalityReviewRatingDetails{
+	public static class LocalityReviewRatingDetails implements BaseModel{
+		private static final long serialVersionUID = -4616279373858679214L;
 		private Long totalReviews;
-		private List<LocalityReviewDetail> reviews;
+		private List<LocalityReviewCustomDetail> reviews;
 		protected Map<Double, Long> totalUsersByRating;
 		protected Double averageRatings;
 		//totalRatings is total number users who rates the locality
 		protected Long totalRatings;
 		
 		public LocalityReviewRatingDetails(Long totalReviews,
-				List<LocalityReviewDetail> reviews,
+				List<LocalityReviewCustomDetail> reviews,
 				LocalityRatingDetails localityRatingDetails) {
 			super();
 			this.totalReviews = totalReviews;
@@ -263,7 +265,7 @@ public class LocalityReviewComments implements BaseModel{
 		public Long getTotalReviews() {
 			return totalReviews;
 		}
-		public List<LocalityReviewDetail> getReviews() {
+		public List<LocalityReviewCustomDetail> getReviews() {
 			return reviews;
 		}
 		public Map<Double, Long> getTotalUsersByRating() {

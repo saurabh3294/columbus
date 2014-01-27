@@ -196,10 +196,19 @@ public class LocalityRatings implements BaseModel{
 		this.setTraffic(newRatings.getTraffic());
 	}
 	
+	/**
+	 * This class holds the average rating of all category for a locality, while
+	 * calculating average it does not include null and zero values
+	 * 
+	 * @author Rajeev Pandey
+	 * 
+	 */
 	@JsonInclude(Include.NON_NULL)
-	public static class LocalityAverageRatingCategory{
+	public static class LocalityAverageRatingByCategory implements BaseModel{
 		
-		public LocalityAverageRatingCategory(Double overallRating, Double location, Double safety,
+		private static final long serialVersionUID = 8265420768264430368L;
+
+		public LocalityAverageRatingByCategory(Double overallRating, Double location, Double safety,
 				Double pubTrans, Double restShop, Double schools, Double parks,
 				Double traffic, Double hospitals, Double civic) {
 			this.overallRating = overallRating;
@@ -264,7 +273,8 @@ public class LocalityRatings implements BaseModel{
 	 * 
 	 */
 	@JsonInclude(Include.NON_NULL)
-	public static class LocalityRatingUserCount{
+	public static class LocalityRatingUserCount implements BaseModel{
+		private static final long serialVersionUID = 423920351135118515L;
 		private Double rating;
 		private long userCount;
 		
@@ -289,7 +299,8 @@ public class LocalityRatings implements BaseModel{
 	 * @author Rajeev Pandey
 	 * 
 	 */
-	public static class LocalityRatingDetails{
+	public static class LocalityRatingDetails implements BaseModel{
+		private static final long serialVersionUID = 6890543357432298905L;
 		protected Map<Double, Long> totalUsersByRating;
 		protected double averageRatings;
 		//totalRatings is total number users who rates the locality

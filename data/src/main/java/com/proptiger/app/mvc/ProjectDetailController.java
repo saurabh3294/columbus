@@ -127,7 +127,7 @@ public class ProjectDetailController extends BaseController {
         /*
          *  Setting locality Ratings And Reviews
          */
-        localityService.setLocalityRatingAndReviewDetails(locality);
+        localityService.updateLocalityRatingAndReviewDetails(locality);
         
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 

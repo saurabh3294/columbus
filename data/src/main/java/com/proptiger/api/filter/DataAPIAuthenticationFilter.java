@@ -300,6 +300,5 @@ public class DataAPIAuthenticationFilter implements Filter{
 				logger.error("Number format exception {}",e.getMessage());
 			}
 		}
-		System.out.println();
 	}
 }

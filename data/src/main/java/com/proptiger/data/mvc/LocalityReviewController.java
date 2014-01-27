@@ -51,7 +51,7 @@ public class LocalityReviewController extends BaseController{
             	 pageable = new LimitOffsetPageRequest(0, numberOfReviews);
             }
         
-            Object list = localityReviewService.findReviewByLocalityId(localityId, pageable);
+            Object list = localityReviewService.getLocalityReviewRatingDetails(localityId, pageable);
             return new ProAPISuccessResponse(list);
 	}
 	

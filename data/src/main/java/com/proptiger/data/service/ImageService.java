@@ -33,6 +33,7 @@ import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ImageUtil;
 import com.proptiger.data.util.PropertyReader;
 
@@ -53,8 +54,6 @@ public class ImageService {
 	@Autowired
 	private Caching caching;
 	
-	private String cacheName = "cache";
-
 	@PostConstruct
 	private void init() {
         ImageUtil.endpoint = propertyReader.getRequiredProperty("endpoint");
@@ -123,7 +122,7 @@ public class ImageService {
 	/*
 	 * Public method to get images
 	 */
-	@Cacheable(value="cache", key="#object.getText()+#imageTypeStr+#objectId")
+	@Cacheable(value=Constants.Cache.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
 		if (imageTypeStr == null) {
@@ -146,7 +145,7 @@ public class ImageService {
 	/*
 	 * Public method to upload images
 	 */
-	@CacheEvict(value="cache", key="#object.getText()+#imageTypeStr+#objectId")
+	@CacheEvict(value=Constants.Cache.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
 	public Image uploadImage(DomainObject object, String imageTypeStr,
 			long objectId, MultipartFile fileUpload, Boolean addWaterMark,
 			Map<String, String> extraInfo) {

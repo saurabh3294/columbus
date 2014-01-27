@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
+import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
@@ -40,7 +41,7 @@ public class AppLocalityReviewsController {
         if(numberOfReviews != null && numberOfReviews > 0)
             pageable = new LimitOffsetPageRequest(0, numberOfReviews);
                     
-        Object list = localityReviewService.findReviewByLocalityId(localityId, pageable);
+        LocalityReviewRatingDetails list = localityReviewService.getLocalityReviewRatingDetails(localityId, pageable);
         return new ProAPISuccessResponse(list);
     }
 }

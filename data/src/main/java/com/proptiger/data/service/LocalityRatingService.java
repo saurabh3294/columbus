@@ -4,15 +4,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.LocalityRatings;
-import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingCategory;
+import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingUserCount;
 import com.proptiger.data.repo.LocalityRatingDao;
+import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ConstraintViolationException;
 
 /**
@@ -23,9 +28,10 @@ import com.proptiger.exception.ConstraintViolationException;
 @Service
 public class LocalityRatingService {
 
+	private static Logger logger = LoggerFactory
+			.getLogger(LocalityRatingService.class);
 	@Autowired
 	private LocalityRatingDao localityRatingDao;
-
 	
 	/**
 	 * This method will return the distribution of rating by their total users, average rating.
@@ -36,7 +42,9 @@ public class LocalityRatingService {
 	 *         2: AVERAGE_RATING => The average rating of locality.
 	 *         3: TOTAL_RATINGS => total rating users.        
 	 */
+	@Cacheable(value = Constants.Cache.LOCALITY_RATING_BY_USER_COUNT, key = "#localityId")
 	public LocalityRatingDetails getUsersCountByRatingOfLocality(int localityId) {
+		logger.debug("Get locality rating details for id {}",localityId);
 		List<LocalityRatingUserCount> ratingWiseUserCountList = localityRatingDao
 				.getTotalUsersByRating(localityId);
 		if (ratingWiseUserCountList == null
@@ -72,22 +80,32 @@ public class LocalityRatingService {
 	 * @param localityId
 	 * @return
 	 */
-	public LocalityAverageRatingCategory getAvgRagingsOfLocalityCategory(Integer localityId){
-		LocalityAverageRatingCategory avgRatingOfAmenities = localityRatingDao.getAvgRatingOfAmenitiesForLocality(localityId);
+	@Cacheable(value = Constants.Cache.LOCALITY_RATING_AVG_BY_CATEGORY, key = "#localityId")
+	public LocalityAverageRatingByCategory getAvgRatingsOfLocalityByCategory(Integer localityId){
+		logger.debug("Get locality average rating of category for locality {}",localityId);
+		LocalityAverageRatingByCategory avgRatingOfAmenities = localityRatingDao.getAvgRatingOfAmenitiesForLocality(localityId);
 		return avgRatingOfAmenities;
 	}
 	
 	/**
-	 * This method either updates a existing ratings by user for locality or creates new ratings for locality.
-	 * In case of non logged in or unregistered user, user id will be 0
+	 * This method either updates a existing ratings by user for locality or
+	 * creates new ratings for locality. In case of non logged in or
+	 * unregistered user, user id will be 0.
+	 * 
+	 * Remove already cached ratings of locality eiter while creating new or
+	 * updating already existing locality rating
+	 * 
 	 * @param userId
 	 * @param localityId
 	 * @param localityReview
 	 * @return
 	 */
+	@CacheEvict(value = { Constants.Cache.LOCALITY_RATING_AVG_BY_CATEGORY,
+			Constants.Cache.LOCALITY_RATING_BY_USER_COUNT }, allEntries = true)
 	@Transactional(rollbackFor = {ConstraintViolationException.class})
 	public LocalityRatings createLocalityRating(Integer userId,
 			Integer localityId, LocalityRatings localityReview) {
+		logger.debug("create locality rating for user {} locality {}",userId, localityId);
 		LocalityRatings created = null;
 		localityReview.setLocalityId(localityId);
 		/*
@@ -103,6 +121,7 @@ public class LocalityRatingService {
 			//find if rating already exist for this user and locality then update that
 			LocalityRatings ratingPresent = localityRatingDao.findByUserIdAndLocalityId(userId, localityId);
 			if(ratingPresent != null){
+				//update already existing ratings
 				created = updateLocalityRating(ratingPresent, localityReview);
 			}
 			else{

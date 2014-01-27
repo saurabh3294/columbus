@@ -96,7 +96,6 @@ public class ProjectPriceHistoryDetail {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			ProjectPriceHistoryDetail history = mapper.readValue(temp, ProjectPriceHistoryDetail.class);
-			System.out.println("--------------");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

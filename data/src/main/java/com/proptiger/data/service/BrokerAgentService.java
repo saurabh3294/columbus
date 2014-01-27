@@ -21,6 +21,7 @@ import com.proptiger.data.repo.seller.ProjectAssignmentRuleDao;
 import com.proptiger.data.repo.seller.RuleAgentMappingDao;
 import com.proptiger.data.repo.seller.RuleLocalityMappingDao;
 import com.proptiger.data.repo.seller.RuleProjectMappingDao;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -61,7 +62,7 @@ public class BrokerAgentService {
 	 * @param agentId
 	 * @return
 	 */
-	@Cacheable(value="cache", key="#agentId")
+	@Cacheable(value=Constants.Cache.CACHE, key="#agentId")
 	public Agent getAgent(Integer agentId){
 		Agent agent = agentDao.findOne(agentId);
 		if(agent == null){
@@ -145,7 +146,7 @@ public class BrokerAgentService {
 	 * @param projectId
 	 * @return
 	 */
-	@Cacheable(value="cache", key="#projectId")
+	@Cacheable(value=Constants.Cache.CACHE, key="#projectId")
 	public List<Agent> getAgentsForProject(Integer projectId){
 		List<RuleProjectMapping> projectRules = ruleProjectMappingDao.findByProjectId(projectId);
 		List<Integer> ruleIds = new ArrayList<Integer>();

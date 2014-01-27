@@ -12,7 +12,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.LocalityRatings;
-import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingCategory;
+import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingUserCount;
 
 /**
@@ -29,7 +29,7 @@ public interface LocalityRatingDao extends PagingAndSortingRepository<LocalityRa
     
     public LocalityRatings findByUserIdAndLocalityId(Integer userId, Integer localityId);
     
-    @Query(" SELECT NEW com.proptiger.data.model.LocalityRatings$LocalityAverageRatingCategory(AVG(nullif(LR.overallRating, 0)), " +
+    @Query(" SELECT NEW com.proptiger.data.model.LocalityRatings$LocalityAverageRatingByCategory(AVG(nullif(LR.overallRating, 0)), " +
     		" AVG(nullif(LR.location, 0))," +
     		" AVG(nullif(LR.safety, 0))," +
     		" AVG(nullif(LR.pubTrans, 0))," +
@@ -41,5 +41,5 @@ public interface LocalityRatingDao extends PagingAndSortingRepository<LocalityRa
     		" AVG(nullif(LR.civic, 0)) ) " +
     		" FROM LocalityRatings AS LR " +
             " WHERE LR.localityId = ?1 ")
-    public LocalityAverageRatingCategory getAvgRatingOfAmenitiesForLocality(Integer localityId);
+    public LocalityAverageRatingByCategory getAvgRatingOfAmenitiesForLocality(Integer localityId);
 }

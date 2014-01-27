@@ -2,22 +2,22 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
-import com.proptiger.data.model.LocalityReviewComments.LocalityReviewDetail;
+import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetail;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
@@ -52,31 +52,39 @@ public class LocalityReviewService {
 	 *         TOTAL_REVIEWS : total reviews found on the locality.
 	 *         REVIEWS: Reviews found filtered by pageable.
 	 */
-	public LocalityReviewRatingDetails findReviewByLocalityId(int localityId,
+	public LocalityReviewRatingDetails getLocalityReviewRatingDetails(int localityId,
 			Pageable pageable) {
 		logger.debug("Get review and rating details of locality {}", localityId);
 		Long totalReviews = getLocalityReviewCount(localityId);
 
 		if (pageable == null && totalReviews != null
-				&& totalReviews.longValue() > 0)
+				&& totalReviews.longValue() > 0){
 			pageable = new LimitOffsetPageRequest(0, totalReviews.intValue());
-		else if (pageable == null)
+		}			
+		else{
 			pageable = new LimitOffsetPageRequest(0, 5);
-
-		List<LocalityReviewDetail> reviewComments = localityReviewDao
-				.getReviewCommentsByLocalityId(localityId, pageable);
+		}
+		
+		List<LocalityReviewCustomDetail> reviewComments = getLocalityReviewCustomDetails(localityId, pageable);
 
 		LocalityRatingDetails localityRatingDetails = localityRatingService
 				.getUsersCountByRatingOfLocality(localityId);
 
-		Map<String, Object> response = new LinkedHashMap<String, Object>();
-
-		response.put(Constants.LocalityReview.TOTAL_REVIEWS, totalReviews);
-		response.put(Constants.LocalityReview.REVIEWS, reviewComments);
-
 		LocalityReviewRatingDetails localityReviewRatingDetails = new LocalityReviewRatingDetails(
 				totalReviews, reviewComments, localityRatingDetails);
 		return localityReviewRatingDetails;
+	}
+
+	/**
+	 * Get few fields of locality review by locality id
+	 * @param localityId
+	 * @param pageable
+	 * @return
+	 */
+	private List<LocalityReviewCustomDetail> getLocalityReviewCustomDetails(
+			int localityId, Pageable pageable) {
+		return localityReviewDao
+				.getReviewCommentsByLocalityId(localityId, pageable);
 	}
 	
 	/**
@@ -88,10 +96,25 @@ public class LocalityReviewService {
 		return localityReviewDao.getTotalReviewsByLocalityId(localityId);
 	}
 	
+	/**
+	 * Get top reviewed locality id for city or suburb
+	 * @param locationType
+	 * @param locationId
+	 * @param minCount
+	 * @param pageable
+	 * @return
+	 */
 	public List<Integer> getTopReviewedLocalityOnCityOrSuburb(int locationType, int locationId, int minCount, Pageable pageable){
 		return localityReviewDao.getTopReviewLocalitiesOnSuburbOrCity(locationType, locationId, minCount, pageable);
 	}
 		
+	/**
+	 * Get top reviewed locality ids near/around a given locality
+	 * @param localityId
+	 * @param minCount
+	 * @param pageable
+	 * @return
+	 */
 	public List<Integer> getTopReviewedNearLocalitiesForLocality(int localityId, int minCount, Pageable pageable){
 		int distance[] = {0, 5, 10, 15};
 		int limit = pageable.getPageSize();

@@ -69,7 +69,7 @@ public class CMSDao {
         }
 
         String url =  propertyReader.getRequiredProperty(CMS_BASE_URL) + ANALYTICS_APIS_PRICE_TREND_JSON + queryParams;
-        System.out.println(url);
+        logger.debug("getPropertyPriceTrends url {}",url);
         try{
             Map<String, Object> response = (Map<String, Object>)restTemplate.getForObject(url, Object.class);
             return response.get("price_trend");

@@ -188,7 +188,7 @@ public class ProjectService {
     	/*
          *  Setting locality Ratings And Reviews
          */
-        localityService.setLocalityRatingAndReviewDetails(project.getLocality());
+        localityService.updateLocalityRatingAndReviewDetails(project.getLocality());
         imageEnricher.setLocalityImages(project.getLocality(), null);
         
     	return project;

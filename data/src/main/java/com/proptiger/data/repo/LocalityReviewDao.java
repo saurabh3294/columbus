@@ -9,7 +9,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.LocalityReviewComments;
-import com.proptiger.data.model.LocalityReviewComments.LocalityReviewDetail;
+import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetail;
 
 /**
  * Dao class to handle CRUD operation for Locality review
@@ -23,11 +23,11 @@ public interface LocalityReviewDao extends PagingAndSortingRepository<LocalityRe
     @Query("SELECT COUNT(*) FROM LocalityReviewComments WHERE Status = '1' AND localityId = ?1")
     public Long getTotalReviewsByLocalityId(int localityId);
     
-    @Query("SELECT NEW com.proptiger.data.model.LocalityReviewComments$LocalityReviewDetail(R.review , R.reviewLabel, U.username, R.commenttime, R.userName)" +
+    @Query("SELECT NEW com.proptiger.data.model.LocalityReviewComments$LocalityReviewCustomDetail(R.review , R.reviewLabel, U.username, R.commenttime, R.userName)" +
     		" FROM LocalityReviewComments AS R left join"
             + "  R.forumUser as U WHERE R.status = '1' AND R.localityId = ?1 "
             + " ORDER BY R.commenttime DESC ")
-    public List<LocalityReviewDetail> getReviewCommentsByLocalityId(int localityId, Pageable pageable);
+    public List<LocalityReviewCustomDetail> getReviewCommentsByLocalityId(int localityId, Pageable pageable);
     
     @Query("SELECT R.localityId FROM LocalityReviewComments AS R, Locality AS L WHERE R.localityId = L.localityId AND "
     		+ " CASE ?1 WHEN 1 THEN L.suburb.cityId WHEN 2 THEN L.suburbId END = ?2 "

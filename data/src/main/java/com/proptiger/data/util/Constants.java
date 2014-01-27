@@ -19,7 +19,7 @@ public class Constants {
 	public static final String USERNAME = "username";
 	//Global constants end
 	
-	public class AmenityName{
+	public static  class AmenityName{
 		public static final String AIRPORT = "airport";
 		public static final String SCHOOL = "school";
 		public static final String BANK = "bank";
@@ -28,12 +28,12 @@ public class Constants {
 		public static final String GAS_STATION = "gas_station";
 	}
 	
-	public class SubscriptionType{
+	public  static class SubscriptionType{
 		public static final String FORUM = "forum";
 		public static final String REVIEW = "review";
 	}
 	
-	public class ForumUserComments{
+	public  static class ForumUserComments{
 		public static final boolean FalseReply = false;
 		public static final boolean TrueReply = true;
 	}
@@ -43,7 +43,7 @@ public class Constants {
 	 * @author Rajeev Pandey
 	 *
 	 */
-	public class LocalityReview{
+	public static class LocalityReview{
 		public static final String COMMENT_TIME = "commentTime";
 		public static final String REVIEW_LABEL = "reviewLabel";
 		public static final String REVIEW = "review";
@@ -56,8 +56,26 @@ public class Constants {
 	 * @author Rajeev Pandey
 	 *
 	 */
-	public class LocalityRating{
+	public static class LocalityRating{
 		public static final String TOTAL_RATINGS = "totalRatings";
 		public static final String AVERAGE_RATINGS = "averageRatings";
+	}
+	
+	/**
+	 * Put all cache related constants in this class
+	 * @author Rajeev Pandey
+	 *
+	 */
+	public static class Cache{
+		public static final String SEPARATR = "";
+		public static final String CACHE = "cache";
+		public static final String LOCALITY_REVIEW = "loc-review";
+		public static final String LOCALITY_REVIEW_CUSTOM_FIELDS = "loc-review-custom";
+		public static final String LOCALITY_REVIEW_RATING = "loc-review-rating";
+		
+		public static final String LOCALITY_RATING = "loc-rating";
+		public static final String LOCALITY_RATING_AVG_BY_CATEGORY = "loc-rating-avg-ctg";
+		public static final String LOCALITY_RATING_BY_USER_COUNT = "loc-rating-user";
+		
 	}
 }

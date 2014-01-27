@@ -29,7 +29,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
-import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingCategory;
+import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.model.Project;
@@ -317,30 +317,24 @@ public class LocalityService {
 	public Locality getLocalityInfo(int localityId, Integer imageCount) {
 		logger.debug("Get locality info for locality id {}", localityId);
 		Locality locality = getLocality(localityId);
-		if(locality == null)
+		if(locality == null){
 			return null;
-		
-		LocalityAverageRatingCategory avgRatingsOfLocalityCategory = localityRatingService
-				.getAvgRagingsOfLocalityCategory(localityId);
-		locality.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
-
+		}
 		List<LocalityAmenity> amenities = localityAmenityService
 				.getLocalityAmenities(localityId, null);
 		Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
 
 		locality.setAmenityTypeCount(localityAmenityCountMap);
-		
 		/*
 		 * Hit image service only if images are required
 		 */
 		if (imageCount != null && imageCount > 0) {
 			imageEnricher.setLocalityImages(locality, imageCount);
 		}
-		
 		/*
 		 * Setting Rating and Review Details. 
 		 */
-		setLocalityRatingAndReviewDetails(locality);
+		updateLocalityRatingAndReviewDetails(locality);
 		
 		/*
 		 * Setting the average price BHK wise
@@ -653,26 +647,31 @@ public class LocalityService {
 	 * 4: Rating Distribution by total users.
 	 * @param locality
 	 */
-	public void setLocalityRatingAndReviewDetails(Locality locality) {
+	public void updateLocalityRatingAndReviewDetails(Locality locality) {
 
-		LocalityReviewRatingDetails localityReviewDetails = localityReviewService
-				.findReviewByLocalityId(locality.getLocalityId(), null);
+		LocalityAverageRatingByCategory avgRatingsOfLocalityCategory = localityRatingService
+				.getAvgRatingsOfLocalityByCategory(locality.getLocalityId());
+		
+		locality.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
+		
+		LocalityReviewRatingDetails localityReviewRatingDetails = localityReviewService
+				.getLocalityReviewRatingDetails(locality.getLocalityId(), null);
 
-		locality.setAverageRating(localityReviewDetails.getAverageRatings());
+		locality.setAverageRating(localityReviewRatingDetails.getAverageRatings());
 
 		/*
 		 * Setting total rating counts
 		 */
-		locality.setRatingsCount(localityReviewDetails.getTotalRatings());
+		locality.setRatingsCount(localityReviewRatingDetails.getTotalRatings());
 		/*
 		 * Setting total reviews counts
 		 */
-		locality.setTotalReviews(localityReviewDetails.getTotalReviews());
+		locality.setTotalReviews(localityReviewRatingDetails.getTotalReviews());
 
 		/*
 		 * Setting the Rating distribution
 		 */
-		locality.setNumberOfUsersByRating(localityReviewDetails
+		locality.setNumberOfUsersByRating(localityReviewRatingDetails
 				.getTotalUsersByRating());
 
 		/*
@@ -746,30 +745,46 @@ public class LocalityService {
     	return localityIds;
     }
     
-    public PaginatedResponse<List<Locality>> getTopReviewedLocalities(String locationTypeStr, int locationId, int minReviewCount, int numberOfLocalities){
-    	Pageable pageable = new PageRequest(0, numberOfLocalities);
-    	int locationType;
-    	List<Integer> localities = null;
-    	switch(locationTypeStr.toLowerCase())
-    	{
-    		case "city":
-    			locationType = 1;
-    			localities = localityReviewService.getTopReviewedLocalityOnCityOrSuburb(locationType, locationId, minReviewCount, pageable);
-    			break;
-    		case "suburb":
-    			locationType = 2;
-    			localities = localityReviewService.getTopReviewedLocalityOnCityOrSuburb(locationType, locationId, minReviewCount, pageable);
-    			break;
-    		case "locality":
-    			localities = localityReviewService.getTopReviewedNearLocalitiesForLocality(locationId, minReviewCount, pageable);
-    			break;
-    		default:
-    			throw new IllegalArgumentException("location Type must be either city or locality or suburb");
-    	}
-    	
-    	if(localities == null || localities.size() < 1)
-    		return null;
-    	
-    	return localityDao.findByLocalityIds(localities, null);
-    }
+	/**
+	 * Get top reviewed localities for city/suburb or a given locality.
+	 * @param locationTypeStr
+	 * @param locationId
+	 * @param minReviewCount
+	 * @param numberOfLocalities
+	 * @return
+	 */
+	public PaginatedResponse<List<Locality>> getTopReviewedLocalities(
+			String locationTypeStr, int locationId, int minReviewCount,
+			int numberOfLocalities) {
+		Pageable pageable = new PageRequest(0, numberOfLocalities);
+		int locationType;
+		List<Integer> localities = null;
+		switch (locationTypeStr.toLowerCase()) {
+			case "city":
+				locationType = 1;
+				localities = localityReviewService
+						.getTopReviewedLocalityOnCityOrSuburb(locationType,
+								locationId, minReviewCount, pageable);
+				break;
+			case "suburb":
+				locationType = 2;
+				localities = localityReviewService
+						.getTopReviewedLocalityOnCityOrSuburb(locationType,
+								locationId, minReviewCount, pageable);
+				break;
+			case "locality":
+				localities = localityReviewService
+						.getTopReviewedNearLocalitiesForLocality(locationId,
+								minReviewCount, pageable);
+				break;
+			default:
+				throw new IllegalArgumentException(
+						"location Type must be either city or locality or suburb");
+		}
+
+		if (localities == null || localities.size() < 1)
+			return null;
+
+		return localityDao.findByLocalityIds(localities, null);
+	}
 }
