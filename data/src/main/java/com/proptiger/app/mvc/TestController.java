@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.B2b;
+import com.proptiger.data.model.InventoryPriceTrend;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -28,7 +28,7 @@ public class TestController extends BaseController {
 	public ProAPIResponse test(@RequestParam(required = false, value = "selector") String selectorStr){
 		Selector testSelector = super.parseJsonToObject(selectorStr, Selector.class);
 		
-		List<B2b> docList = b2bService.getFilteredDocuments(testSelector);
+		List<InventoryPriceTrend> docList = b2bService.getFilteredDocuments(testSelector);
 		
 		System.out.println("Here" + testSelector);
 		Set<String> fieldsToSerialize = null;

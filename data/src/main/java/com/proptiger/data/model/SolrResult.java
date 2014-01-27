@@ -24,13 +24,13 @@ public class SolrResult extends BaseModel{
     private Suburb suburb = new Suburb();
     private City city = new City();
     private Builder builder = new Builder();
-    private B2b b2b = new B2b();
+    private InventoryPriceTrend b2b = new InventoryPriceTrend();
 
-    public B2b getB2b() {
+    public InventoryPriceTrend getB2b() {
 		return b2b;
 	}
 
-	public void setB2b(B2b b2b) {
+	public void setB2b(InventoryPriceTrend b2b) {
 		this.b2b = b2b;
 	}
 
