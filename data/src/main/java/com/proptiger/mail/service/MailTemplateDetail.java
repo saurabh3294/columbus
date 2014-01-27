@@ -33,7 +33,11 @@ public enum MailTemplateDetail {
 			,"mailtemplate/unmatched-property-internal-Email-subject.vm"),
 	UNMATCHED_PROJECT_USER("UnmatchedProjectDetails",
 			"mailtemplate/unmatched-property-user-Email-Template.vm"
-			,"mailtemplate/unmatched-property-user-Email-Template-Subject.vm");
+			,"mailtemplate/unmatched-property-user-Email-Template-Subject.vm"),
+	
+	ADD_NEW_PROJECT_COMMENT("ProjectCommentAddMail", 
+			"mailtemplate/comment_post_email_template.vm", 
+			"mailtemplate/comment_post_email_template_subject.vm");
 	
 	private MailTemplateDetail(String key, String filename, String subject){
 		this.key = key;

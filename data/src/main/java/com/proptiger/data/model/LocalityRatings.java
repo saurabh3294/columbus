@@ -1,5 +1,7 @@
 package com.proptiger.data.model;
 
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,8 +19,8 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
- * Locality review model class, this class is basically consiting locality
- * ratings relate data.
+ * Locality review model class, this class is basically consisting locality
+ * ratings relate data for various categories like transport, safety etc.
  * 
  * @author Rajeev Pandey
  * 
@@ -27,7 +29,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "LOCALITY_REVIEW")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class LocalityReview implements BaseModel{
+public class LocalityRatings implements BaseModel{
 	private static final long serialVersionUID = 7492287125669474763L;
 
 	@FieldMetaInfo(displayName = "Review Id", description = "Review Id")
@@ -181,7 +183,7 @@ public class LocalityReview implements BaseModel{
 		this.civic = civic;
 	}
 
-	public void update(LocalityReview newRatings) {
+	public void update(LocalityRatings newRatings) {
 		this.setCivic(newRatings.getCivic());
 		this.setHospitals(newRatings.getHospitals());
 		this.setLocation(newRatings.getLocation());
@@ -196,6 +198,7 @@ public class LocalityReview implements BaseModel{
 	
 	@JsonInclude(Include.NON_NULL)
 	public static class LocalityAverageRatingCategory{
+		
 		public LocalityAverageRatingCategory(Double overallRating, Double location, Double safety,
 				Double pubTrans, Double restShop, Double schools, Double parks,
 				Double traffic, Double hospitals, Double civic) {
@@ -251,6 +254,61 @@ public class LocalityReview implements BaseModel{
 		public Double getCivic() {
 			return civic;
 		}
+	}
+	
+	/**
+	 * A kind of DTO from Dao layer to service later. Use this object in Select
+	 * clause of query with NEW operator
+	 * 
+	 * @author Rajeev Pandey
+	 * 
+	 */
+	@JsonInclude(Include.NON_NULL)
+	public static class LocalityRatingUserCount{
+		private Double rating;
+		private long userCount;
 		
+		public LocalityRatingUserCount(Double rating, long userCount){
+			this.rating = rating;
+			this.userCount = userCount;
+		}
+				
+		public Double getRating() {
+			return rating;
+		}
+
+		public long getUserCount() {
+			return userCount;
+		}
+	}
+	
+	/**
+	 * This class contains locality rating details, like total ratings, user
+	 * count rating wise, and average rating od locality
+	 * 
+	 * @author Rajeev Pandey
+	 * 
+	 */
+	public static class LocalityRatingDetails{
+		protected Map<Double, Long> totalUsersByRating;
+		protected double averageRatings;
+		//totalRatings is total number users who rates the locality
+		protected long totalRatings;
+		public LocalityRatingDetails(Map<Double, Long> totalUsersByRating,
+				double averageRatings, long totalRatings) {
+			super();
+			this.totalUsersByRating = totalUsersByRating;
+			this.averageRatings = averageRatings;
+			this.totalRatings = totalRatings;
+		}
+		public Map<Double, Long> getTotalUsersByRating() {
+			return totalUsersByRating;
+		}
+		public double getAverageRatings() {
+			return averageRatings;
+		}
+		public long getTotalRatings() {
+			return totalRatings;
+		}
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,19 +35,9 @@ public class ProjectDiscussionsController extends BaseController{
 	}
 	
 	@ResponseBody
-	@RequestMapping(value="/likes", method= RequestMethod.POST)
-	public ProAPIResponse incrementProjectCommentLikes(@RequestParam long commentId, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
+	@RequestMapping(value="/{commentId}/likes", method= RequestMethod.POST)
+	public ProAPIResponse incrementProjectCommentLikes(@PathVariable long commentId, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
 		return new ProAPISuccessResponse(projectDiscussionsService.incrementProjectCommentLikes(commentId, userInfo));
 	}
-
-	@ResponseBody
-	@RequestMapping(method= RequestMethod.GET)
-	public ProAPIResponse getProjectComments(@RequestParam int projectId, @RequestParam(required = false) String selector){
-		Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
-	    if (propRequestParam == null) {
-	    	propRequestParam = new Selector();
-	    }
-	    Set<String> fields = propRequestParam.getFields();
-		return new ProAPISuccessResponse( super.filterFields( projectDiscussionsService.getProjectComments(projectId, propRequestParam.getPaging()), fields) );
-	}
+	
 }

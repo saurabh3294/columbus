@@ -29,7 +29,9 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
-import com.proptiger.data.model.LocalityReview.LocalityAverageRatingCategory;
+import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingCategory;
+import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
+import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
@@ -43,6 +45,7 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -437,11 +440,11 @@ public class LocalityService {
 				if (objects.length == 2) {
 					Locality locality = (Locality) objects[0];
 					locality.setAverageRating((double) objects[1]);
-					Map<String, Object> localityReviewDetails = localityReviewService
-							.getTotalUsersByRatingByLocalityId(locality
+					 LocalityRatingDetails localityReviewDetails = localityRatingService
+							.getUsersCountByRatingOfLocality(locality
 									.getLocalityId());
 					locality.setNumberOfUsersByRating((Map<Double, Long>) localityReviewDetails
-							.get(LocalityReviewService.TOTAL_USERS_BY_RATING));
+							.getTotalUsersByRating());
 					result.add(locality);
 				}
 			}
@@ -552,11 +555,11 @@ public class LocalityService {
 			}
 		}
 		for(Locality locality: localitiesAroundMainLocality){
-			Map<String, Object> localityReviewDetails = localityReviewService
-					.getTotalUsersByRatingByLocalityId(locality
+			 LocalityRatingDetails localityReviewDetails = localityRatingService
+					.getUsersCountByRatingOfLocality(locality
 							.getLocalityId());
 			locality.setNumberOfUsersByRating((Map<Double, Long>) localityReviewDetails
-					.get(LocalityReviewService.TOTAL_USERS_BY_RATING));
+					.getTotalUsersByRating());
 		}
 		imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
 		return localitiesAroundMainLocality;
@@ -650,41 +653,36 @@ public class LocalityService {
 	 * 4: Rating Distribution by total users.
 	 * @param locality
 	 */
-	public void setLocalityRatingAndReviewDetails(Locality locality){
-		
-		Map<String, Object> localityReviewDetails = localityReviewService
+	public void setLocalityRatingAndReviewDetails(Locality locality) {
+
+		LocalityReviewRatingDetails localityReviewDetails = localityReviewService
 				.findReviewByLocalityId(locality.getLocalityId(), null);
 
-		locality.setAverageRating(localityReviewDetails
-				.get(LocalityReviewService.AVERAGE_RATINGS) == null ? 0
-				: (Double) localityReviewDetails
-						.get(LocalityReviewService.AVERAGE_RATINGS));
-		
+		locality.setAverageRating(localityReviewDetails.getAverageRatings());
+
 		/*
 		 * Setting total rating counts
 		 */
-		locality.setRatingsCount(localityReviewDetails
-				.get(LocalityReviewService.TOTAL_RATINGS) == null ? 0
-				: (Long) localityReviewDetails
-						.get(LocalityReviewService.TOTAL_RATINGS));
+		locality.setRatingsCount(localityReviewDetails.getTotalRatings());
 		/*
 		 * Setting total reviews counts
 		 */
-		locality.setTotalReviews(localityReviewDetails
-				.get(LocalityReviewService.TOTAL_REVIEWS) == null ? 0
-				: (Long) localityReviewDetails
-						.get(LocalityReviewService.TOTAL_REVIEWS));
-		
+		locality.setTotalReviews(localityReviewDetails.getTotalReviews());
+
 		/*
-		 * Setting the Rating distribution 
+		 * Setting the Rating distribution
 		 */
-		locality.setNumberOfUsersByRating( (Map<Double , Long>) localityReviewDetails.get(LocalityReviewService.TOTAL_USERS_BY_RATING) );
-		
+		locality.setNumberOfUsersByRating(localityReviewDetails
+				.getTotalUsersByRating());
+
 		/*
 		 * setting the project status counts and project counts.
 		 */
-		Map<String, Map<String, Integer>> projectAndProjectStatusCounts = propertyDao.getProjectStatusCountAndProjectOnLocality(locality.getLocalityId());
-		setProjectStatusCountAndProjectCountAndPriceOnLocality(Arrays.asList(locality), projectAndProjectStatusCounts, null);
+		Map<String, Map<String, Integer>> projectAndProjectStatusCounts = propertyDao
+				.getProjectStatusCountAndProjectOnLocality(locality
+						.getLocalityId());
+		setProjectStatusCountAndProjectCountAndPriceOnLocality(
+				Arrays.asList(locality), projectAndProjectStatusCounts, null);
 	}
 	
 	public int getTopRatedLocalityInCityOrSuburb(String locationType, int locationId){

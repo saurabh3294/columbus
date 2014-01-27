@@ -5,6 +5,8 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,18 +22,23 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 
 /**
- *
+ *This class represents review comments for locality
  * @author mukand
  */
 @Entity
 @Table(name = "REVIEW_COMMENTS")
 @ResourceMetaInfo
-public class ReviewComments implements BaseModel{
-    @FieldMetaInfo(displayName = "Comment Id", description = "Comment Id")
+public class LocalityReviewComments implements BaseModel{
+	private static final long serialVersionUID = 6324079051629045199L;
+
+	@FieldMetaInfo(displayName = "Comment Id", description = "Comment Id")
     @Column(name = "COMMENT_ID")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -186,4 +193,89 @@ public class ReviewComments implements BaseModel{
     public void prePersist(){
     	commenttime = new Date();
     }
+    
+    
+	/**
+	 * This class will contain few details of a review for locality, like review
+	 * string, review label etc
+	 * 
+	 * @author Rajeev Pandey
+	 * 
+	 */
+    @JsonInclude(Include.NON_NULL)
+    public static class LocalityReviewDetail{
+    	private String review;
+    	private String reviewLabel;
+    	private String username;
+    	private Date commentTime;
+		public LocalityReviewDetail(String review, String reviewLabel,
+				String username, Date commentTime, String commentUserName) {
+			super();
+			this.review = review;
+			this.reviewLabel = reviewLabel;
+			this.username = username;
+			this.commentTime = commentTime;
+			if(this.username == null){
+				this.username = commentUserName;
+			}
+		}
+		public String getReview() {
+			return review;
+		}
+		public String getReviewLabel() {
+			return reviewLabel;
+		}
+		public String getUsername() {
+			return username;
+		}
+		public Date getCommentTime() {
+			return commentTime;
+		}
+    }
+
+	/**
+	 * This class will contain review and rating details for a locality
+	 * 
+	 * @author Rajeev Pandey
+	 * 
+	 */
+    @JsonInclude(Include.NON_NULL)
+	public static class LocalityReviewRatingDetails{
+		private Long totalReviews;
+		private List<LocalityReviewDetail> reviews;
+		protected Map<Double, Long> totalUsersByRating;
+		protected Double averageRatings;
+		//totalRatings is total number users who rates the locality
+		protected Long totalRatings;
+		
+		public LocalityReviewRatingDetails(Long totalReviews,
+				List<LocalityReviewDetail> reviews,
+				LocalityRatingDetails localityRatingDetails) {
+			super();
+			this.totalReviews = totalReviews;
+			this.reviews = reviews;
+			if(localityRatingDetails != null){
+				this.totalUsersByRating = localityRatingDetails.getTotalUsersByRating();
+				this.averageRatings = localityRatingDetails.getAverageRatings();
+				this.totalRatings = localityRatingDetails.getTotalRatings();
+			}
+		}
+		public Long getTotalReviews() {
+			return totalReviews;
+		}
+		public List<LocalityReviewDetail> getReviews() {
+			return reviews;
+		}
+		public Map<Double, Long> getTotalUsersByRating() {
+			return totalUsersByRating;
+		}
+		public Double getAverageRatings() {
+			return averageRatings;
+		}
+		public Long getTotalRatings() {
+			return totalRatings;
+		}
+		
+		
+	}
 }

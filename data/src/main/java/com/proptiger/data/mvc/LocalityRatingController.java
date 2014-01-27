@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.LocalityReview;
+import com.proptiger.data.model.LocalityRatings;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.LocalityRatingService;
@@ -40,8 +40,8 @@ public class LocalityRatingController extends BaseController {
 	@DisableCaching
 	public ProAPIResponse createLocalityRating(
 			@PathVariable Integer localityId,
-			@RequestBody LocalityReview localityReview) {
-		LocalityReview createdRating = localityRatingService.createLocalityRating(null, localityId,
+			@RequestBody LocalityRatings localityReview) {
+		LocalityRatings createdRating = localityRatingService.createLocalityRating(null, localityId,
 				localityReview);
 		return new ProAPISuccessResponse(createdRating);
 	}
@@ -62,9 +62,9 @@ public class LocalityRatingController extends BaseController {
 	public ProAPIResponse createLocalityRating(
 			@PathVariable Integer userId,
 			@PathVariable Integer localityId,
-			@RequestBody LocalityReview localityReview,
+			@RequestBody LocalityRatings localityReview,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		LocalityReview createdRating = localityRatingService.createLocalityRating(
+		LocalityRatings createdRating = localityRatingService.createLocalityRating(
 				userInfo.getUserIdentifier(), localityId, localityReview);
 		return new ProAPISuccessResponse(createdRating);
 	}
