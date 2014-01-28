@@ -75,7 +75,7 @@ public class Constants {
 		
 		public static final String LOCALITY_RATING = "loc-rating";
 		public static final String LOCALITY_RATING_AVG_BY_CATEGORY = "loc-rating-avg-ctg";
-		public static final String LOCALITY_RATING_BY_USER_COUNT = "loc-rating-user";
+		public static final String LOCALITY_RATING_USERS_COUNT_BY_RATING = "loc-rating-user-cnt";
 		
 	}
 }

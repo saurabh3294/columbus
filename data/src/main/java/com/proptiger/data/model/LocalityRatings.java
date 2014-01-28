@@ -222,6 +222,11 @@ public class LocalityRatings implements BaseModel{
 			this.hospitals = hospitals;
 			this.civic = civic;
 		}
+		
+		public LocalityAverageRatingByCategory() {
+			super();
+		}
+
 		private Double overallRating;
 		private Double location;
 		private Double safety;
@@ -299,6 +304,7 @@ public class LocalityRatings implements BaseModel{
 	 * @author Rajeev Pandey
 	 * 
 	 */
+	@JsonInclude(Include.NON_NULL)
 	public static class LocalityRatingDetails implements BaseModel{
 		private static final long serialVersionUID = 6890543357432298905L;
 		protected Map<Double, Long> totalUsersByRating;
@@ -312,6 +318,11 @@ public class LocalityRatings implements BaseModel{
 			this.averageRatings = averageRatings;
 			this.totalRatings = totalRatings;
 		}
+		
+		public LocalityRatingDetails() {
+			super();
+		}
+
 		public Map<Double, Long> getTotalUsersByRating() {
 			return totalUsersByRating;
 		}

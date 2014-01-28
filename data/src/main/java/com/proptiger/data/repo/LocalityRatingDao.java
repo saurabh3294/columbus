@@ -18,6 +18,7 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingUserCount;
 /**
  *
  * @author mukand
+ * @author Rajeev Pandey
  */
 @Repository
 public interface LocalityRatingDao extends PagingAndSortingRepository<LocalityRatings, Serializable> {

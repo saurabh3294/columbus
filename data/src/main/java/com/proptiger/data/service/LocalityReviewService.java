@@ -53,16 +53,16 @@ public class LocalityReviewService {
 	 *         REVIEWS: Reviews found filtered by pageable.
 	 */
 	public LocalityReviewRatingDetails getLocalityReviewRatingDetails(int localityId,
-			Pageable pageable) {
+			Integer noOfReviews) {
 		logger.debug("Get review and rating details of locality {}", localityId);
 		Long totalReviews = getLocalityReviewCount(localityId);
-
-		if (pageable == null && totalReviews != null
-				&& totalReviews.longValue() > 0){
+		Pageable pageable = new LimitOffsetPageRequest();
+		
+		if(noOfReviews != null && noOfReviews.intValue() > 0){
+			pageable = new LimitOffsetPageRequest(0, noOfReviews);
+		}
+		else if(totalReviews != null && totalReviews.intValue() > 0){
 			pageable = new LimitOffsetPageRequest(0, totalReviews.intValue());
-		}			
-		else{
-			pageable = new LimitOffsetPageRequest(0, 5);
 		}
 		
 		List<LocalityReviewCustomDetail> reviewComments = getLocalityReviewCustomDetails(localityId, pageable);
