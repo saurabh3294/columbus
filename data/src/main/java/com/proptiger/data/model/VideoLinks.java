@@ -16,29 +16,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name="cms.video_links")
 @JsonInclude(Include.NON_NULL)
-//@ResourceMetaInfo
-//@JsonFilter("fieldFilter")
 public class VideoLinks implements BaseModel {
-	/*public enum Categories{
-		WALKTHROUGH("Walkthrough"),
-		SAMPLEFLAT("Sample flat"),
-		PRESENTATION("Presentation");
 		
-		private String name;
-		
-		private Categories(String name){
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-	}*/
-	
 	@Id
 	@Column(name = "video_id")
 	private int videoId;
@@ -52,7 +31,6 @@ public class VideoLinks implements BaseModel {
 	private String tableName;
 	
 	@Column(name = "category")
-	//@Enumerated(EnumType.STRING)
 	private String category;
 	
 	@Column(name = "video_url")
