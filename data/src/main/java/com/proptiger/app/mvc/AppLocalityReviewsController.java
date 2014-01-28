@@ -33,15 +33,14 @@ public class AppLocalityReviewsController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId,@RequestParam(required = false) Integer numberOfReviews){
-        if(localityId == null || localityId < 1)
-            return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
-        
-        Pageable pageable = null;
-        if(numberOfReviews != null && numberOfReviews > 0)
-            pageable = new LimitOffsetPageRequest(0, numberOfReviews);
-                    
-        LocalityReviewRatingDetails list = localityReviewService.getLocalityReviewRatingDetails(localityId, pageable);
-        return new ProAPISuccessResponse(list);
-    }
+	public ProAPIResponse getLocalityReviewByLocalityId(
+			@RequestParam Integer localityId,
+			@RequestParam(required = false) Integer numberOfReviews) {
+		if (localityId == null || localityId < 1){
+			return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
+		}
+		LocalityReviewRatingDetails reviewRatingDetails = localityReviewService
+				.getLocalityReviewRatingDetails(localityId, numberOfReviews);
+		return new ProAPISuccessResponse(reviewRatingDetails);
+	}
 }

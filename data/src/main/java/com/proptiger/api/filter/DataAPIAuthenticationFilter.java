@@ -61,6 +61,11 @@ public class DataAPIAuthenticationFilter implements Filter{
 		}
 		logger.debug("PHPSESSIONID from request cookie {}",sessionId);
 		String jsessionIdPassed = null;
+		/*
+		 * This userIdOnBehalfOfAdmin will serve purpose when Admin is logged in and he is trying
+		 * to do some operation on behalf of some user. So this variable will
+		 * contain user id for whom admin is doing some operation.
+		 */
 		Integer userIdOnBehalfOfAdmin = null;
 		String[] jsessionIdsVal = httpRequest
 				.getParameterValues(Constants.JSESSIONID);

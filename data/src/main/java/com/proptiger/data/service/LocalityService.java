@@ -437,7 +437,7 @@ public class LocalityService {
 					 LocalityRatingDetails localityReviewDetails = localityRatingService
 							.getUsersCountByRatingOfLocality(locality
 									.getLocalityId());
-					locality.setNumberOfUsersByRating((Map<Double, Long>) localityReviewDetails
+					locality.setNumberOfUsersByRating(localityReviewDetails
 							.getTotalUsersByRating());
 					result.add(locality);
 				}
@@ -552,7 +552,7 @@ public class LocalityService {
 			 LocalityRatingDetails localityReviewDetails = localityRatingService
 					.getUsersCountByRatingOfLocality(locality
 							.getLocalityId());
-			locality.setNumberOfUsersByRating((Map<Double, Long>) localityReviewDetails
+			locality.setNumberOfUsersByRating(localityReviewDetails
 					.getTotalUsersByRating());
 		}
 		imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
