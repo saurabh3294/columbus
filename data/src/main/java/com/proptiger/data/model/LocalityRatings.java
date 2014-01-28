@@ -302,11 +302,11 @@ public class LocalityRatings implements BaseModel{
 	public static class LocalityRatingDetails implements BaseModel{
 		private static final long serialVersionUID = 6890543357432298905L;
 		protected Map<Double, Long> totalUsersByRating;
-		protected double averageRatings;
+		protected Double averageRatings;
 		//totalRatings is total number users who rates the locality
-		protected long totalRatings;
+		protected Long totalRatings;
 		public LocalityRatingDetails(Map<Double, Long> totalUsersByRating,
-				double averageRatings, long totalRatings) {
+				Double averageRatings, Long totalRatings) {
 			super();
 			this.totalUsersByRating = totalUsersByRating;
 			this.averageRatings = averageRatings;
@@ -315,10 +315,10 @@ public class LocalityRatings implements BaseModel{
 		public Map<Double, Long> getTotalUsersByRating() {
 			return totalUsersByRating;
 		}
-		public double getAverageRatings() {
+		public Double getAverageRatings() {
 			return averageRatings;
 		}
-		public long getTotalRatings() {
+		public Long getTotalRatings() {
 			return totalRatings;
 		}
 	}

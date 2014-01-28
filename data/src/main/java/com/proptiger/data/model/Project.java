@@ -312,6 +312,7 @@ public class Project implements BaseModel {
 
     @FieldMetaInfo(displayName="AVAILABILITY", description="AVAILABILITY")
     @Column(name="AVAILABILITY")
+    @Field("AVAILABILITY")
     private Integer derivedAvailability ;
 
 	@FieldMetaInfo(displayName="PRE LAUNCH Date", description="PRE LAUNCH Date")
@@ -346,6 +347,13 @@ public class Project implements BaseModel {
 	 
 	 @Transient
 	 private List<ProjectCMSAmenity> projectAmenities;
+	 
+	 @Field("PAYMENT_PLAN_URL")
+	 @Column(name = "APPLICATION_FORM")
+	 private String paymentPlanUrl;
+	 
+	 @Transient
+	 private List<VideoLinks> videoUrls;
     
     public int getProjectId() {
         return projectId;
@@ -848,4 +856,20 @@ public class Project implements BaseModel {
 		this.projectAmenities = projectAmenities;
 	}
 
+	public String getPaymentPlanUrl() {
+		return paymentPlanUrl;
+	}
+
+	public void setPaymentPlanUrl(String paymentPlanUrl) {
+		this.paymentPlanUrl = paymentPlanUrl;
+	}
+
+	public List<VideoLinks> getVideoUrls() {
+		return videoUrls;
+	}
+
+	public void setVideoUrls(List<VideoLinks> videoUrls) {
+		this.videoUrls = videoUrls;
+	}
+	
 }
