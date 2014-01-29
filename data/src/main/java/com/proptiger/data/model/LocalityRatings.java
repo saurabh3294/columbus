@@ -312,7 +312,7 @@ public class LocalityRatings implements BaseModel{
 		//totalRatings is total number users who rates the locality
 		protected Long totalRatings;
 		public LocalityRatingDetails(Map<Double, Long> totalUsersByRating,
-				double averageRatings, long totalRatings) {
+				Double averageRatings, Long totalRatings) {
 			super();
 			this.totalUsersByRating = totalUsersByRating;
 			this.averageRatings = averageRatings;

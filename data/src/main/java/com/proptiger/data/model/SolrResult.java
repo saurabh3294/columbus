@@ -690,4 +690,24 @@ public class SolrResult implements BaseModel{
     public void setLocalityMaxRadius(Double dominantUnitType) {
         locality.setMaxRadius(dominantUnitType);
     }
+    
+    @Field("PAYMENT_PLAN_URL")
+    public void setPaymentPlanUrl(String paymentPlanUrl){
+    	project.setPaymentPlanUrl(paymentPlanUrl);
+    }
+    
+    @Field("SERVANT_ROOM")
+    public void setServantRoom(int servantRoom){
+    	property.setServantRoom(servantRoom);
+    }
+    
+    @Field("POOJA_ROOM")
+    public void setPoojaRoom(int poojaRoom){
+    	property.setPoojaRoom(poojaRoom);
+    }
+    
+    @Field("AVAILABILITY")
+    public void setAvailability(Integer availability){
+    	project.setDerivedAvailability(availability);
+    }
 }
