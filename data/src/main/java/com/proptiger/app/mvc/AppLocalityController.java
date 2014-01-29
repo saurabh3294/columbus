@@ -66,7 +66,7 @@ public class AppLocalityController extends BaseController {
             selector = new Selector();
         }
         Locality locality = localityService.getLocalityInfo(localityId, imageCount);
-		return new ProAPISuccessResponse(super.filterFieldsWithTree(locality, selector.getFields()));
+		return new ProAPISuccessResponse(super.filterFields(locality, selector.getFields()));
 	}
 
 }

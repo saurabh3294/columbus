@@ -175,6 +175,7 @@ public abstract class BaseController {
     	return new ProAPISuccessCountResponse(val, count);
     }
 
+    @Deprecated
     public Object filterFieldsWithTree(Object object, Set<String> fields) {
         try {
             Set<String> fieldSet = new HashSet<String>();
