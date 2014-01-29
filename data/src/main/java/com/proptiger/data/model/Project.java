@@ -355,6 +355,9 @@ public class Project implements BaseModel {
 	 @Transient
 	 private List<VideoLinks> videoUrls;
     
+	 @Transient
+	 private List<Bank> loanProviderBanks;
+	 
     public int getProjectId() {
         return projectId;
     }
@@ -870,6 +873,14 @@ public class Project implements BaseModel {
 
 	public void setVideoUrls(List<VideoLinks> videoUrls) {
 		this.videoUrls = videoUrls;
+	}
+
+	public List<Bank> getLoanProviderBanks() {
+		return loanProviderBanks;
+	}
+
+	public void setLoanProviderBanks(List<Bank> loanProviderBanks) {
+		this.loanProviderBanks = loanProviderBanks;
 	}
 	
 }
