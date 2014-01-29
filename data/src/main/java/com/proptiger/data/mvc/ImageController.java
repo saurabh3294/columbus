@@ -37,7 +37,7 @@ public class ImageController extends BaseController {
     @RequestMapping
     public @ResponseBody
     Object getImages(@RequestParam(required = false) String selector, @RequestParam String objectType,
-            @RequestParam String imageType, @RequestParam long objectId)
+            @RequestParam(required=false) String imageType, @RequestParam long objectId)
     {
         List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, objectId);
 
@@ -67,24 +67,43 @@ public class ImageController extends BaseController {
         return new ProAPISuccessResponse(super.filterFields(img, null));
     }
 
+    @DisableCaching
     @RequestMapping(value = "{id}", method = RequestMethod.POST)
     public @ResponseBody
-    Object updateImage(@PathVariable long id, @RequestParam(value = "image") MultipartFile file,
+    Object updateImage(@PathVariable long id, @RequestParam(required=false, value = "image") MultipartFile file,
             @ModelAttribute Image imageParams) {
         Image image = imageService.getImage(id);
-        try {
-            BeanUtilsBean beanUtilsBean = new NullAwareBeanUtilsBean();
-            beanUtilsBean.copyProperties(imageParams, image);
-        } catch (IllegalAccessException | InvocationTargetException e) {
+
+        Object obj = null;
+
+        if (file == null || file.isEmpty()) {
+            try {
+                BeanUtilsBean beanUtilsBean = new NullAwareBeanUtilsBean();
+                beanUtilsBean.copyProperties(image, imageParams);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+            }            
+            imageService.update(image);
+            obj = new ProAPISuccessResponse(super.filterFields(image, null));
+        }
+        else {
+            try {
+                image.setId(0);
+                BeanUtilsBean beanUtilsBean = new NullAwareBeanUtilsBean();
+                beanUtilsBean.copyProperties(imageParams, image);
+                image.setId(id);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+            }
+            
+            obj = this.putImages(image.getImageTypeObj().getObjectType().getType(), image.getObjectId(),
+                    file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getImageTypeObj().getType(), imageParams);
+
+            imageService.deleteImage(id);
         }
 
-        Object obj = this.putImages(image.getImageTypeObj().getObjectType().getType(), image.getObjectId(),
-                file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getImageTypeObj().getType(), imageParams);
-
-        imageService.deleteImage(id);
         return obj;
     }
 
+    @DisableCaching
     @RequestMapping(value = "{id}", method = RequestMethod.DELETE)
     public @ResponseBody
     Object deleteImage(@PathVariable long id) {

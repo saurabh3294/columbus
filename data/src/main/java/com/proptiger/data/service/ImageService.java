@@ -197,4 +197,8 @@ public class ImageService {
     public String getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
         return object.getText() + imageTypeStr + objectId;
     }
+
+    public void update(Image image) {
+        imageDao.save(image);
+    }
 }
