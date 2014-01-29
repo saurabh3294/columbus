@@ -15,6 +15,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -22,6 +23,7 @@ import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.TableAttributes;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -72,6 +74,9 @@ public class ProjectService {
  	
  	@Autowired
  	private VideoLinksService videoLinksService;
+ 	
+ 	@Autowired
+ 	private BankService bankService;
 
     /**
      * This method will return the list of projects and total projects found based on the selector.
@@ -196,6 +201,8 @@ public class ProjectService {
          */
         localityService.updateLocalityRatingAndReviewDetails(project.getLocality());
         imageEnricher.setLocalityImages(project.getLocality(), null);
+        List<Bank> bankList = bankService.getBanksProvidingLoanOnProject(projectId);
+        project.setLoanProviderBanks(bankList);
         
     	return project;
     }
@@ -336,7 +343,7 @@ public class ProjectService {
 	 */
 	public ProjectSpecification getProjectSpecificationsV2(int projectId){
 		
-		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes("project", projectId);
+		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
 		List<TableAttributes> specifications = tableAttributesDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
 		
 		return new ProjectSpecification(specifications);

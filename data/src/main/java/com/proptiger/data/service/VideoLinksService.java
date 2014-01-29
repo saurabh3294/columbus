@@ -16,7 +16,7 @@ public class VideoLinksService {
 	private VideoLinksDao videoLinksDao;
 	
 	public List<VideoLinks> getProjectVideoLinks(int projectId){
-		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project.getText(), projectId);
+		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
 		return videoLinksDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
 	}
 }
