@@ -42,14 +42,15 @@ public class LocalityRatingService {
 	 *         2: AVERAGE_RATING => The average rating of locality.
 	 *         3: TOTAL_RATINGS => total rating users.        
 	 */
-	@Cacheable(value = Constants.Cache.LOCALITY_RATING_BY_USER_COUNT, key = "#localityId")
+	@Cacheable(value = Constants.CacheName.LOCALITY_RATING_USERS_COUNT_BY_RATING, key = "#localityId")
 	public LocalityRatingDetails getUsersCountByRatingOfLocality(int localityId) {
-		logger.debug("Get locality rating details for id {}",localityId);
+		logger.debug("Get locality rating details for locality id {}",localityId);
+		LocalityRatingDetails localityRatingDetails = new LocalityRatingDetails();
 		List<LocalityRatingUserCount> ratingWiseUserCountList = localityRatingDao
 				.getTotalUsersByRating(localityId);
 		if (ratingWiseUserCountList == null
 				|| ratingWiseUserCountList.size() < 1) {
-			return null;
+			return localityRatingDetails;
 		}
 		Map<Double, Long> ratingMap = new LinkedHashMap<>();
 
@@ -68,7 +69,7 @@ public class LocalityRatingService {
 		}
 		double avgRating = totalRating / totalUserCount;
 
-		LocalityRatingDetails localityRatingDetails = new LocalityRatingDetails(
+		localityRatingDetails = new LocalityRatingDetails(
 				ratingMap, avgRating, totalUserCount);
 		return localityRatingDetails;
 	}
@@ -80,28 +81,16 @@ public class LocalityRatingService {
 	 * @param localityId
 	 * @return
 	 */
-	@Cacheable(value = Constants.Cache.LOCALITY_RATING_AVG_BY_CATEGORY, key = "#localityId")
+	@Cacheable(value = Constants.CacheName.LOCALITY_RATING_AVG_BY_CATEGORY, key = "#localityId")
 	public LocalityAverageRatingByCategory getAvgRatingsOfLocalityByCategory(Integer localityId){
 		logger.debug("Get locality average rating of category for locality {}",localityId);
 		LocalityAverageRatingByCategory avgRatingOfAmenities = localityRatingDao.getAvgRatingOfAmenitiesForLocality(localityId);
 		return avgRatingOfAmenities;
 	}
 	
-	/**
-	 * This method either updates a existing ratings by user for locality or
-	 * creates new ratings for locality. In case of non logged in or
-	 * unregistered user, user id will be 0.
-	 * 
-	 * Remove already cached ratings of locality eiter while creating new or
-	 * updating already existing locality rating
-	 * 
-	 * @param userId
-	 * @param localityId
-	 * @param localityReview
-	 * @return
-	 */
-	@CacheEvict(value = { Constants.Cache.LOCALITY_RATING_AVG_BY_CATEGORY,
-			Constants.Cache.LOCALITY_RATING_BY_USER_COUNT }, allEntries = true)
+	
+	@CacheEvict(value = { Constants.CacheName.LOCALITY_RATING_AVG_BY_CATEGORY,
+			Constants.CacheName.LOCALITY_RATING_USERS_COUNT_BY_RATING }, key = "#localityId")
 	@Transactional(rollbackFor = {ConstraintViolationException.class})
 	public LocalityRatings createLocalityRating(Integer userId,
 			Integer localityId, LocalityRatings localityReview) {

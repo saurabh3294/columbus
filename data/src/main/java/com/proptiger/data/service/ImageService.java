@@ -121,7 +121,7 @@ public class ImageService {
 	/*
 	 * Public method to get images
 	 */
-	@Cacheable(value=Constants.Cache.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
+	@Cacheable(value=Constants.CacheName.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
 		if (imageTypeStr == null) {

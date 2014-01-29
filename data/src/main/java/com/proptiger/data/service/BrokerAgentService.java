@@ -62,7 +62,7 @@ public class BrokerAgentService {
 	 * @param agentId
 	 * @return
 	 */
-	@Cacheable(value=Constants.Cache.CACHE, key="#agentId")
+	@Cacheable(value=Constants.CacheName.AGENT, key="#agentId", unless="#result != null")
 	public Agent getAgent(Integer agentId){
 		Agent agent = agentDao.findOne(agentId);
 		if(agent == null){
@@ -142,31 +142,45 @@ public class BrokerAgentService {
 	}
 	
 	/**
-	 * Get agents for given project id
+	 * Get agents for given project id. There are mapping of project id with
+	 * rule id, so first find rules mapped to project id. Then that rules are
+	 * mapped with agents. So finding the agents based on rule id mapped to
+	 * project id.
+	 * 
+	 * So if no rules are mapped to given project id then we consider it as that
+	 * no agents are mapped to given project
+	 * 
 	 * @param projectId
 	 * @return
 	 */
-	@Cacheable(value=Constants.Cache.CACHE, key="#projectId")
+	@Cacheable(value=Constants.CacheName.AGENTS_FOR_PROJECT, key="#projectId", unless = "#result.size() > 0")
 	public List<Agent> getAgentsForProject(Integer projectId){
+		/*
+		 * Find rule mapping with project id
+		 */
 		List<RuleProjectMapping> projectRules = ruleProjectMappingDao.findByProjectId(projectId);
 		List<Integer> ruleIds = new ArrayList<Integer>();
 		if(projectRules == null || projectRules.size() == 0){
-			
+			// no rules are mapped to the given project id.
 		}
 		else{
+			//extract all rule id
 			for(RuleProjectMapping rule: projectRules){
 				ruleIds.add(rule.getRuleId());
 			}
 		}
 		/*
-		 * Now get rule id and agent mapping to get all agents
+		 * Now get rule id and agent mapping to get all agent details
 		 */
-		List<Integer> agentIds = ruleAgentMappingDao.findAgentsIdsWhereRuleIdsIn(ruleIds);
 		List<Agent> agentList = new ArrayList<Agent>();
-		for(Integer agentId: agentIds){
-			Agent agent = getAgent(agentId);
-			agentList.add(agent);
+		if(!ruleIds.isEmpty()){
+			List<Integer> agentIds = ruleAgentMappingDao.findAgentsIdsWhereRuleIdsIn(ruleIds);
+			for(Integer agentId: agentIds){
+				Agent agent = getAgent(agentId);
+				agentList.add(agent);
+			}
 		}
+		
 		return agentList;
 	}
 }

@@ -83,7 +83,7 @@ public class Project extends BaseModel {
     @Column(name = "LOCALITY_ID")
     private int localityId;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "LOCALITY_ID", insertable = false, updatable = false)
     private Locality locality;
 
@@ -92,7 +92,7 @@ public class Project extends BaseModel {
     @Column(name = "BUILDER_ID")
     private int builderId;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BUILDER_ID", insertable = false, updatable = false)
     private Builder builder;
 
@@ -340,6 +340,13 @@ public class Project extends BaseModel {
 
     @Transient
     private List<ProjectCMSAmenity> projectAmenities;
+
+    @Field("PAYMENT_PLAN_URL")
+    @Column(name = "APPLICATION_FORM")
+    private String paymentPlanUrl;
+
+    @Transient
+    private List<VideoLinks> videoUrls;
 
     public int getProjectId() {
         return projectId;
@@ -831,5 +838,21 @@ public class Project extends BaseModel {
 
     public void setProjectAmenities(List<ProjectCMSAmenity> projectAmenities) {
         this.projectAmenities = projectAmenities;
+    }
+
+    public String getPaymentPlanUrl() {
+        return paymentPlanUrl;
+    }
+
+    public void setPaymentPlanUrl(String paymentPlanUrl) {
+        this.paymentPlanUrl = paymentPlanUrl;
+    }
+
+    public List<VideoLinks> getVideoUrls() {
+        return videoUrls;
+    }
+
+    public void setVideoUrls(List<VideoLinks> videoUrls) {
+        this.videoUrls = videoUrls;
     }
 }

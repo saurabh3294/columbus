@@ -128,6 +128,16 @@ public class Property extends BaseModel {
     @Field(value="RESALE_PRICE")
     private Double resalePrice;
     
+    @Transient
+    @FieldMetaInfo( displayName = "Servant Room", description = "Servant Room")
+    @Field("SERVANT_ROOM")
+    private Integer servantRoom;
+    
+    @Transient
+    @FieldMetaInfo( displayName = "Pooja Room", description = "Pooja Room")
+    @Field("POOJA_ROOM")
+    private Integer poojaRoom;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -282,6 +292,22 @@ public class Property extends BaseModel {
 
 	public Double getProcessedLatitude() {
 		return processedLatitude;
+	}
+
+	public Integer getServantRoom() {
+		return servantRoom;
+	}
+
+	public void setServantRoom(Integer servantRoom) {
+		this.servantRoom = servantRoom;
+	}
+
+	public Integer getPoojaRoom() {
+		return poojaRoom;
+	}
+
+	public void setPoojaRoom(Integer poojaRoom) {
+		this.poojaRoom = poojaRoom;
 	}
 	
 }
