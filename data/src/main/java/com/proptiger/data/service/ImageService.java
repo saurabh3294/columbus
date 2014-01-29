@@ -122,7 +122,7 @@ public class ImageService {
 	/*
 	 * Public method to get images
 	 */
-	@Cacheable(value=Constants.Cache.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
+	@Cacheable(value=Constants.CacheName.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
 		if (imageTypeStr == null) {
@@ -145,7 +145,7 @@ public class ImageService {
 	/*
 	 * Public method to upload images
 	 */
-	@CacheEvict(value=Constants.Cache.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
+	@CacheEvict(value=Constants.CacheName.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
 	public Image uploadImage(DomainObject object, String imageTypeStr,
 			long objectId, MultipartFile fileUpload, Boolean addWaterMark,
 			Map<String, String> extraInfo) {

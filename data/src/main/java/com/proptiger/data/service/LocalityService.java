@@ -416,7 +416,6 @@ public class LocalityService {
 	 * @param selector
 	 * @return List<Locality>
 	 */
-	@SuppressWarnings("unchecked")
     public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
 			Selector selector, Integer imageCount) {
 		List<Locality> result = new ArrayList<>();
@@ -651,29 +650,29 @@ public class LocalityService {
 
 		LocalityAverageRatingByCategory avgRatingsOfLocalityCategory = localityRatingService
 				.getAvgRatingsOfLocalityByCategory(locality.getLocalityId());
-		
+
 		locality.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
-		
-		LocalityReviewRatingDetails localityReviewRatingDetails = localityReviewService
-				.getLocalityReviewRatingDetails(locality.getLocalityId(), null);
 
-		locality.setAverageRating(localityReviewRatingDetails.getAverageRatings());
+		LocalityRatingDetails localityRatingDetails = localityRatingService
+				.getUsersCountByRatingOfLocality(locality.getLocalityId());
 
+		locality.setAverageRating(localityRatingDetails.getAverageRatings());
+		Long totalNumberOfReviews = localityReviewService
+				.getLocalityReviewCount(locality.getLocalityId());
 		/*
 		 * Setting total rating counts
 		 */
-		locality.setRatingsCount(localityReviewRatingDetails.getTotalRatings());
+		locality.setRatingsCount(localityRatingDetails.getTotalRatings());
 		/*
 		 * Setting total reviews counts
 		 */
-		locality.setTotalReviews(localityReviewRatingDetails.getTotalReviews());
+		locality.setTotalReviews(totalNumberOfReviews);
 
 		/*
 		 * Setting the Rating distribution
 		 */
-		locality.setNumberOfUsersByRating(localityReviewRatingDetails
+		locality.setNumberOfUsersByRating(localityRatingDetails
 				.getTotalUsersByRating());
-
 		/*
 		 * setting the project status counts and project counts.
 		 */
@@ -687,7 +686,6 @@ public class LocalityService {
 	public int getTopRatedLocalityInCityOrSuburb(String locationType, int locationId){
 		
 		Paging paging = new Paging(0, 1);
-        int topRatedLocalityId;
         List<Locality> locality = null;
         switch (locationType) {
             case "city":
@@ -725,15 +723,19 @@ public class LocalityService {
         return null;
     }
 	
-    public PaginatedResponse<List<Locality>> getNearLocalitiesOnLocalityOnConcentricCircle(Locality locality, int minDistance, int maxDistance){
-		return localityDao.getNearLocalitiesByDistance(locality, minDistance, maxDistance);
+	public PaginatedResponse<List<Locality>> getNearLocalitiesOnLocalityOnConcentricCircle(
+			Locality locality, int minDistance, int maxDistance) {
+		return localityDao.getNearLocalitiesByDistance(locality, minDistance,
+				maxDistance);
 	}
-    
-    public List<Integer> getNearLocalityIdOnLocalityOnConcentricCircle(Locality locality, int minDistance, int maxDistance){
-    	PaginatedResponse<List<Locality>> localities = getNearLocalitiesOnLocalityOnConcentricCircle(locality, minDistance, maxDistance);
-    	
-    	return getLocalityIds(localities.getResults());
-    }
+
+	public List<Integer> getNearLocalityIdOnLocalityOnConcentricCircle(
+			Locality locality, int minDistance, int maxDistance) {
+		PaginatedResponse<List<Locality>> localities = getNearLocalitiesOnLocalityOnConcentricCircle(
+				locality, minDistance, maxDistance);
+
+		return getLocalityIds(localities.getResults());
+	}
     
     public List<Integer> getLocalityIds(List<Locality> localities){
     	List<Integer> localityIds = new ArrayList<>();

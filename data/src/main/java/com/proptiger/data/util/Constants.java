@@ -66,8 +66,7 @@ public class Constants {
 	 * @author Rajeev Pandey
 	 *
 	 */
-	public static class Cache{
-		public static final String SEPARATR = "";
+	public static class CacheName{
 		public static final String CACHE = "cache";
 		public static final String LOCALITY_REVIEW = "loc-review";
 		public static final String LOCALITY_REVIEW_CUSTOM_FIELDS = "loc-review-custom";
@@ -76,6 +75,9 @@ public class Constants {
 		public static final String LOCALITY_RATING = "loc-rating";
 		public static final String LOCALITY_RATING_AVG_BY_CATEGORY = "loc-rating-avg-ctg";
 		public static final String LOCALITY_RATING_USERS_COUNT_BY_RATING = "loc-rating-user-cnt";
+		
+		public static final String AGENT = "agent";
+		public static final String AGENTS_FOR_PROJECT = "agents-for-project";
 		
 	}
 }
