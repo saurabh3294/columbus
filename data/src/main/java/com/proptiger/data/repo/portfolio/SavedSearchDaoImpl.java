@@ -21,7 +21,6 @@ public class SavedSearchDaoImpl {
 	 * @param userId
 	 * @return List<ForumUserSavedSearch>
 	 */
-	
 	public List<SavedSearch> getUserSavedSearches(Integer userId) {
 		AbstractQueryBuilder<SavedSearch> queryBuilder = new JPAQueryBuilder<SavedSearch>(emf.createEntityManager(), SavedSearch.class);
 		queryBuilder.buildQuery(new FIQLSelector().setFilters("userId==" + userId));
