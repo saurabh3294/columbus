@@ -2,7 +2,6 @@ package com.proptiger.data.model.image;
 
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.Column;
