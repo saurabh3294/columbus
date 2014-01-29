@@ -187,6 +187,8 @@ public class ProjectService {
     		Project solrProject = solrProjects.get(0);
     		project.setAvgPriceRisePercentage(solrProject.getAvgPriceRisePercentage());
     		project.setAvgPriceRiseMonths(solrProject.getAvgPriceRiseMonths());
+    		project.setLatitude(solrProject.getLatitude());
+    		project.setLongitude(solrProject.getLongitude());
     	}
     	
     	/*

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
@@ -145,7 +144,6 @@ public class ProjectDetailController extends BaseController {
     }
     
     @RequestMapping(value="app/v2/project-detail")
-    @DisableCaching
     public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId) throws Exception {
     	Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
         if(projectSelector == null) {

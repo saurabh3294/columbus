@@ -45,7 +45,6 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;

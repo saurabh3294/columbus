@@ -1,9 +1,7 @@
 package com.proptiger.data.model.filter;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -11,7 +9,6 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.persistence.Column;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -23,7 +20,6 @@ import javax.persistence.criteria.Root;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 import org.apache.cxf.jaxrs.ext.search.jpa.JPATypedQueryVisitor;
-import org.springframework.core.annotation.AnnotationUtils;
 
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -97,7 +96,6 @@ public class ProjectController extends BaseController {
 
     @RequestMapping("data/v1/entity/project/{projectId}/discussions")
     @ResponseBody
-    @DisableCaching
     public ProAPIResponse getDiscussions(@RequestParam(required = false) Long commentId, @PathVariable int projectId) {
         List<ProjectDiscussion> comments = projectService.getDiscussions(projectId, commentId);
         return new ProAPISuccessResponse(super.filterFields(comments, null));
@@ -126,7 +124,6 @@ public class ProjectController extends BaseController {
     
 	@RequestMapping("data/v1/entity/project/popular")
 	@ResponseBody
-	@DisableCaching
 	public ProAPIResponse getPopularProjects(
 			@RequestParam(required = false, value = "selector") String selector) {
 		Selector projectSelector = super.parseJsonToObject(selector,
@@ -143,7 +140,6 @@ public class ProjectController extends BaseController {
 	
 	 @RequestMapping(value="data/v1/entity/project/recently-discussed")
 	 @ResponseBody
-	 @DisableCaching
 	 public ProAPIResponse getRecentlyDiscussedProjects(@RequestParam String locationType, @RequestParam int locationId, 
 			 @RequestParam(required=false, defaultValue="4") int lastNumberOfWeeks, 
 			 @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount, @RequestParam(required= false) String selector){
@@ -160,7 +156,6 @@ public class ProjectController extends BaseController {
 	 
 	 @RequestMapping(value="data/v1/entity/project/most-discussed")
 	 @ResponseBody
-	 @DisableCaching
 	 public ProAPIResponse getMostDiscussedProjects(@RequestParam String locationType, @RequestParam int locationId, 
 			 @RequestParam(required=false, defaultValue="4") int lastNumberOfWeeks, 
 			 @RequestParam(required=false, defaultValue="2") int minProjectDiscussionCount, @RequestParam(required= false) String selector){

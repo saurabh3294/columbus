@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
@@ -59,7 +58,6 @@ public class AppLocalityController extends BaseController {
 	 */
 	@RequestMapping(value = "/{localityId}", method = RequestMethod.GET)
 	@ResponseBody
-	@DisableCaching
 	public ProAPIResponse getLocalityDetails(@PathVariable int localityId,
 			@RequestParam(required = false, value = "selector") String selectorStr,
 			@RequestParam(required = false, value = "imageCount", defaultValue = "3") Integer imageCount) {
