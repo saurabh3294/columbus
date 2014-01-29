@@ -300,7 +300,11 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     @Override
     public long retrieveCount() {
         criteriaQuery.select(criteriaBuilder.tuple(criteriaBuilder.count(root)));
-        return (long) entityManager.createQuery(criteriaQuery).getResultList().get(0).get(0);
+        List<Tuple> resultList = entityManager.createQuery(criteriaQuery).getResultList();
+        if(criteriaQuery.getGroupList().isEmpty()){
+        	return (long) resultList.get(0).get(0);
+        }
+        else return (long) resultList.size();
     }
 
     public void addEqualsFilter(String fieldName, List<Object> values) {
