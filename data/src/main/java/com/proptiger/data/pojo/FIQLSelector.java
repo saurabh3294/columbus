@@ -5,7 +5,6 @@ public class FIQLSelector {
     private String filters;
     private String group;
     private String sort;
-    private String groupBy;
     private Integer start = 0;
     private Integer rows  = 10;
 
@@ -29,12 +28,6 @@ public class FIQLSelector {
     public FIQLSelector setSort(String sort) {
         this.sort = sort;
         return this;
-    }
-    public String getGroupBy() {
-        return groupBy;
-    }
-    public void setGroupBy(String groupBy) {
-        this.groupBy = groupBy;
     }
     public Integer getStart() {
         return start;
