@@ -8,11 +8,12 @@ import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "FORUM_USER_SAVED_SEARCHES")
 @ResourceMetaInfo
-public class SavedSearch {
+public class SavedSearch extends BaseModel {
 
 	@Id
 	@GeneratedValue

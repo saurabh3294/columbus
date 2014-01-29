@@ -53,7 +53,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
             else {
                 daoFieldName = (String) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get("value");
             }
-            
+
             fieldsMap.put(entry.getKey(), daoFieldName);
         }
 
@@ -235,5 +235,28 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
                 solrQuery.addSort(getDaoFieldsMap(modelClass).get(fieldName), order);
             }
         }
+    }
+
+    @Override
+    protected void buildSelectClause(FIQLSelector selector) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected void buildGroupByClause(FIQLSelector selector) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public List<T> retrieveResults() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public long retrieveCount() {
+        return 0;
     }
 }

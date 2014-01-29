@@ -20,7 +20,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class ProjectCMSAmenity implements BaseModel {
+public class ProjectCMSAmenity extends BaseModel {
 	@Id
 	@FieldMetaInfo(displayName = "Id", description = "Id")
 	@Column(name="ID")

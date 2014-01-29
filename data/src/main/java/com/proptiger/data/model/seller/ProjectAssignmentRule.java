@@ -15,7 +15,7 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "cms.project_assignment_rules")
 @JsonFilter("fieldFilter")
-public class ProjectAssignmentRule implements BaseModel{
+public class ProjectAssignmentRule extends BaseModel{
 	@Id
 	@Column(name = "id")
 	private Integer id;

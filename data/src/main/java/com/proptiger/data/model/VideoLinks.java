@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @Entity
 @Table(name="cms.video_links")
 @JsonInclude(Include.NON_NULL)
-public class VideoLinks implements BaseModel {
+public class VideoLinks extends BaseModel {
 		
 	@Id
 	@Column(name = "video_id")

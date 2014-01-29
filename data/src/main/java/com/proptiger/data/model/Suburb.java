@@ -33,7 +33,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class Suburb implements BaseModel {
+public class Suburb extends BaseModel {
     @Id
     @FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
     @Column(name = "SUBURB_ID")

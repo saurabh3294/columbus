@@ -24,7 +24,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name="FORUM_USER")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class ForumUser implements BaseModel{
+public class ForumUser extends BaseModel{
     @Column(name = "USER_ID")
     @Id
     private Integer userId;

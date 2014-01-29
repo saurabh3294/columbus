@@ -3,7 +3,6 @@ package com.proptiger.data.repo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -56,7 +55,7 @@ public class ImageDaoImpl {
      * @throws ImageProcessingException
      */
     public Image insertImage(DomainObject objectStr, String imageTypeStr, long objectId, File orignalImage,
-            File watermarkImage, Map<String, String> extraInfo, String format) {
+            File watermarkImage, Image image, String format) {
         try {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -67,7 +66,6 @@ public class ImageDaoImpl {
             // Image
             ObjectType objType = getObjectType(objectStr, cb, em);
             ImageType imageType = getImageType(objType, imageTypeStr, cb, em);
-            Image image = new Image();
             image.setImageTypeId(imageType.getId());
             image.setObjectId(objectId);
 
@@ -89,16 +87,7 @@ public class ImageDaoImpl {
             em.getTransaction().begin();
             em.persist(image);
             em.getTransaction().commit();
-            image.assignWatermarkName(format);
-            
-            // ExtraInfo
-            image.setAltText(extraInfo.get("altText"));
-            image.setTitle(extraInfo.get("title"));
-            image.setDescription(extraInfo.get("description"));
-            if (extraInfo.get("priority") != null && !extraInfo.get("priority").isEmpty()) {
-                image.setPriority(Integer.valueOf(extraInfo.get("priority")));
-            }
-            
+            image.assignWatermarkName(format);            
             return image;
         } catch (Exception e) {
             throw new RuntimeException("Could not insert image", e);

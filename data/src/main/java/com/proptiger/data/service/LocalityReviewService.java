@@ -49,6 +49,7 @@ public class LocalityReviewService {
 	 *         TOTAL_REVIEWS : total reviews found on the locality.
 	 *         REVIEWS: Reviews found filtered by pageable.
 	 */
+	@Cacheable(value = Constants.CacheName.LOCALITY_REVIEW_RATING, key = "#localityId +{#noOfReviews != null ?'-'+#noOfReviews:'' }")
 	public LocalityReviewRatingDetails getLocalityReviewRatingDetails(int localityId,
 			Integer noOfReviews) {
 		logger.debug("Get review and rating details of locality {}", localityId);
@@ -78,10 +79,9 @@ public class LocalityReviewService {
 	 * @param pageable
 	 * @return
 	 */
-	private List<LocalityReviewCustomDetail> getLocalityReviewCustomDetails(
+	public List<LocalityReviewCustomDetail> getLocalityReviewCustomDetails(
 			int localityId, Pageable pageable) {
-		return localityReviewDao
-				.getReviewCommentsByLocalityId(localityId, pageable);
+		return localityReviewDao.getReviewCommentsByLocalityId(localityId,	pageable);
 	}
 	
 	/**
@@ -112,22 +112,28 @@ public class LocalityReviewService {
 	 * @param pageable
 	 * @return
 	 */
-	public List<Integer> getTopReviewedNearLocalitiesForLocality(int localityId, int minCount, Pageable pageable){
-		int distance[] = {0, 5, 10, 15};
+	public List<Integer> getTopReviewedNearLocalitiesForLocality(
+			int localityId, int minCount, Pageable pageable) {
+		int distance[] = { 0, 5, 10, 15 };
 		int limit = pageable.getPageSize();
 		Locality locality = localityService.getLocality(localityId);
-		
+
 		List<Integer> localityIds = new ArrayList<>();
-		for(int i=0; i<distance.length-1 && localityIds.size()<limit; i++){
-			List<Integer> localities = localityService.getNearLocalityIdOnLocalityOnConcentricCircle(locality, distance[i], distance[i+1]);  
-			localityIds.addAll( localityReviewDao.getTopReviewNearLocalitiesOnLocality(localities, minCount, pageable) );
+		for (int i = 0; i < distance.length - 1 && localityIds.size() < limit; i++) {
+			List<Integer> localities = localityService
+					.getNearLocalityIdOnLocalityOnConcentricCircle(locality,
+							distance[i], distance[i + 1]);
+			localityIds.addAll(localityReviewDao
+					.getTopReviewNearLocalitiesOnLocality(localities, minCount,
+							pageable));
 			pageable = new LimitOffsetPageRequest(0, limit - localityIds.size());
 		}
-		if(localityIds.size() < limit)
-			localityIds.addAll(getTopReviewedLocalityOnCityOrSuburb(1, locality.getSuburb().getCityId(), minCount, pageable));
-		
+		if (localityIds.size() < limit)
+			localityIds.addAll(getTopReviewedLocalityOnCityOrSuburb(1, locality
+					.getSuburb().getCityId(), minCount, pageable));
+
 		// sending the unique localityIds.
-		return new ArrayList<Integer>(new HashSet<Integer>(localityIds) );
+		return new ArrayList<Integer>(new HashSet<Integer>(localityIds));
 	}
 	
 	/**
@@ -139,6 +145,7 @@ public class LocalityReviewService {
 	 * @param selector
 	 * @return
 	 */
+	@Cacheable(value = Constants.CacheName.LOCALITY_REVIEW, key = "#localityId", condition = "#userId == null")
 	public List<LocalityReviewComments> getLocalityReview(Integer localityId,
 			Integer userId, Selector selector) {
 		
@@ -168,6 +175,7 @@ public class LocalityReviewService {
 	 * @param userId
 	 * @return
 	 */
+	@CacheEvict(value = {Constants.CacheName.LOCALITY_REVIEW, Constants.CacheName.LOCALITY_REVIEW_RATING}, key = "#localityId")
 	public LocalityReviewComments createLocalityReviewComment(Integer localityId,
 			LocalityReviewComments reviewComment, Integer userId) {
 		validateReviewComment(reviewComment);

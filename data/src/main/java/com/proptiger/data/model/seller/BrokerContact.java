@@ -18,7 +18,7 @@ import com.proptiger.data.model.enums.BrokerType;
 @Entity
 @Table(name = "cms.broker_contacts")
 @JsonFilter("fieldFilter")
-public class BrokerContact  implements BaseModel{
+public class BrokerContact  extends BaseModel{
 
 	@Id
 	@Column(name = "id")

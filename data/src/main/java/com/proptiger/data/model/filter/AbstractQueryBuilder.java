@@ -41,11 +41,20 @@ public abstract class AbstractQueryBuilder<T> {
         buildLimitClause(selector);
     }
 
+    // XXX - Invocation order should not be changed here
     public void buildQuery(FIQLSelector selector) {
+        // XXX - filter remains first since FIQL parser auto creates criteriaquery for JPA here
         buildFilterClause(selector);
-        buildOrderByClause(selector);        
+
+        buildGroupByClause(selector);
+        buildSelectClause(selector);
+        buildOrderByClause(selector);
         buildLimitClause(selector);
     }
+
+    protected abstract void buildGroupByClause(FIQLSelector selector);
+
+    protected abstract void buildSelectClause(FIQLSelector selector);
 
     protected abstract void buildLimitClause(FIQLSelector selector);
 
@@ -181,4 +190,6 @@ public abstract class AbstractQueryBuilder<T> {
 
     protected abstract Class<T> getModelClass();
 
+    public abstract List<T> retrieveResults();
+    public abstract long retrieveCount();
 }

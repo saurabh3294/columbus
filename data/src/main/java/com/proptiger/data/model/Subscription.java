@@ -17,7 +17,7 @@ import com.proptiger.data.model.portfolio.SubscriptionType;
 
 @Entity
 @Table(name="subscription")
-public class Subscription implements BaseModel {
+public class Subscription extends BaseModel {
 	
 	@Id
 	@Column(name = "id")

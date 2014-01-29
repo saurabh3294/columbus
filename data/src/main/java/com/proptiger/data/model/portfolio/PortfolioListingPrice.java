@@ -27,7 +27,7 @@ import com.proptiger.data.model.BaseModel;
 @Table(name = "portfolio_listings_price")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class PortfolioListingPrice implements BaseModel {
+public class PortfolioListingPrice extends BaseModel {
 
 	@Id
 	@FieldMetaInfo(displayName = "Portfolio Listing Price Id", description = "Portfolio Listing Price Id")

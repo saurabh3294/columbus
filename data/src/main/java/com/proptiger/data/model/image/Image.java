@@ -25,17 +25,20 @@ import com.proptiger.data.util.ImageUtil;
 @Entity(name = "Image")
 @Access(AccessType.FIELD)
 @JsonFilter("fieldFilter")
-public class Image implements BaseModel {
+public class Image extends BaseModel {
     public static final String DOT = ".";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
+
+    // XXX - Don't change is to imageType
+    // XXX - Prevents collision with request param in controller
 	@ManyToOne(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.JOIN)
 	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
-	private ImageType imageType;
+	@JsonProperty("imageType")
+	private ImageType imageTypeObj;
 
 	@Column(name = "ImageType_id")
     private long imageTypeId;
@@ -46,22 +49,18 @@ public class Image implements BaseModel {
 	private String path;
 
     public void assignWatermarkName(String format) {
-        waterMarkName = id + this.DOT +format;
+        waterMarkName = id + DOT + format;
     }
 
     public void assignOriginalName(String format) {
-        originalName = originalHash + this.DOT + format;
+        originalName = originalHash + DOT + format;
     }
 
 	@JsonProperty
     public String getAbsolutePath() {
         return ImageUtil.endpoint + "/" + path + waterMarkName;
     }
-	
-	@JsonProperty
-    public void setAbsolutePath(String str) {
-    }
-	
+		
 	@Column(name = "created_at")
 	private Date createdAt;
 	
@@ -117,12 +116,12 @@ public class Image implements BaseModel {
         this.id = id;
     }
 
-    public ImageType getImageType() {
-        return imageType;
+    public ImageType getImageTypeObj() {
+        return imageTypeObj;
     }
 
-    public void setImageType(ImageType imageType) {
-        this.imageType = imageType;
+    public void setImageTypeObj(ImageType imageType) {
+        this.imageTypeObj = imageType;
     }
 
     public long getImageTypeId() {

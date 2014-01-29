@@ -35,7 +35,7 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 @Entity
 @Table(name = "REVIEW_COMMENTS")
 @ResourceMetaInfo
-public class LocalityReviewComments implements BaseModel{
+public class LocalityReviewComments extends BaseModel{
 	private static final long serialVersionUID = 6324079051629045199L;
 
 	@FieldMetaInfo(displayName = "Comment Id", description = "Comment Id")
@@ -203,7 +203,7 @@ public class LocalityReviewComments implements BaseModel{
 	 * 
 	 */
     @JsonInclude(Include.NON_NULL)
-    public static class LocalityReviewCustomDetail implements BaseModel{
+    public static class LocalityReviewCustomDetail extends BaseModel{
 		private static final long serialVersionUID = -4616992564291158711L;
 		private String review;
     	private String reviewLabel;
@@ -241,7 +241,7 @@ public class LocalityReviewComments implements BaseModel{
 	 * 
 	 */
     @JsonInclude(Include.NON_NULL)
-	public static class LocalityReviewRatingDetails implements BaseModel{
+	public static class LocalityReviewRatingDetails extends BaseModel{
 		private static final long serialVersionUID = -4616279373858679214L;
 		private Long totalReviews;
 		private List<LocalityReviewCustomDetail> reviews;

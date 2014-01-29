@@ -37,19 +37,11 @@ public class SavedSearchController extends BaseController {
 	@ResponseBody
 	public ProAPIResponse getSavedSearches(
 			@PathVariable Integer userId,
-			@RequestParam(required = false, value = "selector") String selectorStr,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		Selector selector = super
-				.parseJsonToObject(selectorStr, Selector.class);
 		List<SavedSearch> result = savedSearchesService
-				.getUserSavedSearches(selector, userInfo.getUserIdentifier());
+				.getUserSavedSearches(userInfo.getUserIdentifier());
 
-		Set<String> fieldsToSerialize = null;
-		if (selector != null) {
-			fieldsToSerialize = selector.getFields();
-		}
-		return new ProAPISuccessCountResponse(super.filterOutAllExcept(result,
-				fieldsToSerialize), result.size());
+		return new ProAPISuccessCountResponse(result, result.size());
 	}
 
 	@RequestMapping(value="/saved-searches", method=RequestMethod.POST)
@@ -64,6 +56,6 @@ public class SavedSearchController extends BaseController {
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo)
     {
         savedSearchesService.deleteSavedSearch(savedSearchId);
-        return getSavedSearches(userId, null, userInfo);
+        return getSavedSearches(userId, userInfo);
     }	
 }

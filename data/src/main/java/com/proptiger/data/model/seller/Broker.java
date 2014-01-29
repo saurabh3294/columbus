@@ -23,7 +23,7 @@ import com.proptiger.data.model.enums.ActivationStatus;
 @Entity
 @Table(name = "cms.brokers")
 @JsonFilter("fieldFilter")
-public class Broker  implements BaseModel{
+public class Broker  extends BaseModel{
 	@Id
 	@Column(name = "id")
 	private Integer id;
