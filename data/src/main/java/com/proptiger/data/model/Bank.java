@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
  */
 @Entity(name = "BANK_LIST")
 @JsonFilter("fieldFilter")
-public class Bank implements BaseModel{
+public class Bank extends BaseModel{
 	@Id
 	@Column(name = "BANK_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)

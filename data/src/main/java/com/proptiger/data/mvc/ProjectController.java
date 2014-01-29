@@ -64,7 +64,7 @@ public class ProjectController extends BaseController {
     public @ResponseBody
     ProAPIResponse getV2Projects(@ModelAttribute FIQLSelector selector) throws Exception {
         PaginatedResponse<List<Project>> response = projectService.getProjects(selector);
-        return new ProAPISuccessCountResponse(response.getResults(), response.getTotalCount());
+        return new ProAPISuccessCountResponse(super.filterFieldsFromSelector(response.getResults(), selector), response.getTotalCount());
     }
 
     /**

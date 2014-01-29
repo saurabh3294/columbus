@@ -29,7 +29,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "LOCALITY_REVIEW")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class LocalityRatings implements BaseModel{
+public class LocalityRatings extends BaseModel{
 	private static final long serialVersionUID = 7492287125669474763L;
 
 	@FieldMetaInfo(displayName = "Review Id", description = "Review Id")
@@ -204,7 +204,7 @@ public class LocalityRatings implements BaseModel{
 	 * 
 	 */
 	@JsonInclude(Include.NON_NULL)
-	public static class LocalityAverageRatingByCategory implements BaseModel{
+	public static class LocalityAverageRatingByCategory extends BaseModel{
 		
 		private static final long serialVersionUID = 8265420768264430368L;
 
@@ -273,7 +273,7 @@ public class LocalityRatings implements BaseModel{
 	 * 
 	 */
 	@JsonInclude(Include.NON_NULL)
-	public static class LocalityRatingUserCount implements BaseModel{
+	public static class LocalityRatingUserCount extends BaseModel{
 		private static final long serialVersionUID = 423920351135118515L;
 		private Double rating;
 		private long userCount;
@@ -299,7 +299,7 @@ public class LocalityRatings implements BaseModel{
 	 * @author Rajeev Pandey
 	 * 
 	 */
-	public static class LocalityRatingDetails implements BaseModel{
+	public static class LocalityRatingDetails extends BaseModel{
 		private static final long serialVersionUID = 6890543357432298905L;
 		protected Map<Double, Long> totalUsersByRating;
 		protected double averageRatings;

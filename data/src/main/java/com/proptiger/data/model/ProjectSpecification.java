@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonFilter("fieldFilter")
-public class ProjectSpecification implements BaseModel{
+public class ProjectSpecification extends BaseModel{
 	
 	private static enum SpecificationTypes{
 		FLOORING_MASTER_BEDROOM( new String[]{"flooring", "MasterBedroom"} ),

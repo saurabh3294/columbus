@@ -27,7 +27,7 @@ import com.proptiger.data.model.enums.ActivationStatus;
 @Entity
 @Table(name = "cms.agents")
 @JsonFilter("fieldFilter")
-public class Agent implements BaseModel{
+public class Agent extends BaseModel{
 
 	@Id
 	@Column(name = "id")

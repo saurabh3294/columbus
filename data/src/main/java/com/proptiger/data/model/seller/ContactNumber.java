@@ -19,7 +19,7 @@ import com.proptiger.data.model.enums.ContactNumberType;
 @Entity
 @Table(name = "cms.contact_numbers")
 @JsonFilter("fieldFilter")
-public class ContactNumber  implements BaseModel{
+public class ContactNumber  extends BaseModel{
 
 	@Id
 	@Column(name = "id")

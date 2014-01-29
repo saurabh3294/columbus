@@ -49,7 +49,7 @@ import com.proptiger.data.model.resource.Resource;
 @Table(name = "portfolio_listings")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class PortfolioListing implements NamedResource, Resource, BaseModel{
+public class PortfolioListing extends BaseModel implements NamedResource, Resource {
 
 	@Id
 	@FieldMetaInfo(displayName = "PortfolioListing Id", description = "PortfolioListing Id")

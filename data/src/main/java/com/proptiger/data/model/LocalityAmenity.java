@@ -31,7 +31,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonFilter("fieldFilter")
-public class LocalityAmenity implements BaseModel{
+public class LocalityAmenity extends BaseModel{
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
     @Id

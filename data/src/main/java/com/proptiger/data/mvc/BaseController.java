@@ -4,14 +4,13 @@
 package com.proptiger.data.mvc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -22,6 +21,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module.Feature;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
@@ -37,7 +37,6 @@ import com.proptiger.exception.ProAPIException;
 @SessionAttributes({Constants.LOGIN_INFO_OBJECT_NAME})
 public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
-	private static Logger logger = LoggerFactory.getLogger(BaseController.class);
 	private static Hibernate4Module hm = null;
 	private static SimpleFilterProvider filterProvider = null;
 
@@ -53,6 +52,20 @@ public abstract class BaseController {
         mapper.registerModule(hm);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         mapper.setFilters(filterProvider);
+	}
+
+	protected Object filterFieldsFromSelector(Object object, FIQLSelector selector) {
+	    String fieldsString = null;
+
+	    if (selector != null) {
+	        fieldsString = selector.getFields();
+	    }
+
+        if (fieldsString != null && !fieldsString.isEmpty()) {
+	        return filterFields(object, new HashSet<>(Arrays.asList(fieldsString.split(","))));
+	    }
+
+	    return filterFields(object, null);
 	}
 
     protected Object filterFields(Object object, Set<String> fields) {

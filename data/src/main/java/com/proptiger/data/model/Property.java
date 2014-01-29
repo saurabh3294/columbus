@@ -28,7 +28,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @Entity
 @Table(name = "RESI_PROJECT_TYPES")
 @JsonInclude(Include.NON_NULL)
-public class Property implements BaseModel {
+public class Property extends BaseModel {
     
 	@FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
     @Field(value="TYPE_ID")

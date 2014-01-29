@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "wordpress.wp_term_relationships")
-public class WordpressTermRelationship implements BaseModel{
+public class WordpressTermRelationship extends BaseModel{
 
 	@Id
 	@Column(name = "object_id")

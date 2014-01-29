@@ -9,7 +9,7 @@ import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "subscription_type")
-public class SubscriptionType implements BaseModel {
+public class SubscriptionType extends BaseModel {
 	@Id
 	@Column(name = "id")
 	private int id;

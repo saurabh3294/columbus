@@ -34,7 +34,7 @@ import com.proptiger.data.util.ReplySerializer;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class ProjectDiscussion implements BaseModel {
+public class ProjectDiscussion extends BaseModel {
 	public enum Replies {
 		F("false"), 
 		T("true");
