@@ -142,7 +142,7 @@ public class ImageService {
     /*
      * Public method to upload images
      */
-    @CacheEvict(value = "cache", key = "#object.getText()+#imageTypeStr+#objectId")
+    @CacheEvict(value=Constants.CacheName.CACHE, key = "#object.getText()+#imageTypeStr+#objectId")
     public Image uploadImage(DomainObject object, String imageTypeStr, long objectId, MultipartFile fileUpload,
             Boolean addWaterMark, Image imageParams) {
 

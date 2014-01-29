@@ -38,13 +38,11 @@ import com.proptiger.exception.ProAPIException;
 public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Hibernate4Module hm = null;
-	private static SimpleFilterProvider filterProvider = null;
+	private SimpleFilterProvider filterProvider = null;
 
 	static {
         hm = new Hibernate4Module();
         hm.disable(Feature.FORCE_LAZY_LOADING);
-        filterProvider = new SimpleFilterProvider();
-        filterProvider.setFailOnUnknownId(false);	    
 	}
 
 	public BaseController() {
@@ -52,6 +50,8 @@ public abstract class BaseController {
         mapper.registerModule(hm);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         mapper.setFilters(filterProvider);
+        filterProvider = new SimpleFilterProvider();
+        filterProvider.setFailOnUnknownId(false);       
 	}
 
 	protected Object filterFieldsFromSelector(Object object, FIQLSelector selector) {
@@ -74,14 +74,10 @@ public abstract class BaseController {
 				return null;
 			
 			Set<String> fieldSet = new HashSet<String>();
-			SimpleFilterProvider filterProvider = new SimpleFilterProvider()
-					.addFilter("fieldFilter", SimpleBeanPropertyFilter
-							.serializeAllExcept(fieldSet));
+			filterProvider.addFilter("fieldFilter", SimpleBeanPropertyFilter.serializeAllExcept(fieldSet));
 
 			if (fields != null && !fields.isEmpty()) {
-				filterProvider = new SimpleFilterProvider().addFilter(
-						"fieldFilter",
-						SimpleBeanPropertyFilter.filterOutAllExcept(fields));
+				filterProvider.addFilter("fieldFilter", SimpleBeanPropertyFilter.filterOutAllExcept(fields));
 			}
 
 			return mapper.readValue(mapper.writer(filterProvider).writeValueAsString(object), object.getClass());
