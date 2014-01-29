@@ -21,7 +21,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name="cms.d_inventory_prices")
 @SuppressWarnings("serial")
 @JsonFilter("fieldFilter")
-public class InventoryPriceTrend implements BaseModel  {
+public class InventoryPriceTrend extends BaseModel  {
 	@Id	
     private String id;
 	
@@ -65,7 +65,7 @@ public class InventoryPriceTrend implements BaseModel  {
     private String builderName;
 
     @Column(name = "effective_month")
-    private Date effectiveMonth;
+    private Date month;
     
     @Column(name = "quarter")
     private Date quarter;
@@ -108,39 +108,6 @@ public class InventoryPriceTrend implements BaseModel  {
 
     @Column(name = "units_sold")
     private int unitsSold;
-    
-    @Transient
-    private int minPricePerUnitArea;
-    
-    @Transient
-    private int maxPricePerUnitArea;
-    
-    @Transient
-    private int minSize;
-    
-    @Transient
-    private int maxSize;
-    
-    @Transient
-    private int minPrice;
-    
-    @Transient
-    private int maxPrice;
-    
-    @Transient
-    private int avgPrice;
-    
-    @Transient
-    private int totalSupply;
-    
-    @Transient
-    private int totalLaunchedUnit;
-    
-    @Transient
-    private int totalInventory;
-
-    @Transient
-    private int totalUnitsSold;
 
 	public String getId() {
 		return id;
@@ -254,12 +221,12 @@ public class InventoryPriceTrend implements BaseModel  {
 		this.builderName = builderName;
 	}
 
-	public Date getEffectiveMonth() {
-		return effectiveMonth;
+	public Date getMonth() {
+		return month;
 	}
 
-	public void setEffectiveMonth(Date effectiveMonth) {
-		this.effectiveMonth = effectiveMonth;
+	public void setMonth(Date month) {
+		this.month = month;
 	}
 
 	public Date getQuarter() {
@@ -373,92 +340,6 @@ public class InventoryPriceTrend implements BaseModel  {
 	public void setUnitsSold(int unitsSold) {
 		this.unitsSold = unitsSold;
 	}
-
-	public int getMinPricePerUnitArea() {
-		return minPricePerUnitArea;
-	}
-
-	public void setMinPricePerUnitArea(int minPricePerUnitArea) {
-		this.minPricePerUnitArea = minPricePerUnitArea;
-	}
-
-	public int getMaxPricePerUnitArea() {
-		return maxPricePerUnitArea;
-	}
-
-	public void setMaxPricePerUnitArea(int maxPricePerUnitArea) {
-		this.maxPricePerUnitArea = maxPricePerUnitArea;
-	}
-
-	public int getMinSize() {
-		return minSize;
-	}
-
-	public void setMinSize(int minSize) {
-		this.minSize = minSize;
-	}
-
-	public int getMaxSize() {
-		return maxSize;
-	}
-
-	public void setMaxSize(int maxSize) {
-		this.maxSize = maxSize;
-	}
-
-	public int getMinPrice() {
-		return minPrice;
-	}
-
-	public void setMinPrice(int minPrice) {
-		this.minPrice = minPrice;
-	}
-
-	public int getMaxPrice() {
-		return maxPrice;
-	}
-
-	public void setMaxPrice(int maxPrice) {
-		this.maxPrice = maxPrice;
-	}
-
-	public int getAvgPrice() {
-		return avgPrice;
-	}
-
-	public void setAvgPrice(int avgPrice) {
-		this.avgPrice = avgPrice;
-	}
-
-	public int getTotalSupply() {
-		return totalSupply;
-	}
-
-	public void setTotalSupply(int totalSupply) {
-		this.totalSupply = totalSupply;
-	}
-
-	public int getTotalLaunchedUnit() {
-		return totalLaunchedUnit;
-	}
-
-	public void setTotalLaunchedUnit(int totalLaunchedUnit) {
-		this.totalLaunchedUnit = totalLaunchedUnit;
-	}
-
-	public int getTotalInventory() {
-		return totalInventory;
-	}
-
-	public void setTotalInventory(int totalInventory) {
-		this.totalInventory = totalInventory;
-	}
-
-	public int getTotalUnitsSold() {
-		return totalUnitsSold;
-	}
-
-	public void setTotalUnitsSold(int totalUnitsSold) {
-		this.totalUnitsSold = totalUnitsSold;
-	}
+    
+	
 }
