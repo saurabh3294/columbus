@@ -145,36 +145,21 @@ public class ProjectDetailController extends BaseController {
         return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }
     
-	/**
-	 * Instead of this url we will use app/v2/project-detail/{projectId} in
-	 * future. So this API might be deleted in near future
-	 * 
-	 * @param selector
-	 * @param projectId
-	 * @return
-	 * @throws Exception
-	 */
-	@RequestMapping(value="app/v2/project-detail")
-	@DisableCaching
+    @RequestMapping(value="app/v2/project-detail")
+    @Deprecated
+    public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId) throws Exception {
+    	Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if(projectSelector == null) {
+            projectSelector = new Selector();
+        }
+        
+        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
+    	return new ProAPISuccessResponse( super.filterFields(project, projectSelector.getFields() ) );
+    }
+   
+    @RequestMapping(value = {"app/v2/project-detail/{projectId}"})
 	@ResponseBody
-	@Deprecated
-	public ProAPIResponse getProjectDetails2(
-			@RequestParam(required = false) String selector,
-			@RequestParam int projectId) throws Exception {
-		Selector projectSelector = super.parseJsonToObject(selector,
-				Selector.class);
-		if (projectSelector == null) {
-			projectSelector = new Selector();
-		}
-		Project project = projectService.getProjectInfoDetails(projectSelector,
-				projectId);
-		return new ProAPISuccessResponse(super.filterFields(project,
-				projectSelector.getFields()));
-	}
-	
-	@RequestMapping(value = {"app/v2/project-detail/{projectId}"})
 	@DisableCaching
-	@ResponseBody
 	public ProAPIResponse getProjectDetails2(
 			@PathVariable Integer projectId,
 			@RequestParam(required = false) String selector
@@ -188,6 +173,6 @@ public class ProjectDetailController extends BaseController {
 				projectId);
 		return new ProAPISuccessResponse(super.filterFields(project,
 				projectSelector.getFields()));
-	}
+	} 
    
 }

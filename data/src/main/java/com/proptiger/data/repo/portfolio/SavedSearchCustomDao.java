@@ -6,7 +6,6 @@ import com.proptiger.data.model.portfolio.SavedSearch;
 import com.proptiger.data.pojo.Selector;
 
 public interface SavedSearchCustomDao {
-	public List<SavedSearch> getUserSavedSearches(Selector selector,
-			Integer userId);
+	public List<SavedSearch> getUserSavedSearches(Integer userId);
 
 }

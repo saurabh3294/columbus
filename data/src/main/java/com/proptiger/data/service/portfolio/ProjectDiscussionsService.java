@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Queue;
 
 import javax.persistence.Table;
-import javax.servlet.http.Cookie;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

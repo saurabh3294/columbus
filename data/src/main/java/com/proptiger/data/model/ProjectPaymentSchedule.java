@@ -17,7 +17,7 @@ import com.proptiger.data.model.portfolio.enums.PaymentPlan;
  */
 @Entity
 @Table(name = "PROJ_PAYMENT_SCHEDULE")
-public class ProjectPaymentSchedule implements BaseModel{
+public class ProjectPaymentSchedule extends BaseModel{
 
 	@Id
 	@Column(name = "PAYMENT_SCHEDULE_ID")

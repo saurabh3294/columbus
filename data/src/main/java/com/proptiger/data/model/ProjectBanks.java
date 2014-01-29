@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "cms.project_banks")
-public class ProjectBanks implements BaseModel{
+public class ProjectBanks extends BaseModel{
 	private static final long serialVersionUID = 2630104707187003972L;
 
 	@Id

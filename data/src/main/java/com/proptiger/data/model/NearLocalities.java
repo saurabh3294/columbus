@@ -19,7 +19,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "NEAR_LOCALITY")
 @ResourceMetaInfo
-public class NearLocalities implements BaseModel{
+public class NearLocalities extends BaseModel{
     @Id
     @FieldMetaInfo( displayName = "Id",  description = "Id")
     @Column(name = "id")

@@ -2,21 +2,17 @@ package com.proptiger.data.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity
 @Table(name="cms.video_links")
 @JsonInclude(Include.NON_NULL)
-public class VideoLinks implements BaseModel {
+public class VideoLinks extends BaseModel {
 		
 	@Id
 	@Column(name = "video_id")

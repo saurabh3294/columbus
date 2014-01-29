@@ -15,7 +15,7 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "cms.addresses")
 @JsonFilter("fieldFilter")
-public class Address  implements BaseModel{
+public class Address  extends BaseModel{
 
 	@Id
 	@Column(name = "id")

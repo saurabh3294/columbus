@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 
 @Entity(name = "ObjectType")
 @JsonFilter("fieldFilter")
-public class ObjectType implements BaseModel {
+public class ObjectType extends BaseModel {
 	/**
      * 
      */

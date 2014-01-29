@@ -68,7 +68,7 @@ public class ImageEnricher {
 
         if (images != null) {
             for (Image image : images) {
-                if (image.getImageType().getType().equals("main")) {
+                if (image.getImageTypeObj().getType().equals("main")) {
                     project.setImageURL(image.getAbsolutePath());
                     break;
                 }
@@ -89,7 +89,7 @@ public class ImageEnricher {
 
         if (images != null) {
             for (Image image : images) {
-                if (image.getImageType().getType().equals("main")) {
+                if (image.getImageTypeObj().getType().equals("main")) {
                     project.setImageURL(image.getAbsolutePath());
                     break;
                 }
@@ -135,7 +135,7 @@ public class ImageEnricher {
         List<Image> images = imageService.getImages(DomainObject.builder, null, builder.getId());
         if (images != null) {
             for (Image image : images) {
-                if (image.getImageType().getType().equals("logo")) {
+                if (image.getImageTypeObj().getType().equals("logo")) {
                     builder.setImageURL(image.getAbsolutePath());
                     break;
                 }

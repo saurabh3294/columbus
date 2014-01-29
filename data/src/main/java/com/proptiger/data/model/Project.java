@@ -45,7 +45,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @Entity
 @Table(name="RESI_PROJECT")
 @JsonFilter("fieldFilter")
-public class Project implements BaseModel {
+public class Project extends BaseModel {
     public static enum NestedProperties {
         builderLabel(new String[]{"builder", "name"}),
         cityLabel(new String[]{"locality", "suburb", "city", "label"}),

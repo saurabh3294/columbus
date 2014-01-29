@@ -30,7 +30,7 @@ import com.proptiger.data.model.image.Image;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @Deprecated
-public class ProjectDB implements BaseModel{
+public class ProjectDB extends BaseModel{
     @FieldMetaInfo(displayName="PROJECT ID", description="PROJECT ID")
     @Column(name="PROJECT_ID")
     @Id
