@@ -23,6 +23,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
@@ -239,11 +240,11 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                     if (tupleElement.getJavaType().equals(domainClazz)) {
                         result = tuple.get(tupleElement.getAlias(), domainClazz);
                     } else {
-//                        try {
-//                            BeanUtils.copyProperty(result, tupleElement.getAlias(), tuple.get(tupleElement));
-//                        } catch (Exception e) {
+                        try {
+                            BeanUtilsBean2.getInstance().copyProperty(result, tupleElement.getAlias(), tuple.get(tupleElement));
+                        } catch (Exception e) {
                             result.getExtraAttributes().put(tupleElement.getAlias(), tuple.get(tupleElement));
-//                        }
+                        }
                     }
                 }
 

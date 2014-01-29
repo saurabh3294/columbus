@@ -38,7 +38,7 @@ import com.proptiger.exception.ProAPIException;
 public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Hibernate4Module hm = null;
-	private SimpleFilterProvider filterProvider = null;
+	private static SimpleFilterProvider filterProvider = null;
 
 	static {
         hm = new Hibernate4Module();
@@ -74,10 +74,10 @@ public abstract class BaseController {
 				return null;
 			
 			Set<String> fieldSet = new HashSet<String>();
-			filterProvider.addFilter("fieldFilter", SimpleBeanPropertyFilter.serializeAllExcept(fieldSet));
+			SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter("fieldFilter", SimpleBeanPropertyFilter.serializeAllExcept(fieldSet));
 
 			if (fields != null && !fields.isEmpty()) {
-				filterProvider.addFilter("fieldFilter", SimpleBeanPropertyFilter.filterOutAllExcept(fields));
+			    filterProvider = new SimpleFilterProvider().addFilter("fieldFilter", SimpleBeanPropertyFilter.filterOutAllExcept(fields));
 			}
 
 			return mapper.readValue(mapper.writer(filterProvider).writeValueAsString(object), object.getClass());

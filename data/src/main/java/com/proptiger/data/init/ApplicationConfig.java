@@ -102,13 +102,11 @@ public class ApplicationConfig {
 		vendorAdapter.setDatabase(Database.MYSQL);
 
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-		
 		factory.setJpaVendorAdapter(vendorAdapter);
 		factory.setDataSource(dataSource());
 		factory.setPersistenceProviderClass(HibernatePersistence.class);
 		factory.setPackagesToScan(propertyReader.getRequiredProperty(ENTITYMANAGER_PACKAGES_TO_SCAN));
 		factory.setJpaProperties(hibProperties());
-		
 		
 		factory.afterPropertiesSet();
 		return factory.getObject();
