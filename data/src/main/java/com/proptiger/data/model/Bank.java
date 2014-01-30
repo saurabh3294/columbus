@@ -1,12 +1,16 @@
 package com.proptiger.data.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.data.model.image.Image;
 
 /**
  * @author Rajeev Pandey
@@ -29,6 +33,8 @@ public class Bank extends BaseModel{
 	@Column(name = "BANK_DETAIL")
 	private String detail;
 
+	@Transient
+	private List<Image> images;
 	/**
 	 * @return the id
 	 */
@@ -84,4 +90,13 @@ public class Bank extends BaseModel{
 	public void setDetail(String detail) {
 		this.detail = detail;
 	}
+
+	public List<Image> getImages() {
+		return images;
+	}
+
+	public void setImages(List<Image> images) {
+		this.images = images;
+	}
+	
 }

@@ -1,5 +1,6 @@
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,6 +29,9 @@ public class BankService {
 	private static Logger logger = LoggerFactory.getLogger(BankService.class);
 	
 	@Autowired
+	private ImageEnricher imageEnricher;
+	
+	@Autowired
 	private BankDao bankDao;
 	
 	@Autowired
@@ -49,7 +53,7 @@ public class BankService {
 	}
 	
 	/**
-	 * Get list of bank that are providing home loan for project
+	 * Get list of bank that are providing home loan for project. Set all images for each bank
 	 * 
 	 * @param projectId
 	 * @return
@@ -60,6 +64,8 @@ public class BankService {
 		List<Integer> bankIds = projectBanksDao
 				.findBankIdByProjectId(cmsProjectId);
 		Iterable<Bank> bankDetailsList = bankDao.findAll(bankIds);
-		return Lists.newArrayList(bankDetailsList);
+		ArrayList<Bank> list = Lists.newArrayList(bankDetailsList);
+		imageEnricher.setBankImages(list, null);
+		return list;
 	}
 }
