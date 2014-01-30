@@ -109,7 +109,7 @@ public class Image extends BaseModel {
 	@Column(name = "watermark_hash", updatable=false)
 	private String waterMarkHash;
 
-	@Column(name = "watermark_name", updatable=false)
+	@Column(name = "watermark_name")
 	private String waterMarkName;
 
 	private boolean active;
