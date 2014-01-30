@@ -34,7 +34,8 @@ public class ImageEnricher {
             setProjectImages(project);
         }
     }
-
+    
+    @Deprecated
     public void setProjectMainImage(List<Project> projects) {
         if (projects == null || projects.isEmpty()) {
             return;
@@ -65,15 +66,19 @@ public class ImageEnricher {
     		return;
     	
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
-
-        if (images != null) {
+        /*
+         * AS project main image is coming in both project and property object from Solr. Hence,
+         * it is not needed to be set. 
+         */
+        
+        /*if (images != null) {
             for (Image image : images) {
                 if (image.getImageTypeObj().getType().equals("main")) {
-                    project.setImageURL(image.getAbsolutePath());
+                    //project.setImageURL(image.getAbsolutePath());
                     break;
                 }
             }
-        }
+        }*/
 
         project.setImages(images);
 
@@ -133,14 +138,18 @@ public class ImageEnricher {
             return;
 
         List<Image> images = imageService.getImages(DomainObject.builder, null, builder.getId());
-        if (images != null) {
+        /**
+         * If the builder logo image is coming in project, property and builder object. 
+         * Hence it is not needed.
+         */
+        /*if (images != null && builder.getImageURL() == null) {
             for (Image image : images) {
                 if (image.getImageTypeObj().getType().equals("logo")) {
                     builder.setImageURL(image.getAbsolutePath());
                     break;
                 }
             }
-        }
+        }*/
         
     }
 
