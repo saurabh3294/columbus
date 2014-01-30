@@ -35,6 +35,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
+import com.proptiger.data.util.ImageUtil;
 
 /**
  * 
@@ -164,6 +165,7 @@ public class Project extends BaseModel {
     // XXX - In order to make itnot null and avoid App crash
     @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
     @Transient
+    @Field("PROJECT_SMALL_IMAGE")
     private String imageURL = "";
 
     @Transient
@@ -243,11 +245,11 @@ public class Project extends BaseModel {
 
     @Transient
     @FieldMetaInfo( displayName = "Min Bedroooms",  description = "Min Bedroooms")
-    private Integer minBedrooms;
+    private int minBedrooms;
 
     @Transient
     @FieldMetaInfo( displayName = "Max Bedroooms",  description = "Max Bedroooms")
-    private Integer maxBedrooms;
+    private int maxBedrooms;
 
     @FieldMetaInfo( displayName = "Project Status",  description = "Project Status")
     @Field(value = "PROJECT_STATUS")
@@ -526,7 +528,7 @@ public class Project extends BaseModel {
     }
 
     public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
+        this.imageURL = Image.addImageHostUrl(imageURL);
     }
 
     @Deprecated
@@ -707,19 +709,19 @@ public class Project extends BaseModel {
     	this.propertyUnitTypes.add(propertyUnitType);
     }
 
-    public Integer getMinBedrooms() {
+    public int getMinBedrooms() {
         return minBedrooms;
     }
 
-    public void setMinBedrooms(Integer minBedrooms) {
+    public void setMinBedrooms(int minBedrooms) {
         this.minBedrooms = minBedrooms;
     }
 
-    public Integer getMaxBedrooms() {
+    public int getMaxBedrooms() {
         return maxBedrooms;
     }
 
-    public void setMaxBedrooms(Integer maxBedrooms) {
+    public void setMaxBedrooms(int maxBedrooms) {
         this.maxBedrooms = maxBedrooms;
     }
 

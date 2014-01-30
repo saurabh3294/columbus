@@ -289,4 +289,11 @@ public class Image extends BaseModel {
     public void setActive(boolean active) {
         this.active = active;
     }
+    
+    public static String addImageHostUrl(String path){
+    	if(path.indexOf(ImageUtil.endpoint) < 0)
+    		return ImageUtil.endpoint +"/" + path;
+    	else
+    		return path;
+    }
 }

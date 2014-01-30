@@ -734,12 +734,12 @@ public class SolrResult extends BaseModel{
     
     @Field("PROJECT_MAIN_IMAGE")
     public void setProjectMainImage(String projectMainImage){
-    	project.setImageURL(ImageUtil.endpoint+"/"+projectMainImage);
+    	project.setImageURL(projectMainImage);
     }
     
     @Field("BUILDER_LOGO_IMAGE")
     public void setBuilderLogoImage(String builderLogoImage){
-    	builder.setImageURL(ImageUtil.endpoint+"/"+builderLogoImage);
+    	builder.setImageURL(builderLogoImage);
     }
     
     @Field("PROJECT_LAST_UPDATED_TIME")

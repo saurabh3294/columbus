@@ -199,6 +199,8 @@ public class ProjectService {
     		project.setOffersHeading(solrProject.getOffersHeading());
     		project.setOffersDesc(solrProject.getOffersDesc());
     		project.setLastUpdatedDate(solrProject.getLastUpdatedDate());
+    		project.setImageURL(solrProject.getImageURL());
+    		//project.getBuilder().setImageURL(solrProject.getBuilder().getImageURL());
     	}
     	
     	/*
