@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
@@ -169,5 +170,38 @@ public class ImageEnricher {
             locality.setImages(images.subList(0, numberOfImages));
         }
     }
+    
+    /**
+     * Set images of banks
+     * @param banks
+     * @param imageCount
+     */
+    public void setBankImages(List<Bank> banks, Integer imageCount ){
+    	if(banks != null && banks.size() > 0){
+    		for(Bank bank: banks){
+    			setBankImage(bank, imageCount);
+    		}
+    	}
+    }
+
+	/**
+	 * Set images in bank object
+	 * @param bank
+	 * @param imageCount
+	 */
+	private void setBankImage(Bank bank, Integer imageCount) {
+		if(bank != null){
+			List<Image> images = imageService.getImages(DomainObject.bank, null, bank.getId());
+			if(images != null){
+				if(imageCount == null || imageCount > images.size()){
+					bank.setImages(images);
+				}
+				else{
+					bank.setImages(images.subList(0, imageCount));
+				}
+			}
+		}
+		
+	}
 
 }
