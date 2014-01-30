@@ -20,22 +20,22 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonFilter("fieldFilter")
 public class InventoryPriceTrend extends BaseModel  {
 	@Id	
-    private String id;
+    private Integer id;
 	
     @Column(name = "project_id")
-    private int projectId;
+    private Integer projectId;
     
     @Column(name = "project_name")
     private String projectName;
     
     @Column(name = "country_id")
-    private int countryId;
+    private Integer countryId;
     
     @Column(name = "country_name")
     private String countryName;
     
     @Column(name = "phase_id")
-    private int phaseId;
+    private Integer phaseId;
     
     @Column(name = "phase_name")
     private String phaseName;
@@ -47,19 +47,19 @@ public class InventoryPriceTrend extends BaseModel  {
     private String constructionStatus;
 
 	@Column(name = "locality_id")
-    private int localityId;
+    private Integer localityId;
     
     @Column(name = "locality_name")
     private String localityName;
     
     @Column(name = "city_id")
-    private int cityId;
+    private Integer cityId;
     
     @Column(name = "city_name")
     private String cityName;
 
     @Column(name = "builder_id")
-    private int builderId;
+    private Integer builderId;
     
     @Column(name = "builder_name")
     private String builderName;
@@ -86,53 +86,45 @@ public class InventoryPriceTrend extends BaseModel  {
     private String unitType;
     
     @Column(name = "bedrooms")
-    private int bedrooms;
+    private Integer bedrooms;
     
-    public int getBedrooms() {
-		return bedrooms;
-	}
-
-	public void setBedrooms(int bedrooms) {
-		this.bedrooms = bedrooms;
-	}
-
 	@Column(name = "average_price_per_unit_area")
-    private int pricePerUnitArea;
+    private Integer pricePerUnitArea;
     
     @Column(name = "average_size")
-    private int size;
+    private Integer size;
     
     @Column(name = "all_size")
     private String allSize;
     
     @Column(name = "average_total_price")
-    private long price;
+    private Long price;
     
     @Column(name = "supply")
-    private int supply;
+    private Integer supply;
     
     @Column(name = "launched_unit")
-    private int launchedUnit;
+    private Integer launchedUnit;
     
     @Column(name = "inventory")
-    private int inventory;
+    private Integer inventory;
 
     @Column(name = "units_sold")
-    private int unitsSold;
+    private Integer unitsSold;
 
-	public String getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(String id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
-	public int getProjectId() {
+	public Integer getProjectId() {
 		return projectId;
 	}
 
-	public void setProjectId(int projectId) {
+	public void setProjectId(Integer projectId) {
 		this.projectId = projectId;
 	}
 
@@ -144,11 +136,11 @@ public class InventoryPriceTrend extends BaseModel  {
 		this.projectName = projectName;
 	}
 
-	public int getCountryId() {
+	public Integer getCountryId() {
 		return countryId;
 	}
 
-	public void setCountryId(int countryId) {
+	public void setCountryId(Integer countryId) {
 		this.countryId = countryId;
 	}
 
@@ -160,11 +152,11 @@ public class InventoryPriceTrend extends BaseModel  {
 		this.countryName = countryName;
 	}
 
-	public int getPhaseId() {
+	public Integer getPhaseId() {
 		return phaseId;
 	}
 
-	public void setPhaseId(int phaseId) {
+	public void setPhaseId(Integer phaseId) {
 		this.phaseId = phaseId;
 	}
 
@@ -183,8 +175,8 @@ public class InventoryPriceTrend extends BaseModel  {
 	public void setPhaseType(String phaseType) {
 		this.phaseType = phaseType;
 	}
-	
-    public String getConstructionStatus() {
+
+	public String getConstructionStatus() {
 		return constructionStatus;
 	}
 
@@ -192,11 +184,11 @@ public class InventoryPriceTrend extends BaseModel  {
 		this.constructionStatus = constructionStatus;
 	}
 
-	public int getLocalityId() {
+	public Integer getLocalityId() {
 		return localityId;
 	}
 
-	public void setLocalityId(int localityId) {
+	public void setLocalityId(Integer localityId) {
 		this.localityId = localityId;
 	}
 
@@ -208,11 +200,11 @@ public class InventoryPriceTrend extends BaseModel  {
 		this.localityName = localityName;
 	}
 
-	public int getCityId() {
+	public Integer getCityId() {
 		return cityId;
 	}
 
-	public void setCityId(int cityId) {
+	public void setCityId(Integer cityId) {
 		this.cityId = cityId;
 	}
 
@@ -224,11 +216,11 @@ public class InventoryPriceTrend extends BaseModel  {
 		this.cityName = cityName;
 	}
 
-	public int getBuilderId() {
+	public Integer getBuilderId() {
 		return builderId;
 	}
 
-	public void setBuilderId(int builderId) {
+	public void setBuilderId(Integer builderId) {
 		this.builderId = builderId;
 	}
 
@@ -296,19 +288,27 @@ public class InventoryPriceTrend extends BaseModel  {
 		this.unitType = unitType;
 	}
 
-	public int getPricePerUnitArea() {
+	public Integer getBedrooms() {
+		return bedrooms;
+	}
+
+	public void setBedrooms(Integer bedrooms) {
+		this.bedrooms = bedrooms;
+	}
+
+	public Integer getPricePerUnitArea() {
 		return pricePerUnitArea;
 	}
 
-	public void setPricePerUnitArea(int pricePerUnitArea) {
+	public void setPricePerUnitArea(Integer pricePerUnitArea) {
 		this.pricePerUnitArea = pricePerUnitArea;
 	}
 
-	public int getSize() {
+	public Integer getSize() {
 		return size;
 	}
 
-	public void setSize(int size) {
+	public void setSize(Integer size) {
 		this.size = size;
 	}
 
@@ -320,45 +320,43 @@ public class InventoryPriceTrend extends BaseModel  {
 		this.allSize = allSize;
 	}
 
-	public long getPrice() {
+	public Long getPrice() {
 		return price;
 	}
 
-	public void setPrice(long price) {
+	public void setPrice(Long price) {
 		this.price = price;
 	}
 
-	public int getSupply() {
+	public Integer getSupply() {
 		return supply;
 	}
 
-	public void setSupply(int supply) {
+	public void setSupply(Integer supply) {
 		this.supply = supply;
 	}
 
-	public int getLaunchedUnit() {
+	public Integer getLaunchedUnit() {
 		return launchedUnit;
 	}
 
-	public void setLaunchedUnit(int launchedUnit) {
+	public void setLaunchedUnit(Integer launchedUnit) {
 		this.launchedUnit = launchedUnit;
 	}
 
-	public int getInventory() {
+	public Integer getInventory() {
 		return inventory;
 	}
 
-	public void setInventory(int inventory) {
+	public void setInventory(Integer inventory) {
 		this.inventory = inventory;
 	}
 
-	public int getUnitsSold() {
+	public Integer getUnitsSold() {
 		return unitsSold;
 	}
 
-	public void setUnitsSold(int unitsSold) {
+	public void setUnitsSold(Integer unitsSold) {
 		this.unitsSold = unitsSold;
 	}
-    
-	
 }
