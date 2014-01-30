@@ -8,6 +8,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -36,7 +39,8 @@ public class ProjectCMSAmenity extends BaseModel {
 	private String amenityDisplayName;
 	
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="AMENITY_ID")
+	@Fetch(FetchMode.JOIN)
+	@JoinColumn(name="AMENITY_ID", insertable=false, updatable=false)
 	private AmenityMaster amenityMaster;
 
 	public long getId() {
