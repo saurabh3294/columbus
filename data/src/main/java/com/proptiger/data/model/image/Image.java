@@ -40,12 +40,13 @@ public class Image extends BaseModel {
 	@JsonProperty("imageType")
 	private ImageType imageTypeObj;
 
-	@Column(name = "ImageType_id")
+	@Column(name = "ImageType_id", updatable=false)
     private long imageTypeId;
 	
-	@Column(name = "object_id")
+	@Column(name = "object_id", updatable=false)
 	private long objectId;
 	
+	@Column(updatable=false)
 	private String path;
 
     public void assignWatermarkName(String format) {
@@ -65,17 +66,19 @@ public class Image extends BaseModel {
     public void setAbsolutePath(String absolutePath) {
     }
 
-	@Column(name = "created_at")
+	@Column(name = "created_at", updatable=false)
 	private Date createdAt;
 	
 	@Column(name = "taken_at", nullable = true)
 	private Date takenAt;
 	
-	@Column(name = "size_in_bytes")
+	@Column(name = "size_in_bytes", updatable=false)
 	private long sizeInBytes;
 	
+	@Column(updatable=false)
 	private int width;
 	
+	@Column(updatable=false)
 	private int height;
 	
 	private Double latitude;
@@ -94,19 +97,19 @@ public class Image extends BaseModel {
 	
 	private Integer priority;
 
-	@Column(name = "original_hash")
+	@Column(name = "original_hash", updatable=false)
 	@JsonIgnore
 	private String originalHash;
 
-	@Column(name = "original_name")
+	@Column(name = "original_name", updatable=false)
     @JsonIgnore
     private String originalName;
 
 	@JsonIgnore
-	@Column(name = "watermark_hash")
+	@Column(name = "watermark_hash", updatable=false)
 	private String waterMarkHash;
 
-	@Column(name = "watermark_name")
+	@Column(name = "watermark_name", updatable=false)
 	private String waterMarkName;
 
 	private boolean active;

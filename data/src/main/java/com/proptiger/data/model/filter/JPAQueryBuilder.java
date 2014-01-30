@@ -1,7 +1,6 @@
 package com.proptiger.data.model.filter;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +22,6 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
@@ -124,6 +122,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 List<Expression<?>> groupByList = new LinkedList<>(criteriaQuery.getGroupList());
                 groupByList.add(root.get(fieldName));
                 criteriaQuery.groupBy(groupByList);
+                addToFields(selector, fieldName);
                 if (criteriaQuery.getSelection() != null) {
                     addSelection(fieldName, root.get(fieldName).alias(fieldName));
                 } else {
@@ -177,7 +176,16 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 }
             }
             
-            selector.setFields(selector.getFields() + ",extraAttributes");
+            addToFields(selector, "extraAttributes");
+        }
+    }
+
+    private void addToFields(FIQLSelector selector, String fieldName) {
+        if (selector.getFields() == null || selector.getFields().isEmpty()) {
+            selector.setFields(fieldName);
+        }
+        else {
+            selector.setFields(selector.getFields() + "," + fieldName);
         }
     }
 
@@ -193,18 +201,20 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 
     @Override
     protected void buildOrderByClause(FIQLSelector selector) {
-        if (selector != null && selector.getSort() != null) {
+        if (selector != null && selector.getSort() != null && !selector.getSort().isEmpty()) {
+            List<Order> orders = new ArrayList<>();
             for (String fieldName : selector.getSort().split(",")) {
                 Order order = null;
                 if (fieldName.startsWith("-")) {
-                    order = criteriaBuilder.desc(root.get(FieldsMapLoader.getField(domainClazz, fieldName.substring(1))
-                            .getName()));
+                    order = criteriaBuilder.desc(root.get(fieldName.substring(1)));
                 } else {
-                    order = criteriaBuilder.asc(root.get(FieldsMapLoader.getField(domainClazz, fieldName).getName()));
+                    order = criteriaBuilder.asc(root.get(fieldName));
                 }
 
-                criteriaQuery.orderBy(order);
+                orders.add(order);
             }
+
+            criteriaQuery.orderBy(orders);
         }
     }
 
@@ -240,9 +250,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                     if (tupleElement.getJavaType().equals(domainClazz)) {
                         result = tuple.get(tupleElement.getAlias(), domainClazz);
                     } else {
-                        try {
-                            BeanUtilsBean2.getInstance().copyProperty(result, tupleElement.getAlias(), tuple.get(tupleElement));
-                        } catch (Exception e) {
+                        if (!set(result, tupleElement.getAlias(), tuple.get(tupleElement))) {
+                            // BeanUtils.copyProperty(result, tupleElement.getAlias(), tuple.get(tupleElement));
                             result.getExtraAttributes().put(tupleElement.getAlias(), tuple.get(tupleElement));
                         }
                     }
@@ -257,6 +266,23 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         return results;
     }
 
+    public static boolean set(Object object, String fieldName, Object fieldValue) {
+        Class<?> clazz = object.getClass();
+        while (clazz != null) {
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(object, fieldValue);
+                return true;
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }    
+    
     @Override
     public long retrieveCount() {
         criteriaQuery.select(criteriaBuilder.tuple(criteriaBuilder.count(root)));
