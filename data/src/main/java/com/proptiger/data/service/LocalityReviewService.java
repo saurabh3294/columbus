@@ -52,7 +52,7 @@ public class LocalityReviewService {
 	 *         TOTAL_REVIEWS : total reviews found on the locality.
 	 *         REVIEWS: Reviews found filtered by pageable.
 	 */
-	@Cacheable(value = Constants.CacheName.LOCALITY_REVIEW_RATING, key = "#localityId +{#noOfReviews != null ?'-'+#noOfReviews:'' }")
+	@Cacheable(value = Constants.CacheName.LOCALITY_REVIEW_RATING, key = "#localityId +'-'+{#noOfReviews != null ?#noOfReviews:'' }")
 	public LocalityReviewRatingDetails getLocalityReviewRatingDetails(int localityId,
 			Integer noOfReviews) {
 		logger.debug("Get review and rating details of locality {}", localityId);
