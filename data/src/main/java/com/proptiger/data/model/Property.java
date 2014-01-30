@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -64,6 +65,7 @@ public class Property extends BaseModel {
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
     @Field(value="PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     @Column(name = "PRICE_PER_UNIT_AREA")
     private Double pricePerUnitArea;
 
@@ -74,6 +76,7 @@ public class Property extends BaseModel {
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     @Column(name = "SIZE")
     private Double size;
 

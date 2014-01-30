@@ -52,7 +52,7 @@ public class RecommendationController extends BaseController {
             limit = 4;
         
         List<Project> projects = recommendationService.getSimilarProjects(projectId, limit);
-        imageEnricher.setProjectMainImage(projects);
+        //imageEnricher.setProjectMainImage(projects);
         
         return new ProAPISuccessResponse(super.filterFields(projects, null));
     }
