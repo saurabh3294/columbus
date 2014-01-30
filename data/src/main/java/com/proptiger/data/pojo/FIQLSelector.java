@@ -6,7 +6,7 @@ public class FIQLSelector {
     private String group;
     private String sort;
     private Integer start = 0;
-    private Integer rows  = 10;
+    private Integer rows  = Integer.MAX_VALUE;
 
     public String getFields() {
         return fields;

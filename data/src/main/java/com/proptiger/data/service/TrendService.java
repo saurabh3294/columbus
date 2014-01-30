@@ -19,7 +19,7 @@ public class TrendService {
 	@Autowired
     private TrendDao trendDao;
 	
-	public PaginatedResponse<List<InventoryPriceTrend>> getTrend(FIQLSelector selector) {
+	public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
         return trendDao.getTrend(selector);
     }
 }

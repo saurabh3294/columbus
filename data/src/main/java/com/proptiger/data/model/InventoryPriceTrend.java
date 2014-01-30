@@ -6,9 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-
-import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -46,7 +43,10 @@ public class InventoryPriceTrend extends BaseModel  {
     @Column(name = "phase_type")
     private String phaseType;
     
-    @Column(name = "locality_id")
+    @Column(name = "construction_status")
+    private String constructionStatus;
+
+	@Column(name = "locality_id")
     private int localityId;
     
     @Column(name = "locality_name")
@@ -85,7 +85,18 @@ public class InventoryPriceTrend extends BaseModel  {
     @Column(name = "unit_type")
     private String unitType;
     
-    @Column(name = "average_price_per_unit_area")
+    @Column(name = "bedrooms")
+    private int bedrooms;
+    
+    public int getBedrooms() {
+		return bedrooms;
+	}
+
+	public void setBedrooms(int bedrooms) {
+		this.bedrooms = bedrooms;
+	}
+
+	@Column(name = "average_price_per_unit_area")
     private int pricePerUnitArea;
     
     @Column(name = "average_size")
@@ -171,6 +182,14 @@ public class InventoryPriceTrend extends BaseModel  {
 
 	public void setPhaseType(String phaseType) {
 		this.phaseType = phaseType;
+	}
+	
+    public String getConstructionStatus() {
+		return constructionStatus;
+	}
+
+	public void setConstructionStatus(String constructionStatus) {
+		this.constructionStatus = constructionStatus;
 	}
 
 	public int getLocalityId() {
