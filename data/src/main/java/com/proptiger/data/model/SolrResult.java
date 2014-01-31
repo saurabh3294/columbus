@@ -746,4 +746,19 @@ public class SolrResult extends BaseModel{
     public void setProjectLastUpdatedTime(Date lastUpdatedTime){
     	project.setLastUpdatedDate(lastUpdatedTime);
     }
+    
+    @Field("PROJECT_SUPPLY")
+    public void setProjectSupply(int supply){
+    	project.setSupply(supply);
+    }
+    
+    @Field("PRE_LAUNCH_DATE")
+    public void setPreLaunchDate(Date preLaunchDate){
+    	project.setPreLaunchDate(preLaunchDate);
+    }
+    
+    @Field("PROJECT_SIZE")
+    public void setProjectSize(double projectSize){
+    	project.setSizeInAcres(projectSize);
+    }
 }

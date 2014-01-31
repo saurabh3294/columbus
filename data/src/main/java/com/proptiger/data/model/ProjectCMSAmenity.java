@@ -38,6 +38,11 @@ public class ProjectCMSAmenity extends BaseModel {
 	@Column(name="AMENITY_DISPLAY_NAME")
 	private String amenityDisplayName;
 	
+	@Column(name="AMENITY_Id")
+	@FieldMetaInfo(displayName = "Amenity Id", description = "Amenity Id")
+	@JsonIgnore
+	private int amenityId;
+	
 	@ManyToOne(fetch=FetchType.EAGER)
 	@Fetch(FetchMode.JOIN)
 	@JoinColumn(name="AMENITY_ID", insertable=false, updatable=false)

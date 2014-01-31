@@ -328,15 +328,18 @@ public class Project extends BaseModel {
 
 	@FieldMetaInfo(displayName="PRE LAUNCH Date", description="PRE LAUNCH Date")
     @Column(name="PRE_LAUNCH_DATE")
+	@Field("PRE_LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date preLaunchDate ;
 	
 	 @FieldMetaInfo(displayName="YOUTUBE VEDIO", description="YOUTUBE VEDIO")
 	 @Column(name="YOUTUBE_VEDIO")
+	 @JsonIgnore
 	 private String youtubeVideo ;
 	 
 	 @FieldMetaInfo(displayName="NO OF FLATS", description="NO OF FLATS")
 	 @Column(name="NO_OF_FLATES")
+	 @Field("PROJECT_SUPPLY")
 	 private Integer supply ;
 	 
 	 @OneToMany(fetch=FetchType.LAZY)

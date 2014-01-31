@@ -143,12 +143,12 @@ public class ProjectService {
      * @return Project Model Object
      */
     public Project getProjectInfoDetails(Selector propertySelector, Integer projectId){
-    	Project project  = projectDao.findProjectByProjectId(projectId);
-    	if(project == null)
+    	List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(projectId)));
+    	if(solrProjects == null || solrProjects.size() < 1)
     		return null;
-    	
+    	Project project = solrProjects.get(0);
+    	    	
     	List<Property> properties = propertyService.getProperties(projectId);
-    	imageEnricher.setPropertiesImages(properties);
     	for(int i=0; i<properties.size(); i++)
     	{
     		Property property = properties.get(i);
@@ -174,40 +174,29 @@ public class ProjectService {
     	}
     	
     	project.setProperties(properties);
-    	//project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
     	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
-    	imageEnricher.setProjectImages(project);
     	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
     	project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
     	project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
     	project.setVideoUrls(videoLinksService.getProjectVideoLinks(project.getProjectId()));
     	
     	/*
-    	 * setting Price Rise 
+    	 * setting Locality Object. 
     	 */
-    	List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(project.getProjectId())));
+    	project.setLocality(localityService.getLocality(project.getLocalityId()));
     	
-    	if(solrProjects != null && solrProjects.size() > 0)
-    	{
-    		Project solrProject = solrProjects.get(0);
-    		project.setAvgPriceRisePercentage(solrProject.getAvgPriceRisePercentage());
-    		project.setAvgPriceRiseMonths(solrProject.getAvgPriceRiseMonths());
-    		project.setLatitude(solrProject.getLatitude());
-    		project.setLongitude(solrProject.getLongitude());
-    		project.setTotalProjectDiscussion(solrProject.getTotalProjectDiscussion());
-    		project.setOffers(solrProject.getOffers());
-    		project.setOffersHeading(solrProject.getOffersHeading());
-    		project.setOffersDesc(solrProject.getOffersDesc());
-    		project.setLastUpdatedDate(solrProject.getLastUpdatedDate());
-    		project.setImageURL(solrProject.getImageURL());
-    		//project.getBuilder().setImageURL(solrProject.getBuilder().getImageURL());
-    	}
+    	/*
+    	 * setting images.
+    	 */
+    	imageEnricher.setPropertiesImages(properties);
+    	imageEnricher.setProjectImages(project);
+    	imageEnricher.setLocalityImages(project.getLocality(), null);
     	
     	/*
          *  Setting locality Ratings And Reviews
          */
         localityService.updateLocalityRatingAndReviewDetails(project.getLocality());
-        imageEnricher.setLocalityImages(project.getLocality(), null);
+        
         List<Bank> bankList = bankService.getBanksProvidingLoanOnProject(projectId);
         project.setLoanProviderBanks(bankList);
         
