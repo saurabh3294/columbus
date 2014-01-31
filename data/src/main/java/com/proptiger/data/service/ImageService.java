@@ -15,6 +15,8 @@ import org.im4java.core.CompositeCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.MogrifyCmd;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -42,6 +44,7 @@ import com.proptiger.data.util.PropertyReader;
  */
 @Service
 public class ImageService {
+	private static Logger logger = LoggerFactory.getLogger(ImageService.class);
     private static File tempDir;
 
     @Autowired
@@ -124,6 +127,7 @@ public class ImageService {
 	@Cacheable(value=Constants.CacheName.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
 	public List<Image> getImages(DomainObject object, String imageTypeStr,
 			long objectId) {
+		logger.debug("Get images for domain object {} image type {} and id {}",object, imageTypeStr, objectId);
 		if (imageTypeStr == null) {
 			return imageDao.getImagesForObject(object.getText(), objectId);
 		} else {
