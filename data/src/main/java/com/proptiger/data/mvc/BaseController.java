@@ -82,9 +82,9 @@ public abstract class BaseController {
 	    	for(T item: response){
 	    		try {
 					Object groupValue = PropertyUtils.getSimpleProperty(item, groupBy);
+					if(groupValue instanceof Date) groupValue = ((Date) groupValue).getTime();
 					if(result.get(groupValue) ==null){
 		    			List<T> newList = new ArrayList<>();
-		    			if(groupValue instanceof Date) groupValue = ((Date) groupValue).getTime();
 		    			result.put(groupValue, newList);
 		    		}
 					List <T> tmp = (List<T>) result.get(groupValue);
@@ -95,6 +95,7 @@ public abstract class BaseController {
 					e.printStackTrace();
 				}
 	    	}
+	    	
 	    	if(selector.getGroup().indexOf(',') != -1){
 	    		selector.setGroup(selector.getGroup().substring(selector.getGroup().indexOf(',')+1, selector.getGroup().length()));
 	    		for(Object key: result.keySet()){
@@ -102,7 +103,6 @@ public abstract class BaseController {
 		    	}
 	    	}
 		} catch (IllegalArgumentException | SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	    return result;
