@@ -35,6 +35,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
+import com.proptiger.data.util.ImageUtil;
 
 /**
  * 
@@ -134,7 +135,7 @@ public class Project extends BaseModel {
     @Transient
     @FieldMetaInfo( displayName = "Project enquiry count",  description = "Project enquiry count")
     @Field(value = "PROJECT_ENQUIRY_COUNT")
-    private int projectEnquiryCount;
+    private Integer projectEnquiryCount;
 
     @FieldMetaInfo( displayName = "Assigned Priority",  description = "Assigned Priority")
     @Field(value = "DISPLAY_ORDER")
@@ -144,12 +145,12 @@ public class Project extends BaseModel {
     @FieldMetaInfo( displayName = "Assigned Locality Priority",  description = "Assigned Locality Priority")
     @Field(value = "DISPLAY_ORDER_LOCALITY")
     @Column(name="DISPLAY_ORDER_LOCALITY")
-    private int assignedLocalityPriority;
+    private Integer assignedLocalityPriority;
 
     @FieldMetaInfo( displayName = "Assigned Suburb Priority",  description = "Assigned Suburb Priority")
     @Field(value = "DISPLAY_ORDER_SUBURB")
     @Column(name="DISPLAY_ORDER_SUBURB")
-    private int assignedSuburbPriority;
+    private Integer assignedSuburbPriority;
     
     @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
     @Field(value = "PROMISED_COMPLETION_DATE")
@@ -164,21 +165,25 @@ public class Project extends BaseModel {
     // XXX - In order to make itnot null and avoid App crash
     @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
     @Transient
+    @Field("PROJECT_SMALL_IMAGE")
     private String imageURL = "";
 
     @Transient
     @FieldMetaInfo( displayName = "Offer",  description = "Offer")
     @Field(value = "OFFER")
+    @Deprecated
     private String offer;
 
     @FieldMetaInfo( displayName = "Offer Heading",  description = "Offer Heading")
     @Field(value = "OFFER_HEADING")
     @Column(name="OFFER_HEADING")
+    @Deprecated
     private String offerHeading;
 
     @FieldMetaInfo( displayName = "Offer Description",  description = "Offer Description")
     @Field(value = "OFFER_DESC")
     @Column(name="OFFER_DESC")
+    @Deprecated
     private String offerDesc;
 
     @FieldMetaInfo( displayName = "URL",  description = "URL")
@@ -200,36 +205,42 @@ public class Project extends BaseModel {
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
     @Field(value = "MIN_PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double minPricePerUnitArea;
 
     @Transient
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
     @Field(value = "MAX_PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double maxPricePerUnitArea;
 
     @Transient
     @FieldMetaInfo( displayName = "Min Size",  description = "Min Size")
     @Field(value = "MINSIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double minSize;
 
     @Transient
     @FieldMetaInfo( displayName = "Max Size",  description = "Max Size")
     @Field(value = "MAXSIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double maxSize;
 
     @Transient
     @FieldMetaInfo( displayName = "Min Price",  description = "Min Price")
     @Field(value = "MIN_BUDGET")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double minPrice;
 
     @Transient
     @FieldMetaInfo( displayName = "Max Price",  description = "Max Price")
     @Field(value = "MAX_BUDGET")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double maxPrice;
 
     @Transient
@@ -336,6 +347,7 @@ public class Project extends BaseModel {
 	 private List<ProjectAmenity> projectAmenity;
 	 
 	 @Transient
+	 @Field("NUMBER_OF_PROJECT_DISCUSSION")
 	 private Integer totalProjectDiscussion;
 	 
 	 @Transient
@@ -357,6 +369,22 @@ public class Project extends BaseModel {
     
 	 @Transient
 	 private List<Bank> loanProviderBanks;
+	 
+	 @Transient
+	 @Field("PROJECT_OFFER")
+	 private List<String> offers;
+	 
+	 @Transient
+	 @Field("PROJECT_OFFER_HEADING")
+	 private List<String> offersHeading;
+	 
+	 @Transient
+	 @Field("PROJECT_OFFER_DESC")
+	 private List<String> offersDesc;
+	 
+	 @Transient
+	 @Field("PROJECT_LAST_UPDATED_DATE")
+	 private Date lastUpdatedDate;
 	 
     public int getProjectId() {
         return projectId;
@@ -447,11 +475,11 @@ public class Project extends BaseModel {
     }
 
     
-    public int getProjectEnquiryCount() {
+    public Integer getProjectEnquiryCount() {
 		return projectEnquiryCount;
 	}
 
-	public void setProjectEnquiryCount(int projectEnquiryCount) {
+	public void setProjectEnquiryCount(Integer projectEnquiryCount) {
 		this.projectEnquiryCount = projectEnquiryCount;
 	}
 
@@ -463,19 +491,19 @@ public class Project extends BaseModel {
         this.assignedPriority = assignedPriority;
     }
 
-    public int getAssignedLocalityPriority() {
+    public Integer getAssignedLocalityPriority() {
         return assignedLocalityPriority;
     }
 
-    public void setAssignedLocalityPriority(int assignedLocalityPriority) {
+    public void setAssignedLocalityPriority(Integer assignedLocalityPriority) {
         this.assignedLocalityPriority = assignedLocalityPriority;
     }
 
-    public int getAssignedSuburbPriority() {
+    public Integer getAssignedSuburbPriority() {
         return assignedSuburbPriority;
     }
 
-    public void setAssignedSuburbPriority(int assignedSuburbPriority) {
+    public void setAssignedSuburbPriority(Integer assignedSuburbPriority) {
         this.assignedSuburbPriority = assignedSuburbPriority;
     }
 
@@ -500,29 +528,35 @@ public class Project extends BaseModel {
     }
 
     public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
+        this.imageURL = Image.addImageHostUrl(imageURL);
     }
 
+    @Deprecated
     public String getOffer() {
         return offer;
     }
-
+    
+    @Deprecated
     public void setOffer(String offer) {
         this.offer = offer;
     }
-
+    
+    @Deprecated
     public String getOfferHeading() {
         return offerHeading;
     }
-
+    
+    @Deprecated
     public void setOfferHeading(String offerHeading) {
         this.offerHeading = offerHeading;
     }
 
+    @Deprecated
     public String getOfferDesc() {
         return offerDesc;
     }
-
+    
+    @Deprecated
     public void setOfferDesc(String offerDesc) {
         this.offerDesc = offerDesc;
     }
@@ -881,6 +915,38 @@ public class Project extends BaseModel {
 
 	public void setLoanProviderBanks(List<Bank> loanProviderBanks) {
 		this.loanProviderBanks = loanProviderBanks;
+	}
+
+	public List<String> getOffers() {
+		return offers;
+	}
+
+	public void setOffers(List<String> offers) {
+		this.offers = offers;
+	}
+
+	public List<String> getOffersHeading() {
+		return offersHeading;
+	}
+
+	public void setOffersHeading(List<String> offersHeading) {
+		this.offersHeading = offersHeading;
+	}
+
+	public List<String> getOffersDesc() {
+		return offersDesc;
+	}
+
+	public void setOffersDesc(List<String> offersDesc) {
+		this.offersDesc = offersDesc;
+	}
+
+	public Date getLastUpdatedDate() {
+		return lastUpdatedDate;
+	}
+
+	public void setLastUpdatedDate(Date lastUpdatedDate) {
+		this.lastUpdatedDate = lastUpdatedDate;
 	}
 	
 }

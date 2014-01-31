@@ -21,7 +21,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
@@ -123,10 +122,11 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 groupByList.add(root.get(fieldName));
                 criteriaQuery.groupBy(groupByList);
                 addToFields(selector, fieldName);
+                Expression<?> expression = createExpression(fieldName);
                 if (criteriaQuery.getSelection() != null) {
-                    addSelection(fieldName, root.get(fieldName).alias(fieldName));
+                    addSelection(expression);
                 } else {
-                    criteriaQuery.select(criteriaBuilder.tuple(root.get(fieldName).alias(fieldName)));
+                    criteriaQuery.select(criteriaBuilder.tuple(expression));
                 }
             }
         } else {
@@ -140,56 +140,63 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     protected void buildSelectClause(FIQLSelector selector) {
         if (selector != null && selector.getFields() != null && !selector.getFields().isEmpty()) {
             for (String fieldName : selector.getFields().split(",")) {
-                try {
-                    String prefix = StringUtils.splitByCharacterTypeCamelCase(fieldName)[0];
-                    String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
-                    Selection<?> selection = null;
-                    switch (FUNCTIONS.valueOf(prefix.toUpperCase())) {
-                    case MAX:
-                        Expression<Number> maxExpression = root.get(actualFieldName);
-                        selection = criteriaBuilder.max(maxExpression);
-                        break;
-                    case AVG:
-                        Expression<Double> avgExpression = root.get(actualFieldName);
-                        selection = criteriaBuilder.avg(avgExpression);
-                        break;
-                    case COUNT:
-                        Expression<Number> countExpression = root.get(actualFieldName);
-                        selection = criteriaBuilder.count(countExpression);
-                        break;
-                    case MIN:
-                        Expression<Number> minExpression = root.get(actualFieldName);
-                        selection = criteriaBuilder.min(minExpression);
-                        break;
-                    case SUM:
-                        Expression<Number> sumExpression = root.get(actualFieldName);
-                        selection = criteriaBuilder.sum(sumExpression);
-                        break;
-                    default:
-                        throw new UnsupportedOperationException("Missing support for " + prefix + " function");
-                    }
-
-                    addSelection(fieldName, selection.alias(fieldName));
-                } catch (UnsupportedOperationException e) {
-                    logger.error(e.getMessage(), e);
-                } catch (Exception e) {
-                }
+                addSelection(createExpression(fieldName));
             }
-            
+
             addToFields(selector, "extraAttributes");
         }
+    }
+
+    private Expression<?> createExpression(String fieldName) {
+        String prefix = StringUtils.splitByCharacterTypeCamelCase(fieldName)[0];
+        String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
+        Expression<?> expression = null;
+        try {
+            switch (FUNCTIONS.valueOf(prefix.toUpperCase())) {
+            case MAX:
+                Expression<Number> maxExpression = root.get(actualFieldName);
+                expression = criteriaBuilder.max(maxExpression);
+                break;
+            case AVG:
+                Expression<Double> avgExpression = root.get(actualFieldName);
+                expression = criteriaBuilder.avg(avgExpression);
+                break;
+            case COUNT:
+                Expression<Number> countExpression = root.get(actualFieldName);
+                expression = criteriaBuilder.count(countExpression);
+                break;
+            case MIN:
+                Expression<Number> minExpression = root.get(actualFieldName);
+                expression = criteriaBuilder.min(minExpression);
+                break;
+            case SUM:
+                Expression<Number> sumExpression = root.get(actualFieldName);
+                expression = criteriaBuilder.sum(sumExpression);
+                break;
+            default:
+                throw new UnsupportedOperationException("Missing support for " + prefix + " function");
+            }
+        }
+        catch (UnsupportedOperationException e) {
+            logger.error(e.getMessage(), e);
+        }
+        catch (Exception e) {
+            expression = root.get(fieldName);
+        }
+
+        expression.alias(fieldName);
+        return expression;
     }
 
     private void addToFields(FIQLSelector selector, String fieldName) {
         if (selector.getFields() == null || selector.getFields().isEmpty()) {
             selector.setFields(fieldName);
-        }
-        else {
+        } else {
             selector.setFields(selector.getFields() + "," + fieldName);
         }
     }
 
-    private void addSelection(String fieldName, Selection<?> selection) {
+    private void addSelection(Selection<?> selection) {
         List<Selection<?>> selections = new LinkedList<Selection<?>>();
         if (criteriaQuery.getSelection().isCompoundSelection()) {
             selections = new LinkedList<Selection<?>>(criteriaQuery.getSelection().getCompoundSelectionItems());
@@ -206,9 +213,9 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
             for (String fieldName : selector.getSort().split(",")) {
                 Order order = null;
                 if (fieldName.startsWith("-")) {
-                    order = criteriaBuilder.desc(root.get(fieldName.substring(1)));
+                    order = criteriaBuilder.desc(createExpression(fieldName.substring(1)));
                 } else {
-                    order = criteriaBuilder.asc(root.get(fieldName));
+                    order = criteriaBuilder.asc(createExpression(fieldName));
                 }
 
                 orders.add(order);
@@ -251,7 +258,6 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                         result = tuple.get(tupleElement.getAlias(), domainClazz);
                     } else {
                         if (!set(result, tupleElement.getAlias(), tuple.get(tupleElement))) {
-                            // BeanUtils.copyProperty(result, tupleElement.getAlias(), tuple.get(tupleElement));
                             result.getExtraAttributes().put(tupleElement.getAlias(), tuple.get(tupleElement));
                         }
                     }
@@ -266,6 +272,14 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         return results;
     }
 
+    /**
+     * Copied from stackoverflow
+     *
+     * @param object
+     * @param fieldName
+     * @param fieldValue
+     * @return
+     */
     public static boolean set(Object object, String fieldName, Object fieldValue) {
         Class<?> clazz = object.getClass();
         while (clazz != null) {
@@ -281,8 +295,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
             }
         }
         return false;
-    }    
-    
+    }
+
     @Override
     public long retrieveCount() {
         criteriaQuery.select(criteriaBuilder.tuple(criteriaBuilder.count(root)));

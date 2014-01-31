@@ -11,6 +11,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.util.ImageUtil;
 
 /**
  * @author mandeep
@@ -709,5 +710,40 @@ public class SolrResult extends BaseModel{
     @Field("AVAILABILITY")
     public void setAvailability(Integer availability){
     	project.setDerivedAvailability(availability);
+    }
+    
+    @Field("PROJECT_OFFER")
+    public void setProjectOffer(List<String> projectOffer){
+    	project.setOffers(projectOffer);
+    }
+    
+    @Field("PROJECT_OFFER_HEADING")
+    public void setProjectOfferHeading(List<String> projectOfferHeading){
+    	project.setOffersHeading(projectOfferHeading);
+    }
+    
+    @Field("PROJECT_OFFER_DESC")
+    public void setProjectOfferDesc(List<String> projectOfferDesc){
+    	project.setOffersDesc(projectOfferDesc);
+    }
+    
+    @Field("NUMBER_OF_PROJECT_DISCUSSION")
+    public void setTotalProjectDiscussion(Integer totalProjectDiscussion){
+    	project.setTotalProjectDiscussion(totalProjectDiscussion);
+    }
+    
+    @Field("PROJECT_MAIN_IMAGE")
+    public void setProjectMainImage(String projectMainImage){
+    	project.setImageURL(projectMainImage);
+    }
+    
+    @Field("BUILDER_LOGO_IMAGE")
+    public void setBuilderLogoImage(String builderLogoImage){
+    	builder.setImageURL(builderLogoImage);
+    }
+    
+    @Field("PROJECT_LAST_UPDATED_TIME")
+    public void setProjectLastUpdatedTime(Date lastUpdatedTime){
+    	project.setLastUpdatedDate(lastUpdatedTime);
     }
 }

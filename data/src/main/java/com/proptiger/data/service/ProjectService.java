@@ -174,7 +174,7 @@ public class ProjectService {
     	}
     	
     	project.setProperties(properties);
-    	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
+    	//project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
     	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
     	imageEnricher.setProjectImages(project);
     	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
@@ -194,6 +194,13 @@ public class ProjectService {
     		project.setAvgPriceRiseMonths(solrProject.getAvgPriceRiseMonths());
     		project.setLatitude(solrProject.getLatitude());
     		project.setLongitude(solrProject.getLongitude());
+    		project.setTotalProjectDiscussion(solrProject.getTotalProjectDiscussion());
+    		project.setOffers(solrProject.getOffers());
+    		project.setOffersHeading(solrProject.getOffersHeading());
+    		project.setOffersDesc(solrProject.getOffersDesc());
+    		project.setLastUpdatedDate(solrProject.getLastUpdatedDate());
+    		project.setImageURL(solrProject.getImageURL());
+    		//project.getBuilder().setImageURL(solrProject.getBuilder().getImageURL());
     	}
     	
     	/*
@@ -325,6 +332,7 @@ public class ProjectService {
 	 * @param projectId
 	 * @return total project discussions.
 	 */
+	@Deprecated
 	private Integer getTotalProjectDiscussionCount(int projectId){
 		
 		Integer totalProjectDiscussion = 0;

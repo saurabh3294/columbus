@@ -109,7 +109,7 @@ public class Image extends BaseModel {
 	@Column(name = "watermark_hash", updatable=false)
 	private String waterMarkHash;
 
-	@Column(name = "watermark_name", updatable=false)
+	@Column(name = "watermark_name")
 	private String waterMarkName;
 
 	private boolean active;
@@ -288,5 +288,12 @@ public class Image extends BaseModel {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+    
+    public static String addImageHostUrl(String path){
+    	if(path.indexOf(ImageUtil.endpoint) < 0)
+    		return ImageUtil.endpoint +"/" + path;
+    	else
+    		return path;
     }
 }
