@@ -3,14 +3,18 @@
  */
 package com.proptiger.data.mvc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -66,6 +70,42 @@ public abstract class BaseController {
 	    }
 
 	    return filterFields(object, null);
+	}
+	
+	protected <T> Object groupFieldsAsPerSelector(List<T> response, FIQLSelector selector) {
+	    if(selector == null || selector.getGroup() == null || selector.getGroup().isEmpty()) return response;
+	    
+		String groupBy = selector.getGroup().split(",")[0];
+		Map<Object, Object> result = new HashMap<>();
+	    
+	    try {
+	    	for(T item: response){
+	    		try {
+					Object groupValue = PropertyUtils.getSimpleProperty(item, groupBy);
+					if(result.get(groupValue) ==null){
+		    			List<T> newList = new ArrayList<>();
+		    			if(groupValue instanceof Date) groupValue = ((Date) groupValue).getTime();
+		    			result.put(groupValue, newList);
+		    		}
+					List <T> tmp = (List<T>) result.get(groupValue);
+					tmp.add(item);
+					result.put(groupValue, tmp);
+					
+				} catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+	    	}
+	    	if(selector.getGroup().indexOf(',') != -1){
+	    		selector.setGroup(selector.getGroup().substring(selector.getGroup().indexOf(',')+1, selector.getGroup().length()));
+	    		for(Object key: result.keySet()){
+		    		result.put(key, groupFieldsAsPerSelector((List<T>)result.get(key), selector));
+		    	}
+	    	}
+		} catch (IllegalArgumentException | SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    return result;
 	}
 
     protected Object filterFields(Object object, Set<String> fields) {
