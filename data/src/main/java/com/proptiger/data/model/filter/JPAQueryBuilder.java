@@ -46,7 +46,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     private static Logger logger = LoggerFactory.getLogger(JPAQueryBuilder.class);
 
     private static enum FUNCTIONS {
-        SUM, MIN, MAX, AVG, COUNT;
+        SUM, MIN, MAX, AVG, COUNT, COUNTDISTINCT;
     };
 
     private EntityManager entityManager;
@@ -148,7 +148,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     }
 
     private Expression<?> createExpression(String fieldName) {
-        String prefix = StringUtils.splitByCharacterTypeCamelCase(fieldName)[0];
+        String[] splitWords = StringUtils.splitByCharacterTypeCamelCase(fieldName);
+		String prefix = splitWords[0];
         String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         Expression<?> expression = null;
         try {
@@ -162,8 +163,21 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 expression = criteriaBuilder.avg(avgExpression);
                 break;
             case COUNT:
-                Expression<Number> countExpression = root.get(actualFieldName);
-                expression = criteriaBuilder.count(countExpression);
+            	Expression<Number> countExpression;
+				try {
+					countExpression = root.get(actualFieldName);
+					expression = criteriaBuilder.count(countExpression);
+				} catch (IllegalArgumentException | IllegalStateException e) {
+					String secondPrefix = splitWords[1];
+					System.out.println("HERE----> " + prefix + secondPrefix);
+					if (FUNCTIONS.COUNTDISTINCT.name().equalsIgnoreCase(prefix + secondPrefix)) {
+						actualFieldName = StringUtils.uncapitalize(actualFieldName
+								.substring(secondPrefix.length()));
+						countExpression = root.get(actualFieldName);
+						expression = criteriaBuilder
+								.countDistinct(countExpression);
+					}
+				}
                 break;
             case MIN:
                 Expression<Number> minExpression = root.get(actualFieldName);
@@ -300,7 +314,11 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     @Override
     public long retrieveCount() {
         criteriaQuery.select(criteriaBuilder.tuple(criteriaBuilder.count(root)));
-        return (long) entityManager.createQuery(criteriaQuery).getResultList().get(0).get(0);
+        List<Tuple> resultList = entityManager.createQuery(criteriaQuery).getResultList();
+        if(criteriaQuery.getGroupList().isEmpty()){
+        	return (long) resultList.get(0).get(0);
+        }
+        else return (long) resultList.size();
     }
 
     public void addEqualsFilter(String fieldName, List<Object> values) {
