@@ -16,7 +16,6 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name="cms.d_inventory_prices")
-@SuppressWarnings("serial")
 @JsonFilter("fieldFilter")
 public class InventoryPriceTrend extends BaseModel  {
 	@Id	

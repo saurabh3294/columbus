@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.model.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.TrendDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /** 
  * @author Azitabh Ajit

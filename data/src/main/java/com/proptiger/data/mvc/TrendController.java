@@ -18,10 +18,11 @@ import com.proptiger.data.service.TrendService;
 public class TrendController extends BaseController{
 	@Autowired
     private TrendService trendService;
-	int x = 0;
-	@RequestMapping("data/v2/trend")
+	
+	@RequestMapping("data/v1/trend")
     public @ResponseBody
-    ProAPIResponse getV2Projects(@ModelAttribute FIQLSelector selector) throws Exception {
+    ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector) throws Exception {
+		selector.setRows(Integer.MAX_VALUE);
         List<InventoryPriceTrend> response = trendService.getTrend(selector);
         return new ProAPISuccessResponse(super.groupFieldsAsPerSelector(response, selector));
     }

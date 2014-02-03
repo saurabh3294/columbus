@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -43,6 +45,7 @@ public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Hibernate4Module hm = null;
 	private static SimpleFilterProvider filterProvider = null;
+	private static Logger logger = LoggerFactory.getLogger(BaseController.class);
 
 	static {
         hm = new Hibernate4Module();
@@ -72,6 +75,12 @@ public abstract class BaseController {
 	    return filterFields(object, null);
 	}
 	
+	/**
+	 * 
+	 * @param response is a list of model objects
+	 * @param selector is FIQL selector
+	 * @return is a map of Objects and Objects
+	 */
 	protected <T> Object groupFieldsAsPerSelector(List<T> response, FIQLSelector selector) {
 	    if(selector == null || selector.getGroup() == null || selector.getGroup().isEmpty()) return response;
 	    
@@ -80,30 +89,25 @@ public abstract class BaseController {
 	    
 	    try {
 	    	for(T item: response){
-	    		try {
 					Object groupValue = PropertyUtils.getSimpleProperty(item, groupBy);
 					if(groupValue instanceof Date) groupValue = ((Date) groupValue).getTime();
 					if(result.get(groupValue) ==null){
 		    			List<T> newList = new ArrayList<>();
 		    			result.put(groupValue, newList);
 		    		}
-					List <T> tmp = (List<T>) result.get(groupValue);
-					tmp.add(item);
-					result.put(groupValue, tmp);
+					((List<T>) result.get(groupValue)).add(item);
 					
-				} catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
 	    	}
 	    	
-	    	if(selector.getGroup().indexOf(',') != -1){
-	    		selector.setGroup(selector.getGroup().substring(selector.getGroup().indexOf(',')+1, selector.getGroup().length()));
+	    	int commaIndex = selector.getGroup().indexOf(',');
+			if(commaIndex != -1){
+	    		selector.setGroup(selector.getGroup().substring(commaIndex+1));
 	    		for(Object key: result.keySet()){
 		    		result.put(key, groupFieldsAsPerSelector((List<T>)result.get(key), selector));
 		    	}
 	    	}
-		} catch (IllegalArgumentException | SecurityException e) {
-			e.printStackTrace();
+		} catch (IllegalArgumentException | SecurityException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			logger.error("Error grouping results", e);
 		}
 	    return result;
 	}
