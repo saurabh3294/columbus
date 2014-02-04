@@ -241,7 +241,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 
     @Override
     protected void buildLimitClause(FIQLSelector selector) {
-        if (selector != null) {
+        if (selector != null && selector.getStart() != null && selector.getRows() != null) {
             typedQuery = entityManager.createQuery(criteriaQuery).setFirstResult(selector.getStart())
                     .setMaxResults(selector.getRows());
         } else {
