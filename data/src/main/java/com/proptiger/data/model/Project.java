@@ -4,6 +4,8 @@
  */
 package com.proptiger.data.model;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -28,8 +30,10 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.gson.Gson;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -73,11 +77,24 @@ public class Project extends BaseModel {
         }
     };
     
-   /* @Id
-    @FieldMetaInfo( displayName = "DB Project Id",  description = "DB Project Id")
-    @Column(name="PROJECT_ID", insertable=false, updatable=false)
-    private Integer id;*/
-    
+    @JsonInclude(Include.NON_NULL)
+    public static class Offer extends BaseModel{
+		private static final long serialVersionUID = -3760823398693160737L;
+		private String offer;
+    	private String offerHeading;
+    	private String offerDesc;
+    	
+		public String getOffer() {
+			return offer;
+		}
+		public String getOfferHeading() {
+			return offerHeading;
+		}
+		public String getOfferDesc() {
+			return offerDesc;
+		}
+    }
+      
     @Id	
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
@@ -375,16 +392,8 @@ public class Project extends BaseModel {
 	 
 	 @Transient
 	 @Field("PROJECT_OFFER")
-	 private List<String> offers;
-	 
-	 @Transient
-	 @Field("PROJECT_OFFER_HEADING")
-	 private List<String> offersHeading;
-	 
-	 @Transient
-	 @Field("PROJECT_OFFER_DESC")
-	 private List<String> offersDesc;
-	 
+	 private List<Offer> offers;
+	 	 
 	 @Transient
 	 @Field("PROJECT_LAST_UPDATED_DATE")
 	 private Date lastUpdatedDate;
@@ -808,14 +817,6 @@ public class Project extends BaseModel {
         return isResale;
     }
 
-	/*public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-*/
 	public Integer getAvailability() {
 		return derivedAvailability;
 	}
@@ -920,36 +921,31 @@ public class Project extends BaseModel {
 		this.loanProviderBanks = loanProviderBanks;
 	}
 
-	public List<String> getOffers() {
-		return offers;
-	}
-
-	public void setOffers(List<String> offers) {
-		this.offers = offers;
-	}
-
-	public List<String> getOffersHeading() {
-		return offersHeading;
-	}
-
-	public void setOffersHeading(List<String> offersHeading) {
-		this.offersHeading = offersHeading;
-	}
-
-	public List<String> getOffersDesc() {
-		return offersDesc;
-	}
-
-	public void setOffersDesc(List<String> offersDesc) {
-		this.offersDesc = offersDesc;
-	}
-
 	public Date getLastUpdatedDate() {
 		return lastUpdatedDate;
 	}
 
 	public void setLastUpdatedDate(Date lastUpdatedDate) {
 		this.lastUpdatedDate = lastUpdatedDate;
+	}
+
+	public List<Offer> getOffers() {
+		return offers;
+	}
+
+	public void setOffers(List<Offer> offers) {
+		this.offers = offers;
+	}
+	
+	public void addOffers(String[] offers){
+		if( this.offers == null)
+			this.offers = new ArrayList<>();
+			
+		Gson gson = new Gson();
+		for(int i=0; i<offers.length; i++)
+		{
+			this.offers.add(gson.fromJson(offers[i], Offer.class));
+		}
 	}
 	
 }
