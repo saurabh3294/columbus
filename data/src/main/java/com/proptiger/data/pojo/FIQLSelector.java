@@ -5,8 +5,8 @@ public class FIQLSelector {
     private String filters;
     private String group;
     private String sort;
-    private Integer start = 0;
-    private Integer rows  = 10;
+    private Integer start;
+    private Integer rows;
 
     public String getFields() {
         return fields;

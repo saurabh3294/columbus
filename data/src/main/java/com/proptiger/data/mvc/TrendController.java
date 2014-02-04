@@ -1,6 +1,7 @@
 package com.proptiger.data.mvc;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,10 +23,6 @@ public class TrendController extends BaseController{
 	@RequestMapping("data/v1/trend")
     public @ResponseBody
     ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector) throws Exception {
-		// Setting FIQL parameters that are not supported for this api
-		selector.setRows(null);
-		selector.setStart(null);
-		selector.setSort(null);
         List<InventoryPriceTrend> response = trendService.getTrend(selector);
         return new ProAPISuccessResponse(super.groupFieldsAsPerSelector(response, selector));
     }

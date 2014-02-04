@@ -169,7 +169,6 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 					expression = criteriaBuilder.count(countExpression);
 				} catch (IllegalArgumentException | IllegalStateException e) {
 					String secondPrefix = splitWords[1];
-					System.out.println("HERE----> " + prefix + secondPrefix);
 					if (FUNCTIONS.COUNTDISTINCT.name().equalsIgnoreCase(prefix + secondPrefix)) {
 						actualFieldName = StringUtils.uncapitalize(actualFieldName
 								.substring(secondPrefix.length()));
