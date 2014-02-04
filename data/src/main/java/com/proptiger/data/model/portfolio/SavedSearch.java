@@ -1,10 +1,14 @@
 package com.proptiger.data.model.portfolio;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -32,6 +36,11 @@ public class SavedSearch extends BaseModel {
 	@FieldMetaInfo(displayName = "Name", description = "Name")
 	@Column(name = "NAME")
 	private String name;
+	
+	@FieldMetaInfo(displayName = "Created Date", description = "Created Date")
+	@Column(name = "CREATED_DATE")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createdDate;
 
 	public Integer getId() {
 		return id;
@@ -63,5 +72,13 @@ public class SavedSearch extends BaseModel {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
 	}
 }

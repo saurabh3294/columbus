@@ -6,7 +6,10 @@ package com.proptiger.data.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -37,6 +40,10 @@ public class NearLocalities extends BaseModel{
     @Column(name = "DISTANCE")
     private int distance;
 
+    @ManyToOne(fetch=FetchType.EAGER)
+    @JoinColumn(referencedColumnName="LOCALITY_ID", name="NEAR_LOCALITY", insertable=false, updatable=false)
+    private Locality locality;
+
     public int getMainLocality() {
         return mainLocality;
     }
@@ -60,4 +67,24 @@ public class NearLocalities extends BaseModel{
     public void setDistance(int distance) {
         this.distance = distance;
     }
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Locality getLocality() {
+		return locality;
+	}
+
+	public void setLocality(Locality locality) {
+		this.locality = locality;
+	}
+
+	public void setMainLocality(Integer mainLocality) {
+		this.mainLocality = mainLocality;
+	}
 }
