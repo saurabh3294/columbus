@@ -44,14 +44,6 @@ public class ApplicationConfig {
 	private static final String HIBERNATE_SHOW_SQL = "hibernate.show_sql";
 	private static final String ENTITYMANAGER_PACKAGES_TO_SCAN = "entitymanager.packages.to.scan";
 
-	private static final String MIN_POOL_SIZE = "min.pool.size"; 
-	private static final String MAX_POOL_SIZE = "max.pool.size"; 
-	private static final String INITIAL_POOL_SIZE = "initial.pool.size"; 
-	private static final String ACQUIRE_INCREMENT = "acquire.increment";
-	
-	private static final String MAX_IDLE_TIME = "max.idle.time";
-	private static final String UNRETURNED_CONNECTION_TIMEOUT = "unreturned.connection.timeout";
-	
 	@Autowired
 	private PropertyReader propertyReader;
 	
@@ -78,7 +70,8 @@ public class ApplicationConfig {
 	}
 
 	/**
-	 * Creating c3p0 data source with pooling capability
+	 * Creating c3p0 data source with pooling capability.
+	 * Modify c3p0.properties for pool configurations
 	 * @return
 	 * @throws Exception
 	 */
@@ -93,20 +86,6 @@ public class ApplicationConfig {
 				.getRequiredProperty(DATABASE_USERNAME));
 		comboPooledDataSource.setPassword(propertyReader
 				.getRequiredProperty(DATABASE_PASSWORD));
-		
-		int minPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(MIN_POOL_SIZE));
-		int maxPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(MAX_POOL_SIZE));
-		int initialPoolSize = Integer.parseInt(propertyReader.getRequiredProperty(INITIAL_POOL_SIZE));
-		int acquireIncrement = Integer.parseInt(propertyReader.getRequiredProperty(ACQUIRE_INCREMENT));
-		int maxIdleTime = Integer.parseInt(propertyReader.getRequiredProperty(MAX_IDLE_TIME));
-		int unReturneddConTimeOut = Integer.parseInt(propertyReader.getRequiredProperty(UNRETURNED_CONNECTION_TIMEOUT));
-		
-		comboPooledDataSource.setMinPoolSize(minPoolSize);
-		comboPooledDataSource.setMaxPoolSize(maxPoolSize);
-		comboPooledDataSource.setInitialPoolSize(initialPoolSize);
-		comboPooledDataSource.setAcquireIncrement(acquireIncrement);
-		comboPooledDataSource.setMaxIdleTime(maxIdleTime);
-		comboPooledDataSource.setUnreturnedConnectionTimeout(unReturneddConTimeOut);
 		
 		return comboPooledDataSource;
 		
