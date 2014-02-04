@@ -142,7 +142,8 @@ public class ProjectService {
      * @param projectId
      * @return Project Model Object
      */
-    public Project getProjectInfoDetails(Selector propertySelector, Integer projectId){
+    public Project getProjectInfoDetails(Selector selector, Integer projectId){
+    	
     	List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(projectId)));
     	if(solrProjects == null || solrProjects.size() < 1)
     		return null;
@@ -173,32 +174,76 @@ public class ProjectService {
         	property.setProject(null);
     	}
     	
-    	project.setProperties(properties);
+    	Set<String> fields = selector.getFields();
+    	
+    	/*
+    	 * Setting properites if needed.
+    	 */
+    	if(fields == null || fields.contains("properties")){
+    		project.setProperties(properties);
+    		imageEnricher.setPropertiesImages(properties);
+    	}
+    	
+    	/*
+    	 * Setting neighborhood if needed.
+    	 */
+    	if(fields == null || fields.contains("neighborhood") ){
     	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
-    	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
-    	project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
-    	project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
-    	project.setVideoUrls(videoLinksService.getProjectVideoLinks(project.getProjectId()));
+    	}
+    	
+    	/*
+    	 * Setting project Specification if needed. 
+    	 */
+    	if(fields == null || fields.contains("projectSpecification")){
+    		project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
+    	}
+    	
+    	/*
+    	 * Setting builders if needed. 
+    	 */
+    	if(fields == null || fields.contains("builder")){
+    		  project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
+    	}
+    	
+    	/*
+    	 * setting project amenities if needed.
+    	 */
+    	if(fields == null || fields.contains("projectAmenities")){
+    		project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
+    	}
+    	
+    	/*
+    	 * setting video links if needed.
+    	 */
+    	if(fields == null || fields.contains("videoUrls")){
+    		project.setVideoUrls(videoLinksService.getProjectVideoLinks(project.getProjectId()));
+    	}
     	
     	/*
     	 * setting Locality Object. 
     	 */
-    	project.setLocality(localityService.getLocality(project.getLocalityId()));
+    	if(fields == null || fields.contains("locality")){
+    		project.setLocality(localityService.getLocality(project.getLocalityId()));
+        	imageEnricher.setLocalityImages(project.getLocality(), null);
+    	}
+    	
+    	/*
+    	 * Setting loan banks if needed.
+    	 */
+    	if(fields == null || fields.contains("loanProviderBanks")){
+    		List<Bank> bankList = bankService.getBanksProvidingLoanOnProject(projectId);
+            project.setLoanProviderBanks(bankList);
+    	}
     	
     	/*
     	 * setting images.
     	 */
-    	imageEnricher.setPropertiesImages(properties);
     	imageEnricher.setProjectImages(project);
-    	imageEnricher.setLocalityImages(project.getLocality(), null);
     	
     	/*
          *  Setting locality Ratings And Reviews
          */
         localityService.updateLocalityRatingAndReviewDetails(project.getLocality());
-        
-        List<Bank> bankList = bankService.getBanksProvidingLoanOnProject(projectId);
-        project.setLoanProviderBanks(bankList);
         
     	return project;
     }
