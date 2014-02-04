@@ -15,7 +15,7 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "cms.academic_qualifications")
 @JsonFilter("fieldFilter")
-public class AcademicQualification  implements BaseModel{
+public class AcademicQualification  extends BaseModel{
 	@Id
 	@Column(name = "id")
 	private Integer id;

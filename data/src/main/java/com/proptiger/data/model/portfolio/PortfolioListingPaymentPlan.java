@@ -34,7 +34,7 @@ import com.proptiger.data.model.portfolio.enums.PaymentStatus;
 @Table(name = "portfolio_listings_payment_plan")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class PortfolioListingPaymentPlan implements BaseModel {
+public class PortfolioListingPaymentPlan extends BaseModel {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

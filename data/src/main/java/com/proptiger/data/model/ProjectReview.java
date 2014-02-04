@@ -18,7 +18,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "REVIEW_COMMENTS")
 @ResourceMetaInfo
 @Deprecated
-public class ProjectReview implements BaseModel{
+public class ProjectReview extends BaseModel{
 
 	@FieldMetaInfo( displayName = "Comment Id",  description = "Comment Id")
 	@Column(name = "COMMENT_ID")

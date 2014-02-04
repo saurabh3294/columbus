@@ -14,7 +14,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
 @Table(name = "cms.table_attributes")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class TableAttributes  implements BaseModel {
+public class TableAttributes  extends BaseModel {
 	@Id
 	@Column(name="id")
 	@FieldMetaInfo( displayName = "Id",  description = "Id")

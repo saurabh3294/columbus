@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -127,7 +128,7 @@ public class ProjectDetailController extends BaseController {
         /*
          *  Setting locality Ratings And Reviews
          */
-        localityService.setLocalityRatingAndReviewDetails(locality);
+        localityService.updateLocalityRatingAndReviewDetails(locality);
         
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
@@ -145,7 +146,7 @@ public class ProjectDetailController extends BaseController {
     }
     
     @RequestMapping(value="app/v2/project-detail")
-    @DisableCaching
+    @Deprecated
     public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId) throws Exception {
     	Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
         if(projectSelector == null) {
@@ -155,6 +156,23 @@ public class ProjectDetailController extends BaseController {
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
     	return new ProAPISuccessResponse( super.filterFields(project, projectSelector.getFields() ) );
     }
-    
+   
+    @RequestMapping(value = {"app/v2/project-detail/{projectId}"})
+	@ResponseBody
+	@DisableCaching
+	public ProAPIResponse getProjectDetails2(
+			@PathVariable Integer projectId,
+			@RequestParam(required = false) String selector
+			) throws Exception {
+		Selector projectSelector = super.parseJsonToObject(selector,
+				Selector.class);
+		if (projectSelector == null) {
+			projectSelector = new Selector();
+		}
+		Project project = projectService.getProjectInfoDetails(projectSelector,
+				projectId);
+		return new ProAPISuccessResponse(super.filterFields(project,
+				projectSelector.getFields()));
+	} 
    
 }

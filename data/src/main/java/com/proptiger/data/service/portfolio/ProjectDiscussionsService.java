@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -26,7 +28,11 @@ import com.proptiger.data.repo.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
+import com.proptiger.mail.service.MailBodyGenerator;
+import com.proptiger.mail.service.MailSender;
+import com.proptiger.mail.service.MailTemplateDetail;
 
 @Service
 public class ProjectDiscussionsService {
@@ -46,13 +52,22 @@ public class ProjectDiscussionsService {
 	@Autowired
 	private ProjectCommentLikesDao projectCommentLikesDao;
 	
+	@Autowired
+	private MailBodyGenerator mailBodyGenerator;
+	
+	@Autowired
+	private MailSender mailSender;
+	
+	@Autowired
+	private PropertyReader propertyReader;
+	
 	public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, UserInfo userInfo){
 		
 		if(projectDiscussion.getComment() == null || projectDiscussion.getComment().isEmpty() ){
 			throw new IllegalArgumentException("Comments cannot be null");
 		}
-		
-		if( projectService.getProjectData(projectDiscussion.getProjectId()) == null){
+		Project project = projectService.getProjectData(projectDiscussion.getProjectId()); 
+		if( project == null){
 			throw new IllegalArgumentException("Enter valid Project Id");
 		}
 		
@@ -69,8 +84,9 @@ public class ProjectDiscussionsService {
 		if(projectDiscussion.getParentId() > 0)
 		{
 			parentProjectDiscussion = projectDiscussionDao.findByIdAndProjectId(projectDiscussion.getParentId(), projectDiscussion.getProjectId());
-			if(parentProjectDiscussion == null)
+			if(parentProjectDiscussion == null){
 				throw new IllegalArgumentException("Parent Comment Id project should belong to Project Id supplied.");
+			}
 			
 			projectDiscussion.setLevel(parentProjectDiscussion.getLevel()+1);
 			projectDiscussion.setReplied(ProjectDiscussion.Replies.T);
@@ -78,6 +94,8 @@ public class ProjectDiscussionsService {
 		ProjectDiscussion savedProjectDiscussions = projectDiscussionDao.save(projectDiscussion);
 		
 		subscriptionService.enableOrAddUserSubscription(userInfo.getUserIdentifier(), projectDiscussion.getProjectId(), Project.class.getAnnotation(Table.class).name(), Constants.SubscriptionType.FORUM);
+		
+		sendMailOnProjectComment(forumUser, project, savedProjectDiscussions);
 		return savedProjectDiscussions;
 	}
 	
@@ -89,8 +107,9 @@ public class ProjectDiscussionsService {
 			return null;
 		}
 		// User has already liked the comment
-		if( createProjectCommentLikes(commentId, userInfo.getUserIdentifier()) == null )
-			throw new ResourceAlreadyExistException("User has already liked the comment.");
+		if( createProjectCommentLikes(commentId, userInfo.getUserIdentifier()) == null ){
+			throw new ResourceAlreadyExistException("User has already liked the comment.", ResponseCodes.NAME_ALREADY_EXISTS);
+		}
 		
 		projectDiscussion.setNumLikes(projectDiscussion.getNumLikes() +1);
 		
@@ -103,9 +122,9 @@ public class ProjectDiscussionsService {
 	
 	public ProjectCommentLikes createProjectCommentLikes(long commentId, int userId){
 		ProjectCommentLikes alreadyLikes = findProjectCommentLikesOnUserIdAndCommentId(commentId, userId);
-		if(alreadyLikes != null)
+		if(alreadyLikes != null){
 			return null;
-			
+		}
 			
 		ProjectCommentLikes projectCommentLikes = new ProjectCommentLikes();
 		
@@ -118,6 +137,8 @@ public class ProjectDiscussionsService {
 	public PaginatedResponse<List<ProjectDiscussion>> getProjectComments(int projectId, Paging paging){
 		
 		List<ProjectDiscussion> allComments = projectDiscussionDao.getDiscussionsByProjectIdOrderByCreatedDateDesc(projectId);
+		if(allComments == null || allComments.size() < 1)
+			return null;
 		
 		Map<Long, List<ProjectDiscussion>> parentChildComments = new HashMap<>();
 		long parentId;
@@ -142,13 +163,7 @@ public class ProjectDiscussionsService {
 			}
 		}
 		int totalRootComments = allComments.size();
-		
-		// setting paging of the root comments
-		if(paging == null)
-		{
-			paging = new Paging();
-		}
-		allComments = allComments.subList(paging.getStart(), paging.getRows()+paging.getStart());
+		allComments = setPagingOnProjectDiscussion(allComments, paging);
 		
 		Queue<ProjectDiscussion> queue = new LinkedList<>(allComments);
 		while( !queue.isEmpty() )
@@ -167,6 +182,69 @@ public class ProjectDiscussionsService {
 		response.setTotalCount(totalRootComments);
 		
 		return response;
+	}
+	
+	private List<ProjectDiscussion> setPagingOnProjectDiscussion(List<ProjectDiscussion> comments, Paging paging){
+		int totalRootComments = comments.size();
+		// setting paging of the root comments
+		if (paging == null) {
+			paging = new Paging();
+		}
+		if (paging.getStart() > totalRootComments) {
+			throw new ArrayIndexOutOfBoundsException(
+					"Max comments in the project is: " + totalRootComments);
+		}
+
+		int pagingRows = paging.getRows() + paging.getStart();
+		pagingRows = pagingRows > totalRootComments ? totalRootComments
+				: pagingRows;
+
+		return comments.subList(paging.getStart(), pagingRows);
+	}
+	
+	private boolean sendMailOnProjectComment(ForumUser forumUser,
+		Project project, ProjectDiscussion projectDiscussion) {
+		
+		String[] mailTo = propertyReader.getRequiredProperty(
+				"mail.project.comment.to.recipient").split(",");
+		
+		String[] mailCC = propertyReader.getRequiredProperty(
+				"mail.project.comment.cc.recipient").split(",");
+		
+		MailBody mailBody = mailBodyGenerator.generateHtmlBody(
+				MailTemplateDetail.ADD_NEW_PROJECT_COMMENT,
+				new ProjectDiscussionMailDTO(project, forumUser,
+						projectDiscussion));
+		
+		return mailSender.sendMailUsingAws(mailTo, mailCC, null,
+				mailBody.getBody(), mailBody.getSubject());
+
+	}
+
+	public static class ProjectDiscussionMailDTO {
+		public Project project;
+		public ForumUser forumUser;
+		public ProjectDiscussion projectDiscussion;
+
+		public ProjectDiscussionMailDTO(Project project, ForumUser forumUser,
+				ProjectDiscussion projectDiscussion) {
+			this.project = project;
+			this.forumUser = forumUser;
+			this.projectDiscussion = projectDiscussion;
+		}
+
+		public Project getProject() {
+			return project;
+		}
+
+		public ForumUser getForumUser() {
+			return forumUser;
+		}
+
+		public ProjectDiscussion getProjectDiscussion() {
+			return projectDiscussion;
+		}
+
 	}
 
 }

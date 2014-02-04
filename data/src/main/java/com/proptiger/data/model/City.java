@@ -26,7 +26,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class City implements BaseModel {
+public class City extends BaseModel {
     @Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")

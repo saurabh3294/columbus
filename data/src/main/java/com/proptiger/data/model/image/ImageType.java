@@ -18,7 +18,7 @@ import com.proptiger.data.model.ObjectType;
 
 @Entity(name = "ImageType")
 @JsonFilter("fieldFilter")
-public class ImageType implements BaseModel {
+public class ImageType extends BaseModel {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;

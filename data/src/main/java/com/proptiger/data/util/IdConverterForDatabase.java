@@ -3,6 +3,14 @@ package com.proptiger.data.util;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
 
+/**
+ * A converter utility that converts id of domian objects from proptiger DB to
+ * cms DB and vice versa
+ * 
+ * @author Rajeev Pandey
+ * @author mukand
+ * 
+ */
 public class IdConverterForDatabase {
 
 	public static Integer convertProjectIdFromCMSToProptiger(Property property){
@@ -23,27 +31,19 @@ public class IdConverterForDatabase {
 		return typeId;
 	}
 	
-	public static int getProptigerDomainIdForDomainTypes(String domainType, int id){
-		DomainObject domainObject = DomainObject.valueOf(domainType);
-		if(domainObject == null)
-			return id;
-		
+	public static int getProptigerDomainIdForDomainTypes(DomainObject domainObject, int id){
 		int startId = domainObject.getStartId();
-		if(id > startId)
+		if(id > startId){
 			return id-startId;
-		
+		}
 		return id;
 	}
 	
-	public static int getCMSDomainIdForDomainTypes(String domainType, int id){
-		DomainObject domainObject = DomainObject.valueOf(domainType);
-		if(domainObject == null)
-			return id;
-		
+	public static int getCMSDomainIdForDomainTypes(DomainObject domainObject, int id){
 		int startId = domainObject.getStartId();
-		if(id < startId)
+		if(id < startId){
 			return id+startId;
-		
+		}
 		return id;
 	}
 	

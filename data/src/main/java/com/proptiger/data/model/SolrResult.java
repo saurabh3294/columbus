@@ -11,12 +11,13 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.util.ImageUtil;
 
 /**
  * @author mandeep
  */
 @JsonFilter("fieldFilter")
-public class SolrResult implements BaseModel{
+public class SolrResult extends BaseModel{
     private Property property = new Property();
     private Project project = new Project();
     private Locality locality = new Locality();
@@ -689,5 +690,65 @@ public class SolrResult implements BaseModel{
     @Field("LOCALITY_MAX_RADIUS")
     public void setLocalityMaxRadius(Double dominantUnitType) {
         locality.setMaxRadius(dominantUnitType);
+    }
+    
+    @Field("PAYMENT_PLAN_URL")
+    public void setPaymentPlanUrl(String paymentPlanUrl){
+    	project.setPaymentPlanUrl(paymentPlanUrl);
+    }
+    
+    @Field("SERVANT_ROOM")
+    public void setServantRoom(int servantRoom){
+    	property.setServantRoom(servantRoom);
+    }
+    
+    @Field("POOJA_ROOM")
+    public void setPoojaRoom(int poojaRoom){
+    	property.setPoojaRoom(poojaRoom);
+    }
+    
+    @Field("AVAILABILITY")
+    public void setAvailability(Integer availability){
+    	project.setDerivedAvailability(availability);
+    }
+    
+    @Field("PROJECT_OFFER")
+    public void setProjectOffer(String[] projectOffer){
+    	project.addOffers(projectOffer);
+    }
+    
+    @Field("NUMBER_OF_PROJECT_DISCUSSION")
+    public void setTotalProjectDiscussion(Integer totalProjectDiscussion){
+    	project.setTotalProjectDiscussion(totalProjectDiscussion);
+    }
+    
+    @Field("PROJECT_MAIN_IMAGE")
+    public void setProjectMainImage(String projectMainImage){
+    	project.setImageURL(projectMainImage);
+    }
+    
+    @Field("BUILDER_LOGO_IMAGE")
+    public void setBuilderLogoImage(String builderLogoImage){
+    	builder.setImageURL(builderLogoImage);
+    }
+    
+    @Field("PROJECT_LAST_UPDATED_TIME")
+    public void setProjectLastUpdatedTime(Date lastUpdatedTime){
+    	project.setLastUpdatedDate(lastUpdatedTime);
+    }
+    
+    @Field("PROJECT_SUPPLY")
+    public void setProjectSupply(int supply){
+    	project.setSupply(supply);
+    }
+    
+    @Field("PRE_LAUNCH_DATE")
+    public void setPreLaunchDate(Date preLaunchDate){
+    	project.setPreLaunchDate(preLaunchDate);
+    }
+    
+    @Field("PROJECT_SIZE")
+    public void setProjectSize(double projectSize){
+    	project.setSizeInAcres(projectSize);
     }
 }

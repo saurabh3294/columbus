@@ -15,6 +15,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -22,6 +23,7 @@ import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.TableAttributes;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -69,6 +71,12 @@ public class ProjectService {
  	
  	@Autowired
  	private ProjectAmenityService projectAmenityService;
+ 	
+ 	@Autowired
+ 	private VideoLinksService videoLinksService;
+ 	
+ 	@Autowired
+ 	private BankService bankService;
 
     /**
      * This method will return the list of projects and total projects found based on the selector.
@@ -134,13 +142,14 @@ public class ProjectService {
      * @param projectId
      * @return Project Model Object
      */
-    public Project getProjectInfoDetails(Selector propertySelector, Integer projectId){
-    	Project project  = projectDao.findProjectByProjectId(projectId);
-    	if(project == null)
-    		return null;
+    public Project getProjectInfoDetails(Selector selector, Integer projectId){
     	
+    	List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(projectId)));
+    	if(solrProjects == null || solrProjects.size() < 1)
+    		return null;
+    	Project project = solrProjects.get(0);
+    	    	
     	List<Property> properties = propertyService.getProperties(projectId);
-    	imageEnricher.setPropertiesImages(properties);
     	for(int i=0; i<properties.size(); i++)
     	{
     		Property property = properties.get(i);
@@ -165,31 +174,76 @@ public class ProjectService {
         	property.setProject(null);
     	}
     	
-    	project.setProperties(properties);
-    	project.setTotalProjectDiscussion(getTotalProjectDiscussionCount(projectId));
-    	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
-    	imageEnricher.setProjectImages(project);
-    	project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
-    	project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
-    	project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
+    	Set<String> fields = selector.getFields();
     	
     	/*
-    	 * setting Price Rise 
+    	 * Setting properites if needed.
     	 */
-    	List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(project.getProjectId())));
-    	
-    	if(solrProjects != null && solrProjects.size() > 0)
-    	{
-    		Project solrProject = solrProjects.get(0);
-    		project.setAvgPriceRisePercentage(solrProject.getAvgPriceRisePercentage());
-    		project.setAvgPriceRiseMonths(solrProject.getAvgPriceRiseMonths());
+    	if(fields == null || fields.contains("properties")){
+    		project.setProperties(properties);
+    		imageEnricher.setPropertiesImages(properties);
     	}
+    	
+    	/*
+    	 * Setting neighborhood if needed.
+    	 */
+    	if(fields == null || fields.contains("neighborhood") ){
+    	project.setNeighborhood( localityAmenityService.getLocalityAmenities(project.getLocalityId(), null) );
+    	}
+    	
+    	/*
+    	 * Setting project Specification if needed. 
+    	 */
+    	if(fields == null || fields.contains("projectSpecification")){
+    		project.setProjectSpecification( getProjectSpecificationsV2(projectId) );
+    	}
+    	
+    	/*
+    	 * Setting builders if needed. 
+    	 */
+    	if(fields == null || fields.contains("builder")){
+    		  project.setBuilder(builderService.getBuilderInfo(project.getBuilderId(), null));
+    	}
+    	
+    	/*
+    	 * setting project amenities if needed.
+    	 */
+    	if(fields == null || fields.contains("projectAmenities")){
+    		project.setProjectAmenities(projectAmenityService.getCMSAmenitiesByProjectId(projectId));
+    	}
+    	
+    	/*
+    	 * setting video links if needed.
+    	 */
+    	if(fields == null || fields.contains("videoUrls")){
+    		project.setVideoUrls(videoLinksService.getProjectVideoLinks(project.getProjectId()));
+    	}
+    	
+    	/*
+    	 * setting Locality Object. 
+    	 */
+    	if(fields == null || fields.contains("locality")){
+    		project.setLocality(localityService.getLocality(project.getLocalityId()));
+        	imageEnricher.setLocalityImages(project.getLocality(), null);
+    	}
+    	
+    	/*
+    	 * Setting loan banks if needed.
+    	 */
+    	if(fields == null || fields.contains("loanProviderBanks")){
+    		List<Bank> bankList = bankService.getBanksProvidingLoanOnProject(projectId);
+            project.setLoanProviderBanks(bankList);
+    	}
+    	
+    	/*
+    	 * setting images.
+    	 */
+    	imageEnricher.setProjectImages(project);
     	
     	/*
          *  Setting locality Ratings And Reviews
          */
-        localityService.setLocalityRatingAndReviewDetails(project.getLocality());
-        imageEnricher.setLocalityImages(project.getLocality(), null);
+        localityService.updateLocalityRatingAndReviewDetails(project.getLocality());
         
     	return project;
     }
@@ -282,8 +336,8 @@ public class ProjectService {
 			Project project = projects.get(0);
 			// TODO waiting for html template
 			sent = mailSender.sendMailUsingAws(to,
-					"test mail content for ptoject id=" + projectId,
-					"test subject for ptoject id=" + projectId);
+					null,
+					null, "test mail content for ptoject id=" + projectId, "test subject for ptoject id=" + projectId);
 		}
 		else{
 			throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
@@ -312,6 +366,7 @@ public class ProjectService {
 	 * @param projectId
 	 * @return total project discussions.
 	 */
+	@Deprecated
 	private Integer getTotalProjectDiscussionCount(int projectId){
 		
 		Integer totalProjectDiscussion = 0;
@@ -330,7 +385,7 @@ public class ProjectService {
 	 */
 	public ProjectSpecification getProjectSpecificationsV2(int projectId){
 		
-		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes("project", projectId);
+		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
 		List<TableAttributes> specifications = tableAttributesDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
 		
 		return new ProjectSpecification(specifications);

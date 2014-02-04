@@ -39,6 +39,5 @@ public enum MeasurementUnit {
 	
 	public static void main(String args[]){
 //		MeasurementUnit me = MeasurementUnit.valueOf("sq ft");
-		System.out.println(MeasurementUnit.SQ_FT.toString());
 	}
 }

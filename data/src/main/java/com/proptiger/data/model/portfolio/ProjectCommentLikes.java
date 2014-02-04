@@ -10,7 +10,7 @@ import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "FORUM_USER_LIKES")
-public class ProjectCommentLikes implements BaseModel {
+public class ProjectCommentLikes extends BaseModel {
 	
 	@Id
 	@GeneratedValue

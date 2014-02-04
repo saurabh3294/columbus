@@ -22,7 +22,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
 @ResourceMetaInfo
-public class Typeahead implements BaseModel {
+public class Typeahead extends BaseModel {
     @Field(value="id")
     private String id;
     

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 //@Entity
 //@Table(name = "cms.listing_prices")
 //@JsonFilter("fieldFilter")
-public class ListingPrice implements BaseModel{
+public class ListingPrice extends BaseModel{
 
 	@Id
 	@Column(name = "id")

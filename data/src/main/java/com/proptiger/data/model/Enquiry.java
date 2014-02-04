@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Entity
 @Table(name = "ENQUIRY")
 @JsonFilter("fieldFilter")
-public class Enquiry implements BaseModel {
+public class Enquiry extends BaseModel {
     @Column(name = "ID")
     @Id
     private long id;

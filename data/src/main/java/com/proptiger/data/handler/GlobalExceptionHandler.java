@@ -159,7 +159,7 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(ResourceAlreadyExistException.class)
 	@ResponseBody
-	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+	@ResponseStatus(value = HttpStatus.OK)
 	protected ProAPIResponse handleResourceAlreadyExistException(ResourceAlreadyExistException exception){
 		logger.error("handle HttpRequestMethodNotSupportedException -  ", exception);
 		return new ProAPIErrorResponse(exception.getResponseCode(), exception.getMessage(), exception.getData());

@@ -33,7 +33,6 @@ public class FieldsMapLoader {
             loadClassFields(clazz);
         }
         
-        System.out.println(name);
         Field field = fieldsMap.get(clazz).get(name);
         Annotation fieldAnnotation = field.getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
 

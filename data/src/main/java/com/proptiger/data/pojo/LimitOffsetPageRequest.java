@@ -66,5 +66,10 @@ public class LimitOffsetPageRequest implements Pageable{
 	public Sort getSort() {
 		return sort;
 	}
-
+	@Override
+	public String toString() {
+		return "[offset=" + offset + ", rows=" + rows
+				+ "]";
+	}
+	
 }
