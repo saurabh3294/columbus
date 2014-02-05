@@ -713,18 +713,8 @@ public class SolrResult extends BaseModel{
     }
     
     @Field("PROJECT_OFFER")
-    public void setProjectOffer(List<String> projectOffer){
-    	project.setOffers(projectOffer);
-    }
-    
-    @Field("PROJECT_OFFER_HEADING")
-    public void setProjectOfferHeading(List<String> projectOfferHeading){
-    	project.setOffersHeading(projectOfferHeading);
-    }
-    
-    @Field("PROJECT_OFFER_DESC")
-    public void setProjectOfferDesc(List<String> projectOfferDesc){
-    	project.setOffersDesc(projectOfferDesc);
+    public void setProjectOffer(String[] projectOffer){
+    	project.addOffers(projectOffer);
     }
     
     @Field("NUMBER_OF_PROJECT_DISCUSSION")

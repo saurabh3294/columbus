@@ -60,7 +60,7 @@ public class CMSDao {
         securityToken = HMAC_Client.calculateHMAC(propertyReader.getRequiredProperty(CMS_PASSWORD), timeStamp.toString());
         restTemplate = new RestTemplate();
     }
-    public Object getPropertyPriceTrends(String locationType, Integer locationId, List<String> unitTypes, int lastNumberOfMonths) {
+    public Map<String, Object> getPropertyPriceTrends(String locationType, Integer locationId, List<String> unitTypes, int lastNumberOfMonths) {
 
         String queryParams = "username=" + propertyReader.getRequiredProperty(CMS_USERNAME) + "&token=" + securityToken + "&"+ locationType+"="+locationId+"&duration="+lastNumberOfMonths;
         queryParams += "&timestamp=" + timeStamp;
@@ -71,12 +71,25 @@ public class CMSDao {
         String url =  propertyReader.getRequiredProperty(CMS_BASE_URL) + ANALYTICS_APIS_PRICE_TREND_JSON + queryParams;
         logger.debug("getPropertyPriceTrends url {}",url);
         try{
-            Map<String, Object> response = (Map<String, Object>)restTemplate.getForObject(url, Object.class);
-            return response.get("price_trend");
+            Map<String, Map<String, Object>> response = (Map<String, Map<String, Object>>)restTemplate.getForObject(url, Object.class);
+            Map<String, Object> priceTrends = response.get("price_trend");
+            if(priceTrends != null)
+            {
+            	boolean flag = false;
+            	Map<String, Object> unitTypeData;
+            	for(String unitType: unitTypes){
+            		unitTypeData = (Map<String, Object>) priceTrends.get(unitType);
+            		flag |= ( unitTypeData != null && unitTypeData.size() > 0 );
+            	}
+            	if(flag == true)
+            		return priceTrends;
+            }
         }
         catch(RestClientException e){
             return null;
         }
+        
+        return null;
     }
 
     public ProjectPriceHistoryDetail getProjectPriceHistory(Set<Integer> projectIdList, Integer noOfMonths){
