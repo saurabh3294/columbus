@@ -97,7 +97,6 @@ public class ProjectController extends BaseController {
 
     @RequestMapping("data/v1/entity/project/{projectId}/discussions")
     @ResponseBody
-    @DisableCaching
     public ProAPIResponse getDiscussions(@RequestParam(required = false) Long commentId, @PathVariable int projectId) {
         List<ProjectDiscussion> comments = projectService.getDiscussions(projectId, commentId);
         return new ProAPISuccessResponse(super.filterFields(comments, null));
@@ -174,7 +173,6 @@ public class ProjectController extends BaseController {
 	 
 	@ResponseBody
 	@RequestMapping(value="/data/v2/entity/project/{projectId}/discussions", method = RequestMethod.GET)
-	@DisableCaching
 	public ProAPIResponse getProjectComments(@PathVariable int projectId,
 			@RequestParam(required = false) String selector) {
 		
