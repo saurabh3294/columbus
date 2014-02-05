@@ -381,7 +381,7 @@ public class GraphService {
         // END Getting Data from CMS
         
         // setting top Rated Locality in a seperate Key
-        response.put("topRatedLocality", locationId);
+        response.put("topRatedLocality", topRatedLocalityName);
         // minimum 3 localities cms data is required to plot graph.
         // top Rated Locality CMS should not be null
         if(response.size() < 3 || response.get(topRatedLocalityName) == null)

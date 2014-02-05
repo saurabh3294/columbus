@@ -362,7 +362,7 @@ public class RecommendationService {
                 viewedProperty.getProperty().getBedrooms(), viewedProperty.getProperty().getBudget());
         
         if(searchPropertiesData == null)
-            return null;
+            return finalPropertyResults;
         
         for(List<SolrResult> solrResults:searchPropertiesData)
         {
