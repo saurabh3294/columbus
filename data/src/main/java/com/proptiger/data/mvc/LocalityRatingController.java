@@ -47,25 +47,38 @@ public class LocalityRatingController extends BaseController {
 	}
 
 	/**
-	 * This method will create locality rating for logged in user
-	 * 
+	 * Get locality rating for locality id done by user
 	 * @param localityId
-	 * @param localityReview
 	 * @param userInfo
 	 * @return
 	 */
-	@RequestMapping(value = {
-			"data/v1/entity/user/locality/{localityId}/rating",
-			"data/v1/entity/user/{userId}/locality/{localityId}/rating" }, method = RequestMethod.POST)
+	@RequestMapping(value = {"data/v1/entity/user/locality/{localityId}/rating"}, method = RequestMethod.GET)
+	@ResponseBody
+	public ProAPIResponse getLocalityRatingByUser(
+			@PathVariable Integer localityId,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+		LocalityRatings rating = localityRatingService.getLocalityRatingOfUser(
+				userInfo.getUserIdentifier(), localityId);
+		return new ProAPISuccessResponse(rating);
+	}
+	
+	/**
+	 * This method will create locality rating for logged in user
+	 * 
+	 * @param localityId
+	 * @param localityRating
+	 * @param userInfo
+	 * @return
+	 */
+	@RequestMapping(value = {"data/v1/entity/user/locality/{localityId}/rating"}, method = RequestMethod.POST)
 	@ResponseBody
 	@DisableCaching
 	public ProAPIResponse createLocalityRating(
-			@PathVariable Integer userId,
 			@PathVariable Integer localityId,
-			@RequestBody LocalityRatings localityReview,
+			@RequestBody LocalityRatings localityRating,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 		LocalityRatings createdRating = localityRatingService.createLocalityRating(
-				userInfo.getUserIdentifier(), localityId, localityReview);
+				userInfo.getUserIdentifier(), localityId, localityRating);
 		return new ProAPISuccessResponse(createdRating);
 	}
 }
