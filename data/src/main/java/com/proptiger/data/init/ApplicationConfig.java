@@ -52,7 +52,7 @@ public class ApplicationConfig {
 	 * Creating Data source
 	 * @throws Exception 
 	 */
-//	@Bean
+	@Bean
 	public DataSource dataSource() throws Exception {
 		/*
 		 * Spring data source that does not use pooling
@@ -75,7 +75,7 @@ public class ApplicationConfig {
 	 * @return
 	 * @throws Exception
 	 */
-	@Bean
+	//@Bean
 	public DataSource pooledDataSource() throws Exception{
 		ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
 		
@@ -98,8 +98,8 @@ public class ApplicationConfig {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		//set jpa vendor
 		factory.setJpaVendorAdapter(createJPAAdapter());
-		//factory.setDataSource(dataSource());
-		factory.setDataSource(pooledDataSource());
+		factory.setDataSource(dataSource());
+		//factory.setDataSource(pooledDataSource());
 		factory.setPersistenceProviderClass(HibernatePersistence.class);
 		factory.setPackagesToScan(propertyReader.getRequiredProperty(ENTITYMANAGER_PACKAGES_TO_SCAN));
 		factory.setJpaProperties(createJPAProperties());
@@ -126,11 +126,6 @@ public class ApplicationConfig {
 	private Properties createJPAProperties() {
 		Properties properties = new Properties();
 		properties.put(HIBERNATE_DIALECT, propertyReader.getRequiredProperty(HIBERNATE_DIALECT));
-//		properties.put(CACHE_USE_SECOND_LEVEL_CACHE, propertyReader.getRequiredProperty(CACHE_USE_SECOND_LEVEL_CACHE));
-//		properties.put(CACHE_USE_QUERY_CACHE, propertyReader.getRequiredProperty(CACHE_USE_QUERY_CACHE));
-//		properties.put(CACHE_PROVIDER_CLASS, propertyReader.getRequiredProperty(CACHE_PROVIDER_CLASS));
-//		properties.put(CACHE_REGION_FACTORY_CLASS, propertyReader.getRequiredProperty(CACHE_REGION_FACTORY_CLASS));
-
 		return properties;
 	}
 
