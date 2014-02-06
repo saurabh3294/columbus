@@ -751,4 +751,19 @@ public class SolrResult extends BaseModel{
     public void setProjectSize(double projectSize){
     	project.setSizeInAcres(projectSize);
     }
+    
+    @Field("LOCALITY_OVERVIEW_URL")
+    public void setLocalityOverviewUrl(String localityOverviewUrl){
+    	locality.setOverviewUrl(localityOverviewUrl);
+    }
+    
+    @Field("CITY_OVERVIEW_URL")
+    public void setCityOverviewUrl(String cityOverviewUrl){
+    	city.setOverviewUrl(cityOverviewUrl);
+    }
+    
+    @Field("SUBURB_OVERVIEW_URL")
+    public void setSuburbOverviewUrl(String suburbOverviewUrl){
+    	suburb.setOverviewUrl(suburbOverviewUrl);
+    }
 }
