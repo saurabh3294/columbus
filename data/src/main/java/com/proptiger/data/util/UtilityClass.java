@@ -37,9 +37,9 @@ public class UtilityClass {
         return c;
     }
     
-    public static int[] getIntArrFromStringArr(String[] strArr){
+    public static Integer[] getIntArrFromStringArr(String[] strArr){
     	int length = strArr.length;
-    	int[] result = new int[length];
+    	Integer[] result = new Integer[length];
     	for(int i=0; i<length; i++){
     		result[i] = Integer.parseInt(strArr[i]);
     	}
