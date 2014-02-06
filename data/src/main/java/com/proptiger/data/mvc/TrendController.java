@@ -25,13 +25,13 @@ public class TrendController extends BaseController{
 	
 	@RequestMapping("data/v1/trend")
     public @ResponseBody
-    ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector, @RequestParam(value="budgetRange", required = false) String budgetRange) throws Exception {
+    ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector, @RequestParam(value="rangeField", required = false) String rangeField, @RequestParam(value="rangeValue", required = false) String rangeValue) throws Exception {
 		Object response = new Object();
-		if(budgetRange == null){
+		if(rangeField == null || rangeValue == null){
 			response = super.groupFieldsAsPerSelector(trendService.getTrend(selector), selector);
 		}
 		else {
-			Map<String, List<InventoryPriceTrend>> serviceResponse = trendService.getBudgetSplitTrend(selector, budgetRange);
+			Map<String, List<InventoryPriceTrend>> serviceResponse = trendService.getBudgetSplitTrend(selector, rangeField, rangeValue);
 			Map<String, Object> finalResponse = new HashMap<>();
 			for(String key: serviceResponse.keySet()){
 				finalResponse.put(key, super.groupFieldsAsPerSelector(serviceResponse.get(key), selector));

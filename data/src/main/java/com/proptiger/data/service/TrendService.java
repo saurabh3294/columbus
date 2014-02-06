@@ -37,13 +37,13 @@ public class TrendService {
 		return trendDao.getTrend(selector);
 	}
 
-	public Map<String, List<InventoryPriceTrend>> getBudgetSplitTrend(final FIQLSelector selector, String budgetRange) {
+	public Map<String, List<InventoryPriceTrend>> getBudgetSplitTrend(final FIQLSelector selector, final String rangeField, String rangeValue) {
 		Map<String, List<InventoryPriceTrend>> result = new HashMap<>();
 
-		final List<Integer> budgetRangeList = Arrays.asList(UtilityClass.getIntArrFromStringArr(budgetRange.split(",")));
-		Collections.sort(budgetRangeList);
+		final List<Integer> rangeValueList = Arrays.asList(UtilityClass.getIntArrFromStringArr(rangeValue.split(",")));
+		Collections.sort(rangeValueList);
 		
-		final int budgetRangeLength = budgetRangeList.size();
+		final int budgetRangeLength = rangeValueList.size();
 
 		ExecutorService executor = Executors.newFixedThreadPool(Math.min(budgetRangeLength+1, 5));
 
@@ -52,7 +52,7 @@ public class TrendService {
 		callables.add(new Callable<List<InventoryPriceTrend>>() {
 			public List<InventoryPriceTrend> call() throws Exception {
 				FIQLSelector sel = selector.clone();
-				sel.setFilters(sel.getFilters() + ";budget=lt=" + budgetRangeList.get(0));
+				sel.setFilters(sel.getFilters() + ";" + rangeField + "=lt=" + rangeValueList.get(0));
 				return trendDao.getTrend(sel);
 			}
 		});
@@ -62,7 +62,7 @@ public class TrendService {
 			callables.add(new Callable<List<InventoryPriceTrend>>() {
 				public List<InventoryPriceTrend> call() throws Exception {
 					FIQLSelector sel = selector.clone();
-					sel.setFilters(sel.getFilters() + ";budget=lt=" + budgetRangeList.get(j) + ";budget=ge=" + budgetRangeList.get(j - 1));
+					sel.setFilters(sel.getFilters() + ";" + rangeField + "=lt=" + rangeValueList.get(j) + ";" + rangeField + "=ge=" + rangeValueList.get(j - 1));
 					return trendDao.getTrend(sel);
 				}
 			});
@@ -71,7 +71,7 @@ public class TrendService {
 		callables.add(new Callable<List<InventoryPriceTrend>>() {
 			public List<InventoryPriceTrend> call() throws Exception {
 				FIQLSelector sel = selector.clone();
-				sel.setFilters(sel.getFilters() + ";budget=ge="	+ budgetRangeList.get(budgetRangeLength - 1));
+				sel.setFilters(sel.getFilters() + ";" + rangeField + "=ge="	+ rangeValueList.get(budgetRangeLength - 1));
 				return trendDao.getTrend(sel);
 			}
 		});
@@ -85,10 +85,10 @@ public class TrendService {
 			for (Future<List<InventoryPriceTrend>> future : futures) {
 				String key = "-";
 				if (i != 0) {
-					key = budgetRangeList.get(i-1) + key;
+					key = rangeValueList.get(i-1) + key;
 				}
 				if (i != (budgetRangeLength)) {
-					key = key + budgetRangeList.get(i);
+					key = key + rangeValueList.get(i);
 				}
 				result.put(key, future.get());
 				i++;
