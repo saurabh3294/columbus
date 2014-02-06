@@ -132,7 +132,6 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         } else {
             root.alias("root");
             criteriaQuery.select(criteriaBuilder.tuple(root));
-            criteriaQuery.groupBy(root);
         }
     }
 

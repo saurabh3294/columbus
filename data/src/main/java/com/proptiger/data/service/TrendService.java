@@ -3,6 +3,7 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -99,5 +100,9 @@ public class TrendService {
 
 		executor.shutdownNow();
 		return result;
+	}
+	
+	public Date getMostRecentDate(){
+		return trendDao.getMostRecentDate();
 	}
 }

@@ -18,12 +18,12 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.TrendService;
 
 @Controller
-@RequestMapping
+@RequestMapping("data/v1/trend")
 public class TrendController extends BaseController{
 	@Autowired
     private TrendService trendService;
 	
-	@RequestMapping("data/v1/trend")
+	@RequestMapping
     public @ResponseBody
     ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector, @RequestParam(value="rangeField", required = false) String rangeField, @RequestParam(value="rangeValue", required = false) String rangeValue) throws Exception {
 		Object response = new Object();
@@ -40,4 +40,11 @@ public class TrendController extends BaseController{
 		}
         return new ProAPISuccessResponse(response);
     }
+	
+	@RequestMapping(value = "/current")
+    @ResponseBody
+	public ProAPIResponse getCurrentTrend(@ModelAttribute FIQLSelector selector, @RequestParam(value="rangeField", required = false) String rangeField, @RequestParam(value="rangeValue", required = false) String rangeValue) throws Exception {
+		selector.setFilters(selector.getFilters() + ";month==" + trendService.getMostRecentDate());
+		return getTrends(selector, rangeField, rangeValue);
+	}
 }
