@@ -359,24 +359,32 @@ public class GraphService {
         List<NearLocalities> nearLocalitiesList = nearLocalitiesDao.findByMainLocalityOrderByDistanceAsc(locationId, pageable);
         // END getting near by localities of Top Locality
         
+        if(nearLocalitiesList == null || nearLocalitiesList.size() < 2)
+        	return null;
+        
+        String topRatedLocalityName = nearLocalitiesList.get(0).getLocality().getLabel();
+        
         // START Getting Data from CMS
         Map<Object, Object> response = new LinkedHashMap<>();
-        Object cmsOutput = null;
+        Map<String, Object> cmsOutput = null;
                         
            // getting cms data of near localities of Top Rated Locality.
         for(NearLocalities nearLocality : nearLocalitiesList)
         {
             cmsOutput = cmsDao.getPropertyPriceTrends("locality", nearLocality.getNearLocality(), unitType, lastNumberOfMonths);
             if(cmsOutput != null)
-                response.put(nearLocality.getNearLocality(), cmsOutput);
+            {
+            	response.put(nearLocality.getLocality().getLabel(), cmsOutput);
+            }
         }
+        
         // END Getting Data from CMS
         
         // setting top Rated Locality in a seperate Key
-        response.put("topRatedLocality", locationId);
+        response.put("topRatedLocality", topRatedLocalityName);
         // minimum 3 localities cms data is required to plot graph.
         // top Rated Locality CMS should not be null
-        if(response.size() < 3 || response.get(locationId) == null)
+        if(response.size() < 3 || response.get(topRatedLocalityName) == null)
             return null;
         
         return response;

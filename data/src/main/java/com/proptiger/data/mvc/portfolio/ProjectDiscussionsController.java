@@ -18,7 +18,7 @@ import com.proptiger.data.service.portfolio.ProjectDiscussionsService;
 import com.proptiger.data.util.Constants;
 
 @Controller
-@RequestMapping(value = "data/v1/entity/user/{userId}/projectComments")
+@RequestMapping(value = "data/v1/entity/user/projectComments")
 public class ProjectDiscussionsController extends BaseController{
 	
 	@Autowired
