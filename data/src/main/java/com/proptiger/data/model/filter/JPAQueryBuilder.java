@@ -46,7 +46,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     private static Logger logger = LoggerFactory.getLogger(JPAQueryBuilder.class);
 
     private static enum FUNCTIONS {
-        SUM, MIN, MAX, AVG, COUNT, COUNTDISTINCT;
+        SUM, MIN, MAX, AVG, COUNT, COUNTDISTINCT, MEDIAN;
     };
 
     private EntityManager entityManager;
@@ -162,6 +162,10 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 Expression<Double> avgExpression = root.get(actualFieldName);
                 expression = criteriaBuilder.avg(avgExpression);
                 break;
+            case MEDIAN:
+                Expression<Double> medianExpression = root.get(actualFieldName);
+                expression = criteriaBuilder.avg(medianExpression);
+                break;
             case COUNT:
             	Expression<Number> countExpression;
 				try {
@@ -169,7 +173,6 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 					expression = criteriaBuilder.count(countExpression);
 				} catch (IllegalArgumentException | IllegalStateException e) {
 					String secondPrefix = splitWords[1];
-					System.out.println("HERE----> " + prefix + secondPrefix);
 					if (FUNCTIONS.COUNTDISTINCT.name().equalsIgnoreCase(prefix + secondPrefix)) {
 						actualFieldName = StringUtils.uncapitalize(actualFieldName
 								.substring(secondPrefix.length()));
@@ -241,7 +244,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 
     @Override
     protected void buildLimitClause(FIQLSelector selector) {
-        if (selector != null) {
+        if (selector != null && selector.getStart() != null && selector.getRows() != null) {
             typedQuery = entityManager.createQuery(criteriaQuery).setFirstResult(selector.getStart())
                     .setMaxResults(selector.getRows());
         } else {
