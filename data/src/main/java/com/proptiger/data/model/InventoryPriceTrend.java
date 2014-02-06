@@ -97,7 +97,7 @@ public class InventoryPriceTrend extends BaseModel  {
     private String allSize;
     
     @Column(name = "average_total_price")
-    private Long price;
+    private Long budget;
     
     @Column(name = "supply")
     private Integer supply;
@@ -117,6 +117,14 @@ public class InventoryPriceTrend extends BaseModel  {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public Long getBudget() {
+		return budget;
+	}
+
+	public void setBudget(Long budget) {
+		this.budget = budget;
 	}
 
 	public Integer getProjectId() {
@@ -317,14 +325,6 @@ public class InventoryPriceTrend extends BaseModel  {
 
 	public void setAllSize(String allSize) {
 		this.allSize = allSize;
-	}
-
-	public Long getPrice() {
-		return price;
-	}
-
-	public void setPrice(Long price) {
-		this.price = price;
 	}
 
 	public Integer getSupply() {
