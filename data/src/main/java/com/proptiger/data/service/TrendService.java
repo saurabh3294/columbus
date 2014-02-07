@@ -17,11 +17,13 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.TrendDao;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.UtilityClass;
 
 /**
@@ -53,7 +55,7 @@ public class TrendService {
 		callables.add(new Callable<List<InventoryPriceTrend>>() {
 			public List<InventoryPriceTrend> call() throws Exception {
 				FIQLSelector sel = selector.clone();
-				sel.setFilters(sel.getFilters() + ";" + rangeField + "=lt=" + rangeValueList.get(0));
+				sel.setFilters("(" + sel.getFilters() + ");" + rangeField + "=lt=" + rangeValueList.get(0));
 				return trendDao.getTrend(sel);
 			}
 		});
@@ -63,7 +65,7 @@ public class TrendService {
 			callables.add(new Callable<List<InventoryPriceTrend>>() {
 				public List<InventoryPriceTrend> call() throws Exception {
 					FIQLSelector sel = selector.clone();
-					sel.setFilters(sel.getFilters() + ";" + rangeField + "=lt=" + rangeValueList.get(j) + ";" + rangeField + "=ge=" + rangeValueList.get(j - 1));
+					sel.setFilters("("+sel.getFilters() + ");" + rangeField + "=lt=" + rangeValueList.get(j) + ";" + rangeField + "=ge=" + rangeValueList.get(j - 1));
 					return trendDao.getTrend(sel);
 				}
 			});
@@ -72,7 +74,7 @@ public class TrendService {
 		callables.add(new Callable<List<InventoryPriceTrend>>() {
 			public List<InventoryPriceTrend> call() throws Exception {
 				FIQLSelector sel = selector.clone();
-				sel.setFilters(sel.getFilters() + ";" + rangeField + "=ge="	+ rangeValueList.get(budgetRangeLength - 1));
+				sel.setFilters("(" + sel.getFilters() + ");" + rangeField + "=ge="	+ rangeValueList.get(budgetRangeLength - 1));
 				return trendDao.getTrend(sel);
 			}
 		});
@@ -102,6 +104,7 @@ public class TrendService {
 		return result;
 	}
 	
+	@Cacheable(value=Constants.CacheName.CACHE)
 	public Date getMostRecentDate(){
 		return trendDao.getMostRecentDate();
 	}

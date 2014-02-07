@@ -25,7 +25,7 @@ public class TrendController extends BaseController{
 	
 	@RequestMapping
     public @ResponseBody
-    ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector, @RequestParam(value="rangeField", required = false) String rangeField, @RequestParam(value="rangeValue", required = false) String rangeValue) throws Exception {
+    ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector, @RequestParam(required = false) String rangeField, @RequestParam(required = false) String rangeValue) throws Exception{
 		Object response = new Object();
 		if(rangeField == null || rangeValue == null){
 			response = super.groupFieldsAsPerSelector(trendService.getTrend(selector), selector);
@@ -43,8 +43,8 @@ public class TrendController extends BaseController{
 	
 	@RequestMapping(value = "/current")
     @ResponseBody
-	public ProAPIResponse getCurrentTrend(@ModelAttribute FIQLSelector selector, @RequestParam(value="rangeField", required = false) String rangeField, @RequestParam(value="rangeValue", required = false) String rangeValue) throws Exception {
-		selector.setFilters(selector.getFilters() + ";month==" + trendService.getMostRecentDate());
+	public ProAPIResponse getCurrentTrend(@ModelAttribute FIQLSelector selector, @RequestParam(required = false) String rangeField, @RequestParam(required = false) String rangeValue) throws Exception {
+		selector.setFilters("(" + selector.getFilters() + ");month==" + trendService.getMostRecentDate());
 		return getTrends(selector, rangeField, rangeValue);
 	}
 }
