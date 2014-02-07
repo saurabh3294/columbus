@@ -52,7 +52,7 @@ public class ApplicationConfig {
 	 * Creating Data source
 	 * @throws Exception 
 	 */
-//	@Bean
+	@Bean
 	public DataSource dataSource() throws Exception {
 		/*
 		 * Spring data source that does not use pooling
@@ -75,7 +75,7 @@ public class ApplicationConfig {
 	 * @return
 	 * @throws Exception
 	 */
-	@Bean
+//	@Bean
 	public DataSource pooledDataSource() throws Exception{
 		ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
 		
@@ -98,8 +98,7 @@ public class ApplicationConfig {
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		//set jpa vendor
 		factory.setJpaVendorAdapter(createJPAAdapter());
-		//factory.setDataSource(dataSource());
-		factory.setDataSource(pooledDataSource());
+		factory.setDataSource(dataSource());
 		factory.setPersistenceProviderClass(HibernatePersistence.class);
 		factory.setPackagesToScan(propertyReader.getRequiredProperty(ENTITYMANAGER_PACKAGES_TO_SCAN));
 		factory.setJpaProperties(createJPAProperties());
