@@ -121,6 +121,10 @@ public class City extends BaseModel {
     @Transient
     private List<LocalityAmenity> amenities;
     
+    @Transient
+    @Field("CITY_OVERVIEW_URL")
+    private String overviewUrl;
+    
     public Integer getId() {
         return id;
     }
@@ -287,6 +291,14 @@ public class City extends BaseModel {
 
 	public void setAmenities(List<LocalityAmenity> amenities) {
 		this.amenities = amenities;
+	}
+
+	public String getOverviewUrl() {
+		return overviewUrl;
+	}
+
+	public void setOverviewUrl(String cityOverviewUrl) {
+		this.overviewUrl = cityOverviewUrl;
 	}
     
 }

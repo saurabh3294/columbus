@@ -105,6 +105,10 @@ public class Locality extends BaseModel {
     @Column(name = "LONGITUDE")
     @Field("LOCALITY_LONGITUDE")
     private Double longitude;
+    
+    @Field("LOCALITY_OVERVIEW_URL")
+    @Transient
+    private String overviewUrl;
 
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
@@ -479,6 +483,14 @@ public class Locality extends BaseModel {
 	public void setAvgRatingsByCategory(
 			LocalityAverageRatingByCategory avgRatingsByCategory) {
 		this.avgRatingsByCategory = avgRatingsByCategory;
+	}
+
+	public String getOverviewUrl() {
+		return overviewUrl;
+	}
+
+	public void setOverviewUrl(String localityOverviewUrl) {
+		this.overviewUrl = localityOverviewUrl;
 	}
 	
 }

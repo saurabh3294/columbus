@@ -140,7 +140,10 @@ public class ImageService {
      * Public method to get images of multiple object ids
      */
     public List<Image> getImages(DomainObject object, String imageTypeStr, List<Long> objectIds) {
-        return imageDao.getImagesForObjectIds(object.getText(), imageTypeStr, objectIds);
+    	if(imageTypeStr == null){
+    		return imageDao.getImagesForObjectIds(object.getText(), objectIds);	
+    	}
+        return imageDao.getImagesForObjectIdsWithImageType(object.getText(), imageTypeStr, objectIds);
     }
 
     /*
