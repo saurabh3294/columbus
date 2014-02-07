@@ -26,6 +26,7 @@ public class Constants {
 		public static final String ATM = "atm";
 		public static final String RESTAURANT = "restaurant";
 		public static final String GAS_STATION = "gas_station";
+		public static final String HOSPITAL = "hospital";
 	}
 	
 	public  static class SubscriptionType{

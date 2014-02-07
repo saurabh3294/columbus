@@ -24,7 +24,7 @@ public class MailSender {
 	private static Logger logger = LoggerFactory.getLogger(MailSender.class);
 	
 	@Autowired
-	private MailBodyGenerator mailBodyGenerator;
+	private TemplateToHtmlGenerator mailBodyGenerator;
 	@Autowired
 	private AmazonMailSender amazonMailSender;
 	
