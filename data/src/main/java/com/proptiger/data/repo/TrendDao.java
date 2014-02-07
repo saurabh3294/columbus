@@ -1,6 +1,7 @@
 package com.proptiger.data.repo;
 
 import java.util.List;
+import java.util.Date;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -22,4 +23,12 @@ public class TrendDao {
         builder.buildQuery(selector);
         return builder.retrieveResults();
     }
+	
+	public Date getMostRecentDate(){
+		AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(emf.createEntityManager(), InventoryPriceTrend.class);
+		FIQLSelector selector = new FIQLSelector();
+		selector.setFields("maxMonth");
+		builder.buildQuery(selector);
+		return (Date) builder.retrieveResults().get(0).getExtraAttributes().get("maxMonth");
+	}
 }

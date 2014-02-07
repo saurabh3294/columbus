@@ -18,20 +18,20 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.TrendService;
 
 @Controller
-@RequestMapping
+@RequestMapping("data/v1/trend")
 public class TrendController extends BaseController{
 	@Autowired
     private TrendService trendService;
 	
-	@RequestMapping("data/v1/trend")
+	@RequestMapping
     public @ResponseBody
-    ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector, @RequestParam(value="budgetRange", required = false) String budgetRange) throws Exception {
+    ProAPIResponse getTrends(@ModelAttribute FIQLSelector selector, @RequestParam(required = false) String rangeField, @RequestParam(required = false) String rangeValue) throws Exception{
 		Object response = new Object();
-		if(budgetRange == null){
+		if(rangeField == null || rangeValue == null){
 			response = super.groupFieldsAsPerSelector(trendService.getTrend(selector), selector);
 		}
 		else {
-			Map<String, List<InventoryPriceTrend>> serviceResponse = trendService.getBudgetSplitTrend(selector, budgetRange);
+			Map<String, List<InventoryPriceTrend>> serviceResponse = trendService.getBudgetSplitTrend(selector, rangeField, rangeValue);
 			Map<String, Object> finalResponse = new HashMap<>();
 			for(String key: serviceResponse.keySet()){
 				finalResponse.put(key, super.groupFieldsAsPerSelector(serviceResponse.get(key), selector));
@@ -40,4 +40,11 @@ public class TrendController extends BaseController{
 		}
         return new ProAPISuccessResponse(response);
     }
+	
+	@RequestMapping(value = "/current")
+    @ResponseBody
+	public ProAPIResponse getCurrentTrend(@ModelAttribute FIQLSelector selector, @RequestParam(required = false) String rangeField, @RequestParam(required = false) String rangeValue) throws Exception {
+		selector.setFilters("(" + selector.getFilters() + ");month==" + trendService.getMostRecentDate());
+		return getTrends(selector, rangeField, rangeValue);
+	}
 }
