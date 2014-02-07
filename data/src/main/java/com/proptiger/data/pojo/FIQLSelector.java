@@ -1,12 +1,12 @@
 package com.proptiger.data.pojo;
 
-public class FIQLSelector {
+public class FIQLSelector implements Cloneable {
     private String fields;
     private String filters;
     private String group;
     private String sort;
     private Integer start = 0;
-    private Integer rows  = 10;
+    private Integer rows;
 
     public String getFields() {
         return fields;
@@ -50,4 +50,8 @@ public class FIQLSelector {
         this.group = group;
         return this;
     }
+    
+	public FIQLSelector clone() throws CloneNotSupportedException {
+		return (FIQLSelector) super.clone();
+	}
 }

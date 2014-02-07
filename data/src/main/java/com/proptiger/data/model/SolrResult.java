@@ -378,13 +378,13 @@ public class SolrResult extends BaseModel{
         project.setMaxPricePerUnitArea(maxPricePerUnitArea);
     }
 
-    @Field("MIN_SIZE")
-    public void setMinSize(double minSize) {
+    @Field("MINSIZE")
+    public void setMinSize(Double minSize) {
         project.setMinSize(minSize);
     }
 
-    @Field("MAX_SIZE")
-    public void setMaxSize(double maxSize) {
+    @Field("MAXSIZE")
+    public void setMaxSize(Double maxSize) {
         project.setMaxSize(maxSize);
     }
 
@@ -750,5 +750,20 @@ public class SolrResult extends BaseModel{
     @Field("PROJECT_SIZE")
     public void setProjectSize(double projectSize){
     	project.setSizeInAcres(projectSize);
+    }
+    
+    @Field("LOCALITY_OVERVIEW_URL")
+    public void setLocalityOverviewUrl(String localityOverviewUrl){
+    	locality.setOverviewUrl(localityOverviewUrl);
+    }
+    
+    @Field("CITY_OVERVIEW_URL")
+    public void setCityOverviewUrl(String cityOverviewUrl){
+    	city.setOverviewUrl(cityOverviewUrl);
+    }
+    
+    @Field("SUBURB_OVERVIEW_URL")
+    public void setSuburbOverviewUrl(String suburbOverviewUrl){
+    	suburb.setOverviewUrl(suburbOverviewUrl);
     }
 }

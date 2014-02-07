@@ -95,7 +95,6 @@ public class ProjectDiscussionsService {
 		
 		subscriptionService.enableOrAddUserSubscription(userInfo.getUserIdentifier(), projectDiscussion.getProjectId(), Project.class.getAnnotation(Table.class).name(), Constants.SubscriptionType.FORUM);
 		
-		sendMailOnProjectComment(forumUser, project, savedProjectDiscussions);
 		return savedProjectDiscussions;
 	}
 	
@@ -202,6 +201,7 @@ public class ProjectDiscussionsService {
 		return comments.subList(paging.getStart(), pagingRows);
 	}
 	
+	@Deprecated
 	private boolean sendMailOnProjectComment(ForumUser forumUser,
 		Project project, ProjectDiscussion projectDiscussion) {
 		

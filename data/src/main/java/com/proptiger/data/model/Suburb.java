@@ -88,6 +88,10 @@ public class Suburb extends BaseModel {
     
     @Transient
     private Map<Integer, Double> avgBHKPrice;
+    
+    @Transient
+    @Field("SUBURB_OVERVIEW_URL")
+    private String overviewUrl;
         
     public int getId() {
         return id;
@@ -183,5 +187,13 @@ public class Suburb extends BaseModel {
 
 	public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
 		this.avgBHKPrice = avgBHKPrice;
+	}
+
+	public String getOverviewUrl() {
+		return overviewUrl;
+	}
+
+	public void setOverviewUrl(String suburbOverviewUrl) {
+		this.overviewUrl = suburbOverviewUrl;
 	}
 }
