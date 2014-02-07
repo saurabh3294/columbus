@@ -1,0 +1,17 @@
+One of the most comfortable areas in ${localityTemplate.cityName}, ${localityTemplate.localityName} has some great <CATEGORY> for sale.	
+<Location>, surrounded by developed areas such as <AREA1, AREA2, AREA3>. 
+Overall <#> Builders are providing <Apartment, Villa and Plot> projects for sale in ${localityTemplate.localityName}. 
+The top builders are ${localityTemplate.topBuilders}${localityTemplate.localityName} is booming as there are 
+<#> new projects launched in the locality in last 6 months Properties in ${localityTemplate.localityName} offer <1BHK>, <2BHK>, <3BHK> 
+options with built up area ranging between <SqFt> to <SqFt>	The average price of <CATEGORY> for sale in ${localityTemplate.localityName} is 
+<Price/SqFt>. 
+Key <Schools> close to ${localityTemplate.localityName} are ${localityTemplate.nearBySchools}. 
+Key hospitals to this locality are <Hospital 1, Hospital 2, Hospital 3>. 
+Locality is close to <Metro Station 1> and <Metro Station 2> metro station.	
+You can find <#> ready to move, <#> upcoming and  <#> new launch projects in ${localityTemplate.localityName} from different builders. 
+${localityTemplate.localityName} has an average rating of ${localityTemplate.averageRatingByCategory.overallRating} with highest rating of 
+<#> for <LOCALION/SAFETY/PUBLIC TRANSPORTATION/RESTAURANTS AND SHOPPING>. 
+One popular project in ${localityTemplate.localityName} for sale is <Project 1 by builder 1 offering total X units starting at size X sq ft 
+and with highest size of Y sq ft>. 
+Another popular project in ${localityTemplate.localityName} is  <Project 2 by builder 2 offering total X units starting at 
+size X sq ft and with highest size of Y sq ft>

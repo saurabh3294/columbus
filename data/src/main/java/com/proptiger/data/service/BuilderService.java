@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.enums.DocumentType;
@@ -153,6 +154,17 @@ public class BuilderService {
 		return topBuilders;
 	}
 	
+	/**
+	 * Get top builders in a locality
+	 * @param localityId
+	 * @return
+	 */
+	public List<Builder> getTopBuildersForLocality(Integer localityId) {
+		Selector selector = new Gson().fromJson(
+				"{\"filters\":{\"and\":[{\"equal\":{\"localityId\":"
+						+ localityId + "}}]}}", Selector.class);
+		return getTopBuilders(selector);
+	}
 	
 	/**
 	 * The method is used to sort the builders based on their priority.

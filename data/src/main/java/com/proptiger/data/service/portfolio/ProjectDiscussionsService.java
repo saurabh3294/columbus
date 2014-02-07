@@ -30,7 +30,7 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
-import com.proptiger.mail.service.MailBodyGenerator;
+import com.proptiger.mail.service.TemplateToHtmlGenerator;
 import com.proptiger.mail.service.MailSender;
 import com.proptiger.mail.service.MailTemplateDetail;
 
@@ -53,7 +53,7 @@ public class ProjectDiscussionsService {
 	private ProjectCommentLikesDao projectCommentLikesDao;
 	
 	@Autowired
-	private MailBodyGenerator mailBodyGenerator;
+	private TemplateToHtmlGenerator mailBodyGenerator;
 	
 	@Autowired
 	private MailSender mailSender;
@@ -211,7 +211,7 @@ public class ProjectDiscussionsService {
 		String[] mailCC = propertyReader.getRequiredProperty(
 				"mail.project.comment.cc.recipient").split(",");
 		
-		MailBody mailBody = mailBodyGenerator.generateHtmlBody(
+		MailBody mailBody = mailBodyGenerator.generateMailBody(
 				MailTemplateDetail.ADD_NEW_PROJECT_COMMENT,
 				new ProjectDiscussionMailDTO(project, forumUser,
 						projectDiscussion));
