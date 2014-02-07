@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -37,8 +36,7 @@ public class AppBuilderDetailController extends BaseController{
 	 * @return
 	 */
 	@ResponseBody
-	@DisableCaching
-    @RequestMapping(method = RequestMethod.GET, value = "/{builderId}")
+	@RequestMapping(method = RequestMethod.GET, value = "/{builderId}")
 	public ProAPISuccessResponse getBuilder(@PathVariable Integer builderId,
 			@RequestParam(required = false, value = "selector") String selectorStr){
 		Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
@@ -46,6 +44,6 @@ public class AppBuilderDetailController extends BaseController{
             selector = new Selector();
         }
 		Builder builder = builderService.getBuilderInfo(builderId, selector);
-		return new ProAPISuccessResponse(super.filterFieldsWithTree(builder, selector.getFields()));
+		return new ProAPISuccessResponse(super.filterFields(builder, selector.getFields()));
 	}
 }

@@ -44,7 +44,6 @@ public class LocalityDaoImpl {
 	private EntityManagerFactory emf;
 	public PaginatedResponse<List<Locality>> getLocalities(Selector selector){
 		SolrQuery solrQuery = createSolrQuery(selector);
-		System.out.println(solrQuery.toString());
 		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 		        
@@ -233,7 +232,6 @@ public class LocalityDaoImpl {
     	solrQuery.addSort("LOCALITY_PRIORITY", ORDER.asc);
     	solrQuery.setRows(Integer.MAX_VALUE);
     	
-    	System.out.println(solrQuery.toString());
     	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
     	
     	return getPaginatedResponse(queryResponse.getBeans(SolrResult.class), queryResponse);

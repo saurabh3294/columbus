@@ -3,13 +3,18 @@
  */
 package com.proptiger.data.mvc;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.SessionAttributes;
@@ -22,6 +27,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module.Feature;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
@@ -37,15 +43,13 @@ import com.proptiger.exception.ProAPIException;
 @SessionAttributes({Constants.LOGIN_INFO_OBJECT_NAME})
 public abstract class BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
-	private static Logger logger = LoggerFactory.getLogger(BaseController.class);
 	private static Hibernate4Module hm = null;
 	private static SimpleFilterProvider filterProvider = null;
+	private static Logger logger = LoggerFactory.getLogger(BaseController.class);
 
 	static {
         hm = new Hibernate4Module();
         hm.disable(Feature.FORCE_LAZY_LOADING);
-        filterProvider = new SimpleFilterProvider();
-        filterProvider.setFailOnUnknownId(false);	    
 	}
 
 	public BaseController() {
@@ -53,6 +57,59 @@ public abstract class BaseController {
         mapper.registerModule(hm);
         mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         mapper.setFilters(filterProvider);
+        filterProvider = new SimpleFilterProvider();
+        filterProvider.setFailOnUnknownId(false);       
+	}
+
+	protected Object filterFieldsFromSelector(Object object, FIQLSelector selector) {
+	    String fieldsString = null;
+
+	    if (selector != null) {
+	        fieldsString = selector.getFields();
+	    }
+
+        if (fieldsString != null && !fieldsString.isEmpty()) {
+	        return filterFields(object, new HashSet<>(Arrays.asList(fieldsString.split(","))));
+	    }
+
+	    return filterFields(object, null);
+	}
+	
+	/**
+	 * 
+	 * @param response is a list of model objects
+	 * @param selector is FIQL selector
+	 * @return is a map of Objects and Objects
+	 */
+	protected <T> Object groupFieldsAsPerSelector(List<T> response, FIQLSelector selector) {
+	    if(selector == null || selector.getGroup() == null || selector.getGroup().isEmpty()) return response;
+	    
+		String groupBy = selector.getGroup().split(",")[0];
+		Map<Object, Object> result = new HashMap<>();
+	    
+	    try {
+	    	for(T item: response){
+					Object groupValue = PropertyUtils.getSimpleProperty(item, groupBy);
+					if(groupValue instanceof Date) groupValue = ((Date) groupValue).getTime();
+					if(result.get(groupValue) ==null){
+		    			List<T> newList = new ArrayList<>();
+		    			result.put(groupValue, newList);
+		    		}
+					((List<T>) result.get(groupValue)).add(item);
+					
+	    	}
+	    	
+	    	int commaIndex = selector.getGroup().indexOf(',');
+			if(commaIndex != -1){
+	    		selector.setGroup(selector.getGroup().substring(commaIndex+1));
+	    		for(Object key: result.keySet()){
+		    		result.put(key, groupFieldsAsPerSelector((List<T>)result.get(key), selector));
+		    	}
+	    	}
+		} catch (IllegalArgumentException | SecurityException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			logger.error("Error grouping results", e);
+		}
+	    return result;
 	}
 
     protected Object filterFields(Object object, Set<String> fields) {
@@ -61,14 +118,10 @@ public abstract class BaseController {
 				return null;
 			
 			Set<String> fieldSet = new HashSet<String>();
-			SimpleFilterProvider filterProvider = new SimpleFilterProvider()
-					.addFilter("fieldFilter", SimpleBeanPropertyFilter
-							.serializeAllExcept(fieldSet));
+			SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter("fieldFilter", SimpleBeanPropertyFilter.serializeAllExcept(fieldSet));
 
 			if (fields != null && !fields.isEmpty()) {
-				filterProvider = new SimpleFilterProvider().addFilter(
-						"fieldFilter",
-						SimpleBeanPropertyFilter.filterOutAllExcept(fields));
+			    filterProvider = new SimpleFilterProvider().addFilter("fieldFilter", SimpleBeanPropertyFilter.filterOutAllExcept(fields));
 			}
 
 			return mapper.readValue(mapper.writer(filterProvider).writeValueAsString(object), object.getClass());
@@ -166,6 +219,7 @@ public abstract class BaseController {
     	return new ProAPISuccessCountResponse(val, count);
     }
 
+    @Deprecated
     public Object filterFieldsWithTree(Object object, Set<String> fields) {
         try {
             Set<String> fieldSet = new HashSet<String>();

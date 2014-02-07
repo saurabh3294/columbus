@@ -83,6 +83,8 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
     <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager" c:template-ref="redisTemplate">
     	<!--  Setting default Expiration time in seconds. Currently setting as 1 day. -->
     	<property name="defaultExpiration" value="${redis.defaultExpirationTime}"></property>
+    	<!--by default use prefix is false, so making it true to use cache name as prefix. -->
+    	<property name="usePrefix" value="true"></property>
     </bean>
     
     <!--  Serializer for redis. -->

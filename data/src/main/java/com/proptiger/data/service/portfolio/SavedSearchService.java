@@ -26,8 +26,8 @@ public class SavedSearchService {
 	 * @param userId
 	 * @return
 	 */
-	public List<SavedSearch> getUserSavedSearches(Selector selector, Integer userId){
-		return savedSearchDao.getUserSavedSearches(selector, userId);
+	public List<SavedSearch> getUserSavedSearches(Integer userId){
+		return savedSearchDao.getUserSavedSearches(userId);
 	}
 	
 	/**

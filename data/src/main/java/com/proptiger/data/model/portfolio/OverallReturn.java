@@ -15,7 +15,7 @@ import com.proptiger.data.model.portfolio.enums.ReturnType;
  */
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class OverallReturn implements BaseModel {
+public class OverallReturn extends BaseModel {
 	@FieldMetaInfo(dataType = DataType.STRING, displayName = "returnType", description = "Return Type")
 	private ReturnType returnType;
 	

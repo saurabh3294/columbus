@@ -27,9 +27,9 @@ public class SubscriptionService {
 			 *  As this method is transactional, Hence updating the model value will result in
 			 *  updating of the value in the database when the method will return.
 			 */
-			if( !alreadySubscribed.getIsSubscribed().equals("1") ){
-				alreadySubscribed.setIsSubscribed("1");
-			}
+			//if( !alreadySubscribed.getIsSubscribed().equals("1") ){
+			alreadySubscribed.setIsSubscribed("1");
+			//}
 
 			return alreadySubscribed;
 		}

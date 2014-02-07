@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
@@ -34,7 +35,8 @@ public class ImageEnricher {
             setProjectImages(project);
         }
     }
-
+    
+    @Deprecated
     public void setProjectMainImage(List<Project> projects) {
         if (projects == null || projects.isEmpty()) {
             return;
@@ -65,15 +67,19 @@ public class ImageEnricher {
     		return;
     	
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
-
-        if (images != null) {
+        /*
+         * AS project main image is coming in both project and property object from Solr. Hence,
+         * it is not needed to be set. 
+         */
+        
+        /*if (images != null) {
             for (Image image : images) {
-                if (image.getImageType().getType().equals("main")) {
-                    project.setImageURL(image.getAbsolutePath());
+                if (image.getImageTypeObj().getType().equals("main")) {
+                    //project.setImageURL(image.getAbsolutePath());
                     break;
                 }
             }
-        }
+        }*/
 
         project.setImages(images);
 
@@ -89,7 +95,7 @@ public class ImageEnricher {
 
         if (images != null) {
             for (Image image : images) {
-                if (image.getImageType().getType().equals("main")) {
+                if (image.getImageTypeObj().getType().equals("main")) {
                     project.setImageURL(image.getAbsolutePath());
                     break;
                 }
@@ -133,14 +139,18 @@ public class ImageEnricher {
             return;
 
         List<Image> images = imageService.getImages(DomainObject.builder, null, builder.getId());
-        if (images != null) {
+        /**
+         * If the builder logo image is coming in project, property and builder object. 
+         * Hence it is not needed.
+         */
+        /*if (images != null && builder.getImageURL() == null) {
             for (Image image : images) {
-                if (image.getImageType().getType().equals("logo")) {
+                if (image.getImageTypeObj().getType().equals("logo")) {
                     builder.setImageURL(image.getAbsolutePath());
                     break;
                 }
             }
-        }
+        }*/
         
     }
 
@@ -169,5 +179,38 @@ public class ImageEnricher {
             locality.setImages(images.subList(0, numberOfImages));
         }
     }
+    
+    /**
+     * Set images of banks
+     * @param banks
+     * @param imageCount
+     */
+    public void setBankImages(List<Bank> banks, Integer imageCount ){
+    	if(banks != null && banks.size() > 0){
+    		for(Bank bank: banks){
+    			setBankImage(bank, imageCount);
+    		}
+    	}
+    }
+
+	/**
+	 * Set images in bank object
+	 * @param bank
+	 * @param imageCount
+	 */
+	private void setBankImage(Bank bank, Integer imageCount) {
+		if(bank != null){
+			List<Image> images = imageService.getImages(DomainObject.bank, null, bank.getId());
+			if(images != null){
+				if(imageCount == null || imageCount > images.size()){
+					bank.setImages(images);
+				}
+				else{
+					bank.setImages(images.subList(0, imageCount));
+				}
+			}
+		}
+		
+	}
 
 }

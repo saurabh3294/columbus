@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.LocalityReview.LocalityAverageRatingCategory;
+import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.image.Image;
 
 /**
@@ -35,7 +35,7 @@ import com.proptiger.data.model.image.Image;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class Locality implements BaseModel {
+public class Locality extends BaseModel {
     public static int MAX_PRIORITY = 100;
     
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
@@ -112,7 +112,7 @@ public class Locality implements BaseModel {
     
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
-    private Set<LocalityReview> localityReviews;
+    private Set<LocalityRatings> localityRatings;
     
     @Transient
     private Map<String, Integer> projectStatusCount;
@@ -180,7 +180,7 @@ public class Locality implements BaseModel {
     private Map<Double, Long> numberOfUsersByRating;
     
     @Transient
-    private LocalityAverageRatingCategory avgRatingsByCategory;
+    private LocalityAverageRatingByCategory avgRatingsByCategory;
     
     public int getLocalityId() {
         return localityId;
@@ -440,12 +440,12 @@ public class Locality implements BaseModel {
         this.avgPriceRiseMonths = avgPriceRiseMonths;
     }
 
-	public Set<LocalityReview> getLocalityReviews() {
-		return localityReviews;
+	public Set<LocalityRatings> getLocalityRatings() {
+		return localityRatings;
 	}
 
-	public void setLocalityReviews(Set<LocalityReview> localityReviews) {
-		this.localityReviews = localityReviews;
+	public void setLocalityRatings(Set<LocalityRatings> localityReviews) {
+		this.localityRatings = localityReviews;
 	}
 
 	public String getDominantUnitType() {
@@ -472,12 +472,12 @@ public class Locality implements BaseModel {
 		this.numberOfUsersByRating = numberOfUsersByRating;
 	}
 
-	public LocalityAverageRatingCategory getAvgRatingsByCategory() {
+	public LocalityAverageRatingByCategory getAvgRatingsByCategory() {
 		return avgRatingsByCategory;
 	}
 
 	public void setAvgRatingsByCategory(
-			LocalityAverageRatingCategory avgRatingsByCategory) {
+			LocalityAverageRatingByCategory avgRatingsByCategory) {
 		this.avgRatingsByCategory = avgRatingsByCategory;
 	}
 	

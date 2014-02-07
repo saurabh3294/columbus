@@ -853,25 +853,25 @@ public class PortfolioService extends AbstractService{
 		case LISTING_ADD_MAIL_TO_USER:
 			ListingAddMail listingAddMail = createListingAddMailObject(listing);
 			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING, listingAddMail);
-			return mailSender.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		case LISTING_HOME_LOAN_CONFIRM_TO_USER:
 			ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
 			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.LISTING_LOAN_REQUEST_USER, listingLoanRequestMail);
-			return mailSender.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
 			ListingLoanRequestMail listingLoanRequestMailInternal = createListingLoanRequestObj(listing);
 			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL, listingLoanRequestMailInternal);
 			toStr = propertyReader.getRequiredProperty("mail.home.loan.internal.reciepient");
-			return mailSender.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
 			ListingResaleMail listingResaleMailInternal = createListingResaleMailObj(listing);
 			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL, listingResaleMailInternal);
 			toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
-			return mailSender.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		case INTERESTED_TO_SELL_PROPERTY_USER:
 			ListingResaleMail listingResaleMailUser = createListingResaleMailObj(listing);
 			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER, listingResaleMailUser);
-			return mailSender.sendMailUsingAws(toStr, mailBody.getBody(), mailBody.getSubject());
+			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		default:
 			throw new IllegalArgumentException("Invalid mail type");
 		}

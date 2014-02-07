@@ -49,10 +49,14 @@ public class AmazonMailSender {
 		from = propertyReader.getRequiredProperty("mail.from.noreply");
 	}
 	
-	public boolean sendMail(String[] mailTo, String mailContent, String subject)
+	public boolean sendMail(String[] mailTo, String[] mailCC, String[] mailBCC, String mailContent, String subject)
 			throws MailException {
 		// Construct an object to contain the recipient address.
         Destination destination = new Destination().withToAddresses(mailTo);
+        if(mailCC != null && mailCC.length > 0)
+        	destination.withCcAddresses(mailCC);
+        if(mailBCC != null && mailBCC.length > 0)
+        	destination.withBccAddresses(mailBCC);
         
         // Create the subject and body of the message.
         Content mailSubject = new Content().withData(subject);

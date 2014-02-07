@@ -8,6 +8,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -20,7 +23,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class ProjectCMSAmenity implements BaseModel {
+public class ProjectCMSAmenity extends BaseModel {
 	@Id
 	@FieldMetaInfo(displayName = "Id", description = "Id")
 	@Column(name="ID")
@@ -35,8 +38,14 @@ public class ProjectCMSAmenity implements BaseModel {
 	@Column(name="AMENITY_DISPLAY_NAME")
 	private String amenityDisplayName;
 	
+	@Column(name="AMENITY_Id")
+	@FieldMetaInfo(displayName = "Amenity Id", description = "Amenity Id")
+	@JsonIgnore
+	private int amenityId;
+	
 	@ManyToOne(fetch=FetchType.EAGER)
-	@JoinColumn(name="AMENITY_ID")
+	@Fetch(FetchMode.JOIN)
+	@JoinColumn(name="AMENITY_ID", insertable=false, updatable=false)
 	private AmenityMaster amenityMaster;
 
 	public long getId() {

@@ -1,17 +1,15 @@
 package com.proptiger.data.repo.portfolio;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.criteria.CriteriaBuilder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.proptiger.data.model.filter.MySqlQueryBuilder;
+import com.proptiger.data.model.filter.AbstractQueryBuilder;
+import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.model.portfolio.SavedSearch;
-import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.FIQLSelector;
 
 public class SavedSearchDaoImpl {
 	@Autowired
@@ -23,20 +21,10 @@ public class SavedSearchDaoImpl {
 	 * @param userId
 	 * @return List<ForumUserSavedSearch>
 	 */
-	public List<SavedSearch> getUserSavedSearches(Selector selector,
-			Integer userId) {
-
-		EntityManager em = emf.createEntityManager();
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		
-		List<SavedSearch> result = new ArrayList<SavedSearch>();
-		MySqlQueryBuilder<SavedSearch> mySqlQueryBuilder = new MySqlQueryBuilder<SavedSearch>(
-				builder, SavedSearch.class);
-
-		mySqlQueryBuilder.buildQuery(selector, userId);
-		result = em.createQuery(mySqlQueryBuilder.getQuery()).getResultList();
-		
-		return result;
+	public List<SavedSearch> getUserSavedSearches(Integer userId) {
+		AbstractQueryBuilder<SavedSearch> queryBuilder = new JPAQueryBuilder<SavedSearch>(emf.createEntityManager(), SavedSearch.class);
+		queryBuilder.buildQuery(new FIQLSelector().setFilters("userId==" + userId));
+		return queryBuilder.retrieveResults();
 	}
 
 }

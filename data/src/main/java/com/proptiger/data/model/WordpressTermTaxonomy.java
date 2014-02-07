@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "wordpress.wp_term_taxonomy")
-public class WordpressTermTaxonomy implements BaseModel{
+public class WordpressTermTaxonomy extends BaseModel{
 
 	@Id
 	@Column(name = "term_taxonomy_id")

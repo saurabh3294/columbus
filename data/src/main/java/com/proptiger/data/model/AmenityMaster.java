@@ -16,7 +16,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class AmenityMaster implements BaseModel{
+public class AmenityMaster extends BaseModel{
 	
 	@Id
 	@Column(name="AMENITY_Id")

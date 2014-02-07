@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -28,7 +29,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @Entity
 @Table(name = "RESI_PROJECT_TYPES")
 @JsonInclude(Include.NON_NULL)
-public class Property implements BaseModel {
+public class Property extends BaseModel {
     
 	@FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
     @Field(value="TYPE_ID")
@@ -64,6 +65,7 @@ public class Property implements BaseModel {
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
     @Field(value="PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     @Column(name = "PRICE_PER_UNIT_AREA")
     private Double pricePerUnitArea;
 
@@ -74,6 +76,7 @@ public class Property implements BaseModel {
     @FieldMetaInfo( displayName = "Size",  description = "Size")
     @Field(value="SIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     @Column(name = "SIZE")
     private Double size;
 
@@ -127,6 +130,16 @@ public class Property implements BaseModel {
     @FieldMetaInfo( displayName = "Resale Price",  description = "Resale Price")
     @Field(value="RESALE_PRICE")
     private Double resalePrice;
+    
+    @Transient
+    @FieldMetaInfo( displayName = "Servant Room", description = "Servant Room")
+    @Field("SERVANT_ROOM")
+    private Integer servantRoom;
+    
+    @Transient
+    @FieldMetaInfo( displayName = "Pooja Room", description = "Pooja Room")
+    @Field("POOJA_ROOM")
+    private Integer poojaRoom;
     
     public int getProjectId() {
         return projectId;
@@ -282,6 +295,22 @@ public class Property implements BaseModel {
 
 	public Double getProcessedLatitude() {
 		return processedLatitude;
+	}
+
+	public Integer getServantRoom() {
+		return servantRoom;
+	}
+
+	public void setServantRoom(Integer servantRoom) {
+		this.servantRoom = servantRoom;
+	}
+
+	public Integer getPoojaRoom() {
+		return poojaRoom;
+	}
+
+	public void setPoojaRoom(Integer poojaRoom) {
+		this.poojaRoom = poojaRoom;
 	}
 	
 }

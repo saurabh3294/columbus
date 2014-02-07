@@ -1,0 +1,8 @@
+#parse("./mailtemplate/VM_global_library.vm")
+<br /><br /><b>${ProjectCommentAddMail.project.name} </b>, <b>${ProjectCommentAddMail.project.builder.name}</b> - <a href='${ProjectCommentAddMail.project.URL}'>${ProjectCommentAddMail.project.URL}</a><br /><br />
+The user with Username: <b>${ProjectCommentAddMail.forumUser.username}</b> and Email: <b>${ProjectCommentAddMail.forumUser.email}</b> has added the following comment <br /><br />${ProjectCommentAddMail.projectDiscussion.comment}<br /><br />
+<a href='http://www.proptiger.com/admin_cms/forum/activateCommentFromMail.php?comment_id=${ProjectCommentAddMail.projectDiscussion.getId()}'>Click Here</a> 
+to approve the post.<br /><br />
+
+Regards,<br />
+Proptiger Team

@@ -20,6 +20,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
+import com.proptiger.data.util.ImageUtil;
 
 /**
  * @author mandeep
@@ -30,7 +32,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class Builder implements BaseModel {
+public class Builder extends BaseModel {
     @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
     @Column(name = "BUILDER_ID")
     @Id
@@ -44,6 +46,7 @@ public class Builder implements BaseModel {
 
     @FieldMetaInfo( displayName = "Image",  description = "Builder Image URL")
     @Transient
+    @Field("BUILDER_LOGO_IMAGE")
     private String imageURL;
     
     @FieldMetaInfo( displayName = "Description",  description = "Description")
@@ -90,7 +93,7 @@ public class Builder implements BaseModel {
     }
 
     public void setImageURL(String imageUrl) {
-        this.imageURL = imageUrl;
+        this.imageURL = Image.addImageHostUrl(imageUrl);
     }
 
     public String getDescription() {

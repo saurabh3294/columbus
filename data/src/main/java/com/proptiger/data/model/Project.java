@@ -4,6 +4,8 @@
  */
 package com.proptiger.data.model;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -28,13 +30,16 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.gson.Gson;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
+import com.proptiger.data.util.ImageUtil;
 
 /**
  * 
@@ -45,7 +50,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @Entity
 @Table(name="RESI_PROJECT")
 @JsonFilter("fieldFilter")
-public class Project implements BaseModel {
+public class Project extends BaseModel {
     public static enum NestedProperties {
         builderLabel(new String[]{"builder", "name"}),
         cityLabel(new String[]{"locality", "suburb", "city", "label"}),
@@ -72,11 +77,24 @@ public class Project implements BaseModel {
         }
     };
     
-   /* @Id
-    @FieldMetaInfo( displayName = "DB Project Id",  description = "DB Project Id")
-    @Column(name="PROJECT_ID", insertable=false, updatable=false)
-    private Integer id;*/
-    
+    @JsonInclude(Include.NON_NULL)
+    public static class Offer extends BaseModel{
+		private static final long serialVersionUID = -3760823398693160737L;
+		private String offer;
+    	private String offerHeading;
+    	private String offerDesc;
+    	
+		public String getOffer() {
+			return offer;
+		}
+		public String getOfferHeading() {
+			return offerHeading;
+		}
+		public String getOfferDesc() {
+			return offerDesc;
+		}
+    }
+      
     @Id	
     @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
     @Field(value = "PROJECT_ID")
@@ -134,7 +152,7 @@ public class Project implements BaseModel {
     @Transient
     @FieldMetaInfo( displayName = "Project enquiry count",  description = "Project enquiry count")
     @Field(value = "PROJECT_ENQUIRY_COUNT")
-    private int projectEnquiryCount;
+    private Integer projectEnquiryCount;
 
     @FieldMetaInfo( displayName = "Assigned Priority",  description = "Assigned Priority")
     @Field(value = "DISPLAY_ORDER")
@@ -144,12 +162,12 @@ public class Project implements BaseModel {
     @FieldMetaInfo( displayName = "Assigned Locality Priority",  description = "Assigned Locality Priority")
     @Field(value = "DISPLAY_ORDER_LOCALITY")
     @Column(name="DISPLAY_ORDER_LOCALITY")
-    private int assignedLocalityPriority;
+    private Integer assignedLocalityPriority;
 
     @FieldMetaInfo( displayName = "Assigned Suburb Priority",  description = "Assigned Suburb Priority")
     @Field(value = "DISPLAY_ORDER_SUBURB")
     @Column(name="DISPLAY_ORDER_SUBURB")
-    private int assignedSuburbPriority;
+    private Integer assignedSuburbPriority;
     
     @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
     @Field(value = "PROMISED_COMPLETION_DATE")
@@ -164,21 +182,25 @@ public class Project implements BaseModel {
     // XXX - In order to make itnot null and avoid App crash
     @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
     @Transient
+    @Field("PROJECT_SMALL_IMAGE")
     private String imageURL = "";
 
     @Transient
     @FieldMetaInfo( displayName = "Offer",  description = "Offer")
     @Field(value = "OFFER")
+    @Deprecated
     private String offer;
 
     @FieldMetaInfo( displayName = "Offer Heading",  description = "Offer Heading")
     @Field(value = "OFFER_HEADING")
     @Column(name="OFFER_HEADING")
+    @Deprecated
     private String offerHeading;
 
     @FieldMetaInfo( displayName = "Offer Description",  description = "Offer Description")
     @Field(value = "OFFER_DESC")
     @Column(name="OFFER_DESC")
+    @Deprecated
     private String offerDesc;
 
     @FieldMetaInfo( displayName = "URL",  description = "URL")
@@ -200,36 +222,42 @@ public class Project implements BaseModel {
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
     @Field(value = "MIN_PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double minPricePerUnitArea;
 
     @Transient
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
     @Field(value = "MAX_PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double maxPricePerUnitArea;
 
     @Transient
     @FieldMetaInfo( displayName = "Min Size",  description = "Min Size")
     @Field(value = "MINSIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double minSize;
 
     @Transient
     @FieldMetaInfo( displayName = "Max Size",  description = "Max Size")
     @Field(value = "MAXSIZE")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double maxSize;
 
     @Transient
     @FieldMetaInfo( displayName = "Min Price",  description = "Min Price")
     @Field(value = "MIN_BUDGET")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double minPrice;
 
     @Transient
     @FieldMetaInfo( displayName = "Max Price",  description = "Max Price")
     @Field(value = "MAX_BUDGET")
     @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonInclude(Include.NON_EMPTY)
     private Double maxPrice;
 
     @Transient
@@ -312,19 +340,23 @@ public class Project implements BaseModel {
 
     @FieldMetaInfo(displayName="AVAILABILITY", description="AVAILABILITY")
     @Column(name="AVAILABILITY")
+    @Field("AVAILABILITY")
     private Integer derivedAvailability ;
 
 	@FieldMetaInfo(displayName="PRE LAUNCH Date", description="PRE LAUNCH Date")
     @Column(name="PRE_LAUNCH_DATE")
+	@Field("PRE_LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date preLaunchDate ;
 	
 	 @FieldMetaInfo(displayName="YOUTUBE VEDIO", description="YOUTUBE VEDIO")
 	 @Column(name="YOUTUBE_VEDIO")
+	 @JsonIgnore
 	 private String youtubeVideo ;
 	 
 	 @FieldMetaInfo(displayName="NO OF FLATS", description="NO OF FLATS")
 	 @Column(name="NO_OF_FLATES")
+	 @Field("PROJECT_SUPPLY")
 	 private Integer supply ;
 	 
 	 @OneToMany(fetch=FetchType.LAZY)
@@ -335,6 +367,7 @@ public class Project implements BaseModel {
 	 private List<ProjectAmenity> projectAmenity;
 	 
 	 @Transient
+	 @Field("NUMBER_OF_PROJECT_DISCUSSION")
 	 private Integer totalProjectDiscussion;
 	 
 	 @Transient
@@ -346,7 +379,25 @@ public class Project implements BaseModel {
 	 
 	 @Transient
 	 private List<ProjectCMSAmenity> projectAmenities;
+	 
+	 @Field("PAYMENT_PLAN_URL")
+	 @Column(name = "APPLICATION_FORM")
+	 private String paymentPlanUrl;
+	 
+	 @Transient
+	 private List<VideoLinks> videoUrls;
     
+	 @Transient
+	 private List<Bank> loanProviderBanks;
+	 
+	 @Transient
+	 @Field("PROJECT_OFFER")
+	 private List<Offer> offers;
+	 	 
+	 @Transient
+	 @Field("PROJECT_LAST_UPDATED_DATE")
+	 private Date lastUpdatedDate;
+	 
     public int getProjectId() {
         return projectId;
     }
@@ -436,11 +487,11 @@ public class Project implements BaseModel {
     }
 
     
-    public int getProjectEnquiryCount() {
+    public Integer getProjectEnquiryCount() {
 		return projectEnquiryCount;
 	}
 
-	public void setProjectEnquiryCount(int projectEnquiryCount) {
+	public void setProjectEnquiryCount(Integer projectEnquiryCount) {
 		this.projectEnquiryCount = projectEnquiryCount;
 	}
 
@@ -452,19 +503,19 @@ public class Project implements BaseModel {
         this.assignedPriority = assignedPriority;
     }
 
-    public int getAssignedLocalityPriority() {
+    public Integer getAssignedLocalityPriority() {
         return assignedLocalityPriority;
     }
 
-    public void setAssignedLocalityPriority(int assignedLocalityPriority) {
+    public void setAssignedLocalityPriority(Integer assignedLocalityPriority) {
         this.assignedLocalityPriority = assignedLocalityPriority;
     }
 
-    public int getAssignedSuburbPriority() {
+    public Integer getAssignedSuburbPriority() {
         return assignedSuburbPriority;
     }
 
-    public void setAssignedSuburbPriority(int assignedSuburbPriority) {
+    public void setAssignedSuburbPriority(Integer assignedSuburbPriority) {
         this.assignedSuburbPriority = assignedSuburbPriority;
     }
 
@@ -489,29 +540,35 @@ public class Project implements BaseModel {
     }
 
     public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
+        this.imageURL = Image.addImageHostUrl(imageURL);
     }
 
+    @Deprecated
     public String getOffer() {
         return offer;
     }
-
+    
+    @Deprecated
     public void setOffer(String offer) {
         this.offer = offer;
     }
-
+    
+    @Deprecated
     public String getOfferHeading() {
         return offerHeading;
     }
-
+    
+    @Deprecated
     public void setOfferHeading(String offerHeading) {
         this.offerHeading = offerHeading;
     }
 
+    @Deprecated
     public String getOfferDesc() {
         return offerDesc;
     }
-
+    
+    @Deprecated
     public void setOfferDesc(String offerDesc) {
         this.offerDesc = offerDesc;
     }
@@ -760,14 +817,6 @@ public class Project implements BaseModel {
         return isResale;
     }
 
-	/*public Integer getId() {
-		return id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
-	}
-*/
 	public Integer getAvailability() {
 		return derivedAvailability;
 	}
@@ -848,4 +897,55 @@ public class Project implements BaseModel {
 		this.projectAmenities = projectAmenities;
 	}
 
+	public String getPaymentPlanUrl() {
+		return paymentPlanUrl;
+	}
+
+	public void setPaymentPlanUrl(String paymentPlanUrl) {
+		this.paymentPlanUrl = paymentPlanUrl;
+	}
+
+	public List<VideoLinks> getVideoUrls() {
+		return videoUrls;
+	}
+
+	public void setVideoUrls(List<VideoLinks> videoUrls) {
+		this.videoUrls = videoUrls;
+	}
+
+	public List<Bank> getLoanProviderBanks() {
+		return loanProviderBanks;
+	}
+
+	public void setLoanProviderBanks(List<Bank> loanProviderBanks) {
+		this.loanProviderBanks = loanProviderBanks;
+	}
+
+	public Date getLastUpdatedDate() {
+		return lastUpdatedDate;
+	}
+
+	public void setLastUpdatedDate(Date lastUpdatedDate) {
+		this.lastUpdatedDate = lastUpdatedDate;
+	}
+
+	public List<Offer> getOffers() {
+		return offers;
+	}
+
+	public void setOffers(List<Offer> offers) {
+		this.offers = offers;
+	}
+	
+	public void addOffers(String[] offers){
+		if( this.offers == null)
+			this.offers = new ArrayList<>();
+			
+		Gson gson = new Gson();
+		for(int i=0; i<offers.length; i++)
+		{
+			this.offers.add(gson.fromJson(offers[i], Offer.class));
+		}
+	}
+	
 }
