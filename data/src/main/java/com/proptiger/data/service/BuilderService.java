@@ -77,8 +77,7 @@ public class BuilderService {
     	Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
     	Map<String, Long> projectStatusCountMap = projectDao.getProjectStatusCount(tempSelector);
     	builder.setProjectStatusCount(projectStatusCountMap);
-    	imageEnricher.setBuilderImages(builder);
-
+    	
     	return builder;
     }
 
