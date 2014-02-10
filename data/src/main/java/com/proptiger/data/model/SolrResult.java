@@ -378,13 +378,13 @@ public class SolrResult extends BaseModel{
         project.setMaxPricePerUnitArea(maxPricePerUnitArea);
     }
 
-    @Field("MIN_SIZE")
-    public void setMinSize(double minSize) {
+    @Field("MINSIZE")
+    public void setMinSize(Double minSize) {
         project.setMinSize(minSize);
     }
 
-    @Field("MAX_SIZE")
-    public void setMaxSize(double maxSize) {
+    @Field("MAXSIZE")
+    public void setMaxSize(Double maxSize) {
         project.setMaxSize(maxSize);
     }
 

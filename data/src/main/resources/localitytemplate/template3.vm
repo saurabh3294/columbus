@@ -1,0 +1,200 @@
+${locality.label} is one of the top most locality in ${locality.suburb.city.label} located in suburb ${locality.suburb.label}.
+#if($nearByLocalities)
+	#set($nearByLocalitiesString = "")
+	#set($nearByLocalitiesCounter = 0)
+	#foreach($nearLocality in $nearByLocalities)
+		#set($nearByLocalitiesString = $nearByLocalitiesString + $nearLocality.label)
+		#if($nearByLocalitiesCounter > 0)
+			#set($nearByLocalitiesString = $nearByLocalitiesString + ", ")
+		#end
+		#set($nearByLocalitiesCounter = $nearByLocalitiesCounter + 1)
+	#end
+	${locality.label} is surrounded by areas ${nearByLocalitiesString}. 
+#end
+#set($popularBuildersCounter = 0)
+#if($topBuilders)
+	#set($popularBuilders = "")
+	#foreach($builder in $topBuilders)
+		#if($popularBuildersCounter > 0)
+			#set($popularBuilders = $popularBuilders + ", ")
+		#end
+		#set($popularBuilders = $popularBuilders + $builder.name)
+		#set($popularBuildersCounter = $popularBuildersCounter + 1)
+	#end
+#end
+#if($popularBuildersCounter > 0)
+	There are at least $popularBuildersCounter different builders constructing their projects in ${locality.label}. 
+#end
+#if($popularBuildersCounter > 0)
+ 		Some of the key builders are $popularBuilders in ${locality.label}. 
+#end
+#set($unitTypes = [])
+#set($unitTypesString = "")
+#set($unitNames = [])
+#set($unitNamesString = "")
+#set($minSize = 0)
+#set($maxSize = 0)
+#set($counter = 0)
+#set($lowestPricePropery = "")
+#set ($unitTypeCountMap = {})
+#foreach($property in $properties)
+	#if(!$unitTypes.contains($property.unitType))
+		#if($unitTypes.size() > 0)
+			#set($unitTypesString = $unitTypesString + ", ")
+		#end
+		#set($temp = $unitTypes.add($property.unitType))
+		#set($unitTypesString = $unitTypesString + $property.unitType)
+	#end
+	#if(!$unitNames.contains($property.unitName))
+		#if($unitNames.size() > 0)
+			#set($unitNamesString = $unitNamesString + ", ")
+		#end
+		#set($temp = $unitNames.add($property.unitName))
+		#set($unitNamesString = $unitNamesString + $property.unitName)
+	#end
+	#if($counter == 0)
+		#set($minSize = $property.size)
+		#set($maxSize = $property.size)
+		#set($counter = 1)
+		#set($lowestPricePropery = $property)
+	#elseif($property.size  < $minSize)
+		#set($minSize = $property.size)
+	#elseif($property.size > $maxSize)
+		#set($maxSize = $property.size)
+	#end
+	#if($property.budget < $lowestPricePropery.budget)
+		#set($lowestPricePropery = $property)
+	#end
+	#if($unitTypeCountMap.get($property.unitType))
+		#set($count = $unitTypeCountMap.get($property.unitType))
+		#set($count = $count + 1)
+		#set($temp = $unitTypeCountMap.put($property.unitType, $count))
+	#else
+		putting in map as key:$property.unitType
+		#set($temp = $unitTypeCountMap.put($property.unitType, 1))
+	#end	
+#end
+
+Property in ${locality.label} has built up areas ranging from $minSize sq ft to $maxSize sq ft. 
+Projects offer $unitTypesString with $unitNamesString configurations.	
+#if($unitTypeCountMap)
+	#set($counter = 0)
+	${locality.label} has 
+	#foreach($entry in $unitTypeCountMap.entrySet())
+		#if($counter > 0)
+			, 
+		#end
+		$entry.value of $entry.key projects
+		#set($counter = $counter + 1)
+	#end
+	.
+#end
+
+#if($locality.avgPriceRisePercentage)
+	The prices in ${locality.label} have 
+	#if($locality.avgPriceRisePercentage < 0)
+		DECRASED by $locality.avgPriceRisePercentage
+	#elseif($locality.avgPriceRisePercentage > 0)
+		INCREASED by $locality.avgPriceRisePercentage
+	#else
+		STAYED STABLE, 
+	#end
+	 in past ${locality.avgPriceRiseMonths} months.
+#end
+
+#if($locality.amenityTypeCount)
+	#set($schools = "")
+	#set($hospitals = "")
+	#set($metro_stations = "")
+	#set($schoolsCounter = 0)
+	#set($hospitalsCounter = 0)
+	#set($metro_stationsCounter = 0)
+	
+	${locality.label} has many well known schools and Hospitals. 
+	
+	#foreach( $amenity in $amenities )
+		#if($amenity.localityAmenityTypes.name=="school" && $schoolsCounter < 5)
+			#if($schoolsCounter > 0)
+				#set($schools = $schools+", ")
+			#end
+			#set($schools = $schools + " " + $amenity.name)
+		 	#set($schoolsCounter = $schoolsCounter + 1)
+		#end
+		#if($amenity.localityAmenityTypes.name=="hospital" && $hospitalsCounter < 5)
+			#if($hospitalsCounter > 0)
+		 		#set($hospitals = $hospitals+", ")
+		 	#end
+		 	#set($hospitals = $hospitals + " " + $amenity.name)
+		 	#set($hospitalsCounter = $hospitalsCounter + 1)
+		#end
+	#end
+	#if($schoolsCounter > 0)
+		Some of the key schools in ${locality.label} are $schools 
+		Popular schools in ${locality.label} are $schools. 
+	#end
+	#if($hospitalsCounter > 0)
+		Popular hospitals in ${locality.label} are $hospitals. 
+	#end
+#end
+
+#if($unitTypesString)
+	Find popular $unitTypesString for sale in ${locality.label} at attractive rates.
+#end
+
+#if($locality.projectStatusCount)
+	#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")} + ${locality.projectStatusCount.get("Not Launched")})
+	${locality.label}  consists of 
+	#if(${locality.projectStatusCount.get("Ready for Possession")})
+		${locality.projectStatusCount.get("Ready for Possession")} ready to move in 
+	#end
+	#if(${locality.projectStatusCount.get("Launch")})
+		,${locality.projectStatusCount.get("Launch")} new launches
+	#end 
+	#if($upcomingProjects)
+		$upcomingProjects upcoming projects
+	#end
+	in ${locality.label} for sale. 
+#end
+#if($locality.avgRatingsByCategory)
+	#set($highestRatedAmenity = "")
+	#set($highestRating = 0)
+	#foreach($key in $locality.avgRatingsByCategory.keySet())
+		#if($locality.avgRatingsByCategory.get($key) > $highestRating)
+			$highestRating = $locality.avgRatingsByCategory.get($key)
+			$highestRatedAmenity = $key
+		#end
+	#end
+	
+	${locality.label} in ${locality.suburb.city.label} 
+	have an average rating of $locality.avgRatingsByCategory.overallRating
+	based on user inputs.
+	
+	{locality.label} has an average rating of $locality.avgRatingsByCategory.overallRating
+	#if($highestRating > 0)
+		with highest rating of <#> for <LOCALION/SAFETY/PUBLIC TRANSPORTATION/RESTAURANTS AND SHOPPING>
+	#end
+	.
+#end
+
+#if($popularProjects)
+#set($project1 = $popularProjects.get(0))
+#set($project2 = $popularProjects.get(1))
+	#if($project1)
+		One popular project in ${locality.label} for sale is $project1.name by $project1.builder.name offering
+		total $project1.totalUnits units 
+		#if($project1.minSize && $project1.maxSize)
+			starting at size $project1.minSize sq ft and with highest $project1.maxSize sq ft.
+		#else
+		.
+		#end
+		#if($project2)
+			Another popular project in ${locality.label} is $project2.name by $project2.builder.name offering
+			total $project2.totalUnits units 
+			#if($project1.minSize && $project1.maxSize)
+			starting at size $project1.minSize sq ft and with highest $project1.maxSize sq ft.
+			#else
+			.
+			#end
+		#end
+	#end
+#end

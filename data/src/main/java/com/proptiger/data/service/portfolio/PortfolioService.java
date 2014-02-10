@@ -58,7 +58,7 @@ import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.service.MailBodyGenerator;
+import com.proptiger.mail.service.TemplateToHtmlGenerator;
 import com.proptiger.mail.service.MailSender;
 import com.proptiger.mail.service.MailTemplateDetail;
 import com.proptiger.mail.service.MailType;
@@ -105,7 +105,7 @@ public class PortfolioService extends AbstractService{
 	private MailSender mailSender;
 	
 	@Autowired
-	private MailBodyGenerator mailBodyGenerator;
+	private TemplateToHtmlGenerator mailBodyGenerator;
 	
 	@Autowired
 	private CityRepository cityRepository;
@@ -852,25 +852,25 @@ public class PortfolioService extends AbstractService{
 		switch (mailTypeEnum) {
 		case LISTING_ADD_MAIL_TO_USER:
 			ListingAddMail listingAddMail = createListingAddMailObject(listing);
-			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING, listingAddMail);
+			mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING, listingAddMail);
 			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		case LISTING_HOME_LOAN_CONFIRM_TO_USER:
 			ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
-			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.LISTING_LOAN_REQUEST_USER, listingLoanRequestMail);
+			mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LISTING_LOAN_REQUEST_USER, listingLoanRequestMail);
 			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
 			ListingLoanRequestMail listingLoanRequestMailInternal = createListingLoanRequestObj(listing);
-			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL, listingLoanRequestMailInternal);
+			mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL, listingLoanRequestMailInternal);
 			toStr = propertyReader.getRequiredProperty("mail.home.loan.internal.reciepient");
 			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
 			ListingResaleMail listingResaleMailInternal = createListingResaleMailObj(listing);
-			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL, listingResaleMailInternal);
+			mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL, listingResaleMailInternal);
 			toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
 			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		case INTERESTED_TO_SELL_PROPERTY_USER:
 			ListingResaleMail listingResaleMailUser = createListingResaleMailObj(listing);
-			mailBody = mailBodyGenerator.generateHtmlBody(MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER, listingResaleMailUser);
+			mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER, listingResaleMailUser);
 			return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
 		default:
 			throw new IllegalArgumentException("Invalid mail type");
