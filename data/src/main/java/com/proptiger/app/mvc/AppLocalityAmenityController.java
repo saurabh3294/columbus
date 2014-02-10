@@ -36,9 +36,9 @@ public class AppLocalityAmenityController extends BaseController{
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
     public ProAPIResponse getAllAmenitiesOnLocality(@RequestParam(value="city-id", required = false) Integer cityId, @RequestParam(value="locality-ids", required = false) String localityIds){
-        if(cityId == null && localityIds == null)
+        if(cityId == null && localityIds == null){
             return new ProAPIErrorResponse("Error", "city-ids and locality-ids both should not be false");
-        
+        }
         Gson gson = new Gson();
         Type type = new TypeToken<List<Integer>>() {}.getType();
         List<Integer> localityIdsList = gson.fromJson(localityIds, type);
