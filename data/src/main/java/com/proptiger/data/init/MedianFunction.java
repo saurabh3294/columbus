@@ -24,7 +24,7 @@ public class MedianFunction implements SQLFunction{
 	public Type getReturnType(org.hibernate.type.Type arg0,
 			Mapping arg1) throws QueryException {
 		// TODO Auto-generated method stub
-		return StandardBasicTypes.INTEGER;
+		return StandardBasicTypes.DOUBLE;
 	}
 
 	@Override
