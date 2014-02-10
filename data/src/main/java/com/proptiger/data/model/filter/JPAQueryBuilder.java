@@ -208,7 +208,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         if (selector.getFields() == null || selector.getFields().isEmpty()) {
             selector.setFields(fieldName);
         } else {
-            selector.setFields(selector.getFields() + "," + fieldName);
+            selector.addField(fieldName);
         }
     }
 

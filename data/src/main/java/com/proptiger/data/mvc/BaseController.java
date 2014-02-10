@@ -78,13 +78,19 @@ public abstract class BaseController {
 	/**
 	 * 
 	 * @param response is a list of model objects
-	 * @param selector is FIQL selector
+	 * @param sel is FIQL selector
 	 * @return is a map of Objects and Objects
 	 */
 	protected <T> Object groupFieldsAsPerSelector(List<T> response, FIQLSelector selector) {
-	    if(selector == null || selector.getGroup() == null || selector.getGroup().isEmpty()) return response;
+		FIQLSelector sel;
+		try {
+			sel = selector.clone();
+		} catch (CloneNotSupportedException e1) {
+			throw new RuntimeException(e1);
+		}
+	    if(sel == null || sel.getGroup() == null || sel.getGroup().isEmpty()) return response;
 	    
-		String groupBy = selector.getGroup().split(",")[0];
+		String groupBy = sel.getGroup().split(",")[0];
 		Map<Object, Object> result = new HashMap<>();
 	    
 	    try {
@@ -99,11 +105,11 @@ public abstract class BaseController {
 					
 	    	}
 	    	
-	    	int commaIndex = selector.getGroup().indexOf(',');
+	    	int commaIndex = sel.getGroup().indexOf(',');
 			if(commaIndex != -1){
-	    		selector.setGroup(selector.getGroup().substring(commaIndex+1));
+	    		sel.setGroup(sel.getGroup().substring(commaIndex+1));
 	    		for(Object key: result.keySet()){
-		    		result.put(key, groupFieldsAsPerSelector((List<T>)result.get(key), selector));
+		    		result.put(key, groupFieldsAsPerSelector((List<T>)result.get(key), sel));
 		    	}
 	    	}
 		} catch (IllegalArgumentException | SecurityException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
