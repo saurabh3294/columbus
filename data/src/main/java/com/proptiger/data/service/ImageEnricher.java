@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
@@ -82,8 +83,7 @@ public class ImageEnricher {
         }*/
 
         project.setImages(images);
-
-        setBuilderImages(project.getBuilder());
+        
     }
 
     @Deprecated
@@ -110,9 +110,34 @@ public class ImageEnricher {
     	if(properties == null)
     		return;
     	
-        for (Property property: properties) {
-           setPropertyImages(property);
-        }
+    	List<Long> propertyIds = new ArrayList<>();
+    	for(Property property: properties)
+    	{
+    		propertyIds.add( new Long(property.getPropertyId()) );
+    	}
+    	List<Image> images = imageService.getImages(DomainObject.property, null, propertyIds);
+    	if(images == null)
+    		return;
+    	
+    	Map<Long, List<Image>> imagesMap = new HashMap<>();
+    	List<Image> domainImages;
+    	for(Image image: images){
+    		
+    		domainImages = imagesMap.get(image.getObjectId());
+    		
+    		if(domainImages == null)
+    		{
+    			domainImages = new ArrayList<>();
+    			imagesMap.put(image.getObjectId(), domainImages);
+    		}
+    		
+    		domainImages.add(image);
+    	}
+    	
+    	for(Property property: properties)
+    	{
+    		property.setImages( imagesMap.get( new Long( property.getPropertyId()) )  );
+    	}
     }
 
     public void setPropertyImages(Property property) {

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -14,7 +12,6 @@ import com.google.common.base.Joiner;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.service.CityService;
-import com.proptiger.data.service.portfolio.DashboardService;
 
 /**
  * 
@@ -25,10 +22,7 @@ import com.proptiger.data.service.portfolio.DashboardService;
 
 
 @Repository
-public class TypeaheadDao {
-	
-	private static Logger logger = LoggerFactory.getLogger(DashboardService.class);
-	
+public class TypeaheadDao {	
 	@Autowired
     private CityService cityService;
 	

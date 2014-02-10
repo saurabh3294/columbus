@@ -134,4 +134,15 @@ public class LocalityRatingService {
 		ratingPresent.update(newRatings);
 		return ratingPresent;
 	}
+	
+	/**
+	 * Get locality rating details for particular locality of user
+	 * @param userId
+	 * @param localityId
+	 * @return
+	 */
+	public LocalityRatings getLocalityRatingOfUser(Integer userId, Integer localityId){
+		LocalityRatings localityRating = localityRatingDao.findByUserIdAndLocalityId(userId, localityId);
+		return localityRating;
+	}
 }

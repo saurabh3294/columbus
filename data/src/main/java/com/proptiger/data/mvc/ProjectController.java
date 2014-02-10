@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -115,8 +116,7 @@ public class ProjectController extends BaseController {
         }
         PaginatedResponse<List<Project>> response = projectService.getUpcomingNewProjects(cityName,
                 propRequestParam);
-        imageEnricher.setProjectsImages(response.getResults());
-        
+                
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessCountResponse(super.filterFields(response.getResults(), fieldsString),
                 response.getTotalCount());

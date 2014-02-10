@@ -75,7 +75,7 @@ public class ApplicationConfig {
 	 * @return
 	 * @throws Exception
 	 */
-//	@Bean
+	//@Bean
 	public DataSource pooledDataSource() throws Exception{
 		ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
 		
@@ -125,11 +125,6 @@ public class ApplicationConfig {
 	private Properties createJPAProperties() {
 		Properties properties = new Properties();
 		properties.put(HIBERNATE_DIALECT, propertyReader.getRequiredProperty(HIBERNATE_DIALECT));
-//		properties.put(CACHE_USE_SECOND_LEVEL_CACHE, propertyReader.getRequiredProperty(CACHE_USE_SECOND_LEVEL_CACHE));
-//		properties.put(CACHE_USE_QUERY_CACHE, propertyReader.getRequiredProperty(CACHE_USE_QUERY_CACHE));
-//		properties.put(CACHE_PROVIDER_CLASS, propertyReader.getRequiredProperty(CACHE_PROVIDER_CLASS));
-//		properties.put(CACHE_REGION_FACTORY_CLASS, propertyReader.getRequiredProperty(CACHE_REGION_FACTORY_CLASS));
-
 		return properties;
 	}
 

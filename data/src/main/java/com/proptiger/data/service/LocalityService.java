@@ -536,7 +536,8 @@ public class LocalityService {
 			/*
 			 * check if average rating is >= to minimum rating threshold
 			 */
-			if (localityWithMoreInfo.getAverageRating() >= minimumRatingForTopLocality) {
+			if (localityWithMoreInfo.getAverageRating() != null
+					&& localityWithMoreInfo.getAverageRating() >= minimumRatingForTopLocality) {
 				// if rating is greater than threshold then update average
 				// rating value
 				locality.setAverageRating(localityWithMoreInfo
