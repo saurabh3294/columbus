@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.pojo;
 
+import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * @author mandeep
  * @author Rajeev Pandey
  */
-public class Selector {
+public class Selector implements Serializable {
     private Set<String> fields;
     private Map<String, List<Map<String, Map<String, Object>>>> filters;
     private Set<SortBy> sort;

@@ -1,12 +1,14 @@
 package com.proptiger.data.pojo;
 
+import java.io.Serializable;
+
 import com.proptiger.data.util.Constants;
 
 /**
  * @author Rajeev Pandey
  *
  */
-public class Paging {
+public class Paging implements Serializable {
 
 	private int start = 0;
 	private int rows = Constants.DEFAULT_NO_OF_ROWS;

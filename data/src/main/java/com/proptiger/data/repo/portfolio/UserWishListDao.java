@@ -8,12 +8,12 @@ import com.proptiger.data.model.UserWishlist;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface UserWishListDao extends JpaRepository<UserWishlist, Integer>{
-	
-	public List<UserWishlist> findByUserId(Integer userId);
-	
-	public UserWishlist findByProjectIdAndUserId(int projectId, int userId);
-	
+public interface UserWishListDao extends JpaRepository<UserWishlist, Integer> {
+
+    public List<UserWishlist> findByUserId(Integer userId);
+
+    public UserWishlist findByProjectIdAndUserId(int projectId, int userId);
+
 }
