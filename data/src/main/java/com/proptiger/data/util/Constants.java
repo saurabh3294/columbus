@@ -80,5 +80,7 @@ public class Constants {
 		public static final String AGENT = "agent";
 		public static final String AGENTS_FOR_PROJECT = "agents-for-project";
 		
+		public static final String LOCALITY_AMENITY = "loc-amenity";
+		
 	}
 }

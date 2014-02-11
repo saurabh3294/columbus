@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.repo.LocalityAmenityTypeDao;
 
+/**
+ * @author Rajeev Pandey
+ *
+ */
 @Service
 public class LocalityAmenityTypeService {
 
@@ -19,7 +23,10 @@ public class LocalityAmenityTypeService {
 	private Map<Integer, LocalityAmenityTypes> amenitiesTypesMap;
 	
 	/**
-	 * Get all types of available amenities
+	 * Get all types of available amenities. Only first call will get data from
+	 * DB and then subsequent calls will return the cached data from
+	 * amenitiesTypesMap
+	 * 
 	 * @return
 	 */
 	public Map<Integer, LocalityAmenityTypes>  getLocalityAmenityTypes(){

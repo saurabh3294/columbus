@@ -7,6 +7,7 @@ package com.proptiger.data.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Locality;
@@ -15,6 +16,7 @@ import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityAmenityDao;
 import com.proptiger.data.repo.LocalityDao;
+import com.proptiger.data.util.Constants;
 
 
 /**
@@ -35,15 +37,18 @@ public class LocalityAmenityService {
      * @param amenityName
      * @return
      */
-    public List<LocalityAmenity> getLocalityAmenities(int localityId, String amenityName){
-        List<LocalityAmenity> output = null;
-        if(amenityName == null || amenityName.isEmpty() )
-            output = localityAmenityDao.getAmenitiesByLocalityId(localityId);
-        else
-            output = localityAmenityDao.getAmenitiesByLocalityIdAndAmenity(localityId, amenityName);
-        
-        return output;
-    }
+	@Cacheable(value = Constants.CacheName.LOCALITY_AMENITY, key = "#localityId+#amenityName", unless = "#result != null")
+	public List<LocalityAmenity> getLocalityAmenities(int localityId,
+			String amenityName) {
+		List<LocalityAmenity> output = null;
+		if (amenityName == null || amenityName.isEmpty()) {
+			output = localityAmenityDao.getAmenitiesByLocalityId(localityId);
+		} else {
+			output = localityAmenityDao.getAmenitiesByLocalityIdAndAmenity(
+					localityId, amenityName);
+		}
+		return output;
+	}
     
     
     /**
