@@ -58,11 +58,21 @@ public class FIQLSelector implements Cloneable, Serializable {
 		return (FIQLSelector) super.clone();
 	}
 	
-	public void addAndConditionToFilter(String condition){
-		setFilters("(" + getFilters() + ");" + condition);
+	public FIQLSelector addAndConditionToFilter(String condition){
+		if(filters == null){
+			filters = condition;
+		}else{
+			filters = "(" + filters + ");" + condition;
+		}
+		return this;
 	}
 	
-	public void addField(String field){
-		setFields(getFields() + "," + field);
+	public FIQLSelector addField(String field){
+		if(fields == null){
+			fields = field;
+		}else{
+			fields += "," + field;
+		}
+		return this;
 	}
 }

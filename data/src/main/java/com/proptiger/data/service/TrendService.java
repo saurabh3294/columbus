@@ -65,8 +65,7 @@ public class TrendService {
 			callables.add(new Callable<List<InventoryPriceTrend>>() {
 				public List<InventoryPriceTrend> call() throws Exception {
 					FIQLSelector sel = selector.clone();
-					sel.addAndConditionToFilter(rangeField + "=lt=" + rangeValueList.get(j));
-					sel.addAndConditionToFilter(rangeField + "=ge=" + rangeValueList.get(j - 1));
+					sel.addAndConditionToFilter(rangeField + "=lt=" + rangeValueList.get(j)).addAndConditionToFilter(rangeField + "=ge=" + rangeValueList.get(j - 1));
 					return trendDao.getTrend(sel);
 				}
 			});
