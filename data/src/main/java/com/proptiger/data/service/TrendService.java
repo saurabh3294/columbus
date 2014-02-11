@@ -55,7 +55,7 @@ public class TrendService {
 		callables.add(new Callable<List<InventoryPriceTrend>>() {
 			public List<InventoryPriceTrend> call() throws Exception {
 				FIQLSelector sel = selector.clone();
-				sel.setFilters("(" + sel.getFilters() + ");" + rangeField + "=lt=" + rangeValueList.get(0));
+				sel.addAndConditionToFilter(rangeField + "=lt=" + rangeValueList.get(0));
 				return trendDao.getTrend(sel);
 			}
 		});
@@ -65,7 +65,7 @@ public class TrendService {
 			callables.add(new Callable<List<InventoryPriceTrend>>() {
 				public List<InventoryPriceTrend> call() throws Exception {
 					FIQLSelector sel = selector.clone();
-					sel.setFilters("("+sel.getFilters() + ");" + rangeField + "=lt=" + rangeValueList.get(j) + ";" + rangeField + "=ge=" + rangeValueList.get(j - 1));
+					sel.addAndConditionToFilter(rangeField + "=lt=" + rangeValueList.get(j)).addAndConditionToFilter(rangeField + "=ge=" + rangeValueList.get(j - 1));
 					return trendDao.getTrend(sel);
 				}
 			});
@@ -74,7 +74,7 @@ public class TrendService {
 		callables.add(new Callable<List<InventoryPriceTrend>>() {
 			public List<InventoryPriceTrend> call() throws Exception {
 				FIQLSelector sel = selector.clone();
-				sel.setFilters("(" + sel.getFilters() + ");" + rangeField + "=ge="	+ rangeValueList.get(budgetRangeLength - 1));
+				sel.addAndConditionToFilter(rangeField + "=ge="	+ rangeValueList.get(budgetRangeLength - 1));
 				return trendDao.getTrend(sel);
 			}
 		});
@@ -107,5 +107,27 @@ public class TrendService {
 	@Cacheable(value=Constants.CacheName.CACHE)
 	public Date getMostRecentDate(){
 		return trendDao.getMostRecentDate();
+	}
+	
+	@Cacheable(value=Constants.CacheName.CACHE)
+	public String getDominantSupply(FIQLSelector sel){
+		FIQLSelector selector;
+		String unitType = null;
+		try {
+			selector = sel.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
+		selector.setFields("sumSupply");
+		selector.setGroup("unitType");
+		selector.setSort("-sumSupply");
+		selector.setStart(0);
+		selector.setRows(1);
+		
+		try {
+			unitType = trendDao.getTrend(selector).get(0).getUnitType();
+		} catch (IndexOutOfBoundsException e) {
+		}
+		return unitType;
 	}
 }

@@ -112,7 +112,7 @@ public class ApplicationConfig {
 	 * @return
 	 */
 	private HibernateJpaVendorAdapter createJPAAdapter() {
-		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		CustomHibernateJpaVendorAdapter vendorAdapter = new CustomHibernateJpaVendorAdapter();
 		vendorAdapter.setShowSql(Boolean.valueOf(propertyReader.getRequiredProperty(HIBERNATE_SHOW_SQL)));
 		vendorAdapter.setDatabase(Database.MYSQL);
 		return vendorAdapter;
