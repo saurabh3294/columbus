@@ -3,6 +3,7 @@ package com.proptiger.data.mvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.AlreadyEnquiredService;
+import com.proptiger.data.service.AlreadyEnquiredService.AlreadyEnquiredDetails;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -22,19 +24,29 @@ import com.proptiger.data.util.Constants;
  * 
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/user/enquired")
 @DisableCaching
 public class AlreadyEnquiredController extends BaseController{
 
 	@Autowired
 	private AlreadyEnquiredService alreadyEnquiredService;
 	
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/enquired")
+	@ResponseBody
+	@Deprecated
+	public ProAPIResponse hasEnquired(
+			@PathVariable Integer userId,
+			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+			@RequestParam(value = "projectId") Integer projectId) {
+		AlreadyEnquiredDetails enquiredDetails = alreadyEnquiredService.hasEnquired(projectId, userId);
+		return new ProAPISuccessResponse(enquiredDetails);
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/project/{projectId}/enquired")
 	@ResponseBody
 	public ProAPIResponse hasEnquired(
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
-			@RequestParam(required = false, value = "projectId") Integer projectId) {
-		boolean hasEnquired = alreadyEnquiredService.hasEnquired(projectId, userInfo.getUserIdentifier());
-		return new ProAPISuccessResponse(hasEnquired);
+			@PathVariable Integer projectId) {
+		AlreadyEnquiredDetails enquiredDetails = alreadyEnquiredService.hasEnquired(projectId, userInfo.getUserIdentifier());
+		return new ProAPISuccessResponse(enquiredDetails);
 	}
 }

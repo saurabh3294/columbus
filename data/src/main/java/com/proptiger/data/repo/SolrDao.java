@@ -47,7 +47,6 @@ public class SolrDao {
         	logger.debug("SolrQuery {}",query);
             return httpSolrServer.query(query);
         } catch (Exception e) {
-            logger.error("Could not run Solr query", e);
             throw new ProAPIException("Could not run Solr query", e);
         }
     }

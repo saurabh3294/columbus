@@ -99,7 +99,6 @@ public class ApplicationConfig {
 		//set jpa vendor
 		factory.setJpaVendorAdapter(createJPAAdapter());
 		factory.setDataSource(dataSource());
-		//factory.setDataSource(pooledDataSource());
 		factory.setPersistenceProviderClass(HibernatePersistence.class);
 		factory.setPackagesToScan(propertyReader.getRequiredProperty(ENTITYMANAGER_PACKAGES_TO_SCAN));
 		factory.setJpaProperties(createJPAProperties());

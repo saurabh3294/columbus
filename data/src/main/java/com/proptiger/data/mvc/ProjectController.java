@@ -116,8 +116,7 @@ public class ProjectController extends BaseController {
         }
         PaginatedResponse<List<Project>> response = projectService.getUpcomingNewProjects(cityName,
                 propRequestParam);
-        imageEnricher.setProjectsImages(response.getResults());
-        
+                
         Set<String> fieldsString = propRequestParam.getFields();
         return new ProAPISuccessCountResponse(super.filterFields(response.getResults(), fieldsString),
                 response.getTotalCount());

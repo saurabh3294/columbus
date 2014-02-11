@@ -39,10 +39,10 @@ public interface LocalityReviewDao extends PagingAndSortingRepository<LocalityRe
     		+ " GROUP BY R.localityId HAVING COUNT(*) > ?2 ORDER BY COUNT(*) DESC, L.priority ASC ")
     public List<Integer> getTopReviewNearLocalitiesOnLocality(List<Integer> locationIds, long minCount, Pageable pageable);
     
-    @Query("SELECT RC FROM LocalityReviewComments RC WHERE Status = '1' AND localityId = ?1")
+    @Query("SELECT RC FROM LocalityReviewComments RC LEFT JOIN FETCH RC.forumUser WHERE RC.status = '1' AND RC.localityId = ?1 ORDER BY RC.commenttime DESC ")
     public List<LocalityReviewComments> getReviewsByLocalityId(Integer localityId, Pageable pageable);
     
-    @Query("SELECT RC FROM LocalityReviewComments RC WHERE Status = '1' AND localityId = ?1 AND userId=?2")
+    @Query("SELECT RC FROM LocalityReviewComments RC JOIN FETCH RC.forumUser WHERE Status = '1' AND localityId = ?1 AND userId=?2 ORDER BY RC.commenttime DESC")
     public List<LocalityReviewComments> getReviewsByLocalityIdAndUserId(Integer localityId, Integer userId, Pageable pageable);
     
     

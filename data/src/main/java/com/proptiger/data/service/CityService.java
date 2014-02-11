@@ -3,6 +3,7 @@ package com.proptiger.data.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.City;
@@ -33,6 +34,7 @@ public class CityService {
 	 * @param selector
 	 * @return List<City>
 	 */
+	@Cacheable(Constants.CacheName.CACHE)
 	public List<City> getCityList(Selector selector){
 		List<City> cities = cityDao.getCities(selector);
 		updateAirportInfo(cities);

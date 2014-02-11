@@ -28,11 +28,13 @@ import com.proptiger.data.util.Constants;
 import com.proptiger.exception.AuthenticationException;
 
 /**
- * This filter is authentication user, it user have already logged in then it
- * will allow to pass the request otherwise return the 403 response
+ * This filter is authenticating user, if user have already logged in then it
+ * will allow to pass the request otherwise return the 403 response. The login
+ * information will be picked from memcache against PHPSESSID passed in cookie,
+ * where website write on log in
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public class DataAPIAuthenticationFilter implements Filter{
 
@@ -60,11 +62,24 @@ public class DataAPIAuthenticationFilter implements Filter{
 			}
 		}
 		logger.debug("PHPSESSIONID from request cookie {}",sessionId);
+		/*
+		 * This variable jsessionIdPassed may be used when user logged in and
+		 * can not pass cookie so that user have to pass PHPSESSID value in url
+		 * against request parameter JSESSIONID. This functionality was to
+		 * support admin work to update on the behalf of other use when auth is
+		 * enabled
+		 */
 		String jsessionIdPassed = null;
 		/*
-		 * This userIdOnBehalfOfAdmin will serve purpose when Admin is logged in and he is trying
-		 * to do some operation on behalf of some user. So this variable will
-		 * contain user id for whom admin is doing some operation.
+		 * This userIdOnBehalfOfAdmin will serve purpose when Admin is logged in
+		 * and he is trying to do some operation on behalf of some user. So this
+		 * variable will contain user id for whom admin is doing some operation.
+		 * 
+		 * This variable will be used even in case when auth is disabled. For
+		 * all those API that does not have user id in url, and auth is disabled
+		 * so user id will be picked from this variable. This functionality is
+		 * testing purpose and should be on live. This is controlled from
+		 * shiro.ini with enabled variable that is by default true.
 		 */
 		Integer userIdOnBehalfOfAdmin = null;
 		String[] jsessionIdsVal = httpRequest
@@ -134,10 +149,11 @@ public class DataAPIAuthenticationFilter implements Filter{
 		}
 		else {
 			/*
-			 * Find user id in request URL, and serve based on that user id
+			 * Authentication is disabled in shiro.ini file,
+			 * Find user id in request URL as part of path variable, and serve based on that user id
 			 */
 			StringBuffer path = httpRequest.getRequestURL();
-			Pattern userIdPattern = Pattern.compile("user/(.*?\\d)/");
+			Pattern userIdPattern = Pattern.compile("user/(\\d*)/");
 			Matcher matcher = userIdPattern.matcher(path);
 			Integer userId = null;
 			while (matcher.find()) {

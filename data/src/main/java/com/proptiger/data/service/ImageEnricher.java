@@ -83,8 +83,7 @@ public class ImageEnricher {
         }*/
 
         project.setImages(images);
-
-        setBuilderImages(project.getBuilder());
+        
     }
 
     @Deprecated

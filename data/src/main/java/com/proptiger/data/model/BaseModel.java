@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, isGetterVisibility = Visibility.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
-public abstract class BaseModel implements Serializable {
+public abstract class BaseModel implements Serializable {    
     @JsonInclude(Include.NON_EMPTY)
     protected Map<String, Object> extraAttributes = new HashMap<>();
 
