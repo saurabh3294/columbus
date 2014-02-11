@@ -1,7 +1,10 @@
 package com.proptiger.data.pojo;
 
-public class FIQLSelector implements Cloneable {
-    private String fields;
+import java.io.Serializable;
+
+public class FIQLSelector implements Cloneable, Serializable {
+	private static final long serialVersionUID = 1L;
+	private String fields;
     private String filters;
     private String group;
     private String sort;
@@ -53,5 +56,23 @@ public class FIQLSelector implements Cloneable {
     
 	public FIQLSelector clone() throws CloneNotSupportedException {
 		return (FIQLSelector) super.clone();
+	}
+	
+	public FIQLSelector addAndConditionToFilter(String condition){
+		if(filters == null){
+			filters = condition;
+		}else{
+			filters = "(" + filters + ");" + condition;
+		}
+		return this;
+	}
+	
+	public FIQLSelector addField(String field){
+		if(fields == null){
+			fields = field;
+		}else{
+			fields += "," + field;
+		}
+		return this;
 	}
 }

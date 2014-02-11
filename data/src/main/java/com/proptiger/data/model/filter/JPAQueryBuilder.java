@@ -163,7 +163,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 break;
             case MEDIAN:
                 Expression<Double> medianExpression = root.get(actualFieldName);
-                expression = criteriaBuilder.avg(medianExpression);
+                expression = criteriaBuilder.function("median", Double.class, medianExpression);
                 break;
             case COUNT:
             	Expression<Number> countExpression;
@@ -208,7 +208,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         if (selector.getFields() == null || selector.getFields().isEmpty()) {
             selector.setFields(fieldName);
         } else {
-            selector.setFields(selector.getFields() + "," + fieldName);
+            selector.addField(fieldName);
         }
     }
 
