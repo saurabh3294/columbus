@@ -148,7 +148,7 @@
 #end
 #if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
 	${locality.label} in ${locality.suburb.city.label} 
-	have an average rating of $locality.avgRatingsByCategory.overallRating
+	have an average rating of $locality.avgRatingsByCategory.overallRating 
 	based on user inputs.
 #end
 #if($locality.totalReviews && $locality.totalReviews > 0)
