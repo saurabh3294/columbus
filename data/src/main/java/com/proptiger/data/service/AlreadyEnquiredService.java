@@ -54,35 +54,35 @@ public class AlreadyEnquiredService {
 	}
 	public static class AlreadyEnquiredDetails{
 		//last enquiry date
-		private Date lastEnquiredOn;
+		private Date lastEnquiryDate;
 		//true if user enquired with last {enquiredWithinDays} number of days
-		private boolean enquiredWithinTimeLimit = false;
+		private boolean hasValidEnquiry = false;
 		//number of days within which enquiry is done
-		private int enquiredWithinDays;
+		private int enquiryValidityPeriod;
 		public AlreadyEnquiredDetails(Date lastEnquiredOn,
 				boolean enquiredWithinTimeLimit, int enquiredWithinDays) {
 			super();
-			this.lastEnquiredOn = lastEnquiredOn;
-			this.enquiredWithinTimeLimit = enquiredWithinTimeLimit;
-			this.enquiredWithinDays = enquiredWithinDays;
+			this.lastEnquiryDate = lastEnquiredOn;
+			this.hasValidEnquiry = enquiredWithinTimeLimit;
+			this.enquiryValidityPeriod = enquiredWithinDays;
 		}
 		public Date getLastEnquiredOn() {
-			return lastEnquiredOn;
+			return lastEnquiryDate;
 		}
 		public boolean isEnquiredWithinTimeLimit() {
-			return enquiredWithinTimeLimit;
+			return hasValidEnquiry;
 		}
 		public int getEnquiredWithinDays() {
-			return enquiredWithinDays;
+			return enquiryValidityPeriod;
 		}
 		public void setLastEnquiredOn(Date lastEnquiredOn) {
-			this.lastEnquiredOn = lastEnquiredOn;
+			this.lastEnquiryDate = lastEnquiredOn;
 		}
 		public void setEnquiredWithinTimeLimit(boolean enquiredWithinTimeLimit) {
-			this.enquiredWithinTimeLimit = enquiredWithinTimeLimit;
+			this.hasValidEnquiry = enquiredWithinTimeLimit;
 		}
 		public void setEnquiredWithinDays(int enquiredWithinDays) {
-			this.enquiredWithinDays = enquiredWithinDays;
+			this.enquiryValidityPeriod = enquiredWithinDays;
 		}
 		
 	}
