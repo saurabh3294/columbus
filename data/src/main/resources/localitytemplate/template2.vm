@@ -79,10 +79,11 @@
 		#set($lowestPricePropery = $property)
 	#end
 #end
-
-	
-.The property in ${locality.label} are build in areas ranging $minSize sq ft to $maxSize sq ft 
-with bedroom configurations of $unitNamesString.
+.
+#if($minSize > 0 && $maxSize > 0)
+	The property in ${locality.label} are build in areas ranging $minSize sq ft to $maxSize sq ft 
+	with bedroom configurations of $unitNamesString.
+#end
 #if($locality.avgPriceRisePercentage)
 	The prices in the ${locality.label} are  
 	#if($locality.avgPriceRisePercentage < 0)

@@ -60,8 +60,11 @@ ${locality.label}, one of the popular and best place to have property in ${local
 	#end
 #end
 There are $unitTypesString for sale in ${locality.label}.
-The property for sale in ${locality.label} are available with  $unitNamesString and 
-the projects are built with an area of $minSize sq ft to $maxSize sq ft.
+The property for sale in ${locality.label} are available with  $unitNamesString 
+#if($minSize > 0 && $maxSize > 0)
+	and the projects are built with an area of $minSize sq ft to $maxSize sq ft
+#end
+.
 
 #if($locality.avgPriceRisePercentage)
 	The prices of $unitTypesString in ${locality.label} have 

@@ -75,8 +75,9 @@ ${locality.label} is one of the top most locality in ${locality.suburb.city.labe
 		#set($temp = $unitTypeCountMap.put($property.unitType, 1))
 	#end	
 #end
-
-Property in ${locality.label} has built up areas ranging from $minSize sq ft to $maxSize sq ft. 
+#if($minSize > 0 && $maxSize > 0)
+	Property in ${locality.label} has built up areas ranging from $minSize sq ft to $maxSize sq ft. 
+#end
 Projects offer $unitTypesString with $unitNamesString configurations.	
 #if($unitTypeCountMap)
 	#set($counter = 0)
