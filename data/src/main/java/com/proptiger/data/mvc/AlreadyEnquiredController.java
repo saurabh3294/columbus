@@ -34,16 +34,15 @@ public class AlreadyEnquiredController extends BaseController{
 	@ResponseBody
 	@Deprecated
 	public ProAPIResponse hasEnquired(
-			@PathVariable Integer userId,
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
 			@RequestParam(value = "projectId") Integer projectId) {
-		AlreadyEnquiredDetails enquiredDetails = alreadyEnquiredService.hasEnquired(projectId, userId);
+		AlreadyEnquiredDetails enquiredDetails = alreadyEnquiredService.hasEnquired(projectId, userInfo.getUserIdentifier());
 		return new ProAPISuccessResponse(enquiredDetails);
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/project/{projectId}/enquired")
 	@ResponseBody
-	public ProAPIResponse hasEnquired(
+	public ProAPIResponse hasEnquired_(
 			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
 			@PathVariable Integer projectId) {
 		AlreadyEnquiredDetails enquiredDetails = alreadyEnquiredService.hasEnquired(projectId, userInfo.getUserIdentifier());
