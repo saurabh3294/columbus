@@ -37,7 +37,7 @@ public class LocalityAmenityService {
      * @param amenityName
      * @return
      */
-	@Cacheable(value = Constants.CacheName.LOCALITY_AMENITY, key = "#localityId+#amenityName", unless = "#result != null")
+	@Cacheable(value = Constants.CacheName.LOCALITY_AMENITY)
 	public List<LocalityAmenity> getLocalityAmenities(int localityId,
 			String amenityName) {
 		List<LocalityAmenity> output = null;
