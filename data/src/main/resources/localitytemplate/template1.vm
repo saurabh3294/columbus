@@ -9,7 +9,9 @@ ${locality.label}, one of the popular and best place to have property in ${local
 		#end
 		#set($nearByLocalitiesCounter = $nearByLocalitiesCounter + 1)
 	#end
-	It lies near ${nearByLocalitiesString}. 
+	#if(${nearByLocalitiesString})
+		It lies near ${nearByLocalitiesString}.
+	#end 
 #end
 #if($topBuilders)
 	#set($popularBuilders = "")
@@ -58,8 +60,11 @@ ${locality.label}, one of the popular and best place to have property in ${local
 	#end
 #end
 There are $unitTypesString for sale in ${locality.label}.
-The property for sale in ${locality.label} are available with  $unitNamesString and 
-the projects are built with an area of $minSize sq ft to $maxSize sq ft.
+The property for sale in ${locality.label} are available with  $unitNamesString 
+#if($minSize > 0 && $maxSize > 0)
+	and the projects are built with an area of $minSize sq ft to $maxSize sq ft
+#end
+.
 
 #if($locality.avgPriceRisePercentage)
 	The prices of $unitTypesString in ${locality.label} have 
@@ -128,7 +133,7 @@ the projects are built with an area of $minSize sq ft to $maxSize sq ft.
 	 projects in ${locality.label} 
 	 from different builders.
 #end
-#if($locality.avgRatingsByCategory)
+#if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
   ${locality.label} in ${locality.suburb.city.label} 
  have an average rating of $locality.avgRatingsByCategory.overallRating
  as per our customer inputs.
