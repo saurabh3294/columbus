@@ -46,7 +46,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     private static Logger logger = LoggerFactory.getLogger(JPAQueryBuilder.class);
 
     private static enum FUNCTIONS {
-        SUM, MIN, MAX, AVG, COUNT, COUNTDISTINCT, MEDIAN;
+        SUM, MIN, MAX, AVG, COUNT, COUNTDISTINCT, MEDIAN, WAVG;
     };
 
     private EntityManager entityManager;
@@ -160,6 +160,13 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
             case AVG:
                 Expression<Double> avgExpression = root.get(actualFieldName);
                 expression = criteriaBuilder.avg(avgExpression);
+                break;
+            case WAVG:
+            	String[] fieldNames = actualFieldName.split("On");
+            	fieldNames[1] = StringUtils.uncapitalize(fieldNames[1]);
+            	Expression<Double> field1 = root.get(fieldNames[0]);
+                Expression<Double> field2 = root.get(fieldNames[1]);
+                expression = criteriaBuilder.quot(criteriaBuilder.sum(criteriaBuilder.prod(field1, field2)), criteriaBuilder.sum(field2));
                 break;
             case MEDIAN:
                 Expression<Double> medianExpression = root.get(actualFieldName);
