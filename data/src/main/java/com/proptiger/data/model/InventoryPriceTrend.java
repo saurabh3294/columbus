@@ -102,6 +102,9 @@ public class InventoryPriceTrend extends BaseModel  {
     @Column(name = "supply")
     private Integer supply;
     
+    @Column(name = "ltd_supply")
+    private Integer ltdSupply;
+    
     @Column(name = "launched_unit")
     private Integer launchedUnit;
     
@@ -341,6 +344,14 @@ public class InventoryPriceTrend extends BaseModel  {
 
 	public void setSupply(Integer supply) {
 		this.supply = supply;
+	}
+
+	public Integer getLtdSupply() {
+		return ltdSupply;
+	}
+
+	public void setLtdSupply(Integer ltdSupply) {
+		this.ltdSupply = ltdSupply;
 	}
 
 	public Integer getLaunchedUnit() {
