@@ -9,7 +9,9 @@
 		#end
 		#set($nearByLocalitiesCounter = $nearByLocalitiesCounter + 1)
 	#end
-	$nearByLocalitiesString are located close to ${locality.label}.
+	#if(${nearByLocalitiesString})
+		$nearByLocalitiesString are located close to ${locality.label}.
+	#end
 #end
 
 #if($topBuilders)
@@ -143,7 +145,7 @@ with bedroom configurations of $unitNamesString.
 	 #end 
 	 projects in ${locality.label} from different builders.
 #end
-#if($locality.avgRatingsByCategory)
+#if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
 	${locality.label} in ${locality.suburb.city.label} 
 	have an average rating of $locality.avgRatingsByCategory.overallRating
 	based on user inputs.
