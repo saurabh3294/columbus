@@ -105,11 +105,6 @@ public class TrendService {
 	}
 	
 	@Cacheable(value=Constants.CacheName.CACHE)
-	public Date getMostRecentDate(){
-		return trendDao.getMostRecentDate();
-	}
-	
-	@Cacheable(value=Constants.CacheName.CACHE)
 	public String getDominantSupply(FIQLSelector sel){
 		FIQLSelector selector;
 		String unitType = null;

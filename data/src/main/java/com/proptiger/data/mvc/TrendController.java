@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,9 @@ import com.proptiger.data.service.TrendService;
 @Controller
 @RequestMapping
 public class TrendController extends BaseController{
+	@Value("${b2b.price-inventory.max.month}")
+	private String currentMonth;
+	
 	@Autowired
     private TrendService trendService;
 	
@@ -44,7 +48,13 @@ public class TrendController extends BaseController{
 	@RequestMapping("data/v1/trend/current")
     @ResponseBody
 	public ProAPIResponse getCurrentTrend(@ModelAttribute FIQLSelector selector, @RequestParam(required = false) String rangeField, @RequestParam(required = false) String rangeValue) throws Exception {
-		return getTrends(getRecentDateAppendedSelector(selector), rangeField, rangeValue);
+		return getTrends(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
+	}
+	
+	@RequestMapping("data/v1/trend/hitherto")
+    @ResponseBody
+	public ProAPIResponse getHithertoTrend(@ModelAttribute FIQLSelector selector, @RequestParam(required = false) String rangeField, @RequestParam(required = false) String rangeValue) throws Exception {
+		return getTrends(getHithertoDateAppendedSelector(selector), rangeField, rangeValue);
 	}
 	
 	@RequestMapping("data/v1/price-trend")
@@ -56,7 +66,13 @@ public class TrendController extends BaseController{
 	@RequestMapping("data/v1/price-trend/current")
     public @ResponseBody
     ProAPIResponse getCurrentPriceTrends(@ModelAttribute FIQLSelector selector, @RequestParam(required = false) String rangeField, @RequestParam(required = false) String rangeValue) throws Exception{
-		return getTrends(getDominantSupplyAppendedSelector(getRecentDateAppendedSelector(selector)), rangeField, rangeValue);
+		return getTrends(getDominantSupplyAppendedSelector(getCurrentDateAppendedSelector(selector)), rangeField, rangeValue);
+    }
+	
+	@RequestMapping("data/v1/price-trend/hitherto")
+    public @ResponseBody
+    ProAPIResponse getHithertoPriceTrends(@ModelAttribute FIQLSelector selector, @RequestParam(required = false) String rangeField, @RequestParam(required = false) String rangeValue) throws Exception{
+		return getTrends(getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(selector)), rangeField, rangeValue);
     }
 	
 	
@@ -66,8 +82,13 @@ public class TrendController extends BaseController{
 		return selector;
 	}
 	
-	private FIQLSelector getRecentDateAppendedSelector(FIQLSelector selector){
-		selector.addAndConditionToFilter("month==" + trendService.getMostRecentDate());
+	private FIQLSelector getCurrentDateAppendedSelector(FIQLSelector selector){
+		selector.addAndConditionToFilter("month==" + currentMonth);
+		return selector;
+	}
+	
+	private FIQLSelector getHithertoDateAppendedSelector(FIQLSelector selector){
+		selector.addAndConditionToFilter("month=le=" + currentMonth);
 		return selector;
 	}
 }
