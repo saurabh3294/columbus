@@ -75,7 +75,7 @@ ${locality.label} is one of the top most locality in ${locality.suburb.city.labe
 		#set($temp = $unitTypeCountMap.put($property.unitType, 1))
 	#end	
 #end
-#if($minSize > 0 && $maxSize > 0)
+#if($minSize > 0 && $maxSize > 0  && $maxSize > $minSize)
 	Property in ${locality.label} has built up areas ranging from $minSize sq ft to $maxSize sq ft. 
 #end
 Projects offer $unitTypesString with $unitNamesString configurations.	
@@ -131,7 +131,6 @@ Projects offer $unitTypesString with $unitNamesString configurations.
 		#end
 	#end
 	#if($schoolsCounter > 0)
-		Some of the key schools in ${locality.label} are $schools 
 		Popular schools in ${locality.label} are $schools. 
 	#end
 	#if($hospitalsCounter > 0)

@@ -80,7 +80,7 @@
 	#end
 #end
 .
-#if($minSize > 0 && $maxSize > 0)
+#if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
 	The property in ${locality.label} are build in areas ranging $minSize sq ft to $maxSize sq ft 
 	with bedroom configurations of $unitNamesString.
 #end
