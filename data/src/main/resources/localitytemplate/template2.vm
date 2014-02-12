@@ -80,7 +80,7 @@
 	#end
 #end
 .
-#if($minSize > 0 && $maxSize > 0)
+#if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
 	The property in ${locality.label} are build in areas ranging $minSize sq ft to $maxSize sq ft 
 	with bedroom configurations of $unitNamesString.
 #end
@@ -148,10 +148,10 @@
 #end
 #if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
 	${locality.label} in ${locality.suburb.city.label} 
-	have an average rating of $locality.avgRatingsByCategory.overallRating
+	have an average rating of $locality.avgRatingsByCategory.overallRating 
 	based on user inputs.
 #end
-#if($locality.totalReviews)
+#if($locality.totalReviews && $locality.totalReviews > 0)
 	We have $locality.totalReviews user reviews which can give you more ideas about ${locality.label}.
 #end
 #if($popularProjects)

@@ -41,12 +41,12 @@ public class AlreadyEnquiredService {
 		if(projectId != null){
 			enquiry = enquiryDao.findEnquiryByEmailAndProjectId(email, new Long(projectId));
 			if(enquiry != null){
-				alreadyEnquiredDetails.setLastEnquiredOn(enquiry.getCreatedDate());
+				alreadyEnquiredDetails.setLastEnquiryDate(enquiry.getCreatedDate());
 				Calendar cal = Calendar.getInstance();
 				cal.add(Calendar.DATE, - enquiredWithinDays);
 				Date date = cal.getTime();
 				if(enquiry.getCreatedDate().compareTo(date) >= 0){
-					alreadyEnquiredDetails.setEnquiredWithinTimeLimit(true);
+					alreadyEnquiredDetails.setHasValidEnquiry(true);
 				}
 			}
 		}
@@ -66,23 +66,23 @@ public class AlreadyEnquiredService {
 			this.hasValidEnquiry = enquiredWithinTimeLimit;
 			this.enquiryValidityPeriod = enquiredWithinDays;
 		}
-		public Date getLastEnquiredOn() {
+		public Date getLastEnquiryDate() {
 			return lastEnquiryDate;
 		}
-		public boolean isEnquiredWithinTimeLimit() {
+		public void setLastEnquiryDate(Date lastEnquiryDate) {
+			this.lastEnquiryDate = lastEnquiryDate;
+		}
+		public boolean isHasValidEnquiry() {
 			return hasValidEnquiry;
 		}
-		public int getEnquiredWithinDays() {
+		public void setHasValidEnquiry(boolean hasValidEnquiry) {
+			this.hasValidEnquiry = hasValidEnquiry;
+		}
+		public int getEnquiryValidityPeriod() {
 			return enquiryValidityPeriod;
 		}
-		public void setLastEnquiredOn(Date lastEnquiredOn) {
-			this.lastEnquiryDate = lastEnquiredOn;
-		}
-		public void setEnquiredWithinTimeLimit(boolean enquiredWithinTimeLimit) {
-			this.hasValidEnquiry = enquiredWithinTimeLimit;
-		}
-		public void setEnquiredWithinDays(int enquiredWithinDays) {
-			this.enquiryValidityPeriod = enquiredWithinDays;
+		public void setEnquiryValidityPeriod(int enquiryValidityPeriod) {
+			this.enquiryValidityPeriod = enquiryValidityPeriod;
 		}
 		
 	}
