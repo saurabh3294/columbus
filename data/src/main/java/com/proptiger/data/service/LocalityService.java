@@ -49,7 +49,6 @@ import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
-
 /**
  * @author mandeep
  * @author Rajeev Pandey
@@ -75,13 +74,13 @@ public class LocalityService {
 
 	@Autowired
 	private LocalityRatingService localityRatingService;
-	
+
 	@Autowired
 	private ImageEnricher imageEnricher;
 
 	@Autowired
 	private PropertyService propertyService;
-	
+
 	@Autowired
 	private ProjectDao projectDao;
 
@@ -104,24 +103,27 @@ public class LocalityService {
 	private Integer popularLocalityThresholdCount;
 
 	/**
-	 * This method will return the List of localities selected based on the selector provided.
+	 * This method will return the List of localities selected based on the
+	 * selector provided.
+	 * 
 	 * @param selector
 	 * @return List<Locality>
 	 */
 	public List<Locality> getLocalities(Selector selector) {
-		return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
+		return Lists.newArrayList(localityDao.getLocalities(selector)
+				.getResults());
 	}
 
-	
 	/**
-	 * This method will return the list of localities for locality listing. The localities
-	 * will be selected based on the selector provided. The list of seperate data added is :
-	 * 1: project status count for each locality
-	 * 2: resale Price info.
-	 * 3: number of projects in a locality.
+	 * This method will return the list of localities for locality listing. The
+	 * localities will be selected based on the selector provided. The list of
+	 * seperate data added is : 1: project status count for each locality 2:
+	 * resale Price info. 3: number of projects in a locality.
+	 * 
 	 * @param selector
-	 * @return SolrServiceResponse<List<Locality>> it will contain the list of localities based on 
-	 * paging in the selector and the total localities found based on selector in the object.
+	 * @return SolrServiceResponse<List<Locality>> it will contain the list of
+	 *         localities based on paging in the selector and the total
+	 *         localities found based on selector in the object.
 	 */
 	public PaginatedResponse<List<Locality>> getLocalityListing(
 			Selector selector) {
@@ -147,57 +149,60 @@ public class LocalityService {
 		PaginatedResponse<List<Locality>> localities = localityDao
 				.findByLocalityIds(localityIds, selector);
 
-		Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats = propertyDao
-				.getStatsFacetsAsMaps(selector,
-						Arrays.asList("resalePrice"),
+		Map<String, Map<String, Map<String, FieldStatsInfo>>> priceStats = propertyService
+				.getStatsFacetsAsMaps(selector, Arrays.asList("resalePrice"),
 						Arrays.asList("localityId"));
 		setProjectStatusCountAndProjectCountAndPriceOnLocality(
 				localities.getResults(), solrProjectStatusCountAndProjectCount,
 				priceStats);
-		
+
 		sortLocalities(localities.getResults());
 		return localities;
 	}
-	
+
 	/**
-	 * Sorts localities as per the logic that first X ones are either priority based or project count based.
-	 * Remaining ones are alphabetically sorted.
+	 * Sorts localities as per the logic that first X ones are either priority
+	 * based or project count based. Remaining ones are alphabetically sorted.
+	 * 
 	 * @param localities
 	 */
 	private void sortLocalities(List<Locality> localities) {
-        if (!localities.isEmpty()) {
-            if (localities.get(0).getPriority() == Locality.MAX_PRIORITY) {
-                Collections.sort(localities, new Comparator<Locality>() {
+		if (!localities.isEmpty()) {
+			if (localities.get(0).getPriority() == Locality.MAX_PRIORITY) {
+				Collections.sort(localities, new Comparator<Locality>() {
 
-                    @Override
-                    public int compare(Locality o1, Locality o2) {
-                        return o2.getProjectCount() - o1.getProjectCount();
-                    }
-                    
-                });
+					@Override
+					public int compare(Locality o1, Locality o2) {
+						return o2.getProjectCount() - o1.getProjectCount();
+					}
 
-                if (localities.size() > LOCALITY_PAGE_SIZE) {
-                    List<Locality> remainingLocalities = localities.subList(LOCALITY_PAGE_SIZE, localities.size() - 1);                
-                    Collections.sort(remainingLocalities, new Comparator<Locality>() {
+				});
 
-                        @Override
-                        public int compare(Locality o1, Locality o2) {
-                            return o1.getLabel().compareToIgnoreCase(o2.getLabel());
-                        }
-                    });
+				if (localities.size() > LOCALITY_PAGE_SIZE) {
+					List<Locality> remainingLocalities = localities.subList(
+							LOCALITY_PAGE_SIZE, localities.size() - 1);
+					Collections.sort(remainingLocalities,
+							new Comparator<Locality>() {
 
-                    localities = localities.subList(0, LOCALITY_PAGE_SIZE - 1);
-                    localities.addAll(remainingLocalities);
-                }
-            }
-        }
-    }
+								@Override
+								public int compare(Locality o1, Locality o2) {
+									return o1.getLabel().compareToIgnoreCase(
+											o2.getLabel());
+								}
+							});
 
+					localities = localities.subList(0, LOCALITY_PAGE_SIZE - 1);
+					localities.addAll(remainingLocalities);
+				}
+			}
+		}
+	}
 
-    /**
-	 * This method will take the list of localities , Price stats and project status count and project count
-	 * from solr. This method will iterate on localities and set the data for each locality in the locality
-	 * object.
+	/**
+	 * This method will take the list of localities , Price stats and project
+	 * status count and project count from solr. This method will iterate on
+	 * localities and set the data for each locality in the locality object.
+	 * 
 	 * @param localities
 	 * @param solrProjectStatusCountAndProjectCount
 	 * @param priceStats
@@ -212,11 +217,10 @@ public class LocalityService {
 		Map<String, Integer> projectCountOnLocality = solrProjectStatusCountAndProjectCount
 				.get("LOCALITY_ID");
 		Map<String, FieldStatsInfo> resalePriceStats = null;
-		
-		if(priceStats != null)
-		resalePriceStats = priceStats.get(
-				"resalePrice").get("LOCALITY_ID");
-		
+
+		if (priceStats != null)
+			resalePriceStats = priceStats.get("resalePrice").get("LOCALITY_ID");
+
 		int size = localities.size();
 		Locality locality;
 		Integer projectCount;
@@ -246,12 +250,17 @@ public class LocalityService {
 	}
 
 	/**
-	 * This method will take the solr Output of locality project status count and convert it into a map
-	 * where key will be the locality Id and project status and their counts.
-	 * @param solrProjectStatusCount Map<String Integer> Here String will be the localityId:project_status
-	 *        and Integer will the count of project status on that locality.
-	 * @return Map<Integer, Map<String, Integer>> Here Integer will be the localityId, String will be the 
-	 *         project status and then Integer will be the project status count on that locality.
+	 * This method will take the solr Output of locality project status count
+	 * and convert it into a map where key will be the locality Id and project
+	 * status and their counts.
+	 * 
+	 * @param solrProjectStatusCount
+	 *            Map<String Integer> Here String will be the
+	 *            localityId:project_status and Integer will the count of
+	 *            project status on that locality.
+	 * @return Map<Integer, Map<String, Integer>> Here Integer will be the
+	 *         localityId, String will be the project status and then Integer
+	 *         will be the project status count on that locality.
 	 */
 	public Map<Integer, Map<String, Integer>> getProjectStatusCountOnLocalityByCity(
 			Map<String, Integer> solrProjectStatusCount) {
@@ -294,29 +303,30 @@ public class LocalityService {
 
 	/**
 	 * Get locality for locality id
+	 * 
 	 * @param localityId
 	 * @return Locality
 	 */
 	public Locality getLocality(int localityId) {
 		return localityDao.getLocality(localityId);
-		//return localityDao.findOne(localityId);
+		// return localityDao.findOne(localityId);
 	}
-	
+
 	/**
-	 * This method get locality information with some more application specific data.
-	 * Pass the image count if you need images of this locality. The more information
-	 * inserted in the locality data is as follows:
-	 * 1: The average rating and total rating users.
-	 * 2: The distribution of ratings by users.
+	 * This method get locality information with some more application specific
+	 * data. Pass the image count if you need images of this locality. The more
+	 * information inserted in the locality data is as follows: 1: The average
+	 * rating and total rating users. 2: The distribution of ratings by users.
 	 * 3: The average price per BHK.
+	 * 
 	 * @param localityId
 	 * @param imageCount
-	 * @return Locality 
+	 * @return Locality
 	 */
 	public Locality getLocalityInfo(int localityId, Integer imageCount) {
 		logger.debug("Get locality info for locality id {}", localityId);
 		Locality locality = getLocality(localityId);
-		if(locality == null){
+		if (locality == null) {
 			return null;
 		}
 		List<LocalityAmenity> amenities = localityAmenityService
@@ -331,15 +341,17 @@ public class LocalityService {
 			imageEnricher.setLocalityImages(locality, imageCount);
 		}
 		/*
-		 * Setting Rating and Review Details. 
+		 * Setting Rating and Review Details.
 		 */
 		updateLocalityRatingAndReviewDetails(locality);
-		
+
 		/*
 		 * Setting the average price BHK wise
 		 */
-		locality.setAvgBHKPriceUnitArea( getAvgPricePerUnitAreaBHKWise("localityId", locality.getLocalityId(), locality.getDominantUnitType()) );
-		
+		locality.setAvgBHKPriceUnitArea(getAvgPricePerUnitAreaBHKWise(
+				"localityId", locality.getLocalityId(),
+				locality.getDominantUnitType()));
+
 		return locality;
 	}
 
@@ -347,8 +359,8 @@ public class LocalityService {
 	 * This methods returns the number of each amenities.
 	 * 
 	 * @param amenities
-	 * @return Map<String, Integer> Here String will represent the amenity type and the
-	 * Integer will mean the count of amenities found.
+	 * @return Map<String, Integer> Here String will represent the amenity type
+	 *         and the Integer will mean the count of amenities found.
 	 */
 	private Map<String, Integer> getLocalityAmenitiesCount(
 			List<LocalityAmenity> amenities) {
@@ -405,8 +417,8 @@ public class LocalityService {
 	}
 
 	/**
-	 * Get top localities either of city or suburb id. In case of city id or suburb id get
-	 * top localities based on their rating is >= α 
+	 * Get top localities either of city or suburb id. In case of city id or
+	 * suburb id get top localities based on their rating is >= α
 	 * 
 	 * α = 3 star, specfied in property file
 	 * 
@@ -415,7 +427,7 @@ public class LocalityService {
 	 * @param selector
 	 * @return List<Locality>
 	 */
-    public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
+	public List<Locality> getTopLocalities(Integer cityId, Integer suburbId,
 			Selector selector, Integer imageCount) {
 		List<Locality> result = new ArrayList<>();
 		List<Object[]> list = null;
@@ -432,7 +444,7 @@ public class LocalityService {
 				if (objects.length == 2) {
 					Locality locality = (Locality) objects[0];
 					locality.setAverageRating((double) objects[1]);
-					 LocalityRatingDetails localityReviewDetails = localityRatingService
+					LocalityRatingDetails localityReviewDetails = localityRatingService
 							.getUsersCountByRatingOfLocality(locality
 									.getLocalityId());
 					locality.setNumberOfUsersByRating(localityReviewDetails
@@ -442,7 +454,7 @@ public class LocalityService {
 			}
 		}
 		imageEnricher.setLocalitiesImages(result, imageCount);
-		
+
 		return result;
 	}
 
@@ -496,8 +508,8 @@ public class LocalityService {
 			geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
 					mainLocality.getLocalityId(), mainLocality.getLatitude(),
 					mainLocality.getLongitude(), radiusTwoForTopLocality);
-			localitiesAroundMainLocality = localityDao
-					.getLocalities(geoSelector).getResults();
+			localitiesAroundMainLocality = localityDao.getLocalities(
+					geoSelector).getResults();
 			/*
 			 * If locality not found or there count is less than
 			 * popularLocalityThresholdCount in second radius then try finding
@@ -516,8 +528,8 @@ public class LocalityService {
 						mainLocality.getLatitude(),
 						mainLocality.getLongitude(), radiusThreeForTopLocality);
 
-				localitiesAroundMainLocality = localityDao
-						.getLocalities(geoSelector).getResults();
+				localitiesAroundMainLocality = localityDao.getLocalities(
+						geoSelector).getResults();
 			}
 		}
 		/*
@@ -547,14 +559,14 @@ public class LocalityService {
 				localityItr.remove();
 			}
 		}
-		for(Locality locality: localitiesAroundMainLocality){
-			 LocalityRatingDetails localityReviewDetails = localityRatingService
-					.getUsersCountByRatingOfLocality(locality
-							.getLocalityId());
+		for (Locality locality : localitiesAroundMainLocality) {
+			LocalityRatingDetails localityReviewDetails = localityRatingService
+					.getUsersCountByRatingOfLocality(locality.getLocalityId());
 			locality.setNumberOfUsersByRating(localityReviewDetails
 					.getTotalUsersByRating());
 		}
-		imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
+		imageEnricher.setLocalitiesImages(localitiesAroundMainLocality,
+				imageCount);
 		return localitiesAroundMainLocality;
 	}
 
@@ -593,10 +605,11 @@ public class LocalityService {
 		selector.setFilters(filter);
 		return selector;
 	}
-	
-	
+
 	/**
-	 * This method will return the List of locality ids based on the property selector.
+	 * This method will return the List of locality ids based on the property
+	 * selector.
+	 * 
 	 * @param solrMap
 	 * @return List<Integer> list of locality ids.
 	 */
@@ -613,37 +626,45 @@ public class LocalityService {
 
 		return localities;
 	}
-	
+
 	/**
-	 * This method will return the average price per bhk on the properties found in a locality.
-	 * @param locationType city or suburb or locality.
+	 * This method will return the average price per bhk on the properties found
+	 * in a locality.
+	 * 
+	 * @param locationType
+	 *            city or suburb or locality.
 	 * @param locationId
 	 * @param unitType
-	 * @return Map<Integer, Double> Here Integer will number of bedrooms and Double the average price
-	 *         on that bedroom.
+	 * @return Map<Integer, Double> Here Integer will number of bedrooms and
+	 *         Double the average price on that bedroom.
 	 */
-	public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType){
-		Map<String, Map<String, Map<String, FieldStatsInfo>>> stats = propertyDao.getAvgPricePerUnitAreaBHKWise(locationType, locationId, unitType);
-		
-		if(stats == null || stats.get("pricePerUnitArea").get("BEDROOMS") == null)
+	public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(
+			String locationType, int locationId, String unitType) {
+		Map<String, Map<String, Map<String, FieldStatsInfo>>> stats = propertyService
+				.getAvgPricePerUnitAreaBHKWise(locationType, locationId,
+						unitType);
+
+		if (stats == null
+				|| stats.get("pricePerUnitArea").get("BEDROOMS") == null) {
 			return null;
-		
-		Map<String, FieldStatsInfo> priceStats = stats.get("pricePerUnitArea").get("BEDROOMS");
-		Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
-		for(Map.Entry<String, FieldStatsInfo> entry : priceStats.entrySet()){
-			avgPrice.put(Integer.parseInt( entry.getKey() ) , (Double)entry.getValue().getMean());
 		}
-		
+		Map<String, FieldStatsInfo> priceStats = stats.get("pricePerUnitArea")
+				.get("BEDROOMS");
+		Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
+		for (Map.Entry<String, FieldStatsInfo> entry : priceStats.entrySet()) {
+			avgPrice.put(Integer.parseInt(entry.getKey()), (Double) entry
+					.getValue().getMean());
+		}
+
 		return avgPrice;
 	}
-	
+
 	/**
-	 * This method will retrieve the reviews and rating details about a locality and set the data on the
-	 * locality Object. The data set on the locality Object is as follows:
-	 * 1: Number of Reviews on the locality.
-	 * 2: Average Rating
-	 * 3: Total Rating Users.
-	 * 4: Rating Distribution by total users.
+	 * This method will retrieve the reviews and rating details about a locality
+	 * and set the data on the locality Object. The data set on the locality
+	 * Object is as follows: 1: Number of Reviews on the locality. 2: Average
+	 * Rating 3: Total Rating Users. 4: Rating Distribution by total users.
+	 * 
 	 * @param locality
 	 */
 	public void updateLocalityRatingAndReviewDetails(Locality locality) {
@@ -682,47 +703,55 @@ public class LocalityService {
 		setProjectStatusCountAndProjectCountAndPriceOnLocality(
 				Arrays.asList(locality), projectAndProjectStatusCounts, null);
 	}
-	
-	public int getTopRatedLocalityInCityOrSuburb(String locationType, int locationId){
-		
+
+	public int getTopRatedLocalityInCityOrSuburb(String locationType,
+			int locationId) {
+
 		Paging paging = new Paging(0, 1);
-        List<Locality> locality = null;
-        switch (locationType) {
-            case "city":
-                locality = localityDao.findByLocationOrderByPriority(locationId, "city", paging, SortOrder.ASC);//findByCityIdOrderByPriority(locationId.intValue(), paging, SortOrder.ASC);
-                break;
-            case "suburb":
-                locality = localityDao.findByLocationOrderByPriority(locationId, "suburb", paging, SortOrder.ASC);//findBySuburbIdAndIsActiveAndDeletedFlagOrderByPriorityAsc(locationId.intValue(), true, true, paging);
-                break;
-        }
-        
-        if("locality".equals(locationType))
-            return locationId;
-        else if(locality.size() > 0)
-            return locality.get(0).getLocalityId();
-        else
-        	return -1;
+		List<Locality> locality = null;
+		switch (locationType) {
+		case "city":
+			locality = localityDao.findByLocationOrderByPriority(locationId,
+					"city", paging, SortOrder.ASC);
+			break;
+		case "suburb":
+			locality = localityDao.findByLocationOrderByPriority(locationId,
+					"suburb", paging, SortOrder.ASC);
+			break;
+		}
+
+		if ("locality".equals(locationType))
+			return locationId;
+		else if (locality.size() > 0)
+			return locality.get(0).getLocalityId();
+		else
+			return -1;
 	}
 
-    public Point computeCenter(int localityId) {
-        Point[] p = new Point[1000];
-        int n = 0;
-        Point[] b = new Point[3];
+	public Point computeCenter(int localityId) {
+		Point[] p = new Point[1000];
+		int n = 0;
+		Point[] b = new Point[3];
 
-        for (Project project: propertyService.getPropertiesGroupedToProjects(new Gson().fromJson("{\"paging\":{\"rows\":1500},\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId + "}}]}}", Selector.class)).getResults()) {
-            if (project.getLatitude() != null) {
-                p[n++] = new Point(project.getLatitude(), project.getLongitude());                
-            }
-        }
+		for (Project project : propertyService.getPropertiesGroupedToProjects(
+				new Gson().fromJson(
+						"{\"paging\":{\"rows\":1500},\"filters\":{\"and\":[{\"equal\":{\"localityId\":"
+								+ localityId + "}}]}}", Selector.class))
+				.getResults()) {
+			if (project.getLatitude() != null) {
+				p[n++] = new Point(project.getLatitude(),
+						project.getLongitude());
+			}
+		}
 
-        if (n > 0) {
-            Circle sec = SEC.findSec(n, p, 0, b);
-            return sec.getCenter();            
-        }
+		if (n > 0) {
+			Circle sec = SEC.findSec(n, p, 0, b);
+			return sec.getCenter();
+		}
 
-        return null;
-    }
-	
+		return null;
+	}
+
 	public PaginatedResponse<List<Locality>> getNearLocalitiesOnLocalityOnConcentricCircle(
 			Locality locality, int minDistance, int maxDistance) {
 		return localityDao.getNearLocalitiesByDistance(locality, minDistance,
@@ -736,19 +765,19 @@ public class LocalityService {
 
 		return getLocalityIds(localities.getResults());
 	}
-    
-    public List<Integer> getLocalityIds(List<Locality> localities){
-    	List<Integer> localityIds = new ArrayList<>();
-    	
-    	for(Locality locality:localities)
-    	{
-    		localityIds.add(locality.getLocalityId());
-    	}
-    	return localityIds;
-    }
-    
+
+	public List<Integer> getLocalityIds(List<Locality> localities) {
+		List<Integer> localityIds = new ArrayList<>();
+
+		for (Locality locality : localities) {
+			localityIds.add(locality.getLocalityId());
+		}
+		return localityIds;
+	}
+
 	/**
 	 * Get top reviewed localities for city/suburb or a given locality.
+	 * 
 	 * @param locationTypeStr
 	 * @param locationId
 	 * @param minReviewCount
@@ -762,26 +791,26 @@ public class LocalityService {
 		int locationType;
 		List<Integer> localities = null;
 		switch (locationTypeStr.toLowerCase()) {
-			case "city":
-				locationType = 1;
-				localities = localityReviewService
-						.getTopReviewedLocalityOnCityOrSuburb(locationType,
-								locationId, minReviewCount, pageable);
-				break;
-			case "suburb":
-				locationType = 2;
-				localities = localityReviewService
-						.getTopReviewedLocalityOnCityOrSuburb(locationType,
-								locationId, minReviewCount, pageable);
-				break;
-			case "locality":
-				localities = localityReviewService
-						.getTopReviewedNearLocalitiesForLocality(locationId,
-								minReviewCount, pageable);
-				break;
-			default:
-				throw new IllegalArgumentException(
-						"location Type must be either city or locality or suburb");
+		case "city":
+			locationType = 1;
+			localities = localityReviewService
+					.getTopReviewedLocalityOnCityOrSuburb(locationType,
+							locationId, minReviewCount, pageable);
+			break;
+		case "suburb":
+			locationType = 2;
+			localities = localityReviewService
+					.getTopReviewedLocalityOnCityOrSuburb(locationType,
+							locationId, minReviewCount, pageable);
+			break;
+		case "locality":
+			localities = localityReviewService
+					.getTopReviewedNearLocalitiesForLocality(locationId,
+							minReviewCount, pageable);
+			break;
+		default:
+			throw new IllegalArgumentException(
+					"location Type must be either city or locality or suburb");
 		}
 
 		if (localities == null || localities.size() < 1)

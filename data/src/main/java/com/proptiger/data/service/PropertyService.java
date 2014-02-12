@@ -4,20 +4,26 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.filter.FieldsMapLoader;
+import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
@@ -35,6 +41,8 @@ public class PropertyService {
     @Autowired
     private ImageEnricher imageEnricher;
 
+    @Autowired
+    private SolrDao solrDao;
     /**
      * Returns properties given a selector
      *
@@ -82,7 +90,7 @@ public class PropertyService {
      * @return
      */
     public Map<String, FieldStatsInfo> getStats(List<String> fields, Selector propertyListingSelector) {
-        return propertyDao.getStats(fields, propertyListingSelector, null);
+        return getStats(fields, propertyListingSelector, null);
     }
 
     /**
@@ -111,4 +119,94 @@ public class PropertyService {
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
         return propertyDao.getProperties(selector);        
     }
+    
+    public Map<String, Map<String, Map<String, FieldStatsInfo>>> getAvgPricePerUnitAreaBHKWise(
+			String idFieldName, int locationId, String unitType) {
+		Selector selector = new Selector();
+		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
+		List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+		Map<String, Map<String, Object>> searchType = new HashMap<>();
+		Map<String, Object> filterCriteria = new HashMap<>();
+
+		filterCriteria.put(idFieldName, locationId);
+
+		if (unitType != null) {
+			filterCriteria.put("unitType", unitType);
+		}
+		searchType.put(Operator.equal.name(), filterCriteria);
+		list.add(searchType);
+		filter.put(Operator.and.name(), list);
+
+		selector.setFilters(filter);
+		selector.setPaging(new Paging(0, 0));
+
+		return getStatsFacetsAsMaps(selector,
+				Arrays.asList("pricePerUnitArea"), Arrays.asList("bedrooms"));
+	}
+    
+    public Map<String, Map<String, Map<String, FieldStatsInfo>>> getStatsFacetsAsMaps(Selector selector, List<String> fields,
+			List<String> facet){
+    	
+    	Paging pagingBackUp = selector.getPaging();
+    	selector.setPaging(new Paging(0,0));
+    	
+		Map<String, FieldStatsInfo> stats = getStats(fields, selector, facet);
+		Map<String, Map<String, Map<String, FieldStatsInfo>>> newStats = new HashMap<>();
+		
+		String fieldName, facetName;
+		for( Map.Entry<String, FieldStatsInfo> entry : stats.entrySet() )
+		{
+			fieldName = entry.getKey();
+			Map<String, Map<String, FieldStatsInfo>> facetsInfo = new HashMap<>();
+			
+			newStats.put(fieldName, facetsInfo);
+			
+			if(entry.getValue() == null || entry.getValue().getFacets() == null)
+				continue;
+						
+			for(Map.Entry<String, List<FieldStatsInfo>> e : entry.getValue().getFacets().entrySet() )
+			{
+				facetName = e.getKey();
+				List<FieldStatsInfo> details = e.getValue();
+				Map<String, FieldStatsInfo> facetsMap = new HashMap<>();
+				for(int i=0; i<details.size(); i++)
+				{
+					FieldStatsInfo fieldStatsInfo = details.get(i);
+					if(fieldStatsInfo.getCount() > 0)
+						facetsMap.put( fieldStatsInfo.getName() , fieldStatsInfo);
+				}
+				facetsInfo.put(facetName, facetsMap);
+			}
+		}
+		
+		selector.setPaging(pagingBackUp);
+		return newStats;
+	}
+    
+	public Map<String, FieldStatsInfo> getStats(List<String> fields,
+			Selector propertySelector, List<String> facetFields) {
+		SolrQuery query = propertyDao.createSolrQuery(propertySelector);
+		query.add("stats", "true");
+
+		for (String field : fields) {
+			query.add("stats.field",
+					FieldsMapLoader.getDaoFieldName(SolrResult.class, field));
+		}
+		if (facetFields != null) {
+			for (String field : facetFields) {
+				query.add("stats.facet", FieldsMapLoader.getDaoFieldName(
+						SolrResult.class, field));
+			}
+		}
+		Map<String, FieldStatsInfo> response = solrDao.executeQuery(query)
+				.getFieldStatsInfo();
+		Map<String, FieldStatsInfo> resultMap = new HashMap<String, FieldStatsInfo>();
+		for (String field : fields) {
+			resultMap.put(field, response.get(FieldsMapLoader.getDaoFieldName(
+					SolrResult.class, field)));
+		}
+
+		return resultMap;
+	}
+    
 }
