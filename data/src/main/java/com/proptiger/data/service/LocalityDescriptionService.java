@@ -86,6 +86,11 @@ public class LocalityDescriptionService {
 		return description;
 	}
 
+	/**
+	 * Creating map of data that will act as input for template files
+	 * @param locality
+	 * @return
+	 */
 	private Map<String, Object> createTemplateInputDataMap(Locality locality) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("locality", locality);

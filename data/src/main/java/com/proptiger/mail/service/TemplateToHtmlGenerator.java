@@ -60,6 +60,10 @@ public class TemplateToHtmlGenerator {
 	public String generateHtmlFromTemplate(Map<String, Object> map, String templateFilePath){
 		String text = VelocityEngineUtils.mergeTemplateIntoString(
                 velocityEngine, templateFilePath, ENCODING_UTF8, map);
+		if(text != null){
+			text = text.replaceAll("[\\n\\t]", "").trim();
+			text = text.replaceAll("\\s+", " ");
+		}
 		return text;
 	}
 }

@@ -3,13 +3,15 @@ ${locality.label} is one of the top most locality in ${locality.suburb.city.labe
 	#set($nearByLocalitiesString = "")
 	#set($nearByLocalitiesCounter = 0)
 	#foreach($nearLocality in $nearByLocalities)
-		#set($nearByLocalitiesString = $nearByLocalitiesString + $nearLocality.label)
 		#if($nearByLocalitiesCounter > 0)
 			#set($nearByLocalitiesString = $nearByLocalitiesString + ", ")
 		#end
+		#set($nearByLocalitiesString = $nearByLocalitiesString + $nearLocality.label)
 		#set($nearByLocalitiesCounter = $nearByLocalitiesCounter + 1)
 	#end
-	${locality.label} is surrounded by areas ${nearByLocalitiesString}. 
+	#if(${nearByLocalitiesString})
+		${locality.label} is surrounded by areas ${nearByLocalitiesString}. 
+	#end
 #end
 #set($popularBuildersCounter = 0)
 #if($topBuilders)
@@ -70,12 +72,12 @@ ${locality.label} is one of the top most locality in ${locality.suburb.city.labe
 		#set($count = $count + 1)
 		#set($temp = $unitTypeCountMap.put($property.unitType, $count))
 	#else
-		putting in map as key:$property.unitType
 		#set($temp = $unitTypeCountMap.put($property.unitType, 1))
 	#end	
 #end
-
-Property in ${locality.label} has built up areas ranging from $minSize sq ft to $maxSize sq ft. 
+#if($minSize > 0 && $maxSize > 0  && $maxSize > $minSize)
+	Property in ${locality.label} has built up areas ranging from $minSize sq ft to $maxSize sq ft. 
+#end
 Projects offer $unitTypesString with $unitNamesString configurations.	
 #if($unitTypeCountMap)
 	#set($counter = 0)
@@ -129,7 +131,6 @@ Projects offer $unitTypesString with $unitNamesString configurations.
 		#end
 	#end
 	#if($schoolsCounter > 0)
-		Some of the key schools in ${locality.label} are $schools 
 		Popular schools in ${locality.label} are $schools. 
 	#end
 	#if($hospitalsCounter > 0)
@@ -164,16 +165,13 @@ Projects offer $unitTypesString with $unitNamesString configurations.
 			$highestRatedAmenity = $key
 		#end
 	#end
-	
-	${locality.label} in ${locality.suburb.city.label} 
-	have an average rating of $locality.avgRatingsByCategory.overallRating
-	based on user inputs.
-	
-	{locality.label} has an average rating of $locality.avgRatingsByCategory.overallRating
-	#if($highestRating > 0)
-		with highest rating of <#> for <LOCALION/SAFETY/PUBLIC TRANSPORTATION/RESTAURANTS AND SHOPPING>
+	#if($locality.avgRatingsByCategory.overallRating && $locality.avgRatingsByCategory.overallRating)
+		${locality.label} has an average rating of $locality.avgRatingsByCategory.overallRating
+		#if($highestRating > 0)
+			with highest rating of $highestRating for $highestRatedAmenity
+		#end
+		.
 	#end
-	.
 #end
 
 #if($popularProjects)

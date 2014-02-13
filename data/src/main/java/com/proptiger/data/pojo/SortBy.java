@@ -1,10 +1,12 @@
 package com.proptiger.data.pojo;
 
+import java.io.Serializable;
+
 /**
  * @author Rajeev Pandey
  *
  */
-public class SortBy {
+public class SortBy implements Serializable {
 
 	private String field;
 	private SortOrder sortOrder;

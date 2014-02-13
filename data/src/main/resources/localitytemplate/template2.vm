@@ -9,7 +9,9 @@
 		#end
 		#set($nearByLocalitiesCounter = $nearByLocalitiesCounter + 1)
 	#end
-	$nearByLocalitiesString are located close to ${locality.label}.
+	#if(${nearByLocalitiesString})
+		$nearByLocalitiesString are located close to ${locality.label}.
+	#end
 #end
 
 #if($topBuilders)
@@ -77,10 +79,11 @@
 		#set($lowestPricePropery = $property)
 	#end
 #end
-
-	
-.The property in ${locality.label} are build in areas ranging $minSize sq ft to $maxSize sq ft 
-with bedroom configurations of $unitNamesString.
+.
+#if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
+	The property in ${locality.label} are build in areas ranging $minSize sq ft to $maxSize sq ft 
+	with bedroom configurations of $unitNamesString.
+#end
 #if($locality.avgPriceRisePercentage)
 	The prices in the ${locality.label} are  
 	#if($locality.avgPriceRisePercentage < 0)
@@ -143,12 +146,12 @@ with bedroom configurations of $unitNamesString.
 	 #end 
 	 projects in ${locality.label} from different builders.
 #end
-#if($locality.avgRatingsByCategory)
+#if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
 	${locality.label} in ${locality.suburb.city.label} 
-	have an average rating of $locality.avgRatingsByCategory.overallRating
+	have an average rating of $locality.avgRatingsByCategory.overallRating 
 	based on user inputs.
 #end
-#if($locality.totalReviews)
+#if($locality.totalReviews && $locality.totalReviews > 0)
 	We have $locality.totalReviews user reviews which can give you more ideas about ${locality.label}.
 #end
 #if($popularProjects)

@@ -99,7 +99,6 @@ public class ApplicationConfig {
 		//set jpa vendor
 		factory.setJpaVendorAdapter(createJPAAdapter());
 		factory.setDataSource(dataSource());
-		//factory.setDataSource(pooledDataSource());
 		factory.setPersistenceProviderClass(HibernatePersistence.class);
 		factory.setPackagesToScan(propertyReader.getRequiredProperty(ENTITYMANAGER_PACKAGES_TO_SCAN));
 		factory.setJpaProperties(createJPAProperties());
@@ -113,7 +112,7 @@ public class ApplicationConfig {
 	 * @return
 	 */
 	private HibernateJpaVendorAdapter createJPAAdapter() {
-		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+		CustomHibernateJpaVendorAdapter vendorAdapter = new CustomHibernateJpaVendorAdapter();
 		vendorAdapter.setShowSql(Boolean.valueOf(propertyReader.getRequiredProperty(HIBERNATE_SHOW_SQL)));
 		vendorAdapter.setDatabase(Database.MYSQL);
 		return vendorAdapter;
