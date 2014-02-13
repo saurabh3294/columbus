@@ -46,7 +46,7 @@ public class LocalityReviewComments extends BaseModel{
     
     @FieldMetaInfo(displayName = "User Id", description = "User Id")
     @Column(name = "USER_ID")
-    private int userId; 
+    private Integer userId; 
     
     @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
     @Column(name = "PROJECT_ID")
@@ -91,7 +91,6 @@ public class LocalityReviewComments extends BaseModel{
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="USER_ID", insertable=false, updatable=false)
-    @JsonIgnore
     private ForumUser forumUser;
     
     public Integer getCommentId() {
@@ -102,11 +101,11 @@ public class LocalityReviewComments extends BaseModel{
         this.commentId = commentId;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
