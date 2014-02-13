@@ -57,14 +57,12 @@ public class GraphController {
            Map<String, Object> paramObject = gson.fromJson(params, type);
            
            Double paramDouble = (Double)paramObject.get("number_of_localities");
-           Integer param = paramDouble.intValue();
-           if( param == null || param <=0 )
-            paramObject.put("number_of_localities", 6);
+           if( paramDouble == null || paramDouble <= 0.0 )
+            paramObject.put("number_of_localities", 6.0);
            
            paramDouble = (Double)paramObject.get("last_number_of_months");
-           param = paramDouble.intValue();
-           if( param == null || param <= 0)
-               paramObject.put("last_number_of_months", 1);
+           if( paramDouble == null || paramDouble <= 0.0)
+               paramObject.put("last_number_of_months", 1.0);
            
            Map<String, Map<String, Double>> response = new LinkedHashMap<String, Map<String, Double>>();
            
