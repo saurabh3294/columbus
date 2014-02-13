@@ -147,15 +147,21 @@ public class ProjectDetailController extends BaseController {
     
     @RequestMapping(value="app/v2/project-detail")
     @Deprecated
-    public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId) throws Exception {
-    	Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
-        if(projectSelector == null) {
-            projectSelector = new Selector();
-        }
-        
-        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-    	return new ProAPISuccessResponse( super.filterFields(project, projectSelector.getFields() ) );
-    }
+	public @ResponseBody
+	ProAPIResponse getProjectDetails2(
+			@RequestParam(required = false) String selector,
+			@RequestParam int projectId) throws Exception {
+		Selector projectSelector = super.parseJsonToObject(selector,
+				Selector.class);
+		if (projectSelector == null) {
+			projectSelector = new Selector();
+		}
+
+		Project project = projectService.getProjectInfoDetails(projectSelector,
+				projectId);
+		return new ProAPISuccessResponse(super.filterFields(project,
+				projectSelector.getFields()));
+	}
    
     @RequestMapping(value = {"app/v2/project-detail/{projectId}"})
 	@ResponseBody

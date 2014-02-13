@@ -24,6 +24,9 @@ import com.proptiger.data.model.enums.ActivationStatus;
 @Table(name = "cms.brokers")
 @JsonFilter("fieldFilter")
 public class Broker  extends BaseModel{
+	
+	private static final long serialVersionUID = -6713694243992254635L;
+
 	@Id
 	@Column(name = "id")
 	private Integer id;

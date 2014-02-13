@@ -16,6 +16,9 @@ import com.proptiger.data.model.BaseModel;
 @Table(name = "cms.academic_qualifications")
 @JsonFilter("fieldFilter")
 public class AcademicQualification  extends BaseModel{
+	
+	private static final long serialVersionUID = 38036779720160982L;
+
 	@Id
 	@Column(name = "id")
 	private Integer id;

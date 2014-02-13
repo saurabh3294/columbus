@@ -16,6 +16,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonFilter("fieldFilter")
 public class ProjectAmenity extends BaseModel {
 
+	private static final long serialVersionUID = -9138744747572197187L;
+
 	@Column(name = "ID")
 	@Id
 	private Long id;

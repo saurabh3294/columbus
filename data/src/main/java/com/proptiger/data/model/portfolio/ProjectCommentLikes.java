@@ -12,6 +12,8 @@ import com.proptiger.data.model.BaseModel;
 @Table(name = "FORUM_USER_LIKES")
 public class ProjectCommentLikes extends BaseModel {
 	
+	private static final long serialVersionUID = 9201411629880607950L;
+
 	@Id
 	@GeneratedValue
 	@Column(name = "ID")

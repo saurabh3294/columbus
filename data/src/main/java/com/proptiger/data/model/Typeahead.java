@@ -23,12 +23,10 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonFilter("fieldFilter")
 @ResourceMetaInfo
 public class Typeahead extends BaseModel {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+   
+	private static final long serialVersionUID = 2096261268711516512L;
 
-    @Field(value="id")
+	@Field(value="id")
     private String id;
     
     @Field(value="TYPEAHEAD_LABEL")
@@ -59,8 +57,11 @@ public class Typeahead extends BaseModel {
     @Field(value="TYPEAHEAD_CORE_TEXT_NGRAMS")
     private String coreTextNgrams;
     
-    @Field(value="LOCALITY_URL")
-    private String localityURL;
+    @Field(value="LATITUDE")
+    private Double latitude;
+    
+    @Field(value="LONGITUDE")
+    private Double longitude;
 
     public String getId() {
         return id;
@@ -142,11 +143,19 @@ public class Typeahead extends BaseModel {
         this.coreTextNgrams = coreTextNgrams;
     }
 
-    public String getLocalityURL() {
-        return localityURL;
+    public Double getLatitude() {
+        return latitude;
     }
 
-    public void setLocalityURL(String localityURL) {
-        this.localityURL = localityURL;
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }

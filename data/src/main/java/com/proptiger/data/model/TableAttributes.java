@@ -15,6 +15,9 @@ import com.proptiger.data.meta.FieldMetaInfo;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class TableAttributes  extends BaseModel {
+	
+	private static final long serialVersionUID = -6755996118154497556L;
+
 	@Id
 	@Column(name="id")
 	@FieldMetaInfo( displayName = "Id",  description = "Id")

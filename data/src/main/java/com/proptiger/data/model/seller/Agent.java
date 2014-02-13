@@ -29,6 +29,9 @@ import com.proptiger.data.model.enums.ActivationStatus;
 @JsonFilter("fieldFilter")
 public class Agent extends BaseModel{
 
+	
+	private static final long serialVersionUID = 4381648073253664949L;
+
 	@Id
 	@Column(name = "id")
 	private Integer id;
