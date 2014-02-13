@@ -20,6 +20,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Deprecated
 public class ProjectReview extends BaseModel{
 
+	private static final long serialVersionUID = -7620453446863793152L;
+
 	@FieldMetaInfo( displayName = "Comment Id",  description = "Comment Id")
 	@Column(name = "COMMENT_ID")
 	@Id

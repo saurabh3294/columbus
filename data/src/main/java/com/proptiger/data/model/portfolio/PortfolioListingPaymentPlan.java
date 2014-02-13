@@ -36,6 +36,9 @@ import com.proptiger.data.model.portfolio.enums.PaymentStatus;
 @JsonFilter("fieldFilter")
 public class PortfolioListingPaymentPlan extends BaseModel {
 
+	
+	private static final long serialVersionUID = -6068888536790871259L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id")

@@ -51,7 +51,9 @@ import com.proptiger.data.util.ImageUtil;
 @Table(name="RESI_PROJECT")
 @JsonFilter("fieldFilter")
 public class Project extends BaseModel {
-    public static enum NestedProperties {
+	private static final long serialVersionUID = -6635164496425100051L;
+
+	public static enum NestedProperties {
         builderLabel(new String[]{"builder", "name"}),
         cityLabel(new String[]{"locality", "suburb", "city", "label"}),
         suburbLabel(new String[]{"locality", "suburb", "label"}),

@@ -27,7 +27,9 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class City extends BaseModel {
-    @Id
+    private static final long serialVersionUID = -4768005314447247259L;
+
+	@Id
     @FieldMetaInfo( displayName = "City Id",  description = "City Id")
     @Column(name = "CITY_ID")
     @Field("CITY_ID")

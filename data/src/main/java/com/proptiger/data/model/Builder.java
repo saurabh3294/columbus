@@ -33,7 +33,9 @@ import com.proptiger.data.util.ImageUtil;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Builder extends BaseModel {
-    @FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
+	private static final long serialVersionUID = 1369026324841504903L;
+
+	@FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
     @Column(name = "BUILDER_ID")
     @Id
     @Field("BUILDER_ID")

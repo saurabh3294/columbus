@@ -19,6 +19,8 @@ import com.proptiger.data.model.portfolio.enums.PaymentPlan;
 @Table(name = "PROJ_PAYMENT_SCHEDULE")
 public class ProjectPaymentSchedule extends BaseModel{
 
+	private static final long serialVersionUID = -5749828536177848914L;
+
 	@Id
 	@Column(name = "PAYMENT_SCHEDULE_ID")
 	@JsonIgnore

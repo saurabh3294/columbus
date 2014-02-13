@@ -22,7 +22,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonFilter("fieldFilter")
 public class ProjectSpecification extends BaseModel{
-	
+	private static final long serialVersionUID = 3444265674974132426L;
+
 	private static enum SpecificationTypes{
 		FLOORING_MASTER_BEDROOM( new String[]{"flooring", "MasterBedroom"} ),
 		FLOORING_OTHER_BEDROOM( new String[]{"flooring", "OtherBedroom"} ),

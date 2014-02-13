@@ -23,13 +23,11 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonFilter("fieldFilter")
 @ResourceMetaInfo
 public class Typeahead extends BaseModel {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
+   
+	private static final long serialVersionUID = 2096261268711516512L;
 
-    @Field(value="id")
-    private String id;
+	@Field(value="id")
+    private String id;	
     
     @Field(value="TYPEAHEAD_LABEL")
     private String label;

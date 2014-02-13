@@ -29,6 +29,9 @@ import com.proptiger.data.model.BaseModel;
 @JsonFilter("fieldFilter")
 public class PortfolioListingPrice extends BaseModel {
 
+	
+	private static final long serialVersionUID = -2185172853225611176L;
+
 	@Id
 	@FieldMetaInfo(displayName = "Portfolio Listing Price Id", description = "Portfolio Listing Price Id")
 	@Column(name = "id")

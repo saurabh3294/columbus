@@ -23,7 +23,9 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "NEAR_LOCALITY")
 @ResourceMetaInfo
 public class NearLocalities extends BaseModel{
-    @Id
+   private static final long serialVersionUID = -9097621997627976384L;
+
+	@Id
     @FieldMetaInfo( displayName = "Id",  description = "Id")
     @Column(name = "id")
     private int id;

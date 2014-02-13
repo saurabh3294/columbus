@@ -35,6 +35,9 @@ import com.proptiger.data.util.ReplySerializer;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class ProjectDiscussion extends BaseModel {
+	
+	private static final long serialVersionUID = -9152119195829550249L;
+
 	public enum Replies {
 		F("false"), 
 		T("true");

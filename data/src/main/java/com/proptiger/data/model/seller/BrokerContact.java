@@ -20,6 +20,9 @@ import com.proptiger.data.model.enums.BrokerType;
 @JsonFilter("fieldFilter")
 public class BrokerContact  extends BaseModel{
 
+	
+	private static final long serialVersionUID = 7424870231160168052L;
+
 	@Id
 	@Column(name = "id")
 	private Integer id;
