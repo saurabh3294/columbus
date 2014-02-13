@@ -91,7 +91,6 @@ public class LocalityReviewComments extends BaseModel{
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="USER_ID", insertable=false, updatable=false)
-    @JsonIgnore
     private ForumUser forumUser;
     
     public Integer getCommentId() {
