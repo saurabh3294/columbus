@@ -95,7 +95,7 @@ public class LocalityReviewComments extends BaseModel{
     @JoinColumn(name="USER_ID", insertable=false, updatable=false)
     private ForumUser forumUser;
     
-    @OneToOne(fetch=FetchType.EAGER)
+    @OneToOne
     @JoinColumns( {
         @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable=false, updatable=false),
         @JoinColumn(name = "LOCALITY_ID",referencedColumnName = "LOCALITY_ID",insertable=false, updatable=false),
