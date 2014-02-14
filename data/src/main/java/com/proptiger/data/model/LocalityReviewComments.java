@@ -15,7 +15,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -92,6 +94,13 @@ public class LocalityReviewComments extends BaseModel{
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="USER_ID", insertable=false, updatable=false)
     private ForumUser forumUser;
+    
+    @OneToOne(fetch=FetchType.EAGER)
+    @JoinColumns( {
+        @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable=false, updatable=false),
+        @JoinColumn(name = "LOCALITY_ID",referencedColumnName = "LOCALITY_ID",insertable=false, updatable=false),
+    })
+    private LocalityRatings localityRatings;
     
     public Integer getCommentId() {
         return commentId;
@@ -188,7 +197,16 @@ public class LocalityReviewComments extends BaseModel{
     public void setStatus(String status) {
         this.status = status;
     }
-    @PrePersist
+    
+    public LocalityRatings getLocalityRatings() {
+		return localityRatings;
+	}
+
+	public void setLocalityRatings(LocalityRatings localityRatings) {
+		this.localityRatings = localityRatings;
+	}
+
+	@PrePersist
     public void prePersist(){
     	commenttime = new Date();
     }

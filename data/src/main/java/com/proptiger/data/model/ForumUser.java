@@ -36,9 +36,11 @@ public class ForumUser extends BaseModel{
     private String  username;
     
     @Column(name = "EMAIL")
+    @JsonIgnore
     private String  email;
     
     @Column(name = "CONTACT")
+    @JsonIgnore
     private long  contact;
     
     @Column(name = "PROVIDERID")
