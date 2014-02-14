@@ -28,4 +28,8 @@ public abstract class BaseModel implements Serializable {
     public Map<String, Object> getExtraAttributes() {
         return extraAttributes;
     }
+
+	public void setExtraAttributes(Map<String, Object> extraAttributes) {
+		this.extraAttributes = extraAttributes;
+	}
 }
