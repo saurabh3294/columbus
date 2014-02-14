@@ -57,7 +57,7 @@ public class LocalityReviewService {
 			Integer noOfReviews) {
 		logger.debug("Get review and rating details of locality {}", localityId);
 		Long totalReviews = getLocalityReviewCount(localityId);
-		Pageable pageable = new LimitOffsetPageRequest();
+		LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
 		
 		if(noOfReviews != null && noOfReviews.intValue() > 0){
 			pageable = new LimitOffsetPageRequest(0, noOfReviews);
@@ -116,7 +116,7 @@ public class LocalityReviewService {
 	 * @return
 	 */
 	public List<Integer> getTopReviewedNearLocalitiesForLocality(
-			int localityId, int minCount, Pageable pageable) {
+			int localityId, int minCount, LimitOffsetPageRequest pageable) {
 		int distance[] = { 0, 5, 10, 15 };
 		int limit = pageable.getPageSize();
 		Locality locality = localityService.getLocality(localityId);
@@ -152,7 +152,7 @@ public class LocalityReviewService {
 	public List<LocalityReviewComments> getLocalityReview(Integer localityId,
 			Integer userId, Selector selector) {
 		
-		Pageable pageable = new LimitOffsetPageRequest();
+		LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
 		if (selector != null && selector.getPaging() != null) {
 			pageable = new LimitOffsetPageRequest(selector.getPaging()
 					.getStart(), selector.getPaging().getRows());

@@ -20,8 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -31,10 +29,10 @@ import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
-import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortOrder;
@@ -787,7 +785,7 @@ public class LocalityService {
 	public PaginatedResponse<List<Locality>> getTopReviewedLocalities(
 			String locationTypeStr, int locationId, int minReviewCount,
 			int numberOfLocalities) {
-		Pageable pageable = new PageRequest(0, numberOfLocalities);
+		LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, numberOfLocalities);
 		int locationType;
 		List<Integer> localities = null;
 		switch (locationTypeStr.toLowerCase()) {
