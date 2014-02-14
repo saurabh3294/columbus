@@ -29,7 +29,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = "ENQUIRY")
 @JsonFilter("fieldFilter")
 public class Enquiry extends BaseModel {
-    @Column(name = "ID")
+   
+	private static final long serialVersionUID = 8405769379921577431L;
+	@Column(name = "ID")
     @Id
     private long id;
     @Column(name = "NAME")

@@ -9,6 +9,8 @@ import javax.persistence.Table;
 @Table(name = "wordpress.wp_term_relationships")
 public class WordpressTermRelationship extends BaseModel{
 
+	private static final long serialVersionUID = 3136863215048437655L;
+
 	@Id
 	@Column(name = "object_id")
 	private long objectId;

@@ -19,6 +19,7 @@ import com.proptiger.data.model.image.Image;
 @Entity(name = "BANK_LIST")
 @JsonFilter("fieldFilter")
 public class Bank extends BaseModel{
+	private static final long serialVersionUID = -6727172719530768859L;
 	@Id
 	@Column(name = "BANK_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)

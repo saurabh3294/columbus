@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,8 +40,12 @@ public class AlreadyEnquiredService {
 		Enquiry enquiry = null;
 		AlreadyEnquiredDetails alreadyEnquiredDetails = new AlreadyEnquiredDetails(null, false, enquiredWithinDays);
 		if(projectId != null){
-			enquiry = enquiryDao.findEnquiryByEmailAndProjectId(email, new Long(projectId));
-			if(enquiry != null){
+			List<Enquiry> enquiries = enquiryDao.findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(email, new Long(projectId));
+			if (enquiries != null && !enquiries.isEmpty()) {
+			    enquiry = enquiries.get(0);
+			}
+
+			if(enquiry != null) {
 				alreadyEnquiredDetails.setLastEnquiryDate(enquiry.getCreatedDate());
 				Calendar cal = Calendar.getInstance();
 				cal.add(Calendar.DATE, - enquiredWithinDays);

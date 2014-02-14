@@ -31,7 +31,10 @@ import com.proptiger.data.model.image.Image;
 @JsonFilter("fieldFilter")
 @Deprecated
 public class ProjectDB extends BaseModel{
-    @FieldMetaInfo(displayName="PROJECT ID", description="PROJECT ID")
+  
+	private static final long serialVersionUID = -1689938553944928175L;
+
+	@FieldMetaInfo(displayName="PROJECT ID", description="PROJECT ID")
     @Column(name="PROJECT_ID")
     @Id
     private int projectId ;

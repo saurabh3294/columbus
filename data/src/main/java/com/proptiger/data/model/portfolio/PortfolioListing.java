@@ -51,6 +51,8 @@ import com.proptiger.data.model.resource.Resource;
 @JsonFilter("fieldFilter")
 public class PortfolioListing extends BaseModel implements NamedResource, Resource {
 
+	private static final long serialVersionUID = -6567536809813945234L;
+
 	@Id
 	@FieldMetaInfo(displayName = "PortfolioListing Id", description = "PortfolioListing Id")
 	@Column(name = "id")

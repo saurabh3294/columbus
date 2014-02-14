@@ -26,7 +26,10 @@ import com.proptiger.data.util.ImageUtil;
 @Access(AccessType.FIELD)
 @JsonFilter("fieldFilter")
 public class Image extends BaseModel {
-    public static final String DOT = ".";
+   
+	private static final long serialVersionUID = 3547840734282317975L;
+
+	public static final String DOT = ".";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

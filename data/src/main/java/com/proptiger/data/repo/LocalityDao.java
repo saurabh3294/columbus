@@ -4,6 +4,7 @@
  */
 package com.proptiger.data.repo;
 
+import java.util.Date;
 import java.util.List;
 
 import org.jboss.logging.Param;
@@ -24,25 +25,25 @@ public interface LocalityDao extends
 
 	@Query("SELECT COUNT(*) "
 			+ " FROM Locality L join L.enquiry E WHERE L.localityId=E.localityId AND "
-			+ " UNIX_TIMESTAMP(E.createdDate) >= (UNIX_TIMESTAMP() - ?1) AND "
+			+ " E.createdDate >= ?1 AND "
 			+ " CASE ?2 WHEN 1 THEN L.cityId WHEN 2 THEN L.suburbId WHEN 3 THEN L.cityId END = ?3")
-	public Long findTotalEnquiryCountOnCityOrSubOrLoc(@Param Long timediff,
+	public Long findTotalEnquiryCountOnCityOrSubOrLoc(@Param Date date,
 			@Param Long location_type, @Param int location_id);
 
 	@Query("SELECT L.localityId, L.label, COUNT(*) AS enquiryCount"
 			+ " FROM Locality L join L.enquiry E WHERE L.localityId=E.localityId AND "
-			+ " UNIX_TIMESTAMP(E.createdDate) >= (UNIX_TIMESTAMP() - ?1) AND "
+			+ " E.createdDate >= ?1 AND "
 			+ " CASE ?2 WHEN 1 THEN L.cityId WHEN 2 THEN L.suburbId WHEN 3 THEN L.cityId END = ?3 "
 			+ " GROUP BY E.localityId ORDER BY enquiryCount DESC ")
 	public List<Object[]> findEnquiryCountOnCityOrSubOrLoc(
-			@Param Long timediff, @Param Long location_type,
+			@Param Date date, @Param Long location_type,
 			@Param int location_id);
 
 	@Query("SELECT L.localityId, L.label, COUNT(*) AS enquiryCount "
 			+ " FROM Locality L join L.enquiry E where L.localityId = E.localityId AND "
-			+ " UNIX_TIMESTAMP(E.createdDate) >= (UNIX_TIMESTAMP() - ?1) AND "
+			+ " E.createdDate >= ?1 AND "
 			+ " L.localityId=?2")
-	public Object[] findEnquiryCountOnLoc(@Param Long timediff,
+	public Object[] findEnquiryCountOnLoc(@Param Date date,
 			@Param int localityId);
 
 	@Query("Select L, AVG(LR.overallRating) as overallAvgRating from Locality L left join L.localityRatings LR "

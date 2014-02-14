@@ -16,6 +16,9 @@ import com.proptiger.data.model.portfolio.enums.ReturnType;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class OverallReturn extends BaseModel {
+	
+	private static final long serialVersionUID = 656252525344007387L;
+
 	@FieldMetaInfo(dataType = DataType.STRING, displayName = "returnType", description = "Return Type")
 	private ReturnType returnType;
 	

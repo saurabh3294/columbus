@@ -19,6 +19,8 @@ import com.proptiger.data.model.portfolio.SubscriptionType;
 @Table(name="subscription")
 public class Subscription extends BaseModel {
 	
+	private static final long serialVersionUID = -4822844596556898391L;
+
 	@Id
 	@Column(name = "id")
 	private int id;

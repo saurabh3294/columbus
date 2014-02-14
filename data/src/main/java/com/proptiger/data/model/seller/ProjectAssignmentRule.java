@@ -16,6 +16,9 @@ import com.proptiger.data.model.BaseModel;
 @Table(name = "cms.project_assignment_rules")
 @JsonFilter("fieldFilter")
 public class ProjectAssignmentRule extends BaseModel{
+	
+	private static final long serialVersionUID = 2137392504773576918L;
+
 	@Id
 	@Column(name = "id")
 	private Integer id;

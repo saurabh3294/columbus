@@ -24,6 +24,9 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class ProjectCMSAmenity extends BaseModel {
+	
+	private static final long serialVersionUID = 4648605865302565176L;
+
 	@Id
 	@FieldMetaInfo(displayName = "Id", description = "Id")
 	@Column(name="ID")

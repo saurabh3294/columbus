@@ -18,6 +18,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 //@JsonFilter("fieldFilter")
 public class ListingPrice extends BaseModel{
 
+	private static final long serialVersionUID = -5188547296507370610L;
+
 	@Id
 	@Column(name = "id")
 	private Integer id;

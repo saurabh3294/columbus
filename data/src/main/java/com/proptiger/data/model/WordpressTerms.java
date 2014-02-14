@@ -9,6 +9,8 @@ import javax.persistence.Table;
 @Table(name = "wordpress.wp_terms")
 public class WordpressTerms extends BaseModel{
 
+	private static final long serialVersionUID = 806356402805138067L;
+
 	@Id
 	@Column(name = "term_id")
 	private long termId;

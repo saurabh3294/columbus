@@ -4,6 +4,7 @@
  */
 package com.proptiger.data.service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -13,6 +14,7 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.Resource;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -152,7 +154,7 @@ public class GraphService {
         Double lastNumberOfMonths = (Double)params.get("last_number_of_months");
         Double cityId = (Double)params.get("city_id");
         
-        Long timediff = lastNumberOfMonths.longValue()*30*24*60*60;
+        Date date = new DateTime().minusMonths(lastNumberOfMonths.intValue()).toDate();
         Long locationTypeMap, parentLocationId = locationId.longValue();
         
         locationType = locationType.toLowerCase();
@@ -172,12 +174,12 @@ public class GraphService {
                 locationTypeMap = 3L;
         }
         
-        Long totalEnquiry = localityDao.findTotalEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId.intValue());
-        List<Object[]> localitiesData = localityDao.findEnquiryCountOnCityOrSubOrLoc(timediff, locationTypeMap, parentLocationId.intValue());
+        Long totalEnquiry = localityDao.findTotalEnquiryCountOnCityOrSubOrLoc(date, locationTypeMap, parentLocationId.intValue());
+        List<Object[]> localitiesData = localityDao.findEnquiryCountOnCityOrSubOrLoc(date, locationTypeMap, parentLocationId.intValue());
         Object[] currentLocalityData = null;
         if(locationTypeMap == 1L)
         {
-            currentLocalityData = localityDao.findEnquiryCountOnLoc(timediff, locationId.intValue());
+            currentLocalityData = localityDao.findEnquiryCountOnLoc(date, locationId.intValue());
         }
         
         Map<String, Double> response = new LinkedHashMap<String, Double>();

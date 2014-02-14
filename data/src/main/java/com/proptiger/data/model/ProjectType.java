@@ -23,6 +23,9 @@ import com.proptiger.data.model.portfolio.UnitType;
 @ResourceMetaInfo
 public class ProjectType extends BaseModel{
 
+	
+	private static final long serialVersionUID = -6620347822420421846L;
+
 	@Id
 	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
 	@Column(name = "TYPE_ID")
