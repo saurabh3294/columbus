@@ -17,6 +17,8 @@ import com.proptiger.data.model.BaseModel;
 @JsonFilter("fieldFilter")
 public class Address  extends BaseModel{
 
+	private static final long serialVersionUID = 1725129348095501107L;
+
 	@Id
 	@Column(name = "id")
 	private Integer id;

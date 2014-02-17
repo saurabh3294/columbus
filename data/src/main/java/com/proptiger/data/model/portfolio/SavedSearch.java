@@ -19,6 +19,8 @@ import com.proptiger.data.model.BaseModel;
 @ResourceMetaInfo
 public class SavedSearch extends BaseModel {
 
+	private static final long serialVersionUID = 62908185612438469L;
+
 	@Id
 	@GeneratedValue
 	@FieldMetaInfo(displayName = "Saved Search Id", description = "Saved Search Id")

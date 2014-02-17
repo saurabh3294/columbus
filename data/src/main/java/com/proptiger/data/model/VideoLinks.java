@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 public class VideoLinks extends BaseModel {
 		
+	private static final long serialVersionUID = -8566359342834979183L;
+
 	@Id
 	@Column(name = "video_id")
 	private int videoId;

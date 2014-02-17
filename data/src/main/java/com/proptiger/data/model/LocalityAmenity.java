@@ -32,7 +32,10 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonFilter("fieldFilter")
 public class LocalityAmenity extends BaseModel{
-    @FieldMetaInfo(displayName = "Id", description = "Id")
+   
+	private static final long serialVersionUID = 5296461750469591496L;
+
+	@FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
     @Id
     private int  id;

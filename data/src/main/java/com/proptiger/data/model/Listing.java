@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 //@Table(name = "cms.listings")
 //@JsonFilter("fieldFilter")
 public class Listing extends BaseModel{
+	private static final long serialVersionUID = -1212348039595611394L;
 
 	@Id
 	@Column(name = "id")

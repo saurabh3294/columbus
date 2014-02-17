@@ -15,7 +15,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -46,7 +48,7 @@ public class LocalityReviewComments extends BaseModel{
     
     @FieldMetaInfo(displayName = "User Id", description = "User Id")
     @Column(name = "USER_ID")
-    private int userId; 
+    private Integer userId; 
     
     @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
     @Column(name = "PROJECT_ID")
@@ -91,8 +93,14 @@ public class LocalityReviewComments extends BaseModel{
 
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="USER_ID", insertable=false, updatable=false)
-    @JsonIgnore
     private ForumUser forumUser;
+    
+    @OneToOne
+    @JoinColumns( {
+        @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable=false, updatable=false),
+        @JoinColumn(name = "LOCALITY_ID",referencedColumnName = "LOCALITY_ID",insertable=false, updatable=false),
+    })
+    private LocalityRatings localityRatings;
     
     public Integer getCommentId() {
         return commentId;
@@ -102,11 +110,11 @@ public class LocalityReviewComments extends BaseModel{
         this.commentId = commentId;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
@@ -189,7 +197,16 @@ public class LocalityReviewComments extends BaseModel{
     public void setStatus(String status) {
         this.status = status;
     }
-    @PrePersist
+    
+    public LocalityRatings getLocalityRatings() {
+		return localityRatings;
+	}
+
+	public void setLocalityRatings(LocalityRatings localityRatings) {
+		this.localityRatings = localityRatings;
+	}
+
+	@PrePersist
     public void prePersist(){
     	commenttime = new Date();
     }

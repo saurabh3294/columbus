@@ -18,7 +18,9 @@ import com.proptiger.data.util.ImageUtil;
  */
 @JsonFilter("fieldFilter")
 public class SolrResult extends BaseModel{
-    private Property property = new Property();
+    
+	private static final long serialVersionUID = 3536334269824289200L;
+	private Property property = new Property();
     private Project project = new Project();
     private Locality locality = new Locality();
     private Suburb suburb = new Suburb();

@@ -24,7 +24,10 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class LocalityAmenityTypes extends BaseModel{
-    @FieldMetaInfo(displayName = "Id", description = "Id")
+  
+	private static final long serialVersionUID = -5130354389286165685L;
+
+	@FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name="id")
     @Id 
     private int id;

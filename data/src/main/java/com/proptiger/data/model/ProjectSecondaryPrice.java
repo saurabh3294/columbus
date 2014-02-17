@@ -18,6 +18,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @Deprecated
 public class ProjectSecondaryPrice extends BaseModel{
+	private static final long serialVersionUID = -9024664436649885563L;
+
 	@Id
 	@FieldMetaInfo(displayName = "Id", description = "Id")
 	@Column(name="ID")

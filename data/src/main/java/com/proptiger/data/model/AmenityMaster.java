@@ -18,6 +18,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonInclude(Include.NON_NULL)
 public class AmenityMaster extends BaseModel{
 	
+private static final long serialVersionUID = -4171453248397452560L;
+	
 	@Id
 	@Column(name="AMENITY_Id")
 	@FieldMetaInfo(displayName = "Amenity Id", description = "Amenity Id")

@@ -1,8 +1,11 @@
 package com.proptiger.mail.service;
 
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.apache.velocity.app.VelocityEngine;
@@ -58,6 +61,18 @@ public class TemplateToHtmlGenerator {
 	}
 	
 	public String generateHtmlFromTemplate(Map<String, Object> map, String templateFilePath){
+		Locale locale = Locale.getDefault(); 
+		NumberFormat nf = NumberFormat.getInstance(locale);
+		nf.setMaximumFractionDigits(0);
+		nf.setMinimumFractionDigits(0);
+		nf.setRoundingMode(RoundingMode.HALF_UP);
+		map.put("numberFormatter", nf);
+		
+		NumberFormat nfWithTwoDecimal = NumberFormat.getInstance(locale);
+		nfWithTwoDecimal.setMaximumFractionDigits(2);
+		nfWithTwoDecimal.setMinimumFractionDigits(0);
+		nfWithTwoDecimal.setRoundingMode(RoundingMode.HALF_UP);
+		map.put("numberFormatterDecimal", nfWithTwoDecimal);
 		String text = VelocityEngineUtils.mergeTemplateIntoString(
                 velocityEngine, templateFilePath, ENCODING_UTF8, map);
 		if(text != null){

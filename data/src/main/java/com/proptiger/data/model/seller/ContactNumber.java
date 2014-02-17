@@ -21,6 +21,8 @@ import com.proptiger.data.model.enums.ContactNumberType;
 @JsonFilter("fieldFilter")
 public class ContactNumber  extends BaseModel{
 
+	private static final long serialVersionUID = -4848784125501814242L;
+
 	@Id
 	@Column(name = "id")
 	private Integer id;

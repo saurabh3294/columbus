@@ -25,7 +25,10 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class ForumUser extends BaseModel{
-    @Column(name = "USER_ID")
+
+	private static final long serialVersionUID = 6769127512697320945L;
+
+	@Column(name = "USER_ID")
     @Id
     private Integer userId;
     
@@ -33,9 +36,11 @@ public class ForumUser extends BaseModel{
     private String  username;
     
     @Column(name = "EMAIL")
+    @JsonIgnore
     private String  email;
     
     @Column(name = "CONTACT")
+    @JsonIgnore
     private long  contact;
     
     @Column(name = "PROVIDERID")

@@ -20,6 +20,8 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @ResourceMetaInfo
 public class WordpressPost extends BaseModel{
 
+	private static final long serialVersionUID = -4623450582253484193L;
+
 	@Id
 	@Column(name = "ID")
 	private long id;

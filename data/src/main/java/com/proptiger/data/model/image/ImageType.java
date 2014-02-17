@@ -19,6 +19,9 @@ import com.proptiger.data.model.ObjectType;
 @Entity(name = "ImageType")
 @JsonFilter("fieldFilter")
 public class ImageType extends BaseModel {
+	
+	private static final long serialVersionUID = 6121401801684707486L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
