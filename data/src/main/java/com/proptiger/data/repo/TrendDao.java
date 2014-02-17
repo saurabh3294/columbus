@@ -46,16 +46,13 @@ public class TrendDao {
 		for (InventoryPriceTrend inventoryPriceTrend : list) {
 			Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
 			Map<String, Object> newExtraAttributes = new HashMap<>();
-			Iterator<Entry<String, Object>> a = extraAttributes.entrySet().iterator();
-			while (a.hasNext()) {
-				Entry<String, Object> b = a.next();
-				String key = b.getKey();
+			
+			for(String key : extraAttributes.keySet()){
 				String newKey = StringUtils.replace(key, "OnLtdSupply", "OnSupply");
-				newExtraAttributes.put(newKey, b.getValue());
+				newExtraAttributes.put(newKey, extraAttributes.get(key));
 			}
 			inventoryPriceTrend.setExtraAttributes(newExtraAttributes);
 		}
-
 		return list;
 	}
 }
