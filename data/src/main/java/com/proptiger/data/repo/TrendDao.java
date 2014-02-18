@@ -1,8 +1,11 @@
 package com.proptiger.data.repo;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -42,14 +45,17 @@ public class TrendDao {
 	private List<InventoryPriceTrend> modifyWavgKeysInResultSet(List<InventoryPriceTrend> list){
 		for (InventoryPriceTrend inventoryPriceTrend : list) {
 			Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
-			for (String key : extraAttributes.keySet()) {
+			Map<String, Object> newExtraAttributes = new HashMap<>();
+			Iterator<Entry<String, Object>> a = extraAttributes.entrySet().iterator();
+			while (a.hasNext()) {
+				Entry<String, Object> b = a.next();
+				String key = b.getKey();
 				String newKey = StringUtils.replace(key, "OnLtdSupply", "OnSupply");
-				if(!newKey.equals(key)){
-					extraAttributes.put(newKey, extraAttributes.get(key));
-					extraAttributes.remove(key);
-				}
+				newExtraAttributes.put(newKey, b.getValue());
 			}
+			inventoryPriceTrend.setExtraAttributes(newExtraAttributes);
 		}
+
 		return list;
 	}
 }

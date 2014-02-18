@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @JsonFormat(shape=JsonFormat.Shape.OBJECT)
 public enum ImageResolution {
     THUMBNAIL(130, 100),
-    SMALL(320, 240),
+    SMALL(360, 270),
     MEDIUM(520, 400),
     LARGE(1336, 768),
     MOBILE_0(220, 120),
