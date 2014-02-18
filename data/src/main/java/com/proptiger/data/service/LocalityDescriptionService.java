@@ -95,8 +95,8 @@ public class LocalityDescriptionService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("locality", locality);
 		map.put("nearByLocalities",
-				localityService.getTopLocalitiesAroundLocality(
-						locality.getLocalityId(), new Selector(), 0));
+				localityService.getTopRatedLocalitiesAroundLocality(
+						locality.getLocalityId(), new Selector(), 0, 0.0));
 		map.put("topBuilders", builderService.getTopBuildersForLocality(locality.getLocalityId()));
 		
 		map.put("amenities",

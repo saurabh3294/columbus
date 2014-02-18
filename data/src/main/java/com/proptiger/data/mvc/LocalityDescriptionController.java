@@ -11,6 +11,13 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.LocalityDescriptionService;
 
+/**
+ * This class provides api to generate description of a locality from set of
+ * template files
+ * 
+ * @author Rajeev Pandey
+ * 
+ */
 @Controller
 @RequestMapping(value = "data/v1/entity/locality")
 @DisableCaching

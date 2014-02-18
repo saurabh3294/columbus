@@ -128,7 +128,7 @@
 			#if($counter > 0)
 		 	 	and   
 			#end
-			$readyForPossessionProjects are ready to move in 
+			$readyForPossessionProjects ready to move in 
 		#end
 		projects in ${locality.label} from different builders.  
 	#end
@@ -146,4 +146,29 @@
 		 	#set($temp = $metroStationList.add($amenity.name))
 		#end
 	#end
+#end
+
+#macro(populateBuilderNameList $topBuilders)
+	#set($popularBuildersNameList = [])
+	#foreach($builder in $topBuilders)
+		#if($builder.name != "Reputed Builder")
+			#set($temp = $popularBuildersNameList.add($builder.name))
+		#end
+	#end
+#end
+
+#macro(populateUnitTypeAndUnitNameList $properties)
+	#set($unitTypesStringList = [])
+	#set($unitNamesStringList = [])
+	#if($properties)
+		#foreach($property in $properties)
+		#if(!$unitTypesStringList.contains($property.unitType))
+			#set($temp = $unitTypesStringList.add($property.unitType))
+		#end
+		#if(!$unitNamesStringList.contains($property.unitName))
+			#set($temp = $unitNamesStringList.add($property.unitName))
+		#end
+	#end
+	#end
+	
 #end

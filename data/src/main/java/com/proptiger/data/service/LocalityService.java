@@ -456,20 +456,27 @@ public class LocalityService {
 		return result;
 	}
 
-	/**
-	 * Get top localities around provided locality id, this is bit different
-	 * than finding top localities for city or suburb. We need to find
-	 * localities where rating is >= α in X km radius by taking provided
-	 * locality's lat lon as center.
-	 * 
-	 * α = minimumRatingForTopLocality star, X = radiusOneForTopLocality
-	 * 
-	 * @param localityId
-	 * @param selector
-	 * @return List<Locality>
-	 */
-	public List<Locality> getTopLocalitiesAroundLocality(Integer localityId,
-			Selector localitySelector, Integer imageCount) {
+	
+    /**
+     * Get top localities around provided locality id, this is bit different
+     * than finding top localities for city or suburb. We need to find
+     * localities where rating is >= α in X km radius by taking provided
+     * locality's lat lon as center.
+     * 
+     * In case if minRatingThresholdForTopLocality is provided null value then
+     * it will use minimumRatingForTopLocality as minimum rating threshold to
+     * consider a locality as top locality α = minimumRatingForTopLocality star,
+     * X = radiusOneForTopLocality
+     * 
+     * @param localityId
+     * @param selector
+     * @return List<Locality>
+     */
+	public List<Locality> getTopRatedLocalitiesAroundLocality(Integer localityId,
+			Selector localitySelector, Integer imageCount, Double minRatingThresholdForTopLocality) {
+	    if(minRatingThresholdForTopLocality == null){
+	        minRatingThresholdForTopLocality = minimumRatingForTopLocality;
+	    }
 		List<Locality> localities = localityDao.findByLocalityIds(
 				Arrays.asList(localityId), localitySelector).getResults();
 		if (localities == null || localities.size() == 0) {
@@ -547,7 +554,7 @@ public class LocalityService {
 			 * check if average rating is >= to minimum rating threshold
 			 */
 			if (localityWithMoreInfo.getAverageRating() != null
-					&& localityWithMoreInfo.getAverageRating() >= minimumRatingForTopLocality) {
+					&& localityWithMoreInfo.getAverageRating() >= minRatingThresholdForTopLocality) {
 				// if rating is greater than threshold then update average
 				// rating value
 				locality.setAverageRating(localityWithMoreInfo

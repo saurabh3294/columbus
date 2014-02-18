@@ -9,34 +9,22 @@ ${locality.label} is one of the top most locality in ${locality.suburb.city.labe
 		${locality.label} is surrounded by #singularOrPlural("area" $nearByLocalityNameList) #listOfStringToSentence($nearByLocalityNameList). 
 	#end
 #end
-#set($popularBuildersCounter = 0)
-#set($popularBuildersNameList = [])
+
 #if($topBuilders)
-	#foreach($builder in $topBuilders)
-		#set($temp = $popularBuildersNameList.add($builder.name))
-		#set($popularBuildersCounter = $popularBuildersCounter + 1)
+	#populateBuilderNameList($topBuilders)
+	#if($popularBuildersNameList.size() > 0)
+		There are at least $popularBuildersNameList.size() different builders constructing their projects in ${locality.label}.  
+	 	Some of the key builders #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) in ${locality.label}.  
 	#end
 #end
-#if($popularBuildersCounter > 0)
-	There are at least $popularBuildersCounter different builders constructing their projects in ${locality.label}. 
-#end
-#if($popularBuildersCounter > 0)
- 	Some of the key builders #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) in ${locality.label}. 
-#end
-#set($unitTypesStringList = [])
-#set($unitNamesStringList = [])
+
 #set($minSize = 0)
 #set($maxSize = 0)
 #set($counter = 0)
 #set($lowestPricePropery = "")
 #set($unitTypeCountMap = {})
+#populateUnitTypeAndUnitNameList($properties)
 #foreach($property in $properties)
-	#if(!$unitTypesStringList.contains($property.unitType))
-		#set($temp = $unitTypesStringList.add($property.unitType))
-	#end
-	#if(!$unitNamesStringList.contains($property.unitName))
-		#set($temp = $unitNamesStringList.add($property.unitName))
-	#end
 	#if($property.size)
 		#if($counter == 0)
 			#set($minSize = $property.size)
@@ -68,7 +56,7 @@ Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringT
 	#set($counter = 0)
 	#set($unitTypeAndCountList = [])
 	#foreach($entry in $unitTypeCountMap.entrySet())
-		#set($str = $entry.value + " of " + $entry.key)
+		#set($str = $entry.value + " " + $entry.key)
 		#set($temp = $unitTypeAndCountList.add($str))
 	#end
 	#if($unitTypeAndCountList)
