@@ -6,8 +6,8 @@ import com.proptiger.data.model.LocalityAmenityTypes;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface LocalityAmenityTypeDao extends JpaRepository<LocalityAmenityTypes, Integer>{
+public interface LocalityAmenityTypeDao extends JpaRepository<LocalityAmenityTypes, Integer> {
 
 }

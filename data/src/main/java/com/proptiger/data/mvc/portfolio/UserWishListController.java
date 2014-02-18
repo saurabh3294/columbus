@@ -33,7 +33,8 @@ public class UserWishListController extends BaseController {
 
     @RequestMapping(value = { "/portfolio/wish-list", "wish-list" }, method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getUserWishList(@PathVariable Integer userId,
+    public ProAPIResponse getUserWishList(
+            @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         List<UserWishListDto> result = userWishListService.getUserWishList(userInfo.getUserIdentifier());
         return new ProAPISuccessCountResponse(result, result.size());
@@ -41,17 +42,19 @@ public class UserWishListController extends BaseController {
 
     @RequestMapping(value = "/wish-list", method = RequestMethod.POST)
     @ResponseBody
-    public ProAPIResponse createUserWishList(@RequestBody UserWishlist userWishlist,
+    public ProAPIResponse createUserWishList(
+            @RequestBody UserWishlist userWishlist,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-    	userWishListService.createUserWishList(userWishlist, userInfo.getUserIdentifier());
+        userWishListService.createUserWishList(userWishlist, userInfo.getUserIdentifier());
         return getUserWishList(userInfo.getUserIdentifier(), userInfo);
     }
 
     @RequestMapping(value = "/wish-list/{wishlistId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ProAPIResponse deleteUserWishList(@PathVariable int wishlistId, @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo)
-    {
+    public ProAPIResponse deleteUserWishList(
+            @PathVariable int wishlistId,
+            @PathVariable Integer userId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         userWishListService.deleteWishlist(wishlistId);
         return getUserWishList(userInfo.getUserIdentifier(), userInfo);
     }

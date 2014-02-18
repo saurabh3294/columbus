@@ -26,18 +26,20 @@ import com.proptiger.data.service.CompositeAPIService;
  */
 @Controller
 @RequestMapping(value = "app/v1/composite")
-public class AppCompositAPIController{
-	
+public class AppCompositAPIController {
+
     @Autowired
     private CompositeAPIService compositeAPIService;
-	
+
     @RequestMapping
-	@ResponseBody
-	public ProAPIResponse getCompositeApiResult(HttpServletRequest request, HttpServletResponse response,
-			@RequestParam(required = true, value = "api") List<String> api) {
-		Map<String, Object> responseMap = null;
-		responseMap = compositeAPIService.getResponseForApis(api);
-		return new ProAPISuccessResponse(responseMap);
-	}
+    @ResponseBody
+    public ProAPIResponse getCompositeApiResult(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestParam(required = true, value = "api") List<String> api) {
+        Map<String, Object> responseMap = null;
+        responseMap = compositeAPIService.getResponseForApis(api);
+        return new ProAPISuccessResponse(responseMap);
+    }
 
 }

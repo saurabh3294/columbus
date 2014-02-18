@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.model.ProjectBanks;
 
-public interface ProjectBanksDao extends JpaRepository<ProjectBanks, Integer>{
+public interface ProjectBanksDao extends JpaRepository<ProjectBanks, Integer> {
 
-	@Query("select PB.bankId from ProjectBanks PB where PB.projectId=?1")
-	public List<Integer> findBankIdByProjectId(Integer projectId);
+    @Query("select PB.bankId from ProjectBanks PB where PB.projectId=?1")
+    public List<Integer> findBankIdByProjectId(Integer projectId);
 }

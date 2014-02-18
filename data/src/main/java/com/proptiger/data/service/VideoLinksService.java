@@ -12,11 +12,11 @@ import com.proptiger.data.util.IdConverterForDatabase;
 
 @Service
 public class VideoLinksService {
-	@Autowired
-	private VideoLinksDao videoLinksDao;
-	
-	public List<VideoLinks> getProjectVideoLinks(int projectId){
-		int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
-		return videoLinksDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
-	}
+    @Autowired
+    private VideoLinksDao videoLinksDao;
+
+    public List<VideoLinks> getProjectVideoLinks(int projectId) {
+        int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
+        return videoLinksDao.findByTableIdAndTableName(cmsProjectId, "resi_project");
+    }
 }

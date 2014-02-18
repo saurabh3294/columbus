@@ -11,45 +11,47 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 @Entity(name = "ObjectType")
 @JsonFilter("fieldFilter")
 public class ObjectType extends BaseModel {
-	/**
+    /**
      * 
      */
     private static final long serialVersionUID = 1L;
 
     @Id
-	@Column(name = "id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-	
-	@Column(name = "type")
-	private String type;
+    private long              id;
 
-	/**
-	 * @return the id
-	 */
-	public long getId() {
-		return id;
-	}
+    @Column(name = "type")
+    private String            type;
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
 
-	/**
-	 * @return the type
-	 */
-	public String getType() {
-		return type;
-	}
+    /**
+     * @param id
+     *            the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type
+     *            the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
 
 }

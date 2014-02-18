@@ -19,109 +19,96 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * User wish list model object corresponding to USER_WISHLIST table
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "USER_WISHLIST")
-public class UserWishlist implements Serializable{
-	private static final long serialVersionUID = -5523514441836021198L;
+public class UserWishlist implements Serializable {
+    private static final long serialVersionUID = -5523514441836021198L;
 
-	@Id
-	@GeneratedValue
-    @Column(name="ID")
-	private Integer id;
-	
-	@Column(name = "USER_ID")
-	private Integer userId; 
-	
-	@Column(name = "PROJECT_ID")
-	private Integer projectId; 
-	
-	@Column(name = "TYPE_ID")
-	private Integer typeId; 
-	
-	@Column(name = "DATETIME")
-	private Date datetime;
+    @Id
+    @GeneratedValue
+    @Column(name = "ID")
+    private Integer           id;
 
-	@ManyToOne(fetch=FetchType.EAGER)
-	@Fetch(FetchMode.JOIN)
-	@JsonIgnore
-	@JoinColumn(name = "PROJECT_ID", insertable=false, updatable=false)
-	private Project project;
+    @Column(name = "USER_ID")
+    private Integer           userId;
 
-	@ManyToOne(fetch=FetchType.LAZY)
-	@JoinColumn(name = "TYPE_ID", insertable=false, updatable=false)
-	@JsonIgnore
-	private Property property;
+    @Column(name = "PROJECT_ID")
+    private Integer           projectId;
 
+    @Column(name = "TYPE_ID")
+    private Integer           typeId;
 
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "DATETIME")
+    private Date              datetime;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JsonIgnore
+    @JoinColumn(name = "PROJECT_ID", insertable = false, updatable = false)
+    private Project           project;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TYPE_ID", insertable = false, updatable = false)
+    @JsonIgnore
+    private Property          property;
 
+    public Integer getId() {
+        return id;
+    }
 
-	public Integer getUserId() {
-		return userId;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
+    public Integer getUserId() {
+        return userId;
+    }
 
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
+    public Integer getProjectId() {
+        return projectId;
+    }
 
-	public Integer getProjectId() {
-		return projectId;
-	}
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
 
+    public Integer getTypeId() {
+        return typeId;
+    }
 
-	public void setProjectId(Integer projectId) {
-		this.projectId = projectId;
-	}
+    public void setTypeId(Integer typeId) {
+        this.typeId = typeId;
+    }
 
+    public Date getDatetime() {
+        return datetime;
+    }
 
-	public Integer getTypeId() {
-		return typeId;
-	}
+    public void setDatetime(Date datetime) {
+        this.datetime = datetime;
+    }
 
+    public Project getProject() {
+        return project;
+    }
 
-	public void setTypeId(Integer typeId) {
-		this.typeId = typeId;
-	}
+    public void setProject(Project project) {
+        this.project = project;
+    }
 
+    public Property getProperty() {
+        return property;
+    }
 
-	public Date getDatetime() {
-		return datetime;
-	}
-
-
-	public void setDatetime(Date datetime) {
-		this.datetime = datetime;
-	}
-
-
-	public Project getProject() {
-		return project;
-	}
-
-
-	public void setProject(Project project) {
-		this.project = project;
-	}
-
-
-	public Property getProperty() {
-		return property;
-	}
-
-
-	public void setProperty(Property property) {
-		this.property = property;
-	}
+    public void setProperty(Property property) {
+        this.property = property;
+    }
 }

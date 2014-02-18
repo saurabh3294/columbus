@@ -8,9 +8,10 @@ import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface DashboardWidgetMappingDao extends JpaRepository<DashboardWidgetMapping, Integer>{
-	public DashboardWidgetMapping findByDashboardIdAndWidgetId(Integer dashboardId, Integer widgetId);
-	public List<DashboardWidgetMapping> findByDashboardId(Integer dashboardId);
+public interface DashboardWidgetMappingDao extends JpaRepository<DashboardWidgetMapping, Integer> {
+    public DashboardWidgetMapping findByDashboardIdAndWidgetId(Integer dashboardId, Integer widgetId);
+
+    public List<DashboardWidgetMapping> findByDashboardId(Integer dashboardId);
 }

@@ -11,7 +11,7 @@ public class DoubletoIntegerConverter implements Converter<Double, Integer> {
         if (value != null) {
             return value.intValue();
         }
-        
+
         return null;
     }
 

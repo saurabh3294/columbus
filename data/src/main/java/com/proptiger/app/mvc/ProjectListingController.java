@@ -38,22 +38,25 @@ public class ProjectListingController extends BaseController {
     private PropertyService propertyService;
 
     @Autowired
-    private ImageService imageService;
-    
+    private ImageService    imageService;
+
     @Autowired
-    private ProjectService projectService;
-    
+    private ProjectService  projectService;
+
     @RequestMapping
     public @ResponseBody
-    Object getProjectListings(@RequestParam(required = false) String selector,
-            @RequestParam(required = false) String facets, @RequestParam(required = false) String stats) {
+    Object getProjectListings(
+            @RequestParam(required = false) String selector,
+            @RequestParam(required = false) String facets,
+            @RequestParam(required = false) String stats) {
         Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
         if (projectListingSelector == null) {
             projectListingSelector = new Selector();
         }
 
-        PaginatedResponse<List<Project>> projects = propertyService.getPropertiesGroupedToProjects(projectListingSelector);
-               
+        PaginatedResponse<List<Project>> projects = propertyService
+                .getPropertiesGroupedToProjects(projectListingSelector);
+
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
         Map<String, Object> response = new HashMap<String, Object>();
@@ -83,7 +86,8 @@ public class ProjectListingController extends BaseController {
                     }
 
                     iterator.remove();
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                 }
             }
 

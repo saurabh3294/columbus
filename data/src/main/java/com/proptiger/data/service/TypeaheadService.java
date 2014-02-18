@@ -19,14 +19,15 @@ import com.proptiger.data.repo.TypeaheadDao;
  * 
  */
 
-
 @Service
 public class TypeaheadService {
     @Autowired
-    private TypeaheadDao typeaheadDao; 
-    
+    private TypeaheadDao typeaheadDao;
+
     /**
-     * This method will return the list of typeahead results based on the params.
+     * This method will return the list of typeahead results based on the
+     * params.
+     * 
      * @param query
      * @param rows
      * @param filterQueries

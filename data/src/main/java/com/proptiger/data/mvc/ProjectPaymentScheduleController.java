@@ -16,19 +16,19 @@ import com.proptiger.data.service.ProjectPaymentScheduleService;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/project/payment-schedule")
 public class ProjectPaymentScheduleController {
 
-	@Autowired
-	private ProjectPaymentScheduleService paymentScheduleService;
-	
-	@RequestMapping(method = RequestMethod.GET, value = "/{projectId}")
-	@ResponseBody
-	public ProAPIResponse getProjectPaymentSchedules(@PathVariable Integer projectId){
-		List<ProjectPaymentSchedule> result = paymentScheduleService.getProjectPaymentSchedule(projectId);
-		return new ProAPISuccessCountResponse(result, result.size());
-	}
+    @Autowired
+    private ProjectPaymentScheduleService paymentScheduleService;
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{projectId}")
+    @ResponseBody
+    public ProAPIResponse getProjectPaymentSchedules(@PathVariable Integer projectId) {
+        List<ProjectPaymentSchedule> result = paymentScheduleService.getProjectPaymentSchedule(projectId);
+        return new ProAPISuccessCountResponse(result, result.size());
+    }
 }

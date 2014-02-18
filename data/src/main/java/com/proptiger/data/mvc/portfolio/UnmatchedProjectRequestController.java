@@ -17,24 +17,27 @@ import com.proptiger.data.service.portfolio.UnmatchedProjectRequestService;
 import com.proptiger.data.util.Constants;
 
 /**
- * This class handles the request for project that is not in proptiger database, 
+ * This class handles the request for project that is not in proptiger database,
  * that a user might try to add in his portfolio
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/user/{userId}/unmatched-project")
-public class UnmatchedProjectRequestController extends BaseController{
-	
-	@Autowired
-	private UnmatchedProjectRequestService unmatchedProjectRequestService;
-	
-	@RequestMapping(method = RequestMethod.POST)
-	@ResponseBody
-	public ProAPIResponse submitUnmatchedProjectDetails(@RequestBody() UnmatchedProjectDetails unmatchedProjectDetails,
-			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
-		boolean status = unmatchedProjectRequestService.handleUnmatchedProjectRequest(unmatchedProjectDetails, userInfo);
-		return new  ProAPISuccessCountResponse(status, 1);
-	}
-	
+public class UnmatchedProjectRequestController extends BaseController {
+
+    @Autowired
+    private UnmatchedProjectRequestService unmatchedProjectRequestService;
+
+    @RequestMapping(method = RequestMethod.POST)
+    @ResponseBody
+    public ProAPIResponse submitUnmatchedProjectDetails(
+            @RequestBody() UnmatchedProjectDetails unmatchedProjectDetails,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        boolean status = unmatchedProjectRequestService
+                .handleUnmatchedProjectRequest(unmatchedProjectDetails, userInfo);
+        return new ProAPISuccessCountResponse(status, 1);
+    }
+
 }

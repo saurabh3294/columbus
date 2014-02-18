@@ -17,22 +17,21 @@ import com.proptiger.data.service.ProjectReviewService;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @Deprecated
 public class ProjectReviewController {
 
-	@Autowired
-	private ProjectReviewService projectReviewService;
-	
-	@RequestMapping(method = RequestMethod.GET,  value = "data/v1/entity/project/{projectId}/review")
-	@ResponseBody
-	@DisableCaching
-	public ProAPIResponse getProjectReviewByProjectId(
-			@PathVariable Long projectId){
-		List<ProjectReview> list = projectReviewService.getProjectReviewByProjectId(projectId);
-		
-		return new ProAPISuccessResponse(list);
-	}
+    @Autowired
+    private ProjectReviewService projectReviewService;
+
+    @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/project/{projectId}/review")
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse getProjectReviewByProjectId(@PathVariable Long projectId) {
+        List<ProjectReview> list = projectReviewService.getProjectReviewByProjectId(projectId);
+
+        return new ProAPISuccessResponse(list);
+    }
 }

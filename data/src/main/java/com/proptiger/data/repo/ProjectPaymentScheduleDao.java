@@ -9,14 +9,12 @@ import com.proptiger.data.model.ProjectPaymentSchedule;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface ProjectPaymentScheduleDao extends JpaRepository<ProjectPaymentSchedule, Integer>{
+public interface ProjectPaymentScheduleDao extends JpaRepository<ProjectPaymentSchedule, Integer> {
 
-	public List<ProjectPaymentSchedule> findByProjectId(Integer projectId);
-	
-	@Query("select P from ProjectPaymentSchedule P where P.projectId = ? " +
-			" group by P.installmentNumber order by P.installmentNumber ASC")
-	public List<ProjectPaymentSchedule> findByProjectIdGroupByInstallmentNo(
-			Integer projectId);
+    public List<ProjectPaymentSchedule> findByProjectId(Integer projectId);
+
+    @Query("select P from ProjectPaymentSchedule P where P.projectId = ? " + " group by P.installmentNumber order by P.installmentNumber ASC")
+    public List<ProjectPaymentSchedule> findByProjectIdGroupByInstallmentNo(Integer projectId);
 }

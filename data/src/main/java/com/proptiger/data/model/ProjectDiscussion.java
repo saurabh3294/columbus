@@ -30,87 +30,87 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.util.ReplySerializer;
 
 @Entity
-@Table(name="FORUM_USER_COMMENTS")
+@Table(name = "FORUM_USER_COMMENTS")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class ProjectDiscussion extends BaseModel {
-	
-	private static final long serialVersionUID = -9152119195829550249L;
 
-	public enum Replies {
-		F("false"), 
-		T("true");
-		
-		String value;
-		private Replies(String value){
-			this.value = value;
-		}
-		
-		public String getValue() {
-			return this.value;
-		}
+    private static final long serialVersionUID = -9152119195829550249L;
 
-		public void setValue(String value) {
-			this.value = value;
-		}
-		
-	}
-	
-	@Column(name="COMMENT_ID")
+    public enum Replies {
+        F("false"), T("true");
+
+        String value;
+
+        private Replies(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return this.value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+    }
+
+    @Column(name = "COMMENT_ID")
     @Id
     @GeneratedValue
-    private long id;
+    private long                    id;
 
-    @Column(name="PARENT_ID")
-    private long parentId;
-    
+    @Column(name = "PARENT_ID")
+    private long                    parentId;
+
     @Column(name = "USER_ID")
-    private int userId;
-    
-    @Column(name="ADMIN_USERNAME")
-    private String adminUserName;
+    private int                     userId;
 
-    @Column(name="PROJECT_ID")
-    private int projectId;
-    
-    @Column(name="LEVEL")
-    private int level;
+    @Column(name = "ADMIN_USERNAME")
+    private String                  adminUserName;
 
-    @Column(name="COMMENTS")
-    private String comment;
-    
-    @Column(name="LIKES")
-    private int numLikes;
+    @Column(name = "PROJECT_ID")
+    private int                     projectId;
 
-    @Column(name="REPLY")
+    @Column(name = "LEVEL")
+    private int                     level;
+
+    @Column(name = "COMMENTS")
+    private String                  comment;
+
+    @Column(name = "LIKES")
+    private int                     numLikes;
+
+    @Column(name = "REPLY")
     @Enumerated(EnumType.STRING)
     @JsonSerialize(using = ReplySerializer.class)
-    private Replies isReplied;
+    private Replies                 isReplied;
 
-    @Column(name="CREATED_DATE")
+    @Column(name = "CREATED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
-    
+    private Date                    createdDate;
+
     @Column(name = "APPROVED_DATE")
     @Temporal(TemporalType.TIMESTAMP)
     @JsonIgnore
-    private Date approvedDate;
+    private Date                    approvedDate;
 
-    @Column(name="STATUS")
-    private String status;
-    
+    @Column(name = "STATUS")
+    private String                  status;
+
     @Column(name = "TITLE", nullable = true)
-    private String  title = "";
-    
+    private String                  title = "";
+
     @Column(name = "URL", nullable = true)
-    private String  url = "";
-    
-    @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name = "USER_ID", insertable=false, updatable=false)
+    private String                  url   = "";
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
     @Fetch(FetchMode.JOIN)
-    private ForumUser user;
-    
+    private ForumUser               user;
+
     @Transient
     private List<ProjectDiscussion> childDiscussions;
 
@@ -130,122 +130,121 @@ public class ProjectDiscussion extends BaseModel {
         this.adminUserName = adminUserName;
     }
 
-	public List<ProjectDiscussion> getChildDiscussions() {
-		return childDiscussions;
-	}
+    public List<ProjectDiscussion> getChildDiscussions() {
+        return childDiscussions;
+    }
 
-	public void setChildDiscussions(List<ProjectDiscussion> childDiscussions) {
-		this.childDiscussions = childDiscussions;
-	}
+    public void setChildDiscussions(List<ProjectDiscussion> childDiscussions) {
+        this.childDiscussions = childDiscussions;
+    }
 
-	public long getId() {
-		return id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public long getParentId() {
-		return parentId;
-	}
+    public long getParentId() {
+        return parentId;
+    }
 
-	public void setParentId(long parentId) {
-		this.parentId = parentId;
-	}
+    public void setParentId(long parentId) {
+        this.parentId = parentId;
+    }
 
-	public int getProjectId() {
-		return projectId;
-	}
+    public int getProjectId() {
+        return projectId;
+    }
 
-	public void setProjectId(int projectId) {
-		this.projectId = projectId;
-	}
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
 
-	public int getLevel() {
-		return level;
-	}
+    public int getLevel() {
+        return level;
+    }
 
-	public void setLevel(int level) {
-		this.level = level;
-	}
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
-	public String getComment() {
-		return comment;
-	}
+    public String getComment() {
+        return comment;
+    }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
 
-	public int getNumLikes() {
-		return numLikes;
-	}
+    public int getNumLikes() {
+        return numLikes;
+    }
 
-	public void setNumLikes(int numLikes) {
-		this.numLikes = numLikes;
-	}
+    public void setNumLikes(int numLikes) {
+        this.numLikes = numLikes;
+    }
 
-	public Replies isReplied() {
-		return isReplied;
-	}
+    public Replies isReplied() {
+        return isReplied;
+    }
 
-	public void setReplied(Replies isReplied) {
-		this.isReplied = isReplied;
-	}
+    public void setReplied(Replies isReplied) {
+        this.isReplied = isReplied;
+    }
 
-	public Date getCreatedDate() {
-		return createdDate;
-	}
+    public Date getCreatedDate() {
+        return createdDate;
+    }
 
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;
-	}
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public int getUserId() {
-		return userId;
-	}
+    public int getUserId() {
+        return userId;
+    }
 
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
-	
-	@PrePersist
-	public void prePersist()
-	{
-		this.createdDate = new Date();
-		this.approvedDate = new Date();
-	}
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
-	public Date getApprovedDate() {
-		return approvedDate;
-	}
+    @PrePersist
+    public void prePersist() {
+        this.createdDate = new Date();
+        this.approvedDate = new Date();
+    }
 
-	public void setApprovedDate(Date approvedDate) {
-		this.approvedDate = approvedDate;
-	}
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
 
-	public String getTitle() {
-		return title;
-	}
+    public void setApprovedDate(Date approvedDate) {
+        this.approvedDate = approvedDate;
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

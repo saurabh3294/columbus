@@ -7,5 +7,5 @@ import com.proptiger.data.model.portfolio.SubscriptionType;
 
 @Repository
 public interface SubscriptionTypeDao extends PagingAndSortingRepository<SubscriptionType, Integer> {
-	public SubscriptionType findByName(String name);
+    public SubscriptionType findByName(String name);
 }

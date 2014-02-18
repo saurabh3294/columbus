@@ -27,378 +27,416 @@ import com.proptiger.exception.DuplicateResourceException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
- * Dashboard service class to provide CRUD operation  over Dashboard resource
+ * Dashboard service class to provide CRUD operation over Dashboard resource
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Service
-public class DashboardService extends AbstractService{
+public class DashboardService extends AbstractService {
 
-	private static Logger logger = LoggerFactory.getLogger(DashboardService.class);
-	
-	@Autowired
-	private DashboardDao dashboardDao;
-	@Autowired
-	private WidgetDao widgetDao;
-	@Autowired
-	private DashboardWidgetMappingDao dashboardWidgetMappingDao;
-	/**
-	 * Finds all dashboard for given user id
-	 * @param userId
-	 * @return
-	 */
-	@Transactional
-	public List<Dashboard> getAllByUserId(Integer userId){
-		logger.debug("Finding all dashboards for userid {}",userId);
-		List<Dashboard> result = dashboardDao.findByUserId(userId);
-		
-		if(result != null && result.size() == 0){
-			logger.debug("creating default dashboard and widgets as of admin for user {}",userId);
-			/*
-			 * No dashboard exists for this user, need to create defaule dashboard
-			 * and and dashboard widget mapping by taking input from admin's mapping 
-			 */
-			List<Dashboard> adminsDashboard = dashboardDao.findByUserId(Constants.ADMIN_USER_ID);
-			logger.debug("Dasboard and widgets for admin is {}",adminsDashboard);
-			//need to create copy for current user
-			if(adminsDashboard != null && !adminsDashboard.isEmpty()){
-				for(Dashboard dashboard: adminsDashboard){
-					DashboardDto dashboardDto = new DashboardDto();
-					dashboardDto.setName(dashboard.getName());
-					dashboardDto.setTotalColumn(dashboard.getTotalColumn());
-					dashboardDto.setTotalRow(dashboard.getTotalRow());
-					dashboardDto.setUserId(userId);
-					List<DashboardWidgetMapping> widgetMappintToCreate = new ArrayList<>();
-					for(DashboardWidgetMapping widgetMapping: dashboard.getWidgets()){
-						DashboardWidgetMapping dashboardWidgetMapping = new DashboardWidgetMapping();
-						dashboardWidgetMapping.setStatus(widgetMapping.getStatus());
-						dashboardWidgetMapping.setWidgetColumnPosition(widgetMapping.getWidgetColumnPosition());
-						dashboardWidgetMapping.setWidgetId(widgetMapping.getWidgetId());
-						dashboardWidgetMapping.setWidgetRowPosition(widgetMapping.getWidgetRowPosition());
-						widgetMappintToCreate.add(dashboardWidgetMapping);
-					}
-					dashboardDto.setWidgets(widgetMappintToCreate);
-					createDashboard(dashboardDto);
-				}
-				//again retrieving dashboards for user after creation
-				result = dashboardDao.findByUserId(userId);
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * Finds dashboard for given user id and dashboard id
-	 * @param userId
-	 * @param dashboardId
-	 * @throws ResourceNotAvailableException
-	 * @return
-	 */
-	@Transactional(readOnly = true)
-	public Dashboard getDashboardById(Integer userId, Integer dashboardId){
-		logger.debug("Finding dashboard id {} for userid {}",userId, dashboardId);
-		Dashboard result = dashboardDao.findByIdAndUserId(dashboardId, userId);
-		if(result == null){
-			logger.error("Dashboard id {} not found for userid {}",dashboardId, userId);
-			throw new ResourceNotAvailableException(ResourceType.DASHBOARD, ResourceTypeAction.GET);
-		}
-		return result;
-	}
-	/**
-	 * Find a dashboard widget mapping
-	 * @param userId
-	 * @param dashboardId
-	 * @param widgetId
-	 * @return
-	 */
-	@Transactional(readOnly = true)
-	public DashboardWidgetMapping getSingleWidgetMapping(Integer userId, Integer dashboardId, Integer widgetId){
-		Dashboard dashboard = getDashboardById(userId, dashboardId);
-		DashboardWidgetMapping toFind = null;
-		if(dashboard.getWidgets() != null){
-			for(DashboardWidgetMapping present: dashboard.getWidgets()){
-				if(present.getId().equals(widgetId)){
-					toFind = present;
-					break;
-				}
-			}
-		}
-		if(toFind == null){
-			logger.error("Widget id {} not found for dashboard id {}",widgetId, dashboardId);
-			throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.GET);
-		}
-		return toFind;
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.proptiger.data.service.portfolio.AbstractService#preProcessCreate(com.proptiger.data.model.resource.Resource)
-	 */
-	@Override
-	protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
-		super.preProcessCreate(resource);
-		Dashboard toCreate = (Dashboard)resource;
-		Dashboard dashboardPresent = dashboardDao.findByNameAndUserId(toCreate.getName(), toCreate.getUserId());
-		if(dashboardPresent != null){
-			logger.error("Duplicate resource {}",dashboardPresent.getId());
-			throw new DuplicateNameResourceException("Resource with same name exist");
-		}
-	}
-	
-	/**
-	 * Updating a dashboard resource
-	 * @param dashboardDto
-	 * @throws ``
-	 * @return
-	 */
-	@Transactional(rollbackFor = ResourceNotAvailableException.class)
-	public Dashboard updateDashboard(DashboardDto dashboardDto){
-		logger.debug("Updating dashboard id {} for userid {}",dashboardDto.getId(), dashboardDto.getUserId());
-		Dashboard dashboard = Dashboard
-				.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
-				.setTotalColumns(dashboardDto.getTotalColumn())
-				.setTotalRows(dashboardDto.getTotalRow())
-				.setId(dashboardDto.getId()).build();
-		Dashboard updated = update(dashboard);
-		if(dashboardDto.getWidgets() != null){
-			for (DashboardWidgetMapping mapping : dashboardDto.getWidgets()) {
-				updateWidgetMappingWithDashboard(dashboardDto.getUserId(),
-						dashboardDto.getId(), mapping.getWidgetId(), mapping);
-			}
-		}
-		updated = getDashboardById(dashboardDto.getUserId(), dashboardDto.getId());
-		return updated;
-		
-	}
-	
-	/* (non-Javadoc)
-	 * @see com.proptiger.data.service.portfolio.AbstractService#preProcessUpdate(com.proptiger.data.model.resource.Resource)
-	 */
-	
-	@Override
-	@SuppressWarnings("unchecked")
-	protected <T extends Resource> T preProcessUpdate(T resource) {
-		super.preProcessUpdate(resource);
-		Dashboard toUpdate = (Dashboard)resource;
-		Dashboard dashboardPresent = dashboardDao.findOne(toUpdate.getId());
-		if(dashboardPresent == null){
-			logger.error("Dashboard id {} not found",toUpdate.getId());
-			throw new ResourceNotAvailableException(ResourceType.DASHBOARD, ResourceTypeAction.UPDATE);
-		}
-		if(toUpdate.getWidgets() != null){
-			for(DashboardWidgetMapping mapping: toUpdate.getWidgets()){
-				if(mapping.getWidgetId() == null){
-					throw new IllegalArgumentException("Invalid widget Id");
-				}
-			}
-		}
-		return (T) dashboardPresent;
-	}
-	
-	/**
-	 * Deletes a dashboard resource from data store and all its association with widgets
-	 * @throws ResourceNotAvailableException
-	 * @param userId
-	 * @param dashboardId
-	 * @return
-	 */
-	@Transactional(rollbackFor = ResourceNotAvailableException.class)
-	public Dashboard deleteDashboard(Integer userId, Integer dashboardId){
-		Dashboard deleted = getDashboardById(userId, dashboardId);
-		List<DashboardWidgetMapping> widgetMappings = deleted.getWidgets();
-		/*
-		 * First need to delete widgets association with this dashboard object 
-		 */
-		dashboardWidgetMappingDao.delete(widgetMappings);
-		/*
-		 * Now dashboard object can be deleted
-		 */
-		dashboardDao.delete(deleted);
-		return deleted;
-	}
-	
-	@Transactional(rollbackFor = ConstraintViolationException.class)
-	public Dashboard createDashboard(DashboardDto dashboardDto){
-		logger.debug("Creating dashboard for userid {}",dashboardDto.getUserId());
-		Dashboard dashboard = Dashboard
-				.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
-				.setTotalColumns(dashboardDto.getTotalColumn())
-				.setTotalRows(dashboardDto.getTotalRow()).build();
-		
-		Dashboard created = create(dashboard);
-		/*
-		 * creating dashboard and widget association
-		 */
-		List<DashboardWidgetMapping> widgetMappings = createDashboardWidgetMappings(
-				dashboardDto.getUserId(), created.getId(),
-				dashboardDto.getWidgets());
-		created.setWidgets(widgetMappings);
-		return created;
-	}
-	
-	/**
-	 * Creating dashboard and widget mappings
-	 * @param created
-	 */
-	@Transactional(rollbackFor = ConstraintViolationException.class)
-	private List<DashboardWidgetMapping> createDashboardWidgetMappings(Integer userId, Integer dashboardId, List<DashboardWidgetMapping> toCreate) {
-		logger.debug("Creating dashboard widget mapping for user {} and dashboard {}",userId, dashboardId);
-		List<DashboardWidgetMapping> createdWidgetsMapping = new ArrayList<DashboardWidgetMapping>();
-		if(toCreate != null){
-			for(DashboardWidgetMapping mapping: toCreate){
-				//explicitly setting id to null as it would be auto created
-				mapping.setDashboardId(dashboardId);
-				if(mapping.getStatus() == null){
-					mapping.setStatus(WidgetDisplayStatus.MAX);
-				}
-				
-			}
-			/*
-			 * Saving newly created dashboard and widget mapping
-			 */
-			try{
-				createdWidgetsMapping = dashboardWidgetMappingDao.save(toCreate);
-			}catch(Exception e){
-				logger.error("Exception while creating dashboard widget mapping-"+e.getMessage());
-				throw new ConstraintViolationException(e.getMessage(), e);
-			}
-			
-		}
-		
-		return createdWidgetsMapping;
-	}
-	
-	@Override
-	protected <T extends Resource> T create(T resource) {
-		Dashboard toCreate = (Dashboard) resource;
-		preProcessCreate(toCreate);
-		
-		Dashboard created = null;
-		try{
-			created = dashboardDao.save(toCreate);
-		}catch(Exception exception){
-			throw new ConstraintViolationException(exception.getMessage(), exception);
-		}
-		logger.debug("Created dashboard id {} for userid {}",created.getId(),toCreate.getUserId());
-		return (T) created;
-	}
+    private static Logger             logger = LoggerFactory.getLogger(DashboardService.class);
 
-	@Override
-	protected <T extends Resource> T update(T resource) {
-		Dashboard dashboard = (Dashboard) resource;
-		Dashboard updated = preProcessUpdate(dashboard);
-		updated.update(dashboard.getName(), dashboard.getTotalColumn(), dashboard.getTotalRow());
-		return (T) updated;
-	}
+    @Autowired
+    private DashboardDao              dashboardDao;
+    @Autowired
+    private WidgetDao                 widgetDao;
+    @Autowired
+    private DashboardWidgetMappingDao dashboardWidgetMappingDao;
 
-	/**
-	 * This method is adding a widget association with dashboard, it will not over right the existing mapping, rather
-	 * it will add a new mapping in existing mappings
-	 * @param userId
-	 * @param dashboardId
-	 * @param dashboardWidgetMapping
-	 * @return
-	 */
-	@Transactional(rollbackFor = ResourceNotAvailableException.class)
-	public Dashboard createSingleWidget(Integer userId,
-			Integer dashboardId,
-			DashboardWidgetMapping dashboardWidgetMapping){
-		dashboardWidgetMapping.setId(null);
-		Dashboard dashboard = getDashboardById(userId, dashboardId);
-		if(dashboard.getWidgets() != null){
-			for(DashboardWidgetMapping existingMapping: dashboard.getWidgets()){
-				if (existingMapping.getWidgetId().equals(
-						dashboardWidgetMapping.getWidgetId())) {
-					logger.error("Duplicate mapping of dashboard id {} and widgetId {}",
-							dashboardId, existingMapping.getWidgetId());
-					throw new DuplicateResourceException(
-							"Mapping of dashboard id and widget id exist");
-				}
-			}
-		}
-		dashboardWidgetMapping.setDashboardId(dashboardId);
-		if(dashboardWidgetMapping.getStatus() == null){
-			dashboardWidgetMapping.setStatus(WidgetDisplayStatus.MAX);
-		}
-		DashboardWidgetMapping createdMapping = dashboardWidgetMappingDao.save(dashboardWidgetMapping);
-		dashboard.addWidget(createdMapping);
-		return dashboard;
-	}
-	/**
-	 * This method updates a dashboard widget mapping attribute
-	 * @param userId
-	 * @param dashboardId
-	 * @param widgetId
-	 * @param dashboardWidgetMapping
-	 * @return
-	 */
-	@Transactional(rollbackFor = ResourceNotAvailableException.class)
-	public Dashboard updateWidgetMappingWithDashboard(Integer userId,
-			Integer dashboardId,
-			Integer widgetId,
-			DashboardWidgetMapping dashboardWidgetMapping){
-		Dashboard dashboard = getDashboardById(userId, dashboardId);
-		DashboardWidgetMapping existingMapping = getDashboardWidgetMapping(dashboardId, widgetId);
-		if(existingMapping == null){
-			throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.UPDATE);
-		}
-		existingMapping.update(dashboardWidgetMapping.getWidgetRowPosition(),
-				dashboardWidgetMapping.getWidgetColumnPosition(),
-				dashboardWidgetMapping.getStatus());
-		dashboard = getDashboardById(userId, dashboardId);
-		return dashboard;
-	}
+    /**
+     * Finds all dashboard for given user id
+     * 
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public List<Dashboard> getAllByUserId(Integer userId) {
+        logger.debug("Finding all dashboards for userid {}", userId);
+        List<Dashboard> result = dashboardDao.findByUserId(userId);
 
-	/**
-	 * This method get a dashboard widget mapping based on dashboard id and widget id
-	 * @param dashboardId
-	 * @param widgetId
-	 * @return
-	 */
-	private DashboardWidgetMapping getDashboardWidgetMapping(Integer dashboardId, Integer widgetId) {
-		DashboardWidgetMapping existingMapping = dashboardWidgetMappingDao.findByDashboardIdAndWidgetId(dashboardId, widgetId);
-		if(existingMapping == null){
-			logger.error("DashboardWidgetMapping not found for dashboardId {} and widgetId {}",dashboardId, widgetId);
-			throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.GET);
-		}
-		return existingMapping;
-	}
-	
-	/**
-	 * This method get all dashboards widget mapping for dashboard id
-	 * @param dashboardId
-	 * @param widgetId
-	 * @return
-	 */
-	private List<DashboardWidgetMapping> getAllWidgetMapping(Integer dashboardId) {
-		List<DashboardWidgetMapping> existingMappings = dashboardWidgetMappingDao.findByDashboardId(dashboardId);
-		if(existingMappings == null){
-			existingMappings = new ArrayList<DashboardWidgetMapping>();
-		}
-		return existingMappings;
-	}
-	
-	/**
-	 * This method deletes a widget association with dashboard
-	 * @param userId
-	 * @param dashboardId
-	 * @param widgetId
-	 * @param dashboardWidgetMapping
-	 * @return
-	 */
-	@Transactional(rollbackFor = ResourceNotAvailableException.class)
-	public Dashboard deleteWidgetMappingWithDashboard(Integer userId,
-			Integer dashboardId,
-			Integer widgetId,
-			DashboardWidgetMapping dashboardWidgetMapping){
-		Dashboard dashboard = getDashboardById(userId, dashboardId);
-		DashboardWidgetMapping existingMapping = getDashboardWidgetMapping(dashboardId, widgetId);
-		dashboardWidgetMappingDao.delete(existingMapping);
-		dashboard = getDashboardById(userId, dashboardId);
-		return dashboard;
-	}
+        if (result != null && result.size() == 0) {
+            logger.debug("creating default dashboard and widgets as of admin for user {}", userId);
+            /*
+             * No dashboard exists for this user, need to create defaule
+             * dashboard and and dashboard widget mapping by taking input from
+             * admin's mapping
+             */
+            List<Dashboard> adminsDashboard = dashboardDao.findByUserId(Constants.ADMIN_USER_ID);
+            logger.debug("Dasboard and widgets for admin is {}", adminsDashboard);
+            // need to create copy for current user
+            if (adminsDashboard != null && !adminsDashboard.isEmpty()) {
+                for (Dashboard dashboard : adminsDashboard) {
+                    DashboardDto dashboardDto = new DashboardDto();
+                    dashboardDto.setName(dashboard.getName());
+                    dashboardDto.setTotalColumn(dashboard.getTotalColumn());
+                    dashboardDto.setTotalRow(dashboard.getTotalRow());
+                    dashboardDto.setUserId(userId);
+                    List<DashboardWidgetMapping> widgetMappintToCreate = new ArrayList<>();
+                    for (DashboardWidgetMapping widgetMapping : dashboard.getWidgets()) {
+                        DashboardWidgetMapping dashboardWidgetMapping = new DashboardWidgetMapping();
+                        dashboardWidgetMapping.setStatus(widgetMapping.getStatus());
+                        dashboardWidgetMapping.setWidgetColumnPosition(widgetMapping.getWidgetColumnPosition());
+                        dashboardWidgetMapping.setWidgetId(widgetMapping.getWidgetId());
+                        dashboardWidgetMapping.setWidgetRowPosition(widgetMapping.getWidgetRowPosition());
+                        widgetMappintToCreate.add(dashboardWidgetMapping);
+                    }
+                    dashboardDto.setWidgets(widgetMappintToCreate);
+                    createDashboard(dashboardDto);
+                }
+                // again retrieving dashboards for user after creation
+                result = dashboardDao.findByUserId(userId);
+            }
+        }
+        return result;
+    }
 
-	@Override
-	protected ResourceType getResourceType() {
-		return ResourceType.DASHBOARD;
-	}
+    /**
+     * Finds dashboard for given user id and dashboard id
+     * 
+     * @param userId
+     * @param dashboardId
+     * @throws ResourceNotAvailableException
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public Dashboard getDashboardById(Integer userId, Integer dashboardId) {
+        logger.debug("Finding dashboard id {} for userid {}", userId, dashboardId);
+        Dashboard result = dashboardDao.findByIdAndUserId(dashboardId, userId);
+        if (result == null) {
+            logger.error("Dashboard id {} not found for userid {}", dashboardId, userId);
+            throw new ResourceNotAvailableException(ResourceType.DASHBOARD, ResourceTypeAction.GET);
+        }
+        return result;
+    }
+
+    /**
+     * Find a dashboard widget mapping
+     * 
+     * @param userId
+     * @param dashboardId
+     * @param widgetId
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public DashboardWidgetMapping getSingleWidgetMapping(Integer userId, Integer dashboardId, Integer widgetId) {
+        Dashboard dashboard = getDashboardById(userId, dashboardId);
+        DashboardWidgetMapping toFind = null;
+        if (dashboard.getWidgets() != null) {
+            for (DashboardWidgetMapping present : dashboard.getWidgets()) {
+                if (present.getId().equals(widgetId)) {
+                    toFind = present;
+                    break;
+                }
+            }
+        }
+        if (toFind == null) {
+            logger.error("Widget id {} not found for dashboard id {}", widgetId, dashboardId);
+            throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.GET);
+        }
+        return toFind;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.proptiger.data.service.portfolio.AbstractService#preProcessCreate
+     * (com.proptiger.data.model.resource.Resource)
+     */
+    @Override
+    protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
+        super.preProcessCreate(resource);
+        Dashboard toCreate = (Dashboard) resource;
+        Dashboard dashboardPresent = dashboardDao.findByNameAndUserId(toCreate.getName(), toCreate.getUserId());
+        if (dashboardPresent != null) {
+            logger.error("Duplicate resource {}", dashboardPresent.getId());
+            throw new DuplicateNameResourceException("Resource with same name exist");
+        }
+    }
+
+    /**
+     * Updating a dashboard resource
+     * 
+     * @param dashboardDto
+     * @throws ``
+     * @return
+     */
+    @Transactional(rollbackFor = ResourceNotAvailableException.class)
+    public Dashboard updateDashboard(DashboardDto dashboardDto) {
+        logger.debug("Updating dashboard id {} for userid {}", dashboardDto.getId(), dashboardDto.getUserId());
+        Dashboard dashboard = Dashboard.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
+                .setTotalColumns(dashboardDto.getTotalColumn()).setTotalRows(dashboardDto.getTotalRow())
+                .setId(dashboardDto.getId()).build();
+        Dashboard updated = update(dashboard);
+        if (dashboardDto.getWidgets() != null) {
+            for (DashboardWidgetMapping mapping : dashboardDto.getWidgets()) {
+                updateWidgetMappingWithDashboard(
+                        dashboardDto.getUserId(),
+                        dashboardDto.getId(),
+                        mapping.getWidgetId(),
+                        mapping);
+            }
+        }
+        updated = getDashboardById(dashboardDto.getUserId(), dashboardDto.getId());
+        return updated;
+
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.proptiger.data.service.portfolio.AbstractService#preProcessUpdate
+     * (com.proptiger.data.model.resource.Resource)
+     */
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected <T extends Resource> T preProcessUpdate(T resource) {
+        super.preProcessUpdate(resource);
+        Dashboard toUpdate = (Dashboard) resource;
+        Dashboard dashboardPresent = dashboardDao.findOne(toUpdate.getId());
+        if (dashboardPresent == null) {
+            logger.error("Dashboard id {} not found", toUpdate.getId());
+            throw new ResourceNotAvailableException(ResourceType.DASHBOARD, ResourceTypeAction.UPDATE);
+        }
+        if (toUpdate.getWidgets() != null) {
+            for (DashboardWidgetMapping mapping : toUpdate.getWidgets()) {
+                if (mapping.getWidgetId() == null) {
+                    throw new IllegalArgumentException("Invalid widget Id");
+                }
+            }
+        }
+        return (T) dashboardPresent;
+    }
+
+    /**
+     * Deletes a dashboard resource from data store and all its association with
+     * widgets
+     * 
+     * @throws ResourceNotAvailableException
+     * @param userId
+     * @param dashboardId
+     * @return
+     */
+    @Transactional(rollbackFor = ResourceNotAvailableException.class)
+    public Dashboard deleteDashboard(Integer userId, Integer dashboardId) {
+        Dashboard deleted = getDashboardById(userId, dashboardId);
+        List<DashboardWidgetMapping> widgetMappings = deleted.getWidgets();
+        /*
+         * First need to delete widgets association with this dashboard object
+         */
+        dashboardWidgetMappingDao.delete(widgetMappings);
+        /*
+         * Now dashboard object can be deleted
+         */
+        dashboardDao.delete(deleted);
+        return deleted;
+    }
+
+    @Transactional(rollbackFor = ConstraintViolationException.class)
+    public Dashboard createDashboard(DashboardDto dashboardDto) {
+        logger.debug("Creating dashboard for userid {}", dashboardDto.getUserId());
+        Dashboard dashboard = Dashboard.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
+                .setTotalColumns(dashboardDto.getTotalColumn()).setTotalRows(dashboardDto.getTotalRow()).build();
+
+        Dashboard created = create(dashboard);
+        /*
+         * creating dashboard and widget association
+         */
+        List<DashboardWidgetMapping> widgetMappings = createDashboardWidgetMappings(
+                dashboardDto.getUserId(),
+                created.getId(),
+                dashboardDto.getWidgets());
+        created.setWidgets(widgetMappings);
+        return created;
+    }
+
+    /**
+     * Creating dashboard and widget mappings
+     * 
+     * @param created
+     */
+    @Transactional(rollbackFor = ConstraintViolationException.class)
+    private List<DashboardWidgetMapping> createDashboardWidgetMappings(
+            Integer userId,
+            Integer dashboardId,
+            List<DashboardWidgetMapping> toCreate) {
+        logger.debug("Creating dashboard widget mapping for user {} and dashboard {}", userId, dashboardId);
+        List<DashboardWidgetMapping> createdWidgetsMapping = new ArrayList<DashboardWidgetMapping>();
+        if (toCreate != null) {
+            for (DashboardWidgetMapping mapping : toCreate) {
+                // explicitly setting id to null as it would be auto created
+                mapping.setDashboardId(dashboardId);
+                if (mapping.getStatus() == null) {
+                    mapping.setStatus(WidgetDisplayStatus.MAX);
+                }
+
+            }
+            /*
+             * Saving newly created dashboard and widget mapping
+             */
+            try {
+                createdWidgetsMapping = dashboardWidgetMappingDao.save(toCreate);
+            }
+            catch (Exception e) {
+                logger.error("Exception while creating dashboard widget mapping-" + e.getMessage());
+                throw new ConstraintViolationException(e.getMessage(), e);
+            }
+
+        }
+
+        return createdWidgetsMapping;
+    }
+
+    @Override
+    protected <T extends Resource> T create(T resource) {
+        Dashboard toCreate = (Dashboard) resource;
+        preProcessCreate(toCreate);
+
+        Dashboard created = null;
+        try {
+            created = dashboardDao.save(toCreate);
+        }
+        catch (Exception exception) {
+            throw new ConstraintViolationException(exception.getMessage(), exception);
+        }
+        logger.debug("Created dashboard id {} for userid {}", created.getId(), toCreate.getUserId());
+        return (T) created;
+    }
+
+    @Override
+    protected <T extends Resource> T update(T resource) {
+        Dashboard dashboard = (Dashboard) resource;
+        Dashboard updated = preProcessUpdate(dashboard);
+        updated.update(dashboard.getName(), dashboard.getTotalColumn(), dashboard.getTotalRow());
+        return (T) updated;
+    }
+
+    /**
+     * This method is adding a widget association with dashboard, it will not
+     * over right the existing mapping, rather it will add a new mapping in
+     * existing mappings
+     * 
+     * @param userId
+     * @param dashboardId
+     * @param dashboardWidgetMapping
+     * @return
+     */
+    @Transactional(rollbackFor = ResourceNotAvailableException.class)
+    public Dashboard createSingleWidget(
+            Integer userId,
+            Integer dashboardId,
+            DashboardWidgetMapping dashboardWidgetMapping) {
+        dashboardWidgetMapping.setId(null);
+        Dashboard dashboard = getDashboardById(userId, dashboardId);
+        if (dashboard.getWidgets() != null) {
+            for (DashboardWidgetMapping existingMapping : dashboard.getWidgets()) {
+                if (existingMapping.getWidgetId().equals(dashboardWidgetMapping.getWidgetId())) {
+                    logger.error(
+                            "Duplicate mapping of dashboard id {} and widgetId {}",
+                            dashboardId,
+                            existingMapping.getWidgetId());
+                    throw new DuplicateResourceException("Mapping of dashboard id and widget id exist");
+                }
+            }
+        }
+        dashboardWidgetMapping.setDashboardId(dashboardId);
+        if (dashboardWidgetMapping.getStatus() == null) {
+            dashboardWidgetMapping.setStatus(WidgetDisplayStatus.MAX);
+        }
+        DashboardWidgetMapping createdMapping = dashboardWidgetMappingDao.save(dashboardWidgetMapping);
+        dashboard.addWidget(createdMapping);
+        return dashboard;
+    }
+
+    /**
+     * This method updates a dashboard widget mapping attribute
+     * 
+     * @param userId
+     * @param dashboardId
+     * @param widgetId
+     * @param dashboardWidgetMapping
+     * @return
+     */
+    @Transactional(rollbackFor = ResourceNotAvailableException.class)
+    public Dashboard updateWidgetMappingWithDashboard(
+            Integer userId,
+            Integer dashboardId,
+            Integer widgetId,
+            DashboardWidgetMapping dashboardWidgetMapping) {
+        Dashboard dashboard = getDashboardById(userId, dashboardId);
+        DashboardWidgetMapping existingMapping = getDashboardWidgetMapping(dashboardId, widgetId);
+        if (existingMapping == null) {
+            throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.UPDATE);
+        }
+        existingMapping.update(
+                dashboardWidgetMapping.getWidgetRowPosition(),
+                dashboardWidgetMapping.getWidgetColumnPosition(),
+                dashboardWidgetMapping.getStatus());
+        dashboard = getDashboardById(userId, dashboardId);
+        return dashboard;
+    }
+
+    /**
+     * This method get a dashboard widget mapping based on dashboard id and
+     * widget id
+     * 
+     * @param dashboardId
+     * @param widgetId
+     * @return
+     */
+    private DashboardWidgetMapping getDashboardWidgetMapping(Integer dashboardId, Integer widgetId) {
+        DashboardWidgetMapping existingMapping = dashboardWidgetMappingDao.findByDashboardIdAndWidgetId(
+                dashboardId,
+                widgetId);
+        if (existingMapping == null) {
+            logger.error("DashboardWidgetMapping not found for dashboardId {} and widgetId {}", dashboardId, widgetId);
+            throw new ResourceNotAvailableException(ResourceType.WIDGET, ResourceTypeAction.GET);
+        }
+        return existingMapping;
+    }
+
+    /**
+     * This method get all dashboards widget mapping for dashboard id
+     * 
+     * @param dashboardId
+     * @param widgetId
+     * @return
+     */
+    private List<DashboardWidgetMapping> getAllWidgetMapping(Integer dashboardId) {
+        List<DashboardWidgetMapping> existingMappings = dashboardWidgetMappingDao.findByDashboardId(dashboardId);
+        if (existingMappings == null) {
+            existingMappings = new ArrayList<DashboardWidgetMapping>();
+        }
+        return existingMappings;
+    }
+
+    /**
+     * This method deletes a widget association with dashboard
+     * 
+     * @param userId
+     * @param dashboardId
+     * @param widgetId
+     * @param dashboardWidgetMapping
+     * @return
+     */
+    @Transactional(rollbackFor = ResourceNotAvailableException.class)
+    public Dashboard deleteWidgetMappingWithDashboard(
+            Integer userId,
+            Integer dashboardId,
+            Integer widgetId,
+            DashboardWidgetMapping dashboardWidgetMapping) {
+        Dashboard dashboard = getDashboardById(userId, dashboardId);
+        DashboardWidgetMapping existingMapping = getDashboardWidgetMapping(dashboardId, widgetId);
+        dashboardWidgetMappingDao.delete(existingMapping);
+        dashboard = getDashboardById(userId, dashboardId);
+        return dashboard;
+    }
+
+    @Override
+    protected ResourceType getResourceType() {
+        return ResourceType.DASHBOARD;
+    }
 }

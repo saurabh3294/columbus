@@ -15,32 +15,33 @@ import com.proptiger.data.util.IdConverterForDatabase;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Service
 public class ProjectAmenityService {
 
-	@Autowired
-	private ProjectAmenityDao projectAmenityDao;
-	
-	@Autowired
-	private ProjectCMSAmenityDao projectCMSAmenityDao;
-	
-	public List<String> getAmenitiesNameByProjectId(long projectId){
-		List<ProjectAmenity> list = getAmenitiesByProjectId(projectId);
-		List<String> amenityNameList = new ArrayList<String>();
-		for(ProjectAmenity amenity: list){
-			amenityNameList.add(amenity.getName());
-		}
-		return amenityNameList;
-	}
-	
-	public List<ProjectAmenity> getAmenitiesByProjectId(long projectId){
-		return projectAmenityDao.findAmenitiesByProjectId(projectId);
-	}
-	
-	public List<ProjectCMSAmenity> getCMSAmenitiesByProjectId(int projectId) {
-		return projectCMSAmenityDao.findByProjectId(IdConverterForDatabase
-				.getCMSDomainIdForDomainTypes(DomainObject.project, projectId));
-	}
+    @Autowired
+    private ProjectAmenityDao    projectAmenityDao;
+
+    @Autowired
+    private ProjectCMSAmenityDao projectCMSAmenityDao;
+
+    public List<String> getAmenitiesNameByProjectId(long projectId) {
+        List<ProjectAmenity> list = getAmenitiesByProjectId(projectId);
+        List<String> amenityNameList = new ArrayList<String>();
+        for (ProjectAmenity amenity : list) {
+            amenityNameList.add(amenity.getName());
+        }
+        return amenityNameList;
+    }
+
+    public List<ProjectAmenity> getAmenitiesByProjectId(long projectId) {
+        return projectAmenityDao.findAmenitiesByProjectId(projectId);
+    }
+
+    public List<ProjectCMSAmenity> getCMSAmenitiesByProjectId(int projectId) {
+        return projectCMSAmenityDao.findByProjectId(IdConverterForDatabase.getCMSDomainIdForDomainTypes(
+                DomainObject.project,
+                projectId));
+    }
 }

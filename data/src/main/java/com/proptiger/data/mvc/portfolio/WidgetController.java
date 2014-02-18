@@ -17,27 +17,27 @@ import com.proptiger.data.service.portfolio.WidgetService;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/widget")
 public class WidgetController {
 
-	@Autowired
-	private WidgetService widgetService;
-	
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getWidgets(){
-		List<Widget> widgets = widgetService.getAllWidgets();
-		return new ProAPISuccessCountResponse(widgets, widgets.size());
-	}
-	
-	@RequestMapping(method = RequestMethod.GET, value = "/{widgetId}")
-	@ResponseBody
-	public ProAPIResponse getWidget(@PathVariable Integer widgetId){
-		Widget widget = widgetService.getWidget(widgetId);
-		return new ProAPISuccessResponse(widget);
-	}
-	
+    @Autowired
+    private WidgetService widgetService;
+
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getWidgets() {
+        List<Widget> widgets = widgetService.getAllWidgets();
+        return new ProAPISuccessCountResponse(widgets, widgets.size());
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{widgetId}")
+    @ResponseBody
+    public ProAPIResponse getWidget(@PathVariable Integer widgetId) {
+        Widget widget = widgetService.getWidget(widgetId);
+        return new ProAPISuccessResponse(widget);
+    }
+
 }

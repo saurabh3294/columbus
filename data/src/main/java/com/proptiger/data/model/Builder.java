@@ -25,7 +25,7 @@ import com.proptiger.data.util.ImageUtil;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @Entity
 @Table(name = "RESI_BUILDER")
@@ -33,47 +33,47 @@ import com.proptiger.data.util.ImageUtil;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Builder extends BaseModel {
-	private static final long serialVersionUID = 1369026324841504903L;
+    private static final long serialVersionUID = 1369026324841504903L;
 
-	@FieldMetaInfo(displayName = "Builder Id",  description = "Builder Id")
+    @FieldMetaInfo(displayName = "Builder Id", description = "Builder Id")
     @Column(name = "BUILDER_ID")
     @Id
     @Field("BUILDER_ID")
-    private int id;
+    private int               id;
 
-    @FieldMetaInfo( displayName = "Name",  description = "Builder Name")
+    @FieldMetaInfo(displayName = "Name", description = "Builder Name")
     @Column(name = "BUILDER_NAME")
     @Field("BUILDER_NAME")
-    private String name;
+    private String            name;
 
-    @FieldMetaInfo( displayName = "Image",  description = "Builder Image URL")
+    @FieldMetaInfo(displayName = "Image", description = "Builder Image URL")
     @Transient
     @Field("BUILDER_LOGO_IMAGE")
-    private String imageURL;
-    
-    @FieldMetaInfo( displayName = "Description",  description = "Description")
+    private String            imageURL;
+
+    @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
     @Field("BUILDER_DESCRIPTION")
-    private String description;
-    
+    private String            description;
+
     @Transient
     @Field("BUILDER_ESTABLISHED_DATE")
-    private Date estabilishedDate;
-    
+    private Date              estabilishedDate;
+
     @Transient
-    private List<Project> projects;
-    
-    @Column(name="DISPLAY_ORDER")
+    private List<Project>     projects;
+
+    @Column(name = "DISPLAY_ORDER")
     @Field("BUILDER_PRIORITY")
-    private Integer priority;
-    
+    private Integer           priority;
+
     @Field("BUILDER_URL")
     @Column(name = "URL")
-    private String url;
-    
+    private String            url;
+
     @Transient
     private Map<String, Long> projectStatusCount;
-    
+
     public int getId() {
         return id;
     }
@@ -106,36 +106,36 @@ public class Builder extends BaseModel {
         this.description = description;
     }
 
-	public Date getEstabilishedDate() {
-		return estabilishedDate;
-	}
+    public Date getEstabilishedDate() {
+        return estabilishedDate;
+    }
 
-	public void setEstabilishedDate(Date estabilishedDate) {
-		this.estabilishedDate = estabilishedDate;
-	}
+    public void setEstabilishedDate(Date estabilishedDate) {
+        this.estabilishedDate = estabilishedDate;
+    }
 
-	public List<Project> getProjects() {
-		return projects;
-	}
+    public List<Project> getProjects() {
+        return projects;
+    }
 
-	public void setProjects(List<Project> projects) {
-		this.projects = projects;
-	}
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
 
-	public Integer getPriority() {
-		return priority;
-	}
+    public Integer getPriority() {
+        return priority;
+    }
 
-	public void setPriority(Integer priority) {
-		this.priority = priority;
-	}
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
 
-	public Map<String, Long> getProjectStatusCount() {
-		return projectStatusCount;
-	}
+    public Map<String, Long> getProjectStatusCount() {
+        return projectStatusCount;
+    }
 
-	public void setProjectStatusCount(Map<String, Long> projectStatusCount) {
-		this.projectStatusCount = projectStatusCount;
-	}
-    
+    public void setProjectStatusCount(Map<String, Long> projectStatusCount) {
+        this.projectStatusCount = projectStatusCount;
+    }
+
 }

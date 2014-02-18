@@ -30,120 +30,125 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
 @Table(name = "RESI_PROJECT_TYPES")
 @JsonInclude(Include.NON_NULL)
 public class Property extends BaseModel {
-    
-	
-	private static final long serialVersionUID = -3350129763568409835L;
 
-	@FieldMetaInfo( displayName = "Property Id",  description = "Property Id")
-    @Field(value="TYPE_ID")
+    private static final long serialVersionUID = -3350129763568409835L;
+
+    @FieldMetaInfo(displayName = "Property Id", description = "Property Id")
+    @Field(value = "TYPE_ID")
     @Column(name = "TYPE_ID")
     @Id
-    private int propertyId;
+    private int               propertyId;
 
-    @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
-    @Field(value="PROJECT_ID")
+    @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
+    @Field(value = "PROJECT_ID")
     @Column(name = "PROJECT_ID")
-    private int projectId;
+    private int               projectId;
 
-    @FieldMetaInfo( displayName = "Bedrooms",  description = "Number of bedrooms")
-    @Field(value="BEDROOMS")
+    @FieldMetaInfo(displayName = "Bedrooms", description = "Number of bedrooms")
+    @Field(value = "BEDROOMS")
     @Column(name = "BEDROOMS")
-    private int bedrooms;
-    
-    @FieldMetaInfo( displayName = "Bathrooms",  description = "Number of bathrooms")
-    @Field(value="BATHROOMS")
-    @Column(name = "BATHROOMS")
-    private int bathrooms;
-    
-    @FieldMetaInfo( displayName = "Unit type",  description = "Unit type")
-    @Field(value="UNIT_TYPE")
-    @Column(name = "UNIT_TYPE")
-    private String unitType;
-    
-    @FieldMetaInfo( displayName = "Unit name",  description = "Unit name")
-    @Field(value="UNIT_NAME")
-    @Column(name = "UNIT_NAME")
-    private String unitName;
+    private int               bedrooms;
 
-    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
-    @Field(value="PRICE_PER_UNIT_AREA")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @FieldMetaInfo(displayName = "Bathrooms", description = "Number of bathrooms")
+    @Field(value = "BATHROOMS")
+    @Column(name = "BATHROOMS")
+    private int               bathrooms;
+
+    @FieldMetaInfo(displayName = "Unit type", description = "Unit type")
+    @Field(value = "UNIT_TYPE")
+    @Column(name = "UNIT_TYPE")
+    private String            unitType;
+
+    @FieldMetaInfo(displayName = "Unit name", description = "Unit name")
+    @Field(value = "UNIT_NAME")
+    @Column(name = "UNIT_NAME")
+    private String            unitName;
+
+    @FieldMetaInfo(
+            dataType = DataType.CURRENCY,
+            displayName = "Price per unit area",
+            description = "Price per unit area")
+    @Field(value = "PRICE_PER_UNIT_AREA")
+    @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
     @Column(name = "PRICE_PER_UNIT_AREA")
-    private Double pricePerUnitArea;
+    private Double            pricePerUnitArea;
 
-    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Price per unit area",  description = "Price per unit area")
+    @FieldMetaInfo(
+            dataType = DataType.CURRENCY,
+            displayName = "Price per unit area",
+            description = "Price per unit area")
     @Column(name = "PRICE_PER_UNIT_AREA_CMS")
-    private Double pricePerUnitAreaCms;
-    
-    @FieldMetaInfo( displayName = "Size",  description = "Size")
-    @Field(value="SIZE")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    private Double            pricePerUnitAreaCms;
+
+    @FieldMetaInfo(displayName = "Size", description = "Size")
+    @Field(value = "SIZE")
+    @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
     @Column(name = "SIZE")
-    private Double size;
+    private Double            size;
 
-    @FieldMetaInfo( displayName = "Measure",  description = "Measure")
-    @Field(value="MEASURE")
+    @FieldMetaInfo(displayName = "Measure", description = "Measure")
+    @Field(value = "MEASURE")
     @Column(name = "MEASURE")
-    private String measure;
+    private String            measure;
 
-    @FieldMetaInfo( displayName = "URL",  description = "URL")
-    @Field(value="PROPERTY_URL")
+    @FieldMetaInfo(displayName = "URL", description = "URL")
+    @Field(value = "PROPERTY_URL")
     @Transient
-    private String URL;
+    private String            URL;
 
-    @FieldMetaInfo( displayName = "Locality Latitude",  description = "Locality Latitude")
-    @Field(value="PROCESSED_LATITUDE")
+    @FieldMetaInfo(displayName = "Locality Latitude", description = "Locality Latitude")
+    @Field(value = "PROCESSED_LATITUDE")
     @Transient
     @JsonIgnore
-    private Double processedLatitude;
-    
-    @FieldMetaInfo( displayName = "Locality Longitude",  description = "Locality Longitude")
-    @Field(value="PROCESSED_LONGITUDE")
+    private Double            processedLatitude;
+
+    @FieldMetaInfo(displayName = "Locality Longitude", description = "Locality Longitude")
+    @Field(value = "PROCESSED_LONGITUDE")
     @Transient
     @JsonIgnore
-    private Double processedLongitude;
-    
-    @FieldMetaInfo( displayName = "Property Price",  description = "Property Price")
-    @Field(value="BUDGET")
+    private Double            processedLongitude;
+
+    @FieldMetaInfo(displayName = "Property Price", description = "Property Price")
+    @Field(value = "BUDGET")
     @Transient
-    private Double budget;
-    
-    @FieldMetaInfo( displayName = "Project Id with Bedroom",  description = "Project Id with Bedroom")
-    @Field(value="PROJECT_ID_BEDROOM")
+    private Double            budget;
+
+    @FieldMetaInfo(displayName = "Project Id with Bedroom", description = "Project Id with Bedroom")
+    @Field(value = "PROJECT_ID_BEDROOM")
     @JsonIgnore
     @Transient
-    private String projectIdBedroom;
-    
+    private String            projectIdBedroom;
+
     @ManyToOne
-    @JoinColumn(name="PROJECT_ID")
+    @JoinColumn(name = "PROJECT_ID")
     @Transient
-    private Project project;
+    private Project           project;
 
     @Transient
-    private List<Image> images;
-    
+    private List<Image>       images;
+
     @Transient
-    @FieldMetaInfo( displayName = "Resale price per unit area",  description = "Resale price per unit area")
-    @Field(value="RESALE_PRICE_PER_UNIT_AREA")
-    private Double resalePricePerUnitArea;
-    
+    @FieldMetaInfo(displayName = "Resale price per unit area", description = "Resale price per unit area")
+    @Field(value = "RESALE_PRICE_PER_UNIT_AREA")
+    private Double            resalePricePerUnitArea;
+
     @Transient
-    @FieldMetaInfo( displayName = "Resale Price",  description = "Resale Price")
-    @Field(value="RESALE_PRICE")
-    private Double resalePrice;
-    
+    @FieldMetaInfo(displayName = "Resale Price", description = "Resale Price")
+    @Field(value = "RESALE_PRICE")
+    private Double            resalePrice;
+
     @Transient
-    @FieldMetaInfo( displayName = "Servant Room", description = "Servant Room")
+    @FieldMetaInfo(displayName = "Servant Room", description = "Servant Room")
     @Field("SERVANT_ROOM")
-    private Integer servantRoom;
-    
+    private Integer           servantRoom;
+
     @Transient
-    @FieldMetaInfo( displayName = "Pooja Room", description = "Pooja Room")
+    @FieldMetaInfo(displayName = "Pooja Room", description = "Pooja Room")
     @Field("POOJA_ROOM")
-    private Integer poojaRoom;
-    
+    private Integer           poojaRoom;
+
     public int getProjectId() {
         return projectId;
     }
@@ -256,64 +261,64 @@ public class Property extends BaseModel {
         this.processedLongitude = processedLongitude;
     }
 
-	public Double getBudget() {
-		return budget;
-	}
+    public Double getBudget() {
+        return budget;
+    }
 
-	public void setBudget(Double budget) {
-		this.budget = budget;
-	}
+    public void setBudget(Double budget) {
+        this.budget = budget;
+    }
 
-	public String getProjectIdBedroom() {
-		return projectIdBedroom;
-	}
+    public String getProjectIdBedroom() {
+        return projectIdBedroom;
+    }
 
-	public void setProjectIdBedroom(String projectIdBedroom) {
-		this.projectIdBedroom = projectIdBedroom;
-	}
+    public void setProjectIdBedroom(String projectIdBedroom) {
+        this.projectIdBedroom = projectIdBedroom;
+    }
 
-	public Double getPricePerUnitAreaCms() {
-		return pricePerUnitAreaCms;
-	}
+    public Double getPricePerUnitAreaCms() {
+        return pricePerUnitAreaCms;
+    }
 
-	public void setPricePerUnitAreaCms(Double pricePerUnitAreaCms) {
-		this.pricePerUnitAreaCms = pricePerUnitAreaCms;
-	}
+    public void setPricePerUnitAreaCms(Double pricePerUnitAreaCms) {
+        this.pricePerUnitAreaCms = pricePerUnitAreaCms;
+    }
 
-	public Double getResalePricePerUnitArea() {
-		return resalePricePerUnitArea;
-	}
+    public Double getResalePricePerUnitArea() {
+        return resalePricePerUnitArea;
+    }
 
-	public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
-		this.resalePricePerUnitArea = resalePricePerUnitArea;
-	}
+    public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
+        this.resalePricePerUnitArea = resalePricePerUnitArea;
+    }
 
-	public Double getResalePrice() {
-		return resalePrice;
-	}
+    public Double getResalePrice() {
+        return resalePrice;
+    }
 
-	public void setResalePrice(Double resalePrice) {
-		this.resalePrice = resalePrice;
-	}
+    public void setResalePrice(Double resalePrice) {
+        this.resalePrice = resalePrice;
+    }
 
-	public Double getProcessedLatitude() {
-		return processedLatitude;
-	}
+    public Double getProcessedLatitude() {
+        return processedLatitude;
+    }
 
-	public Integer getServantRoom() {
-		return servantRoom;
-	}
+    public Integer getServantRoom() {
+        return servantRoom;
+    }
 
-	public void setServantRoom(Integer servantRoom) {
-		this.servantRoom = servantRoom;
-	}
+    public void setServantRoom(Integer servantRoom) {
+        this.servantRoom = servantRoom;
+    }
 
-	public Integer getPoojaRoom() {
-		return poojaRoom;
-	}
+    public Integer getPoojaRoom() {
+        return poojaRoom;
+    }
 
-	public void setPoojaRoom(Integer poojaRoom) {
-		this.poojaRoom = poojaRoom;
-	}
-	
+    public void setPoojaRoom(Integer poojaRoom) {
+        this.poojaRoom = poojaRoom;
+    }
+
 }

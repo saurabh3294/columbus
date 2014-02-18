@@ -8,10 +8,11 @@ import com.proptiger.data.model.seller.RuleProjectMapping;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface RuleProjectMappingDao extends JpaRepository<RuleProjectMapping, Integer>{
+public interface RuleProjectMappingDao extends JpaRepository<RuleProjectMapping, Integer> {
 
-	public List<RuleProjectMapping> findByRuleIdIn(List<Integer> ids);
-	public List<RuleProjectMapping> findByProjectId(Integer projectId);
+    public List<RuleProjectMapping> findByRuleIdIn(List<Integer> ids);
+
+    public List<RuleProjectMapping> findByProjectId(Integer projectId);
 }

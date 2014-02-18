@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 /**
  * @author mandeep
- *
+ * 
  */
 public class DateToStringConverter implements Converter<Date, String> {
 

@@ -22,130 +22,127 @@ import com.proptiger.data.model.enums.ActivationStatus;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "cms.agents")
 @JsonFilter("fieldFilter")
-public class Agent extends BaseModel{
+public class Agent extends BaseModel {
 
-	
-	private static final long serialVersionUID = 4381648073253664949L;
+    private static final long     serialVersionUID = 4381648073253664949L;
 
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "status")
-	@Enumerated(EnumType.STRING)
-	private ActivationStatus status;
+    @Id
+    @Column(name = "id")
+    private Integer               id;
 
-	@Column(name = "rating")
-	private Double rating;
-	
-	@Column(name = "seller_type")
-	private String sellerType;
-	
-	@Column(name = "hierarchy_left")
-	private Integer hirarchyLeft;
-	
-	@Column(name = "hierarchy_right")
-	private Integer hirarchyRight;
-	
-	@Column(name = "active_since")
-	private Date activeSince;
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private ActivationStatus      status;
 
-	@ManyToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "broker_id",  nullable = false, insertable = false, updatable = false)
-	private Broker broker;
-	
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "academic_qualification_id",  nullable = false, insertable = false, updatable = false)
-	private AcademicQualification academicQualification;
-	
-	@Transient
-	private List<Locality> localitiesServiced;
-	
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "rating")
+    private Double                rating;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "seller_type")
+    private String                sellerType;
 
-	public ActivationStatus getStatus() {
-		return status;
-	}
+    @Column(name = "hierarchy_left")
+    private Integer               hirarchyLeft;
 
-	public void setStatus(ActivationStatus status) {
-		this.status = status;
-	}
+    @Column(name = "hierarchy_right")
+    private Integer               hirarchyRight;
 
-	public Double getRating() {
-		return rating;
-	}
+    @Column(name = "active_since")
+    private Date                  activeSince;
 
-	public void setRating(Double rating) {
-		this.rating = rating;
-	}
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "broker_id", nullable = false, insertable = false, updatable = false)
+    private Broker                broker;
 
-	public String getSellerType() {
-		return sellerType;
-	}
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "academic_qualification_id", nullable = false, insertable = false, updatable = false)
+    private AcademicQualification academicQualification;
 
-	public void setSellerType(String sellerType) {
-		this.sellerType = sellerType;
-	}
+    @Transient
+    private List<Locality>        localitiesServiced;
 
-	public Integer getHirarchyLeft() {
-		return hirarchyLeft;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public void setHirarchyLeft(Integer hirarchyLeft) {
-		this.hirarchyLeft = hirarchyLeft;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public Integer getHirarchyRight() {
-		return hirarchyRight;
-	}
+    public ActivationStatus getStatus() {
+        return status;
+    }
 
-	public void setHirarchyRight(Integer hirarchyRight) {
-		this.hirarchyRight = hirarchyRight;
-	}
+    public void setStatus(ActivationStatus status) {
+        this.status = status;
+    }
 
-	public Date getActiveSince() {
-		return activeSince;
-	}
+    public Double getRating() {
+        return rating;
+    }
 
-	public void setActiveSince(Date activeSince) {
-		this.activeSince = activeSince;
-	}
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
 
-	public Broker getBroker() {
-		return broker;
-	}
+    public String getSellerType() {
+        return sellerType;
+    }
 
-	public void setBroker(Broker broker) {
-		this.broker = broker;
-	}
+    public void setSellerType(String sellerType) {
+        this.sellerType = sellerType;
+    }
 
-	public AcademicQualification getAcademicQualification() {
-		return academicQualification;
-	}
+    public Integer getHirarchyLeft() {
+        return hirarchyLeft;
+    }
 
-	public void setAcademicQualification(AcademicQualification academicQualification) {
-		this.academicQualification = academicQualification;
-	}
+    public void setHirarchyLeft(Integer hirarchyLeft) {
+        this.hirarchyLeft = hirarchyLeft;
+    }
 
-	public List<Locality> getLocalitiesServiced() {
-		return localitiesServiced;
-	}
+    public Integer getHirarchyRight() {
+        return hirarchyRight;
+    }
 
-	public void setLocalitiesServiced(List<Locality> localitiesServiced) {
-		this.localitiesServiced = localitiesServiced;
-	}
-	
-	
-	
+    public void setHirarchyRight(Integer hirarchyRight) {
+        this.hirarchyRight = hirarchyRight;
+    }
+
+    public Date getActiveSince() {
+        return activeSince;
+    }
+
+    public void setActiveSince(Date activeSince) {
+        this.activeSince = activeSince;
+    }
+
+    public Broker getBroker() {
+        return broker;
+    }
+
+    public void setBroker(Broker broker) {
+        this.broker = broker;
+    }
+
+    public AcademicQualification getAcademicQualification() {
+        return academicQualification;
+    }
+
+    public void setAcademicQualification(AcademicQualification academicQualification) {
+        this.academicQualification = academicQualification;
+    }
+
+    public List<Locality> getLocalitiesServiced() {
+        return localitiesServiced;
+    }
+
+    public void setLocalitiesServiced(List<Locality> localitiesServiced) {
+        this.localitiesServiced = localitiesServiced;
+    }
+
 }

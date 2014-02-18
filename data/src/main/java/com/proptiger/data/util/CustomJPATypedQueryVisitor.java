@@ -22,7 +22,10 @@ import org.apache.cxf.jaxrs.ext.search.jpa.JPACriteriaQueryVisitor;
 public class CustomJPATypedQueryVisitor<T, E> extends JPACriteriaQueryVisitor<T, E> {
     private CriteriaBuilder builder;
 
-    public CustomJPATypedQueryVisitor(EntityManager em, Class<T> tClass, Class<E> queryClass,
+    public CustomJPATypedQueryVisitor(
+            EntityManager em,
+            Class<T> tClass,
+            Class<E> queryClass,
             Map<String, String> fieldMap) {
         super(em, tClass, queryClass, fieldMap);
     }
@@ -35,34 +38,35 @@ public class CustomJPATypedQueryVisitor<T, E> extends JPACriteriaQueryVisitor<T,
 
         Predicate pred = null;
         switch (ct) {
-        case GREATER_THAN:
-            pred = builder.greaterThan(exp, clazz.cast(value));
-            break;
-        case EQUALS:
-            if (clazz.equals(String.class)) {
-                String theValue = value.toString();
-                if (theValue.contains("*")) {
-                    theValue = ((String) value).replaceAll("\\*", "");
+            case GREATER_THAN:
+                pred = builder.greaterThan(exp, clazz.cast(value));
+                break;
+            case EQUALS:
+                if (clazz.equals(String.class)) {
+                    String theValue = value.toString();
+                    if (theValue.contains("*")) {
+                        theValue = ((String) value).replaceAll("\\*", "");
+                    }
+                    pred = builder.like((Expression<String>) exp, "%" + theValue + "%");
                 }
-                pred = builder.like((Expression<String>) exp, "%" + theValue + "%");
-            } else {
-                pred = builder.equal(exp, clazz.cast(value));
-            }
-            break;
-        case NOT_EQUALS:
-            pred = builder.notEqual(exp, clazz.cast(value));
-            break;
-        case LESS_THAN:
-            pred = builder.lessThan(exp, clazz.cast(value));
-            break;
-        case LESS_OR_EQUALS:
-            pred = builder.lessThanOrEqualTo(exp, clazz.cast(value));
-            break;
-        case GREATER_OR_EQUALS:
-            pred = builder.greaterThanOrEqualTo(exp, clazz.cast(value));
-            break;
-        default:
-            break;
+                else {
+                    pred = builder.equal(exp, clazz.cast(value));
+                }
+                break;
+            case NOT_EQUALS:
+                pred = builder.notEqual(exp, clazz.cast(value));
+                break;
+            case LESS_THAN:
+                pred = builder.lessThan(exp, clazz.cast(value));
+                break;
+            case LESS_OR_EQUALS:
+                pred = builder.lessThanOrEqualTo(exp, clazz.cast(value));
+                break;
+            case GREATER_OR_EQUALS:
+                pred = builder.greaterThanOrEqualTo(exp, clazz.cast(value));
+                break;
+            default:
+                break;
         }
         return pred;
     }

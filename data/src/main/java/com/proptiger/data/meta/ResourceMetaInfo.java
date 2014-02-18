@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
  * read meta information contained in that class/resource.
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ResourceMetaInfo{
-	String name() default "";
+public @interface ResourceMetaInfo {
+    String name() default "";
 }

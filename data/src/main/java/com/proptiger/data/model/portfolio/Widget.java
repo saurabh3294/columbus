@@ -18,107 +18,112 @@ import com.proptiger.data.model.resource.Resource;
 
 /**
  * Model object for widget resource
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "widgets")
-public class Widget implements NamedResource, Resource{
+public class Widget implements NamedResource, Resource {
 
-	@Id
-	@Column(name = "id")
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
-	
-	@Column(name = "name")
-	private String name;
-	
-	@Column(name = "tag")
-	private String tag;
-	
-	@Column(name = "content")
-	private String content;
-	
-	@Column(name = "type")
-	@Enumerated(EnumType.STRING)
-	private WidgetType type;
-	
-	@Column(name = "created_at")
-	private Date createdAt;
-	
-	@Column(name = "updated_at")
-	private Date updatedAt;
-	
-	@Override
-	public Integer getId() {
-		return id;
-	}
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer    id;
 
-	@Override
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "name")
+    private String     name;
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Column(name = "tag")
+    private String     tag;
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Column(name = "content")
+    private String     content;
 
-	/**
-	 * @return the tag
-	 */
-	public String getTag() {
-		return tag;
-	}
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private WidgetType type;
 
-	/**
-	 * @param tag the tag to set
-	 */
-	public void setTag(String tag) {
-		this.tag = tag;
-	}
+    @Column(name = "created_at")
+    private Date       createdAt;
 
-	/**
-	 * @return the content
-	 */
-	public String getContent() {
-		return content;
-	}
+    @Column(name = "updated_at")
+    private Date       updatedAt;
 
-	/**
-	 * @param content the content to set
-	 */
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	/**
-	 * @return the type
-	 */
-	public WidgetType getType() {
-		return type;
-	}
-
-	/**
-	 * @param type the type to set
-	 */
-	public void setType(WidgetType type) {
-		this.type = type;
-	}
-
-	@PreUpdate
-    public void preUpdate(){
-    	updatedAt = new Date();
+    @Override
+    public Integer getId() {
+        return id;
     }
+
+    @Override
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the tag
+     */
+    public String getTag() {
+        return tag;
+    }
+
+    /**
+     * @param tag
+     *            the tag to set
+     */
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    /**
+     * @return the content
+     */
+    public String getContent() {
+        return content;
+    }
+
+    /**
+     * @param content
+     *            the content to set
+     */
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    /**
+     * @return the type
+     */
+    public WidgetType getType() {
+        return type;
+    }
+
+    /**
+     * @param type
+     *            the type to set
+     */
+    public void setType(WidgetType type) {
+        this.type = type;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = new Date();
+    }
+
     @PrePersist
-    public void prePersist(){
-    	createdAt = new Date();
-    	updatedAt = createdAt;
+    public void prePersist() {
+        createdAt = new Date();
+        updatedAt = createdAt;
     }
-	
+
 }

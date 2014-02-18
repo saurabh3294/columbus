@@ -22,12 +22,12 @@ import com.proptiger.exception.ProAPIException;
  */
 @Component
 public class SolrDao {
-    private static Logger logger = LoggerFactory.getLogger(SolrDao.class);
+    private static Logger    logger = LoggerFactory.getLogger(SolrDao.class);
 
     @Autowired
     protected PropertyReader propertyReader;
 
-    private HttpSolrServer httpSolrServer;
+    private HttpSolrServer   httpSolrServer;
 
     @PostConstruct
     private void init() {
@@ -44,22 +44,24 @@ public class SolrDao {
      */
     public QueryResponse executeQuery(SolrQuery query) {
         try {
-        	logger.debug("SolrQuery {}",query);
+            logger.debug("SolrQuery {}", query);
             return httpSolrServer.query(query);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new ProAPIException("Could not run Solr query", e);
         }
     }
-    
+
     /**
      * Creating basic solr query for document type
+     * 
      * @param documentType
      * @return
      */
     public static SolrQuery createSolrQuery(DocumentType documentType) {
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery("*:*");
-		solrQuery.addFilterQuery(DocumentType.getDocumentTypeFilter(documentType));
-		return solrQuery;
-	}
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery("*:*");
+        solrQuery.addFilterQuery(DocumentType.getDocumentTypeFilter(documentType));
+        return solrQuery;
+    }
 }

@@ -8,15 +8,16 @@ import com.proptiger.data.model.portfolio.Dashboard;
 
 /**
  * Dashboard repository class to provide CRUD operations for Dashboard resource
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface DashboardDao extends JpaRepository<Dashboard, Integer>{
+public interface DashboardDao extends JpaRepository<Dashboard, Integer> {
 
-	public List<Dashboard> findByUserId(Integer userId);
-	
-	public Dashboard findByIdAndUserId(Integer dashboardId, Integer userId);
-	
-	public Dashboard findByNameAndUserId(String name, Integer userId);
-	
+    public List<Dashboard> findByUserId(Integer userId);
+
+    public Dashboard findByIdAndUserId(Integer dashboardId, Integer userId);
+
+    public Dashboard findByNameAndUserId(String name, Integer userId);
+
 }

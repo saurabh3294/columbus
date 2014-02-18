@@ -6,8 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.proptiger.data.model.portfolio.ProjectCommentLikes;
 
 @Repository
-public interface ProjectCommentLikesDao extends
-		PagingAndSortingRepository<ProjectCommentLikes, Long> {
-	
-	public ProjectCommentLikes findByCommentIdAndUserId(long commentId, int userId);
+public interface ProjectCommentLikesDao extends PagingAndSortingRepository<ProjectCommentLikes, Long> {
+
+    public ProjectCommentLikes findByCommentIdAndUserId(long commentId, int userId);
 }

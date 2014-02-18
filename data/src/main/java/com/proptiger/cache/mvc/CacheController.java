@@ -11,12 +11,12 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 @Controller
 @RequestMapping(value = "cache")
 public class CacheController {
-	
-	@RequestMapping(value="/clear-cache")
-	@ResponseBody
-	@CacheEvict(value="cache", allEntries=true)
-	public ProAPIResponse clearCache(){
-		return new ProAPISuccessResponse("Cache Cleared.");
-	}
+
+    @RequestMapping(value = "/clear-cache")
+    @ResponseBody
+    @CacheEvict(value = "cache", allEntries = true)
+    public ProAPIResponse clearCache() {
+        return new ProAPISuccessResponse("Cache Cleared.");
+    }
 
 }

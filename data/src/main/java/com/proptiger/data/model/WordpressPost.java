@@ -13,111 +13,110 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "wordpress.wp_posts")
 @ResourceMetaInfo
-public class WordpressPost extends BaseModel{
+public class WordpressPost extends BaseModel {
 
-	private static final long serialVersionUID = -4623450582253484193L;
+    private static final long serialVersionUID = -4623450582253484193L;
 
-	@Id
-	@Column(name = "ID")
-	private long id;
-	
-	@Column(name = "post_parent")
-	@JsonIgnore
-	private long parentId;
-	
-	@Column(name = "post_title")
-	private String postTitle;
-	
-	@Column(name = "post_content")
-	private String postContent;
-	
-	@Column(name = "guid")
-	private String guid;
-	
-	@Column(name = "post_mime_type")
-	@JsonIgnore
-	private String postMimeType;
+    @Id
+    @Column(name = "ID")
+    private long              id;
 
-	@Column(name = "post_status")
-	private String postStatus;
-	
-	@Column(name = "post_date")
-	private Date postDate;
-	
-	@Column(name = "comment_count")
-	private int commentCount;
-	
-	@Transient
-	private String primaryImageUrl;
-	
-	public long getId() {
-		return id;
-	}
+    @Column(name = "post_parent")
+    @JsonIgnore
+    private long              parentId;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    @Column(name = "post_title")
+    private String            postTitle;
 
-	public String getPostTitle() {
-		return postTitle;
-	}
+    @Column(name = "post_content")
+    private String            postContent;
 
-	public void setPostTitle(String postTitle) {
-		this.postTitle = postTitle;
-	}
+    @Column(name = "guid")
+    private String            guid;
 
-	public String getPostContent() {
-		return postContent;
-	}
+    @Column(name = "post_mime_type")
+    @JsonIgnore
+    private String            postMimeType;
 
-	public void setPostContent(String postContent) {
-		this.postContent = postContent;
-	}
+    @Column(name = "post_status")
+    private String            postStatus;
 
-	public String getGuid() {
-		return guid;
-	}
+    @Column(name = "post_date")
+    private Date              postDate;
 
-	public void setGuid(String guid) {
-		this.guid = guid;
-	}
+    @Column(name = "comment_count")
+    private int               commentCount;
 
-	public int getCommentCount() {
-		return commentCount;
-	}
+    @Transient
+    private String            primaryImageUrl;
 
-	public void setCommentCount(int commentCount) {
-		this.commentCount = commentCount;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public String getPrimaryImageUrl() {
-		return primaryImageUrl;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setPrimaryImageUrl(String primaryImageUrl) {
-		this.primaryImageUrl = primaryImageUrl;
-	}
+    public String getPostTitle() {
+        return postTitle;
+    }
 
-	public long getParentId() {
-		return parentId;
-	}
+    public void setPostTitle(String postTitle) {
+        this.postTitle = postTitle;
+    }
 
-	public void setParentId(long parentId) {
-		this.parentId = parentId;
-	}
+    public String getPostContent() {
+        return postContent;
+    }
 
-	public String getPostMimeType() {
-		return postMimeType;
-	}
+    public void setPostContent(String postContent) {
+        this.postContent = postContent;
+    }
 
-	public void setPostMimeType(String postMimeType) {
-		this.postMimeType = postMimeType;
-	}
-	
-	
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
+    }
+
+    public int getCommentCount() {
+        return commentCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+
+    public String getPrimaryImageUrl() {
+        return primaryImageUrl;
+    }
+
+    public void setPrimaryImageUrl(String primaryImageUrl) {
+        this.primaryImageUrl = primaryImageUrl;
+    }
+
+    public long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(long parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getPostMimeType() {
+        return postMimeType;
+    }
+
+    public void setPostMimeType(String postMimeType) {
+        this.postMimeType = postMimeType;
+    }
+
 }

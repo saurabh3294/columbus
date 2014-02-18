@@ -43,17 +43,18 @@ import com.proptiger.data.pojo.SortBy;
  */
 public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T> {
     private static ConcurrentMap<Class<?>, ConcurrentMap<String, String>> jsonNameToFieldNameMap = new ConcurrentHashMap<>();
-    private static Logger logger = LoggerFactory.getLogger(JPAQueryBuilder.class);
+    private static Logger                                                 logger                 = LoggerFactory
+                                                                                                         .getLogger(JPAQueryBuilder.class);
 
     private static enum FUNCTIONS {
         SUM, MIN, MAX, AVG, COUNT, COUNTDISTINCT, MEDIAN, WAVG;
     };
 
-    private EntityManager entityManager;
-    private CriteriaBuilder criteriaBuilder;
-    private Root<T> root;
-    private Class<T> domainClazz;
-    private TypedQuery<Tuple> typedQuery;
+    private EntityManager        entityManager;
+    private CriteriaBuilder      criteriaBuilder;
+    private Root<T>              root;
+    private Class<T>             domainClazz;
+    private TypedQuery<Tuple>    typedQuery;
     private CriteriaQuery<Tuple> criteriaQuery;
 
     /**
@@ -102,8 +103,11 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         if (selector != null && selector.getFilters() != null && !selector.getFilters().isEmpty()) {
             FiqlParser<T> fiqlParser = new FiqlParser<T>(domainClazz);
             SearchCondition<T> searchCondition = fiqlParser.parse(selector.getFilters());
-            JPACriteriaQueryVisitor<T, Tuple> jpaCriteriaQueryVisitor = new JPACriteriaQueryVisitor<>(entityManager,
-                    domainClazz, Tuple.class, getJsonNameToFieldNameMap(domainClazz));
+            JPACriteriaQueryVisitor<T, Tuple> jpaCriteriaQueryVisitor = new JPACriteriaQueryVisitor<>(
+                    entityManager,
+                    domainClazz,
+                    Tuple.class,
+                    getJsonNameToFieldNameMap(domainClazz));
             searchCondition.accept(jpaCriteriaQueryVisitor);
             criteriaQuery = jpaCriteriaQueryVisitor.getCriteriaQuery();
             for (Root<?> root : criteriaQuery.getRoots()) {
@@ -125,11 +129,13 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 Expression<?> expression = createExpression(fieldName);
                 if (criteriaQuery.getSelection() != null) {
                     addSelection(expression);
-                } else {
+                }
+                else {
                     criteriaQuery.select(criteriaBuilder.tuple(expression));
                 }
             }
-        } else {
+        }
+        else {
             root.alias("root");
             criteriaQuery.select(criteriaBuilder.tuple(root));
         }
@@ -148,56 +154,58 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 
     private Expression<?> createExpression(String fieldName) {
         String[] splitWords = StringUtils.splitByCharacterTypeCamelCase(fieldName);
-		String prefix = splitWords[0];
+        String prefix = splitWords[0];
         String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         Expression<?> expression = null;
         try {
             switch (FUNCTIONS.valueOf(prefix.toUpperCase())) {
-            case MAX:
-                Expression<Number> maxExpression = root.get(actualFieldName);
-                expression = criteriaBuilder.max(maxExpression);
-                break;
-            case AVG:
-                Expression<Double> avgExpression = root.get(actualFieldName);
-                expression = criteriaBuilder.avg(avgExpression);
-                break;
-            case WAVG:
-            	String[] fieldNames = actualFieldName.split("On");
-            	fieldNames[1] = StringUtils.uncapitalize(fieldNames[1]);
-            	Expression<Double> field1 = root.get(fieldNames[0]);
-                Expression<Double> field2 = root.get(fieldNames[1]);
-                expression = criteriaBuilder.quot(criteriaBuilder.sum(criteriaBuilder.prod(field1, field2)), criteriaBuilder.sum(field2));
-                break;
-            case MEDIAN:
-                Expression<Double> medianExpression = root.get(actualFieldName);
-                expression = criteriaBuilder.function("median", Double.class, medianExpression);
-                break;
-            case COUNT:
-            	Expression<Number> countExpression;
-				try {
-					countExpression = root.get(actualFieldName);
-					expression = criteriaBuilder.count(countExpression);
-				} catch (IllegalArgumentException | IllegalStateException e) {
-					String secondPrefix = splitWords[1];
-					if (FUNCTIONS.COUNTDISTINCT.name().equalsIgnoreCase(prefix + secondPrefix)) {
-						actualFieldName = StringUtils.uncapitalize(actualFieldName
-								.substring(secondPrefix.length()));
-						countExpression = root.get(actualFieldName);
-						expression = criteriaBuilder
-								.countDistinct(countExpression);
-					}
-				}
-                break;
-            case MIN:
-                Expression<Number> minExpression = root.get(actualFieldName);
-                expression = criteriaBuilder.min(minExpression);
-                break;
-            case SUM:
-                Expression<Number> sumExpression = root.get(actualFieldName);
-                expression = criteriaBuilder.sum(sumExpression);
-                break;
-            default:
-                throw new UnsupportedOperationException("Missing support for " + prefix + " function");
+                case MAX:
+                    Expression<Number> maxExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.max(maxExpression);
+                    break;
+                case AVG:
+                    Expression<Double> avgExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.avg(avgExpression);
+                    break;
+                case WAVG:
+                    String[] fieldNames = actualFieldName.split("On");
+                    fieldNames[1] = StringUtils.uncapitalize(fieldNames[1]);
+                    Expression<Double> field1 = root.get(fieldNames[0]);
+                    Expression<Double> field2 = root.get(fieldNames[1]);
+                    expression = criteriaBuilder.quot(
+                            criteriaBuilder.sum(criteriaBuilder.prod(field1, field2)),
+                            criteriaBuilder.sum(field2));
+                    break;
+                case MEDIAN:
+                    Expression<Double> medianExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.function("median", Double.class, medianExpression);
+                    break;
+                case COUNT:
+                    Expression<Number> countExpression;
+                    try {
+                        countExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.count(countExpression);
+                    }
+                    catch (IllegalArgumentException | IllegalStateException e) {
+                        String secondPrefix = splitWords[1];
+                        if (FUNCTIONS.COUNTDISTINCT.name().equalsIgnoreCase(prefix + secondPrefix)) {
+                            actualFieldName = StringUtils
+                                    .uncapitalize(actualFieldName.substring(secondPrefix.length()));
+                            countExpression = root.get(actualFieldName);
+                            expression = criteriaBuilder.countDistinct(countExpression);
+                        }
+                    }
+                    break;
+                case MIN:
+                    Expression<Number> minExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.min(minExpression);
+                    break;
+                case SUM:
+                    Expression<Number> sumExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.sum(sumExpression);
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Missing support for " + prefix + " function");
             }
         }
         catch (UnsupportedOperationException e) {
@@ -214,7 +222,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     private void addToFields(FIQLSelector selector, String fieldName) {
         if (selector.getFields() == null || selector.getFields().isEmpty()) {
             selector.setFields(fieldName);
-        } else {
+        }
+        else {
             selector.addField(fieldName);
         }
     }
@@ -237,7 +246,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 Order order = null;
                 if (fieldName.startsWith("-")) {
                     order = criteriaBuilder.desc(createExpression(fieldName.substring(1)));
-                } else {
+                }
+                else {
                     order = criteriaBuilder.asc(createExpression(fieldName));
                 }
 
@@ -253,7 +263,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         if (selector != null && selector.getStart() != null && selector.getRows() != null) {
             typedQuery = entityManager.createQuery(criteriaQuery).setFirstResult(selector.getStart())
                     .setMaxResults(selector.getRows());
-        } else {
+        }
+        else {
             typedQuery = entityManager.createQuery(criteriaQuery);
         }
     }
@@ -279,7 +290,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 for (TupleElement<?> tupleElement : tuple.getElements()) {
                     if (tupleElement.getJavaType().equals(domainClazz)) {
                         result = tuple.get(tupleElement.getAlias(), domainClazz);
-                    } else {
+                    }
+                    else {
                         if (!set(result, tupleElement.getAlias(), tuple.get(tupleElement))) {
                             result.getExtraAttributes().put(tupleElement.getAlias(), tuple.get(tupleElement));
                         }
@@ -287,7 +299,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 }
 
                 results.add(result);
-            } catch (InstantiationException | IllegalAccessException e) {
+            }
+            catch (InstantiationException | IllegalAccessException e) {
                 logger.error("Could not fetch attributes for tuple: " + tuple, e);
             }
         }
@@ -297,7 +310,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 
     /**
      * Copied from stackoverflow
-     *
+     * 
      * @param object
      * @param fieldName
      * @param fieldValue
@@ -311,9 +324,11 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 field.setAccessible(true);
                 field.set(object, fieldValue);
                 return true;
-            } catch (NoSuchFieldException e) {
+            }
+            catch (NoSuchFieldException e) {
                 clazz = clazz.getSuperclass();
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 return false;
             }
         }
@@ -324,17 +339,19 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     public long retrieveCount() {
         criteriaQuery.select(criteriaBuilder.tuple(criteriaBuilder.count(root)));
         List<Tuple> resultList = entityManager.createQuery(criteriaQuery).getResultList();
-        if(criteriaQuery.getGroupList().isEmpty()){
-        	return (long) resultList.get(0).get(0);
+        if (criteriaQuery.getGroupList().isEmpty()) {
+            return (long) resultList.get(0).get(0);
         }
-        else return (long) resultList.size();
+        else
+            return (long) resultList.size();
     }
 
     public void addEqualsFilter(String fieldName, List<Object> values) {
         if (values != null) {
             if (values.size() == 1) {
                 // equal clause
-            } else if (values.size() > 1) {
+            }
+            else if (values.size() > 1) {
                 criteriaQuery.where(root.get(fieldName).in(values));
             }
         }
@@ -361,14 +378,14 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         if (selector != null && selector.getSort() != null) {
             for (SortBy sortBy : selector.getSort()) {
                 switch (sortBy.getSortOrder()) {
-                case ASC:
-                    orderByList.add((criteriaBuilder.asc(root.get(sortBy.getField()))));
-                    break;
-                case DESC:
-                    orderByList.add(criteriaBuilder.desc(root.get(sortBy.getField())));
-                    break;
-                default:
-                    break;
+                    case ASC:
+                        orderByList.add((criteriaBuilder.asc(root.get(sortBy.getField()))));
+                        break;
+                    case DESC:
+                        orderByList.add(criteriaBuilder.desc(root.get(sortBy.getField())));
+                        break;
+                    default:
+                        break;
                 }
             }
         }
@@ -399,38 +416,45 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 
                         switch (Operator.valueOf(operator)) {
 
-                        case in:
-                        case equal:
-                            for (String jsonFieldName : fieldNameValueMap.keySet()) {
-                                List<Object> valuesList = new ArrayList<Object>();
-                                valuesList.addAll((List<Object>) fieldNameValueMap.get(jsonFieldName));
-                                predicateList.add(getEqualsOrInPredicate(jsonFieldName, valuesList));
-                            }
-                            break;
-                        case range:
-                            for (String jsonFieldName : fieldNameValueMap.keySet()) {
-
-                                Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap.get(jsonFieldName);
-
-                                if (obj != null) {
-                                    predicateList.add(getRangePredicate(jsonFieldName, obj));
+                            case in:
+                            case equal:
+                                for (String jsonFieldName : fieldNameValueMap.keySet()) {
+                                    List<Object> valuesList = new ArrayList<Object>();
+                                    valuesList.addAll((List<Object>) fieldNameValueMap.get(jsonFieldName));
+                                    predicateList.add(getEqualsOrInPredicate(jsonFieldName, valuesList));
                                 }
-                                addRangeFilter(jsonFieldName, obj.get(Operator.from.name()),
-                                        obj.get(Operator.to.name()));
-                            }
-                            break;
+                                break;
+                            case range:
+                                for (String jsonFieldName : fieldNameValueMap.keySet()) {
 
-                        case geoDistance:
-                            for (String jsonFieldName : fieldNameValueMap.keySet()) {
-                                Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap.get(jsonFieldName);
+                                    Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap
+                                            .get(jsonFieldName);
 
-                                addGeoFilter(jsonFieldName, (Double) obj.get(Operator.distance.name()),
-                                        (Double) obj.get(Operator.lat.name()), (Double) obj.get(Operator.lon.name()));
-                            }
-                            break;
+                                    if (obj != null) {
+                                        predicateList.add(getRangePredicate(jsonFieldName, obj));
+                                    }
+                                    addRangeFilter(
+                                            jsonFieldName,
+                                            obj.get(Operator.from.name()),
+                                            obj.get(Operator.to.name()));
+                                }
+                                break;
 
-                        default:
-                            throw new IllegalArgumentException("Operator not supported yet");
+                            case geoDistance:
+                                for (String jsonFieldName : fieldNameValueMap.keySet()) {
+                                    Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap
+                                            .get(jsonFieldName);
+
+                                    addGeoFilter(
+                                            jsonFieldName,
+                                            (Double) obj.get(Operator.distance.name()),
+                                            (Double) obj.get(Operator.lat.name()),
+                                            (Double) obj.get(Operator.lon.name()));
+                                }
+                                break;
+
+                            default:
+                                throw new IllegalArgumentException("Operator not supported yet");
                         }
                     }
                 }
@@ -451,9 +475,11 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         Object to = obj.get(Operator.to.name());
 
         if (from != null && to != null) {
-        } else if (from != null) {
+        }
+        else if (from != null) {
 
-        } else if (to != null) {
+        }
+        else if (to != null) {
 
         }
         return predicate;
@@ -466,7 +492,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         Predicate predicate = null;
         if (valuesList.size() == 1) {
             predicate = criteriaBuilder.equal(root.get(jsonFieldName), valuesList.get(0));
-        } else {
+        }
+        else {
             predicate = root.get(jsonFieldName).in(valuesList);
         }
 

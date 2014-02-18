@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 import com.proptiger.data.model.TableAttributes;
 
 @Repository
-public interface TableAttributesDao extends PagingAndSortingRepository<TableAttributes, Long>{
-	List<TableAttributes> findByTableIdAndTableName(int tableId, String tableName);
+public interface TableAttributesDao extends PagingAndSortingRepository<TableAttributes, Long> {
+    List<TableAttributes> findByTableIdAndTableName(int tableId, String tableName);
 }

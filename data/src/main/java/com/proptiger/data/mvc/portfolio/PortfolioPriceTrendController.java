@@ -21,47 +21,54 @@ import com.proptiger.data.util.Constants;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/user/{userId}/portfolio")
-public class PortfolioPriceTrendController extends BaseController{
+public class PortfolioPriceTrendController extends BaseController {
 
-	@Autowired
-	private PortfolioPriceTrendService portfolioPriceTrendService;
-	
-	/**
-	 * Gets price trend for portfolio
-	 * @param userId
-	 * @param months
-	 * @return
-	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/price-trend")
-	@ResponseBody
-	public ProAPIResponse getPortfolioPriceTrend(@PathVariable Integer userId,
-			@RequestParam(required = false, defaultValue = "3") Integer months,
-			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		
-		PortfolioPriceTrend priceTrend = portfolioPriceTrendService
-				.getPortfolioPriceTrend(userInfo.getUserIdentifier(), months);
-		return new ProAPISuccessCountResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend().size());
-	}
-	
-	/**
-	 * Get price trend for a listing
-	 * @param userId
-	 * @param months
-	 * @return
-	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/listing/{listingId}/price-trend")
-	@ResponseBody
-	public ProAPIResponse getPortfolioListingPriceTrend(@PathVariable Integer userId,
-			@PathVariable Integer listingId,
-			@RequestParam(required = false, defaultValue = "3") Integer months,
-			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		
-		ProjectPriceTrend priceTrend = portfolioPriceTrendService
-				.getListingPriceTrend(userInfo.getUserIdentifier(), listingId, months);
-		return new ProAPISuccessResponse(priceTrend);
-	}
+    @Autowired
+    private PortfolioPriceTrendService portfolioPriceTrendService;
+
+    /**
+     * Gets price trend for portfolio
+     * 
+     * @param userId
+     * @param months
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "/price-trend")
+    @ResponseBody
+    public ProAPIResponse getPortfolioPriceTrend(@PathVariable Integer userId, @RequestParam(
+            required = false,
+            defaultValue = "3") Integer months, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+
+        PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(
+                userInfo.getUserIdentifier(),
+                months);
+        return new ProAPISuccessCountResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend()
+                .size());
+    }
+
+    /**
+     * Get price trend for a listing
+     * 
+     * @param userId
+     * @param months
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "/listing/{listingId}/price-trend")
+    @ResponseBody
+    public ProAPIResponse getPortfolioListingPriceTrend(
+            @PathVariable Integer userId,
+            @PathVariable Integer listingId,
+            @RequestParam(required = false, defaultValue = "3") Integer months,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+
+        ProjectPriceTrend priceTrend = portfolioPriceTrendService.getListingPriceTrend(
+                userInfo.getUserIdentifier(),
+                listingId,
+                months);
+        return new ProAPISuccessResponse(priceTrend);
+    }
 }

@@ -9,11 +9,13 @@ import com.proptiger.data.model.portfolio.Widget;
 
 /**
  * Widget repository class to provide CRUD operations for Widget resource
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface WidgetDao extends JpaRepository<Widget, Integer>{
-	public List<Widget> findByType(String type);
-	@Query("select W from Widget W where W.type='DEFAULT'")
-	public List<Widget> findDefaultWidgets();
+public interface WidgetDao extends JpaRepository<Widget, Integer> {
+    public List<Widget> findByType(String type);
+
+    @Query("select W from Widget W where W.type='DEFAULT'")
+    public List<Widget> findDefaultWidgets();
 }

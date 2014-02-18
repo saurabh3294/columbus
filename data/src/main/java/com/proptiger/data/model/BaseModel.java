@@ -18,20 +18,23 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  * 
  */
 
-@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE, isGetterVisibility = Visibility.NONE)
+@JsonAutoDetect(
+        fieldVisibility = Visibility.ANY,
+        getterVisibility = Visibility.NONE,
+        isGetterVisibility = Visibility.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
 public abstract class BaseModel implements Serializable {
 
-	private static final long serialVersionUID = -143320188173134494L;
-	@JsonInclude(Include.NON_EMPTY)
-    protected Map<String, Object> extraAttributes = new HashMap<>();
+    private static final long     serialVersionUID = -143320188173134494L;
+    @JsonInclude(Include.NON_EMPTY)
+    protected Map<String, Object> extraAttributes  = new HashMap<>();
 
     public Map<String, Object> getExtraAttributes() {
         return extraAttributes;
     }
 
-	public void setExtraAttributes(Map<String, Object> extraAttributes) {
-		this.extraAttributes = extraAttributes;
-	}
+    public void setExtraAttributes(Map<String, Object> extraAttributes) {
+        this.extraAttributes = extraAttributes;
+    }
 }

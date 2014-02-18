@@ -22,35 +22,36 @@ import com.proptiger.data.service.TypeaheadService;
 import com.proptiger.data.service.portfolio.DashboardService;
 
 /**
- *
+ * 
  * @author mukand
  * @author hemendra
  * 
  */
 @Controller
-@RequestMapping(value="app/v1/typeahead")
+@RequestMapping(value = "app/v1/typeahead")
 public class TypeaheadController extends BaseController {
     @Autowired
     private TypeaheadService typeaheadService;
-    
-    private static Logger logger = LoggerFactory.getLogger(DashboardService.class);
-    
-	@RequestMapping
-	@ResponseBody
-	public ProAPIResponse getTypeaheads(@RequestParam String query,
-			@RequestParam(defaultValue = "5") int rows,
-			@RequestParam(required = false) String typeAheadType,
-			@RequestParam(required = false) String city) {
-		
-		List<String> filterQueries = new ArrayList<String>();
-		if (typeAheadType != null && typeAheadType.trim() != "")
-			filterQueries.add("TYPEAHEAD_TYPE:"+typeAheadType.toUpperCase());
-		
-		if (city != null && city.trim() != "") {
-			filterQueries.add("TYPEAHEAD_CITY:"+city);
-		}
-		
-		List<Typeahead> list = typeaheadService.getTypeaheads(query, rows, filterQueries);
-		return new ProAPISuccessCountResponse(super.filterFields(list, null), list.size());
-	}
+
+    private static Logger    logger = LoggerFactory.getLogger(DashboardService.class);
+
+    @RequestMapping
+    @ResponseBody
+    public ProAPIResponse getTypeaheads(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(required = false) String typeAheadType,
+            @RequestParam(required = false) String city) {
+
+        List<String> filterQueries = new ArrayList<String>();
+        if (typeAheadType != null && typeAheadType.trim() != "")
+            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
+
+        if (city != null && city.trim() != "") {
+            filterQueries.add("TYPEAHEAD_CITY:" + city);
+        }
+
+        List<Typeahead> list = typeaheadService.getTypeaheads(query, rows, filterQueries);
+        return new ProAPISuccessCountResponse(super.filterFields(list, null), list.size());
+    }
 }

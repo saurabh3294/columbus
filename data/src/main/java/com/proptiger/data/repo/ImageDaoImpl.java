@@ -54,8 +54,14 @@ public class ImageDaoImpl {
      * @throws FileNotFoundException
      * @throws ImageProcessingException
      */
-    public Image insertImage(DomainObject objectStr, String imageTypeStr, long objectId, File orignalImage,
-            File watermarkImage, Image image, String format) {
+    public Image insertImage(
+            DomainObject objectStr,
+            String imageTypeStr,
+            long objectId,
+            File orignalImage,
+            File watermarkImage,
+            Image image,
+            String format) {
         try {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -69,8 +75,11 @@ public class ImageDaoImpl {
             image.setImageTypeId(imageType.getId());
             image.setObjectId(objectId);
 
-            String[] directories = { String.valueOf(objType.getId()), String.valueOf(objectId),
-                    String.valueOf(imageType.getId()), "" };
+            String[] directories = {
+                    String.valueOf(objType.getId()),
+                    String.valueOf(objectId),
+                    String.valueOf(imageType.getId()),
+                    "" };
 
             String path = StringUtils.join(directories, File.separator);
             image.setPath(path);
@@ -87,9 +96,10 @@ public class ImageDaoImpl {
             em.getTransaction().begin();
             em.persist(image);
             em.getTransaction().commit();
-            image.assignWatermarkName(format);            
+            image.assignWatermarkName(format);
             return image;
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException("Could not insert image", e);
         }
     }

@@ -24,27 +24,31 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.LocalityAmenityService;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Controller
-@RequestMapping(value="app/v1/amenity")
-public class AppLocalityAmenityController extends BaseController{
+@RequestMapping(value = "app/v1/amenity")
+public class AppLocalityAmenityController extends BaseController {
     @Autowired
     private LocalityAmenityService localityAmenityService;
-    
+
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
-    public ProAPIResponse getAllAmenitiesOnLocality(@RequestParam(value="city-id", required = false) Integer cityId, @RequestParam(value="locality-ids", required = false) String localityIds){
-        if(cityId == null && localityIds == null){
+    public ProAPIResponse getAllAmenitiesOnLocality(
+            @RequestParam(value = "city-id", required = false) Integer cityId,
+            @RequestParam(value = "locality-ids", required = false) String localityIds) {
+        if (cityId == null && localityIds == null) {
             return new ProAPIErrorResponse("Error", "city-ids and locality-ids both should not be false");
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<Integer>>() {}.getType();
         List<Integer> localityIdsList = gson.fromJson(localityIds, type);
-        
-        List<LocalityAmenity> data = localityAmenityService.getAmenitiesByHighPriorityLocalityId(cityId, localityIdsList);
-        
+
+        List<LocalityAmenity> data = localityAmenityService.getAmenitiesByHighPriorityLocalityId(
+                cityId,
+                localityIdsList);
+
         return new ProAPISuccessResponse(data);
     }
 }

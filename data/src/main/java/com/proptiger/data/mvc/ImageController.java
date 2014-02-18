@@ -36,9 +36,8 @@ public class ImageController extends BaseController {
 
     @RequestMapping
     public @ResponseBody
-    Object getImages(@RequestParam(required = false) String selector, @RequestParam String objectType,
-            @RequestParam(required=false) String imageType, @RequestParam long objectId)
-    {
+    Object getImages(@RequestParam(required = false) String selector, @RequestParam String objectType, @RequestParam(
+            required = false) String imageType, @RequestParam long objectId) {
         List<Image> images = imageService.getImages(DomainObject.valueOf(objectType), imageType, objectId);
 
         Selector imageSelector = new Selector();
@@ -52,8 +51,12 @@ public class ImageController extends BaseController {
     @DisableCaching
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody
-    Object putImages(@RequestParam String objectType, @RequestParam long objectId, @RequestParam MultipartFile image,
-            @RequestParam(required = false) Boolean addWaterMark, @RequestParam String imageType,
+    Object putImages(
+            @RequestParam String objectType,
+            @RequestParam long objectId,
+            @RequestParam MultipartFile image,
+            @RequestParam(required = false) Boolean addWaterMark,
+            @RequestParam String imageType,
             @ModelAttribute Image imageParams) {
         DomainObject domainObject = DomainObject.valueOf(objectType);
         int domainObjectValueStart = domainObject.getStartId();
@@ -62,15 +65,22 @@ public class ImageController extends BaseController {
             normalizedObjectId = objectId - domainObjectValueStart;
         }
 
-        Image img = imageService
-                .uploadImage(domainObject, imageType, normalizedObjectId, image, addWaterMark, imageParams);
+        Image img = imageService.uploadImage(
+                domainObject,
+                imageType,
+                normalizedObjectId,
+                image,
+                addWaterMark,
+                imageParams);
         return new ProAPISuccessResponse(super.filterFields(img, null));
     }
 
     @DisableCaching
     @RequestMapping(value = "{id}", method = RequestMethod.POST)
     public @ResponseBody
-    Object updateImage(@PathVariable long id, @RequestParam(required=false, value = "image") MultipartFile file,
+    Object updateImage(
+            @PathVariable long id,
+            @RequestParam(required = false, value = "image") MultipartFile file,
             @ModelAttribute Image imageParams) {
         Image image = imageService.getImage(id);
 
@@ -80,8 +90,9 @@ public class ImageController extends BaseController {
             try {
                 BeanUtilsBean beanUtilsBean = new NullAwareBeanUtilsBean();
                 beanUtilsBean.copyProperties(image, imageParams);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-            }            
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+            }
             imageService.update(image);
             obj = new ProAPISuccessResponse(super.filterFields(image, null));
         }
@@ -91,11 +102,18 @@ public class ImageController extends BaseController {
                 BeanUtilsBean beanUtilsBean = new NullAwareBeanUtilsBean();
                 beanUtilsBean.copyProperties(imageParams, image);
                 image.setId(id);
-            } catch (IllegalAccessException | InvocationTargetException e) {
             }
-            
-            obj = this.putImages(image.getImageTypeObj().getObjectType().getType(), image.getObjectId(),
-                    file, !image.getWaterMarkHash().equals(image.getOriginalHash()), image.getImageTypeObj().getType(), imageParams);
+            catch (IllegalAccessException | InvocationTargetException e) {
+            }
+
+            obj = this
+                    .putImages(
+                            image.getImageTypeObj().getObjectType().getType(),
+                            image.getObjectId(),
+                            file,
+                            !image.getWaterMarkHash().equals(image.getOriginalHash()),
+                            image.getImageTypeObj().getType(),
+                            imageParams);
 
             imageService.deleteImage(id);
         }
