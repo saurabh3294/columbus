@@ -25,7 +25,7 @@ import com.proptiger.data.service.CompositeAPIService;
  * 
  */
 @Controller
-@RequestMapping(value = "app/v1/composite-api")
+@RequestMapping(value = "app/v1/composite")
 public class AppCompositAPIController{
 	
     @Autowired
