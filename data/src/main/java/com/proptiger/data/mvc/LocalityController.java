@@ -139,7 +139,7 @@ public class LocalityController extends BaseController {
 			localitySelector = super
 					.parseJsonToObject(selector, Selector.class);
 		}
-		List<Locality> result = localityService.getTopLocalitiesAroundLocality(localityId, localitySelector, imageCount);
+		List<Locality> result = localityService.getTopRatedLocalitiesAroundLocality(localityId, localitySelector, imageCount, null);
 		return new ProAPISuccessCountResponse(super.filterFields(
 				result, localitySelector.getFields()),	result.size());
 	}

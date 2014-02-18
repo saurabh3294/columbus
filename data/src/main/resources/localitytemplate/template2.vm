@@ -10,44 +10,28 @@
 	#end
 #end
 
-#set($popularBuildersCounter = 0)
-#set($popularBuildersNameList = [])
+
 #if($topBuilders)
-	#foreach($builder in $topBuilders)
-		#set($temp = $popularBuildersNameList.add($builder.name))
-		#set($popularBuildersCounter = $popularBuildersCounter + 1)
+	#populateBuilderNameList($topBuilders)
+	#if($popularBuildersNameList.size() > 0)
+		Top $popularBuildersCounter builders in ${locality.label}
+	 	#isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) with better facilities & affordable prices.  	
 	#end
 #end
-#if($popularBuildersCounter > 0)
-	Top $popularBuildersCounter builders in ${locality.label}
- 	#isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) with better facilities & affordable prices.  	
-#end
+
 
 #if($popularProjects)
 	#set($counter = 0)
 	Some of the key projects offering properties in this locality #isOrAre($popularProjects) #projectByBuilderSentence($popularProjects). 
 #end
  
-#set($unitTypes = [])
-#set($unitTypesString = "")
-#set($unitNames = [])
-#set($unitNamesStringList = [])
+
 #set($minSize = 0)
 #set($maxSize = 0)
 #set($counter = 0)
 #set($lowestPricePropery = "")
+#populateUnitTypeAndUnitNameList($properties)
 #foreach($property in $properties)
-	#if(!$unitTypes.contains($property.unitType))
-		#if($unitTypes.size() > 0)
-			#set($unitTypesString = $unitTypesString + ", ")
-		#end
-		#set($temp = $unitTypes.add($property.unitType))
-		#set($unitTypesString = $unitTypesString + $property.unitType)
-	#end
-	#if(!$unitNames.contains($property.unitName))
-		#set($temp = $unitNames.add($property.unitName))
-		#set($temp = $unitNamesStringList.add($property.unitName))
-	#end
 	#if($property.size)
 		#if($counter == 0)
 			#set($minSize = $property.size)

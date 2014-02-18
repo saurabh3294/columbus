@@ -10,26 +10,16 @@ ${locality.label}, one of the popular and best place to have property in ${local
 	#end
 #end
 #if($topBuilders)
-	#set($popularBuildersNameList = [])
-	#foreach($builder in $topBuilders)
-		#set($temp = $popularBuildersNameList.add($builder.name))
-	#end
+	#populateBuilderNameList($topBuilders)
 	#if($popularBuildersNameList)
 		Most popular builders in ${locality.label} #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList). 
 	#end
 #end
-#set($unitTypesStringList = [])
-#set($unitNamesStringList = [])
 #set($minSize = 0)
 #set($maxSize = 0)
 #set($counter = 0)
+#populateUnitTypeAndUnitNameList($properties)
 #foreach($property in $properties)
-	#if(!$unitTypesStringList.contains($property.unitType))
-		#set($temp = $unitTypesStringList.add($property.unitType))
-	#end
-	#if(!$unitNamesStringList.contains($property.unitName))
-		#set($temp = $unitNamesStringList.add($property.unitName))
-	#end
 	#if($counter == 0)
 		#set($minSize = $property.size)
 		#set($maxSize = $property.size)
