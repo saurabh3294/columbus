@@ -3,42 +3,47 @@ package com.proptiger.exception;
 import com.proptiger.data.constants.ResponseCodes;
 
 /**
- * This is a wrapper over RuntimeException.
- * To make code cleaner, for all non recoverable exception this class should be used
+ * This is a wrapper over RuntimeException. To make code cleaner, for all non
+ * recoverable exception this class should be used
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
-public class ProAPIException extends RuntimeException{
+public class ProAPIException extends RuntimeException {
 
-	private static final long serialVersionUID = 4182555505392936914L;
-	
-	protected String responseCode = ResponseCodes.INTERNAL_SERVER_ERROR;
-	protected Object data;
-	
-	public ProAPIException(Throwable ex){
-		super(ex);
-	}
-	public ProAPIException(String msg){
-		super(msg);
-	}
-	
-	public ProAPIException(){
-		super();
-	}
-	
-	public ProAPIException(String message, Throwable ex){
-		super(message, ex);
-	}
+    private static final long serialVersionUID = 4182555505392936914L;
+
+    protected String          responseCode     = ResponseCodes.INTERNAL_SERVER_ERROR;
+    protected Object          data;
+
+    public ProAPIException(Throwable ex) {
+        super(ex);
+    }
+
+    public ProAPIException(String msg) {
+        super(msg);
+    }
+
+    public ProAPIException() {
+        super();
+    }
+
+    public ProAPIException(String message, Throwable ex) {
+        super(message, ex);
+    }
+
     public String getResponseCode() {
         return responseCode;
     }
+
     public void setResponseCode(String responseCode) {
         this.responseCode = responseCode;
     }
+
     public Object getData() {
         return data;
     }
+
     public void setData(Object data) {
         this.data = data;
     }

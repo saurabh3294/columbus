@@ -21,51 +21,50 @@ import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Component
 public class BankService {
 
-	private static Logger logger = LoggerFactory.getLogger(BankService.class);
-	
-	@Autowired
-	private ImageEnricher imageEnricher;
-	
-	@Autowired
-	private BankDao bankDao;
-	
-	@Autowired
-	private ProjectBanksDao projectBanksDao;
-	
-	@Transactional(readOnly = true)
-	public List<Bank> getBanks(){
-		return bankDao.findAll();
-	}
-	
-	@Transactional(readOnly = true)
-	public Bank getBank(Integer bankId){
-		Bank bank = bankDao.findOne(bankId);
-		if(bank == null){
-			logger.error("Bank id {} not found",bankId);
-			throw new ResourceNotAvailableException(ResourceType.BANK,bankId, ResourceTypeAction.GET);
-		}
-		return bank;
-	}
-	
-	/**
-	 * Get list of bank that are providing home loan for project. Set all images for each bank
-	 * 
-	 * @param projectId
-	 * @return
-	 */
-	public List<Bank> getBanksProvidingLoanOnProject(Integer projectId) {
-		Integer cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(
-				DomainObject.project, projectId);
-		List<Integer> bankIds = projectBanksDao
-				.findBankIdByProjectId(cmsProjectId);
-		Iterable<Bank> bankDetailsList = bankDao.findAll(bankIds);
-		ArrayList<Bank> list = Lists.newArrayList(bankDetailsList);
-		imageEnricher.setBankImages(list, null);
-		return list;
-	}
+    private static Logger   logger = LoggerFactory.getLogger(BankService.class);
+
+    @Autowired
+    private ImageEnricher   imageEnricher;
+
+    @Autowired
+    private BankDao         bankDao;
+
+    @Autowired
+    private ProjectBanksDao projectBanksDao;
+
+    @Transactional(readOnly = true)
+    public List<Bank> getBanks() {
+        return bankDao.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Bank getBank(Integer bankId) {
+        Bank bank = bankDao.findOne(bankId);
+        if (bank == null) {
+            logger.error("Bank id {} not found", bankId);
+            throw new ResourceNotAvailableException(ResourceType.BANK, bankId, ResourceTypeAction.GET);
+        }
+        return bank;
+    }
+
+    /**
+     * Get list of bank that are providing home loan for project. Set all images
+     * for each bank
+     * 
+     * @param projectId
+     * @return
+     */
+    public List<Bank> getBanksProvidingLoanOnProject(Integer projectId) {
+        Integer cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
+        List<Integer> bankIds = projectBanksDao.findBankIdByProjectId(cmsProjectId);
+        Iterable<Bank> bankDetailsList = bankDao.findAll(bankIds);
+        ArrayList<Bank> list = Lists.newArrayList(bankDetailsList);
+        imageEnricher.setBankImages(list, null);
+        return list;
+    }
 }

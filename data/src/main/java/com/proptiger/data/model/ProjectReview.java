@@ -12,158 +12,158 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "REVIEW_COMMENTS")
 @ResourceMetaInfo
 @Deprecated
-public class ProjectReview extends BaseModel{
+public class ProjectReview extends BaseModel {
 
-	private static final long serialVersionUID = -7620453446863793152L;
+    private static final long serialVersionUID = -7620453446863793152L;
 
-	@FieldMetaInfo( displayName = "Comment Id",  description = "Comment Id")
-	@Column(name = "COMMENT_ID")
-	@Id
-	private long commentId;
-	
-	@FieldMetaInfo( displayName = "User Id",  description = "User Id")
-	@Column(name = "USER_ID")
-	private long userId;
-	
-	@FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
-	@Column(name = "PROJECT_ID")
-	private long projectId;
-	
-	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
-	@Column(name = "LOCALITY_ID")
-	private long localityId;
-	
-	@FieldMetaInfo( displayName = "Likes Count",  description = "Likes Count")
-	@Column(name = "LIKES_COUNT")
-	private long likesCount;
-	
-	@FieldMetaInfo( displayName = "Review Label",  description = "Review Label")
-	@Column(name = "REVIEW_LABEL")
-	private String reviewLabel;
-	
-	@FieldMetaInfo( displayName = "Review",  description = "Review")
-	@Column(name = "REVIEW")
-	private String review;
-	
-	@FieldMetaInfo( displayName = "Recommend",  description = "Recommend")
-	@Column(name = "RECOMMEND")
-	private String recommend;
-	
-	@FieldMetaInfo( displayName = "You Know",  description = "You Know")
-	@Column(name = "YOU_KNOW")
-	private int youKnow;
-	
-	@FieldMetaInfo( displayName = "Comment Time",  description = "Comment Time")
-	@Column(name = "COMMENTTIME")
-	private Date commentTime;
-	
-	@FieldMetaInfo( displayName = "User Name",  description = "User Name")
-	@Column(name = "USER_NAME")
-	private String userName;
-	
-	@FieldMetaInfo( displayName = "Status",  description = "Status")
-	@Column(name = "STATUS")
-	private int status;
+    @FieldMetaInfo(displayName = "Comment Id", description = "Comment Id")
+    @Column(name = "COMMENT_ID")
+    @Id
+    private long              commentId;
 
-	public long getCommentId() {
-		return commentId;
-	}
+    @FieldMetaInfo(displayName = "User Id", description = "User Id")
+    @Column(name = "USER_ID")
+    private long              userId;
 
-	public void setCommentId(long commentId) {
-		this.commentId = commentId;
-	}
+    @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
+    @Column(name = "PROJECT_ID")
+    private long              projectId;
 
-	public long getUserId() {
-		return userId;
-	}
+    @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
+    @Column(name = "LOCALITY_ID")
+    private long              localityId;
 
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
+    @FieldMetaInfo(displayName = "Likes Count", description = "Likes Count")
+    @Column(name = "LIKES_COUNT")
+    private long              likesCount;
 
-	public long getProjectId() {
-		return projectId;
-	}
+    @FieldMetaInfo(displayName = "Review Label", description = "Review Label")
+    @Column(name = "REVIEW_LABEL")
+    private String            reviewLabel;
 
-	public void setProjectId(long projectId) {
-		this.projectId = projectId;
-	}
+    @FieldMetaInfo(displayName = "Review", description = "Review")
+    @Column(name = "REVIEW")
+    private String            review;
 
-	public long getLocalityId() {
-		return localityId;
-	}
+    @FieldMetaInfo(displayName = "Recommend", description = "Recommend")
+    @Column(name = "RECOMMEND")
+    private String            recommend;
 
-	public void setLocalityId(long localityId) {
-		this.localityId = localityId;
-	}
+    @FieldMetaInfo(displayName = "You Know", description = "You Know")
+    @Column(name = "YOU_KNOW")
+    private int               youKnow;
 
-	public long getLikesCount() {
-		return likesCount;
-	}
+    @FieldMetaInfo(displayName = "Comment Time", description = "Comment Time")
+    @Column(name = "COMMENTTIME")
+    private Date              commentTime;
 
-	public void setLikesCount(long likesCount) {
-		this.likesCount = likesCount;
-	}
+    @FieldMetaInfo(displayName = "User Name", description = "User Name")
+    @Column(name = "USER_NAME")
+    private String            userName;
 
-	public String getReviewLabel() {
-		return reviewLabel;
-	}
+    @FieldMetaInfo(displayName = "Status", description = "Status")
+    @Column(name = "STATUS")
+    private int               status;
 
-	public void setReviewLabel(String reviewLabel) {
-		this.reviewLabel = reviewLabel;
-	}
+    public long getCommentId() {
+        return commentId;
+    }
 
-	public String getReview() {
-		return review;
-	}
+    public void setCommentId(long commentId) {
+        this.commentId = commentId;
+    }
 
-	public void setReview(String review) {
-		this.review = review;
-	}
+    public long getUserId() {
+        return userId;
+    }
 
-	public String getRecommend() {
-		return recommend;
-	}
+    public void setUserId(long userId) {
+        this.userId = userId;
+    }
 
-	public void setRecommend(String recommend) {
-		this.recommend = recommend;
-	}
+    public long getProjectId() {
+        return projectId;
+    }
 
-	public int getYouKnow() {
-		return youKnow;
-	}
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
+    }
 
-	public void setYouKnow(int youKnow) {
-		this.youKnow = youKnow;
-	}
+    public long getLocalityId() {
+        return localityId;
+    }
 
-	public Date getCommentTime() {
-		return commentTime;
-	}
+    public void setLocalityId(long localityId) {
+        this.localityId = localityId;
+    }
 
-	public void setCommentTime(Date commentTime) {
-		this.commentTime = commentTime;
-	}
+    public long getLikesCount() {
+        return likesCount;
+    }
 
-	public String getUserName() {
-		return userName;
-	}
+    public void setLikesCount(long likesCount) {
+        this.likesCount = likesCount;
+    }
 
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+    public String getReviewLabel() {
+        return reviewLabel;
+    }
 
-	public int getStatus() {
-		return status;
-	}
+    public void setReviewLabel(String reviewLabel) {
+        this.reviewLabel = reviewLabel;
+    }
 
-	public void setStatus(int status) {
-		this.status = status;
-	}
+    public String getReview() {
+        return review;
+    }
+
+    public void setReview(String review) {
+        this.review = review;
+    }
+
+    public String getRecommend() {
+        return recommend;
+    }
+
+    public void setRecommend(String recommend) {
+        this.recommend = recommend;
+    }
+
+    public int getYouKnow() {
+        return youKnow;
+    }
+
+    public void setYouKnow(int youKnow) {
+        this.youKnow = youKnow;
+    }
+
+    public Date getCommentTime() {
+        return commentTime;
+    }
+
+    public void setCommentTime(Date commentTime) {
+        this.commentTime = commentTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 }

@@ -6,8 +6,8 @@ import com.proptiger.data.model.City;
 
 /**
  * @author rajeev-engg-lp
- *
+ * 
  */
-public interface CityRepository extends JpaRepository<City, Integer>{
+public interface CityRepository extends JpaRepository<City, Integer> {
 
 }

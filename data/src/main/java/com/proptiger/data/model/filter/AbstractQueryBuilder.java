@@ -30,10 +30,10 @@ import com.proptiger.data.util.StringToDateConverter;
  * @param <T>
  */
 public abstract class AbstractQueryBuilder<T> {
-    private static TypeConverter typeConverter = new SimpleTypeConverter();
-    private static LongToDateConverter longToDateConverter = new LongToDateConverter();
+    private static TypeConverter         typeConverter         = new SimpleTypeConverter();
+    private static LongToDateConverter   longToDateConverter   = new LongToDateConverter();
     private static StringToDateConverter stringToDateConverter = new StringToDateConverter();
-    
+
     public void buildQuery(Selector selector, Integer userId) {
         buildSelectClause(selector);
         buildOrderByClause(selector);
@@ -43,7 +43,8 @@ public abstract class AbstractQueryBuilder<T> {
 
     // XXX - Invocation order should not be changed here
     public void buildQuery(FIQLSelector selector) {
-        // XXX - filter remains first since FIQL parser auto creates criteriaquery for JPA here
+        // XXX - filter remains first since FIQL parser auto creates
+        // criteriaquery for JPA here
         buildFilterClause(selector);
 
         buildGroupByClause(selector);
@@ -87,63 +88,72 @@ public abstract class AbstractQueryBuilder<T> {
                     for (String operator : andFilter.keySet()) {
                         Map<String, Object> fieldNameValueMap = andFilter.get(operator);
                         switch (Operator.valueOf(operator)) {
-                        case equal:
-                            for (String jsonFieldName : fieldNameValueMap.keySet()) {
-                                List<Object> valuesList = new ArrayList<Object>();
-                                Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
+                            case equal:
+                                for (String jsonFieldName : fieldNameValueMap.keySet()) {
+                                    List<Object> valuesList = new ArrayList<Object>();
+                                    Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
 
-                                Object object = fieldNameValueMap.get(jsonFieldName);
-                                if (object instanceof List) {
-                                    for (Object obj: (List<?>) object) {
-                                        valuesList.add(convert(obj, field));
+                                    Object object = fieldNameValueMap.get(jsonFieldName);
+                                    if (object instanceof List) {
+                                        for (Object obj : (List<?>) object) {
+                                            valuesList.add(convert(obj, field));
+                                        }
                                     }
-                                } else {
-                                    valuesList.add(convert(object, field));
-                                }
-
-                                addEqualsFilter(jsonFieldName, valuesList);
-                            }
-                            break;
-
-                        case notEqual:
-                            for (String jsonFieldName : fieldNameValueMap.keySet()) {
-                                List<Object> valuesList = new ArrayList<Object>();
-                                Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
-
-                                Object object = fieldNameValueMap.get(jsonFieldName);
-                                if (object instanceof List) {
-                                    for (Object obj: (List<?>) object) {
-                                        valuesList.add(convert(obj, field));
+                                    else {
+                                        valuesList.add(convert(object, field));
                                     }
-                                } else {
-                                    valuesList.add(convert(object, field));
+
+                                    addEqualsFilter(jsonFieldName, valuesList);
                                 }
+                                break;
 
-                                addNotEqualsFilter(jsonFieldName, valuesList);
-                            }
-                            break;
+                            case notEqual:
+                                for (String jsonFieldName : fieldNameValueMap.keySet()) {
+                                    List<Object> valuesList = new ArrayList<Object>();
+                                    Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
 
-                        case range:
-                            for (String jsonFieldName : fieldNameValueMap.keySet()) {
-                                Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
-                                Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap.get(jsonFieldName);
-                                addRangeFilter(jsonFieldName, convert(obj.get(Operator.from.name()), field),
-                                        convert(obj.get(Operator.to.name()), field));
-                            }
-                            break;
+                                    Object object = fieldNameValueMap.get(jsonFieldName);
+                                    if (object instanceof List) {
+                                        for (Object obj : (List<?>) object) {
+                                            valuesList.add(convert(obj, field));
+                                        }
+                                    }
+                                    else {
+                                        valuesList.add(convert(object, field));
+                                    }
 
-                        case geoDistance:
-                            for (String jsonFieldName : fieldNameValueMap.keySet()) {
-                                Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap.get(jsonFieldName);
-                                addGeoFilter(jsonFieldName,
-                                        typeConverter.convertIfNecessary(obj.get(Operator.distance.name()), Double.class),
-                                        typeConverter.convertIfNecessary(obj.get(Operator.lat.name()), Double.class),
-                                        typeConverter.convertIfNecessary(obj.get(Operator.lon.name()), Double.class));
-                            }
-                            break;
+                                    addNotEqualsFilter(jsonFieldName, valuesList);
+                                }
+                                break;
 
-                        default:
-                            throw new IllegalArgumentException("Operator not supported yet");
+                            case range:
+                                for (String jsonFieldName : fieldNameValueMap.keySet()) {
+                                    Field field = FieldsMapLoader.getField(getModelClass(), jsonFieldName);
+                                    Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap
+                                            .get(jsonFieldName);
+                                    addRangeFilter(
+                                            jsonFieldName,
+                                            convert(obj.get(Operator.from.name()), field),
+                                            convert(obj.get(Operator.to.name()), field));
+                                }
+                                break;
+
+                            case geoDistance:
+                                for (String jsonFieldName : fieldNameValueMap.keySet()) {
+                                    Map<String, Object> obj = (Map<String, Object>) fieldNameValueMap
+                                            .get(jsonFieldName);
+                                    addGeoFilter(jsonFieldName, typeConverter.convertIfNecessary(
+                                            obj.get(Operator.distance.name()),
+                                            Double.class), typeConverter.convertIfNecessary(
+                                            obj.get(Operator.lat.name()),
+                                            Double.class), typeConverter.convertIfNecessary(
+                                            obj.get(Operator.lon.name()),
+                                            Double.class));
+                                }
+                                break;
+
+                            default:
+                                throw new IllegalArgumentException("Operator not supported yet");
                         }
                     }
                 }
@@ -159,20 +169,22 @@ public abstract class AbstractQueryBuilder<T> {
         if (field.getType().equals(Date.class)) {
             Date date = null;
             if (obj instanceof Long) {
-                date = longToDateConverter.convert((Long)obj);
+                date = longToDateConverter.convert((Long) obj);
             }
             else if (obj instanceof String) {
-                date = stringToDateConverter.convert((String)obj);
+                date = stringToDateConverter.convert((String) obj);
             }
             else {
-                date = (Date)typeConverter.convertIfNecessary(obj, field.getType());                
+                date = (Date) typeConverter.convertIfNecessary(obj, field.getType());
             }
 
             return new ISO8601DateFormat().format(date);
         }
 
         if (List.class.isAssignableFrom(field.getType())) {
-            return typeConverter.convertIfNecessary(obj, (Class<?>)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0]);
+            return typeConverter.convertIfNecessary(
+                    obj,
+                    (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]);
         }
 
         return typeConverter.convertIfNecessary(obj, field.getType());
@@ -191,5 +203,6 @@ public abstract class AbstractQueryBuilder<T> {
     protected abstract Class<T> getModelClass();
 
     public abstract List<T> retrieveResults();
+
     public abstract long retrieveCount();
 }

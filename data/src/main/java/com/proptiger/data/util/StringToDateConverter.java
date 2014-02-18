@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 /**
  * @author mandeep
- *
+ * 
  */
 public class StringToDateConverter implements Converter<String, Date> {
 
@@ -20,7 +20,8 @@ public class StringToDateConverter implements Converter<String, Date> {
     public Date convert(String source) {
         try {
             return new ISO8601DateFormat().parse(source);
-        } catch (ParseException e) {
+        }
+        catch (ParseException e) {
             throw new IllegalArgumentException("Could not parse date", e);
         }
     }

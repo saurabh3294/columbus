@@ -16,27 +16,28 @@ import com.proptiger.data.service.portfolio.LoginService;
 
 /**
  * Login controller for login and logout functionality
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/user")
 public class LoginController {
-	
-	@Autowired
-	private LoginService loginService;
-	
-	@RequestMapping(method = RequestMethod.POST, value = "/login")
-	@ResponseBody
-	public ProAPIResponse login(@RequestBody Login login) {
-		UserInfo userInfo = loginService.login(login.getEmail(), login.getPassword(), login.isRememberme());
-		return new ProAPISuccessResponse(userInfo);
-	}
-	
-	@RequestMapping(method = RequestMethod.POST, value = "/logout")
-	@ResponseBody
-	public ProAPIResponse logout() {
-		boolean status = loginService.logout();
-		return new ProAPISuccessCountResponse(status, 1);
-	}
+
+    @Autowired
+    private LoginService loginService;
+
+    @RequestMapping(method = RequestMethod.POST, value = "/login")
+    @ResponseBody
+    public ProAPIResponse login(@RequestBody Login login) {
+        UserInfo userInfo = loginService.login(login.getEmail(), login.getPassword(), login.isRememberme());
+        return new ProAPISuccessResponse(userInfo);
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/logout")
+    @ResponseBody
+    public ProAPIResponse logout() {
+        boolean status = loginService.logout();
+        return new ProAPISuccessCountResponse(status, 1);
+    }
 }

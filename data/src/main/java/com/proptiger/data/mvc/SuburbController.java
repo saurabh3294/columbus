@@ -17,7 +17,7 @@ import com.proptiger.data.service.SuburbService;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @RequestMapping("data/v1/entity/suburb")
 @Controller
@@ -27,30 +27,33 @@ public class SuburbController extends BaseController {
 
     /**
      * Returns suburbs given a selector
-     *
+     * 
      * @param selector
      * @return
      */
     @RequestMapping
-    public @ResponseBody ProAPIResponse getSuburbs(@RequestParam(required=false) String selector) {
+    public @ResponseBody
+    ProAPIResponse getSuburbs(@RequestParam(required = false) String selector) {
         Selector suburbSelector = new Selector();
         if (selector != null) {
             suburbSelector = super.parseJsonToObject(selector, Selector.class);
         }
-        
-        return new ProAPISuccessResponse(super.filterFields(suburbService.getSuburbs(suburbSelector), suburbSelector.getFields()));
+
+        return new ProAPISuccessResponse(super.filterFields(
+                suburbService.getSuburbs(suburbSelector),
+                suburbSelector.getFields()));
     }
 
     /**
      * Returns a suburb along with its details
-     *
+     * 
      * @param suburbId
      * @return
      */
     @RequestMapping("/{suburbId}")
     @ResponseBody
-    public ProAPIResponse getSuburb(@PathVariable int suburbId){
-    	
-    	return new ProAPISuccessResponse( super.filterFields( suburbService.getSuburb(suburbId), null) );
+    public ProAPIResponse getSuburb(@PathVariable int suburbId) {
+
+        return new ProAPISuccessResponse(super.filterFields(suburbService.getSuburb(suburbId), null));
     }
 }

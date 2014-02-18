@@ -15,11 +15,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author mandeep
- *
+ * 
  */
 public class FieldsMapLoader {
     static private ConcurrentMap<Class<?>, ConcurrentMap<String, Field>> fieldsMap = new ConcurrentHashMap<>();
-    
+
     public static Map<String, Field> getFieldMap(Class<?> clazz) {
         if (!fieldsMap.containsKey(clazz)) {
             loadClassFields(clazz);
@@ -32,12 +32,12 @@ public class FieldsMapLoader {
         if (!fieldsMap.containsKey(clazz)) {
             loadClassFields(clazz);
         }
-        
+
         Field field = fieldsMap.get(clazz).get(name);
         Annotation fieldAnnotation = field.getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
 
         if (fieldAnnotation == null) {
-			return field.getName();
+            return field.getName();
         }
 
         return (String) AnnotationUtils.getAnnotationAttributes(fieldAnnotation).get("value");
@@ -50,14 +50,16 @@ public class FieldsMapLoader {
 
         return fieldsMap.get(clazz).get(name);
     }
-    
+
     private static void loadClassFields(Class<?> clazz) {
         for (Field field : clazz.getDeclaredFields()) {
             Annotation annotation = field.getAnnotation(JsonProperty.class);
             fieldsMap.putIfAbsent(clazz, new ConcurrentHashMap<String, Field>());
 
             if (annotation != null) {
-                fieldsMap.get(clazz).putIfAbsent((String) AnnotationUtils.getAnnotationAttributes(annotation).get("value"), field);
+                fieldsMap.get(clazz).putIfAbsent(
+                        (String) AnnotationUtils.getAnnotationAttributes(annotation).get("value"),
+                        field);
             }
             else {
                 fieldsMap.get(clazz).putIfAbsent(field.getName(), field);

@@ -26,31 +26,31 @@ import com.proptiger.data.util.ImageUtil;
 @Access(AccessType.FIELD)
 @JsonFilter("fieldFilter")
 public class Image extends BaseModel {
-   
-	private static final long serialVersionUID = 3547840734282317975L;
 
-	public static final String DOT = ".";
+    private static final long  serialVersionUID = 3547840734282317975L;
+
+    public static final String DOT              = ".";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+    private long               id;
 
     // XXX - Don't change is to imageType
     // XXX - Prevents collision with request param in controller
-	@ManyToOne(fetch=FetchType.EAGER)
-	@Fetch(FetchMode.JOIN)
-	@JoinColumn(name = "ImageType_id", insertable=false, updatable=false)
-	@JsonProperty("imageType")
-	private ImageType imageTypeObj;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "ImageType_id", insertable = false, updatable = false)
+    @JsonProperty("imageType")
+    private ImageType          imageTypeObj;
 
-	@Column(name = "ImageType_id", updatable=false)
-    private long imageTypeId;
-	
-	@Column(name = "object_id", updatable=false)
-	private long objectId;
-	
-	@Column(updatable=false)
-	private String path;
+    @Column(name = "ImageType_id", updatable = false)
+    private long               imageTypeId;
+
+    @Column(name = "object_id", updatable = false)
+    private long               objectId;
+
+    @Column(updatable = false)
+    private String             path;
 
     public void assignWatermarkName(String format) {
         waterMarkName = id + DOT + format;
@@ -60,62 +60,62 @@ public class Image extends BaseModel {
         originalName = originalHash + DOT + format;
     }
 
-	@JsonProperty
+    @JsonProperty
     public String getAbsolutePath() {
         return ImageUtil.endpoint + "/" + path + waterMarkName;
     }
 
-	// XXX - Do not remove! used for creating object from serialized string
+    // XXX - Do not remove! used for creating object from serialized string
     public void setAbsolutePath(String absolutePath) {
     }
 
-	@Column(name = "created_at", updatable=false)
-	private Date createdAt;
-	
-	@Column(name = "taken_at", nullable = true)
-	private Date takenAt;
-	
-	@Column(name = "size_in_bytes", updatable=false)
-	private long sizeInBytes;
-	
-	@Column(updatable=false)
-	private int width;
-	
-	@Column(updatable=false)
-	private int height;
-	
-	private Double latitude;
-	
-	private Double longitude;
-	
-	@Column(name = "alt_text", nullable = true)
-	private String altText;
-	
-	private String title;
-	
-	private String description;
-	
-	@Column(name = "json_dump", nullable = true)
-	private String jsonDump;
-	
-	private Integer priority;
+    @Column(name = "created_at", updatable = false)
+    private Date    createdAt;
 
-	@Column(name = "original_hash", updatable=false)
-	@JsonIgnore
-	private String originalHash;
+    @Column(name = "taken_at", nullable = true)
+    private Date    takenAt;
 
-	@Column(name = "original_name", updatable=false)
+    @Column(name = "size_in_bytes", updatable = false)
+    private long    sizeInBytes;
+
+    @Column(updatable = false)
+    private int     width;
+
+    @Column(updatable = false)
+    private int     height;
+
+    private Double  latitude;
+
+    private Double  longitude;
+
+    @Column(name = "alt_text", nullable = true)
+    private String  altText;
+
+    private String  title;
+
+    private String  description;
+
+    @Column(name = "json_dump", nullable = true)
+    private String  jsonDump;
+
+    private Integer priority;
+
+    @Column(name = "original_hash", updatable = false)
     @JsonIgnore
-    private String originalName;
+    private String  originalHash;
 
-	@JsonIgnore
-	@Column(name = "watermark_hash", updatable=false)
-	private String waterMarkHash;
+    @Column(name = "original_name", updatable = false)
+    @JsonIgnore
+    private String  originalName;
 
-	@Column(name = "watermark_name")
-	private String waterMarkName;
+    @JsonIgnore
+    @Column(name = "watermark_hash", updatable = false)
+    private String  waterMarkHash;
 
-	private boolean active;
+    @Column(name = "watermark_name")
+    private String  waterMarkName;
+
+    private boolean active;
 
     public long getId() {
         return id;
@@ -292,11 +292,11 @@ public class Image extends BaseModel {
     public void setActive(boolean active) {
         this.active = active;
     }
-    
-    public static String addImageHostUrl(String path){
-    	if(path.indexOf(ImageUtil.endpoint) < 0)
-    		return ImageUtil.endpoint +"/" + path;
-    	else
-    		return path;
+
+    public static String addImageHostUrl(String path) {
+        if (path.indexOf(ImageUtil.endpoint) < 0)
+            return ImageUtil.endpoint + "/" + path;
+        else
+            return path;
     }
 }

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- *
+ * 
  * @author mukand
  */
 
@@ -29,85 +29,85 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = "ENQUIRY")
 @JsonFilter("fieldFilter")
 public class Enquiry extends BaseModel {
-   
-	private static final long serialVersionUID = 8405769379921577431L;
-	@Column(name = "ID")
+
+    private static final long serialVersionUID = 8405769379921577431L;
+    @Column(name = "ID")
     @Id
-    private long id;
+    private long              id;
     @Column(name = "NAME")
-    private String name;
+    private String            name;
     @Column(name = "email")
-    private String email;
+    private String            email;
     @Column(name = "PHONE")
-    private String phone;
+    private String            phone;
     @Column(name = "COUNTRY_OF_RESIDENCE")
-    private String countryOfResidence;
+    private String            countryOfResidence;
     @Column(name = "QUERY")
-    private String query;
+    private String            query;
     @Column(name = "PROJECT_ID", nullable = true)
-    private Long projectId;
+    private Long              projectId;
     @Column(name = "PROJECT_NAME")
-    private String projectName;
+    private String            projectName;
     @Column(name = "CITY_ID")
-    private Integer cityId;
+    private Integer           cityId;
     @Column(name = "CITY_NAME")
-    private String cityName;
+    private String            cityName;
     @Column(name = "LOCALITY_ID", insertable = false, updatable = false, nullable = true)
-    private Integer localityId;
+    private Integer           localityId;
     @Column(name = "IP")
-    private String ip;
-    
+    private String            ip;
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_DATE")
-    private Date createdDate;
+    private Date              createdDate;
     @Column(name = "SOURCE")
-    private String source;
+    private String            source;
     @Column(name = "FORM_NAME")
-    private String formName;
+    private String            formName;
     @Column(name = "PAGE_NAME")
-    private String pageName;
+    private String            pageName;
     @Column(name = "PAGE_URL")
-    private String pageUrl;
+    private String            pageUrl;
     @Column(name = "REF_URL")
-    private String refUrl;
+    private String            refUrl;
     @Column(name = "AD_GRP")
-    private String adGrp;
+    private String            adGrp;
     @Column(name = "KEYWORDS")
-    private String keywords;
+    private String            keywords;
     @Column(name = "CAMPAIGN")
-    private String campaign;
+    private String            campaign;
     @Column(name = "PPC")
-    private String ppc;
+    private String            ppc;
     @Column(name = "USER")
-    private String user;
+    private String            user;
     @Column(name = "HTTP_REFERER")
-    private String httpReferer;
+    private String            httpReferer;
     @Column(name = "USER_MEDIUM")
-    private String userMedium;
+    private String            userMedium;
     @Column(name = "GA_SOURCE")
-    private String gaSource;
+    private String            gaSource;
     @Column(name = "GA_MEDIUM")
-    private String gaMedium;
+    private String            gaMedium;
     @Column(name = "GA_NETWORK")
-    private String gaNetwork;
+    private String            gaNetwork;
     @Column(name = "GA_KEYWORDS")
-    private String gaKeywords;
+    private String            gaKeywords;
     @Column(name = "GA_CAMPAIGN")
-    private String gaCampaign;
+    private String            gaCampaign;
     @Column(name = "GA_USER_ID")
-    private String gaUserId;
+    private String            gaUserId;
     @Column(name = "GA_TIMESPENT")
-    private String gaTimespent;
-    
+    private String            gaTimespent;
+
     @ManyToOne
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
     @JsonIgnore
-    private Locality locality;
-    
+    private Locality          locality;
+
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROJECT_ID" ,  nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "PROJECT_ID", nullable = false, insertable = false, updatable = false)
     @JsonIgnore
-    private ProjectDB project;
+    private ProjectDB         project;
 
     public Locality getLocality() {
         return locality;
@@ -116,8 +116,7 @@ public class Enquiry extends BaseModel {
     public void setLocality(Locality locality) {
         this.locality = locality;
     }
-    
-    
+
     public Long getId() {
         return id;
     }
@@ -374,24 +373,24 @@ public class Enquiry extends BaseModel {
         this.gaTimespent = gaTimespent;
     }
 
-	public ProjectDB getProject() {
-		return project;
-	}
+    public ProjectDB getProject() {
+        return project;
+    }
 
-	public void setProject(ProjectDB project) {
-		this.project = project;
-	}
+    public void setProject(ProjectDB project) {
+        this.project = project;
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setCityId(Integer cityId) {
-		this.cityId = cityId;
-	}
+    public void setCityId(Integer cityId) {
+        this.cityId = cityId;
+    }
 
-	public void setLocalityId(Integer localityId) {
-		this.localityId = localityId;
-	}
-    
+    public void setLocalityId(Integer localityId) {
+        this.localityId = localityId;
+    }
+
 }

@@ -11,41 +11,41 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "FORUM_USER_LIKES")
 public class ProjectCommentLikes extends BaseModel {
-	
-	private static final long serialVersionUID = 9201411629880607950L;
 
-	@Id
-	@GeneratedValue
-	@Column(name = "ID")
-	private long id;
-	
-	@Column(name = "USER_ID")
-	private int userId;
-	
-	@Column(name = "COMMENT_ID")
-	private long commentId;
+    private static final long serialVersionUID = 9201411629880607950L;
 
-	public long getId() {
-		return id;
-	}
+    @Id
+    @GeneratedValue
+    @Column(name = "ID")
+    private long              id;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    @Column(name = "USER_ID")
+    private int               userId;
 
-	public int getUserId() {
-		return userId;
-	}
+    @Column(name = "COMMENT_ID")
+    private long              commentId;
 
-	public void setUserId(int userId) {
-		this.userId = userId;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public long getCommentId() {
-		return commentId;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setCommentId(long commentId) {
-		this.commentId = commentId;
-	}
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public long getCommentId() {
+        return commentId;
+    }
+
+    public void setCommentId(long commentId) {
+        this.commentId = commentId;
+    }
 }

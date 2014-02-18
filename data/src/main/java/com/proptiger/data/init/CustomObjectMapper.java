@@ -25,8 +25,9 @@ public class CustomObjectMapper extends ObjectMapper {
         this.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
 
         SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-        filterProvider.setFailOnUnknownId(false).addFilter("fieldFilter", SimpleBeanPropertyFilter
-                .serializeAllExcept(new HashSet<String>()));
+        filterProvider.setFailOnUnknownId(false).addFilter(
+                "fieldFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept(new HashSet<String>()));
         this.setFilters(filterProvider);
     }
 }

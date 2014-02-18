@@ -36,48 +36,48 @@ public class LocalityRatings extends BaseModel {
     @Column(name = "REVIEW_ID")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long reviewId;
+    private Long              reviewId;
     @FieldMetaInfo(displayName = "User Id", description = "User Id")
     @Column(name = "USER_ID")
-    private Integer userId;
+    private Integer           userId;
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
-    private Integer localityId;
+    private Integer           localityId;
     @FieldMetaInfo(displayName = "Overall Rating", description = "Overall Rating")
     @Column(name = "OVERALL_RATING")
-    private double overallRating;
+    private double            overallRating;
     @FieldMetaInfo(displayName = "Location", description = "Location")
     @Column(name = "LOCATION")
-    private double location;
+    private double            location;
     @FieldMetaInfo(displayName = "Safety", description = "Safety")
     @Column(name = "SAFETY")
-    private double safety;
+    private double            safety;
     @FieldMetaInfo(displayName = "Public Transport", description = "Public Transport")
     @Column(name = "PUB_TRANS")
-    private double pubTrans;
+    private double            pubTrans;
     @FieldMetaInfo(displayName = "Rest Shop", description = "Rest Shop")
     @Column(name = "REST_SHOP")
-    private double restShop;
+    private double            restShop;
     @FieldMetaInfo(displayName = "Schools", description = "Schools")
     @Column(name = "SCHOOLS")
-    private double schools;
+    private double            schools;
     @FieldMetaInfo(displayName = "Parks", description = "Parks")
     @Column(name = "PARKS")
-    private double parks;
+    private double            parks;
     @FieldMetaInfo(displayName = "Traffic", description = "Traffic")
     @Column(name = "TRAFFIC")
-    private double traffic;
+    private double            traffic;
     @FieldMetaInfo(displayName = "Hospitals", description = "Hospitals")
     @Column(name = "HOSPITALS")
-    private double hospitals;
+    private double            hospitals;
     @FieldMetaInfo(displayName = "Civic", description = "Civic")
     @Column(name = "CIVIC")
-    private double civic;
+    private double            civic;
 
     @ManyToOne
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
     @JsonIgnore
-    private Locality locality;
+    private Locality          locality;
 
     public Long getReviewId() {
         return reviewId;
@@ -208,8 +208,17 @@ public class LocalityRatings extends BaseModel {
 
         private static final long serialVersionUID = 8265420768264430368L;
 
-        public LocalityAverageRatingByCategory(Double overallRating, Double location, Double safety, Double pubTrans,
-                Double restShop, Double schools, Double parks, Double traffic, Double hospitals, Double civic) {
+        public LocalityAverageRatingByCategory(
+                Double overallRating,
+                Double location,
+                Double safety,
+                Double pubTrans,
+                Double restShop,
+                Double schools,
+                Double parks,
+                Double traffic,
+                Double hospitals,
+                Double civic) {
             this.overallRating = overallRating;
             this.location = location;
             this.safety = safety;
@@ -288,8 +297,8 @@ public class LocalityRatings extends BaseModel {
     @JsonInclude(Include.NON_NULL)
     public static class LocalityRatingUserCount extends BaseModel {
         private static final long serialVersionUID = 423920351135118515L;
-        private Double rating;
-        private long userCount;
+        private Double            rating;
+        private long              userCount;
 
         public LocalityRatingUserCount(Double rating, long userCount) {
             this.rating = rating;
@@ -314,11 +323,11 @@ public class LocalityRatings extends BaseModel {
      */
     @JsonInclude(Include.NON_NULL)
     public static class LocalityRatingDetails extends BaseModel {
-        private static final long serialVersionUID = 6890543357432298905L;
+        private static final long   serialVersionUID = 6890543357432298905L;
         protected Map<Double, Long> totalUsersByRating;
-        protected Double averageRatings;
+        protected Double            averageRatings;
         // totalRatings is total number users who rates the locality
-        protected Long totalRatings;
+        protected Long              totalRatings;
 
         public LocalityRatingDetails(Map<Double, Long> totalUsersByRating, Double averageRatings, Long totalRatings) {
             super();

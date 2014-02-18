@@ -15,25 +15,25 @@ import com.proptiger.data.service.BrokerAgentService;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
-public class BrokerAgentController extends BaseController{
-	
-	@Autowired
-	private BrokerAgentService brokerAgentService;
-	
-	@RequestMapping(value = "data/v1/entity/broker-agent/{agentId}")
-	@ResponseBody
-	public ProAPIResponse getAgent(@PathVariable Integer agentId){
-		Agent agent = brokerAgentService.getAgent(agentId);
-		return new ProAPISuccessCountResponse(super.filterFields(agent, null), 1);
-	}
-	
-	@RequestMapping(value = "data/v1/entity/project/{projectId}/agent")
-	@ResponseBody
-	public ProAPIResponse getAgenetsForProject(@PathVariable Integer projectId){
-		List<Agent> agents = brokerAgentService.getAgentsForProject(projectId);
-		return new ProAPISuccessCountResponse(super.filterFields(agents, null), agents.size());
-	}
+public class BrokerAgentController extends BaseController {
+
+    @Autowired
+    private BrokerAgentService brokerAgentService;
+
+    @RequestMapping(value = "data/v1/entity/broker-agent/{agentId}")
+    @ResponseBody
+    public ProAPIResponse getAgent(@PathVariable Integer agentId) {
+        Agent agent = brokerAgentService.getAgent(agentId);
+        return new ProAPISuccessCountResponse(super.filterFields(agent, null), 1);
+    }
+
+    @RequestMapping(value = "data/v1/entity/project/{projectId}/agent")
+    @ResponseBody
+    public ProAPIResponse getAgenetsForProject(@PathVariable Integer projectId) {
+        List<Agent> agents = brokerAgentService.getAgentsForProject(projectId);
+        return new ProAPISuccessCountResponse(super.filterFields(agents, null), agents.size());
+    }
 }

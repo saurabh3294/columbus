@@ -23,13 +23,13 @@ import com.proptiger.data.service.LocalityDescriptionService;
 @DisableCaching
 public class LocalityDescriptionController {
 
-	@Autowired
-	private LocalityDescriptionService localityDescriptionService;
-	
-	@RequestMapping(value = "{localityId}/description")
-	@ResponseBody
-	public ProAPIResponse getLocalityTemplate(@PathVariable Integer localityId){
-		String description = localityDescriptionService.getLocalityDescriptionUsingTemplate(localityId);
-		return new ProAPISuccessResponse(description);
-	}
+    @Autowired
+    private LocalityDescriptionService localityDescriptionService;
+
+    @RequestMapping(value = "{localityId}/description")
+    @ResponseBody
+    public ProAPIResponse getLocalityTemplate(@PathVariable Integer localityId) {
+        String description = localityDescriptionService.getLocalityDescriptionUsingTemplate(localityId);
+        return new ProAPISuccessResponse(description);
+    }
 }

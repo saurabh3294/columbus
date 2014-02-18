@@ -11,85 +11,83 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.enums.ContactNumberType;
 
-
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "cms.contact_numbers")
 @JsonFilter("fieldFilter")
-public class ContactNumber  extends BaseModel{
+public class ContactNumber extends BaseModel {
 
-	private static final long serialVersionUID = -4848784125501814242L;
+    private static final long serialVersionUID = -4848784125501814242L;
 
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "table_name")
-	private String tableName;
-	
-	@Column(name = "table_id")
-	private Integer tableId;
-	
-	@Column(name = "contry_code")
-	private Integer contryCode;
-	
-	@Column(name = "contact_no")
-	private String contactNumber;
-	
-	@Column(name = "type")
-	@Enumerated(EnumType.STRING)
-	private ContactNumberType type;
+    @Id
+    @Column(name = "id")
+    private Integer           id;
 
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "table_name")
+    private String            tableName;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "table_id")
+    private Integer           tableId;
 
-	public String getTableName() {
-		return tableName;
-	}
+    @Column(name = "contry_code")
+    private Integer           contryCode;
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
+    @Column(name = "contact_no")
+    private String            contactNumber;
 
-	public Integer getTableId() {
-		return tableId;
-	}
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private ContactNumberType type;
 
-	public void setTableId(Integer tableId) {
-		this.tableId = tableId;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public Integer getContryCode() {
-		return contryCode;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setContryCode(Integer contryCode) {
-		this.contryCode = contryCode;
-	}
+    public String getTableName() {
+        return tableName;
+    }
 
-	public String getContactNumber() {
-		return contactNumber;
-	}
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
 
-	public void setContactNumber(String contactNumber) {
-		this.contactNumber = contactNumber;
-	}
+    public Integer getTableId() {
+        return tableId;
+    }
 
-	public ContactNumberType getType() {
-		return type;
-	}
+    public void setTableId(Integer tableId) {
+        this.tableId = tableId;
+    }
 
-	public void setType(ContactNumberType type) {
-		this.type = type;
-	}
-	
-	
+    public Integer getContryCode() {
+        return contryCode;
+    }
+
+    public void setContryCode(Integer contryCode) {
+        this.contryCode = contryCode;
+    }
+
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
+
+    public ContactNumberType getType() {
+        return type;
+    }
+
+    public void setType(ContactNumberType type) {
+        this.type = type;
+    }
+
 }

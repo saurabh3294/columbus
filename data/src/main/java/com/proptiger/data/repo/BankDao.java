@@ -6,8 +6,8 @@ import com.proptiger.data.model.Bank;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface BankDao  extends JpaRepository<Bank, Integer>{
+public interface BankDao extends JpaRepository<Bank, Integer> {
 
 }

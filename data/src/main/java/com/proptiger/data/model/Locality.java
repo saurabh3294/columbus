@@ -27,8 +27,9 @@ import com.proptiger.data.model.image.Image;
 
 /**
  * Locality entity class
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "LOCALITY")
@@ -37,158 +38,158 @@ import com.proptiger.data.model.image.Image;
 @JsonInclude(Include.NON_NULL)
 public class Locality extends BaseModel {
 
-	private static final long serialVersionUID = -4849147096449590891L;
+    private static final long               serialVersionUID = -4849147096449590891L;
 
-	public static int MAX_PRIORITY = 100;
-    
+    public static int                       MAX_PRIORITY     = 100;
+
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
     @Id
     @Field("LOCALITY_ID")
-    private int localityId;
+    private int                             localityId;
 
     @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
     @Field("SUBURB_ID")
-    private int suburbId;
+    private int                             suburbId;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "SUBURB_ID", insertable = false, updatable = false)
-    private Suburb suburb;
+    private Suburb                          suburb;
 
     // XXX TODO - This is to be removed
     @Deprecated
     @Column(name = "CITY_ID")
     @Field("CITY_ID")
-    private int cityId;
+    private int                             cityId;
 
     @FieldMetaInfo(displayName = "Label", description = "Label")
     @Column(name = "LABEL")
     @Field("LOCALITY")
-    private String label;
+    private String                          label;
 
     @FieldMetaInfo(displayName = "Title", description = "Title")
     @Column(name = "META_TITLE")
-    private String title;
+    private String                          title;
 
     @FieldMetaInfo(displayName = "Keywords", description = "Keywords")
     @Column(name = "META_KEYWORDS")
-    private String keywords;
+    private String                          keywords;
 
     @FieldMetaInfo(displayName = "Meta Description", description = "Meta Description")
     @Column(name = "META_DESCRIPTION")
-    private String metaDescription;
+    private String                          metaDescription;
 
     @FieldMetaInfo(displayName = "Url", description = "Url")
     @Column(name = "URL")
     @Field("LOCALITY_URL")
-    private String url;
+    private String                          url;
 
     @FieldMetaInfo(displayName = "Active", description = "Active")
     @Column(name = "ACTIVE")
     @JsonIgnore
-    private boolean isActive;
-    
+    private boolean                         isActive;
+
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
     @Field("LOCALITY_DESCRIPTION")
-    private String description;
+    private String                          description;
 
     @FieldMetaInfo(displayName = "Priority", description = "Priority")
     @Column(name = "PRIORITY")
     @Field("LOCALITY_PRIORITY")
-    private int priority;
+    private int                             priority;
 
     @FieldMetaInfo(displayName = "Latitude", description = "Latitude")
     @Column(name = "LATITUDE")
     @Field("LOCALITY_LATITUDE")
-    private Double latitude;
+    private Double                          latitude;
 
     @FieldMetaInfo(displayName = "Longitude", description = "Longitude")
     @Column(name = "LONGITUDE")
     @Field("LOCALITY_LONGITUDE")
-    private Double longitude;
-    
+    private Double                          longitude;
+
     @Field("LOCALITY_OVERVIEW_URL")
     @Transient
-    private String overviewUrl;
+    private String                          overviewUrl;
 
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
-    private Set<Enquiry> enquiry;
-    
+    private Set<Enquiry>                    enquiry;
+
     @OneToMany(mappedBy = "locality")
     @JsonIgnore
-    private Set<LocalityRatings> localityRatings;
-    
-    @Transient
-    private Map<String, Integer> projectStatusCount;
+    private Set<LocalityRatings>            localityRatings;
 
     @Transient
-    private Map<String, Integer> amenityTypeCount;
+    private Map<String, Integer>            projectStatusCount;
 
     @Transient
-    private List<Image> images;
+    private Map<String, Integer>            amenityTypeCount;
 
     @Transient
-    private Integer imageCount;
+    private List<Image>                     images;
 
     @Transient
-    private Long totalReviews;
+    private Integer                         imageCount;
 
     @Transient
-    private Double averageRating;
+    private Long                            totalReviews;
 
     @Transient
-    private Long ratingsCount;
-    
+    private Double                          averageRating;
+
     @Transient
-    private Integer projectCount;
-    
+    private Long                            ratingsCount;
+
+    @Transient
+    private Integer                         projectCount;
+
     @Transient
     @Field("LOCALITY_MAX_RADIUS")
-    private Double maxRadius;
-    
-    @Transient
-    private Integer totalImages;
+    private Double                          maxRadius;
 
     @Transient
-    private Double minResalePrice;
-    
-    @Transient
-    private Double maxResalePrice;
+    private Integer                         totalImages;
 
     @Transient
-    private Double minPrice;
-    
+    private Double                          minResalePrice;
+
     @Transient
-    private Double maxPrice;
+    private Double                          maxResalePrice;
+
+    @Transient
+    private Double                          minPrice;
+
+    @Transient
+    private Double                          maxPrice;
 
     @Field("LOCALITY_PRICE_RISE")
     @Transient
-    private Double avgPriceRisePercentage;
+    private Double                          avgPriceRisePercentage;
 
     @Field("LOCALITY_PRICE_RISE_TIME")
     @Transient
-    private Integer avgPriceRiseMonths;
-    
+    private Integer                         avgPriceRiseMonths;
+
     @Transient
     @Field("LOCALITY_PRICE_PER_UNIT_AREA")
-    private Double avgPricePerUnitArea;
-    
+    private Double                          avgPricePerUnitArea;
+
     @Transient
     @Field("LOCALITY_DOMINANT_UNIT_TYPE")
-    private String dominantUnitType;
-    
+    private String                          dominantUnitType;
+
     @Transient
-    private Map<Integer, Double> avgBHKPricePerUnitArea;
-    
+    private Map<Integer, Double>            avgBHKPricePerUnitArea;
+
     @Transient
-    private Map<Double, Long> numberOfUsersByRating;
-    
+    private Map<Double, Long>               numberOfUsersByRating;
+
     @Transient
     private LocalityAverageRatingByCategory avgRatingsByCategory;
-    
+
     public int getLocalityId() {
         return localityId;
     }
@@ -447,53 +448,52 @@ public class Locality extends BaseModel {
         this.avgPriceRiseMonths = avgPriceRiseMonths;
     }
 
-	public Set<LocalityRatings> getLocalityRatings() {
-		return localityRatings;
-	}
+    public Set<LocalityRatings> getLocalityRatings() {
+        return localityRatings;
+    }
 
-	public void setLocalityRatings(Set<LocalityRatings> localityReviews) {
-		this.localityRatings = localityReviews;
-	}
+    public void setLocalityRatings(Set<LocalityRatings> localityReviews) {
+        this.localityRatings = localityReviews;
+    }
 
-	public String getDominantUnitType() {
-		return dominantUnitType;
-	}
+    public String getDominantUnitType() {
+        return dominantUnitType;
+    }
 
-	public void setDominantUnitType(String dominantUnitType) {
-		this.dominantUnitType = dominantUnitType;
-	}
+    public void setDominantUnitType(String dominantUnitType) {
+        this.dominantUnitType = dominantUnitType;
+    }
 
-	public Map<Integer, Double> getAvgBHKPricePerUnitArea() {
-		return avgBHKPricePerUnitArea;
-	}
+    public Map<Integer, Double> getAvgBHKPricePerUnitArea() {
+        return avgBHKPricePerUnitArea;
+    }
 
-	public void setAvgBHKPriceUnitArea(Map<Integer, Double> avgBHKPrice) {
-		this.avgBHKPricePerUnitArea = avgBHKPrice;
-	}
+    public void setAvgBHKPriceUnitArea(Map<Integer, Double> avgBHKPrice) {
+        this.avgBHKPricePerUnitArea = avgBHKPrice;
+    }
 
-	public Map<Double, Long> getNumberOfUsersByRating() {
-		return numberOfUsersByRating;
-	}
+    public Map<Double, Long> getNumberOfUsersByRating() {
+        return numberOfUsersByRating;
+    }
 
-	public void setNumberOfUsersByRating(Map<Double, Long> numberOfUsersByRating) {
-		this.numberOfUsersByRating = numberOfUsersByRating;
-	}
+    public void setNumberOfUsersByRating(Map<Double, Long> numberOfUsersByRating) {
+        this.numberOfUsersByRating = numberOfUsersByRating;
+    }
 
-	public LocalityAverageRatingByCategory getAvgRatingsByCategory() {
-		return avgRatingsByCategory;
-	}
+    public LocalityAverageRatingByCategory getAvgRatingsByCategory() {
+        return avgRatingsByCategory;
+    }
 
-	public void setAvgRatingsByCategory(
-			LocalityAverageRatingByCategory avgRatingsByCategory) {
-		this.avgRatingsByCategory = avgRatingsByCategory;
-	}
+    public void setAvgRatingsByCategory(LocalityAverageRatingByCategory avgRatingsByCategory) {
+        this.avgRatingsByCategory = avgRatingsByCategory;
+    }
 
-	public String getOverviewUrl() {
-		return overviewUrl;
-	}
+    public String getOverviewUrl() {
+        return overviewUrl;
+    }
 
-	public void setOverviewUrl(String localityOverviewUrl) {
-		this.overviewUrl = localityOverviewUrl;
-	}
-	
+    public void setOverviewUrl(String localityOverviewUrl) {
+        this.overviewUrl = localityOverviewUrl;
+    }
+
 }

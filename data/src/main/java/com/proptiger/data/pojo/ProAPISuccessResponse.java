@@ -4,42 +4,43 @@ import com.proptiger.data.constants.ResponseCodes;
 
 /**
  * This class represents a successful response
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
-public class ProAPISuccessResponse implements ProAPIResponse{
+public class ProAPISuccessResponse implements ProAPIResponse {
 
-	private String statusCode;
-	private Object data;
-	
-	public ProAPISuccessResponse() {
-		super();
-		this.statusCode = ResponseCodes.SUCCESS;
-	}
+    private String statusCode;
+    private Object data;
 
-	public ProAPISuccessResponse(Object data) {
-		super();
-		this.statusCode = ResponseCodes.SUCCESS;
-		this.data = data;
-	}
+    public ProAPISuccessResponse() {
+        super();
+        this.statusCode = ResponseCodes.SUCCESS;
+    }
 
-	@Override
-	public String getStatusCode() {
-		// TODO Auto-generated method stub
-		return statusCode;
-	}
+    public ProAPISuccessResponse(Object data) {
+        super();
+        this.statusCode = ResponseCodes.SUCCESS;
+        this.data = data;
+    }
 
-	@Override
-	public void setStatusCode(String code) {
-		this.statusCode = code;
-	}
+    @Override
+    public String getStatusCode() {
+        // TODO Auto-generated method stub
+        return statusCode;
+    }
 
-	public Object getData() {
-		return data;
-	}
+    @Override
+    public void setStatusCode(String code) {
+        this.statusCode = code;
+    }
 
-	public void setData(Object data) {
-		this.data = data;
-	}
-	
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
+    }
+
 }

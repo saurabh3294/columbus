@@ -19,68 +19,68 @@ import com.proptiger.data.model.BaseModel;
 @ResourceMetaInfo
 public class SavedSearch extends BaseModel {
 
-	private static final long serialVersionUID = 62908185612438469L;
+    private static final long serialVersionUID = 62908185612438469L;
 
-	@Id
-	@GeneratedValue
-	@FieldMetaInfo(displayName = "Saved Search Id", description = "Saved Search Id")
-	@Column(name = "ID")
-	private Integer id;
-	
-	@FieldMetaInfo(displayName = "User Id", description = "User Id")
-	@Column(name = "USER_ID")
-	private Integer userId; 
+    @Id
+    @GeneratedValue
+    @FieldMetaInfo(displayName = "Saved Search Id", description = "Saved Search Id")
+    @Column(name = "ID")
+    private Integer           id;
 
-	@FieldMetaInfo(displayName = "Search Query", description = "Search Query")
-	@Column(name = "SEARCH_QUERY")
-	private String searchQuery;
-	
-	@FieldMetaInfo(displayName = "Name", description = "Name")
-	@Column(name = "NAME")
-	private String name;
-	
-	@FieldMetaInfo(displayName = "Created Date", description = "Created Date")
-	@Column(name = "CREATED_DATE")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date createdDate;
+    @FieldMetaInfo(displayName = "User Id", description = "User Id")
+    @Column(name = "USER_ID")
+    private Integer           userId;
 
-	public Integer getId() {
-		return id;
-	}
+    @FieldMetaInfo(displayName = "Search Query", description = "Search Query")
+    @Column(name = "SEARCH_QUERY")
+    private String            searchQuery;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @FieldMetaInfo(displayName = "Name", description = "Name")
+    @Column(name = "NAME")
+    private String            name;
 
-	public Integer getUserId() {
-		return userId;
-	}
+    @FieldMetaInfo(displayName = "Created Date", description = "Created Date")
+    @Column(name = "CREATED_DATE")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date              createdDate;
 
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public String getSearchQuery() {
-		return searchQuery;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setSearchQuery(String searchQuery) {
-		this.searchQuery = searchQuery;
-	}
+    public Integer getUserId() {
+        return userId;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getSearchQuery() {
+        return searchQuery;
+    }
 
-	public Date getCreatedDate() {
-		return createdDate;
-	}
+    public void setSearchQuery(String searchQuery) {
+        this.searchQuery = searchQuery;
+    }
 
-	public void setCreatedDate(Date createdDate) {
-		this.createdDate = createdDate;
-	}
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
 }

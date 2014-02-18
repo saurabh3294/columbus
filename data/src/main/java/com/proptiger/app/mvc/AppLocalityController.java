@@ -32,43 +32,48 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 @RequestMapping(value = "app/v1/locality")
 public class AppLocalityController extends BaseController {
 
-	@Autowired
-	private LocalityService localityService;
+    @Autowired
+    private LocalityService localityService;
 
-	/**
-	 * @param cityId
-	 * @return
-	 */
-	@RequestMapping
-	@ResponseBody
-	public ProAPIResponse getLocalityListingData(@RequestParam(required = false) String selector) {
-		Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+    /**
+     * @param cityId
+     * @return
+     */
+    @RequestMapping
+    @ResponseBody
+    public ProAPIResponse getLocalityListingData(@RequestParam(required = false) String selector) {
+        Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
         if (propRequestParam == null) {
             propRequestParam = new Selector();
         }
-        
-		PaginatedResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
-		
-		return new ProAPISuccessCountResponse(super.filterFields(solrRes.getResults(), propRequestParam.getFields()), solrRes.getTotalCount());
-	}
 
-	/**
-	 * @param localityId
-	 * @param selectorStr
-	 * @return
-	 */
-	@RequestMapping(value = "/{localityId}", method = RequestMethod.GET)
-	@ResponseBody
-	@DisableCaching
-	public ProAPIResponse getLocalityDetails(@PathVariable int localityId,
-			@RequestParam(required = false, value = "selector") String selectorStr,
-			@RequestParam(required = false, value = "imageCount", defaultValue = "3") Integer imageCount) {
-		Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
-        if(selector == null) {
+        PaginatedResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
+
+        return new ProAPISuccessCountResponse(
+                super.filterFields(solrRes.getResults(), propRequestParam.getFields()),
+                solrRes.getTotalCount());
+    }
+
+    /**
+     * @param localityId
+     * @param selectorStr
+     * @return
+     */
+    @RequestMapping(value = "/{localityId}", method = RequestMethod.GET)
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse getLocalityDetails(@PathVariable int localityId, @RequestParam(
+            required = false,
+            value = "selector") String selectorStr, @RequestParam(
+            required = false,
+            value = "imageCount",
+            defaultValue = "3") Integer imageCount) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        if (selector == null) {
             selector = new Selector();
         }
         Locality locality = localityService.getLocalityInfo(localityId, imageCount);
-		return new ProAPISuccessResponse(super.filterFields(locality, selector.getFields()));
-	}
+        return new ProAPISuccessResponse(super.filterFields(locality, selector.getFields()));
+    }
 
 }

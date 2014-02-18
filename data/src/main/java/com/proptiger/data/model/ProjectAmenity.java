@@ -16,43 +16,43 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonFilter("fieldFilter")
 public class ProjectAmenity extends BaseModel {
 
-	private static final long serialVersionUID = -9138744747572197187L;
+    private static final long serialVersionUID = -9138744747572197187L;
 
-	@Column(name = "ID")
-	@Id
-	private Long id;
-	
-	@FieldMetaInfo(displayName = "Project Id", description = "Project Id")
-	@Column(name = "PROJECT_ID")
-	@JsonIgnore
-	private long projectId;
-	
-	@FieldMetaInfo(displayName = "Amenity Name", description = "Amenity Name")
-	@Column(name = "AMENITY_NAME")
-	private String name;
+    @Column(name = "ID")
+    @Id
+    private Long              id;
 
-	public Long getId() {
-		return id;
-	}
+    @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
+    @Column(name = "PROJECT_ID")
+    @JsonIgnore
+    private long              projectId;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    @FieldMetaInfo(displayName = "Amenity Name", description = "Amenity Name")
+    @Column(name = "AMENITY_NAME")
+    private String            name;
 
-	public long getProjectId() {
-		return projectId;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setProjectId(long projectId) {
-		this.projectId = projectId;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public long getProjectId() {
+        return projectId;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
-	
+    public void setProjectId(long projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

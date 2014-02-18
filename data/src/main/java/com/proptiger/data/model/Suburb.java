@@ -26,7 +26,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @Entity
 @Table(name = "SUBURB")
@@ -34,68 +34,68 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Suburb extends BaseModel {
-   
-	private static final long serialVersionUID = -2218972539984731924L;
 
-	@Id
-    @FieldMetaInfo( displayName = "Suburb Id",  description = "Suburb Id")
+    private static final long    serialVersionUID = -2218972539984731924L;
+
+    @Id
+    @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
     @Field("SUBURB_ID")
-    private int id;
+    private int                  id;
 
-    @FieldMetaInfo( displayName = "City Id",  description = "City Id")
+    @FieldMetaInfo(displayName = "City Id", description = "City Id")
     @Column(name = "CITY_ID")
     @Field("CITY_ID")
-    private int cityId;
+    private int                  cityId;
 
-    @FieldMetaInfo( displayName = "Label",  description = "Suburb label")
+    @FieldMetaInfo(displayName = "Label", description = "Suburb label")
     @Column(name = "LABEL")
     @Field("SUBURB")
-    private String label;
+    private String               label;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name="CITY_ID", insertable = false, updatable = false)
-    private City city;
-    
-    @Column(name="URL")
-    @Field("SUBURB_URL")
-    @FieldMetaInfo( displayName = "URL",  description = "URL")
-    private String url;
-    
-    @Column(name="DESCRIPTION")
-    @Field("SUBURB_DESCRIPTION")
-    @FieldMetaInfo( displayName = "Description",  description = "Description")
-    private String description;
+    @JoinColumn(name = "CITY_ID", insertable = false, updatable = false)
+    private City                 city;
 
-    @Column(name="PRIORITY")
+    @Column(name = "URL")
+    @Field("SUBURB_URL")
+    @FieldMetaInfo(displayName = "URL", description = "URL")
+    private String               url;
+
+    @Column(name = "DESCRIPTION")
+    @Field("SUBURB_DESCRIPTION")
+    @FieldMetaInfo(displayName = "Description", description = "Description")
+    private String               description;
+
+    @Column(name = "PRIORITY")
     @Field("SUBURB_PRIORITY")
-    @FieldMetaInfo( displayName = "Priority",  description = "Priority")
-    private int priority;
+    @FieldMetaInfo(displayName = "Priority", description = "Priority")
+    private int                  priority;
 
     @Transient
     @Field("SUBURB_PRICE_PER_UNIT_AREA")
-    private Double avgPricePerUnitArea;
+    private Double               avgPricePerUnitArea;
 
     @Transient
     @Field("SUBURB_PRICE_RISE")
-    private Double avgPriceRisePercentage;
+    private Double               avgPriceRisePercentage;
 
     @Transient
     @Field("SUBURB_PRICE_RISE_TIME")
-    private Integer avgPriceRiseMonths;
-    
+    private Integer              avgPriceRiseMonths;
+
     @Transient
     @Field("SUBURB_DOMINANT_UNIT_TYPE")
-    private String dominantUnitType;
-    
+    private String               dominantUnitType;
+
     @Transient
     private Map<Integer, Double> avgBHKPrice;
-    
+
     @Transient
     @Field("SUBURB_OVERVIEW_URL")
-    private String overviewUrl;
-        
+    private String               overviewUrl;
+
     public int getId() {
         return id;
     }
@@ -128,29 +128,29 @@ public class Suburb extends BaseModel {
         this.cityId = cityId;
     }
 
-	public String getUrl() {
-		return url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public String getDescription() {
+        return description;
+    }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public int getPriority() {
-		return priority;
-	}
+    public int getPriority() {
+        return priority;
+    }
 
-	public void setPriority(int priority) {
-		this.priority = priority;
-	}
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 
     public Double getAvgPriceRisePercentage() {
         return avgPriceRisePercentage;
@@ -176,27 +176,27 @@ public class Suburb extends BaseModel {
         this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
 
-	public String getDominantUnitType() {
-		return dominantUnitType;
-	}
+    public String getDominantUnitType() {
+        return dominantUnitType;
+    }
 
-	public void setDominantUnitType(String dominantUnitType) {
-		this.dominantUnitType = dominantUnitType;
-	}
+    public void setDominantUnitType(String dominantUnitType) {
+        this.dominantUnitType = dominantUnitType;
+    }
 
-	public Map<Integer, Double> getAvgBHKPrice() {
-		return avgBHKPrice;
-	}
+    public Map<Integer, Double> getAvgBHKPrice() {
+        return avgBHKPrice;
+    }
 
-	public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
-		this.avgBHKPrice = avgBHKPrice;
-	}
+    public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
+        this.avgBHKPrice = avgBHKPrice;
+    }
 
-	public String getOverviewUrl() {
-		return overviewUrl;
-	}
+    public String getOverviewUrl() {
+        return overviewUrl;
+    }
 
-	public void setOverviewUrl(String suburbOverviewUrl) {
-		this.overviewUrl = suburbOverviewUrl;
-	}
+    public void setOverviewUrl(String suburbOverviewUrl) {
+        this.overviewUrl = suburbOverviewUrl;
+    }
 }

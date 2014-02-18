@@ -12,105 +12,105 @@ import com.proptiger.data.model.portfolio.enums.PaymentPlan;
 
 /**
  * Model class for project payment schedule
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "PROJ_PAYMENT_SCHEDULE")
-public class ProjectPaymentSchedule extends BaseModel{
+public class ProjectPaymentSchedule extends BaseModel {
 
-	private static final long serialVersionUID = -5749828536177848914L;
+    private static final long serialVersionUID = -5749828536177848914L;
 
-	@Id
-	@Column(name = "PAYMENT_SCHEDULE_ID")
-	@JsonIgnore
-	private Integer paymentScheduleId;
-	
-	@Column(name = "PROJECT_ID")
-	private Integer projectId;
-	
-	@Column(name = "INSTALLMENT_NO")
-	private int installmentNumber;
-	
-	@Column(name = "INSTALLMENT_NAME")
-	private String installmentName;
-	
-	@Column(name = "PAYMENT_PLAN")
-	@Enumerated(EnumType.STRING)
-	private PaymentPlan paymentPlan;
-	
-	@Column(name = "COMPONENT_NAME")
-	private String componentName;
-	
-	@Column(name = "COMPONENT_TYPE")
-	private int componentType;
-	
-	@Column(name = "COMPONENT_VALUE")
-	private double componentValue;
+    @Id
+    @Column(name = "PAYMENT_SCHEDULE_ID")
+    @JsonIgnore
+    private Integer           paymentScheduleId;
 
-	public Integer getPaymentScheduleId() {
-		return paymentScheduleId;
-	}
+    @Column(name = "PROJECT_ID")
+    private Integer           projectId;
 
-	public void setPaymentScheduleId(Integer paymentScheduleId) {
-		this.paymentScheduleId = paymentScheduleId;
-	}
+    @Column(name = "INSTALLMENT_NO")
+    private int               installmentNumber;
 
-	public Integer getProjectId() {
-		return projectId;
-	}
+    @Column(name = "INSTALLMENT_NAME")
+    private String            installmentName;
 
-	public void setProjectId(Integer projectId) {
-		this.projectId = projectId;
-	}
+    @Column(name = "PAYMENT_PLAN")
+    @Enumerated(EnumType.STRING)
+    private PaymentPlan       paymentPlan;
 
-	public int getInstallmentNumber() {
-		return installmentNumber;
-	}
+    @Column(name = "COMPONENT_NAME")
+    private String            componentName;
 
-	public void setInstallmentNumber(int installmentNumber) {
-		this.installmentNumber = installmentNumber;
-	}
+    @Column(name = "COMPONENT_TYPE")
+    private int               componentType;
 
-	public String getInstallmentName() {
-		return installmentName;
-	}
+    @Column(name = "COMPONENT_VALUE")
+    private double            componentValue;
 
-	public void setInstallmentName(String installmentName) {
-		this.installmentName = installmentName;
-	}
+    public Integer getPaymentScheduleId() {
+        return paymentScheduleId;
+    }
 
-	public PaymentPlan getPaymentPlan() {
-		return paymentPlan;
-	}
+    public void setPaymentScheduleId(Integer paymentScheduleId) {
+        this.paymentScheduleId = paymentScheduleId;
+    }
 
-	public void setPaymentPlan(PaymentPlan paymentPlan) {
-		this.paymentPlan = paymentPlan;
-	}
+    public Integer getProjectId() {
+        return projectId;
+    }
 
-	public String getComponentName() {
-		return componentName;
-	}
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
 
-	public void setComponentName(String componentName) {
-		this.componentName = componentName;
-	}
+    public int getInstallmentNumber() {
+        return installmentNumber;
+    }
 
-	public int getComponentType() {
-		return componentType;
-	}
+    public void setInstallmentNumber(int installmentNumber) {
+        this.installmentNumber = installmentNumber;
+    }
 
-	public void setComponentType(int componentType) {
-		this.componentType = componentType;
-	}
+    public String getInstallmentName() {
+        return installmentName;
+    }
 
-	public double getComponentValue() {
-		return componentValue;
-	}
+    public void setInstallmentName(String installmentName) {
+        this.installmentName = installmentName;
+    }
 
-	public void setComponentValue(double componentValue) {
-		this.componentValue = componentValue;
-	}
-	
-	
+    public PaymentPlan getPaymentPlan() {
+        return paymentPlan;
+    }
+
+    public void setPaymentPlan(PaymentPlan paymentPlan) {
+        this.paymentPlan = paymentPlan;
+    }
+
+    public String getComponentName() {
+        return componentName;
+    }
+
+    public void setComponentName(String componentName) {
+        this.componentName = componentName;
+    }
+
+    public int getComponentType() {
+        return componentType;
+    }
+
+    public void setComponentType(int componentType) {
+        this.componentType = componentType;
+    }
+
+    public double getComponentValue() {
+        return componentValue;
+    }
+
+    public void setComponentValue(double componentValue) {
+        this.componentValue = componentValue;
+    }
+
 }

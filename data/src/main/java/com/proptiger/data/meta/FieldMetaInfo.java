@@ -10,15 +10,20 @@ import java.lang.annotation.Target;
  * read meta information of a field in model classes.
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
-@Target({ElementType.FIELD})
+@Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldMetaInfo {
-	public static final String DEF_NAME = "Default";
-	String name() default DEF_NAME;
-	String displayName();
-	String description() ;
-	DataType dataType() default DataType.DEFAULT;
-	boolean editable() default true;
+    public static final String DEF_NAME = "Default";
+
+    String name() default DEF_NAME;
+
+    String displayName();
+
+    String description();
+
+    DataType dataType() default DataType.DEFAULT;
+
+    boolean editable() default true;
 }

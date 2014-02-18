@@ -7,32 +7,31 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "wordpress.wp_term_taxonomy")
-public class WordpressTermTaxonomy extends BaseModel{
+public class WordpressTermTaxonomy extends BaseModel {
 
-	private static final long serialVersionUID = 345497454514698605L;
+    private static final long serialVersionUID = 345497454514698605L;
 
-	@Id
-	@Column(name = "term_taxonomy_id")
-	private long termTaxonomyId;
-	
-	@Column(name = "term_id")
-	private long termId;
+    @Id
+    @Column(name = "term_taxonomy_id")
+    private long              termTaxonomyId;
 
-	public long getTermTaxonomyId() {
-		return termTaxonomyId;
-	}
+    @Column(name = "term_id")
+    private long              termId;
 
-	public void setTermTaxonomyId(long termTaxonomyId) {
-		this.termTaxonomyId = termTaxonomyId;
-	}
+    public long getTermTaxonomyId() {
+        return termTaxonomyId;
+    }
 
-	public long getTermId() {
-		return termId;
-	}
+    public void setTermTaxonomyId(long termTaxonomyId) {
+        this.termTaxonomyId = termTaxonomyId;
+    }
 
-	public void setTermId(long termId) {
-		this.termId = termId;
-	}
-	
-	
+    public long getTermId() {
+        return termId;
+    }
+
+    public void setTermId(long termId) {
+        this.termId = termId;
+    }
+
 }

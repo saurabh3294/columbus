@@ -48,25 +48,29 @@ import com.proptiger.data.util.ImageUtil;
 @ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
-@Table(name="RESI_PROJECT")
+@Table(name = "RESI_PROJECT")
 @JsonFilter("fieldFilter")
 public class Project extends BaseModel {
-	private static final long serialVersionUID = -6635164496425100051L;
+    private static final long serialVersionUID = -6635164496425100051L;
 
-	public static enum NestedProperties {
-        builderLabel(new String[]{"builder", "name"}),
-        cityLabel(new String[]{"locality", "suburb", "city", "label"}),
-        suburbLabel(new String[]{"locality", "suburb", "label"}),
-        cityId(new String[]{"locality", "suburb", "city", "id"}),
-        suburbId(new String[]{"locality", "suburb", "id"}),
-        localityLabel(new String[]{"locality", "label"}),
-        builderImageURL(new String[]{"builder", "imageURL"}),
-        bedrooms(new String[]{"properties", "bedrooms"}),
-        bathrooms(new String[]{"properties", "bathrooms"}),
-        pricePerUnitArea(new String[]{"properties", "pricePerUnitArea"}),
-        size(new String[]{"properties", "size"}),
-        unitName(new String[]{"properties", "unitName"}),
-        unitType(new String[]{"properties", "unitType"});
+    public static enum NestedProperties {
+        builderLabel(new String[] { "builder", "name" }), cityLabel(new String[] {
+                "locality",
+                "suburb",
+                "city",
+                "label" }), suburbLabel(new String[] { "locality", "suburb", "label" }), cityId(new String[] {
+                "locality",
+                "suburb",
+                "city",
+                "id" }), suburbId(new String[] { "locality", "suburb", "id" }), localityLabel(new String[] {
+                "locality",
+                "label" }), builderImageURL(new String[] { "builder", "imageURL" }), bedrooms(new String[] {
+                "properties",
+                "bedrooms" }), bathrooms(new String[] { "properties", "bathrooms" }), pricePerUnitArea(new String[] {
+                "properties",
+                "pricePerUnitArea" }), size(new String[] { "properties", "size" }), unitName(new String[] {
+                "properties",
+                "unitName" }), unitType(new String[] { "properties", "unitType" });
 
         private String[] fields;
 
@@ -78,328 +82,336 @@ public class Project extends BaseModel {
             return fields;
         }
     };
-    
+
     @JsonInclude(Include.NON_NULL)
-    public static class Offer extends BaseModel{
-		private static final long serialVersionUID = -3760823398693160737L;
-		private String offer;
-    	private String offerHeading;
-    	private String offerDesc;
-    	
-		public String getOffer() {
-			return offer;
-		}
-		public String getOfferHeading() {
-			return offerHeading;
-		}
-		public String getOfferDesc() {
-			return offerDesc;
-		}
+    public static class Offer extends BaseModel {
+        private static final long serialVersionUID = -3760823398693160737L;
+        private String            offer;
+        private String            offerHeading;
+        private String            offerDesc;
+
+        public String getOffer() {
+            return offer;
+        }
+
+        public String getOfferHeading() {
+            return offerHeading;
+        }
+
+        public String getOfferDesc() {
+            return offerDesc;
+        }
     }
-      
-    @Id	
-    @FieldMetaInfo( displayName = "Project Id",  description = "Project Id")
+
+    @Id
+    @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
     @Field(value = "PROJECT_ID")
-    @Column(name="PROJECT_ID", insertable=false, updatable=false)
-    private int projectId;
-	
+    @Column(name = "PROJECT_ID", insertable = false, updatable = false)
+    private int                     projectId;
+
     @Deprecated
-	@FieldMetaInfo( displayName = "Locality Id",  description = "Locality Id")
+    @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Field(value = "LOCALITY_ID")
-	@Column(name="LOCALITY_ID")
-    private int localityId;
-	
-    @ManyToOne
-    @JoinColumn(name="LOCALITY_ID", insertable=false, updatable=false)
-    private Locality locality;
+    @Column(name = "LOCALITY_ID")
+    private int                     localityId;
 
-    @FieldMetaInfo( displayName = "Builder Id",  description = "Builder Id")
+    @ManyToOne
+    @JoinColumn(name = "LOCALITY_ID", insertable = false, updatable = false)
+    private Locality                locality;
+
+    @FieldMetaInfo(displayName = "Builder Id", description = "Builder Id")
     @Field(value = "BUILDER_ID")
-	@Column(name="BUILDER_ID")
-    private int builderId;
+    @Column(name = "BUILDER_ID")
+    private int                     builderId;
 
     @ManyToOne
-    @JoinColumn(name="BUILDER_ID", insertable=false, updatable=false)
-    private Builder builder;
+    @JoinColumn(name = "BUILDER_ID", insertable = false, updatable = false)
+    private Builder                 builder;
 
     @Transient
-    @OneToMany(mappedBy="project")
-    private List<Property> properties;
-    
-    @FieldMetaInfo( displayName = "Project Name",  description = "Project Name")
+    @OneToMany(mappedBy = "project")
+    private List<Property>          properties;
+
+    @FieldMetaInfo(displayName = "Project Name", description = "Project Name")
     @Field(value = "PROJECT_NAME")
-    @Column(name="PROJECT_NAME")
-    private String name;
+    @Column(name = "PROJECT_NAME")
+    private String                  name;
 
     @Transient
-    @FieldMetaInfo( displayName = "Project Types",  description = "Project Types")
+    @FieldMetaInfo(displayName = "Project Types", description = "Project Types")
     @Field(value = "PROJECT_TYPES")
-    private String unitTypes;
+    private String                  unitTypes;
 
-    @FieldMetaInfo( displayName = "Launch Date",  description = "Launch Date")
+    @FieldMetaInfo(displayName = "Launch Date", description = "Launch Date")
     @Field(value = "VALID_LAUNCH_DATE")
-    @Column(name="LAUNCH_DATE")
-    private Date launchDate;
+    @Column(name = "LAUNCH_DATE")
+    private Date                    launchDate;
 
-    @FieldMetaInfo( displayName = "Address",  description = "Address")
+    @FieldMetaInfo(displayName = "Address", description = "Address")
     @Field(value = "PROJECT_ADDRESS")
-    @Column(name="PROJECT_ADDRESS")
-    private String address;
+    @Column(name = "PROJECT_ADDRESS")
+    private String                  address;
 
     @Transient
-    @FieldMetaInfo( displayName = "Computed Priority",  description = "Computed Priority")
+    @FieldMetaInfo(displayName = "Computed Priority", description = "Computed Priority")
     @Field(value = "PROJECT_PRIORITY")
-    private double computedPriority;
-    
+    private double                  computedPriority;
+
     @Transient
-    @FieldMetaInfo( displayName = "Project enquiry count",  description = "Project enquiry count")
+    @FieldMetaInfo(displayName = "Project enquiry count", description = "Project enquiry count")
     @Field(value = "PROJECT_ENQUIRY_COUNT")
-    private Integer projectEnquiryCount;
+    private Integer                 projectEnquiryCount;
 
-    @FieldMetaInfo( displayName = "Assigned Priority",  description = "Assigned Priority")
+    @FieldMetaInfo(displayName = "Assigned Priority", description = "Assigned Priority")
     @Field(value = "DISPLAY_ORDER")
-    @Column(name="DISPLAY_ORDER")
-    private int assignedPriority;
+    @Column(name = "DISPLAY_ORDER")
+    private int                     assignedPriority;
 
-    @FieldMetaInfo( displayName = "Assigned Locality Priority",  description = "Assigned Locality Priority")
+    @FieldMetaInfo(displayName = "Assigned Locality Priority", description = "Assigned Locality Priority")
     @Field(value = "DISPLAY_ORDER_LOCALITY")
-    @Column(name="DISPLAY_ORDER_LOCALITY")
-    private Integer assignedLocalityPriority;
+    @Column(name = "DISPLAY_ORDER_LOCALITY")
+    private Integer                 assignedLocalityPriority;
 
-    @FieldMetaInfo( displayName = "Assigned Suburb Priority",  description = "Assigned Suburb Priority")
+    @FieldMetaInfo(displayName = "Assigned Suburb Priority", description = "Assigned Suburb Priority")
     @Field(value = "DISPLAY_ORDER_SUBURB")
-    @Column(name="DISPLAY_ORDER_SUBURB")
-    private Integer assignedSuburbPriority;
-    
-    @FieldMetaInfo( displayName = "Possession Date",  description = "Possession Date")
-    @Field(value = "PROMISED_COMPLETION_DATE")
-    @Column(name="PROMISED_COMPLETION_DATE")
-    private Date possessionDate;
+    @Column(name = "DISPLAY_ORDER_SUBURB")
+    private Integer                 assignedSuburbPriority;
 
-    @FieldMetaInfo( displayName = "Submitted Date",  description = "Submitted Date")
+    @FieldMetaInfo(displayName = "Possession Date", description = "Possession Date")
+    @Field(value = "PROMISED_COMPLETION_DATE")
+    @Column(name = "PROMISED_COMPLETION_DATE")
+    private Date                    possessionDate;
+
+    @FieldMetaInfo(displayName = "Submitted Date", description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
-    @Column(name="SUBMITTED_DATE")
-    private Date submittedDate;
+    @Column(name = "SUBMITTED_DATE")
+    private Date                    submittedDate;
 
     // XXX - In order to make itnot null and avoid App crash
-    @FieldMetaInfo( displayName = "Image URL",  description = "Image URL")
+    @FieldMetaInfo(displayName = "Image URL", description = "Image URL")
     @Transient
     @Field("PROJECT_SMALL_IMAGE")
-    private String imageURL = "";
+    private String                  imageURL          = "";
 
     @Transient
-    @FieldMetaInfo( displayName = "Offer",  description = "Offer")
+    @FieldMetaInfo(displayName = "Offer", description = "Offer")
     @Field(value = "OFFER")
     @Deprecated
-    private String offer;
+    private String                  offer;
 
-    @FieldMetaInfo( displayName = "Offer Heading",  description = "Offer Heading")
+    @FieldMetaInfo(displayName = "Offer Heading", description = "Offer Heading")
     @Field(value = "OFFER_HEADING")
-    @Column(name="OFFER_HEADING")
+    @Column(name = "OFFER_HEADING")
     @Deprecated
-    private String offerHeading;
+    private String                  offerHeading;
 
-    @FieldMetaInfo( displayName = "Offer Description",  description = "Offer Description")
+    @FieldMetaInfo(displayName = "Offer Description", description = "Offer Description")
     @Field(value = "OFFER_DESC")
-    @Column(name="OFFER_DESC")
+    @Column(name = "OFFER_DESC")
     @Deprecated
-    private String offerDesc;
+    private String                  offerDesc;
 
-    @FieldMetaInfo( displayName = "URL",  description = "URL")
+    @FieldMetaInfo(displayName = "URL", description = "URL")
     @Field(value = "PROJECT_URL")
-    @Column(name="PROJECT_URL")
-    private String URL;
+    @Column(name = "PROJECT_URL")
+    private String                  URL;
 
-    @FieldMetaInfo( displayName = "Latitude",  description = "Latitude")
+    @FieldMetaInfo(displayName = "Latitude", description = "Latitude")
     @Field(value = "LATITUDE")
-    @Column(name="LATITUDE")
-    private Double latitude;
+    @Column(name = "LATITUDE")
+    private Double                  latitude;
 
-    @FieldMetaInfo( displayName = "Longitude",  description = "Longitude")
+    @FieldMetaInfo(displayName = "Longitude", description = "Longitude")
     @Field(value = "LONGITUDE")
-    @Column(name="LONGITUDE")
-    private Double longitude;
+    @Column(name = "LONGITUDE")
+    private Double                  longitude;
 
     @Transient
-    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Min Price Per Unit Area",  description = "Min Price Per Unit Area")
+    @FieldMetaInfo(
+            dataType = DataType.CURRENCY,
+            displayName = "Min Price Per Unit Area",
+            description = "Min Price Per Unit Area")
     @Field(value = "MIN_PRICE_PER_UNIT_AREA")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
-    private Double minPricePerUnitArea;
+    private Double                  minPricePerUnitArea;
 
     @Transient
-    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "Max Price Per Unit Area",  description = "Max Price Per Unit Area")
+    @FieldMetaInfo(
+            dataType = DataType.CURRENCY,
+            displayName = "Max Price Per Unit Area",
+            description = "Max Price Per Unit Area")
     @Field(value = "MAX_PRICE_PER_UNIT_AREA")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
-    private Double maxPricePerUnitArea;
+    private Double                  maxPricePerUnitArea;
 
     @Transient
-    @FieldMetaInfo( displayName = "Min Size",  description = "Min Size")
+    @FieldMetaInfo(displayName = "Min Size", description = "Min Size")
     @Field(value = "MINSIZE")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
-    private Double minSize;
+    private Double                  minSize;
 
     @Transient
-    @FieldMetaInfo( displayName = "Max Size",  description = "Max Size")
+    @FieldMetaInfo(displayName = "Max Size", description = "Max Size")
     @Field(value = "MAXSIZE")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
-    private Double maxSize;
+    private Double                  maxSize;
 
     @Transient
-    @FieldMetaInfo( displayName = "Min Price",  description = "Min Price")
+    @FieldMetaInfo(displayName = "Min Price", description = "Min Price")
     @Field(value = "MIN_BUDGET")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
-    private Double minPrice;
+    private Double                  minPrice;
 
     @Transient
-    @FieldMetaInfo( displayName = "Max Price",  description = "Max Price")
+    @FieldMetaInfo(displayName = "Max Price", description = "Max Price")
     @Field(value = "MAX_BUDGET")
-    @JsonSerialize(converter=DoubletoIntegerConverter.class)
+    @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
-    private Double maxPrice;
+    private Double                  maxPrice;
 
     @Transient
-    @FieldMetaInfo( displayName = "Min Bedroooms",  description = "Min Bedroooms")
-    private int minBedrooms;
+    @FieldMetaInfo(displayName = "Min Bedroooms", description = "Min Bedroooms")
+    private int                     minBedrooms;
 
     @Transient
-    @FieldMetaInfo( displayName = "Max Bedroooms",  description = "Max Bedroooms")
-    private int maxBedrooms;
+    @FieldMetaInfo(displayName = "Max Bedroooms", description = "Max Bedroooms")
+    private int                     maxBedrooms;
 
-    @FieldMetaInfo( displayName = "Project Status",  description = "Project Status")
+    @FieldMetaInfo(displayName = "Project Status", description = "Project Status")
     @Field(value = "PROJECT_STATUS")
-    @Column(name="PROJECT_STATUS")
-    private String projectStatus;
+    @Column(name = "PROJECT_STATUS")
+    private String                  projectStatus;
 
     @Field(value = "IS_RESALE")
-    @Column(name="FORCE_RESALE")
-    private boolean isResale;
+    @Column(name = "FORCE_RESALE")
+    private boolean                 isResale;
 
-    @FieldMetaInfo( displayName = "Project Description",  description = "Project Description")
+    @FieldMetaInfo(displayName = "Project Description", description = "Project Description")
     @Field(value = "PROJECT_DESCRIPTION")
-    @Column(name="PROJECT_DESCRIPTION")
-    private String description;
+    @Column(name = "PROJECT_DESCRIPTION")
+    private String                  description;
 
     @Transient
-    @FieldMetaInfo( displayName = "Total Units",  description = "Total Units")
+    @FieldMetaInfo(displayName = "Total Units", description = "Total Units")
     @Field(value = "TOTAL_UNITS")
-    private Integer totalUnits;
+    private Integer                 totalUnits;
 
-    @FieldMetaInfo( displayName = "size in acres",  description = "size in acres")
+    @FieldMetaInfo(displayName = "size in acres", description = "size in acres")
     @Field(value = "PROJECT_SIZE")
-    @Column(name="PROJECT_SIZE")
-    private Double sizeInAcres;
+    @Column(name = "PROJECT_SIZE")
+    private Double                  sizeInAcres;
 
     @Transient
     @Field(value = "GEO")
-    private List<String> geo;
+    private List<String>            geo;
 
     @Transient
-    @Field(value="PROJECT_STATUS_BEDROOM")
+    @Field(value = "PROJECT_STATUS_BEDROOM")
     @JsonIgnore
-    private String projectStatusBedroom;
+    private String                  projectStatusBedroom;
 
     @Transient
-    @Field(value="MEASURE")
-    private String propertySizeMeasure;
+    @Field(value = "MEASURE")
+    private String                  propertySizeMeasure;
 
     @Transient
-    private Set<String> propertyUnitTypes = new HashSet<>();
+    private Set<String>             propertyUnitTypes = new HashSet<>();
 
     @Transient
-    private List<Image> images;
-    
-    @Transient
-    @Field(value="LOCALITY_LABEL_PRIORITY")
-    private String localityLabelPriority;
-    
-    @Transient
-    @Field(value="SUBURB_LABEL_PRIORITY")
-    private String suburbLabelPriority;
+    private List<Image>             images;
 
     @Transient
-    @Field(value="BUILDER_LABEL_PRIORITY")
-    private String builderLabelPriority;
-    
-    @Transient
-    private Set<Integer> distinctBedrooms = new HashSet<>();
-    
-    @Transient
-    private Double minResalePrice;
-    
-    @Transient
-    private Double maxResalePrice;
-    
-    @Transient
-    private Double avgPriceRisePercentage;
-    
-    @Transient
-    private Integer avgPriceRiseMonths;
+    @Field(value = "LOCALITY_LABEL_PRIORITY")
+    private String                  localityLabelPriority;
 
-    @FieldMetaInfo(displayName="AVAILABILITY", description="AVAILABILITY")
-    @Column(name="AVAILABILITY")
+    @Transient
+    @Field(value = "SUBURB_LABEL_PRIORITY")
+    private String                  suburbLabelPriority;
+
+    @Transient
+    @Field(value = "BUILDER_LABEL_PRIORITY")
+    private String                  builderLabelPriority;
+
+    @Transient
+    private Set<Integer>            distinctBedrooms  = new HashSet<>();
+
+    @Transient
+    private Double                  minResalePrice;
+
+    @Transient
+    private Double                  maxResalePrice;
+
+    @Transient
+    private Double                  avgPriceRisePercentage;
+
+    @Transient
+    private Integer                 avgPriceRiseMonths;
+
+    @FieldMetaInfo(displayName = "AVAILABILITY", description = "AVAILABILITY")
+    @Column(name = "AVAILABILITY")
     @Field("AVAILABILITY")
-    private Integer derivedAvailability ;
+    private Integer                 derivedAvailability;
 
-	@FieldMetaInfo(displayName="PRE LAUNCH Date", description="PRE LAUNCH Date")
-    @Column(name="PRE_LAUNCH_DATE")
-	@Field("PRE_LAUNCH_DATE")
+    @FieldMetaInfo(displayName = "PRE LAUNCH Date", description = "PRE LAUNCH Date")
+    @Column(name = "PRE_LAUNCH_DATE")
+    @Field("PRE_LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date preLaunchDate ;
-	
-	 @FieldMetaInfo(displayName="YOUTUBE VEDIO", description="YOUTUBE VEDIO")
-	 @Column(name="YOUTUBE_VEDIO")
-	 @JsonIgnore
-	 private String youtubeVideo ;
-	 
-	 @FieldMetaInfo(displayName="NO OF FLATS", description="NO OF FLATS")
-	 @Column(name="NO_OF_FLATES")
-	 @Field("PROJECT_SUPPLY")
-	 private Integer supply ;
-	 
-	 @OneToMany(fetch=FetchType.LAZY)
-	 @Fetch(FetchMode.JOIN)
-	 @JoinColumn(insertable=false, updatable=false, name="PROJECT_ID")
-	 @Transient
-	 @Deprecated
-	 private List<ProjectAmenity> projectAmenity;
-	 
-	 @Transient
-	 @Field("NUMBER_OF_PROJECT_DISCUSSION")
-	 private Integer totalProjectDiscussion;
-	 
-	 @Transient
-	 private List<LocalityAmenity> neighborhood;
-	 
-	 @JsonUnwrapped
-	 @Transient
-	 private ProjectSpecification projectSpecification;
-	 
-	 @Transient
-	 private List<ProjectCMSAmenity> projectAmenities;
-	 
-	 @Field("PAYMENT_PLAN_URL")
-	 @Column(name = "APPLICATION_FORM")
-	 private String paymentPlanUrl;
-	 
-	 @Transient
-	 private List<VideoLinks> videoUrls;
-    
-	 @Transient
-	 private List<Bank> loanProviderBanks;
-	 
-	 @Transient
-	 @Field("PROJECT_OFFER")
-	 private List<Offer> offers;
-	 	 
-	 @Transient
-	 @Field("PROJECT_LAST_UPDATED_DATE")
-	 private Date lastUpdatedDate;
-	 
+    private Date                    preLaunchDate;
+
+    @FieldMetaInfo(displayName = "YOUTUBE VEDIO", description = "YOUTUBE VEDIO")
+    @Column(name = "YOUTUBE_VEDIO")
+    @JsonIgnore
+    private String                  youtubeVideo;
+
+    @FieldMetaInfo(displayName = "NO OF FLATS", description = "NO OF FLATS")
+    @Column(name = "NO_OF_FLATES")
+    @Field("PROJECT_SUPPLY")
+    private Integer                 supply;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(insertable = false, updatable = false, name = "PROJECT_ID")
+    @Transient
+    @Deprecated
+    private List<ProjectAmenity>    projectAmenity;
+
+    @Transient
+    @Field("NUMBER_OF_PROJECT_DISCUSSION")
+    private Integer                 totalProjectDiscussion;
+
+    @Transient
+    private List<LocalityAmenity>   neighborhood;
+
+    @JsonUnwrapped
+    @Transient
+    private ProjectSpecification    projectSpecification;
+
+    @Transient
+    private List<ProjectCMSAmenity> projectAmenities;
+
+    @Field("PAYMENT_PLAN_URL")
+    @Column(name = "APPLICATION_FORM")
+    private String                  paymentPlanUrl;
+
+    @Transient
+    private List<VideoLinks>        videoUrls;
+
+    @Transient
+    private List<Bank>              loanProviderBanks;
+
+    @Transient
+    @Field("PROJECT_OFFER")
+    private List<Offer>             offers;
+
+    @Transient
+    @Field("PROJECT_LAST_UPDATED_DATE")
+    private Date                    lastUpdatedDate;
+
     public int getProjectId() {
         return projectId;
     }
@@ -421,7 +433,7 @@ public class Project extends BaseModel {
     }
 
     public void setLocality(Locality locality) {
-    	this.locality = locality;
+        this.locality = locality;
     }
 
     public int getBuilderId() {
@@ -488,16 +500,15 @@ public class Project extends BaseModel {
         this.computedPriority = computedPriority;
     }
 
-    
     public Integer getProjectEnquiryCount() {
-		return projectEnquiryCount;
-	}
+        return projectEnquiryCount;
+    }
 
-	public void setProjectEnquiryCount(Integer projectEnquiryCount) {
-		this.projectEnquiryCount = projectEnquiryCount;
-	}
+    public void setProjectEnquiryCount(Integer projectEnquiryCount) {
+        this.projectEnquiryCount = projectEnquiryCount;
+    }
 
-	public int getAssignedPriority() {
+    public int getAssignedPriority() {
         return assignedPriority;
     }
 
@@ -549,17 +560,17 @@ public class Project extends BaseModel {
     public String getOffer() {
         return offer;
     }
-    
+
     @Deprecated
     public void setOffer(String offer) {
         this.offer = offer;
     }
-    
+
     @Deprecated
     public String getOfferHeading() {
         return offerHeading;
     }
-    
+
     @Deprecated
     public void setOfferHeading(String offerHeading) {
         this.offerHeading = offerHeading;
@@ -569,7 +580,7 @@ public class Project extends BaseModel {
     public String getOfferDesc() {
         return offerDesc;
     }
-    
+
     @Deprecated
     public void setOfferDesc(String offerDesc) {
         this.offerDesc = offerDesc;
@@ -718,9 +729,9 @@ public class Project extends BaseModel {
     public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
         this.propertyUnitTypes = propertyUnitTypes;
     }
-    
-    public void addPropertyUnitType(String propertyUnitType){
-    	this.propertyUnitTypes.add(propertyUnitType);
+
+    public void addPropertyUnitType(String propertyUnitType) {
+        this.propertyUnitTypes.add(propertyUnitType);
     }
 
     public int getMinBedrooms() {
@@ -747,57 +758,57 @@ public class Project extends BaseModel {
         this.images = images;
     }
 
-	public String getLocalityLabelPriority() {
-		return localityLabelPriority;
-	}
+    public String getLocalityLabelPriority() {
+        return localityLabelPriority;
+    }
 
-	public void setLocalityLabelPriority(String localityLabelPriority) {
-		this.localityLabelPriority = localityLabelPriority;
-	}
+    public void setLocalityLabelPriority(String localityLabelPriority) {
+        this.localityLabelPriority = localityLabelPriority;
+    }
 
-	public String getSuburbLabelPriority() {
-		return suburbLabelPriority;
-	}
+    public String getSuburbLabelPriority() {
+        return suburbLabelPriority;
+    }
 
-	public void setSuburbLabelPriority(String suburbLabelPriority) {
-		this.suburbLabelPriority = suburbLabelPriority;
-	}
+    public void setSuburbLabelPriority(String suburbLabelPriority) {
+        this.suburbLabelPriority = suburbLabelPriority;
+    }
 
-	public String getBuilderLabelPriority() {
-		return builderLabelPriority;
-	}
+    public String getBuilderLabelPriority() {
+        return builderLabelPriority;
+    }
 
-	public void setBuilderLabelPriority(String builderLabelPriority) {
-		this.builderLabelPriority = builderLabelPriority;
-	}
+    public void setBuilderLabelPriority(String builderLabelPriority) {
+        this.builderLabelPriority = builderLabelPriority;
+    }
 
-	public Set<Integer> getDistinctBedrooms() {
-		return distinctBedrooms;
-	}
+    public Set<Integer> getDistinctBedrooms() {
+        return distinctBedrooms;
+    }
 
-	public void setDistinctBedrooms(Set<Integer> bedrooms) {
-		this.distinctBedrooms = bedrooms;
-	}
-	
-	public void addBedrooms(int bedroom){
-		this.distinctBedrooms.add(bedroom);
-	}
+    public void setDistinctBedrooms(Set<Integer> bedrooms) {
+        this.distinctBedrooms = bedrooms;
+    }
 
-	public Double getMinResalePrice() {
-		return minResalePrice;
-	}
+    public void addBedrooms(int bedroom) {
+        this.distinctBedrooms.add(bedroom);
+    }
 
-	public void setMinResalePrice(Double minResalePrice) {
-		this.minResalePrice = minResalePrice;
-	}
+    public Double getMinResalePrice() {
+        return minResalePrice;
+    }
 
-	public Double getMaxResalePrice() {
-		return maxResalePrice;
-	}
+    public void setMinResalePrice(Double minResalePrice) {
+        this.minResalePrice = minResalePrice;
+    }
 
-	public void setMaxResalePrice(Double maxResalePrice) {
-		this.maxResalePrice = maxResalePrice;
-	}
+    public Double getMaxResalePrice() {
+        return maxResalePrice;
+    }
+
+    public void setMaxResalePrice(Double maxResalePrice) {
+        this.maxResalePrice = maxResalePrice;
+    }
 
     public Double getAvgPriceRisePercentage() {
         return avgPriceRisePercentage;
@@ -819,135 +830,134 @@ public class Project extends BaseModel {
         return isResale;
     }
 
-	public Integer getAvailability() {
-		return derivedAvailability;
-	}
+    public Integer getAvailability() {
+        return derivedAvailability;
+    }
 
-	public void setAvailability(Integer availability) {
-		this.derivedAvailability = availability;
-	}
+    public void setAvailability(Integer availability) {
+        this.derivedAvailability = availability;
+    }
 
-	public Date getPreLaunchDate() {
-		return preLaunchDate;
-	}
+    public Date getPreLaunchDate() {
+        return preLaunchDate;
+    }
 
-	public void setPreLaunchDate(Date preLaunchDate) {
-		this.preLaunchDate = preLaunchDate;
-	}
+    public void setPreLaunchDate(Date preLaunchDate) {
+        this.preLaunchDate = preLaunchDate;
+    }
 
-	public Integer getDerivedAvailability() {
-		return derivedAvailability;
-	}
+    public Integer getDerivedAvailability() {
+        return derivedAvailability;
+    }
 
-	public void setDerivedAvailability(Integer derivedAvailability) {
-		this.derivedAvailability = derivedAvailability;
-	}
+    public void setDerivedAvailability(Integer derivedAvailability) {
+        this.derivedAvailability = derivedAvailability;
+    }
 
-	public String getYoutubeVideo() {
-		return youtubeVideo;
-	}
+    public String getYoutubeVideo() {
+        return youtubeVideo;
+    }
 
-	public void setYoutubeVideo(String youtubeVideo) {
-		this.youtubeVideo = youtubeVideo;
-	}
+    public void setYoutubeVideo(String youtubeVideo) {
+        this.youtubeVideo = youtubeVideo;
+    }
 
-	public Integer getSupply() {
-		return supply;
-	}
+    public Integer getSupply() {
+        return supply;
+    }
 
-	public void setSupply(Integer supply) {
-		this.supply = supply;
-	}
+    public void setSupply(Integer supply) {
+        this.supply = supply;
+    }
 
-	public List<ProjectAmenity> getProjectAmenity() {
-		return projectAmenity;
-	}
+    public List<ProjectAmenity> getProjectAmenity() {
+        return projectAmenity;
+    }
 
-	public void setProjectAmenity(List<ProjectAmenity> projectAmenity) {
-		this.projectAmenity = projectAmenity;
-	}
+    public void setProjectAmenity(List<ProjectAmenity> projectAmenity) {
+        this.projectAmenity = projectAmenity;
+    }
 
-	public Integer getTotalProjectDiscussion() {
-		return totalProjectDiscussion;
-	}
+    public Integer getTotalProjectDiscussion() {
+        return totalProjectDiscussion;
+    }
 
-	public void setTotalProjectDiscussion(Integer totalProjectDiscussion) {
-		this.totalProjectDiscussion = totalProjectDiscussion;
-	}
+    public void setTotalProjectDiscussion(Integer totalProjectDiscussion) {
+        this.totalProjectDiscussion = totalProjectDiscussion;
+    }
 
-	public List<LocalityAmenity> getNeighborhood() {
-		return neighborhood;
-	}
+    public List<LocalityAmenity> getNeighborhood() {
+        return neighborhood;
+    }
 
-	public void setNeighborhood(List<LocalityAmenity> neighborhood) {
-		this.neighborhood = neighborhood;
-	}
+    public void setNeighborhood(List<LocalityAmenity> neighborhood) {
+        this.neighborhood = neighborhood;
+    }
 
-	public ProjectSpecification getProjectSpecification() {
-		return projectSpecification;
-	}
+    public ProjectSpecification getProjectSpecification() {
+        return projectSpecification;
+    }
 
-	public void setProjectSpecification(ProjectSpecification projectSpecification) {
-		this.projectSpecification = projectSpecification;
-	}
+    public void setProjectSpecification(ProjectSpecification projectSpecification) {
+        this.projectSpecification = projectSpecification;
+    }
 
-	public List<ProjectCMSAmenity> getProjectAmenities() {
-		return projectAmenities;
-	}
+    public List<ProjectCMSAmenity> getProjectAmenities() {
+        return projectAmenities;
+    }
 
-	public void setProjectAmenities(List<ProjectCMSAmenity> projectAmenities) {
-		this.projectAmenities = projectAmenities;
-	}
+    public void setProjectAmenities(List<ProjectCMSAmenity> projectAmenities) {
+        this.projectAmenities = projectAmenities;
+    }
 
-	public String getPaymentPlanUrl() {
-		return paymentPlanUrl;
-	}
+    public String getPaymentPlanUrl() {
+        return paymentPlanUrl;
+    }
 
-	public void setPaymentPlanUrl(String paymentPlanUrl) {
-		this.paymentPlanUrl = paymentPlanUrl;
-	}
+    public void setPaymentPlanUrl(String paymentPlanUrl) {
+        this.paymentPlanUrl = paymentPlanUrl;
+    }
 
-	public List<VideoLinks> getVideoUrls() {
-		return videoUrls;
-	}
+    public List<VideoLinks> getVideoUrls() {
+        return videoUrls;
+    }
 
-	public void setVideoUrls(List<VideoLinks> videoUrls) {
-		this.videoUrls = videoUrls;
-	}
+    public void setVideoUrls(List<VideoLinks> videoUrls) {
+        this.videoUrls = videoUrls;
+    }
 
-	public List<Bank> getLoanProviderBanks() {
-		return loanProviderBanks;
-	}
+    public List<Bank> getLoanProviderBanks() {
+        return loanProviderBanks;
+    }
 
-	public void setLoanProviderBanks(List<Bank> loanProviderBanks) {
-		this.loanProviderBanks = loanProviderBanks;
-	}
+    public void setLoanProviderBanks(List<Bank> loanProviderBanks) {
+        this.loanProviderBanks = loanProviderBanks;
+    }
 
-	public Date getLastUpdatedDate() {
-		return lastUpdatedDate;
-	}
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
+    }
 
-	public void setLastUpdatedDate(Date lastUpdatedDate) {
-		this.lastUpdatedDate = lastUpdatedDate;
-	}
+    public void setLastUpdatedDate(Date lastUpdatedDate) {
+        this.lastUpdatedDate = lastUpdatedDate;
+    }
 
-	public List<Offer> getOffers() {
-		return offers;
-	}
+    public List<Offer> getOffers() {
+        return offers;
+    }
 
-	public void setOffers(List<Offer> offers) {
-		this.offers = offers;
-	}
-	
-	public void addOffers(String[] offers){
-		if( this.offers == null)
-			this.offers = new ArrayList<>();
-			
-		Gson gson = new Gson();
-		for(int i=0; i<offers.length; i++)
-		{
-			this.offers.add(gson.fromJson(offers[i], Offer.class));
-		}
-	}
-	
+    public void setOffers(List<Offer> offers) {
+        this.offers = offers;
+    }
+
+    public void addOffers(String[] offers) {
+        if (this.offers == null)
+            this.offers = new ArrayList<>();
+
+        Gson gson = new Gson();
+        for (int i = 0; i < offers.length; i++) {
+            this.offers.add(gson.fromJson(offers[i], Offer.class));
+        }
+    }
+
 }

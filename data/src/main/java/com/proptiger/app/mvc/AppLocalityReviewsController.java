@@ -19,7 +19,7 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.LocalityReviewService;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Controller
@@ -27,18 +27,18 @@ import com.proptiger.data.service.LocalityReviewService;
 public class AppLocalityReviewsController {
     @Autowired
     private LocalityReviewService localityReviewService;
-    
+
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @DisableCaching
-	public ProAPIResponse getLocalityReviewByLocalityId(
-			@RequestParam Integer localityId,
-			@RequestParam(required = false) Integer numberOfReviews) {
-		if (localityId == null || localityId < 1){
-			return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
-		}
-		LocalityReviewRatingDetails reviewRatingDetails = localityReviewService
-				.getLocalityReviewRatingDetails(localityId, numberOfReviews);
-		return new ProAPISuccessResponse(reviewRatingDetails);
-	}
+    public ProAPIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(
+            required = false) Integer numberOfReviews) {
+        if (localityId == null || localityId < 1) {
+            return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
+        }
+        LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
+                localityId,
+                numberOfReviews);
+        return new ProAPISuccessResponse(reviewRatingDetails);
+    }
 }

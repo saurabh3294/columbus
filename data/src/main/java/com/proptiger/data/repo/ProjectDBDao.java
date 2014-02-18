@@ -15,24 +15,23 @@ import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Repository
-public interface ProjectDBDao extends PagingAndSortingRepository<ProjectDB, Serializable>{
+public interface ProjectDBDao extends PagingAndSortingRepository<ProjectDB, Serializable> {
     public ProjectDB findByProjectId(int projectId);
 
-    @Query("SELECT pd " +
-    	   "FROM ProjectDiscussion pd " +
-    	   "WHERE pd.projectId = ?1 " +
-    	   "AND pd.status = '1' " +
-    	   "AND pd.user.status = '1' " +
-    	   "ORDER BY pd.id DESC")
+    @Query("SELECT pd " + "FROM ProjectDiscussion pd "
+            + "WHERE pd.projectId = ?1 "
+            + "AND pd.status = '1' "
+            + "AND pd.user.status = '1' "
+            + "ORDER BY pd.id DESC")
     public List<ProjectDiscussion> getProjectDiscussions(int projectId);
 
     @Query("SELECT pd FROM ProjectDiscussion pd WHERE pd.parentId = ?1")
     public List<ProjectDiscussion> getChildrenProjectDiscussions(Long commentId);
-    
+
     @Query("SELECT p.projectName FROM ProjectDB p WHERE p.projectId = ?1")
     public String getProjectNameById(Integer projectId);
 }

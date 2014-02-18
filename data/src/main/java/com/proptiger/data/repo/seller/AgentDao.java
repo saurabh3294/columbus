@@ -6,7 +6,7 @@ import com.proptiger.data.model.seller.Agent;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 public interface AgentDao extends JpaRepository<Agent, Integer> {
 

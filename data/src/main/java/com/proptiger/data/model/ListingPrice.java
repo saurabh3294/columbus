@@ -11,97 +11,96 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-//@Entity
-//@Table(name = "cms.listing_prices")
-//@JsonFilter("fieldFilter")
-public class ListingPrice extends BaseModel{
+// @Entity
+// @Table(name = "cms.listing_prices")
+// @JsonFilter("fieldFilter")
+public class ListingPrice extends BaseModel {
 
-	private static final long serialVersionUID = -5188547296507370610L;
+    private static final long serialVersionUID = -5188547296507370610L;
 
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "listing_id")
-	private Integer listingId;
-	
-	@Column(name = "version")
-	private String version;
-	
-	@Column(name = "effective_date")
-	private Date effectiveDate;
-	
-	@Column(name = "price_per_unit_area")
-	private Double pricePerUnitArea;
-	
-	@Column(name = "status")
-	private String status;
-	
-	@Column(name = "comment")
-	private String comment;
+    @Id
+    @Column(name = "id")
+    private Integer           id;
 
-	@OneToOne
-	@JsonIgnore
-	@JoinColumn(name = "listing_id", referencedColumnName="id",insertable=false, updatable=false)
-	private Listing listing;
-	
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "listing_id")
+    private Integer           listingId;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "version")
+    private String            version;
 
-	public Integer getListingId() {
-		return listingId;
-	}
+    @Column(name = "effective_date")
+    private Date              effectiveDate;
 
-	public void setListingId(Integer listingId) {
-		this.listingId = listingId;
-	}
+    @Column(name = "price_per_unit_area")
+    private Double            pricePerUnitArea;
 
-	public String getVersion() {
-		return version;
-	}
+    @Column(name = "status")
+    private String            status;
 
-	public void setVersion(String version) {
-		this.version = version;
-	}
+    @Column(name = "comment")
+    private String            comment;
 
-	public Date getEffectiveDate() {
-		return effectiveDate;
-	}
+    @OneToOne
+    @JsonIgnore
+    @JoinColumn(name = "listing_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private Listing           listing;
 
-	public void setEffectiveDate(Date effectiveDate) {
-		this.effectiveDate = effectiveDate;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public Double getPricePerUnitArea() {
-		return pricePerUnitArea;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setPricePerUnitArea(Double pricePerUnitArea) {
-		this.pricePerUnitArea = pricePerUnitArea;
-	}
+    public Integer getListingId() {
+        return listingId;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public void setListingId(Integer listingId) {
+        this.listingId = listingId;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public String getVersion() {
+        return version;
+    }
 
-	public String getComment() {
-		return comment;
-	}
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-	
-	
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(Date effectiveDate) {
+        this.effectiveDate = effectiveDate;
+    }
+
+    public Double getPricePerUnitArea() {
+        return pricePerUnitArea;
+    }
+
+    public void setPricePerUnitArea(Double pricePerUnitArea) {
+        this.pricePerUnitArea = pricePerUnitArea;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
 }

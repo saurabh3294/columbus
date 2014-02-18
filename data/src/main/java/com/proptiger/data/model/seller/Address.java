@@ -10,102 +10,102 @@ import com.proptiger.data.model.BaseModel;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "cms.addresses")
 @JsonFilter("fieldFilter")
-public class Address  extends BaseModel{
+public class Address extends BaseModel {
 
-	private static final long serialVersionUID = 1725129348095501107L;
+    private static final long serialVersionUID = 1725129348095501107L;
 
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "table_name")
-	private String tableName;
-	
-	@Column(name = "table_id")
-	private Integer tableId;
-	
-	@Column(name = "address_line_1")
-	private String addressLine1;
-	
-	@Column(name = "address_line_2")
-	private String addressLine2;
-	
-	@Column(name = "city_id")
-	private Integer cityId;
-	
-	@Column(name = "pincode")
-	private String pinCode;
-	
-	@Column(name = "locality_id")
-	private Integer localityId;
+    @Id
+    @Column(name = "id")
+    private Integer           id;
 
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "table_name")
+    private String            tableName;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "table_id")
+    private Integer           tableId;
 
-	public String getTableName() {
-		return tableName;
-	}
+    @Column(name = "address_line_1")
+    private String            addressLine1;
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
+    @Column(name = "address_line_2")
+    private String            addressLine2;
 
-	public Integer getTableId() {
-		return tableId;
-	}
+    @Column(name = "city_id")
+    private Integer           cityId;
 
-	public void setTableId(Integer tableId) {
-		this.tableId = tableId;
-	}
+    @Column(name = "pincode")
+    private String            pinCode;
 
-	public String getAddressLine1() {
-		return addressLine1;
-	}
+    @Column(name = "locality_id")
+    private Integer           localityId;
 
-	public void setAddressLine1(String addressLine1) {
-		this.addressLine1 = addressLine1;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public String getAddressLine2() {
-		return addressLine2;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setAddressLine2(String addressLine2) {
-		this.addressLine2 = addressLine2;
-	}
+    public String getTableName() {
+        return tableName;
+    }
 
-	public Integer getCityId() {
-		return cityId;
-	}
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
 
-	public void setCityId(Integer cityId) {
-		this.cityId = cityId;
-	}
+    public Integer getTableId() {
+        return tableId;
+    }
 
-	public String getPinCode() {
-		return pinCode;
-	}
+    public void setTableId(Integer tableId) {
+        this.tableId = tableId;
+    }
 
-	public void setPinCode(String pinCode) {
-		this.pinCode = pinCode;
-	}
+    public String getAddressLine1() {
+        return addressLine1;
+    }
 
-	public Integer getLocalityId() {
-		return localityId;
-	}
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
+    }
 
-	public void setLocalityId(Integer localityId) {
-		this.localityId = localityId;
-	}
-	
+    public String getAddressLine2() {
+        return addressLine2;
+    }
+
+    public void setAddressLine2(String addressLine2) {
+        this.addressLine2 = addressLine2;
+    }
+
+    public Integer getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(Integer cityId) {
+        this.cityId = cityId;
+    }
+
+    public String getPinCode() {
+        return pinCode;
+    }
+
+    public void setPinCode(String pinCode) {
+        this.pinCode = pinCode;
+    }
+
+    public Integer getLocalityId() {
+        return localityId;
+    }
+
+    public void setLocalityId(Integer localityId) {
+        this.localityId = localityId;
+    }
+
 }

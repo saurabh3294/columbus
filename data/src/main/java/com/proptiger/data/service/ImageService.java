@@ -44,20 +44,20 @@ import com.proptiger.data.util.PropertyReader;
  */
 @Service
 public class ImageService {
-	private static Logger logger = LoggerFactory.getLogger(ImageService.class);
-    private static File tempDir;
+    private static Logger    logger = LoggerFactory.getLogger(ImageService.class);
+    private static File      tempDir;
 
     @Autowired
-    private ImageDao imageDao;
+    private ImageDao         imageDao;
 
-	@Autowired
-	protected PropertyReader propertyReader;
-	
-	@Autowired
-	private Caching caching;
-	
-	@PostConstruct
-	private void init() {
+    @Autowired
+    protected PropertyReader propertyReader;
+
+    @Autowired
+    private Caching          caching;
+
+    @PostConstruct
+    private void init() {
         ImageUtil.endpoint = propertyReader.getRequiredProperty("endpoint");
         ImageUtil.bucket = propertyReader.getRequiredProperty("bucket");
 
@@ -93,7 +93,8 @@ public class ImageService {
             imOps.addImage();
             MogrifyCmd command = new MogrifyCmd();
             command.run(imOps, outputFile.getAbsolutePath());
-        } catch (InterruptedException | IM4JavaException e) {
+        }
+        catch (InterruptedException | IM4JavaException e) {
             throw new RuntimeException("Could not watermark image", e);
         }
 
@@ -121,37 +122,41 @@ public class ImageService {
         return s3;
     }
 
-	/*
-	 * Public method to get images
-	 */
-	@Cacheable(value=Constants.CacheName.CACHE, key="#object.getText()+#imageTypeStr+#objectId")
-	public List<Image> getImages(DomainObject object, String imageTypeStr,
-			long objectId) {
-		logger.debug("Get images for domain object {} image type {} and id {}",object, imageTypeStr, objectId);
-		if (imageTypeStr == null) {
-			return imageDao.getImagesForObject(object.getText(), objectId);
-		} else {
-			return imageDao.getImagesForObjectWithImageType(object.getText(),
-					imageTypeStr, objectId);
-		}
-	}
+    /*
+     * Public method to get images
+     */
+    @Cacheable(value = Constants.CacheName.CACHE, key = "#object.getText()+#imageTypeStr+#objectId")
+    public List<Image> getImages(DomainObject object, String imageTypeStr, long objectId) {
+        logger.debug("Get images for domain object {} image type {} and id {}", object, imageTypeStr, objectId);
+        if (imageTypeStr == null) {
+            return imageDao.getImagesForObject(object.getText(), objectId);
+        }
+        else {
+            return imageDao.getImagesForObjectWithImageType(object.getText(), imageTypeStr, objectId);
+        }
+    }
 
     /*
      * Public method to get images of multiple object ids
      */
     public List<Image> getImages(DomainObject object, String imageTypeStr, List<Long> objectIds) {
-    	if(imageTypeStr == null){
-    		return imageDao.getImagesForObjectIds(object.getText(), objectIds);	
-    	}
+        if (imageTypeStr == null) {
+            return imageDao.getImagesForObjectIds(object.getText(), objectIds);
+        }
         return imageDao.getImagesForObjectIdsWithImageType(object.getText(), imageTypeStr, objectIds);
     }
 
     /*
      * Public method to upload images
      */
-    @CacheEvict(value=Constants.CacheName.CACHE, key = "#object.getText()+#imageTypeStr+#objectId")
-    public Image uploadImage(DomainObject object, String imageTypeStr, long objectId, MultipartFile fileUpload,
-            Boolean addWaterMark, Image imageParams) {
+    @CacheEvict(value = Constants.CacheName.CACHE, key = "#object.getText()+#imageTypeStr+#objectId")
+    public Image uploadImage(
+            DomainObject object,
+            String imageTypeStr,
+            long objectId,
+            MultipartFile fileUpload,
+            Boolean addWaterMark,
+            Image imageParams) {
 
         // WaterMark by default (true)
         addWaterMark = (addWaterMark != null) ? addWaterMark : true;
@@ -173,14 +178,21 @@ public class ImageService {
             }
 
             // Persist
-            Image image = imageDao.insertImage(object, imageTypeStr, objectId, originalFile, processedFile, imageParams,
+            Image image = imageDao.insertImage(
+                    object,
+                    imageTypeStr,
+                    objectId,
+                    originalFile,
+                    processedFile,
+                    imageParams,
                     format);
             uploadToS3(image, originalFile, processedFile);
             originalFile.delete();
             processedFile.delete();
             imageDao.markImageAsActive(image);
             return image;
-        } catch (IllegalStateException | IOException e) {
+        }
+        catch (IllegalStateException | IOException e) {
             throw new RuntimeException("Could not process image", e);
         }
     }

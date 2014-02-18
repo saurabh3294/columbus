@@ -19,68 +19,68 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity
-@Table(name="cms.resi_project_amenities")
+@Table(name = "cms.resi_project_amenities")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class ProjectCMSAmenity extends BaseModel {
-	
-	private static final long serialVersionUID = 4648605865302565176L;
 
-	@Id
-	@FieldMetaInfo(displayName = "Id", description = "Id")
-	@Column(name="ID")
-	private long id;
-	
-	@FieldMetaInfo(displayName = "Project Id", description = "Project Id")
-	@Column(name="PROJECT_ID")
-	@JsonIgnore
-	private int projectId;
-	
-	@FieldMetaInfo(displayName = "Amenity Display Name", description = "Amenity Display Name")
-	@Column(name="AMENITY_DISPLAY_NAME")
-	private String amenityDisplayName;
-	
-	@Column(name="AMENITY_Id")
-	@FieldMetaInfo(displayName = "Amenity Id", description = "Amenity Id")
-	@JsonIgnore
-	private int amenityId;
-	
-	@ManyToOne(fetch=FetchType.EAGER)
-	@Fetch(FetchMode.JOIN)
-	@JoinColumn(name="AMENITY_ID", insertable=false, updatable=false)
-	private AmenityMaster amenityMaster;
+    private static final long serialVersionUID = 4648605865302565176L;
 
-	public long getId() {
-		return id;
-	}
+    @Id
+    @FieldMetaInfo(displayName = "Id", description = "Id")
+    @Column(name = "ID")
+    private long              id;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
+    @Column(name = "PROJECT_ID")
+    @JsonIgnore
+    private int               projectId;
 
-	public int getProjectId() {
-		return projectId;
-	}
+    @FieldMetaInfo(displayName = "Amenity Display Name", description = "Amenity Display Name")
+    @Column(name = "AMENITY_DISPLAY_NAME")
+    private String            amenityDisplayName;
 
-	public void setProjectId(int projectId) {
-		this.projectId = projectId;
-	}
+    @Column(name = "AMENITY_Id")
+    @FieldMetaInfo(displayName = "Amenity Id", description = "Amenity Id")
+    @JsonIgnore
+    private int               amenityId;
 
-	public String getAmenityDisplayName() {
-		return amenityDisplayName;
-	}
+    @ManyToOne(fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "AMENITY_ID", insertable = false, updatable = false)
+    private AmenityMaster     amenityMaster;
 
-	public void setAmenityDisplayName(String amenityDisplayName) {
-		this.amenityDisplayName = amenityDisplayName;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public AmenityMaster getAmenityMaster() {
-		return amenityMaster;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setAmenityMaster(AmenityMaster amenityMaster) {
-		this.amenityMaster = amenityMaster;
-	}
+    public int getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getAmenityDisplayName() {
+        return amenityDisplayName;
+    }
+
+    public void setAmenityDisplayName(String amenityDisplayName) {
+        this.amenityDisplayName = amenityDisplayName;
+    }
+
+    public AmenityMaster getAmenityMaster() {
+        return amenityMaster;
+    }
+
+    public void setAmenityMaster(AmenityMaster amenityMaster) {
+        this.amenityMaster = amenityMaster;
+    }
 
 }

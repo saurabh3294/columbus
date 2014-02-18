@@ -47,7 +47,7 @@ import com.proptiger.data.util.UtilityClass;
 @Repository
 public class PropertyDao {
     @Autowired
-    private SolrDao solrDao;
+    private SolrDao            solrDao;
 
     // to make it autowired.
     private SolrResponseReader solrResponseReader = new SolrResponseReader();
@@ -56,10 +56,10 @@ public class PropertyDao {
         SolrQuery solrQuery = createSolrQuery(null);
         solrQuery.addFilterQuery("PROJECT_ID:" + projectId);
         solrQuery.setSort("TYPE_ID", ORDER.asc);
-        
+
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Property> properties = queryResponse.getBeans(Property.class);
-        return properties;        
+        return properties;
     }
 
     public List<Property> getProperties(Selector selector) {
@@ -82,7 +82,8 @@ public class PropertyDao {
         Map<String, List<Map<Object, Long>>> resultMap = new HashMap<String, List<Map<Object, Long>>>();
         for (String field : fields) {
             resultMap.put(field, new ArrayList<Map<Object, Long>>());
-            for (Count count : solrDao.executeQuery(query).getFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field)).getValues()) {
+            for (Count count : solrDao.executeQuery(query)
+                    .getFacetField(FieldsMapLoader.getDaoFieldName(SolrResult.class, field)).getValues()) {
                 HashMap<Object, Long> map = new HashMap<Object, Long>();
                 map.put(count.getName(), count.getCount());
                 resultMap.get(field).add(map);
@@ -91,8 +92,6 @@ public class PropertyDao {
 
         return resultMap;
     }
-
-    
 
     public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         SolrQuery solrQuery = createSolrQuery(propertyListingSelector);
@@ -107,7 +106,7 @@ public class PropertyDao {
             for (Group group : groupCommand.getValues()) {
                 List<SolrResult> solrResults = convertSolrResult(group.getResult());
                 Project project = solrResults.get(0).getProject();
-                
+
                 Set<String> unitTypes = new HashSet<String>();
                 List<Property> properties = new ArrayList<Property>();
                 Double resalePrice = null;
@@ -119,16 +118,16 @@ public class PropertyDao {
                     properties.add(property);
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
-                    
+
                     project.setMinPricePerUnitArea(UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea()));
                     project.setMaxPricePerUnitArea(UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
                     project.setMinSize(UtilityClass.min(size, project.getMinSize()));
                     project.setMaxSize(UtilityClass.max(size, project.getMaxSize()));
                     project.setMaxBedrooms(Math.max(property.getBedrooms(), project.getMaxBedrooms()));
                     project.addBedrooms(property.getBedrooms());
-                    project.setMinResalePrice( UtilityClass.min( resalePrice, project.getMinResalePrice() ) );
-                    project.setMaxResalePrice( UtilityClass.max( resalePrice, project.getMaxResalePrice() ) );
-                    
+                    project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
+                    project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
+
                     if (project.getMinBedrooms() == 0) {
                         project.setMinBedrooms(property.getBedrooms());
                     }
@@ -145,7 +144,7 @@ public class PropertyDao {
                 project.setPropertyUnitTypes(unitTypes);
                 project.setProperties(properties);
                 projects.add(project);
-                
+
             }
         }
 
@@ -162,7 +161,7 @@ public class PropertyDao {
 
     private List<SolrResult> getSolrResultsForProperties(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
-        
+
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
         return solrResults;
@@ -172,7 +171,7 @@ public class PropertyDao {
         SolrQuery solrQuery = new SolrQuery();
         solrQuery.setQuery("*:*");
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
-        
+
         if (selector != null) {
             Paging paging = selector.getPaging();
             if (paging != null) {
@@ -180,28 +179,32 @@ public class PropertyDao {
                 solrQuery.setStart(paging.getStart());
             }
 
-//            Set<String> fieldsTemporarityAdded = new HashSet<String>();
+            // Set<String> fieldsTemporarityAdded = new HashSet<String>();
 
-//            // XXX - including price, size, bedrooms, unitTypes fields as needed
-//            Set<String> fields = selector.getFields();
-//            if (fields != null && fields.size() > 0) {
-//                if ((fields.contains("maxPricePerUnitArea") || fields.contains("minPricePerUnitArea")) && !fields.contains("pricePerUnitArea")) {
-//                    fields.add("pricePerUnitArea");
-//                    fieldsTemporarityAdded.add("pricePerUnitArea");
-//                }
-//
-//                if (fields.contains("maxSize") || fields.contains("minSize")) {
-//                    fields.add("size");
-//                }
-//
-//                if (fields.contains("minBedrooms") || fields.contains("maxBedrooms")) {
-//                    fields.add("bedrooms");
-//                }
-//
-//                if (fields.contains("propertyUnitTypes")) {
-//                    fields.add("unitType");
-//                }
-//            }
+            // // XXX - including price, size, bedrooms, unitTypes fields as
+            // needed
+            // Set<String> fields = selector.getFields();
+            // if (fields != null && fields.size() > 0) {
+            // if ((fields.contains("maxPricePerUnitArea") ||
+            // fields.contains("minPricePerUnitArea")) &&
+            // !fields.contains("pricePerUnitArea")) {
+            // fields.add("pricePerUnitArea");
+            // fieldsTemporarityAdded.add("pricePerUnitArea");
+            // }
+            //
+            // if (fields.contains("maxSize") || fields.contains("minSize")) {
+            // fields.add("size");
+            // }
+            //
+            // if (fields.contains("minBedrooms") ||
+            // fields.contains("maxBedrooms")) {
+            // fields.add("bedrooms");
+            // }
+            //
+            // if (fields.contains("propertyUnitTypes")) {
+            // fields.add("unitType");
+            // }
+            // }
 
             SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
 
@@ -242,7 +245,7 @@ public class PropertyDao {
         sortBy.setField("size");
         sortBy.setSortOrder(SortOrder.ASC);
         sortBySet.add(sortBy);
-        
+
         return sortBySet;
     }
 
@@ -313,147 +316,160 @@ public class PropertyDao {
 
         return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
-    
+
     public SolrResult getProperty(long propertyId) {
         SolrQuery solrQuery = createSolrQuery(null);
-        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY AND TYPE_ID:"+propertyId);
+        solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY AND TYPE_ID:" + propertyId);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
-        try{
+        try {
             return properties.get(0);
-        }catch(Exception e){
+        }
+        catch (Exception e) {
             return null;
         }
     }
-    
-    public List<SolrResult> getSimilarProperties(int distance, Double latitude, Double longitude, double minArea, 
-            double maxArea, double minPrice, double maxPrice, String unitType, List<Object> projectStatus,
-            int limit, List<Object> propertyIds, Double budget, int projectId){
+
+    public List<SolrResult> getSimilarProperties(
+            int distance,
+            Double latitude,
+            Double longitude,
+            double minArea,
+            double maxArea,
+            double minPrice,
+            double maxPrice,
+            String unitType,
+            List<Object> projectStatus,
+            int limit,
+            List<Object> propertyIds,
+            Double budget,
+            int projectId) {
         SolrQuery solrQuery = createSolrQuery(null);
-        
-        //TODO to remove the hardcoding the Property class variable Names like geo.
+
+        // TODO to remove the hardcoding the Property class variable Names like
+        // geo.
         SolrQueryBuilder<Property> propertySolrQueryBuilder = new SolrQueryBuilder(solrQuery, Property.class);
-        
-        if(minPrice > 0 && maxPrice > 0)
+
+        if (minPrice > 0 && maxPrice > 0)
             propertySolrQueryBuilder.addRangeFilter("budget", minPrice, maxPrice);
-        
-        if(minArea > 0 && maxArea > 0)
+
+        if (minArea > 0 && maxArea > 0)
             propertySolrQueryBuilder.addRangeFilter("size", minArea, maxArea);
-        if(propertyIds.size() > 0)
-        	propertySolrQueryBuilder.addNotEqualsFilter("projectIdBedroom", propertyIds);
-        
+        if (propertyIds.size() > 0)
+            propertySolrQueryBuilder.addNotEqualsFilter("projectIdBedroom", propertyIds);
+
         SolrQueryBuilder<Property> projectSolrQueryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
-        if(latitude != null && longitude != null)
-        {
-        	projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
-        	solrQuery.setSort("geodist()", ORDER.asc);
+        if (latitude != null && longitude != null) {
+            projectSolrQueryBuilder.addGeoFilter("geo", distance, latitude, longitude);
+            solrQuery.setSort("geodist()", ORDER.asc);
         }
         projectSolrQueryBuilder.addEqualsFilter("projectStatus", projectStatus);
-        
-        
+
         solrQuery.set("group", true);
-		solrQuery.set("group.field", "PROJECT_ID_BEDROOM");
-		solrQuery.set("group.main", true);
-		solrQuery.set("group.limit", 1);
-        if(budget != null)
-			solrQuery.set("group.sort", "abs(sub(" + budget + ",BUDGET)) asc");
-        
+        solrQuery.set("group.field", "PROJECT_ID_BEDROOM");
+        solrQuery.set("group.main", true);
+        solrQuery.set("group.limit", 1);
+        if (budget != null)
+            solrQuery.set("group.sort", "abs(sub(" + budget + ",BUDGET)) asc");
+
         solrQuery.addFilterQuery("DOCUMENT_TYPE:PROPERTY");
-        solrQuery.addFilterQuery("UNIT_TYPE:"+unitType);
+        solrQuery.addFilterQuery("UNIT_TYPE:" + unitType);
         solrQuery.setRows(limit);
-        solrQuery.addFilterQuery("-PROJECT_ID:"+projectId);
-        
+        solrQuery.addFilterQuery("-PROJECT_ID:" + projectId);
+
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
-        
+
         return properties;
     }
-    
+
     public List<SolrResult> getPropertiesOnProjectId(int projectId) {
         SolrQuery solrQuery = createSolrQuery(null);
         solrQuery.addFilterQuery("PROJECT_ID:" + projectId);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> properties = queryResponse.getBeans(SolrResult.class);
-        return properties;        
+        return properties;
     }
-    
+
     /**
-     * This method will take selector Object. This method will get the count of project status and projects
-     * locality wise based on the conditions provided in the selector object. This method will take count of 
-     * distinct projects. 
+     * This method will take selector Object. This method will get the count of
+     * project status and projects locality wise based on the conditions
+     * provided in the selector object. This method will take count of distinct
+     * projects.
+     * 
      * @param selector
-     * @return  
+     * @return
      */
-    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocalityByCity(Selector selector){
-    	SolrQuery solrQuery = createSolrQuery(selector);
-    	    	
-    	// bug in solr. in case of facet grouping, the negative value will not 
-    	// work to get all data. Hence, providing random Max value.
-    	solrQuery.setFacetLimit(100000);
-    	solrQuery.setFacetMinCount(1);
-    	solrQuery.addFacetField("LOCALITY_ID_PROJECT_STATUS");
-    	solrQuery.addFacetField("LOCALITY_ID");
-    	solrQuery.setFacet(true);
-    	solrQuery.setRows(0);
-    	
-    	solrQuery.add("group", "true");
-    	solrQuery.add("group.facet", "true");
-    	solrQuery.add("group.field", "PROJECT_ID");
-    	
-    	QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-    	    	
-    	return solrResponseReader.getFacetResults(queryResponse.getResponse());	
+    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocalityByCity(Selector selector) {
+        SolrQuery solrQuery = createSolrQuery(selector);
+
+        // bug in solr. in case of facet grouping, the negative value will not
+        // work to get all data. Hence, providing random Max value.
+        solrQuery.setFacetLimit(100000);
+        solrQuery.setFacetMinCount(1);
+        solrQuery.addFacetField("LOCALITY_ID_PROJECT_STATUS");
+        solrQuery.addFacetField("LOCALITY_ID");
+        solrQuery.setFacet(true);
+        solrQuery.setRows(0);
+
+        solrQuery.add("group", "true");
+        solrQuery.add("group.facet", "true");
+        solrQuery.add("group.field", "PROJECT_ID");
+
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+
+        return solrResponseReader.getFacetResults(queryResponse.getResponse());
     }
-    
+
     /**
-     * This method will take the locality Id and retrieve the project status counts and project counts
-     * for a locality.
+     * This method will take the locality Id and retrieve the project status
+     * counts and project counts for a locality.
+     * 
      * @param localityId
      * @return
      * @see getProjectStatusCountAndProjectOnLocalityByCity
      */
-    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocality(int localityId){
-    	Selector selector = new Selector();
+    public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocality(int localityId) {
+        Selector selector = new Selector();
 
-		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
-    	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
-    	Map<String, Map<String, Object>> searchType = new HashMap<>();
-    	Map<String, Object> filterCriteria = new HashMap<>();
-    	
-    	filterCriteria.put("localityId", localityId);
-    	
-    	searchType.put(Operator.equal.name(), filterCriteria);
-    	list.add(searchType);
-    	filter.put(Operator.and.name(), list);
-    	
-    	selector.setFilters(filter);
-    	
-    	return getProjectStatusCountAndProjectOnLocalityByCity(selector);
+        Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
+        List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+        Map<String, Map<String, Object>> searchType = new HashMap<>();
+        Map<String, Object> filterCriteria = new HashMap<>();
+
+        filterCriteria.put("localityId", localityId);
+
+        searchType.put(Operator.equal.name(), filterCriteria);
+        list.add(searchType);
+        filter.put(Operator.and.name(), list);
+
+        selector.setFilters(filter);
+
+        return getProjectStatusCountAndProjectOnLocalityByCity(selector);
     }
-    
+
     /**
      * This method will accept the selector object and return the total number
      * of projects found based on selector conditions.
+     * 
      * @param selector
      * @return int
      */
-    public int getProjectCount(Selector selector){
-    	SolrQuery solrQuery = createSolrQuery(selector);
-    	
-    	solrQuery.setRows(0);
-    	
-    	solrQuery.add("group", "true");
-    	solrQuery.add("group.field", "PROJECT_ID");
-    	solrQuery.add("group.ngroups", "true");
-    	
-    	return solrDao.executeQuery(solrQuery).getGroupResponse().getValues().get(0).getNGroups();	
+    public int getProjectCount(Selector selector) {
+        SolrQuery solrQuery = createSolrQuery(selector);
+
+        solrQuery.setRows(0);
+
+        solrQuery.add("group", "true");
+        solrQuery.add("group.field", "PROJECT_ID");
+        solrQuery.add("group.ngroups", "true");
+
+        return solrDao.executeQuery(solrQuery).getGroupResponse().getValues().get(0).getNGroups();
     }
-    
-    
-    
+
     public static void main(String[] args) {
         Selector selector = new Selector();
-//        selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
+        // selector.setFilters("{\"and\":[{\"range\":{\"bedrooms\":{\"from\":\"2\",\"to\":\"3\"}}},{\"equal\":{\"bathrooms\":[2]}}]}");
         Set<String> fields = new HashSet<String>();
         fields.add("pricePerUnitArea");
         fields.add("bedrooms");
@@ -471,18 +487,18 @@ public class PropertyDao {
         sortBy2.setSortOrder(SortOrder.DESC);
         sort.add(sortBy1);
         sort.add(sortBy2);
-//        selector.setSort(sort);
-        
-        Paging paging = new Paging(5,20);
+        // selector.setSort(sort);
+
+        Paging paging = new Paging(5, 20);
         selector.setPaging(paging);
         ObjectMapper mapper = new ObjectMapper();
 
-//        new PropertyDao().getPropertiesGroupedToProjects(selector);
-//        new PropertyDao().getStats(Collections.singletonList("bedrooms"));
+        // new PropertyDao().getPropertiesGroupedToProjects(selector);
+        // new PropertyDao().getStats(Collections.singletonList("bedrooms"));
         PropertyDao propertyDao = new PropertyDao();
     }
 
-    public  PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
+    public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
         SolrQuery query = new SolrQuery();
         query.setQuery("*:*");
         query.setFilterQueries("DOCUMENT_TYPE:PROPERTY");
@@ -490,14 +506,14 @@ public class PropertyDao {
         queryBuilder.buildQuery(selector);
         QueryResponse response = solrDao.executeQuery(query);
         List<Property> properties = new ArrayList<>();
-        for (SolrResult r: response.getBeans(SolrResult.class)) {
+        for (SolrResult r : response.getBeans(SolrResult.class)) {
             properties.add(r.getProperty());
         }
-        
+
         PaginatedResponse<List<Property>> paginatedResponse = new PaginatedResponse<List<Property>>();
         paginatedResponse.setResults(properties);
         paginatedResponse.setTotalCount(response.getResults().getNumFound());
-        
+
         return paginatedResponse;
     }
 }

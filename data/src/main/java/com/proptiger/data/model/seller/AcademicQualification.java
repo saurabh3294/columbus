@@ -10,36 +10,36 @@ import com.proptiger.data.model.BaseModel;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "cms.academic_qualifications")
 @JsonFilter("fieldFilter")
-public class AcademicQualification  extends BaseModel{
-	
-	private static final long serialVersionUID = 38036779720160982L;
+public class AcademicQualification extends BaseModel {
 
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "qualification")
-	private String qualification;
+    private static final long serialVersionUID = 38036779720160982L;
 
-	public Integer getId() {
-		return id;
-	}
+    @Id
+    @Column(name = "id")
+    private Integer           id;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "qualification")
+    private String            qualification;
 
-	public String getQualification() {
-		return qualification;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public void setQualification(String qualification) {
-		this.qualification = qualification;
-	}
-	
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getQualification() {
+        return qualification;
+    }
+
+    public void setQualification(String qualification) {
+        this.qualification = qualification;
+    }
+
 }

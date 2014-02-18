@@ -16,19 +16,21 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.LocalityAmenityService;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Controller
-@RequestMapping(value="data/v1/entity/locality")
-public class LocalityAmenityController extends BaseController{
+@RequestMapping(value = "data/v1/entity/locality")
+public class LocalityAmenityController extends BaseController {
     @Autowired
     private LocalityAmenityService localityAmenityService;
-    
-    @RequestMapping(value="{id}/amenity", method = RequestMethod.GET)
+
+    @RequestMapping(value = "{id}/amenity", method = RequestMethod.GET)
     @ResponseBody
-    public Object getAmenitiesByLocalityIdAndAmenity(@PathVariable("id")int localityId, @RequestParam(value = "amenity", required = false) String amenityName){
+    public Object getAmenitiesByLocalityIdAndAmenity(@PathVariable("id") int localityId, @RequestParam(
+            value = "amenity",
+            required = false) String amenityName) {
         return new ProAPISuccessResponse(localityAmenityService.getLocalityAmenities(localityId, amenityName));
-        
+
     }
 }

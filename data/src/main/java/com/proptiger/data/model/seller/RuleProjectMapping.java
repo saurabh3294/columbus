@@ -16,39 +16,39 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 @Table(name = "cms.rule_project_mappings")
 @JsonFilter("fieldFilter")
 public class RuleProjectMapping {
-	
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "project_id")
-	private Integer projectId;
-	
-	@Column(name = "rule_id")
-	private Integer ruleId;
 
-	public Integer getId() {
-		return id;
-	}
+    @Id
+    @Column(name = "id")
+    private Integer id;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "project_id")
+    private Integer projectId;
 
-	public Integer getProjectId() {
-		return projectId;
-	}
+    @Column(name = "rule_id")
+    private Integer ruleId;
 
-	public void setProjectId(Integer projectId) {
-		this.projectId = projectId;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public Integer getRuleId() {
-		return ruleId;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setRuleId(Integer ruleId) {
-		this.ruleId = ruleId;
-	}
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
+
+    public Integer getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(Integer ruleId) {
+        this.ruleId = ruleId;
+    }
 
 }

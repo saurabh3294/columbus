@@ -15,19 +15,19 @@ import com.proptiger.data.service.ProjectAmenityService;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/amenity")
 public class ProjectAmenityController {
 
-	@Autowired
-	private ProjectAmenityService amenityService;
-	
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getProjectAmenities(@RequestParam(required = true, value = "projectId") Long projectId){
-		List<String> list = amenityService.getAmenitiesNameByProjectId(projectId);
-		return new ProAPISuccessResponse(list);
-	}
+    @Autowired
+    private ProjectAmenityService amenityService;
+
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getProjectAmenities(@RequestParam(required = true, value = "projectId") Long projectId) {
+        List<String> list = amenityService.getAmenitiesNameByProjectId(projectId);
+        return new ProAPISuccessResponse(list);
+    }
 }

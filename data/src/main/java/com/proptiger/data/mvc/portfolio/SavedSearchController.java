@@ -25,37 +25,39 @@ import com.proptiger.data.util.Constants;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/user/{userId}")
 public class SavedSearchController extends BaseController {
-	@Autowired
-	private SavedSearchService savedSearchesService;
-	
-	@RequestMapping(value = {"/portfolio/saved-searches", "/saved-searches"}, method=RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getSavedSearches(
-			@PathVariable Integer userId,
-			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		List<SavedSearch> result = savedSearchesService
-				.getUserSavedSearches(userInfo.getUserIdentifier());
+    @Autowired
+    private SavedSearchService savedSearchesService;
 
-		return new ProAPISuccessCountResponse(result, result.size());
-	}
+    @RequestMapping(value = { "/portfolio/saved-searches", "/saved-searches" }, method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getSavedSearches(
+            @PathVariable Integer userId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        List<SavedSearch> result = savedSearchesService.getUserSavedSearches(userInfo.getUserIdentifier());
 
-	@RequestMapping(value="/saved-searches", method=RequestMethod.POST)
-	@ResponseBody
-	public ProAPIResponse saveSearch(@RequestBody SavedSearch saveSearch, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo ){
-		return new ProAPISuccessResponse(savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier()));
-	}
-	
+        return new ProAPISuccessCountResponse(result, result.size());
+    }
+
+    @RequestMapping(value = "/saved-searches", method = RequestMethod.POST)
+    @ResponseBody
+    public ProAPIResponse saveSearch(
+            @RequestBody SavedSearch saveSearch,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        return new ProAPISuccessResponse(savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier()));
+    }
+
     @RequestMapping(value = "/saved-searches/{savedSearchId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ProAPIResponse deleteSavedSearch(@PathVariable int savedSearchId, @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo)
-    {
+    public ProAPIResponse deleteSavedSearch(
+            @PathVariable int savedSearchId,
+            @PathVariable Integer userId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         savedSearchesService.deleteSavedSearch(savedSearchId);
         return getSavedSearches(userId, userInfo);
-    }	
+    }
 }
