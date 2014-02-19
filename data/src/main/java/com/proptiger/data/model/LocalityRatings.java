@@ -45,34 +45,34 @@ public class LocalityRatings extends BaseModel {
     private Integer           localityId;
     @FieldMetaInfo(displayName = "Overall Rating", description = "Overall Rating")
     @Column(name = "OVERALL_RATING")
-    private double            overallRating;
+    private Double            overallRating;
     @FieldMetaInfo(displayName = "Location", description = "Location")
     @Column(name = "LOCATION")
-    private double            location;
+    private Double            location;
     @FieldMetaInfo(displayName = "Safety", description = "Safety")
     @Column(name = "SAFETY")
-    private double            safety;
+    private Double            safety;
     @FieldMetaInfo(displayName = "Public Transport", description = "Public Transport")
     @Column(name = "PUB_TRANS")
-    private double            pubTrans;
+    private Double            pubTrans;
     @FieldMetaInfo(displayName = "Rest Shop", description = "Rest Shop")
     @Column(name = "REST_SHOP")
-    private double            restShop;
+    private Double            restShop;
     @FieldMetaInfo(displayName = "Schools", description = "Schools")
     @Column(name = "SCHOOLS")
-    private double            schools;
+    private Double            schools;
     @FieldMetaInfo(displayName = "Parks", description = "Parks")
     @Column(name = "PARKS")
     private double            parks;
     @FieldMetaInfo(displayName = "Traffic", description = "Traffic")
     @Column(name = "TRAFFIC")
-    private double            traffic;
+    private Double            traffic;
     @FieldMetaInfo(displayName = "Hospitals", description = "Hospitals")
     @Column(name = "HOSPITALS")
-    private double            hospitals;
+    private Double            hospitals;
     @FieldMetaInfo(displayName = "Civic", description = "Civic")
     @Column(name = "CIVIC")
-    private double            civic;
+    private Double            civic;
 
     @ManyToOne
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
@@ -103,51 +103,51 @@ public class LocalityRatings extends BaseModel {
         this.localityId = localityId;
     }
 
-    public double getOverallRating() {
+    public Double getOverallRating() {
         return overallRating;
     }
 
-    public void setOverallRating(double overallRating) {
+    public void setOverallRating(Double overallRating) {
         this.overallRating = overallRating;
     }
 
-    public double getLocation() {
+    public Double getLocation() {
         return location;
     }
 
-    public void setLocation(double location) {
+    public void setLocation(Double location) {
         this.location = location;
     }
 
-    public double getSafety() {
+    public Double getSafety() {
         return safety;
     }
 
-    public void setSafety(double safety) {
+    public void setSafety(Double safety) {
         this.safety = safety;
     }
 
-    public double getPubTrans() {
+    public Double getPubTrans() {
         return pubTrans;
     }
 
-    public void setPubTrans(double pubTrans) {
+    public void setPubTrans(Double pubTrans) {
         this.pubTrans = pubTrans;
     }
 
-    public double getRestShop() {
+    public Double getRestShop() {
         return restShop;
     }
 
-    public void setRestShop(double restShop) {
+    public void setRestShop(Double restShop) {
         this.restShop = restShop;
     }
 
-    public double getSchools() {
+    public Double getSchools() {
         return schools;
     }
 
-    public void setSchools(double schools) {
+    public void setSchools(Double schools) {
         this.schools = schools;
     }
 
@@ -159,27 +159,27 @@ public class LocalityRatings extends BaseModel {
         this.parks = parks;
     }
 
-    public double getTraffic() {
+    public Double getTraffic() {
         return traffic;
     }
 
-    public void setTraffic(double traffic) {
+    public void setTraffic(Double traffic) {
         this.traffic = traffic;
     }
 
-    public double getHospitals() {
+    public Double getHospitals() {
         return hospitals;
     }
 
-    public void setHospitals(double hospitals) {
+    public void setHospitals(Double hospitals) {
         this.hospitals = hospitals;
     }
 
-    public double getCivic() {
+    public Double getCivic() {
         return civic;
     }
 
-    public void setCivic(double civic) {
+    public void setCivic(Double civic) {
         this.civic = civic;
     }
 
