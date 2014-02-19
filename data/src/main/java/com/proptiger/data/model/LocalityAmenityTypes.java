@@ -43,6 +43,10 @@ public class LocalityAmenityTypes extends BaseModel {
     @Column(name = "display_name")
     private String            displayName;
 
+    @FieldMetaInfo(displayName = "Description ", description = "Amenity Description")
+    @Column(name = "description")
+    private String            description;
+
     // @OneToMany(mappedBy = "localityAmenityTypes", targetEntity =
     // LocalityAmenity.class, fetch = FetchType.EAGER, cascade =
     // CascadeType.DETACH)
@@ -71,6 +75,14 @@ public class LocalityAmenityTypes extends BaseModel {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /*
