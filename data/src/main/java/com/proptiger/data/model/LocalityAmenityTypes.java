@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -41,7 +42,12 @@ public class LocalityAmenityTypes extends BaseModel {
 
     @FieldMetaInfo(displayName = "Display Name", description = "Amenity Display Name")
     @Column(name = "display_name")
+    @JsonIgnore
     private String            displayName;
+
+    @FieldMetaInfo(displayName = "Description ", description = "Amenity Description")
+    @Column(name = "description")
+    private String            description;
 
     // @OneToMany(mappedBy = "localityAmenityTypes", targetEntity =
     // LocalityAmenity.class, fetch = FetchType.EAGER, cascade =
@@ -71,6 +77,14 @@ public class LocalityAmenityTypes extends BaseModel {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /*
