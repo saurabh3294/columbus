@@ -170,7 +170,6 @@ public class ProjectDetailController extends BaseController {
 
     @RequestMapping(value = { "app/v2/project-detail/{projectId}" })
     @ResponseBody
-    @DisableCaching
     public ProAPIResponse getProjectDetails2(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
