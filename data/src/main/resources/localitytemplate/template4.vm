@@ -1,17 +1,99 @@
-One of the most comfortable areas in ${localityTemplate.cityName}, ${localityTemplate.localityName} has some great <CATEGORY> for sale.	
-<Location>, surrounded by developed areas such as <AREA1, AREA2, AREA3>. 
-Overall <#> Builders are providing <Apartment, Villa and Plot> projects for sale in ${localityTemplate.localityName}. 
-The top builders are ${localityTemplate.topBuilders}${localityTemplate.localityName} is booming as there are 
-<#> new projects launched in the locality in last 6 months Properties in ${localityTemplate.localityName} offer <1BHK>, <2BHK>, <3BHK> 
-options with built up area ranging between <SqFt> to <SqFt>	The average price of <CATEGORY> for sale in ${localityTemplate.localityName} is 
-<Price/SqFt>. 
-Key <Schools> close to ${localityTemplate.localityName} are ${localityTemplate.nearBySchools}. 
-Key hospitals to this locality are <Hospital 1, Hospital 2, Hospital 3>. 
-Locality is close to <Metro Station 1> and <Metro Station 2> metro station.	
-You can find <#> ready to move, <#> upcoming and  <#> new launch projects in ${localityTemplate.localityName} from different builders. 
-${localityTemplate.localityName} has an average rating of ${localityTemplate.averageRatingByCategory.overallRating} with highest rating of 
-<#> for <LOCALION/SAFETY/PUBLIC TRANSPORTATION/RESTAURANTS AND SHOPPING>. 
-One popular project in ${localityTemplate.localityName} for sale is <Project 1 by builder 1 offering total X units starting at size X sq ft 
-and with highest size of Y sq ft>. 
-Another popular project in ${localityTemplate.localityName} is  <Project 2 by builder 2 offering total X units starting at 
-size X sq ft and with highest size of Y sq ft>
+#parse("./localitytemplate/utilityFunctions.vm")
+#set($minSize = 0)
+#set($maxSize = 0)
+#set($counter = 0)
+#set($lowestPricePropery = "")
+#populateUnitTypeAndUnitNameList($properties)
+#foreach($property in $properties)
+	#if($property.size)
+		#if($counter == 0)
+			#set($minSize = $property.size)
+			#set($maxSize = $property.size)
+			#set($counter = 1)
+			#set($lowestPricePropery = $property)
+		#elseif($property.size  < $minSize)
+			#set($minSize = $property.size)
+		#elseif($property.size > $maxSize)
+			#set($maxSize = $property.size)
+		#end
+	#end
+	#if($lowestPricePropery && $lowestPricePropery.budget && $property.budget && $property.budget < $lowestPricePropery.budget)
+		#set($lowestPricePropery = $property)
+	#end
+#end
+One of the most comfortable areas in ${locality.suburb.city.label}, 
+${locality.label} has some great #listOfStringToSentence($unitTypesStringList) for sale. 
+#if($nearByLocalities)
+	#set($nearByLocalityNameList = [])
+	#foreach($nearLocality in $nearByLocalities)
+		#set($temp = $nearByLocalityNameList.add($nearLocality.label))
+	#end
+	#if($nearByLocalityNameList && $nearByLocalityNameList.size() > 0)
+		${locality.label}, surrounded by developed areas such as #listOfStringToSentence($nearByLocalityNameList). 
+	#end
+#end	
+#if($topBuilders)
+	#populateBuilderNameList($topBuilders)
+	#if($popularBuildersNameList)
+		Overall $popularBuildersNameList.size() Builders are providing 
+		 #listOfStringToSentence($unitTypesStringList) projects for sale in ${locality.label}. 
+		 The top builders #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList). 
+	#end
+#end
+#if(${locality.projectStatusCount.get("Launch")})
+	${locality.label} is booming as there are ${locality.projectStatusCount.get("Launch")}
+	 new projects launched in the locality in last few months. 
+#end
+#if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
+	Properties in ${locality.label} offer #listOfStringToSentence($unitNamesStringList)   
+	 options with built up area ranging between $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft. 
+#end
+#if($lowestPricePropery && $lowestPricePropery.pricePerUnitArea)
+	The average price of $lowestPricePropery.unitType for sale in ${locality.label} is $lowestPricePropery.pricePerUnitArea/sq ft. 
+#end
+#if($locality.amenityTypeCount)
+	#set($schoolsList = [])
+	#set($hospitalsList = [])
+	#set($metroStationList = [])
+	${locality.label} has many well known schools and Hospitals. 
+	#populateAmenitiesList($amenities)
+	#if($schoolsList)
+		Key Schools close to ${locality.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList).  
+	#end
+	#if($hospitalsList)
+		Key hospitals to this locality #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList).  
+	#end
+	#if($metroStationList)
+		Locality is close to #listOfStringToSentence($metroStationList).  
+	#end
+#end
+#if($locality.projectStatusCount)
+	#projectByStatus($locality)
+#end
+#if($locality.avgRatingsByCategory)
+	#set($highestRatedAmenity = "")
+	#set($highestRating = 0)
+	#foreach($key in $locality.avgRatingsByCategory.keySet())
+		#if($locality.avgRatingsByCategory.get($key) > $highestRating)
+			$highestRating = $locality.avgRatingsByCategory.get($key)
+			$highestRatedAmenity = $key
+		#end
+	#end
+	#if($locality.avgRatingsByCategory.overallRating && $locality.avgRatingsByCategory.overallRating)
+		${locality.label} has an average rating of $locality.avgRatingsByCategory.overallRating
+		#if($highestRating > 0)
+			with highest rating of $highestRating for $highestRatedAmenity
+		#end
+		. 
+	#end
+#end
+#if($popularProjects)
+	#set($project1 = $popularProjects.get(0))
+	#set($project2 = $popularProjects.get(1))
+	#if($project1)
+		One #popularProjectSentence(${locality.label} $project1)
+		#if($project2)
+			Another #popularProjectSentence(${locality.label} $project2)
+		#end
+	#end
+#end
