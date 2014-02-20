@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.util.VelocityUtility;
 
 /**
  * This class generates html body for mail based on template file passed
@@ -77,10 +78,16 @@ public class TemplateToHtmlGenerator {
         nfWithTwoDecimal.setMinimumFractionDigits(0);
         nfWithTwoDecimal.setRoundingMode(RoundingMode.HALF_UP);
         map.put("numberFormatterDecimal", nfWithTwoDecimal);
+        
+        map.put("velocityUtility", new VelocityUtility());
+        
         String text = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, templateFilePath, ENCODING_UTF8, map);
         if (text != null) {
             text = text.replaceAll("[\\n\\t]", "").trim();
             text = text.replaceAll("\\s+", " ");
+            text = text.replaceAll("\\s+,\\s+", ", ");
+            text = text.replaceAll("\\s+\\.\\s+", ". ");
+            text = text.replaceAll(",,", ",");
         }
         return text;
     }

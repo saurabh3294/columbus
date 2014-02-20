@@ -14,7 +14,7 @@
 #if($topBuilders)
 	#populateBuilderNameList($topBuilders)
 	#if($popularBuildersNameList.size() > 0)
-		Top $popularBuildersCounter builders in ${locality.label}
+		Top $popularBuildersNameList.size() builders in ${locality.label}
 	 	#isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) with better facilities & affordable prices.  	
 	#end
 #end
@@ -49,7 +49,7 @@
 	#end
 #end
 #if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
-	 The property in ${locality.label} are build in areas ranging $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft 
+	 The property in ${locality.label} are build in areas ranging $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft. 
 	with bedroom configurations of #listOfStringToSentence($unitNamesStringList). 
 #end
 #if($locality.avgPriceRisePercentage)
@@ -112,12 +112,14 @@
 	#foreach($project in $popularProjects)
 		#if($project.minPricePerUnitArea && $project.maxPricePerUnitArea)
 			#if($counter == 0)
-				#projectDescWithLowestRate($locality.label $project) 
+				#projectDescWithLowestRate($locality.label $project)
 			#elseif($counter == 1)
-				Whereas #projectDescWithHighestRate($locality.label $project)
+				, whereas #projectDescWithHighestRate($locality.label $project)
 			#end
 			#set($counter = $counter + 1)
 		#end
-		
+	#end
+	#if($counter > 0)
+	. 
 	#end
 #end
