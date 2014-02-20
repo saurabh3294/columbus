@@ -26,10 +26,10 @@ import com.drew.metadata.exif.GpsDirectory;
 import com.proptiger.data.model.image.Image;
 
 public class ImageUtil {
-	
-	private static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
-    public static String endpoint;
-    public static String bucket;
+
+    private static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
+    public static String  endpoint;
+    public static String  bucket;
 
     public static String fileMd5Hash(File file) throws FileNotFoundException, IOException {
         int nread = 0;
@@ -47,9 +47,10 @@ public class ImageUtil {
             for (int i = 0; i < mdbytes.length; i++) {
                 sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
             }
-            
+
             fis.close();
-        } catch (NoSuchAlgorithmException e) {
+        }
+        catch (NoSuchAlgorithmException e) {
             // TODO Add logging
         }
 
@@ -74,7 +75,7 @@ public class ImageUtil {
         image.setHeight(buffImage.getHeight());
         // Size
         image.setSizeInBytes(imageFile.length());
-        
+
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(imageFile);
             if (metadata.containsDirectory(ExifSubIFDDirectory.class)) {
@@ -95,8 +96,9 @@ public class ImageUtil {
                 image.setLatitude(lat);
                 image.setLongitude(lng);
             }
-        } catch (ImageProcessingException e) {
-        	logger.debug("Unable to get Exif reader : {}", imageFile.getAbsolutePath());
+        }
+        catch (ImageProcessingException e) {
+            logger.debug("Unable to get Exif reader : {}", imageFile.getAbsolutePath());
         }
 
     }

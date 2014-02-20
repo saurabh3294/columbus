@@ -10,9 +10,10 @@ import com.proptiger.data.pojo.Selector;
 
 /**
  * @author mandeep
- *
+ * 
  */
 public interface SuburbCustomDao {
     public List<Suburb> getSuburbs(Selector selector);
+
     public Suburb getSuburb(int subUrbId);
 }

@@ -17,65 +17,70 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Entity
-@Table(name="FORUM_USER")
+@Table(name = "FORUM_USER")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class ForumUser extends BaseModel{
+public class ForumUser extends BaseModel {
+
+    private static final long serialVersionUID = 6769127512697320945L;
+
     @Column(name = "USER_ID")
     @Id
-    private Integer userId;
-    
+    private Integer           userId;
+
     @Column(name = "USERNAME")
-    private String  username;
-    
+    private String            username;
+
     @Column(name = "EMAIL")
-    private String  email;
-    
+    @JsonIgnore
+    private String            email;
+
     @Column(name = "CONTACT")
-    private long  contact;
-    
+    @JsonIgnore
+    private long              contact;
+
     @Column(name = "PROVIDERID")
-    private String  providerid;
-    
+    private String            providerid;
+
     @Column(name = "PROVIDER")
-    private String  provider;
-    
+    private String            provider;
+
     @Column(name = "FB_IMAGE_URL")
-    private String  fbImageUrl;
-    
+    private String            fbImageUrl;
+
     @Column(name = "IMAGE")
-    private String  image;
-    
+    private String            image;
+
     @JsonIgnore
     @Column(name = "PASSWORD")
-    private String  password;
-    
+    private String            password;
+
     @Column(name = "CITY")
-    private String  city;
-    
+    private String            city;
+
     @Column(name = "COUNTRY_ID")
-    private int  countryId;
-    
+    private int               countryId;
+
     @Column(name = "UNIQUE_USER_ID")
-    private String  uniqueUserId;
-    
+    private String            uniqueUserId;
+
     @Column(name = "CREATED_DATE")
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Date  createdDate;
-    
+    private Date              createdDate;
+
     @Column(name = "STATUS")
-    private String status;
-    
+    private String            status;
+
     @Column(name = "IS_SUBSCRIBED")
-    private byte  isSubscribed;
-    
+    private byte              isSubscribed;
+
     @Column(name = "UNSUBSCRIBED_AT")
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Date  unsubscribedAt;
+    private Date              unsubscribedAt;
 
     public Integer getUserId() {
         return userId;

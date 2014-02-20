@@ -1,0 +1,174 @@
+#macro( listOfStringToSentence $dataList)
+	#if($dataList)
+		#if($dataList.size() == 1)
+			$dataList.get(0)
+		#elseif($dataList.size() == 2)
+			$dataList.get(0) and $dataList.get(1)
+		#else
+			#set($counter = 0)
+			#foreach($item in $dataList)
+				#if($counter > 0 && $counter < $dataList.size() - 1)
+					, 
+				#elseif($counter == $dataList.size() - 1)
+					 and  
+				#end
+				$item
+				#set($counter = $counter+1)
+			#end
+		#end
+	#end
+#end
+
+#macro(isOrAre $dataList)
+	#if($dataList)
+		#if($dataList.size() == 1)
+			is 
+		#else
+			are 
+		#end
+		
+	#end
+#end
+
+#macro(popularProjectSentence $localityLabel $projectObj)
+	popular project in $localityLabel for sale is $projectObj.name by $projectObj.builder.name  
+	#if($projectObj.totalUnits > 0)
+		offering total $projectObj.totalUnits units  
+		#if($projectObj.minSize && $projectObj.maxSize)
+			starting at size $numberFormatter.format($projectObj.minSize) sq ft and with highest $numberFormatter.format($projectObj.maxSize) sq ft
+		#end
+	#end
+	. 
+#end
+#macro(projectDescWithLowestRate $localityLabel $projectObj)
+	#if($projectObj)
+		#if($projectObj.minPricePerUnitArea)
+			$projectObj.name by $projectObj.builder.name is available at lowest rate of Rs.  
+			$numberFormatter.format($projectObj.minPricePerUnitArea) per sq ft 
+			in $localityLabel. 
+		#end
+	#end
+#end
+#macro(projectDescWithHighestRate $localityLabel $projectObj)
+	#if($projectObj)
+		#if($projectObj.maxPricePerUnitArea)
+			$projectObj.name by $projectObj.builder.name is available at highest rate of Rs. 
+			$numberFormatter.format($projectObj.maxPricePerUnitArea) per sq ft. 
+		#end
+	#end
+#end
+
+#macro(singularOrPlural $word $list)
+	#if($list && $word)
+		#if($list.size() == 1)
+			  
+		#else
+			#set($word = $word + "s")
+			$word 
+		#end
+	#end
+#end
+#macro(projectByBuilderSentence $projects)
+	#if($projects.size() == 1)
+		$projects.get(0).name by $projects.get(0).builder.name
+	#elseif($projects.size() == 2)
+		$projects.get(0).name by $projects.get(0).builder.name and $projects.get(1).name by $projects.get(1).builder.name
+	#else
+		#set($counter = 0)
+		#foreach($project in $projects)
+			#if($counter > 0 && $counter < $projects.size() - 1)
+					, 
+			#elseif($counter == $projects.size() - 1)
+				 and  
+			#end
+			$project.name by $project.builder.name
+			#set($counter = $counter+1)
+		#end
+	#end
+#end
+#macro(makePriceUserReadable $price)
+	#set($amtInCorore = $price/10000000)
+	#if($amtInCorore < 1)
+		#set($amtInLacs = $price/100000)
+		$numberFormatterDecimal.format($amtInLacs) Lacs 
+	#else
+		$numberFormatterDecimal.format($amtInCorore) Cr  
+	#end
+#end
+#macro(projectByStatus $locality)
+	#set( $upcomingProjects = 0)
+	#set( $newLaunchProjects = 0)
+	#set( $readyForPossessionProjects = 0)
+	
+	#if(${locality.projectStatusCount.get("Pre Launch")} && ${locality.projectStatusCount.get("Not Launched")})
+		#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")} + ${locality.projectStatusCount.get("Not Launched")})
+	#end
+	#if(${locality.projectStatusCount.get("Launch")})
+		#set( $newLaunchProjects = ${locality.projectStatusCount.get("Launch")})
+	#end	
+	#if(${locality.projectStatusCount.get("Ready for Possession")})
+		#set( $readyForPossessionProjects = ${locality.projectStatusCount.get("Ready for Possession")})
+	#end
+	
+	#if($upcomingProjects || $newLaunchProjects || $readyForPossessionProjects)
+		You can find 
+		#set($counter = 0)
+		#if($upcomingProjects > 0)
+			$upcomingProjects upcoming  
+			#set($counter = $counter + 1)
+		#end
+		#if($newLaunchProjects > 0)
+			#if($counter == 1)
+				, 
+			#end
+			$newLaunchProjects new launches 
+			#set($counter = $counter + 1)
+		#end
+		#if($readyForPossessionProjects > 0)
+			#if($counter > 0)
+		 	 	and   
+			#end
+			$readyForPossessionProjects ready to move in 
+		#end
+		projects in ${locality.label} from different builders.  
+	#end
+#end
+
+#macro(populateAmenitiesList $amenities)
+	#foreach( $amenity in $amenities )
+		#if($amenity.localityAmenityTypes.name=="school" && !$schoolsList.contains($amenity.localityAmenityTypes.name))
+			#set($temp = $schoolsList.add($amenity.name))
+		#end
+		#if($amenity.localityAmenityTypes.name=="hospital" && !$hospitalsList.contains($amenity.localityAmenityTypes.name))
+		 	#set($temp = $hospitalsList.add($amenity.name))
+		#end
+		#if($amenity.localityAmenityTypes.name=="subway_station" && !$metroStationList.contains($amenity.localityAmenityTypes.name))
+		 	#set($temp = $metroStationList.add($amenity.name))
+		#end
+	#end
+#end
+
+#macro(populateBuilderNameList $topBuilders)
+	#set($popularBuildersNameList = [])
+	#foreach($builder in $topBuilders)
+		#if($builder.name != "Reputed Builder")
+			#set($temp = $popularBuildersNameList.add($builder.name))
+		#end
+	#end
+#end
+
+#macro(populateUnitTypeAndUnitNameList $properties)
+	#set($unitTypesStringList = [])
+	#set($unitNamesStringList = [])
+	#if($properties)
+		#foreach($property in $properties)
+		#if(!$unitTypesStringList.contains($property.unitType))
+			#set($temp = $unitTypesStringList.add($property.unitType))
+		#end
+		#if(!$unitNamesStringList.contains($property.unitName))
+			#set($temp = $unitNamesStringList.add($property.unitName))
+		#end
+	#end
+	#end
+	
+#end

@@ -22,257 +22,262 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Entity
-@Table(name="RESI_PROJECT")
+@Table(name = "RESI_PROJECT")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @Deprecated
-public class ProjectDB extends BaseModel{
-    @FieldMetaInfo(displayName="PROJECT ID", description="PROJECT ID")
-    @Column(name="PROJECT_ID")
+public class ProjectDB extends BaseModel {
+
+    private static final long serialVersionUID  = -1689938553944928175L;
+
+    @FieldMetaInfo(displayName = "PROJECT ID", description = "PROJECT ID")
+    @Column(name = "PROJECT_ID")
     @Id
-    private int projectId ;
-    
-    @FieldMetaInfo(displayName="BUILDER ID", description="BUILDER ID")
-    @Column(name="BUILDER_ID")
-    private int builderId ;
-    
-    @FieldMetaInfo(displayName="CITY ID", description="CITY ID")
-    @Column(name="CITY_ID")
-    private int cityId ;
-    
-    @FieldMetaInfo(displayName="SUBURB ID", description="SUBURB ID")
-    @Column(name="SUBURB_ID")
-    private int suburbId ;
-    
-    @FieldMetaInfo(displayName="LOCALITY ID", description="LOCALITY ID")
-    @Column(name="LOCALITY_ID")
-    private int localityId ;
-    
-    @FieldMetaInfo(displayName="PROJECT NAME", description="PROJECT NAME")
-    @Column(name="PROJECT_NAME")
-    private String projectName ;
-    
-    @FieldMetaInfo(displayName="PROJECT DESCRIPTION", description="PROJECT DESCRIPTION")
-    @Column(name="PROJECT_DESCRIPTION")
-    private String projectDescription ;
-    
-    @FieldMetaInfo(displayName="PROJECT ADDRESS", description="PROJECT ADDRESS")
-    @Column(name="PROJECT_ADDRESS")
-    private String projectAddress ;
-    
-    @FieldMetaInfo(displayName="PROJECT TYPES", description="PROJECT TYPES")
-    @Column(name="PROJECT_TYPES")
-    private String projectTypes ;
-    
-    @FieldMetaInfo(displayName="BUILDER NAME", description="BUILDER NAME")
-    @Column(name="BUILDER_NAME")
-    private String builderName ;
-    
-    @FieldMetaInfo(displayName="PROJECT SMALL IMAGE", description="PROJECT SMALL IMAGE")
-    @Column(name="PROJECT_SMALL_IMAGE")
-    private String projectSmallImage ;
-    
-    @FieldMetaInfo(displayName="LOCATION DESC", description="LOCATION DESC")
-    @Column(name="LOCATION_DESC")
-    private String locationDesc ;
-    
-    @FieldMetaInfo(displayName="LATITUDE", description="LATITUDE")
-    @Column(name="LATITUDE")
-    private float latitude ;
-    
-    @FieldMetaInfo(displayName="LONGITUDE", description="LONGITUDE")
-    @Column(name="LONGITUDE")
-    private float longitude ;
-    
-    @FieldMetaInfo(displayName="META TITLE", description="META TITLE")
-    @Column(name="META_TITLE")
-    private String metaTitle ;
-    
-    @FieldMetaInfo(displayName="META KEYWORDS", description="META KEYWORDS")
-    @Column(name="META_KEYWORDS")
-    private String metaKeywords ;
-    
-    @FieldMetaInfo(displayName="META DESCRIPTION", description="META DESCRIPTION")
-    @Column(name="META_DESCRIPTION")
-    private String metaDescription ;
-    
-    @FieldMetaInfo(displayName="DISPLAY ORDER", description="DISPLAY ORDER")
-    @Column(name="DISPLAY_ORDER")
-    private int displayOrder ;
-    
-    @FieldMetaInfo(displayName="ACTIVE", description="ACTIVE")
-    @Column(name="ACTIVE")
-    private int active ;
-    
-    @FieldMetaInfo(displayName="PROJECT STATUS", description="PROJECT STATUS")
-    @Column(name="PROJECT_STATUS")
-    private String projectStatus ;
-    
-    @FieldMetaInfo(displayName="PROJECT URL", description="PROJECT URL")
-    @Column(name="PROJECT_URL")
-    private String projectUrl ;
-    
-    @FieldMetaInfo(displayName="FEATURED", description="FEATURED")
-    @Column(name="FEATURED")
-    private int featured ;
-        
-    @FieldMetaInfo(displayName="PRICE DISCLAIMER", description="PRICE DISCLAIMER")
-    @Column(name="PRICE_DISCLAIMER")
-    private String priceDisclaimer ;
-    
-    @FieldMetaInfo(displayName="OFFER HEADING", description="OFFER HEADING")
-    @Column(name="OFFER_HEADING")
-    private String offerHeading ;
-    
-    @FieldMetaInfo(displayName="OFFER DESC", description="OFFER DESC")
-    @Column(name="OFFER_DESC")
-    private String offerDesc ;
-    
-    @FieldMetaInfo(displayName="SUBMITTED Date", description="SUBMITTED Date")
-    @Column(name="SUBMITTED_DATE")
+    private int               projectId;
+
+    @FieldMetaInfo(displayName = "BUILDER ID", description = "BUILDER ID")
+    @Column(name = "BUILDER_ID")
+    private int               builderId;
+
+    @FieldMetaInfo(displayName = "CITY ID", description = "CITY ID")
+    @Column(name = "CITY_ID")
+    private int               cityId;
+
+    @FieldMetaInfo(displayName = "SUBURB ID", description = "SUBURB ID")
+    @Column(name = "SUBURB_ID")
+    private int               suburbId;
+
+    @FieldMetaInfo(displayName = "LOCALITY ID", description = "LOCALITY ID")
+    @Column(name = "LOCALITY_ID")
+    private int               localityId;
+
+    @FieldMetaInfo(displayName = "PROJECT NAME", description = "PROJECT NAME")
+    @Column(name = "PROJECT_NAME")
+    private String            projectName;
+
+    @FieldMetaInfo(displayName = "PROJECT DESCRIPTION", description = "PROJECT DESCRIPTION")
+    @Column(name = "PROJECT_DESCRIPTION")
+    private String            projectDescription;
+
+    @FieldMetaInfo(displayName = "PROJECT ADDRESS", description = "PROJECT ADDRESS")
+    @Column(name = "PROJECT_ADDRESS")
+    private String            projectAddress;
+
+    @FieldMetaInfo(displayName = "PROJECT TYPES", description = "PROJECT TYPES")
+    @Column(name = "PROJECT_TYPES")
+    private String            projectTypes;
+
+    @FieldMetaInfo(displayName = "BUILDER NAME", description = "BUILDER NAME")
+    @Column(name = "BUILDER_NAME")
+    private String            builderName;
+
+    @FieldMetaInfo(displayName = "PROJECT SMALL IMAGE", description = "PROJECT SMALL IMAGE")
+    @Column(name = "PROJECT_SMALL_IMAGE")
+    private String            projectSmallImage;
+
+    @FieldMetaInfo(displayName = "LOCATION DESC", description = "LOCATION DESC")
+    @Column(name = "LOCATION_DESC")
+    private String            locationDesc;
+
+    @FieldMetaInfo(displayName = "LATITUDE", description = "LATITUDE")
+    @Column(name = "LATITUDE")
+    private float             latitude;
+
+    @FieldMetaInfo(displayName = "LONGITUDE", description = "LONGITUDE")
+    @Column(name = "LONGITUDE")
+    private float             longitude;
+
+    @FieldMetaInfo(displayName = "META TITLE", description = "META TITLE")
+    @Column(name = "META_TITLE")
+    private String            metaTitle;
+
+    @FieldMetaInfo(displayName = "META KEYWORDS", description = "META KEYWORDS")
+    @Column(name = "META_KEYWORDS")
+    private String            metaKeywords;
+
+    @FieldMetaInfo(displayName = "META DESCRIPTION", description = "META DESCRIPTION")
+    @Column(name = "META_DESCRIPTION")
+    private String            metaDescription;
+
+    @FieldMetaInfo(displayName = "DISPLAY ORDER", description = "DISPLAY ORDER")
+    @Column(name = "DISPLAY_ORDER")
+    private int               displayOrder;
+
+    @FieldMetaInfo(displayName = "ACTIVE", description = "ACTIVE")
+    @Column(name = "ACTIVE")
+    private int               active;
+
+    @FieldMetaInfo(displayName = "PROJECT STATUS", description = "PROJECT STATUS")
+    @Column(name = "PROJECT_STATUS")
+    private String            projectStatus;
+
+    @FieldMetaInfo(displayName = "PROJECT URL", description = "PROJECT URL")
+    @Column(name = "PROJECT_URL")
+    private String            projectUrl;
+
+    @FieldMetaInfo(displayName = "FEATURED", description = "FEATURED")
+    @Column(name = "FEATURED")
+    private int               featured;
+
+    @FieldMetaInfo(displayName = "PRICE DISCLAIMER", description = "PRICE DISCLAIMER")
+    @Column(name = "PRICE_DISCLAIMER")
+    private String            priceDisclaimer;
+
+    @FieldMetaInfo(displayName = "OFFER HEADING", description = "OFFER HEADING")
+    @Column(name = "OFFER_HEADING")
+    private String            offerHeading;
+
+    @FieldMetaInfo(displayName = "OFFER DESC", description = "OFFER DESC")
+    @Column(name = "OFFER_DESC")
+    private String            offerDesc;
+
+    @FieldMetaInfo(displayName = "SUBMITTED Date", description = "SUBMITTED Date")
+    @Column(name = "SUBMITTED_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date submittedDate ;
-    
-    @FieldMetaInfo(displayName="SUBMITTED BY", description="SUBMITTED BY")
-    @Column(name="SUBMITTED_BY")
-    private int submittedBy ;
-        
-    @FieldMetaInfo(displayName="MODIFIED BY", description="MODIFIED BY")
-    @Column(name="MODIFIED_BY")
-    private int modifiedBy ;
-    
-    @FieldMetaInfo(displayName="PAYMENT PLAN", description="PAYMENT PLAN")
-    @Column(name="PAYMENT_PLAN")
-    private String paymentPlan ;
-    
-    @FieldMetaInfo(displayName="NO OF TOWERS", description="NO OF TOWERS")
-    @Column(name="NO_OF_TOWERS")
-    private int noOfTowers ;
-    
-    @FieldMetaInfo(displayName="NO OF FLATES", description="NO OF FLATES")
-    @Column(name="NO_OF_FLATES")
-    private int noOfFlates ;
-    
-    @FieldMetaInfo(displayName="LAUNCH Date", description="LAUNCH Date")
-    @Column(name="LAUNCH_DATE")
+    private Date              submittedDate;
+
+    @FieldMetaInfo(displayName = "SUBMITTED BY", description = "SUBMITTED BY")
+    @Column(name = "SUBMITTED_BY")
+    private int               submittedBy;
+
+    @FieldMetaInfo(displayName = "MODIFIED BY", description = "MODIFIED BY")
+    @Column(name = "MODIFIED_BY")
+    private int               modifiedBy;
+
+    @FieldMetaInfo(displayName = "PAYMENT PLAN", description = "PAYMENT PLAN")
+    @Column(name = "PAYMENT_PLAN")
+    private String            paymentPlan;
+
+    @FieldMetaInfo(displayName = "NO OF TOWERS", description = "NO OF TOWERS")
+    @Column(name = "NO_OF_TOWERS")
+    private int               noOfTowers;
+
+    @FieldMetaInfo(displayName = "NO OF FLATES", description = "NO OF FLATES")
+    @Column(name = "NO_OF_FLATES")
+    private int               noOfFlates;
+
+    @FieldMetaInfo(displayName = "LAUNCH Date", description = "LAUNCH Date")
+    @Column(name = "LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date launchDate ;
-    
-    @FieldMetaInfo(displayName="OFFLINE TYPE", description="OFFLINE TYPE")
-    @Column(name="OFFLINE_TYPE")
-    private int offlineType ;
-        
-    @FieldMetaInfo(displayName="DISPLAY FLAG", description="DISPLAY FLAG")
-    @Column(name="DISPLAY_FLAG")
-    private int displayFlag ;
-    
-    @FieldMetaInfo(displayName="DISPLAY ORDER LOCALITY", description="DISPLAY ORDER LOCALITY")
-    @Column(name="DISPLAY_ORDER_LOCALITY")
-    private int displayOrderLocality ;
-    
-    @FieldMetaInfo(displayName="DISPLAY ORDER SUBURB", description="DISPLAY ORDER SUBURB")
-    @Column(name="DISPLAY_ORDER_SUBURB")
-    private int displayOrderSuburb ;
-    
-    @FieldMetaInfo(displayName="BANK LIST", description="BANK LIST")
-    @Column(name="BANK_LIST")
-    private String bankList ;
-    
-    @FieldMetaInfo(displayName="YOUTUBE VEDIO", description="YOUTUBE VEDIO")
-    @Column(name="YOUTUBE_VEDIO")
-    private String youtubeVedio ;
-    
-    @FieldMetaInfo(displayName="PRICE LIST", description="PRICE LIST")
-    @Column(name="PRICE_LIST")
-    private String priceList ;
-    
-    @FieldMetaInfo(displayName="APPLICATION FORM", description="APPLICATION FORM")
-    @Column(name="APPLICATION_FORM")
-    private String applicationForm ;
-    
-    @FieldMetaInfo(displayName="IMPORTANCE", description="IMPORTANCE")
-    @Column(name="IMPORTANCE")
-    private int importance ;
-    
-    @FieldMetaInfo(displayName="SHOULD DISPLAY PRICE", description="SHOULD DISPLAY PRICE")
-    @Column(name="SHOULD_DISPLAY_PRICE")
-    private int shouldDisplayPrice ;
-    
-    @FieldMetaInfo(displayName="PROMISED COMPLETION Date", description="PROMISED COMPLETION Date")
-    @Column(name="PROMISED_COMPLETION_DATE")
+    private Date              launchDate;
+
+    @FieldMetaInfo(displayName = "OFFLINE TYPE", description = "OFFLINE TYPE")
+    @Column(name = "OFFLINE_TYPE")
+    private int               offlineType;
+
+    @FieldMetaInfo(displayName = "DISPLAY FLAG", description = "DISPLAY FLAG")
+    @Column(name = "DISPLAY_FLAG")
+    private int               displayFlag;
+
+    @FieldMetaInfo(displayName = "DISPLAY ORDER LOCALITY", description = "DISPLAY ORDER LOCALITY")
+    @Column(name = "DISPLAY_ORDER_LOCALITY")
+    private int               displayOrderLocality;
+
+    @FieldMetaInfo(displayName = "DISPLAY ORDER SUBURB", description = "DISPLAY ORDER SUBURB")
+    @Column(name = "DISPLAY_ORDER_SUBURB")
+    private int               displayOrderSuburb;
+
+    @FieldMetaInfo(displayName = "BANK LIST", description = "BANK LIST")
+    @Column(name = "BANK_LIST")
+    private String            bankList;
+
+    @FieldMetaInfo(displayName = "YOUTUBE VEDIO", description = "YOUTUBE VEDIO")
+    @Column(name = "YOUTUBE_VEDIO")
+    private String            youtubeVedio;
+
+    @FieldMetaInfo(displayName = "PRICE LIST", description = "PRICE LIST")
+    @Column(name = "PRICE_LIST")
+    private String            priceList;
+
+    @FieldMetaInfo(displayName = "APPLICATION FORM", description = "APPLICATION FORM")
+    @Column(name = "APPLICATION_FORM")
+    private String            applicationForm;
+
+    @FieldMetaInfo(displayName = "IMPORTANCE", description = "IMPORTANCE")
+    @Column(name = "IMPORTANCE")
+    private int               importance;
+
+    @FieldMetaInfo(displayName = "SHOULD DISPLAY PRICE", description = "SHOULD DISPLAY PRICE")
+    @Column(name = "SHOULD_DISPLAY_PRICE")
+    private int               shouldDisplayPrice;
+
+    @FieldMetaInfo(displayName = "PROMISED COMPLETION Date", description = "PROMISED COMPLETION Date")
+    @Column(name = "PROMISED_COMPLETION_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date promisedCompletionDate ;
-    
-    @FieldMetaInfo(displayName="AVAILABILITY", description="AVAILABILITY")
-    @Column(name="AVAILABILITY")
-    private Integer availability ;
-    
-    @FieldMetaInfo(displayName="PROJECT TYPE ID", description="PROJECT TYPE ID")
-    @Column(name="PROJECT_TYPE_ID")
-    private int projectTypeId ;
-    
-    @FieldMetaInfo(displayName="TOWNSHIP", description="TOWNSHIP")
-    @Column(name="TOWNSHIP")
-    private String township ;
-    
-    /*@FieldMetaInfo(displayName="RESIDENTIAL", description="RESIDENTIAL")
-    @Column(name="RESIDENTIAL")
-    private enum('0','1') RESIDENTIAL ;*/
-    
-    @FieldMetaInfo(displayName="PRE LAUNCH Date", description="PRE LAUNCH Date")
-    @Column(name="PRE_LAUNCH_DATE")
+    private Date              promisedCompletionDate;
+
+    @FieldMetaInfo(displayName = "AVAILABILITY", description = "AVAILABILITY")
+    @Column(name = "AVAILABILITY")
+    private Integer           availability;
+
+    @FieldMetaInfo(displayName = "PROJECT TYPE ID", description = "PROJECT TYPE ID")
+    @Column(name = "PROJECT_TYPE_ID")
+    private int               projectTypeId;
+
+    @FieldMetaInfo(displayName = "TOWNSHIP", description = "TOWNSHIP")
+    @Column(name = "TOWNSHIP")
+    private String            township;
+
+    /*
+     * @FieldMetaInfo(displayName="RESIDENTIAL", description="RESIDENTIAL")
+     * 
+     * @Column(name="RESIDENTIAL") private enum('0','1') RESIDENTIAL ;
+     */
+
+    @FieldMetaInfo(displayName = "PRE LAUNCH Date", description = "PRE LAUNCH Date")
+    @Column(name = "PRE_LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date preLaunchDate ;
-    
-    @FieldMetaInfo(displayName="PROJECT SIZE", description="PROJECT SIZE")
-    @Column(name="PROJECT_SIZE")
-    private Double projectSize ;
-    
-    @FieldMetaInfo(displayName="LAST MODIFIED Date", description="LAST MODIFIED Date")
-    @Column(name="LAST_MODIFIED_DATE")
+    private Date              preLaunchDate;
+
+    @FieldMetaInfo(displayName = "PROJECT SIZE", description = "PROJECT SIZE")
+    @Column(name = "PROJECT_SIZE")
+    private Double            projectSize;
+
+    @FieldMetaInfo(displayName = "LAST MODIFIED Date", description = "LAST MODIFIED Date")
+    @Column(name = "LAST_MODIFIED_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date lastModifiedDate ;
-    
-    @FieldMetaInfo(displayName="FORCE RESALE", description="FORCE RESALE")
-    @Column(name="FORCE_RESALE")
-    private int forceResale;
-    
-    @Transient
-    private List<Image> images;
-    
-    @Transient
-    private Double minPricePerUnitArea;
-    
-    @Transient
-    private Double maxPricePerUnitArea;
-    
-    @Transient
-    @FieldMetaInfo(displayName="Min Resale Price", description="Min Resale Price")
-    private Double minResalePrice;
-    
-    @Transient
-    @FieldMetaInfo(displayName="Max Resale Price", description="Max Resale Price")
-    private Double maxResalePrice;
-    
-    @Transient
-    private Double avgPriceRisePercentage;
-    
-    @Transient
-    private Integer avgPriceRiseMonths;
-    
-    @Transient
-    private Set<String> propertyUnitTypes = new HashSet<String>();
+    private Date              lastModifiedDate;
+
+    @FieldMetaInfo(displayName = "FORCE RESALE", description = "FORCE RESALE")
+    @Column(name = "FORCE_RESALE")
+    private int               forceResale;
 
     @Transient
-    private Set<Integer> distinctBedrooms = new HashSet<Integer>();
-    
+    private List<Image>       images;
+
     @Transient
-    private String imageURL;
-    
+    private Double            minPricePerUnitArea;
+
+    @Transient
+    private Double            maxPricePerUnitArea;
+
+    @Transient
+    @FieldMetaInfo(displayName = "Min Resale Price", description = "Min Resale Price")
+    private Double            minResalePrice;
+
+    @Transient
+    @FieldMetaInfo(displayName = "Max Resale Price", description = "Max Resale Price")
+    private Double            maxResalePrice;
+
+    @Transient
+    private Double            avgPriceRisePercentage;
+
+    @Transient
+    private Integer           avgPriceRiseMonths;
+
+    @Transient
+    private Set<String>       propertyUnitTypes = new HashSet<String>();
+
+    @Transient
+    private Set<Integer>      distinctBedrooms  = new HashSet<Integer>();
+
+    @Transient
+    private String            imageURL;
+
     public int getProjectId() {
         return projectId;
     }
@@ -681,83 +686,83 @@ public class ProjectDB extends BaseModel{
         this.images = images;
     }
 
-	public Double getMinPricePerUnitArea() {
-		return minPricePerUnitArea;
-	}
+    public Double getMinPricePerUnitArea() {
+        return minPricePerUnitArea;
+    }
 
-	public void setMinPricePerUnitArea(Double minPricePerUnitArea) {
-		this.minPricePerUnitArea = minPricePerUnitArea;
-	}
+    public void setMinPricePerUnitArea(Double minPricePerUnitArea) {
+        this.minPricePerUnitArea = minPricePerUnitArea;
+    }
 
-	public Double getMaxPricePerUnitArea() {
-		return maxPricePerUnitArea;
-	}
+    public Double getMaxPricePerUnitArea() {
+        return maxPricePerUnitArea;
+    }
 
-	public void setMaxPricePerUnitArea(Double maxPricePerUnitArea) {
-		this.maxPricePerUnitArea = maxPricePerUnitArea;
-	}
+    public void setMaxPricePerUnitArea(Double maxPricePerUnitArea) {
+        this.maxPricePerUnitArea = maxPricePerUnitArea;
+    }
 
-	public Double getMinResalePrice() {
-		return minResalePrice;
-	}
+    public Double getMinResalePrice() {
+        return minResalePrice;
+    }
 
-	public void setMinResalePrice(Double minResalePrice) {
-		this.minResalePrice = minResalePrice;
-	}
+    public void setMinResalePrice(Double minResalePrice) {
+        this.minResalePrice = minResalePrice;
+    }
 
-	public Double getMaxResalePrice() {
-		return maxResalePrice;
-	}
+    public Double getMaxResalePrice() {
+        return maxResalePrice;
+    }
 
-	public void setMaxResalePrice(Double maxResalePrice) {
-		this.maxResalePrice = maxResalePrice;
-	}
+    public void setMaxResalePrice(Double maxResalePrice) {
+        this.maxResalePrice = maxResalePrice;
+    }
 
-	public Double getAvgPriceRisePercentage() {
-		return avgPriceRisePercentage;
-	}
+    public Double getAvgPriceRisePercentage() {
+        return avgPriceRisePercentage;
+    }
 
-	public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
-		this.avgPriceRisePercentage = avgPriceRisePercentage;
-	}
+    public void setAvgPriceRisePercentage(Double avgPriceRisePercentage) {
+        this.avgPriceRisePercentage = avgPriceRisePercentage;
+    }
 
-	public Integer getAvgPriceRiseMonths() {
-		return avgPriceRiseMonths;
-	}
+    public Integer getAvgPriceRiseMonths() {
+        return avgPriceRiseMonths;
+    }
 
-	public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
-		this.avgPriceRiseMonths = avgPriceRiseMonths;
-	}
+    public void setAvgPriceRiseMonths(Integer avgPriceRiseMonths) {
+        this.avgPriceRiseMonths = avgPriceRiseMonths;
+    }
 
-	public Set<String> getPropertyUnitTypes() {
-		return propertyUnitTypes;
-	}
+    public Set<String> getPropertyUnitTypes() {
+        return propertyUnitTypes;
+    }
 
-	public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
-		this.propertyUnitTypes = propertyUnitTypes;
-	}
-	
-	public void addPropertyUnitTypes(String propertyUnitType){
-		this.propertyUnitTypes.add(propertyUnitType);
-	}
-	
-	public Set<Integer> getDistinctBedrooms() {
-		return distinctBedrooms;
-	}
+    public void setPropertyUnitTypes(Set<String> propertyUnitTypes) {
+        this.propertyUnitTypes = propertyUnitTypes;
+    }
 
-	public void setDistinctBedrooms(Set<Integer> distinctBedrooms) {
-		this.distinctBedrooms = distinctBedrooms;
-	}
-	
-	public void addDistinctBedrooms(int bedroom){
-		this.distinctBedrooms.add(bedroom); 
-	}
+    public void addPropertyUnitTypes(String propertyUnitType) {
+        this.propertyUnitTypes.add(propertyUnitType);
+    }
 
-	public String getImageURL() {
-		return imageURL;
-	}
+    public Set<Integer> getDistinctBedrooms() {
+        return distinctBedrooms;
+    }
 
-	public void setImageURL(String imageUrl) {
-		this.imageURL = imageUrl;
-	}
+    public void setDistinctBedrooms(Set<Integer> distinctBedrooms) {
+        this.distinctBedrooms = distinctBedrooms;
+    }
+
+    public void addDistinctBedrooms(int bedroom) {
+        this.distinctBedrooms.add(bedroom);
+    }
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageUrl) {
+        this.imageURL = imageUrl;
+    }
 }

@@ -9,12 +9,12 @@ import com.proptiger.data.model.seller.RuleAgentMapping;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface RuleAgentMappingDao extends JpaRepository<RuleAgentMapping, Integer>{
-	public List<RuleAgentMapping> findByAgentId(Integer agentId); 
-	
-	@Query("select agentId from RuleAgentMapping RA where RA.ruleId in ?1")
-	public List<Integer> findAgentsIdsWhereRuleIdsIn(List<Integer> ruleIds);
-	
+public interface RuleAgentMappingDao extends JpaRepository<RuleAgentMapping, Integer> {
+    public List<RuleAgentMapping> findByAgentId(Integer agentId);
+
+    @Query("select agentId from RuleAgentMapping RA where RA.ruleId in ?1")
+    public List<Integer> findAgentsIdsWhereRuleIdsIn(List<Integer> ruleIds);
+
 }

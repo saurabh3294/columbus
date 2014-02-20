@@ -8,14 +8,13 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 /**
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
-public class RequestResponseInterceptor  extends HandlerInterceptorAdapter {
+public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
 
-	@Override
-	public boolean preHandle(HttpServletRequest request,
-			HttpServletResponse response, Object handler) throws Exception {
-		response.addHeader("Access-Control-Allow-Origin", "*");
-		return super.preHandle(request, response, handler);
-	}
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        response.addHeader("Access-Control-Allow-Origin", "*");
+        return super.preHandle(request, response, handler);
+    }
 }

@@ -14,68 +14,69 @@ import com.proptiger.data.meta.FieldMetaInfo;
 @Table(name = "cms.table_attributes")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class TableAttributes  extends BaseModel {
-	@Id
-	@Column(name="id")
-	@FieldMetaInfo( displayName = "Id",  description = "Id")
-	private long id;
-	
-	@Column(name="table_name")
-	@FieldMetaInfo( displayName = "Table Name",  description = "Table Name")
-	private String tableName;
-	
-	@Column(name="table_id")
-	@FieldMetaInfo( displayName = "Table Id",  description = "Table Id")
-	private int tableId;
-	
-	@Column(name="attribute_name")
-	@FieldMetaInfo( displayName = "Attribute Name",  description = "Attribute Name")
-	private String attributeName;
-	
-	@Column(name="attribute_value")
-	@FieldMetaInfo( displayName = "Attribute Value",  description = "Attribute Value")
-	private String attributeValue;
+public class TableAttributes extends BaseModel {
 
-	public long getId() {
-		return id;
-	}
+    private static final long serialVersionUID = -6755996118154497556L;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    @Id
+    @Column(name = "id")
+    @FieldMetaInfo(displayName = "Id", description = "Id")
+    private long              id;
 
-	public String getTableName() {
-		return tableName;
-	}
+    @Column(name = "table_name")
+    @FieldMetaInfo(displayName = "Table Name", description = "Table Name")
+    private String            tableName;
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
+    @Column(name = "table_id")
+    @FieldMetaInfo(displayName = "Table Id", description = "Table Id")
+    private int               tableId;
 
-	public int getTableId() {
-		return tableId;
-	}
+    @Column(name = "attribute_name")
+    @FieldMetaInfo(displayName = "Attribute Name", description = "Attribute Name")
+    private String            attributeName;
 
-	public void setTableId(int tableId) {
-		this.tableId = tableId;
-	}
+    @Column(name = "attribute_value")
+    @FieldMetaInfo(displayName = "Attribute Value", description = "Attribute Value")
+    private String            attributeValue;
 
-	public String getAttributeName() {
-		return attributeName;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public void setAttributeName(String attributeName) {
-		this.attributeName = attributeName;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public String getAttributeValue() {
-		return attributeValue;
-	}
+    public String getTableName() {
+        return tableName;
+    }
 
-	public void setAttributeValue(String attributeValue) {
-		this.attributeValue = attributeValue;
-	}
-	
-	
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public int getTableId() {
+        return tableId;
+    }
+
+    public void setTableId(int tableId) {
+        this.tableId = tableId;
+    }
+
+    public String getAttributeName() {
+        return attributeName;
+    }
+
+    public void setAttributeName(String attributeName) {
+        this.attributeName = attributeName;
+    }
+
+    public String getAttributeValue() {
+        return attributeValue;
+    }
+
+    public void setAttributeValue(String attributeValue) {
+        this.attributeValue = attributeValue;
+    }
 
 }

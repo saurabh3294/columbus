@@ -46,7 +46,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
         for (Entry<String, Field> entry : FieldsMapLoader.getFieldMap(clazz).entrySet()) {
             Annotation fieldAnnotation = entry.getValue().getAnnotation(org.apache.solr.client.solrj.beans.Field.class);
             String daoFieldName = null;
-            
+
             if (fieldAnnotation == null) {
                 daoFieldName = entry.getValue().getName();
             }
@@ -64,18 +64,18 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
         if (!fieldToDaoFieldMap.containsKey(clazz)) {
             loadDaoFieldsMap(clazz);
         }
-        
+
         return fieldToDaoFieldMap.get(clazz);
     }
 
     private SolrQuery solrQuery;
-    private Class<T> modelClass;
+    private Class<T>  modelClass;
 
     public SolrQueryBuilder(SolrQuery solrQuery, Class<T> clazz) {
         this.solrQuery = solrQuery;
         this.modelClass = clazz;
     }
-    
+
     @Override
     public void addNotEqualsFilter(String fieldName, List<Object> values) {
         String colName = getColumnName(fieldName);
@@ -87,12 +87,12 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
         String string = StringUtils.arrayToDelimitedString(values.toArray(), quote + " OR " + quote);
         solrQuery.addFilterQuery("-" + colName + ":(" + quote + string + quote + ")");
     }
-    
+
     @Override
     public void addEqualsFilter(String fieldName, List<Object> values) {
         String colName = getColumnName(fieldName);
         String quote = "";
-        if (values.size() >0 && values.get(0) instanceof String) {
+        if (values.size() > 0 && values.get(0) instanceof String) {
             quote = "\"";
         }
 
@@ -111,13 +111,15 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
 
         if (from == null) {
             from = "*";
-        } else {
+        }
+        else {
             from = quote + from + quote;
         }
 
         if (to == null) {
             to = "*";
-        } else {
+        }
+        else {
             to = quote + to + quote;
         }
 
@@ -129,14 +131,13 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     public void addGeoFilter(String fieldName, double distance, double latitude, double longitude) {
         String colName = getColumnName(fieldName);
-        
+
         solrQuery.add("pt", latitude + "," + longitude);
         solrQuery.add("sfield", colName);
         // if valid distance value then apply the field.
-        if(distance!=0)
-        {
-        	solrQuery.addFilterQuery("{!geofilt}");
-        	solrQuery.add("d", String.valueOf(distance));
+        if (distance != 0) {
+            solrQuery.addFilterQuery("{!geofilt}");
+            solrQuery.add("d", String.valueOf(distance));
         }
     }
 
@@ -161,15 +162,15 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
             for (SortBy sortBy : selector.getSort()) {
                 String colName = getColumnName(sortBy.getField());
                 switch (sortBy.getSortOrder()) {
-                case ASC:
-                    solrQuery.addSort(colName, ORDER.asc);
-                    break;
-                case DESC:
-                    solrQuery.addSort(colName, ORDER.desc);
-                    break;
-                default:
-                    solrQuery.addSort(colName, ORDER.asc);
-                    break;
+                    case ASC:
+                        solrQuery.addSort(colName, ORDER.asc);
+                        break;
+                    case DESC:
+                        solrQuery.addSort(colName, ORDER.desc);
+                        break;
+                    default:
+                        solrQuery.addSort(colName, ORDER.asc);
+                        break;
                 }
             }
         }
@@ -194,7 +195,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     public void buildLimitClause(Selector selector) {
         if (selector != null) {
             Paging paging = selector.getPaging();
-            if(paging != null) {
+            if (paging != null) {
                 this.solrQuery.setStart(paging.getStart());
 
                 if (paging.getRows() > 0) {
@@ -215,7 +216,8 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
         if (selector != null && selector.getFilters() != null && !selector.getFilters().isEmpty()) {
             FiqlParser<SearchBean> fiqlParser = new FiqlParser<SearchBean>(SearchBean.class);
             SearchCondition<SearchBean> searchCondition = fiqlParser.parse(selector.getFilters());
-            LuceneQueryVisitor<SearchBean> luceneQueryVisitor = new LuceneQueryVisitor<SearchBean>(getDaoFieldsMap(modelClass));
+            LuceneQueryVisitor<SearchBean> luceneQueryVisitor = new LuceneQueryVisitor<SearchBean>(
+                    getDaoFieldsMap(modelClass));
             luceneQueryVisitor.visit(searchCondition);
             org.apache.lucene.search.Query termQuery = luceneQueryVisitor.getQuery();
             solrQuery.addFilterQuery(termQuery.toString());
@@ -225,7 +227,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     protected void buildOrderByClause(FIQLSelector selector) {
         if (selector != null && selector.getSort() != null) {
-            for (String fieldName: selector.getSort().split(",")) {
+            for (String fieldName : selector.getSort().split(",")) {
                 ORDER order = ORDER.asc;
                 if (fieldName.startsWith("-")) {
                     order = ORDER.desc;
@@ -240,13 +242,13 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     protected void buildSelectClause(FIQLSelector selector) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     protected void buildGroupByClause(FIQLSelector selector) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

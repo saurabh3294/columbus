@@ -9,45 +9,46 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 
 /**
  * Mapping of a locality with rule id of ProjectAssignmentRule
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "cms.rule_locality_mappings")
 @JsonFilter("fieldFilter")
 public class RuleLocalityMapping {
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "locality_id")
-	private Integer localityId;
-	
-	@Column(name = "rule_id")
-	private Integer ruleId;
-	
-	public Integer getId() {
-		return id;
-	}
+    @Id
+    @Column(name = "id")
+    private Integer id;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "locality_id")
+    private Integer localityId;
 
-	public Integer getLocalityId() {
-		return localityId;
-	}
+    @Column(name = "rule_id")
+    private Integer ruleId;
 
-	public void setLocalityId(Integer localityId) {
-		this.localityId = localityId;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public Integer getRuleId() {
-		return ruleId;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setRuleId(Integer ruleId) {
-		this.ruleId = ruleId;
-	}
-	
+    public Integer getLocalityId() {
+        return localityId;
+    }
+
+    public void setLocalityId(Integer localityId) {
+        this.localityId = localityId;
+    }
+
+    public Integer getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(Integer ruleId) {
+        this.ruleId = ruleId;
+    }
+
 }

@@ -15,7 +15,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -29,71 +31,81 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 
 /**
- *This class represents review comments for locality
+ * This class represents review comments for locality
+ * 
  * @author mukand
  */
 @Entity
 @Table(name = "REVIEW_COMMENTS")
 @ResourceMetaInfo
-public class LocalityReviewComments extends BaseModel{
-	private static final long serialVersionUID = 6324079051629045199L;
+public class LocalityReviewComments extends BaseModel {
+    private static final long serialVersionUID = 6324079051629045199L;
 
-	@FieldMetaInfo(displayName = "Comment Id", description = "Comment Id")
+    @FieldMetaInfo(displayName = "Comment Id", description = "Comment Id")
     @Column(name = "COMMENT_ID")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer commentId;
-    
+    private Integer           commentId;
+
     @FieldMetaInfo(displayName = "User Id", description = "User Id")
     @Column(name = "USER_ID")
-    private int userId; 
-    
+    private Integer           userId;
+
     @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
     @Column(name = "PROJECT_ID")
-    private int projectId;
-    
+    private int               projectId;
+
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
-    private int localityId;
-    
+    private int               localityId;
+
     @FieldMetaInfo(displayName = "Likes Count", description = "Likes Count")
     @Column(name = "LIKES_COUNT")
-    private int likesCount;
-    
+    private int               likesCount;
+
     @FieldMetaInfo(displayName = "Review Label", description = "Review Label")
     @Column(name = "REVIEW_LABEL")
-    private String reviewLabel;
-    
+    private String            reviewLabel;
+
     @FieldMetaInfo(displayName = "Review", description = "User Review")
     @Column(name = "REVIEW")
-    private String review;
-    
+    private String            review;
+
     @FieldMetaInfo(displayName = "Recommend", description = "Recommend")
     @Column(name = "RECOMMEND")
-    private String recommend;
-    
+    private String            recommend;
+
     @FieldMetaInfo(displayName = "You know", description = "You Know")
     @Column(name = "YOU_KNOW")
-    private String youKnow;
-    
+    private String            youKnow;
+
     @FieldMetaInfo(displayName = "Comment Time", description = "Comment Time")
     @Column(name = "COMMENTTIME")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date commenttime;
-    
+    private Date              commenttime;
+
     @FieldMetaInfo(displayName = "User Name", description = "User Name")
     @Column(name = "USER_NAME")
-    private String userName;
-    
+    private String            userName;
+
     @FieldMetaInfo(displayName = "Status", description = "Status")
     @Column(name = "STATUS")
-    private String status;
+    private String            status;
 
-    @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="USER_ID", insertable=false, updatable=false)
-    @JsonIgnore
-    private ForumUser forumUser;
-    
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
+    private ForumUser         forumUser;
+
+    @OneToOne
+    @JoinColumns({
+            @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false),
+            @JoinColumn(
+                    name = "LOCALITY_ID",
+                    referencedColumnName = "LOCALITY_ID",
+                    insertable = false,
+                    updatable = false), })
+    private LocalityRatings   localityRatings;
+
     public Integer getCommentId() {
         return commentId;
     }
@@ -102,11 +114,11 @@ public class LocalityReviewComments extends BaseModel{
         this.commentId = commentId;
     }
 
-    public int getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
@@ -189,95 +201,117 @@ public class LocalityReviewComments extends BaseModel{
     public void setStatus(String status) {
         this.status = status;
     }
-    @PrePersist
-    public void prePersist(){
-    	commenttime = new Date();
-    }
-    
-    
-	/**
-	 * This class will contain few details of a review for locality, like review
-	 * string, review label etc
-	 * 
-	 * @author Rajeev Pandey
-	 * 
-	 */
-    @JsonInclude(Include.NON_NULL)
-    public static class LocalityReviewCustomDetail extends BaseModel{
-		private static final long serialVersionUID = -4616992564291158711L;
-		private String review;
-    	private String reviewLabel;
-    	private String username;
-    	private Date commentTime;
-		public LocalityReviewCustomDetail(String review, String reviewLabel,
-				String username, Date commentTime, String commentUserName) {
-			super();
-			this.review = review;
-			this.reviewLabel = reviewLabel;
-			this.username = username;
-			this.commentTime = commentTime;
-			if(this.username == null){
-				this.username = commentUserName;
-			}
-		}
-		public String getReview() {
-			return review;
-		}
-		public String getReviewLabel() {
-			return reviewLabel;
-		}
-		public String getUsername() {
-			return username;
-		}
-		public Date getCommentTime() {
-			return commentTime;
-		}
+
+    public LocalityRatings getLocalityRatings() {
+        return localityRatings;
     }
 
-	/**
-	 * This class will contain review and rating details for a locality
-	 * 
-	 * @author Rajeev Pandey
-	 * 
-	 */
+    public void setLocalityRatings(LocalityRatings localityRatings) {
+        this.localityRatings = localityRatings;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        commenttime = new Date();
+    }
+
+    /**
+     * This class will contain few details of a review for locality, like review
+     * string, review label etc
+     * 
+     * @author Rajeev Pandey
+     * 
+     */
     @JsonInclude(Include.NON_NULL)
-	public static class LocalityReviewRatingDetails extends BaseModel{
-		private static final long serialVersionUID = -4616279373858679214L;
-		private Long totalReviews;
-		private List<LocalityReviewCustomDetail> reviews;
-		protected Map<Double, Long> totalUsersByRating;
-		protected Double averageRatings;
-		//totalRatings is total number users who rates the locality
-		protected Long totalRatings;
-		
-		public LocalityReviewRatingDetails(Long totalReviews,
-				List<LocalityReviewCustomDetail> reviews,
-				LocalityRatingDetails localityRatingDetails) {
-			super();
-			this.totalReviews = totalReviews;
-			this.reviews = reviews;
-			if(localityRatingDetails != null){
-				this.totalUsersByRating = localityRatingDetails.getTotalUsersByRating();
-				this.averageRatings = localityRatingDetails.getAverageRatings();
-				this.totalRatings = localityRatingDetails.getTotalRatings();
-			}
-		}
-		public Long getTotalReviews() {
-			return totalReviews;
-		}
-		public List<LocalityReviewCustomDetail> getReviews() {
-			return reviews;
-		}
-		public Map<Double, Long> getTotalUsersByRating() {
-			return totalUsersByRating;
-		}
-		public Double getAverageRatings() {
-			return averageRatings;
-		}
-		public Long getTotalRatings() {
-			return totalRatings;
-		}
-		
-		
-	}
+    public static class LocalityReviewCustomDetail extends BaseModel {
+        private static final long serialVersionUID = -4616992564291158711L;
+        private String            review;
+        private String            reviewLabel;
+        private String            username;
+        private Date              commentTime;
+
+        public LocalityReviewCustomDetail(
+                String review,
+                String reviewLabel,
+                String username,
+                Date commentTime,
+                String commentUserName) {
+            super();
+            this.review = review;
+            this.reviewLabel = reviewLabel;
+            this.username = username;
+            this.commentTime = commentTime;
+            if (this.username == null) {
+                this.username = commentUserName;
+            }
+        }
+
+        public String getReview() {
+            return review;
+        }
+
+        public String getReviewLabel() {
+            return reviewLabel;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public Date getCommentTime() {
+            return commentTime;
+        }
+    }
+
+    /**
+     * This class will contain review and rating details for a locality
+     * 
+     * @author Rajeev Pandey
+     * 
+     */
+    @JsonInclude(Include.NON_NULL)
+    public static class LocalityReviewRatingDetails extends BaseModel {
+        private static final long                serialVersionUID = -4616279373858679214L;
+        private Long                             totalReviews;
+        private List<LocalityReviewCustomDetail> reviews;
+        protected Map<Double, Long>              totalUsersByRating;
+        protected Double                         averageRatings;
+        // totalRatings is total number users who rates the locality
+        protected Long                           totalRatings;
+
+        public LocalityReviewRatingDetails(
+                Long totalReviews,
+                List<LocalityReviewCustomDetail> reviews,
+                LocalityRatingDetails localityRatingDetails) {
+            super();
+            this.totalReviews = totalReviews;
+            this.reviews = reviews;
+            if (localityRatingDetails != null) {
+                this.totalUsersByRating = localityRatingDetails.getTotalUsersByRating();
+                this.averageRatings = localityRatingDetails.getAverageRatings();
+                this.totalRatings = localityRatingDetails.getTotalRatings();
+            }
+        }
+
+        public Long getTotalReviews() {
+            return totalReviews;
+        }
+
+        public List<LocalityReviewCustomDetail> getReviews() {
+            return reviews;
+        }
+
+        public Map<Double, Long> getTotalUsersByRating() {
+            return totalUsersByRating;
+        }
+
+        public Double getAverageRatings() {
+            return averageRatings;
+        }
+
+        public Long getTotalRatings() {
+            return totalRatings;
+        }
+
+    }
 }

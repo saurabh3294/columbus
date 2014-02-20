@@ -42,41 +42,44 @@ import com.proptiger.data.util.UtilityClass;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @Controller
 public class ProjectDetailController extends BaseController {
     @Autowired
-    private ProjectService projectService;
+    private ProjectService         projectService;
 
     @Autowired
-    private ImageEnricher imageEnricher;
+    private ImageEnricher          imageEnricher;
 
     @Autowired
-    private PropertyService propertyService;
-    
+    private PropertyService        propertyService;
+
     @Autowired
-    private BuilderService builderService;
-    
+    private BuilderService         builderService;
+
     @Autowired
-    private ProjectAmenityService projectAmenityService;
-    
+    private ProjectAmenityService  projectAmenityService;
+
     @Autowired
     private LocalityAmenityService localityAmenityService;
-    
-    @Autowired
-    private LocalityReviewService localityReviewService;
-    
-    @Autowired
-    private LocalityService localityService;
 
-	private static Logger logger = LoggerFactory.getLogger(ProjectDetailController.class);
-    
-    @RequestMapping(value="app/v1/project-detail")
-    public @ResponseBody ProAPIResponse getProjectDetails(@RequestParam(required = false) String propertySelector, @RequestParam int projectId) throws Exception {
-        
+    @Autowired
+    private LocalityReviewService  localityReviewService;
+
+    @Autowired
+    private LocalityService        localityService;
+
+    private static Logger          logger = LoggerFactory.getLogger(ProjectDetailController.class);
+
+    @RequestMapping(value = "app/v1/project-detail")
+    public @ResponseBody
+    ProAPIResponse getProjectDetails(
+            @RequestParam(required = false) String propertySelector,
+            @RequestParam int projectId) throws Exception {
+
         Selector propertyDetailsSelector = super.parseJsonToObject(propertySelector, Selector.class);
-        if(propertyDetailsSelector == null) {
+        if (propertyDetailsSelector == null) {
             propertyDetailsSelector = new Selector();
         }
 
@@ -84,52 +87,58 @@ public class ProjectDetailController extends BaseController {
         ProjectSpecification projectSpecification = projectService.getProjectSpecificationsV2(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);
-                        
+
         // getting project discussions.
-        int totalProjectDiscussion=0;
+        int totalProjectDiscussion = 0;
         List<ProjectDiscussion> projectDiscussionList = projectService.getDiscussions(projectId, null);
-        if(projectDiscussionList!=null)
-        	totalProjectDiscussion = projectDiscussionList.size();
-        
+        if (projectDiscussionList != null)
+            totalProjectDiscussion = projectDiscussionList.size();
+
         // getting Project Neighborhood.
-        List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(projectInfo.getLocalityId(), null);
-        
+        List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(
+                projectInfo.getLocalityId(),
+                null);
+
         Double pricePerUnitArea;
         Double resalePrice;
-        if(properties.size() > 0)
-        {
-        	// setting images.
-        	imageEnricher.setPropertiesImages(properties);
-        	Property property;
-        	for(int i=0; i<properties.size(); i++){
-        		property = properties.get(i);
-           		pricePerUnitArea = property.getPricePerUnitArea();
-           		
-           		if(pricePerUnitArea == null)
-           			pricePerUnitArea = 0D;
-           			
-           		// set Primary Prices.
-           		projectInfo.setMinPricePerUnitArea( UtilityClass.min(pricePerUnitArea, projectInfo.getMinPricePerUnitArea() ) );
-           		projectInfo.setMaxPricePerUnitArea( UtilityClass.max(pricePerUnitArea, projectInfo.getMaxPricePerUnitArea() ) );
-           		// setting distinct bedrooms
-           		projectInfo.addDistinctBedrooms(property.getBedrooms());
-           		projectInfo.addPropertyUnitTypes(property.getUnitType());
-           		
-           		// setting resale Price
-            	resalePrice = property.getResalePrice();
-            	projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
-            	projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
-            	
-        	}
+        if (properties.size() > 0) {
+            // setting images.
+            imageEnricher.setPropertiesImages(properties);
+            Property property;
+            for (int i = 0; i < properties.size(); i++) {
+                property = properties.get(i);
+                pricePerUnitArea = property.getPricePerUnitArea();
+
+                if (pricePerUnitArea == null)
+                    pricePerUnitArea = 0D;
+
+                // set Primary Prices.
+                projectInfo.setMinPricePerUnitArea(UtilityClass.min(
+                        pricePerUnitArea,
+                        projectInfo.getMinPricePerUnitArea()));
+                projectInfo.setMaxPricePerUnitArea(UtilityClass.max(
+                        pricePerUnitArea,
+                        projectInfo.getMaxPricePerUnitArea()));
+                // setting distinct bedrooms
+                projectInfo.addDistinctBedrooms(property.getBedrooms());
+                projectInfo.addPropertyUnitTypes(property.getUnitType());
+
+                // setting resale Price
+                resalePrice = property.getResalePrice();
+                projectInfo.setMaxResalePrice(UtilityClass.max(resalePrice, projectInfo.getMaxResalePrice()));
+                projectInfo.setMinResalePrice(UtilityClass.min(resalePrice, projectInfo.getMinResalePrice()));
+
+            }
         }
-        
-        // getting Locality, Suburb, City Details and getting project price ranges from properties data.
+
+        // getting Locality, Suburb, City Details and getting project price
+        // ranges from properties data.
         Locality locality = localityService.getLocality(projectInfo.getLocalityId());
         /*
-         *  Setting locality Ratings And Reviews
+         * Setting locality Ratings And Reviews
          */
         localityService.updateLocalityRatingAndReviewDetails(locality);
-        
+
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -141,38 +150,36 @@ public class ProjectDetailController extends BaseController {
         response.put("projectAmenity", projectAmenityService.getCMSAmenitiesByProjectId(projectId));
         response.put("neighborhood", listLocalityAmenity);
         response.put("locality", locality);
-        
+
         return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }
-    
-    @RequestMapping(value="app/v2/project-detail")
+
+    @RequestMapping(value = "app/v2/project-detail")
     @Deprecated
-    public @ResponseBody ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId) throws Exception {
-    	Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
-        if(projectSelector == null) {
+    public @ResponseBody
+    ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId)
+            throws Exception {
+        Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if (projectSelector == null) {
             projectSelector = new Selector();
         }
-        
+
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-    	return new ProAPISuccessResponse( super.filterFields(project, projectSelector.getFields() ) );
+        return new ProAPISuccessResponse(super.filterFields(project, projectSelector.getFields()));
     }
-   
-    @RequestMapping(value = {"app/v2/project-detail/{projectId}"})
-	@ResponseBody
-	@DisableCaching
-	public ProAPIResponse getProjectDetails2(
-			@PathVariable Integer projectId,
-			@RequestParam(required = false) String selector
-			) throws Exception {
-		Selector projectSelector = super.parseJsonToObject(selector,
-				Selector.class);
-		if (projectSelector == null) {
-			projectSelector = new Selector();
-		}
-		Project project = projectService.getProjectInfoDetails(projectSelector,
-				projectId);
-		return new ProAPISuccessResponse(super.filterFields(project,
-				projectSelector.getFields()));
-	} 
-   
+
+    @RequestMapping(value = { "app/v2/project-detail/{projectId}" })
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse getProjectDetails2(
+            @PathVariable Integer projectId,
+            @RequestParam(required = false) String selector) throws Exception {
+        Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if (projectSelector == null) {
+            projectSelector = new Selector();
+        }
+        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
+        return new ProAPISuccessResponse(super.filterFields(project, projectSelector.getFields()));
+    }
+
 }

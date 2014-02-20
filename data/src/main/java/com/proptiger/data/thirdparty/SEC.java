@@ -24,9 +24,11 @@ public class SEC {
         // Compute the Smallest Enclosing Circle defined by B
         if (m == 1) {
             sec = new Circle(b[0]);
-        } else if (m == 2) {
+        }
+        else if (m == 2) {
             sec = new Circle(b[0], b[1]);
-        } else if (m == 3) {
+        }
+        else if (m == 3) {
             return new Circle(b[0], b[1], b[2]);
         }
 

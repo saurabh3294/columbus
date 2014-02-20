@@ -19,21 +19,25 @@ import com.proptiger.data.util.Constants;
 
 @Controller
 @RequestMapping(value = "data/v1/entity/user/projectComments")
-public class ProjectDiscussionsController extends BaseController{
-	
-	@Autowired
-	private ProjectDiscussionsService projectDiscussionsService;
-	
-	@ResponseBody
-	@RequestMapping(method= RequestMethod.POST)
-	public ProAPIResponse saveProjectComments(@RequestBody ProjectDiscussion projectDiscussion, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
-		return new ProAPISuccessResponse( projectDiscussionsService.saveProjectComments(projectDiscussion, userInfo ) );
-	}
-	
-	@ResponseBody
-	@RequestMapping(value="/{commentId}/likes", method= RequestMethod.POST)
-	public ProAPIResponse incrementProjectCommentLikes(@PathVariable long commentId, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo){
-		return new ProAPISuccessResponse(projectDiscussionsService.incrementProjectCommentLikes(commentId, userInfo));
-	}
-	
+public class ProjectDiscussionsController extends BaseController {
+
+    @Autowired
+    private ProjectDiscussionsService projectDiscussionsService;
+
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.POST)
+    public ProAPIResponse saveProjectComments(
+            @RequestBody ProjectDiscussion projectDiscussion,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        return new ProAPISuccessResponse(projectDiscussionsService.saveProjectComments(projectDiscussion, userInfo));
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/{commentId}/likes", method = RequestMethod.POST)
+    public ProAPIResponse incrementProjectCommentLikes(
+            @PathVariable long commentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        return new ProAPISuccessResponse(projectDiscussionsService.incrementProjectCommentLikes(commentId, userInfo));
+    }
+
 }

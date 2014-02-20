@@ -15,52 +15,53 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
- *
+ * 
  * @author mukand
  */
-@JsonAutoDetect(fieldVisibility=Visibility.ANY, getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
+@JsonAutoDetect(
+        fieldVisibility = Visibility.ANY,
+        getterVisibility = Visibility.NONE,
+        isGetterVisibility = Visibility.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
 @ResourceMetaInfo
 public class Typeahead extends BaseModel {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 1L;
 
-    @Field(value="id")
-    private String id;
-    
-    @Field(value="TYPEAHEAD_LABEL")
-    private String label;
-    
-    @Field(value="TYPEAHEAD_LABEL_NGRAMS")
+    private static final long serialVersionUID = 2096261268711516512L;
+
+    @Field(value = "id")
+    private String            id;
+
+    @Field(value = "TYPEAHEAD_LABEL")
+    private String            label;
+
+    @Field(value = "TYPEAHEAD_LABEL_NGRAMS")
     @JsonIgnore
-    private String labelNgrams;
-    
-    @Field(value="TYPEAHEAD_CITY")
-    private String city;
-    
-    @Field(value="tp_locality")
-    private String locality;
+    private String            labelNgrams;
 
-	@Field(value="TYPEAHEAD_REDIRECT_URL")
-    private String redirectUrl;
-    
-    @Field(value="TYPEAHEAD_TYPE")
-    private String type;
-    
-    @Field(value="TYPEAHEAD_DISPLAY_TEXT")
-    private String displayText;
-    
-    @Field(value="TYPEAHEAD_CORE_TEXT")
-    private String coreText;
-    
-    @Field(value="TYPEAHEAD_CORE_TEXT_NGRAMS")
-    private String coreTextNgrams;
-    
-    @Field(value="LOCALITY_URL")
-    private String localityURL;
+    @Field(value = "TYPEAHEAD_CITY")
+    private String            city;
+
+    @Field(value = "tp_locality")
+    private String            locality;
+
+    @Field(value = "TYPEAHEAD_REDIRECT_URL")
+    private String            redirectUrl;
+
+    @Field(value = "TYPEAHEAD_TYPE")
+    private String            type;
+
+    @Field(value = "TYPEAHEAD_DISPLAY_TEXT")
+    private String            displayText;
+
+    @Field(value = "TYPEAHEAD_CORE_TEXT")
+    private String            coreText;
+
+    @Field(value = "TYPEAHEAD_CORE_TEXT_NGRAMS")
+    private String            coreTextNgrams;
+
+    @Field(value = "LOCALITY_URL")
+    private String            localityURL;
 
     public String getId() {
         return id;
@@ -93,14 +94,14 @@ public class Typeahead extends BaseModel {
     public void setCity(String city) {
         this.city = city;
     }
-    
-    public String getLocality() {
-		return locality;
-	}
 
-	public void setLocality(String locality) {
-		this.locality = locality;
-	}
+    public String getLocality() {
+        return locality;
+    }
+
+    public void setLocality(String locality) {
+        this.locality = locality;
+    }
 
     public String getRedirectUrl() {
         return redirectUrl;

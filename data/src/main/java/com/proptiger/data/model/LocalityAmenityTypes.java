@@ -10,36 +10,51 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Entity
 @Table(name = "NEAR_PLACE_TYPES")
 @ResourceMetaInfo
-@JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
+@JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class LocalityAmenityTypes extends BaseModel{
+public class LocalityAmenityTypes extends BaseModel {
+
+    private static final long serialVersionUID = -5130354389286165685L;
+
     @FieldMetaInfo(displayName = "Id", description = "Id")
-    @Column(name="id")
-    @Id 
-    private int id;
-    
+    @Column(name = "id")
+    @Id
+    private int               id;
+
     @FieldMetaInfo(displayName = "Name", description = "Amenity Name")
-    @Column(name="name")
-    private String name;
-    
+    @Column(name = "name")
+    private String            name;
+
     @FieldMetaInfo(displayName = "Display Name", description = "Amenity Display Name")
-    @Column(name="display_name")
-    private String displayName;
-    
-    //@OneToMany(mappedBy = "localityAmenityTypes", targetEntity = LocalityAmenity.class, fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
-    //private Set<LocalityAmenity> localityAmenity = new HashSet<LocalityAmenity>();
-    
+    @Column(name = "display_name")
+    @JsonIgnore
+    private String            displayName;
+
+    @FieldMetaInfo(displayName = "Description ", description = "Amenity Description")
+    @Column(name = "description")
+    private String            description;
+
+    // @OneToMany(mappedBy = "localityAmenityTypes", targetEntity =
+    // LocalityAmenity.class, fetch = FetchType.EAGER, cascade =
+    // CascadeType.DETACH)
+    // private Set<LocalityAmenity> localityAmenity = new
+    // HashSet<LocalityAmenity>();
+
     public int getId() {
         return id;
     }
@@ -64,11 +79,19 @@ public class LocalityAmenityTypes extends BaseModel{
         this.displayName = displayName;
     }
 
-    /*public Set<LocalityAmenity> getLocalityAmenity() {
-        return localityAmenity;
+    public String getDescription() {
+        return description;
     }
 
-    public void setLocalityAmenity(Set<LocalityAmenity> localityAmenity) {
-        this.localityAmenity = localityAmenity;
-    }*/
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /*
+     * public Set<LocalityAmenity> getLocalityAmenity() { return
+     * localityAmenity; }
+     * 
+     * public void setLocalityAmenity(Set<LocalityAmenity> localityAmenity) {
+     * this.localityAmenity = localityAmenity; }
+     */
 }

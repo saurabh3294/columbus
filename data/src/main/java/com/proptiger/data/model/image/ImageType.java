@@ -19,79 +19,82 @@ import com.proptiger.data.model.ObjectType;
 @Entity(name = "ImageType")
 @JsonFilter("fieldFilter")
 public class ImageType extends BaseModel {
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
 
-	@ManyToOne(targetEntity = ObjectType.class, fetch = FetchType.EAGER)
-	@Fetch(FetchMode.JOIN)
-	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable = false, updatable = false)
-	private ObjectType objectType;
+    private static final long serialVersionUID = 6121401801684707486L;
 
-	@Column(name = "ObjectType_id")
-	private String objectTypeId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private long              id;
 
-	@Column(name = "type")
-	private String type;
+    @ManyToOne(targetEntity = ObjectType.class, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ObjectType        objectType;
 
-	/**
-	 * @return the id
-	 */
-	public long getId() {
-		return id;
-	}
+    @Column(name = "ObjectType_id")
+    private String            objectTypeId;
 
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
+    @Column(name = "type")
+    private String            type;
 
-	/**
-	 * @return the objectType
-	 */
-	public ObjectType getObjectType() {
-		return objectType;
-	}
+    /**
+     * @return the id
+     */
+    public long getId() {
+        return id;
+    }
 
-	/**
-	 * @param objectType
-	 *            the objectType to set
-	 */
-	public void setObjectType(ObjectType objectType) {
-		this.objectType = objectType;
-	}
+    /**
+     * @param id
+     *            the id to set
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	/**
-	 * @return the objectTypeId
-	 */
-	public String getObjectTypeId() {
-		return objectTypeId;
-	}
+    /**
+     * @return the objectType
+     */
+    public ObjectType getObjectType() {
+        return objectType;
+    }
 
-	/**
-	 * @param objectTypeId
-	 *            the objectTypeId to set
-	 */
-	public void setObjectTypeId(String objectTypeId) {
-		this.objectTypeId = objectTypeId;
-	}
+    /**
+     * @param objectType
+     *            the objectType to set
+     */
+    public void setObjectType(ObjectType objectType) {
+        this.objectType = objectType;
+    }
 
-	/**
-	 * @return the type
-	 */
-	public String getType() {
-		return type;
-	}
+    /**
+     * @return the objectTypeId
+     */
+    public String getObjectTypeId() {
+        return objectTypeId;
+    }
 
-	/**
-	 * @param type
-	 *            the type to set
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
+    /**
+     * @param objectTypeId
+     *            the objectTypeId to set
+     */
+    public void setObjectTypeId(String objectTypeId) {
+        this.objectTypeId = objectTypeId;
+    }
+
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type
+     *            the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
 
 }

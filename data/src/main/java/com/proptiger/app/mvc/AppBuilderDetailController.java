@@ -16,34 +16,36 @@ import com.proptiger.data.service.BuilderService;
 
 /**
  * Builder details API
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
-@RequestMapping(value="app/v1/builder-detail")
-public class AppBuilderDetailController extends BaseController{
+@RequestMapping(value = "app/v1/builder-detail")
+public class AppBuilderDetailController extends BaseController {
 
-	@Autowired
-	private BuilderService builderService;
-	
-	/**
-	 * This methods get builder details by combining data from builder model and
-	 * some other derived data of builder. Selector can be used to filter out
-	 * unnecessary fields
-	 * 
-	 * @param builderId
-	 * @param selectorStr
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(method = RequestMethod.GET, value = "/{builderId}")
-	public ProAPISuccessResponse getBuilder(@PathVariable Integer builderId,
-			@RequestParam(required = false, value = "selector") String selectorStr){
-		Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
-        if(selector == null) {
+    @Autowired
+    private BuilderService builderService;
+
+    /**
+     * This methods get builder details by combining data from builder model and
+     * some other derived data of builder. Selector can be used to filter out
+     * unnecessary fields
+     * 
+     * @param builderId
+     * @param selectorStr
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(method = RequestMethod.GET, value = "/{builderId}")
+    public ProAPISuccessResponse getBuilder(@PathVariable Integer builderId, @RequestParam(
+            required = false,
+            value = "selector") String selectorStr) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        if (selector == null) {
             selector = new Selector();
         }
-		Builder builder = builderService.getBuilderInfo(builderId, selector);
-		return new ProAPISuccessResponse(super.filterFields(builder, selector.getFields()));
-	}
+        Builder builder = builderService.getBuilderInfo(builderId, selector);
+        return new ProAPISuccessResponse(super.filterFields(builder, selector.getFields()));
+    }
 }

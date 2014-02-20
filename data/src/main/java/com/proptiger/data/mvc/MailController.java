@@ -13,22 +13,21 @@ import com.proptiger.data.service.ProjectService;
 /**
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/user/email")
 public class MailController {
 
-	@Autowired
-	private ProjectService projectService;
-	
-	@RequestMapping
-	@ResponseBody
-	public ProAPIResponse sendProjectDetailsMail(
-			@RequestParam(value = "to") String to,
-			@RequestParam(value = "projectId") Integer projectId) {
-		boolean status = projectService.sendProjectDetailsMail(to, projectId);
-		return new ProAPISuccessResponse(status);
-	}
+    @Autowired
+    private ProjectService projectService;
+
+    @RequestMapping
+    @ResponseBody
+    public ProAPIResponse sendProjectDetailsMail(@RequestParam(value = "to") String to, @RequestParam(
+            value = "projectId") Integer projectId) {
+        boolean status = projectService.sendProjectDetailsMail(to, projectId);
+        return new ProAPISuccessResponse(status);
+    }
 
 }

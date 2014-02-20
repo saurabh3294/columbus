@@ -7,7 +7,8 @@ import com.proptiger.data.model.Subscription;
 
 @Repository
 public interface SubscriptionDao extends PagingAndSortingRepository<Subscription, Integer> {
-	
-	public Subscription findByUserId(int userId);
-	public Subscription findByUserIdAndTableIdAndTableName(int userId, int tableId, String tableName);
+
+    public Subscription findByUserId(int userId);
+
+    public Subscription findByUserIdAndTableIdAndTableName(int userId, int tableId, String tableName);
 }

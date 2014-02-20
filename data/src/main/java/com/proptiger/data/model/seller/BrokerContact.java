@@ -13,80 +13,81 @@ import com.proptiger.data.model.enums.BrokerType;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
 @Table(name = "cms.broker_contacts")
 @JsonFilter("fieldFilter")
-public class BrokerContact  extends BaseModel{
+public class BrokerContact extends BaseModel {
 
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "broker_id")
-	private Integer brokerId;
-	
-	@Column(name = "name")
-	private String name;
+    private static final long serialVersionUID = 7424870231160168052L;
 
-	@Column(name = "contact_number_id")
-	private Integer contactNumberId;
-	
-	@Column(name = "contact_email")
-	private String email;
-	
-	@Column(name = "type")
-	@Enumerated(EnumType.STRING)
-	private BrokerType type;
+    @Id
+    @Column(name = "id")
+    private Integer           id;
 
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "broker_id")
+    private Integer           brokerId;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "name")
+    private String            name;
 
-	public Integer getBrokerId() {
-		return brokerId;
-	}
+    @Column(name = "contact_number_id")
+    private Integer           contactNumberId;
 
-	public void setBrokerId(Integer brokerId) {
-		this.brokerId = brokerId;
-	}
+    @Column(name = "contact_email")
+    private String            email;
 
-	public String getName() {
-		return name;
-	}
+    @Column(name = "type")
+    @Enumerated(EnumType.STRING)
+    private BrokerType        type;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public Integer getContactNumberId() {
-		return contactNumberId;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setContactNumberId(Integer contactNumberId) {
-		this.contactNumberId = contactNumberId;
-	}
+    public Integer getBrokerId() {
+        return brokerId;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setBrokerId(Integer brokerId) {
+        this.brokerId = brokerId;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public BrokerType getType() {
-		return type;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setType(BrokerType type) {
-		this.type = type;
-	}
-	
-	
+    public Integer getContactNumberId() {
+        return contactNumberId;
+    }
+
+    public void setContactNumberId(Integer contactNumberId) {
+        this.contactNumberId = contactNumberId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public BrokerType getType() {
+        return type;
+    }
+
+    public void setType(BrokerType type) {
+        this.type = type;
+    }
+
 }

@@ -15,17 +15,17 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @Controller
 public class RateThisAppController extends BaseController {
-    
-    @JsonAutoDetect(fieldVisibility=Visibility.ANY)
+
+    @JsonAutoDetect(fieldVisibility = Visibility.ANY)
     @SuppressWarnings("unused")
     private static class RateDialogAttributes {
-        private int launchCount = 6;
-        private int dayCount = 3;
-        private String message = "If you enjoy using Proptiger, please take a moment to rate it. Thanks for your support!";
+        private int    launchCount = 6;
+        private int    dayCount    = 3;
+        private String message     = "If you enjoy using Proptiger, please take a moment to rate it. Thanks for your support!";
     }
 
     @RequestMapping("app/v1/rate-dialog-attrs")

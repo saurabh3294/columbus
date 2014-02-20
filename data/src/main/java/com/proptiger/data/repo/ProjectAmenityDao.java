@@ -8,9 +8,9 @@ import com.proptiger.data.model.ProjectAmenity;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface ProjectAmenityDao extends JpaRepository<ProjectAmenity, Long>{
+public interface ProjectAmenityDao extends JpaRepository<ProjectAmenity, Long> {
 
-	public List<ProjectAmenity> findAmenitiesByProjectId(long projectId);
+    public List<ProjectAmenity> findAmenitiesByProjectId(long projectId);
 }

@@ -20,39 +20,42 @@ import com.proptiger.data.pojo.FIQLSelector;
 
 @Repository
 public class TrendDao {
-	@Autowired
+    @Autowired
     private EntityManagerFactory emf;
-	
-	public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
-		AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(emf.createEntityManager(), InventoryPriceTrend.class);
+
+    public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
+        AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
+                emf.createEntityManager(),
+                InventoryPriceTrend.class);
         builder.buildQuery(modifyWavgFieldsInSelector(selector));
         return modifyWavgKeysInResultSet(builder.retrieveResults());
     }
-	
-	// XXX - Hack to switch column names without clients knowing about it 
-	private FIQLSelector modifyWavgFieldsInSelector(FIQLSelector selector){
-		FIQLSelector fiqlSelector;
-		try {
-			fiqlSelector = selector.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new RuntimeException(e);
-		}
-		fiqlSelector.setFields(StringUtils.replace(fiqlSelector.getFields(), "OnSupply", "OnLtdSupply"));
-		return fiqlSelector;
-	}
-	
-	// XXX - Hack to switch column names without clients knowing about it
-	private List<InventoryPriceTrend> modifyWavgKeysInResultSet(List<InventoryPriceTrend> list){
-		for (InventoryPriceTrend inventoryPriceTrend : list) {
-			Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
-			Map<String, Object> newExtraAttributes = new HashMap<>();
-			
-			for(String key : extraAttributes.keySet()){
-				String newKey = StringUtils.replace(key, "OnLtdSupply", "OnSupply");
-				newExtraAttributes.put(newKey, extraAttributes.get(key));
-			}
-			inventoryPriceTrend.setExtraAttributes(newExtraAttributes);
-		}
-		return list;
-	}
+
+    // XXX - Hack to switch column names without clients knowing about it
+    private FIQLSelector modifyWavgFieldsInSelector(FIQLSelector selector) {
+        FIQLSelector fiqlSelector;
+        try {
+            fiqlSelector = selector.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+        fiqlSelector.setFields(StringUtils.replace(fiqlSelector.getFields(), "OnSupply", "OnLtdSupply"));
+        return fiqlSelector;
+    }
+
+    // XXX - Hack to switch column names without clients knowing about it
+    private List<InventoryPriceTrend> modifyWavgKeysInResultSet(List<InventoryPriceTrend> list) {
+        for (InventoryPriceTrend inventoryPriceTrend : list) {
+            Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
+            Map<String, Object> newExtraAttributes = new HashMap<>();
+
+            for (String key : extraAttributes.keySet()) {
+                String newKey = StringUtils.replace(key, "OnLtdSupply", "OnSupply");
+                newExtraAttributes.put(newKey, extraAttributes.get(key));
+            }
+            inventoryPriceTrend.setExtraAttributes(newExtraAttributes);
+        }
+        return list;
+    }
 }

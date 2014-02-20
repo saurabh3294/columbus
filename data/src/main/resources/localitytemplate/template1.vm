@@ -1,52 +1,25 @@
-${locality.label}, one of the popular and best place to have property in ${locality.suburb.city.label} is located in suburb ${locality.suburb.label}.
+#parse("./localitytemplate/utilityFunctions.vm")
+${locality.label}, one of the popular and best place to have property in ${locality.suburb.city.label} is located in suburb ${locality.suburb.label}. 
 #if($nearByLocalities)
-	#set($nearByLocalitiesString = "")
-	#set($nearByLocalitiesCounter = 0)
+	#set($nearByLocalityNameList = [])
 	#foreach($nearLocality in $nearByLocalities)
-		#set($nearByLocalitiesString = $nearByLocalitiesString + $nearLocality.label)
-		#if($nearByLocalitiesCounter > 0)
-			#set($nearByLocalitiesString = $nearByLocalitiesString + ", ")
-		#end
-		#set($nearByLocalitiesCounter = $nearByLocalitiesCounter + 1)
+		#set($temp = $nearByLocalityNameList.add($nearLocality.label))
 	#end
-	It lies near ${nearByLocalitiesString}. 
+	#if($nearByLocalityNameList && $nearByLocalityNameList.size() > 0)
+		It lies near #listOfStringToSentence($nearByLocalityNameList). 
+	#end
 #end
 #if($topBuilders)
-	#set($popularBuilders = "")
-	#set($popularBuildersCounter = 0)
-	#foreach($builder in $topBuilders)
-		#if($popularBuildersCounter > 0)
-			#set($popularBuilders = $popularBuilders + ", ")
-		#end
-		#set($popularBuilders = $popularBuilders + $builder.name)
-		#set($popularBuildersCounter = $popularBuildersCounter + 1)
-	#end
-	#if($popularBuildersCounter > 0)
-		Most popular builders in ${locality.label} are ${popularBuilders}.
+	#populateBuilderNameList($topBuilders)
+	#if($popularBuildersNameList)
+		Most popular builders in ${locality.label} #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList). 
 	#end
 #end
-#set($unitTypes = [])
-#set($unitTypesString = "")
-#set($unitNames = [])
-#set($unitNamesString = "")
 #set($minSize = 0)
 #set($maxSize = 0)
 #set($counter = 0)
+#populateUnitTypeAndUnitNameList($properties)
 #foreach($property in $properties)
-	#if(!$unitTypes.contains($property.unitType))
-		#if($unitTypes.size() > 0)
-			#set($unitTypesString = $unitTypesString + ", ")
-		#end
-		#set($temp = $unitTypes.add($property.unitType))
-		#set($unitTypesString = $unitTypesString + $property.unitType)
-	#end
-	#if(!$unitNames.contains($property.unitName))
-		#if($unitNames.size() > 0)
-			#set($unitNamesString = $unitNamesString + ", ")
-		#end
-		#set($temp = $unitNames.add($property.unitName))
-		#set($unitNamesString = $unitNamesString + $property.unitName)
-	#end
 	#if($counter == 0)
 		#set($minSize = $property.size)
 		#set($maxSize = $property.size)
@@ -57,12 +30,17 @@ ${locality.label}, one of the popular and best place to have property in ${local
 		#set($maxSize = $property.size)
 	#end
 #end
-There are $unitTypesString for sale in ${locality.label}.
-The property for sale in ${locality.label} are available with  $unitNamesString and 
-the projects are built with an area of $minSize sq ft to $maxSize sq ft.
+There are #listOfStringToSentence($unitTypesStringList) for sale in ${locality.label}. 
+#if($unitNamesStringList)
+	The property for sale in ${locality.label} are available with  #listOfStringToSentence($unitNamesStringList) 
+	#if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
+		 and the projects are built with an area of $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft
+	#end
+	. 
+#end
 
 #if($locality.avgPriceRisePercentage)
-	The prices of $unitTypesString in ${locality.label} have 
+	The prices of #listOfStringToSentence($unitTypesStringList) in ${locality.label} have 
 	#if($locality.avgPriceRisePercentage < 0)
 		DECRASED by $locality.avgPriceRisePercentage in past ${locality.avgPriceRiseMonths} months, 
 	#elseif($locality.avgPriceRisePercentage > 0)
@@ -70,89 +48,44 @@ the projects are built with an area of $minSize sq ft to $maxSize sq ft.
 	#else
 		STAYED STABLE, 
 	#end
-#end
-#if(${locality.minPrice} && ${locality.maxPrice})
-	with current high of ${locality.maxPrice}/SqFt and low of ${locality.minPrice}/SqFt.
+	#if(${locality.minPrice} && ${locality.maxPrice})
+		with current high of ${locality.maxPrice}/SqFt and low of ${locality.minPrice}/SqFt. 
+	#end
 #end
  
 #if($locality.amenityTypeCount)
-	#set($schools = "")
-	#set($hospitals = "")
-	#set($metro_stations = "")
-	#set($schoolsCounter = 0)
-	#set($hospitalsCounter = 0)
-	#set($metro_stationsCounter = 0)
-	
-	#foreach( $amenity in $amenities )
-	 #if($amenity.localityAmenityTypes.name=="school" && $schoolsCounter < 5)
-	 	#if($schoolsCounter > 0)
-	 		#set($schools = $schools+", ")
-	 	#end
-	 	#set($schools = $schools + " " + $amenity.name)
-	 	#set($schoolsCounter = $schoolsCounter + 1)
-	 #end
-	 #if($amenity.localityAmenityTypes.name=="hospital" && $hospitalsCounter < 5)
-	 	#if($hospitalsCounter > 0)
-	 		#set($hospitals = $hospitals+", ")
-	 	#end
-	 	#set($hospitals = $hospitals + " " + $amenity.name)
-	 	#set($hospitalsCounter = $hospitalsCounter + 1)
-	 #end
-	 #if($amenity.localityAmenityTypes.name=="subway_station" && $metro_stationsCounter < 5)
-		#if($metro_stationsCounter > 0)
-	 		#set($metro_stations = $metro_stations+", ")
-	 	#end
-	 	#set($metro_stations = $metro_stations + " " + $amenity.name)
-	 	#set($metro_stationsCounter = $metro_stationsCounter + 1)
-	 #end
+	#set($schoolsList = [])
+	#set($hospitalsList = [])
+	#set($metroStationList = [])
+	${locality.label} has many well known schools and Hospitals. 
+	#populateAmenitiesList($amenities)
+	#if($schoolsList)
+		Key Schools close to ${locality.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList).  
 	#end
-	#if($schoolsCounter > 0)
-	Key Schools close to ${locality.label} are $schools.
+	#if($hospitalsList)
+		Key hospitals to this locality #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList).  
 	#end
-	#if($hospitalsCounter > 0)
-	Key hospitals to this locality are $hospitals. 
-	#end
-	#if($metro_stationsCounter > 0)
-	Locality is close to $metro_stations metro station.
+	#if($metroStationList)
+		Locality is close to #listOfStringToSentence($metroStationList) metro station. 
 	#end
 #end
+
 #if($locality.projectStatusCount)
-	#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")} + ${locality.projectStatusCount.get("Not Launched")})
-	 You can find $upcomingProjects upcoming  projects
-	 #if(${locality.projectStatusCount.get("Launch")})
-	 	,${locality.projectStatusCount.get("Launch")} new launches
-	 #end 
-	 #if(${locality.projectStatusCount.get("Ready for Possession")})
-	 	and ${locality.projectStatusCount.get("Ready for Possession")} are ready to move in 
-	 #end
-	 projects in ${locality.label} 
-	 from different builders.
+	#projectByStatus($locality)
 #end
-#if($locality.avgRatingsByCategory)
+#if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
   ${locality.label} in ${locality.suburb.city.label} 
  have an average rating of $locality.avgRatingsByCategory.overallRating
  as per our customer inputs.
 #end
+
 #if($popularProjects)
-#set($project1 = $popularProjects.get(0))
-#set($project2 = $popularProjects.get(1))
+	#set($project1 = $popularProjects.get(0))
+	#set($project2 = $popularProjects.get(1))
 	#if($project1)
-		One popular project in ${locality.label} for sale is $project1.name by $project1.builder.name offering
-		total $project1.totalUnits units 
-		#if($project1.minSize && $project1.maxSize)
-			starting at size $project1.minSize sq ft and with highest $project1.maxSize sq ft.
-		#else
-		.
-		#end
+		One #popularProjectSentence(${locality.label} $project1)
 		#if($project2)
-			Another popular project in ${locality.label} is $project2.name by $project2.builder.name offering
-			total $project2.totalUnits units 
-			#if($project1.minSize && $project1.maxSize)
-			starting at size $project1.minSize sq ft and with highest $project1.maxSize sq ft.
-			#else
-			.
-			#end
+			Another #popularProjectSentence(${locality.label} $project2)
 		#end
 	#end
 #end
- 

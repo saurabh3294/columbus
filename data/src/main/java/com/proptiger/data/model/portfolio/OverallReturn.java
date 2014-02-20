@@ -11,44 +11,45 @@ import com.proptiger.data.model.portfolio.enums.ReturnType;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class OverallReturn extends BaseModel {
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "returnType", description = "Return Type")
-	private ReturnType returnType;
-	
-	@FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "changeAmount", description = "Change Amount")
-	private BigDecimal changeAmount;
-	
-	@FieldMetaInfo(dataType = DataType.DOUBLE, displayName = "changePercent", description = "Change Percent")
-	private BigDecimal changePercent;
 
-	public ReturnType getReturnType() {
-		return returnType;
-	}
+    private static final long serialVersionUID = 656252525344007387L;
 
-	public void setReturnType(ReturnType returnType) {
-		this.returnType = returnType;
-	}
+    @FieldMetaInfo(dataType = DataType.STRING, displayName = "returnType", description = "Return Type")
+    private ReturnType        returnType;
 
-	public BigDecimal getChangeAmount() {
-		return changeAmount;
-	}
+    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "changeAmount", description = "Change Amount")
+    private BigDecimal        changeAmount;
 
-	public void setChangeAmount(BigDecimal changeAmount) {
-		this.changeAmount = changeAmount;
-	}
+    @FieldMetaInfo(dataType = DataType.DOUBLE, displayName = "changePercent", description = "Change Percent")
+    private BigDecimal        changePercent;
 
-	public BigDecimal getChangePercent() {
-		return changePercent;
-	}
+    public ReturnType getReturnType() {
+        return returnType;
+    }
 
-	public void setChangePercent(BigDecimal changePercent) {
-		this.changePercent = changePercent;
-	}
-	
-	
-	
+    public void setReturnType(ReturnType returnType) {
+        this.returnType = returnType;
+    }
+
+    public BigDecimal getChangeAmount() {
+        return changeAmount;
+    }
+
+    public void setChangeAmount(BigDecimal changeAmount) {
+        this.changeAmount = changeAmount;
+    }
+
+    public BigDecimal getChangePercent() {
+        return changePercent;
+    }
+
+    public void setChangePercent(BigDecimal changePercent) {
+        this.changePercent = changePercent;
+    }
+
 }

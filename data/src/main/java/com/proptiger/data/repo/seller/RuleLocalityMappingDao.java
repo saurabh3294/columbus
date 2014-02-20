@@ -8,8 +8,8 @@ import com.proptiger.data.model.seller.RuleLocalityMapping;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
-public interface RuleLocalityMappingDao extends JpaRepository<RuleLocalityMapping, Integer>{
-	public List<RuleLocalityMapping> findByRuleIdIn(List<Integer> ruleIds);
+public interface RuleLocalityMappingDao extends JpaRepository<RuleLocalityMapping, Integer> {
+    public List<RuleLocalityMapping> findByRuleIdIn(List<Integer> ruleIds);
 }

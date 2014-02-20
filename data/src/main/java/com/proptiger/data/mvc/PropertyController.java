@@ -27,34 +27,36 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @Controller
 @RequestMapping
 public class PropertyController extends BaseController {
     @Autowired
     private PropertyService propertyService;
-    
+
     @Autowired
-    private ImageService imageService;
-    
-    private static Logger logger = LoggerFactory.getLogger(PropertyController.class);
+    private ImageService    imageService;
+
+    private static Logger   logger = LoggerFactory.getLogger(PropertyController.class);
 
     @RequestMapping(value = "data/v1/entity/property")
-    public @ResponseBody ProAPIResponse getProperties(@RequestParam(required=false, value = "selector") String selector) throws Exception {
-    	
-    	Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
-    	if(propRequestParam == null){
-    		propRequestParam = new Selector();
-    	}
+    public @ResponseBody
+    ProAPIResponse getProperties(@RequestParam(required = false, value = "selector") String selector) throws Exception {
+
+        Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+        if (propRequestParam == null) {
+            propRequestParam = new Selector();
+        }
         List<Property> properties = propertyService.getProperties(propRequestParam);
         Set<String> fieldsSet = propRequestParam.getFields();
-        
+
         return new ProAPISuccessResponse(super.filterFields(properties, fieldsSet));
     }
-    
+
     @RequestMapping(value = "data/v2/entity/property")
-    public @ResponseBody ProAPIResponse getV2Properties(@ModelAttribute FIQLSelector selector) throws Exception {
+    public @ResponseBody
+    ProAPIResponse getV2Properties(@ModelAttribute FIQLSelector selector) throws Exception {
         PaginatedResponse<List<Property>> response = propertyService.getProperties(selector);
         return new ProAPISuccessCountResponse(response.getResults(), response.getTotalCount());
     }

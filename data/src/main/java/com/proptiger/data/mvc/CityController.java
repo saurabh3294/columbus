@@ -20,39 +20,39 @@ import com.proptiger.data.service.CityService;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/city")
-public class CityController extends BaseController{
+public class CityController extends BaseController {
 
-	@Autowired
-	private CityService cityService;
-	
-	/**
-	 * This methods get city details, If no filter provided in selector then it
-	 * will fetch all city details Single city can be fetched by using filter of
-	 * selector object
-	 * 
-	 * @param selectorStr
-	 * @return
-	 */
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr){
-		Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
-		List<City> list = cityService.getCityList(selector);
-		Set<String> fieldsToSerialize = null;
-		if(selector != null){
-			fieldsToSerialize = selector.getFields();
-		}
-		return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
-	}
-	
-	@RequestMapping(value= "/{cityId}")
-	@ResponseBody
-	public ProAPIResponse getCity(@PathVariable int cityId){
-		
-		return new ProAPISuccessResponse( super.filterFields( cityService.getCityInfo(cityId) , null) );
-	}
+    @Autowired
+    private CityService cityService;
+
+    /**
+     * This methods get city details, If no filter provided in selector then it
+     * will fetch all city details Single city can be fetched by using filter of
+     * selector object
+     * 
+     * @param selectorStr
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        List<City> list = cityService.getCityList(selector);
+        Set<String> fieldsToSerialize = null;
+        if (selector != null) {
+            fieldsToSerialize = selector.getFields();
+        }
+        return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
+    }
+
+    @RequestMapping(value = "/{cityId}")
+    @ResponseBody
+    public ProAPIResponse getCity(@PathVariable int cityId) {
+
+        return new ProAPISuccessResponse(super.filterFields(cityService.getCityInfo(cityId), null));
+    }
 }

@@ -12,36 +12,37 @@ import org.apache.solr.common.util.NamedList;
 import org.apache.solr.common.util.SimpleOrderedMap;
 
 /**
- *
+ * 
  * @author mukand
  */
 public class SolrResponseReader {
     /**
      * 
      * @param response
-     * @return 
+     * @return
      */
-    public Map<String, Map<String, Integer>> getFacetResults(NamedList<Object> response){
-            // Do not change Linked Hash Map as the order of inserted elements is needed.
-            Map<String, Map<String, Integer>> list = new LinkedHashMap<String, Map<String, Integer>>();
-            SimpleOrderedMap map = (SimpleOrderedMap)response.getVal(2);
-            map = (SimpleOrderedMap)map.getVal(1);
-            int i=0,j=0;
-            NamedList<Object> it;
-            HashMap<String, Integer> hash = null;
-            String key;
-            
-            for(i=0; i<map.size(); i++){
-                it = (NamedList<Object>)map.getVal(i);
-                key = map.getName(i);
-                hash = new LinkedHashMap<String, Integer>();
-                for(j=0; j<it.size(); j++){
-                    hash.put(it.getName(j), (Integer)it.getVal(j) );
-                }
-                list.put(key, hash);
+    public Map<String, Map<String, Integer>> getFacetResults(NamedList<Object> response) {
+        // Do not change Linked Hash Map as the order of inserted elements is
+        // needed.
+        Map<String, Map<String, Integer>> list = new LinkedHashMap<String, Map<String, Integer>>();
+        SimpleOrderedMap map = (SimpleOrderedMap) response.getVal(2);
+        map = (SimpleOrderedMap) map.getVal(1);
+        int i = 0, j = 0;
+        NamedList<Object> it;
+        HashMap<String, Integer> hash = null;
+        String key;
+
+        for (i = 0; i < map.size(); i++) {
+            it = (NamedList<Object>) map.getVal(i);
+            key = map.getName(i);
+            hash = new LinkedHashMap<String, Integer>();
+            for (j = 0; j < it.size(); j++) {
+                hash.put(it.getName(j), (Integer) it.getVal(j));
             }
-            
-            return list;
+            list.put(key, hash);
+        }
+
+        return list;
     }
-    
+
 }

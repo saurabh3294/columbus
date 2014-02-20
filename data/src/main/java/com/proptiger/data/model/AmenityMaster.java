@@ -12,46 +12,48 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 @Entity
-@Table(name="cms.amenities_master")
+@Table(name = "cms.amenities_master")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-public class AmenityMaster extends BaseModel{
-	
-	@Id
-	@Column(name="AMENITY_Id")
-	@FieldMetaInfo(displayName = "Amenity Id", description = "Amenity Id")
-	private int amenityId;
-	
-	@Column(name="AMENITY_NAME")
-	@FieldMetaInfo(displayName = "Amenity Name", description = "Amenity Name")
-	private String amenityName;
-	
-	@FieldMetaInfo(displayName = "Abbreviation", description = "Abbreviation")
-	@Column(name="ABBREVATION")
-	private String abbreviation;
+public class AmenityMaster extends BaseModel {
 
-	public int getAmenityId() {
-		return amenityId;
-	}
+    private static final long serialVersionUID = -4171453248397452560L;
 
-	public void setAmenityId(int amenityId) {
-		this.amenityId = amenityId;
-	}
+    @Id
+    @Column(name = "AMENITY_Id")
+    @FieldMetaInfo(displayName = "Amenity Id", description = "Amenity Id")
+    private int               amenityId;
 
-	public String getAmenityName() {
-		return amenityName;
-	}
+    @Column(name = "AMENITY_NAME")
+    @FieldMetaInfo(displayName = "Amenity Name", description = "Amenity Name")
+    private String            amenityName;
 
-	public void setAmenityName(String amenityName) {
-		this.amenityName = amenityName;
-	}
+    @FieldMetaInfo(displayName = "Abbreviation", description = "Abbreviation")
+    @Column(name = "ABBREVATION")
+    private String            abbreviation;
 
-	public String getAbbreviation() {
-		return abbreviation;
-	}
+    public int getAmenityId() {
+        return amenityId;
+    }
 
-	public void setAbbreviation(String abbreviation) {
-		this.abbreviation = abbreviation;
-	}
+    public void setAmenityId(int amenityId) {
+        this.amenityId = amenityId;
+    }
+
+    public String getAmenityName() {
+        return amenityName;
+    }
+
+    public void setAmenityName(String amenityName) {
+        this.amenityName = amenityName;
+    }
+
+    public String getAbbreviation() {
+        return abbreviation;
+    }
+
+    public void setAbbreviation(String abbreviation) {
+        this.abbreviation = abbreviation;
+    }
 }

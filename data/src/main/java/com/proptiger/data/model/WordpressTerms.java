@@ -7,31 +7,31 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "wordpress.wp_terms")
-public class WordpressTerms extends BaseModel{
+public class WordpressTerms extends BaseModel {
 
-	@Id
-	@Column(name = "term_id")
-	private long termId;
-	
-	@Column(name = "name")
-	private String name;
+    private static final long serialVersionUID = 806356402805138067L;
 
-	public long getTermId() {
-		return termId;
-	}
+    @Id
+    @Column(name = "term_id")
+    private long              termId;
 
-	public void setTermId(long termId) {
-		this.termId = termId;
-	}
+    @Column(name = "name")
+    private String            name;
 
-	public String getName() {
-		return name;
-	}
+    public long getTermId() {
+        return termId;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	
-	
+    public void setTermId(long termId) {
+        this.termId = termId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

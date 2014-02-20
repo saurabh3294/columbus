@@ -22,86 +22,92 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
- *
+ * 
  * @author mukand
  */
 @Entity
 @Table(name = "LOCALITY_NEAR_PLACES")
 @ResourceMetaInfo
-@JsonAutoDetect(fieldVisibility=JsonAutoDetect.Visibility.ANY, getterVisibility=JsonAutoDetect.Visibility.NONE, isGetterVisibility=JsonAutoDetect.Visibility.NONE)
+@JsonAutoDetect(
+        fieldVisibility = JsonAutoDetect.Visibility.ANY,
+        getterVisibility = JsonAutoDetect.Visibility.NONE,
+        isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonFilter("fieldFilter")
-public class LocalityAmenity extends BaseModel{
+public class LocalityAmenity extends BaseModel {
+
+    private static final long    serialVersionUID = 5296461750469591496L;
+
     @FieldMetaInfo(displayName = "Id", description = "Id")
-    @Column(name="id")
+    @Column(name = "id")
     @Id
-    private int  id;
-    
+    private int                  id;
+
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
-    @Column(name="locality_id")
-    private int  localityId;
+    @Column(name = "locality_id")
+    private int                  localityId;
 
     @FieldMetaInfo(displayName = "City Id", description = "City Id")
-    @Column(name="city_id")
-    private int  cityId;
-    
+    @Column(name = "city_id")
+    private int                  cityId;
+
     @FieldMetaInfo(displayName = "Place Type Id", description = "Place Type Id")
-    @Column(name="place_type_id", insertable = false, updatable = false)
-    private int  placeTypeId;
-    
+    @Column(name = "place_type_id", insertable = false, updatable = false)
+    private int                  placeTypeId;
+
     @FieldMetaInfo(displayName = "Name", description = "Name")
-    @Column(name="name")
-    private String  name;
+    @Column(name = "name")
+    private String               name;
 
     @FieldMetaInfo(displayName = "Reference", description = "Reference")
-    @Column(name="reference")
-    private String  reference;
+    @Column(name = "reference")
+    private String               reference;
 
     @FieldMetaInfo(displayName = "Google Place Id", description = "Google Place Id")
-    @Column(name="google_place_id")
-    private String  googlePlaceId;
+    @Column(name = "google_place_id")
+    private String               googlePlaceId;
 
     @FieldMetaInfo(displayName = "Address", description = "Address")
-    @Column(name="address")
-    private String  address;
+    @Column(name = "address")
+    private String               address;
 
     @FieldMetaInfo(displayName = "Latitude", description = "Latitude")
-    @Column(name="latitude")
-    private float  latitude;
+    @Column(name = "latitude")
+    private float                latitude;
 
     @FieldMetaInfo(displayName = "Longitude", description = "Longitude")
-    @Column(name="longitude")
-    private float  longitude;
+    @Column(name = "longitude")
+    private float                longitude;
 
     @FieldMetaInfo(displayName = "Phone Number", description = "Phone Number")
-    @Column(name="phone_number")
-    private String  phoneNumber;
+    @Column(name = "phone_number")
+    private String               phoneNumber;
 
     @FieldMetaInfo(displayName = "Google Url", description = "Google Url")
-    @Column(name="google_url")
-    private String  googleUrl;
+    @Column(name = "google_url")
+    private String               googleUrl;
 
     @FieldMetaInfo(displayName = "Website", description = "Website")
-    @Column(name="website")
-    private String  website;
-    
+    @Column(name = "website")
+    private String               website;
+
     @FieldMetaInfo(displayName = "Vicinity", description = "Vicinity")
-    @Column(name="vicinity")
-    private String  vicinity;
+    @Column(name = "vicinity")
+    private String               vicinity;
 
     @FieldMetaInfo(displayName = "Details Info", description = "Details Info")
-    @Column(name="is_details")
-    private int  isDetails;
+    @Column(name = "is_details")
+    private int                  isDetails;
 
     @FieldMetaInfo(displayName = "Other Details", description = "Other Details")
-    @Column(name="rest_details")
-    private String  restDetails;
+    @Column(name = "rest_details")
+    private String               restDetails;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "place_type_id", referencedColumnName = "id")
     private LocalityAmenityTypes localityAmenityTypes;
-    
+
     public int getLocalityId() {
         return localityId;
     }
@@ -237,6 +243,5 @@ public class LocalityAmenity extends BaseModel{
     public void setLocalityAmenityTypes(LocalityAmenityTypes localityAmenityTypes) {
         this.localityAmenityTypes = localityAmenityTypes;
     }
-
 
 }

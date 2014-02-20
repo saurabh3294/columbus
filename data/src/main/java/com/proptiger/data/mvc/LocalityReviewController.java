@@ -28,71 +28,72 @@ import com.proptiger.data.util.Constants;
  * Controller for get/create/update/delete API related to locality review
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
-public class LocalityReviewController extends BaseController{
+public class LocalityReviewController extends BaseController {
 
-	@Autowired
-	private LocalityReviewService localityReviewService;
-	
-	@RequestMapping(value = "data/v1/entity/locality-review", method = RequestMethod.GET)
-	@ResponseBody
-	@DisableCaching
-	@Deprecated
-	public ProAPIResponse getLocalityReviewByLocalityId(
-			@RequestParam Integer localityId,
-			@RequestParam(required = false) Integer numberOfReviews) {
+    @Autowired
+    private LocalityReviewService localityReviewService;
 
-		if (localityId == null || localityId < 1)
-			return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
+    @RequestMapping(value = "data/v1/entity/locality-review", method = RequestMethod.GET)
+    @ResponseBody
+    @DisableCaching
+    @Deprecated
+    public ProAPIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(
+            required = false) Integer numberOfReviews) {
 
-		LocalityReviewRatingDetails reviewRatingDetails = localityReviewService
-				.getLocalityReviewRatingDetails(localityId, numberOfReviews);
-		return new ProAPISuccessResponse(reviewRatingDetails);
-	}
-	
-	@RequestMapping(value = "data/v1/entity/locality/{localityId}/review", method = RequestMethod.GET)
-	@ResponseBody
-	@DisableCaching
-	public ProAPIResponse getLocalityReviews(
-			@PathVariable Integer localityId,
-			@RequestParam(required = false, value = "selector") String selectorStr) {
-		Selector selector = new Selector();
-		if (selectorStr != null) {
-			selector = super.parseJsonToObject(selectorStr, Selector.class);
-		}
-		List<LocalityReviewComments> reviews = localityReviewService.getLocalityReview(
-				localityId, null, selector);
-		return new ProAPISuccessCountResponse(super.filterFields(reviews,
-				selector.getFields()), reviews.size());
-	}
-	
-	@RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.GET)
-	@ResponseBody
-	@DisableCaching
-	public ProAPIResponse getLocalityReviewsByUser(
-			@PathVariable Integer localityId,
-			@RequestParam(required = false, value = "selector") String selectorStr,
-			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		Selector selector = new Selector();
-		if (selectorStr != null) {
-			selector = super.parseJsonToObject(selectorStr, Selector.class);
-		}
-		List<LocalityReviewComments> reviews = localityReviewService.getLocalityReview(
-				localityId, userInfo.getUserIdentifier(), selector);
-		return new ProAPISuccessCountResponse(super.filterFields(reviews,
-				selector.getFields()), reviews.size());
-	}
-	@RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.POST)
-	@ResponseBody
-	@DisableCaching
-	public ProAPIResponse createReview(
-			@PathVariable Integer localityId,
-			@RequestBody LocalityReviewComments reviewComments,
-			@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-		LocalityReviewComments created = localityReviewService.createLocalityReviewComment(
-				localityId, reviewComments, userInfo.getUserIdentifier());
-		return new ProAPISuccessResponse(created);
-	}
+        if (localityId == null || localityId < 1)
+            return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
+
+        LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
+                localityId,
+                numberOfReviews);
+        return new ProAPISuccessResponse(reviewRatingDetails);
+    }
+
+    @RequestMapping(value = "data/v1/entity/locality/{localityId}/review", method = RequestMethod.GET)
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse getLocalityReviews(@PathVariable Integer localityId, @RequestParam(
+            required = false,
+            value = "selector") String selectorStr) {
+        Selector selector = new Selector();
+        if (selectorStr != null) {
+            selector = super.parseJsonToObject(selectorStr, Selector.class);
+        }
+        List<LocalityReviewComments> reviews = localityReviewService.getLocalityReview(localityId, null, selector);
+        return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+    }
+
+    @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.GET)
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse getLocalityReviewsByUser(@PathVariable Integer localityId, @RequestParam(
+            required = false,
+            value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        Selector selector = new Selector();
+        if (selectorStr != null) {
+            selector = super.parseJsonToObject(selectorStr, Selector.class);
+        }
+        List<LocalityReviewComments> reviews = localityReviewService.getLocalityReview(
+                localityId,
+                userInfo.getUserIdentifier(),
+                selector);
+        return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+    }
+
+    @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.POST)
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse createReview(
+            @PathVariable Integer localityId,
+            @RequestBody LocalityReviewComments reviewComments,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        LocalityReviewComments created = localityReviewService.createLocalityReviewComment(
+                localityId,
+                reviewComments,
+                userInfo.getUserIdentifier());
+        return new ProAPISuccessResponse(created);
+    }
 }

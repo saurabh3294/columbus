@@ -16,216 +16,223 @@ import com.proptiger.data.model.portfolio.UnitType;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity
-@Table(name="RESI_PROJECT_TYPES")
+@Table(name = "RESI_PROJECT_TYPES")
 @ResourceMetaInfo
-public class ProjectType extends BaseModel{
+public class ProjectType extends BaseModel {
 
-	@Id
-	@FieldMetaInfo(displayName = "Type Id", description = "Type Id")
-	@Column(name = "TYPE_ID")
-	private Integer typeId;
-	
-	@FieldMetaInfo(displayName = "Project Id", description = "Project Id")
-	@Column(name = "PROJECT_ID")
-	private Integer projectId;
-	
-	@FieldMetaInfo(displayName = "Unit Name", description = "Unit Name")
-	@Column(name = "UNIT_NAME")
-	private String unitName;
-	
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Unit Type", description = "Unit Type")
-	@Column(name = "UNIT_TYPE")
-	@Enumerated(EnumType.STRING)
-	private UnitType unitType;
-	
-	@FieldMetaInfo(displayName = "size", description = "size")
-	@Column(name = "SIZE")
-	private Double size;
-	
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Measure", description = "Measure")
-	@Column(name = "MEASURE")
-	private String measure;
-	
-	@FieldMetaInfo(displayName = "Price Per Unit Area", description = "Price Per Unit Area")
-	@Column(name = "PRICE_PER_UNIT_AREA")
-	private Double pricePerUnitArea;
-	
-	@Column(name = "PRICE_PER_UNIT_AREA_DP")
-	private Double pricePerUnitAreaDP;
-	
-	@Column(name = "PRICE_PER_UNIT_AREA_FP")
-	private Double pricePerUnitAreaFP;
-	
-	@FieldMetaInfo(dataType = DataType.STRING, displayName = "Status", description = "Status")
-	@Column(name = "STATUS")
-	private String status;
-	
-	@FieldMetaInfo(displayName = "Bedrooms", description = "Bedrooms")
-	@Column(name = "BEDROOMS")
-	private Integer bedrooms;
+    private static final long serialVersionUID = -6620347822420421846L;
 
-	@Column(name = "CREATED_DATE")
-	private Date createdDate;
-	
-	@FieldMetaInfo(displayName = "Bathrooms", description = "Bathrooms")
-	@Column(name = "BATHROOMS")
-	private int bathrooms;
+    @Id
+    @FieldMetaInfo(displayName = "Type Id", description = "Type Id")
+    @Column(name = "TYPE_ID")
+    private Integer           typeId;
 
-	
-	public Integer getTypeId() {
-		return typeId;
-	}
+    @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
+    @Column(name = "PROJECT_ID")
+    private Integer           projectId;
 
-	public void setTypeId(Integer typeId) {
-		this.typeId = typeId;
-	}
+    @FieldMetaInfo(displayName = "Unit Name", description = "Unit Name")
+    @Column(name = "UNIT_NAME")
+    private String            unitName;
 
-	public Integer getBedrooms() {
-		return bedrooms;
-	}
+    @FieldMetaInfo(dataType = DataType.STRING, displayName = "Unit Type", description = "Unit Type")
+    @Column(name = "UNIT_TYPE")
+    @Enumerated(EnumType.STRING)
+    private UnitType          unitType;
 
-	public void setBedrooms(Integer bedrooms) {
-		this.bedrooms = bedrooms;
-	}
+    @FieldMetaInfo(displayName = "size", description = "size")
+    @Column(name = "SIZE")
+    private Double            size;
 
-	public String getUnitName() {
-		return unitName;
-	}
+    @FieldMetaInfo(dataType = DataType.STRING, displayName = "Measure", description = "Measure")
+    @Column(name = "MEASURE")
+    private String            measure;
 
-	public void setUnitName(String unitName) {
-		this.unitName = unitName;
-	}
+    @FieldMetaInfo(displayName = "Price Per Unit Area", description = "Price Per Unit Area")
+    @Column(name = "PRICE_PER_UNIT_AREA")
+    private Double            pricePerUnitArea;
 
-	/**
-	 * @return the projectId
-	 */
-	public Integer getProjectId() {
-		return projectId;
-	}
+    @Column(name = "PRICE_PER_UNIT_AREA_DP")
+    private Double            pricePerUnitAreaDP;
 
-	/**
-	 * @param projectId the projectId to set
-	 */
-	public void setProjectId(Integer projectId) {
-		this.projectId = projectId;
-	}
+    @Column(name = "PRICE_PER_UNIT_AREA_FP")
+    private Double            pricePerUnitAreaFP;
 
-	/**
-	 * @return the unitType
-	 */
-	public UnitType getUnitType() {
-		return unitType;
-	}
+    @FieldMetaInfo(dataType = DataType.STRING, displayName = "Status", description = "Status")
+    @Column(name = "STATUS")
+    private String            status;
 
-	/**
-	 * @param unitType the unitType to set
-	 */
-	public void setUnitType(UnitType unitType) {
-		this.unitType = unitType;
-	}
+    @FieldMetaInfo(displayName = "Bedrooms", description = "Bedrooms")
+    @Column(name = "BEDROOMS")
+    private Integer           bedrooms;
 
-	/**
-	 * @return the size
-	 */
-	public Double getSize() {
-		return size;
-	}
+    @Column(name = "CREATED_DATE")
+    private Date              createdDate;
 
-	/**
-	 * @param size the size to set
-	 */
-	public void setSize(Double size) {
-		this.size = size;
-	}
+    @FieldMetaInfo(displayName = "Bathrooms", description = "Bathrooms")
+    @Column(name = "BATHROOMS")
+    private int               bathrooms;
 
-	/**
-	 * @return the measure
-	 */
-	public String getMeasure() {
-		return measure;
-	}
+    public Integer getTypeId() {
+        return typeId;
+    }
 
-	/**
-	 * @param measure the measure to set
-	 */
-	public void setMeasure(String measure) {
-		this.measure = measure;
-	}
+    public void setTypeId(Integer typeId) {
+        this.typeId = typeId;
+    }
 
-	/**
-	 * @return the pricePerUnitArea
-	 */
-	public Double getPricePerUnitArea() {
-		return pricePerUnitArea;
-	}
+    public Integer getBedrooms() {
+        return bedrooms;
+    }
 
-	/**
-	 * @param pricePerUnitArea the pricePerUnitArea to set
-	 */
-	public void setPricePerUnitArea(Double pricePerUnitArea) {
-		this.pricePerUnitArea = pricePerUnitArea;
-	}
+    public void setBedrooms(Integer bedrooms) {
+        this.bedrooms = bedrooms;
+    }
 
-	/**
-	 * @return the pricePerUnitAreaDP
-	 */
-	public Double getPricePerUnitAreaDP() {
-		return pricePerUnitAreaDP;
-	}
+    public String getUnitName() {
+        return unitName;
+    }
 
-	/**
-	 * @param pricePerUnitAreaDP the pricePerUnitAreaDP to set
-	 */
-	public void setPricePerUnitAreaDP(Double pricePerUnitAreaDP) {
-		this.pricePerUnitAreaDP = pricePerUnitAreaDP;
-	}
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
 
-	/**
-	 * @return the pricePerUnitAreaFP
-	 */
-	public Double getPricePerUnitAreaFP() {
-		return pricePerUnitAreaFP;
-	}
+    /**
+     * @return the projectId
+     */
+    public Integer getProjectId() {
+        return projectId;
+    }
 
-	/**
-	 * @param pricePerUnitAreaFP the pricePerUnitAreaFP to set
-	 */
-	public void setPricePerUnitAreaFP(Double pricePerUnitAreaFP) {
-		this.pricePerUnitAreaFP = pricePerUnitAreaFP;
-	}
+    /**
+     * @param projectId
+     *            the projectId to set
+     */
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
+    }
 
-	/**
-	 * @return the status
-	 */
-	public String getStatus() {
-		return status;
-	}
+    /**
+     * @return the unitType
+     */
+    public UnitType getUnitType() {
+        return unitType;
+    }
 
-	/**
-	 * @param status the status to set
-	 */
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    /**
+     * @param unitType
+     *            the unitType to set
+     */
+    public void setUnitType(UnitType unitType) {
+        this.unitType = unitType;
+    }
 
-	/**
-	 * @return the bathrooms
-	 */
-	public int getBathrooms() {
-		return bathrooms;
-	}
+    /**
+     * @return the size
+     */
+    public Double getSize() {
+        return size;
+    }
 
-	/**
-	 * @param bathrooms the bathrooms to set
-	 */
-	public void setBathrooms(int bathrooms) {
-		this.bathrooms = bathrooms;
-	}
-	
-	
-	
-	
+    /**
+     * @param size
+     *            the size to set
+     */
+    public void setSize(Double size) {
+        this.size = size;
+    }
+
+    /**
+     * @return the measure
+     */
+    public String getMeasure() {
+        return measure;
+    }
+
+    /**
+     * @param measure
+     *            the measure to set
+     */
+    public void setMeasure(String measure) {
+        this.measure = measure;
+    }
+
+    /**
+     * @return the pricePerUnitArea
+     */
+    public Double getPricePerUnitArea() {
+        return pricePerUnitArea;
+    }
+
+    /**
+     * @param pricePerUnitArea
+     *            the pricePerUnitArea to set
+     */
+    public void setPricePerUnitArea(Double pricePerUnitArea) {
+        this.pricePerUnitArea = pricePerUnitArea;
+    }
+
+    /**
+     * @return the pricePerUnitAreaDP
+     */
+    public Double getPricePerUnitAreaDP() {
+        return pricePerUnitAreaDP;
+    }
+
+    /**
+     * @param pricePerUnitAreaDP
+     *            the pricePerUnitAreaDP to set
+     */
+    public void setPricePerUnitAreaDP(Double pricePerUnitAreaDP) {
+        this.pricePerUnitAreaDP = pricePerUnitAreaDP;
+    }
+
+    /**
+     * @return the pricePerUnitAreaFP
+     */
+    public Double getPricePerUnitAreaFP() {
+        return pricePerUnitAreaFP;
+    }
+
+    /**
+     * @param pricePerUnitAreaFP
+     *            the pricePerUnitAreaFP to set
+     */
+    public void setPricePerUnitAreaFP(Double pricePerUnitAreaFP) {
+        this.pricePerUnitAreaFP = pricePerUnitAreaFP;
+    }
+
+    /**
+     * @return the status
+     */
+    public String getStatus() {
+        return status;
+    }
+
+    /**
+     * @param status
+     *            the status to set
+     */
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    /**
+     * @return the bathrooms
+     */
+    public int getBathrooms() {
+        return bathrooms;
+    }
+
+    /**
+     * @param bathrooms
+     *            the bathrooms to set
+     */
+    public void setBathrooms(int bathrooms) {
+        this.bathrooms = bathrooms;
+    }
+
 }

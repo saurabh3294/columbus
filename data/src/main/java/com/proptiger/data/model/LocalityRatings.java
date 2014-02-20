@@ -36,48 +36,48 @@ public class LocalityRatings extends BaseModel {
     @Column(name = "REVIEW_ID")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long reviewId;
+    private Long              reviewId;
     @FieldMetaInfo(displayName = "User Id", description = "User Id")
     @Column(name = "USER_ID")
-    private Integer userId;
+    private Integer           userId;
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
-    private Integer localityId;
+    private Integer           localityId;
     @FieldMetaInfo(displayName = "Overall Rating", description = "Overall Rating")
     @Column(name = "OVERALL_RATING")
-    private double overallRating;
+    private Double            overallRating;
     @FieldMetaInfo(displayName = "Location", description = "Location")
     @Column(name = "LOCATION")
-    private double location;
+    private Double            location;
     @FieldMetaInfo(displayName = "Safety", description = "Safety")
     @Column(name = "SAFETY")
-    private double safety;
+    private Double            safety;
     @FieldMetaInfo(displayName = "Public Transport", description = "Public Transport")
     @Column(name = "PUB_TRANS")
-    private double pubTrans;
+    private Double            pubTrans;
     @FieldMetaInfo(displayName = "Rest Shop", description = "Rest Shop")
     @Column(name = "REST_SHOP")
-    private double restShop;
+    private Double            restShop;
     @FieldMetaInfo(displayName = "Schools", description = "Schools")
     @Column(name = "SCHOOLS")
-    private double schools;
+    private Double            schools;
     @FieldMetaInfo(displayName = "Parks", description = "Parks")
     @Column(name = "PARKS")
-    private double parks;
+    private double            parks;
     @FieldMetaInfo(displayName = "Traffic", description = "Traffic")
     @Column(name = "TRAFFIC")
-    private double traffic;
+    private Double            traffic;
     @FieldMetaInfo(displayName = "Hospitals", description = "Hospitals")
     @Column(name = "HOSPITALS")
-    private double hospitals;
+    private Double            hospitals;
     @FieldMetaInfo(displayName = "Civic", description = "Civic")
     @Column(name = "CIVIC")
-    private double civic;
+    private Double            civic;
 
     @ManyToOne
     @JoinColumn(name = "LOCALITY_ID", referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
     @JsonIgnore
-    private Locality locality;
+    private Locality          locality;
 
     public Long getReviewId() {
         return reviewId;
@@ -103,51 +103,51 @@ public class LocalityRatings extends BaseModel {
         this.localityId = localityId;
     }
 
-    public double getOverallRating() {
+    public Double getOverallRating() {
         return overallRating;
     }
 
-    public void setOverallRating(double overallRating) {
+    public void setOverallRating(Double overallRating) {
         this.overallRating = overallRating;
     }
 
-    public double getLocation() {
+    public Double getLocation() {
         return location;
     }
 
-    public void setLocation(double location) {
+    public void setLocation(Double location) {
         this.location = location;
     }
 
-    public double getSafety() {
+    public Double getSafety() {
         return safety;
     }
 
-    public void setSafety(double safety) {
+    public void setSafety(Double safety) {
         this.safety = safety;
     }
 
-    public double getPubTrans() {
+    public Double getPubTrans() {
         return pubTrans;
     }
 
-    public void setPubTrans(double pubTrans) {
+    public void setPubTrans(Double pubTrans) {
         this.pubTrans = pubTrans;
     }
 
-    public double getRestShop() {
+    public Double getRestShop() {
         return restShop;
     }
 
-    public void setRestShop(double restShop) {
+    public void setRestShop(Double restShop) {
         this.restShop = restShop;
     }
 
-    public double getSchools() {
+    public Double getSchools() {
         return schools;
     }
 
-    public void setSchools(double schools) {
+    public void setSchools(Double schools) {
         this.schools = schools;
     }
 
@@ -159,27 +159,27 @@ public class LocalityRatings extends BaseModel {
         this.parks = parks;
     }
 
-    public double getTraffic() {
+    public Double getTraffic() {
         return traffic;
     }
 
-    public void setTraffic(double traffic) {
+    public void setTraffic(Double traffic) {
         this.traffic = traffic;
     }
 
-    public double getHospitals() {
+    public Double getHospitals() {
         return hospitals;
     }
 
-    public void setHospitals(double hospitals) {
+    public void setHospitals(Double hospitals) {
         this.hospitals = hospitals;
     }
 
-    public double getCivic() {
+    public Double getCivic() {
         return civic;
     }
 
-    public void setCivic(double civic) {
+    public void setCivic(Double civic) {
         this.civic = civic;
     }
 
@@ -208,8 +208,17 @@ public class LocalityRatings extends BaseModel {
 
         private static final long serialVersionUID = 8265420768264430368L;
 
-        public LocalityAverageRatingByCategory(Double overallRating, Double location, Double safety, Double pubTrans,
-                Double restShop, Double schools, Double parks, Double traffic, Double hospitals, Double civic) {
+        public LocalityAverageRatingByCategory(
+                Double overallRating,
+                Double location,
+                Double safety,
+                Double pubTrans,
+                Double restShop,
+                Double schools,
+                Double parks,
+                Double traffic,
+                Double hospitals,
+                Double civic) {
             this.overallRating = overallRating;
             this.location = location;
             this.safety = safety;
@@ -288,8 +297,8 @@ public class LocalityRatings extends BaseModel {
     @JsonInclude(Include.NON_NULL)
     public static class LocalityRatingUserCount extends BaseModel {
         private static final long serialVersionUID = 423920351135118515L;
-        private Double rating;
-        private long userCount;
+        private Double            rating;
+        private long              userCount;
 
         public LocalityRatingUserCount(Double rating, long userCount) {
             this.rating = rating;
@@ -314,11 +323,11 @@ public class LocalityRatings extends BaseModel {
      */
     @JsonInclude(Include.NON_NULL)
     public static class LocalityRatingDetails extends BaseModel {
-        private static final long serialVersionUID = 6890543357432298905L;
+        private static final long   serialVersionUID = 6890543357432298905L;
         protected Map<Double, Long> totalUsersByRating;
-        protected Double averageRatings;
+        protected Double            averageRatings;
         // totalRatings is total number users who rates the locality
-        protected Long totalRatings;
+        protected Long              totalRatings;
 
         public LocalityRatingDetails(Map<Double, Long> totalUsersByRating, Double averageRatings, Long totalRatings) {
             super();

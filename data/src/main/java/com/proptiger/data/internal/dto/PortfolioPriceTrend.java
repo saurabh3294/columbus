@@ -4,30 +4,29 @@ import java.util.List;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 public class PortfolioPriceTrend {
-	
-	//private List<PriceDetail> portfolioPriceTrend;
-	
-	private List<ProjectPriceTrend> projectPriceTrend;
 
-	
-//	public List<PriceDetail> getPortfolioPriceTrend() {
-//		return portfolioPriceTrend;
-//	}
-//
-//	public void setPortfolioPriceTrend(List<PriceDetail> portfolioPriceTrend) {
-//		this.portfolioPriceTrend = portfolioPriceTrend;
-//	}
+    // private List<PriceDetail> portfolioPriceTrend;
 
-	public List<ProjectPriceTrend> getProjectPriceTrend() {
-		return projectPriceTrend;
-	}
+    private List<ProjectPriceTrend> projectPriceTrend;
 
-	public void setProjectPriceTrend(List<ProjectPriceTrend> projectPriceTrend) {
-		this.projectPriceTrend = projectPriceTrend;
-	}
-	
-	
+    // public List<PriceDetail> getPortfolioPriceTrend() {
+    // return portfolioPriceTrend;
+    // }
+    //
+    // public void setPortfolioPriceTrend(List<PriceDetail> portfolioPriceTrend)
+    // {
+    // this.portfolioPriceTrend = portfolioPriceTrend;
+    // }
+
+    public List<ProjectPriceTrend> getProjectPriceTrend() {
+        return projectPriceTrend;
+    }
+
+    public void setProjectPriceTrend(List<ProjectPriceTrend> projectPriceTrend) {
+        this.projectPriceTrend = projectPriceTrend;
+    }
+
 }

@@ -19,37 +19,40 @@ import com.proptiger.data.service.BankService;
 
 /**
  * This class provides the API to get bank details
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/bank")
-public class BankController extends BaseController{
-	
-	@Autowired
-	private BankService bankService;
-	
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getBankList(@RequestParam(required = false, value = "selector") String selectorStr){
-		Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
-		List<Bank> list = bankService.getBanks();
-		Set<String> fieldsToSerialize = null;
-		if(selector != null){
-			fieldsToSerialize = selector.getFields();
-		}
-		return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
-	}
-	
-	@RequestMapping(value = "/{bankId}", method = RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getBank(@PathVariable Integer bankId, @RequestParam(required = false, value = "selector") String selectorStr){
-		Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
-		Bank bank = bankService.getBank(bankId);
-		Set<String> fieldsToSerialize = null;
-		if(selector != null){
-			fieldsToSerialize = selector.getFields();
-		}
-		return new ProAPISuccessCountResponse(super.filterFields(bank, fieldsToSerialize), 1);
-	}
+public class BankController extends BaseController {
+
+    @Autowired
+    private BankService bankService;
+
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getBankList(@RequestParam(required = false, value = "selector") String selectorStr) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        List<Bank> list = bankService.getBanks();
+        Set<String> fieldsToSerialize = null;
+        if (selector != null) {
+            fieldsToSerialize = selector.getFields();
+        }
+        return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
+    }
+
+    @RequestMapping(value = "/{bankId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getBank(
+            @PathVariable Integer bankId,
+            @RequestParam(required = false, value = "selector") String selectorStr) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        Bank bank = bankService.getBank(bankId);
+        Set<String> fieldsToSerialize = null;
+        if (selector != null) {
+            fieldsToSerialize = selector.getFields();
+        }
+        return new ProAPISuccessCountResponse(super.filterFields(bank, fieldsToSerialize), 1);
+    }
 }

@@ -16,38 +16,38 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 @Table(name = "cms.rule_agent_mappings")
 @JsonFilter("fieldFilter")
 public class RuleAgentMapping {
-	@Id
-	@Column(name = "id")
-	private Integer id;
-	
-	@Column(name = "rule_id")
-	private Integer ruleId;
-	
-	@Column(name = "agent_id")
-	private Integer agentId;
-	
-	public Integer getId() {
-		return id;
-	}
+    @Id
+    @Column(name = "id")
+    private Integer id;
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "rule_id")
+    private Integer ruleId;
 
-	public Integer getRuleId() {
-		return ruleId;
-	}
+    @Column(name = "agent_id")
+    private Integer agentId;
 
-	public void setRuleId(Integer ruleId) {
-		this.ruleId = ruleId;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public Integer getAgentId() {
-		return agentId;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setAgentId(Integer agentId) {
-		this.agentId = agentId;
-	}
+    public Integer getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(Integer ruleId) {
+        this.ruleId = ruleId;
+    }
+
+    public Integer getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(Integer agentId) {
+        this.agentId = agentId;
+    }
 
 }

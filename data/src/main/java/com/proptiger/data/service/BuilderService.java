@@ -39,21 +39,21 @@ import com.proptiger.exception.ResourceNotAvailableException;
  */
 @Service
 public class BuilderService {
-	private static Logger logger = LoggerFactory.getLogger(BuilderService.class);
+    private static Logger   logger = LoggerFactory.getLogger(BuilderService.class);
     @Autowired
-    private BuilderDao builderDao;
-    
+    private BuilderDao      builderDao;
+
     @Autowired
-    private SolrDao solrDao;
-    
+    private SolrDao         solrDao;
+
     @Autowired
     private PropertyService propertyService;
-    
+
     @Autowired
-    private ImageEnricher imageEnricher;
-    
+    private ImageEnricher   imageEnricher;
+
     @Autowired
-    private ProjectDao projectDao;
+    private ProjectDao      projectDao;
 
     public Builder getBuilderDetailsByProjectId(int projectId) {
         Builder builder = builderDao.findByProjectId(projectId);
@@ -61,123 +61,125 @@ public class BuilderService {
 
         return builder;
     }
-    
+
     /**
-     * This methods get builder info with some derived information about total projects of this builder and 
-     * total ongoing projects etc.
+     * This methods get builder info with some derived information about total
+     * projects of this builder and total ongoing projects etc.
+     * 
      * @param builderId
      * @return
      */
-    public Builder getBuilderInfo(Integer builderId, Selector selector){
-    	Builder builder = builderDao.getBuilderById(builderId);
-    	if(builder == null){
-    		logger.error("Builder id {} not found",builderId);
-    		throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
-    	}
-    	
-    	Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
-    	Map<String, Long> projectStatusCountMap = projectDao.getProjectStatusCount(tempSelector);
-    	builder.setProjectStatusCount(projectStatusCountMap);
-    	
-    	return builder;
+    public Builder getBuilderInfo(Integer builderId, Selector selector) {
+        Builder builder = builderDao.getBuilderById(builderId);
+        if (builder == null) {
+            logger.error("Builder id {} not found", builderId);
+            throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
+        }
+
+        Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
+        Map<String, Long> projectStatusCountMap = projectDao.getProjectStatusCount(tempSelector);
+        builder.setProjectStatusCount(projectStatusCountMap);
+
+        return builder;
     }
 
-	/**
-	 * Creating selector object to fetch projects for builder
-	 * @param builderId
-	 * @param projectStatusNotIn
-	 * @param selectorPassed
-	 * @return
-	 */
-	private Selector createSelectorForTotalProjectOfBuilder(Integer builderId, Selector selectorPassed) {
-		Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String,Map<String,Object>>>>();
-    	List<Map<String, Map<String, Object>>> list = new ArrayList<>();
-    	Map<String, Map<String, Object>> searchType = new HashMap<>();
-    	Map<String, Object> equalFilterCriteria = new HashMap<>();
-		if(selectorPassed != null && selectorPassed.getFilters() != null){
-			filter = selectorPassed.getFilters(); 
-			if(filter.get(Operator.and.name()) != null){
-				list = filter.get(Operator.and.name());
-				if(list != null && !list.isEmpty()){
-					searchType = list.get(0);
-				}
-			}
-		}
-		Selector selector = new Selector();
-    	
-    	if(searchType.get(Operator.equal.name()) != null){
-    		equalFilterCriteria = searchType.get(Operator.equal.name());
-    	}
-    	equalFilterCriteria.put("builderId", builderId);
-    	searchType.put(Operator.equal.name(), equalFilterCriteria);
-    	
-    	list.add(searchType);
-    	filter.put(Operator.and.name(), list);
-    	selector.setFilters(filter);
-    	selector.setPaging(new Paging(0, 100));
-    	LinkedHashSet<SortBy> sortingSet = new LinkedHashSet<>();
-    	SortBy sortBy = new SortBy();
-    	sortBy.setField("assignedPriority");
-    	sortBy.setSortOrder(SortOrder.DESC);
-		sortingSet.add(sortBy );
-		selector.setSort(sortingSet);
-		return selector;
-	}
+    /**
+     * Creating selector object to fetch projects for builder
+     * 
+     * @param builderId
+     * @param projectStatusNotIn
+     * @param selectorPassed
+     * @return
+     */
+    private Selector createSelectorForTotalProjectOfBuilder(Integer builderId, Selector selectorPassed) {
+        Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
+        List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+        Map<String, Map<String, Object>> searchType = new HashMap<>();
+        Map<String, Object> equalFilterCriteria = new HashMap<>();
+        if (selectorPassed != null && selectorPassed.getFilters() != null) {
+            filter = selectorPassed.getFilters();
+            if (filter.get(Operator.and.name()) != null) {
+                list = filter.get(Operator.and.name());
+                if (list != null && !list.isEmpty()) {
+                    searchType = list.get(0);
+                }
+            }
+        }
+        Selector selector = new Selector();
 
-	/**
-	 * Get top builders, use the builders in that suburb/localities only.
-	 * However if priority of all builders is same then use the popular projects
-	 * and extract the unique builder of popular projects
-	 * 
-	 * @param builderSelector
-	 * @return
-	 */
-	public List<Builder> getTopBuilders(
-			Selector builderSelector) {
-		SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.PROJECT);
-    	solrQuery.add("group", "true");
-    	solrQuery.add("group.field", "BUILDER_ID");
-    	solrQuery.add("group.ngroups", "true");
-    	solrQuery.add("group.main", "true");
-    	
-    	SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
-		solrQueryBuilder.buildQuery(builderSelector, null);
-		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-		List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
-		List<Builder> topBuilders = new ArrayList<>();
-		for (SolrResult result: response) {
-			topBuilders.add(result.getProject().getBuilder());
-		}
-		sortByPriorityAsc(topBuilders);
-		imageEnricher.setBuildersImages(topBuilders);
-		return topBuilders;
-	}
-	
-	/**
-	 * Get top builders in a locality
-	 * @param localityId
-	 * @return
-	 */
-	public List<Builder> getTopBuildersForLocality(Integer localityId) {
-		Selector selector = new Gson().fromJson(
-				"{\"filters\":{\"and\":[{\"equal\":{\"localityId\":"
-						+ localityId + "}}]}}", Selector.class);
-		return getTopBuilders(selector);
-	}
-	
-	/**
-	 * The method is used to sort the builders based on their priority.
-	 * @param topBuilders
-	 */
-	private void sortByPriorityAsc(List<Builder> topBuilders) {
-		Collections.sort(topBuilders, new Comparator<Builder>() {
-			@Override
-			public int compare(Builder b1, Builder b2) {
-				if(b1.getPriority() != null && b2.getPriority() != null){
-					return (b1.getPriority() - b2.getPriority());
-				}
-				return 0;
-			}
-		});
-	}
+        if (searchType.get(Operator.equal.name()) != null) {
+            equalFilterCriteria = searchType.get(Operator.equal.name());
+        }
+        equalFilterCriteria.put("builderId", builderId);
+        searchType.put(Operator.equal.name(), equalFilterCriteria);
+
+        list.add(searchType);
+        filter.put(Operator.and.name(), list);
+        selector.setFilters(filter);
+        selector.setPaging(new Paging(0, 100));
+        LinkedHashSet<SortBy> sortingSet = new LinkedHashSet<>();
+        SortBy sortBy = new SortBy();
+        sortBy.setField("assignedPriority");
+        sortBy.setSortOrder(SortOrder.DESC);
+        sortingSet.add(sortBy);
+        selector.setSort(sortingSet);
+        return selector;
+    }
+
+    /**
+     * Get top builders, use the builders in that suburb/localities only.
+     * However if priority of all builders is same then use the popular projects
+     * and extract the unique builder of popular projects
+     * 
+     * @param builderSelector
+     * @return
+     */
+    public List<Builder> getTopBuilders(Selector builderSelector) {
+        SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.PROJECT);
+        solrQuery.add("group", "true");
+        solrQuery.add("group.field", "BUILDER_ID");
+        solrQuery.add("group.ngroups", "true");
+        solrQuery.add("group.main", "true");
+
+        SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
+        solrQueryBuilder.buildQuery(builderSelector, null);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
+        List<Builder> topBuilders = new ArrayList<>();
+        for (SolrResult result : response) {
+            topBuilders.add(result.getProject().getBuilder());
+        }
+        sortByPriorityAsc(topBuilders);
+        imageEnricher.setBuildersImages(topBuilders);
+        return topBuilders;
+    }
+
+    /**
+     * Get top builders in a locality
+     * 
+     * @param localityId
+     * @return
+     */
+    public List<Builder> getTopBuildersForLocality(Integer localityId) {
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId
+                + "}}]}}", Selector.class);
+        return getTopBuilders(selector);
+    }
+
+    /**
+     * The method is used to sort the builders based on their priority.
+     * 
+     * @param topBuilders
+     */
+    private void sortByPriorityAsc(List<Builder> topBuilders) {
+        Collections.sort(topBuilders, new Comparator<Builder>() {
+            @Override
+            public int compare(Builder b1, Builder b2) {
+                if (b1.getPriority() != null && b2.getPriority() != null) {
+                    return (b1.getPriority() - b2.getPriority());
+                }
+                return 0;
+            }
+        });
+    }
 }

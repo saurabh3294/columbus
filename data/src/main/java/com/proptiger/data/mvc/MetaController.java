@@ -16,21 +16,19 @@ import com.proptiger.data.service.MetaService;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Controller
 @RequestMapping(value = "data/v1/resource/meta")
-public class MetaController {	
-	@Autowired
-	private MetaService metaService;
-	
-	@RequestMapping(method = RequestMethod.GET)
-	@ResponseBody
-	public ProAPIResponse getAllResourceMeta(
-			@RequestParam(value ="resourceName", required = false) String resourceName) {
+public class MetaController {
+    @Autowired
+    private MetaService metaService;
 
-		List<ResourceModelMeta> resourceMetaList = metaService
-				.getResourceMeta(resourceName);
-		return new ProAPISuccessResponse(resourceMetaList);
-	}
+    @RequestMapping(method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getAllResourceMeta(@RequestParam(value = "resourceName", required = false) String resourceName) {
+
+        List<ResourceModelMeta> resourceMetaList = metaService.getResourceMeta(resourceName);
+        return new ProAPISuccessResponse(resourceMetaList);
+    }
 }

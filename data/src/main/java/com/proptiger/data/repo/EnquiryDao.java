@@ -13,16 +13,15 @@ import org.springframework.data.jpa.repository.Query;
 import com.proptiger.data.model.Enquiry;
 
 /**
- *
+ * 
  * @author mukand
  */
-public interface EnquiryDao extends JpaRepository<Enquiry, Serializable>{
+public interface EnquiryDao extends JpaRepository<Enquiry, Serializable> {
     public List<Enquiry> findByEmail(String email);
-    
-    @Query("select E.projectName, E.cityName, P.projectUrl, E.createdDate " +
-    		" from  Enquiry E left join E.project P join E.locality L" +
-    		" where E.email=?1 order by E.createdDate DESC")
+
+    @Query("select E.projectName, E.cityName, P.projectUrl, E.createdDate " + " from  Enquiry E left join E.project P join E.locality L"
+            + " where E.email=?1 order by E.createdDate DESC")
     public List<Object[]> findEnquiriesByEmail(String email);
-    
-    public Enquiry findEnquiryByEmailAndProjectId(String email, Long projectId);
+
+    public List<Enquiry> findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(String email, Long projectId);
 }

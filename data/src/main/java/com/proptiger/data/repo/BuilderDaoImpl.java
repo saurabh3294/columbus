@@ -16,38 +16,39 @@ import com.proptiger.data.pojo.Selector;
 /**
  * @author mukand
  * @author Rajeev Pandey
- *
+ * 
  */
 @Repository
 public class BuilderDaoImpl {
-	
-	private static Logger logger = LoggerFactory.getLogger(BuilderDaoImpl.class);
-	
-	@Autowired
-	private SolrDao solrDao;
 
-	public Builder getBuilderById(int builderId){
-		SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.BUILDER);
-		solrQuery.addFilterQuery("BUILDER_ID:"+builderId);
-		
-		logger.debug("Solr query for builder by id {}",solrQuery.toString());
-		QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-		List<Builder> builders = queryResponse.getBeans(Builder.class);
-		
-		if(builders.size() > 0)
-			return builders.get(0);
-		
-		return null;
-	}
+    private static Logger logger = LoggerFactory.getLogger(BuilderDaoImpl.class);
 
-	/**
-	 * Get popular builders
-	 * @param selector
-	 * @return
-	 */
-	public List<Builder> getPopularBuilders(Selector selector){
-		SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.BUILDER);
-		return null;
-	}
-	
+    @Autowired
+    private SolrDao       solrDao;
+
+    public Builder getBuilderById(int builderId) {
+        SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.BUILDER);
+        solrQuery.addFilterQuery("BUILDER_ID:" + builderId);
+
+        logger.debug("Solr query for builder by id {}", solrQuery.toString());
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        List<Builder> builders = queryResponse.getBeans(Builder.class);
+
+        if (builders.size() > 0)
+            return builders.get(0);
+
+        return null;
+    }
+
+    /**
+     * Get popular builders
+     * 
+     * @param selector
+     * @return
+     */
+    public List<Builder> getPopularBuilders(Selector selector) {
+        SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.BUILDER);
+        return null;
+    }
+
 }

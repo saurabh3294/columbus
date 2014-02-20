@@ -14,89 +14,95 @@ import com.proptiger.data.model.image.Image;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 @Entity(name = "BANK_LIST")
 @JsonFilter("fieldFilter")
-public class Bank extends BaseModel{
-	@Id
-	@Column(name = "BANK_ID")
+public class Bank extends BaseModel {
+    private static final long serialVersionUID = -6727172719530768859L;
+    @Id
+    @Column(name = "BANK_ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer id;
-	
-	@Column(name = "BANK_NAME")
-	private String name;
-	
-	@Column(name = "ACTIVE")
-	private boolean isActive;
-	
-	@Column(name = "BANK_DETAIL")
-	private String detail;
+    private Integer           id;
 
-	@Transient
-	private List<Image> images;
-	/**
-	 * @return the id
-	 */
-	public Integer getId() {
-		return id;
-	}
+    @Column(name = "BANK_NAME")
+    private String            name;
 
-	/**
-	 * @param id the id to set
-	 */
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    @Column(name = "ACTIVE")
+    private boolean           isActive;
 
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
+    @Column(name = "BANK_DETAIL")
+    private String            detail;
 
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
+    @Transient
+    private List<Image>       images;
 
-	/**
-	 * @return the isActive
-	 */
-	public boolean isActive() {
-		return isActive;
-	}
+    /**
+     * @return the id
+     */
+    public Integer getId() {
+        return id;
+    }
 
-	/**
-	 * @param isActive the isActive to set
-	 */
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
-	}
+    /**
+     * @param id
+     *            the id to set
+     */
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	/**
-	 * @return the detail
-	 */
-	public String getDetail() {
-		return detail;
-	}
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * @param detail the detail to set
-	 */
-	public void setDetail(String detail) {
-		this.detail = detail;
-	}
+    /**
+     * @param name
+     *            the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public List<Image> getImages() {
-		return images;
-	}
+    /**
+     * @return the isActive
+     */
+    public boolean isActive() {
+        return isActive;
+    }
 
-	public void setImages(List<Image> images) {
-		this.images = images;
-	}
-	
+    /**
+     * @param isActive
+     *            the isActive to set
+     */
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    /**
+     * @return the detail
+     */
+    public String getDetail() {
+        return detail;
+    }
+
+    /**
+     * @param detail
+     *            the detail to set
+     */
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+
 }

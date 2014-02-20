@@ -10,66 +10,68 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity
-@Table(name="cms.video_links")
+@Table(name = "cms.video_links")
 @JsonInclude(Include.NON_NULL)
 public class VideoLinks extends BaseModel {
-		
-	@Id
-	@Column(name = "video_id")
-	private int videoId;
-	
-	@Column(name = "table_id")
-	@JsonIgnore
-	private int tableId;
-	
-	@Column(name = "table_name")
-	@JsonIgnore
-	private String tableName;
-	
-	@Column(name = "category")
-	private String category;
-	
-	@Column(name = "video_url")
-	private String videoUrl;
 
-	public int getVideoId() {
-		return videoId;
-	}
+    private static final long serialVersionUID = -8566359342834979183L;
 
-	public void setVideoId(int videoId) {
-		this.videoId = videoId;
-	}
+    @Id
+    @Column(name = "video_id")
+    private int               videoId;
 
-	public int getTableId() {
-		return tableId;
-	}
+    @Column(name = "table_id")
+    @JsonIgnore
+    private int               tableId;
 
-	public void setTableId(int tableId) {
-		this.tableId = tableId;
-	}
+    @Column(name = "table_name")
+    @JsonIgnore
+    private String            tableName;
 
-	public String getTableName() {
-		return tableName;
-	}
+    @Column(name = "category")
+    private String            category;
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
+    @Column(name = "video_url")
+    private String            videoUrl;
 
-	public String getCategory() {
-		return category;
-	}
+    public int getVideoId() {
+        return videoId;
+    }
 
-	public void setCategory(String category) {
-		this.category = category;
-	}
+    public void setVideoId(int videoId) {
+        this.videoId = videoId;
+    }
 
-	public String getVideoUrl() {
-		return videoUrl;
-	}
+    public int getTableId() {
+        return tableId;
+    }
 
-	public void setVideoUrl(String videoUrl) {
-		this.videoUrl = videoUrl;
-	}
-	
+    public void setTableId(int tableId) {
+        this.tableId = tableId;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
 }

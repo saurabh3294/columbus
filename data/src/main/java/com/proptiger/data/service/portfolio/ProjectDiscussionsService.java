@@ -37,214 +37,209 @@ import com.proptiger.mail.service.MailTemplateDetail;
 @Service
 public class ProjectDiscussionsService {
 
-	@Autowired
-	private ProjectDiscussionsDao projectDiscussionDao;
-	
-	@Autowired
-	private SubscriptionService subscriptionService;
-	
-	@Autowired
-	private ProjectService projectService;
-	
-	@Autowired
-	private ForumUserDao forumUserDao;
-	
-	@Autowired
-	private ProjectCommentLikesDao projectCommentLikesDao;
-	
-	@Autowired
-	private TemplateToHtmlGenerator mailBodyGenerator;
-	
-	@Autowired
-	private MailSender mailSender;
-	
-	@Autowired
-	private PropertyReader propertyReader;
-	
-	public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, UserInfo userInfo){
-		
-		if(projectDiscussion.getComment() == null || projectDiscussion.getComment().isEmpty() ){
-			throw new IllegalArgumentException("Comments cannot be null");
-		}
-		Project project = projectService.getProjectData(projectDiscussion.getProjectId()); 
-		if( project == null){
-			throw new IllegalArgumentException("Enter valid Project Id");
-		}
-		
-		ForumUser forumUser = forumUserDao.findOne(userInfo.getUserIdentifier());
-		
-		projectDiscussion.setUserId(userInfo.getUserIdentifier());
-		projectDiscussion.setAdminUserName(forumUser.getUsername());
-		projectDiscussion.setLevel(0);
-		projectDiscussion.setNumLikes(0);
-		projectDiscussion.setStatus("0");
-		projectDiscussion.setReplied(ProjectDiscussion.Replies.F);
-		
-		ProjectDiscussion parentProjectDiscussion = null;
-		if(projectDiscussion.getParentId() > 0)
-		{
-			parentProjectDiscussion = projectDiscussionDao.findByIdAndProjectId(projectDiscussion.getParentId(), projectDiscussion.getProjectId());
-			if(parentProjectDiscussion == null){
-				throw new IllegalArgumentException("Parent Comment Id project should belong to Project Id supplied.");
-			}
-			
-			projectDiscussion.setLevel(parentProjectDiscussion.getLevel()+1);
-			projectDiscussion.setReplied(ProjectDiscussion.Replies.T);
-		}
-		ProjectDiscussion savedProjectDiscussions = projectDiscussionDao.save(projectDiscussion);
-		
-		subscriptionService.enableOrAddUserSubscription(userInfo.getUserIdentifier(), projectDiscussion.getProjectId(), Project.class.getAnnotation(Table.class).name(), Constants.SubscriptionType.FORUM);
-		
-		return savedProjectDiscussions;
-	}
-	
-	@Transactional
-	public ProjectDiscussion incrementProjectCommentLikes(long commentId, UserInfo userInfo){
-		ProjectDiscussion projectDiscussion = projectDiscussionDao.findOne(commentId);
-		
-		if(projectDiscussion == null){
-			return null;
-		}
-		// User has already liked the comment
-		if( createProjectCommentLikes(commentId, userInfo.getUserIdentifier()) == null ){
-			throw new ResourceAlreadyExistException("User has already liked the comment.", ResponseCodes.NAME_ALREADY_EXISTS);
-		}
-		
-		projectDiscussion.setNumLikes(projectDiscussion.getNumLikes() +1);
-		
-		return projectDiscussion;
-	}
-	
-	public ProjectCommentLikes findProjectCommentLikesOnUserIdAndCommentId(long commentId, int userId){
-		return projectCommentLikesDao.findByCommentIdAndUserId(commentId, userId);
-	}
-	
-	public ProjectCommentLikes createProjectCommentLikes(long commentId, int userId){
-		ProjectCommentLikes alreadyLikes = findProjectCommentLikesOnUserIdAndCommentId(commentId, userId);
-		if(alreadyLikes != null){
-			return null;
-		}
-			
-		ProjectCommentLikes projectCommentLikes = new ProjectCommentLikes();
-		
-		projectCommentLikes.setCommentId(commentId);
-		projectCommentLikes.setUserId(userId);
-		
-		return projectCommentLikesDao.save(projectCommentLikes);
-	}
-	
-	public PaginatedResponse<List<ProjectDiscussion>> getProjectComments(int projectId, Paging paging){
-		
-		List<ProjectDiscussion> allComments = projectDiscussionDao.getDiscussionsByProjectIdOrderByCreatedDateDesc(projectId);
-		if(allComments == null || allComments.size() < 1)
-			return null;
-		
-		Map<Long, List<ProjectDiscussion>> parentChildComments = new HashMap<>();
-		long parentId;
-		List<ProjectDiscussion> projectDiscussionsList;
-		Iterator<ProjectDiscussion> it = allComments.iterator();
-		ProjectDiscussion projectDiscussions;
-		while(it.hasNext())
-		{
-			projectDiscussions = it.next();
-			parentId = projectDiscussions.getParentId();
-			if( parentId > 0 )
-			{
-				projectDiscussionsList = parentChildComments.get(parentId);
-				if(projectDiscussionsList == null)
-				{
-					projectDiscussionsList = new ArrayList<>();
-					parentChildComments.put(parentId, projectDiscussionsList);
-				}
-			
-				projectDiscussionsList.add(projectDiscussions);
-				it.remove();
-			}
-		}
-		int totalRootComments = allComments.size();
-		allComments = setPagingOnProjectDiscussion(allComments, paging);
-		
-		Queue<ProjectDiscussion> queue = new LinkedList<>(allComments);
-		while( !queue.isEmpty() )
-		{
-			projectDiscussions = queue.remove();
-			projectDiscussionsList = parentChildComments.get( projectDiscussions.getId() );
-			if(projectDiscussionsList != null)
-			{
-				projectDiscussions.setChildDiscussions( projectDiscussionsList );
-				queue.addAll(projectDiscussionsList);
-			}
-		}
-		
-		PaginatedResponse<List<ProjectDiscussion>> response = new PaginatedResponse<>();
-		response.setResults(allComments);
-		response.setTotalCount(totalRootComments);
-		
-		return response;
-	}
-	
-	private List<ProjectDiscussion> setPagingOnProjectDiscussion(List<ProjectDiscussion> comments, Paging paging){
-		int totalRootComments = comments.size();
-		// setting paging of the root comments
-		if (paging == null) {
-			paging = new Paging();
-		}
-		if (paging.getStart() > totalRootComments) {
-			throw new ArrayIndexOutOfBoundsException(
-					"Max comments in the project is: " + totalRootComments);
-		}
+    @Autowired
+    private ProjectDiscussionsDao   projectDiscussionDao;
 
-		int pagingRows = paging.getRows() + paging.getStart();
-		pagingRows = pagingRows > totalRootComments ? totalRootComments
-				: pagingRows;
+    @Autowired
+    private SubscriptionService     subscriptionService;
 
-		return comments.subList(paging.getStart(), pagingRows);
-	}
-	
-	@Deprecated
-	private boolean sendMailOnProjectComment(ForumUser forumUser,
-		Project project, ProjectDiscussion projectDiscussion) {
-		
-		String[] mailTo = propertyReader.getRequiredProperty(
-				"mail.project.comment.to.recipient").split(",");
-		
-		String[] mailCC = propertyReader.getRequiredProperty(
-				"mail.project.comment.cc.recipient").split(",");
-		
-		MailBody mailBody = mailBodyGenerator.generateMailBody(
-				MailTemplateDetail.ADD_NEW_PROJECT_COMMENT,
-				new ProjectDiscussionMailDTO(project, forumUser,
-						projectDiscussion));
-		
-		return mailSender.sendMailUsingAws(mailTo, mailCC, null,
-				mailBody.getBody(), mailBody.getSubject());
+    @Autowired
+    private ProjectService          projectService;
 
-	}
+    @Autowired
+    private ForumUserDao            forumUserDao;
 
-	public static class ProjectDiscussionMailDTO {
-		public Project project;
-		public ForumUser forumUser;
-		public ProjectDiscussion projectDiscussion;
+    @Autowired
+    private ProjectCommentLikesDao  projectCommentLikesDao;
 
-		public ProjectDiscussionMailDTO(Project project, ForumUser forumUser,
-				ProjectDiscussion projectDiscussion) {
-			this.project = project;
-			this.forumUser = forumUser;
-			this.projectDiscussion = projectDiscussion;
-		}
+    @Autowired
+    private TemplateToHtmlGenerator mailBodyGenerator;
 
-		public Project getProject() {
-			return project;
-		}
+    @Autowired
+    private MailSender              mailSender;
 
-		public ForumUser getForumUser() {
-			return forumUser;
-		}
+    @Autowired
+    private PropertyReader          propertyReader;
 
-		public ProjectDiscussion getProjectDiscussion() {
-			return projectDiscussion;
-		}
+    public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, UserInfo userInfo) {
 
-	}
+        if (projectDiscussion.getComment() == null || projectDiscussion.getComment().isEmpty()) {
+            throw new IllegalArgumentException("Comments cannot be null");
+        }
+        Project project = projectService.getProjectData(projectDiscussion.getProjectId());
+        if (project == null) {
+            throw new IllegalArgumentException("Enter valid Project Id");
+        }
+
+        ForumUser forumUser = forumUserDao.findOne(userInfo.getUserIdentifier());
+
+        projectDiscussion.setUserId(userInfo.getUserIdentifier());
+        projectDiscussion.setAdminUserName(forumUser.getUsername());
+        projectDiscussion.setLevel(0);
+        projectDiscussion.setNumLikes(0);
+        projectDiscussion.setStatus("0");
+        projectDiscussion.setReplied(ProjectDiscussion.Replies.F);
+
+        ProjectDiscussion parentProjectDiscussion = null;
+        if (projectDiscussion.getParentId() > 0) {
+            parentProjectDiscussion = projectDiscussionDao.findByIdAndProjectId(
+                    projectDiscussion.getParentId(),
+                    projectDiscussion.getProjectId());
+            if (parentProjectDiscussion == null) {
+                throw new IllegalArgumentException("Parent Comment Id project should belong to Project Id supplied.");
+            }
+
+            projectDiscussion.setLevel(parentProjectDiscussion.getLevel() + 1);
+            projectDiscussion.setReplied(ProjectDiscussion.Replies.T);
+        }
+        ProjectDiscussion savedProjectDiscussions = projectDiscussionDao.save(projectDiscussion);
+
+        subscriptionService.enableOrAddUserSubscription(
+                userInfo.getUserIdentifier(),
+                projectDiscussion.getProjectId(),
+                Project.class.getAnnotation(Table.class).name(),
+                Constants.SubscriptionType.FORUM);
+
+        return savedProjectDiscussions;
+    }
+
+    @Transactional
+    public ProjectDiscussion incrementProjectCommentLikes(long commentId, UserInfo userInfo) {
+        ProjectDiscussion projectDiscussion = projectDiscussionDao.findOne(commentId);
+
+        if (projectDiscussion == null) {
+            return null;
+        }
+        // User has already liked the comment
+        if (createProjectCommentLikes(commentId, userInfo.getUserIdentifier()) == null) {
+            throw new ResourceAlreadyExistException(
+                    "User has already liked the comment.",
+                    ResponseCodes.NAME_ALREADY_EXISTS);
+        }
+
+        projectDiscussion.setNumLikes(projectDiscussion.getNumLikes() + 1);
+
+        return projectDiscussion;
+    }
+
+    public ProjectCommentLikes findProjectCommentLikesOnUserIdAndCommentId(long commentId, int userId) {
+        return projectCommentLikesDao.findByCommentIdAndUserId(commentId, userId);
+    }
+
+    public ProjectCommentLikes createProjectCommentLikes(long commentId, int userId) {
+        ProjectCommentLikes alreadyLikes = findProjectCommentLikesOnUserIdAndCommentId(commentId, userId);
+        if (alreadyLikes != null) {
+            return null;
+        }
+
+        ProjectCommentLikes projectCommentLikes = new ProjectCommentLikes();
+
+        projectCommentLikes.setCommentId(commentId);
+        projectCommentLikes.setUserId(userId);
+
+        return projectCommentLikesDao.save(projectCommentLikes);
+    }
+
+    public PaginatedResponse<List<ProjectDiscussion>> getProjectComments(int projectId, Paging paging) {
+
+        List<ProjectDiscussion> allComments = projectDiscussionDao
+                .getDiscussionsByProjectIdOrderByCreatedDateDesc(projectId);
+        if (allComments == null || allComments.size() < 1)
+            return null;
+
+        Map<Long, List<ProjectDiscussion>> parentChildComments = new HashMap<>();
+        long parentId;
+        List<ProjectDiscussion> projectDiscussionsList;
+        Iterator<ProjectDiscussion> it = allComments.iterator();
+        ProjectDiscussion projectDiscussions;
+        while (it.hasNext()) {
+            projectDiscussions = it.next();
+            parentId = projectDiscussions.getParentId();
+            if (parentId > 0) {
+                projectDiscussionsList = parentChildComments.get(parentId);
+                if (projectDiscussionsList == null) {
+                    projectDiscussionsList = new ArrayList<>();
+                    parentChildComments.put(parentId, projectDiscussionsList);
+                }
+
+                projectDiscussionsList.add(projectDiscussions);
+                it.remove();
+            }
+        }
+        int totalRootComments = allComments.size();
+        allComments = setPagingOnProjectDiscussion(allComments, paging);
+
+        Queue<ProjectDiscussion> queue = new LinkedList<>(allComments);
+        while (!queue.isEmpty()) {
+            projectDiscussions = queue.remove();
+            projectDiscussionsList = parentChildComments.get(projectDiscussions.getId());
+            if (projectDiscussionsList != null) {
+                projectDiscussions.setChildDiscussions(projectDiscussionsList);
+                queue.addAll(projectDiscussionsList);
+            }
+        }
+
+        PaginatedResponse<List<ProjectDiscussion>> response = new PaginatedResponse<>();
+        response.setResults(allComments);
+        response.setTotalCount(totalRootComments);
+
+        return response;
+    }
+
+    private List<ProjectDiscussion> setPagingOnProjectDiscussion(List<ProjectDiscussion> comments, Paging paging) {
+        int totalRootComments = comments.size();
+        // setting paging of the root comments
+        if (paging == null) {
+            paging = new Paging();
+        }
+        if (paging.getStart() > totalRootComments) {
+            throw new ArrayIndexOutOfBoundsException("Max comments in the project is: " + totalRootComments);
+        }
+
+        int pagingRows = paging.getRows() + paging.getStart();
+        pagingRows = pagingRows > totalRootComments ? totalRootComments : pagingRows;
+
+        return comments.subList(paging.getStart(), pagingRows);
+    }
+
+    @Deprecated
+    private boolean sendMailOnProjectComment(ForumUser forumUser, Project project, ProjectDiscussion projectDiscussion) {
+
+        String[] mailTo = propertyReader.getRequiredProperty("mail.project.comment.to.recipient").split(",");
+
+        String[] mailCC = propertyReader.getRequiredProperty("mail.project.comment.cc.recipient").split(",");
+
+        MailBody mailBody = mailBodyGenerator.generateMailBody(
+                MailTemplateDetail.ADD_NEW_PROJECT_COMMENT,
+                new ProjectDiscussionMailDTO(project, forumUser, projectDiscussion));
+
+        return mailSender.sendMailUsingAws(mailTo, mailCC, null, mailBody.getBody(), mailBody.getSubject());
+
+    }
+
+    public static class ProjectDiscussionMailDTO {
+        public Project           project;
+        public ForumUser         forumUser;
+        public ProjectDiscussion projectDiscussion;
+
+        public ProjectDiscussionMailDTO(Project project, ForumUser forumUser, ProjectDiscussion projectDiscussion) {
+            this.project = project;
+            this.forumUser = forumUser;
+            this.projectDiscussion = projectDiscussion;
+        }
+
+        public Project getProject() {
+            return project;
+        }
+
+        public ForumUser getForumUser() {
+            return forumUser;
+        }
+
+        public ProjectDiscussion getProjectDiscussion() {
+            return projectDiscussion;
+        }
+
+    }
 
 }

@@ -10,27 +10,30 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "subscription_type")
 public class SubscriptionType extends BaseModel {
-	@Id
-	@Column(name = "id")
-	private int id;
-	
-	@Column(name = "name")
-	private String name;
 
-	public int getId() {
-		return id;
-	}
+    private static final long serialVersionUID = -3042431508853104170L;
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    @Id
+    @Column(name = "id")
+    private int               id;
 
-	public String getName() {
-		return name;
-	}
+    @Column(name = "name")
+    private String            name;
 
-	public void setName(String name) {
-		this.name = name;
-	}
-	
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

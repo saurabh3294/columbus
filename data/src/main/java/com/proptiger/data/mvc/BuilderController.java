@@ -42,7 +42,8 @@ public class BuilderController extends BaseController {
         }
         List<Builder> builders = builderService.getTopBuilders(builderSelector);
 
-        return new ProAPISuccessCountResponse(super.filterFields(builders, builderSelector.getFields()),
+        return new ProAPISuccessCountResponse(
+                super.filterFields(builders, builderSelector.getFields()),
                 builders.size());
     }
 }

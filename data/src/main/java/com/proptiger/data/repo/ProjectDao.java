@@ -21,51 +21,59 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
- *
+ * 
  * @author Mukand
  */
 @Repository
 public class ProjectDao extends ProjectSolrDao {
-        @Autowired
-        private ProjectDBDao projectDBDao;
-        
-        @Autowired
-        private ProjectDatabaseDao projectDatabaseDao;
-        
-        @Autowired
-        private EntityManagerFactory emf;
+    @Autowired
+    private ProjectDBDao         projectDBDao;
 
-        public ProjectDB findByProjectId(int projectId){
-            return projectDBDao.findByProjectId(projectId);
-        }
-        
-        public Project findProjectByProjectId(int projectId){
-        	return projectDatabaseDao.findByProjectId(projectId);
-        }
+    @Autowired
+    private ProjectDatabaseDao   projectDatabaseDao;
 
-        public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
-            if (commentId == null) {
-                return projectDBDao.getProjectDiscussions(projectId);
-            }
-            else {
-                return projectDBDao.getChildrenProjectDiscussions(commentId);
-            }
-        }
-        
-        public List<Integer> getMostRecentlyDiscussedProjectInNWeeksOnLocation(Date date, int locationType, int locationId, int minCount){
-        	return projectDatabaseDao.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
-        }
-        
-        public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(Date date, int locationType, int locationId, int minCount){
-        	return projectDatabaseDao.getMostDiscussedProjects(date, locationType, locationId, minCount);
-        }
+    @Autowired
+    private EntityManagerFactory emf;
 
-        public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
-            AbstractQueryBuilder<Project> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Project.class);
-            builder.buildQuery(selector);
-            PaginatedResponse<List<Project>> paginatedResponse = new PaginatedResponse<>();
-            paginatedResponse.setResults(builder.retrieveResults());
-            paginatedResponse.setTotalCount(builder.retrieveCount());
-            return paginatedResponse;
+    public ProjectDB findByProjectId(int projectId) {
+        return projectDBDao.findByProjectId(projectId);
+    }
+
+    public Project findProjectByProjectId(int projectId) {
+        return projectDatabaseDao.findByProjectId(projectId);
+    }
+
+    public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
+        if (commentId == null) {
+            return projectDBDao.getProjectDiscussions(projectId);
         }
+        else {
+            return projectDBDao.getChildrenProjectDiscussions(commentId);
+        }
+    }
+
+    public List<Integer> getMostRecentlyDiscussedProjectInNWeeksOnLocation(
+            Date date,
+            int locationType,
+            int locationId,
+            int minCount) {
+        return projectDatabaseDao.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
+    }
+
+    public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(
+            Date date,
+            int locationType,
+            int locationId,
+            int minCount) {
+        return projectDatabaseDao.getMostDiscussedProjects(date, locationType, locationId, minCount);
+    }
+
+    public PaginatedResponse<List<Project>> getProjects(FIQLSelector selector) {
+        AbstractQueryBuilder<Project> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Project.class);
+        builder.buildQuery(selector);
+        PaginatedResponse<List<Project>> paginatedResponse = new PaginatedResponse<>();
+        paginatedResponse.setResults(builder.retrieveResults());
+        paginatedResponse.setTotalCount(builder.retrieveCount());
+        return paginatedResponse;
+    }
 }

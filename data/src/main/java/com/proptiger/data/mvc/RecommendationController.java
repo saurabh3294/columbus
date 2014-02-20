@@ -20,9 +20,8 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.RecommendationService;
 
-
 /**
- *
+ * 
  * @author mukand
  */
 @Controller
@@ -30,30 +29,34 @@ import com.proptiger.data.service.RecommendationService;
 public class RecommendationController extends BaseController {
     @Autowired
     private RecommendationService recommendationService;
-    
+
     @Autowired
-    private ImageEnricher imageEnricher;
-    
+    private ImageEnricher         imageEnricher;
+
     @ResponseBody
-    @RequestMapping(params={"type=similar", "propertyId"}, method=RequestMethod.GET)
-    public ProAPISuccessResponse getSimilarProperties(@RequestParam(value = "propertyId")Long propertyId, @RequestParam(value="limit", required = false)Integer limit){
-        if(limit == null)
+    @RequestMapping(params = { "type=similar", "propertyId" }, method = RequestMethod.GET)
+    public ProAPISuccessResponse getSimilarProperties(
+            @RequestParam(value = "propertyId") Long propertyId,
+            @RequestParam(value = "limit", required = false) Integer limit) {
+        if (limit == null)
             limit = 4;
-        
+
         List<Property> properties = recommendationService.getSimilarProperties(propertyId, limit);
         imageEnricher.setPropertiesImages(properties);
         return new ProAPISuccessResponse(super.filterFields(properties, null));
     }
-    
+
     @ResponseBody
-    @RequestMapping(params={"type=similar", "projectId"}, method=RequestMethod.GET)
-    public ProAPIResponse getSimilarProjects(@RequestParam(value = "projectId")int projectId, @RequestParam(value="limit", required = false)Integer limit){
-        if(limit == null)
+    @RequestMapping(params = { "type=similar", "projectId" }, method = RequestMethod.GET)
+    public ProAPIResponse getSimilarProjects(@RequestParam(value = "projectId") int projectId, @RequestParam(
+            value = "limit",
+            required = false) Integer limit) {
+        if (limit == null)
             limit = 4;
-        
+
         List<Project> projects = recommendationService.getSimilarProjects(projectId, limit);
-        //imageEnricher.setProjectMainImage(projects);
-        
+        // imageEnricher.setProjectMainImage(projects);
+
         return new ProAPISuccessResponse(super.filterFields(projects, null));
     }
 }
