@@ -412,6 +412,10 @@ public class Project extends BaseModel {
     @Field("PROJECT_LAST_UPDATED_DATE")
     private Date                    lastUpdatedDate;
 
+    @Transient
+    @Field("geodist()")
+    private Double                  geoDistance;
+
     public int getProjectId() {
         return projectId;
     }
@@ -958,6 +962,14 @@ public class Project extends BaseModel {
         for (int i = 0; i < offers.length; i++) {
             this.offers.add(gson.fromJson(offers[i], Offer.class));
         }
+    }
+
+    public Double getGeoDistance() {
+        return geoDistance;
+    }
+
+    public void setGeoDistance(Double geoDistance) {
+        this.geoDistance = geoDistance;
     }
 
 }

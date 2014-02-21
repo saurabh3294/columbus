@@ -68,7 +68,6 @@ public class PropertyService {
      */
     public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         PaginatedResponse<List<Project>> projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
-        // imageEnricher.setProjectMainImage(projects.getResults());
 
         return projects;
     }
