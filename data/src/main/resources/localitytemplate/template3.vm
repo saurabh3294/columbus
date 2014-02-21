@@ -128,10 +128,12 @@ Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringT
 			#if($counter == 0)
 				#projectDescWithLowestRate($locality.label $project)
 			#elseif($counter == 1)
-				Whereas #projectDescWithHighestRate($locality.label $project)
+				, whereas #projectDescWithHighestRate($locality.label $project)
 			#end
 			#set($counter = $counter + 1)
 		#end
-		
+	#end
+	#if($counter > 0)
+	. 
 	#end
 #end

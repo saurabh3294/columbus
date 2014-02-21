@@ -44,8 +44,8 @@
 	#if($projectObj)
 		#if($projectObj.minPricePerUnitArea)
 			$projectObj.name by $projectObj.builder.name is available at lowest rate of Rs.  
-			$numberFormatter.format($projectObj.minPricePerUnitArea) per sq ft 
-			in $localityLabel. 
+			$numberFormatter.format($projectObj.minPricePerUnitArea) per sq ft  
+			in $localityLabel  
 		#end
 	#end
 #end
@@ -53,7 +53,7 @@
 	#if($projectObj)
 		#if($projectObj.maxPricePerUnitArea)
 			$projectObj.name by $projectObj.builder.name is available at highest rate of Rs. 
-			$numberFormatter.format($projectObj.maxPricePerUnitArea) per sq ft. 
+			$numberFormatter.format($projectObj.maxPricePerUnitArea) per sq ft
 		#end
 	#end
 #end
@@ -136,13 +136,13 @@
 
 #macro(populateAmenitiesList $amenities)
 	#foreach( $amenity in $amenities )
-		#if($amenity.localityAmenityTypes.name=="school" && !$schoolsList.contains($amenity.localityAmenityTypes.name))
+		#if($amenity.localityAmenityTypes.name=="school" && !$schoolsList.contains($amenity.name))
 			#set($temp = $schoolsList.add($amenity.name))
 		#end
-		#if($amenity.localityAmenityTypes.name=="hospital" && !$hospitalsList.contains($amenity.localityAmenityTypes.name))
+		#if($amenity.localityAmenityTypes.name=="hospital" && !$hospitalsList.contains($amenity.name))
 		 	#set($temp = $hospitalsList.add($amenity.name))
 		#end
-		#if($amenity.localityAmenityTypes.name=="subway_station" && !$metroStationList.contains($amenity.localityAmenityTypes.name))
+		#if($amenity.localityAmenityTypes.name=="subway_station" && !$metroStationList.contains($amenity.name))
 		 	#set($temp = $metroStationList.add($amenity.name))
 		#end
 	#end
@@ -162,13 +162,16 @@
 	#set($unitNamesStringList = [])
 	#if($properties)
 		#foreach($property in $properties)
-		#if(!$unitTypesStringList.contains($property.unitType))
-			#set($temp = $unitTypesStringList.add($property.unitType))
+			#if(!$unitTypesStringList.contains($property.unitType))
+				#set($temp = $unitTypesStringList.add($property.unitType))
+			#end
+			#if($property.bedrooms)
+				#set($unitName = $property.bedrooms + " BHK")
+				#if(!$unitNamesStringList.contains($unitName))
+					#set($temp = $unitNamesStringList.add($unitName))
+				#end
+			#end
 		#end
-		#if(!$unitNamesStringList.contains($property.unitName))
-			#set($temp = $unitNamesStringList.add($property.unitName))
-		#end
+		$velocityUtility.sort($unitNamesStringList)
 	#end
-	#end
-	
 #end

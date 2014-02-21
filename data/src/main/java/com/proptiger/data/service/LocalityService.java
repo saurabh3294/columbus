@@ -480,7 +480,7 @@ public class LocalityService {
         /*
          * Create selector
          */
-        Selector geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
+        Selector geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(localitySelector,
                 mainLocality.getLocalityId(),
                 mainLocality.getLatitude(),
                 mainLocality.getLongitude(),
@@ -499,7 +499,7 @@ public class LocalityService {
                     popularLocalityThresholdCount,
                     radiusOneForTopLocality);
 
-            geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
+            geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(localitySelector,
                     mainLocality.getLocalityId(),
                     mainLocality.getLatitude(),
                     mainLocality.getLongitude(),
@@ -517,7 +517,7 @@ public class LocalityService {
                         popularLocalityThresholdCount,
                         radiusTwoForTopLocality);
 
-                geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
+                geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(localitySelector,
                         mainLocality.getLocalityId(),
                         mainLocality.getLatitude(),
                         mainLocality.getLongitude(),
@@ -538,30 +538,33 @@ public class LocalityService {
              */
             Locality localityWithMoreInfo = getLocalityInfo(locality.getLocalityId(), 0);
             /*
-             * check if average rating is >= to minimum rating threshold
+             * check if average rating is >= to minimum rating threshold. If
+             * minRatingThresholdForTopLocality is 0 then we can safely include
+             * locality that do not have review means review is null
              */
-            if (localityWithMoreInfo.getAverageRating() != null && localityWithMoreInfo.getAverageRating() >= minRatingThresholdForTopLocality) {
-                // if rating is greater than threshold then update average
-                // rating value
-                locality.setAverageRating(localityWithMoreInfo.getAverageRating());
+            if(minRatingThresholdForTopLocality == 0.0){
+                //do nothing
             }
-            else {
-                // remove the locality as rating is less that threshold
-                localityItr.remove();
+            else{
+                if (localityWithMoreInfo.getAverageRating() != null && localityWithMoreInfo.getAverageRating() >= minRatingThresholdForTopLocality) {
+                    // if rating is greater than threshold then update average
+                    // rating value
+                    locality.setAverageRating(localityWithMoreInfo.getAverageRating());
+                }
+                else {
+                    // remove the locality as rating is less that threshold
+                    localityItr.remove();
+                }
             }
+            
         }
-        for (Locality locality : localitiesAroundMainLocality) {
-            LocalityRatingDetails localityReviewDetails = localityRatingService
-                    .getUsersCountByRatingOfLocality(locality.getLocalityId());
-            locality.setNumberOfUsersByRating(localityReviewDetails.getTotalUsersByRating());
-        }
-        imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
         return localitiesAroundMainLocality;
     }
 
     /**
      * Creating selector object to find all localities around provided locality
      * id under given radius from lat, lon
+     * @param localitySelector 
      * 
      * @param localityId
      * @param lat
@@ -570,7 +573,7 @@ public class LocalityService {
      * @return
      */
     private Selector createSelectorForTopLocalityWithRadiusAroundLocality(
-            Integer localityId,
+            Selector localitySelector, Integer localityId,
             Double lat,
             Double lon,
             Double radius) {
@@ -595,6 +598,7 @@ public class LocalityService {
         list.add(searchType);
         filter.put(Operator.and.name(), list);
         selector.setFilters(filter);
+        selector.setPaging(localitySelector != null? localitySelector.getPaging(): new Paging());
         return selector;
     }
 
