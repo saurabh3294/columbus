@@ -41,6 +41,7 @@ import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
 
@@ -68,8 +69,6 @@ public class CompositeAPIService {
     @Autowired
     private ApplicationContext           context;
     private RequestMappingHandlerMapping handlerMapping;
-
-    private Pattern                      bracesPartOfUrl           = Pattern.compile("(\\{\\S+\\})");
 
     @PostConstruct
     public void init() {
@@ -147,7 +146,8 @@ public class CompositeAPIService {
 
     /**
      * Get complete url. if url passed have forward slash at start then remove
-     * that since we already have forward slash in base url part
+     * that since we already have forward slash in base url part. This method
+     * will encode url.
      * 
      * @param uri
      * @return
@@ -163,17 +163,9 @@ public class CompositeAPIService {
         catch (UnsupportedEncodingException e1) {
             logger.error("Could not decode uri {}", uri, e1);
         }
-        Matcher matcher = bracesPartOfUrl.matcher(uri);
-        while (matcher.find()) {
-            try {
-                uri = matcher.replaceAll(URLEncoder.encode(matcher.group(1), "UTF-8"));
-            }
-            catch (UnsupportedEncodingException e) {
-                logger.error("Could not encode url {}", uri, e);
-            }
-        }
         String completeUrl = BASE_URL + uri;
-        return completeUrl;
+        String encoded = UriComponentsBuilder.fromUriString(completeUrl).build().encode().toString();
+        return encoded;
     }
 
     /**
