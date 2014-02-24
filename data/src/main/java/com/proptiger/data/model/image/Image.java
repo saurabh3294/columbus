@@ -62,7 +62,7 @@ public class Image extends BaseModel {
 
     @JsonProperty
     public String getAbsolutePath() {
-        return ImageUtil.endpoint + "/" + path + waterMarkName;
+        return ImageUtil.endpoints[(int) (id % ImageUtil.endpoints.length)] + "/" + path + waterMarkName;
     }
 
     // XXX - Do not remove! used for creating object from serialized string
@@ -294,9 +294,12 @@ public class Image extends BaseModel {
     }
 
     public static String addImageHostUrl(String path) {
-        if (path.indexOf(ImageUtil.endpoint) < 0)
-            return ImageUtil.endpoint + "/" + path;
-        else
-            return path;
+        for (String endpoint: ImageUtil.endpoints) {
+            if (path.contains(endpoint)) {
+                return path;
+            }
+        }
+
+        return ImageUtil.endpoints[0] + "/" + path;
     }
 }

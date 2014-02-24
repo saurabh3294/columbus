@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 
 import org.im4java.core.CompositeCmd;
+import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
 import org.im4java.core.MogrifyCmd;
@@ -31,6 +32,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.io.Files;
 import com.proptiger.data.model.enums.DomainObject;
+import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
@@ -44,6 +46,7 @@ import com.proptiger.data.util.PropertyReader;
  */
 @Service
 public class ImageService {
+    private static final String HYPHON = "-";
     private static Logger    logger = LoggerFactory.getLogger(ImageService.class);
     private static File      tempDir;
 
@@ -58,7 +61,7 @@ public class ImageService {
 
     @PostConstruct
     private void init() {
-        ImageUtil.endpoint = propertyReader.getRequiredProperty("endpoint");
+        ImageUtil.endpoints = propertyReader.getRequiredProperty("endpoints").split(",");
         ImageUtil.bucket = propertyReader.getRequiredProperty("bucket");
 
         String path = propertyReader.getRequiredProperty("imageTempPath");
@@ -103,10 +106,40 @@ public class ImageService {
         waterMarkIS.close();
     }
 
-    private void uploadToS3(Image image, File original, File waterMark) throws IllegalArgumentException, IOException {
+    private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException, IOException {
         AmazonS3 s3 = createS3Instance();
         s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
+        original.delete();
+        
         s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
+        
+        for (ImageResolution imageResolution: ImageResolution.values()) {
+            File resizedFile = resize(waterMark, imageResolution, format);
+            s3.putObject(ImageUtil.bucket, image.getPath() + computeResizedImageName(image, imageResolution, format), resizedFile);
+            resizedFile.delete();
+        }
+        
+        waterMark.delete();
+    }
+
+    private File resize(File waterMark, ImageResolution imageResolution, String format) {
+        try {
+            ConvertCmd convertCmd = new ConvertCmd();
+            IMOperation imOperation = new IMOperation();
+            imOperation.addImage(waterMark.getAbsolutePath());
+            imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight());
+            File outputFile = File.createTempFile("resizedImage", Image.DOT + format, tempDir);
+            imOperation.addImage(outputFile.getAbsolutePath());
+            convertCmd.run(imOperation);
+            return outputFile;
+        }
+        catch (IM4JavaException | IOException | InterruptedException e) {
+            throw new RuntimeException("Could not resize image", e);
+        }
+    }
+
+    private String computeResizedImageName(Image image, ImageResolution imageResolution, String format) {
+        return image.getId() + HYPHON + imageResolution.getWidth() + HYPHON + imageResolution.getHeight() + Image.DOT + format;
     }
 
     private AmazonS3 createS3Instance() {
@@ -186,9 +219,7 @@ public class ImageService {
                     processedFile,
                     imageParams,
                     format);
-            uploadToS3(image, originalFile, processedFile);
-            originalFile.delete();
-            processedFile.delete();
+            uploadToS3(image, originalFile, processedFile, format);
             imageDao.markImageAsActive(image);
             return image;
         }
