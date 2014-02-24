@@ -51,6 +51,12 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "locality_name")
     private String  localityName;
 
+    @Column(name = "suburb_id")
+    private Integer suburbId;
+
+    @Column(name = "suburb_name")
+    private String  suburbName;
+
     @Column(name = "city_id")
     private Integer cityId;
 
@@ -216,6 +222,22 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setLocalityName(String localityName) {
         this.localityName = localityName;
+    }
+
+    public Integer getSuburbId() {
+        return suburbId;
+    }
+
+    public void setSuburbId(Integer suburbId) {
+        this.suburbId = suburbId;
+    }
+
+    public String getSuburbName() {
+        return suburbName;
+    }
+
+    public void setSuburbName(String suburbName) {
+        this.suburbName = suburbName;
     }
 
     public Integer getCityId() {
