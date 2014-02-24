@@ -1,5 +1,10 @@
 package com.proptiger.data.service;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,13 +32,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
 
@@ -64,6 +72,24 @@ public class CompositeAPIService {
 
     @PostConstruct
     public void init() {
+        restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new ResponseErrorHandler() {
+            @Override
+            public boolean hasError(ClientHttpResponse response) throws IOException {
+                /*
+                 * Return false in all cases even if there was a error while
+                 * handling a url. This is to include original error message
+                 * returned from server in the composite api response
+                 */
+                return false;
+            }
+
+            @Override
+            public void handleError(ClientHttpResponse response) throws IOException {
+                // this method will never be used because we are returning false
+                // in each case from hasError method
+            }
+        });
         if (context.getApplicationName() != null && !context.getApplicationName().isEmpty()) {
             String contextName = context.getApplicationName().replace(FORWARD_SLASH, "");
             BASE_URL = BASE_URL + contextName + FORWARD_SLASH;
@@ -92,7 +118,8 @@ public class CompositeAPIService {
                 Future<Object> future = executors.submit(new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {
-                        return restTemplate.getForObject(completeUrl, Object.class);
+                        URI uri = new URI(completeUrl);
+                        return restTemplate.getForObject(uri, Object.class);
                     }
                 });
                 futureObjMap.put(api, future);
@@ -101,34 +128,44 @@ public class CompositeAPIService {
             for (String key : futureObjMap.keySet()) {
                 Object responseObj = null;
                 try {
-                    responseObj = futureObjMap.get(key).get();
+                    Future<Object> future = futureObjMap.get(key);
+                    responseObj = future.get();
                 }
                 catch (InterruptedException | ExecutionException e) {
                     logger.error("Error while geting resource api {}", key, e);
-                    ;
                 }
                 if (responseObj == null) {
                     responseObj = ResponseErrorMessages.SOME_ERROR_OCCURED;
                 }
                 response.put(key, responseObj);
             }
+            executors.shutdown();
         }
         return response;
     }
 
     /**
      * Get complete url. if url passed have forward slash at start then remove
-     * that since we already have forward slash in base url part
+     * that since we already have forward slash in base url part. This method
+     * will encode url.
      * 
-     * @param api
+     * @param uri
      * @return
      */
-    private String getCompleteUrl(String api) {
+    private String getCompleteUrl(String uri) {
 
-        if (api.startsWith(FORWARD_SLASH)) {
-            api = api.replace(FORWARD_SLASH, "");
+        if (uri.startsWith(FORWARD_SLASH)) {
+            uri = uri.replaceFirst(FORWARD_SLASH, "");
         }
-        return BASE_URL + api;
+        try {
+            uri = URLDecoder.decode(uri, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e1) {
+            logger.error("Could not decode uri {}", uri, e1);
+        }
+        String completeUrl = BASE_URL + uri;
+        String encoded = UriComponentsBuilder.fromUriString(completeUrl).build().encode().toString();
+        return encoded;
     }
 
     /**
