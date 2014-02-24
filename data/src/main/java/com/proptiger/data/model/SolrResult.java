@@ -6,6 +6,8 @@ package com.proptiger.data.model;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Transient;
+
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -224,6 +226,18 @@ public class SolrResult extends BaseModel {
 
     @Field("geodist()")
     private Double            geoDistance;
+    
+    @Field("LOCALITY_PRICE_APPRECIATION_RATE")
+    private Double localityPriceAppreciationRate;
+    
+    @Field("PROJECT_PRICE_APPRECIATION_RATE")
+    private Double projectPriceAppreciationRate;
+    
+    @Field("LOCALITY_PRICE_RISE_TIME")
+    private Integer                         localityAvgPriceRiseMonths;
+    
+    @Field("HAS_GEO")
+    private Integer hasGeo;
 
     public SolrResult() {
         property.setProject(project);

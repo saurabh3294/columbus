@@ -177,4 +177,25 @@ public class LocalityController extends BaseController {
                 numberOfLocalities);
         return new ProAPISuccessResponse(super.filterFields(localities, localitySelector.getFields()));
     }
+
+    @RequestMapping(value = "highest-return")
+    @ResponseBody
+    public ProAPIResponse getHighestReturnLocalities(
+            @RequestParam String locationType,
+            @RequestParam int locationId,
+            @RequestParam(required = false, defaultValue = "5") int numberOfLocalities,
+            @RequestParam(required = false) String selector) {
+
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+
+        PaginatedResponse<List<Locality>> localities = localityService.getHighestReturnLocalities(
+                locationType,
+                locationId,
+                numberOfLocalities);
+
+        return new ProAPISuccessResponse(super.filterFields(localities, localitySelector.getFields()));
+    }
 }
