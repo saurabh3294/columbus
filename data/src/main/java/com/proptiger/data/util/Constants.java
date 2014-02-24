@@ -1,5 +1,8 @@
 package com.proptiger.data.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Define all constants in this class, either make a group of constants related
  * to particular entity or put that on global scope.
@@ -10,13 +13,22 @@ package com.proptiger.data.util;
 public class Constants {
 
     // Global constants start
-    public static final String  LOGIN_INFO_OBJECT_NAME    = "_const_user_object_";
-    public static final Integer ADMIN_USER_ID             = 57594;
-    public static final String  REQ_PARAMETER_FOR_USER_ID = "_user_id";
-    public static final String  JSESSIONID                = "JSESSIONID";
-    public static final String  PHPSESSID_KEY             = "PHPSESSID";
-    public static final int     DEFAULT_NO_OF_ROWS        = 10;
-    public static final String  USERNAME                  = "username";
+    public static final String               LOGIN_INFO_OBJECT_NAME    = "_const_user_object_";
+    public static final Integer              ADMIN_USER_ID             = 57594;
+    public static final String               REQ_PARAMETER_FOR_USER_ID = "_user_id";
+    public static final String               JSESSIONID                = "JSESSIONID";
+    public static final String               PHPSESSID_KEY             = "PHPSESSID";
+    public static final int                  DEFAULT_NO_OF_ROWS        = 10;
+    public static final String               USERNAME                  = "username";
+
+    /**
+     * Put all solr Dynamic Field generated in this class.
+     */
+    public static final Map<String, Integer> solrDynamicFields;
+    static {
+        solrDynamicFields = new HashMap<String, Integer>();
+        solrDynamicFields.put("geoDistance", 1);
+    }
 
     // Global constants end
 
@@ -88,4 +100,5 @@ public class Constants {
         public static final String LOCALITY_AMENITY                      = "loc-amenity";
 
     }
+
 }
