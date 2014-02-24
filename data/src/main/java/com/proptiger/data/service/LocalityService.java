@@ -818,11 +818,13 @@ public class LocalityService {
 
         return localityDao.findByLocalityIds(localities, null);
     }
-    
+
     /**
-     * This method is used for getting the localities based on their appreciation rate in descending order.
-     * For city and suburb, the localities in that type are retrieved. 
-     * For locality, the locailties within radius of of (5,10,15) are retrieved. 
+     * This method is used for getting the localities based on their
+     * appreciation rate in descending order. For city and suburb, the
+     * localities in that type are retrieved. For locality, the locailties
+     * within radius of of (5,10,15) are retrieved.
+     * 
      * @param locationTypeStr
      * @param locationId
      * @param numberOfLocalities
@@ -845,7 +847,7 @@ public class LocalityService {
                     + "Id\":"
                     + locationId
                     + "}},{\"range\":{\"localityAvgPriceRiseMonths\":{\"from\":1}}}]},\"sort\":[{\"field\":\"localityPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
-            
+
             selector = new Gson().fromJson(json, Selector.class);
             localities = localityDao.getLocalities(selector);
         }
@@ -863,7 +865,6 @@ public class LocalityService {
                     + "{\"equal\":{\"hasGeo\":1}},"
                     + "{\"range\":{\"localityAvgPriceRiseMonths\":{\"from\":1}}}]},\"sort\":[{\"field\":\"localityPriceAppreciationRate\",\"sortOrder\":\"DESC\"},{\"field\":\"geoDistance\",\"sortOrder\":\"ASC\"}]}";
 
-            
             String jsonWithRadius;
             for (int i = 0; i < radius.length && (localities == null || localities.getTotalCount() < numberOfLocalities); i++) {
                 jsonWithRadius = String.format(json, radius[i]);

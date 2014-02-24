@@ -226,18 +226,18 @@ public class SolrResult extends BaseModel {
 
     @Field("geodist()")
     private Double            geoDistance;
-    
+
     @Field("LOCALITY_PRICE_APPRECIATION_RATE")
-    private Double localityPriceAppreciationRate;
-    
+    private Double            localityPriceAppreciationRate;
+
     @Field("PROJECT_PRICE_APPRECIATION_RATE")
-    private Double projectPriceAppreciationRate;
-    
+    private Double            projectPriceAppreciationRate;
+
     @Field("LOCALITY_PRICE_RISE_TIME")
-    private Integer                         localityAvgPriceRiseMonths;
-    
+    private Integer           localityAvgPriceRiseMonths;
+
     @Field("HAS_GEO")
-    private Integer hasGeo;
+    private Integer           hasGeo;
 
     public SolrResult() {
         property.setProject(project);
