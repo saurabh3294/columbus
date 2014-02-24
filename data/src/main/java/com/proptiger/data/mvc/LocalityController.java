@@ -184,6 +184,7 @@ public class LocalityController extends BaseController {
             @RequestParam String locationType,
             @RequestParam int locationId,
             @RequestParam(required = false, defaultValue = "5") int numberOfLocalities,
+            @RequestParam(required = false, defaultValue = "5") double minimumPriceRise,
             @RequestParam(required = false) String selector) {
 
         Selector localitySelector = new Selector();
@@ -194,7 +195,7 @@ public class LocalityController extends BaseController {
         PaginatedResponse<List<Locality>> localities = localityService.getHighestReturnLocalities(
                 locationType,
                 locationId,
-                numberOfLocalities);
+                numberOfLocalities, minimumPriceRise);
 
         return new ProAPISuccessResponse(super.filterFields(localities, localitySelector.getFields()));
     }

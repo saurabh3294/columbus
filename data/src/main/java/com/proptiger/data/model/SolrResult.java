@@ -227,14 +227,23 @@ public class SolrResult extends BaseModel {
     @Field("geodist()")
     private Double            geoDistance;
 
+    @Field("LOCALITY_PRICE_RISE")
+    private Double localityAvgPriceRisePercentage;
+    
     @Field("LOCALITY_PRICE_APPRECIATION_RATE")
     private Double            localityPriceAppreciationRate;
+
+    @Field("LOCALITY_PRICE_RISE_TIME")
+    private Integer           localityAvgPriceRiseMonths;
+    
+    @Field("PROJECT_PRICE_RISE")
+    private Double projectAvgPriceRisePercentage;
 
     @Field("PROJECT_PRICE_APPRECIATION_RATE")
     private Double            projectPriceAppreciationRate;
 
-    @Field("LOCALITY_PRICE_RISE_TIME")
-    private Integer           localityAvgPriceRiseMonths;
+    @Field("PROJECT_PRICE_RISE_TIME")
+    private String           projectAvgPriceRiseMonths;
 
     @Field("HAS_GEO")
     private Integer           hasGeo;

@@ -833,7 +833,8 @@ public class LocalityService {
     public PaginatedResponse<List<Locality>> getHighestReturnLocalities(
             String locationTypeStr,
             int locationId,
-            int numberOfLocalities) {
+            int numberOfLocalities,
+            double minimumPriceRise) {
 
         int radius[] = { 5, 10, 15 };
         PaginatedResponse<List<Locality>> localities = null;
@@ -846,7 +847,9 @@ public class LocalityService {
                     + locationTypeStr
                     + "Id\":"
                     + locationId
-                    + "}},{\"range\":{\"localityAvgPriceRiseMonths\":{\"from\":1}}}]},\"sort\":[{\"field\":\"localityPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
+                    + "}},{\"range\":{\"localityAvgPriceRiseMonths\":{\"from\":1},\"localityAvgPriceRisePercentage\":{\"from\":"
+                    + minimumPriceRise
+                    + "}}}]},\"sort\":[{\"field\":\"localityPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
 
             selector = new Gson().fromJson(json, Selector.class);
             localities = localityDao.getLocalities(selector);
@@ -863,7 +866,9 @@ public class LocalityService {
                     + locality.getLongitude()
                     + "}}},"
                     + "{\"equal\":{\"hasGeo\":1}},"
-                    + "{\"range\":{\"localityAvgPriceRiseMonths\":{\"from\":1}}}]},\"sort\":[{\"field\":\"localityPriceAppreciationRate\",\"sortOrder\":\"DESC\"},{\"field\":\"geoDistance\",\"sortOrder\":\"ASC\"}]}";
+                    + "{\"range\":{\"localityAvgPriceRiseMonths\":{\"from\":1},\"localityAvgPriceRisePercentage\":{\"from\":"
+                    + minimumPriceRise
+                    + "}}}]},\"sort\":[{\"field\":\"localityPriceAppreciationRate\",\"sortOrder\":\"DESC\"},{\"field\":\"geoDistance\",\"sortOrder\":\"ASC\"}]}";
 
             String jsonWithRadius;
             for (int i = 0; i < radius.length && (localities == null || localities.getTotalCount() < numberOfLocalities); i++) {
