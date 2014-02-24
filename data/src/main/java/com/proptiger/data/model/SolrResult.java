@@ -222,6 +222,9 @@ public class SolrResult extends BaseModel {
     @Field("RESALE_PRICE")
     private Double            resalePrice;
 
+    @Field("geodist()")
+    private Double            geoDistance;
+
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -776,5 +779,10 @@ public class SolrResult extends BaseModel {
     @Field("SUBURB_OVERVIEW_URL")
     public void setSuburbOverviewUrl(String suburbOverviewUrl) {
         suburb.setOverviewUrl(suburbOverviewUrl);
+    }
+
+    @Field("geodist()")
+    public void setGeoDistance(double geoDistance) {
+        project.setGeoDistance(geoDistance);
     }
 }
