@@ -5,9 +5,13 @@ package com.proptiger.data.model.filter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -24,6 +28,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
+import com.proptiger.data.util.Constants;
 
 /**
  * This class is responsible to create all clauses of solr query
@@ -134,6 +139,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
 
         solrQuery.add("pt", latitude + "," + longitude);
         solrQuery.add("sfield", colName);
+        solrQuery.add("fl", "* geodist()");
         // if valid distance value then apply the field.
         if (distance != 0) {
             solrQuery.addFilterQuery("{!geofilt}");
@@ -260,5 +266,49 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
     @Override
     public long retrieveCount() {
         return 0;
+    }
+
+    @Override
+    protected void validateSelector(Selector selector) {
+        /**
+         * In case of Solr Dynamic Field like geoDistance sort, that Dynamic
+         * Field like Geo Distance filter is required.
+         */
+        Set<SortBy> sort = selector.getSort();
+        Map<String, List<Map<String, Map<String, Object>>>> filters = selector.getFilters();
+
+        if (sort == null) {
+            return;
+        }
+
+        Set<String> dynamicFieldsFound = new HashSet<>();
+        for (SortBy sortBy : sort) {
+            if (Constants.solrDynamicFields.containsKey(sortBy.getField())) {
+                dynamicFieldsFound.add(sortBy.getField());
+
+            }
+        }
+
+        if (dynamicFieldsFound.size() < 1) {
+            return;
+        }
+
+        Iterator<String> it = dynamicFieldsFound.iterator();
+
+        if (filters != null) {
+            for (Map.Entry<String, List<Map<String, Map<String, Object>>>> operator : filters.entrySet()) {
+                for (Map<String, Map<String, Object>> fields : operator.getValue()) {
+                    while (it.hasNext()) {
+                        dynamicFieldsFound.remove(it.next());
+                    }
+                    if (dynamicFieldsFound.size() < 1) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        throw new IllegalArgumentException(
+                dynamicFieldsFound.toString() + " sort should be present only when their filter is applied.");
     }
 }

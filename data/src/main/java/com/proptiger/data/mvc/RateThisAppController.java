@@ -25,7 +25,7 @@ public class RateThisAppController extends BaseController {
     private static class RateDialogAttributes {
         private int    launchCount = 6;
         private int    dayCount    = 3;
-        private String message     = "If you enjoy using Proptiger, please take a moment to rate it. Thanks for your support!";
+        private String message     = "If you enjoy using PropTiger, please take a moment to rate us. Thanks for your support!";
     }
 
     @RequestMapping("app/v1/rate-dialog-attrs")

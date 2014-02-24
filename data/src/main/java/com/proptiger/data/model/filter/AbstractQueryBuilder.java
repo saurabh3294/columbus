@@ -35,6 +35,7 @@ public abstract class AbstractQueryBuilder<T> {
     private static StringToDateConverter stringToDateConverter = new StringToDateConverter();
 
     public void buildQuery(Selector selector, Integer userId) {
+        validateSelector(selector);
         buildSelectClause(selector);
         buildOrderByClause(selector);
         buildFilterClause(selector, userId);
@@ -70,6 +71,8 @@ public abstract class AbstractQueryBuilder<T> {
     protected abstract void buildJoinClause(Selector selector);
 
     protected abstract void buildLimitClause(Selector selector);
+
+    protected abstract void validateSelector(Selector selector);
 
     /**
      * Override this method if where clause can not be called multiple times

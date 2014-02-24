@@ -101,6 +101,7 @@ public class PropertyDao {
         solrQuery.add("group.field", "PROJECT_ID");
 
         List<Project> projects = new ArrayList<Project>();
+
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
             for (Group group : groupCommand.getValues()) {
