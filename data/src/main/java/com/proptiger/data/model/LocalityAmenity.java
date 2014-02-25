@@ -17,6 +17,7 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -61,10 +62,12 @@ public class LocalityAmenity extends BaseModel {
 
     @FieldMetaInfo(displayName = "Reference", description = "Reference")
     @Column(name = "reference")
+    @JsonIgnore
     private String               reference;
 
     @FieldMetaInfo(displayName = "Google Place Id", description = "Google Place Id")
     @Column(name = "google_place_id")
+    @JsonIgnore
     private String               googlePlaceId;
 
     @FieldMetaInfo(displayName = "Address", description = "Address")
@@ -97,6 +100,7 @@ public class LocalityAmenity extends BaseModel {
 
     @FieldMetaInfo(displayName = "Details Info", description = "Details Info")
     @Column(name = "is_details")
+    @JsonIgnore
     private int                  isDetails;
 
     @FieldMetaInfo(displayName = "Other Details", description = "Other Details")

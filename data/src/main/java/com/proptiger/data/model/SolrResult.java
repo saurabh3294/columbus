@@ -808,4 +808,14 @@ public class SolrResult extends BaseModel {
     public void setGeoDistance(double geoDistance) {
         project.setGeoDistance(geoDistance);
     }
+    
+    @Field("PROJECT_VIDEOS_COUNT")
+    public void setProjectVideosCount(int projectVideosCount){
+        project.setVideosCount(projectVideosCount);
+    }
+    
+    @Field("PROJECT_IMAGES_COUNT")
+    public void setProjectImagesCount(int projectImagesCount){
+        project.setImagesCount(projectImagesCount);
+    }
 }
