@@ -127,7 +127,7 @@ public class ImageService {
             ConvertCmd convertCmd = new ConvertCmd();
             IMOperation imOperation = new IMOperation();
             imOperation.addImage(waterMark.getAbsolutePath());
-            imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight());
+            imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight(), ">");
             File outputFile = File.createTempFile("resizedImage", Image.DOT + format, tempDir);
             imOperation.addImage(outputFile.getAbsolutePath());
             convertCmd.run(imOperation);
