@@ -96,4 +96,48 @@ public class LocalityReviewController extends BaseController {
                 userInfo.getUserIdentifier());
         return new ProAPISuccessResponse(created);
     }
+    
+    /**
+     * This method will get review order, by overallRating
+     * @param localityId
+     * @param selectorStr
+     * @return
+     */
+    @RequestMapping(value = "data/v1/entity/locality/{localityId}/top-rated-review", method = RequestMethod.GET)
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse getLocalityReviewsOrderByRating(@PathVariable Integer localityId, @RequestParam(
+            required = false,
+            value = "selector") String selectorStr) {
+        Selector selector = new Selector();
+        if (selectorStr != null) {
+            selector = super.parseJsonToObject(selectorStr, Selector.class);
+        }
+        List<LocalityReviewComments> reviews = localityReviewService.getLocalityReviewOrderByRating(localityId, null, selector);
+        return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+    }
+
+    /**
+     * This method will get review, order by overallRating
+     * @param localityId
+     * @param selectorStr
+     * @param userInfo
+     * @return
+     */
+    @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/top-rated-review", method = RequestMethod.GET)
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse getLocalityReviewsByUserOrderByRating(@PathVariable Integer localityId, @RequestParam(
+            required = false,
+            value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        Selector selector = new Selector();
+        if (selectorStr != null) {
+            selector = super.parseJsonToObject(selectorStr, Selector.class);
+        }
+        List<LocalityReviewComments> reviews = localityReviewService.getLocalityReviewOrderByRating(
+                localityId,
+                userInfo.getUserIdentifier(),
+                selector);
+        return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+    }
 }

@@ -270,6 +270,8 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
 
     @Override
     protected void validateSelector(Selector selector) {
+        if(selector == null)
+            return;
         /**
          * In case of Solr Dynamic Field like geoDistance sort, that Dynamic
          * Field like Geo Distance filter is required.
