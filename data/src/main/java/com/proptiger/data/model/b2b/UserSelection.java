@@ -1,4 +1,4 @@
-package com.proptiger.data.model;
+package com.proptiger.data.model.b2b;
 
 import java.util.Date;
 
@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.BaseModel;
 
 /**
  * BebUserSelection model object
@@ -26,7 +27,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Entity
 @Table(name = "b2b_user_selections")
 @JsonFilter("fieldFilter")
-public class B2bUserSelection extends BaseModel {
+public class UserSelection extends BaseModel {
     @Id
     private Integer       id;
 
