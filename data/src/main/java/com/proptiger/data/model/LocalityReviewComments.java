@@ -23,7 +23,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -96,14 +95,14 @@ public class LocalityReviewComments extends BaseModel {
     @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
     private ForumUser         forumUser;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumns({
             @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false),
             @JoinColumn(
                     name = "LOCALITY_ID",
                     referencedColumnName = "LOCALITY_ID",
                     insertable = false,
-                    updatable = false), })
+                    updatable = false)})
     private LocalityRatings   localityRatings;
 
     public Integer getCommentId() {

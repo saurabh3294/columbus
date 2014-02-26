@@ -180,6 +180,31 @@ public class LocalityReviewService {
         }
         return reviews;
     }
+    
+    /**
+     * Get locality review with ratings order by overall rating desc
+     * @param localityId
+     * @param userId
+     * @param selector
+     * @return
+     */
+    public List<LocalityReviewComments> getLocalityReviewOrderByRating(Integer localityId, Integer userId, Selector selector) {
+
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
+        if (selector != null && selector.getPaging() != null) {
+            pageable = new LimitOffsetPageRequest(selector.getPaging().getStart(), selector.getPaging().getRows());
+        }
+        List<LocalityReviewComments> reviews = null;
+
+        // in case call is for specific user
+        if (userId != null) {
+            reviews = localityReviewDao.getReviewsByLocalityIdAndUserIdOrderByRating(localityId, userId, pageable);
+        }
+        else {
+            reviews = localityReviewDao.getReviewsByLocalityIdOrderByRating(localityId, pageable);
+        }
+        return reviews;
+    }
 
     /**
      * Create new locality review by user for locality

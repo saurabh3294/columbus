@@ -52,5 +52,15 @@ public interface LocalityReviewDao extends PagingAndSortingRepository<LocalityRe
             Integer userId,
             Pageable pageable);
 
+    @Query("SELECT RC FROM LocalityReviewComments RC LEFT JOIN FETCH RC.forumUser LEFT JOIN FETCH RC.localityRatings LR " + " WHERE RC.status = '1' AND RC.localityId = ?1 ORDER BY LR.overallRating DESC, RC.commenttime DESC")
+    public List<LocalityReviewComments> getReviewsByLocalityIdOrderByRating(Integer localityId, Pageable pageable);
+
+    @Query("SELECT RC FROM LocalityReviewComments RC JOIN FETCH RC.forumUser  LEFT JOIN FETCH RC.localityRatings LR " + "  WHERE Status = '1' AND localityId = ?1 AND "
+            + " userId=?2 ORDER BY LR.overallRating DESC, RC.commenttime DESC")
+    public List<LocalityReviewComments> getReviewsByLocalityIdAndUserIdOrderByRating(
+            Integer localityId,
+            Integer userId,
+            Pageable pageable);
+
     public LocalityReviewComments getByLocalityIdAndUserId(Integer localityId, Integer userId);
 }
