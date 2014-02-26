@@ -60,7 +60,7 @@ public class ProjectSolrDao {
         SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
 
         queryBuilder.buildQuery(selector, null);
-        System.out.println(solrQuery.toString());
+        
         logger.debug("Solr query for get projects {}", solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
