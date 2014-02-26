@@ -68,7 +68,6 @@ public class LocalityReviewController extends BaseController {
 
     @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.GET)
     @ResponseBody
-    @DisableCaching
     public ProAPIResponse getLocalityReviewsByUser(@PathVariable Integer localityId, @RequestParam(
             required = false,
             value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
@@ -85,7 +84,6 @@ public class LocalityReviewController extends BaseController {
 
     @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.POST)
     @ResponseBody
-    @DisableCaching
     public ProAPIResponse createReview(
             @PathVariable Integer localityId,
             @RequestBody LocalityReviewComments reviewComments,
@@ -105,7 +103,6 @@ public class LocalityReviewController extends BaseController {
      */
     @RequestMapping(value = "data/v1/entity/locality/{localityId}/top-rated-review", method = RequestMethod.GET)
     @ResponseBody
-    @DisableCaching
     public ProAPIResponse getLocalityReviewsOrderByRating(@PathVariable Integer localityId, @RequestParam(
             required = false,
             value = "selector") String selectorStr) {
@@ -126,7 +123,6 @@ public class LocalityReviewController extends BaseController {
      */
     @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/top-rated-review", method = RequestMethod.GET)
     @ResponseBody
-    @DisableCaching
     public ProAPIResponse getLocalityReviewsByUserOrderByRating(@PathVariable Integer localityId, @RequestParam(
             required = false,
             value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
