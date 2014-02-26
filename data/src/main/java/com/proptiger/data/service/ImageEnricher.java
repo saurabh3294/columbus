@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -68,6 +69,23 @@ public class ImageEnricher {
             return;
 
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
+
+        if (images == null)
+            return;
+        /*
+         * Ready For Posssession, occupied Projects construction images should
+         * not be included.
+         */
+        if (project.getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.Occupied.getStatus()) || project
+                .getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.ReadyForPossession.getStatus())) {
+            Iterator<Image> it = images.iterator();
+            while (it.hasNext()) {
+                if (it.next().getImageTypeObj().getType().equalsIgnoreCase("constructionStatus")) {
+                    it.remove();
+                }
+
+            }
+        }
         /*
          * AS project main image is coming in both project and property object
          * from Solr. Hence, it is not needed to be set.
@@ -95,6 +113,21 @@ public class ImageEnricher {
                 if (image.getImageTypeObj().getType().equals("main")) {
                     project.setImageURL(image.getAbsolutePath());
                     break;
+                }
+            }
+
+            /*
+             * Ready For Posssession, occupied Projects construction images
+             * should not be included.
+             */
+            if (project.getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.Occupied.getStatus()) || project
+                    .getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.ReadyForPossession.getStatus())) {
+                Iterator<Image> it = images.iterator();
+                while (it.hasNext()) {
+                    if (it.next().getImageTypeObj().getType().equalsIgnoreCase("constructionStatus")) {
+                        it.remove();
+                    }
+
                 }
             }
         }
