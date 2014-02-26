@@ -6,6 +6,8 @@ package com.proptiger.data.model;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Transient;
+
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -224,6 +226,27 @@ public class SolrResult extends BaseModel {
 
     @Field("geodist()")
     private Double            geoDistance;
+
+    @Field("LOCALITY_PRICE_RISE")
+    private Double localityAvgPriceRisePercentage;
+    
+    @Field("LOCALITY_PRICE_APPRECIATION_RATE")
+    private Double            localityPriceAppreciationRate;
+
+    @Field("LOCALITY_PRICE_RISE_TIME")
+    private Integer           localityAvgPriceRiseMonths;
+    
+    @Field("PROJECT_PRICE_RISE")
+    private Double projectAvgPriceRisePercentage;
+
+    @Field("PROJECT_PRICE_APPRECIATION_RATE")
+    private Double            projectPriceAppreciationRate;
+
+    @Field("PROJECT_PRICE_RISE_TIME")
+    private String           projectAvgPriceRiseMonths;
+
+    @Field("HAS_GEO")
+    private Integer           hasGeo;
 
     public SolrResult() {
         property.setProject(project);
@@ -784,5 +807,15 @@ public class SolrResult extends BaseModel {
     @Field("geodist()")
     public void setGeoDistance(double geoDistance) {
         project.setGeoDistance(geoDistance);
+    }
+    
+    @Field("PROJECT_VIDEOS_COUNT")
+    public void setProjectVideosCount(int projectVideosCount){
+        project.setVideosCount(projectVideosCount);
+    }
+    
+    @Field("PROJECT_IMAGES_COUNT")
+    public void setProjectImagesCount(int projectImagesCount){
+        project.setImagesCount(projectImagesCount);
     }
 }

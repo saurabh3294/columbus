@@ -204,4 +204,25 @@ public class ProjectController extends BaseController {
                 projectDiscussionsService.getProjectComments(projectId, propRequestParam.getPaging()),
                 fields));
     }
+
+    @RequestMapping(value = "/data/v1/entity/project/highest-return")
+    @ResponseBody
+    public ProAPIResponse getHighestReturnProjects(
+            @RequestParam String locationType,
+            @RequestParam int locationId,
+            @RequestParam(required = false, defaultValue = "5") int numberOfProjects,
+            @RequestParam(required = false, defaultValue = "5") double minimumPriceRise,
+            @RequestParam(required = false) String selector) {
+
+        Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+        if (propRequestParam == null) {
+            propRequestParam = new Selector();
+        }
+
+        Set<String> fields = propRequestParam.getFields();
+        return new ProAPISuccessResponse(super.filterFields(
+                projectService.getHighestReturnProjects(locationType, locationId, numberOfProjects, minimumPriceRise),
+                fields));
+    }
+
 }

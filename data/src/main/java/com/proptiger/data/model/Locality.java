@@ -189,6 +189,16 @@ public class Locality extends BaseModel {
 
     @Transient
     private LocalityAverageRatingByCategory avgRatingsByCategory;
+    
+    @Transient
+    @JsonIgnore
+    @Field("HAS_GEO")
+    private int hasGeo;
+    
+    @Transient
+    @JsonIgnore
+    @Field("LOCALITY_PRICE_APPRECIATION_RATE")
+    private Double priceAppreciationRate;
 
     public int getLocalityId() {
         return localityId;

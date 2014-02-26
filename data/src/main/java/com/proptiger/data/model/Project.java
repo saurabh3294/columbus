@@ -415,6 +415,14 @@ public class Project extends BaseModel {
     @Transient
     @Field("geodist()")
     private Double                  geoDistance;
+    
+    @Transient
+    @Field("PROJECT_IMAGES_COUNT")
+    private Integer imagesCount;
+    
+    @Transient
+    @Field("PROJECT_VIDEOS_COUNT")
+    private Integer videosCount;
 
     public int getProjectId() {
         return projectId;
@@ -970,6 +978,22 @@ public class Project extends BaseModel {
 
     public void setGeoDistance(Double geoDistance) {
         this.geoDistance = geoDistance;
+    }
+
+    public Integer getImagesCount() {
+        return imagesCount;
+    }
+
+    public void setImagesCount(Integer projectImagesCount) {
+        this.imagesCount = projectImagesCount;
+    }
+
+    public Integer getVideosCount() {
+        return videosCount;
+    }
+
+    public void setVideosCount(Integer projectVideosCount) {
+        this.videosCount = projectVideosCount;
     }
 
 }
