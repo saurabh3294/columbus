@@ -15,6 +15,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
@@ -509,5 +510,23 @@ public class ProjectService {
             return projects.get(0);
 
         throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+    }
+
+    public PaginatedResponse<List<Project>> getHighestReturnProjects(
+            String locationType,
+            int locationId,
+            int numberOfProjects,
+            double minimumPriceRise) {
+        String json = "{\"paging\":{\"rows\":" + numberOfProjects
+                + "},\"filters\":{\"and\":[{\"equal\":{\""
+                + locationType
+                + "Id\":"
+                + locationId
+                +"}},{\"range\":{\"projectAvgPriceRiseMonths\":{\"from\":1},\"projectAvgPriceRisePercentage\":{\"from\":"+minimumPriceRise+"}}}]},\"sort\":[{\"field\":\"projectPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
+
+        System.out.println(json);
+        Selector selector = new Gson().fromJson(json, Selector.class);
+
+        return projectDao.getProjects(selector);
     }
 }

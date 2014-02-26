@@ -299,7 +299,6 @@ public class LocalityService {
      */
     public Locality getLocality(int localityId) {
         return localityDao.getLocality(localityId);
-        // return localityDao.findOne(localityId);
     }
 
     /**
@@ -480,7 +479,8 @@ public class LocalityService {
         /*
          * Create selector
          */
-        Selector geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(localitySelector,
+        Selector geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
+                localitySelector,
                 mainLocality.getLocalityId(),
                 mainLocality.getLatitude(),
                 mainLocality.getLongitude(),
@@ -499,7 +499,8 @@ public class LocalityService {
                     popularLocalityThresholdCount,
                     radiusOneForTopLocality);
 
-            geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(localitySelector,
+            geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
+                    localitySelector,
                     mainLocality.getLocalityId(),
                     mainLocality.getLatitude(),
                     mainLocality.getLongitude(),
@@ -517,7 +518,8 @@ public class LocalityService {
                         popularLocalityThresholdCount,
                         radiusTwoForTopLocality);
 
-                geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(localitySelector,
+                geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
+                        localitySelector,
                         mainLocality.getLocalityId(),
                         mainLocality.getLatitude(),
                         mainLocality.getLongitude(),
@@ -542,10 +544,10 @@ public class LocalityService {
              * minRatingThresholdForTopLocality is 0 then we can safely include
              * locality that do not have review means review is null
              */
-            if(minRatingThresholdForTopLocality == 0.0){
-                //do nothing
+            if (minRatingThresholdForTopLocality == 0.0) {
+                // do nothing
             }
-            else{
+            else {
                 if (localityWithMoreInfo.getAverageRating() != null && localityWithMoreInfo.getAverageRating() >= minRatingThresholdForTopLocality) {
                     // if rating is greater than threshold then update average
                     // rating value
@@ -556,7 +558,7 @@ public class LocalityService {
                     localityItr.remove();
                 }
             }
-            
+
         }
         return localitiesAroundMainLocality;
     }
@@ -564,7 +566,8 @@ public class LocalityService {
     /**
      * Creating selector object to find all localities around provided locality
      * id under given radius from lat, lon
-     * @param localitySelector 
+     * 
+     * @param localitySelector
      * 
      * @param localityId
      * @param lat
@@ -573,7 +576,8 @@ public class LocalityService {
      * @return
      */
     private Selector createSelectorForTopLocalityWithRadiusAroundLocality(
-            Selector localitySelector, Integer localityId,
+            Selector localitySelector,
+            Integer localityId,
             Double lat,
             Double lon,
             Double radius) {
@@ -598,7 +602,7 @@ public class LocalityService {
         list.add(searchType);
         filter.put(Operator.and.name(), list);
         selector.setFilters(filter);
-        selector.setPaging(localitySelector != null? localitySelector.getPaging(): new Paging());
+        selector.setPaging(localitySelector != null ? localitySelector.getPaging() : new Paging());
         return selector;
     }
 
@@ -813,5 +817,67 @@ public class LocalityService {
             return null;
 
         return localityDao.findByLocalityIds(localities, null);
+    }
+
+    /**
+     * This method is used for getting the localities based on their
+     * appreciation rate in descending order. For city and suburb, the
+     * localities in that type are retrieved. For locality, the locailties
+     * within radius of of (5,10,15) are retrieved.
+     * 
+     * @param locationTypeStr
+     * @param locationId
+     * @param numberOfLocalities
+     * @return
+     */
+    public PaginatedResponse<List<Locality>> getHighestReturnLocalities(
+            String locationTypeStr,
+            int locationId,
+            int numberOfLocalities,
+            double minimumPriceRise) {
+
+        int radius[] = { 5, 10, 15 };
+        PaginatedResponse<List<Locality>> localities = null;
+
+        String json = null;
+        Selector selector = null;
+        if (!locationTypeStr.equalsIgnoreCase("locality")) {
+            json = "{\"paging\":{\"rows\":" + numberOfLocalities
+                    + "},\"filters\":{\"and\":[{\"equal\":{\""
+                    + locationTypeStr
+                    + "Id\":"
+                    + locationId
+                    + "}},{\"range\":{\"localityAvgPriceRiseMonths\":{\"from\":1},\"localityAvgPriceRisePercentage\":{\"from\":"
+                    + minimumPriceRise
+                    + "}}}]},\"sort\":[{\"field\":\"localityPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
+
+            selector = new Gson().fromJson(json, Selector.class);
+            localities = localityDao.getLocalities(selector);
+        }
+        else {
+            Locality locality = getLocality(locationId);
+            if (locality == null || locality.getLatitude() == null || locality.getLongitude() == null)
+                return null;
+
+            json = "{\"paging\":{\"rows\":" + numberOfLocalities
+                    + "},\"filters\":{\"and\":[{\"geoDistance\":{\"geo\":{\"distance\":%d,\"lat\":"
+                    + locality.getLatitude()
+                    + ",\"lon\":"
+                    + locality.getLongitude()
+                    + "}}},"
+                    + "{\"equal\":{\"hasGeo\":1}},"
+                    + "{\"range\":{\"localityAvgPriceRiseMonths\":{\"from\":1},\"localityAvgPriceRisePercentage\":{\"from\":"
+                    + minimumPriceRise
+                    + "}}}]},\"sort\":[{\"field\":\"localityPriceAppreciationRate\",\"sortOrder\":\"DESC\"},{\"field\":\"geoDistance\",\"sortOrder\":\"ASC\"}]}";
+
+            String jsonWithRadius;
+            for (int i = 0; i < radius.length && (localities == null || localities.getTotalCount() < numberOfLocalities); i++) {
+                jsonWithRadius = String.format(json, radius[i]);
+                selector = new Gson().fromJson(jsonWithRadius, Selector.class);
+                localities = localityDao.getLocalities(selector);
+            }
+        }
+
+        return localities;
     }
 }
