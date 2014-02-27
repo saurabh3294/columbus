@@ -89,4 +89,7 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
     
     <!--  Serializer for redis. -->
     <bean id="jdkSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
+  
+   <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter">
+    </bean>
 </beans>

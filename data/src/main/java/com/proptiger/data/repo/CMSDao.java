@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.data.external.dto.ProjectPriceHistoryDetail;
 import com.proptiger.data.util.HMAC_Client;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -34,7 +35,7 @@ public class CMSDao {
 
     private static Logger       logger                          = LoggerFactory.getLogger(CMSDao.class);
 
-    private static final String ANALYTICS_APIS_PRICE_TREND_JSON = "app/v1/locality-price-trend?";        // "analytics/apis/price-trend.json?";
+    private static final String ANALYTICS_APIS_PRICE_TREND_JSON = "app/v1/locality-price-trend?";       // "analytics/apis/price-trend.json?";
     private static final String APP_V1_PROJECT_PRICE_TREND      = "app/v1/project-price-trend?";
     private static final String TIMESTAMP                       = "timestamp";
     private static final String TOKEN                           = "token";
@@ -45,9 +46,6 @@ public class CMSDao {
     @Autowired
     private PropertyReader      propertyReader;
 
-    private final String        CMS_USERNAME                    = "cms_username";
-    private final String        CMS_PASSWORD                    = "cms_password";
-    private final String        CMS_BASE_URL                    = "cms_base_url";
     private String              securityToken;
     private Long                timeStamp;
 
@@ -55,7 +53,7 @@ public class CMSDao {
     private void init() {
         timeStamp = new Date().getTime() / 1000;
         securityToken = HMAC_Client.calculateHMAC(
-                propertyReader.getRequiredProperty(CMS_PASSWORD),
+                propertyReader.getRequiredProperty(PropertyKeys.CMS_PASSWORD),
                 timeStamp.toString());
         restTemplate = new RestTemplate();
     }
@@ -66,7 +64,7 @@ public class CMSDao {
             List<String> unitTypes,
             int lastNumberOfMonths) {
 
-        String queryParams = "username=" + propertyReader.getRequiredProperty(CMS_USERNAME)
+        String queryParams = "username=" + propertyReader.getRequiredProperty(PropertyKeys.CMS_USERNAME)
                 + "&token="
                 + securityToken
                 + "&"
@@ -80,7 +78,8 @@ public class CMSDao {
             queryParams += "&unittype[]=" + unitType;
         }
 
-        String url = propertyReader.getRequiredProperty(CMS_BASE_URL) + ANALYTICS_APIS_PRICE_TREND_JSON + queryParams;
+        String url = propertyReader.getRequiredProperty(PropertyKeys.CMS_BASE_URL) + ANALYTICS_APIS_PRICE_TREND_JSON
+                + queryParams;
         logger.debug("getPropertyPriceTrends url {}", url);
         try {
             Map<String, Map<String, Object>> response = (Map<String, Map<String, Object>>) restTemplate.getForObject(
@@ -142,12 +141,13 @@ public class CMSDao {
     public <T> T getResponseFromCms(String subUrl, String queryParams, Class<T> javaTypeResponse) {
         Long timeStamp = new Timestamp(new Date().getTime() / 1000).getTime();
 
-        String token = HMAC_Client
-                .calculateHMAC(propertyReader.getRequiredProperty(CMS_PASSWORD), timeStamp.toString());
+        String token = HMAC_Client.calculateHMAC(
+                propertyReader.getRequiredProperty(PropertyKeys.CMS_PASSWORD),
+                timeStamp.toString());
 
-        StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty(CMS_BASE_URL));
+        StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty(PropertyKeys.CMS_BASE_URL));
         url.append(subUrl);
-        url.append(USERNAME).append("=").append(propertyReader.getRequiredProperty(CMS_USERNAME));
+        url.append(USERNAME).append("=").append(propertyReader.getRequiredProperty(PropertyKeys.CMS_USERNAME));
         url.append("&").append(TOKEN).append("=").append(token);
         url.append("&").append(TIMESTAMP).append("=").append(timeStamp);
         url.append("&").append(queryParams);

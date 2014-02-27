@@ -19,7 +19,6 @@ import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -43,6 +42,8 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -84,20 +85,8 @@ public class LocalityService {
     @Autowired
     private PropertyDao                propertyDao;
 
-    @Value("${minimum.rating.for.top.locality}")
-    private Double                     minimumRatingForTopLocality;
-
-    @Value("${radius.one.for.top.locality}")
-    private Double                     radiusOneForTopLocality;
-
-    @Value("${radius.two.for.top.locality}")
-    private Double                     radiusTwoForTopLocality;
-
-    @Value("${radius.three.for.top.locality}")
-    private Double                     radiusThreeForTopLocality;
-
-    @Value("${popular.locality.threshold.count}")
-    private Integer                    popularLocalityThresholdCount;
+    @Autowired
+    private PropertyReader             propertyReader;
 
     /**
      * This method will return the List of localities selected based on the
@@ -421,7 +410,7 @@ public class LocalityService {
         list = localityDao.getTopLocalityByCityIdOrSuburbIdAndRatingGreaterThan(
                 cityId,
                 suburbId,
-                minimumRatingForTopLocality);
+                propertyReader.getRequiredPropertyAsType(PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY, Double.class));
 
         /*
          * setting average rating of locality
@@ -464,7 +453,9 @@ public class LocalityService {
             Integer imageCount,
             Double minRatingThresholdForTopLocality) {
         if (minRatingThresholdForTopLocality == null) {
-            minRatingThresholdForTopLocality = minimumRatingForTopLocality;
+            minRatingThresholdForTopLocality = propertyReader.getRequiredPropertyAsType(
+                    PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY,
+                    Double.class);
         }
         List<Locality> localities = localityDao.findByLocalityIds(Arrays.asList(localityId), localitySelector)
                 .getResults();
@@ -484,7 +475,7 @@ public class LocalityService {
                 mainLocality.getLocalityId(),
                 mainLocality.getLatitude(),
                 mainLocality.getLongitude(),
-                radiusOneForTopLocality);
+                propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_ONE_FOR_TOP_LOCALITY, Double.class));
 
         List<Locality> localitiesAroundMainLocality = localityDao.getLocalities(geoSelector).getResults();
         /*
@@ -492,19 +483,22 @@ public class LocalityService {
          * popularLocalityThresholdCount in first radius then try finding
          * localities in radius radiusTwoForTopLocality
          */
+        Integer popularLocalityThresholdCount = propertyReader.getRequiredPropertyAsType(
+                PropertyKeys.POPULAR_LOCALITY_THRESHOLD_COUNT,
+                Integer.class);
         if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
             logger.debug(
                     "Top localities count {} is less than threshold {} in radius {}KM ",
                     localitiesAroundMainLocality == null ? 0 : localitiesAroundMainLocality.size(),
                     popularLocalityThresholdCount,
-                    radiusOneForTopLocality);
+                    propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_ONE_FOR_TOP_LOCALITY, Double.class));
 
             geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
                     localitySelector,
                     mainLocality.getLocalityId(),
                     mainLocality.getLatitude(),
                     mainLocality.getLongitude(),
-                    radiusTwoForTopLocality);
+                    propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_TWO_FOR_TOP_LOCALITY, Double.class));
             localitiesAroundMainLocality = localityDao.getLocalities(geoSelector).getResults();
             /*
              * If locality not found or there count is less than
@@ -516,14 +510,17 @@ public class LocalityService {
                         "Top localities count {} is less than threshold {} in radius {}KM ",
                         localitiesAroundMainLocality == null ? 0 : localitiesAroundMainLocality.size(),
                         popularLocalityThresholdCount,
-                        radiusTwoForTopLocality);
+                        propertyReader
+                                .getRequiredPropertyAsType(PropertyKeys.RADIUS_TWO_FOR_TOP_LOCALITY, Double.class));
 
                 geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
                         localitySelector,
                         mainLocality.getLocalityId(),
                         mainLocality.getLatitude(),
                         mainLocality.getLongitude(),
-                        radiusThreeForTopLocality);
+                        propertyReader.getRequiredPropertyAsType(
+                                PropertyKeys.RADIUS_THREE_FOR_TOP_LOCALITY,
+                                Double.class));
 
                 localitiesAroundMainLocality = localityDao.getLocalities(geoSelector).getResults();
             }
