@@ -1,4 +1,4 @@
-package com.proptiger.data.repo;
+package com.proptiger.data.repo.b2b;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.proptiger.data.model.InventoryPriceTrend;
+import com.proptiger.data.model.b2b.InventoryPriceTrend;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
