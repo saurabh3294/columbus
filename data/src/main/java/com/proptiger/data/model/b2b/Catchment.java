@@ -27,7 +27,7 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "b2b_user_selections")
 @JsonFilter("fieldFilter")
-public class UserSelection extends BaseModel {
+public class Catchment extends BaseModel {
     @Id
     private Integer       id;
 
