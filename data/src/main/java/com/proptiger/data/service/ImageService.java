@@ -38,6 +38,7 @@ import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ImageUtil;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -61,10 +62,10 @@ public class ImageService {
 
     @PostConstruct
     private void init() {
-        ImageUtil.endpoints = propertyReader.getRequiredProperty("endpoints").split(",");
-        ImageUtil.bucket = propertyReader.getRequiredProperty("bucket");
+        ImageUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
+        ImageUtil.bucket = propertyReader.getRequiredProperty(PropertyKeys.BUCKET);
 
-        String path = propertyReader.getRequiredProperty("imageTempPath");
+        String path = propertyReader.getRequiredProperty(PropertyKeys.IMAGE_TEMP_PATH);
         tempDir = new File(path);
         if (!tempDir.exists()) {
             tempDir.mkdir();
@@ -143,8 +144,8 @@ public class ImageService {
     }
 
     private AmazonS3 createS3Instance() {
-        String accessKeyId = propertyReader.getRequiredProperty("accessKeyId");
-        String secretAccessKey = propertyReader.getRequiredProperty("secretAccessKey");
+        String accessKeyId = propertyReader.getRequiredProperty(PropertyKeys.ACCESS_KEY_ID);
+        String secretAccessKey = propertyReader.getRequiredProperty(PropertyKeys.SECRET_ACCESS_KEY);
 
         ClientConfiguration config = new ClientConfiguration();
         config.withProtocol(Protocol.HTTP);
