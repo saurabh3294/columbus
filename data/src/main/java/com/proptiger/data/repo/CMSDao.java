@@ -35,8 +35,8 @@ public class CMSDao {
 
     private static Logger       logger                          = LoggerFactory.getLogger(CMSDao.class);
 
-    private static final String ANALYTICS_APIS_PRICE_TREND_JSON = "app/v1/locality-price-trend?";       // "analytics/apis/price-trend.json?";
-    private static final String APP_V1_PROJECT_PRICE_TREND      = "app/v1/project-price-trend?";
+    private static final String ANALYTICS_APIS_PRICE_TREND_JSON = "app/v2/locality-price-trend?";       // "analytics/apis/price-trend.json?";
+    private static final String APP_V1_PROJECT_PRICE_TREND      = "app/v2/project-price-trend?";
     private static final String TIMESTAMP                       = "timestamp";
     private static final String TOKEN                           = "token";
     private static final String USERNAME                        = "username";
@@ -46,6 +46,9 @@ public class CMSDao {
     @Autowired
     private PropertyReader      propertyReader;
 
+    private final String        CMS_USERNAME                    = "cms_username";
+    private final String        CMS_PASSWORD                    = "cms_password";
+    private final String        CMS_BASE_URL                    = "cms_base_url";
     private String              securityToken;
     private Long                timeStamp;
 
