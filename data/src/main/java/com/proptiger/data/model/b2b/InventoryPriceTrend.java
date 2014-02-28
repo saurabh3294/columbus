@@ -1,4 +1,4 @@
-package com.proptiger.data.model;
+package com.proptiger.data.model.b2b;
 
 import java.util.Date;
 
@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.BaseModel;
 
 @ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)

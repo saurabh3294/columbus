@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc;
+package com.proptiger.data.mvc.b2b;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,11 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.InventoryPriceTrend;
+import com.proptiger.data.model.b2b.InventoryPriceTrend;
+import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.service.TrendService;
+import com.proptiger.data.service.b2b.TrendService;
 
 @Controller
 @RequestMapping

@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Enquiry;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.LeadPostException;
 
@@ -37,7 +38,7 @@ public class LeadGenerationService {
     @PostConstruct
     protected void init() {
         try {
-            url = new URL(propertyReader.getRequiredProperty("lead.page.url"));
+            url = new URL(propertyReader.getRequiredProperty(PropertyKeys.LEAD_PAGE_URL));
         }
         catch (MalformedURLException e) {
             logger.error("Exception while creating url for lead generation ", e);

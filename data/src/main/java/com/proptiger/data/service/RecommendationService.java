@@ -49,7 +49,9 @@ public class RecommendationService {
      */
     public List<Project> getSimilarProjects(int projectId, int limit) {
         List<SolrResult> properties = propertyDao.getPropertiesOnProjectId(projectId);
-
+        if(properties == null)
+            return null;
+            
         long propertyId;
         int similarProjectId;
         int assignedPriority = 0;

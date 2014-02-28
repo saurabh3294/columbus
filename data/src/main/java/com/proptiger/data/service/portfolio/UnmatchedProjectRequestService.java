@@ -10,6 +10,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.mail.service.TemplateToHtmlGenerator;
 import com.proptiger.mail.service.MailSender;
@@ -45,7 +46,7 @@ public class UnmatchedProjectRequestService {
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.UNMATCHED_PROJECT_INTERNAL,
                 unmatchedProjectDetails);
-        String toAddress = propertyReader.getRequiredProperty("mail.unmatched-project.internal.reciepient");
+        String toAddress = propertyReader.getRequiredProperty(PropertyKeys.MAIL_UNMATCHED_PROJECT_INTERNAL_RECIEPIENT);
         logger.debug("Unmatched project request mail to internal {}", toAddress);
         boolean userMailStatus = mailSender.sendMailUsingAws(
                 toAddress,

@@ -139,7 +139,20 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
 
         solrQuery.add("pt", latitude + "," + longitude);
         solrQuery.add("sfield", colName);
-        solrQuery.add("fl", "* geodist()");
+
+        /*
+         * XXX - GEO DISTANCE HANDLING HAS TO BE DONE IN A CLEANER WAY.
+         */
+        String documentType = "";
+        String[] filterQueries = solrQuery.getFilterQueries();
+        for (int i = 0; i < filterQueries.length; i++) {
+            if (filterQueries[i].startsWith("DOCUMENT_TYPE")) {
+                documentType = filterQueries[i].substring("DOCUMENT_TYPE:".length());
+                solrQuery.add("fl", "* __" + documentType + "_GEO_DISTANCE__:geodist()");
+                break;
+            }
+        }
+
         // if valid distance value then apply the field.
         if (distance != 0) {
             solrQuery.addFilterQuery("{!geofilt}");
@@ -270,7 +283,7 @@ public class SolrQueryBuilder<T> extends AbstractQueryBuilder<T> {
 
     @Override
     protected void validateSelector(Selector selector) {
-        if(selector == null)
+        if (selector == null)
             return;
         /**
          * In case of Solr Dynamic Field like geoDistance sort, that Dynamic
