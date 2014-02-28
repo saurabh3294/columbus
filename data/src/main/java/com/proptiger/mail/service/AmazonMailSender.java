@@ -19,6 +19,7 @@ import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendEmailResult;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -46,7 +47,7 @@ public class AmazonMailSender {
         credentials.getAWSAccessKeyId();
         credentials.getAWSSecretKey();
         emailServiceClient = new AmazonSimpleEmailServiceClient(credentials);
-        from = propertyReader.getRequiredProperty("mail.from.noreply");
+        from = propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY);
     }
 
     public boolean sendMail(String[] mailTo, String[] mailCC, String[] mailBCC, String mailContent, String subject)

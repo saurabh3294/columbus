@@ -22,6 +22,7 @@ import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.meta.FieldMetaData;
 import com.proptiger.data.model.meta.ResourceModelMeta;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -53,7 +54,7 @@ public class MetaService {
         resourceMetaMap = new HashMap<String, ResourceModelMeta>();
 
         Reflections reflections = new Reflections(
-                propertyReader.getRequiredProperty("metainfo.package.to.scan"),
+                propertyReader.getRequiredProperty(PropertyKeys.METAINFO_PACKAGE_TO_SCAN),
                 new TypeAnnotationsScanner());
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(ResourceMetaInfo.class);
         Iterator<Class<?>> itr = annotated.iterator();

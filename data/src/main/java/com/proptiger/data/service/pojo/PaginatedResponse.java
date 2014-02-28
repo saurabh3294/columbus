@@ -11,6 +11,7 @@ import java.io.Serializable;
  * @param <T>
  */
 public class PaginatedResponse<T> implements Serializable {
+    private static final long serialVersionUID = -33522478817858871L;
     /**
      * This contains the total number of results fetched from data source
      */
