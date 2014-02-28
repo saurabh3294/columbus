@@ -51,12 +51,10 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     private static enum FUNCTIONS {
         sum, min, max, avg, count, countDistinct, median, wavg, groupConcat, groupConcatDistinct;
     };
-    
-    private static class DescendingDeFunctionsComparator implements Comparator<FUNCTIONS>
-    {
+
+    private static class DescendingDeFunctionsComparator implements Comparator<FUNCTIONS> {
         @Override
-        public int compare(FUNCTIONS f1, FUNCTIONS f2)
-        {
+        public int compare(FUNCTIONS f1, FUNCTIONS f2) {
             return f2.name().compareTo(f1.name());
         }
     }
@@ -213,7 +211,10 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                     break;
                 case groupConcatDistinct:
                     Expression<String> groupConcatDistinctExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.function("group_concat_distinct", String.class, groupConcatDistinctExpression);
+                    expression = criteriaBuilder.function(
+                            "group_concat_distinct",
+                            String.class,
+                            groupConcatDistinctExpression);
                     break;
                 default:
                     throw new UnsupportedOperationException("Missing support for " + prefix + " function");
@@ -229,14 +230,14 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         expression.alias(fieldName);
         return expression;
     }
-    
-    private String parseAggregateFunctionFromField(String fieldName){
-        FUNCTIONS[] functions =  FUNCTIONS.class.getEnumConstants();        
+
+    private String parseAggregateFunctionFromField(String fieldName) {
+        FUNCTIONS[] functions = FUNCTIONS.values();
         Arrays.sort(functions, new DescendingDeFunctionsComparator());
-        
+
         for (FUNCTIONS function : functions) {
             String name = function.name();
-            if(fieldName.startsWith(name)){
+            if (fieldName.startsWith(name)) {
                 return name;
             }
         }
