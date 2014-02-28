@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.model.enums.DocumentType;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ProAPIException;
 
@@ -31,7 +32,7 @@ public class SolrDao {
 
     @PostConstruct
     private void init() {
-        httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty("solr.server.url"));
+        httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty(PropertyKeys.SOLR_SERVER_URL));
     }
 
     /**

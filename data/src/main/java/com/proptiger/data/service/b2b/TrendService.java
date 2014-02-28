@@ -1,4 +1,4 @@
-package com.proptiger.data.service;
+package com.proptiger.data.service.b2b;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,9 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.InventoryPriceTrend;
+import com.proptiger.data.model.b2b.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.repo.TrendDao;
+import com.proptiger.data.repo.b2b.TrendDao;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.UtilityClass;
 
