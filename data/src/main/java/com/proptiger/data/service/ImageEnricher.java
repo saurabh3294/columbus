@@ -30,7 +30,7 @@ public class ImageEnricher {
     private ImageDao     imageDao;
 
     public void setProjectsImages(List<Project> projects) {
-        if (projects == null)
+        if (projects == null || projects.isEmpty())
             return;
 
         for (Project project : projects) {
@@ -137,7 +137,7 @@ public class ImageEnricher {
     }
 
     public void setPropertiesImages(List<Property> properties) {
-        if (properties == null)
+        if (properties == null || properties.isEmpty())
             return;
 
         List<Long> propertyIds = new ArrayList<>();
@@ -178,7 +178,7 @@ public class ImageEnricher {
     }
 
     public void setBuildersImages(List<Builder> builders) {
-        if (builders == null)
+        if (builders == null || builders.isEmpty())
             return;
 
         for (Builder builder : builders) {
@@ -205,7 +205,7 @@ public class ImageEnricher {
     }
 
     public void setLocalitiesImages(List<Locality> localities, Integer imageCount) {
-        if (localities == null)
+        if (localities == null || localities.isEmpty())
             return;
 
         Locality locality;
