@@ -25,14 +25,17 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "b2b_user_catchments")
 @JsonFilter("fieldFilter")
-public class Catchment extends BaseModel {
+public class Graph extends BaseModel {
     @Id
     private Integer id;
 
     @Column(name = "user_id")
     private Integer userId;
+    
+    @Column(name = "catchment_id")
+    private Integer catchmentId;
 
-    private String  catchment;
+    private String  graph;
 
     private String  name;
 
@@ -60,12 +63,20 @@ public class Catchment extends BaseModel {
         this.userId = userId;
     }
 
-    public String getCatchment() {
-        return catchment;
+    public Integer getCatchmentId() {
+        return catchmentId;
     }
 
-    public void setCatchment(String catchment) {
-        this.catchment = catchment;
+    public void setCatchmentId(Integer catchmentId) {
+        this.catchmentId = catchmentId;
+    }
+
+    public String getGraph() {
+        return graph;
+    }
+
+    public void setGraph(String graph) {
+        this.graph = graph;
     }
 
     public String getName() {
