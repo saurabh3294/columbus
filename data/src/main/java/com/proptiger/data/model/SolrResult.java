@@ -228,22 +228,22 @@ public class SolrResult extends BaseModel {
     private Double            geoDistance;
 
     @Field("LOCALITY_PRICE_RISE")
-    private Double localityAvgPriceRisePercentage;
-    
+    private Double            localityAvgPriceRisePercentage;
+
     @Field("LOCALITY_PRICE_APPRECIATION_RATE")
     private Double            localityPriceAppreciationRate;
 
     @Field("LOCALITY_PRICE_RISE_TIME")
     private Integer           localityAvgPriceRiseMonths;
-    
+
     @Field("PROJECT_PRICE_RISE")
-    private Double projectAvgPriceRisePercentage;
+    private Double            projectAvgPriceRisePercentage;
 
     @Field("PROJECT_PRICE_APPRECIATION_RATE")
     private Double            projectPriceAppreciationRate;
 
     @Field("PROJECT_PRICE_RISE_TIME")
-    private String           projectAvgPriceRiseMonths;
+    private String            projectAvgPriceRiseMonths;
 
     @Field("HAS_GEO")
     private Integer           hasGeo;
@@ -804,18 +804,28 @@ public class SolrResult extends BaseModel {
         suburb.setOverviewUrl(suburbOverviewUrl);
     }
 
-    @Field("geodist()")
-    public void setGeoDistance(double geoDistance) {
+    @Field("__PROJECT_GEO_DISTANCE__")
+    public void setProjectGeoDistance(double geoDistance) {
         project.setGeoDistance(geoDistance);
     }
-    
+
+    @Field("__PROPERTY_GEO_DISTANCE__")
+    public void setPropertyGeoDistance(double geoDistance) {
+        project.setGeoDistance(geoDistance);
+    }
+
+    @Field("__LOCALITY_GEO_DISTANCE__")
+    public void setLocalityGeoDistance(double geoDistance) {
+        locality.setGeoDistance(geoDistance);
+    }
+
     @Field("PROJECT_VIDEOS_COUNT")
-    public void setProjectVideosCount(int projectVideosCount){
+    public void setProjectVideosCount(int projectVideosCount) {
         project.setVideosCount(projectVideosCount);
     }
-    
+
     @Field("PROJECT_IMAGES_COUNT")
-    public void setProjectImagesCount(int projectImagesCount){
+    public void setProjectImagesCount(int projectImagesCount) {
         project.setImagesCount(projectImagesCount);
     }
 }

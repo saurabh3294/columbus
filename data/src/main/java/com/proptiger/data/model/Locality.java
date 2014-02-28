@@ -189,16 +189,20 @@ public class Locality extends BaseModel {
 
     @Transient
     private LocalityAverageRatingByCategory avgRatingsByCategory;
-    
+
     @Transient
     @JsonIgnore
     @Field("HAS_GEO")
-    private int hasGeo;
-    
+    private int                             hasGeo;
+
     @Transient
     @JsonIgnore
     @Field("LOCALITY_PRICE_APPRECIATION_RATE")
-    private Double priceAppreciationRate;
+    private Double                          priceAppreciationRate;
+
+    @Transient
+    @Field("geodist()")
+    private Double                          geoDistance;
 
     public int getLocalityId() {
         return localityId;
@@ -504,6 +508,14 @@ public class Locality extends BaseModel {
 
     public void setOverviewUrl(String localityOverviewUrl) {
         this.overviewUrl = localityOverviewUrl;
+    }
+
+    public Double getGeoDistance() {
+        return geoDistance;
+    }
+
+    public void setGeoDistance(Double geoDistance) {
+        this.geoDistance = geoDistance;
     }
 
 }

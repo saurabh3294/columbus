@@ -162,7 +162,6 @@ public class LocalityReviewService {
      * @param selector
      * @return
      */
-    @Cacheable(value = Constants.CacheName.LOCALITY_REVIEW, key = "#localityId", condition = "#userId == null")
     public List<LocalityReviewComments> getLocalityReview(Integer localityId, Integer userId, Selector selector) {
 
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();

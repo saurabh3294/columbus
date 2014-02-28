@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -38,6 +39,7 @@ import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ImageUtil;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -47,24 +49,24 @@ import com.proptiger.data.util.PropertyReader;
 @Service
 public class ImageService {
     private static final String HYPHON = "-";
-    private static Logger    logger = LoggerFactory.getLogger(ImageService.class);
-    private static File      tempDir;
+    private static Logger       logger = LoggerFactory.getLogger(ImageService.class);
+    private static File         tempDir;
 
     @Autowired
-    private ImageDao         imageDao;
+    private ImageDao            imageDao;
 
     @Autowired
-    protected PropertyReader propertyReader;
+    protected PropertyReader    propertyReader;
 
     @Autowired
-    private Caching          caching;
+    private Caching             caching;
 
     @PostConstruct
     private void init() {
-        ImageUtil.endpoints = propertyReader.getRequiredProperty("endpoints").split(",");
-        ImageUtil.bucket = propertyReader.getRequiredProperty("bucket");
+        ImageUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
+        ImageUtil.bucket = propertyReader.getRequiredProperty(PropertyKeys.BUCKET);
 
-        String path = propertyReader.getRequiredProperty("imageTempPath");
+        String path = propertyReader.getRequiredProperty(PropertyKeys.IMAGE_TEMP_PATH);
         tempDir = new File(path);
         if (!tempDir.exists()) {
             tempDir.mkdir();
@@ -106,19 +108,23 @@ public class ImageService {
         waterMarkIS.close();
     }
 
-    private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException, IOException {
+    private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException,
+            IOException {
         AmazonS3 s3 = createS3Instance();
         s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
         original.delete();
-        
+
         s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
-        
-        for (ImageResolution imageResolution: ImageResolution.values()) {
+
+        for (ImageResolution imageResolution : ImageResolution.values()) {
             File resizedFile = resize(waterMark, imageResolution, format);
-            s3.putObject(ImageUtil.bucket, image.getPath() + computeResizedImageName(image, imageResolution, format), resizedFile);
+            s3.putObject(
+                    ImageUtil.bucket,
+                    image.getPath() + computeResizedImageName(image, imageResolution, format),
+                    resizedFile);
             resizedFile.delete();
         }
-        
+
         waterMark.delete();
     }
 
@@ -139,12 +145,17 @@ public class ImageService {
     }
 
     private String computeResizedImageName(Image image, ImageResolution imageResolution, String format) {
-        return image.getId() + HYPHON + imageResolution.getWidth() + HYPHON + imageResolution.getHeight() + Image.DOT + format;
+        return image.getId() + HYPHON
+                + imageResolution.getWidth()
+                + HYPHON
+                + imageResolution.getHeight()
+                + Image.DOT
+                + format;
     }
 
     private AmazonS3 createS3Instance() {
-        String accessKeyId = propertyReader.getRequiredProperty("accessKeyId");
-        String secretAccessKey = propertyReader.getRequiredProperty("secretAccessKey");
+        String accessKeyId = propertyReader.getRequiredProperty(PropertyKeys.ACCESS_KEY_ID);
+        String secretAccessKey = propertyReader.getRequiredProperty(PropertyKeys.SECRET_ACCESS_KEY);
 
         ClientConfiguration config = new ClientConfiguration();
         config.withProtocol(Protocol.HTTP);
@@ -173,6 +184,9 @@ public class ImageService {
      * Public method to get images of multiple object ids
      */
     public List<Image> getImages(DomainObject object, String imageTypeStr, List<Long> objectIds) {
+        if (objectIds == null || objectIds.isEmpty())
+            return new ArrayList<Image>();
+
         if (imageTypeStr == null) {
             return imageDao.getImagesForObjectIds(object.getText(), objectIds);
         }

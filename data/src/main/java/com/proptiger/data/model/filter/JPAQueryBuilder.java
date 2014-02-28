@@ -2,11 +2,12 @@ package com.proptiger.data.model.filter;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -29,7 +30,6 @@ import org.apache.cxf.jaxrs.ext.search.jpa.JPACriteriaQueryVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.services.cloudfront.model.InvalidArgumentException;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
@@ -49,8 +49,15 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                                                                                                          .getLogger(JPAQueryBuilder.class);
 
     private static enum FUNCTIONS {
-        SUM, MIN, MAX, AVG, COUNT, COUNTDISTINCT, MEDIAN, WAVG;
+        sum, min, max, avg, count, countDistinct, median, wavg, groupConcat, groupConcatDistinct;
     };
+
+    private static class DescendingDeFunctionsComparator implements Comparator<FUNCTIONS> {
+        @Override
+        public int compare(FUNCTIONS f1, FUNCTIONS f2) {
+            return f2.name().compareTo(f1.name());
+        }
+    }
 
     private EntityManager        entityManager;
     private CriteriaBuilder      criteriaBuilder;
@@ -155,21 +162,21 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     }
 
     private Expression<?> createExpression(String fieldName) {
-        String[] splitWords = StringUtils.splitByCharacterTypeCamelCase(fieldName);
-        String prefix = splitWords[0];
+        parseAggregateFunctionFromField(fieldName);
+        String prefix = parseAggregateFunctionFromField(fieldName);
         String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         Expression<?> expression = null;
         try {
-            switch (FUNCTIONS.valueOf(prefix.toUpperCase())) {
-                case MAX:
+            switch (FUNCTIONS.valueOf(prefix)) {
+                case max:
                     Expression<Number> maxExpression = root.get(actualFieldName);
                     expression = criteriaBuilder.max(maxExpression);
                     break;
-                case AVG:
+                case avg:
                     Expression<Double> avgExpression = root.get(actualFieldName);
                     expression = criteriaBuilder.avg(avgExpression);
                     break;
-                case WAVG:
+                case wavg:
                     String[] fieldNames = actualFieldName.split("On");
                     fieldNames[1] = StringUtils.uncapitalize(fieldNames[1]);
                     Expression<Double> field1 = root.get(fieldNames[0]);
@@ -178,33 +185,36 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                             criteriaBuilder.sum(criteriaBuilder.prod(field1, field2)),
                             criteriaBuilder.sum(field2));
                     break;
-                case MEDIAN:
+                case median:
                     Expression<Double> medianExpression = root.get(actualFieldName);
                     expression = criteriaBuilder.function("median", Double.class, medianExpression);
                     break;
-                case COUNT:
-                    Expression<Number> countExpression;
-                    try {
-                        countExpression = root.get(actualFieldName);
-                        expression = criteriaBuilder.count(countExpression);
-                    }
-                    catch (IllegalArgumentException | IllegalStateException e) {
-                        String secondPrefix = splitWords[1];
-                        if (FUNCTIONS.COUNTDISTINCT.name().equalsIgnoreCase(prefix + secondPrefix)) {
-                            actualFieldName = StringUtils
-                                    .uncapitalize(actualFieldName.substring(secondPrefix.length()));
-                            countExpression = root.get(actualFieldName);
-                            expression = criteriaBuilder.countDistinct(countExpression);
-                        }
-                    }
+                case count:
+                    Expression<Number> countExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.count(countExpression);
                     break;
-                case MIN:
+                case countDistinct:
+                    Expression<Number> countDistinctExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.countDistinct(countDistinctExpression);
+                    break;
+                case min:
                     Expression<Number> minExpression = root.get(actualFieldName);
                     expression = criteriaBuilder.min(minExpression);
                     break;
-                case SUM:
+                case sum:
                     Expression<Number> sumExpression = root.get(actualFieldName);
                     expression = criteriaBuilder.sum(sumExpression);
+                    break;
+                case groupConcat:
+                    Expression<String> groupConcatExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.function("group_concat", String.class, groupConcatExpression);
+                    break;
+                case groupConcatDistinct:
+                    Expression<String> groupConcatDistinctExpression = root.get(actualFieldName);
+                    expression = criteriaBuilder.function(
+                            "group_concat_distinct",
+                            String.class,
+                            groupConcatDistinctExpression);
                     break;
                 default:
                     throw new UnsupportedOperationException("Missing support for " + prefix + " function");
@@ -219,6 +229,19 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 
         expression.alias(fieldName);
         return expression;
+    }
+
+    private String parseAggregateFunctionFromField(String fieldName) {
+        FUNCTIONS[] functions = FUNCTIONS.values();
+        Arrays.sort(functions, new DescendingDeFunctionsComparator());
+
+        for (FUNCTIONS function : functions) {
+            String name = function.name();
+            if (fieldName.startsWith(name)) {
+                return name;
+            }
+        }
+        return "";
     }
 
     private void addToFields(FIQLSelector selector, String fieldName) {

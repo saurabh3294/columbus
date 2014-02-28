@@ -20,6 +20,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 
 /**
@@ -35,17 +36,8 @@ import com.proptiger.data.util.PropertyReader;
 @EnableJpaRepositories("com.proptiger.data.repo")
 public class ApplicationConfig {
 
-    private static final String DATABASE_DRIVER                = "db.driver";
-    private static final String DATABASE_PASSWORD              = "db.password";
-    private static final String DATABASE_URL                   = "db.url";
-    private static final String DATABASE_USERNAME              = "db.username";
-
-    private static final String HIBERNATE_DIALECT              = "hibernate.dialect";
-    private static final String HIBERNATE_SHOW_SQL             = "hibernate.show_sql";
-    private static final String ENTITYMANAGER_PACKAGES_TO_SCAN = "entitymanager.packages.to.scan";
-
     @Autowired
-    private PropertyReader      propertyReader;
+    private PropertyReader propertyReader;
 
     /**
      * Spring data source without pooling Creating Data source
@@ -58,10 +50,10 @@ public class ApplicationConfig {
          * Spring data source that does not use pooling
          */
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(propertyReader.getRequiredProperty(DATABASE_DRIVER));
-        dataSource.setUrl(propertyReader.getRequiredProperty(DATABASE_URL));
-        dataSource.setUsername(propertyReader.getRequiredProperty(DATABASE_USERNAME));
-        dataSource.setPassword(propertyReader.getRequiredProperty(DATABASE_PASSWORD));
+        dataSource.setDriverClassName(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_DRIVER));
+        dataSource.setUrl(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_URL));
+        dataSource.setUsername(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_USERNAME));
+        dataSource.setPassword(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_PASSWORD));
 
         return dataSource;
     }
@@ -77,10 +69,10 @@ public class ApplicationConfig {
     public DataSource pooledDataSource() throws Exception {
         ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
 
-        comboPooledDataSource.setJdbcUrl(propertyReader.getRequiredProperty(DATABASE_URL));
-        comboPooledDataSource.setDriverClass(propertyReader.getRequiredProperty(DATABASE_DRIVER));
-        comboPooledDataSource.setUser(propertyReader.getRequiredProperty(DATABASE_USERNAME));
-        comboPooledDataSource.setPassword(propertyReader.getRequiredProperty(DATABASE_PASSWORD));
+        comboPooledDataSource.setJdbcUrl(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_URL));
+        comboPooledDataSource.setDriverClass(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_DRIVER));
+        comboPooledDataSource.setUser(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_USERNAME));
+        comboPooledDataSource.setPassword(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_PASSWORD));
 
         return comboPooledDataSource;
 
@@ -95,7 +87,7 @@ public class ApplicationConfig {
         factory.setJpaVendorAdapter(createJPAAdapter());
         factory.setDataSource(dataSource());
         factory.setPersistenceProviderClass(HibernatePersistence.class);
-        factory.setPackagesToScan(propertyReader.getRequiredProperty(ENTITYMANAGER_PACKAGES_TO_SCAN));
+        factory.setPackagesToScan(propertyReader.getRequiredProperty(PropertyKeys.ENTITYMANAGER_PACKAGES_TO_SCAN));
         factory.setJpaProperties(createJPAProperties());
 
         factory.afterPropertiesSet();
@@ -109,7 +101,7 @@ public class ApplicationConfig {
      */
     private HibernateJpaVendorAdapter createJPAAdapter() {
         CustomHibernateJpaVendorAdapter vendorAdapter = new CustomHibernateJpaVendorAdapter();
-        vendorAdapter.setShowSql(Boolean.valueOf(propertyReader.getRequiredProperty(HIBERNATE_SHOW_SQL)));
+        vendorAdapter.setShowSql(Boolean.valueOf(propertyReader.getRequiredProperty(PropertyKeys.HIBERNATE_SHOW_SQL)));
         vendorAdapter.setDatabase(Database.MYSQL);
         return vendorAdapter;
     }
@@ -121,7 +113,7 @@ public class ApplicationConfig {
      */
     private Properties createJPAProperties() {
         Properties properties = new Properties();
-        properties.put(HIBERNATE_DIALECT, propertyReader.getRequiredProperty(HIBERNATE_DIALECT));
+        properties.put(PropertyKeys.HIBERNATE_DIALECT, propertyReader.getRequiredProperty(PropertyKeys.HIBERNATE_DIALECT));
         return properties;
     }
 
