@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class ImageEnricher {
     private ImageDao     imageDao;
 
     public void setProjectsImages(List<Project> projects) {
-        if (projects == null)
+        if (projects == null || projects.isEmpty())
             return;
 
         for (Project project : projects) {
@@ -68,6 +69,23 @@ public class ImageEnricher {
             return;
 
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
+
+        if (images == null)
+            return;
+        /*
+         * Ready For Posssession, occupied Projects construction images should
+         * not be included.
+         */
+        if (project.getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.Occupied.getStatus()) || project
+                .getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.ReadyForPossession.getStatus())) {
+            Iterator<Image> it = images.iterator();
+            while (it.hasNext()) {
+                if (it.next().getImageTypeObj().getType().equalsIgnoreCase("constructionStatus")) {
+                    it.remove();
+                }
+
+            }
+        }
         /*
          * AS project main image is coming in both project and property object
          * from Solr. Hence, it is not needed to be set.
@@ -97,6 +115,21 @@ public class ImageEnricher {
                     break;
                 }
             }
+
+            /*
+             * Ready For Posssession, occupied Projects construction images
+             * should not be included.
+             */
+            if (project.getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.Occupied.getStatus()) || project
+                    .getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.ReadyForPossession.getStatus())) {
+                Iterator<Image> it = images.iterator();
+                while (it.hasNext()) {
+                    if (it.next().getImageTypeObj().getType().equalsIgnoreCase("constructionStatus")) {
+                        it.remove();
+                    }
+
+                }
+            }
         }
 
         project.setImages(images);
@@ -104,7 +137,7 @@ public class ImageEnricher {
     }
 
     public void setPropertiesImages(List<Property> properties) {
-        if (properties == null)
+        if (properties == null || properties.isEmpty())
             return;
 
         List<Long> propertyIds = new ArrayList<>();
@@ -145,7 +178,7 @@ public class ImageEnricher {
     }
 
     public void setBuildersImages(List<Builder> builders) {
-        if (builders == null)
+        if (builders == null || builders.isEmpty())
             return;
 
         for (Builder builder : builders) {
@@ -172,7 +205,7 @@ public class ImageEnricher {
     }
 
     public void setLocalitiesImages(List<Locality> localities, Integer imageCount) {
-        if (localities == null)
+        if (localities == null || localities.isEmpty())
             return;
 
         Locality locality;

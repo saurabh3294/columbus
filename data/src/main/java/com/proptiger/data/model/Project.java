@@ -53,6 +53,21 @@ import com.proptiger.data.util.ImageUtil;
 public class Project extends BaseModel {
     private static final long serialVersionUID = -6635164496425100051L;
 
+    public static enum ProjectStatus {
+        ReadyForPossession("Ready For Possession"), Occupied("Occupied"), UnderConstruction("Under Construction"), Cancelled(
+                "Cancelled"), OnHold("On Hold"), NotLaunched("Not Launched"), Launch("Launch"), PreLaunch("Pre Launch");
+
+        String status;
+
+        private ProjectStatus(String status) {
+            this.status = status;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+    }
+
     public static enum NestedProperties {
         builderLabel(new String[] { "builder", "name" }), cityLabel(new String[] {
                 "locality",
@@ -415,14 +430,14 @@ public class Project extends BaseModel {
     @Transient
     @Field("geodist()")
     private Double                  geoDistance;
-    
+
     @Transient
     @Field("PROJECT_IMAGES_COUNT")
-    private Integer imagesCount;
-    
+    private Integer                 imagesCount;
+
     @Transient
     @Field("PROJECT_VIDEOS_COUNT")
-    private Integer videosCount;
+    private Integer                 videosCount;
 
     public int getProjectId() {
         return projectId;

@@ -19,8 +19,8 @@ import com.proptiger.data.model.Enquiry;
 public interface EnquiryDao extends JpaRepository<Enquiry, Serializable> {
     public List<Enquiry> findByEmail(String email);
 
-    @Query("select E.projectName, E.cityName, P.projectUrl, E.createdDate " + " from  Enquiry E left join E.project P join E.locality L"
-            + " where E.email=?1 order by E.createdDate DESC")
+    @Query("select E.projectName, E.cityName, P.projectUrl, E.createdDate " + " from  Enquiry E left join E.project P "
+            + " where E.email=?1 AND E.localityId > 0 order by E.createdDate DESC")
     public List<Object[]> findEnquiriesByEmail(String email);
 
     public List<Enquiry> findEnquiryByEmailAndProjectIdOrderByCreatedDateDesc(String email, Long projectId);

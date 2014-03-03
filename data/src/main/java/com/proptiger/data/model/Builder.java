@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.util.ImageUtil;
 
 /**
  * @author mandeep
@@ -58,7 +57,7 @@ public class Builder extends BaseModel {
 
     @Transient
     @Field("BUILDER_ESTABLISHED_DATE")
-    private Date              estabilishedDate;
+    private Date              establishedDate;
 
     @Transient
     private List<Project>     projects;
@@ -107,11 +106,11 @@ public class Builder extends BaseModel {
     }
 
     public Date getEstabilishedDate() {
-        return estabilishedDate;
+        return establishedDate;
     }
 
     public void setEstabilishedDate(Date estabilishedDate) {
-        this.estabilishedDate = estabilishedDate;
+        this.establishedDate = estabilishedDate;
     }
 
     public List<Project> getProjects() {
@@ -136,6 +135,14 @@ public class Builder extends BaseModel {
 
     public void setProjectStatusCount(Map<String, Long> projectStatusCount) {
         this.projectStatusCount = projectStatusCount;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
 }

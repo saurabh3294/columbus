@@ -6,10 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.LocalityAmenity;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.CityDao;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -25,6 +28,9 @@ public class CityService {
 
     @Autowired
     private LocalityService        localityService;
+    
+    @Autowired
+    private ProjectService projectService;
 
     @Autowired
     private LocalityAmenityService localityAmenityService;
@@ -54,9 +60,23 @@ public class CityService {
             return null;
         }
         updateAirportInfo(city);
-
+        updateProjectCount(city);
         city.setAvgBHKPrice(localityService.getAvgPricePerUnitAreaBHKWise("cityId", cityId, city.getDominantUnitType()));
         return city;
+    }
+
+    /**
+     * Updating total projects in city
+     * @param city
+     */
+    private void updateProjectCount(City city) {
+        Selector selector = new Gson().fromJson(
+                "{\"filters\":{\"and\":[{\"equal\":{\"cityId\":" + city.getId() + "}}]}, \"paging\":{\"start\":0,\"rows\":0}}",
+                Selector.class);
+        PaginatedResponse<List<Project>> response = projectService.getProjects(selector);
+        if(response != null){
+            city.setProjectsCount(response.getTotalCount());
+        }
     }
 
     /**

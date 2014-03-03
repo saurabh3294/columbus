@@ -24,7 +24,6 @@ import com.proptiger.api.filter.DataAPIAuthenticationFilter;
 public class CacheClientUtil {
 
     private static MemcachedClient memcachedClient;
-    private static final String    MEMCACHE_URL_PORT = "memcache.url.port";
     @Autowired
     private PropertyReader         propertyReader;
     private static final Logger    logger            = LoggerFactory.getLogger(DataAPIAuthenticationFilter.class);
@@ -33,7 +32,7 @@ public class CacheClientUtil {
     private void init() throws IOException {
         try {
             memcachedClient = new MemcachedClient(AddrUtil.getAddresses(propertyReader
-                    .getRequiredProperty(MEMCACHE_URL_PORT)));
+                    .getRequiredProperty(PropertyKeys.MEMCACHE_URL_PORT)));
         }
         catch (IOException e) {
             logger.error("Exception while connecting to memcache", e);

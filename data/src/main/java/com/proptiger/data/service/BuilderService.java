@@ -141,14 +141,10 @@ public class BuilderService {
         solrQuery.add("group.ngroups", "true");
         solrQuery.add("group.main", "true");
 
-        SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
+        SolrQueryBuilder<Builder> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Builder.class);
         solrQueryBuilder.buildQuery(builderSelector, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-        List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
-        List<Builder> topBuilders = new ArrayList<>();
-        for (SolrResult result : response) {
-            topBuilders.add(result.getProject().getBuilder());
-        }
+        List<Builder> topBuilders = queryResponse.getBeans(Builder.class);
         sortByPriorityAsc(topBuilders);
         imageEnricher.setBuildersImages(topBuilders);
         return topBuilders;

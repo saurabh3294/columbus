@@ -49,6 +49,7 @@ import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -73,6 +74,7 @@ import com.proptiger.mail.service.MailType;
 @Service
 public class PortfolioService extends AbstractService {
 
+    private static final String PROPTIGER_URL = "proptiger.url";
     private static Logger             logger = LoggerFactory.getLogger(PortfolioService.class);
     @Autowired
     private PortfolioListingDao       portfolioListingDao;
@@ -924,14 +926,14 @@ public class PortfolioService extends AbstractService {
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL,
                         listingLoanRequestMailInternal);
-                toStr = propertyReader.getRequiredProperty("mail.home.loan.internal.reciepient");
+                toStr = propertyReader.getRequiredProperty(PropertyKeys.MAIL_HOME_LOAN_INTERNAL_RECIEPIENT);
                 return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
             case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
                 ListingResaleMail listingResaleMailInternal = createListingResaleMailObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL,
                         listingResaleMailInternal);
-                toStr = propertyReader.getRequiredProperty("mail.interested.to.sell.reciepient");
+                toStr = propertyReader.getRequiredProperty(PropertyKeys.MAIL_INTERESTED_TO_SELL_RECIEPIENT);
                 return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
             case INTERESTED_TO_SELL_PROPERTY_USER:
                 ListingResaleMail listingResaleMailUser = createListingResaleMailObj(listing);
@@ -953,7 +955,7 @@ public class PortfolioService extends AbstractService {
      */
     private ListingResaleMail createListingResaleMailObj(PortfolioListing listing) {
         List<Property> properties = propertyService.getProperties(listing.getProperty().getProjectId());
-        StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty("proptiger.url"));
+        StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty(PROPTIGER_URL));
         if (properties != null && !properties.isEmpty()) {
             Property required = null;
             for (Property property : properties) {
