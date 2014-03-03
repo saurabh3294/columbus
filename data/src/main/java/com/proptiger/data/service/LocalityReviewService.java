@@ -221,6 +221,8 @@ public class LocalityReviewService {
             LocalityReviewComments reviewComment,
             Integer userId) {
         validateReviewComment(reviewComment);
+        //set locality id from url path variable
+        reviewComment.setLocalityId(localityId);
         LocalityReviewComments reviewPresent = localityReviewDao.getByLocalityIdAndUserId(localityId, userId);
         if (reviewPresent != null) {
             // TODO if review already present then probably update this
