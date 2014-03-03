@@ -4,6 +4,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -27,6 +31,7 @@ import com.proptiger.data.model.BaseModel;
 @JsonFilter("fieldFilter")
 public class Catchment extends BaseModel {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @Column(name = "user_id")
@@ -36,6 +41,7 @@ public class Catchment extends BaseModel {
 
     private String  name;
 
+    @Enumerated(EnumType.STRING)
     private STATUS  status;
 
     @Column(name = "created_at")
