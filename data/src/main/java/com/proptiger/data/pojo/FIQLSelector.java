@@ -2,6 +2,8 @@ package com.proptiger.data.pojo;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 public class FIQLSelector implements Cloneable, Serializable {
     private static final long serialVersionUID = 1L;
     private String            fields;
@@ -87,5 +89,10 @@ public class FIQLSelector implements Cloneable, Serializable {
             fields += "," + field;
         }
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 }
