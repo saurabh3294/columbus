@@ -22,8 +22,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.ResponseErrorHandler;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -38,7 +40,7 @@ import org.testng.annotations.Test;
  */
 public class TestAPIs {
     public final static String        BASE_URL       = "http://localhost:8080/dal";
-    private static final Logger       logger         = LoggerFactory.getLogger(TestAllAPIs.class);
+    private static final Logger       logger         = LoggerFactory.getLogger(TestAPIs.class);
 
     /*
      * regex pattern to fetch request parameters from given URLs
@@ -119,70 +121,81 @@ public class TestAPIs {
      */
     @Test
     public void checkStatusCode() throws IOException, ConfigurationException {
-        String apilist = restTemplate.getForObject(BASE_URL + "/data/apilist", String.class);
-        /*
-         * listOfApi stores list of APIs
-         */
-        List<String> listOfApi = getListOfAPis(apilist);
-
-        ExecutorService executors = Executors.newFixedThreadPool(listOfApi.size());
-        List<Future<Object>> futures = new ArrayList<Future<Object>>();
-
-        for (final String apiUrl : listOfApi) {
+        String apilist = null;
+        try {
+            apilist = restTemplate.getForObject(BASE_URL + "/data/apilist", String.class);
+        }
+        catch (RestClientException e1) {
+            e1.printStackTrace();
+        }
+        if (apilist != null) {
             /*
-             * skipping APIs needing User authentication
+             * listOfApi stores list of APIs
              */
+            List<String> listOfApi = getListOfAPis(apilist);
 
-            if (apiUrl.contains("user")) {
-                continue;
-            }
+            ExecutorService executors = Executors.newFixedThreadPool(listOfApi.size());
+            List<Future<Object>> futures = new ArrayList<Future<Object>>();
 
-            /*
-             * Submitting API response to mutiple threads
-             */
-            futures.add(executors.submit(new Callable<Object>() {
-                public Object call() throws Exception {
-                    getApiResponse(apiUrl);
-                    return "";
+            for (final String apiUrl : listOfApi) {
+                /*
+                 * skipping APIs needing User authentication
+                 */
+
+                if (apiUrl.contains("user")) {
+                    continue;
                 }
-            }));
 
-        }
-
-        /*
-         * Wait till all threads stops
-         */
-        for (Future<Object> future : futures) {
-            try {
-                future.get();
+                /*
+                 * Submitting API response to mutiple threads
+                 */
+                futures.add(executors.submit(new Callable<Object>() {
+                    public Object call() throws Exception {
+                        getApiResponse(apiUrl);
+                        return "";
+                    }
+                }));
 
             }
-            catch (InterruptedException e) {
-                throw new RuntimeException(e);
+
+            /*
+             * Wait till all threads stops
+             */
+            for (Future<Object> future : futures) {
+                try {
+                    future.get();
+
+                }
+                catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                catch (ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            catch (ExecutionException e) {
-                throw new RuntimeException(e);
+
+            executors.shutdown();
+
+            System.out.println("No. of successful APIs   :" + successUrlList.size());
+            System.out.println("No. of failed APIs       :" + failedUrlList.size());
+
+            System.out.println("List of successful APIs :");
+            for (String element : successUrlList) {
+                System.out.println(element);
             }
+            System.out.println("List of failed APIs :");
+
+            for (Map.Entry<String, String> entry : failedUrlList.entrySet()) {
+                System.out.println("\n " + entry.getKey());
+                System.out.println(" Error :" + entry.getValue());
+            }
+
         }
+        else {
 
-        executors.shutdown();
-
-        System.out.println("No. of successful APIs   :" + successUrlList.size());
-        System.out.println("No. of failed APIs       :" + failedUrlList.size());
-
-        System.out.println("List of successful APIs :");
-        for (String element : successUrlList) {
-            System.out.println(element);
+            Assert.assertEquals(true, true, "API list of EndPointController is not open");
+            // "API not working fine")
         }
-        System.out.println("List of failed APIs :");
-
-        for (Map.Entry<String, String> entry : failedUrlList.entrySet()) {
-            System.out.println("\n " + entry.getKey());
-            System.out.println(" Error :" + entry.getValue());
-        }
-
-        // Assert.assertEquals(apiResponseCode,"2XX",
-        // "API not working fine")
     }
 
     /**
