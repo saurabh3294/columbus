@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -28,6 +29,7 @@ import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.BuilderDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.SolrDao;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -69,6 +71,7 @@ public class BuilderService {
      * @param builderId
      * @return
      */
+    @Cacheable(value = Constants.CacheName.BUILDER, key = "#builderId+\":\"+#selector")
     public Builder getBuilderInfo(Integer builderId, Selector selector) {
         Builder builder = builderDao.getBuilderById(builderId);
         if (builder == null) {
@@ -162,6 +165,11 @@ public class BuilderService {
         return getTopBuilders(selector);
     }
 
+    @Cacheable(value = Constants.CacheName.BUILDER, key = "#builderId")
+    public Builder getBuilderById(int builderId) {
+        return builderDao.getBuilderById(builderId);
+    }
+
     /**
      * The method is used to sort the builders based on their priority.
      * 
@@ -178,4 +186,5 @@ public class BuilderService {
             }
         });
     }
+
 }

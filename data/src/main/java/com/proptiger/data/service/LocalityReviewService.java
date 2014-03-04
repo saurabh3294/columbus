@@ -96,6 +96,7 @@ public class LocalityReviewService {
      * @param localityId
      * @return Long Number of reviews
      */
+    @Cacheable(value = Constants.CacheName.LOCALITY_REVIEW_COUNT, key = "#localityId+\"\"")
     public Long getLocalityReviewCount(int localityId) {
         return localityReviewDao.getTotalReviewsByLocalityId(localityId);
     }
@@ -179,15 +180,19 @@ public class LocalityReviewService {
         }
         return reviews;
     }
-    
+
     /**
      * Get locality review with ratings order by overall rating desc
+     * 
      * @param localityId
      * @param userId
      * @param selector
      * @return
      */
-    public List<LocalityReviewComments> getLocalityReviewOrderByRating(Integer localityId, Integer userId, Selector selector) {
+    public List<LocalityReviewComments> getLocalityReviewOrderByRating(
+            Integer localityId,
+            Integer userId,
+            Selector selector) {
 
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
         if (selector != null && selector.getPaging() != null) {
@@ -213,9 +218,10 @@ public class LocalityReviewService {
      * @param userId
      * @return
      */
-    @CacheEvict(
-            value = { Constants.CacheName.LOCALITY_REVIEW, Constants.CacheName.LOCALITY_REVIEW_RATING },
-            key = "#localityId")
+    @CacheEvict(value = {
+            Constants.CacheName.LOCALITY_REVIEW,
+            Constants.CacheName.LOCALITY_REVIEW_RATING,
+            Constants.CacheName.LOCALITY_REVIEW_COUNT }, key = "#localityId")
     public LocalityReviewComments createLocalityReviewComment(
             Integer localityId,
             LocalityReviewComments reviewComment,

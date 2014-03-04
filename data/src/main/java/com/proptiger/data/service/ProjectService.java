@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -32,6 +34,7 @@ import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -78,6 +81,9 @@ public class ProjectService {
 
     @Autowired
     private BankService            bankService;
+
+    @Autowired
+    private TableAttributesService tableAttributesService;
 
     /**
      * This method will return the list of projects and total projects found
@@ -199,7 +205,7 @@ public class ProjectService {
          * Setting project Specification if needed.
          */
         if (fields == null || fields.contains("projectSpecification")) {
-            project.setProjectSpecification(getProjectSpecificationsV2(projectId));
+            project.setProjectSpecification(this.getProjectSpecificationsV2(projectId));
         }
 
         /*
@@ -395,11 +401,8 @@ public class ProjectService {
      * @return
      */
     public ProjectSpecification getProjectSpecificationsV2(int projectId) {
-
         int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
-        List<TableAttributes> specifications = tableAttributesDao.findByTableIdAndTableName(
-                cmsProjectId,
-                "resi_project");
+        List<TableAttributes> specifications = tableAttributesService.getTableAttributes(cmsProjectId, "resi_project");
 
         return new ProjectSpecification(specifications);
     }
@@ -522,7 +525,9 @@ public class ProjectService {
                 + locationType
                 + "Id\":"
                 + locationId
-                +"}},{\"range\":{\"projectAvgPriceRiseMonths\":{\"from\":1},\"projectAvgPriceRisePercentage\":{\"from\":"+minimumPriceRise+"}}}]},\"sort\":[{\"field\":\"projectPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
+                + "}},{\"range\":{\"projectAvgPriceRiseMonths\":{\"from\":1},\"projectAvgPriceRisePercentage\":{\"from\":"
+                + minimumPriceRise
+                + "}}}]},\"sort\":[{\"field\":\"projectPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
 
         System.out.println(json);
         Selector selector = new Gson().fromJson(json, Selector.class);

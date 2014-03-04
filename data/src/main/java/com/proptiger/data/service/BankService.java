@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.repo.BankDao;
 import com.proptiger.data.repo.ProjectBanksDao;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -59,6 +61,7 @@ public class BankService {
      * @param projectId
      * @return
      */
+    @Cacheable(value = Constants.CacheName.PROJECT_BANKS, key = "#projectId")
     public List<Bank> getBanksProvidingLoanOnProject(Integer projectId) {
         Integer cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
         List<Integer> bankIds = projectBanksDao.findBankIdByProjectId(cmsProjectId);

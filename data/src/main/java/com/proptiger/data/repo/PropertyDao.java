@@ -22,6 +22,7 @@ import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +38,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.SolrResponseReader;
 import com.proptiger.data.util.UtilityClass;
 
@@ -430,6 +432,7 @@ public class PropertyDao {
      * @return
      * @see getProjectStatusCountAndProjectOnLocalityByCity
      */
+    @Cacheable(value = Constants.CacheName.PROJECT_STATUS_COUNT_ON_LOCALITY, key = "#localityId")
     public Map<String, Map<String, Integer>> getProjectStatusCountAndProjectOnLocality(int localityId) {
         Selector selector = new Selector();
 
