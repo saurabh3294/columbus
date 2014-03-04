@@ -4,10 +4,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -16,10 +12,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.pojo.FIQLSelector;
 
 /**
- * Catchment model object
+ * BebUserSelection model object
  * 
  * @author Aziitabh Ajit
  * 
@@ -30,20 +25,21 @@ import com.proptiger.data.pojo.FIQLSelector;
 @Entity
 @Table(name = "b2b_user_catchments")
 @JsonFilter("fieldFilter")
-public class Catchment extends BaseModel {
+public class Graph extends BaseModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @Column(name = "user_id")
     private Integer userId;
+    
+    @Column(name = "catchment_id")
+    private Integer catchmentId;
 
-    private String  catchment;
+    private String  graph;
 
     private String  name;
 
-    @Enumerated(EnumType.STRING)
-    private STATUS  status = STATUS.Active;
+    private STATUS  status;
 
     @Column(name = "created_at")
     private Date    createdAt;
@@ -67,12 +63,20 @@ public class Catchment extends BaseModel {
         this.userId = userId;
     }
 
-    public String getCatchment() {
-        return catchment;
+    public Integer getCatchmentId() {
+        return catchmentId;
     }
 
-    public void setCatchment(FIQLSelector selector) {
-        this.catchment = selector.getFilters();
+    public void setCatchmentId(Integer catchmentId) {
+        this.catchmentId = catchmentId;
+    }
+
+    public String getGraph() {
+        return graph;
+    }
+
+    public void setGraph(String graph) {
+        this.graph = graph;
     }
 
     public String getName() {
