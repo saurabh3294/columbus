@@ -139,7 +139,7 @@ public class GlobalExceptionHandler {
             ConstraintViolationException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.REQUEST_PARAM_INVALID);
+        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)

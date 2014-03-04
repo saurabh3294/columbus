@@ -121,13 +121,13 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "units_sold")
     private Integer unitsSold;
 
-    private Integer demand;
+    private Float demand;
 
     @Column(name = "customer_demand")
-    private Integer customerDemand;
+    private Float customerDemand;
 
     @Column(name = "investor_demand")
-    private Integer investorDemand;
+    private Float investorDemand;
 
     public Integer getId() {
         return id;
@@ -401,27 +401,27 @@ public class InventoryPriceTrend extends BaseModel {
         this.unitsSold = unitsSold;
     }
 
-    public Integer getDemand() {
+    public Float getDemand() {
         return demand;
     }
 
-    public void setDemand(Integer demand) {
+    public void setDemand(Float demand) {
         this.demand = demand;
     }
 
-    public Integer getCustomerDemand() {
+    public Float getCustomerDemand() {
         return customerDemand;
     }
 
-    public void setCustomerDemand(Integer customerDemand) {
+    public void setCustomerDemand(Float customerDemand) {
         this.customerDemand = customerDemand;
     }
 
-    public Integer getInvestorDemand() {
+    public Float getInvestorDemand() {
         return investorDemand;
     }
 
-    public void setInvestorDemand(Integer investorDemand) {
+    public void setInvestorDemand(Float investorDemand) {
         this.investorDemand = investorDemand;
     }
 }

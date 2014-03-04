@@ -16,9 +16,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.pojo.FIQLSelector;
 
 /**
- * BebUserSelection model object
+ * Catchment model object
  * 
  * @author Aziitabh Ajit
  * 
@@ -42,7 +43,7 @@ public class Catchment extends BaseModel {
     private String  name;
 
     @Enumerated(EnumType.STRING)
-    private STATUS  status;
+    private STATUS  status = STATUS.Active;
 
     @Column(name = "created_at")
     private Date    createdAt;
@@ -70,8 +71,8 @@ public class Catchment extends BaseModel {
         return catchment;
     }
 
-    public void setCatchment(String catchment) {
-        this.catchment = catchment;
+    public void setCatchment(FIQLSelector selector) {
+        this.catchment = selector.getFilters();
     }
 
     public String getName() {
