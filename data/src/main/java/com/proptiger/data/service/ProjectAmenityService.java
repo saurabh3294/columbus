@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.ProjectAmenity;
@@ -11,6 +12,7 @@ import com.proptiger.data.model.ProjectCMSAmenity;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.repo.ProjectAmenityDao;
 import com.proptiger.data.repo.ProjectCMSAmenityDao;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
 
 /**
@@ -39,6 +41,7 @@ public class ProjectAmenityService {
         return projectAmenityDao.findAmenitiesByProjectId(projectId);
     }
 
+    @Cacheable(value = Constants.CacheName.PROJECT_CMS_AMENITY, key = "#projectId")
     public List<ProjectCMSAmenity> getCMSAmenitiesByProjectId(int projectId) {
         return projectCMSAmenityDao.findByProjectId(IdConverterForDatabase.getCMSDomainIdForDomainTypes(
                 DomainObject.project,

@@ -89,6 +89,9 @@ public class Constants {
         public static final String LOCALITY_REVIEW                       = "loc-review";
         public static final String LOCALITY_REVIEW_CUSTOM_FIELDS         = "loc-review-custom";
         public static final String LOCALITY_REVIEW_RATING                = "loc-review-rating";
+        public static final String LOCALITY_REVIEW_COUNT                 = "loc-review-count";
+
+        public static final String LOCALITY                              = "loc";
 
         public static final String LOCALITY_RATING                       = "loc-rating";
         public static final String LOCALITY_RATING_AVG_BY_CATEGORY       = "loc-rating-avg-ctg";
@@ -98,6 +101,17 @@ public class Constants {
         public static final String AGENTS_FOR_PROJECT                    = "agents-for-project";
 
         public static final String LOCALITY_AMENITY                      = "loc-amenity";
+
+        public static final String PROPERTY                              = "property";
+
+        public static final String PROJECT                               = "project";
+        public static final String PROJECT_SPECIFICATION                 = "project-specification";
+        public static final String PROJECT_CMS_AMENITY                   = "project-cms-amenity";
+        public static final String PROJECT_VIDEOS                        = "project-videos";
+        public static final String PROJECT_BANKS                         = "project-banks";
+        public static final String PROJECT_STATUS_COUNT_ON_LOCALITY      = "project-status-count-on-locality";
+
+        public static final String BUILDER                               = "builder";
 
     }
 

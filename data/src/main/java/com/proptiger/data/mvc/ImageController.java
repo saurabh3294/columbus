@@ -61,9 +61,9 @@ public class ImageController extends BaseController {
         DomainObject domainObject = DomainObject.valueOf(objectType);
         int domainObjectValueStart = domainObject.getStartId();
         long normalizedObjectId = objectId;
-        if (objectId > domainObjectValueStart) {
+        /*if (objectId > domainObjectValueStart) {
             normalizedObjectId = objectId - domainObjectValueStart;
-        }
+        }*/
 
         Image img = imageService.uploadImage(
                 domainObject,

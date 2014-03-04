@@ -19,6 +19,7 @@ import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -42,6 +43,7 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
@@ -286,6 +288,7 @@ public class LocalityService {
      * @param localityId
      * @return Locality
      */
+    @Cacheable(value = Constants.CacheName.LOCALITY, key = "#localityId")
     public Locality getLocality(int localityId) {
         return localityDao.getLocality(localityId);
     }

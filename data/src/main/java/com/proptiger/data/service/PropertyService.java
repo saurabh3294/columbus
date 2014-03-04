@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Project;
@@ -25,6 +26,7 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.util.Constants;
 
 /**
  * @author mandeep
@@ -103,6 +105,7 @@ public class PropertyService {
      * @param projectId
      * @return
      */
+    @Cacheable(value = Constants.CacheName.PROPERTY, key = "#projectId")
     public List<Property> getProperties(int projectId) {
         Selector selector = new Selector();
         Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
