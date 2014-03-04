@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "wordpress.wp_term_taxonomy")
+@Table(name = "wp_term_taxonomy")
 public class WordpressTermTaxonomy extends BaseModel {
 
     private static final long serialVersionUID = 345497454514698605L;
