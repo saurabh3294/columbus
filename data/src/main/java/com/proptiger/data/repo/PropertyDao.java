@@ -299,9 +299,8 @@ public class PropertyDao {
         // todo to handle null params or required params not found.
         String location_type = (String) params.get("location_type");
         location_type = location_type.toUpperCase();
-        Integer location_id = Integer.parseInt((String)params.get("location_id"));
-
-        solrQuery.setQuery(location_type + "_ID:" + location_id.intValue());
+        Integer locationId = Integer.parseInt((String)params.get("location_id"));
+        solrQuery.setQuery(location_type + "_ID:" + locationId.intValue());
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND UNIT_TYPE:Apartment");
         solrQuery.add("group", "true");
         solrQuery.add("group.facet", "true");
