@@ -6,7 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "wordpress.wp_terms")
+@Table(name = "wp_terms")
 public class WordpressTerms extends BaseModel {
 
     private static final long serialVersionUID = 806356402805138067L;

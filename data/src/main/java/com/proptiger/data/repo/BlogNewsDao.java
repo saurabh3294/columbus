@@ -2,21 +2,74 @@ package com.proptiger.data.repo;
 
 import java.util.List;
 
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 
+import org.springframework.stereotype.Component;
+
+import com.proptiger.data.init.ApplicationConfig;
 import com.proptiger.data.model.WordpressPost;
+import com.proptiger.data.pojo.Paging;
 
-public interface BlogNewsDao extends PagingAndSortingRepository<WordpressPost, Long> {
+/**
+ * This class handles queries for both wordpress and wordpress_news database
+ * @author Rajeev Pandey
+ *
+ */
+@Component
+public class BlogNewsDao {
 
-    @Query("SELECT D " + " FROM WordpressTerms AS A, WordpressTermTaxonomy AS B, WordpressTermRelationship AS C, WordpressPost AS D "
-            + "  WHERE A.termId = B.termId AND"
-            + "  C.termTaxonomyId = B.termTaxonomyId AND"
-            + "  D.id = C.objectId AND"
-            + " A.name= ?1 AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' ORDER BY D.postDate DESC ")
-    public List<WordpressPost> findPublishedBlogNewsByCity(String cityName, Pageable pageable);
+    /**
+     * Using wordpress database in this method to find published blogs for a city
+     * @param cityName
+     * @param paging
+     * @return
+     */
+    public List<WordpressPost> findPublishedBlogByCity(String cityName, Paging paging) {
+        return findNewsOrBlogsByCity(cityName, ApplicationConfig.getWordpressEntityFactory(), paging);
+    }
 
-    @Query("Select WP.guid from WordpressPost WP where WP.parentId=?1 and WP.postMimeType like 'image%' order by WP.postDate")
-    public List<String> findImageUrlsForPost(Long postId);
+    /**
+     * Using wordpress_news database in this method to find published news for a city
+     * @param cityName
+     * @param paging
+     * @return
+     */
+    public List<WordpressPost> findPublishedNewsByCity(String cityName, Paging paging) {
+        return findNewsOrBlogsByCity(cityName, ApplicationConfig.getWordpressNewsEntityFactory(), paging);
+    }
+
+    private List<WordpressPost> findNewsOrBlogsByCity(String cityName, EntityManagerFactory emf, Paging paging) {
+        EntityManager em = emf.createEntityManager();
+        Query query = em.createNamedQuery("Post.blogOrNews").setParameter("cityName", cityName);
+        query.setFirstResult(paging.getStart());
+        query.setMaxResults(paging.getRows());
+        List<WordpressPost> results = query.getResultList();
+        return results;
+    }
+    
+    /**
+     * Find image url for the blog post
+     * @param postId
+     * @return
+     */
+    public List<String> findImageUrlsForBlogPost(Long postId) {
+        EntityManager em = ApplicationConfig.getWordpressEntityFactory().createEntityManager();
+        Query query = em.createNamedQuery("Post.imageUrl").setParameter("postId", postId);
+        List<String> results = query.getResultList();
+        return results;
+    }
+    
+    /**
+     * Find image url for the blog post
+     * @param postId
+     * @return
+     */
+    public List<String> findImageUrlsForNewsPost(Long postId) {
+        EntityManager em = ApplicationConfig.getWordpressNewsEntityFactory().createEntityManager();
+        Query query = em.createNamedQuery("Post.imageUrl").setParameter("postId", postId);
+        List<String> results = query.getResultList();
+        return results;
+    }
 }

@@ -40,4 +40,6 @@ public final class PropertyKeys {
     public static final String MAIL_UNMATCHED_PROJECT_INTERNAL_RECIEPIENT = "mail.unmatched-project.internal.reciepient";
     public static final String MEMCACHE_URL_PORT                          = "memcache.url.port";
     public static final String MAIL_FROM_NOREPLY                          = "mail.from.noreply";
+    public static final String WORDPRESS_DATABASE_URL                     = "wordpress.db.url";
+    public static final String WORDPRESS_NEWS_DATABASE_URL                = "wordpress_news.db.url";
 }

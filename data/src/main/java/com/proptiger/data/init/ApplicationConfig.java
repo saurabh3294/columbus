@@ -2,6 +2,7 @@ package com.proptiger.data.init;
 
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
@@ -38,7 +39,35 @@ public class ApplicationConfig {
 
     @Autowired
     private PropertyReader propertyReader;
+    
+    private static EntityManagerFactory wordpressEntityFactory;
+    private static EntityManagerFactory wordpressNewsEntityFactory;
 
+    @PostConstruct
+    protected void init() throws Exception {
+        wordpressEntityFactory = createWordpressEntityManagerFactory(propertyReader
+                .getRequiredProperty(PropertyKeys.WORDPRESS_DATABASE_URL));
+        wordpressNewsEntityFactory = createWordpressEntityManagerFactory(propertyReader
+                .getRequiredProperty(PropertyKeys.WORDPRESS_NEWS_DATABASE_URL));
+    }
+
+    private EntityManagerFactory createWordpressEntityManagerFactory(String dbUrl) {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_DRIVER));
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_USERNAME));
+        dataSource.setPassword(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_PASSWORD));
+        
+        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
+        factory.setJpaVendorAdapter(createJPAAdapter());
+        factory.setDataSource(dataSource);
+        factory.setPersistenceProviderClass(HibernatePersistence.class);
+        factory.setPackagesToScan(propertyReader.getRequiredProperty(PropertyKeys.ENTITYMANAGER_PACKAGES_TO_SCAN));
+        factory.setJpaProperties(createJPAProperties());
+        factory.afterPropertiesSet();
+        return factory.getObject();
+    }
+    
     /**
      * Spring data source without pooling Creating Data source
      * 
@@ -128,6 +157,14 @@ public class ApplicationConfig {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory());
         return transactionManager;
+    }
+
+    public static EntityManagerFactory getWordpressEntityFactory() {
+        return wordpressEntityFactory;
+    }
+
+    public static EntityManagerFactory getWordpressNewsEntityFactory() {
+        return wordpressNewsEntityFactory;
     }
 
 }

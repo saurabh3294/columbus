@@ -410,10 +410,14 @@ public class LocalityService {
         List<Locality> result = new ArrayList<>();
         List<Object[]> list = null;
 
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
+        if(selector != null && selector.getPaging() != null){
+            pageable = new LimitOffsetPageRequest(selector.getPaging().getStart(), selector.getPaging().getRows());
+        }
         list = localityDao.getTopLocalityByCityIdOrSuburbIdAndRatingGreaterThan(
                 cityId,
                 suburbId,
-                propertyReader.getRequiredPropertyAsType(PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY, Double.class));
+                propertyReader.getRequiredPropertyAsType(PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY, Double.class), pageable);
 
         /*
          * setting average rating of locality

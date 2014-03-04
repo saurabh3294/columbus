@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.jboss.logging.Param;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -49,6 +50,6 @@ public interface LocalityDao extends PagingAndSortingRepository<Locality, Intege
     public List<Object[]> getTopLocalityByCityIdOrSuburbIdAndRatingGreaterThan(
             Integer cityId,
             Integer suburbId,
-            double rating);
+            double rating,  Pageable pageable);
 
 }

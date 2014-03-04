@@ -144,7 +144,7 @@ public class BuilderService {
         solrQuery.add("group.ngroups", "true");
         solrQuery.add("group.main", "true");
 
-        SolrQueryBuilder<Builder> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Builder.class);
+        SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
         solrQueryBuilder.buildQuery(builderSelector, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Builder> topBuilders = queryResponse.getBeans(Builder.class);

@@ -14,6 +14,9 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.CityDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.ResourceType;
+import com.proptiger.data.util.ResourceTypeAction;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * Service class to get city data
@@ -65,6 +68,14 @@ public class CityService {
         return city;
     }
 
+    public City getCity(Integer cityId){
+        City city = cityDao.getCity(cityId);
+        if (city == null) {
+           throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
+        }
+        return city;
+    }
+    
     /**
      * Updating total projects in city
      * @param city
