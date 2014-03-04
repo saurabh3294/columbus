@@ -5,6 +5,8 @@ import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -16,8 +18,19 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * 
  */
 @Entity
-@Table(name = "wordpress.wp_posts")
+@Table(name = "wp_posts")
 @ResourceMetaInfo
+@NamedQueries({
+        @NamedQuery(
+                name = "Post.blogOrNews",
+                query = "SELECT D " + " FROM WordpressPost AS D, WordpressTerms AS A, WordpressTermTaxonomy AS B, WordpressTermRelationship AS C "
+                        + "  WHERE A.termId = B.termId AND"
+                        + "  C.termTaxonomyId = B.termTaxonomyId AND"
+                        + "  D.id = C.objectId AND"
+                        + " A.name= :cityName AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' ORDER BY D.postDate DESC "),
+        @NamedQuery(
+                name = "Post.imageUrl",
+                query = "Select WP.guid from WordpressPost WP where WP.parentId=:postId and WP.postMimeType like 'image%' order by WP.postDate") })
 public class WordpressPost extends BaseModel {
 
     private static final long serialVersionUID = -4623450582253484193L;
