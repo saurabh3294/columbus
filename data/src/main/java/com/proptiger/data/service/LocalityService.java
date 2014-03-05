@@ -392,6 +392,9 @@ public class LocalityService {
         // cityId, suburbId, timeStmap);
 
         List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, timeStmap, selector);
+        for(Locality locality:result){
+            updateLocalityRatingAndReviewDetails(locality);
+        }
         return result;
     }
 
