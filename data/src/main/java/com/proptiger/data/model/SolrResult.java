@@ -828,4 +828,9 @@ public class SolrResult extends BaseModel {
     public void setProjectImagesCount(int projectImagesCount) {
         project.setImagesCount(projectImagesCount);
     }
+
+    @Field("PROJECT_AVG_PRICE_PER_UNIT_AREA")
+    public void setProjectAvgPricePerUnitArea(double projectAvgPriceUnitArea) {
+        project.setAvgPricePerUnitArea(projectAvgPriceUnitArea);
+    }
 }

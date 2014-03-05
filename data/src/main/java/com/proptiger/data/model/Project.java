@@ -439,6 +439,10 @@ public class Project extends BaseModel {
     @Field("PROJECT_VIDEOS_COUNT")
     private Integer                 videosCount;
 
+    @Transient
+    @Field("PROJECT_AVG_PRICE_PER_UNIT_AREA")
+    private Double                  avgPricePerUnitArea;
+
     public int getProjectId() {
         return projectId;
     }
@@ -1009,6 +1013,14 @@ public class Project extends BaseModel {
 
     public void setVideosCount(Integer projectVideosCount) {
         this.videosCount = projectVideosCount;
+    }
+
+    public Double getAvgPricePerUnitArea() {
+        return avgPricePerUnitArea;
+    }
+
+    public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
+        this.avgPricePerUnitArea = avgPricePerUnitArea;
     }
 
 }
