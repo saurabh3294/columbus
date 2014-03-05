@@ -30,7 +30,7 @@ public class ResponseCaching {
     /*
      * This method will be called to check and get the cache response.
      */
-    @Around("execution(* com.proptiger.*.mvc.*.*(..))")
+    @Around("execution(* com.proptiger.*.mvc..*.*(..))")
     public Object getResponse(ProceedingJoinPoint jp) throws Throwable {
         Class<?> proxyMethodReturnType = getProxyMethodReturnType(jp);
 
@@ -46,7 +46,7 @@ public class ResponseCaching {
      * Then that data will be saved in the cache.
      */
     @AfterReturning(
-            pointcut = "execution(* com.proptiger.*.mvc.*.*(..)) && !execution(* com.proptiger.*.mvc.portfolio.*(..))",
+            pointcut = "execution(* com.proptiger.*.mvc..*.*(..)) && !execution(* com.proptiger.*.mvc.portfolio.*(..))",
             returning = "retVal")
     public void setResponse(JoinPoint jp, Object retVal) throws Throwable {
         // if response is not valid, then response will not be saved.
@@ -85,7 +85,7 @@ public class ResponseCaching {
 
         for (int i = 0; i < args.length; i++) {
             if (args[i] != null)
-                key += "i" + args[i].toString();
+                key += ":i:" + args[i].toString();
         }
 
         try {
