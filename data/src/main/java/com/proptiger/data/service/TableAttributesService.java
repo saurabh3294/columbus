@@ -15,13 +15,11 @@ import com.proptiger.data.util.Constants;
 public class TableAttributesService {
     @Autowired
     TableAttributesDao tableAttributesDao;
-    
-    @Cacheable(value=Constants.CacheName.PROJECT_SPECIFICATION)
-    @CachePut(value="cache", key="#projectId+\":\"+#tableName")
-    public List<TableAttributes> getTableAttributes(int projectId, String tableName){
-        return tableAttributesDao.findByTableIdAndTableName(
-                projectId,
-                "resi_project");
+
+    @Cacheable(value = Constants.CacheName.PROJECT_SPECIFICATION)
+    @CachePut(value = "cache", key = "#projectId+\":\"+#tableName")
+    public List<TableAttributes> getTableAttributes(int projectId, String tableName) {
+        return tableAttributesDao.findByTableIdAndTableName(projectId, "resi_project");
     }
 
 }

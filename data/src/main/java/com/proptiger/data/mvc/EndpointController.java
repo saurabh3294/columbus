@@ -49,8 +49,8 @@ public class EndpointController {
     @Autowired
     private RequestMappingHandlerMapping handlerMapping;
 
-    // @RequestMapping(value = "/data/apilist", method = RequestMethod.GET)
-    // @ResponseBody
+    @RequestMapping(value = "/data/apilist", method = RequestMethod.GET)
+    @ResponseBody
     public ProAPIResponse show() {
         Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = this.handlerMapping.getHandlerMethods();
 

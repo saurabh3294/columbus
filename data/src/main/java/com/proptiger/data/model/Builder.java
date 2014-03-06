@@ -93,6 +93,7 @@ public class Builder extends BaseModel {
         return imageURL;
     }
 
+    @Field("BUILDER_LOGO_IMAGE")
     public void setImageURL(String imageUrl) {
         this.imageURL = Image.addImageHostUrl(imageUrl);
     }

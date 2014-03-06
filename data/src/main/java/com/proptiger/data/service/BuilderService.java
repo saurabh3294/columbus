@@ -149,7 +149,7 @@ public class BuilderService {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Builder> topBuilders = queryResponse.getBeans(Builder.class);
         sortByPriorityAsc(topBuilders);
-        imageEnricher.setBuildersImages(topBuilders);
+        // imageEnricher.setBuildersImages(topBuilders);
         return topBuilders;
     }
 
