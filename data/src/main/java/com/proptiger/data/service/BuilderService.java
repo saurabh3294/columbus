@@ -150,7 +150,7 @@ public class BuilderService {
 
         List<Builder> topBuilders = queryResponse.getBeans(Builder.class);
 
-        List<Object> builderIds = getBuilderIds(topBuilders);
+        List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
         imageEnricher.setBuildersImages(builders);
         return builders;
@@ -174,39 +174,21 @@ public class BuilderService {
     }
 
     /**
-     * The method is used to sort the builders based on their priority.
-     * 
-     * @param topBuilders
-     */
-    private void sortByPriorityAsc(List<Builder> topBuilders) {
-        Collections.sort(topBuilders, new Comparator<Builder>() {
-            @Override
-            public int compare(Builder b1, Builder b2) {
-                if (b1.getPriority() != null && b2.getPriority() != null) {
-                    System.out.println("sort");
-                    return (b1.getPriority() - b2.getPriority());
-                }
-                return 0;
-            }
-        });
-    }
-
-    /**
      * This method will return the list of builder Ids from List of Builders.
      * 
      * @param builders
      * @return
      */
-    private List<Object> getBuilderIds(List<Builder> builders) {
+    private List<Integer> getBuilderIds(List<Builder> builders) {
         if (builders == null)
-            return null;
+            return new ArrayList<>();
 
-        List<Object> builderIds = new ArrayList<>();
+        List<Integer> builderIds = new ArrayList<>();
         for (Builder builder : builders) {
             builderIds.add(builder.getId());
         }
 
-        return new ArrayList<>();
+        return builderIds;
     }
 
 }

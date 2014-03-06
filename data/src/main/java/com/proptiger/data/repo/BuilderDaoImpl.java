@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -61,15 +62,12 @@ public class BuilderDaoImpl {
         return null;
     }
 
-    public List<Builder> getBuildersByIds(List<Object> builderIds) {
+    public List<Builder> getBuildersByIds(List<Integer> builderIds) {
         if (builderIds == null || builderIds.isEmpty())
             return new ArrayList<>();
 
-        String builderStr = "";
-        for (Object id : builderIds) {
-            builderStr += "," + id;
-        }
-        builderStr = builderStr.substring(1);
+        String builderStr = StringUtils.join(builderIds.toArray(), ",");
+
         Selector selector = new Gson().fromJson(
                 "{\"filters\":{\"and\":[{\"equal\":{\"id\":[" + builderStr + "]}}]}}",
                 Selector.class);
@@ -86,12 +84,6 @@ public class BuilderDaoImpl {
         solrQuery.setQuery("*:*");
 
         if (selector != null) {
-            Paging paging = selector.getPaging();
-            if (paging != null) {
-                solrQuery.setRows(paging.getRows());
-                solrQuery.setStart(paging.getStart());
-            }
-
             SolrQueryBuilder<Builder> queryBuilder = new SolrQueryBuilder<Builder>(solrQuery, Builder.class);
 
             if (selector.getSort() == null) {
@@ -106,17 +98,9 @@ public class BuilderDaoImpl {
     }
 
     private Set<SortBy> getDefaultSort() {
-        Set<SortBy> sortBySet = new LinkedHashSet<SortBy>();
-        SortBy sortBy = new SortBy();
-        sortBy.setField("priority");
-        sortBy.setSortOrder(SortOrder.ASC);
-        sortBySet.add(sortBy);
-
-        sortBy = new SortBy();
-        sortBy.setField("name");
-        sortBy.setSortOrder(SortOrder.ASC);
-        sortBySet.add(sortBy);
-
-        return sortBySet;
+        return new Gson()
+                .fromJson(
+                        "{\"sort\":[{\"field\":\"priority\",\"sortOrder\":\"ASC\"},{\"field\":\"name\",\"sortOrder\":\"ASC\"}]}",
+                        Selector.class).getSort();
     }
 }
