@@ -57,9 +57,4 @@ public class Selector implements Serializable {
     public void setSort(LinkedHashSet<SortBy> sort) {
         this.sort = sort;
     }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
 }
