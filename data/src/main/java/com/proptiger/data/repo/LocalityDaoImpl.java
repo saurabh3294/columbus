@@ -4,6 +4,7 @@
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -178,7 +179,7 @@ public class LocalityDaoImpl {
     public List<Locality> getPopularLocalities(
             Integer cityId,
             Integer suburbId,
-            Long enquiryCreationTimeStamp,
+            String dateString,
             Selector selector) {
         Paging paging = new Paging();
         if (selector != null && selector.getPaging() != null) {
@@ -188,10 +189,10 @@ public class LocalityDaoImpl {
         Query query = em
                 .createNativeQuery(
                         "select *, count(enquiry1_.ID) as ENQUIRY_COUNT from proptiger.LOCALITY locality0_ " + " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
-                                + " UNIX_TIMESTAMP(enquiry1_.CREATED_DATE) >"
-                                + " "
-                                + enquiryCreationTimeStamp
-                                + ")"
+                                + " enquiry1_.CREATED_DATE >"
+                                + " \""
+                                + dateString
+                                + "\")"
                                 + " where (locality0_.CITY_ID = "
                                 + " "
                                 + cityId
