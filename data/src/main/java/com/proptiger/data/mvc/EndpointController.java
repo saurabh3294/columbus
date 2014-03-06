@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.beanutils.BeanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.MethodParameter;
@@ -36,6 +39,7 @@ import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 @Controller
 @DisableCaching
 public class EndpointController {
+    private static Logger             logger = LoggerFactory.getLogger(EndpointController.class);
     private static final String          EQUAL                 = "=";
     private static final String          SQUARE_BRACKET_END    = "]";
     private static final String          SQUARE_BRACKET_START  = "[";
@@ -61,7 +65,13 @@ public class EndpointController {
             api.append(getAPIUrl(mappingInfo));
 
             HandlerMethod handlerMethod = handlerMethodMap.get(mappingInfo);
-            MethodParameter[] methodParameters = handlerMethod.getMethodParameters();
+            MethodParameter[] methodParameters = null;
+            try {
+                methodParameters = (MethodParameter[]) BeanUtils.cloneBean(handlerMethod.getMethodParameters());
+            }
+            catch (Exception e) {
+                logger.error("Could not clone method parameters array for method {}",getMethodName(api, mappingInfo));;
+            }
             if (methodParameters != null && methodParameters.length > 0) {
                 int count = 0;
                 sortMethodParamsByRequired(methodParameters);
