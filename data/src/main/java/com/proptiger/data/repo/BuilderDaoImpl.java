@@ -60,31 +60,31 @@ public class BuilderDaoImpl {
         SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.BUILDER);
         return null;
     }
-    
-    public List<Builder> getBuildersByIds(List<Object> builderIds){
-        if(builderIds == null || builderIds.isEmpty())
+
+    public List<Builder> getBuildersByIds(List<Object> builderIds) {
+        if (builderIds == null || builderIds.isEmpty())
             return new ArrayList<>();
-        
+
         String builderStr = "";
-        for(Object id:builderIds){
-            builderStr += ","+id;
+        for (Object id : builderIds) {
+            builderStr += "," + id;
         }
         builderStr = builderStr.substring(1);
         Selector selector = new Gson().fromJson(
-                "{\"filters\":{\"and\":[{\"equal\":{\"id\":[" + builderStr 
-                        + "]}}]}}", Selector.class);
-        
+                "{\"filters\":{\"and\":[{\"equal\":{\"id\":[" + builderStr + "]}}]}}",
+                Selector.class);
+
         SolrQuery solrQuery = createSolrQuery(selector);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<Builder> builders = queryResponse.getBeans(Builder.class);
-                        
+
         return builders;
     }
-    
+
     public SolrQuery createSolrQuery(Selector selector) {
         SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.BUILDER);
         solrQuery.setQuery("*:*");
-        
+
         if (selector != null) {
             Paging paging = selector.getPaging();
             if (paging != null) {
@@ -104,7 +104,7 @@ public class BuilderDaoImpl {
 
         return solrQuery;
     }
-    
+
     private Set<SortBy> getDefaultSort() {
         Set<SortBy> sortBySet = new LinkedHashSet<SortBy>();
         SortBy sortBy = new SortBy();
