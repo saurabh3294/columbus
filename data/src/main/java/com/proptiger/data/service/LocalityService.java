@@ -100,7 +100,12 @@ public class LocalityService {
      * @return List<Locality>
      */
     public List<Locality> getLocalities(Selector selector) {
-        return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
+        List<Locality> localities =  Lists.newArrayList(localityDao.getLocalities(selector).getResults());
+        for(Locality locality:localities){
+            updateLocalityRatingAndReviewDetails(locality);
+        }
+        
+        return localities;
     }
 
     /**

@@ -147,10 +147,13 @@ public class BuilderService {
         SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
         solrQueryBuilder.buildQuery(builderSelector, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        
         List<Builder> topBuilders = queryResponse.getBeans(Builder.class);
-        sortByPriorityAsc(topBuilders);
-        // imageEnricher.setBuildersImages(topBuilders);
-        return topBuilders;
+        
+        List<Object> builderIds = getBuilderIds(topBuilders);
+        List<Builder> builders = builderDao.getBuildersByIds(builderIds);
+        imageEnricher.setBuildersImages(builders);
+        return builders;
     }
 
     /**
@@ -180,11 +183,29 @@ public class BuilderService {
             @Override
             public int compare(Builder b1, Builder b2) {
                 if (b1.getPriority() != null && b2.getPriority() != null) {
+                    System.out.println("sort");
                     return (b1.getPriority() - b2.getPriority());
                 }
                 return 0;
             }
         });
+    }
+    
+    /**
+     * This method will return the list of builder Ids from List of Builders.
+     * @param builders
+     * @return
+     */
+    private List<Object> getBuilderIds(List<Builder> builders){
+        if(builders == null)
+            return null;
+        
+        List<Object> builderIds = new ArrayList<>();
+        for(Builder builder:builders){
+            builderIds.add(builder.getId());
+        }
+        
+        return new ArrayList<>();
     }
 
 }

@@ -1,7 +1,10 @@
 package com.proptiger.data.repo;
 
+import java.util.List;
+
 import com.proptiger.data.model.Builder;
 
 public interface BuilderCustomDao {
-    Builder getBuilderById(int builderId);
+    public Builder getBuilderById(int builderId);
+    public List<Builder> getBuildersByIds(List<Object> builderIds);
 }
