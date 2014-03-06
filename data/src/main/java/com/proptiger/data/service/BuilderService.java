@@ -147,10 +147,13 @@ public class BuilderService {
         SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
         solrQueryBuilder.buildQuery(builderSelector, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+
         List<Builder> topBuilders = queryResponse.getBeans(Builder.class);
-        sortByPriorityAsc(topBuilders);
-        // imageEnricher.setBuildersImages(topBuilders);
-        return topBuilders;
+
+        List<Integer> builderIds = getBuilderIds(topBuilders);
+        List<Builder> builders = builderDao.getBuildersByIds(builderIds);
+        imageEnricher.setBuildersImages(builders);
+        return builders;
     }
 
     /**
@@ -171,20 +174,21 @@ public class BuilderService {
     }
 
     /**
-     * The method is used to sort the builders based on their priority.
+     * This method will return the list of builder Ids from List of Builders.
      * 
-     * @param topBuilders
+     * @param builders
+     * @return
      */
-    private void sortByPriorityAsc(List<Builder> topBuilders) {
-        Collections.sort(topBuilders, new Comparator<Builder>() {
-            @Override
-            public int compare(Builder b1, Builder b2) {
-                if (b1.getPriority() != null && b2.getPriority() != null) {
-                    return (b1.getPriority() - b2.getPriority());
-                }
-                return 0;
-            }
-        });
+    private List<Integer> getBuilderIds(List<Builder> builders) {
+        if (builders == null)
+            return new ArrayList<>();
+
+        List<Integer> builderIds = new ArrayList<>();
+        for (Builder builder : builders) {
+            builderIds.add(builder.getId());
+        }
+
+        return builderIds;
     }
 
 }
