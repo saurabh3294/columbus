@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -381,18 +383,19 @@ public class LocalityService {
             Integer suburbId,
             Integer enquiryInWeeks,
             Selector selector) {
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.WEEK_OF_YEAR, -enquiryInWeeks);
 
-        Date enquiryCreationDate = cal.getTime();
-        Long timeStmap = enquiryCreationDate.getTime() / 1000;
+        // The colon is being escaped as to avoid native query colon param name
+        // meaning.
+        Date date = new DateTime().minusWeeks(enquiryInWeeks).toDate();
+        String dateStr = new SimpleDateFormat("YYYY-MM-DD hh\\:mm\\:ss").format(date);
+
         // TODO need to change this to get from localityDao
         // List<Object[]> localities = localityDao
         // .getPopularLocalitiesOfCityOrderByPriorityASCAndTotalEnquiryDESC(
         // cityId, suburbId, timeStmap);
 
-        List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, timeStmap, selector);
-        for(Locality locality:result){
+        List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, dateStr, selector);
+        for (Locality locality : result) {
             updateLocalityRatingAndReviewDetails(locality);
         }
         return result;
@@ -414,13 +417,14 @@ public class LocalityService {
         List<Object[]> list = null;
 
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
-        if(selector != null && selector.getPaging() != null){
+        if (selector != null && selector.getPaging() != null) {
             pageable = new LimitOffsetPageRequest(selector.getPaging().getStart(), selector.getPaging().getRows());
         }
         list = localityDao.getTopLocalityByCityIdOrSuburbIdAndRatingGreaterThan(
                 cityId,
                 suburbId,
-                propertyReader.getRequiredPropertyAsType(PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY, Double.class), pageable);
+                propertyReader.getRequiredPropertyAsType(PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY, Double.class),
+                pageable);
 
         /*
          * setting average rating of locality
