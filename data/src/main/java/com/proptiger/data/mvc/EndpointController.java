@@ -39,7 +39,7 @@ import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 @Controller
 @DisableCaching
 public class EndpointController {
-    private static Logger             logger = LoggerFactory.getLogger(EndpointController.class);
+    private static Logger                logger                = LoggerFactory.getLogger(EndpointController.class);
     private static final String          EQUAL                 = "=";
     private static final String          SQUARE_BRACKET_END    = "]";
     private static final String          SQUARE_BRACKET_START  = "[";
@@ -65,13 +65,18 @@ public class EndpointController {
             api.append(getAPIUrl(mappingInfo));
 
             HandlerMethod handlerMethod = handlerMethodMap.get(mappingInfo);
-            MethodParameter[] methodParameters = null;
-            try {
-                methodParameters = (MethodParameter[]) BeanUtils.cloneBean(handlerMethod.getMethodParameters());
-            }
-            catch (Exception e) {
-                logger.error("Could not clone method parameters array for method {}",getMethodName(api, mappingInfo));;
-            }
+            /*
+             * making shallow copy here as we are not modifying internal
+             * variable/reference of MethodParameter object, just sorting the
+             * array, so new array will be sorted and no internal variable will
+             * be modified that is being referenced by MethodParameter object in
+             * handlerMethod.getMethodParameters() array. So just shallow copy
+             * work here rather than deep copy
+             */
+            MethodParameter[] methodParameters = Arrays.copyOf(
+                    handlerMethod.getMethodParameters(),
+                    handlerMethod.getMethodParameters().length);
+            
             if (methodParameters != null && methodParameters.length > 0) {
                 int count = 0;
                 sortMethodParamsByRequired(methodParameters);
