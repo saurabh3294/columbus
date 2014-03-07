@@ -83,6 +83,11 @@ public class ProjectDetailController extends BaseController {
             propertyDetailsSelector = new Selector();
         }
 
+        // XXX - Supporting old and new both project ids
+        if (projectId < 500000) {
+            projectId += 500000;
+        }
+
         List<Property> properties = propertyService.getProperties(projectId);
         ProjectSpecification projectSpecification = projectService.getProjectSpecificationsV2(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
