@@ -40,9 +40,4 @@ public abstract class BaseModel implements Serializable {
     public void setExtraAttributes(Map<String, Object> extraAttributes) {
         this.extraAttributes = extraAttributes;
     }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-    }
 }

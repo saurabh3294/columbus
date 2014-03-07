@@ -29,7 +29,7 @@ public interface LocalityCustomDao {
     public List<Locality> getPopularLocalities(
             Integer cityId,
             Integer suburbId,
-            Long enquiryCreationTimeStamp,
+            String dateString,
             Selector selector);
 
     public Locality getLocality(int localityId);
