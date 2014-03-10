@@ -25,7 +25,7 @@ public class CatchmentController extends BaseController {
 
     @RequestMapping(value = "/data/v1/entity/user/catchment", method = RequestMethod.POST)
     public @ResponseBody
-    ProAPIResponse getcatchment(
+    ProAPIResponse createCatchment(
             @RequestBody Catchment catchment,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         return new ProAPISuccessResponse(catchmentService.createCatchment(catchment, userInfo));

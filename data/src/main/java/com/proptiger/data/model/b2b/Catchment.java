@@ -1,5 +1,6 @@
 package com.proptiger.data.model.b2b;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -109,5 +110,41 @@ public class Catchment extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public List<Integer> getProjectIds(){
+        List<Integer> projectIds = new ArrayList<>();
+        for (CatchmentProject catchmentProject : catchmentProjects) {
+            projectIds.add(catchmentProject.getProjectId());
+        }
+        return projectIds;
+    }
+    
+    public List<CatchmentProject> deleteProjectIds(List<Integer> projectIds){
+        List<CatchmentProject> newCatchmentProjects = new ArrayList<>();
+        List<CatchmentProject> deletedCatchmentProjects = new ArrayList<>();
+        for (CatchmentProject catchmentProject : catchmentProjects) {
+            if(projectIds.contains(catchmentProject.getProjectId())){
+                deletedCatchmentProjects.add(catchmentProject);
+            }else{
+                newCatchmentProjects.add(catchmentProject);
+            }
+        }
+        catchmentProjects = newCatchmentProjects;
+        return deletedCatchmentProjects;
+    }
+    
+    public List<CatchmentProject> addProjectIds(List<Integer> projectIds){
+        List<Integer> allProjectIds = getProjectIds();
+        List<CatchmentProject> addedCatchmentProjects = new ArrayList<>();
+        for (Integer projectId : projectIds) {
+            if(!allProjectIds.contains(projectId)){
+                CatchmentProject catchmentProject = new CatchmentProject();
+                catchmentProject.setProjectId(projectId);
+                addedCatchmentProjects.add(catchmentProject);
+                catchmentProjects.add(catchmentProject);
+            }
+        }
+        return addedCatchmentProjects;
     }
 }
