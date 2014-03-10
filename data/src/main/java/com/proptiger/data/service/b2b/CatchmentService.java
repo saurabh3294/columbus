@@ -5,11 +5,9 @@ import java.util.List;
 
 import javax.persistence.PersistenceException;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,22 +78,16 @@ public class CatchmentService {
             projectsToBeRemoved.removeAll(newProjectIds);
 
             savedCatchment.addProjectIds(newProjectIds);
-
-            System.out.println("DDDDDDDDDDDDDDDDDDDDD " + projectsToBeRemoved);
-            System.out.println("DDDDDDDDDDDDDDDDDDDDD1 " + savedCatchment.getProjectIds());
             List<CatchmentProject> deletedCatchmentProjects = savedCatchment.deleteProjectIds(projectsToBeRemoved);
-            System.out.println("DDDDDDDDDDDDDDDDDDDDD2 " + savedCatchment.getProjectIds());
-            System.out.println("DDDDDDDDDDDDDDDDDDDDD3" + deletedCatchmentProjects + "   " + deletedCatchmentProjects.get(0).getId());
-            
-            //catchmentProjectDao.delete(deletedCatchmentProjects);
 
             savedCatchment.setName(catchment.getName());
             savedCatchment.setUpdatedAt(null);
             for (CatchmentProject catchmentProject : savedCatchment.getCatchmentProjects()) {
                 catchmentProject.setCatchment(savedCatchment);
             }
-            System.out.println("DDDDDDDDDDDDDDDDDDDDD3" + savedCatchment.getProjectIds());
-            return catchmentDao.save(savedCatchment);
+            catchmentDao.save(savedCatchment);
+            catchmentProjectDao.delete(deletedCatchmentProjects);
+            return savedCatchment;
         }
         return null;
     }
