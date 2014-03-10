@@ -94,29 +94,28 @@ public class FIQLSelector implements Cloneable, Serializable {
         return this;
     }
 
-    public FIQLSelector addSort(String fieldName, SortOrder sortOrder){
+    public FIQLSelector addSortASC(String fieldName){
         if(fieldName != null){
-            if(this.sort == null){
-                this.sort = getSortChar(sortOrder)+fieldName;
+            if(this.sort == null || this.sort.trim().isEmpty()){
+                this.sort = fieldName;
             }
             else{
-                this.sort = "," + getSortChar(sortOrder)+fieldName;
+                this.sort += "," + fieldName;
             }
         }
-        
-        
         return this;
     }
-    private String getSortChar(SortOrder sortOrder) {
-        switch(sortOrder){
-            case ASC:
-                return "";
-            case DESC:
-                return "-";
-            default:
-                return "";
-            
+    
+    public FIQLSelector addSortDESC(String fieldName){
+        if(fieldName != null){
+            if(this.sort == null || this.sort.trim().isEmpty()){
+                this.sort = fieldName;
+            }
+            else{
+                this.sort += ",-" + fieldName;
+            }
         }
+        return this;
     }
 
     @Override
