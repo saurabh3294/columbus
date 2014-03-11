@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.meta.ResourceModelMeta;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -20,6 +21,7 @@ import com.proptiger.data.service.MetaService;
  */
 @Controller
 @RequestMapping(value = "data/v1/resource/meta")
+@DisableCaching
 public class MetaController {
     @Autowired
     private MetaService metaService;
