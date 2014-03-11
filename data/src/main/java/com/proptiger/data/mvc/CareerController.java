@@ -21,7 +21,7 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
  *
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/career")
+@RequestMapping(value = "data/v1/current-openings")
 public class CareerController extends BaseController{
     @Autowired
     private CareerService careerService;
