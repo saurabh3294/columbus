@@ -109,7 +109,7 @@ public class FIQLSelector implements Cloneable, Serializable {
     public FIQLSelector addSortDESC(String fieldName){
         if(fieldName != null){
             if(this.sort == null || this.sort.trim().isEmpty()){
-                this.sort = fieldName;
+                this.sort = "-"+fieldName;
             }
             else{
                 this.sort += ",-" + fieldName;

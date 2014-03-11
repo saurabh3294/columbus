@@ -44,8 +44,7 @@ import com.proptiger.data.util.Constants;
 @Controller
 @DisableCaching
 public class EndpointController {
-    private static final String AMPERCENT = "&";
-    private static Logger                logger                = LoggerFactory.getLogger(EndpointController.class);
+    private static final String AMPERSAND = "&";
     private static final String          EQUAL                 = "=";
     private static final String          SQUARE_BRACKET_END    = "]";
     private static final String          SQUARE_BRACKET_START  = "[";
@@ -121,10 +120,11 @@ public class EndpointController {
                             //ModelAttribute is mandatory
                             required = true;
                             if (count > 0) {
-                                api.append(AMPERCENT);
+                                api.append(AMPERSAND);
                             }
-                            api.append(parameterName).append(EQUAL).append(ANGULAR_BRACKET_START).append(parameterName)
-                            .append(ANGULAR_BRACKET_END);
+                            api.append(SQUARE_BRACKET_START).append(parameterName).append(EQUAL)
+                            .append(ANGULAR_BRACKET_START).append(parameterName).append(ANGULAR_BRACKET_END)
+                            .append(SQUARE_BRACKET_END);
                             count++;
                         }
                         else if(requestParam != null) {
@@ -135,7 +135,7 @@ public class EndpointController {
                                 required = false;
                             }
                             if (count > 0) {
-                                api.append(AMPERCENT);
+                                api.append(AMPERSAND);
                             }
                             if (!required) {
                                 api.append(SQUARE_BRACKET_START).append(parameterName).append(EQUAL)
@@ -177,14 +177,14 @@ public class EndpointController {
             for(NameValueExpression<String> expression: paramInfo){
                 if(expression.toString().contains("=")){
                     if(counter > 0){
-                        val = val.append(AMPERCENT);
+                        val = val.append(AMPERSAND);
                     }
                     val.append(expression.toString());
                 }
             }
         }
         if(!val.toString().equals("")){
-            val = val.append(AMPERCENT);
+            val = val.append(AMPERSAND);
         }
         return val.toString();
     }
