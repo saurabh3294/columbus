@@ -36,7 +36,7 @@ public class AppLocalityController extends BaseController {
     private LocalityService localityService;
 
     /**
-     * @param cityId
+     * @param selector
      * @return
      */
     @RequestMapping
