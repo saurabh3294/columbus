@@ -69,7 +69,6 @@ public class CatchmentService {
     public Catchment updateExistingCatchment(Catchment catchment, UserInfo userInfo) throws Exception {
         catchment.setUserId(userInfo.getUserIdentifier());
         Catchment savedCatchment = catchmentDao.findOne(catchment.getId());
-
         if (savedCatchment.getUserId().equals(catchment.getUserId())) {
             List<Integer> oldProjectIds = savedCatchment.getProjectIds();
             List<Integer> newProjectIds = catchment.getProjectIds();
@@ -80,13 +79,16 @@ public class CatchmentService {
             savedCatchment.addProjectIds(newProjectIds);
             List<CatchmentProject> deletedCatchmentProjects = savedCatchment.deleteProjectIds(projectsToBeRemoved);
 
+            catchmentProjectDao.delete(deletedCatchmentProjects);
+
             savedCatchment.setName(catchment.getName());
             savedCatchment.setUpdatedAt(null);
             for (CatchmentProject catchmentProject : savedCatchment.getCatchmentProjects()) {
-                catchmentProject.setCatchment(savedCatchment);
+                if (catchmentProject.getCatchment() == null) {
+                    catchmentProject.setCatchment(savedCatchment);
+                }
             }
             catchmentDao.save(savedCatchment);
-            catchmentProjectDao.delete(deletedCatchmentProjects);
             return savedCatchment;
         }
         return null;
