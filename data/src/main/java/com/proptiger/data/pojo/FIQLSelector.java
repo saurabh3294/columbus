@@ -94,6 +94,30 @@ public class FIQLSelector implements Cloneable, Serializable {
         return this;
     }
 
+    public FIQLSelector addSortASC(String fieldName){
+        if(fieldName != null){
+            if(this.sort == null || this.sort.trim().isEmpty()){
+                this.sort = fieldName;
+            }
+            else{
+                this.sort += "," + fieldName;
+            }
+        }
+        return this;
+    }
+    
+    public FIQLSelector addSortDESC(String fieldName){
+        if(fieldName != null){
+            if(this.sort == null || this.sort.trim().isEmpty()){
+                this.sort = "-"+fieldName;
+            }
+            else{
+                this.sort += ",-" + fieldName;
+            }
+        }
+        return this;
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
