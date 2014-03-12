@@ -22,6 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,6 +63,8 @@ public class ImageService {
     @Autowired
     private Caching             caching;
 
+    private TaskExecutor taskExecutor;
+    
     @PostConstruct
     private void init() {
         ImageUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
@@ -71,6 +75,7 @@ public class ImageService {
         if (!tempDir.exists()) {
             tempDir.mkdir();
         }
+        taskExecutor = new SimpleAsyncTaskExecutor();
     }
 
     private void applyWaterMark(File file, String format) throws IOException {
@@ -113,35 +118,52 @@ public class ImageService {
         AmazonS3 s3 = createS3Instance();
         s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
         original.delete();
-
         s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
-
-        for (ImageResolution imageResolution : ImageResolution.values()) {
-            File resizedFile = resize(waterMark, imageResolution, format);
-            s3.putObject(
-                    ImageUtil.bucket,
-                    image.getPath() + computeResizedImageName(image, imageResolution, format),
-                    resizedFile);
-            resizedFile.delete();
-        }
-
-        waterMark.delete();
+        createAndUploadMoreResolutions(image, waterMark, format, s3);
     }
 
-    private File resize(File waterMark, ImageResolution imageResolution, String format) {
-        try {
-            ConvertCmd convertCmd = new ConvertCmd();
-            IMOperation imOperation = new IMOperation();
-            imOperation.addImage(waterMark.getAbsolutePath());
-            imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight(), ">");
-            File outputFile = File.createTempFile("resizedImage", Image.DOT + format, tempDir);
-            imOperation.addImage(outputFile.getAbsolutePath());
-            convertCmd.run(imOperation);
-            return outputFile;
-        }
-        catch (IM4JavaException | IOException | InterruptedException e) {
-            throw new RuntimeException("Could not resize image", e);
-        }
+    /**
+     * Creating more resolution for image file and uploading that to S3
+     * @param image
+     * @param waterMark
+     * @param format
+     * @param s3
+     */
+    private void createAndUploadMoreResolutions(final Image image, final File waterMark, final String format, final AmazonS3 s3) {
+        taskExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                for (ImageResolution imageResolution : ImageResolution.values()) {
+                    File resizedFile;
+                    try {
+                        resizedFile = resize(waterMark, imageResolution, format);
+                        s3.putObject(
+                                ImageUtil.bucket,
+                                image.getPath() + computeResizedImageName(image, imageResolution, format),
+                                resizedFile);
+                        resizedFile.delete();
+                    }
+                    catch (Exception e) {
+                        logger.error("Could not resize image for resolution name {}",imageResolution.getLabel(), e);
+                    }
+                }
+                waterMark.delete();
+            }
+        });
+    }
+
+    private File resize(File waterMark, ImageResolution imageResolution, String format) throws Exception {
+        ConvertCmd convertCmd = new ConvertCmd();
+        IMOperation imOperation = new IMOperation();
+        imOperation.addImage(waterMark.getAbsolutePath());
+        imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight(), ">");
+        imOperation.strip();
+        imOperation.quality(95.0);
+        imOperation.interlace("Plane");
+        File outputFile = File.createTempFile("resizedImage", Image.DOT + format, tempDir);
+        imOperation.addImage(outputFile.getAbsolutePath());
+        convertCmd.run(imOperation);
+        return outputFile;
     }
 
     private String computeResizedImageName(Image image, ImageResolution imageResolution, String format) {

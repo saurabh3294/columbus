@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -40,7 +42,6 @@ import org.testng.annotations.Test;
  */
 public class TestAPIs {
     public final static String        BASE_URL       = "http://localhost:8080/dal";
-    private static final Logger       logger         = LoggerFactory.getLogger(TestAPIs.class);
 
     /*
      * regex pattern to fetch request parameters from given URLs
@@ -64,9 +65,27 @@ public class TestAPIs {
 
     private Map<String, List<String>> apiKeysValuesMap;
 
+    Set<String>                       exclusionList  = new HashSet<String>();
+
     @BeforeTest
     public void init() throws ConfigurationException {
         populateKeysValuesForAPI();
+
+        exclusionList.add("data/v1/trend?");
+        exclusionList.add("data/v1/trend/current?");
+        exclusionList.add("data/v1/trend/hitherto?");
+        exclusionList.add("data/v1/price-trend?");
+        exclusionList.add("data/v1/price-trend/current?");
+        exclusionList.add("data/v1/price-trend/hitherto?");
+        exclusionList.add("data/v2/entity/project");
+        exclusionList.add("data/v1/recommendation?propertyId");
+        exclusionList.add("data/v1/recommendation?projectId");
+        exclusionList.add("app/v1/locality?");
+        exclusionList.add("app/v1/project-detail?projectId=");
+        exclusionList.add("app/v1/amenity?");
+        exclusionList.add("data/v1/entity/broker-agent");
+        exclusionList.add("data/apilist");
+
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -142,7 +161,8 @@ public class TestAPIs {
                  * skipping APIs needing User authentication
                  */
 
-                if (apiUrl.contains("user")) {
+                if (apiToBeExcluded(apiUrl)) {
+
                     continue;
                 }
 
@@ -159,7 +179,7 @@ public class TestAPIs {
             }
 
             /*
-             * Wait till all threads stops
+             * Wait till all threads stop
              */
             for (Future<Object> future : futures) {
                 try {
@@ -198,6 +218,19 @@ public class TestAPIs {
         }
     }
 
+    private boolean apiToBeExcluded(String apiUrl) {
+        boolean exclude = false;
+        if (apiUrl.contains("user"))
+            exclude = true;
+        else {
+            for (String set : exclusionList) {
+                if (apiUrl.contains(set))
+                    exclude = true;
+            }
+        }
+        return exclude;
+    }
+
     /**
      * @param apiUrl
      *            differentiating simple URLs and URLs containing request
@@ -224,16 +257,13 @@ public class TestAPIs {
      */
     private void urlWithoutRequestParams(String apiUrl) {
         String apiResponse = "";
-
+        if (apiUrl.contains("app/v1/amenity?")) {
+            apiUrl = "http://localhost:8080/dal/app/v1/amenity?city-id=2";
+        }
         apiResponse = restTemplate.getForObject(apiUrl, String.class);
 
-        String finalStatusCode = getApiResponseCode(apiResponse);
-        if (finalStatusCode.equals("2XX") | finalStatusCode.equals("4XX")) {
-            successUrlList.add(apiUrl);
-        }
-        else {
-            failedUrlList.put(apiUrl, apiResponse);
-        }
+        addApiResponseCode(apiResponse, apiUrl);
+
     }
 
     /**
@@ -269,16 +299,10 @@ public class TestAPIs {
 
             UriTemplate uriTemplate = new UriTemplate(apiUrl);
             URI expanded = uriTemplate.expand(map);
+            apiResponse = restTemplate.getForObject(expanded, String.class);
             String finalUrl = expanded.toString();
 
-            apiResponse = restTemplate.getForObject(finalUrl, String.class);
-            String finalStatusCode = getApiResponseCode(apiResponse);
-            if (finalStatusCode.equals("2XX") | finalStatusCode.equals("4XX")) {
-                successUrlList.add(finalUrl);
-            }
-            else {
-                failedUrlList.put(finalUrl, apiResponse);
-            }
+            addApiResponseCode(apiResponse, finalUrl);
 
         }
 
@@ -294,19 +318,19 @@ public class TestAPIs {
     private String urlContainParams(String apiUrl) {
         String params = "";
         if (apiUrl.contains("bedroom")) {
-            String regex1 = "<params>";
+            String regex1 = "\\{params\\}";
             params = apiUrl.replaceAll(regex1, "{param_bedroom}");
         }
         else if (apiUrl.contains("locality")) {
-            String regex1 = "<params>";
+            String regex1 = "\\{params\\}";
             params = apiUrl.replaceAll(regex1, "{param_locality}");
         }
         else if (apiUrl.contains("distribution_price")) {
-            String regex1 = "<params>";
+            String regex1 = "\\{params\\}";
             params = apiUrl.replaceAll(regex1, "{param_price}");
         }
         else if (apiUrl.contains("price_trends")) {
-            String regex1 = "<params>";
+            String regex1 = "\\{params\\}";
             params = apiUrl.replaceAll(regex1, "{param_pricetrends}");
         }
 
@@ -354,7 +378,9 @@ public class TestAPIs {
             String bcd = baseurl.replaceAll(regex1, "{$1}");
             String regex2 = "\\[(.*)\\]";
             String finalurl = bcd.replaceAll(regex2, "");
-            listofAPIs.add(finalurl);
+   //         if (finalurl.contains("entity/graph/project_distribution_price")) {
+              listofAPIs.add(finalurl);
+    //        }
         }
         return listofAPIs;
     }
@@ -362,16 +388,32 @@ public class TestAPIs {
     /**
      * @param apiResponse
      *            fetch and return statusCode from response of a API hit
+     * @param finalUrl
+     * @return
      * @return
      */
-    private String getApiResponseCode(String apiResponse) {
-        Pattern pattern = Pattern.compile(":\\\"(.*?)\\\"");
+    void addApiResponseCode(String apiResponse, String finalUrl) {
+        Pattern pattern = Pattern.compile("\\\"statusCode\\\":(\\s*)\\\"(\\d\\D\\D)\\\",");
         Matcher m = pattern.matcher(apiResponse);
+        boolean dataPresent = false;
         String statusCode = "";
         if (m.find()) {
-            statusCode = m.group(1);
+            statusCode = m.group(2);
         }
-        return (statusCode);
+        else {
+            Pattern dataPattern = Pattern.compile("\\\"data\\\":(.*?)");
+            Matcher match = dataPattern.matcher(apiResponse);
+            if (match.find()) {
+                dataPresent = true;
+            }
+        }
+
+        if (statusCode.equals("2XX") || dataPresent) {
+            successUrlList.add(finalUrl);
+        }
+        else {
+            failedUrlList.put(finalUrl, apiResponse);
+        }
     }
 
 }
