@@ -9,11 +9,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.amazonaws.services.opsworks.model.ResourceNotFoundException;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
@@ -139,7 +141,9 @@ public class GlobalExceptionHandler {
             ConstraintViolationException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null ? ResponseErrorMessages.REQUEST_PARAM_INVALID: exception.getMessage());
+        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
+                ? ResponseErrorMessages.REQUEST_PARAM_INVALID
+                : exception.getMessage());
     }
 
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
@@ -182,5 +186,25 @@ public class GlobalExceptionHandler {
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
         return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.OK)
+    protected ProAPIResponse handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException exception,
+            HttpServletRequest httpRequest) {
+        logAPIUrlInLogFile(httpRequest, exception);
+        return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_INVALID, exception.getMessage());
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.OK)
+    protected ProAPIResponse handleResourceNotFoundException(
+            ResourceNotFoundException exception,
+            HttpServletRequest httpRequest) {
+        logAPIUrlInLogFile(httpRequest, exception);
+        return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_INVALID, exception.getMessage());
     }
 }
