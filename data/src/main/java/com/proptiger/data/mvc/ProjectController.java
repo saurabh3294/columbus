@@ -7,10 +7,13 @@ package com.proptiger.data.mvc;
 import java.util.List;
 import java.util.Set;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
+import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -26,6 +30,7 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ProjectService;
+import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.service.portfolio.ProjectDiscussionsService;
 
@@ -44,6 +49,9 @@ public class ProjectController extends BaseController {
 
     @Autowired
     private ProjectDiscussionsService projectDiscussionsService;
+
+    @Autowired
+    private ErrorReportingService     errorReportingService;
 
     @RequestMapping("data/v1/entity/project")
     public @ResponseBody
@@ -223,6 +231,18 @@ public class ProjectController extends BaseController {
         return new ProAPISuccessResponse(super.filterFields(
                 projectService.getHighestReturnProjects(locationType, locationId, numberOfProjects, minimumPriceRise),
                 fields));
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/project/report-error")
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse reportProjectError(@Valid @RequestBody ProjectError projectError) {
+        if (projectError.getProjectId() == null)
+            throw new IllegalArgumentException("Project Id cannot be null");
+        if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0)
+            throw new IllegalArgumentException("Property Id should not be present.");
+
+        return new ProAPISuccessResponse(errorReportingService.saveReportError(projectError));
     }
 
 }

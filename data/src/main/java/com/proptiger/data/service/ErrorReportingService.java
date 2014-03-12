@@ -1,34 +1,24 @@
 package com.proptiger.data.service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 import javax.persistence.PersistenceException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.opsworks.model.ResourceNotFoundException;
-import com.google.gson.Gson;
 import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ProjectErrorDao;
-import com.proptiger.data.service.portfolio.ProjectDiscussionsService.ProjectDiscussionMailDTO;
 import com.proptiger.data.util.PropertyReader;
-import com.proptiger.data.util.ResourceType;
-import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.mail.service.MailSender;
 import com.proptiger.mail.service.MailTemplateDetail;
 import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service
-public class ReportErrorService {
+public class ErrorReportingService {
 
     @Autowired
     private ProjectErrorDao         projectErrorDao;
@@ -45,6 +35,11 @@ public class ReportErrorService {
     @Autowired
     private MailSender              mailSender;
 
+    @Autowired
+    private ProjectService          projectService;
+
+    private static Logger           logger = LoggerFactory.getLogger(ErrorReportingService.class);
+
     /**
      * This method will save the error reported for a project or a property.
      * After saving in the database. It will send a mail.
@@ -54,36 +49,28 @@ public class ReportErrorService {
      */
     public ProjectError saveReportError(ProjectError projectError) {
 
-        String condition = "";
-        /*
-         * Error message to be displayed when the project or property Id is not
-         * found.
-         */
-        String errorMessage = "Project Id " + projectError.getProjectId();
+        Property property = null;
+        Project project = null;
 
         /*
          * Constructing the Json selector for retrieving the project or property
          * info based on given ids.
          */
-        condition += ",\"projectId\":" + projectError.getProjectId();
         if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0) {
-            condition += ",\"propertyId\":" + projectError.getPropertyId();
-            errorMessage = " with Property Id " + projectError.getPropertyId() + " ";
+            property = propertyService.getProperty(projectError.getPropertyId());
+            project = property.getProject();
+            projectError.setProjectId(project.getProjectId());
         }
-        condition = "{" + condition.substring(1) + "}";
-        String jsonSelector = "{\"paging\":{\"rows\":1},\"filters\":{\"and\":[{\"equal\":" + condition + "}]}}";
-
-        Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
-        List<Property> properties = propertyService.getProperties(selector);
-
-        if (properties == null || properties.isEmpty())
-            throw new ResourceNotFoundException(errorMessage + " does not exists.");
+        else if (projectError.getProjectId() != null && projectError.getProjectId() > 0) {
+            project = projectService.getProjectData(projectError.getProjectId());
+        }
 
         ProjectError saveprojError = projectErrorDao.save(projectError);
-        if (saveprojError == null)
+        if (saveprojError == null) {
             throw new PersistenceException("The reported error could not be saved.");
+        }
 
-        sendMailOnProjectError(saveprojError, properties.get(0));
+        sendMailOnProjectError(saveprojError, property, project);
         return saveprojError;
 
     }
@@ -96,15 +83,25 @@ public class ReportErrorService {
      * @param property
      * @return
      */
-    private boolean sendMailOnProjectError(ProjectError projectError, Property property) {
+    private boolean sendMailOnProjectError(ProjectError projectError, Property property, Project project) {
+        String mailToAddress = propertyReader.getRequiredProperty("mail.report.error.to.recipient");
+        String mailCCAddress = propertyReader.getRequiredProperty("mail.report.error.cc.recipient");
 
-        String[] mailTo = propertyReader.getRequiredProperty("mail.report.error.to.recipient").split(",");
+        String[] mailCC = null;
 
-        String[] mailCC = propertyReader.getRequiredProperty("mail.report.error.cc.recipient").split(",");
+        if (mailToAddress.length() < 1) {
+            logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
+            return false;
+        }
+
+        String[] mailTo = mailToAddress.split(",");
+        if (mailCCAddress.length() > 0) {
+            mailCC = mailCCAddress.split(",");
+        }
 
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.PROJECT_PROPERTY_ERROR_POST,
-                new ReportErrorDTO(projectError, property));
+                new ReportErrorDTO(projectError, property, project));
 
         return mailSender.sendMailUsingAws(mailTo, mailCC, null, mailBody.getBody(), mailBody.getSubject());
 
@@ -117,13 +114,15 @@ public class ReportErrorService {
      * @author mukand
      */
     public static class ReportErrorDTO {
-        public ReportErrorDTO(ProjectError projectError, Property property) {
+        public ReportErrorDTO(ProjectError projectError, Property property, Project project) {
             this.property = property;
             this.projectError = projectError;
+            this.project = project;
         }
 
         public ProjectError projectError;
         public Property     property;
+        public Project      project;
 
         public ProjectError getProjectError() {
             return projectError;
@@ -139,6 +138,14 @@ public class ReportErrorService {
 
         public void setProperty(Property property) {
             this.property = property;
+        }
+
+        public Project getProject() {
+            return project;
+        }
+
+        public void setProject(Project project) {
+            this.project = project;
         }
     }
 }
