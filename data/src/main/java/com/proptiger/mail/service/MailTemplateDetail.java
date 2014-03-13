@@ -29,7 +29,10 @@ public enum MailTemplateDetail {
             "mailtemplate/unmatched-property-user-Email-Template-Subject.vm"),
 
     ADD_NEW_PROJECT_COMMENT("ProjectCommentAddMail", "mailtemplate/comment_post_email_template.vm",
-            "mailtemplate/comment_post_email_template_subject.vm");
+            "mailtemplate/comment_post_email_template_subject.vm"),
+
+    PROJECT_PROPERTY_ERROR_POST("projectPropertyErrorData", "mailtemplate/report_error_template.vm",
+            "mailtemplate/report_error_template_subject.vm");
 
     private MailTemplateDetail(String key, String filename, String subject) {
         this.key = key;
