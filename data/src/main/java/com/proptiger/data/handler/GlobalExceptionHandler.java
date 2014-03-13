@@ -190,7 +190,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.OK)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     protected ProAPIResponse handleMethodArgumentNotValidException(
             MethodArgumentNotValidException exception,
             HttpServletRequest httpRequest) {

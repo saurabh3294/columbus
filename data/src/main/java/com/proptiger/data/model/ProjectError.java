@@ -82,7 +82,6 @@ public class ProjectError extends BaseModel {
     private String    email;
 
     @Column(name = "PROJECT_ID")
-    @NotNull(message = "project Id field should contain valid id.")
     private Integer   projectId;
 
     @Column(name = "PROJECT_TYPE_ID")
