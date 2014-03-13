@@ -233,15 +233,16 @@ public class ProjectController extends BaseController {
                 fields));
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/project/report-error")
+    @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/project/{projectId}/report-error")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse reportProjectError(@Valid @RequestBody ProjectError projectError) {
-        if (projectError.getProjectId() == null)
-            throw new IllegalArgumentException("Project Id cannot be null");
+    public ProAPIResponse reportProjectError(@Valid @RequestBody ProjectError projectError, @PathVariable int projectId) {
+        if (projectError.getProjectId() != null)
+            throw new IllegalArgumentException("Project Id should not be present in the request body");
         if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0)
-            throw new IllegalArgumentException("Property Id should not be present.");
-
+            throw new IllegalArgumentException("Property Id should not be present in the request body as it is for project error.");
+        
+        projectError.setProjectId(projectId);
         return new ProAPISuccessResponse(errorReportingService.saveReportError(projectError));
     }
 

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -71,15 +72,16 @@ public class PropertyController extends BaseController {
         return new ProAPISuccessCountResponse(response.getResults(), response.getTotalCount());
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/property/report-error")
+    @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/property/{propertyId}/report-error")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse reportPropertyError(@Valid @RequestBody ProjectError projectError) {
-        if (projectError.getPropertyId() == null)
-            throw new IllegalArgumentException("Property Id cannot be null");
+    public ProAPIResponse reportPropertyError(@Valid @RequestBody ProjectError projectError, @PathVariable int propertyId) {
+        if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0)
+            throw new IllegalArgumentException("Property Id should not be present in the request body");
         if (projectError.getProjectId() != null)
-            throw new IllegalArgumentException("Project Id should not be present.");
-
+            throw new IllegalArgumentException("Project Id should not be present in the request body as it is for project error.");
+        
+        projectError.setPropertyId(propertyId);
         return new ProAPISuccessResponse(errorReportingService.saveReportError(projectError));
     }
 }
