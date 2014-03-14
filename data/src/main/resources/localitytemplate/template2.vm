@@ -2,9 +2,7 @@
  In ${locality.suburb.city.label}, ${locality.label}  is one of the popular localities in suburb ${locality.suburb.label}. 	
  #if($nearByLocalities)
 	#set($nearByLocalityNameList = [])
-	#foreach($nearLocality in $nearByLocalities)
-		#set($temp = $nearByLocalityNameList.add($nearLocality.label))
-	#end
+	#populateNearByLocalityNames
 	#if(${nearByLocalityNameList})
 		#listOfStringToSentence($nearByLocalityNameList) #isOrAre($nearByLocalityNameList) located close to ${locality.label}.  
 	#end
@@ -52,18 +50,7 @@
 	 The property in ${locality.label} are build in areas ranging $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft. 
 	with bedroom configurations of #listOfStringToSentence($unitNamesStringList). 
 #end
-#if($locality.avgPriceRisePercentage)
-	The prices in the ${locality.label} are  
-	#if($locality.avgPriceRisePercentage < 0)
-		DECRASED by $locality.avgPriceRisePercentage  
-	#elseif($locality.avgPriceRisePercentage > 0)
-		INCREASED by $locality.avgPriceRisePercentage 
-	#else
-		STAYED STABLE, 
-	#end
-	in past ${locality.avgPriceRiseMonths} months at average price of $numberFormatter.format($locality.avgPricePerUnitArea) per SqFt with,
-	$locality.avgPriceRisePercentage change in ${locality.avgPriceRiseMonths}.  
-#end
+#localityPriceChangeInMonth_type2($locality)
 #if($locality.amenityTypeCount)
 	#set($schoolsList = [])
 	#set($hospitalsList = [])
@@ -89,37 +76,12 @@
 	Property starting at #makePriceUserReadable($lowestPricePropery.budget) are available in ${locality.label} on Proptiger. 
 #end
 #if($locality.projectStatusCount)
-	#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")} + ${locality.projectStatusCount.get("Not Launched")})
-	 You can find 
-	 #if(${locality.projectStatusCount.get("Ready for Possession")})
-	 	${locality.projectStatusCount.get("Ready for Possession")} ready to move in 
-	 #end
-	 #if(${locality.projectStatusCount.get("Launch")})
-	 	,${locality.projectStatusCount.get("Launch")} new launches
-	 #end 
-	 projects in ${locality.label} from different builders. 
+	#projectByStatus($locality)
 #end
 #if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
-	${locality.label} in ${locality.suburb.city.label} 
-	have an average rating of $locality.avgRatingsByCategory.overallRating 
-	based on user inputs. 
-#end
+	#localityAverageRating($locality).
+#end 
 #if($locality.totalReviews && $locality.totalReviews > 0)
 	We have $locality.totalReviews user reviews which can give you more ideas about ${locality.label}.  
 #end
-#if($popularProjects)
-	#set($counter = 0)
-	#foreach($project in $popularProjects)
-		#if($project.minPricePerUnitArea && $project.maxPricePerUnitArea)
-			#if($counter == 0)
-				#projectDescWithLowestRate($locality.label $project)
-			#elseif($counter == 1)
-				, whereas #projectDescWithHighestRate($locality.label $project)
-			#end
-			#set($counter = $counter + 1)
-		#end
-	#end
-	#if($counter > 0)
-	. 
-	#end
-#end
+#localityProjectDescWithLowestAndHighestPrice($locality)

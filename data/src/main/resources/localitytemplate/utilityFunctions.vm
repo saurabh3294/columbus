@@ -35,10 +35,22 @@
 	#if($projectObj.totalUnits > 0)
 		offering total $projectObj.totalUnits units  
 		#if($projectObj.minSize && $projectObj.maxSize)
-			starting at size $numberFormatter.format($projectObj.minSize) sq ft and with highest $numberFormatter.format($projectObj.maxSize) sq ft
+			starting at size $numberFormatter.format($projectObj.minSize) sq ft 
+			#if($projectObj.maxSize > $projectObj.minSize)
+				and with highest $numberFormatter.format($projectObj.maxSize) sq ft
+			#end
 		#end
 	#end
 	. 
+#end
+#macro(localityProjectDescWithLowestAndHighestPrice $locality)
+	#if($minPricedProject && $minPricedProject.minPricePerUnitArea)
+			#projectDescWithLowestRate($locality.label $minPricedProject)
+			#if($maxPricedProject && $maxPricedProject.maxPricePerUnitArea)
+				, whereas #projectDescWithHighestRate($locality.label $maxPricedProject)
+			#end	
+			. 
+	#end
 #end
 #macro(projectDescWithLowestRate $localityLabel $projectObj)
 	#if($projectObj)
@@ -69,6 +81,7 @@
 	#end
 #end
 #macro(projectByBuilderSentence $projects)
+	#removeProjectWithBuilderNameAsReputed($projects)
 	#if($projects.size() == 1)
 		$projects.get(0).name by $projects.get(0).builder.name
 	#elseif($projects.size() == 2)
@@ -86,6 +99,15 @@
 		#end
 	#end
 #end
+#macro(removeProjectWithBuilderNameAsReputed $projects)
+	#set($modifiedProjectList = [])
+	#foreach($project in $projects)
+		#if(!$project.builder.name.equals("Reputed Builder"))
+			#set($temp = $modifiedProjectList.add($project))
+		#end
+	#end
+	#set($projects = $modifiedProjectList)
+#end
 #macro(makePriceUserReadable $price)
 	#set($amtInCorore = $price/10000000)
 	#if($amtInCorore < 1)
@@ -99,12 +121,19 @@
 	#set( $upcomingProjects = 0)
 	#set( $newLaunchProjects = 0)
 	#set( $readyForPossessionProjects = 0)
+	#set( $underConstructionProjects = 0)
 	
-	#if(${locality.projectStatusCount.get("Pre Launch")} && ${locality.projectStatusCount.get("Not Launched")})
-		#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")} + ${locality.projectStatusCount.get("Not Launched")})
+	#if(${locality.projectStatusCount.get("Pre Launch")})
+		#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")})
+	#end
+	#if(${locality.projectStatusCount.get("Not Launched")})
+		#set( $upcomingProjects = ${locality.projectStatusCount.get("Not Launched")})
 	#end
 	#if(${locality.projectStatusCount.get("Launch")})
 		#set( $newLaunchProjects = ${locality.projectStatusCount.get("Launch")})
+	#end	
+	#if(${locality.projectStatusCount.get("Under Construction")})
+		#set( $underConstructionProjects = ${locality.projectStatusCount.get("Under Construction")})
 	#end	
 	#if(${locality.projectStatusCount.get("Ready for Possession")})
 		#set( $readyForPossessionProjects = ${locality.projectStatusCount.get("Ready for Possession")})
@@ -122,6 +151,13 @@
 				, 
 			#end
 			$newLaunchProjects new launches 
+			#set($counter = $counter + 1)
+		#end
+		#if($underConstructionProjects > 0)
+			#if($counter == 1)
+				, 
+			#end
+			$underConstructionProjects under construction 
 			#set($counter = $counter + 1)
 		#end
 		#if($readyForPossessionProjects > 0)
@@ -151,7 +187,7 @@
 #macro(populateBuilderNameList $topBuilders)
 	#set($popularBuildersNameList = [])
 	#foreach($builder in $topBuilders)
-		#if($builder.name != "Reputed Builder")
+		#if(!$builder.name.equals("Reputed Builder"))
 			#set($temp = $popularBuildersNameList.add($builder.name))
 		#end
 	#end
@@ -165,7 +201,7 @@
 			#if(!$unitTypesStringList.contains($property.unitType))
 				#set($temp = $unitTypesStringList.add($property.unitType))
 			#end
-			#if($property.bedrooms)
+			#if($property.bedrooms && $property.bedrooms > 0) 
 				#set($unitName = $property.bedrooms + " BHK")
 				#if(!$unitNamesStringList.contains($unitName))
 					#set($temp = $unitNamesStringList.add($unitName))
@@ -173,5 +209,131 @@
 			#end
 		#end
 		$velocityUtility.sort($unitNamesStringList)
+	#end
+#end
+
+#macro(localityPriceChangeInMonth_type1 $locality)
+	#if($locality.avgPriceRisePercentage && $velocityUtility.round($locality.avgPriceRisePercentage) != 0)
+		The prices of #listOfStringToSentence($unitTypesStringList) in ${locality.label} have 
+		#if($locality.avgPriceRisePercentage < 0)	
+			DECRASED by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
+		#elseif($locality.avgPriceRisePercentage > 0)
+			INCREASED by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
+		#else
+			STAYED STABLE, 
+		#end
+		in past ${locality.avgPriceRiseMonths} months 
+		#if(${locality.minPrice} && ${locality.maxPrice})
+			with current high of ${locality.maxPrice}/SqFt and low of ${locality.minPrice}/SqFt
+		#end
+		. 
+	#end
+#end
+
+#macro(localityPriceChangeInMonth_type2 $locality)
+	#if($locality.avgPriceRisePercentage)
+		The prices in the ${locality.label} are  
+		#if($locality.avgPriceRisePercentage < 0)
+			DECRASED by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
+		#elseif($locality.avgPriceRisePercentage > 0)
+			INCREASED by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))% 
+		#else
+			STAYED STABLE, 
+		#end
+		in past ${locality.avgPriceRiseMonths} months at average price of $numberFormatter.format($locality.avgPricePerUnitArea) per SqFt.   
+	#end
+#end
+
+#macro(localityAverageRating $locality)
+	#if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
+		${locality.label} in ${locality.suburb.city.label} 
+		have an average rating of $velocityUtility.round($locality.avgRatingsByCategory.overallRating) 
+		based on user inputs
+	#end
+#end
+#macro(localityAvgRatingWithHighestAmenityRating $locality)
+	#if($locality.avgRatingsByCategory)
+		#set($highestRatedAmenity = "")
+		#set($highestRating = 0)
+		#if($locality.avgRatingsByCategory.location && $locality.avgRatingsByCategory.location > $highestRating)
+			#set($highestRatedAmenity = "location")
+			#set($highestRating = $locality.avgRatingsByCategory.location)
+		#end
+		#if($locality.avgRatingsByCategory.safety && $locality.avgRatingsByCategory.safety > $highestRating)
+			#set($highestRatedAmenity = "safety")
+			#set($highestRating = $locality.avgRatingsByCategory.safety)
+		#end
+		#if($locality.avgRatingsByCategory.pubTrans && $locality.avgRatingsByCategory.pubTrans > $highestRating)
+			#set($highestRatedAmenity = "public transport")
+			#set($highestRating = $locality.avgRatingsByCategory.pubTrans)
+		#end
+		#if($locality.avgRatingsByCategory.restShop && $locality.avgRatingsByCategory.restShop > $highestRating)
+			#set($highestRatedAmenity = "rest shops")
+			#set($highestRating = $locality.avgRatingsByCategory.restShop)
+		#end
+		#if($locality.avgRatingsByCategory.schools && $locality.avgRatingsByCategory.schools > $highestRating)
+			#set($highestRatedAmenity = "schools")
+			#set($highestRating = $locality.avgRatingsByCategory.schools)
+		#end
+		#if($locality.avgRatingsByCategory.parks && $locality.avgRatingsByCategory.parks > $highestRating)
+			#set($highestRatedAmenity = "parks")
+			#set($highestRating = $locality.avgRatingsByCategory.parks)
+		#end
+		#if($locality.avgRatingsByCategory.traffic && $locality.avgRatingsByCategory.traffic > $highestRating)
+			#set($highestRatedAmenity = "traffic")
+			#set($highestRating = $locality.avgRatingsByCategory.traffic)
+		#end
+		#if($locality.avgRatingsByCategory.hospitals && $locality.avgRatingsByCategory.hospitals > $highestRating)
+			#set($highestRatedAmenity = "hospitals")
+			#set($highestRating = $locality.avgRatingsByCategory.hospitals)
+		#end
+		#if($locality.avgRatingsByCategory.civic && $locality.avgRatingsByCategory.civic > $highestRating)
+			#set($highestRatedAmenity = "civic")
+			#set($highestRating = $locality.avgRatingsByCategory.civic)
+		#end
+		#if($locality.avgRatingsByCategory.overallRating)
+			#localityAverageRating($locality)
+			#if($highestRating > 0)
+				, with highest rating of $velocityUtility.round($highestRating) for $highestRatedAmenity
+			#end
+			. 
+		#end
+	#end
+#end
+#macro(popularProjectWithUnitInfo)
+	#if($popularProjects)
+		#set($project1 = $popularProjects.get(0))
+		#set($project2 = $popularProjects.get(1))
+		#if($project1)
+			One #popularProjectSentence(${locality.label} $project1)
+			#if($project2)
+				Another #popularProjectSentence(${locality.label} $project2)
+			#end
+		#end
+	#end
+#end
+#macro(populateNearByLocalityNames)
+	#foreach($nearLocality in $nearByLocalities)
+		#if(!$nearByLocalityNameList.contains($nearLocality.label) && !$locality.label.equals($nearLocality.label))
+			#set($temp = $nearByLocalityNameList.add($nearLocality.label))
+		#end
+	#end
+#end
+#macro(localityAmenityTypeDesc)
+	#if($amenities)
+		#set($schoolsList = [])
+		#set($hospitalsList = [])
+		#set($metroStationList = [])
+		${locality.label} has many well known schools and Hospitals. 
+		#populateAmenitiesList($amenities)
+		#if($schoolsList && $schoolsList.size() > 0)
+			Key Schools close to ${locality.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList).  
+		#end
+		#if($hospitalsList && $hospitalsList.size() > 0)
+			Key hospitals to this locality #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList).  
+		#end
+		#if($metroStationList && $metroStationList.size() > 0)
+			Locality is close to #listOfStringToSentence($metroStationList).  
+		#end
 	#end
 #end
