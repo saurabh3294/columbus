@@ -176,11 +176,7 @@ public class LocalityDaoImpl {
      * @param enquiryCreationDate
      * @return
      */
-    public List<Locality> getPopularLocalities(
-            Integer cityId,
-            Integer suburbId,
-            String dateString,
-            Selector selector) {
+    public List<Locality> getPopularLocalities(Integer cityId, Integer suburbId, String dateString, Selector selector) {
         Paging paging = new Paging();
         if (selector != null && selector.getPaging() != null) {
             paging = selector.getPaging();
