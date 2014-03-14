@@ -306,9 +306,11 @@ public class Project extends BaseModel {
     @Column(name = "FORCE_RESALE")
     private boolean                 isResale;
 
+    @Transient
     @Field(value = "IS_PRIMARY")
     private boolean                 isPrimary;
 
+    @Transient
     @Field(value = "IS_SOLD_OUT")
     private boolean                 isSoldOut;
 
