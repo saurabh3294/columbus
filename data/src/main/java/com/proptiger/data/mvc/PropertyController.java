@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -83,5 +84,13 @@ public class PropertyController extends BaseController {
         
         projectError.setPropertyId(propertyId);
         return new ProAPISuccessResponse(errorReportingService.saveReportError(projectError));
+    }
+    
+    @RequestMapping(method = RequestMethod.POST, value="data/v1/entity/property/sell-property")
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse sellYourProperty(@RequestBody PortfolioListing portfolioListing){
+        
+        return new ProAPISuccessResponse(propertyService.sellYourProperty(portfolioListing));
     }
 }
