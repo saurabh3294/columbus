@@ -2,9 +2,7 @@
 ${locality.label} is one of the top most locality in ${locality.suburb.city.label} located in suburb ${locality.suburb.label}. 
 #if($nearByLocalities)
 	#set($nearByLocalityNameList = [])
-	#foreach($nearLocality in $nearByLocalities)
-		#set($temp = $nearByLocalityNameList.add($nearLocality.label))
-	#end
+	#populateNearByLocalityNames
 	#if(${nearByLocalityNameList})
 		${locality.label} is surrounded by #singularOrPlural("area" $nearByLocalityNameList) #listOfStringToSentence($nearByLocalityNameList). 
 	#end
@@ -51,7 +49,7 @@ ${locality.label} is one of the top most locality in ${locality.suburb.city.labe
 #if($minSize > 0 && $maxSize > 0  && $maxSize > $minSize)
 	Property in ${locality.label} has built up areas ranging from $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft. 
 #end
-Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringToSentence($unitNamesStringList) configurations.	
+Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringToSentence($unitNamesStringList) configurations. 	
 #if($unitTypeCountMap)
 	#set($counter = 0)
 	#set($unitTypeAndCountList = [])
@@ -63,19 +61,7 @@ Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringT
 		${locality.label} has #listOfStringToSentence($unitTypeAndCountList) projects. 
 	#end
 #end
-
-#if($locality.avgPriceRisePercentage)
-	The prices in ${locality.label} have 
-	#if($locality.avgPriceRisePercentage < 0)
-		DECRASED by $locality.avgPriceRisePercentage
-	#elseif($locality.avgPriceRisePercentage > 0)
-		INCREASED by $locality.avgPriceRisePercentage
-	#else
-		STAYED STABLE, 
-	#end
-	 in past ${locality.avgPriceRiseMonths} months. 
-#end
-
+#localityPriceChangeInMonth_type1($locality)
 #if($locality.amenityTypeCount)
 	#set($schoolsList = [])
 	#set($hospitalsList = [])
@@ -103,37 +89,5 @@ Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringT
 #if($locality.projectStatusCount)
 	#projectByStatus($locality)
 #end
-#if($locality.avgRatingsByCategory)
-	#set($highestRatedAmenity = "")
-	#set($highestRating = 0)
-	#foreach($key in $locality.avgRatingsByCategory.keySet())
-		#if($locality.avgRatingsByCategory.get($key) > $highestRating)
-			$highestRating = $locality.avgRatingsByCategory.get($key)
-			$highestRatedAmenity = $key
-		#end
-	#end
-	#if($locality.avgRatingsByCategory.overallRating && $locality.avgRatingsByCategory.overallRating)
-		${locality.label} has an average rating of $locality.avgRatingsByCategory.overallRating
-		#if($highestRating > 0)
-			with highest rating of $highestRating for $highestRatedAmenity
-		#end
-		.
-	#end
-#end
-
-#if($popularProjects)
-	#set($counter = 0)
-	#foreach($project in $popularProjects)
-		#if($project.minPricePerUnitArea && $project.maxPricePerUnitArea)
-			#if($counter == 0)
-				#projectDescWithLowestRate($locality.label $project)
-			#elseif($counter == 1)
-				, whereas #projectDescWithHighestRate($locality.label $project)
-			#end
-			#set($counter = $counter + 1)
-		#end
-	#end
-	#if($counter > 0)
-	. 
-	#end
-#end
+#localityAvgRatingWithHighestAmenityRating($locality)
+#localityProjectDescWithLowestAndHighestPrice($locality)
