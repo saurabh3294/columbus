@@ -97,6 +97,9 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "average_price_per_unit_area")
     private Integer pricePerUnitArea;
 
+    @Column(name = "average_secondary_price_per_unit_area")
+    private Integer secondaryPricePerUnitArea;
+
     @Column(name = "average_size")
     private Integer size;
 
@@ -340,6 +343,14 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setPricePerUnitArea(Integer pricePerUnitArea) {
         this.pricePerUnitArea = pricePerUnitArea;
+    }
+
+    public Integer getSecondaryPricePerUnitArea() {
+        return secondaryPricePerUnitArea;
+    }
+
+    public void setSecondaryPricePerUnitArea(Integer secondaryPricePerUnitArea) {
+        this.secondaryPricePerUnitArea = secondaryPricePerUnitArea;
     }
 
     public Integer getSize() {
