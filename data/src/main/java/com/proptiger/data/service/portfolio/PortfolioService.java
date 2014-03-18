@@ -131,6 +131,9 @@ public class PortfolioService extends AbstractService {
     
     @Autowired
     private CityService cityService;
+    
+    @Autowired
+    private ForumUserDao foruUserDao;
 
     /**
      * Get portfolio object for a particular user id
@@ -1096,8 +1099,7 @@ public class PortfolioService extends AbstractService {
     }
 
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
-        Gson gson = new Gson();
-        System.out.println(gson.toJson(portfolioListing));
+        
         /*
          * System.out.println( (portfolioListing.getCityId() == null &&
          * portfolioListing.getCityName() == null) ); System.out.println(
@@ -1106,10 +1108,16 @@ public class PortfolioService extends AbstractService {
          * portfolioListing.getProjectName() == null ); System.out.println(
          * portfolioListing.getName() == null );
          */
+        
+        if(portfolioListing.getUserId() != null){
+            if( forumUserDao.findOne(portfolioListing.getUserId()) == null)
+                throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
+        }
+        
         if (portfolioListing.getTypeId() != null) {
             Property property = propertyService.getProperty(portfolioListing.getTypeId());
             if(property == null)
-                throw new IllegalArgumentException("Property does not exists.");
+                throw new ResourceNotAvailableException(ResourceType.PROPERTY, ResourceTypeAction.GET);
             
             portfolioListing.setProjectId(property.getProjectId());
             portfolioListing.setLocalityId(property.getProject().getLocalityId());
@@ -1124,7 +1132,7 @@ public class PortfolioService extends AbstractService {
         else if (portfolioListing.getLocalityId() != null) {
             Locality locality = localityService.getLocality(portfolioListing.getLocalityId());
             if(locality == null)
-                throw new IllegalArgumentException("Locality does not exists.");
+                throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
             
             portfolioListing.setCityId(locality.getCityId());
         }
@@ -1138,22 +1146,6 @@ public class PortfolioService extends AbstractService {
                 || portfolioListing.getLeadContact() == null)
             throw new IllegalArgumentException(
                     " user information is missing. email, username, contact number and country should be present.");
-
-        /*if (portfolioListing.getLocalityId() != null) {
-            if (portfolioListing.getCityId() == null)
-                throw new IllegalArgumentException("city Id and Locality Id should be present.");
-        }
-        
-         * City Id , Property Id, Property Id and Project Id either all should
-         * be present at a time
-         
-        if (portfolioListing.getProjectId() != null || portfolioListing.getTypeId() != null) {
-            if (!(portfolioListing.getCityId() != null && portfolioListing.getLocalityId() != null
-                    && portfolioListing.getProjectId() != null && portfolioListing.getTypeId() != null)) {
-                throw new IllegalArgumentException(
-                        " city Id, property Id, project Id and localityId should all be present.");
-            }
-        }*/
 
         if (portfolioListing.getIsBroker() == false && ((portfolioListing.getCityId() == null && portfolioListing
                 .getCityName() == null) || (portfolioListing.getLocality() == null && portfolioListing.getLocalityId() == null)
