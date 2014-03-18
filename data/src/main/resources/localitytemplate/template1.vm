@@ -2,9 +2,7 @@
 ${locality.label}, one of the popular and best place to have property in ${locality.suburb.city.label} is located in suburb ${locality.suburb.label}. 
 #if($nearByLocalities)
 	#set($nearByLocalityNameList = [])
-	#foreach($nearLocality in $nearByLocalities)
-		#set($temp = $nearByLocalityNameList.add($nearLocality.label))
-	#end
+	#populateNearByLocalityNames
 	#if($nearByLocalityNameList && $nearByLocalityNameList.size() > 0)
 		It lies near #listOfStringToSentence($nearByLocalityNameList). 
 	#end
@@ -24,9 +22,9 @@ ${locality.label}, one of the popular and best place to have property in ${local
 		#set($minSize = $property.size)
 		#set($maxSize = $property.size)
 		#set($counter = 1)
-	#elseif($property.size  < $minSize)
+	#elseif($property.size && $property.size  < $minSize)
 		#set($minSize = $property.size)
-	#elseif($property.size > $maxSize)
+	#elseif($property.size && $property.size > $maxSize)
 		#set($maxSize = $property.size)
 	#end
 #end
@@ -38,54 +36,12 @@ There are #listOfStringToSentence($unitTypesStringList) for sale in ${locality.l
 	#end
 	. 
 #end
-
-#if($locality.avgPriceRisePercentage)
-	The prices of #listOfStringToSentence($unitTypesStringList) in ${locality.label} have 
-	#if($locality.avgPriceRisePercentage < 0)
-		DECRASED by $locality.avgPriceRisePercentage in past ${locality.avgPriceRiseMonths} months, 
-	#elseif($locality.avgPriceRisePercentage > 0)
-		INCREASED by $locality.avgPriceRisePercentage in past ${locality.avgPriceRiseMonths} months, 
-	#else
-		STAYED STABLE, 
-	#end
-	#if(${locality.minPrice} && ${locality.maxPrice})
-		with current high of ${locality.maxPrice}/SqFt and low of ${locality.minPrice}/SqFt. 
-	#end
-#end
- 
-#if($locality.amenityTypeCount)
-	#set($schoolsList = [])
-	#set($hospitalsList = [])
-	#set($metroStationList = [])
-	${locality.label} has many well known schools and Hospitals. 
-	#populateAmenitiesList($amenities)
-	#if($schoolsList)
-		Key Schools close to ${locality.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList).  
-	#end
-	#if($hospitalsList)
-		Key hospitals to this locality #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList).  
-	#end
-	#if($metroStationList)
-		Locality is close to #listOfStringToSentence($metroStationList).  
-	#end
-#end
-
+#localityPriceChangeInMonth_type1($locality)
+#localityAmenityTypeDesc
 #if($locality.projectStatusCount)
 	#projectByStatus($locality)
 #end
 #if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
-  ${locality.label} in ${locality.suburb.city.label} 
- have an average rating of $locality.avgRatingsByCategory.overallRating
- as per our customer inputs.
-#end
-
-#if($popularProjects)
-	#set($project1 = $popularProjects.get(0))
-	#set($project2 = $popularProjects.get(1))
-	#if($project1)
-		One #popularProjectSentence(${locality.label} $project1)
-		#if($project2)
-			Another #popularProjectSentence(${locality.label} $project2)
-		#end
-	#end
-#end
+	#localityAverageRating($locality). 
+#end 
+#popularProjectWithUnitInfo

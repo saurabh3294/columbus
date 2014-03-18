@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -96,7 +98,7 @@ public class LocalityDescriptionService {
     private Map<String, Object> createTemplateInputDataMap(Locality locality) {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("locality", locality);
-        Paging paging = new Paging(0, 5);
+        Paging paging = new Paging(0, 10);
         Selector localitySelector = new Selector();
         localitySelector.setPaging(paging);
         map.put(
@@ -109,9 +111,31 @@ public class LocalityDescriptionService {
                 "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + locality.getLocalityId() + "}}]}}",
                 Selector.class);
         map.put("popularProjects", projectService.getPopularProjects(selector));
-       
-        List<Property> properties = propertyService.getProperties(selector);
+        Selector propertySelector = new Gson().fromJson(
+                "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + locality.getLocalityId()
+                        + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
+                Selector.class);
+        List<Property> properties = propertyService.getProperties(propertySelector);
         map.put("properties", properties);
+        
+        Selector selectorForMinPriceProject = new Gson().fromJson(
+                "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + locality.getLocalityId()
+                        + "}}]},\"sort\":[{\"field\":\"minPricePerUnitArea\", \"sortOrder\":\"ASC\"}]}",
+                Selector.class);
+        PaginatedResponse<List<Project>> minPricedProject = projectService.getProjects(selectorForMinPriceProject);
+        if(minPricedProject != null && !minPricedProject.getResults().isEmpty()){
+            map.put("minPricedProject", minPricedProject.getResults().get(0));
+        }
+       
+        Selector selectorForMaxPriceProject = new Gson().fromJson(
+                "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + locality.getLocalityId()
+                + "}}]},\"sort\":[{\"field\":\"maxPricePerUnitArea\", \"sortOrder\":\"DESC\"}]}",
+        Selector.class);
+        PaginatedResponse<List<Project>> maxPricedProject = projectService.getProjects(selectorForMaxPriceProject);
+        if(maxPricedProject != null && !maxPricedProject.getResults().isEmpty()){
+            map.put("maxPricedProject", maxPricedProject.getResults().get(0));
+        }
+        
         return map;
     }
 
