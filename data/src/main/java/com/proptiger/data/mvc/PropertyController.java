@@ -33,6 +33,7 @@ import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.service.portfolio.PortfolioService;
 
 /**
  * @author mandeep
@@ -43,6 +44,9 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 public class PropertyController extends BaseController {
     @Autowired
     private PropertyService       propertyService;
+    
+    @Autowired
+    private PortfolioService portfolioService;
 
     @Autowired
     private ImageService          imageService;
@@ -91,6 +95,6 @@ public class PropertyController extends BaseController {
     @DisableCaching
     public ProAPIResponse sellYourProperty(@RequestBody PortfolioListing portfolioListing){
         
-        return new ProAPISuccessResponse(propertyService.sellYourProperty(portfolioListing));
+        return new ProAPISuccessResponse(portfolioService.sellYourProperty(portfolioListing));
     }
 }

@@ -43,19 +43,16 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PropertyService {
     @Autowired
-    private PropertyDao    propertyDao;
+    private PropertyDao         propertyDao;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectService      projectService;
 
     @Autowired
-    private ImageEnricher  imageEnricher;
+    private ImageEnricher       imageEnricher;
 
     @Autowired
-    private SolrDao        solrDao;
-    
-    @Autowired
-    private PortfolioListingDao portfolioListingDao;
+    private SolrDao             solrDao;
 
     /**
      * Returns properties given a selector
@@ -233,42 +230,5 @@ public class PropertyService {
 
         return properties.get(0);
     }
-
-    public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
-        /*Gson gson = new Gson();
-        System.out.println(gson.toJson(portfolioListing));
-        System.out.println( (portfolioListing.getCityId() == null && portfolioListing.getCityName() == null) );
-        System.out.println( (portfolioListing.getLocality() == null && portfolioListing.getLocalityId() == null) );
-        System.out.println( portfolioListing.getProjectName() == null );
-        System.out.println( portfolioListing.getName() == null );*/
-        if( portfolioListing.getIsBroker() == null || portfolioListing.getLeadUser() == null
-                || portfolioListing.getLeadEmail() == null
-                || portfolioListing.getLeadCountryId() == null
-                || portfolioListing.getLeadContact() == null)
-            throw new IllegalArgumentException(" user information is missing. email, username, contact number and country should be present.");
-        
-        if(portfolioListing.getIsBroker() == false && 
-                ( (portfolioListing.getCityId() == null && portfolioListing.getCityName() == null)
-                  || (portfolioListing.getLocality() == null && portfolioListing.getLocalityId() == null)
-                  || portfolioListing.getProjectName() == null
-                  || portfolioListing.getName() == null) )
-            throw new IllegalArgumentException("Project compulsory parameters : project name, property name, locality and city should be present.");
-        
-        portfolioListing.setSourceType(PortfolioListing.Source.lead);
-        /*
-         * Setting the fields to null as because of unwrapped , the object get initialized.
-         */
-        portfolioListing.setProperty(null);
-        portfolioListing.setExtraAttributes(null);
-        portfolioListing.setInterestedToLoan(null);
-        portfolioListing.setInterestedToLoanOn(null);
-        portfolioListing.setInterestedToSell(null);
-        portfolioListing.setInterestedToSellOn(null);
-                
-        PortfolioListing savePortfolioListing = portfolioListingDao.save(portfolioListing);
-        if(savePortfolioListing == null)
-            throw new PersistenceException("Sell your property request cannot be saved.");
-        
-        return savePortfolioListing;
-    }
+    
 }
