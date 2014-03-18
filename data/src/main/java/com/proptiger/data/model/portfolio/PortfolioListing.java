@@ -207,7 +207,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     private Date                             updatedAt;
 
     @Column(name = "isBroker")
-    //@JsonIgnore
+    // @JsonIgnore
     private Boolean                          isBroker;
 
     @Column(name = "source_type")
@@ -247,7 +247,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
     @OneToMany(mappedBy = "portfolioListing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<PortfolioListingPaymentPlan> listingPaymentPlan;
-    
+
     @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
     @Column(name = "project_id")
     private Integer                          projectId;

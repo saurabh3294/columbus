@@ -128,12 +128,9 @@ public class PortfolioService extends AbstractService {
 
     @Autowired
     private LocalityService           localityService;
-    
+
     @Autowired
-    private CityService cityService;
-    
-    @Autowired
-    private ForumUserDao foruUserDao;
+    private CityService               cityService;
 
     /**
      * Get portfolio object for a particular user id
@@ -1099,47 +1096,38 @@ public class PortfolioService extends AbstractService {
     }
 
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
-        
-        /*
-         * System.out.println( (portfolioListing.getCityId() == null &&
-         * portfolioListing.getCityName() == null) ); System.out.println(
-         * (portfolioListing.getLocality() == null &&
-         * portfolioListing.getLocalityId() == null) ); System.out.println(
-         * portfolioListing.getProjectName() == null ); System.out.println(
-         * portfolioListing.getName() == null );
-         */
-        
-        if(portfolioListing.getUserId() != null){
-            if( forumUserDao.findOne(portfolioListing.getUserId()) == null)
+
+        if (portfolioListing.getUserId() != null) {
+            if (forumUserDao.findOne(portfolioListing.getUserId()) == null)
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
         }
-        
+
         if (portfolioListing.getTypeId() != null) {
             Property property = propertyService.getProperty(portfolioListing.getTypeId());
-            if(property == null)
+            if (property == null)
                 throw new ResourceNotAvailableException(ResourceType.PROPERTY, ResourceTypeAction.GET);
-            
+
             portfolioListing.setProjectId(property.getProjectId());
             portfolioListing.setLocalityId(property.getProject().getLocalityId());
             portfolioListing.setCityId(property.getProject().getLocality().getCityId());
         }
         else if (portfolioListing.getProjectId() != null) {
             Project project = projectService.getProjectData(portfolioListing.getProjectId());
-            
+
             portfolioListing.setLocalityId(project.getLocalityId());
             portfolioListing.setCityId(project.getLocality().getCityId());
         }
         else if (portfolioListing.getLocalityId() != null) {
             Locality locality = localityService.getLocality(portfolioListing.getLocalityId());
-            if(locality == null)
+            if (locality == null)
                 throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
-            
+
             portfolioListing.setCityId(locality.getCityId());
         }
-        else if(portfolioListing.getCityId() != null){
+        else if (portfolioListing.getCityId() != null) {
             cityService.getCity(portfolioListing.getCityId());
         }
-        
+
         if (portfolioListing.getIsBroker() == null || portfolioListing.getLeadUser() == null
                 || portfolioListing.getLeadEmail() == null
                 || portfolioListing.getLeadCountryId() == null
