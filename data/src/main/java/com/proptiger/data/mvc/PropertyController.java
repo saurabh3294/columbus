@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -32,6 +33,7 @@ import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.service.portfolio.PortfolioService;
 
 /**
  * @author mandeep
@@ -42,6 +44,9 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 public class PropertyController extends BaseController {
     @Autowired
     private PropertyService       propertyService;
+
+    @Autowired
+    private PortfolioService      portfolioService;
 
     @Autowired
     private ImageService          imageService;
@@ -75,13 +80,24 @@ public class PropertyController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/property/{propertyId}/report-error")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse reportPropertyError(@Valid @RequestBody ProjectError projectError, @PathVariable int propertyId) {
+    public ProAPIResponse reportPropertyError(
+            @Valid @RequestBody ProjectError projectError,
+            @PathVariable int propertyId) {
         if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0)
             throw new IllegalArgumentException("Property Id should not be present in the request body");
         if (projectError.getProjectId() != null)
-            throw new IllegalArgumentException("Project Id should not be present in the request body as it is for project error.");
-        
+            throw new IllegalArgumentException(
+                    "Project Id should not be present in the request body as it is for project error.");
+
         projectError.setPropertyId(propertyId);
         return new ProAPISuccessResponse(errorReportingService.saveReportError(projectError));
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/property/sell-property")
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse sellYourProperty(@RequestBody PortfolioListing portfolioListing) {
+
+        return new ProAPISuccessResponse(portfolioService.sellYourProperty(portfolioListing));
     }
 }

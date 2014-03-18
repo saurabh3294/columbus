@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.PersistenceException;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +23,13 @@ import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.FieldsMapLoader;
 import com.proptiger.data.model.filter.Operator;
+import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
+import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
@@ -39,16 +43,16 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PropertyService {
     @Autowired
-    private PropertyDao    propertyDao;
+    private PropertyDao         propertyDao;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectService      projectService;
 
     @Autowired
-    private ImageEnricher  imageEnricher;
+    private ImageEnricher       imageEnricher;
 
     @Autowired
-    private SolrDao        solrDao;
+    private SolrDao             solrDao;
 
     /**
      * Returns properties given a selector
@@ -226,5 +230,5 @@ public class PropertyService {
 
         return properties.get(0);
     }
-
+    
 }

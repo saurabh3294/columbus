@@ -52,6 +52,16 @@ import com.proptiger.data.model.resource.Resource;
 @JsonFilter("fieldFilter")
 public class PortfolioListing extends BaseModel implements NamedResource, Resource {
 
+    public enum Source {
+        portfolio("portfolio"), lead("lead");
+
+        public String source;
+
+        Source(String source) {
+            this.source = source;
+        }
+    }
+
     private static final long                serialVersionUID = -6567536809813945234L;
 
     @Id
@@ -60,24 +70,27 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer                          listingId;
 
-    // custom fields start
-    @Transient
     @FieldMetaInfo(displayName = "Project Name", description = "Project Name")
+    @Column(name = "project_name")
     private String                           projectName;
+    @Column(name = "locality_label")
+    private String                           locality;
+    @Column(name = "locality_id")
+    private Integer                          localityId;
+    @Column(name = "city_label")
+    private String                           cityName;
+    @Column(name = "city_id")
+    private Integer                          cityId;
+
+    // custom fields start
     @Transient
     private Integer                          oldProjectId;
     @Transient
     private String                           builderName;
     @Transient
-    private String                           locality;
-    @Transient
-    private Integer                          localityId;
-    @Transient
     private Date                             completionDate;
     @Transient
     private String                           projectStatus;
-    @Transient
-    private String                           cityName;
     @Transient
     private List<Image>                      propertyImages;
     // custom fields ends
@@ -106,6 +119,10 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @FieldMetaInfo(displayName = "Floor Number", description = "Floor Number")
     @Column(name = "floor_no")
     private String                           floorNo;
+
+    @FieldMetaInfo(displayName = "Phase", description = "Phase")
+    @Column(name = "phase")
+    private String                           phase;
 
     @FieldMetaInfo(displayName = "Listing Size", description = "Listing Size")
     @Column(name = "size")
@@ -189,6 +206,27 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @Column(name = "updated_at")
     private Date                             updatedAt;
 
+    @Column(name = "isBroker")
+    // @JsonIgnore
+    private Boolean                          isBroker;
+
+    @Column(name = "source_type")
+    @JsonIgnore
+    @Enumerated(EnumType.STRING)
+    private Source                           sourceType       = Source.portfolio;
+
+    @Column(name = "lead_user")
+    private String                           leadUser;
+
+    @Column(name = "lead_email")
+    private String                           leadEmail;
+
+    @Column(name = "lead_contact")
+    private Integer                          leadContact;
+
+    @Column(name = "lead_country_id")
+    private Integer                          leadCountryId;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "type_id", nullable = false, insertable = false, updatable = false)
     @JsonUnwrapped
@@ -209,6 +247,10 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
     @OneToMany(mappedBy = "portfolioListing", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private Set<PortfolioListingPaymentPlan> listingPaymentPlan;
+
+    @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
+    @Column(name = "project_id")
+    private Integer                          projectId;
 
     @Override
     public Integer getId() {
@@ -563,5 +605,77 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
         this.unitNo = toUpdate.unitNo;
         this.bankId = toUpdate.bankId;
         this.listingSize = toUpdate.listingSize;
+    }
+
+    public Integer getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(Integer cityId) {
+        this.cityId = cityId;
+    }
+
+    public String getPhase() {
+        return phase;
+    }
+
+    public void setPhase(String phase) {
+        this.phase = phase;
+    }
+
+    public Boolean getIsBroker() {
+        return isBroker;
+    }
+
+    public void setIsBroker(Boolean isBroker) {
+        this.isBroker = isBroker;
+    }
+
+    public Source getSourceType() {
+        return sourceType;
+    }
+
+    public void setSourceType(Source sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public String getLeadUser() {
+        return leadUser;
+    }
+
+    public void setLeadUser(String leadUser) {
+        this.leadUser = leadUser;
+    }
+
+    public String getLeadEmail() {
+        return leadEmail;
+    }
+
+    public void setLeadEmail(String leadEmail) {
+        this.leadEmail = leadEmail;
+    }
+
+    public Integer getLeadContact() {
+        return leadContact;
+    }
+
+    public void setLeadContact(Integer leadContact) {
+        this.leadContact = leadContact;
+    }
+
+    public Integer getLeadCountryId() {
+        return leadCountryId;
+    }
+
+    public void setLeadCountryId(Integer leadCountryId) {
+        this.leadCountryId = leadCountryId;
+    }
+
+    public Integer getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
     }
 }
