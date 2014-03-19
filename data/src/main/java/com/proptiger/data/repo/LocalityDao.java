@@ -45,7 +45,7 @@ public interface LocalityDao extends PagingAndSortingRepository<Locality, Intege
             + " L.localityId=?2")
     public Object[] findEnquiryCountOnLoc(@Param Date date, @Param int localityId);
 
-    @Query("Select L, AVG(LR.overallRating) as overallAvgRating from Locality L left join L.localityRatings LR " + " where L.localityId = LR.localityId AND (L.cityId=?1 OR L.suburbId=?2)"
+    @Query("Select L.localityId, AVG(LR.overallRating) as overallAvgRating from Locality L left join L.localityRatings LR " + " where L.localityId = LR.localityId AND (L.cityId=?1 OR L.suburbId=?2)"
             + " group by L.localityId having AVG(LR.overallRating) >= ?3 order by overallAvgRating DESC")
     public List<Object[]> getTopLocalityByCityIdOrSuburbIdAndRatingGreaterThan(
             Integer cityId,
