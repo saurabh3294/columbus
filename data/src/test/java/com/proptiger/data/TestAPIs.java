@@ -16,11 +16,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -30,8 +34,7 @@ import org.springframework.web.util.UriTemplate;
 import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
-//import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertEquals;
 
 /**
  * This TestNG test case checks the status code of all the APIs and print
@@ -41,50 +44,46 @@ import org.testng.annotations.Test;
  * 
  */
 public class TestAPIs {
-    public final static String        BASE_URL       = "http://localhost:8080/dal";
-
+    private static Logger             logger             = LoggerFactory.getLogger(TestAPIs.class);
     /*
      * regex pattern to fetch request parameters from given URLs
      */
-    Pattern                           pattern        = Pattern.compile("([{])(\\w+)([}])");
+    Pattern                           pattern            = Pattern.compile("([{])(\\w+)([}])");
     private static RestTemplate       restTemplate;
+    private static Integer            totalUrl           = 0;
+    private static Integer            successUrl         = 0;
+    private static Integer            failedUrl          = 0;
+    private static Integer            skippedUrl         = 0;
 
     /*
      * Store list of APIs returning statusCode as 2XX
      */
-    List<String>                      successUrlList = new ArrayList<>();
-
+    List<String>                      successGETUrlList  = new ArrayList<>();
+    List<String>                      successPOSTUrlList = new ArrayList<>();
+    List<String>                      successPUTUrlList  = new ArrayList<>();
     /*
      * Store list of APIS failing to return 2XX
      */
+    private Map<String, String>       failedGETUrlList   = new HashMap<>();
+    private Map<String, String>       failedPOSTUrlList  = new HashMap<>();
+    private Map<String, String>       failedPUTUrlList   = new HashMap<>();
 
-    private Map<String, String>       failedUrlList  = new HashMap<>();
     /*
      * Map storing values of request parameters
      */
 
     private Map<String, List<String>> apiKeysValuesMap;
 
-    Set<String>                       exclusionList  = new HashSet<String>();
+    Set<String>                       exclusionList      = new HashSet<String>();
 
     @BeforeTest
     public void init() throws ConfigurationException {
+        logger.debug("Before start of test method");
         populateKeysValuesForAPI();
 
-        exclusionList.add("data/v1/trend?");
-        exclusionList.add("data/v1/trend/current?");
-        exclusionList.add("data/v1/trend/hitherto?");
-        exclusionList.add("data/v1/price-trend?");
-        exclusionList.add("data/v1/price-trend/current?");
-        exclusionList.add("data/v1/price-trend/hitherto?");
-        exclusionList.add("data/v2/entity/project");
-        exclusionList.add("data/v1/recommendation?propertyId");
-        exclusionList.add("data/v1/recommendation?projectId");
-        exclusionList.add("app/v1/locality?");
-        exclusionList.add("app/v1/project-detail?projectId=");
-        exclusionList.add("app/v1/amenity?");
-        exclusionList.add("data/v1/entity/broker-agent");
         exclusionList.add("data/apilist");
+        exclusionList.add("app/v1/locality?");
+        exclusionList.add("data/v1/entity/broker-agent");
 
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
@@ -112,7 +111,7 @@ public class TestAPIs {
      * from TestNG.properties file
      */
     private void populateKeysValuesForAPI() throws ConfigurationException {
-        apiKeysValuesMap = new HashMap<>();
+        apiKeysValuesMap = new HashMap<String, List<String>>();
         /*
          * TestNG.properties
          * 
@@ -140,9 +139,9 @@ public class TestAPIs {
      */
     @Test
     public void checkStatusCode() throws IOException, ConfigurationException {
-        String apilist = null;
+        String apilist = "";
         try {
-            apilist = restTemplate.getForObject(BASE_URL + "/data/apilist", String.class);
+            apilist = restTemplate.getForObject(apiKeysValuesMap.get("BASE_URL").get(0) + "/data/apilist", String.class);
         }
         catch (RestClientException e1) {
             e1.printStackTrace();
@@ -151,18 +150,15 @@ public class TestAPIs {
             /*
              * listOfApi stores list of APIs
              */
-            List<String> listOfApi = getListOfAPis(apilist);
-
-            ExecutorService executors = Executors.newFixedThreadPool(listOfApi.size());
+            Map<String, String> listofAPIs = getListOfAPis(apilist);
+            ExecutorService executors = Executors.newFixedThreadPool(listofAPIs.size());
             List<Future<Object>> futures = new ArrayList<Future<Object>>();
 
-            for (final String apiUrl : listOfApi) {
-                /*
-                 * skipping APIs needing User authentication
-                 */
-
-                if (apiToBeExcluded(apiUrl)) {
-
+            for (final Map.Entry<String, String> entry : listofAPIs.entrySet()) {
+                logger.debug("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+                totalUrl++;
+                if (apiToBeExcluded(entry.getKey())) {
+                    skippedUrl++;
                     continue;
                 }
 
@@ -171,7 +167,7 @@ public class TestAPIs {
                  */
                 futures.add(executors.submit(new Callable<Object>() {
                     public Object call() throws Exception {
-                        getApiResponse(apiUrl);
+                        getApiResponse(entry.getKey(), entry.getValue());
                         return "";
                     }
                 }));
@@ -184,7 +180,6 @@ public class TestAPIs {
             for (Future<Object> future : futures) {
                 try {
                     future.get();
-
                 }
                 catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -193,26 +188,46 @@ public class TestAPIs {
                     throw new RuntimeException(e);
                 }
             }
-
             executors.shutdown();
-
-            System.out.println("No. of successful APIs   :" + successUrlList.size());
-            System.out.println("No. of failed APIs       :" + failedUrlList.size());
-
-            System.out.println("List of successful APIs :");
-            for (String element : successUrlList) {
-                System.out.println(element);
+            logger.debug("Total APIs tested    :" + totalUrl);
+            logger.debug("Distinct successful APIs      :" + successUrl);
+            logger.debug("Distinct failed APIs       :" + failedUrl);
+            logger.debug("Skipped APIs       :" + skippedUrl);
+            logger.debug("No. of successful GET APIs   :" + successGETUrlList.size());
+            logger.debug("No. of successful POST APIs   :" + successPOSTUrlList.size());
+            logger.debug("No. of successful PUT APIs   :" + successPUTUrlList.size());
+            logger.debug("No. of failed GET APIs       :" + failedGETUrlList.size());
+            logger.debug("No. of failed POST APIs       :" + failedPOSTUrlList.size());
+            logger.debug("No. of failed PUT APIs       :" + failedPUTUrlList.size());
+            logger.debug("List of successful GET APIs :");
+            for (String element : successGETUrlList) {
+                logger.debug(element);
             }
-            System.out.println("List of failed APIs :");
-
-            for (Map.Entry<String, String> entry : failedUrlList.entrySet()) {
-                System.out.println("\n " + entry.getKey());
-                System.out.println(" Error :" + entry.getValue());
+            logger.debug("List of successful POST APIs :");
+            for (String element : successPOSTUrlList) {
+                logger.debug(element);
             }
-
+            logger.debug("List of successful PUT APIs :");
+            for (String element : successPUTUrlList) {
+                logger.debug(element);
+            }
+            logger.debug("List of failed GET APIs :");
+            for (Map.Entry<String, String> entry : failedGETUrlList.entrySet()) {
+                logger.debug("\n " + entry.getKey());
+                logger.debug(" Error :" + entry.getValue());
+            }
+            logger.debug("List of failed POST APIs :");
+            for (Map.Entry<String, String> entry : failedPOSTUrlList.entrySet()) {
+                logger.debug("\n " + entry.getKey());
+                logger.debug(" Error :" + entry.getValue());
+            }
+            logger.debug("List of failed PUT APIs :");
+            for (Map.Entry<String, String> entry : failedPUTUrlList.entrySet()) {
+                logger.debug("\n " + entry.getKey());
+                logger.debug(" Error :" + entry.getValue());
+            }
         }
         else {
-
             Assert.assertEquals(true, true, "API list of EndPointController is not open");
             // "API not working fine")
         }
@@ -235,18 +250,16 @@ public class TestAPIs {
      * @param apiUrl
      *            differentiating simple URLs and URLs containing request
      *            parameters
+     * @param method
      * 
      */
-    private void getApiResponse(String apiUrl) throws ConfigurationException {
-
+    private void getApiResponse(String apiUrl, String method) throws ConfigurationException {
         if (!apiUrl.contains("{")) {
-            urlWithoutRequestParams(apiUrl); // for URLs without request
-                                             // parameters
-
+            urlWithoutRequestParams(apiUrl, method); // for URLs without request
         }
         else {
-            urlContainingRequestParams(apiUrl); // for URLs with request
-                                                // parameters
+            urlContainingRequestParams(apiUrl, method); // for URLs with request
+            // parameters
         }
     }
 
@@ -254,26 +267,46 @@ public class TestAPIs {
      * @param apiUrl
      *            add successful and failing URLs (without request parameters)
      *            to their respective lists
+     * @param method
      */
-    private void urlWithoutRequestParams(String apiUrl) {
+    private void urlWithoutRequestParams(String apiUrl, String method) {
         String apiResponse = "";
         if (apiUrl.contains("app/v1/amenity?")) {
-            apiUrl = "http://localhost:8080/dal/app/v1/amenity?city-id=2";
+            apiUrl = "http://localhost:8080/dal/app/v1/amenity?city-id=" + apiKeysValuesMap.get("city-id").get(0);
         }
-        apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        if (apiUrl.contains("trend")) {
+            apiUrl = apiUrl + apiKeysValuesMap.get("trend").get(0);
+        }
+        if (apiUrl.contains("app/v1/locality?")) {
+            apiUrl = apiUrl + apiKeysValuesMap.get("locality_selector").get(0);
+            logger.debug("apiurl:   " + apiUrl);
+        }
+        if (apiUrl.contains("data/v2/entity/project")) {
+            apiUrl = apiUrl + apiKeysValuesMap.get("entity_project_selector").get(0);
+            logger.debug("apiurl:   " + apiUrl);
+        }
+        if (method == "GET") {
+            apiResponse = restTemplate.getForObject(apiUrl, String.class);
+        }
 
-        addApiResponseCode(apiResponse, apiUrl);
-
+        if (addApiResponseCode(apiResponse, apiUrl, method)) {
+            successUrl++;
+        }
+        else {
+            failedUrl++;
+        }
     }
 
     /**
      * @param apiUrl
      *            add successful and failing URLs (with request parameters) to
      *            their respective lists
+     * @param method
      */
-    private void urlContainingRequestParams(String apiUrl) throws ConfigurationException {
+    private void urlContainingRequestParams(String apiUrl, String method) throws ConfigurationException {
         String apiResponse = "";
-
+        boolean responseCode;
+        boolean isUrlSuccessfulForAllValues = true;
         if (apiUrl.contains("params")) {
             apiUrl = urlContainParams(apiUrl);
         }
@@ -282,7 +315,6 @@ public class TestAPIs {
                                                        // parameters of a
                                                        // particular
                                                        // URL
-
         while (m.find()) {
             result.add(m.group(2));
         }
@@ -296,14 +328,48 @@ public class TestAPIs {
         for (i = 0; i < maximumValues; i++) {
             Map<String, String> map = new HashMap<>();
             map = returnMap(apiKeysValuesMap, i, result);
-
             UriTemplate uriTemplate = new UriTemplate(apiUrl);
             URI expanded = uriTemplate.expand(map);
-            apiResponse = restTemplate.getForObject(expanded, String.class);
             String finalUrl = expanded.toString();
+            if (method == "GET") {
+                apiResponse = restTemplate.getForObject(expanded, String.class);
+                responseCode = addApiResponseCode(apiResponse, finalUrl, method);
+            }
+            else if (method == "POST") {
+                String post_rating = apiKeysValuesMap.get("post_rating").get(0);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<String> entity = new HttpEntity<String>(post_rating, headers);
+                String postResponse = restTemplate.postForObject(expanded, entity, String.class);
+                logger.debug("postReRsponse    " + postResponse);
+                responseCode = addApiResponseCode(postResponse, finalUrl, method);
+            }
+            else if (method == "PUT") {
+                String post_rating = apiKeysValuesMap.get("post_rating").get(0);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                HttpEntity<String> entity = new HttpEntity<String>(post_rating, headers);
+                ResponseEntity<Object> putResponse = restTemplate.exchange(
+                        expanded,
+                        HttpMethod.PUT,
+                        entity,
+                        Object.class);
+                logger.debug("putResponse    " + putResponse);
+                String finalputResponse = putResponse.toString();
+                responseCode = addApiResponseCode(finalputResponse, finalUrl, method);
+            }
+           else {
+                continue;
+            }
+            
+            isUrlSuccessfulForAllValues = isUrlSuccessfulForAllValues && responseCode;
+        }
 
-            addApiResponseCode(apiResponse, finalUrl);
-
+        if (isUrlSuccessfulForAllValues) {
+            successUrl++;
+        }
+        else {
+            failedUrl++;
         }
 
     }
@@ -368,19 +434,34 @@ public class TestAPIs {
      *            generate proper URL of all APIs
      * @return
      */
-    private List<String> getListOfAPis(String apilist) {
-        List<String> listofAPIs = new ArrayList<>();
-        Pattern pattern = Pattern.compile("\\\"GET(\\s*)(.*?)\\\"");
-        Matcher m = pattern.matcher(apilist);
+    private Map<String, String> getListOfAPis(String apilist) {
+        Map<String, String> listofAPIs = new HashMap<>();
+        Pattern urlPattern = Pattern.compile("\\\"(\\w*)(\\s)(.*?)\\\"");
+        Matcher m = urlPattern.matcher(apilist);
         while (m.find()) {
-            String baseurl = BASE_URL + m.group(2);
+            String baseurl = apiKeysValuesMap.get("BASE_URL").get(0) + m.group(3);
             String regex1 = "<(\\w*)>";
             String bcd = baseurl.replaceAll(regex1, "{$1}");
             String regex2 = "\\[(.*)\\]";
-            String finalurl = bcd.replaceAll(regex2, "");
-   //         if (finalurl.contains("entity/graph/project_distribution_price")) {
-              listofAPIs.add(finalurl);
-    //        }
+            String finalUrl = bcd.replaceAll(regex2, "");
+            if (m.group(1).equals("GET")) {
+                listofAPIs.put(finalUrl, "GET");
+            }
+            else if (m.group(1).equals("POST") && finalUrl.contains("image")) {
+                skippedUrl++;
+                totalUrl++;
+            }
+            else if (m.group(1).equals("POST")){
+                listofAPIs.put(finalUrl, "POST");
+            }
+            else if (m.group(1).equals("PUT")) {
+                listofAPIs.put(finalUrl, "PUT");
+            }
+            else{
+                skippedUrl++;
+                totalUrl++;
+            }
+                
         }
         return listofAPIs;
     }
@@ -389,17 +470,21 @@ public class TestAPIs {
      * @param apiResponse
      *            fetch and return statusCode from response of a API hit
      * @param finalUrl
+     * @param method
+     * @return
      * @return
      * @return
      */
-    void addApiResponseCode(String apiResponse, String finalUrl) {
-        Pattern pattern = Pattern.compile("\\\"statusCode\\\":(\\s*)\\\"(\\d\\D\\D)\\\",");
-        Matcher m = pattern.matcher(apiResponse);
+    boolean addApiResponseCode(String apiResponse, String finalUrl, String method) {
+        Pattern responsePattern = Pattern.compile("\\\"statusCode\\\":(\\s*)\\\"(\\d\\D\\D)\\\",");
+        Matcher m = responsePattern.matcher(apiResponse);
         boolean dataPresent = false;
         String statusCode = "";
         if (m.find()) {
             statusCode = m.group(2);
         }
+        // else - in case statusCode is not present but empty data has been
+        // returned, as that will be counted as valid API response
         else {
             Pattern dataPattern = Pattern.compile("\\\"data\\\":(.*?)");
             Matcher match = dataPattern.matcher(apiResponse);
@@ -407,13 +492,32 @@ public class TestAPIs {
                 dataPresent = true;
             }
         }
-
-        if (statusCode.equals("2XX") || dataPresent) {
-            successUrlList.add(finalUrl);
+        boolean responseCode = statusCode.equals("2XX") || dataPresent;
+        if (responseCode) {
+            if (method == "GET") {
+                successGETUrlList.add(finalUrl);
+            }
+            if (method == "POST") {
+                successPOSTUrlList.add(finalUrl);
+            }
+            if (method == "PUT") {
+                successPUTUrlList.add(finalUrl);
+            }
         }
         else {
-            failedUrlList.put(finalUrl, apiResponse);
+            if (method == "GET") {
+                failedGETUrlList.put(finalUrl, apiResponse);
+            }
+            if (method == "POST") {
+                failedPOSTUrlList.put(finalUrl, apiResponse);
+            }
+            if (method == "PUT") {
+                failedPUTUrlList.put(finalUrl, apiResponse);
+            }
+
         }
+        return responseCode;
+
     }
 
 }
