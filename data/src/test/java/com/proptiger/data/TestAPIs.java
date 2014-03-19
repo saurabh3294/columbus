@@ -73,6 +73,7 @@ public class TestAPIs {
      */
 
     private Map<String, List<String>> apiKeysValuesMap;
+    private Map<String, String> populateMapforPostData;
 
     Set<String>                       exclusionList      = new HashSet<String>();
 
@@ -80,11 +81,12 @@ public class TestAPIs {
     public void init() throws ConfigurationException {
         logger.debug("Before start of test method");
         populateKeysValuesForAPI();
-
+        populateMapforPostData();
+        
         exclusionList.add("data/apilist");
         exclusionList.add("app/v1/locality?");
         exclusionList.add("data/v1/entity/broker-agent");
-
+        exclusionList.add("sell-property");
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -104,6 +106,13 @@ public class TestAPIs {
                 // in each case from hasError method
             }
         });
+    }
+
+    private void populateMapforPostData() {
+        populateMapforPostData=new HashMap<String,String>();
+        populateMapforPostData.put((apiKeysValuesMap.get("BASE_URL").get(0)+"/data/v1/entity/property/{propertyId}/report-error"), "report_error");
+        populateMapforPostData.put(apiKeysValuesMap.get("BASE_URL").get(0)+"/data/v1/entity/project/{projectId}/report-error", "report_error");
+        populateMapforPostData.put(apiKeysValuesMap.get("BASE_URL").get(0)+"/data/v1/entity/locality/{localityId}/rating","post_rating");
     }
 
     /**
@@ -161,7 +170,7 @@ public class TestAPIs {
                     skippedUrl++;
                     continue;
                 }
-
+                
                 /*
                  * Submitting API response to mutiple threads
                  */
@@ -307,6 +316,8 @@ public class TestAPIs {
         String apiResponse = "";
         boolean responseCode;
         boolean isUrlSuccessfulForAllValues = true;
+        String VariableFromPostMap=populateMapforPostData.get(apiUrl);
+        
         if (apiUrl.contains("params")) {
             apiUrl = urlContainParams(apiUrl);
         }
@@ -336,16 +347,16 @@ public class TestAPIs {
                 responseCode = addApiResponseCode(apiResponse, finalUrl, method);
             }
             else if (method == "POST") {
-                String post_rating = apiKeysValuesMap.get("post_rating").get(0);
+                String dataToPost = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<String> entity = new HttpEntity<String>(post_rating, headers);
+                HttpEntity<String> entity = new HttpEntity<String>(dataToPost, headers);
                 String postResponse = restTemplate.postForObject(expanded, entity, String.class);
                 logger.debug("postReRsponse    " + postResponse);
                 responseCode = addApiResponseCode(postResponse, finalUrl, method);
             }
             else if (method == "PUT") {
-                String post_rating = apiKeysValuesMap.get("post_rating").get(0);
+                String post_rating = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 HttpEntity<String> entity = new HttpEntity<String>(post_rating, headers);
