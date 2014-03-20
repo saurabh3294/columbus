@@ -1,0 +1,26 @@
+Hi,
+An error has been reported with following details:
+<br /><br />
+Error Type: $projectPropertyErrorData.projectError.errorType
+<br />    
+Error Description: $projectPropertyErrorData.projectError.details
+<br />    
+Email: $projectPropertyErrorData.projectError.email
+<br />   
+Page URL: $projectPropertyErrorData.projectError.url
+<br /> 
+Project Name: $projectPropertyErrorData.project.builder.name $projectPropertyErrorData.project.name
+
+#set( $email_message = "" )
+#if( $projectPropertyErrorData.property )
+	#if( $projectPropertyErrorData.property.unitName !='')
+    	#set( $email_message = "<br />Property: $projectPropertyErrorData.property.unitName $projectPropertyErrorData.property.unitType" )
+	#end
+
+	#if( $projectPropertyErrorData.property.size > 0 )
+    	#set( $email_message =  "$email_message $projectPropertyErrorData.property.size sq ft")
+	#end
+#end
+
+$email_message <br />Locality/City: $projectPropertyErrorData.project.locality.label/$projectPropertyErrorData.project.locality.suburb.city.label <br /><br />
+An ID $projectPropertyErrorData.projectError.id has been created in CMS.

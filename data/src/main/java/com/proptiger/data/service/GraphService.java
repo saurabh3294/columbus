@@ -317,9 +317,7 @@ public class GraphService {
     public Object getPriceTrendsGraphs(Map<String, Object> paramObject) {
         String locationType = (String) paramObject.get("location_type");
         
-        Integer locationId = Integer.parseInt((String)paramObject.get("location_id"));
-        
-        
+        Integer locationId = ( (Double)paramObject.get("location_id") ).intValue();
         List<String> unitType = (List<String>) paramObject.get("unit_type");
         locationType = locationType.toLowerCase();
         Integer lastNumberOfMonths = (Integer) paramObject.get("last_number_of_months");

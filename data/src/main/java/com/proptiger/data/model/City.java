@@ -111,7 +111,7 @@ public class City extends BaseModel {
     private Integer               maxZoomLevel;
 
     @Transient
-    private Long                  projectsCount;
+    private Long                  projectCount;
 
     @Transient
     @Field("CITY_DOMINANT_UNIT_TYPE")
@@ -207,12 +207,12 @@ public class City extends BaseModel {
         this.displayOrder = displayOrder;
     }
 
-    public Long getProjectsCount() {
-        return projectsCount;
+    public Long getProjectCount() {
+        return projectCount;
     }
 
-    public void setProjectsCount(Long projectsCount) {
-        this.projectsCount = projectsCount;
+    public void setProjectCount(Long projectCount) {
+        this.projectCount = projectCount;
     }
 
     public String getUrl() {

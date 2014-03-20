@@ -20,4 +20,17 @@ public class VelocityUtility {
         String str = "1.5BHK";
         str.split("\\d");
     }
+    
+    public Integer abs(Integer val){
+        return Math.abs(val);
+    }
+    public Double abs(Double val){
+        return Math.abs(val);
+    }
+    public long round(double val){
+        return Math.round(val);
+    }
+    public long round(Double val){
+        return Math.round(val);
+    }
 }

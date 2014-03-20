@@ -86,7 +86,7 @@ public class CityService {
                 Selector.class);
         PaginatedResponse<List<Project>> response = projectService.getProjects(selector);
         if(response != null){
-            city.setProjectsCount(response.getTotalCount());
+            city.setProjectCount(response.getTotalCount());
         }
     }
 

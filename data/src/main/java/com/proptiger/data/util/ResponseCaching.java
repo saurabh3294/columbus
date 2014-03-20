@@ -85,7 +85,7 @@ public class ResponseCaching {
 
         for (int i = 0; i < args.length; i++) {
             if (args[i] != null)
-                key += "i" + args[i].toString();
+                key += ":i:" + args[i].toString();
         }
 
         try {

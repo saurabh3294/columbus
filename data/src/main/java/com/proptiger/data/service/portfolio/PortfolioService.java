@@ -12,12 +12,15 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.PersistenceException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
 import com.proptiger.data.internal.dto.mail.ListingAddMail;
 import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
@@ -27,6 +30,7 @@ import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.Property;
@@ -47,7 +51,11 @@ import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingPriceDao;
+import com.proptiger.data.service.BuilderService;
+import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.ImageService;
+import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -74,8 +82,8 @@ import com.proptiger.mail.service.MailType;
 @Service
 public class PortfolioService extends AbstractService {
 
-    private static final String PROPTIGER_URL = "proptiger.url";
-    private static Logger             logger = LoggerFactory.getLogger(PortfolioService.class);
+    private static final String       PROPTIGER_URL = "proptiger.url";
+    private static Logger             logger        = LoggerFactory.getLogger(PortfolioService.class);
     @Autowired
     private PortfolioListingDao       portfolioListingDao;
 
@@ -114,6 +122,15 @@ public class PortfolioService extends AbstractService {
 
     @Autowired
     private ImageService              imageService;
+
+    @Autowired
+    private ProjectService            projectService;
+
+    @Autowired
+    private LocalityService           localityService;
+
+    @Autowired
+    private CityService               cityService;
 
     /**
      * Get portfolio object for a particular user id
@@ -1076,6 +1093,72 @@ public class PortfolioService extends AbstractService {
         }
 
         return price;
+    }
+
+    public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
+
+        if (portfolioListing.getUserId() != null) {
+            if (forumUserDao.findOne(portfolioListing.getUserId()) == null)
+                throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
+        }
+
+        if (portfolioListing.getTypeId() != null) {
+            Property property = propertyService.getProperty(portfolioListing.getTypeId());
+            if (property == null)
+                throw new ResourceNotAvailableException(ResourceType.PROPERTY, ResourceTypeAction.GET);
+
+            portfolioListing.setProjectId(property.getProjectId());
+            portfolioListing.setLocalityId(property.getProject().getLocalityId());
+            portfolioListing.setCityId(property.getProject().getLocality().getCityId());
+        }
+        else if (portfolioListing.getProjectId() != null) {
+            Project project = projectService.getProjectData(portfolioListing.getProjectId());
+
+            portfolioListing.setLocalityId(project.getLocalityId());
+            portfolioListing.setCityId(project.getLocality().getCityId());
+        }
+        else if (portfolioListing.getLocalityId() != null) {
+            Locality locality = localityService.getLocality(portfolioListing.getLocalityId());
+            if (locality == null)
+                throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
+
+            portfolioListing.setCityId(locality.getCityId());
+        }
+        else if (portfolioListing.getCityId() != null) {
+            cityService.getCity(portfolioListing.getCityId());
+        }
+
+        if (portfolioListing.getIsBroker() == null || portfolioListing.getLeadUser() == null
+                || portfolioListing.getLeadEmail() == null
+                || portfolioListing.getLeadCountryId() == null
+                || portfolioListing.getLeadContact() == null)
+            throw new IllegalArgumentException(
+                    " user information is missing. email, username, contact number and country should be present.");
+
+        if (portfolioListing.getIsBroker() == false && ((portfolioListing.getCityId() == null && portfolioListing
+                .getCityName() == null) || (portfolioListing.getLocality() == null && portfolioListing.getLocalityId() == null)
+                || portfolioListing.getProjectName() == null || portfolioListing.getName() == null))
+            throw new IllegalArgumentException(
+                    "Project compulsory parameters : project name, property name, locality and city should be present.");
+
+        portfolioListing.setSourceType(PortfolioListing.Source.lead);
+        /*
+         * Setting the fields to null as because of unwrapped , the object get
+         * initialized.
+         */
+        portfolioListing.setProperty(null);
+        portfolioListing.setExtraAttributes(null);
+        portfolioListing.setInterestedToLoan(null);
+        portfolioListing.setInterestedToLoanOn(null);
+        portfolioListing.setInterestedToSell(null);
+        portfolioListing.setInterestedToSellOn(null);
+        portfolioListing.setListingMeasure(null);
+
+        PortfolioListing savePortfolioListing = portfolioListingDao.save(portfolioListing);
+        if (savePortfolioListing == null)
+            throw new PersistenceException("Sell your property request cannot be saved.");
+
+        return savePortfolioListing;
     }
 
     @Override

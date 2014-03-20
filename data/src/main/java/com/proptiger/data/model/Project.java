@@ -306,6 +306,14 @@ public class Project extends BaseModel {
     @Column(name = "FORCE_RESALE")
     private boolean                 isResale;
 
+    @Transient
+    @Field(value = "IS_PRIMARY")
+    private boolean                 isPrimary;
+
+    @Transient
+    @Field(value = "IS_SOLD_OUT")
+    private boolean                 isSoldOut;
+
     @FieldMetaInfo(displayName = "Project Description", description = "Project Description")
     @Field(value = "PROJECT_DESCRIPTION")
     @Column(name = "PROJECT_DESCRIPTION")
@@ -438,6 +446,10 @@ public class Project extends BaseModel {
     @Transient
     @Field("PROJECT_VIDEOS_COUNT")
     private Integer                 videosCount;
+
+    @Transient
+    @Field("PROJECT_AVG_PRICE_PER_UNIT_AREA")
+    private Double                  avgPricePerUnitArea;
 
     public int getProjectId() {
         return projectId;
@@ -1009,6 +1021,30 @@ public class Project extends BaseModel {
 
     public void setVideosCount(Integer projectVideosCount) {
         this.videosCount = projectVideosCount;
+    }
+
+    public Double getAvgPricePerUnitArea() {
+        return avgPricePerUnitArea;
+    }
+
+    public void setAvgPricePerUnitArea(Double avgPricePerUnitArea) {
+        this.avgPricePerUnitArea = avgPricePerUnitArea;
+    }
+
+    public boolean isPrimary() {
+        return isPrimary;
+    }
+
+    public void setPrimary(boolean isPrimary) {
+        this.isPrimary = isPrimary;
+    }
+
+    public boolean isSoldOut() {
+        return isSoldOut;
+    }
+
+    public void setSoldOut(boolean isSoldOut) {
+        this.isSoldOut = isSoldOut;
     }
 
 }
