@@ -198,16 +198,16 @@ public class TestAPIs {
                 }
             }
             executors.shutdown();
-            logger.debug("Total APIs tested    :" + totalUrl);
-            logger.debug("Distinct successful APIs      :" + successUrl);
-            logger.debug("Distinct failed APIs       :" + failedUrl);
-            logger.debug("Skipped APIs       :" + skippedUrl);
+            logger.info("Total APIs tested    :" + totalUrl);
+            logger.info("Distinct successful APIs      :" + successUrl);
+            logger.info("Distinct failed APIs       :" + failedUrl);
+            logger.info("Skipped APIs       :" + skippedUrl);
             logger.debug("No. of successful GET APIs   :" + successGETUrlList.size());
             logger.debug("No. of successful POST APIs   :" + successPOSTUrlList.size());
             logger.debug("No. of successful PUT APIs   :" + successPUTUrlList.size());
-            logger.debug("No. of failed GET APIs       :" + failedGETUrlList.size());
-            logger.debug("No. of failed POST APIs       :" + failedPOSTUrlList.size());
-            logger.debug("No. of failed PUT APIs       :" + failedPUTUrlList.size());
+            logger.info("No. of failed GET APIs       :" + failedGETUrlList.size());
+            logger.info("No. of failed POST APIs       :" + failedPOSTUrlList.size());
+            logger.info("No. of failed PUT APIs       :" + failedPUTUrlList.size());
             logger.debug("List of successful GET APIs :");
             for (String element : successGETUrlList) {
                 logger.debug(element);
@@ -220,20 +220,20 @@ public class TestAPIs {
             for (String element : successPUTUrlList) {
                 logger.debug(element);
             }
-            logger.debug("List of failed GET APIs :");
+            logger.info("List of failed GET APIs :");
             for (Map.Entry<String, String> entry : failedGETUrlList.entrySet()) {
-                logger.debug("\n " + entry.getKey());
-                logger.debug(" Error :" + entry.getValue());
+                logger.info("\n " + entry.getKey());
+                logger.info("\n Error :" + entry.getValue());
             }
-            logger.debug("List of failed POST APIs :");
+            logger.info("List of failed POST APIs :");
             for (Map.Entry<String, String> entry : failedPOSTUrlList.entrySet()) {
-                logger.debug("\n " + entry.getKey());
-                logger.debug(" Error :" + entry.getValue());
+                logger.info("\n " + entry.getKey());
+                logger.info("\n Error :" + entry.getValue());
             }
             logger.debug("List of failed PUT APIs :");
             for (Map.Entry<String, String> entry : failedPUTUrlList.entrySet()) {
-                logger.debug("\n " + entry.getKey());
-                logger.debug(" Error :" + entry.getValue());
+                logger.info("\n " + entry.getKey());
+                logger.info("\n Error :" + entry.getValue());
             }
         }
         int numberOfAPIFailed=failedGETUrlList.size()+failedPOSTUrlList.size()+failedPUTUrlList.size();
