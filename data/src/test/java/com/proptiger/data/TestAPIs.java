@@ -281,7 +281,7 @@ public class TestAPIs {
     private void urlWithoutRequestParams(String apiUrl, String method) {
         String apiResponse = "";
         if (apiUrl.contains("app/v1/amenity?")) {
-            apiUrl = "http://localhost:8080/dal/app/v1/amenity?city-id=" + apiKeysValuesMap.get("city-id").get(0);
+            apiUrl = apiUrl + "city-id=" + apiKeysValuesMap.get("city-id").get(0);
         }
         if (apiUrl.contains("trend")) {
             apiUrl = apiUrl + apiKeysValuesMap.get("trend").get(0);
