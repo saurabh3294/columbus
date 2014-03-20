@@ -236,10 +236,10 @@ public class TestAPIs {
                 logger.debug(" Error :" + entry.getValue());
             }
         }
-        else {
-            Assert.assertEquals(true, true, "API list of EndPointController is not open");
-            // "API not working fine")
-        }
+        int numberOfAPIFailed=failedGETUrlList.size()+failedPOSTUrlList.size()+failedPUTUrlList.size();
+         if(numberOfAPIFailed>0){
+            Assert.assertEquals(true, false, "API has faced some failure");
+         }
     }
 
     private boolean apiToBeExcluded(String apiUrl) {
