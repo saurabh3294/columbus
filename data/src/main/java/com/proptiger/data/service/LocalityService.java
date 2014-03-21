@@ -16,6 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -418,7 +420,7 @@ public class LocalityService {
      * @return List<Locality>
      */
     public List<Locality> getTopLocalities(Integer cityId, Integer suburbId, Selector selector, Integer imageCount) {
-        List<Locality> result = new ArrayList<>();
+        List<Locality> result = null;
         List<Object[]> list = null;
 
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
@@ -435,15 +437,23 @@ public class LocalityService {
          * setting average rating of locality
          */
         if (list != null) {
+            List<Integer> localityIds = new ArrayList<Integer>();
+            Map<Integer, Double> map = new HashMap();
             for (Object[] objects : list) {
                 if (objects.length == 2) {
-                    Locality locality = (Locality) objects[0];
-                    locality.setAverageRating((double) objects[1]);
-                    LocalityRatingDetails localityReviewDetails = localityRatingService
-                            .getUsersCountByRatingOfLocality(locality.getLocalityId());
-                    locality.setNumberOfUsersByRating(localityReviewDetails.getTotalUsersByRating());
-                    result.add(locality);
+                    Integer localityId = (Integer) objects[0];
+                    localityIds.add(localityId);
+                    map.put(localityId, (Double) objects[1]);
                 }
+            }
+
+            result = getLocalitiesOnIds(localityIds);
+            for (Locality locality : result) {
+                locality.setAverageRating(map.get(locality.getLocalityId()));
+                LocalityRatingDetails localityReviewDetails = localityRatingService
+                        .getUsersCountByRatingOfLocality(locality.getLocalityId());
+                locality.setNumberOfUsersByRating(localityReviewDetails.getTotalUsersByRating());
+
             }
         }
         imageEnricher.setLocalitiesImages(result, imageCount);
@@ -895,5 +905,39 @@ public class LocalityService {
         }
 
         return localities;
+    }
+
+    /**
+     * This method will return the locality Ids from
+     * 
+     * @param localities
+     * @return
+     */
+    private List<Integer> getLocalitiesIdsFromLocalityObject(List<Locality> localities) {
+        if (localities == null || localities.isEmpty())
+            return new ArrayList<Integer>();
+
+        List<Integer> localityIds = new ArrayList();
+        for (Locality locality : localities) {
+            localityIds.add(locality.getLocalityId());
+        }
+
+        return localityIds;
+    }
+
+    /**
+     * This method will return the localities data for all the locality Ids.
+     * 
+     * @param localityIds
+     * @return
+     */
+    private List<Locality> getLocalitiesOnIds(List<Integer> localityIds) {
+        if (localityIds == null || localityIds.isEmpty())
+            return new ArrayList<Locality>();
+
+        String json = "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":[" + StringUtils.join(localityIds, ',')
+                + "]}}]}}";
+
+        return getLocalities(new Gson().fromJson(json, Selector.class));
     }
 }
