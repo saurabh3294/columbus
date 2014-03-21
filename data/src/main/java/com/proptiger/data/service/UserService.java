@@ -19,7 +19,7 @@ import com.proptiger.data.repo.ForumUserDao;
  * 
  */
 @Service
-public class AlreadyEnquiredService {
+public class UserService {
 
     @Value("${enquired.within.days}")
     private Integer      enquiredWithinDays;
@@ -29,6 +29,14 @@ public class AlreadyEnquiredService {
 
     @Autowired
     private ForumUserDao forumUserDao;
+
+    public boolean isRegistered(String email) {
+        if (forumUserDao.findByEmail(email) != null) {
+            return true;
+        }
+
+        return false;
+    }
 
     /**
      * Get if user have already enquired a entity
