@@ -47,7 +47,6 @@ public abstract class AbstractQueryBuilder<T> {
         // XXX - filter remains first since FIQL parser auto creates
         // criteriaquery for JPA here
         buildFilterClause(selector);
-
         buildGroupByClause(selector);
         buildSelectClause(selector);
         buildOrderByClause(selector);

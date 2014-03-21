@@ -97,11 +97,11 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "average_price_per_unit_area")
     private Integer pricePerUnitArea;
 
+    @Column(name = "average_secondary_price_per_unit_area")
+    private Integer secondaryPricePerUnitArea;
+
     @Column(name = "average_size")
     private Integer size;
-
-    @Column(name = "all_size")
-    private String  allSize;
 
     @Column(name = "average_total_price")
     private Long    budget;
@@ -121,13 +121,13 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "units_sold")
     private Integer unitsSold;
 
-    private Float demand;
+    private Float   demand;
 
     @Column(name = "customer_demand")
-    private Float customerDemand;
+    private Float   customerDemand;
 
     @Column(name = "investor_demand")
-    private Float investorDemand;
+    private Float   investorDemand;
 
     public Integer getId() {
         return id;
@@ -345,20 +345,20 @@ public class InventoryPriceTrend extends BaseModel {
         this.pricePerUnitArea = pricePerUnitArea;
     }
 
+    public Integer getSecondaryPricePerUnitArea() {
+        return secondaryPricePerUnitArea;
+    }
+
+    public void setSecondaryPricePerUnitArea(Integer secondaryPricePerUnitArea) {
+        this.secondaryPricePerUnitArea = secondaryPricePerUnitArea;
+    }
+
     public Integer getSize() {
         return size;
     }
 
     public void setSize(Integer size) {
         this.size = size;
-    }
-
-    public String getAllSize() {
-        return allSize;
-    }
-
-    public void setAllSize(String allSize) {
-        this.allSize = allSize;
     }
 
     public Integer getSupply() {

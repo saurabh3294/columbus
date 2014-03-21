@@ -31,7 +31,7 @@ public class Graph extends BaseModel {
 
     @Column(name = "user_id")
     private Integer userId;
-    
+
     @Column(name = "catchment_id")
     private Integer catchmentId;
 
