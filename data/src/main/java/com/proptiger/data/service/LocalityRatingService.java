@@ -90,7 +90,7 @@ public class LocalityRatingService {
 
     @CacheEvict(value = {
             Constants.CacheName.LOCALITY_RATING_AVG_BY_CATEGORY,
-            Constants.CacheName.LOCALITY_RATING_USERS_COUNT_BY_RATING }, key = "#localityId")
+            Constants.CacheName.LOCALITY_RATING_USERS_COUNT_BY_RATING, Constants.CacheName.LOCALITY_RATING_USERS }, key = "#localityId")
     @Transactional(rollbackFor = { ConstraintViolationException.class })
     public LocalityRatings createLocalityRating(Integer userId, Integer localityId, LocalityRatings localityReview) {
         logger.debug("create locality rating for user {} locality {}", userId, localityId);
@@ -142,6 +142,7 @@ public class LocalityRatingService {
      * @param localityId
      * @return
      */
+    @Cacheable(value=Constants.CacheName.LOCALITY_RATING_USERS, key="#localityId")
     public LocalityRatings getLocalityRatingOfUser(Integer userId, Integer localityId) {
         LocalityRatings localityRating = localityRatingDao.findByUserIdAndLocalityId(userId, localityId);
         return localityRating;
