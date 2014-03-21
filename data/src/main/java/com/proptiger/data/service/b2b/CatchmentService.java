@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
+import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class CatchmentService {
             return catchmentDao.save(catchment);
         }
         catch (ConstraintViolationException e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+            throw new IllegalArgumentException(e.getConstraintViolations().iterator().next().getMessage(), e);
         }
         catch (PersistenceException e) {
             if (e.getCause() != null && e.getCause().getCause() instanceof MySQLIntegrityConstraintViolationException) {
@@ -86,7 +87,6 @@ public class CatchmentService {
             catchmentProjectDao.delete(deletedCatchmentProjects);
 
             savedCatchment.setName(catchment.getName());
-            savedCatchment.setUpdatedAt(null);
             for (CatchmentProject catchmentProject : savedCatchment.getCatchmentProjects()) {
                 if (catchmentProject.getCatchment() == null) {
                     catchmentProject.setCatchment(savedCatchment);
