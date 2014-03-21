@@ -15,6 +15,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -44,14 +45,15 @@ public class Catchment extends BaseModel {
 
     private String                 name;
 
+    @Size(min = 1, message = "Catchment can't be empty")
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "catchment", cascade = CascadeType.ALL)
-    private List<CatchmentProject> catchmentProjects;
+    private List<CatchmentProject> catchmentProjects = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    private STATUS                 status    = STATUS.Active;
+    private STATUS                 status            = STATUS.Active;
 
     @Column(name = "created_at")
-    private Date                   createdAt = new Date();
+    private Date                   createdAt         = new Date();
 
     @Column(name = "updated_at")
     private Date                   updatedAt;
@@ -111,34 +113,35 @@ public class Catchment extends BaseModel {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
-    
-    public List<Integer> getProjectIds(){
+
+    public List<Integer> getProjectIds() {
         List<Integer> projectIds = new ArrayList<>();
         for (CatchmentProject catchmentProject : catchmentProjects) {
             projectIds.add(catchmentProject.getProjectId());
         }
         return projectIds;
     }
-    
-    public List<CatchmentProject> deleteProjectIds(List<Integer> projectIds){
+
+    public List<CatchmentProject> deleteProjectIds(List<Integer> projectIds) {
         List<CatchmentProject> newCatchmentProjects = new ArrayList<>();
         List<CatchmentProject> deletedCatchmentProjects = new ArrayList<>();
         for (CatchmentProject catchmentProject : catchmentProjects) {
-            if(projectIds.contains(catchmentProject.getProjectId())){
+            if (projectIds.contains(catchmentProject.getProjectId())) {
                 deletedCatchmentProjects.add(catchmentProject);
-            }else{
+            }
+            else {
                 newCatchmentProjects.add(catchmentProject);
             }
         }
         catchmentProjects = newCatchmentProjects;
         return deletedCatchmentProjects;
     }
-    
-    public List<CatchmentProject> addProjectIds(List<Integer> projectIds){
+
+    public List<CatchmentProject> addProjectIds(List<Integer> projectIds) {
         List<Integer> allProjectIds = getProjectIds();
         List<CatchmentProject> addedCatchmentProjects = new ArrayList<>();
         for (Integer projectId : projectIds) {
-            if(!allProjectIds.contains(projectId)){
+            if (!allProjectIds.contains(projectId)) {
                 CatchmentProject catchmentProject = new CatchmentProject();
                 catchmentProject.setProjectId(projectId);
                 addedCatchmentProjects.add(catchmentProject);

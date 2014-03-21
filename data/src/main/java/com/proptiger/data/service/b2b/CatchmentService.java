@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,9 @@ public class CatchmentService {
         }
         try {
             return catchmentDao.save(catchment);
+        }
+        catch (ConstraintViolationException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
         }
         catch (PersistenceException e) {
             if (e.getCause() != null && e.getCause().getCause() instanceof MySQLIntegrityConstraintViolationException) {

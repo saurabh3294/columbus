@@ -39,7 +39,7 @@ public class CatchmentController extends BaseController {
         return new ProAPISuccessResponse(catchmentService.getCatchment(fiqlSelector
                 .addAndConditionToFilter("userId==" + userInfo.getUserIdentifier())));
     }
-    
+
     @RequestMapping(value = "/data/v1/entity/user/catchment", method = RequestMethod.PUT)
     public @ResponseBody
     ProAPIResponse updateCatchment(
