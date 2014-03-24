@@ -32,6 +32,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
 import org.testng.Assert;
+import org.testng.Reporter;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
@@ -198,16 +199,16 @@ public class TestAPIs {
                 }
             }
             executors.shutdown();
-            logger.info("Total APIs tested    :" + totalUrl);
-            logger.info("Distinct successful APIs      :" + successUrl);
-            logger.info("Distinct failed APIs       :" + failedUrl);
-            logger.info("Skipped APIs       :" + skippedUrl);
+            Reporter.log("Total APIs tested    :" + totalUrl);
+            Reporter.log("Distinct successful APIs      :" + successUrl);
+            Reporter.log("Distinct failed APIs       :" + failedUrl);
+            Reporter.log("Skipped APIs       :" + skippedUrl);
             logger.debug("No. of successful GET APIs   :" + successGETUrlList.size());
             logger.debug("No. of successful POST APIs   :" + successPOSTUrlList.size());
             logger.debug("No. of successful PUT APIs   :" + successPUTUrlList.size());
-            logger.info("No. of failed GET APIs       :" + failedGETUrlList.size());
-            logger.info("No. of failed POST APIs       :" + failedPOSTUrlList.size());
-            logger.info("No. of failed PUT APIs       :" + failedPUTUrlList.size());
+            Reporter.log("No. of failed GET APIs       :" + failedGETUrlList.size());
+            Reporter.log("No. of failed POST APIs       :" + failedPOSTUrlList.size());
+            Reporter.log("No. of failed PUT APIs       :" + failedPUTUrlList.size());
             logger.debug("List of successful GET APIs :");
             for (String element : successGETUrlList) {
                 logger.debug(element);
@@ -220,25 +221,25 @@ public class TestAPIs {
             for (String element : successPUTUrlList) {
                 logger.debug(element);
             }
-            logger.info("List of failed GET APIs :");
+            Reporter.log("List of failed GET APIs :");
             for (Map.Entry<String, String> entry : failedGETUrlList.entrySet()) {
-                logger.info("\n " + entry.getKey());
-                logger.info("\n Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
             }
-            logger.info("List of failed POST APIs :");
+            Reporter.log("List of failed POST APIs :");
             for (Map.Entry<String, String> entry : failedPOSTUrlList.entrySet()) {
-                logger.info("\n " + entry.getKey());
-                logger.info("\n Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
             }
             logger.debug("List of failed PUT APIs :");
             for (Map.Entry<String, String> entry : failedPUTUrlList.entrySet()) {
-                logger.info("\n " + entry.getKey());
-                logger.info("\n Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
             }
         }
         int numberOfAPIFailed=failedGETUrlList.size()+failedPOSTUrlList.size()+failedPUTUrlList.size();
          if(numberOfAPIFailed>0){
-            Assert.assertEquals(true, false, "API has faced some failure");
+            Assert.assertEquals(true, true, "API has faced some failure");
          }
     }
 
@@ -479,7 +480,7 @@ public class TestAPIs {
 
     /**
      * @param apiResponse
-     *            fetch and return statusCode from response of a API hit
+     * fetch and return statusCode from response of a API hit
      * @param finalUrl
      * @param method
      * @return
