@@ -48,7 +48,7 @@ public class CatchmentService {
                 e.printStackTrace();
                 throw new ResourceAlreadyExistException(
                         "Catchment name " + catchment.getName() + " already taken",
-                        ResponseCodes.CATCHMENTNAME_TAKEN);
+                        ResponseCodes.NAME_ALREADY_EXISTS);
             }
             throw new RuntimeException("Unexpected Error");
         }
@@ -63,7 +63,7 @@ public class CatchmentService {
             if (e.getCause() != null && e.getCause().getCause() instanceof MySQLIntegrityConstraintViolationException) {
                 throw new ResourceAlreadyExistException(
                         "Catchment name " + catchment.getName() + " already taken",
-                        ResponseCodes.CATCHMENTNAME_TAKEN);
+                        ResponseCodes.NAME_ALREADY_EXISTS);
             }
         }
         return updatedCatchment;

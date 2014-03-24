@@ -11,12 +11,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.gson.Gson;
+import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -38,15 +40,20 @@ public class Graph extends BaseModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer      id;
 
+    @ExcludeFromBeanCopy
     @Column(name = "user_id")
     private Integer      userId;
 
+    @ExcludeFromBeanCopy
     @Column(name = "parent_id")
     private Integer      parentId;
 
+    @ExcludeFromBeanCopy
     @Column(name = "parent_type")
+    @Enumerated(EnumType.STRING)
     private PARENTTYPE   parentType;
 
+    @Size(min=1, max=255, message="Graph name should be between 1 to 255 characters")
     private String       name;
 
     @Enumerated(EnumType.STRING)
@@ -65,9 +72,11 @@ public class Graph extends BaseModel {
     @Column(name = "range_value")
     private String       rangeValue;
 
+    @ExcludeFromBeanCopy
     @Column(name = "created_at")
     private Date         createdAt = new Date();
 
+    @ExcludeFromBeanCopy
     @Column(name = "updated_at")
     private Date         updatedAt;
 

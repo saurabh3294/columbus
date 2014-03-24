@@ -1,14 +1,25 @@
 package com.proptiger.data.service.b2b;
 
+import java.util.Date;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import javax.persistence.PersistenceException;
+import javax.validation.ConstraintViolationException;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionSystemException;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.Graph;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.b2b.GraphDao;
+import com.proptiger.exception.ResourceAlreadyExistException;
 
 @Service
 public class UserGraphService {
@@ -20,8 +31,13 @@ public class UserGraphService {
         try {
             return graphDao.save(graph);
         }
-        catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+        catch (ConstraintViolationException e) {
+            throw new IllegalArgumentException(e.getConstraintViolations().iterator().next().getMessage(), e);
+        }
+        catch (PersistenceException e) {
+            throw new ResourceAlreadyExistException(
+                    "Graph name " + graph.getName() + " already taken",
+                    ResponseCodes.NAME_ALREADY_EXISTS);
         }
     }
 
@@ -30,6 +46,50 @@ public class UserGraphService {
     }
 
     public Graph updateGraph(Graph graph, UserInfo userInfo) {
+        Graph updatedGraph = null;
+
+        try {
+            updatedGraph = updateExistingGraph(graph, userInfo);
+        }
+        catch (TransactionSystemException e) {
+            if (e.getCause().getCause() instanceof ConstraintViolationException) {
+                ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause()
+                        .getCause();
+                throw new IllegalArgumentException(constraintViolationException.getConstraintViolations().iterator()
+                        .next().getMessage(), e);
+            }
+            else {
+                e.printStackTrace();
+                throw new RuntimeException("Unexpected Error");
+            }
+        }
+        catch (DataIntegrityViolationException e) {
+            if (e.getCause().getCause() instanceof MySQLIntegrityConstraintViolationException) {
+                throw new ResourceAlreadyExistException(
+                        "Graph name " + graph.getName() + " already taken",
+                        ResponseCodes.NAME_ALREADY_EXISTS);
+            }
+            else {
+                e.printStackTrace();
+                throw new RuntimeException("Unexpected Error");
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unexpected Error");
+        }
+        return updatedGraph;
+    }
+
+    @Transactional
+    public Graph updateExistingGraph(Graph graph, UserInfo userInfo) throws Exception {
+        Graph savedGraph = graphDao.findOne(graph.getId());
+        if (savedGraph.getUserId().equals(userInfo.getUserIdentifier())) {
+            ExclusionAwareBeanUtilsBean exclusionAwareBeanUtilsBean = new ExclusionAwareBeanUtilsBean();
+            exclusionAwareBeanUtilsBean.copyProperties(savedGraph, graph);
+            savedGraph.setUpdatedAt(new Date());
+            return graphDao.save(savedGraph);
+        }
         return null;
     }
 }
