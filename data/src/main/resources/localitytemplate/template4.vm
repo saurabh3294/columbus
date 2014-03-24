@@ -40,11 +40,11 @@ ${locality.label} has some great #listOfStringToSentence($unitTypesStringList) f
 #end
 #if(${locality.projectStatusCount.get("Launch")})
 	${locality.label} is booming as there are ${locality.projectStatusCount.get("Launch")}
-	 new projects launched 
+	 new #singularOrPluralWord(${locality.projectStatusCount.get("Launch")}, "project") launched  
 	 #if(${locality.projectStatusCount.get("Pre Launch")})
-	 	and ${locality.projectStatusCount.get("Pre Launch")} upcoming projects,   
+	 	and ${locality.projectStatusCount.get("Pre Launch")} upcoming #singularOrPluralWord(${locality.projectStatusCount.get("Pre Launch")}, "project")  
 	 #end
-	 in the locality in last few months. 
+	 in last few months.  
 #end
 #if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
 	Properties in ${locality.label} offer #listOfStringToSentence($unitNamesStringList)   

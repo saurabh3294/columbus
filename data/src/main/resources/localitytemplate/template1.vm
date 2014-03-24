@@ -1,5 +1,5 @@
 #parse("./localitytemplate/utilityFunctions.vm")
-${locality.label}, one of the popular and best place to have property in ${locality.suburb.city.label} is located in suburb ${locality.suburb.label}. 
+${locality.label}, one of the popular and best place to have property in ${locality.suburb.city.label} is located in suburb ${locality.suburb.label}.  
 #if($nearByLocalities)
 	#set($nearByLocalityNameList = [])
 	#populateNearByLocalityNames
@@ -10,7 +10,7 @@ ${locality.label}, one of the popular and best place to have property in ${local
 #if($topBuilders)
 	#populateBuilderNameList($topBuilders)
 	#if($popularBuildersNameList)
-		Most popular builders in ${locality.label} #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList). 
+		Most popular builders in ${locality.label} #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList).  
 	#end
 #end
 #set($minSize = 0)
@@ -34,7 +34,7 @@ There are #listOfStringToSentence($unitTypesStringList) for sale in ${locality.l
 	#if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
 		 and the projects are built with an area of $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft
 	#end
-	. 
+	.  
 #end
 #localityPriceChangeInMonth_type1($locality)
 #localityAmenityTypeDesc
