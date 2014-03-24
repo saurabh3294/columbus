@@ -127,7 +127,7 @@
 		#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")})
 	#end
 	#if(${locality.projectStatusCount.get("Not Launched")})
-		#set( $upcomingProjects = ${locality.projectStatusCount.get("Not Launched")})
+		#set( $upcomingProjects = $upcomingProjects + ${locality.projectStatusCount.get("Not Launched")})
 	#end
 	#if(${locality.projectStatusCount.get("Launch")})
 		#set( $newLaunchProjects = ${locality.projectStatusCount.get("Launch")})
@@ -335,5 +335,13 @@
 		#if($metroStationList && $metroStationList.size() > 0)
 			Locality is close to #listOfStringToSentence($metroStationList).  
 		#end
+	#end
+#end
+#macro(singularOrPluralWord $count $word)
+	#if($count > 1)
+		#set($word = $word + 's')
+		$word 
+	#else
+		$word 
 	#end
 #end

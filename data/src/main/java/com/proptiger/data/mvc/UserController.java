@@ -13,8 +13,8 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.service.AlreadyEnquiredService;
-import com.proptiger.data.service.AlreadyEnquiredService.AlreadyEnquiredDetails;
+import com.proptiger.data.service.UserService;
+import com.proptiger.data.service.UserService.AlreadyEnquiredDetails;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -25,10 +25,10 @@ import com.proptiger.data.util.Constants;
  */
 @Controller
 @DisableCaching
-public class AlreadyEnquiredController extends BaseController {
+public class UserController extends BaseController {
 
     @Autowired
-    private AlreadyEnquiredService alreadyEnquiredService;
+    private UserService userService;
 
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/enquired")
     @ResponseBody
@@ -36,7 +36,7 @@ public class AlreadyEnquiredController extends BaseController {
     public ProAPIResponse hasEnquired(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @RequestParam(value = "projectId") Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = alreadyEnquiredService.hasEnquired(
+        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
                 projectId,
                 userInfo.getUserIdentifier());
         return new ProAPISuccessResponse(enquiredDetails);
@@ -47,9 +47,15 @@ public class AlreadyEnquiredController extends BaseController {
     public ProAPIResponse hasEnquired_(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @PathVariable Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = alreadyEnquiredService.hasEnquired(
+        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
                 projectId,
                 userInfo.getUserIdentifier());
         return new ProAPISuccessResponse(enquiredDetails);
+    }
+    
+    @RequestMapping(method = RequestMethod.GET, value = "data/v1/registered")
+    @ResponseBody
+    public ProAPIResponse isRegistered(String email) {
+        return new ProAPISuccessResponse(userService.isRegistered(email));
     }
 }
