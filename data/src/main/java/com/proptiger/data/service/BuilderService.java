@@ -1,8 +1,6 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,7 +25,6 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.BuilderDao;
-import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
@@ -55,7 +52,7 @@ public class BuilderService {
     private ImageEnricher   imageEnricher;
 
     @Autowired
-    private ProjectDao      projectDao;
+    private ProjectService projectService;
 
     public Builder getBuilderDetailsByProjectId(int projectId) {
         Builder builder = builderDao.findByProjectId(projectId);
@@ -80,7 +77,7 @@ public class BuilderService {
         }
 
         Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
-        Map<String, Long> projectStatusCountMap = projectDao.getProjectStatusCount(tempSelector);
+        Map<String, Long> projectStatusCountMap = projectService.getProjectStatusCount(tempSelector);
         builder.setProjectStatusCount(projectStatusCountMap);
 
         return builder;

@@ -1,6 +1,7 @@
 package com.proptiger.data.service;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -63,7 +64,7 @@ public class CityService {
             return null;
         }
         updateAirportInfo(city);
-        updateProjectCount(city);
+        updateProjectCountAndStatusCount(city);
         city.setAvgBHKPrice(localityService.getAvgPricePerUnitAreaBHKWise("cityId", cityId, city.getDominantUnitType()));
         return city;
     }
@@ -80,7 +81,7 @@ public class CityService {
      * Updating total projects in city
      * @param city
      */
-    private void updateProjectCount(City city) {
+    private void updateProjectCountAndStatusCount(City city) {
         Selector selector = new Gson().fromJson(
                 "{\"filters\":{\"and\":[{\"equal\":{\"cityId\":" + city.getId() + "}}]}, \"paging\":{\"start\":0,\"rows\":0}}",
                 Selector.class);
@@ -88,6 +89,8 @@ public class CityService {
         if(response != null){
             city.setProjectCount(response.getTotalCount());
         }
+        Map<String, Long> projectStatusCount = projectService.getProjectStatusCount(selector);
+        city.setProjectStatusCount(projectStatusCount);
     }
 
     /**
