@@ -1,7 +1,5 @@
 package com.proptiger.data.service.b2b;
 
-import java.util.Date;
-
 import javax.persistence.PersistenceException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +10,7 @@ import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationExceptio
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.Catchment;
+import com.proptiger.data.model.b2b.CatchmentProject;
 import com.proptiger.data.repo.b2b.CatchmentDao;
 import com.proptiger.exception.ResourceAlreadyExistException;
 
@@ -22,16 +21,17 @@ public class CatchmentService {
 
     @Transactional
     public Catchment createCatchment(Catchment catchment, UserInfo userInfo) {
-        catchment.setCreatedAt(new Date());
-        catchment.setUpdatedAt(new Date());
         catchment.setUserId(userInfo.getUserIdentifier());
         if (true) {
             try {
-                catchmentDao.findByName(catchment.getName());
+                for (CatchmentProject catchmentProject : catchment.getCatchmentProjects()) {
+                    catchmentProject.setCatchment(catchment);
+                }
                 return catchmentDao.save(catchment);
             }
             catch (PersistenceException e) {
                 if (e.getCause() != null && e.getCause().getCause() instanceof MySQLIntegrityConstraintViolationException) {
+                    e.printStackTrace();
                     throw new ResourceAlreadyExistException(
                             "Catchment name " + catchment.getName() + " already taken",
                             ResponseCodes.CATCHMENTNAME_TAKEN);

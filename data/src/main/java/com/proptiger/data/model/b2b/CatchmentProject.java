@@ -3,25 +3,41 @@ package com.proptiger.data.model.b2b;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
 
+@ResourceMetaInfo
+@JsonInclude(Include.NON_NULL)
+@Entity
+@Table(name = "b2b_catchment_projects")
+@JsonFilter("fieldFilter")
 public class CatchmentProject extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-    
-    @Column(name = "catchment_id")
-    private Integer catchmentId;
-    
+    private Integer   id;
+
+    @ManyToOne
+    @JoinColumn(name = "catchment_id")
+    @JsonIgnore
+    private Catchment catchment;
+
     @Column(name = "project_id")
-    private Integer projectId;
-    
+    private Integer   projectId;
+
     @Column(name = "created_at")
-    private Date createdAt;
+    private Date      createdAt = new Date();
 
     public Integer getId() {
         return id;
@@ -31,12 +47,12 @@ public class CatchmentProject extends BaseModel {
         this.id = id;
     }
 
-    public Integer getCatchmentId() {
-        return catchmentId;
+    public Catchment getCatchment() {
+        return catchment;
     }
 
-    public void setCatchmentId(Integer catchmentId) {
-        this.catchmentId = catchmentId;
+    public void setCatchment(Catchment catchment) {
+        this.catchment = catchment;
     }
 
     public Integer getProjectId() {
