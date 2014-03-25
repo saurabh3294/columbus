@@ -232,7 +232,7 @@
 
 #macro(localityPriceChangeInMonth_type2 $locality)
 	#if($locality.avgPriceRisePercentage)
-		The prices in the ${locality.label} are  
+		The prices in the ${locality.label} have   
 		#if($locality.avgPriceRisePercentage < 0)
 			dropped by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
 		#elseif($locality.avgPriceRisePercentage > 0)
