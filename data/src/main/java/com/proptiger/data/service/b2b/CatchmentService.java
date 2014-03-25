@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
-import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,7 @@ public class CatchmentService {
                 e.printStackTrace();
                 throw new ResourceAlreadyExistException(
                         "Catchment name " + catchment.getName() + " already taken",
-                        ResponseCodes.CATCHMENTNAME_TAKEN);
+                        ResponseCodes.NAME_ALREADY_EXISTS);
             }
             throw new RuntimeException("Unexpected Error");
         }
@@ -64,7 +63,7 @@ public class CatchmentService {
             if (e.getCause() != null && e.getCause().getCause() instanceof MySQLIntegrityConstraintViolationException) {
                 throw new ResourceAlreadyExistException(
                         "Catchment name " + catchment.getName() + " already taken",
-                        ResponseCodes.CATCHMENTNAME_TAKEN);
+                        ResponseCodes.NAME_ALREADY_EXISTS);
             }
         }
         return updatedCatchment;
