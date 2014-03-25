@@ -30,12 +30,19 @@
                    <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                       Hi Team,<br /><br />
 					 A new property has been registered for resale by the user ${sellYourPropertyData.userName} at ${currentDateTime}. The details of the property for resale are as following:<br /><br />
+					 
+					   #if( $sellYourPropertyData.isBroker == true)
+					   	#set( $broker="broker" )
+					   #else
+					   	#set($broker = "owner")
+					   #end 
 					   
 					   <strong>Client Name:</strong> ${sellYourPropertyData.leadUser}<br />
 					   <strong>Client Email:</strong> ${sellYourPropertyData.leadEmail}<br />
 					   <strong>Client Mobile:</strong> ${sellYourPropertyData.leadContact}<br />
+					   <strong>Seller Type:</strong> ${broker}<br />
 					   <br />
-					   #if($sellYourPropertyData.projectName)
+					   #if($sellYourPropertyData.projectName && $sellYourPropertyData.isBroker == false)
 					   	<strong>Property Name:</strong> ${sellYourPropertyData.projectName}<br />
 					   	<strong>Project City:</strong> ${sellYourPropertyData.cityName}<br />
 					   	<strong>Locality:</strong> ${sellYourPropertyData.locality}<br />
