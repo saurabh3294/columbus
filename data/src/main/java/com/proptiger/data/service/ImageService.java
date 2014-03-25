@@ -63,8 +63,8 @@ public class ImageService {
     @Autowired
     private Caching             caching;
 
-    private TaskExecutor taskExecutor;
-    
+    private TaskExecutor        taskExecutor;
+
     @PostConstruct
     private void init() {
         ImageUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
@@ -124,12 +124,17 @@ public class ImageService {
 
     /**
      * Creating more resolution for image file and uploading that to S3
+     * 
      * @param image
      * @param waterMark
      * @param format
      * @param s3
      */
-    private void createAndUploadMoreResolutions(final Image image, final File waterMark, final String format, final AmazonS3 s3) {
+    private void createAndUploadMoreResolutions(
+            final Image image,
+            final File waterMark,
+            final String format,
+            final AmazonS3 s3) {
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -144,7 +149,7 @@ public class ImageService {
                         resizedFile.delete();
                     }
                     catch (Exception e) {
-                        logger.error("Could not resize image for resolution name {}",imageResolution.getLabel(), e);
+                        logger.error("Could not resize image for resolution name {}", imageResolution.getLabel(), e);
                     }
                 }
                 waterMark.delete();
@@ -275,24 +280,22 @@ public class ImageService {
 
     public void deleteImageInCache(long id) {
         Image image = getImage(id);
-        
+
         caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
     }
 
     public String getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
         return object.getText() + imageTypeStr + objectId;
     }
-    
+
     public void update(Image image) {
         caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
         imageDao.save(image);
     }
-    
-    private String getImageCacheKeyFromImageObject(Image image){
+
+    private String getImageCacheKeyFromImageObject(Image image) {
         DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
-        
-        String key = getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
-        System.out.println(key);
-        return key;
+
+        return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
     }
 }

@@ -3,8 +3,6 @@ package com.proptiger.data.mvc;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import javax.ws.rs.core.Application;
-
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -17,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.google.gson.Gson;
-import com.proptiger.data.init.NullAwareBeanUtilsBean;
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
@@ -36,8 +33,8 @@ import com.proptiger.data.service.ImageService;
 @RequestMapping(value = "data/v1/entity/image")
 public class ImageController extends BaseController {
     @Autowired
-    private ImageService imageService;
-    
+    private ImageService       imageService;
+
     @Autowired
     private ApplicationContext applicationContext;
 
@@ -68,9 +65,10 @@ public class ImageController extends BaseController {
         DomainObject domainObject = DomainObject.valueOf(objectType);
         int domainObjectValueStart = domainObject.getStartId();
         long normalizedObjectId = objectId;
-        /*if (objectId > domainObjectValueStart) {
-            normalizedObjectId = objectId - domainObjectValueStart;
-        }*/
+        /*
+         * if (objectId > domainObjectValueStart) { normalizedObjectId =
+         * objectId - domainObjectValueStart; }
+         */
 
         Image img = imageService.uploadImage(
                 domainObject,
@@ -90,38 +88,35 @@ public class ImageController extends BaseController {
             @RequestParam(required = false, value = "image") MultipartFile file,
             @ModelAttribute Image imageParams) {
         Image image = imageService.getImage(id);
-        System.out.println(new Gson().toJson(image));
         Object obj = null;
 
         if (file == null || file.isEmpty()) {
             try {
-                BeanUtilsBean beanUtilsBean = new NullAwareBeanUtilsBean();
+                BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
                 beanUtilsBean.copyProperties(image, imageParams);
             }
             catch (IllegalAccessException | InvocationTargetException e) {
             }
-            System.out.println(new Gson().toJson(image));
             imageService.update(image);
             obj = new ProAPISuccessResponse(super.filterFields(image, null));
         }
         else {
             try {
                 image.setId(0);
-                BeanUtilsBean beanUtilsBean = new NullAwareBeanUtilsBean();
+                BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
                 beanUtilsBean.copyProperties(imageParams, image);
                 image.setId(id);
             }
             catch (IllegalAccessException | InvocationTargetException e) {
             }
-            System.out.println("called.");
-            obj = applicationContext.getBean(ImageController.class)
-                    .putImages(
-                            image.getImageTypeObj().getObjectType().getType(),
-                            image.getObjectId(),
-                            file,
-                            !image.getWaterMarkHash().equals(image.getOriginalHash()),
-                            image.getImageTypeObj().getType(),
-                            imageParams);
+
+            obj = applicationContext.getBean(ImageController.class).putImages(
+                    image.getImageTypeObj().getObjectType().getType(),
+                    image.getObjectId(),
+                    file,
+                    !image.getWaterMarkHash().equals(image.getOriginalHash()),
+                    image.getImageTypeObj().getType(),
+                    imageParams);
 
             imageService.deleteImage(id);
         }
