@@ -32,7 +32,8 @@ public enum MailTemplateDetail {
             "mailtemplate/comment_post_email_template_subject.vm"),
 
     PROJECT_PROPERTY_ERROR_POST("projectPropertyErrorData", "mailtemplate/report_error_template.vm",
-            "mailtemplate/report_error_template_subject.vm");
+            "mailtemplate/report_error_template_subject.vm"), SELL_YOUR_PROPERTY("sellYourPropertyData",
+            "mailtemplate/sell-your-property.vm", "mailtemplate/sell-your-property-subject.vm");
 
     private MailTemplateDetail(String key, String filename, String subject) {
         this.key = key;

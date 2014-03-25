@@ -6,20 +6,20 @@ import javax.persistence.EntityManagerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.proptiger.data.model.b2b.Catchment;
+import com.proptiger.data.model.b2b.Graph;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
 
-public class CatchmentDaoImpl {
+public class GraphDaoImpl {
     @Autowired
-    CatchmentDao                catchmentDao;
+    GraphDao                       graphDao;
 
     @Autowired
     public EntityManagerFactory emf;
 
-    public List<Catchment> getFilteredCatchments(FIQLSelector fiqlSelector) {
-        AbstractQueryBuilder<Catchment> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Catchment.class);
+    public List<Graph> getFilteredGraphs(FIQLSelector fiqlSelector) {
+        AbstractQueryBuilder<Graph> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Graph.class);
         builder.buildQuery(fiqlSelector);
         return builder.retrieveResults();
     }
