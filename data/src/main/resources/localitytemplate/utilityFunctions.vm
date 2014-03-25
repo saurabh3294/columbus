@@ -216,11 +216,11 @@
 	#if($locality.avgPriceRisePercentage && $velocityUtility.round($locality.avgPriceRisePercentage) != 0)
 		The prices of #listOfStringToSentence($unitTypesStringList) in ${locality.label} have 
 		#if($locality.avgPriceRisePercentage < 0)	
-			DECRASED by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
+			dropped by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
 		#elseif($locality.avgPriceRisePercentage > 0)
-			INCREASED by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
+			risen by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
 		#else
-			STAYED STABLE, 
+			stayed stable, 
 		#end
 		in past ${locality.avgPriceRiseMonths} months 
 		#if(${locality.minPrice} && ${locality.maxPrice})
@@ -234,11 +234,11 @@
 	#if($locality.avgPriceRisePercentage)
 		The prices in the ${locality.label} are  
 		#if($locality.avgPriceRisePercentage < 0)
-			DECRASED by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
+			dropped by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))%  
 		#elseif($locality.avgPriceRisePercentage > 0)
-			INCREASED by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))% 
+			risen by $velocityUtility.round($velocityUtility.abs($locality.avgPriceRisePercentage))% 
 		#else
-			STAYED STABLE, 
+			stayed stable, 
 		#end
 		in past ${locality.avgPriceRiseMonths} months at average price of $numberFormatter.format($locality.avgPricePerUnitArea) per SqFt.   
 	#end

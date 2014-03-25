@@ -19,9 +19,11 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetail;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityReviewDao;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -250,5 +252,17 @@ public class LocalityReviewService {
      */
     private void validateReviewComment(LocalityReviewComments reviewComment) {
 
+    }
+    
+    /**
+     * Get locality reviews of city for given selector
+     * @param cityId
+     * @param selector
+     * @return
+     */
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReviewOfCity(Integer cityId, FIQLSelector selector) {
+        PaginatedResponse<List<LocalityReviewComments>> reviews = new PaginatedResponse<>();
+        reviews = localityReviewDao.getLocalityReview(cityId, selector);
+        return reviews;
     }
 }
