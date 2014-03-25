@@ -6,6 +6,8 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.proptiger.data.model.b2b.Catchment;
 
-public interface CatchmentDao extends PagingAndSortingRepository<Catchment, Integer> {
+public interface CatchmentDao extends PagingAndSortingRepository<Catchment, Integer>, CatchmentCustomDao {
     public List<Catchment> findByName(String name);
+
+    public List<Catchment> findByIdInAndUserId(Integer[] ids, Integer userId);
 }

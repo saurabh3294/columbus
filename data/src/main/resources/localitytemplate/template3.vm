@@ -1,5 +1,5 @@
 #parse("./localitytemplate/utilityFunctions.vm")
-${locality.label} is one of the top most locality in ${locality.suburb.city.label} located in suburb ${locality.suburb.label}. 
+${locality.label} is one of the top most locality in ${locality.suburb.city.label} located in suburb ${locality.suburb.label}.  
 #if($nearByLocalities)
 	#set($nearByLocalityNameList = [])
 	#populateNearByLocalityNames
@@ -47,7 +47,7 @@ ${locality.label} is one of the top most locality in ${locality.suburb.city.labe
 	#end	
 #end
 #if($minSize > 0 && $maxSize > 0  && $maxSize > $minSize)
-	Property in ${locality.label} has built up areas ranging from $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft. 
+	Property in ${locality.label} has built up areas ranging from $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft.  
 #end
 Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringToSentence($unitNamesStringList) configurations. 	
 #if($unitTypeCountMap)
@@ -58,14 +58,14 @@ Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringT
 		#set($temp = $unitTypeAndCountList.add($str))
 	#end
 	#if($unitTypeAndCountList)
-		${locality.label} has #listOfStringToSentence($unitTypeAndCountList) projects. 
+		${locality.label} has #listOfStringToSentence($unitTypeAndCountList) projects.  
 	#end
 #end
 #localityPriceChangeInMonth_type1($locality)
 #if($locality.amenityTypeCount)
 	#set($schoolsList = [])
 	#set($hospitalsList = [])
-	${locality.label} has many well known schools and Hospitals. 
+	${locality.label} has many well known schools and Hospitals.  
 	#foreach( $amenity in $amenities )
 		#if($amenity.localityAmenityTypes.name=="school")
 			#set($temp = $schoolsList.add($amenity.name))
@@ -75,15 +75,15 @@ Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringT
 		#end
 	#end
 	#if($schoolsList)
-		Popular schools in ${locality.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList). 
+		Popular schools in ${locality.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList).  
 	#end
 	#if($hospitalsList)
-		Popular hospitals in ${locality.label} #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList). 
+		Popular hospitals in ${locality.label} #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList).  
 	#end
 #end
 
 #if($unitTypesStringList)
-	Find popular #listOfStringToSentence($unitTypesStringList) for sale in ${locality.label} at attractive rates.
+	Find popular #listOfStringToSentence($unitTypesStringList) for sale in ${locality.label} at attractive rates.  
 #end
 
 #if($locality.projectStatusCount)

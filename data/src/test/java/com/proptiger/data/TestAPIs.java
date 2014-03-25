@@ -32,6 +32,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriTemplate;
 import org.testng.Assert;
+import org.testng.Reporter;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import static org.testng.Assert.assertEquals;
@@ -73,6 +74,7 @@ public class TestAPIs {
      */
 
     private Map<String, List<String>> apiKeysValuesMap;
+    private Map<String, String> populateMapforPostData;
 
     Set<String>                       exclusionList      = new HashSet<String>();
 
@@ -80,11 +82,12 @@ public class TestAPIs {
     public void init() throws ConfigurationException {
         logger.debug("Before start of test method");
         populateKeysValuesForAPI();
-
+        populateMapforPostData();
+        
         exclusionList.add("data/apilist");
         exclusionList.add("app/v1/locality?");
         exclusionList.add("data/v1/entity/broker-agent");
-
+        exclusionList.add("sell-property");
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -104,6 +107,13 @@ public class TestAPIs {
                 // in each case from hasError method
             }
         });
+    }
+
+    private void populateMapforPostData() {
+        populateMapforPostData=new HashMap<String,String>();
+        populateMapforPostData.put((apiKeysValuesMap.get("BASE_URL").get(0)+"/data/v1/entity/property/{propertyId}/report-error"), "report_error");
+        populateMapforPostData.put(apiKeysValuesMap.get("BASE_URL").get(0)+"/data/v1/entity/project/{projectId}/report-error", "report_error");
+        populateMapforPostData.put(apiKeysValuesMap.get("BASE_URL").get(0)+"/data/v1/entity/locality/{localityId}/rating","post_rating");
     }
 
     /**
@@ -161,7 +171,7 @@ public class TestAPIs {
                     skippedUrl++;
                     continue;
                 }
-
+                
                 /*
                  * Submitting API response to mutiple threads
                  */
@@ -189,16 +199,16 @@ public class TestAPIs {
                 }
             }
             executors.shutdown();
-            logger.debug("Total APIs tested    :" + totalUrl);
-            logger.debug("Distinct successful APIs      :" + successUrl);
-            logger.debug("Distinct failed APIs       :" + failedUrl);
-            logger.debug("Skipped APIs       :" + skippedUrl);
+            Reporter.log("Total APIs tested    :" + totalUrl);
+            Reporter.log("Distinct successful APIs      :" + successUrl);
+            Reporter.log("Distinct failed APIs       :" + failedUrl);
+            Reporter.log("Skipped APIs       :" + skippedUrl);
             logger.debug("No. of successful GET APIs   :" + successGETUrlList.size());
             logger.debug("No. of successful POST APIs   :" + successPOSTUrlList.size());
             logger.debug("No. of successful PUT APIs   :" + successPUTUrlList.size());
-            logger.debug("No. of failed GET APIs       :" + failedGETUrlList.size());
-            logger.debug("No. of failed POST APIs       :" + failedPOSTUrlList.size());
-            logger.debug("No. of failed PUT APIs       :" + failedPUTUrlList.size());
+            Reporter.log("No. of failed GET APIs       :" + failedGETUrlList.size());
+            Reporter.log("No. of failed POST APIs       :" + failedPOSTUrlList.size());
+            Reporter.log("No. of failed PUT APIs       :" + failedPUTUrlList.size());
             logger.debug("List of successful GET APIs :");
             for (String element : successGETUrlList) {
                 logger.debug(element);
@@ -211,26 +221,26 @@ public class TestAPIs {
             for (String element : successPUTUrlList) {
                 logger.debug(element);
             }
-            logger.debug("List of failed GET APIs :");
+            Reporter.log("List of failed GET APIs :");
             for (Map.Entry<String, String> entry : failedGETUrlList.entrySet()) {
-                logger.debug("\n " + entry.getKey());
-                logger.debug(" Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
             }
-            logger.debug("List of failed POST APIs :");
+            Reporter.log("List of failed POST APIs :");
             for (Map.Entry<String, String> entry : failedPOSTUrlList.entrySet()) {
-                logger.debug("\n " + entry.getKey());
-                logger.debug(" Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
             }
             logger.debug("List of failed PUT APIs :");
             for (Map.Entry<String, String> entry : failedPUTUrlList.entrySet()) {
-                logger.debug("\n " + entry.getKey());
-                logger.debug(" Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
             }
         }
-        else {
-            Assert.assertEquals(true, true, "API list of EndPointController is not open");
-            // "API not working fine")
-        }
+        int numberOfAPIFailed=failedGETUrlList.size()+failedPOSTUrlList.size()+failedPUTUrlList.size();
+         if(numberOfAPIFailed>0){
+            Assert.assertEquals(true, true, "API has faced some failure");
+         }
     }
 
     private boolean apiToBeExcluded(String apiUrl) {
@@ -272,7 +282,7 @@ public class TestAPIs {
     private void urlWithoutRequestParams(String apiUrl, String method) {
         String apiResponse = "";
         if (apiUrl.contains("app/v1/amenity?")) {
-            apiUrl = "http://localhost:8080/dal/app/v1/amenity?city-id=" + apiKeysValuesMap.get("city-id").get(0);
+            apiUrl = apiUrl + "city-id=" + apiKeysValuesMap.get("city-id").get(0);
         }
         if (apiUrl.contains("trend")) {
             apiUrl = apiUrl + apiKeysValuesMap.get("trend").get(0);
@@ -307,6 +317,8 @@ public class TestAPIs {
         String apiResponse = "";
         boolean responseCode;
         boolean isUrlSuccessfulForAllValues = true;
+        String VariableFromPostMap=populateMapforPostData.get(apiUrl);
+        
         if (apiUrl.contains("params")) {
             apiUrl = urlContainParams(apiUrl);
         }
@@ -336,16 +348,16 @@ public class TestAPIs {
                 responseCode = addApiResponseCode(apiResponse, finalUrl, method);
             }
             else if (method == "POST") {
-                String post_rating = apiKeysValuesMap.get("post_rating").get(0);
+                String dataToPost = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<String> entity = new HttpEntity<String>(post_rating, headers);
+                HttpEntity<String> entity = new HttpEntity<String>(dataToPost, headers);
                 String postResponse = restTemplate.postForObject(expanded, entity, String.class);
                 logger.debug("postReRsponse    " + postResponse);
                 responseCode = addApiResponseCode(postResponse, finalUrl, method);
             }
             else if (method == "PUT") {
-                String post_rating = apiKeysValuesMap.get("post_rating").get(0);
+                String post_rating = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 HttpEntity<String> entity = new HttpEntity<String>(post_rating, headers);
@@ -468,7 +480,7 @@ public class TestAPIs {
 
     /**
      * @param apiResponse
-     *            fetch and return statusCode from response of a API hit
+     * fetch and return statusCode from response of a API hit
      * @param finalUrl
      * @param method
      * @return

@@ -1,5 +1,5 @@
 #parse("./localitytemplate/utilityFunctions.vm")
- In ${locality.suburb.city.label}, ${locality.label}  is one of the popular localities in suburb ${locality.suburb.label}. 	
+ In ${locality.suburb.city.label}, ${locality.label}  is one of the popular localities in suburb ${locality.suburb.label}.  	
  #if($nearByLocalities)
 	#set($nearByLocalityNameList = [])
 	#populateNearByLocalityNames
@@ -47,14 +47,14 @@
 	#end
 #end
 #if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
-	 The property in ${locality.label} are build in areas ranging $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft. 
-	with bedroom configurations of #listOfStringToSentence($unitNamesStringList). 
+	 The property in ${locality.label} are build in areas ranging $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft.  
+	with bedroom configurations of #listOfStringToSentence($unitNamesStringList).  
 #end
 #localityPriceChangeInMonth_type2($locality)
 #if($locality.amenityTypeCount)
 	#set($schoolsList = [])
 	#set($hospitalsList = [])
-	 ${locality.label} has many well known schools and Hospitals. 
+	 ${locality.label} has many well known schools and Hospitals.  
 	#foreach( $amenity in $amenities )
 		#if($amenity.localityAmenityTypes.name=="school")
 			#set($temp = $schoolsList.add($amenity.name))
@@ -73,15 +73,15 @@
 #end
 
 #if($lowestPricePropery && $lowestPricePropery.budget)
-	Property starting at #makePriceUserReadable($lowestPricePropery.budget) are available in ${locality.label} on Proptiger. 
+	Property starting at #makePriceUserReadable($lowestPricePropery.budget) are available in ${locality.label} on Proptiger.  
 #end
 #if($locality.projectStatusCount)
 	#projectByStatus($locality)
 #end
 #if($locality.avgRatingsByCategory && $locality.avgRatingsByCategory.overallRating)
-	#localityAverageRating($locality).
+	#localityAverageRating($locality). 
 #end 
 #if($locality.totalReviews && $locality.totalReviews > 0)
-	We have $locality.totalReviews user reviews which can give you more ideas about ${locality.label}.  
+	We have $locality.totalReviews user reviews which can give you more ideas about ${locality.label}.   
 #end
 #localityProjectDescWithLowestAndHighestPrice($locality)
