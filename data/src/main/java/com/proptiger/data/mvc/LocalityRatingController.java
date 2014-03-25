@@ -54,6 +54,7 @@ public class LocalityRatingController extends BaseController {
      */
     @RequestMapping(value = { "data/v1/entity/user/locality/{localityId}/rating" }, method = RequestMethod.GET)
     @ResponseBody
+    @DisableCaching
     public ProAPIResponse getLocalityRatingByUser(
             @PathVariable Integer localityId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {

@@ -96,6 +96,7 @@ public class Constants {
         public static final String LOCALITY_RATING                       = "loc-rating";
         public static final String LOCALITY_RATING_AVG_BY_CATEGORY       = "loc-rating-avg-ctg";
         public static final String LOCALITY_RATING_USERS_COUNT_BY_RATING = "loc-rating-user-cnt";
+        public static final String LOCALITY_RATING_USERS                 = "loc-rating-user";
 
         public static final String AGENT                                 = "agent";
         public static final String AGENTS_FOR_PROJECT                    = "agents-for-project";
