@@ -275,16 +275,24 @@ public class ImageService {
 
     public void deleteImageInCache(long id) {
         Image image = getImage(id);
-        DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
-        String cacheKey = getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
-        caching.deleteResponseFromCache(cacheKey);
+        
+        caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
     }
 
     public String getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
         return object.getText() + imageTypeStr + objectId;
     }
-
+    
     public void update(Image image) {
+        caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
         imageDao.save(image);
+    }
+    
+    private String getImageCacheKeyFromImageObject(Image image){
+        DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
+        
+        String key = getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
+        System.out.println(key);
+        return key;
     }
 }

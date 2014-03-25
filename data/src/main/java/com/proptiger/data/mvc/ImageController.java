@@ -3,8 +3,11 @@ package com.proptiger.data.mvc;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import javax.ws.rs.core.Application;
+
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.gson.Gson;
 import com.proptiger.data.init.NullAwareBeanUtilsBean;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.enums.DomainObject;
@@ -33,6 +37,9 @@ import com.proptiger.data.service.ImageService;
 public class ImageController extends BaseController {
     @Autowired
     private ImageService imageService;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @RequestMapping
     public @ResponseBody
@@ -83,7 +90,7 @@ public class ImageController extends BaseController {
             @RequestParam(required = false, value = "image") MultipartFile file,
             @ModelAttribute Image imageParams) {
         Image image = imageService.getImage(id);
-
+        System.out.println(new Gson().toJson(image));
         Object obj = null;
 
         if (file == null || file.isEmpty()) {
@@ -93,6 +100,7 @@ public class ImageController extends BaseController {
             }
             catch (IllegalAccessException | InvocationTargetException e) {
             }
+            System.out.println(new Gson().toJson(image));
             imageService.update(image);
             obj = new ProAPISuccessResponse(super.filterFields(image, null));
         }
@@ -105,8 +113,8 @@ public class ImageController extends BaseController {
             }
             catch (IllegalAccessException | InvocationTargetException e) {
             }
-
-            obj = this
+            System.out.println("called.");
+            obj = applicationContext.getBean(ImageController.class)
                     .putImages(
                             image.getImageTypeObj().getObjectType().getType(),
                             image.getObjectId(),
