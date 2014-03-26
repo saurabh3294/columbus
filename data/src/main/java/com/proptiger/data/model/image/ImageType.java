@@ -37,6 +37,9 @@ public class ImageType extends BaseModel {
     @Column(name = "type")
     private String            type;
 
+    @Column(name = "priority")
+    private int               priority;
+
     /**
      * @return the id
      */
@@ -95,6 +98,14 @@ public class ImageType extends BaseModel {
      */
     public void setType(String type) {
         this.type = type;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
 }
