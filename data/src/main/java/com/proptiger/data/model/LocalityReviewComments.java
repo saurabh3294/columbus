@@ -92,7 +92,7 @@ public class LocalityReviewComments extends BaseModel {
     @Column(name = "STATUS")
     private String            status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER )
     @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
     private ForumUser         forumUser;
 
