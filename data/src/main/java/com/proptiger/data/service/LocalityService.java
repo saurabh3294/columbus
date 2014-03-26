@@ -36,6 +36,7 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.Operator;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -939,5 +940,9 @@ public class LocalityService {
                 + "]}}]}}";
 
         return getLocalities(new Gson().fromJson(json, Selector.class));
+    }
+    
+    public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector){
+       return localityDao.getLocalities(selector);
     }
 }

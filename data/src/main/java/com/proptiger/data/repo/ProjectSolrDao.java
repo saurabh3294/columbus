@@ -255,7 +255,7 @@ public class ProjectSolrDao {
 
         solrQuery.add("facet", "true");
         solrQuery.add("facet.field", "PROJECT_STATUS");
-        SolrQueryBuilder<Project> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, Project.class);
+        SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
         solrQueryBuilder.buildQuery(selector, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         FacetField facetField = queryResponse.getFacetField("PROJECT_STATUS");
