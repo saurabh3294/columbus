@@ -5,8 +5,6 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.google.gson.Gson;
-
 public class FIQLSelector implements Cloneable, Serializable {
     private static final long serialVersionUID = 1L;
     private String            fields;
@@ -94,24 +92,34 @@ public class FIQLSelector implements Cloneable, Serializable {
         return this;
     }
 
-    public FIQLSelector addSortASC(String fieldName){
-        if(fieldName != null){
-            if(this.sort == null || this.sort.trim().isEmpty()){
+    public FIQLSelector addGroupByAtBeginning(String groupBy) {
+        if (group == null) {
+            group = groupBy;
+        }
+        else {
+            group = groupBy + "," + group;
+        }
+        return this;
+    }
+
+    public FIQLSelector addSortASC(String fieldName) {
+        if (fieldName != null) {
+            if (this.sort == null || this.sort.trim().isEmpty()) {
                 this.sort = fieldName;
             }
-            else{
+            else {
                 this.sort += "," + fieldName;
             }
         }
         return this;
     }
-    
-    public FIQLSelector addSortDESC(String fieldName){
-        if(fieldName != null){
-            if(this.sort == null || this.sort.trim().isEmpty()){
-                this.sort = "-"+fieldName;
+
+    public FIQLSelector addSortDESC(String fieldName) {
+        if (fieldName != null) {
+            if (this.sort == null || this.sort.trim().isEmpty()) {
+                this.sort = "-" + fieldName;
             }
-            else{
+            else {
                 this.sort += ",-" + fieldName;
             }
         }
