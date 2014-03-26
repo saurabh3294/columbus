@@ -33,10 +33,18 @@ public class CatchmentController extends BaseController {
 
     @RequestMapping(value = "/data/v1/entity/user/catchment", method = RequestMethod.GET)
     public @ResponseBody
-    ProAPIResponse updateCatchment(
+    ProAPIResponse getCatchment(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @ModelAttribute FIQLSelector fiqlSelector) {
         return new ProAPISuccessResponse(catchmentService.getCatchment(fiqlSelector
                 .addAndConditionToFilter("userId==" + userInfo.getUserIdentifier())));
+    }
+    
+    @RequestMapping(value = "/data/v1/entity/user/catchment", method = RequestMethod.PUT)
+    public @ResponseBody
+    ProAPIResponse updateCatchment(
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @RequestBody Catchment catchment) {
+        return new ProAPISuccessResponse(catchmentService.updateCatchment(catchment, userInfo));
     }
 }

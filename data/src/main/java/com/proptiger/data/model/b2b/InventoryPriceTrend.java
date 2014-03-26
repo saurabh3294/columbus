@@ -100,9 +100,6 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "average_size")
     private Integer size;
 
-    @Column(name = "all_size")
-    private String  allSize;
-
     @Column(name = "average_total_price")
     private Long    budget;
 
@@ -351,14 +348,6 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setSize(Integer size) {
         this.size = size;
-    }
-
-    public String getAllSize() {
-        return allSize;
-    }
-
-    public void setAllSize(String allSize) {
-        this.allSize = allSize;
     }
 
     public Integer getSupply() {

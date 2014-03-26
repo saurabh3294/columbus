@@ -48,24 +48,16 @@ public class CatchmentService {
     @Transactional
     public Catchment updateCatchment(Catchment catchment, UserInfo userInfo) {
         catchment.setUserId(userInfo.getUserIdentifier());
-        if (true) {
-            try {
-                for (CatchmentProject catchmentProject : catchment.getCatchmentProjects()) {
-                    catchmentProject.setCatchment(catchment);
-                }
-                return catchmentDao.save(catchment);
+        Catchment savedCatchment = catchmentDao.findOne(catchment.getId());
+//        if(savedCatchment.getUserId().equals(catchment.getUserId())){
+            savedCatchment = catchment;
+            for (CatchmentProject catchmentProject : savedCatchment.getCatchmentProjects()) {
+                catchmentProject.setCatchment(savedCatchment);
             }
-            catch (PersistenceException e) {
-                if (e.getCause() != null && e.getCause().getCause() instanceof MySQLIntegrityConstraintViolationException) {
-                    e.printStackTrace();
-                    throw new ResourceAlreadyExistException(
-                            "Catchment name " + catchment.getName() + " already taken",
-                            ResponseCodes.CATCHMENTNAME_TAKEN);
-                }
-                throw new RuntimeException("Error");
-            }
-        }
-        throw new IllegalArgumentException("Invalid Input Provided");
+            savedCatchment.getCatchmentProjects().clear();
+            catchmentDao.save(savedCatchment);
+//        }
+        return savedCatchment;
     }
 
     public List<Catchment> getCatchment(FIQLSelector fiqlSelector) {
