@@ -641,6 +641,10 @@ public class LocalityService {
         notEqualFilter.put("localityId", localityId);
         searchType.put(Operator.notEqual.name(), notEqualFilter);
 
+        Map<String, Object> equalFilter = new HashMap<>();
+        equalFilter.put("hasGeo", 1);
+        searchType.put(Operator.equal.name(), equalFilter);
+        
         list.add(searchType);
         filter.put(Operator.and.name(), list);
         selector.setFilters(filter);
