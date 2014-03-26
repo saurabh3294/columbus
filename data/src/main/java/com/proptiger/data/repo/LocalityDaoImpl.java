@@ -4,7 +4,6 @@
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,6 +25,7 @@ import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -253,5 +253,26 @@ public class LocalityDaoImpl {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
         return getPaginatedResponse(queryResponse.getBeans(SolrResult.class), queryResponse);
+    }
+    
+    /**
+     * Get list of locality with total number of localities for given 
+     * @param selector
+     * @return
+     */
+    public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector){
+        SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.LOCALITY);
+        SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
+        queryBuilder.buildQuery(selector);
+        QueryResponse response = solrDao.executeQuery(solrQuery);
+        
+        List<Locality> localities = new ArrayList<>();
+        for (SolrResult r : response.getBeans(SolrResult.class)) {
+            localities.add(r.getProject().getLocality());
+        }
+        PaginatedResponse<List<Locality>> paginatedResponse = new PaginatedResponse<List<Locality>>();
+        paginatedResponse.setResults(localities);
+        paginatedResponse.setTotalCount(response.getResults().getNumFound());
+        return paginatedResponse;
     }
 }
