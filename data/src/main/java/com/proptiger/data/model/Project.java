@@ -451,9 +451,11 @@ public class Project extends BaseModel {
     @Field("PROJECT_AVG_PRICE_PER_UNIT_AREA")
     private Double                  avgPricePerUnitArea;
 
+    @Transient
     @Field("MIN_RESALE_OR_PRIMARY_PRICE")
     private Double                  minResaleOrPrimaryPrice;
 
+    @Transient
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double                  maxResaleOrPrimaryPrice;
 
