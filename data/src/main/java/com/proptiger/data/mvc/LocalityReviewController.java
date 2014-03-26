@@ -141,8 +141,19 @@ public class LocalityReviewController extends BaseController {
     
     @RequestMapping(value = "data/v1/entity/city/{cityId}/locality-review", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getLocalityReviewsOfCity(@PathVariable Integer cityId, @ModelAttribute FIQLSelector selector){
-        PaginatedResponse<List<LocalityReviewComments>> reviewsOfCity = localityReviewService.getLocalityReviewOfCity(cityId, selector);
+    public ProAPIResponse getLocalityReviewsOfCity(@PathVariable Integer cityId, @ModelAttribute FIQLSelector selector) {
+        PaginatedResponse<List<LocalityReviewComments>> reviewsOfCity = localityReviewService.getLocalityReviewOfCity(
+                cityId,
+                selector);
+        return new ProAPISuccessCountResponse(reviewsOfCity.getResults(), reviewsOfCity.getTotalCount());
+    }
+    
+    @RequestMapping(value = "data/v1/entity/suburb/{suburbId}/locality-review", method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getLocalityReviewsOfSuburb(@PathVariable Integer suburbId, @ModelAttribute FIQLSelector selector) {
+        PaginatedResponse<List<LocalityReviewComments>> reviewsOfCity = localityReviewService.getLocalityReviewOfSuburb(
+                suburbId,
+                selector);
         return new ProAPISuccessCountResponse(reviewsOfCity.getResults(), reviewsOfCity.getTotalCount());
     }
 }
