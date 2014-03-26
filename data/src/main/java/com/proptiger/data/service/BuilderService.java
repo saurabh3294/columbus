@@ -54,13 +54,6 @@ public class BuilderService {
     @Autowired
     private ProjectService projectService;
 
-    public Builder getBuilderDetailsByProjectId(int projectId) {
-        Builder builder = builderDao.findByProjectId(projectId);
-        imageEnricher.setBuilderImages(builder);
-
-        return builder;
-    }
-
     /**
      * This methods get builder info with some derived information about total
      * projects of this builder and total ongoing projects etc.
@@ -149,7 +142,6 @@ public class BuilderService {
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
-        imageEnricher.setBuildersImages(builders);
         return builders;
     }
 
