@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +15,10 @@ import org.springframework.stereotype.Repository;
 
 import com.google.gson.Gson;
 import com.proptiger.data.model.Builder;
-import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
-import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.SortOrder;
 
 /**
  * @author mukand

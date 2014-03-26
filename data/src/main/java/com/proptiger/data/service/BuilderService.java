@@ -1,8 +1,6 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,13 +54,6 @@ public class BuilderService {
 
     @Autowired
     private ProjectDao      projectDao;
-
-    public Builder getBuilderDetailsByProjectId(int projectId) {
-        Builder builder = builderDao.findByProjectId(projectId);
-        imageEnricher.setBuilderImages(builder);
-
-        return builder;
-    }
 
     /**
      * This methods get builder info with some derived information about total
@@ -152,7 +143,6 @@ public class BuilderService {
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
-        imageEnricher.setBuildersImages(builders);
         return builders;
     }
 
