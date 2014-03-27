@@ -36,8 +36,6 @@ public class WeightedAverageFunction implements SQLFunction {
                 + arg1.get(1)
                 + ")/sum(if("
                 + arg1.get(0)
-                + " is null or "
-                + arg1.get(1)
                 + " is null, 0, "
                 + arg1.get(1)
                 + "))";
