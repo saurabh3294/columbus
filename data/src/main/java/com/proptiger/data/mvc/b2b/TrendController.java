@@ -77,8 +77,8 @@ public class TrendController extends BaseController {
             for (String key : serviceResponse.keySet()) {
                 response.addAll(serviceResponse.get(key));
             }
+            selector.addGroupByAtBeginning("rangeValue");
         }
-        selector.addGroupByAtBeginning("rangeValue");
         return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(response), selector);
     }
 
