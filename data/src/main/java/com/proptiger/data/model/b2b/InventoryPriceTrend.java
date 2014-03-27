@@ -441,8 +441,7 @@ public class InventoryPriceTrend extends BaseModel {
                 }
             }
             catch (IllegalArgumentException | IllegalAccessException e) {
-                e.printStackTrace();
-                throw new RuntimeException();
+                throw new RuntimeException(e);
             }
         }
         map.remove("extraAttributes");

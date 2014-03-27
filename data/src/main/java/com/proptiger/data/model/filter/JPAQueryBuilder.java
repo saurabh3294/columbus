@@ -181,9 +181,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                     fieldNames[1] = StringUtils.uncapitalize(fieldNames[1]);
                     Expression<Double> field1 = root.get(fieldNames[0]);
                     Expression<Double> field2 = root.get(fieldNames[1]);
-                    expression = criteriaBuilder.quot(
-                            criteriaBuilder.sum(criteriaBuilder.prod(field1, field2)),
-                            criteriaBuilder.sum(field2));
+                    expression = criteriaBuilder.function("weighted_average", Double.class, field1, field2);
                     break;
                 case median:
                     Expression<Double> medianExpression = root.get(actualFieldName);
