@@ -281,7 +281,7 @@ public class ImageService {
     public void deleteImageInCache(long id) {
         Image image = getImage(id);
 
-        caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
+        caching.deleteMultipleResponseFromCache(getImageCacheKeyFromImageObject(image));
     }
 
     public String getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
@@ -289,13 +289,17 @@ public class ImageService {
     }
 
     public void update(Image image) {
-        caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
+        caching.deleteMultipleResponseFromCache(getImageCacheKeyFromImageObject(image));
         imageDao.save(image);
     }
 
-    private String getImageCacheKeyFromImageObject(Image image) {
+    private String[] getImageCacheKeyFromImageObject(Image image) {
         DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
-
-        return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
+        
+        String keys[] = new String[2];
+        keys[0] = getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
+        keys[0] = getImageCacheKey(domainObject, "null", image.getObjectId());
+        
+        return keys;
     }
 }
