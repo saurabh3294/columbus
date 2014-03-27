@@ -16,12 +16,14 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.LocalityReviewService;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -135,5 +137,23 @@ public class LocalityReviewController extends BaseController {
                 userInfo.getUserIdentifier(),
                 selector);
         return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+    }
+    
+    @RequestMapping(value = "data/v1/entity/city/{cityId}/locality-review", method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getLocalityReviewsOfCity(@PathVariable Integer cityId, @ModelAttribute FIQLSelector selector) {
+        PaginatedResponse<List<LocalityReviewComments>> reviewsOfCity = localityReviewService.getLocalityReviewOfCity(
+                cityId,
+                selector);
+        return new ProAPISuccessCountResponse(reviewsOfCity.getResults(), reviewsOfCity.getTotalCount());
+    }
+    
+    @RequestMapping(value = "data/v1/entity/suburb/{suburbId}/locality-review", method = RequestMethod.GET)
+    @ResponseBody
+    public ProAPIResponse getLocalityReviewsOfSuburb(@PathVariable Integer suburbId, @ModelAttribute FIQLSelector selector) {
+        PaginatedResponse<List<LocalityReviewComments>> reviewsOfCity = localityReviewService.getLocalityReviewOfSuburb(
+                suburbId,
+                selector);
+        return new ProAPISuccessCountResponse(reviewsOfCity.getResults(), reviewsOfCity.getTotalCount());
     }
 }

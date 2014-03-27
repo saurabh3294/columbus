@@ -249,10 +249,10 @@ public class SolrResult extends BaseModel {
     private Integer           hasGeo;
 
     @Field("MIN_RESALE_OR_PRIMARY_PRICE")
-    private Double            minPrimaryOrResalePrice;
+    private Double            minResaleOrPrimaryPrice;
 
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
-    private Double            maxPrimaryOrResalePrice;
+    private Double            maxResaleOrPrimaryPrice;
 
     public SolrResult() {
         property.setProject(project);
@@ -852,11 +852,11 @@ public class SolrResult extends BaseModel {
 
     @Field("MIN_RESALE_OR_PRIMARY_PRICE")
     public void setMinResaleOrPrimaryPrice(double minResaleOrPrimaryPrice) {
-        project.setMinPrimaryOrResalePrice(minPrimaryOrResalePrice);
+        project.setMinResaleOrPrimaryPrice(minResaleOrPrimaryPrice);
     }
 
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     public void setMaxResaleOrPrimaryPrice(double maxResaleOrPrimaryPrice) {
-        project.setMaxPrimaryOrResalePrice(maxPrimaryOrResalePrice);
+        project.setMaxResaleOrPrimaryPrice(maxResaleOrPrimaryPrice);
     }
 }

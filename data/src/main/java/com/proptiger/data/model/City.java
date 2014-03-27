@@ -126,6 +126,9 @@ public class City extends BaseModel {
     @Transient
     @Field("CITY_OVERVIEW_URL")
     private String                overviewUrl;
+    
+    @Transient
+    private Map<String, Long>            projectStatusCount;
 
     public Integer getId() {
         return id;
@@ -303,4 +306,12 @@ public class City extends BaseModel {
         this.overviewUrl = cityOverviewUrl;
     }
 
+    public Map<String, Long> getProjectStatusCount() {
+        return projectStatusCount;
+    }
+
+    public void setProjectStatusCount(Map<String, Long> projectStatusCount) {
+        this.projectStatusCount = projectStatusCount;
+    }
+    
 }

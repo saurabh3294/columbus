@@ -10,11 +10,10 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -32,9 +31,9 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.ProjectDao;
+import com.proptiger.data.repo.ProjectSolrDao;
 import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
-import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -84,6 +83,9 @@ public class ProjectService {
 
     @Autowired
     private TableAttributesService tableAttributesService;
+    
+    @Autowired
+    private ProjectSolrDao projectSolrDao;
 
     /**
      * This method will return the list of projects and total projects found
@@ -533,5 +535,14 @@ public class ProjectService {
         Selector selector = new Gson().fromJson(json, Selector.class);
 
         return projectDao.getProjects(selector);
+    }
+    
+    /**
+     * Get project count by status in map for a given selector
+     * @param selector
+     * @return
+     */
+    public Map<String, Long> getProjectStatusCount(Selector selector){
+        return projectSolrDao.getProjectStatusCount(selector);
     }
 }

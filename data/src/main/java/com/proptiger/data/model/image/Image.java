@@ -19,6 +19,7 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.util.ImageUtil;
 
@@ -44,12 +45,15 @@ public class Image extends BaseModel {
     private ImageType          imageTypeObj;
 
     @Column(name = "ImageType_id", updatable = false)
+    @ExcludeFromBeanCopy
     private long               imageTypeId;
 
     @Column(name = "object_id", updatable = false)
+    @ExcludeFromBeanCopy
     private long               objectId;
 
     @Column(updatable = false)
+    @ExcludeFromBeanCopy
     private String             path;
 
     public void assignWatermarkName(String format) {
@@ -76,12 +80,15 @@ public class Image extends BaseModel {
     private Date    takenAt;
 
     @Column(name = "size_in_bytes", updatable = false)
+    @ExcludeFromBeanCopy
     private long    sizeInBytes;
 
     @Column(updatable = false)
+    @ExcludeFromBeanCopy
     private int     width;
 
     @Column(updatable = false)
+    @ExcludeFromBeanCopy
     private int     height;
 
     private Double  latitude;
@@ -113,8 +120,10 @@ public class Image extends BaseModel {
     private String  waterMarkHash;
 
     @Column(name = "watermark_name")
+    @ExcludeFromBeanCopy
     private String  waterMarkName;
 
+    @ExcludeFromBeanCopy
     private boolean active;
 
     public long getId() {
@@ -294,7 +303,7 @@ public class Image extends BaseModel {
     }
 
     public static String addImageHostUrl(String path) {
-        for (String endpoint: ImageUtil.endpoints) {
+        for (String endpoint : ImageUtil.endpoints) {
             if (path.contains(endpoint)) {
                 return path;
             }

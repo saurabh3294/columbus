@@ -1,0 +1,67 @@
+#parse("./mailtemplate/VM_global_library.vm")
+<html>
+<head>
+<title>Proptiger | Resale Listing Interest –“ <externalUser> would like to sell <propertyName> in <projectCity>”</title>
+</head>
+
+<body>
+<table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+       <tr>
+          <td>
+             <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                   <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+                   <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+                   <td width="24">
+                      <table width="120" border="0" cellspacing="0" cellpadding="0">
+                         <tr>
+                            <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                         </tr>
+                         <tr>
+                            <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                         </tr>
+                      </table>
+                   </td>
+                </tr>
+             </table>
+             <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                   <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+                   <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+                      Hi Team,<br /><br />
+					 A new property has been registered for resale by the user ${sellYourPropertyData.userName} at ${currentDateTime}. The details of the property for resale are as following:<br /><br />
+					 
+					   #if( $sellYourPropertyData.isBroker == true)
+					   	#set( $broker="broker" )
+					   #else
+					   	#set($broker = "owner")
+					   #end 
+					   
+					   <strong>Client Name:</strong> ${sellYourPropertyData.leadUser}<br />
+					   <strong>Client Email:</strong> ${sellYourPropertyData.leadEmail}<br />
+					   <strong>Client Mobile:</strong> ${sellYourPropertyData.leadContact}<br />
+					   <strong>Seller Type:</strong> ${broker}<br />
+					   <br />
+					   #if($sellYourPropertyData.projectName && $sellYourPropertyData.isBroker == false)
+					   	<strong>Property Name:</strong> ${sellYourPropertyData.projectName}<br />
+					   	<strong>Project City:</strong> ${sellYourPropertyData.cityName}<br />
+					   	<strong>Locality:</strong> ${sellYourPropertyData.locality}<br />
+					   	<strong>Unit Name:</strong> ${sellYourPropertyData.name}<br />
+					   #end
+					   Please contact the client for more details.<br /><br />
+						Thanks and Regards,<br /><br />
+					  
+                   </td>
+                   <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+                </tr>
+             </table>
+             <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                   <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">${ADDRESS_NOIDA_D12} | Help Desk: ${HELP_DESK_MOBILE_NO}</td>
+                </tr>
+             </table>
+          </td>
+       </tr>
+    </table>
+</body>
+</html>

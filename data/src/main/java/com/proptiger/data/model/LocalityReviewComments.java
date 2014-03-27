@@ -23,6 +23,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -91,7 +92,7 @@ public class LocalityReviewComments extends BaseModel {
     @Column(name = "STATUS")
     private String            status;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER )
     @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
     private ForumUser         forumUser;
 
@@ -105,6 +106,11 @@ public class LocalityReviewComments extends BaseModel {
                     updatable = false)})
     private LocalityRatings   localityRatings;
 
+    @ManyToOne
+    @JoinColumn(name = "LOCALITY_ID", insertable = false, updatable = false)
+    @JsonIgnore
+    private Locality locality;
+    
     public Integer getCommentId() {
         return commentId;
     }
@@ -207,6 +213,14 @@ public class LocalityReviewComments extends BaseModel {
 
     public void setLocalityRatings(LocalityRatings localityRatings) {
         this.localityRatings = localityRatings;
+    }
+    
+    public Locality getLocality() {
+        return locality;
+    }
+
+    public void setLocality(Locality locality) {
+        this.locality = locality;
     }
 
     @PrePersist

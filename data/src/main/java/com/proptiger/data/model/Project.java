@@ -452,10 +452,10 @@ public class Project extends BaseModel {
     private Double                  avgPricePerUnitArea;
 
     @Field("MIN_RESALE_OR_PRIMARY_PRICE")
-    private Double                  minPrimaryOrResalePrice;
+    private Double                  minResaleOrPrimaryPrice;
 
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
-    private Double                  maxPrimaryOrResalePrice;
+    private Double                  maxResaleOrPrimaryPrice;
 
     public int getProjectId() {
         return projectId;
@@ -1053,20 +1053,20 @@ public class Project extends BaseModel {
         this.isSoldOut = isSoldOut;
     }
 
-    public Double getMinPrimaryOrResalePrice() {
-        return minPrimaryOrResalePrice;
+    public Double getMinResaleOrPrimaryPrice() {
+        return minResaleOrPrimaryPrice;
     }
 
-    public void setMinPrimaryOrResalePrice(Double minPrimaryOrResalePrice) {
-        this.minPrimaryOrResalePrice = minPrimaryOrResalePrice;
+    public void setMinResaleOrPrimaryPrice(Double minResaleOrPrimaryPrice) {
+        this.minResaleOrPrimaryPrice = minResaleOrPrimaryPrice;
     }
 
-    public Double getMaxPrimaryOrResalePrice() {
-        return maxPrimaryOrResalePrice;
+    public Double getMaxResaleOrPrimaryPrice() {
+        return maxResaleOrPrimaryPrice;
     }
 
-    public void setMaxPrimaryOrResalePrice(Double maxPrimaryOrResalePrice) {
-        this.maxPrimaryOrResalePrice = maxPrimaryOrResalePrice;
+    public void setMaxResaleOrPrimaryPrice(Double maxResaleOrPrimaryPrice) {
+        this.maxResaleOrPrimaryPrice = maxResaleOrPrimaryPrice;
     }
 
 }

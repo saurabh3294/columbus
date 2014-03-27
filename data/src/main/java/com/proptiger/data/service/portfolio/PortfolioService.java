@@ -32,6 +32,7 @@ import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
+import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
@@ -57,6 +58,7 @@ import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.ErrorReportingService.ReportErrorDTO;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
@@ -1131,16 +1133,17 @@ public class PortfolioService extends AbstractService {
         if (portfolioListing.getIsBroker() == null || portfolioListing.getLeadUser() == null
                 || portfolioListing.getLeadEmail() == null
                 || portfolioListing.getLeadCountryId() == null
-                || portfolioListing.getLeadContact() == null)
+                || portfolioListing.getLeadContact() == null) {
             throw new IllegalArgumentException(
                     " user information is missing. email, username, contact number and country should be present.");
+        }
 
         if (portfolioListing.getIsBroker() == false && ((portfolioListing.getCityId() == null && portfolioListing
                 .getCityName() == null) || (portfolioListing.getLocality() == null && portfolioListing.getLocalityId() == null)
-                || portfolioListing.getProjectName() == null || portfolioListing.getName() == null))
+                || portfolioListing.getProjectName() == null || portfolioListing.getName() == null)) {
             throw new IllegalArgumentException(
                     "Project compulsory parameters : project name, property name, locality and city should be present.");
-
+        }
         portfolioListing.setSourceType(PortfolioListing.Source.lead);
         /*
          * Setting the fields to null as because of unwrapped , the object get
@@ -1158,11 +1161,43 @@ public class PortfolioService extends AbstractService {
         if (savePortfolioListing == null)
             throw new PersistenceException("Sell your property request cannot be saved.");
 
+        sendMailOnSellYourProperty(savePortfolioListing);
         return savePortfolioListing;
+    }
+
+    /**
+     * This method will send the mail to recipients with details about the error
+     * reported by user.
+     * 
+     * @param projectError
+     * @param property
+     * @return
+     */
+    private boolean sendMailOnSellYourProperty(PortfolioListing portfolioListing) {
+        String mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.to.recipient");
+        String mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.cc.recipient");
+
+        String[] mailCC = null;
+
+        if (mailToAddress.length() < 1) {
+            logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
+            return false;
+        }
+
+        String[] mailTo = mailToAddress.split(",");
+        if (mailCCAddress.length() > 0) {
+            mailCC = mailCCAddress.split(",");
+        }
+
+        MailBody mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.SELL_YOUR_PROPERTY, portfolioListing);
+
+        return mailSender.sendMailUsingAws(mailTo, mailCC, null, mailBody.getBody(), mailBody.getSubject());
+
     }
 
     @Override
     protected ResourceType getResourceType() {
         return ResourceType.LISTING;
     }
+
 }
