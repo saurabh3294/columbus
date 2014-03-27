@@ -152,7 +152,10 @@ public abstract class BaseController {
 
             mapWriter.close();
             FileReader fileReader = new FileReader(file);
-            return IOUtils.toString(fileReader);
+            String result = IOUtils.toString(fileReader);
+            fileReader.close();
+            file.delete();
+            return result;
         }
         catch (Exception e) {
             throw new RuntimeException();
