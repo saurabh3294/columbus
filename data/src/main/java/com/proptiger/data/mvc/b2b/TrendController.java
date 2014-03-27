@@ -2,6 +2,7 @@ package com.proptiger.data.mvc.b2b;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,6 +58,30 @@ public class TrendController extends BaseController {
         return new ProAPISuccessResponse(response);
     }
 
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend.csv")
+    @ResponseBody
+    public String getCsvTrends(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue) throws Exception {
+
+        List<InventoryPriceTrend> response = new ArrayList<>();
+        if (rangeField == null || rangeValue == null) {
+            response = trendService.getTrend(selector);
+        }
+        else {
+            Map<String, List<InventoryPriceTrend>> serviceResponse = trendService.getBudgetSplitTrend(
+                    selector,
+                    rangeField,
+                    rangeValue);
+            for (String key : serviceResponse.keySet()) {
+                response.addAll(serviceResponse.get(key));
+            }
+            selector.addGroupByAtBeginning("rangeValue");
+        }
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(response), selector);
+    }
+
     @RequestMapping("data/v1/trend/current")
     @ResponseBody
     public ProAPIResponse getCurrentTrend(
@@ -64,6 +89,15 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
         return getTrends(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
+    }
+
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/current.csv")
+    @ResponseBody
+    public String getCsvCurrentTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue) throws Exception {
+        return getCsvTrends(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
     }
 
     @RequestMapping("data/v1/trend/hitherto")
@@ -76,6 +110,16 @@ public class TrendController extends BaseController {
         return getTrends(getHithertoDateAppendedSelector(selector, monthDuration), rangeField, rangeValue);
     }
 
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/hitherto.csv")
+    @ResponseBody
+    public String getCsvHithertoTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @RequestParam(required = false) Integer monthDuration) throws Exception {
+        return getCsvTrends(getHithertoDateAppendedSelector(selector, monthDuration), rangeField, rangeValue);
+    }
+
     @RequestMapping("data/v1/price-trend")
     public @ResponseBody
     ProAPIResponse getPriceTrends(
@@ -83,6 +127,15 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
         return getTrends(getDominantSupplyAppendedSelector(selector), rangeField, rangeValue);
+    }
+
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend.csv")
+    public @ResponseBody
+    String getCsvPriceTrends(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue) throws Exception {
+        return getCsvTrends(getDominantSupplyAppendedSelector(selector), rangeField, rangeValue);
     }
 
     @RequestMapping("data/v1/price-trend/current")
@@ -97,6 +150,18 @@ public class TrendController extends BaseController {
                 rangeValue);
     }
 
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/current.csv")
+    public @ResponseBody
+    String getCsvCurrentPriceTrends(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue) throws Exception {
+        return getCsvTrends(
+                getDominantSupplyAppendedSelector(getCurrentDateAppendedSelector(selector)),
+                rangeField,
+                rangeValue);
+    }
+
     @RequestMapping("data/v1/price-trend/hitherto")
     public @ResponseBody
     ProAPIResponse getHithertoPriceTrends(
@@ -105,6 +170,19 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @RequestParam(required = false) Integer monthDuration) throws Exception {
         return getTrends(
+                getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(selector, monthDuration)),
+                rangeField,
+                rangeValue);
+    }
+
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/hitherto")
+    public @ResponseBody
+    String getCsvHithertoPriceTrends(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @RequestParam(required = false) Integer monthDuration) throws Exception {
+        return getCsvTrends(
                 getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(selector, monthDuration)),
                 rangeField,
                 rangeValue);

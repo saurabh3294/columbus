@@ -496,65 +496,80 @@ public class LocalityService {
          * Top locality will be found around this locality
          */
         Locality mainLocality = localities.get(0);
-
-        /*
-         * Create selector
-         */
-        Selector geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
-                localitySelector,
-                mainLocality.getLocalityId(),
-                mainLocality.getLatitude(),
-                mainLocality.getLongitude(),
-                propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_ONE_FOR_TOP_LOCALITY, Double.class));
-
-        List<Locality> localitiesAroundMainLocality = localityDao.getLocalities(geoSelector).getResults();
-        /*
-         * If locality not found or there count is less than
-         * popularLocalityThresholdCount in first radius then try finding
-         * localities in radius radiusTwoForTopLocality
-         */
+        List<Locality> localitiesAroundMainLocality = null;
         Integer popularLocalityThresholdCount = propertyReader.getRequiredPropertyAsType(
                 PropertyKeys.POPULAR_LOCALITY_THRESHOLD_COUNT,
                 Integer.class);
-        if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
-            logger.debug(
-                    "Top localities count {} is less than threshold {} in radius {}KM ",
-                    localitiesAroundMainLocality == null ? 0 : localitiesAroundMainLocality.size(),
-                    popularLocalityThresholdCount,
-                    propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_ONE_FOR_TOP_LOCALITY, Double.class));
-
-            geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
+        if(mainLocality.getLatitude() == null || mainLocality.getLongitude() == null){
+            /*
+             * then as a fallback first try to find top rated in suburb of this locality, and if that is not there
+             * then try to find for city of that locality 
+             */
+            //find in suburb
+            localitiesAroundMainLocality = getTopLocalities(null, mainLocality.getSuburbId(), localitySelector, imageCount);
+            if(localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount ){
+                //find in city
+                localitiesAroundMainLocality = getTopLocalities(mainLocality.getSuburb().getCityId(), null, localitySelector, imageCount);
+            }
+        }
+        else{
+            /*
+             * Create selector
+             */
+            Selector geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
                     localitySelector,
                     mainLocality.getLocalityId(),
                     mainLocality.getLatitude(),
                     mainLocality.getLongitude(),
-                    propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_TWO_FOR_TOP_LOCALITY, Double.class));
-            localitiesAroundMainLocality = localityDao.getLocalities(geoSelector).getResults();
+                    propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_ONE_FOR_TOP_LOCALITY, Double.class));
+
+           localitiesAroundMainLocality = localityDao.getLocalities(geoSelector).getResults();
             /*
              * If locality not found or there count is less than
-             * popularLocalityThresholdCount in second radius then try finding
-             * localities in radius radiusThreeForTopLocality
+             * popularLocalityThresholdCount in first radius then try finding
+             * localities in radius radiusTwoForTopLocality
              */
             if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
                 logger.debug(
                         "Top localities count {} is less than threshold {} in radius {}KM ",
                         localitiesAroundMainLocality == null ? 0 : localitiesAroundMainLocality.size(),
                         popularLocalityThresholdCount,
-                        propertyReader
-                                .getRequiredPropertyAsType(PropertyKeys.RADIUS_TWO_FOR_TOP_LOCALITY, Double.class));
+                        propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_ONE_FOR_TOP_LOCALITY, Double.class));
 
                 geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
                         localitySelector,
                         mainLocality.getLocalityId(),
                         mainLocality.getLatitude(),
                         mainLocality.getLongitude(),
-                        propertyReader.getRequiredPropertyAsType(
-                                PropertyKeys.RADIUS_THREE_FOR_TOP_LOCALITY,
-                                Double.class));
-
+                        propertyReader.getRequiredPropertyAsType(PropertyKeys.RADIUS_TWO_FOR_TOP_LOCALITY, Double.class));
                 localitiesAroundMainLocality = localityDao.getLocalities(geoSelector).getResults();
+                /*
+                 * If locality not found or there count is less than
+                 * popularLocalityThresholdCount in second radius then try finding
+                 * localities in radius radiusThreeForTopLocality
+                 */
+                if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
+                    logger.debug(
+                            "Top localities count {} is less than threshold {} in radius {}KM ",
+                            localitiesAroundMainLocality == null ? 0 : localitiesAroundMainLocality.size(),
+                            popularLocalityThresholdCount,
+                            propertyReader
+                                    .getRequiredPropertyAsType(PropertyKeys.RADIUS_TWO_FOR_TOP_LOCALITY, Double.class));
+
+                    geoSelector = createSelectorForTopLocalityWithRadiusAroundLocality(
+                            localitySelector,
+                            mainLocality.getLocalityId(),
+                            mainLocality.getLatitude(),
+                            mainLocality.getLongitude(),
+                            propertyReader.getRequiredPropertyAsType(
+                                    PropertyKeys.RADIUS_THREE_FOR_TOP_LOCALITY,
+                                    Double.class));
+
+                    localitiesAroundMainLocality = localityDao.getLocalities(geoSelector).getResults();
+                }
             }
         }
+        
         /*
          * All the localities found in specified radius by taking main locality
          * lat lon as center, now need to filter localities for rating > α
@@ -626,6 +641,10 @@ public class LocalityService {
         notEqualFilter.put("localityId", localityId);
         searchType.put(Operator.notEqual.name(), notEqualFilter);
 
+        Map<String, Object> equalFilter = new HashMap<>();
+        equalFilter.put("hasGeo", 1);
+        searchType.put(Operator.equal.name(), equalFilter);
+        
         list.add(searchType);
         filter.put(Operator.and.name(), list);
         selector.setFilters(filter);

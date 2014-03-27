@@ -1,6 +1,9 @@
 package com.proptiger.data.model.b2b;
 
+import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -423,5 +426,27 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setInvestorDemand(Float investorDemand) {
         this.investorDemand = investorDemand;
+    }
+
+    public Map<String, Object> convertToMap() {
+        Map<String, Object> map = new HashMap<>();
+
+        Field[] fields = this.getClass().getDeclaredFields();
+
+        for (Field field : fields) {
+            try {
+                Object object = field.get(this);
+                if (object != null) {
+                    map.put(field.getName(), object);
+                }
+            }
+            catch (IllegalArgumentException | IllegalAccessException e) {
+                e.printStackTrace();
+                throw new RuntimeException();
+            }
+        }
+        map.remove("extraAttributes");
+        map.putAll(this.getExtraAttributes());
+        return map;
     }
 }
