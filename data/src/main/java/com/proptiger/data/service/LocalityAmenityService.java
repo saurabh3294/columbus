@@ -82,12 +82,9 @@ public class LocalityAmenityService {
         Paging paging = new Paging(0, 1);
         List<Locality> localityInfo = null;
         if (localityIds != null)
-            localityInfo = localityDao.findByLocationOrderByPriority(localityIds, "locality", paging, SortOrder.ASC);// findByLocalityIdInOrderByPriorityDescLabelAsc(localityIds,
-                                                                                                                     // paging);
+            localityInfo = localityDao.findByLocationOrderByPriority(localityIds, "locality", paging, SortOrder.ASC);
         else
-            localityInfo = localityDao.findByLocationOrderByPriority(cityId, "city", paging, SortOrder.ASC);// findByCityIdOrderByPriority(cityId,
-                                                                                                            // paging,
-                                                                                                            // SortOrder.DESC);
+            localityInfo = localityDao.findByLocationOrderByPriority(cityId, "city", paging, SortOrder.ASC);
 
         Integer localityId = localityInfo.get(0).getLocalityId();
 
