@@ -82,6 +82,16 @@ public class FIQLSelector implements Cloneable, Serializable {
         return this;
     }
 
+    public FIQLSelector addOrConditionToFilter(String condition) {
+        if (filters == null) {
+            filters = condition;
+        }
+        else {
+            filters = "(" + filters + ")," + condition;
+        }
+        return this;
+    }
+
     public FIQLSelector addField(String field) {
         if (fields == null) {
             fields = field;

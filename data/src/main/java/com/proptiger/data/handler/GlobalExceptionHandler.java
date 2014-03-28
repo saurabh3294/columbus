@@ -2,6 +2,7 @@ package com.proptiger.data.handler;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -206,5 +207,13 @@ public class GlobalExceptionHandler {
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
         return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_INVALID, exception.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    protected ProAPIResponse handleUnauthorizedException(UnauthorizedException exception, HttpServletRequest httpRequest) {
+        logAPIUrlInLogFile(httpRequest, exception);
+        return new ProAPIErrorResponse(ResponseCodes.UNAUTHORIZED, ResponseErrorMessages.UNAUTHORIZED);
     }
 }
