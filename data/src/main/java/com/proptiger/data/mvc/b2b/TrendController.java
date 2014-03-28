@@ -11,31 +11,40 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.service.b2b.CatchmentService;
 import com.proptiger.data.service.b2b.TrendService;
+import com.proptiger.data.util.Constants;
 
 @Controller
 @RequestMapping
 public class TrendController extends BaseController {
     @Value("${b2b.price-inventory.max.month}")
-    private String       currentMonth;
+    private String           currentMonth;
 
     @Autowired
-    private TrendService trendService;
+    private TrendService     trendService;
+
+    @Autowired
+    private CatchmentService catchmentService;
 
     @RequestMapping("data/v1/trend")
-    public @ResponseBody
-    ProAPIResponse getTrends(
+    @ResponseBody
+    @Cacheable(value = Constants.CacheName.CACHE)
+    public ProAPIResponse getTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
@@ -56,6 +65,18 @@ public class TrendController extends BaseController {
             response = finalResponse;
         }
         return new ProAPISuccessResponse(response);
+    }
+
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend")
+    @ResponseBody
+    public ProAPIResponse getUserTrends(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
+        return getTrends(selector, rangeField, rangeValue);
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend.csv")
@@ -91,6 +112,18 @@ public class TrendController extends BaseController {
         return getTrends(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
     }
 
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/current")
+    @ResponseBody
+    public ProAPIResponse getUserCurrentTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
+        return getCurrentTrend(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
+    }
+
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/current.csv")
     @ResponseBody
     public String getCsvCurrentTrend(
@@ -108,6 +141,19 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @RequestParam(required = false) Integer monthDuration) throws Exception {
         return getTrends(getHithertoDateAppendedSelector(selector, monthDuration), rangeField, rangeValue);
+    }
+
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/hitherto")
+    @ResponseBody
+    public ProAPIResponse getUserHithertoTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @RequestParam(required = false) Integer monthDuration,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
+        return getHithertoTrend(getCurrentDateAppendedSelector(selector), rangeField, rangeValue, monthDuration);
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/hitherto.csv")
@@ -129,6 +175,18 @@ public class TrendController extends BaseController {
         return getTrends(getDominantSupplyAppendedSelector(selector), rangeField, rangeValue);
     }
 
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend")
+    public @ResponseBody
+    ProAPIResponse getUserPriceTrends(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
+        return getPriceTrends(selector, rangeField, rangeValue);
+    }
+
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend.csv")
     public @ResponseBody
     String getCsvPriceTrends(
@@ -148,6 +206,18 @@ public class TrendController extends BaseController {
                 getDominantSupplyAppendedSelector(getCurrentDateAppendedSelector(selector)),
                 rangeField,
                 rangeValue);
+    }
+
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/current")
+    public @ResponseBody
+    ProAPIResponse getUserCurrentPriceTrends(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
+        return getCurrentPriceTrends(selector, rangeField, rangeValue);
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/current.csv")
@@ -173,6 +243,19 @@ public class TrendController extends BaseController {
                 getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(selector, monthDuration)),
                 rangeField,
                 rangeValue);
+    }
+
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/hitherto")
+    public @ResponseBody
+    ProAPIResponse getUserHithertoPriceTrends(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @RequestParam Integer monthDuration,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
+        return getHithertoPriceTrends(selector, rangeField, rangeValue, monthDuration);
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/hitherto")
