@@ -63,17 +63,10 @@ public class ImageController extends BaseController {
             @RequestParam String imageType,
             @ModelAttribute Image imageParams) {
         DomainObject domainObject = DomainObject.valueOf(objectType);
-        int domainObjectValueStart = domainObject.getStartId();
-        long normalizedObjectId = objectId;
-        /*
-         * if (objectId > domainObjectValueStart) { normalizedObjectId =
-         * objectId - domainObjectValueStart; }
-         */
-
         Image img = imageService.uploadImage(
                 domainObject,
                 imageType,
-                normalizedObjectId,
+                objectId,
                 image,
                 addWaterMark,
                 imageParams);
