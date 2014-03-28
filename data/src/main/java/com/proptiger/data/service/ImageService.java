@@ -20,7 +20,6 @@ import org.im4java.core.MogrifyCmd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
@@ -34,7 +33,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.io.Files;
-import com.google.gson.Gson;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
@@ -44,6 +42,7 @@ import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ImageUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
  * @author yugal
@@ -251,6 +250,11 @@ public class ImageService {
                 applyWaterMark(processedFile, format);
             }
 
+            String originalHash = ImageUtil.fileMd5Hash(originalFile);
+
+            if (isImageHashExists(originalHash, objectId, object.getText()))
+                throw new ResourceAlreadyExistException("Image Already Exists.");
+
             // Persist
             Image image = imageDao.insertImage(
                     object,
@@ -259,10 +263,11 @@ public class ImageService {
                     originalFile,
                     processedFile,
                     imageParams,
-                    format);
+                    format,
+                    originalHash);
             uploadToS3(image, originalFile, processedFile, format);
             imageDao.markImageAsActive(image);
-            
+
             caching.deleteMultipleResponseFromCache(getImageCacheKey(object, imageTypeStr, objectId));
             return image;
         }
@@ -290,7 +295,7 @@ public class ImageService {
         String keys[] = new String[2];
         keys[0] = object.getText() + imageTypeStr + objectId;
         keys[0] = object.getText() + "null" + objectId;
-        
+
         return keys;
     }
 
@@ -303,5 +308,14 @@ public class ImageService {
         DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
 
         return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
+    }
+
+    private boolean isImageHashExists(String originalHash, long objectId, String objectType) {
+        List<Long> imageIds = imageDao.getImageOnHashAndObjectIdAndObjectType(originalHash, objectId, objectType);
+
+        if (imageIds == null || imageIds.isEmpty())
+            return false;
+
+        return true;
     }
 }
