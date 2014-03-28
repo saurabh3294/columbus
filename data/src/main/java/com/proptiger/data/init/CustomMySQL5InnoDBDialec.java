@@ -8,5 +8,6 @@ public class CustomMySQL5InnoDBDialec extends MySQL5InnoDBDialect {
         registerFunction("group_concat", new GroupConcatFunction());
         registerFunction("group_concat_distinct", new GroupConcatDistinctFunction());
         registerFunction("median", new MedianFunction());
+        registerFunction("weighted_average", new WeightedAverageFunction());
     }
 }
