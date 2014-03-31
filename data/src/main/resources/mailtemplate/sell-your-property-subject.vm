@@ -1,1 +1,6 @@
-Proptiger | Resale Listing Interest –“ ${sellYourPropertyData.leadUser} would like to sell ${sellYourPropertyData.projectName} in ${sellYourPropertyData.cityName}”
+Proptiger | Resale Listing Interest –“ ${sellYourPropertyData.leadUser}  
+#if($sellYourPropertyData.isBroker == false) 
+ would like to sell ${sellYourPropertyData.projectName} in ${sellYourPropertyData.cityName}”
+#else
+ (Broker) would like to partner with Proptiger”
+#end

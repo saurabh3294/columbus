@@ -95,6 +95,12 @@ public class Suburb extends BaseModel {
     @Transient
     @Field("SUBURB_OVERVIEW_URL")
     private String               overviewUrl;
+    
+    @Transient
+    private Map<String, Long>            projectStatusCount;
+    
+    @Transient
+    private Long                  projectCount;
 
     public int getId() {
         return id;
@@ -199,4 +205,21 @@ public class Suburb extends BaseModel {
     public void setOverviewUrl(String suburbOverviewUrl) {
         this.overviewUrl = suburbOverviewUrl;
     }
+
+    public Map<String, Long> getProjectStatusCount() {
+        return projectStatusCount;
+    }
+
+    public void setProjectStatusCount(Map<String, Long> projectStatusCount) {
+        this.projectStatusCount = projectStatusCount;
+    }
+
+    public Long getProjectCount() {
+        return projectCount;
+    }
+
+    public void setProjectCount(Long projectCount) {
+        this.projectCount = projectCount;
+    }
+    
 }

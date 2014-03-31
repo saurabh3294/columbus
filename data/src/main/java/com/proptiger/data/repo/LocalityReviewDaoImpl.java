@@ -29,11 +29,6 @@ public class LocalityReviewDaoImpl {
      * @return
      */
     public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer cityId, FIQLSelector selector) {
-        if (selector == null) {
-            selector = new FIQLSelector();
-        }
-        selector.addAndConditionToFilter("locality.suburb.cityId==" + cityId).addAndConditionToFilter("status==1")
-                .addSortDESC("commenttime").addField("forumUser");
         AbstractQueryBuilder<LocalityReviewComments> builder = new JPAQueryBuilder<>(
                 emf.createEntityManager(),
                 LocalityReviewComments.class);

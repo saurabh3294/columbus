@@ -78,8 +78,7 @@ public class ProjectError extends BaseModel {
     private String    details;
 
     @Column(name = "EMAIL")
-    @NotBlank(message = "email field should not be empty.")
-    private String    email;
+    private String    email="";
 
     @Column(name = "PROJECT_ID")
     private Integer   projectId;

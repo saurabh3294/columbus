@@ -6,6 +6,8 @@ package com.proptiger.data.mvc;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
@@ -34,6 +37,7 @@ import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.service.portfolio.PortfolioService;
+import com.proptiger.data.util.Constants;
 
 /**
  * @author mandeep
@@ -97,7 +101,14 @@ public class PropertyController extends BaseController {
     @ResponseBody
     @DisableCaching
     public ProAPIResponse sellYourProperty(@RequestBody PortfolioListing portfolioListing) {
-
+        return new ProAPISuccessResponse(portfolioService.sellYourProperty(portfolioListing));
+    }
+    
+    @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/user/property/sell-property")
+    @ResponseBody
+    @DisableCaching
+    public ProAPIResponse userSellYourProperty(@RequestBody PortfolioListing portfolioListing, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        portfolioListing.setUserId(userInfo.getUserIdentifier());
         return new ProAPISuccessResponse(portfolioService.sellYourProperty(portfolioListing));
     }
 }
