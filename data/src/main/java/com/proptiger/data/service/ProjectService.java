@@ -521,7 +521,8 @@ public class ProjectService {
             String locationType,
             int locationId,
             int numberOfProjects,
-            double minimumPriceRise) {
+            double minimumPriceRise)
+    {
         String json = "{\"paging\":{\"rows\":" + numberOfProjects
                 + "},\"filters\":{\"and\":[{\"equal\":{\""
                 + locationType
@@ -531,9 +532,7 @@ public class ProjectService {
                 + minimumPriceRise
                 + "}}}]},\"sort\":[{\"field\":\"projectPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
 
-        System.out.println(json);
         Selector selector = new Gson().fromJson(json, Selector.class);
-
         return projectDao.getProjects(selector);
     }
     
