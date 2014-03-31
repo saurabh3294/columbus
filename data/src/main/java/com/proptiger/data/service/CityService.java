@@ -65,7 +65,7 @@ public class CityService {
         }
         updateAirportInfo(city);
         updateProjectCountAndStatusCount(city);
-        city.setAvgBHKPrice(localityService.getAvgPricePerUnitAreaBHKWise("cityId", cityId, city.getDominantUnitType()));
+        city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise("cityId", cityId, city.getDominantUnitType()));
         return city;
     }
 

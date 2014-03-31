@@ -46,7 +46,7 @@ public class SuburbService {
         if (suburb == null)
             return null;
 
-        suburb.setAvgBHKPrice(localityService.getAvgPricePerUnitAreaBHKWise(
+        suburb.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
                 "suburbId",
                 suburbId,
                 suburb.getDominantUnitType()));
