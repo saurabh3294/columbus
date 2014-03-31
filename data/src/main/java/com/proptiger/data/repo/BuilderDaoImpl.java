@@ -47,17 +47,6 @@ public class BuilderDaoImpl {
         return null;
     }
 
-    /**
-     * Get popular builders
-     * 
-     * @param selector
-     * @return
-     */
-    public List<Builder> getPopularBuilders(Selector selector) {
-        SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.BUILDER);
-        return null;
-    }
-
     public List<Builder> getBuildersByIds(List<Integer> builderIds) {
         if (builderIds == null || builderIds.isEmpty())
             return new ArrayList<>();
@@ -79,16 +68,18 @@ public class BuilderDaoImpl {
         SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.BUILDER);
         solrQuery.setQuery("*:*");
 
-        if (selector != null) {
-            SolrQueryBuilder<Builder> queryBuilder = new SolrQueryBuilder<Builder>(solrQuery, Builder.class);
-
-            if (selector.getSort() == null) {
-                selector.setSort(new LinkedHashSet<SortBy>());
-            }
-
-            selector.getSort().addAll(getDefaultSort());
-            queryBuilder.buildQuery(selector, null);
+        if (selector == null) {
+            selector = new Selector();
         }
+
+        SolrQueryBuilder<Builder> queryBuilder = new SolrQueryBuilder<Builder>(solrQuery, Builder.class);
+
+        if (selector.getSort() == null) {
+            selector.setSort(new LinkedHashSet<SortBy>());
+        }
+
+        selector.getSort().addAll(getDefaultSort());
+        queryBuilder.buildQuery(selector, null);
 
         return solrQuery;
     }
