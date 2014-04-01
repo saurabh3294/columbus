@@ -191,11 +191,11 @@ public class LocalityReviewService {
      * @param selector
      * @return
      */
-    public List<LocalityReviewComments> getLocalityReviewOrderByRating(
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReviewOrderByRating(
             Integer localityId,
             Integer userId,
             Selector selector) {
-
+        PaginatedResponse<List<LocalityReviewComments>> paginatedReviews = new PaginatedResponse<List<LocalityReviewComments>>();
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
         if (selector != null && selector.getPaging() != null) {
             pageable = new LimitOffsetPageRequest(selector.getPaging().getStart(), selector.getPaging().getRows());
@@ -205,11 +205,15 @@ public class LocalityReviewService {
         // in case call is for specific user
         if (userId != null) {
             reviews = localityReviewDao.getReviewsByLocalityIdAndUserIdOrderByRating(localityId, userId, pageable);
+            paginatedReviews.setResults(reviews);
+            paginatedReviews.setTotalCount(reviews != null? reviews.size(): 0);
         }
         else {
             reviews = localityReviewDao.getReviewsByLocalityIdOrderByRating(localityId, pageable);
+            paginatedReviews.setResults(reviews);
+            paginatedReviews.setTotalCount(localityReviewDao.getTotalReviewsByLocalityId(localityId));
         }
-        return reviews;
+        return paginatedReviews;
     }
 
     /**

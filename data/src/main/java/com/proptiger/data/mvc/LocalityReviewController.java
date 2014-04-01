@@ -112,8 +112,13 @@ public class LocalityReviewController extends BaseController {
         if (selectorStr != null) {
             selector = super.parseJsonToObject(selectorStr, Selector.class);
         }
-        List<LocalityReviewComments> reviews = localityReviewService.getLocalityReviewOrderByRating(localityId, null, selector);
-        return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+        PaginatedResponse<List<LocalityReviewComments>> reviews = localityReviewService.getLocalityReviewOrderByRating(
+                localityId,
+                null,
+                selector);
+        return new ProAPISuccessCountResponse(
+                super.filterFields(reviews.getResults(), selector.getFields()),
+                reviews.getTotalCount());
     }
 
     /**
@@ -132,11 +137,13 @@ public class LocalityReviewController extends BaseController {
         if (selectorStr != null) {
             selector = super.parseJsonToObject(selectorStr, Selector.class);
         }
-        List<LocalityReviewComments> reviews = localityReviewService.getLocalityReviewOrderByRating(
+        PaginatedResponse<List<LocalityReviewComments>> reviews = localityReviewService.getLocalityReviewOrderByRating(
                 localityId,
                 userInfo.getUserIdentifier(),
                 selector);
-        return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+        return new ProAPISuccessCountResponse(
+                super.filterFields(reviews.getResults(), selector.getFields()),
+                reviews.getTotalCount());
     }
     
     @RequestMapping(value = "data/v1/entity/city/{cityId}/locality-review", method = RequestMethod.GET)
