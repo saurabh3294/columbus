@@ -96,6 +96,13 @@ public class TrendService {
                 if (i != (budgetRangeLength)) {
                     key = key + rangeValueList.get(i);
                 }
+
+                List<InventoryPriceTrend> inventoryPriceTrends = future.get();
+                for (InventoryPriceTrend inventoryPriceTrend : inventoryPriceTrends) {
+                    Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
+                    extraAttributes.put("rangeValue", key);
+                    inventoryPriceTrend.setExtraAttributes(extraAttributes);
+                }
                 result.put(key, future.get());
                 i++;
             }
@@ -130,5 +137,13 @@ public class TrendService {
         catch (IndexOutOfBoundsException e) {
         }
         return unitType;
+    }
+
+    public List<Map<String, Object>> getFlattenedList(List<InventoryPriceTrend> inventoryPriceTrends) {
+        List<Map<String, Object>> maps = new ArrayList<>();
+        for (InventoryPriceTrend inventoryPriceTrend : inventoryPriceTrends) {
+            maps.add(inventoryPriceTrend.convertToMap());
+        }
+        return maps;
     }
 }

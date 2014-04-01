@@ -175,7 +175,7 @@ public class LocalityController extends BaseController {
                 locationId,
                 minReviewCount,
                 numberOfLocalities);
-        return new ProAPISuccessResponse(super.filterFields(localities, localitySelector.getFields()));
+        return new ProAPISuccessCountResponse(super.filterFields(localities.getTotalCount(), localitySelector.getFields()), localities.getTotalCount());
     }
 
     @RequestMapping(value = "highest-return")
@@ -197,6 +197,6 @@ public class LocalityController extends BaseController {
                 locationId,
                 numberOfLocalities, minimumPriceRise);
 
-        return new ProAPISuccessResponse(super.filterFields(localities, localitySelector.getFields()));
+        return new ProAPISuccessCountResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
 }

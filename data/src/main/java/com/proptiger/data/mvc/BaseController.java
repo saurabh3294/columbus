@@ -3,6 +3,9 @@
  */
 package com.proptiger.data.mvc;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,9 +18,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.supercsv.io.CsvMapWriter;
+import org.supercsv.io.ICsvMapWriter;
+import org.supercsv.prefs.CsvPreference;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -125,6 +132,34 @@ public abstract class BaseController {
             logger.error("Error grouping results", e);
         }
         return result;
+    }
+
+    protected String getCsvFromMapListAndFIQL(List<Map<String, Object>> maps, FIQLSelector selector) {
+        ICsvMapWriter mapWriter = null;
+
+        try {
+            File file = File.createTempFile("csv", ".csv");
+
+            mapWriter = new CsvMapWriter(new FileWriter(file), CsvPreference.STANDARD_PREFERENCE);
+
+            String[] headers = (selector.getFields() + "," + selector.getGroup()).split(",");
+
+            mapWriter.writeHeader(headers);
+
+            for (Map<String, Object> map : maps) {
+                mapWriter.write(map, headers);
+            }
+
+            mapWriter.close();
+            FileReader fileReader = new FileReader(file);
+            String result = IOUtils.toString(fileReader);
+            fileReader.close();
+            file.delete();
+            return result;
+        }
+        catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 
     protected Object filterFields(Object object, Set<String> fields) {

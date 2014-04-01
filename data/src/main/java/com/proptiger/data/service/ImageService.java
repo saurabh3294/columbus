@@ -34,6 +34,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.io.Files;
+import com.google.gson.Gson;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
@@ -223,7 +224,6 @@ public class ImageService {
     /*
      * Public method to upload images
      */
-    @CacheEvict(value = Constants.CacheName.CACHE, key = "#object.getText()+#imageTypeStr+#objectId")
     public Image uploadImage(
             DomainObject object,
             String imageTypeStr,
@@ -262,6 +262,8 @@ public class ImageService {
                     format);
             uploadToS3(image, originalFile, processedFile, format);
             imageDao.markImageAsActive(image);
+            
+            caching.deleteMultipleResponseFromCache(getImageCacheKey(object, imageTypeStr, objectId));
             return image;
         }
         catch (IllegalStateException | IOException e) {
@@ -281,19 +283,23 @@ public class ImageService {
     public void deleteImageInCache(long id) {
         Image image = getImage(id);
 
-        caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
+        caching.deleteMultipleResponseFromCache(getImageCacheKeyFromImageObject(image));
     }
 
-    public String getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
-        return object.getText() + imageTypeStr + objectId;
+    public String[] getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
+        String keys[] = new String[2];
+        keys[0] = object.getText() + imageTypeStr + objectId;
+        keys[0] = object.getText() + "null" + objectId;
+        
+        return keys;
     }
 
     public void update(Image image) {
-        caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
+        caching.deleteMultipleResponseFromCache(getImageCacheKeyFromImageObject(image));
         imageDao.save(image);
     }
 
-    private String getImageCacheKeyFromImageObject(Image image) {
+    private String[] getImageCacheKeyFromImageObject(Image image) {
         DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
 
         return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());

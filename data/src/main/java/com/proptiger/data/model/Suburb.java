@@ -90,7 +90,7 @@ public class Suburb extends BaseModel {
     private String               dominantUnitType;
 
     @Transient
-    private Map<Integer, Double> avgBHKPrice;
+    private Map<Integer, Double> avgBHKPricePerUnitArea;
 
     @Transient
     @Field("SUBURB_OVERVIEW_URL")
@@ -190,12 +190,12 @@ public class Suburb extends BaseModel {
         this.dominantUnitType = dominantUnitType;
     }
 
-    public Map<Integer, Double> getAvgBHKPrice() {
-        return avgBHKPrice;
+    public Map<Integer, Double> getAvgBHKPricePerUnitArea() {
+        return avgBHKPricePerUnitArea;
     }
 
-    public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
-        this.avgBHKPrice = avgBHKPrice;
+    public void setAvgBHKPricePerUnitArea(Map<Integer, Double> avgBHKPricePerUnitArea) {
+        this.avgBHKPricePerUnitArea = avgBHKPricePerUnitArea;
     }
 
     public String getOverviewUrl() {

@@ -27,7 +27,8 @@ public class AdvertiseAgencyController {
         TYROO("TYROO", true),
         _79MOBI("79MOBI", true),
         VSERVE("VSERVE", true),
-        INMOBI("INMOBI", true);
+        INMOBI("INMOBI", true),
+        GMOBI("GMOBI", true);
 
         private boolean enabled;
         private String label;
