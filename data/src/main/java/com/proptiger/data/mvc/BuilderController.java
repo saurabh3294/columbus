@@ -35,7 +35,7 @@ public class BuilderController extends BaseController {
      */
     @RequestMapping(value = "/top", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getPopularBuilder(@RequestParam(required = false) String selector) {
+    public ProAPIResponse getTopBuilders(@RequestParam(required = false) String selector) {
         Selector builderSelector = new Selector();
         if (selector != null) {
             builderSelector = super.parseJsonToObject(selector, Selector.class);

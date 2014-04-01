@@ -21,4 +21,5 @@ public interface ResponseErrorMessages {
     static String MAIL_SENDING_ERROR                  = "Mail could not not be sent";
     static String USER_NAME_PASSWORD_INCORRECT        = "User name or password not correct";
     static String AUTHENTICATION_ERROR                = "Authentication error";
+    static String UNAUTHORIZED                        = "Unauthorized";
 }

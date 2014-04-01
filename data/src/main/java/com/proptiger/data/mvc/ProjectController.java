@@ -208,9 +208,10 @@ public class ProjectController extends BaseController {
         }
 
         Set<String> fields = propRequestParam.getFields();
-        return new ProAPISuccessResponse(super.filterFields(
-                projectDiscussionsService.getProjectComments(projectId, propRequestParam.getPaging()),
-                fields));
+        PaginatedResponse<List<ProjectDiscussion>> projectComments = projectDiscussionsService.getProjectComments(projectId, propRequestParam.getPaging());
+        return new ProAPISuccessCountResponse(super.filterFields(
+                projectComments.getResults(),
+                fields), projectComments.getTotalCount());
     }
 
     @RequestMapping(value = "/data/v1/entity/project/highest-return")
@@ -228,9 +229,10 @@ public class ProjectController extends BaseController {
         }
 
         Set<String> fields = propRequestParam.getFields();
-        return new ProAPISuccessResponse(super.filterFields(
-                projectService.getHighestReturnProjects(locationType, locationId, numberOfProjects, minimumPriceRise),
-                fields));
+        PaginatedResponse<List<Project>> highestReturnProjects = projectService.getHighestReturnProjects(locationType, locationId, numberOfProjects, minimumPriceRise);
+        return new ProAPISuccessCountResponse(super.filterFields(
+                highestReturnProjects.getResults(),
+                fields), highestReturnProjects.getTotalCount());
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/project/{projectId}/report-error")

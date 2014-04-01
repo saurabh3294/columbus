@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
+import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,5 +100,17 @@ public class CatchmentService {
 
     public List<Catchment> getCatchment(FIQLSelector fiqlSelector) {
         return catchmentDao.getFilteredCatchments(fiqlSelector);
+    }
+
+    public String getCatchmentFIQLFilter(Integer catchmentId, UserInfo userInfo) {
+        FIQLSelector selector = new FIQLSelector();
+        Catchment catchment = catchmentDao.findOne(catchmentId);
+        if (!catchment.getUserId().equals(userInfo.getUserIdentifier())) {
+            throw new UnauthorizedException();
+        }
+        for (Integer projectId : catchment.getProjectIds()) {
+            selector.addOrConditionToFilter("projectId==" + projectId);
+        }
+        return selector.getFilters();
     }
 }

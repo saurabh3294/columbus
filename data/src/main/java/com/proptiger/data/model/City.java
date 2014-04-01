@@ -118,7 +118,7 @@ public class City extends BaseModel {
     private String                dominantUnitType;
 
     @Transient
-    private Map<Integer, Double>  avgBHKPrice;
+    private Map<Integer, Double>  avgBHKPricePerUnitArea;
 
     @Transient
     private List<LocalityAmenity> amenities;
@@ -282,14 +282,6 @@ public class City extends BaseModel {
         this.dominantUnitType = dominantUnitType;
     }
 
-    public Map<Integer, Double> getAvgBHKPrice() {
-        return avgBHKPrice;
-    }
-
-    public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
-        this.avgBHKPrice = avgBHKPrice;
-    }
-
     public List<LocalityAmenity> getAmenities() {
         return amenities;
     }
@@ -312,6 +304,14 @@ public class City extends BaseModel {
 
     public void setProjectStatusCount(Map<String, Long> projectStatusCount) {
         this.projectStatusCount = projectStatusCount;
+    }
+
+    public Map<Integer, Double> getAvgBHKPricePerUnitArea() {
+        return avgBHKPricePerUnitArea;
+    }
+
+    public void setAvgBHKPricePerUnitArea(Map<Integer, Double> avgBHKPricePerUnitArea) {
+        this.avgBHKPricePerUnitArea = avgBHKPricePerUnitArea;
     }
     
 }

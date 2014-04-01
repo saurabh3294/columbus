@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -37,39 +38,53 @@ public class LocalityRatings extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long              reviewId;
+
     @FieldMetaInfo(displayName = "User Id", description = "User Id")
     @Column(name = "USER_ID")
+    @ExcludeFromBeanCopy
     private Integer           userId;
+
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
+    @ExcludeFromBeanCopy
     private Integer           localityId;
+
     @FieldMetaInfo(displayName = "Overall Rating", description = "Overall Rating")
     @Column(name = "OVERALL_RATING")
     private Double            overallRating;
+
     @FieldMetaInfo(displayName = "Location", description = "Location")
     @Column(name = "LOCATION")
     private Double            location;
+
     @FieldMetaInfo(displayName = "Safety", description = "Safety")
     @Column(name = "SAFETY")
     private Double            safety;
+
     @FieldMetaInfo(displayName = "Public Transport", description = "Public Transport")
     @Column(name = "PUB_TRANS")
     private Double            pubTrans;
+
     @FieldMetaInfo(displayName = "Rest Shop", description = "Rest Shop")
     @Column(name = "REST_SHOP")
     private Double            restShop;
+
     @FieldMetaInfo(displayName = "Schools", description = "Schools")
     @Column(name = "SCHOOLS")
     private Double            schools;
+
     @FieldMetaInfo(displayName = "Parks", description = "Parks")
     @Column(name = "PARKS")
     private double            parks;
+
     @FieldMetaInfo(displayName = "Traffic", description = "Traffic")
     @Column(name = "TRAFFIC")
     private Double            traffic;
+
     @FieldMetaInfo(displayName = "Hospitals", description = "Hospitals")
     @Column(name = "HOSPITALS")
     private Double            hospitals;
+
     @FieldMetaInfo(displayName = "Civic", description = "Civic")
     @Column(name = "CIVIC")
     private Double            civic;
@@ -181,19 +196,6 @@ public class LocalityRatings extends BaseModel {
 
     public void setCivic(Double civic) {
         this.civic = civic;
-    }
-
-    public void update(LocalityRatings newRatings) {
-        this.setCivic(newRatings.getCivic());
-        this.setHospitals(newRatings.getHospitals());
-        this.setLocation(newRatings.getLocation());
-        this.setOverallRating(newRatings.getOverallRating());
-        this.setParks(newRatings.getParks());
-        this.setPubTrans(newRatings.getPubTrans());
-        this.setRestShop(newRatings.getRestShop());
-        this.setSafety(newRatings.getSafety());
-        this.setSchools(newRatings.getSchools());
-        this.setTraffic(newRatings.getTraffic());
     }
 
     /**
