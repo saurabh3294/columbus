@@ -83,11 +83,12 @@ public class BuilderDaoImpl {
 
         return solrQuery;
     }
-
-    private Set<SortBy> getDefaultSort() {
+    
+    public Set<SortBy> getDefaultSort() {
         return new Gson()
                 .fromJson(
                         "{\"sort\":[{\"field\":\"priority\",\"sortOrder\":\"ASC\"},{\"field\":\"name\",\"sortOrder\":\"ASC\"}]}",
                         Selector.class).getSort();
     }
+    
 }
