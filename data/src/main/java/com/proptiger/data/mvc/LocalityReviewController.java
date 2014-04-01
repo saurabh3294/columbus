@@ -64,8 +64,8 @@ public class LocalityReviewController extends BaseController {
         if (selectorStr != null) {
             selector = super.parseJsonToObject(selectorStr, Selector.class);
         }
-        List<LocalityReviewComments> reviews = localityReviewService.getLocalityReview(localityId, null, selector);
-        return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+        PaginatedResponse<List<LocalityReviewComments>> reviews = localityReviewService.getLocalityReview(localityId, null, selector);
+        return new ProAPISuccessCountResponse(super.filterFields(reviews.getResults(), selector.getFields()), reviews.getTotalCount());
     }
 
     @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.GET)
@@ -77,11 +77,11 @@ public class LocalityReviewController extends BaseController {
         if (selectorStr != null) {
             selector = super.parseJsonToObject(selectorStr, Selector.class);
         }
-        List<LocalityReviewComments> reviews = localityReviewService.getLocalityReview(
+        PaginatedResponse<List<LocalityReviewComments>> reviews = localityReviewService.getLocalityReview(
                 localityId,
                 userInfo.getUserIdentifier(),
                 selector);
-        return new ProAPISuccessCountResponse(super.filterFields(reviews, selector.getFields()), reviews.size());
+        return new ProAPISuccessCountResponse(super.filterFields(reviews.getResults(), selector.getFields()), reviews.getTotalCount());
     }
 
     @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.POST)
