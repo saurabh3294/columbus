@@ -52,6 +52,8 @@ import com.proptiger.data.model.resource.Resource;
 @JsonFilter("fieldFilter")
 public class PortfolioListing extends BaseModel implements NamedResource, Resource {
 
+   
+
     public enum Source {
         portfolio("portfolio"), lead("lead");
 
@@ -231,6 +233,16 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @JoinColumn(name = "type_id", nullable = false, insertable = false, updatable = false)
     @JsonUnwrapped
     private Property                         property;
+    
+    @FieldMetaInfo(displayName = "Deleted Flag", description = "Whether a listing has been soft deleted")
+    @Column(name = "deleted_flag")
+    public Boolean                           deletedFlag  =  false;
+    
+    @FieldMetaInfo(displayName = "Reason", description = "Reason for deleting a listing")
+    @Column(name = "reason")
+    @JsonIgnore
+    public String                           reason ;
+    
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
@@ -678,4 +690,21 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
     }
+    
+    public Boolean getDeleted_flag() {
+        return deletedFlag;
+    }
+
+    public void setDeleted_flag(Boolean deletedFlag) {
+        this.deletedFlag = deletedFlag;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+    
 }
