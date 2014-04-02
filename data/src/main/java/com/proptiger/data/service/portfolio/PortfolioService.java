@@ -144,7 +144,7 @@ public class PortfolioService extends AbstractService {
     public Portfolio getPortfolioByUserId(Integer userId) {
         logger.debug("Getting portfolio details for user id {}", userId);
         Portfolio portfolio = new Portfolio();
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
+        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
         // portfolio.setPortfolioListings(listings);
         updatePriceInfoInPortfolio(userId, portfolio, listings);
         // updatePaymentSchedule(listings);
@@ -220,7 +220,7 @@ public class PortfolioService extends AbstractService {
      */
     public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
         logger.debug("Creating portfolio for user id {}", userId);
-        List<PortfolioListing> presentListing = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
+        List<PortfolioListing> presentListing = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
         List<PortfolioListing> toCreate = portfolio.getPortfolioListings();
         if (presentListing != null && presentListing.size() > 0) {
             logger.error("Portfolio exists for userid {}", userId);
@@ -270,7 +270,7 @@ public class PortfolioService extends AbstractService {
      */
     public Portfolio updatePortfolio(Integer userId, Portfolio portfolio) {
         logger.debug("Update portfolio details for user id {}", userId);
-        List<PortfolioListing> presentListingList = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
+        List<PortfolioListing> presentListingList = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
         Portfolio updated = new Portfolio();
         if (presentListingList == null || presentListingList.size() == 0) {
             logger.debug("No portfolio listing exists for userid {}", userId);
@@ -284,7 +284,7 @@ public class PortfolioService extends AbstractService {
         else {
             updated = createOrUpdatePortfolioListings(userId, portfolio, presentListingList);
         }
-        List<PortfolioListing> updatedListings = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
+        List<PortfolioListing> updatedListings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
         updated.setPortfolioListings(updatedListings);
         /*
          * Updating price information in portfolio
@@ -378,7 +378,7 @@ public class PortfolioService extends AbstractService {
     @Transactional(readOnly = true)
     public List<PortfolioListing> getAllPortfolioListings(Integer userId) {
         logger.debug("Getting all portfolio listings for user id {}", userId);
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
+        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
         if (listings != null) {
             for (PortfolioListing listing : listings) {
                 listing.setCurrentPrice(getListingCurrentPrice(listing));
@@ -478,8 +478,8 @@ public class PortfolioService extends AbstractService {
     @Transactional(readOnly = true)
     public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId) {
         logger.debug("Getting portfolio listing {} for user id {}", listingId, userId);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
-        if (listing == null) {
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId,false);
+        if (listing == null ) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
@@ -535,7 +535,7 @@ public class PortfolioService extends AbstractService {
          */
         listing.setProperty(null);
         PortfolioListing created = create(listing);
-        created = portfolioListingDao.findByUserIdAndListingId(userId, created.getId());
+        created = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, created.getId(),false);
         updateOtherSpecificData(created);
         return created;
     }
@@ -666,7 +666,7 @@ public class PortfolioService extends AbstractService {
     protected <T extends Resource> T preProcessUpdate(T resource) {
         super.preProcessUpdate(resource);
         PortfolioListing toUpdate = (PortfolioListing) resource;
-        PortfolioListing resourcePresent = portfolioListingDao.findOne(toUpdate.getId());
+        PortfolioListing resourcePresent = portfolioListingDao.findByListingIdAndDeletedFlag(toUpdate.getId(), false);
         if (resourcePresent == null) {
             logger.error("PortfolioProperty id {} not found", toUpdate.getId());
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.UPDATE);
@@ -685,13 +685,16 @@ public class PortfolioService extends AbstractService {
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
-    public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId) {
+    public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId , String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
-        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
+        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId, false);
         if (propertyPresent == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.DELETE);
         }
-        portfolioListingDao.delete(propertyPresent);
+        propertyPresent.setDeleted_flag(true);
+        propertyPresent.setReason(reason);
+
+        
         return propertyPresent;
     }
 
@@ -810,7 +813,7 @@ public class PortfolioService extends AbstractService {
                 userId,
                 listingId,
                 interestedToLoan);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId,false);
         if (listing == null) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
