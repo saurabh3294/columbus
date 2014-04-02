@@ -27,7 +27,7 @@ ${locality.label} has some great #listOfStringToSentence($unitTypesStringList) f
 	#set($nearByLocalityNameList = [])
 	#populateNearByLocalityNames
 	#if($nearByLocalityNameList && $nearByLocalityNameList.size() > 0)
-		${locality.label}, surrounded by developed areas such as #listOfStringToSentence($nearByLocalityNameList). 
+		${locality.label} is surrounded by developed areas such as #listOfStringToSentence($nearByLocalityNameList). 
 	#end
 #end	
 #if($topBuilders)
