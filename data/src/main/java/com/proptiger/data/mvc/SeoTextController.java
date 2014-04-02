@@ -5,6 +5,7 @@ package com.proptiger.data.mvc;
 
 import java.util.Collections;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,7 +25,8 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 public class SeoTextController {
     private RestTemplate restTemplate = new RestTemplate();
 
-    private String websiteHost = "http://proptiger.com/";
+    @Value("{proptiger.url}")
+    private String websiteHost;
 
     @RequestMapping
     @ResponseBody

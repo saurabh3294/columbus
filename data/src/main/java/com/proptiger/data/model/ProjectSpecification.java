@@ -46,6 +46,31 @@ public class ProjectSpecification extends BaseModel {
         }
     }
 
+    private static enum FormattedSpecificationTypes {
+        FLOORING_MASTER_BEDROOM(new String[] { "Flooring", "Master Bedroom" }), FLOORING_OTHER_BEDROOM(new String[] {
+                "Flooring",
+                "Other Bedroom" }), FLOORING_LIVING_DINING(new String[] { "Flooring", "Living/Dining" }), FLOORING_KITCHEN(
+                new String[] { "Flooring", "Kitchen" }), FLOORING_TOILETS(new String[] { "Flooring", "Toilets" }), FLOORING_BALCONY(
+                new String[] { "Flooring", "Balcony" }), WALLS_INTERIOR(new String[] { "Walls", "Interior" }), WALLS_EXTERIOR(
+                new String[] { "Walls", "Exterior" }), WALLS_KITCHEN(new String[] { "Walls", "Kitchen" }), WALLS_TOILETS(
+                new String[] { "Walls", "Toilets" }), DOORS_MAIN(new String[] { "Doors", "Main" }), DOORS_INTERNAL(
+                new String[] { "Doors", "Internal" }), WINDOWS(new String[] { "Windows" }), ELECTRICAL_FITTINGS(
+                new String[] { "Fittings", "Electrical" }), FITTINGS_AND_FIXTURES_TOILETS(new String[] {
+                "Fittings",
+                "Toilets" }), FITTINGS_AND_FIXTURES_KITCHEN(new String[] { "Fittings", "Kitchen" }), OTHERS(
+                new String[] { "Others" });
+
+        String[] specificationSplits;
+
+        private FormattedSpecificationTypes(String[] specificationSplits) {
+            this.specificationSplits = specificationSplits;
+        }
+
+        public String[] getSpecificationSplits() {
+            return specificationSplits;
+        }
+    }
+
     @Transient
     private Map<String, Object> specifications;
 
@@ -60,6 +85,26 @@ public class ProjectSpecification extends BaseModel {
             try {
                 SpecificationTypes specificationTypes = ProjectSpecification.SpecificationTypes.valueOf(tableAttributes
                         .getAttributeName());
+                String specificationSplit[] = specificationTypes.getSpecificationSplits();
+                addSpecificationSplitsInMap(
+                        this.specifications,
+                        specificationSplit,
+                        0,
+                        tableAttributes.getAttributeValue());
+            }
+            catch (IllegalArgumentException e) {
+
+            }
+        }
+    }
+
+    public ProjectSpecification(List<TableAttributes> tableAttributesList, boolean dummyFlag) {
+        this.specifications = new HashMap<String, Object>();
+
+        for (TableAttributes tableAttributes : tableAttributesList) {
+            try {
+                FormattedSpecificationTypes specificationTypes = ProjectSpecification.FormattedSpecificationTypes
+                        .valueOf(tableAttributes.getAttributeName());
                 String specificationSplit[] = specificationTypes.getSpecificationSplits();
                 addSpecificationSplitsInMap(
                         this.specifications,
