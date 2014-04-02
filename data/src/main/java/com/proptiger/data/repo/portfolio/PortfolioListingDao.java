@@ -11,10 +11,13 @@ import com.proptiger.data.model.portfolio.PortfolioListing;
  * 
  */
 public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Integer> {
-    public List<PortfolioListing> findByUserIdOrderByListingIdDesc(Integer userId);
-
-    public PortfolioListing findByUserIdAndListingId(Integer userId, Integer listingId);
+    
+    public List<PortfolioListing> findByUserIdAndDeletedFlagOrderByListingIdDesc(Integer userId, Boolean deletedFlag);
+    
+    public PortfolioListing findByUserIdAndListingIdAndDeletedFlag(Integer userId, Integer listingId, Boolean deletedFlag);
 
     public PortfolioListing findByUserIdAndName(Integer userId, String name);
+    
+    public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId, Boolean deletedFlag);
 
 }
