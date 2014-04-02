@@ -9,9 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
 import com.proptiger.data.model.Bank;
-import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
@@ -91,7 +89,7 @@ public class ImageEnricher {
             while (it.hasNext()) {
                 if (it.next().getImageTypeObj().getType().equalsIgnoreCase("constructionStatus")) {
                     numImages++;
-                    if (numImages > 8) {
+                    if (numImages > 10) {
                         it.remove();
                     }
                 }
