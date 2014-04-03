@@ -12,5 +12,5 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
  */
 public interface LocalityReviewCustomDao {
 
-    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer cityId, FIQLSelector selector);
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(FIQLSelector selector);
 }
