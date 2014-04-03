@@ -208,10 +208,13 @@ public class ProjectController extends BaseController {
         }
 
         Set<String> fields = propRequestParam.getFields();
-        PaginatedResponse<List<ProjectDiscussion>> projectComments = projectDiscussionsService.getProjectComments(projectId, propRequestParam.getPaging());
-        return new ProAPISuccessCountResponse(super.filterFields(
-                projectComments.getResults(),
-                fields), projectComments.getTotalCount());
+        PaginatedResponse<List<ProjectDiscussion>> projectComments = projectDiscussionsService.getProjectComments(
+                projectId,
+                propRequestParam.getPaging());
+
+        return new ProAPISuccessCountResponse(
+                super.filterFields(projectComments.getResults(), fields),
+                projectComments.getTotalCount());
     }
 
     @RequestMapping(value = "/data/v1/entity/project/highest-return")
@@ -229,10 +232,14 @@ public class ProjectController extends BaseController {
         }
 
         Set<String> fields = propRequestParam.getFields();
-        PaginatedResponse<List<Project>> highestReturnProjects = projectService.getHighestReturnProjects(locationType, locationId, numberOfProjects, minimumPriceRise);
-        return new ProAPISuccessCountResponse(super.filterFields(
-                highestReturnProjects.getResults(),
-                fields), highestReturnProjects.getTotalCount());
+        PaginatedResponse<List<Project>> highestReturnProjects = projectService.getHighestReturnProjects(
+                locationType,
+                locationId,
+                numberOfProjects,
+                minimumPriceRise);
+        return new ProAPISuccessCountResponse(
+                super.filterFields(highestReturnProjects.getResults(), fields),
+                highestReturnProjects.getTotalCount());
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/project/{projectId}/report-error")
@@ -242,8 +249,9 @@ public class ProjectController extends BaseController {
         if (projectError.getProjectId() != null)
             throw new IllegalArgumentException("Project Id should not be present in the request body");
         if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0)
-            throw new IllegalArgumentException("Property Id should not be present in the request body as it is for project error.");
-        
+            throw new IllegalArgumentException(
+                    "Property Id should not be present in the request body as it is for project error.");
+
         projectError.setProjectId(projectId);
         return new ProAPISuccessResponse(errorReportingService.saveReportError(projectError));
     }

@@ -35,6 +35,7 @@ import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
@@ -743,6 +744,24 @@ public class LocalityService {
                 null);
     }
 
+    
+    
+    
+    /**
+     * This method will retrieve the reviews and rating details about a suburb
+     * and set the data on the suburb Object. The data set on the suburb
+     * Object is as follows: 1: Number of Reviews on the suburb. 2: Average
+     * Rating 3: Total Rating Users. 4: Rating Distribution by total users.
+     * 
+     * @param suburb
+     */
+    public void updateSuburbRatingAndReviewDetails(Suburb suburb) {
+
+        LocalityAverageRatingByCategory avgRatingsOfLocalityCategory = localityRatingService
+                .getAvgRatingsOfSuburbByCategory(suburb.getId());
+        suburb.setAvgRatingsByCategory(avgRatingsOfLocalityCategory);
+    }
+    
     public int getTopRatedLocalityInCityOrSuburb(String locationType, int locationId) {
 
         Paging paging = new Paging(0, 1);

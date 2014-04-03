@@ -93,6 +93,20 @@ public class LocalityRatingService {
                 .getAvgRatingOfAmenitiesForLocality(localityId);
         return avgRatingOfAmenities;
     }
+    
+    /**
+     * Computing average rating of all amenities of suburb. Excluding null and
+     * zero values while calculating average.
+     * 
+     * @param suburbId
+     * @return
+     */
+    public LocalityAverageRatingByCategory getAvgRatingsOfSuburbByCategory(Integer suburbId) {
+        logger.debug("Get suburb average rating of category for suburb {}", suburbId);
+        LocalityAverageRatingByCategory avgRatingOfAmenities = localityRatingDao
+                .getAvgRatingOfAmenitiesForSuburb(suburbId);
+        return avgRatingOfAmenities;
+    }
 
     @CacheEvict(value = {
             Constants.CacheName.LOCALITY_RATING_AVG_BY_CATEGORY,

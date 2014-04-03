@@ -114,6 +114,8 @@ public class Constants {
 
         public static final String BUILDER                               = "builder";
 
+        public static final String SIMILAR_PROPERTY                      = "similar-property";
+
     }
 
 }
