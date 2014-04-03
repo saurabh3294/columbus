@@ -136,8 +136,9 @@ public class PortfolioController extends BaseController {
     public ProAPIResponse deleteListing(
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
+            @RequestParam(required = false, value = "reason") String reason, 
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        PortfolioListing listing = portfolioService.deletePortfolioListing(userInfo.getUserIdentifier(), listingId);
+        PortfolioListing listing = portfolioService.deletePortfolioListing(userInfo.getUserIdentifier(), listingId , reason);
         return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
     }
 

@@ -207,7 +207,7 @@ public class ProjectService {
          * Setting project Specification if needed.
          */
         if (fields == null || fields.contains("projectSpecification")) {
-            project.setProjectSpecification(this.getProjectSpecificationsV2(projectId));
+            project.setProjectSpecification(this.getProjectSpecificationsV3(projectId));
         }
 
         /*
@@ -407,6 +407,20 @@ public class ProjectService {
         List<TableAttributes> specifications = tableAttributesService.getTableAttributes(cmsProjectId, "resi_project");
 
         return new ProjectSpecification(specifications);
+    }
+
+    /**
+     * This method will return the project specifications From CMS by new
+     * database for a project. architecture.
+     * 
+     * @param projectId
+     * @return
+     */
+    public ProjectSpecification getProjectSpecificationsV3(int projectId) {
+        int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
+        List<TableAttributes> specifications = tableAttributesService.getTableAttributes(cmsProjectId, "resi_project");
+
+        return new ProjectSpecification(specifications, false);
     }
 
     /**

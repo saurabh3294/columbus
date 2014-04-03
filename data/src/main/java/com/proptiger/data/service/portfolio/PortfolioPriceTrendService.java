@@ -59,7 +59,7 @@ public class PortfolioPriceTrendService {
      */
     public ProjectPriceTrend getListingPriceTrend(Integer userId, Integer listingId, Integer noOfMonths) {
         logger.debug("Price trend for user id {} and listing id {} for months {}", userId, listingId, noOfMonths);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingId(userId, listingId);
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId,false);
         if (listing == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
@@ -98,7 +98,7 @@ public class PortfolioPriceTrendService {
     public PortfolioPriceTrend getPortfolioPriceTrend(Integer userId, Integer noOfMonths) {
         PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
         logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdOrderByListingIdDesc(userId);
+        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId, false);
         if (listings == null || listings.size() == 0) {
             List<ProjectPriceTrend> list = new ArrayList<>();
             portfolioPriceTrend.setProjectPriceTrend(list);
