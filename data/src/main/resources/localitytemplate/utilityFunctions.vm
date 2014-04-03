@@ -301,13 +301,15 @@
 	#end
 #end
 #macro(popularProjectWithUnitInfo)
-	#if($popularProjects)
+	#if($popularProjects && $popularProjects.size() >= 1)
 		#set($project1 = $popularProjects.get(0))
-		#set($project2 = $popularProjects.get(1))
 		#if($project1)
 			One #popularProjectSentence(${locality.label} $project1)
-			#if($project2)
-				Another #popularProjectSentence(${locality.label} $project2)
+			#if($popularProjects && $popularProjects.size() >= 2)
+				#set($project2 = $popularProjects.get(1))
+				#if($project2)
+					Another #popularProjectSentence(${locality.label} $project2)
+				#end
 			#end
 		#end
 	#end
