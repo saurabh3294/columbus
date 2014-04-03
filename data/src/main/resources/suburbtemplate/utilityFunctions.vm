@@ -1,0 +1,247 @@
+#macro( listOfStringToSentence $dataList)
+	#if($dataList)
+		#if($dataList.size() == 1)
+			$dataList.get(0)
+		#elseif($dataList.size() == 2)
+			$dataList.get(0) and $dataList.get(1)
+		#else
+			#set($counter = 0)
+			#foreach($item in $dataList)
+				#if($counter > 0 && $counter < $dataList.size() - 1)
+					, 
+				#elseif($counter == $dataList.size() - 1)
+					 and  
+				#end
+				$item
+				#set($counter = $counter+1)
+			#end
+		#end
+	#end
+#end
+
+#macro(suburbAverageRating $suburb)
+	#if($suburb.avgRatingsByCategory && $suburb.avgRatingsByCategory.overallRating)
+		${suburb.label} in ${suburb.city.label} 
+		have an average rating of $velocityUtility.round($suburb.avgRatingsByCategory.overallRating) 
+		as per our customer inputs
+	#end
+#end
+
+#macro(isOrAre $dataList)
+	#if($dataList)
+		#if($dataList.size() == 1)
+			is 
+		#else
+			are 
+		#end
+		
+	#end
+#end
+
+#macro(popularProjectSentence $suburbLabel $projectObj)
+	popular project in $suburbLabel for sale is $projectObj.name by $projectObj.builder.name  
+	#if($projectObj.totalUnits > 0)
+		offering total $projectObj.totalUnits units  
+		#if($projectObj.minSize && $projectObj.maxSize)
+			starting at size $numberFormatter.format($projectObj.minSize) sq ft and with highest $numberFormatter.format($projectObj.maxSize) sq ft
+		#end
+	#end
+	. 
+#end
+#macro(projectDescWithLowestRate $suburbLabel $projectObj)
+	#if($projectObj)
+		#if($projectObj.minPricePerUnitArea)
+			$projectObj.name by $projectObj.builder.name is available at lowest rate of Rs.  
+			$numberFormatter.format($projectObj.minPricePerUnitArea) per sq ft  
+			in $suburbLabel  
+		#end
+	#end
+#end
+#macro(projectDescWithHighestRate $suburbLabel $projectObj)
+	#if($projectObj)
+		#if($projectObj.maxPricePerUnitArea)
+			$projectObj.name by $projectObj.builder.name is available at highest rate of Rs. 
+			$numberFormatter.format($projectObj.maxPricePerUnitArea) per sq ft
+		#end
+	#end
+#end
+
+#macro(singularOrPlural $word $list)
+	#if($list && $word)
+		#if($list.size() == 1)
+			  
+		#else
+			#set($word = $word + "s")
+			$word 
+		#end
+	#end
+#end
+#macro(projectByBuilderSentence $projects)
+	#if($projects.size() == 1)
+		$projects.get(0).name by $projects.get(0).builder.name
+	#elseif($projects.size() == 2)
+		$projects.get(0).name by $projects.get(0).builder.name and $projects.get(1).name by $projects.get(1).builder.name
+	#else
+		#set($counter = 0)
+		#foreach($project in $projects)
+			#if($counter > 0 && $counter < $projects.size() - 1)
+					, 
+			#elseif($counter == $projects.size() - 1)
+				 and  
+			#end
+			$project.name by $project.builder.name
+			#set($counter = $counter+1)
+		#end
+	#end
+#end
+#macro(makePriceUserReadable $price)
+	#set($amtInCorore = $price/10000000)
+	#if($amtInCorore < 1)
+		#set($amtInLacs = $price/100000)
+		$numberFormatterDecimal.format($amtInLacs) Lacs 
+	#else
+		$numberFormatterDecimal.format($amtInCorore) Cr  
+	#end
+#end
+#macro(projectByStatus $suburb)
+	#set( $upcomingProjects = 0)
+	#set( $newLaunchProjects = 0)
+	#set( $readyForPossessionProjects = 0)
+	#if(${suburb.projectStatusCount.get("pre launch")} && ${suburb.projectStatusCount.get("not launched")})
+		#set( $upcomingProjects = ${suburb.projectStatusCount.get("pre launch")} + ${suburb.projectStatusCount.get("not launched")})
+	#end
+	#if(${suburb.projectStatusCount.get("launch")})
+		#set( $newLaunchProjects = ${suburb.projectStatusCount.get("launch")})
+	#end	
+	#if(${suburb.projectStatusCount.get("ready for possession")})
+		#set( $readyForPossessionProjects = ${suburb.projectStatusCount.get("ready for possession")})
+	#end
+	
+	#if($upcomingProjects || $newLaunchProjects || $readyForPossessionProjects)
+		You can find 
+		#set($counter = 0)
+		#if($upcomingProjects > 0)
+			$upcomingProjects upcoming  
+			#set($counter = $counter + 1)
+		#end
+		#if($newLaunchProjects > 0)
+			#if($counter == 1)
+				, 
+			#end
+			$newLaunchProjects new launches 
+			#set($counter = $counter + 1)
+		#end
+		#if($readyForPossessionProjects > 0)
+			#if($counter > 0)
+		 	 	and   
+			#end
+			$readyForPossessionProjects ready to move in 
+		#end
+		projects in ${suburb.label} from different builders.  
+	#end
+#end
+
+#macro(populateAmenitiesList $amenities)
+	#set($schoolCount = 0)
+	#set($hospitalCount = 0)
+	#set($metroStationCount = 0)
+	#foreach( $amenity in $amenities )
+		#if($amenity.localityAmenityTypes.name=="school" && !$schoolsList.contains($amenity.name))
+			#if($schoolCount < 10)
+				#set($temp = $schoolsList.add($amenity.name))
+			#end
+			#set($schoolCount = $schoolCount + 1)
+		#end
+		#if($amenity.localityAmenityTypes.name=="hospital" && !$hospitalsList.contains($amenity.name))
+			#if($hospitalCount < 10)
+		 		#set($temp = $hospitalsList.add($amenity.name))
+		 	#end
+			#set($hospitalCount = $hospitalCount + 1)
+		#end
+		#if($amenity.localityAmenityTypes.name=="subway_station" && !$metroStationList.contains($amenity.name))
+		 	#if($metroStationCount < 10)
+		 		#set($temp = $metroStationList.add($amenity.name))
+		 	#end
+		 	#set($metroStationCount = $metroStationCount + 1)
+		#end
+	#end
+#end
+
+#macro(populateBuilderNameList $topBuilders)
+	#set($popularBuildersNameList = [])
+	#foreach($builder in $topBuilders)
+		#if($builder.name != "Reputed Builder")
+			#set($temp = $popularBuildersNameList.add($builder.name))
+		#end
+	#end
+#end
+
+#macro(populateUnitTypeAndUnitNameList $properties)
+	#set($unitTypesStringList = [])
+	#set($unitNamesStringList = [])
+	#if($properties)
+		#foreach($property in $properties)
+			#if(!$unitTypesStringList.contains($property.unitType))
+				#set($temp = $unitTypesStringList.add($property.unitType))
+			#end
+			#if($property.bedrooms)
+				#set($unitName = $property.bedrooms + " BHK")
+				#if(!$unitNamesStringList.contains($unitName))
+					#set($temp = $unitNamesStringList.add($unitName))
+				#end
+			#end
+		#end
+		$velocityUtility.sort($unitNamesStringList)
+	#end
+#end
+
+#macro(suburbAvgRatingWithHighestAmenityRating $suburb)
+	#if($suburb.avgRatingsByCategory)
+		#set($highestRatedAmenity = "")
+		#set($highestRating = 0)
+		#if($suburb.avgRatingsByCategory.location && $suburb.avgRatingsByCategory.location > $highestRating)
+			#set($highestRatedAmenity = "location")
+			#set($highestRating = $suburb.avgRatingsByCategory.location)
+		#end
+		#if($suburb.avgRatingsByCategory.safety && $suburb.avgRatingsByCategory.safety > $highestRating)
+			#set($highestRatedAmenity = "safety")
+			#set($highestRating = $suburb.avgRatingsByCategory.safety)
+		#end
+		#if($suburb.avgRatingsByCategory.pubTrans && $suburb.avgRatingsByCategory.pubTrans > $highestRating)
+			#set($highestRatedAmenity = "public transport")
+			#set($highestRating = $suburb.avgRatingsByCategory.pubTrans)
+		#end
+		#if($suburb.avgRatingsByCategory.restShop && $suburb.avgRatingsByCategory.restShop > $highestRating)
+			#set($highestRatedAmenity = "rest shops")
+			#set($highestRating = $suburb.avgRatingsByCategory.restShop)
+		#end
+		#if($suburb.avgRatingsByCategory.schools && $suburb.avgRatingsByCategory.schools > $highestRating)
+			#set($highestRatedAmenity = "schools")
+			#set($highestRating = $suburb.avgRatingsByCategory.schools)
+		#end
+		#if($suburb.avgRatingsByCategory.parks && $suburb.avgRatingsByCategory.parks > $highestRating)
+			#set($highestRatedAmenity = "parks")
+			#set($highestRating = $suburb.avgRatingsByCategory.parks)
+		#end
+		#if($suburb.avgRatingsByCategory.traffic && $suburb.avgRatingsByCategory.traffic > $highestRating)
+			#set($highestRatedAmenity = "traffic")
+			#set($highestRating = $suburb.avgRatingsByCategory.traffic)
+		#end
+		#if($suburb.avgRatingsByCategory.hospitals && $suburb.avgRatingsByCategory.hospitals > $highestRating)
+			#set($highestRatedAmenity = "hospitals")
+			#set($highestRating = $suburb.avgRatingsByCategory.hospitals)
+		#end
+		#if($suburb.avgRatingsByCategory.civic && $suburb.avgRatingsByCategory.civic > $highestRating)
+			#set($highestRatedAmenity = "civic")
+			#set($highestRating = $suburb.avgRatingsByCategory.civic)
+		#end
+		#if($suburb.avgRatingsByCategory.overallRating)
+			$suburb.label have average rating of $velocityUtility.round($suburb.avgRatingsByCategory.overallRating) based 
+			on user inputs 
+			#if($highestRating > 0)
+				, with highest rating of $velocityUtility.round($highestRating) for $highestRatedAmenity
+			#end
+			. 
+		#end
+	#end
+#end

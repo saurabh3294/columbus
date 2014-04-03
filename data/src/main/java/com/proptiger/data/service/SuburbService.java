@@ -59,6 +59,7 @@ public class SuburbService {
                 suburbId,
                 suburb.getDominantUnitType()));
         updateProjectCountAndStatusCount(suburb);
+        localityService.updateSuburbRatingAndReviewDetails(suburb);
         return suburb;
     }
     

@@ -41,4 +41,17 @@ public interface LocalityRatingDao extends PagingAndSortingRepository<LocalityRa
             + " FROM LocalityRatings AS LR "
             + " WHERE LR.localityId = ?1 ")
     public LocalityAverageRatingByCategory getAvgRatingOfAmenitiesForLocality(Integer localityId);
+    
+    @Query(" SELECT NEW com.proptiger.data.model.LocalityRatings$LocalityAverageRatingByCategory(AVG(nullif(LR.overallRating, 0)), " + " AVG(nullif(LR.location, 0)),"
+            + " AVG(nullif(LR.safety, 0)),"
+            + " AVG(nullif(LR.pubTrans, 0)),"
+            + " AVG(nullif(LR.restShop, 0)),"
+            + " AVG(nullif(LR.schools, 0)),"
+            + " AVG(nullif(LR.parks, 0)),"
+            + " AVG(nullif(LR.traffic, 0)),"
+            + " AVG(nullif(LR.hospitals, 0)),"
+            + " AVG(nullif(LR.civic, 0)) ) "
+            + " FROM LocalityRatings AS LR "
+            + " WHERE LR.locality.suburbId = ?1 ")
+    public LocalityAverageRatingByCategory getAvgRatingOfAmenitiesForSuburb(Integer suburbId);
 }

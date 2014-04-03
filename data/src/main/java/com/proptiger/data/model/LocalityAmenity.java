@@ -45,7 +45,7 @@ public class LocalityAmenity extends BaseModel {
     private int                  id;
 
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
-    @Column(name = "locality_id")
+    @Column(name = "locality_id", insertable = false, updatable = false)
     private int                  localityId;
 
     @FieldMetaInfo(displayName = "City Id", description = "City Id")
@@ -111,8 +111,21 @@ public class LocalityAmenity extends BaseModel {
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "place_type_id", referencedColumnName = "id")
     private LocalityAmenityTypes localityAmenityTypes;
+    
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "locality_id", referencedColumnName = "LOCALITY_ID")
+    private Locality locality;
 
-    public int getLocalityId() {
+    public Locality getLocality() {
+		return locality;
+	}
+
+	public void setLocality(Locality locality) {
+		this.locality = locality;
+	}
+
+	public int getLocalityId() {
         return localityId;
     }
 
