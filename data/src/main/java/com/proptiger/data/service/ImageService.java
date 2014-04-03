@@ -252,8 +252,9 @@ public class ImageService {
 
             String originalHash = ImageUtil.fileMd5Hash(originalFile);
 
-            if (isImageHashExists(originalHash, objectId, object.getText()))
-                throw new ResourceAlreadyExistException("Image Already Exists.");
+            Long imageId = isImageHashExists(originalHash, objectId, object.getText());
+            if (imageId != null)
+                throw new ResourceAlreadyExistException("Image Already Exists with Id-" + imageId);
 
             // Persist
             Image image = imageDao.insertImage(
@@ -310,12 +311,12 @@ public class ImageService {
         return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
     }
 
-    private boolean isImageHashExists(String originalHash, long objectId, String objectType) {
+    private Long isImageHashExists(String originalHash, long objectId, String objectType) {
         List<Long> imageIds = imageDao.getImageOnHashAndObjectIdAndObjectType(originalHash, objectId, objectType);
 
         if (imageIds == null || imageIds.isEmpty())
-            return false;
+            return null;
 
-        return true;
+        return imageIds.get(0);
     }
 }

@@ -30,6 +30,6 @@ public interface ImageDao extends ImageCustomDao, JpaRepository<Image, Long> {
     public List<Image> getImagesForObjectIdsWithImageType(String objectType, String imageTypeStr, List<Long> objectIds);
     
     
-    @Query("SELECT I.id FROM Image as I WHERE I.originalHash = ?1 AND I.objectId = ?2 AND I.imageTypeObj.objectType.type = ?3")
+    @Query("SELECT I.id FROM Image as I WHERE I.originalHash = ?1 AND I.objectId = ?2 AND I.imageTypeObj.objectType.type = ?3 AND I.active = 1")
     public List<Long> getImageOnHashAndObjectIdAndObjectType(String originalHash, long objectId, String objectType);
 }
