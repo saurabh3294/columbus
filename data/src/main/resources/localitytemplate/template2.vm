@@ -3,24 +3,18 @@
  #if($nearByLocalities)
 	#set($nearByLocalityNameList = [])
 	#populateNearByLocalityNames
-	#if(${nearByLocalityNameList})
+	#if($nearByLocalityNameList && $nearByLocalityNameList.size() > 0)
 		#listOfStringToSentence($nearByLocalityNameList) #isOrAre($nearByLocalityNameList) located close to ${locality.label}.  
 	#end
 #end
+#topBuilderInLocality
 
-
-#if($topBuilders)
-	#populateBuilderNameList($topBuilders)
-	#if($popularBuildersNameList.size() > 0)
-		Top $popularBuildersNameList.size() builders in ${locality.label}
-	 	#isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) with better facilities & affordable prices.  	
-	#end
-#end
-
-
-#if($popularProjects)
-	#set($counter = 0)
-	Some of the key projects offering properties in this locality #isOrAre($popularProjects) #projectByBuilderSentence($popularProjects). 
+#if($popularProjects && $popularProjects.size() > 0)
+	#if($popularProjects.size()==1)
+		 Key project offering properties in this locality #isOrAre($popularProjects) #projectByBuilderSentence($popularProjects).
+	#else
+		 Some of the key projects offering properties in this locality #isOrAre($popularProjects) #projectByBuilderSentence($popularProjects).
+	#end 
 #end
  
 
@@ -51,26 +45,7 @@
 	with bedroom configurations of #listOfStringToSentence($unitNamesStringList).  
 #end
 #localityPriceChangeInMonth_type2($locality)
-#if($locality.amenityTypeCount)
-	#set($schoolsList = [])
-	#set($hospitalsList = [])
-	 ${locality.label} has many well known schools and Hospitals.  
-	#foreach( $amenity in $amenities )
-		#if($amenity.localityAmenityTypes.name=="school")
-			#set($temp = $schoolsList.add($amenity.name))
-		#end
-		#if($amenity.localityAmenityTypes.name=="hospital")
-		 	#set($temp = $hospitalsList.add($amenity.name))
-		#end
-	#end
-	#if($schoolsList)
-		Some of the key schools in ${locality.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList) 
-	#end
-	#if($hospitalsList)
-		 and key hospitals #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList) 
-	#end
-	. 
-#end
+#localityAmenityTypeDesc
 
 #if($lowestPricePropery && $lowestPricePropery.budget)
 	Property starting at #makePriceUserReadable($lowestPricePropery.budget) are available in ${locality.label} on Proptiger.  

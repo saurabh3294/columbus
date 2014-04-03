@@ -122,52 +122,50 @@
 	#set( $newLaunchProjects = 0)
 	#set( $readyForPossessionProjects = 0)
 	#set( $underConstructionProjects = 0)
-	
-	#if(${locality.projectStatusCount.get("Pre Launch")})
-		#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")})
-	#end
-	#if(${locality.projectStatusCount.get("Not Launched")})
-		#set( $upcomingProjects = $upcomingProjects + ${locality.projectStatusCount.get("Not Launched")})
-	#end
-	#if(${locality.projectStatusCount.get("Launch")})
-		#set( $newLaunchProjects = ${locality.projectStatusCount.get("Launch")})
+	#populateProjectConstructionData
+	#if($popularProjects && $popularProjects.size() == 1)
+		 #projectByBuilderSentence($popularProjects)  
+		 #if($upcomingProjects > 0)
+		 	is yet to launch. 
+		 #elseif($newLaunchProjects > 0)
+		 	is recently launched. 
+		 #elseif($readyForPossessionProjects > 0)
+		 	is ready to move in.  
+		 #elseif($underConstructionProjects)
+		 	is under construction. 
+		 #end
+	#else
+		#if($upcomingProjects || $newLaunchProjects || $readyForPossessionProjects)
+			You can find 
+			#set($counter = 0)
+			#if($upcomingProjects > 0)
+				$upcomingProjects upcoming  
+				#set($counter = $counter + 1)
+			#end
+			#if($newLaunchProjects > 0)
+				#if($counter == 1)
+					, 
+				#end
+				$newLaunchProjects new launches 
+				#set($counter = $counter + 1)
+			#end
+			#if($underConstructionProjects > 0)
+				#if($counter == 1)
+					, 
+				#end
+				$underConstructionProjects under construction 
+				#set($counter = $counter + 1)
+			#end
+			#if($readyForPossessionProjects > 0)
+				#if($counter > 0)
+			 	 	and   
+				#end
+				$readyForPossessionProjects ready to move in 
+			#end
+			projects in ${locality.label} from different builders.  
+		#end
 	#end	
-	#if(${locality.projectStatusCount.get("Under Construction")})
-		#set( $underConstructionProjects = ${locality.projectStatusCount.get("Under Construction")})
-	#end	
-	#if(${locality.projectStatusCount.get("Ready for Possession")})
-		#set( $readyForPossessionProjects = ${locality.projectStatusCount.get("Ready for Possession")})
-	#end
 	
-	#if($upcomingProjects || $newLaunchProjects || $readyForPossessionProjects)
-		You can find 
-		#set($counter = 0)
-		#if($upcomingProjects > 0)
-			$upcomingProjects upcoming  
-			#set($counter = $counter + 1)
-		#end
-		#if($newLaunchProjects > 0)
-			#if($counter == 1)
-				, 
-			#end
-			$newLaunchProjects new launches 
-			#set($counter = $counter + 1)
-		#end
-		#if($underConstructionProjects > 0)
-			#if($counter == 1)
-				, 
-			#end
-			$underConstructionProjects under construction 
-			#set($counter = $counter + 1)
-		#end
-		#if($readyForPossessionProjects > 0)
-			#if($counter > 0)
-		 	 	and   
-			#end
-			$readyForPossessionProjects ready to move in 
-		#end
-		projects in ${locality.label} from different builders.  
-	#end
 #end
 
 #macro(populateAmenitiesList $amenities)
@@ -326,8 +324,19 @@
 		#set($schoolsList = [])
 		#set($hospitalsList = [])
 		#set($metroStationList = [])
-		${locality.label} has many well known schools and Hospitals. 
 		#populateAmenitiesList($amenities)
+		#if($schoolsList.size() > 0 || $hospitalsList.size() > 0)
+			${locality.label} has many well known 
+			#if($schoolsList.size() > 0)
+				schools 
+			#end
+			#if($hospitalsList.size() > 0)
+				#if($schoolsList.size() > 0) and #end
+				 Hospitals. 
+			#end
+			
+		#end
+		 
 		#if($schoolsList && $schoolsList.size() > 0)
 			Key Schools close to ${locality.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList).  
 		#end
@@ -345,5 +354,35 @@
 		$word 
 	#else
 		$word 
+	#end
+#end
+
+#macro(topBuilderInLocality )
+	#if($topBuilders)
+		#populateBuilderNameList($topBuilders)
+		#if($popularBuildersNameList.size() > 1)
+			Top $popularBuildersNameList.size() builders in ${locality.label}
+		 	#isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) with better facilities & affordable prices.
+		#elseif($popularBuildersNameList.size() == 1)
+			Top builder in ${locality.label} 
+		 	#isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) with better facilities & affordable prices.
+		#end
+	#end
+#end
+#macro(populateProjectConstructionData)
+	#if(${locality.projectStatusCount.get("Pre Launch")})
+		#set( $upcomingProjects = ${locality.projectStatusCount.get("Pre Launch")})
+	#end
+	#if(${locality.projectStatusCount.get("Not Launched")})
+		#set( $upcomingProjects = $upcomingProjects + ${locality.projectStatusCount.get("Not Launched")})
+	#end
+	#if(${locality.projectStatusCount.get("Launch")})
+		#set( $newLaunchProjects = ${locality.projectStatusCount.get("Launch")})
+	#end	
+	#if(${locality.projectStatusCount.get("Under Construction")})
+		#set( $underConstructionProjects = ${locality.projectStatusCount.get("Under Construction")})
+	#end	
+	#if(${locality.projectStatusCount.get("Ready for Possession")})
+		#set( $readyForPossessionProjects = ${locality.projectStatusCount.get("Ready for Possession")})
 	#end
 #end
