@@ -1,6 +1,7 @@
 package com.proptiger.data.handler;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.BadRequestException;
 
 import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
@@ -215,5 +216,13 @@ public class GlobalExceptionHandler {
     protected ProAPIResponse handleUnauthorizedException(UnauthorizedException exception, HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
         return new ProAPIErrorResponse(ResponseCodes.UNAUTHORIZED, ResponseErrorMessages.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    protected ProAPIResponse handleBadRequestException(BadRequestException exception, HttpServletRequest httpRequest) {
+        logAPIUrlInLogFile(httpRequest, exception);
+        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.BAD_REQUEST);
     }
 }

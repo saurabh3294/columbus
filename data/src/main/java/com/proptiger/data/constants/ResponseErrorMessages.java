@@ -22,4 +22,5 @@ public interface ResponseErrorMessages {
     static String USER_NAME_PASSWORD_INCORRECT        = "User name or password not correct";
     static String AUTHENTICATION_ERROR                = "Authentication error";
     static String UNAUTHORIZED                        = "Unauthorized";
+    static String BAD_REQUEST                         = "Bad Request";
 }
