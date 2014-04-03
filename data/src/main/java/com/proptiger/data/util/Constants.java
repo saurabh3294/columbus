@@ -113,9 +113,6 @@ public class Constants {
         public static final String PROJECT_STATUS_COUNT_ON_LOCALITY      = "project-status-count-on-locality";
 
         public static final String BUILDER                               = "builder";
-        
-		public static final String SUBURB_RATING_AVG_BY_CATEGORY		 = "sub-rating-avg-ctg";;
-
     }
 
 }

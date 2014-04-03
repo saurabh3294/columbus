@@ -101,7 +101,6 @@ public class LocalityRatingService {
      * @param suburbId
      * @return
      */
-    @Cacheable(value = Constants.CacheName.SUBURB_RATING_AVG_BY_CATEGORY, key = "#suburbId")
     public LocalityAverageRatingByCategory getAvgRatingsOfSuburbByCategory(Integer suburbId) {
         logger.debug("Get suburb average rating of category for suburb {}", suburbId);
         LocalityAverageRatingByCategory avgRatingOfAmenities = localityRatingDao
