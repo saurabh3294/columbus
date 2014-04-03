@@ -20,7 +20,7 @@ public interface ImageCustomDao {
             File orignalImage,
             File watermarkImage,
             Image imageObj,
-            String format);
+            String format, String originalHash);
 
     public void markImageAsActive(Image image);
 }
