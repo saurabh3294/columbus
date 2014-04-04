@@ -145,7 +145,7 @@ public class ProjectDiscussionsService {
         List<ProjectDiscussion> allComments = projectDiscussionDao
                 .getDiscussionsByProjectIdOrderByCreatedDateDesc(projectId);
         if (allComments == null || allComments.size() < 1)
-            return null;
+            return new PaginatedResponse<>();
 
         Map<Long, List<ProjectDiscussion>> parentChildComments = new HashMap<>();
         long parentId;

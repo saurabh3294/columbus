@@ -178,7 +178,28 @@ public class ProjectDetailController extends BaseController {
             projectSelector = new Selector();
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-        return new ProAPISuccessResponse(super.filterFields(project, projectSelector.getFields()));
+
+        /*
+         * Setting project Specification if needed.
+         */
+        Set<String> fields = projectSelector.getFields();
+        if (fields == null || fields.contains("projectSpecification")) {
+            project.setProjectSpecification(projectService.getProjectSpecificationsV2(projectId));
+        }
+
+        return new ProAPISuccessResponse(super.filterFields(project, fields));
     }
 
+    @RequestMapping(value = { "app/v3/project-detail/{projectId}" })
+    @ResponseBody
+    public ProAPIResponse getProjectDetails3(
+            @PathVariable Integer projectId,
+            @RequestParam(required = false) String selector) throws Exception {
+        Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if (projectSelector == null) {
+            projectSelector = new Selector();
+        }
+        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
+        return new ProAPISuccessResponse(super.filterFields(project, projectSelector.getFields()));
+    }
 }

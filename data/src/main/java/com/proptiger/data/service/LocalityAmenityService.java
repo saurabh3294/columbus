@@ -92,4 +92,14 @@ public class LocalityAmenityService {
 
         return data;
     }
+
+	/**
+	 * @param suburbId
+	 * @return
+	 */
+	public List<LocalityAmenity> getSuburbAmenities(int suburbId) {
+		List<LocalityAmenity> output = null;
+		output = localityAmenityDao.getAmenitiesBySuburbId(suburbId);
+		return output;
+	}
 }

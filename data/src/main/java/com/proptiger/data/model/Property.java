@@ -149,6 +149,14 @@ public class Property extends BaseModel {
     @Field("POOJA_ROOM")
     private Integer           poojaRoom;
 
+    @Transient
+    @Field("MIN_RESALE_OR_PRIMARY_PRICE")
+    private Double            minResaleOrPrimaryPrice;
+
+    @Transient
+    @Field("MAX_RESALE_OR_PRIMARY_PRICE")
+    private Double            maxResaleOrPrimaryPrice;
+
     public int getProjectId() {
         return projectId;
     }
@@ -319,6 +327,22 @@ public class Property extends BaseModel {
 
     public void setPoojaRoom(Integer poojaRoom) {
         this.poojaRoom = poojaRoom;
+    }
+
+    public Double getMinResaleOrPrimaryPrice() {
+        return minResaleOrPrimaryPrice;
+    }
+
+    public void setMinResaleOrPrimaryPrice(Double minResaleOrPrimaryPrice) {
+        this.minResaleOrPrimaryPrice = minResaleOrPrimaryPrice;
+    }
+
+    public Double getMaxResaleOrPrimaryPrice() {
+        return maxResaleOrPrimaryPrice;
+    }
+
+    public void setMaxResaleOrPrimaryPrice(Double maxResaleOrPrimaryPrice) {
+        this.maxResaleOrPrimaryPrice = maxResaleOrPrimaryPrice;
     }
 
 }
