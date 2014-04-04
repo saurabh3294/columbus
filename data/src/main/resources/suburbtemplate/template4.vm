@@ -75,13 +75,15 @@ ${suburb.label} has some great #listOfStringToSentence($unitTypesStringList) for
 	#projectByStatus($suburb)
 #end
 #suburbAvgRatingWithHighestAmenityRating($suburb)
-#if($popularProjects)
+#if($popularProjects && $popularProjects.size() >= 1)
 	#set($project1 = $popularProjects.get(0))
-	#set($project2 = $popularProjects.get(1))
 	#if($project1)
 		One #popularProjectSentence(${suburb.label} $project1)
-		#if($project2)
-			Another #popularProjectSentence(${suburb.label} $project2)
+		#if($popularProjects && $popularProjects.size() >= 2)
+			#set($project2 = $popularProjects.get(1))
+			#if($project2)
+				Another #popularProjectSentence(${suburb.label} $project2)
+			#end
 		#end
 	#end
 #end
