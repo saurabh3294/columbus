@@ -23,4 +23,5 @@ public interface ResponseErrorMessages {
     static String AUTHENTICATION_ERROR                = "Authentication error";
     static String UNAUTHORIZED                        = "Unauthorized";
     static String BAD_REQUEST                         = "Bad Request";
+    static String INVALID_USER_PREFERENCE             = "Invalid User Preference";
 }

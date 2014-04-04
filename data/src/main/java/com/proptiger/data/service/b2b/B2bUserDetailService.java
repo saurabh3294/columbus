@@ -1,10 +1,9 @@
 package com.proptiger.data.service.b2b;
 
-import javax.ws.rs.BadRequestException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.B2bUserDetail;
 import com.proptiger.data.repo.b2b.B2bUserDetailDao;
@@ -24,7 +23,7 @@ public class B2bUserDetailService {
 
     public B2bUserDetail updateUserDetails(B2bUserDetail b2bUserDetail, UserInfo userInfo) {
         if (!B2bUserPreferenceProcessor.isValidPreference(b2bUserDetail.getPreference())) {
-            throw new BadRequestException();
+            throw new com.proptiger.exception.BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
         }
         b2bUserDetail.setId(userInfo.getUserIdentifier());
         return b2bUserDetailDao.save(b2bUserDetail);
