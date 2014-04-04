@@ -1,0 +1,89 @@
+#parse("./suburbtemplate/utilityFunctions.vm")
+#set($minSize = 0)
+#set($maxSize = 0)
+#set($counter = 0)
+#set($lowestPricePropery = "")
+#populateUnitTypeAndUnitNameList($properties)
+#foreach($property in $properties)
+	#if($property.size)
+		#if($counter == 0)
+			#set($minSize = $property.size)
+			#set($maxSize = $property.size)
+			#set($counter = 1)
+			#set($lowestPricePropery = $property)
+		#elseif($property.size  < $minSize)
+			#set($minSize = $property.size)
+		#elseif($property.size > $maxSize)
+			#set($maxSize = $property.size)
+		#end
+	#end
+	#if($lowestPricePropery && $lowestPricePropery.budget && $property.budget && $property.budget < $lowestPricePropery.budget)
+		#set($lowestPricePropery = $property)
+	#end
+#end
+One of the most comfortable areas in ${suburb.city.label}, 
+${suburb.label} has some great #listOfStringToSentence($unitTypesStringList) for sale. 
+#if($localitiesInSuburb)
+	#set($nearByLocalityNameList = [])
+	#set($counter = 0)
+	#foreach($nearLocality in $localitiesInSuburb)
+		#if ($counter < 10)
+			#set($temp = $nearByLocalityNameList.add($nearLocality.label))
+		#end
+		#set($counter = $counter + 1)
+	#end
+	#if($nearByLocalityNameList && $nearByLocalityNameList.size() > 0)
+		${suburb.label}, surrounded by developed areas such as #listOfStringToSentence($nearByLocalityNameList). 
+	#end
+#end	
+#if($topBuilders)
+	#populateBuilderNameList($topBuilders)
+	#if($popularBuildersNameList)
+		Overall $popularBuildersNameList.size() Builders are providing 
+		 #listOfStringToSentence($unitTypesStringList) projects for sale in ${suburb.label}. 
+		 The top builders #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList). 
+	#end
+#end
+#if(${suburb.projectStatusCount.get("launch")})
+	${suburb.label} is booming as there are ${suburb.projectStatusCount.get("launch")}
+	 new projects launched in the suburb in last few months. 
+#end
+#if($minSize > 0 && $maxSize > 0 && $maxSize > $minSize)
+	Properties in ${suburb.label} offer #listOfStringToSentence($unitNamesStringList)   
+	 options with built up area ranging between $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft. 
+#end
+#if($lowestPricePropery && $lowestPricePropery.pricePerUnitArea)
+	The average price of $lowestPricePropery.unitType for sale in ${suburb.label} is $numberFormatter.format($lowestPricePropery.pricePerUnitArea)/sq ft. 
+#end
+#if($amenities)
+	#set($schoolsList = [])
+	#set($hospitalsList = [])
+	#set($metroStationList = [])
+	${suburb.label} has many well known schools and Hospitals. 
+	#populateAmenitiesList($amenities)
+	#if($schoolsList)
+		Key Schools close to ${suburb.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList).  
+	#end
+	#if($hospitalsList)
+		Key hospitals to this suburb #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList).  
+	#end
+	#if($metroStationList)
+		Suburb is close to #listOfStringToSentence($metroStationList).  
+	#end
+#end
+#if($suburb.projectStatusCount)
+	#projectByStatus($suburb)
+#end
+#suburbAvgRatingWithHighestAmenityRating($suburb)
+#if($popularProjects && $popularProjects.size() >= 1)
+	#set($project1 = $popularProjects.get(0))
+	#if($project1)
+		One #popularProjectSentence(${suburb.label} $project1)
+		#if($popularProjects && $popularProjects.size() >= 2)
+			#set($project2 = $popularProjects.get(1))
+			#if($project2)
+				Another #popularProjectSentence(${suburb.label} $project2)
+			#end
+		#end
+	#end
+#end
