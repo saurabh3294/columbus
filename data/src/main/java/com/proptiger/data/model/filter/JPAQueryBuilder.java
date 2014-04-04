@@ -19,6 +19,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Selection;
@@ -166,63 +167,83 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         String prefix = parseAggregateFunctionFromField(fieldName);
         String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         Expression<?> expression = null;
-        try {
-            switch (FUNCTIONS.valueOf(prefix)) {
-                case max:
-                    Expression<Number> maxExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.max(maxExpression);
-                    break;
-                case avg:
-                    Expression<Double> avgExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.avg(avgExpression);
-                    break;
-                case wavg:
-                    String[] fieldNames = actualFieldName.split("On");
-                    fieldNames[1] = StringUtils.uncapitalize(fieldNames[1]);
-                    Expression<Double> field1 = root.get(fieldNames[0]);
-                    Expression<Double> field2 = root.get(fieldNames[1]);
-                    expression = criteriaBuilder.function("weighted_average", Double.class, field1, field2);
-                    break;
-                case median:
-                    Expression<Double> medianExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.function("median", Double.class, medianExpression);
-                    break;
-                case count:
-                    Expression<Number> countExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.count(countExpression);
-                    break;
-                case countDistinct:
-                    Expression<Number> countDistinctExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.countDistinct(countDistinctExpression);
-                    break;
-                case min:
-                    Expression<Number> minExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.min(minExpression);
-                    break;
-                case sum:
-                    Expression<Number> sumExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.sum(sumExpression);
-                    break;
-                case groupConcat:
-                    Expression<String> groupConcatExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.function("group_concat", String.class, groupConcatExpression);
-                    break;
-                case groupConcatDistinct:
-                    Expression<String> groupConcatDistinctExpression = root.get(actualFieldName);
-                    expression = criteriaBuilder.function(
-                            "group_concat_distinct",
-                            String.class,
-                            groupConcatDistinctExpression);
-                    break;
-                default:
-                    throw new UnsupportedOperationException("Missing support for " + prefix + " function");
+        if(prefix != null && !prefix.isEmpty()){
+            //some aggregate function found
+            try {
+                switch (FUNCTIONS.valueOf(prefix)) {
+                    case max:
+                        Expression<Number> maxExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.max(maxExpression);
+                        break;
+                    case avg:
+                        Expression<Double> avgExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.avg(avgExpression);
+                        break;
+                    case wavg:
+                        String[] fieldNames = actualFieldName.split("On");
+                        fieldNames[1] = StringUtils.uncapitalize(fieldNames[1]);
+                        Expression<Double> field1 = root.get(fieldNames[0]);
+                        Expression<Double> field2 = root.get(fieldNames[1]);
+                        expression = criteriaBuilder.function("weighted_average", Double.class, field1, field2);
+                        break;
+                    case median:
+                        Expression<Double> medianExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.function("median", Double.class, medianExpression);
+                        break;
+                    case count:
+                        Expression<Number> countExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.count(countExpression);
+                        break;
+                    case countDistinct:
+                        Expression<Number> countDistinctExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.countDistinct(countDistinctExpression);
+                        break;
+                    case min:
+                        Expression<Number> minExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.min(minExpression);
+                        break;
+                    case sum:
+                        Expression<Number> sumExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.sum(sumExpression);
+                        break;
+                    case groupConcat:
+                        Expression<String> groupConcatExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.function("group_concat", String.class, groupConcatExpression);
+                        break;
+                    case groupConcatDistinct:
+                        Expression<String> groupConcatDistinctExpression = root.get(actualFieldName);
+                        expression = criteriaBuilder.function(
+                                "group_concat_distinct",
+                                String.class,
+                                groupConcatDistinctExpression);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Missing support for " + prefix + " function");
+                }
+            }
+            catch (UnsupportedOperationException e) {
+                logger.error(e.getMessage(), e);
             }
         }
-        catch (UnsupportedOperationException e) {
-            logger.error(e.getMessage(), e);
-        }
-        catch (Exception e) {
-            expression = root.get(fieldName);
+        else{
+            if(fieldName.contains(".")){
+                //there might be a accociated field reference, need to create path till the last reference
+                //we expect the fieldname do not have "-" or some other character for sorting etc.
+                String[] fields = fieldName.split("\\.");
+                Path<Object> path  = null;
+                for(String f: fields){
+                    if(path == null){
+                        path = root.get(f);
+                    }
+                    else{
+                        path = path.get(f);
+                    }
+                }
+                expression = path;
+            }
+            else{
+                expression = root.get(fieldName);
+            }
         }
 
         expression.alias(fieldName);
