@@ -207,7 +207,7 @@ public class ProjectService {
          * Setting project Specification if needed.
          */
         if (fields == null || fields.contains("projectSpecification")) {
-            project.setProjectSpecification(this.getProjectSpecificationsV2(projectId));
+            project.setProjectSpecification(this.getProjectSpecificationsV3(projectId));
         }
 
         /*
@@ -410,6 +410,20 @@ public class ProjectService {
     }
 
     /**
+     * This method will return the project specifications From CMS by new
+     * database for a project. architecture.
+     * 
+     * @param projectId
+     * @return
+     */
+    public ProjectSpecification getProjectSpecificationsV3(int projectId) {
+        int cmsProjectId = IdConverterForDatabase.getCMSDomainIdForDomainTypes(DomainObject.project, projectId);
+        List<TableAttributes> specifications = tableAttributesService.getTableAttributes(cmsProjectId, "resi_project");
+
+        return new ProjectSpecification(specifications, false);
+    }
+
+    /**
      * This Method will return the Most Recently Discussed Projects in a city or
      * suburb or locality.
      * 
@@ -521,7 +535,8 @@ public class ProjectService {
             String locationType,
             int locationId,
             int numberOfProjects,
-            double minimumPriceRise) {
+            double minimumPriceRise)
+    {
         String json = "{\"paging\":{\"rows\":" + numberOfProjects
                 + "},\"filters\":{\"and\":[{\"equal\":{\""
                 + locationType
@@ -531,9 +546,7 @@ public class ProjectService {
                 + minimumPriceRise
                 + "}}}]},\"sort\":[{\"field\":\"projectPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
 
-        System.out.println(json);
         Selector selector = new Gson().fromJson(json, Selector.class);
-
         return projectDao.getProjects(selector);
     }
     

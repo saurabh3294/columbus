@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 
 /**
  * @author mandeep
@@ -90,12 +91,21 @@ public class Suburb extends BaseModel {
     private String               dominantUnitType;
 
     @Transient
-    private Map<Integer, Double> avgBHKPrice;
+    private Map<Integer, Double> avgBHKPricePerUnitArea;
 
     @Transient
     @Field("SUBURB_OVERVIEW_URL")
     private String               overviewUrl;
-
+    
+    @Transient
+    private Map<String, Long>	projectStatusCount;
+    
+    @Transient
+    private Long				projectCount;
+    
+    @Transient
+    private LocalityAverageRatingByCategory avgRatingsByCategory;
+    
     public int getId() {
         return id;
     }
@@ -184,12 +194,12 @@ public class Suburb extends BaseModel {
         this.dominantUnitType = dominantUnitType;
     }
 
-    public Map<Integer, Double> getAvgBHKPrice() {
-        return avgBHKPrice;
+    public Map<Integer, Double> getAvgBHKPricePerUnitArea() {
+        return avgBHKPricePerUnitArea;
     }
 
-    public void setAvgBHKPrice(Map<Integer, Double> avgBHKPrice) {
-        this.avgBHKPrice = avgBHKPrice;
+    public void setAvgBHKPricePerUnitArea(Map<Integer, Double> avgBHKPricePerUnitArea) {
+        this.avgBHKPricePerUnitArea = avgBHKPricePerUnitArea;
     }
 
     public String getOverviewUrl() {
@@ -199,4 +209,29 @@ public class Suburb extends BaseModel {
     public void setOverviewUrl(String suburbOverviewUrl) {
         this.overviewUrl = suburbOverviewUrl;
     }
+
+    public Map<String, Long> getProjectStatusCount() {
+        return projectStatusCount;
+    }
+
+    public void setProjectStatusCount(Map<String, Long> projectStatusCount) {
+        this.projectStatusCount = projectStatusCount;
+    }
+
+    public Long getProjectCount() {
+        return projectCount;
+    }
+
+    public void setProjectCount(Long projectCount) {
+        this.projectCount = projectCount;
+    }
+
+	public LocalityAverageRatingByCategory getAvgRatingsByCategory() {
+		return avgRatingsByCategory;
+	}
+
+	public void setAvgRatingsByCategory(
+			LocalityAverageRatingByCategory avgRatingsByCategory) {
+		this.avgRatingsByCategory = avgRatingsByCategory;
+	}
 }

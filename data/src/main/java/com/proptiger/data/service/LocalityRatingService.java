@@ -1,9 +1,13 @@
 package com.proptiger.data.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.ehcache.hibernate.management.impl.BeanUtils;
+
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +16,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+import com.proptiger.data.init.NullAwareBeanUtilsBean;
 import com.proptiger.data.model.LocalityRatings;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
@@ -87,6 +93,20 @@ public class LocalityRatingService {
                 .getAvgRatingOfAmenitiesForLocality(localityId);
         return avgRatingOfAmenities;
     }
+    
+    /**
+     * Computing average rating of all amenities of suburb. Excluding null and
+     * zero values while calculating average.
+     * 
+     * @param suburbId
+     * @return
+     */
+    public LocalityAverageRatingByCategory getAvgRatingsOfSuburbByCategory(Integer suburbId) {
+        logger.debug("Get suburb average rating of category for suburb {}", suburbId);
+        LocalityAverageRatingByCategory avgRatingOfAmenities = localityRatingDao
+                .getAvgRatingOfAmenitiesForSuburb(suburbId);
+        return avgRatingOfAmenities;
+    }
 
     @CacheEvict(value = {
             Constants.CacheName.LOCALITY_RATING_AVG_BY_CATEGORY,
@@ -131,7 +151,12 @@ public class LocalityRatingService {
      */
     @Transactional
     private LocalityRatings updateLocalityRating(LocalityRatings ratingPresent, LocalityRatings newRatings) {
-        ratingPresent.update(newRatings);
+        BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+        try {
+            beanUtilsBean.copyProperties(ratingPresent, newRatings);
+        }
+        catch (IllegalAccessException | InvocationTargetException e) {
+        }
         return ratingPresent;
     }
 

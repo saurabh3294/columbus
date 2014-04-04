@@ -20,7 +20,6 @@ import org.im4java.core.MogrifyCmd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
@@ -43,6 +42,7 @@ import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ImageUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
  * @author yugal
@@ -223,7 +223,6 @@ public class ImageService {
     /*
      * Public method to upload images
      */
-    @CacheEvict(value = Constants.CacheName.CACHE, key = "#object.getText()+#imageTypeStr+#objectId")
     public Image uploadImage(
             DomainObject object,
             String imageTypeStr,
@@ -251,6 +250,12 @@ public class ImageService {
                 applyWaterMark(processedFile, format);
             }
 
+            String originalHash = ImageUtil.fileMd5Hash(originalFile);
+
+            Long imageId = isImageHashExists(originalHash, objectId, object.getText());
+            if (imageId != null)
+                throw new ResourceAlreadyExistException("Image Already Exists with Id-" + imageId);
+
             // Persist
             Image image = imageDao.insertImage(
                     object,
@@ -259,9 +264,12 @@ public class ImageService {
                     originalFile,
                     processedFile,
                     imageParams,
-                    format);
+                    format,
+                    originalHash);
             uploadToS3(image, originalFile, processedFile, format);
             imageDao.markImageAsActive(image);
+
+            caching.deleteMultipleResponseFromCache(getImageCacheKey(object, imageTypeStr, objectId));
             return image;
         }
         catch (IllegalStateException | IOException e) {
@@ -281,21 +289,34 @@ public class ImageService {
     public void deleteImageInCache(long id) {
         Image image = getImage(id);
 
-        caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
+        caching.deleteMultipleResponseFromCache(getImageCacheKeyFromImageObject(image));
     }
 
-    public String getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
-        return object.getText() + imageTypeStr + objectId;
+    public String[] getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
+        String keys[] = new String[2];
+        keys[0] = object.getText() + imageTypeStr + objectId;
+        keys[0] = object.getText() + "null" + objectId;
+
+        return keys;
     }
 
     public void update(Image image) {
-        caching.deleteResponseFromCache(getImageCacheKeyFromImageObject(image));
+        caching.deleteMultipleResponseFromCache(getImageCacheKeyFromImageObject(image));
         imageDao.save(image);
     }
 
-    private String getImageCacheKeyFromImageObject(Image image) {
+    private String[] getImageCacheKeyFromImageObject(Image image) {
         DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
 
         return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
+    }
+
+    private Long isImageHashExists(String originalHash, long objectId, String objectType) {
+        List<Long> imageIds = imageDao.getImageOnHashAndObjectIdAndObjectType(originalHash, objectId, objectType);
+
+        if (imageIds == null || imageIds.isEmpty())
+            return null;
+
+        return imageIds.get(0);
     }
 }

@@ -3,6 +3,7 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Locality;
@@ -22,6 +26,8 @@ import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetai
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.SortBy;
+import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityReviewDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
@@ -165,22 +171,26 @@ public class LocalityReviewService {
      * @param selector
      * @return
      */
-    public List<LocalityReviewComments> getLocalityReview(Integer localityId, Integer userId, Selector selector) {
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer localityId, Integer userId, Selector selector) {
 
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
         if (selector != null && selector.getPaging() != null) {
             pageable = new LimitOffsetPageRequest(selector.getPaging().getStart(), selector.getPaging().getRows());
         }
         List<LocalityReviewComments> reviews = null;
-
+        PaginatedResponse<List<LocalityReviewComments>> paginatedReviews = new PaginatedResponse<List<LocalityReviewComments>>();
         // in case call is for specific user
         if (userId != null) {
             reviews = localityReviewDao.getReviewsByLocalityIdAndUserId(localityId, userId, pageable);
+            paginatedReviews.setResults(reviews);
+            paginatedReviews.setTotalCount(reviews != null? reviews.size(): 0);
         }
         else {
             reviews = localityReviewDao.getReviewsByLocalityId(localityId, pageable);
+            paginatedReviews.setResults(reviews);
+            paginatedReviews.setTotalCount(localityReviewDao.getTotalReviewsByLocalityId(localityId));
         }
-        return reviews;
+        return paginatedReviews;
     }
 
     /**
@@ -191,11 +201,11 @@ public class LocalityReviewService {
      * @param selector
      * @return
      */
-    public List<LocalityReviewComments> getLocalityReviewOrderByRating(
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReviewOrderByRating(
             Integer localityId,
             Integer userId,
             Selector selector) {
-
+        PaginatedResponse<List<LocalityReviewComments>> paginatedReviews = new PaginatedResponse<List<LocalityReviewComments>>();
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
         if (selector != null && selector.getPaging() != null) {
             pageable = new LimitOffsetPageRequest(selector.getPaging().getStart(), selector.getPaging().getRows());
@@ -205,11 +215,15 @@ public class LocalityReviewService {
         // in case call is for specific user
         if (userId != null) {
             reviews = localityReviewDao.getReviewsByLocalityIdAndUserIdOrderByRating(localityId, userId, pageable);
+            paginatedReviews.setResults(reviews);
+            paginatedReviews.setTotalCount(reviews != null? reviews.size(): 0);
         }
         else {
             reviews = localityReviewDao.getReviewsByLocalityIdOrderByRating(localityId, pageable);
+            paginatedReviews.setResults(reviews);
+            paginatedReviews.setTotalCount(localityReviewDao.getTotalReviewsByLocalityId(localityId));
         }
-        return reviews;
+        return paginatedReviews;
     }
 
     /**
@@ -261,6 +275,7 @@ public class LocalityReviewService {
      * @param selector
      * @return
      */
+    @Deprecated
     public PaginatedResponse<List<LocalityReviewComments>> getLocalityReviewOfCity(Integer cityId, FIQLSelector selector) {
         if (selector == null) {
             selector = new FIQLSelector();
@@ -268,7 +283,7 @@ public class LocalityReviewService {
         selector.addAndConditionToFilter("locality.suburb.cityId==" + cityId).addAndConditionToFilter("status==1")
                 .addSortDESC("commenttime");
         PaginatedResponse<List<LocalityReviewComments>> reviews = new PaginatedResponse<>();
-        reviews = localityReviewDao.getLocalityReview(cityId, selector);
+        reviews = localityReviewDao.getLocalityReview(selector);
         return reviews;
     }
 
@@ -278,6 +293,7 @@ public class LocalityReviewService {
      * @param selector
      * @return
      */
+    @Deprecated
     public PaginatedResponse<List<LocalityReviewComments>> getLocalityReviewOfSuburb(
             Integer suburbId,
             FIQLSelector selector) {
@@ -287,7 +303,21 @@ public class LocalityReviewService {
         selector.addAndConditionToFilter("locality.suburb.id==" + suburbId).addAndConditionToFilter("status==1")
                 .addSortDESC("commenttime");
         PaginatedResponse<List<LocalityReviewComments>> reviews = new PaginatedResponse<>();
-        reviews = localityReviewDao.getLocalityReview(suburbId, selector);
+        reviews = localityReviewDao.getLocalityReview(selector);
         return reviews;
+    }
+    
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer userId, FIQLSelector selector){
+        PaginatedResponse<List<LocalityReviewComments>> response = new PaginatedResponse<List<LocalityReviewComments>>();
+        if(selector == null || selector.getFilters() == null){
+            return null;
+        }
+        else{
+            if(userId != null){
+                selector.addAndConditionToFilter("userId=="+userId);
+            }
+            response = localityReviewDao.getLocalityReview(selector);
+        }
+        return response;
     }
 }

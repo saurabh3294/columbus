@@ -61,12 +61,12 @@ public class ImageDaoImpl {
             File orignalImage,
             File watermarkImage,
             Image image,
-            String format) {
+            String format,
+            String originalHash) {
         try {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder cb = em.getCriteriaBuilder();
 
-            String originalHash = ImageUtil.fileMd5Hash(orignalImage);
             String watermarkHash = ImageUtil.fileMd5Hash(watermarkImage);
 
             // Image
@@ -111,4 +111,5 @@ public class ImageDaoImpl {
         em.merge(image);
         em.getTransaction().commit();
     }
+
 }

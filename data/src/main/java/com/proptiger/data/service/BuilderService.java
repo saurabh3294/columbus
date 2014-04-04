@@ -7,11 +7,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.connection.SortParameters.Order;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -133,6 +135,8 @@ public class BuilderService {
         solrQuery.add("group.field", "BUILDER_ID");
         solrQuery.add("group.ngroups", "true");
         solrQuery.add("group.main", "true");
+        solrQuery.addSort("BUILDER_PRIORITY", ORDER.asc);
+        solrQuery.addSort("BUILDER_NAME", ORDER.asc);
 
         SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
         solrQueryBuilder.buildQuery(builderSelector, null);
