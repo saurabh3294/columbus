@@ -113,7 +113,7 @@ public class LocalityAmenity extends BaseModel {
     private LocalityAmenityTypes localityAmenityTypes;
     
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "locality_id", referencedColumnName = "LOCALITY_ID")
     private Locality locality;
 
