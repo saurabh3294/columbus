@@ -1,4 +1,5 @@
 create index original_hash on proptiger.Image (original_hash);
+create index service_image_id on cms.project_plan_images (service_image_id);
 
 update Image i, ImageType it, ObjectType ot, RESI_PROJECT_TYPES rpt 
 set title = CONCAT(rpt.UNIT_NAME, ' - ', rpt.SIZE, ' sq ft')
@@ -47,7 +48,7 @@ update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id =
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 1 AND IT.type = "priceList") JOIN RESI_PROJECT RP ON (RP.project_id = I.object_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, "Price List"), title="Price List";
 
 /*  Project Cluster Plan */
-update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 1 AND IT.type = "clusterPlan") JOIN RESI_PROJECT RP ON (RP.project_id = I.object_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, "Cluster Plan"), title="Cluster Plan";
+update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 1 AND IT.type = "clusterPlan") JOIN RESI_PROJECT RP ON (RP.project_id = I.object_id) LEFT JOIN cms.project_plan_images PPI ON (I.id=PPI.service_image_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, IF(PPI.title is NOT NULL AND PPI.title != "", PPI.title, "Cluster Plan")), I.title=IF(PPI.title is NOT NULL AND PPI.title != "", PPI.title, "Cluster Plan");
 
 /* Project Layout Plan */
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 1 AND IT.type = "layoutPlan") JOIN RESI_PROJECT RP ON (RP.project_id = I.object_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, "Layout Plan"), title="Layout Plan";
@@ -57,12 +58,6 @@ update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id =
 
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 2 AND IT.type = "floorPlan") JOIN RESI_PROJECT_TYPES RPT ON (RPT.type_id=I.object_id) JOIN RESI_PROJECT RP ON (RP.project_id = RPT.project_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, "Floor Plan", I.title);
 
-/* Construction Updates */
-/* TODO add if condition if tagged months is null. if tower_id is null . all four cases.*/
-
-
-/* duplicate builder image deactivate across all builders. */
-/*update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id) set I.active = 0 where (I.original_hash, IT.objecttype_id) IN ( select Im.original_hash, OT.id from Image Im JOIN ImageType IT ON (Im.imagetype_id=IT.id) JOIN ObjectType OT ON (IT.objecttype_id=OT.id AND OT.type="builder") where Im.active = 1 group by Im.original_hash, OT.id having count(*) > 1);*/
 
 
 
