@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.Suburb;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.pojo.PaginatedResponse;
@@ -89,18 +90,17 @@ public class SuburbDescriptionService {
         Paging paging = new Paging(0, 5);
         Selector suburbSelector = new Selector();
         suburbSelector.setPaging(paging);
-        Selector selector = new Gson().fromJson(
-                "{\"filters\":{\"and\":[{\"equal\":{\"suburbId\":" + suburb.getId() + "}}]}}",
-                Selector.class);
-        map.put(
-                "localitiesInSuburb",
-                localityService.getLocalities(selector));
-        
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"suburbId\":" + suburb.getId()
+                + "}}]}}", Selector.class);
+        map.put("localitiesInSuburb", localityService.getLocalities(selector));
+
         map.put("topBuilders", builderService.getTopBuilders(selector));
         map.put("amenities", localityAmenityService.getSuburbAmenities(suburb.getId()));
         map.put("popularProjects", projectService.getPopularProjects(selector));
-        PaginatedResponse<List<LocalityReviewComments>> paginatedReviews = localityReviewService.getLocalityReviewOfSuburb(suburb.getId(), null);
-        map.put("suburbReviewCount", paginatedReviews != null? paginatedReviews.getTotalCount(): 0);
+        PaginatedResponse<List<LocalityReviewComments>> paginatedReviews = localityReviewService.getLocalityReview(
+                null,
+                new FIQLSelector().addAndConditionToFilter("locality.suburb.id=="+suburb.getId()));
+        map.put("suburbReviewCount", paginatedReviews != null ? paginatedReviews.getTotalCount() : 0);
         List<Property> properties = propertyService.getProperties(selector);
         map.put("properties", properties);
         return map;
