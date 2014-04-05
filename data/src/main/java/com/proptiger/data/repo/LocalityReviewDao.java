@@ -41,6 +41,4 @@ public interface LocalityReviewDao extends PagingAndSortingRepository<LocalityRe
             List<Integer> locationIds,
             long minCount,
             Pageable pageable);
-
-    public LocalityReviewComments getByLocalityIdAndUserId(Integer localityId, Integer userId);
 }
