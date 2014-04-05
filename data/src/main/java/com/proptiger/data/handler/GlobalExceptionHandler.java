@@ -21,6 +21,7 @@ import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
@@ -215,5 +216,15 @@ public class GlobalExceptionHandler {
     protected ProAPIResponse handleUnauthorizedException(UnauthorizedException exception, HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
         return new ProAPIErrorResponse(ResponseCodes.UNAUTHORIZED, ResponseErrorMessages.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    protected ProAPIResponse handleBadRequestException(BadRequestException exception, HttpServletRequest httpRequest) {
+        logAPIUrlInLogFile(httpRequest, exception);
+        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
+                ? ResponseErrorMessages.BAD_REQUEST
+                : exception.getMessage());
     }
 }
