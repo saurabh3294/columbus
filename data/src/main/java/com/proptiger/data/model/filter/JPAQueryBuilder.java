@@ -163,7 +163,6 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     }
 
     private Expression<?> createExpression(String fieldName) {
-        parseAggregateFunctionFromField(fieldName);
         String prefix = parseAggregateFunctionFromField(fieldName);
         String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         Expression<?> expression = null;
