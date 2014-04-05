@@ -6,8 +6,8 @@ set title = CONCAT(rpt.UNIT_NAME, ' - ', rpt.SIZE, ' sq ft')
 where i.ImageType_id = it.id 
 and it.ObjectType_id = ot.id 
 and ot.type = 'property'
-and rpt.id = i.object_id
-and rpt.size != 0
+and rpt.type_id = i.object_id
+and rpt.size != 0;
 update Image i, ImageType it, ObjectType ot, RESI_PROJECT_TYPES rpt set title = rpt.UNIT_NAME where i.ImageType_id = it.id and it.ObjectType_id = ot.id and ot.type = 'property' and rpt.type_id = i.object_id and rpt.size = 0;
 
 /* TODO add if condition if tagged months is null. if tower_id is null . all four cases.*/
