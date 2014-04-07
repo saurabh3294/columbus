@@ -21,6 +21,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +35,7 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
+import com.proptiger.data.model.b2b.InventoryPriceTrend;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
@@ -43,6 +45,7 @@ import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.service.b2b.TrendService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
@@ -64,6 +67,9 @@ public class LocalityService {
     private static Logger              logger             = LoggerFactory.getLogger(LocalityService.class);
 
     private static int                 LOCALITY_PAGE_SIZE = 15;
+
+    @Value("${b2b.price-inventory.max.month}")
+    private String                     currentMonth;
 
     @Autowired
     private LocalityAmenityTypeService amenityTypeService;
@@ -93,6 +99,9 @@ public class LocalityService {
 
     @Autowired
     private PropertyReader             propertyReader;
+
+    @Autowired
+    private TrendService               trendService;
 
     /**
      * This method will return the List of localities selected based on the
@@ -396,11 +405,6 @@ public class LocalityService {
         Date date = new DateTime().minusWeeks(enquiryInWeeks).toDate();
         String dateStr = new SimpleDateFormat("YYYY-MM-DD hh\\:mm\\:ss").format(date);
 
-        // TODO need to change this to get from localityDao
-        // List<Object[]> localities = localityDao
-        // .getPopularLocalitiesOfCityOrderByPriorityASCAndTotalEnquiryDESC(
-        // cityId, suburbId, timeStmap);
-
         List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, dateStr, selector);
         for (Locality locality : result) {
             updateLocalityRatingAndReviewDetails(locality);
@@ -505,11 +509,19 @@ public class LocalityService {
              * locality, and if that is not there then try to find for city of
              * that locality
              */
-            //find in suburb
-            localitiesAroundMainLocality = getTopRatedLocalities(null, mainLocality.getSuburbId(), localitySelector, imageCount);
-            if(localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount ){
-                //find in city
-                localitiesAroundMainLocality = getTopRatedLocalities(mainLocality.getSuburb().getCityId(), null, localitySelector, imageCount);
+            // find in suburb
+            localitiesAroundMainLocality = getTopRatedLocalities(
+                    null,
+                    mainLocality.getSuburbId(),
+                    localitySelector,
+                    imageCount);
+            if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
+                // find in city
+                localitiesAroundMainLocality = getTopRatedLocalities(
+                        mainLocality.getSuburb().getCityId(),
+                        null,
+                        localitySelector,
+                        imageCount);
             }
         }
         else {
@@ -685,18 +697,16 @@ public class LocalityService {
      *         Double the average price on that bedroom.
      */
     public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType) {
-        Map<String, Map<String, Map<String, FieldStatsInfo>>> stats = propertyService.getAvgPricePerUnitAreaBHKWise(
-                locationType,
-                locationId,
-                unitType);
+        FIQLSelector selector = new FIQLSelector().addAndConditionToFilter("month==" + currentMonth)
+                                                .addAndConditionToFilter("unitType==" + unitType)
+                                                .addAndConditionToFilter(locationType + "==" + locationId)
+                                                .addGroupByAtBeginning("bedrooms")
+                                                .addField("avgPricePerUnitArea");
 
-        if (stats == null || stats.get("pricePerUnitArea").get("BEDROOMS") == null) {
-            return null;
-        }
-        Map<String, FieldStatsInfo> priceStats = stats.get("pricePerUnitArea").get("BEDROOMS");
         Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
-        for (Map.Entry<String, FieldStatsInfo> entry : priceStats.entrySet()) {
-            avgPrice.put(Integer.parseInt(entry.getKey()), (Double) entry.getValue().getMean());
+
+        for(InventoryPriceTrend inventoryPriceTrend: trendService.getTrend(selector)) {
+            avgPrice.put(inventoryPriceTrend.getBedrooms(), (double)inventoryPriceTrend.getExtraAttributes().get("avgPricePerUnitArea"));
         }
 
         return avgPrice;
