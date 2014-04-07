@@ -25,6 +25,7 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingUserCount;
 import com.proptiger.data.repo.LocalityRatingDao;
 import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ConstraintViolationException;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * Service class to provide CRUD operations over locality ratings
@@ -110,20 +111,21 @@ public class LocalityRatingService {
 
     @CacheEvict(value = {
             Constants.CacheName.LOCALITY_RATING_AVG_BY_CATEGORY,
-            Constants.CacheName.LOCALITY_RATING_USERS_COUNT_BY_RATING, Constants.CacheName.LOCALITY_RATING_USERS }, key = "#localityId")
+            Constants.CacheName.LOCALITY_RATING_USERS_COUNT_BY_RATING,
+            Constants.CacheName.LOCALITY_RATING_USERS }, key = "#localityId")
     @Transactional(rollbackFor = { ConstraintViolationException.class })
-    public LocalityRatings createLocalityRating(Integer userId, Integer localityId, LocalityRatings localityReview) {
+    public LocalityRatings createLocalityRating(Integer userId, Integer localityId, LocalityRatings localityRatings) {
         logger.debug("create locality rating for user {} locality {}", userId, localityId);
         LocalityRatings created = null;
-        localityReview.setLocalityId(localityId);
+        localityRatings.setLocalityId(localityId);
         /*
          * if non logged in user or unregistered user is trying to create rating
          * then making user id 0
          */
         if (userId == null) {
-            localityReview.setUserId(0);
-            localityReview.setReviewId(null);
-            created = localityRatingDao.save(localityReview);
+            localityRatings.setUserId(0);
+            localityRatings.setReviewId(null);
+            created = localityRatingDao.save(localityRatings);
         }
         else {
             // find if rating already exist for this user and locality then
@@ -131,33 +133,22 @@ public class LocalityRatingService {
             LocalityRatings ratingPresent = localityRatingDao.findByUserIdAndLocalityId(userId, localityId);
             if (ratingPresent != null) {
                 // update already existing ratings
-                created = updateLocalityRating(ratingPresent, localityReview);
+                BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+                try {
+                    beanUtilsBean.copyProperties(ratingPresent, localityRatings);
+                }
+                catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new ProAPIException("locality review update failed", e);
+                }
             }
             else {
                 // creating new rating by user for locality
-                localityReview.setUserId(userId);
-                created = localityRatingDao.save(localityReview);
+                localityRatings.setUserId(userId);
+                created = localityRatingDao.save(localityRatings);
             }
         }
 
         return created;
-    }
-
-    /**
-     * Update existing rating
-     * 
-     * @param ratingPresent
-     * @param newRatings
-     */
-    @Transactional
-    private LocalityRatings updateLocalityRating(LocalityRatings ratingPresent, LocalityRatings newRatings) {
-        BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
-        try {
-            beanUtilsBean.copyProperties(ratingPresent, newRatings);
-        }
-        catch (IllegalAccessException | InvocationTargetException e) {
-        }
-        return ratingPresent;
     }
 
     /**
@@ -167,7 +158,7 @@ public class LocalityRatingService {
      * @param localityId
      * @return
      */
-    @Cacheable(value=Constants.CacheName.LOCALITY_RATING_USERS, key="#localityId")
+    @Cacheable(value = Constants.CacheName.LOCALITY_RATING_USERS, key = "#localityId")
     public LocalityRatings getLocalityRatingOfUser(Integer userId, Integer localityId) {
         LocalityRatings localityRating = localityRatingDao.findByUserIdAndLocalityId(userId, localityId);
         return localityRating;
