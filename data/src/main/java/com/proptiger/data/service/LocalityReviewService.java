@@ -183,8 +183,7 @@ public class LocalityReviewService {
         reviewComment.setLocalityId(localityId);
         PaginatedResponse<List<LocalityReviewComments>> paginatedResponse = getLocalityReview(
                 userId,
-                new FIQLSelector().addAndConditionToFilter("localityId==" + localityId).addAndConditionToFilter(
-                        "status==1"));
+                new FIQLSelector().addAndConditionToFilter("localityId==" + localityId));
         if (paginatedResponse != null && paginatedResponse.getResults() != null
                 && paginatedResponse.getResults().size() > 0) {
             // TODO if review already present then probably update this
