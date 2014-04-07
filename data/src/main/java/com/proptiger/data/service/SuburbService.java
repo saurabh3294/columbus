@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Suburb;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.SuburbDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
@@ -32,6 +33,9 @@ public class SuburbService {
 
     @Autowired
     private LocalityService localityService;
+    
+    @Autowired
+    private ImageService imageService;
 
     /**
      * This method will return the list of localities based on the selector.
@@ -60,6 +64,7 @@ public class SuburbService {
                 suburb.getDominantUnitType()));
         updateProjectCountAndStatusCount(suburb);
         localityService.updateSuburbRatingAndReviewDetails(suburb);
+        suburb.setImages(imageService.getImages(DomainObject.suburb, null, suburbId));
         return suburb;
     }
     

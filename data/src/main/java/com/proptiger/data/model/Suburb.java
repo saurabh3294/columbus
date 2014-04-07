@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.model;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
+import com.proptiger.data.model.image.Image;
 
 /**
  * @author mandeep
@@ -105,6 +107,9 @@ public class Suburb extends BaseModel {
     
     @Transient
     private LocalityAverageRatingByCategory avgRatingsByCategory;
+
+    @Transient
+    private List<Image>                     images;
     
     public int getId() {
         return id;
@@ -234,4 +239,12 @@ public class Suburb extends BaseModel {
 			LocalityAverageRatingByCategory avgRatingsByCategory) {
 		this.avgRatingsByCategory = avgRatingsByCategory;
 	}
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
 }
