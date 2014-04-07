@@ -199,7 +199,7 @@ public class ProjectDiscussionsService {
         int pagingRows = paging.getRows() + paging.getStart();
         pagingRows = pagingRows > totalRootComments ? totalRootComments : pagingRows;
 
-        return comments.subList(paging.getStart(), pagingRows);
+        return new ArrayList<ProjectDiscussion>(comments.subList(paging.getStart(), pagingRows));
     }
 
     @Deprecated

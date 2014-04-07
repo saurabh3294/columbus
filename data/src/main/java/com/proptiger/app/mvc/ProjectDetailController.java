@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityAmenity;
@@ -69,8 +66,6 @@ public class ProjectDetailController extends BaseController {
 
     @Autowired
     private LocalityService        localityService;
-
-    private static Logger          logger = LoggerFactory.getLogger(ProjectDetailController.class);
 
     @RequestMapping(value = "app/v1/project-detail")
     public @ResponseBody
@@ -170,7 +165,7 @@ public class ProjectDetailController extends BaseController {
 
     @RequestMapping(value = { "app/v2/project-detail/{projectId}" })
     @ResponseBody
-    public ProAPIResponse getProjectDetails2(
+    public ProAPIResponse getProjectDetailsV2(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
         Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
@@ -192,7 +187,7 @@ public class ProjectDetailController extends BaseController {
 
     @RequestMapping(value = { "app/v3/project-detail/{projectId}" })
     @ResponseBody
-    public ProAPIResponse getProjectDetails3(
+    public ProAPIResponse getProjectDetailsV3(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
         Selector projectSelector = super.parseJsonToObject(selector, Selector.class);

@@ -158,8 +158,10 @@ public class ProjectService {
     public Project getProjectInfoDetails(Selector selector, Integer projectId) {
 
         List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(projectId)));
-        if (solrProjects == null || solrProjects.size() < 1)
-            return null;
+        if (solrProjects == null || solrProjects.size() < 1) {
+            throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+        }
+
         Project project = solrProjects.get(0);
 
         List<Property> properties = propertyService.getProperties(projectId);

@@ -1,0 +1,12 @@
+{
+	"majorMovementPercentage": {
+		"monthly": 10,
+        "quarterly": 10,
+        "yearly": 10
+	},
+    "areaUnit": "sqft",
+	"lengthUnit": "m",
+	"catchmentSize": 5000,
+	"budgetRange": {},
+	"yearType": "calendar"
+}
