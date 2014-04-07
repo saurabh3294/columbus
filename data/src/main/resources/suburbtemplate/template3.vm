@@ -1,0 +1,149 @@
+#parse("./suburbtemplate/utilityFunctions.vm")
+${suburb.label} is one of the top most suburb in ${suburb.city.label}. 
+#if($localitiesInSuburb)
+	#set($counter = 0)
+	#set($nearByLocalityNameList = [])
+	#foreach($nearLocality in $localitiesInSuburb)
+		#if($counter < 10)
+			#set($temp = $nearByLocalityNameList.add($nearLocality.label))
+		#end
+		#set($counter = $counter + 1)
+	#end
+	#if(${nearByLocalityNameList})
+		${suburb.label} is made of many well known micro markets of ${suburb.city.label} such as #listOfStringToSentence($nearByLocalityNameList).
+	#end
+#end
+
+#if($topBuilders)
+	#populateBuilderNameList($topBuilders)
+	#if($popularBuildersNameList.size() > 0)
+		There are at least $popularBuildersNameList.size() different builders constructing their projects in ${suburb.label}.  
+	 	Some of the key builders #isOrAre($popularBuildersNameList) #listOfStringToSentence($popularBuildersNameList) in ${suburb.label}.  
+	#end
+#end
+
+#set($minSize = 0)
+#set($maxSize = 0)
+#set($counter = 0)
+#set($lowestPricePropery = "")
+#set($unitTypeCountMap = {})
+#populateUnitTypeAndUnitNameList($properties)
+#foreach($property in $properties)
+	#if($property.size)
+		#if($counter == 0)
+			#set($minSize = $property.size)
+			#set($maxSize = $property.size)
+			#set($counter = 1)
+			#set($lowestPricePropery = $property)
+		#elseif($property.size  < $minSize)
+			#set($minSize = $property.size)
+		#elseif($property.size > $maxSize)
+			#set($maxSize = $property.size)
+		#end
+	#end
+	#if($lowestPricePropery && $lowestPricePropery.budget && $property.budget && $property.budget < $lowestPricePropery.budget)
+		#set($lowestPricePropery = $property)
+	#end
+	#if($unitTypeCountMap.get($property.unitType))
+		#set($count = $unitTypeCountMap.get($property.unitType))
+		#set($count = $count + 1)
+		#set($temp = $unitTypeCountMap.put($property.unitType, $count))
+	#else
+		#set($temp = $unitTypeCountMap.put($property.unitType, 1))
+	#end	
+#end
+#if($minSize > 0 && $maxSize > 0  && $maxSize > $minSize)
+	Property in ${suburb.label} has built up areas ranging from $numberFormatter.format($minSize) sq ft to $numberFormatter.format($maxSize) sq ft. 
+#end
+Projects offer #listOfStringToSentence($unitTypesStringList) with #listOfStringToSentence($unitNamesStringList) configurations.	
+
+#if($unitTypeCountMap)
+	#set($counter = 0)
+	#set($unitTypeAndCountList = [])
+	#foreach($entry in $unitTypeCountMap.entrySet())
+		#set($str = $entry.value + " " + $entry.key)
+		#set($temp = $unitTypeAndCountList.add($str))
+	#end
+	#if($unitTypeAndCountList)
+		${suburb.label} has #listOfStringToSentence($unitTypeAndCountList) projects. 
+	#end
+#end
+
+#if($suburb.avgPriceRisePercentage)
+	The prices in ${suburb.label} have 
+	#if($suburb.avgPriceRisePercentage < 0)
+		dropped by $numberFormatter.format(${suburb.avgPriceRisePercentage})%
+	#elseif($suburb.avgPriceRisePercentage > 0)
+		risen by $numberFormatter.format(${suburb.avgPriceRisePercentage})%
+	#else
+		stayed stable, 
+	#end
+	 in past ${suburb.avgPriceRiseMonths} months. 
+#end
+
+#if($amenities)
+	#set($schoolsList = [])
+	#set($hospitalsList = [])
+	#set($schoolCount = 0)
+	#set($hospitalCount = 0)
+	${suburb.label} has many well known schools and Hospitals. 
+	#foreach( $amenity in $amenities )
+		#if($amenity.localityAmenityTypes.name=="school")
+			#if($schoolCount < 10)
+				#set($temp = $schoolsList.add($amenity.name))
+			#end
+			#set($schoolCount = $schoolCount + 1)
+		#end
+		#if($amenity.localityAmenityTypes.name=="hospital")
+			#if($hospitalCount < 10)
+		 		#set($temp = $hospitalsList.add($amenity.name))
+		 	#end
+		 	#set($hospitalCount = $hospitalCount + 1)
+		#end
+	#end
+	#if($schoolsList)
+		Popular schools in ${suburb.label} #isOrAre($schoolsList) #listOfStringToSentence($schoolsList). 
+	#end
+	#if($hospitalsList)
+		Popular hospitals in ${suburb.label} #isOrAre($hospitalsList) #listOfStringToSentence($hospitalsList). 
+	#end
+#end
+
+#if($unitTypesStringList)
+	Find popular #listOfStringToSentence($unitTypesStringList) for sale in ${suburb.label} at attractive rates.
+#end
+
+#if($suburb.projectStatusCount)
+	#set( $upcomingProjects = ${suburb.projectStatusCount.get("pre launch")} + ${suburb.projectStatusCount.get("not launched")})
+	 $suburb.label consists of  
+	 #if(${suburb.projectStatusCount.get("ready for possession")} > 0)
+	 	${suburb.projectStatusCount.get("ready for possession")} ready to move in 
+	 #end
+	 #if(${suburb.projectStatusCount.get("launch")} > 0)
+	 	, ${suburb.projectStatusCount.get("launch")} new launches and
+	 #end
+	  #if($upcomingProjects > 0)
+	 	and ${upcomingProjects} upcoming 
+	 #end
+	 projects in ${suburb.label} for sale. 
+#end
+#suburbAvgRatingWithHighestAmenityRating($suburb)
+#if($popularProjects)
+	#set($counter = 0)
+	#foreach($project in $popularProjects)
+		#if ($counter == 0)
+			#set($largestProject = $popularProjects.get(0))
+			#set($smallestProject = $popularProjects.get(0))
+			#set($counter = $counter + 1)
+		#else
+			#if($project.maxSize > $largestProject.maxSize)
+				#set($largestProject = $project)
+			#end
+			#if($project.minSize < $smallestProject.minSize)
+				#set($smallestProject = $project)
+			#end
+		#end
+	#end
+	$largestProject.name by $largestProject.builder.name is the largest project in $suburb.label 
+	whereas $smallestProject.name by $smallestProject.builder.name is the smallest project in $suburb.label
+#end

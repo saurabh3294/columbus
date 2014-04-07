@@ -145,7 +145,7 @@ public class ProjectDiscussionsService {
         List<ProjectDiscussion> allComments = projectDiscussionDao
                 .getDiscussionsByProjectIdOrderByCreatedDateDesc(projectId);
         if (allComments == null || allComments.size() < 1)
-            return null;
+            return new PaginatedResponse<>();
 
         Map<Long, List<ProjectDiscussion>> parentChildComments = new HashMap<>();
         long parentId;
@@ -199,7 +199,7 @@ public class ProjectDiscussionsService {
         int pagingRows = paging.getRows() + paging.getStart();
         pagingRows = pagingRows > totalRootComments ? totalRootComments : pagingRows;
 
-        return comments.subList(paging.getStart(), pagingRows);
+        return new ArrayList<ProjectDiscussion>(comments.subList(paging.getStart(), pagingRows));
     }
 
     @Deprecated

@@ -113,11 +113,15 @@ public class PropertyDao {
                 Set<String> unitTypes = new HashSet<String>();
                 List<Property> properties = new ArrayList<Property>();
                 Double resalePrice = null;
+                Double minResaleOrPrimaryPrice = null;
+                Double maxResaleOrPrimaryPrice = null;
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
                     Double pricePerUnitArea = property.getPricePerUnitArea();
                     Double size = property.getSize();
                     resalePrice = property.getResalePrice();
+                    minResaleOrPrimaryPrice = property.getMinResaleOrPrimaryPrice();
+                    maxResaleOrPrimaryPrice = property.getMaxResaleOrPrimaryPrice();
                     properties.add(property);
                     property.setProject(null);
                     unitTypes.add(property.getUnitType());
@@ -130,6 +134,12 @@ public class PropertyDao {
                     project.addBedrooms(property.getBedrooms());
                     project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
                     project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
+                    project.setMinResaleOrPrimaryPrice(UtilityClass.min(
+                            minResaleOrPrimaryPrice,
+                            project.getMinResaleOrPrimaryPrice()));
+                    project.setMaxResaleOrPrimaryPrice(UtilityClass.max(
+                            maxResaleOrPrimaryPrice,
+                            project.getMaxResaleOrPrimaryPrice()));
 
                     if (project.getMinBedrooms() == 0) {
                         project.setMinBedrooms(property.getBedrooms());
@@ -301,7 +311,7 @@ public class PropertyDao {
         // todo to handle null params or required params not found.
         String location_type = (String) params.get("location_type");
         location_type = location_type.toUpperCase();
-        Integer locationId = ( (Double)params.get("location_id") ).intValue();
+        Integer locationId = ((Double) params.get("location_id")).intValue();
         solrQuery.setQuery(location_type + "_ID:" + locationId.intValue());
         solrQuery.setFilterQueries("DOCUMENT_TYPE:PROPERTY AND UNIT_TYPE:Apartment");
         solrQuery.add("group", "true");

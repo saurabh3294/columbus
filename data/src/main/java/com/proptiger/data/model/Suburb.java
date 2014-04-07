@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 
 /**
  * @author mandeep
@@ -97,11 +98,14 @@ public class Suburb extends BaseModel {
     private String               overviewUrl;
     
     @Transient
-    private Map<String, Long>            projectStatusCount;
+    private Map<String, Long>	projectStatusCount;
     
     @Transient
-    private Long                  projectCount;
-
+    private Long				projectCount;
+    
+    @Transient
+    private LocalityAverageRatingByCategory avgRatingsByCategory;
+    
     public int getId() {
         return id;
     }
@@ -221,5 +225,13 @@ public class Suburb extends BaseModel {
     public void setProjectCount(Long projectCount) {
         this.projectCount = projectCount;
     }
-    
+
+	public LocalityAverageRatingByCategory getAvgRatingsByCategory() {
+		return avgRatingsByCategory;
+	}
+
+	public void setAvgRatingsByCategory(
+			LocalityAverageRatingByCategory avgRatingsByCategory) {
+		this.avgRatingsByCategory = avgRatingsByCategory;
+	}
 }

@@ -852,11 +852,11 @@ public class SolrResult extends BaseModel {
 
     @Field("MIN_RESALE_OR_PRIMARY_PRICE")
     public void setMinResaleOrPrimaryPrice(double minResaleOrPrimaryPrice) {
-        project.setMinResaleOrPrimaryPrice(minResaleOrPrimaryPrice);
+        property.setMinResaleOrPrimaryPrice(minResaleOrPrimaryPrice);
     }
 
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     public void setMaxResaleOrPrimaryPrice(double maxResaleOrPrimaryPrice) {
-        project.setMaxResaleOrPrimaryPrice(maxResaleOrPrimaryPrice);
+        property.setMaxResaleOrPrimaryPrice(maxResaleOrPrimaryPrice);
     }
 }
