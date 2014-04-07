@@ -6,7 +6,6 @@ package com.proptiger.data.service;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -420,7 +418,7 @@ public class LocalityService {
      * @param selector
      * @return List<Locality>
      */
-    public List<Locality> getTopLocalities(Integer cityId, Integer suburbId, Selector selector, Integer imageCount) {
+    public List<Locality> getTopRatedLocalities(Integer cityId, Integer suburbId, Selector selector, Integer imageCount) {
         List<Locality> result = null;
         List<Object[]> list = null;
 
@@ -439,7 +437,7 @@ public class LocalityService {
          */
         if (list != null) {
             List<Integer> localityIds = new ArrayList<Integer>();
-            Map<Integer, Double> map = new HashMap();
+            Map<Integer, Double> map = new HashMap<Integer, Double>();
             for (Object[] objects : list) {
                 if (objects.length == 2) {
                     Integer localityId = (Integer) objects[0];
@@ -506,10 +504,10 @@ public class LocalityService {
              * then try to find for city of that locality 
              */
             //find in suburb
-            localitiesAroundMainLocality = getTopLocalities(null, mainLocality.getSuburbId(), localitySelector, imageCount);
+            localitiesAroundMainLocality = getTopRatedLocalities(null, mainLocality.getSuburbId(), localitySelector, imageCount);
             if(localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount ){
                 //find in city
-                localitiesAroundMainLocality = getTopLocalities(mainLocality.getSuburb().getCityId(), null, localitySelector, imageCount);
+                localitiesAroundMainLocality = getTopRatedLocalities(mainLocality.getSuburb().getCityId(), null, localitySelector, imageCount);
             }
         }
         else{
@@ -925,24 +923,6 @@ public class LocalityService {
         }
 
         return localities;
-    }
-
-    /**
-     * This method will return the locality Ids from
-     * 
-     * @param localities
-     * @return
-     */
-    private List<Integer> getLocalitiesIdsFromLocalityObject(List<Locality> localities) {
-        if (localities == null || localities.isEmpty())
-            return new ArrayList<Integer>();
-
-        List<Integer> localityIds = new ArrayList();
-        for (Locality locality : localities) {
-            localityIds.add(locality.getLocalityId());
-        }
-
-        return localityIds;
     }
 
     /**
