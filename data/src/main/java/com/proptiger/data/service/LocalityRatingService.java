@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -113,7 +114,7 @@ public class LocalityRatingService {
             Constants.CacheName.LOCALITY_RATING_AVG_BY_CATEGORY,
             Constants.CacheName.LOCALITY_RATING_USERS_COUNT_BY_RATING,
             Constants.CacheName.LOCALITY_RATING_USERS }, key = "#localityId")
-    @Transactional(rollbackFor = { ConstraintViolationException.class })
+    @Transactional(rollbackFor = { ConstraintViolationException.class }, isolation = Isolation.SERIALIZABLE)
     public LocalityRatings createLocalityRating(Integer userId, Integer localityId, LocalityRatings localityRatings) {
         logger.debug("create locality rating for user {} locality {}", userId, localityId);
         LocalityRatings created = null;
@@ -140,6 +141,7 @@ public class LocalityRatingService {
                 catch (IllegalAccessException | InvocationTargetException e) {
                     throw new ProAPIException("locality review update failed", e);
                 }
+                created = ratingPresent;
             }
             else {
                 // creating new rating by user for locality
