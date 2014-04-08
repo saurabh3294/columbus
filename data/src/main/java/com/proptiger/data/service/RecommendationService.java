@@ -129,8 +129,13 @@ public class RecommendationService {
         boolean propertyNearBy = isPropertySearchedNearBy(viewPropertyData);
 
         List<Property> properties = new ArrayList<>();
-        for (SolrResult solrResult : orderedSearchProperties)
-            properties.add(solrResult.getProperty());
+        if(orderedSearchProperties == null)
+            return properties;
+        
+        int len = orderedSearchProperties.size();
+        len = len>limit?limit:len;
+        for (int i=0; i<len; i++)
+            properties.add(orderedSearchProperties.get(i).getProperty());
         /*
          * Map<String, Object> response = new HashMap<>();
          * response.put("propertyData", orderedSearchProperties);

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.proptiger.data.model.City;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.pojo.Selector;
