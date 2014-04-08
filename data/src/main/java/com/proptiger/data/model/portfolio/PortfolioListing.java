@@ -224,7 +224,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     private String                           leadEmail;
 
     @Column(name = "lead_contact")
-    private Integer                          leadContact;
+    private Long                          leadContact;
 
     @Column(name = "lead_country_id")
     private Integer                          leadCountryId;
@@ -667,11 +667,11 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
         this.leadEmail = leadEmail;
     }
 
-    public Integer getLeadContact() {
+    public Long getLeadContact() {
         return leadContact;
     }
 
-    public void setLeadContact(Integer leadContact) {
+    public void setLeadContact(Long leadContact) {
         this.leadContact = leadContact;
     }
 
