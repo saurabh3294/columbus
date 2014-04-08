@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.Project;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.CityDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
@@ -35,6 +36,9 @@ public class CityService {
     
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private LocalityAmenityService localityAmenityService;
@@ -66,6 +70,7 @@ public class CityService {
         updateAirportInfo(city);
         updateProjectCountAndStatusCount(city);
         city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise("cityId", cityId, city.getDominantUnitType()));
+        city.setImages(imageService.getImages(DomainObject.city, null, cityId));
         return city;
     }
 
