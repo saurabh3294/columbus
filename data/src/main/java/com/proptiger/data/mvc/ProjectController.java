@@ -28,9 +28,9 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.service.portfolio.ProjectDiscussionsService;
 
@@ -198,6 +198,7 @@ public class ProjectController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "/data/v2/entity/project/{projectId}/discussions", method = RequestMethod.GET)
+    @DisableCaching
     public ProAPIResponse getProjectComments(
             @PathVariable int projectId,
             @RequestParam(required = false) String selector) {

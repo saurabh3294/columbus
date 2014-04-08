@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +107,8 @@ public class CompositeAPIService {
      * @return
      */
     public Map<String, Object> getResponseForApis(List<String> apis) {
+        Date start = new Date();
+        Map<String, Long> timeTakenByApis = new HashMap<String, Long>(); 
         Map<String, Object> response = null;
         if (apis != null && apis.size() > 0) {
             response = new HashMap<String, Object>();
@@ -123,6 +125,7 @@ public class CompositeAPIService {
                     }
                 });
                 futureObjMap.put(api, future);
+                timeTakenByApis.put(api, new Date().getTime());
             }
             response = new HashMap<>();
             for (String key : futureObjMap.keySet()) {
@@ -141,6 +144,8 @@ public class CompositeAPIService {
             }
             executors.shutdown();
         }
+        Date end = new Date();
+        logger.debug("Time taken by composite service {} miliseconds", end.getTime()-start.getTime());
         return response;
     }
 

@@ -25,7 +25,7 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 public class SeoTextController {
     private RestTemplate restTemplate = new RestTemplate();
 
-    @Value("{proptiger.url}")
+    @Value("${proptiger.url}")
     private String websiteHost;
 
     @RequestMapping

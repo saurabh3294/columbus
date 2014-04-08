@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.proptiger.data.internal.dto.mail.ListingAddMail;
 import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
@@ -32,7 +31,6 @@ import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
-import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
@@ -52,13 +50,11 @@ import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingPriceDao;
-import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.ErrorReportingService.ReportErrorDTO;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
@@ -69,10 +65,10 @@ import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 import com.proptiger.mail.service.MailSender;
 import com.proptiger.mail.service.MailTemplateDetail;
 import com.proptiger.mail.service.MailType;
+import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 /**
  * This class provides CRUD operations over a property listing that is a

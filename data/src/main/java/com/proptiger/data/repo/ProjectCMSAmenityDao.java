@@ -2,8 +2,6 @@ package com.proptiger.data.repo;
 
 import java.util.List;
 
-import org.hibernate.annotations.FetchMode;
-import org.hibernate.annotations.FetchProfile.FetchOverride;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 

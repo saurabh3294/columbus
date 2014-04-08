@@ -11,6 +11,7 @@ import java.util.Queue;
 import javax.persistence.Table;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +28,13 @@ import com.proptiger.data.repo.portfolio.ProjectCommentLikesDao;
 import com.proptiger.data.repo.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 import com.proptiger.mail.service.MailSender;
 import com.proptiger.mail.service.MailTemplateDetail;
+import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service
 public class ProjectDiscussionsService {
@@ -60,6 +62,9 @@ public class ProjectDiscussionsService {
 
     @Autowired
     private PropertyReader          propertyReader;
+
+    @Autowired
+    private Caching                 caching;
 
     public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, UserInfo userInfo) {
 
@@ -119,6 +124,11 @@ public class ProjectDiscussionsService {
 
         projectDiscussion.setNumLikes(projectDiscussion.getNumLikes() + 1);
 
+        // deleting the project discussion cache.
+        caching.deleteMultipleResponseFromCacheOnRegex(
+                ":" + projectDiscussion.getProjectId() + ":",
+                Constants.CacheName.PROJECT_DISCUSSION);
+
         return projectDiscussion;
     }
 
@@ -140,6 +150,9 @@ public class ProjectDiscussionsService {
         return projectCommentLikesDao.save(projectCommentLikes);
     }
 
+    @Cacheable(
+            value = Constants.CacheName.PROJECT_DISCUSSION,
+            key = "':'+#projectId+':'+#paging.getStart()+'-'+#paging.getRows()")
     public PaginatedResponse<List<ProjectDiscussion>> getProjectComments(int projectId, Paging paging) {
 
         List<ProjectDiscussion> allComments = projectDiscussionDao
@@ -199,7 +212,7 @@ public class ProjectDiscussionsService {
         int pagingRows = paging.getRows() + paging.getStart();
         pagingRows = pagingRows > totalRootComments ? totalRootComments : pagingRows;
 
-        return comments.subList(paging.getStart(), pagingRows);
+        return new ArrayList<ProjectDiscussion>(comments.subList(paging.getStart(), pagingRows));
     }
 
     @Deprecated
