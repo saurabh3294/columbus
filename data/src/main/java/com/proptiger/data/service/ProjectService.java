@@ -83,9 +83,9 @@ public class ProjectService {
 
     @Autowired
     private TableAttributesService tableAttributesService;
-    
+
     @Autowired
-    private ProjectSolrDao projectSolrDao;
+    private ProjectSolrDao         projectSolrDao;
 
     /**
      * This method will return the list of projects and total projects found
@@ -182,16 +182,15 @@ public class ProjectService {
             project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
             project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
             project.setResale(property.getProject().isIsResale() | project.isIsResale());
-            
-            
+
             property.setProject(null);
         }
 
-        project.setMinResaleOrPrimaryPrice( UtilityClass.min(project.getMinPrice(), project.getMinResalePrice()) );
-        project.setMaxResaleOrPrimaryPrice( UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()) );
-        
+        project.setMinResaleOrPrimaryPrice(UtilityClass.min(project.getMinPrice(), project.getMinResalePrice()));
+        project.setMaxResaleOrPrimaryPrice(UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()));
+
         Set<String> fields = selector.getFields();
-        
+
         /*
          * Setting properites if needed.
          */
@@ -539,8 +538,7 @@ public class ProjectService {
             String locationType,
             int locationId,
             int numberOfProjects,
-            double minimumPriceRise)
-    {
+            double minimumPriceRise) {
         String json = "{\"paging\":{\"rows\":" + numberOfProjects
                 + "},\"filters\":{\"and\":[{\"equal\":{\""
                 + locationType
@@ -553,13 +551,14 @@ public class ProjectService {
         Selector selector = new Gson().fromJson(json, Selector.class);
         return projectDao.getProjects(selector);
     }
-    
+
     /**
      * Get project count by status in map for a given selector
+     * 
      * @param selector
      * @return
      */
-    public Map<String, Long> getProjectStatusCount(Selector selector){
+    public Map<String, Long> getProjectStatusCount(Selector selector) {
         return projectSolrDao.getProjectStatusCount(selector);
     }
 }

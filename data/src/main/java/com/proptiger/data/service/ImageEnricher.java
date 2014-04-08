@@ -70,7 +70,7 @@ public class ImageEnricher {
 
         if (images == null)
             return;
-        
+
         project.setImages(images);
     }
 
