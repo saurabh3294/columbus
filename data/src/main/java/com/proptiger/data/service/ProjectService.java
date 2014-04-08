@@ -182,12 +182,16 @@ public class ProjectService {
             project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
             project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
             project.setResale(property.getProject().isIsResale() | project.isIsResale());
-
+            
+            
             property.setProject(null);
         }
 
+        project.setMinResaleOrPrimaryPrice( UtilityClass.min(project.getMinPrice(), project.getMinResalePrice()) );
+        project.setMaxResaleOrPrimaryPrice( UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()) );
+        
         Set<String> fields = selector.getFields();
-
+        
         /*
          * Setting properites if needed.
          */

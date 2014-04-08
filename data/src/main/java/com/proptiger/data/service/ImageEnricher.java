@@ -70,35 +70,8 @@ public class ImageEnricher {
 
         if (images == null)
             return;
-        /*
-         * Ready For Posssession, occupied Projects construction images should
-         * not be included.
-         */
-        if (project.getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.Occupied.getStatus()) || project
-                .getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.ReadyForPossession.getStatus())) {
-            Iterator<Image> it = images.iterator();
-            while (it.hasNext()) {
-                if (it.next().getImageTypeObj().getType().equalsIgnoreCase("constructionStatus")) {
-                    it.remove();
-                }
-            }
-        }
-        else {
-            int numImages = 0;
-            Iterator<Image> it = images.iterator();
-            while (it.hasNext()) {
-                if (it.next().getImageTypeObj().getType().equalsIgnoreCase("constructionStatus")) {
-                    numImages++;
-                    if (numImages > 10) {
-                        it.remove();
-                    }
-                }
-
-            }
-        }
         
         project.setImages(images);
-
     }
 
     @Deprecated
@@ -113,21 +86,6 @@ public class ImageEnricher {
                 if (image.getImageTypeObj().getType().equals("main")) {
                     project.setImageURL(image.getAbsolutePath());
                     break;
-                }
-            }
-
-            /*
-             * Ready For Posssession, occupied Projects construction images
-             * should not be included.
-             */
-            if (project.getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.Occupied.getStatus()) || project
-                    .getProjectStatus().equalsIgnoreCase(Project.ProjectStatus.ReadyForPossession.getStatus())) {
-                Iterator<Image> it = images.iterator();
-                while (it.hasNext()) {
-                    if (it.next().getImageTypeObj().getType().equalsIgnoreCase("constructionStatus")) {
-                        it.remove();
-                    }
-
                 }
             }
         }
