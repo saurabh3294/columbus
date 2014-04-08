@@ -49,12 +49,51 @@ public class UserWishListService {
     }
 
     /**
+     * This method returns user wish list or favourite projects details based on
+     * user id
+     * 
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public List<UserWishListDto> getProjectUserWishList(Integer userId) {
+        List<UserWishlist> list = userWishListDao.findByUserIdAndTypeIdIsNull(userId);
+        List<UserWishListDto> convertedResult = convertDaoResultToDtoObject(list);
+        return convertedResult;
+    }
+
+    /**
+     * This method returns user wish list or favourite properties details based
+     * on user id
+     * 
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public List<UserWishListDto> getPropertyUserWishList(Integer userId) {
+        List<UserWishlist> list = userWishListDao.findByUserIdAndTypeIdIsNotNull(userId);
+        List<UserWishListDto> convertedResult = convertDaoResultToDtoObject(list);
+        return convertedResult;
+    }
+
+    /**
      * This method will delete the wish list based on the wish list id.
      * 
      * @param wishlistId
      */
-    public void deleteWishlist(int wishlistId) {
+    @Transactional
+    public List<UserWishListDto> deleteWishlist(int wishlistId) {
+        UserWishlist userWishlist = userWishListDao.findOne(wishlistId);
+        if (userWishlist == null)
+            throw new IllegalArgumentException("Wish List Id does not exists.");
+
         userWishListDao.delete(wishlistId);
+        if (userWishlist.getTypeId() == null) {
+            return getProjectUserWishList(userWishlist.getUserId());
+        }
+        else {
+            return getPropertyUserWishList(userWishlist.getUserId());
+        }
     }
 
     /**
@@ -67,7 +106,8 @@ public class UserWishListService {
      * @param userId
      * @return
      */
-    public UserWishListDto createUserWishList(UserWishlist userWishlist, Integer userId) {
+    @Transactional
+    public List<UserWishListDto> createUserWishList(UserWishlist userWishlist, Integer userId) {
         if (userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null)
             throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
 
@@ -80,8 +120,13 @@ public class UserWishListService {
 
         userWishlist.setUserId(userId);
         UserWishlist savedObject = userWishListDao.save(userWishlist);
-        return convertToUserListDto(savedObject);
 
+        if (savedObject.getTypeId() == null) {
+            return getProjectUserWishList(userId);
+        }
+        else {
+            return getPropertyUserWishList(userId);
+        }
     }
 
     /**

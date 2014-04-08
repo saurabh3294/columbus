@@ -21,7 +21,6 @@ import com.proptiger.data.pojo.ProAPIErrorResponse;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
