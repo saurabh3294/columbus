@@ -609,6 +609,7 @@ public class LocalityService {
                     // if rating is greater than threshold then update average
                     // rating value
                     locality.setAverageRating(localityWithMoreInfo.getAverageRating());
+                    locality.setRatingsCount(localityWithMoreInfo.getRatingsCount());
                 }
                 else {
                     // remove the locality as rating is less that threshold
@@ -706,7 +707,7 @@ public class LocalityService {
         Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
 
         for(InventoryPriceTrend inventoryPriceTrend: trendService.getTrend(selector)) {
-            avgPrice.put(inventoryPriceTrend.getBedrooms(), (double)inventoryPriceTrend.getExtraAttributes().get("avgPricePerUnitArea"));
+            avgPrice.put(inventoryPriceTrend.getBedrooms(), (Double)inventoryPriceTrend.getExtraAttributes().get("avgPricePerUnitArea"));
         }
 
         return avgPrice;
