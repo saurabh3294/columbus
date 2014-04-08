@@ -40,6 +40,6 @@ public class BuilderTrendController {
     public ProAPIResponse getBuilderTrendFromFIQL(
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
-        return null;
+        return new ProAPISuccessResponse(builderTrendService.getBuilderTrend(selector, userInfo));
     }
 }

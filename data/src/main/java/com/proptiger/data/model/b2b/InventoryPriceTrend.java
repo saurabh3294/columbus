@@ -97,6 +97,9 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "bedrooms")
     private Integer bedrooms;
 
+    @Column(name = "is_dominant_project_unit_type")
+    private String  isDominantProjectUnitType;
+
     @Column(name = "average_price_per_unit_area")
     private Integer pricePerUnitArea;
 
@@ -338,6 +341,14 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setBedrooms(Integer bedrooms) {
         this.bedrooms = bedrooms;
+    }
+
+    public String getIsDominantProjectUnitType() {
+        return isDominantProjectUnitType;
+    }
+
+    public void setIsDominantProjectUnitType(String isDominantProjectUnitType) {
+        this.isDominantProjectUnitType = isDominantProjectUnitType;
     }
 
     public Integer getPricePerUnitArea() {
