@@ -6,14 +6,11 @@ package com.proptiger.data.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Transient;
-
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.util.ImageUtil;
 
 /**
  * @author mandeep

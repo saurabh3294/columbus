@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.portfolio.SavedSearch;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.portfolio.SavedSearchDao;
 import com.proptiger.exception.ResourceAlreadyExistException;
 

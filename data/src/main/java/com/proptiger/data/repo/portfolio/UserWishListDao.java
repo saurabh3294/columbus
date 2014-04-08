@@ -13,7 +13,11 @@ import com.proptiger.data.model.UserWishlist;
 public interface UserWishListDao extends JpaRepository<UserWishlist, Integer> {
 
     public List<UserWishlist> findByUserId(Integer userId);
-
+    
+    public List<UserWishlist> findByUserIdAndTypeIdIsNull(Integer userId);
+    
+    public List<UserWishlist> findByUserIdAndTypeIdIsNotNull(Integer userId);
+   
     public UserWishlist findByProjectIdAndUserId(int projectId, int userId);
 
 }
