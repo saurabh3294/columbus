@@ -5,8 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.ehcache.hibernate.management.impl.BeanUtils;
-
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
-import com.proptiger.data.init.NullAwareBeanUtilsBean;
 import com.proptiger.data.model.LocalityRatings;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
@@ -115,6 +113,8 @@ public class LocalityRatingService {
             Constants.CacheName.LOCALITY_RATING_USERS }, key = "#localityId")
     @Transactional(rollbackFor = { ConstraintViolationException.class })
     public LocalityRatings createLocalityRating(Integer userId, Integer localityId, LocalityRatings localityRatings) {
+        //TODO in case of multiple request from same user and same locality this method creates two row in database
+        //TODO need to prevent this
         logger.debug("create locality rating for user {} locality {}", userId, localityId);
         LocalityRatings created = null;
         localityRatings.setLocalityId(localityId);
@@ -140,6 +140,7 @@ public class LocalityRatingService {
                 catch (IllegalAccessException | InvocationTargetException e) {
                     throw new ProAPIException("locality review update failed", e);
                 }
+                created = ratingPresent;
             }
             else {
                 // creating new rating by user for locality

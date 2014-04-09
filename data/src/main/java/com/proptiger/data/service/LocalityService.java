@@ -609,6 +609,8 @@ public class LocalityService {
                     // if rating is greater than threshold then update average
                     // rating value
                     locality.setAverageRating(localityWithMoreInfo.getAverageRating());
+                    locality.setRatingsCount(localityWithMoreInfo.getRatingsCount());
+                    locality.setNumberOfUsersByRating(localityWithMoreInfo.getNumberOfUsersByRating());
                 }
                 else {
                     // remove the locality as rating is less that threshold
