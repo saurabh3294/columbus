@@ -706,7 +706,10 @@ public class LocalityService {
         Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
 
         for(InventoryPriceTrend inventoryPriceTrend: trendService.getTrend(selector)) {
-            avgPrice.put(inventoryPriceTrend.getBedrooms(), (double)inventoryPriceTrend.getExtraAttributes().get("avgPricePerUnitArea"));
+            Object avgPricePerUnitArea = inventoryPriceTrend.getExtraAttributes().get("avgPricePerUnitArea");
+            if (avgPricePerUnitArea != null) {
+                avgPrice.put(inventoryPriceTrend.getBedrooms(), (double)avgPricePerUnitArea);
+            }
         }
 
         return avgPrice;
