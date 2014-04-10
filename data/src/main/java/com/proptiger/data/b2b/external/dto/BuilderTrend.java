@@ -1,6 +1,7 @@
 package com.proptiger.data.b2b.external.dto;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * DTO for custom builder trend
@@ -10,18 +11,18 @@ import java.util.List;
  */
 
 public class BuilderTrend {
-    private Integer      builderId;
-    private String       builderName;
-    private Integer      projectCount;
-    private Integer      minPricePerUnitArea;
-    private Integer      maxPricePerUnitArea;
-    private Integer      supply;
-    private Integer      inventory;
-    private List<String> unitTypes;
-    private Integer      projectCountHavingPriceAppreciation;
-    private Integer      projectCountHavingPriceDepreciation;
-    private Integer      projectCountHavingPriceMoreThanLocAvg;
-    private Integer      projectCountHavingPriceLessThanLocAvg;
+    private Integer     builderId;
+    private String      builderName;
+    private Integer     projectCount;
+    private Integer     minPricePerUnitArea                   = 0;
+    private Integer     maxPricePerUnitArea                   = 0;
+    private Integer     supply                                = 0;
+    private Integer     inventory                             = 0;
+    private Set<String> unitTypes                             = new HashSet<>();
+    private Integer     projectCountHavingPriceAppreciation   = 0;
+    private Integer     projectCountHavingPriceDepreciation   = 0;
+    private Integer     projectCountHavingPriceMoreThanLocAvg = 0;
+    private Integer     projectCountHavingPriceLessThanLocAvg = 0;
 
     public Integer getBuilderId() {
         return builderId;
@@ -79,11 +80,11 @@ public class BuilderTrend {
         this.inventory = inventory;
     }
 
-    public List<String> getUnitTypes() {
+    public Set<String> getUnitTypes() {
         return unitTypes;
     }
 
-    public void setUnitTypes(List<String> unitTypes) {
+    public void setUnitTypes(Set<String> unitTypes) {
         this.unitTypes = unitTypes;
     }
 
