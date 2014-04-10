@@ -99,7 +99,7 @@ public class UtilityClass {
         return result;
     }
 
-    public static <T> Object groupFieldsAsPerSelector(List<T> items, List<String> groupKeys) {
+    public static <T> Object groupFieldsAsPerKeys(List<T> items, List<String> groupKeys) {
         List<String> keys = new ArrayList<>();
         for (String groupKey : groupKeys) {
             keys.add(groupKey);
@@ -126,7 +126,7 @@ public class UtilityClass {
 
             }
             for (Object key : result.keySet()) {
-                result.put(key, groupFieldsAsPerSelector((List<T>) result.get(key), keys));
+                result.put(key, groupFieldsAsPerKeys((List<T>) result.get(key), keys));
             }
         }
         catch (IllegalArgumentException | SecurityException | IllegalAccessException | InvocationTargetException

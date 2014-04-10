@@ -59,12 +59,12 @@ public class BuilderTrendService {
 
         if (inventoryPriceTrends.size() != 0) {
             Map<Integer, Map<String, List<InventoryPriceTrend>>> localityUnitTypePricesMap = (Map<Integer, Map<String, List<InventoryPriceTrend>>>) UtilityClass
-                    .groupFieldsAsPerSelector(
+                    .groupFieldsAsPerKeys(
                             trendDao.getTrend(getFIQLForProjectLocalityPrice(getLocalityDominantTypeUnitTypeMapForProjects(inventoryPriceTrends))),
                             new ArrayList<String>(Arrays.asList("localityId", "unitType")));
 
             Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>> inventoryPriceTrendMap = (Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>>) UtilityClass
-                    .groupFieldsAsPerSelector(
+                    .groupFieldsAsPerKeys(
                             inventoryPriceTrends,
                             new ArrayList<String>(Arrays.asList("builderId", "month", "projectId")));
 
@@ -152,7 +152,7 @@ public class BuilderTrendService {
             List<InventoryPriceTrend> inventoryPriceTrends) {
         Map<Integer, String> result = new HashMap<>();
         Map<String, List<InventoryPriceTrend>> isDominantSupplyGrouped = (Map<String, List<InventoryPriceTrend>>) UtilityClass
-                .groupFieldsAsPerSelector(
+                .groupFieldsAsPerKeys(
                         inventoryPriceTrends,
                         new ArrayList<String>(Arrays.asList("isDominantProjectUnitType")));
         if (isDominantSupplyGrouped.get("True") != null) {
