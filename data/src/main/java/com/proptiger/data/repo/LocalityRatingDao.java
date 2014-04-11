@@ -24,7 +24,7 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingUserCount;
 public interface LocalityRatingDao extends PagingAndSortingRepository<LocalityRatings, Serializable> {
 
     @Query(" SELECT NEW com.proptiger.data.model.LocalityRatings$LocalityRatingUserCount(LR.overallRating, COUNT(*)) " + " FROM LocalityRatings AS LR WHERE "
-            + " LR.overallRating IS NOT NULL  AND LR.localityId = ?1 GROUP BY LR.overallRating ORDER BY LR.overallRating DESC")
+            + " LR.overallRating IS NOT NULL  AND LR.localityId = ?1 AND LR.overallRating > 0 GROUP BY LR.overallRating ORDER BY LR.overallRating DESC")
     public List<LocalityRatingUserCount> getTotalUsersByRating(int localityId);
 
     public LocalityRatings findByUserIdAndLocalityId(Integer userId, Integer localityId);

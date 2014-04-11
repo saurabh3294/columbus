@@ -28,7 +28,7 @@ public class LocalityReviewDaoImpl {
      * @param selector
      * @return
      */
-    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer cityId, FIQLSelector selector) {
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(FIQLSelector selector) {
         AbstractQueryBuilder<LocalityReviewComments> builder = new JPAQueryBuilder<>(
                 emf.createEntityManager(),
                 LocalityReviewComments.class);

@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
 
 /**
  * @author Rajeev Pandey
@@ -129,6 +130,9 @@ public class City extends BaseModel {
     
     @Transient
     private Map<String, Long>            projectStatusCount;
+
+    @Transient
+    private List<Image>                     images;
 
     public Integer getId() {
         return id;
@@ -312,6 +316,14 @@ public class City extends BaseModel {
 
     public void setAvgBHKPricePerUnitArea(Map<Integer, Double> avgBHKPricePerUnitArea) {
         this.avgBHKPricePerUnitArea = avgBHKPricePerUnitArea;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
     
 }

@@ -40,12 +40,12 @@ public class LocalityController extends BaseController {
     private ImageService          imageService;
 
     /**
-     * Returns localities given a selector
+     * Returns localities given a selector ordered by priority
      * 
      * @param selector
      * @return
      */
-    @RequestMapping
+    @RequestMapping(value = {"", "/top"})
     @ResponseBody
     public ProAPIResponse getLocalities(@RequestParam(required = false) String selector) {
         Selector localitySelector = new Selector();
@@ -96,7 +96,7 @@ public class LocalityController extends BaseController {
      * @param selector
      * @return
      */
-    @RequestMapping(value = "/top")
+    @RequestMapping(value = "/top-rated")
     @ResponseBody
     public ProAPIResponse getTopLocalitiesOfCityOrSuburb(
             @RequestParam(required = false, value = "cityId") Integer cityId,
@@ -107,7 +107,7 @@ public class LocalityController extends BaseController {
         if (selector != null) {
             localitySelector = super.parseJsonToObject(selector, Selector.class);
         }
-        List<Locality> result = localityService.getTopLocalities(cityId, suburbId, localitySelector, imageCount);
+        List<Locality> result = localityService.getTopRatedLocalities(cityId, suburbId, localitySelector, imageCount);
         return new ProAPISuccessCountResponse(super.filterFields(result, localitySelector.getFields()), result.size());
     }
 
@@ -131,7 +131,7 @@ public class LocalityController extends BaseController {
      * @param selector
      * @return
      */
-    @RequestMapping(value = "{localityId}/top")
+    @RequestMapping(value = "{localityId}/top-rated")
     @ResponseBody
     public ProAPIResponse getTopLocalitiesAroundLocality(@PathVariable Integer localityId, @RequestParam(
             required = false,

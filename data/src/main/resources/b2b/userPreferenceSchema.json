@@ -1,0 +1,43 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "description": "Schema for b2b user preference",
+    "type": "object",
+    "properties": {
+        "majorMovementPercentage": {
+            "description": "Perventages for which certain markers will be shown",
+            "type": "object",
+            "properties": {
+            	"monthly": {
+            		"type": "integer"
+            	},
+            	"quarterly": {
+            		"type": "integer"
+            	},
+            	"yearly": {
+            		"type": "integer"
+            	}
+            }
+        },
+        "areaUnit": {
+            "description": "Stores default unit of area",
+            "enum": ["sqft", "sqyd", "sqm"]
+        },
+        "lengthUnit": {
+            "description": "Stores default unit of length",
+            "enum": ["ft", "m"]
+        },
+        "catchmentSize": {
+            "description": "Stores default size of catchment in default length unit",
+            "type": "number"
+        },
+        "budgetRange": {
+            "description": "Stores budget ranges in which user wants to see split graphs",
+            "type": "object"
+        },
+        "yearType": {
+        	"description": "Stores whether user wants to see calendar year or fiscal year",
+            "enum": ["calendar", "fiscal"]
+        }
+    },
+    "required": ["majorMovementPercentage", "areaUnit", "lengthUnit", "catchmentSize", "budgetRange", "yearType"]
+}

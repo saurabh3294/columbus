@@ -82,7 +82,7 @@ ${suburb.label} has some great #listOfStringToSentence($unitTypesStringList) for
 		#if($popularProjects && $popularProjects.size() >= 2)
 			#set($project2 = $popularProjects.get(1))
 			#if($project2)
-			 Another #popularProjectSentence(${suburb.label} $project2)
+				Another #popularProjectSentence(${suburb.label} $project2)
 			#end
 		#end
 	#end

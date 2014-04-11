@@ -24,7 +24,7 @@ public class AdvertiseAgencyController {
         MIXPANEL("MIXPANEL", true),
         GOOGLE_CAMPAIGN("GOOGLE_CAMPAIGN", true),
         OMG("OMG", true),
-        TYROO("TYROO", true),
+        TYROO("TYROO", false),
         _79MOBI("79MOBI", true),
         VSERVE("VSERVE", true),
         INMOBI("INMOBI", true),

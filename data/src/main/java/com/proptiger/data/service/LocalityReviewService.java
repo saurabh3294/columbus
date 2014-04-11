@@ -21,7 +21,6 @@ import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetai
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.LocalityReviewDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
@@ -157,70 +156,6 @@ public class LocalityReviewService {
     }
 
     /**
-     * Get locality reviews for locality id. If user id is not null then reviews
-     * for that user id and locality id will be returned
-     * 
-     * @param localityId
-     * @param userId
-     * @param selector
-     * @return
-     */
-    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer localityId, Integer userId, Selector selector) {
-
-        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
-        if (selector != null && selector.getPaging() != null) {
-            pageable = new LimitOffsetPageRequest(selector.getPaging().getStart(), selector.getPaging().getRows());
-        }
-        List<LocalityReviewComments> reviews = null;
-        PaginatedResponse<List<LocalityReviewComments>> paginatedReviews = new PaginatedResponse<List<LocalityReviewComments>>();
-        // in case call is for specific user
-        if (userId != null) {
-            reviews = localityReviewDao.getReviewsByLocalityIdAndUserId(localityId, userId, pageable);
-            paginatedReviews.setResults(reviews);
-            paginatedReviews.setTotalCount(reviews != null? reviews.size(): 0);
-        }
-        else {
-            reviews = localityReviewDao.getReviewsByLocalityId(localityId, pageable);
-            paginatedReviews.setResults(reviews);
-            paginatedReviews.setTotalCount(localityReviewDao.getTotalReviewsByLocalityId(localityId));
-        }
-        return paginatedReviews;
-    }
-
-    /**
-     * Get locality review with ratings order by overall rating desc
-     * 
-     * @param localityId
-     * @param userId
-     * @param selector
-     * @return
-     */
-    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReviewOrderByRating(
-            Integer localityId,
-            Integer userId,
-            Selector selector) {
-        PaginatedResponse<List<LocalityReviewComments>> paginatedReviews = new PaginatedResponse<List<LocalityReviewComments>>();
-        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
-        if (selector != null && selector.getPaging() != null) {
-            pageable = new LimitOffsetPageRequest(selector.getPaging().getStart(), selector.getPaging().getRows());
-        }
-        List<LocalityReviewComments> reviews = null;
-
-        // in case call is for specific user
-        if (userId != null) {
-            reviews = localityReviewDao.getReviewsByLocalityIdAndUserIdOrderByRating(localityId, userId, pageable);
-            paginatedReviews.setResults(reviews);
-            paginatedReviews.setTotalCount(reviews != null? reviews.size(): 0);
-        }
-        else {
-            reviews = localityReviewDao.getReviewsByLocalityIdOrderByRating(localityId, pageable);
-            paginatedReviews.setResults(reviews);
-            paginatedReviews.setTotalCount(localityReviewDao.getTotalReviewsByLocalityId(localityId));
-        }
-        return paginatedReviews;
-    }
-
-    /**
      * Create new locality review by user for locality
      * 
      * @param localityId
@@ -239,11 +174,13 @@ public class LocalityReviewService {
         validateReviewComment(reviewComment);
         // set locality id from url path variable
         reviewComment.setLocalityId(localityId);
-        LocalityReviewComments reviewPresent = localityReviewDao.getByLocalityIdAndUserId(localityId, userId);
-        if (reviewPresent != null) {
+        PaginatedResponse<List<LocalityReviewComments>> paginatedResponse = getLocalityReview(
+                userId,
+                new FIQLSelector().addAndConditionToFilter("localityId==" + localityId));
+        if (paginatedResponse != null && paginatedResponse.getResults() != null
+                && paginatedResponse.getResults().size() > 0) {
             // TODO if review already present then probably update this
-
-            return reviewPresent;
+            return paginatedResponse.getResults().get(0);
         }
         else {
             // create new review
@@ -252,7 +189,6 @@ public class LocalityReviewService {
             return createComment;
         }
     }
-
     /**
      * Validate fields of ReviewComment.
      * 
@@ -262,40 +198,19 @@ public class LocalityReviewService {
 
     }
 
-    /**
-     * Get locality reviews of city for given selector
-     * 
-     * @param cityId
-     * @param selector
-     * @return
-     */
-    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReviewOfCity(Integer cityId, FIQLSelector selector) {
-        if (selector == null) {
-            selector = new FIQLSelector();
+    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReview(Integer userId, FIQLSelector selector){
+        PaginatedResponse<List<LocalityReviewComments>> response = new PaginatedResponse<List<LocalityReviewComments>>();
+        if(selector == null || selector.getFilters() == null){
+            return response;
         }
-        selector.addAndConditionToFilter("locality.suburb.cityId==" + cityId).addAndConditionToFilter("status==1")
-                .addSortDESC("commenttime");
-        PaginatedResponse<List<LocalityReviewComments>> reviews = new PaginatedResponse<>();
-        reviews = localityReviewDao.getLocalityReview(cityId, selector);
-        return reviews;
-    }
-
-    /**
-     * Get locality review of suburb for given selector
-     * @param suburbId
-     * @param selector
-     * @return
-     */
-    public PaginatedResponse<List<LocalityReviewComments>> getLocalityReviewOfSuburb(
-            Integer suburbId,
-            FIQLSelector selector) {
-        if (selector == null) {
-            selector = new FIQLSelector();
+        else{
+            if(userId != null){
+                selector.addAndConditionToFilter("userId=="+userId);
+            }
+            //only active review
+            selector.addAndConditionToFilter("status==1");
+            response = localityReviewDao.getLocalityReview(selector);
         }
-        selector.addAndConditionToFilter("locality.suburb.id==" + suburbId).addAndConditionToFilter("status==1")
-                .addSortDESC("commenttime");
-        PaginatedResponse<List<LocalityReviewComments>> reviews = new PaginatedResponse<>();
-        reviews = localityReviewDao.getLocalityReview(suburbId, selector);
-        return reviews;
+        return response;
     }
 }
