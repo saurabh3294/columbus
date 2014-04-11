@@ -34,7 +34,7 @@ public class StringToDateConverter implements Converter<String, Date> {
      *            {@link String} in YYYY-mm-dd format
      * @return {@link Date}
      */
-    public static Date parseYYYYmmddDate(String date) {
+    public static Date parseYYYYmmddStringToDate(String date) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         try {
             return format.parse(date);

@@ -1,6 +1,5 @@
 package com.proptiger.data.util;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,14 +44,7 @@ public class CalanderUtil {
      * 
      */
     public static String shiftMonths(String stringDate, Integer shift) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Date date = null;
-        try {
-            date = format.parse(stringDate);
-        }
-        catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        return format.format(shiftMonths(date, shift)).toString();
+        Date date = StringToDateConverter.parseYYYYmmddStringToDate(stringDate);
+        return new SimpleDateFormat("yyyy-MM-dd").format(shiftMonths(date, shift)).toString();
     }
 }

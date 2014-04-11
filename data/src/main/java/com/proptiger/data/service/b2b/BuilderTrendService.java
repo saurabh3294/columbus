@@ -53,7 +53,7 @@ public class BuilderTrendService {
     public Map<Integer, BuilderTrend> getBuilderTrend(FIQLSelector selector, UserInfo userInfo) {
         Map<Integer, BuilderTrend> result = new HashMap<>();
         FIQLSelector fiqlSelector = getFIQLFromUserFIQL(selector);
-        Date currentDate = StringToDateConverter.parseYYYYmmddDate(currentMonth);
+        Date currentDate = StringToDateConverter.parseYYYYmmddStringToDate(currentMonth);
         Date pastDate = CalanderUtil.shiftMonths(currentDate, -1 * appreciationDuration);
         List<InventoryPriceTrend> inventoryPriceTrends = trendDao.getTrend(fiqlSelector);
 
