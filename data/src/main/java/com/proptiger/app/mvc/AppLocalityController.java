@@ -65,9 +65,7 @@ public class AppLocalityController extends BaseController {
     public ProAPIResponse getLocalityDetails(@PathVariable int localityId, @RequestParam(
             required = false,
             value = "selector") String selectorStr, @RequestParam(
-            required = false,
-            value = "imageCount",
-            defaultValue = "3") Integer imageCount) {
+            required = false) Integer imageCount) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         if (selector == null) {
             selector = new Selector();

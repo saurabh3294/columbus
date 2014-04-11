@@ -340,6 +340,10 @@ public class Project extends BaseModel {
     private String                  propertySizeMeasure;
 
     @Transient
+    @Field(value = "PROJECT_DOMINANT_UNIT_TYPE")
+    private String                  dominantUnitType;
+
+    @Transient
     private Set<String>             propertyUnitTypes = new HashSet<>();
 
     @Transient
@@ -1066,6 +1070,14 @@ public class Project extends BaseModel {
 
     public void setMaxResaleOrPrimaryPrice(Double maxResaleOrPrimaryPrice) {
         this.maxResaleOrPrimaryPrice = maxResaleOrPrimaryPrice;
+    }
+
+    public String getDominantUnitType() {
+        return dominantUnitType;
+    }
+
+    public void setDominantUnitType(String dominantUnitType) {
+        this.dominantUnitType = dominantUnitType;
     }
 
 }

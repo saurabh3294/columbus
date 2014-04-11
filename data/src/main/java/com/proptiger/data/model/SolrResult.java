@@ -717,6 +717,11 @@ public class SolrResult extends BaseModel {
         locality.setDominantUnitType(dominantUnitType);
     }
 
+    @Field("PROJECT_DOMINANT_UNIT_TYPE")
+    public void setProjectDominantUnitType(String dominantUnitType) {
+        project.setDominantUnitType(dominantUnitType);
+    }
+
     @Field("SUBURB_DOMINANT_UNIT_TYPE")
     public void setSuburbDominantUnitType(String dominantUnitType) {
         suburb.setDominantUnitType(dominantUnitType);
