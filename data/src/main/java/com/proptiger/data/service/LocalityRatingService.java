@@ -111,8 +111,10 @@ public class LocalityRatingService {
             Constants.CacheName.LOCALITY_RATING_AVG_BY_CATEGORY,
             Constants.CacheName.LOCALITY_RATING_USERS_COUNT_BY_RATING,
             Constants.CacheName.LOCALITY_RATING_USERS }, key = "#localityId")
-    @Transactional(rollbackFor = { ConstraintViolationException.class }, isolation = Isolation.SERIALIZABLE)
+    @Transactional(rollbackFor = { ConstraintViolationException.class })
     public LocalityRatings createLocalityRating(Integer userId, Integer localityId, LocalityRatings localityRatings) {
+        //TODO in case of multiple request from same user and same locality this method creates two row in database
+        //TODO need to prevent this
         logger.debug("create locality rating for user {} locality {}", userId, localityId);
         LocalityRatings created = null;
         localityRatings.setLocalityId(localityId);
