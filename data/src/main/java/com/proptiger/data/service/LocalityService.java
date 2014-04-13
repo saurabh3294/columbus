@@ -715,7 +715,7 @@ public class LocalityService {
         for(InventoryPriceTrend inventoryPriceTrend: trendService.getTrend(selector)) {
             Object avgPricePerUnitArea = inventoryPriceTrend.getExtraAttributes().get("wavgPricePerUnitAreaOnSupply");
             if (avgPricePerUnitArea != null) {
-                avgPrice.put(inventoryPriceTrend.getBedrooms(), (double)avgPricePerUnitArea);
+                avgPrice.put(inventoryPriceTrend.getBedrooms(), Double.valueOf(avgPricePerUnitArea.toString()));
             }
         }
 
