@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ import com.proptiger.data.pojo.SortBy;
 import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.BuilderDao;
 import com.proptiger.data.repo.SolrDao;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -128,7 +130,7 @@ public class BuilderService {
      * @param builderSelector
      * @return
      */
-    public List<Builder> getTopBuilders(Selector builderSelector) {
+    public PaginatedResponse<List<Builder>> getTopBuilders(Selector builderSelector) {
         SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.PROJECT);
         solrQuery.add("group", "true");
         solrQuery.add("group.field", "BUILDER_ID");
@@ -145,7 +147,14 @@ public class BuilderService {
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
-        return builders;
+        PaginatedResponse<List<Builder>> paginatedResponse = new PaginatedResponse<>();
+        paginatedResponse.setResults(builders);
+        List<GroupCommand> values = queryResponse.getGroupResponse().getValues();
+        if (!values.isEmpty()) {
+            paginatedResponse.setTotalCount(values.get(0).getNGroups());
+        }
+
+        return paginatedResponse;
     }
 
     /**
@@ -157,7 +166,7 @@ public class BuilderService {
     public List<Builder> getTopBuildersForLocality(Integer localityId) {
         Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"localityId\":" + localityId
                 + "}}]}}", Selector.class);
-        return getTopBuilders(selector);
+        return getTopBuilders(selector).getResults();
     }
 
     @Cacheable(value = Constants.CacheName.BUILDER, key = "#builderId")
