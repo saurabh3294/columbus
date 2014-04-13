@@ -3,6 +3,8 @@ package com.proptiger.data.b2b.external.dto;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.proptiger.data.model.enums.UnitType;
+
 /**
  * DTO for custom builder trend
  * 
@@ -11,18 +13,18 @@ import java.util.Set;
  */
 
 public class BuilderTrend {
-    private Integer     builderId;
-    private String      builderName;
-    private Integer     projectCount;
-    private Integer     minPricePerUnitArea                   = 0;
-    private Integer     maxPricePerUnitArea                   = 0;
-    private Integer     supply                                = 0;
-    private Integer     inventory                             = 0;
-    private Set<String> unitTypes                             = new HashSet<>();
-    private Integer     projectCountHavingPriceAppreciation   = 0;
-    private Integer     projectCountHavingPriceDepreciation   = 0;
-    private Integer     projectCountHavingPriceMoreThanLocAvg = 0;
-    private Integer     projectCountHavingPriceLessThanLocAvg = 0;
+    private Integer       builderId;
+    private String        builderName;
+    private Integer       projectCount;
+    private Integer       minPricePerUnitArea                   = 0;
+    private Integer       maxPricePerUnitArea                   = 0;
+    private Integer       supply                                = 0;
+    private Integer       inventory                             = 0;
+    private Set<UnitType> unitTypes                             = new HashSet<>();
+    private Integer       projectCountHavingPriceAppreciation   = 0;
+    private Integer       projectCountHavingPriceDepreciation   = 0;
+    private Integer       projectCountHavingPriceMoreThanLocAvg = 0;
+    private Integer       projectCountHavingPriceLessThanLocAvg = 0;
 
     public Integer getBuilderId() {
         return builderId;
@@ -80,11 +82,11 @@ public class BuilderTrend {
         this.inventory = inventory;
     }
 
-    public Set<String> getUnitTypes() {
+    public Set<UnitType> getUnitTypes() {
         return unitTypes;
     }
 
-    public void setUnitTypes(Set<String> unitTypes) {
+    public void setUnitTypes(Set<UnitType> unitTypes) {
         this.unitTypes = unitTypes;
     }
 

@@ -180,7 +180,7 @@ public class Graph extends BaseModel {
         this.updatedAt = updatedAt;
     }
 
-    public enum PARENTTYPE {
+    public static enum PARENTTYPE {
         Catchment, Builder
     }
 }

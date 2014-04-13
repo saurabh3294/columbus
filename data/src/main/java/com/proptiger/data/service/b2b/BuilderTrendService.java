@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.b2b.external.dto.BuilderTrend;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
+import com.proptiger.data.model.enums.UnitType;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.b2b.TrendDao;
 import com.proptiger.data.util.CalanderUtil;
@@ -30,14 +33,16 @@ import com.proptiger.exception.ResourceNotFoundException;
 
 @Service
 public class BuilderTrendService {
+    private static final String WAVG_PRICE = "wavgPricePerUnitAreaOnSupply";
+
     @Autowired
-    TrendDao        trendDao;
+    TrendDao                    trendDao;
 
     @Value("${b2b.price-inventory.max.month}")
-    private String  currentMonth;
+    private String              currentMonth;
 
     @Value("${b2b.price-appreciation.duration}")
-    private Integer appreciationDuration;
+    private Integer             appreciationDuration;
 
     public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, UserInfo userInfo) {
         FIQLSelector selector = new FIQLSelector();
@@ -60,7 +65,7 @@ public class BuilderTrendService {
         if (inventoryPriceTrends.size() != 0) {
             Map<Integer, Map<String, List<InventoryPriceTrend>>> localityUnitTypePricesMap = (Map<Integer, Map<String, List<InventoryPriceTrend>>>) UtilityClass
                     .groupFieldsAsPerKeys(
-                            trendDao.getTrend(getFIQLForProjectLocalityPrice(getLocalityDominantTypeUnitTypeMapForProjects(inventoryPriceTrends))),
+                            trendDao.getTrend(getFIQLForLocalityPrice(getLocalityDominantTypeFromList(inventoryPriceTrends))),
                             new ArrayList<String>(Arrays.asList("localityId", "unitType")));
 
             Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>> inventoryPriceTrendMap = (Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>>) UtilityClass
@@ -94,47 +99,21 @@ public class BuilderTrendService {
                                 .getExtraAttributes().get("sumInventory")).intValue());
                         builderTrend.getUnitTypes().add(inventoryPriceTrend.getUnitType());
 
-                        if (inventoryPriceTrend.getIsDominantProjectUnitType().equals("True")) {
-                            if (inventoryPriceTrend.getExtraAttributes().get("wavgPricePerUnitAreaOnSupply") != null) {
-                                Double currentPrice = Double.valueOf(inventoryPriceTrend.getExtraAttributes()
-                                        .get("wavgPricePerUnitAreaOnSupply").toString());
-                                Double currentLocalityPrice = Double.valueOf(localityUnitTypePricesMap
-                                        .get(inventoryPriceTrend.getLocalityId())
-                                        .get(inventoryPriceTrend.getUnitType()).get(0).getExtraAttributes()
-                                        .get("wavgPricePerUnitAreaOnSupply").toString());
+                        UnitType unitType = inventoryPriceTrend.getUnitType();
+                        if (inventoryPriceTrend.getIsDominantProjectUnitType()) {
+                            Object currentPriceObject = inventoryPriceTrend.getExtraAttributes().get(WAVG_PRICE);
+                            if (currentPriceObject != null) {
+                                populateLocalityPriceComparision(
+                                        localityUnitTypePricesMap,
+                                        builderTrend,
+                                        inventoryPriceTrend);
 
-                                if (currentPrice > currentLocalityPrice) {
-                                    builderTrend.setProjectCountHavingPriceMoreThanLocAvg(builderTrend
-                                            .getProjectCountHavingPriceMoreThanLocAvg() + 1);
-                                }
-                                else if (currentPrice < currentLocalityPrice) {
-                                    builderTrend.setProjectCountHavingPriceLessThanLocAvg(builderTrend
-                                            .getProjectCountHavingPriceLessThanLocAvg() + 1);
-                                }
-
-                                if (inventoryPriceTrendMap.get(builderId).get(pastDate.getTime()) != null && inventoryPriceTrendMap
-                                        .get(builderId).get(pastDate.getTime()).get(projectId) != null) {
-                                    List<InventoryPriceTrend> pastMonthProjectDetails = inventoryPriceTrendMap
-                                            .get(builderId).get(pastDate.getTime()).get(projectId);
-                                    for (InventoryPriceTrend pastIinventoryPriceTrend : pastMonthProjectDetails) {
-                                        if (pastIinventoryPriceTrend.getIsDominantProjectUnitType().equals("True")) {
-                                            if (pastIinventoryPriceTrend.getExtraAttributes().get(
-                                                    "wavgPricePerUnitAreaOnSupply") != null) {
-                                                Double pastPrice = Double.valueOf(pastIinventoryPriceTrend
-                                                        .getExtraAttributes().get("wavgPricePerUnitAreaOnSupply")
-                                                        .toString());
-                                                if (currentPrice > pastPrice) {
-                                                    builderTrend.setProjectCountHavingPriceAppreciation(builderTrend
-                                                            .getProjectCountHavingPriceAppreciation() + 1);
-                                                }
-                                                else if (currentPrice < pastPrice) {
-                                                    builderTrend.setProjectCountHavingPriceDepreciation(builderTrend
-                                                            .getProjectCountHavingPriceDepreciation() + 1);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                Double currentPrice = Double.valueOf(currentPriceObject.toString());
+                                populatePastPriceComparision(
+                                        inventoryPriceTrend,
+                                        pastDate,
+                                        inventoryPriceTrendMap,
+                                        builderTrend);
                             }
                         }
                     }
@@ -147,47 +126,120 @@ public class BuilderTrendService {
         return result;
     }
 
+    private void populatePastPriceComparision(
+            InventoryPriceTrend inventoryPriceTrend,
+            Date pastDate,
+            Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>> inventoryPriceTrendMap,
+            BuilderTrend builderTrend) {
+        Integer builderId = inventoryPriceTrend.getBuilderId();
+        Integer projectId = inventoryPriceTrend.getProjectId();
+        UnitType unitType = inventoryPriceTrend.getUnitType();
+        Double currentPrice = Double.valueOf(inventoryPriceTrend.getExtraAttributes().get(WAVG_PRICE).toString());
+
+        if (inventoryPriceTrendMap.get(builderId).get(pastDate.getTime()) != null && inventoryPriceTrendMap
+                .get(builderId).get(pastDate.getTime()).get(projectId) != null) {
+            List<InventoryPriceTrend> pastMonthProjectDetails = inventoryPriceTrendMap.get(builderId)
+                    .get(pastDate.getTime()).get(projectId);
+            for (InventoryPriceTrend pastIinventoryPriceTrend : pastMonthProjectDetails) {
+                if (pastIinventoryPriceTrend.getUnitType().equals(unitType)) {
+                    Object pastPriceObject = pastIinventoryPriceTrend.getExtraAttributes().get(WAVG_PRICE);
+                    if (pastPriceObject != null) {
+                        Double pastPrice = Double.valueOf(pastPriceObject.toString());
+                        if (currentPrice > pastPrice) {
+                            builderTrend.setProjectCountHavingPriceAppreciation(builderTrend
+                                    .getProjectCountHavingPriceAppreciation() + 1);
+                        }
+                        else if (currentPrice < pastPrice) {
+                            builderTrend.setProjectCountHavingPriceDepreciation(builderTrend
+                                    .getProjectCountHavingPriceDepreciation() + 1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void populateLocalityPriceComparision(
+            Map<Integer, Map<String, List<InventoryPriceTrend>>> localityUnitTypePricesMap,
+            BuilderTrend builderTrend,
+            InventoryPriceTrend inventoryPriceTrend) {
+        Double currentPrice = Double.valueOf(inventoryPriceTrend.getExtraAttributes().get(WAVG_PRICE).toString());
+        Double currentLocalityPrice = Double.valueOf(localityUnitTypePricesMap.get(inventoryPriceTrend.getLocalityId())
+                .get(inventoryPriceTrend.getUnitType()).get(0).getExtraAttributes().get(WAVG_PRICE).toString());
+
+        if (currentPrice > currentLocalityPrice) {
+            builderTrend.setProjectCountHavingPriceMoreThanLocAvg(builderTrend
+                    .getProjectCountHavingPriceMoreThanLocAvg() + 1);
+        }
+        else if (currentPrice < currentLocalityPrice) {
+            builderTrend.setProjectCountHavingPriceLessThanLocAvg(builderTrend
+                    .getProjectCountHavingPriceLessThanLocAvg() + 1);
+        }
+    }
+
+    /**
+     * 
+     * @param inventoryPriceTrends
+     * @return {@link Map} unique combination of locality and dominant unit type
+     *         for all projects in the supplied list
+     */
     @SuppressWarnings("unchecked")
-    private Map<Integer, String> getLocalityDominantTypeUnitTypeMapForProjects(
-            List<InventoryPriceTrend> inventoryPriceTrends) {
-        Map<Integer, String> result = new HashMap<>();
+    private Map<Integer, Set<UnitType>> getLocalityDominantTypeFromList(List<InventoryPriceTrend> inventoryPriceTrends) {
+        Map<Integer, Set<UnitType>> result = new HashMap<>();
         Map<String, List<InventoryPriceTrend>> isDominantSupplyGrouped = (Map<String, List<InventoryPriceTrend>>) UtilityClass
                 .groupFieldsAsPerKeys(
                         inventoryPriceTrends,
                         new ArrayList<String>(Arrays.asList("isDominantProjectUnitType")));
         if (isDominantSupplyGrouped.get("True") != null) {
             for (InventoryPriceTrend inventoryPriceTrend : isDominantSupplyGrouped.get("True")) {
-                result.put(inventoryPriceTrend.getLocalityId(), inventoryPriceTrend.getUnitType());
+                Integer localityId = inventoryPriceTrend.getLocalityId();
+                UnitType unitType = inventoryPriceTrend.getUnitType();
+                if (result.containsKey(localityId)) {
+                    result.get(localityId).add(unitType);
+                }
+                else {
+                    Set<UnitType> unitTypes = new HashSet<>(Arrays.asList(unitType));
+                    result.put(localityId, unitTypes);
+                }
             }
         }
         return result;
     }
 
-    private FIQLSelector getFIQLForProjectLocalityPrice(Map<Integer, String> localityUnitTypeMap) {
+    /**
+     * 
+     * @param localityUnitTypeMap
+     * @return {@link FIQLSelector} for getting locality price for different
+     *         unit types
+     */
+    private FIQLSelector getFIQLForLocalityPrice(Map<Integer, Set<UnitType>> localityUnitTypeMap) {
         FIQLSelector fiqlSelector = new FIQLSelector();
-        fiqlSelector.setFields("wavgPricePerUnitAreaOnSupply,localityId");
+        fiqlSelector.setFields("wavgPricePerUnitAreaOnSupply");
         fiqlSelector.setGroup("localityId,unitType");
         for (Integer localityId : localityUnitTypeMap.keySet()) {
-            fiqlSelector.addOrConditionToFilter("localityId==" + localityId
-                    + ";unitType=="
-                    + localityUnitTypeMap.get(localityId));
+            for (UnitType unitType : localityUnitTypeMap.get(localityId)) {
+
+                fiqlSelector.addOrConditionToFilter("localityId==" + localityId + ";unitType==" + unitType);
+            }
         }
         fiqlSelector.addAndConditionToFilter("month==" + currentMonth);
         return fiqlSelector;
     }
 
+    /**
+     * 
+     * @param userFIQLSelector
+     * @return {@link FIQLSelector} for builder trend honouring user provided
+     *         filters
+     */
     private FIQLSelector getFIQLFromUserFIQL(FIQLSelector userFIQLSelector) {
         FIQLSelector result = new FIQLSelector();
-        result
-                .setFilters(userFIQLSelector.getFilters())
-                .addAndConditionToFilter("isDominantProjectUnitType==True")
-                .addAndConditionToFilter(
-                        "month==" + currentMonth
-                                + ",month=="
-                                + CalanderUtil.shiftMonths(currentMonth, -1 * appreciationDuration));
+        result.setFilters(userFIQLSelector.getFilters()).addAndConditionToFilter(
+                "month==" + currentMonth
+                        + ",month=="
+                        + CalanderUtil.shiftMonths(currentMonth, -1 * appreciationDuration));
         result.setGroup("builderId,month,projectId,unitType");
         result.setFields("builderId,builderName,minPricePerUnitArea,maxPricePerUnitArea,sumLtdSupply,sumInventory,wavgPricePerUnitAreaOnSupply,month,localityId,isDominantProjectUnitType");
-        result.setSort("builderId,-month,projectId");
         return result;
     }
 }
