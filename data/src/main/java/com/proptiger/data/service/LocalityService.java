@@ -333,11 +333,9 @@ public class LocalityService {
 
         locality.setAmenityTypeCount(localityAmenityCountMap);
         /*
-         * Hit image service only if images are required
+         * Hit image service to get the images
          */
-        if (imageCount != null && imageCount > 0) {
-            imageEnricher.setLocalityImages(locality, imageCount);
-        }
+        imageEnricher.setLocalityImages(locality, imageCount);
         /*
          * Setting Rating and Review Details.
          */

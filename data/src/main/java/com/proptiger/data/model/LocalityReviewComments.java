@@ -98,12 +98,12 @@ public class LocalityReviewComments extends BaseModel {
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumns({
-            @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false),
             @JoinColumn(
                     name = "LOCALITY_ID",
                     referencedColumnName = "LOCALITY_ID",
                     insertable = false,
-                    updatable = false)})
+                    updatable = false),
+            @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false), })
     private LocalityRatings   localityRatings;
 
     @ManyToOne

@@ -209,6 +209,17 @@ public class LocalityReviewService {
             }
             //only active review
             selector.addAndConditionToFilter("status==1");
+            /*
+             * default sort is by  localityRatings.overallRating DESC, in case if sort is already there
+             * on some other field even though we are adding localityRatings.overallRating DESC to fetch
+             * rating details, as criteria builder does not houner Fetch.EAGER
+             */
+            if(selector.getSort() == null || selector.getSort().isEmpty()){
+                selector.addSortDESC("localityRatings.overallRating");
+            }
+            else if(!selector.getSort().contains("localityRatings.overallRating")){
+                selector.addSortDESC("localityRatings.overallRating");
+            }
             response = localityReviewDao.getLocalityReview(selector);
         }
         return response;
