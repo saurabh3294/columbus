@@ -53,6 +53,15 @@ public class AmazonMailSender {
     public boolean sendMail(String[] mailTo, String[] mailCC, String[] mailBCC, String mailContent, String subject)
             throws MailException {
         // Construct an object to contain the recipient address.
+        if (from == null || from.isEmpty()) {
+            logger.debug("from email-Id is null or Empty");
+            return false;
+        }
+        if (mailTo == null || mailTo.length == 0) {
+            logger.debug("To email-Id is null or Empty");
+            return false;
+        }
+
         Destination destination = new Destination().withToAddresses(mailTo);
         if (mailCC != null && mailCC.length > 0)
             destination.withCcAddresses(mailCC);
