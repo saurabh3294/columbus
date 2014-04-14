@@ -19,8 +19,7 @@ import com.proptiger.data.model.b2b.InventoryPriceTrend;
 import com.proptiger.data.model.enums.UnitType;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.b2b.TrendDao;
-import com.proptiger.data.util.CalanderUtil;
-import com.proptiger.data.util.StringToDateConverter;
+import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ResourceNotFoundException;
 
@@ -58,8 +57,8 @@ public class BuilderTrendService {
     public Map<Integer, BuilderTrend> getBuilderTrend(FIQLSelector selector, UserInfo userInfo) {
         Map<Integer, BuilderTrend> result = new HashMap<>();
         FIQLSelector fiqlSelector = getFIQLFromUserFIQL(selector);
-        Date currentDate = StringToDateConverter.parseYYYYmmddStringToDate(currentMonth);
-        Date pastDate = CalanderUtil.shiftMonths(currentDate, -1 * appreciationDuration);
+        Date currentDate = DateUtil.parseYYYYmmddStringToDate(currentMonth);
+        Date pastDate = DateUtil.shiftMonths(currentDate, -1 * appreciationDuration);
         List<InventoryPriceTrend> inventoryPriceTrends = trendDao.getTrend(fiqlSelector);
 
         if (inventoryPriceTrends.size() != 0) {
@@ -99,7 +98,6 @@ public class BuilderTrendService {
                                 .getExtraAttributes().get("sumInventory")).intValue());
                         builderTrend.getUnitTypes().add(inventoryPriceTrend.getUnitType());
 
-                        UnitType unitType = inventoryPriceTrend.getUnitType();
                         if (inventoryPriceTrend.getIsDominantProjectUnitType()) {
                             Object currentPriceObject = inventoryPriceTrend.getExtraAttributes().get(WAVG_PRICE);
                             if (currentPriceObject != null) {
@@ -108,7 +106,6 @@ public class BuilderTrendService {
                                         builderTrend,
                                         inventoryPriceTrend);
 
-                                Double currentPrice = Double.valueOf(currentPriceObject.toString());
                                 populatePastPriceComparision(
                                         inventoryPriceTrend,
                                         pastDate,
@@ -190,8 +187,8 @@ public class BuilderTrendService {
                 .groupFieldsAsPerKeys(
                         inventoryPriceTrends,
                         new ArrayList<String>(Arrays.asList("isDominantProjectUnitType")));
-        if (isDominantSupplyGrouped.get("True") != null) {
-            for (InventoryPriceTrend inventoryPriceTrend : isDominantSupplyGrouped.get("True")) {
+        if (isDominantSupplyGrouped.get("true") != null) {
+            for (InventoryPriceTrend inventoryPriceTrend : isDominantSupplyGrouped.get("true")) {
                 Integer localityId = inventoryPriceTrend.getLocalityId();
                 UnitType unitType = inventoryPriceTrend.getUnitType();
                 if (result.containsKey(localityId)) {
@@ -235,9 +232,7 @@ public class BuilderTrendService {
     private FIQLSelector getFIQLFromUserFIQL(FIQLSelector userFIQLSelector) {
         FIQLSelector result = new FIQLSelector();
         result.setFilters(userFIQLSelector.getFilters()).addAndConditionToFilter(
-                "month==" + currentMonth
-                        + ",month=="
-                        + CalanderUtil.shiftMonths(currentMonth, -1 * appreciationDuration));
+                "month==" + currentMonth + ",month==" + DateUtil.shiftMonths(currentMonth, -1 * appreciationDuration));
         result.setGroup("builderId,month,projectId,unitType");
         result.setFields("builderId,builderName,minPricePerUnitArea,maxPricePerUnitArea,sumLtdSupply,sumInventory,wavgPricePerUnitAreaOnSupply,month,localityId,isDominantProjectUnitType");
         return result;

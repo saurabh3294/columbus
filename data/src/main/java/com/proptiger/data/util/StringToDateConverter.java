@@ -14,7 +14,6 @@ import com.proptiger.exception.ProAPIException;
 
 /**
  * @author mandeep
- * @author azi
  * 
  */
 public class StringToDateConverter implements Converter<String, Date> {
@@ -26,21 +25,6 @@ public class StringToDateConverter implements Converter<String, Date> {
         }
         catch (ParseException e) {
             throw new IllegalArgumentException("Could not parse date", e);
-        }
-    }
-
-    /**
-     * @param date
-     *            {@link String} in YYYY-mm-dd format
-     * @return {@link Date}
-     */
-    public static Date parseYYYYmmddStringToDate(String date) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        try {
-            return format.parse(date);
-        }
-        catch (ParseException e) {
-            throw new ProAPIException("Unable to parse date", e);
         }
     }
 }
