@@ -19,9 +19,6 @@ import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetai
 @Repository
 public interface LocalityReviewDao extends PagingAndSortingRepository<LocalityReviewComments, Long>, LocalityReviewCustomDao{
 
-    @Query("SELECT COUNT(*) FROM LocalityReviewComments WHERE Status = '1' AND localityId = ?1")
-    public Long getTotalReviewsByLocalityId(int localityId);
-
     @Query("SELECT NEW com.proptiger.data.model.LocalityReviewComments$LocalityReviewCustomDetail(R.review , R.reviewLabel, U.username, R.commenttime, R.userName)" + " FROM LocalityReviewComments AS R left join"
             + "  R.forumUser as U WHERE R.status = '1' AND R.localityId = ?1 "
             + " ORDER BY R.commenttime DESC ")

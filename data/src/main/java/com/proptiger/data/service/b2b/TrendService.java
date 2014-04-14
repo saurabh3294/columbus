@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
+import com.proptiger.data.model.enums.UnitType;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.b2b.TrendDao;
 import com.proptiger.data.util.Constants;
@@ -116,9 +117,9 @@ public class TrendService {
     }
 
     @Cacheable(value = Constants.CacheName.CACHE)
-    public String getDominantSupply(FIQLSelector sel) {
+    public UnitType getDominantSupply(FIQLSelector sel) {
         FIQLSelector selector;
-        String unitType = null;
+        UnitType unitType = UnitType.Apartment;
         try {
             selector = sel.clone();
         }

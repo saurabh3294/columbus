@@ -77,7 +77,7 @@ public class FIQLSelector implements Cloneable, Serializable {
             filters = condition;
         }
         else {
-            filters = "(" + filters + ");" + condition;
+            filters = "(" + filters + ");(" + condition + ")";
         }
         return this;
     }
@@ -87,7 +87,7 @@ public class FIQLSelector implements Cloneable, Serializable {
             filters = condition;
         }
         else {
-            filters = "(" + filters + ")," + condition;
+            filters = "(" + filters + "),(" + condition + ")";
         }
         return this;
     }
