@@ -98,17 +98,6 @@ public class LocalityReviewService {
     }
 
     /**
-     * Get locality review count
-     * 
-     * @param localityId
-     * @return Long Number of reviews
-     */
-    @Cacheable(value = Constants.CacheName.LOCALITY_REVIEW_COUNT, key = "#localityId+\"\"")
-    public Long getLocalityReviewCount(int localityId) {
-        return localityReviewDao.getTotalReviewsByLocalityId(localityId);
-    }
-
-    /**
      * Get top reviewed locality id for city or suburb
      * 
      * @param locationType
