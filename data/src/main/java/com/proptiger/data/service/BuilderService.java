@@ -8,8 +8,11 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +138,6 @@ public class BuilderService {
         solrQuery.add("group", "true");
         solrQuery.add("group.field", "BUILDER_ID");
         solrQuery.add("group.ngroups", "true");
-        solrQuery.add("group.main", "true");
         solrQuery.addSort("BUILDER_PRIORITY", ORDER.asc);
         solrQuery.addSort("BUILDER_NAME", ORDER.asc);
 
@@ -143,18 +145,28 @@ public class BuilderService {
         solrQueryBuilder.buildQuery(builderSelector, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
-        List<Builder> topBuilders = queryResponse.getBeans(Builder.class);
+        List<Builder> topBuilders = new ArrayList<>();
+        for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
+            for (Group group : groupCommand.getValues()) {
+                List<Builder> builders = convertBuilder(group.getResult());
+                topBuilders.add(builders.get(0));
+            }
+        }
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
         PaginatedResponse<List<Builder>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(builders);
-        List<GroupCommand> values = queryResponse.getGroupResponse().getValues();
-        if (!values.isEmpty()) {
-            paginatedResponse.setTotalCount(values.get(0).getNGroups());
+
+        if (queryResponse.getGroupResponse() != null && !queryResponse.getGroupResponse().getValues().isEmpty()) {
+            paginatedResponse.setTotalCount(queryResponse.getGroupResponse().getValues().get(0).getNGroups());
         }
 
         return paginatedResponse;
+    }
+
+    private List<Builder> convertBuilder(SolrDocumentList result) {
+        return new DocumentObjectBinder().getBeans(Builder.class, result);
     }
 
     /**
