@@ -59,7 +59,13 @@ public class LocalityReviewService {
             key = "#localityId +'-'+{#noOfReviews != null ?#noOfReviews:'' }")
     public LocalityReviewRatingDetails getLocalityReviewRatingDetails(int localityId, Integer noOfReviews) {
         logger.debug("Get review and rating details of locality {}", localityId);
-        Long totalReviews = getLocalityReviewCount(localityId);
+        Long totalReviews = (long)0;
+        PaginatedResponse<List<LocalityReviewComments>> reviews = getLocalityReview(
+                null,
+                new FIQLSelector().addAndConditionToFilter("localityId==" + localityId));
+        if(reviews != null){
+            totalReviews = reviews.getTotalCount();
+        }
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
 
         if (noOfReviews != null && noOfReviews.intValue() > 0) {
@@ -89,17 +95,6 @@ public class LocalityReviewService {
      */
     public List<LocalityReviewCustomDetail> getLocalityReviewCustomDetails(int localityId, Pageable pageable) {
         return localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
-    }
-
-    /**
-     * Get locality review count
-     * 
-     * @param localityId
-     * @return Long Number of reviews
-     */
-    @Cacheable(value = Constants.CacheName.LOCALITY_REVIEW_COUNT, key = "#localityId+\"\"")
-    public Long getLocalityReviewCount(int localityId) {
-        return localityReviewDao.getTotalReviewsByLocalityId(localityId);
     }
 
     /**

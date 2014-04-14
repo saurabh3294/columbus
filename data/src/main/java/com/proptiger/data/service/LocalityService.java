@@ -32,6 +32,7 @@ import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
+import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
@@ -741,7 +742,13 @@ public class LocalityService {
                 .getLocalityId());
 
         locality.setAverageRating(localityRatingDetails.getAverageRatings());
-        Long totalNumberOfReviews = localityReviewService.getLocalityReviewCount(locality.getLocalityId());
+        Long totalNumberOfReviews = (long)0;
+        PaginatedResponse<List<LocalityReviewComments>> reviews = localityReviewService.getLocalityReview(
+                null,
+                new FIQLSelector().addAndConditionToFilter("localityId==" + locality.getLocalityId()));
+        if(reviews != null){
+            totalNumberOfReviews = reviews.getTotalCount();
+        }
         /*
          * Setting total rating counts
          */
