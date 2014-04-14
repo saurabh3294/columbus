@@ -149,9 +149,9 @@ public class BuilderService {
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
         PaginatedResponse<List<Builder>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(builders);
-        List<GroupCommand> values = queryResponse.getGroupResponse().getValues();
-        if (!values.isEmpty()) {
-            paginatedResponse.setTotalCount(values.get(0).getNGroups());
+        if (queryResponse != null && queryResponse.getGroupResponse() != null
+                && !queryResponse.getGroupResponse().getValues().isEmpty()) {
+            paginatedResponse.setTotalCount(queryResponse.getGroupResponse().getValues().get(0).getNGroups());
         }
 
         return paginatedResponse;
