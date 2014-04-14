@@ -146,6 +146,12 @@ public class ImageEnricher {
         }
     }
 
+    /**
+     * Populate images of Locality, in case imagecount is null then populate all images
+     * present in locality, caller need not to check null conditions
+     * @param locality
+     * @param numberOfImages
+     */
     public void setLocalityImages(Locality locality, Integer numberOfImages) {
         if (locality == null)
             return;
@@ -154,8 +160,9 @@ public class ImageEnricher {
         if (images != null && images.size() > 0) {
             locality.setImageCount(images.size());
 
-            if (numberOfImages == null || numberOfImages < 0 || numberOfImages > images.size())
+            if (numberOfImages == null || numberOfImages < 0 || numberOfImages > images.size()){
                 numberOfImages = images.size();
+            }
 
             locality.setImages(images.subList(0, numberOfImages));
         }

@@ -332,12 +332,8 @@ public class LocalityService {
         Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
 
         locality.setAmenityTypeCount(localityAmenityCountMap);
-        /*
-         * Hit image service only if images are required
-         */
-        if (imageCount != null && imageCount > 0) {
-            imageEnricher.setLocalityImages(locality, imageCount);
-        }
+        imageEnricher.setLocalityImages(locality, imageCount);
+
         /*
          * Setting Rating and Review Details.
          */
@@ -452,16 +448,25 @@ public class LocalityService {
             }
 
             result = getLocalitiesOnIds(localityIds);
+            Map<Integer, Locality> localities = new HashMap<Integer, Locality>();
             for (Locality locality : result) {
                 locality.setAverageRating(map.get(locality.getLocalityId()));
                 LocalityRatingDetails localityReviewDetails = localityRatingService
                         .getUsersCountByRatingOfLocality(locality.getLocalityId());
                 locality.setNumberOfUsersByRating(localityReviewDetails.getTotalUsersByRating());
+                localities.put(locality.getLocalityId(), locality);
+            }
 
+            // Sorting localities as lookup screwed the order
+            result.clear();
+            for (int localityId: localityIds) {
+                result.add(localities.get(localityId));
             }
         }
+
         imageEnricher.setLocalitiesImages(result, imageCount);
 
+            
         return result;
     }
 
@@ -703,14 +708,14 @@ public class LocalityService {
                                                 .addAndConditionToFilter("unitType==" + unitType)
                                                 .addAndConditionToFilter(locationType + "==" + locationId)
                                                 .addGroupByAtBeginning("bedrooms")
-                                                .addField("avgPricePerUnitArea");
+                                                .addField("wavgPricePerUnitAreaOnSupply");
 
         Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
 
         for(InventoryPriceTrend inventoryPriceTrend: trendService.getTrend(selector)) {
-            Object avgPricePerUnitArea = inventoryPriceTrend.getExtraAttributes().get("avgPricePerUnitArea");
+            Object avgPricePerUnitArea = inventoryPriceTrend.getExtraAttributes().get("wavgPricePerUnitAreaOnSupply");
             if (avgPricePerUnitArea != null) {
-                avgPrice.put(inventoryPriceTrend.getBedrooms(), (double)avgPricePerUnitArea);
+                avgPrice.put(inventoryPriceTrend.getBedrooms(), Double.valueOf(avgPricePerUnitArea.toString()));
             }
         }
 

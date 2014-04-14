@@ -14,6 +14,7 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
+import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * 
@@ -40,10 +41,10 @@ public class BuilderController extends BaseController {
         if (selector != null) {
             builderSelector = super.parseJsonToObject(selector, Selector.class);
         }
-        List<Builder> builders = builderService.getTopBuilders(builderSelector);
+        PaginatedResponse<List<Builder>> paginatedResponse = builderService.getTopBuilders(builderSelector);
 
         return new ProAPISuccessCountResponse(
-                super.filterFields(builders, builderSelector.getFields()),
-                builders.size());
+                super.filterFields(paginatedResponse.getResults(), builderSelector.getFields()),
+                paginatedResponse.getTotalCount());
     }
 }
