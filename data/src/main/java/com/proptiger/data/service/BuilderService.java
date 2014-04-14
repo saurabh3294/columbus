@@ -8,8 +8,11 @@ import java.util.Map;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
+import org.apache.solr.client.solrj.beans.DocumentObjectBinder;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.GroupCommand;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -143,7 +146,13 @@ public class BuilderService {
         solrQueryBuilder.buildQuery(builderSelector, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
-        List<Builder> topBuilders = queryResponse.getBeans(Builder.class);
+        List<Builder> topBuilders = new ArrayList<>();
+        for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
+            for (Group group : groupCommand.getValues()) {
+                List<Builder> builders = convertBuilder(group.getResult());
+                topBuilders.add(builders.get(0));
+            }
+        }
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
@@ -155,6 +164,10 @@ public class BuilderService {
         }
 
         return paginatedResponse;
+    }
+
+    private List<Builder> convertBuilder(SolrDocumentList result) {
+        return new DocumentObjectBinder().getBeans(Builder.class, result);
     }
 
     /**
