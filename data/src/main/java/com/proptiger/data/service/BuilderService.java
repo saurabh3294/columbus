@@ -138,7 +138,6 @@ public class BuilderService {
         solrQuery.add("group", "true");
         solrQuery.add("group.field", "BUILDER_ID");
         solrQuery.add("group.ngroups", "true");
-        solrQuery.add("group.main", "true");
         solrQuery.addSort("BUILDER_PRIORITY", ORDER.asc);
         solrQuery.addSort("BUILDER_NAME", ORDER.asc);
 
@@ -147,10 +146,12 @@ public class BuilderService {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
         List<Builder> topBuilders = new ArrayList<>();
-        for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
-            for (Group group : groupCommand.getValues()) {
-                List<Builder> builders = convertBuilder(group.getResult());
-                topBuilders.add(builders.get(0));
+        if(queryResponse.getGroupResponse() != null){
+            for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
+                for (Group group : groupCommand.getValues()) {
+                    List<Builder> builders = convertBuilder(group.getResult());
+                    topBuilders.add(builders.get(0));
+                }
             }
         }
 
