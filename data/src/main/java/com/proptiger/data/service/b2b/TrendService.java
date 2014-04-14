@@ -119,7 +119,7 @@ public class TrendService {
     @Cacheable(value = Constants.CacheName.CACHE)
     public UnitType getDominantSupply(FIQLSelector sel) {
         FIQLSelector selector;
-        UnitType unitType = null;
+        UnitType unitType = UnitType.Apartment;
         try {
             selector = sel.clone();
         }
