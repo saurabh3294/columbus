@@ -102,8 +102,6 @@ public class InventoryPriceTrend extends BaseModel {
     private Integer  bedrooms;
 
     @Column(name = "is_dominant_project_unit_type")
-    // @ConvertGroup(to=BooleanConverter.class, from=Boolean.class)
-    // @Convert(converter=BooleanConverter.class)
     private Boolean  isDominantProjectUnitType;
 
     @Column(name = "average_price_per_unit_area")
