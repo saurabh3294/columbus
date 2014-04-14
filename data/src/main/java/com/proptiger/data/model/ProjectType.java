@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.portfolio.UnitType;
+import com.proptiger.data.model.enums.UnitType;
 
 /**
  * @author Rajeev Pandey

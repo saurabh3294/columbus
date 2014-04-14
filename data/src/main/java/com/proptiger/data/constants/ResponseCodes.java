@@ -14,5 +14,6 @@ public interface ResponseCodes {
     // server error
     public static String INTERNAL_SERVER_ERROR       = "5XX";
     public static String DATABASE_CONNECTION_ERROR   = "5XX";
+    public static String RESOURCE_NOT_FOUND          = "404";
 
 }

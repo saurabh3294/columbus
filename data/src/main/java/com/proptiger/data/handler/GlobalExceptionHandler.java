@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.amazonaws.services.opsworks.model.ResourceNotFoundException;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.ProAPIErrorResponse;
@@ -29,6 +28,7 @@ import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
+import com.proptiger.exception.ResourceNotFoundException;
 
 /**
  * This class is a global exception handler, based on type of exception it
@@ -202,12 +202,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseBody
-    @ResponseStatus(value = HttpStatus.OK)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
     protected ProAPIResponse handleResourceNotFoundException(
             ResourceNotFoundException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_INVALID, exception.getMessage());
+        return new ProAPIErrorResponse(ResponseCodes.RESOURCE_NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
