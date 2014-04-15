@@ -3,7 +3,6 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -13,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Locality;
@@ -25,9 +21,6 @@ import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetai
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.repo.LocalityReviewDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
@@ -66,7 +59,13 @@ public class LocalityReviewService {
             key = "#localityId +'-'+{#noOfReviews != null ?#noOfReviews:'' }")
     public LocalityReviewRatingDetails getLocalityReviewRatingDetails(int localityId, Integer noOfReviews) {
         logger.debug("Get review and rating details of locality {}", localityId);
-        Long totalReviews = getLocalityReviewCount(localityId);
+        Long totalReviews = (long)0;
+        PaginatedResponse<List<LocalityReviewComments>> reviews = getLocalityReview(
+                null,
+                new FIQLSelector().addAndConditionToFilter("localityId==" + localityId));
+        if(reviews != null){
+            totalReviews = reviews.getTotalCount();
+        }
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest();
 
         if (noOfReviews != null && noOfReviews.intValue() > 0) {
@@ -96,17 +95,6 @@ public class LocalityReviewService {
      */
     public List<LocalityReviewCustomDetail> getLocalityReviewCustomDetails(int localityId, Pageable pageable) {
         return localityReviewDao.getReviewCommentsByLocalityId(localityId, pageable);
-    }
-
-    /**
-     * Get locality review count
-     * 
-     * @param localityId
-     * @return Long Number of reviews
-     */
-    @Cacheable(value = Constants.CacheName.LOCALITY_REVIEW_COUNT, key = "#localityId+\"\"")
-    public Long getLocalityReviewCount(int localityId) {
-        return localityReviewDao.getTotalReviewsByLocalityId(localityId);
     }
 
     /**
@@ -183,8 +171,7 @@ public class LocalityReviewService {
         reviewComment.setLocalityId(localityId);
         PaginatedResponse<List<LocalityReviewComments>> paginatedResponse = getLocalityReview(
                 userId,
-                new FIQLSelector().addAndConditionToFilter("localityId==" + localityId).addAndConditionToFilter(
-                        "status==1"));
+                new FIQLSelector().addAndConditionToFilter("localityId==" + localityId));
         if (paginatedResponse != null && paginatedResponse.getResults() != null
                 && paginatedResponse.getResults().size() > 0) {
             // TODO if review already present then probably update this
@@ -217,6 +204,17 @@ public class LocalityReviewService {
             }
             //only active review
             selector.addAndConditionToFilter("status==1");
+            /*
+             * default sort is by  localityRatings.overallRating DESC, in case if sort is already there
+             * on some other field even though we are adding localityRatings.overallRating DESC to fetch
+             * rating details, as criteria builder does not houner Fetch.EAGER
+             */
+            if(selector.getSort() == null || selector.getSort().isEmpty()){
+                selector.addSortDESC("localityRatings.overallRating");
+            }
+            else if(!selector.getSort().contains("localityRatings.overallRating")){
+                selector.addSortDESC("localityRatings.overallRating");
+            }
             response = localityReviewDao.getLocalityReview(selector);
         }
         return response;

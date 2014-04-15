@@ -11,7 +11,8 @@ and rpt.size != 0;
 update Image i, ImageType it, ObjectType ot, RESI_PROJECT_TYPES rpt set title = rpt.UNIT_NAME where i.ImageType_id = it.id and it.ObjectType_id = ot.id and ot.type = 'property' and rpt.type_id = i.object_id and rpt.size = 0;
 
 /* TODO add if condition if tagged months is null. if tower_id is null . all four cases.*/
-update proptiger.Image I Join cms.project_plan_images PPI ON (I.id=PPI.service_image_id) set I.title = CONCAT_WS(" - ", tower_id, date_format(PPI.tagged_month, "%b \'%Y")), I.taken_at=PPI.tagged_month where PPI.plan_type = "construction status";
+update proptiger.Image I LEFT Join cms.project_plan_images PPI ON (I.id=PPI.service_image_id) LEFT JOIN cms.resi_project_tower_details RPTD ON (PPI.tower_id=RPTD.tower_id) set I.title = CONCAT_WS(" - ", RPTD.tower_name, IF(PPI.tagged_month is NULL or PPI.tagged_month = '0000-00-00 00:00:00' , 'Before Oct \'13' , date_format(PPI.tagged_month, "%b \'%Y") ) ) , I.taken_at=PPI.tagged_month where PPI.plan_type = "construction status" and I.imagetype_id = 3;
+
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 1 AND IT.type = "constructionStatus") JOIN RESI_PROJECT RP ON (RP.project_id = I.object_id) JOIN cms.project_plan_images PPI ON (PPI.project_id = RP.project_id AND PPI.plan_type='Construction Status') set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, I.title);
 
 /*************** alt text ****************/

@@ -8,18 +8,21 @@ import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.util.Constants;
 
 @Repository
 public class TrendDao {
     @Autowired
     private EntityManagerFactory emf;
 
+    @Cacheable(value = Constants.CacheName.CACHE)
     public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
         AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
                 emf.createEntityManager(),

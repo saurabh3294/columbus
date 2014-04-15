@@ -5,15 +5,12 @@ import java.util.List;
 import javax.persistence.EntityManagerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Testimonial;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.SortOrder;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**

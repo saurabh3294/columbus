@@ -12,9 +12,9 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 import com.proptiger.mail.service.MailSender;
 import com.proptiger.mail.service.MailTemplateDetail;
+import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service
 public class UnmatchedProjectRequestService {

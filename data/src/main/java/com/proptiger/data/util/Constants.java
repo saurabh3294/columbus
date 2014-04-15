@@ -111,6 +111,7 @@ public class Constants {
         public static final String PROJECT_VIDEOS                        = "project-videos";
         public static final String PROJECT_BANKS                         = "project-banks";
         public static final String PROJECT_STATUS_COUNT_ON_LOCALITY      = "project-status-count-on-locality";
+        public static final String PROJECT_DISCUSSION                    = "project-discussion";
 
         public static final String BUILDER                               = "builder";
 

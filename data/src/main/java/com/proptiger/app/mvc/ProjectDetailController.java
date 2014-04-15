@@ -100,6 +100,7 @@ public class ProjectDetailController extends BaseController {
             // setting images.
             imageEnricher.setPropertiesImages(properties);
             Property property;
+            projectInfo.setImageURL(properties.get(0).getProject().getImageURL());
             for (int i = 0; i < properties.size(); i++) {
                 property = properties.get(i);
                 pricePerUnitArea = property.getPricePerUnitArea();
@@ -125,6 +126,8 @@ public class ProjectDetailController extends BaseController {
 
             }
         }
+        // setting project images.
+        imageEnricher.setProjectDBImages(projectInfo);
 
         // getting Locality, Suburb, City Details and getting project price
         // ranges from properties data.

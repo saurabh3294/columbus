@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @Table(name = "USER_WISHLIST")
 public class UserWishlist implements Serializable {
     private static final long serialVersionUID = -5523514441836021198L;
-
+    
     @Id
     @GeneratedValue
     @Column(name = "ID")
@@ -55,7 +55,7 @@ public class UserWishlist implements Serializable {
     @JoinColumn(name = "TYPE_ID", insertable = false, updatable = false)
     @JsonIgnore
     private Property          property;
-
+    
     public Integer getId() {
         return id;
     }

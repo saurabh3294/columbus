@@ -6,8 +6,6 @@ package com.proptiger.data.mvc;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -32,9 +30,9 @@ import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.service.portfolio.PortfolioService;
 import com.proptiger.data.util.Constants;
