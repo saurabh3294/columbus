@@ -27,9 +27,9 @@ import com.proptiger.data.model.image.Image;
 
 public class ImageUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(ImageUtil.class);
-    public static String[]  endpoints;
-    public static String  bucket;
+    private static Logger  logger = LoggerFactory.getLogger(ImageUtil.class);
+    public static String[] endpoints;
+    public static String   bucket;
 
     public static String fileMd5Hash(File file) throws FileNotFoundException, IOException {
         int nread = 0;
@@ -101,5 +101,9 @@ public class ImageUtil {
             logger.debug("Unable to get Exif reader : {}", imageFile.getAbsolutePath());
         }
 
+    }
+
+    public static String getImageEndpoint(long id) {
+        return endpoints[(int) (id % endpoints.length)];
     }
 }
