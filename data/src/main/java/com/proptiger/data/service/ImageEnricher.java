@@ -245,25 +245,7 @@ public class ImageEnricher {
         String path = projectMainUrl.substring(endpoint.length() + 1, index1 + 1);
         String waterMarkName = projectMainUrl.substring(index1 + 1);
 
-        Image image = new Image();
-        image.setId(imageId);
-        image.setWaterMarkName(waterMarkName);
-        image.setPath(path);
-        image.setActive(true);
-        image.setImageTypeObj(new ImageType());
-        // Main Image Image Type ID.
-        image.getImageTypeObj().setId(6);
-        // Project Object Id
-        image.getImageTypeObj().setObjectTypeId("1");
-        // Image Type Name
-        image.getImageTypeObj().setType("main");
-        // Setting Object Type Object
-        image.getImageTypeObj().setObjectType(new ObjectType());
-        image.getImageTypeObj().getObjectType().setId(1);
-        image.getImageTypeObj().getObjectType().setType("project");
-        ;
-
-        return image;
+        return imageService.getImage(imageId);
     }
 
 }
