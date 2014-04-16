@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
@@ -704,6 +705,7 @@ public class LocalityService {
      * @return Map<Integer, Double> Here Integer will number of bedrooms and
      *         Double the average price on that bedroom.
      */
+    @Cacheable(value=Constants.CacheName.CACHE)
     public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType) {
         FIQLSelector selector = new FIQLSelector().addAndConditionToFilter("month==" + currentMonth)
                                                 .addAndConditionToFilter("unitType==" + unitType)
