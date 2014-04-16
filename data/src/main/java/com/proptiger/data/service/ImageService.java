@@ -274,7 +274,7 @@ public class ImageService {
             uploadToS3(image, originalFile, processedFile, format);
             imageDao.markImageAsActive(image);
 
-            caching.deleteMultipleResponseFromCache(getImageCacheKey(object, imageTypeStr, objectId));
+            caching.deleteMultipleResponseFromCache(getImageCacheKey(object, imageTypeStr, objectId, image.getId()));
             return image;
         }
         catch (IllegalStateException | IOException e) {
@@ -286,7 +286,8 @@ public class ImageService {
         deleteImageInCache(id);
         imageDao.setActiveFalse(id);
     }
-
+    
+    @Cacheable(value = Constants.CacheName.CACHE, key="'imageId:'+#id")
     public Image getImage(long id) {
         return imageDao.findOne(id);
     }
@@ -297,10 +298,11 @@ public class ImageService {
         caching.deleteMultipleResponseFromCache(getImageCacheKeyFromImageObject(image));
     }
 
-    public String[] getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
-        String keys[] = new String[2];
+    public String[] getImageCacheKey(DomainObject object, String imageTypeStr, long objectId, long imageId) {
+        String keys[] = new String[3];
         keys[0] = object.getText() + imageTypeStr + objectId;
-        keys[0] = object.getText() + "null" + objectId;
+        keys[1] = object.getText() + "null" + objectId;
+        keys[2] = "imageId:"+imageId;
 
         return keys;
     }
@@ -313,7 +315,7 @@ public class ImageService {
     private String[] getImageCacheKeyFromImageObject(Image image) {
         DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
 
-        return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
+        return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId(), image.getId());
     }
 
     private Image isImageHashExists(String originalHash, long objectId, String objectType) {
