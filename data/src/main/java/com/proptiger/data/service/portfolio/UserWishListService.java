@@ -106,7 +106,7 @@ public class UserWishListService {
      * @param userId
      * @return
      */
-    @Transactional
+    
     public List<UserWishListDto> createUserWishList(UserWishlist userWishlist, Integer userId) {
         if (userWishlist.getProjectId() == null || userWishlist.getProjectId() < 0 || userWishlist.getTypeId() != null)
             throw new IllegalArgumentException("Invalid Project Id. Property Id not allowed.");
