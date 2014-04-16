@@ -90,13 +90,12 @@ public class ProjectDetailController extends BaseController {
             totalProjectDiscussion = projectDiscussionList.size();
 
         // getting Project Neighborhood.
-        List<LandMark> listLocalityAmenity = localityAmenityService.getLocalityAmenities(
-                projectInfo.getLocalityId(),
-                null);
+        List<LandMark> listLocalityAmenity = null;
 
         Double pricePerUnitArea;
         Double resalePrice;
         if (properties.size() > 0) {
+            listLocalityAmenity = localityAmenityService.getLandMarksForProject(properties.get(0).getProject(), null, null);
             // setting images.
             imageEnricher.setPropertiesImages(properties);
             Property property;

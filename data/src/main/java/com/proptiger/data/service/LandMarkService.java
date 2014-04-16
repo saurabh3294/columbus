@@ -33,13 +33,13 @@ import com.proptiger.data.util.UtilityClass;
 @Service
 public class LandMarkService {
     @Autowired
-    private LandMarkDao localityAmenityDao;
+    private LandMarkDao     localityAmenityDao;
     @Autowired
-    private LocalityDao        localityDao;
-    
+    private LocalityDao     localityDao;
+
     @Autowired
-    private SuburbService suburbService;
-    
+    private SuburbService   suburbService;
+
     @Autowired
     private LocalityService localityService;
 
@@ -55,13 +55,12 @@ public class LandMarkService {
     @Cacheable(value = Constants.CacheName.LOCALITY_AMENITY)
     public List<LandMark> getLocalityAmenities(int localityId, String amenityName) {
         Locality locality = localityService.getLocality(localityId);
-        Paging paging = new Paging(0, 999);
-        
+
         if (amenityName == null || amenityName.isEmpty()) {
-            return getLandMarksForLocality(locality, null, paging);//localityAmenityDao.getAmenitiesByLocalityId(localityId);
+            return getLandMarksForLocality(locality, null, null);
         }
         else {
-            return getLandMarksForLocality(locality, amenityName, paging);//localityAmenityDao.getAmenitiesByLocalityIdAndAmenity(localityId, amenityName);
+            return getLandMarksForLocality(locality, amenityName, null);
         }
     }
 
@@ -76,10 +75,10 @@ public class LandMarkService {
     public List<LandMark> getCityAmenities(Integer cityId, String amenityName) {
         List<LandMark> amenities = null;
         if (amenityName == null || amenityName.isEmpty()) {
-            amenities = getCityAmenities(cityId, null);//localityAmenityDao.getAmenitiesByCityId(cityId);
+            amenities = getCityAmenities(cityId, null);
         }
         else {
-            amenities = getCityAmenities(cityId, amenityName);//localityAmenityDao.getAmenitiesByCityIdAndAmenityName(cityId, amenityName);
+            amenities = getCityAmenities(cityId, amenityName);
         }
         return amenities;
     }
@@ -100,8 +99,11 @@ public class LandMarkService {
             localityInfo = localityDao.findByLocationOrderByPriority(localityIds, "locality", paging, SortOrder.ASC);
         else
             localityInfo = localityDao.findByLocationOrderByPriority(cityId, "city", paging, SortOrder.ASC);
-
-        List<LandMark> data = getLandMarksForLocality(localityInfo.get(0), null, paging);//localityAmenityDao.getAmenitiesByLocalityId(localityId);
+        
+        if(localityInfo == null || localityInfo.isEmpty())
+            return new ArrayList<LandMark>();
+        
+        List<LandMark> data = getLandMarksForLocality(localityInfo.get(0), null, null);
 
         return data;
     }
@@ -111,16 +113,16 @@ public class LandMarkService {
      * @return
      */
     public List<LandMark> getSuburbAmenities(int suburbId) {
-        List<Locality> localities = localityService.getLocalitiesOnCityOrSuburb(DomainObject.suburb, suburbId, new Paging(0, 1));
-        if(localities == null || localities.isEmpty())
+        List<Locality> localities = localityService.getLocalitiesOnCityOrSuburb(
+                DomainObject.suburb,
+                suburbId,
+                new Paging(0, 1));
+        if (localities == null || localities.isEmpty())
             return new ArrayList<LandMark>();
-        
-        return getLandMarksForLocality(localities.get(0), null, new Paging(0, 999));
-        /*List<LandMarks> output = null;
-        output = localityAmenityDao.getAmenitiesBySuburbId(suburbId);
-        return output;*/
+
+        return getLandMarksForLocality(localities.get(0), null, null);
     }
-    
+
     /**
      * 
      * @param locality
@@ -128,13 +130,19 @@ public class LandMarkService {
      * @param paging
      * @return
      */
-    public List<LandMark> getLandMarksForLocality(Locality locality, String amenityType, Paging paging){
-        if(locality == null || locality.getLatitude() == null || locality.getLongitude() == null)
+    public List<LandMark> getLandMarksForLocality(Locality locality, String amenityType, Paging paging) {
+        if (locality == null || locality.getLatitude() == null || locality.getLongitude() == null)
             return new ArrayList<LandMark>();
         double radius = UtilityClass.min(locality.getMaxRadius(), 3.0);
-        return getLandMarkByGeoDistance(locality.getLatitude(), locality.getLongitude(), radius, paging, amenityType, null);
+        return getLandMarkByGeoDistance(
+                locality.getLatitude(),
+                locality.getLongitude(),
+                radius,
+                paging,
+                amenityType,
+                null);
     }
-    
+
     /**
      * 
      * @param project
@@ -142,13 +150,13 @@ public class LandMarkService {
      * @param paging
      * @return
      */
-    public List<LandMark> getLandMarksForProject(Project project, String amenityType, Paging paging){
-        if(project == null || project.getLatitude() == null || project.getLongitude() == null)
+    public List<LandMark> getLandMarksForProject(Project project, String amenityType, Paging paging) {
+        if (project == null || project.getLatitude() == null || project.getLongitude() == null)
             return new ArrayList<LandMark>();
-        
+
         return getLandMarkByGeoDistance(project.getLatitude(), project.getLongitude(), 3, paging, amenityType, null);
     }
-    
+
     /**
      * 
      * @param latitude
@@ -178,6 +186,10 @@ public class LandMarkService {
             equalFilters = ",{\"equal\":{" + equalFilters.substring(1) + "}}";
         }
 
+        if (paging == null) {
+            paging = new Paging(0, 999);
+        }
+
         String jsonSelector = "{\"filters\":{\"and\":[{\"geoDistance\":{\"geo\":{\"lat\":" + latitude
                 + ",\"lon\":"
                 + longitude
@@ -189,8 +201,8 @@ public class LandMarkService {
                 + paging.getStart()
                 + ",\"rows\":"
                 + paging.getRows()
-                + "}}";
-        System.out.println(jsonSelector);
+                + "}, \"sort\":[{\"field\":\"geoDistance\",\"sortOrder\":\"ASC\"}]}";
+        
         Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
 
         return localityAmenityDao.getLocalityAmenitiesOnSelector(selector);
@@ -208,6 +220,9 @@ public class LandMarkService {
         if (amenityType != null) {
             amenityTypeStr = ",\"amenityType\":" + amenityType;
         }
+        if (paging == null) {
+            paging = new Paging(0, 999);
+        }
         String jsonSelector = "{\"filters\":{\"and\":[{\"cityId\":" + cityId
                 + amenityTypeStr
                 + "}]}, \"paging\":{\"start\":"
@@ -215,7 +230,7 @@ public class LandMarkService {
                 + ",\"rows\":"
                 + paging.getRows()
                 + "}}";
-        System.out.println(jsonSelector);
+        
         Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
 
         return localityAmenityDao.getLocalityAmenitiesOnSelector(selector);

@@ -33,7 +33,7 @@ public class LandMarkResult extends BaseModel {
     private static final long serialVersionUID = 6426964388112360892L;
 
     private LandMarkTypes     localityAmenityTypes;
-    private LandMark         localityAmenity;
+    private LandMark          localityAmenity;
 
     public LandMarkResult() {
         localityAmenityTypes = new LandMarkTypes();
@@ -42,46 +42,49 @@ public class LandMarkResult extends BaseModel {
     }
 
     @Field("LANDMARK_ID")
-    private int    id;
+    private int          id;
 
     @Field("LANDMARK_CITY_ID")
-    private int    cityId;
+    private int          cityId;
 
     @Field("LANDMARK_NAME")
-    private String name;
+    private String       name;
 
     @Field("LANDMARK_ADDRESS")
-    private String address;
+    private String       address;
 
     @Field("LANDMARK_LATITUDE")
-    private double  latitude;
+    private double       latitude;
 
     @Field("LANDMARK_LONGITUDE")
-    private double  longitude;
+    private double       longitude;
 
     @Field("LANDMARK_PHONE_NUMBER")
-    private String phoneNumber;
+    private String       phoneNumber;
 
     @Field("LANDMARK_WEBSITE_URL")
-    private String website;
+    private String       website;
 
     @Field("LANDMARK_VICINITY")
-    private String vicinity;
+    private String       vicinity;
 
     @Field("LANDMARK_PRIORITY")
-    private int    priority;
+    private int          priority;
 
     @Field("LANDMARK_TYPE")
-    private String amenityType;
+    private String       amenityType;
 
     @Field("LANDMARK_DESCRIPTION")
-    private String amenityDescription;
+    private String       amenityDescription;
 
     @Field("GEO")
     private List<String> geo;
-    
+
     @Field("HAS_GEO")
-    private int hasGeo;
+    private int          hasGeo;
+
+    @Field("geodist()")
+    private Double       geoDistance;
 
     public LandMarkTypes getLocalityAmenityTypes() {
         return localityAmenityTypes;
@@ -156,6 +159,7 @@ public class LandMarkResult extends BaseModel {
 
     @Field("LANDMARK_DESCRIPTION")
     public void setAmenityDescription(String amenityDescription) {
-        localityAmenityTypes.setDescription(amenityDescription);;
+        localityAmenityTypes.setDescription(amenityDescription);
+        ;
     }
 }
