@@ -515,20 +515,11 @@ public class LocalityService {
              * locality, and if that is not there then try to find for city of
              * that locality
              */
-            // find in suburb
-            localitiesAroundMainLocality = getTopRatedLocalities(
-                    null,
-                    mainLocality.getSuburbId(),
+            localitiesAroundMainLocality = getTopRatedLocalityFallBackToSuburbCity(
                     localitySelector,
-                    imageCount);
-            if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
-                // find in city
-                localitiesAroundMainLocality = getTopRatedLocalities(
-                        mainLocality.getSuburb().getCityId(),
-                        null,
-                        localitySelector,
-                        imageCount);
-            }
+                    imageCount,
+                    mainLocality,
+                    popularLocalityThresholdCount);
         }
         else {
             /*
@@ -591,6 +582,20 @@ public class LocalityService {
             }
         }
 
+        if(localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount){
+            /*
+             * if locality count is not more than or equal to
+             * popularLocalityThresholdCount then as a fallback first try to
+             * find top rated in suburb of this locality, and if that is not
+             * there then try to find for city of that locality
+             */
+            localitiesAroundMainLocality = getTopRatedLocalityFallBackToSuburbCity(
+                    localitySelector,
+                    imageCount,
+                    mainLocality,
+                    popularLocalityThresholdCount);
+        }
+        
         /*
          * All the localities found in specified radius by taking main locality
          * lat lon as center, now need to filter localities for rating > α
@@ -624,6 +629,36 @@ public class LocalityService {
                 }
             }
 
+        }
+        return localitiesAroundMainLocality;
+    }
+
+    /**
+     * @param localitySelector
+     * @param imageCount
+     * @param mainLocality
+     * @param popularLocalityThresholdCount
+     * @return
+     */
+    private List<Locality> getTopRatedLocalityFallBackToSuburbCity(
+            Selector localitySelector,
+            Integer imageCount,
+            Locality mainLocality,
+            Integer popularLocalityThresholdCount) {
+        List<Locality> localitiesAroundMainLocality;
+        // find in suburb
+        localitiesAroundMainLocality = getTopRatedLocalities(
+                null,
+                mainLocality.getSuburbId(),
+                localitySelector,
+                imageCount);
+        if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
+            // find in city
+            localitiesAroundMainLocality = getTopRatedLocalities(
+                    mainLocality.getSuburb().getCityId(),
+                    null,
+                    localitySelector,
+                    imageCount);
         }
         return localitiesAroundMainLocality;
     }
