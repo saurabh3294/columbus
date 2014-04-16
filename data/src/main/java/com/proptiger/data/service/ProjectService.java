@@ -145,7 +145,7 @@ public class ProjectService {
         if (project == null) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
         }
-        imageEnricher.setProjectDBImages(project);
+
         return project;
     }
 

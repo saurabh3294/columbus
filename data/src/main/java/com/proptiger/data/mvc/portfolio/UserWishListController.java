@@ -41,7 +41,7 @@ public class UserWishListController extends BaseController {
     }
 
     @RequestMapping(
-            value = { "/portfolio/wish-list/property/property", "wish-list/property" },
+            value = { "/portfolio/wish-list/property", "wish-list/property" },
             method = RequestMethod.GET)
     @ResponseBody
     public ProAPIResponse getPropertyUserWishList(
