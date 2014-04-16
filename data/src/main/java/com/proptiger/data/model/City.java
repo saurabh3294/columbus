@@ -122,7 +122,7 @@ public class City extends BaseModel {
     private Map<Integer, Double>  avgBHKPricePerUnitArea;
 
     @Transient
-    private List<LocalityAmenity> amenities;
+    private List<LandMark> amenities;
 
     @Transient
     @Field("CITY_OVERVIEW_URL")
@@ -286,11 +286,11 @@ public class City extends BaseModel {
         this.dominantUnitType = dominantUnitType;
     }
 
-    public List<LocalityAmenity> getAmenities() {
+    public List<LandMark> getAmenities() {
         return amenities;
     }
 
-    public void setAmenities(List<LocalityAmenity> amenities) {
+    public void setAmenities(List<LandMark> amenities) {
         this.amenities = amenities;
     }
 

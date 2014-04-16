@@ -409,7 +409,7 @@ public class Project extends BaseModel {
     private Integer                 totalProjectDiscussion;
 
     @Transient
-    private List<LocalityAmenity>   neighborhood;
+    private List<LandMark>   neighborhood;
 
     @JsonUnwrapped
     @Transient
@@ -934,11 +934,11 @@ public class Project extends BaseModel {
         this.totalProjectDiscussion = totalProjectDiscussion;
     }
 
-    public List<LocalityAmenity> getNeighborhood() {
+    public List<LandMark> getNeighborhood() {
         return neighborhood;
     }
 
-    public void setNeighborhood(List<LocalityAmenity> neighborhood) {
+    public void setNeighborhood(List<LandMark> neighborhood) {
         this.neighborhood = neighborhood;
     }
 
