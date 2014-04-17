@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.PersistenceException;
+import javax.persistence.Table;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,7 @@ import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
@@ -129,6 +131,9 @@ public class PortfolioService extends AbstractService {
 
     @Autowired
     private CityService               cityService;
+    
+    @Autowired
+    private SubscriptionService     subscriptionService;
 
     /**
      * Get portfolio object for a particular user id
@@ -533,6 +538,13 @@ public class PortfolioService extends AbstractService {
         PortfolioListing created = create(listing);
         created = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, created.getId(),false);
         updateOtherSpecificData(created);
+        
+        subscriptionService.enableOrAddUserSubscription(
+                userId,
+                listing.getListingId(),
+                PortfolioListing.class.getAnnotation(Table.class).name(),
+                Constants.SubscriptionType.PORTFOLIO);
+        
         return created;
     }
 
@@ -689,7 +701,10 @@ public class PortfolioService extends AbstractService {
         }
         propertyPresent.setDeleted_flag(true);
         propertyPresent.setReason(reason);
-
+        subscriptionService.disableSubscription(userId,
+                listingId,
+                PortfolioListing.class.getAnnotation(Table.class).name(),
+                Constants.SubscriptionType.PORTFOLIO);
         
         return propertyPresent;
     }

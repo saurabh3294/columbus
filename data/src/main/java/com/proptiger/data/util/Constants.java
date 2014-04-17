@@ -45,6 +45,7 @@ public class Constants {
     public static class SubscriptionType {
         public static final String FORUM  = "forum";
         public static final String REVIEW = "review";
+        public static final String PORTFOLIO = "portfolio";
     }
 
     public static class ForumUserComments {

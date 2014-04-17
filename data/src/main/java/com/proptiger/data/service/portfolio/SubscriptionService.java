@@ -19,10 +19,10 @@ public class SubscriptionService {
     private SubscriptionTypeDao subscriptionTypeDao;
 
     @Transactional
-    public Subscription enableOrAddUserSubscription(int userId, int projectId, String tableName, String subscriptionType) {
+    public Subscription enableOrAddUserSubscription(int userId, int tableId, String tableName, String subscriptionType) {
         Subscription alreadySubscribed = subscriptionDao.findByUserIdAndTableIdAndTableName(
                 userId,
-                projectId,
+                tableId,
                 tableName);
         if (alreadySubscribed != null) {
             /*
@@ -37,17 +37,35 @@ public class SubscriptionService {
             return alreadySubscribed;
         }
 
-        return createUserSubscription(userId, projectId, tableName, subscriptionType);
+        return createUserSubscription(userId, tableId, tableName, subscriptionType);
     }
 
-    public Subscription createUserSubscription(int userId, int projectId, String tableName, String subscriptionType) {
+    @Transactional
+    public void disableSubscription(int userId, int tableId, String tableName, String subscriptionType) {
+        Subscription alreadySubscribed = subscriptionDao.findByUserIdAndTableIdAndTableName(
+                userId,
+                tableId,
+                tableName);
+        if (alreadySubscribed != null) {
+            /*
+             * As this method is transactional, Hence updating the model value
+             * will result in updating of the value in the database when the
+             * method will return.
+             */
+            alreadySubscribed.setIsSubscribed("0");
+
+        }
+
+    }
+    
+    public Subscription createUserSubscription(int userId, int tableId, String tableName, String subscriptionType) {
         SubscriptionType alreadySubscriptionType = getSubscriptionTypeOnName(subscriptionType);
 
         Subscription subscription = new Subscription();
 
         subscription.setUserId(userId);
         subscription.setTableName(tableName);
-        subscription.setTableId(projectId);
+        subscription.setTableId(tableId);
         subscription.setSubscriptionTypeId(alreadySubscriptionType.getId());
 
         return subscriptionDao.save(subscription);
