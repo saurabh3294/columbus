@@ -425,6 +425,24 @@ public class LocalityService {
      * @return List<Locality>
      */
     public List<Locality> getTopRatedLocalities(Integer cityId, Integer suburbId, Selector selector, Integer imageCount) {
+        return getTopRatedLocalities_(cityId, suburbId, selector, imageCount, null);
+    }
+    
+    /**
+     * This method take a locality id that should be exclude while getting locality for city/suburb
+     * @param cityId
+     * @param suburbId
+     * @param selector
+     * @param imageCount
+     * @param excludeLocalityId
+     * @return
+     */
+    private List<Locality> getTopRatedLocalities_(
+            Integer cityId,
+            Integer suburbId,
+            Selector selector,
+            Integer imageCount,
+            Integer excludeLocalityId) {
         List<Locality> result = null;
         List<Object[]> list = null;
 
@@ -436,6 +454,7 @@ public class LocalityService {
                 cityId,
                 suburbId,
                 propertyReader.getRequiredPropertyAsType(PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY, Double.class),
+                excludeLocalityId,
                 pageable);
 
         /*
@@ -655,18 +674,18 @@ public class LocalityService {
             Integer popularLocalityThresholdCount) {
         List<Locality> localitiesAroundMainLocality;
         // find in suburb
-        localitiesAroundMainLocality = getTopRatedLocalities(
+        localitiesAroundMainLocality = getTopRatedLocalities_(
                 null,
                 mainLocality.getSuburbId(),
                 localitySelector,
-                imageCount);
+                imageCount, mainLocality.getLocalityId());
         if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
             // find in city
-            localitiesAroundMainLocality = getTopRatedLocalities(
+            localitiesAroundMainLocality = getTopRatedLocalities_(
                     mainLocality.getSuburb().getCityId(),
                     null,
                     localitySelector,
-                    imageCount);
+                    imageCount, mainLocality.getLocalityId());
         }
         return localitiesAroundMainLocality;
     }
