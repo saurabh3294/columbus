@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -114,25 +115,30 @@ public class CompositeAPIService {
             response = new HashMap<String, Object>();
 
             ExecutorService executors = Executors.newFixedThreadPool(apis.size());
-            Map<String, Future<Object>> futureObjMap = new HashMap<>();
+            Map<String, Future<CallableWithTime>> futureObjMap = new ConcurrentHashMap<String, Future<CallableWithTime>>();
             for (String api : apis) {
                 final String completeUrl = getCompleteUrl(api);
-                Future<Object> future = executors.submit(new Callable<Object>() {
+                Future<CallableWithTime> future = executors.submit(new Callable<CallableWithTime>() {
                     @Override
-                    public Object call() throws Exception {
+                    public CallableWithTime call() throws Exception {
+                        Date start = new Date();
                         URI uri = new URI(completeUrl);
-                        return restTemplate.getForObject(uri, Object.class);
+                        Object res = restTemplate.getForObject(uri, Object.class);
+                        Date end = new Date();
+                        return new CallableWithTime(end.getTime()-start.getTime(), res);
                     }
                 });
                 futureObjMap.put(api, future);
-                timeTakenByApis.put(api, new Date().getTime());
             }
             response = new HashMap<>();
             for (String key : futureObjMap.keySet()) {
                 Object responseObj = null;
+                long timeTaken = 0;
                 try {
-                    Future<Object> future = futureObjMap.get(key);
-                    responseObj = future.get();
+                    Future<CallableWithTime> future = futureObjMap.get(key);
+                    CallableWithTime resWithTime = future.get();
+                    timeTaken = resWithTime.getTimeTaken();
+                    responseObj = resWithTime.getData();
                 }
                 catch (InterruptedException | ExecutionException e) {
                     logger.error("Error while geting resource api {}", key, e);
@@ -140,12 +146,16 @@ public class CompositeAPIService {
                 if (responseObj == null) {
                     responseObj = ResponseErrorMessages.SOME_ERROR_OCCURED;
                 }
+                timeTakenByApis.put(key.split("\\?")[0], timeTaken);
                 response.put(key, responseObj);
             }
             executors.shutdown();
         }
         Date end = new Date();
-        logger.debug("Time taken by composite service {} miliseconds", end.getTime()-start.getTime());
+        logger.debug(
+                "Time taken by composite service {} miliseconds and individual API details {}",
+                end.getTime() - start.getTime(),
+                timeTakenByApis);
         return response;
     }
 
@@ -292,6 +302,22 @@ public class CompositeAPIService {
         }
         throw new ServletException("No adapter for handler [" + handler
                 + "]: The DispatcherServlet configuration needs to include a HandlerAdapter that supports this handler");
+    }
+    
+    private static class CallableWithTime{
+        private long timeTaken;
+        private Object data;
+        public CallableWithTime(long time, Object data) {
+            super();
+            this.timeTaken = time;
+            this.data = data;
+        }
+        public long getTimeTaken() {
+            return timeTaken;
+        }
+        public Object getData() {
+            return data;
+        }
     }
 
 }
