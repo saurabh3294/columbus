@@ -46,7 +46,7 @@ public class LocalityDaoImpl {
 
     public PaginatedResponse<List<Locality>> getLocalities(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
-
+        
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> response = queryResponse.getBeans(SolrResult.class);
 
