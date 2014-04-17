@@ -469,6 +469,7 @@ public class LocalityService {
 
         imageEnricher.setLocalitiesImages(result, imageCount);
 
+            
         return result;
     }
 
@@ -516,20 +517,11 @@ public class LocalityService {
              * locality, and if that is not there then try to find for city of
              * that locality
              */
-            // find in suburb
-            localitiesAroundMainLocality = getTopRatedLocalities(
-                    null,
-                    mainLocality.getSuburbId(),
+            localitiesAroundMainLocality = getTopRatedLocalityFallBackToSuburbCity(
                     localitySelector,
-                    imageCount);
-            if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
-                // find in city
-                localitiesAroundMainLocality = getTopRatedLocalities(
-                        mainLocality.getSuburb().getCityId(),
-                        null,
-                        localitySelector,
-                        imageCount);
-            }
+                    imageCount,
+                    mainLocality,
+                    popularLocalityThresholdCount);
         }
         else {
             /*
@@ -592,6 +584,20 @@ public class LocalityService {
             }
         }
 
+        if(localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount){
+            /*
+             * if locality count is not more than or equal to
+             * popularLocalityThresholdCount then as a fallback first try to
+             * find top rated in suburb of this locality, and if that is not
+             * there then try to find for city of that locality
+             */
+            localitiesAroundMainLocality = getTopRatedLocalityFallBackToSuburbCity(
+                    localitySelector,
+                    imageCount,
+                    mainLocality,
+                    popularLocalityThresholdCount);
+        }
+        
         /*
          * All the localities found in specified radius by taking main locality
          * lat lon as center, now need to filter localities for rating > α
@@ -625,6 +631,36 @@ public class LocalityService {
                 }
             }
 
+        }
+        return localitiesAroundMainLocality;
+    }
+
+    /**
+     * @param localitySelector
+     * @param imageCount
+     * @param mainLocality
+     * @param popularLocalityThresholdCount
+     * @return
+     */
+    private List<Locality> getTopRatedLocalityFallBackToSuburbCity(
+            Selector localitySelector,
+            Integer imageCount,
+            Locality mainLocality,
+            Integer popularLocalityThresholdCount) {
+        List<Locality> localitiesAroundMainLocality;
+        // find in suburb
+        localitiesAroundMainLocality = getTopRatedLocalities(
+                null,
+                mainLocality.getSuburbId(),
+                localitySelector,
+                imageCount);
+        if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
+            // find in city
+            localitiesAroundMainLocality = getTopRatedLocalities(
+                    mainLocality.getSuburb().getCityId(),
+                    null,
+                    localitySelector,
+                    imageCount);
         }
         return localitiesAroundMainLocality;
     }
@@ -705,15 +741,17 @@ public class LocalityService {
      * @return Map<Integer, Double> Here Integer will number of bedrooms and
      *         Double the average price on that bedroom.
      */
+    @Cacheable(value=Constants.CacheName.CACHE)
     public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType) {
         FIQLSelector selector = new FIQLSelector().addAndConditionToFilter("month==" + currentMonth)
-                .addAndConditionToFilter("unitType==" + unitType)
-                .addAndConditionToFilter(locationType + "==" + locationId).addGroupByAtBeginning("bedrooms")
-                .addField("wavgPricePerUnitAreaOnSupply");
+                                                .addAndConditionToFilter("unitType==" + unitType)
+                                                .addAndConditionToFilter(locationType + "==" + locationId)
+                                                .addGroupByAtBeginning("bedrooms")
+                                                .addField("wavgPricePerUnitAreaOnSupply");
 
         Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
 
-        for (InventoryPriceTrend inventoryPriceTrend : trendService.getTrend(selector)) {
+        for(InventoryPriceTrend inventoryPriceTrend: trendService.getTrend(selector)) {
             Object avgPricePerUnitArea = inventoryPriceTrend.getExtraAttributes().get("wavgPricePerUnitAreaOnSupply");
             if (avgPricePerUnitArea != null) {
                 avgPrice.put(inventoryPriceTrend.getBedrooms(), Double.valueOf(avgPricePerUnitArea.toString()));
@@ -742,11 +780,11 @@ public class LocalityService {
                 .getLocalityId());
 
         locality.setAverageRating(localityRatingDetails.getAverageRatings());
-        Long totalNumberOfReviews = (long) 0;
+        Long totalNumberOfReviews = (long)0;
         PaginatedResponse<List<LocalityReviewComments>> reviews = localityReviewService.getLocalityReview(
                 null,
                 new FIQLSelector().addAndConditionToFilter("localityId==" + locality.getLocalityId()));
-        if (reviews != null) {
+        if(reviews != null){
             totalNumberOfReviews = reviews.getTotalCount();
         }
         /*
