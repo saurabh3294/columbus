@@ -466,7 +466,9 @@ public class LocalityService {
             result.clear();
             if(!localities.isEmpty()){
                 for (int localityId: localityIds) {
-                    result.add(localities.get(localityId));
+                    if(localities.get(localityId) != null){
+                        result.add(localities.get(localityId));
+                    }
                 }
             }
         }
