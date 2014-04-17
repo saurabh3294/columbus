@@ -1061,15 +1061,16 @@ public class LocalityService {
     }
 
     public List<Locality> getLocalitiesOnCityOrSuburb(DomainObject domainObject, int domainId, Paging paging) {
-        String jsonSelector = "{\"filters\":{\"and\":[{\"" + domainObject.name()
-                + "\":"
+        String jsonSelector = "{\"filters\":{\"and\":[{\"equal\":{\"" + domainObject.name()
+                + "Id\":"
                 + domainId
-                + "}]}, \"paging\":{\"start\":"
+                + "}}]}, \"paging\":{\"start\":"
                 + paging.getStart()
                 + ",\"rows\":"
                 + paging.getRows()
                 + "}}";
-
-        return getLocalities(new Gson().fromJson(jsonSelector, Selector.class));
+        
+        Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
+        return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
     }
 }
