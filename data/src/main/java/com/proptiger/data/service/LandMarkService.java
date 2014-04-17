@@ -63,25 +63,6 @@ public class LandMarkService {
     }
 
     /**
-     * Get amenities for city, if no amenity name provided then fetch all
-     * amenities
-     * 
-     * @param cityId
-     * @param amenityName
-     * @return
-     */
-    public List<LandMark> getCityAmenities(Integer cityId, String amenityName) {
-        List<LandMark> amenities = null;
-        if (amenityName == null || amenityName.isEmpty()) {
-            amenities = getCityAmenities(cityId, null);
-        }
-        else {
-            amenities = getCityAmenities(cityId, amenityName);
-        }
-        return amenities;
-    }
-
-    /**
      * This method will take the cityId or list of localities and select the
      * locality with highest priority. Then return the amenites of that
      * locality.
@@ -178,7 +159,7 @@ public class LandMarkService {
             equalFilters += ",\"cityId\":" + cityId;
         }
         if (amenityType != null) {
-            equalFilters += ",\"amenityType\":" + amenityType;
+            equalFilters += ",\"amenityType\":\"" + amenityType+"\"";
         }
         if (equalFilters.length() > 1) {
             equalFilters = ",{\"equal\":{" + equalFilters.substring(1) + "}}";
@@ -207,7 +188,8 @@ public class LandMarkService {
     }
 
     /**
-     * 
+     * Get amenities for city, if no amenity name provided then fetch all
+     * amenities
      * @param cityId
      * @param amenityType
      * @param paging
@@ -216,14 +198,14 @@ public class LandMarkService {
     public List<LandMark> getLandMarksByCity(Integer cityId, String amenityType, Paging paging) {
         String amenityTypeStr = "";
         if (amenityType != null) {
-            amenityTypeStr = ",\"amenityType\":" + amenityType;
+            amenityTypeStr = ",\"amenityType\":\"" + amenityType+"\"";
         }
         if (paging == null) {
             paging = new Paging(0, 999);
         }
-        String jsonSelector = "{\"filters\":{\"and\":[{\"cityId\":" + cityId
+        String jsonSelector = "{\"filters\":{\"and\":[{\"equal\":{\"cityId\":" + cityId
                 + amenityTypeStr
-                + "}]}, \"paging\":{\"start\":"
+                + "}}]}, \"paging\":{\"start\":"
                 + paging.getStart()
                 + ",\"rows\":"
                 + paging.getRows()
