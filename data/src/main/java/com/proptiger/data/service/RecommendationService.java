@@ -49,9 +49,9 @@ public class RecommendationService {
      */
     public List<Project> getSimilarProjects(int projectId, int limit) {
         List<SolrResult> properties = propertyDao.getPropertiesOnProjectId(projectId);
-        if(properties == null)
+        if (properties == null)
             return null;
-            
+
         long propertyId;
         int similarProjectId;
         int assignedPriority = 0;
@@ -129,12 +129,12 @@ public class RecommendationService {
         boolean propertyNearBy = isPropertySearchedNearBy(viewPropertyData);
 
         List<Property> properties = new ArrayList<>();
-        if(orderedSearchProperties == null)
+        if (orderedSearchProperties == null)
             return properties;
-        
+
         int len = orderedSearchProperties.size();
-        len = len>limit?limit:len;
-        for (int i=0; i<len; i++)
+        len = len > limit ? limit : len;
+        for (int i = 0; i < len; i++)
             properties.add(orderedSearchProperties.get(i).getProperty());
         /*
          * Map<String, Object> response = new HashMap<>();
@@ -194,6 +194,7 @@ public class RecommendationService {
         int totalProperties = 0;
         List<Object> projectIdBedroom = new ArrayList<>();
         projectIdBedroom.add(viewPropertyData.getProperty().getProjectIdBedroom());
+        List<Object> excludeProjects = new ArrayList<Object>();
 
         for (int i = 0; i < params.length && totalProperties < limit; i++) {
             minArea = (100 - params[i][2]) * area / 100;
@@ -214,11 +215,12 @@ public class RecommendationService {
                     limit,
                     projectIdBedroom,
                     budget,
-                    projectId);
+                    projectId,
+                    excludeProjects);
             searchPropertiesData.add(tempSearchProperties);
             totalProperties += tempSearchProperties.size();
 
-            insertProjectIdBedrooms(tempSearchProperties, projectIdBedroom);
+            insertProjectIdBedroomsAndProjects(tempSearchProperties, projectIdBedroom, excludeProjects);
         }
         assignPriorityToProperty(searchPropertiesData, viewPropertyData);
 
@@ -423,10 +425,19 @@ public class RecommendationService {
      * @param propertiesData
      * @param projectIdBedroomList
      */
-    private void insertProjectIdBedrooms(List<SolrResult> propertiesData, List<Object> projectIdBedroomList) {
+    private void insertProjectIdBedroomsAndProjects(
+            List<SolrResult> propertiesData,
+            List<Object> projectIdBedroomList,
+            List<Object> excludeProjects) {
 
         for (SolrResult temp : propertiesData) {
-            projectIdBedroomList.add(temp.getProperty().getProjectIdBedroom());
+
+            if (temp.getProperty().getProjectIdBedroom() == null || temp.getProperty().getProjectIdBedroom().isEmpty()) {
+                excludeProjects.add(temp.getProject().getProjectId());
+            }
+            else {
+                projectIdBedroomList.add(temp.getProperty().getProjectIdBedroom());
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
@@ -210,7 +211,7 @@ public class ImageEnricher {
             images = new ArrayList<Image>();
         }
 
-        if (images.isEmpty() || images.get(0).getImageTypeObj().getType() != "main") {
+        if (images.isEmpty() || !images.get(0).getImageTypeObj().getType().equals("main")) {
             Image image = getProjectRandomMainImage(mainImageURL);
             if (image != null) {
                 images.add(0, image);
