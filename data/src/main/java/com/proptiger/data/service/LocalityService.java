@@ -25,11 +25,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkTypes;
 import com.proptiger.data.model.Locality;
+
+
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
@@ -461,8 +464,12 @@ public class LocalityService {
 
             // Sorting localities as lookup screwed the order
             result.clear();
-            for (int localityId : localityIds) {
-                result.add(localities.get(localityId));
+            if(!localities.isEmpty()){
+                for (int localityId: localityIds) {
+                    if(localities.get(localityId) != null){
+                        result.add(localities.get(localityId));
+                    }
+                }
             }
         }
 
