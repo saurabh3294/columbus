@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.data.model.City;
-import com.proptiger.data.model.LocalityAmenity;
+import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.Selector;
@@ -41,7 +41,7 @@ public class CityService {
     private ImageService imageService;
 
     @Autowired
-    private LocalityAmenityService localityAmenityService;
+    private LandMarkService localityAmenityService;
 
     /**
      * Get list of city details
@@ -118,7 +118,7 @@ public class CityService {
      */
     private void updateAirportInfo(City city) {
         if (city != null) {
-            List<LocalityAmenity> amenities = localityAmenityService.getCityAmenities(
+            List<LandMark> amenities = localityAmenityService.getCityAmenities(
                     city.getId(),
                     Constants.AmenityName.AIRPORT);
             city.setAmenities(amenities);

@@ -7,7 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.LocalityAmenityTypes;
+import com.proptiger.data.model.LandMarkTypes;
 import com.proptiger.data.repo.LocalityAmenityTypeDao;
 
 /**
@@ -20,7 +20,7 @@ public class LocalityAmenityTypeService {
     @Autowired
     private LocalityAmenityTypeDao             amenityTypeDao;
 
-    private Map<Integer, LocalityAmenityTypes> amenitiesTypesMap;
+    private Map<Integer, LandMarkTypes> amenitiesTypesMap;
 
     /**
      * Get all types of available amenities. Only first call will get data from
@@ -29,12 +29,12 @@ public class LocalityAmenityTypeService {
      * 
      * @return
      */
-    public Map<Integer, LocalityAmenityTypes> getLocalityAmenityTypes() {
+    public Map<Integer, LandMarkTypes> getLocalityAmenityTypes() {
         if (amenitiesTypesMap == null) {
             amenitiesTypesMap = new HashMap<>();
-            List<LocalityAmenityTypes> list = amenityTypeDao.findAll();
+            List<LandMarkTypes> list = amenityTypeDao.findAll();
             if (list != null) {
-                for (LocalityAmenityTypes amenityType : list) {
+                for (LandMarkTypes amenityType : list) {
                     amenitiesTypesMap.put(amenityType.getId(), amenityType);
                 }
             }

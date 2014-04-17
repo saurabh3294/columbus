@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.apache.solr.client.solrj.beans.Field;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
@@ -35,97 +36,113 @@ import com.proptiger.data.meta.ResourceMetaInfo;
         isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonFilter("fieldFilter")
-public class LocalityAmenity extends BaseModel {
+public class LandMark extends BaseModel {
 
-    private static final long    serialVersionUID = 5296461750469591496L;
+    private static final long serialVersionUID = 5296461750469591496L;
 
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name = "id")
     @Id
-    private int                  id;
+    @Field("LANDMARK_ID")
+    private int               id;
 
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "locality_id", insertable = false, updatable = false)
-    private int                  localityId;
+    @Deprecated
+    private int               localityId;
 
     @FieldMetaInfo(displayName = "City Id", description = "City Id")
     @Column(name = "city_id")
-    private int                  cityId;
+    @Field("LANDMARK_CITY_ID")
+    private int               cityId;
 
     @FieldMetaInfo(displayName = "Place Type Id", description = "Place Type Id")
     @Column(name = "place_type_id", insertable = false, updatable = false)
-    private int                  placeTypeId;
+    private int               placeTypeId;
 
     @FieldMetaInfo(displayName = "Name", description = "Name")
     @Column(name = "name")
-    private String               name;
+    @Field("LANDMARK_NAME")
+    private String            name;
 
     @FieldMetaInfo(displayName = "Reference", description = "Reference")
     @Column(name = "reference")
     @JsonIgnore
-    private String               reference;
+    private String            reference;
 
     @FieldMetaInfo(displayName = "Google Place Id", description = "Google Place Id")
     @Column(name = "google_place_id")
     @JsonIgnore
-    private String               googlePlaceId;
+    private String            googlePlaceId;
 
     @FieldMetaInfo(displayName = "Address", description = "Address")
     @Column(name = "address")
-    private String               address;
+    @Field("LANDMARK_ADDRESS")
+    private String            address;
 
     @FieldMetaInfo(displayName = "Latitude", description = "Latitude")
     @Column(name = "latitude")
-    private float                latitude;
+    @Field("LANDMARK_LATITUDE")
+    private double             latitude;
 
     @FieldMetaInfo(displayName = "Longitude", description = "Longitude")
     @Column(name = "longitude")
-    private float                longitude;
+    @Field("LANDMARK_LONGITUDE")
+    private double            longitude;
 
     @FieldMetaInfo(displayName = "Phone Number", description = "Phone Number")
     @Column(name = "phone_number")
-    private String               phoneNumber;
+    @Field("LANDMARK_PHONE_NUMBER")
+    private String            phoneNumber;
 
     @FieldMetaInfo(displayName = "Google Url", description = "Google Url")
     @Column(name = "google_url")
-    private String               googleUrl;
+    private String            googleUrl;
 
     @FieldMetaInfo(displayName = "Website", description = "Website")
     @Column(name = "website")
-    private String               website;
+    @Field("LANDMARK_WEBSITE_URL")
+    private String            website;
 
     @FieldMetaInfo(displayName = "Vicinity", description = "Vicinity")
     @Column(name = "vicinity")
-    private String               vicinity;
+    @Field("LANDMARK_VICINITY")
+    private String            vicinity;
 
     @FieldMetaInfo(displayName = "Details Info", description = "Details Info")
     @Column(name = "is_details")
     @JsonIgnore
-    private int                  isDetails;
+    private Integer               isDetails;
 
     @FieldMetaInfo(displayName = "Other Details", description = "Other Details")
     @Column(name = "rest_details")
-    private String               restDetails;
+    @JsonIgnore
+    private String            restDetails;
+
+    @FieldMetaInfo(displayName = "Priority", description = "Priority")
+    @Field("LANDMARK_PRIORITY")
+    private int               priority;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "place_type_id", referencedColumnName = "id")
-    private LocalityAmenityTypes localityAmenityTypes;
-    
+    private LandMarkTypes     localityAmenityTypes;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "locality_id", referencedColumnName = "LOCALITY_ID")
-    private Locality locality;
+    @Deprecated
+    private Locality          locality;
 
     public Locality getLocality() {
-		return locality;
-	}
+        return locality;
+    }
 
-	public void setLocality(Locality locality) {
-		this.locality = locality;
-	}
+    public void setLocality(Locality locality) {
+        this.locality = locality;
+    }
 
-	public int getLocalityId() {
+    public int getLocalityId() {
         return localityId;
     }
 
@@ -181,19 +198,19 @@ public class LocalityAmenity extends BaseModel {
         this.address = address;
     }
 
-    public float getLatitude() {
+    public double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
@@ -229,11 +246,11 @@ public class LocalityAmenity extends BaseModel {
         this.vicinity = vicinity;
     }
 
-    public int getIsDetails() {
+    public Integer getIsDetails() {
         return isDetails;
     }
 
-    public void setIsDetails(int isDetails) {
+    public void setIsDetails(Integer isDetails) {
         this.isDetails = isDetails;
     }
 
@@ -253,12 +270,20 @@ public class LocalityAmenity extends BaseModel {
         this.id = id;
     }
 
-    public LocalityAmenityTypes getLocalityAmenityTypes() {
+    public LandMarkTypes getLocalityAmenityTypes() {
         return localityAmenityTypes;
     }
 
-    public void setLocalityAmenityTypes(LocalityAmenityTypes localityAmenityTypes) {
+    public void setLocalityAmenityTypes(LandMarkTypes localityAmenityTypes) {
         this.localityAmenityTypes = localityAmenityTypes;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 
 }

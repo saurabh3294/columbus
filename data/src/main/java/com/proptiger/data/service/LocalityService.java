@@ -25,12 +25,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.proptiger.data.model.LandMark;
+import com.proptiger.data.model.LandMarkTypes;
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.LocalityAmenity;
-import com.proptiger.data.model.LocalityAmenityTypes;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
@@ -38,6 +37,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
@@ -82,7 +82,7 @@ public class LocalityService {
     private LocalityReviewService      localityReviewService;
 
     @Autowired
-    private LocalityAmenityService     localityAmenityService;
+    private LandMarkService            localityAmenityService;
 
     @Autowired
     private LocalityRatingService      localityRatingService;
@@ -330,7 +330,7 @@ public class LocalityService {
         if (locality == null) {
             return null;
         }
-        List<LocalityAmenity> amenities = localityAmenityService.getLocalityAmenities(localityId, null);
+        List<LandMark> amenities = localityAmenityService.getLocalityAmenities(localityId, null);
         Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
 
         locality.setAmenityTypeCount(localityAmenityCountMap);
@@ -359,11 +359,11 @@ public class LocalityService {
      * @return Map<String, Integer> Here String will represent the amenity type
      *         and the Integer will mean the count of amenities found.
      */
-    private Map<String, Integer> getLocalityAmenitiesCount(List<LocalityAmenity> amenities) {
-        Map<Integer, LocalityAmenityTypes> amenityTypes = amenityTypeService.getLocalityAmenityTypes();
+    private Map<String, Integer> getLocalityAmenitiesCount(List<LandMark> amenities) {
+        Map<Integer, LandMarkTypes> amenityTypes = amenityTypeService.getLocalityAmenityTypes();
         Map<String, Integer> localityAmenityCountMap = new HashMap<>();
-        for (LocalityAmenity amenity : amenities) {
-            LocalityAmenityTypes amenityType = amenityTypes.get(amenity.getPlaceTypeId());
+        for (LandMark amenity : amenities) {
+            LandMarkTypes amenityType = amenityTypes.get(amenity.getPlaceTypeId());
             if (amenityType != null) {
                 Integer count = localityAmenityCountMap.get(amenityType.getDisplayName());
                 if (count == null) {
@@ -461,7 +461,7 @@ public class LocalityService {
 
             // Sorting localities as lookup screwed the order
             result.clear();
-            for (int localityId: localityIds) {
+            for (int localityId : localityIds) {
                 result.add(localities.get(localityId));
             }
         }
@@ -1032,5 +1032,18 @@ public class LocalityService {
 
     public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector) {
         return localityDao.getLocalities(selector);
+    }
+
+    public List<Locality> getLocalitiesOnCityOrSuburb(DomainObject domainObject, int domainId, Paging paging) {
+        String jsonSelector = "{\"filters\":{\"and\":[{\"" + domainObject.name()
+                + "\":"
+                + domainId
+                + "}]}, \"paging\":{\"start\":"
+                + paging.getStart()
+                + ",\"rows\":"
+                + paging.getRows()
+                + "}}";
+
+        return getLocalities(new Gson().fromJson(jsonSelector, Selector.class));
     }
 }

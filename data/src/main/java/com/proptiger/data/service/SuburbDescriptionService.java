@@ -39,7 +39,7 @@ public class SuburbDescriptionService {
     private LocalityService         localityService;
     
     @Autowired
-    private LocalityAmenityService  localityAmenityService;
+    private LandMarkService  localityAmenityService;
     
     @Autowired
     private BuilderService          builderService;

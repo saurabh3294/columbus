@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Builder;
+import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.LocalityAmenity;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -29,7 +29,7 @@ import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageEnricher;
-import com.proptiger.data.service.LocalityAmenityService;
+import com.proptiger.data.service.LandMarkService;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectAmenityService;
@@ -59,7 +59,7 @@ public class ProjectDetailController extends BaseController {
     private ProjectAmenityService  projectAmenityService;
 
     @Autowired
-    private LocalityAmenityService localityAmenityService;
+    private LandMarkService localityAmenityService;
 
     @Autowired
     private LocalityReviewService  localityReviewService;
@@ -90,13 +90,12 @@ public class ProjectDetailController extends BaseController {
             totalProjectDiscussion = projectDiscussionList.size();
 
         // getting Project Neighborhood.
-        List<LocalityAmenity> listLocalityAmenity = localityAmenityService.getLocalityAmenities(
-                projectInfo.getLocalityId(),
-                null);
+        List<LandMark> listLocalityAmenity = null;
 
         Double pricePerUnitArea;
         Double resalePrice;
         if (properties.size() > 0) {
+            listLocalityAmenity = localityAmenityService.getLandMarksForProject(properties.get(0).getProject(), null, null);
             // setting images.
             imageEnricher.setPropertiesImages(properties);
             Property property;

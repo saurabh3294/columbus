@@ -61,7 +61,7 @@ public class ProjectService {
     private MailSender             mailSender;
 
     @Autowired
-    private LocalityAmenityService localityAmenityService;
+    private LandMarkService        localityAmenityService;
 
     @Autowired
     private TableAttributesDao     tableAttributesDao;
@@ -205,7 +205,7 @@ public class ProjectService {
          * Setting neighborhood if needed.
          */
         if (fields == null || fields.contains("neighborhood")) {
-            project.setNeighborhood(localityAmenityService.getLocalityAmenities(project.getLocalityId(), null));
+            project.setNeighborhood(localityAmenityService.getLandMarksForProject(project, null, null));
         }
 
         /*
