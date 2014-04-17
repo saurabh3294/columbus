@@ -157,9 +157,18 @@ public class LandMarkResult extends BaseModel {
         localityAmenityTypes.setName(amenityType);
     }
 
-    @Field("LANDMARK_DESCRIPTION")
-    public void setAmenityDescription(String amenityDescription) {
+    @Field("LANDMARK_TYPE_DESCRIPTION")
+    public void setAmenityTypeDescription(String amenityDescription) {
         localityAmenityTypes.setDescription(amenityDescription);
-        ;
+    }
+    
+    @Field("LANDMARK_TYPE_ID")
+    public void setLandMarkTypeId(int landMarkTypeId) {
+        localityAmenityTypes.setId(landMarkTypeId);
+    }
+    
+    @Field("LANDMARK_TYPE_DISPLAY_NAME")
+    public void setAmenityTypeDisplay(String amenityTypeDisplay) {
+        localityAmenityTypes.setDisplayName(amenityTypeDisplay);
     }
 }
