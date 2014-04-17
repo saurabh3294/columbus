@@ -458,11 +458,12 @@ public class LocalityService {
                 locality.setNumberOfUsersByRating(localityReviewDetails.getTotalUsersByRating());
                 localities.put(locality.getLocalityId(), locality);
             }
-
             // Sorting localities as lookup screwed the order
             result.clear();
-            for (int localityId: localityIds) {
-                result.add(localities.get(localityId));
+            if(!localities.isEmpty()){
+                for (int localityId: localityIds) {
+                    result.add(localities.get(localityId));
+                }
             }
         }
 
@@ -492,6 +493,7 @@ public class LocalityService {
             Selector localitySelector,
             Integer imageCount,
             Double minRatingThresholdForTopLocality) {
+        boolean alreadyLookedInSuburbAndCity = false;
         if (minRatingThresholdForTopLocality == null) {
             minRatingThresholdForTopLocality = propertyReader.getRequiredPropertyAsType(
                     PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY,
@@ -521,6 +523,7 @@ public class LocalityService {
                     imageCount,
                     mainLocality,
                     popularLocalityThresholdCount);
+            alreadyLookedInSuburbAndCity = true;
         }
         else {
             /*
@@ -583,7 +586,8 @@ public class LocalityService {
             }
         }
 
-        if(localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount){
+        if ((localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) 
+                && !alreadyLookedInSuburbAndCity) {
             /*
              * if locality count is not more than or equal to
              * popularLocalityThresholdCount then as a fallback first try to
