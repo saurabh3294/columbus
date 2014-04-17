@@ -25,12 +25,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import com.amazonaws.services.ec2.model.DomainType;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkTypes;
+import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;

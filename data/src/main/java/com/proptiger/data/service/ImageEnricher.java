@@ -2,7 +2,6 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.ObjectType;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.image.ImageType;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.ImageUtil;
 

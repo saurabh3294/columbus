@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkResult;
-import com.proptiger.data.model.Property;
-import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Paging;
