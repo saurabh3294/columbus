@@ -27,7 +27,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class LocalityAmenityTypes extends BaseModel {
+public class LandMarkTypes extends BaseModel {
 
     private static final long serialVersionUID = -5130354389286165685L;
 

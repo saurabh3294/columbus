@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.service.LocalityAmenityService;
+import com.proptiger.data.service.LandMarkService;
 
 /**
  * 
@@ -21,9 +21,9 @@ import com.proptiger.data.service.LocalityAmenityService;
  */
 @Controller
 @RequestMapping(value = "data/v1/entity/locality")
-public class LocalityAmenityController extends BaseController {
+public class LandMarkController extends BaseController {
     @Autowired
-    private LocalityAmenityService localityAmenityService;
+    private LandMarkService localityAmenityService;
 
     @RequestMapping(value = "{id}/amenity", method = RequestMethod.GET)
     @ResponseBody

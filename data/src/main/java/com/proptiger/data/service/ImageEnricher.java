@@ -2,7 +2,6 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -11,13 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.ObjectType;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.image.ImageType;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.ImageUtil;
 
@@ -245,25 +242,7 @@ public class ImageEnricher {
         String path = projectMainUrl.substring(endpoint.length() + 1, index1 + 1);
         String waterMarkName = projectMainUrl.substring(index1 + 1);
 
-        Image image = new Image();
-        image.setId(imageId);
-        image.setWaterMarkName(waterMarkName);
-        image.setPath(path);
-        image.setActive(true);
-        image.setImageTypeObj(new ImageType());
-        // Main Image Image Type ID.
-        image.getImageTypeObj().setId(6);
-        // Project Object Id
-        image.getImageTypeObj().setObjectTypeId("1");
-        // Image Type Name
-        image.getImageTypeObj().setType("main");
-        // Setting Object Type Object
-        image.getImageTypeObj().setObjectType(new ObjectType());
-        image.getImageTypeObj().getObjectType().setId(1);
-        image.getImageTypeObj().getObjectType().setType("project");
-        ;
-
-        return image;
+        return imageService.getImage(imageId);
     }
 
 }
