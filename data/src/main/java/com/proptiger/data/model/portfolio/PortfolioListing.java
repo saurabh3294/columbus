@@ -54,8 +54,9 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
    
 
+
     public enum Source {
-        portfolio("portfolio"), lead("lead");
+        portfolio("portfolio"), lead("lead"),backend("backend");
 
         public String source;
 
@@ -197,6 +198,9 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
     @Column(name = "interested_loan_on")
     private Date                             interestedToLoanOn;
+    
+    @Column(name="loan_type")
+    private String                            loanType;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -213,7 +217,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     private Boolean                          isBroker;
 
     @Column(name = "source_type")
-    @JsonIgnore
+//    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private Source                           sourceType       = Source.portfolio;
 
@@ -705,6 +709,14 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getLoanType() {
+        return loanType;
+    }
+
+    public void setLoanType(String loanType) {
+        this.loanType = loanType;
     }
     
 }
