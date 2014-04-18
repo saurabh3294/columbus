@@ -17,6 +17,7 @@ import com.proptiger.data.security.enums.MaxAllowedRequestCount;
 /**
  * 
  * @author Rajeev Pandey
+ * @author Azitabh Ajit
  * 
  */
 public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
@@ -60,9 +61,8 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
                 logger.error("Crawing Identified!!  Type: " + maxAllowedRequestCount.getLabel()
                         + " IP: "
                         + requestIP
-                        + "  Times Allowed Count: "
-                        + count
-                        / maxRequestCount);
+                        + "  Request Count in Time Slot: "
+                        + count);
             }
         }
         jedis.setex(key, timeFrame, count.toString());
