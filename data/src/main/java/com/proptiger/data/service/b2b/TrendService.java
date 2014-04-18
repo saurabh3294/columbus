@@ -126,6 +126,7 @@ public class TrendService {
         catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+        selector.removeMonthFilter();
         selector.setFields("sumSupply");
         selector.setGroup("unitType");
         selector.setSort("-sumSupply");
