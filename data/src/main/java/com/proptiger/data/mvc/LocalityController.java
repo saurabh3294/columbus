@@ -52,10 +52,10 @@ public class LocalityController extends BaseController {
         if (selector != null) {
             localitySelector = super.parseJsonToObject(selector, Selector.class);
         }
-        List<Locality> localityList = localityService.getLocalities(localitySelector);
+        PaginatedResponse<List<Locality>> localityList = localityService.getLocalities(localitySelector);
         return new ProAPISuccessCountResponse(
-                super.filterFields(localityList, localitySelector.getFields()),
-                localityList.size());
+                super.filterFields(localityList.getResults(), localitySelector.getFields()),
+                localityList.getTotalCount());
     }
 
     /**
@@ -175,7 +175,7 @@ public class LocalityController extends BaseController {
                 locationId,
                 minReviewCount,
                 numberOfLocalities);
-        return new ProAPISuccessCountResponse(super.filterFields(localities.getTotalCount(), localitySelector.getFields()), localities.getTotalCount());
+        return new ProAPISuccessCountResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
 
     @RequestMapping(value = "highest-return")
