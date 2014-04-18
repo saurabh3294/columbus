@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class ProjectError extends BaseModel {
+    private static final long serialVersionUID = 5888860480246532665L;
 
     public static enum ErrorType {
         rate("rate"), status("status"), propdetails("propdetails"), other("other");

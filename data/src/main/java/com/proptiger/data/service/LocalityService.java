@@ -115,13 +115,17 @@ public class LocalityService {
      * @param selector
      * @return List<Locality>
      */
-    public List<Locality> getLocalities(Selector selector) {
-        List<Locality> localities = Lists.newArrayList(localityDao.getLocalities(selector).getResults());
-        for (Locality locality : localities) {
-            updateLocalityRatingAndReviewDetails(locality);
+    public PaginatedResponse<List<Locality>> getLocalities(Selector selector) {
+        PaginatedResponse<List<Locality>> paginatedRes = new PaginatedResponse<List<Locality>>();
+        paginatedRes = localityDao.getLocalities(selector);
+        List<Locality> localities = paginatedRes.getResults();
+        
+        if(localities != null){
+            for (Locality locality : localities) {
+                updateLocalityRatingAndReviewDetails(locality);
+            }
         }
-
-        return localities;
+        return paginatedRes;
     }
 
     /**
@@ -1053,7 +1057,7 @@ public class LocalityService {
         String json = "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":[" + StringUtils.join(localityIds, ',')
                 + "]}}]}}";
 
-        return getLocalities(new Gson().fromJson(json, Selector.class));
+        return getLocalities(new Gson().fromJson(json, Selector.class)).getResults();
     }
 
     public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector) {
