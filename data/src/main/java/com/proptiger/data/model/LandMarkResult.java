@@ -155,6 +155,7 @@ public class LandMarkResult extends BaseModel {
     @Field("LANDMARK_TYPE_ID")
     public void setLandMarkTypeId(int landMarkTypeId) {
         localityAmenityTypes.setId(landMarkTypeId);
+        localityAmenity.setPlaceTypeId(landMarkTypeId);
     }
     
     @Field("LANDMARK_TYPE_DISPLAY_NAME")

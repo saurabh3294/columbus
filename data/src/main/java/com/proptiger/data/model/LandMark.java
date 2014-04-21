@@ -28,7 +28,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @Entity
-@Table(name = "LOCALITY_NEAR_PLACES")
+@Table(name = "cms.landmarks")
 @ResourceMetaInfo
 @JsonAutoDetect(
         fieldVisibility = JsonAutoDetect.Visibility.ANY,
