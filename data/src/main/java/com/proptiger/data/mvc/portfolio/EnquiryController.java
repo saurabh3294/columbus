@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.model.Enquiry.EnquiryCustomDetails;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -36,7 +37,7 @@ public class EnquiryController extends BaseController {
     public ProAPIResponse getEnquiredProperties(
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        List<Map<String, Object>> result = enquiryService.getEnquiries(userInfo.getUserIdentifier());
+         List<EnquiryCustomDetails> result = enquiryService.getEnquiries(userInfo.getUserIdentifier());
         return new ProAPISuccessCountResponse(result, result.size());
     }
 }

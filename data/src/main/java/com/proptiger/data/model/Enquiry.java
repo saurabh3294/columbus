@@ -393,4 +393,44 @@ public class Enquiry extends BaseModel {
         this.localityId = localityId;
     }
 
+    public static class EnquiryCustomDetails extends BaseModel{
+        private static final long serialVersionUID = -8600077968473619387L;
+        private String projectName;
+        private String cityName;
+        private String projectUrl;
+        private Date createdDate;
+        private String builderName;
+        public EnquiryCustomDetails(
+                String projectName,
+                String cityName,
+                String projectUrl,
+                Date createdDate,
+                String builderName) {
+            super();
+            this.projectName = projectName;
+            this.cityName = cityName;
+            this.projectUrl = projectUrl;
+            this.createdDate = createdDate;
+            this.builderName = builderName;
+        }
+        public static long getSerialversionuid() {
+            return serialVersionUID;
+        }
+        public String getProjectName() {
+            return projectName;
+        }
+        public String getCityName() {
+            return cityName;
+        }
+        public String getProjectUrl() {
+            return projectUrl;
+        }
+        public Date getCreatedDate() {
+            return createdDate;
+        }
+        public String getBuilderName() {
+            return builderName;
+        }
+        
+    }
 }
