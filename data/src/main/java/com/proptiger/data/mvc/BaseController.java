@@ -94,12 +94,7 @@ public abstract class BaseController {
      */
     protected <T> Object groupFieldsAsPerSelector(List<T> response, FIQLSelector selector) {
         FIQLSelector sel;
-        try {
-            sel = selector.clone();
-        }
-        catch (CloneNotSupportedException e1) {
-            throw new RuntimeException(e1);
-        }
+        sel = selector.clone();
         if (sel == null || sel.getGroup() == null || sel.getGroup().isEmpty())
             return response;
 

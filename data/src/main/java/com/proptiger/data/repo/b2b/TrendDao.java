@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,22 +25,20 @@ public class TrendDao {
 
     @Cacheable(value = Constants.CacheName.CACHE)
     public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
+        EntityManager entityManager = emf.createEntityManager();
         AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
-                emf.createEntityManager(),
+                entityManager,
                 InventoryPriceTrend.class);
         builder.buildQuery(modifyWavgFieldsInSelector(selector));
-        return modifyWavgKeysInResultSet(builder.retrieveResults());
+        List<InventoryPriceTrend> modifyWavgKeysInResultSet = modifyWavgKeysInResultSet(builder.retrieveResults());
+        entityManager.close();
+        return modifyWavgKeysInResultSet;
     }
 
     // XXX - Hack to switch column names without clients knowing about it
     private FIQLSelector modifyWavgFieldsInSelector(FIQLSelector selector) {
         FIQLSelector fiqlSelector;
-        try {
-            fiqlSelector = selector.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        fiqlSelector = selector.clone();
         fiqlSelector.setFields(StringUtils.replace(fiqlSelector.getFields(), "OnSupply", "OnLtdSupply"));
         return fiqlSelector;
     }
