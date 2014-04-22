@@ -17,6 +17,7 @@ import com.proptiger.data.security.enums.MaxAllowedRequestCount;
 /**
  * 
  * @author Rajeev Pandey
+ * @author Azitabh Ajit
  * 
  */
 public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
@@ -36,13 +37,16 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
     }
 
     private void preventCrawling(HttpServletRequest request) {
+
         String requestIP = request.getRemoteAddr();
+        Jedis jedis = new Jedis(redisHost, redisPort);
         for (MaxAllowedRequestCount maxAllowedRequestCount : MaxAllowedRequestCount.values()) {
-            preventSpecificCrawling(maxAllowedRequestCount, requestIP);
+            preventSpecificCrawling(maxAllowedRequestCount, requestIP, jedis);
         }
+        jedis.disconnect();
     }
 
-    private void preventSpecificCrawling(MaxAllowedRequestCount maxAllowedRequestCount, String requestIP) {
+    private void preventSpecificCrawling(MaxAllowedRequestCount maxAllowedRequestCount, String requestIP, Jedis jedis) {
         Integer timeFrame = maxAllowedRequestCount.getTimeFrame();
         Integer maxRequestCount = maxAllowedRequestCount.getAllowedRequestCount();
 
@@ -51,7 +55,6 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
 
         Integer count = 1;
 
-        Jedis jedis = new Jedis(redisHost, redisPort);
         String cachedValue = jedis.get(key);
         if (cachedValue != null) {
             count = Integer.valueOf(cachedValue);
@@ -60,12 +63,10 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
                 logger.error("Crawing Identified!!  Type: " + maxAllowedRequestCount.getLabel()
                         + " IP: "
                         + requestIP
-                        + "  Times Allowed Count: "
-                        + count
-                        / maxRequestCount);
+                        + "  Request Count in Time Slot: "
+                        + count);
             }
         }
         jedis.setex(key, timeFrame, count.toString());
-        jedis.disconnect();
     }
 }

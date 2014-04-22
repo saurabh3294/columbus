@@ -1,18 +1,28 @@
 package com.proptiger.data.pojo;
 
+/**
+ * @author azi
+ * @author Mandeep Dhir
+ */
+
 import java.io.Serializable;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.proptiger.exception.ProAPIException;
+
 public class FIQLSelector implements Cloneable, Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID         = 1L;
     private String            fields;
     private String            filters;
     private String            group;
     private String            sort;
-    private Integer           start            = 0;
+    private Integer           start                    = 0;
     private Integer           rows;
+
+    private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
+    private static String     monthAlwaysTrueStatement = "month!=1970-01-01";
 
     public String getFields() {
         return fields;
@@ -68,8 +78,13 @@ public class FIQLSelector implements Cloneable, Serializable {
         return this;
     }
 
-    public FIQLSelector clone() throws CloneNotSupportedException {
-        return (FIQLSelector) super.clone();
+    public FIQLSelector clone() {
+        try {
+            return (FIQLSelector) super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new ProAPIException(e);
+        }
     }
 
     public FIQLSelector addAndConditionToFilter(String condition) {
@@ -133,6 +148,11 @@ public class FIQLSelector implements Cloneable, Serializable {
                 this.sort += ",-" + fieldName;
             }
         }
+        return this;
+    }
+
+    public FIQLSelector removeMonthFilter() {
+        this.filters = this.filters.replaceAll(monthFilterRegex, monthAlwaysTrueStatement);
         return this;
     }
 
