@@ -112,7 +112,9 @@ public class LandMarkService {
     public List<LandMark> getLandMarksForLocality(Locality locality, String amenityType, Paging paging) {
         if (locality == null || locality.getLatitude() == null || locality.getLongitude() == null)
             return new ArrayList<LandMark>();
-        double radius = UtilityClass.min(locality.getMaxRadius(), 3.0);
+        double radius = UtilityClass.min(locality.getMaxRadius(), 5.0);
+        radius = UtilityClass.max(3.0, radius);
+        
         return getLandMarkByGeoDistance(
                 locality.getLatitude(),
                 locality.getLongitude(),
