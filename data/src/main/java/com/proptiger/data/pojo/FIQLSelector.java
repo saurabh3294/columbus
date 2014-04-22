@@ -10,6 +10,8 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import com.proptiger.exception.ProAPIException;
+
 public class FIQLSelector implements Cloneable, Serializable {
     private static final long serialVersionUID         = 1L;
     private String            fields;
@@ -76,8 +78,13 @@ public class FIQLSelector implements Cloneable, Serializable {
         return this;
     }
 
-    public FIQLSelector clone() throws CloneNotSupportedException {
-        return (FIQLSelector) super.clone();
+    public FIQLSelector clone() {
+        try {
+            return (FIQLSelector) super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new ProAPIException(e);
+        }
     }
 
     public FIQLSelector addAndConditionToFilter(String condition) {

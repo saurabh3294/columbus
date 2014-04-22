@@ -34,12 +34,7 @@ public class TrendDao {
     // XXX - Hack to switch column names without clients knowing about it
     private FIQLSelector modifyWavgFieldsInSelector(FIQLSelector selector) {
         FIQLSelector fiqlSelector;
-        try {
-            fiqlSelector = selector.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        fiqlSelector = selector.clone();
         fiqlSelector.setFields(StringUtils.replace(fiqlSelector.getFields(), "OnSupply", "OnLtdSupply"));
         return fiqlSelector;
     }

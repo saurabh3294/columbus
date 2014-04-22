@@ -120,12 +120,7 @@ public class TrendService {
     public UnitType getDominantSupply(FIQLSelector sel) {
         FIQLSelector selector;
         UnitType unitType = UnitType.Apartment;
-        try {
-            selector = sel.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e);
-        }
+        selector = sel.clone();
         selector.removeMonthFilter();
         selector.setFields("sumSupply");
         selector.setGroup("unitType");
