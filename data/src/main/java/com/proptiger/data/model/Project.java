@@ -459,6 +459,10 @@ public class Project extends BaseModel {
     @Transient
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double                  maxResaleOrPrimaryPrice;
+    
+    @Transient
+    @Field("PROJECT_PRICE_APPRECIATION_RATE_IN_SIX_MONTH")
+    private Double                  priceRiseRateInSixMonths;
 
     public int getProjectId() {
         return projectId;
@@ -1080,4 +1084,12 @@ public class Project extends BaseModel {
         this.dominantUnitType = dominantUnitType;
     }
 
+    public Double getPriceRiseRateInSixMonths() {
+        return priceRiseRateInSixMonths;
+    }
+
+    public void setPriceRiseRateInSixMonths(Double priceRiseRateInSixMonths) {
+        this.priceRiseRateInSixMonths = priceRiseRateInSixMonths;
+    }
+    
 }
