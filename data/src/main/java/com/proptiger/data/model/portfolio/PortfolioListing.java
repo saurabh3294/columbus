@@ -1,5 +1,6 @@
 package com.proptiger.data.model.portfolio;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +25,13 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
@@ -32,6 +39,7 @@ import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.ProjectError.StringToEnum;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.portfolio.enums.ListingStatus;
 import com.proptiger.data.model.portfolio.enums.LoanStatus;
@@ -52,13 +60,12 @@ import com.proptiger.data.model.resource.Resource;
 @JsonFilter("fieldFilter")
 public class PortfolioListing extends BaseModel implements NamedResource, Resource {
 
-   
-
+    
     public enum Source {
-        portfolio("portfolio"), lead("lead");
-
+        portfolio("portfolio"), lead("lead"), backend("backend");
+        
         public String source;
-
+        
         Source(String source) {
             this.source = source;
         }
@@ -181,6 +188,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
     @FieldMetaInfo(dataType = DataType.STRING, displayName = "Property Id", description = "Property Id")
     @Column(name = "transaction_type")
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private TransactionType                  transactionType;
 
@@ -197,6 +205,9 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
     @Column(name = "interested_loan_on")
     private Date                             interestedToLoanOn;
+    
+    @Column(name="loan_type")
+    private String                            loanType;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -215,7 +226,8 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @Column(name = "source_type")
     @JsonIgnore
     @Enumerated(EnumType.STRING)
-    private Source                           sourceType       = Source.portfolio;
+    @JsonDeserialize(using = SourceTypeDeserializer.class)
+    private Source                           sourceType ;
 
     @Column(name = "lead_user")
     private String                           leadUser;
@@ -642,11 +654,11 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     public void setIsBroker(Boolean isBroker) {
         this.isBroker = isBroker;
     }
-
+    
     public Source getSourceType() {
         return sourceType;
     }
-
+    
     public void setSourceType(Source sourceType) {
         this.sourceType = sourceType;
     }
@@ -705,6 +717,22 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getLoanType() {
+        return loanType;
+    }
+
+    public void setLoanType(String loanType) {
+        this.loanType = loanType;
+    }
+    
+    class SourceTypeDeserializer extends JsonDeserializer<String> {
+        @Override
+        public String deserialize(JsonParser parser, DeserializationContext context)
+                throws IOException, JsonProcessingException {
+            return parser.getValueAsString();
+        }
     }
     
 }

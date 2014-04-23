@@ -815,21 +815,22 @@ public class PortfolioService extends AbstractService {
      * @param userId
      * @param listingId
      * @param interestedToLoan
+     * @param loanType 
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
-    public PortfolioListing interestedToHomeLoan(Integer userId, Integer listingId, Boolean interestedToLoan) {
+    public PortfolioListing interestedToHomeLoan(Integer userId, Integer listingId, Boolean interestedToLoan, String loanType) {
         logger.debug(
                 "Updating loan intereset for user id {} and listing id {} with loan interest {}",
                 userId,
                 listingId,
                 interestedToLoan);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId,false);
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId, false);
         if (listing == null) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
-        updateLoanInterest(userId, listingId, interestedToLoan, listing);
+        updateLoanInterest(userId, listingId, interestedToLoan, listing, loanType);
         updateOtherSpecificData(listing);
         sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_USER);
         sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL);
@@ -906,9 +907,11 @@ public class PortfolioService extends AbstractService {
             Integer userId,
             Integer listingId,
             Boolean interestedToLoan,
-            PortfolioListing listing) {
+            PortfolioListing listing,
+            String loanType) {
         listing.setInterestedToLoan(interestedToLoan);
         listing.setInterestedToLoanOn(new Date());
+        listing.setLoanType(loanType);
         return listing;
     }
 
