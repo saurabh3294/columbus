@@ -1,50 +1,54 @@
 package com.proptiger.data.model;
 
-import java.util.Set;
-
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
+
+import com.fasterxml.jackson.annotation.JsonFilter;
 
 /**
- * @author Rajeev Pandey
+ * 
+ * @author azi
+ * @author Rajeev
  * 
  */
-// @Entity
-// @Table(name = "cms.listings")
-// @JsonFilter("fieldFilter")
+@Entity
+@Table(name = "cms.listings")
+@JsonFilter("fieldFilter")
 public class Listing extends BaseModel {
-    private static final long serialVersionUID = -1212348039595611394L;
+    private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name = "id")
     private Integer           id;
 
-    @Column(name = "option_id")
-    private Integer           optionId;
+    @ManyToOne
+    @JoinColumn(
+            name = "option_id",
+            referencedColumnName = "TYPE_ID",
+            insertable = false,
+            updatable = false,
+            nullable = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Property          property;
 
     @Column(name = "phase_id")
     private Integer           phaseId;
 
-    @Column(name = "listing_category")
-    private String            listingCategory;
-
     @Column(name = "status")
     private String            status;
 
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "option_id", referencedColumnName = "OPTIONS_ID", insertable = false, updatable = false)
-    private Property          property;
-
-    @OneToMany(mappedBy = "listing", fetch = FetchType.EAGER)
-    @JsonIgnore
-    private Set<ListingPrice> listingPrice;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id", referencedColumnName = "listing_id")
+    private ProjectSupply     projectSupply;
 
     public Integer getId() {
         return id;
@@ -54,12 +58,12 @@ public class Listing extends BaseModel {
         this.id = id;
     }
 
-    public Integer getOptionId() {
-        return optionId;
+    public Property getProperty() {
+        return property;
     }
 
-    public void setOptionId(Integer optionId) {
-        this.optionId = optionId;
+    public void setProperty(Property property) {
+        this.property = property;
     }
 
     public Integer getPhaseId() {
@@ -70,14 +74,6 @@ public class Listing extends BaseModel {
         this.phaseId = phaseId;
     }
 
-    public String getListingCategory() {
-        return listingCategory;
-    }
-
-    public void setListingCategory(String listingCategory) {
-        this.listingCategory = listingCategory;
-    }
-
     public String getStatus() {
         return status;
     }
@@ -86,12 +82,11 @@ public class Listing extends BaseModel {
         this.status = status;
     }
 
-    public Set<ListingPrice> getListingPrice() {
-        return listingPrice;
+    public ProjectSupply getProjectSupply() {
+        return projectSupply;
     }
 
-    public void setListingPrice(Set<ListingPrice> listingPrice) {
-        this.listingPrice = listingPrice;
+    public void setProjectSupply(ProjectSupply projectSupply) {
+        this.projectSupply = projectSupply;
     }
-
 }
