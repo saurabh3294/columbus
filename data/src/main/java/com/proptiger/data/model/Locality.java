@@ -205,8 +205,8 @@ public class Locality extends BaseModel {
     private Double                          geoDistance;
     
     @Transient
-    @Field("LOCALITY_PRICE_APPRECIATION_RATE_IN_SIX_MONTH")
-    private Double                          priceRiseRateInSixMonths;
+    @Field("LOCALITY_PRICE_RISE_6MONTHS")
+    private Double                          priceRise6Months;
 
     public int getLocalityId() {
         return localityId;
@@ -522,12 +522,11 @@ public class Locality extends BaseModel {
         this.geoDistance = geoDistance;
     }
 
-    public Double getPriceRiseRateInSixMonths() {
-        return priceRiseRateInSixMonths;
+    public Double getPriceRise6Months() {
+        return priceRise6Months;
     }
 
-    public void setPriceRiseRateInSixMonths(Double priceRiseRateInSixMonths) {
-        this.priceRiseRateInSixMonths = priceRiseRateInSixMonths;
+    public void setPriceRise6Months(Double priceRise6Months) {
+        this.priceRise6Months = priceRise6Months;
     }
-    
 }

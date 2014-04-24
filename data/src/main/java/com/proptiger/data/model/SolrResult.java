@@ -251,11 +251,11 @@ public class SolrResult extends BaseModel {
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double            maxResaleOrPrimaryPrice;
     
-    @Field("LOCALITY_PRICE_APPRECIATION_RATE_IN_SIX_MONTH")
-    private Double            localityPriceRiseRateInSixMonths;
+    @Field("LOCALITY_PRICE_RISE_6MONTHS")
+    private Double            localityPriceRise6Months;
     
-    @Field("PROJECT_PRICE_APPRECIATION_RATE_IN_SIX_MONTH")
-    private Double            projectPriceRiseRateInSixMonths;
+    @Field("PROJECT_PRICE_RISE_6MONTHS")
+    private Double            projectPriceRise6Months;
 
     public SolrResult() {
         property.setProject(project);
@@ -868,13 +868,13 @@ public class SolrResult extends BaseModel {
         property.setMaxResaleOrPrimaryPrice(maxResaleOrPrimaryPrice);
     }
     
-    @Field("LOCALITY_PRICE_APPRECIATION_RATE_IN_SIX_MONTH")
-    public void setLocalityPriceRiseRateInSixMonths(Double localityPriceRiseRateInSixMonths) {
-        locality.setPriceRiseRateInSixMonths(localityPriceRiseRateInSixMonths);
+    @Field("LOCALITY_PRICE_RISE_6MONTHS")
+    public void setLocalityPriceRise6Months(Double localityPriceRise6Months) {
+        locality.setPriceRise6Months(localityPriceRise6Months);
     }
 
-    @Field("PROJECT_PRICE_APPRECIATION_RATE_IN_SIX_MONTH")
-    public void setProjectPriceRiseRateInSixMonths(Double projectPriceRiseRateInSixMonths) {
-        project.setPriceRiseRateInSixMonths(projectPriceRiseRateInSixMonths);
-    }  
+    @Field("PROJECT_PRICE_RISE_6MONTHS")
+    public void setProjectPriceRise6Months(Double projectPriceRise6Months) {
+        project.setPriceRise6Months(projectPriceRise6Months);
+    } 
 }
