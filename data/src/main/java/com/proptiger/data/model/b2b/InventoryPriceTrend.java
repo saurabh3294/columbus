@@ -19,6 +19,13 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.enums.UnitType;
 
+/**
+ * Denormalized model for price inventory trends
+ * 
+ * @author azi
+ * 
+ */
+
 @ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
@@ -124,6 +131,9 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "launched_unit")
     private Integer  launchedUnit;
+
+    @Column(name = "ltd_launched_unit")
+    private Integer  ltdLaunchedUnit;
 
     @Column(name = "inventory")
     private Integer  inventory;
@@ -401,6 +411,14 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setLaunchedUnit(Integer launchedUnit) {
         this.launchedUnit = launchedUnit;
+    }
+
+    public Integer getLtdLaunchedUnit() {
+        return ltdLaunchedUnit;
+    }
+
+    public void setLtdLaunchedUnit(Integer ltdLaunchedUnit) {
+        this.ltdLaunchedUnit = ltdLaunchedUnit;
     }
 
     public Integer getInventory() {
