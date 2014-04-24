@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.cxf.jaxrs.ext.search.PropertyNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.internal.dto.DashboardDto;
 import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.portfolio.Dashboard.DashboardType;
@@ -25,6 +27,7 @@ import com.proptiger.data.repo.portfolio.WidgetDao;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
+import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.DuplicateResourceException;
@@ -62,7 +65,14 @@ public class DashboardService extends AbstractService {
             fiqlSelector.addAndConditionToFilter("dashboardType==" + "PORTFOLIO");
         }
         fiqlSelector.addAndConditionToFilter("userId==" + userId);
-        List<Dashboard> result = dashboardDao.getDashboards(fiqlSelector);
+        List<Dashboard> result;
+        
+        try {
+            result = dashboardDao.getDashboards(fiqlSelector);
+        }
+        catch (PropertyNotFoundException e ) {
+            throw new BadRequestException(ResponseErrorMessages.BAD_REQUEST);
+        }
 
         if (result != null && result.size() == 0) {
             logger.debug("creating default dashboard and widgets as of admin for user {}", userId);
@@ -71,12 +81,8 @@ public class DashboardService extends AbstractService {
              * dashboard and and dashboard widget mapping by taking input from
              * admin's mapping
              */
-            Pattern responsePattern = Pattern.compile("dashboardType==(\\w*)");
-            Matcher m = responsePattern.matcher(fiqlSelector.getFilters());
-            DashboardType dashboardType = null;
-            if (m.find()) {
-                dashboardType = DashboardType.valueOf(m.group(1));
-            }
+            
+            DashboardType dashboardType = extractDashboardType(fiqlSelector);
             List<Dashboard> adminsDashboard = dashboardDao.findByUserIdAndDashboardType(Constants.ADMIN_USER_ID, dashboardType);
             logger.debug("Dasboard and widgets for admin is {}", adminsDashboard);
             /* --need to create copy for current user --
@@ -108,6 +114,24 @@ public class DashboardService extends AbstractService {
             }
         }
         return result;
+    }
+
+    /**
+     * @param fiqlSelector
+     * @return DashboardType
+     */
+    private DashboardType extractDashboardType(FIQLSelector fiqlSelector) {
+        Pattern responsePattern = Pattern.compile("dashboardType==(\\w*)");
+        Matcher m = responsePattern.matcher(fiqlSelector.getFilters());
+        DashboardType dashboardType = null;
+        if (m.find()) {
+             dashboardType = DashboardType.valueOf(m.group(1));
+        }
+        if (dashboardType == null) {
+            throw new IllegalArgumentException("Invalid Dashboard Type");
+        }
+        
+        return dashboardType;
     }
 
     /**
