@@ -17,7 +17,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.ProjectAvailabilityDao;
 import com.proptiger.data.repo.ProjectPhaseDao;
 import com.proptiger.data.repo.ProjectSecondaryPriceDao;
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.ResourceNotFoundException;
 
 /**
  * 
@@ -45,8 +45,7 @@ public class ProjectPhaseService {
                 .addAndConditionToFilter("version==" + version).addAndConditionToFilter("status==" + STATUS.Active);
         List<ProjectPhase> phases = getPhaseDetailsFromFiql(selector);
         if (phases.size() == 0) {
-            System.out.println("AAAAAAAAAAAAAAaa" + phases.get(0).getProjectId());
-            throw new ProAPIException();
+            throw new ResourceNotFoundException("PhaseId Not Found");
         }
         return phases.get(0);
     }
@@ -86,7 +85,7 @@ public class ProjectPhaseService {
 
     private List<ProjectPhase> populateAvailabilities(List<ProjectPhase> phases) {
         for (ProjectPhase phase : phases) {
-            Set<Integer> supplyIds = phase.getSupplyIds();
+            Set<Integer> supplyIds = phase.getSupplyIdsForActiveListing();
             if (supplyIds.size() > 0) {
                 phase.setSumAvailability(projectAvailabilityDao.getSumCurrentAvailabilityFromSupplyIds(supplyIds)
                         .intValue());
@@ -104,10 +103,11 @@ public class ProjectPhaseService {
 
     private List<ProjectPhase> populateProperties(List<ProjectPhase> phases) {
         if (phases.size() > 0) {
-            List<Property> properties = propertyService.getPropertiesForProject(phases.get(0).getProjectId());
+            List<Property> properties = removeProjectFromProperties(propertyService.getPropertiesForProject(phases.get(
+                    0).getProjectId()));
             for (ProjectPhase phase : phases) {
                 List<Property> phaseProperties = new ArrayList<>();
-                Set<Integer> phasePropertyIds = phase.getPropertyIds();
+                Set<Integer> phasePropertyIds = phase.getPropertyIdsForActiveListing();
                 for (Property property : properties) {
                     if (phasePropertyIds.contains(property.getPropertyId())) {
                         phaseProperties.add(property);
@@ -118,5 +118,12 @@ public class ProjectPhaseService {
             }
         }
         return phases;
+    }
+
+    private List<Property> removeProjectFromProperties(List<Property> properties) {
+        for (Property property : properties) {
+            property.setProject(null);
+        }
+        return properties;
     }
 }

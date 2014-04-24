@@ -73,7 +73,7 @@ public class ProjectPhase extends BaseModel {
     @Column(name = "STATUS")
     private STATUS                          status;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BOOKING_STATUS_ID", referencedColumnName = "id")
     private BookingStatus                   bookingStatus;
 
@@ -109,10 +109,6 @@ public class ProjectPhase extends BaseModel {
     private void populatePostLoadAttributes() {
         for (Listing listing : listings) {
             if (listing.getStatus().equals(STATUS.Active)) {
-                // Property property = listing.getProperty();
-                // if (property != null) {
-                // this.properties.add(property);
-                // }
                 List<ProjectSupply> supplies = listing.getProjectSupply();
                 for (ProjectSupply projectSupply : supplies) {
                     if (projectSupply.getVersion().equals(this.version)) {
@@ -280,22 +276,26 @@ public class ProjectPhase extends BaseModel {
         return serialVersionUID;
     }
 
-    public Set<Integer> getSupplyIds() {
+    public Set<Integer> getSupplyIdsForActiveListing() {
         Set<Integer> supplyIds = new HashSet<>();
         for (Listing listing : this.listings) {
-            for (ProjectSupply projectSupply : listing.getProjectSupply()) {
-                if (projectSupply.getVersion().equals(this.version)) {
-                    supplyIds.add(projectSupply.getId());
+            if (listing.getStatus().equals(STATUS.Active)) {
+                for (ProjectSupply projectSupply : listing.getProjectSupply()) {
+                    if (projectSupply.getVersion().equals(this.version)) {
+                        supplyIds.add(projectSupply.getId());
+                    }
                 }
             }
         }
         return supplyIds;
     }
 
-    public Set<Integer> getPropertyIds() {
+    public Set<Integer> getPropertyIdsForActiveListing() {
         Set<Integer> propertyIds = new HashSet<>();
         for (Listing listing : this.listings) {
-            propertyIds.add(listing.getPropertyId());
+            if (listing.getStatus().equals(STATUS.Active)) {
+                propertyIds.add(listing.getPropertyId());
+            }
         }
         return propertyIds;
     }

@@ -6,6 +6,9 @@ package com.proptiger.data.pojo;
  */
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
@@ -159,5 +162,13 @@ public class FIQLSelector implements Cloneable, Serializable {
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
+    public Set<String> getFieldsSet() {
+        Set<String> result = new HashSet<>();
+        if(this.fields != null){
+            result = new HashSet<>(Arrays.asList(this.fields.split(",")));
+        }
+        return result;
     }
 }

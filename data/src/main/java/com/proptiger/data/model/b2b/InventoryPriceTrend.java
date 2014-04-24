@@ -15,7 +15,6 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.enums.UnitType;
 
@@ -26,128 +25,129 @@ import com.proptiger.data.model.enums.UnitType;
  * 
  */
 
-@ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "cms.d_inventory_prices")
 @JsonFilter("fieldFilter")
 public class InventoryPriceTrend extends BaseModel {
+    private static final long serialVersionUID = 1L;
+
     @Id
-    private Integer  id;
+    private Integer           id;
 
     @Column(name = "project_id")
-    private Integer  projectId;
+    private Integer           projectId;
 
     @Column(name = "project_name")
-    private String   projectName;
+    private String            projectName;
 
     @Column(name = "country_id")
-    private Integer  countryId;
+    private Integer           countryId;
 
     @Column(name = "country_name")
-    private String   countryName;
+    private String            countryName;
 
     @Column(name = "phase_id")
-    private Integer  phaseId;
+    private Integer           phaseId;
 
     @Column(name = "phase_name")
-    private String   phaseName;
+    private String            phaseName;
 
     @Column(name = "phase_type")
-    private String   phaseType;
+    private String            phaseType;
 
     @Column(name = "construction_status")
-    private String   constructionStatus;
+    private String            constructionStatus;
 
     @Column(name = "locality_id")
-    private Integer  localityId;
+    private Integer           localityId;
 
     @Column(name = "locality_name")
-    private String   localityName;
+    private String            localityName;
 
     @Column(name = "suburb_id")
-    private Integer  suburbId;
+    private Integer           suburbId;
 
     @Column(name = "suburb_name")
-    private String   suburbName;
+    private String            suburbName;
 
     @Column(name = "city_id")
-    private Integer  cityId;
+    private Integer           cityId;
 
     @Column(name = "city_name")
-    private String   cityName;
+    private String            cityName;
 
     @Column(name = "builder_id")
-    private Integer  builderId;
+    private Integer           builderId;
 
     @Column(name = "builder_name")
-    private String   builderName;
+    private String            builderName;
 
     @Column(name = "effective_month")
-    private Date     month;
+    private Date              month;
 
     @Column(name = "quarter")
-    private Date     quarter;
+    private Date              quarter;
 
     @Column(name = "half_year")
-    private Date     halfYear;
+    private Date              halfYear;
 
     @Column(name = "year")
-    private Date     year;
+    private Date              year;
 
     @Column(name = "completion_date")
-    private Date     completionDate;
+    private Date              completionDate;
 
     @Column(name = "launch_date")
-    private Date     launchDate;
+    private Date              launchDate;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "unit_type")
-    private UnitType unitType;
+    private UnitType          unitType;
 
     @Column(name = "bedrooms")
-    private Integer  bedrooms;
+    private Integer           bedrooms;
 
     @Column(name = "is_dominant_project_unit_type")
-    private Boolean  isDominantProjectUnitType;
+    private Boolean           isDominantProjectUnitType;
 
     @Column(name = "average_price_per_unit_area")
-    private Integer  pricePerUnitArea;
+    private Integer           pricePerUnitArea;
 
     @Column(name = "average_secondary_price_per_unit_area")
-    private Integer  secondaryPricePerUnitArea;
+    private Integer           secondaryPricePerUnitArea;
 
     @Column(name = "average_size")
-    private Integer  size;
+    private Integer           size;
 
     @Column(name = "average_total_price")
-    private Long     budget;
+    private Long              budget;
 
     @Column(name = "supply")
-    private Integer  supply;
+    private Integer           supply;
 
     @Column(name = "ltd_supply")
-    private Integer  ltdSupply;
+    private Integer           ltdSupply;
 
     @Column(name = "launched_unit")
-    private Integer  launchedUnit;
+    private Integer           launchedUnit;
 
     @Column(name = "ltd_launched_unit")
-    private Integer  ltdLaunchedUnit;
+    private Integer           ltdLaunchedUnit;
 
     @Column(name = "inventory")
-    private Integer  inventory;
+    private Integer           inventory;
 
     @Column(name = "units_sold")
-    private Integer  unitsSold;
+    private Integer           unitsSold;
 
-    private Float    demand;
+    private Float             demand;
 
     @Column(name = "customer_demand")
-    private Float    customerDemand;
+    private Float             customerDemand;
 
     @Column(name = "investor_demand")
-    private Float    investorDemand;
+    private Float             investorDemand;
 
     public Integer getId() {
         return id;
