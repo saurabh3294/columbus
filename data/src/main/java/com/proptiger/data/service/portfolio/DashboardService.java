@@ -2,6 +2,8 @@ package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,10 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.internal.dto.DashboardDto;
 import com.proptiger.data.model.portfolio.Dashboard;
+import com.proptiger.data.model.portfolio.Dashboard.DashboardType;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.model.portfolio.WidgetDisplayStatus;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.portfolio.DashboardDao;
 import com.proptiger.data.repo.portfolio.DashboardWidgetMappingDao;
 import com.proptiger.data.repo.portfolio.WidgetDao;
@@ -45,15 +49,20 @@ public class DashboardService extends AbstractService {
     private DashboardWidgetMappingDao dashboardWidgetMappingDao;
 
     /**
-     * Finds all dashboard for given user id
+     * Finds all dashboard for given user id and dashboardType (PORTFOLIO or B2B)
      * 
+     * @param fiqlSelector
      * @param userId
      * @return
      */
     @Transactional
-    public List<Dashboard> getAllByUserId(Integer userId) {
+    public List<Dashboard> getAllByUserIdAndType(Integer userId, FIQLSelector fiqlSelector) {
         logger.debug("Finding all dashboards for userid {}", userId);
-        List<Dashboard> result = dashboardDao.findByUserId(userId);
+        if (fiqlSelector.getFilters() == null) {
+            fiqlSelector.addAndConditionToFilter("dashboardType==" + "PORTFOLIO");
+        }
+        fiqlSelector.addAndConditionToFilter("userId==" + userId);
+        List<Dashboard> result = dashboardDao.getDashboards(fiqlSelector);
 
         if (result != null && result.size() == 0) {
             logger.debug("creating default dashboard and widgets as of admin for user {}", userId);
@@ -62,9 +71,18 @@ public class DashboardService extends AbstractService {
              * dashboard and and dashboard widget mapping by taking input from
              * admin's mapping
              */
-            List<Dashboard> adminsDashboard = dashboardDao.findByUserId(Constants.ADMIN_USER_ID);
+            Pattern responsePattern = Pattern.compile("dashboardType==(\\w*)");
+            Matcher m = responsePattern.matcher(fiqlSelector.getFilters());
+            DashboardType dashboardType = null;
+            if (m.find()) {
+                dashboardType = DashboardType.valueOf(m.group(1));
+            }
+            List<Dashboard> adminsDashboard = dashboardDao.findByUserIdAndDashboardType(Constants.ADMIN_USER_ID, dashboardType);
             logger.debug("Dasboard and widgets for admin is {}", adminsDashboard);
-            // need to create copy for current user
+            /* --need to create copy for current user --
+             * For the dashboardType given in GET request 
+             * corresponding dashboardType Admin data will be copied
+             */
             if (adminsDashboard != null && !adminsDashboard.isEmpty()) {
                 for (Dashboard dashboard : adminsDashboard) {
                     DashboardDto dashboardDto = new DashboardDto();
@@ -72,6 +90,7 @@ public class DashboardService extends AbstractService {
                     dashboardDto.setTotalColumn(dashboard.getTotalColumn());
                     dashboardDto.setTotalRow(dashboard.getTotalRow());
                     dashboardDto.setUserId(userId);
+                    dashboardDto.setDashboardType(dashboard.getDashboardType());
                     List<DashboardWidgetMapping> widgetMappintToCreate = new ArrayList<>();
                     for (DashboardWidgetMapping widgetMapping : dashboard.getWidgets()) {
                         DashboardWidgetMapping dashboardWidgetMapping = new DashboardWidgetMapping();
@@ -85,7 +104,7 @@ public class DashboardService extends AbstractService {
                     createDashboard(dashboardDto);
                 }
                 // again retrieving dashboards for user after creation
-                result = dashboardDao.findByUserId(userId);
+                result = dashboardDao.findByUserIdAndDashboardType(userId, dashboardType);
             }
         }
         return result;
@@ -148,7 +167,7 @@ public class DashboardService extends AbstractService {
     protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
         super.preProcessCreate(resource);
         Dashboard toCreate = (Dashboard) resource;
-        Dashboard dashboardPresent = dashboardDao.findByNameAndUserId(toCreate.getName(), toCreate.getUserId());
+        Dashboard dashboardPresent = dashboardDao.findByNameAndUserIdAndDashboardType(toCreate.getName(), toCreate.getUserId(), toCreate.getDashboardType());
         if (dashboardPresent != null) {
             logger.error("Duplicate resource {}", dashboardPresent.getId());
             throw new DuplicateNameResourceException("Resource with same name exist");
@@ -235,12 +254,16 @@ public class DashboardService extends AbstractService {
         return deleted;
     }
 
+    /**
+     * Creates a dashboard for particular dashboardType
+     * @param dashboardDto
+     * @return
+     */
     @Transactional(rollbackFor = ConstraintViolationException.class)
     public Dashboard createDashboard(DashboardDto dashboardDto) {
         logger.debug("Creating dashboard for userid {}", dashboardDto.getUserId());
         Dashboard dashboard = Dashboard.getBuilder(dashboardDto.getName(), dashboardDto.getUserId())
-                .setTotalColumns(dashboardDto.getTotalColumn()).setTotalRows(dashboardDto.getTotalRow()).build();
-
+                .setTotalColumns(dashboardDto.getTotalColumn()).setTotalRows(dashboardDto.getTotalRow()).setDashboardType(dashboardDto.getDashboardType()).build();
         Dashboard created = create(dashboard);
         /*
          * creating dashboard and widget association
@@ -284,7 +307,6 @@ public class DashboardService extends AbstractService {
                 logger.error("Exception while creating dashboard widget mapping-" + e.getMessage());
                 throw new ConstraintViolationException(e.getMessage(), e);
             }
-
         }
 
         return createdWidgetsMapping;
