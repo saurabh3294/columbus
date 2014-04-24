@@ -252,9 +252,14 @@ public class ImageService {
 
             String originalHash = ImageUtil.fileMd5Hash(originalFile);
 
-            Long imageId = isImageHashExists(originalHash, objectId, object.getText());
-            if (imageId != null)
-                throw new ResourceAlreadyExistException("Image Already Exists with Id-" + imageId);
+            Image duplicateImage = isImageHashExists(originalHash, objectId, object.getText());
+            if (duplicateImage != null)
+                throw new ResourceAlreadyExistException(
+                        "This Image Already Exists for "+object.getText()+" id-" + duplicateImage.getObjectId()
+                                + " with image id-"
+                                + duplicateImage.getId()
+                                + " under the category of "
+                                + duplicateImage.getImageTypeObj().getType());
 
             // Persist
             Image image = imageDao.insertImage(
@@ -269,7 +274,7 @@ public class ImageService {
             uploadToS3(image, originalFile, processedFile, format);
             imageDao.markImageAsActive(image);
 
-            caching.deleteMultipleResponseFromCache(getImageCacheKey(object, imageTypeStr, objectId));
+            caching.deleteMultipleResponseFromCache(getImageCacheKey(object, imageTypeStr, objectId, image.getId()));
             return image;
         }
         catch (IllegalStateException | IOException e) {
@@ -281,7 +286,8 @@ public class ImageService {
         deleteImageInCache(id);
         imageDao.setActiveFalse(id);
     }
-
+    
+    @Cacheable(value = Constants.CacheName.CACHE, key="'imageId:'+#id")
     public Image getImage(long id) {
         return imageDao.findOne(id);
     }
@@ -292,10 +298,11 @@ public class ImageService {
         caching.deleteMultipleResponseFromCache(getImageCacheKeyFromImageObject(image));
     }
 
-    public String[] getImageCacheKey(DomainObject object, String imageTypeStr, long objectId) {
-        String keys[] = new String[2];
+    public String[] getImageCacheKey(DomainObject object, String imageTypeStr, long objectId, long imageId) {
+        String keys[] = new String[3];
         keys[0] = object.getText() + imageTypeStr + objectId;
-        keys[0] = object.getText() + "null" + objectId;
+        keys[1] = object.getText() + "null" + objectId;
+        keys[2] = "imageId:"+imageId;
 
         return keys;
     }
@@ -308,11 +315,11 @@ public class ImageService {
     private String[] getImageCacheKeyFromImageObject(Image image) {
         DomainObject domainObject = DomainObject.valueOf(image.getImageTypeObj().getObjectType().getType());
 
-        return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId());
+        return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId(), image.getId());
     }
 
-    private Long isImageHashExists(String originalHash, long objectId, String objectType) {
-        List<Long> imageIds = imageDao.getImageOnHashAndObjectIdAndObjectType(originalHash, objectId, objectType);
+    private Image isImageHashExists(String originalHash, long objectId, String objectType) {
+        List<Image> imageIds = imageDao.getImageOnHashAndObjectIdAndObjectType(originalHash, objectId, objectType);
 
         if (imageIds == null || imageIds.isEmpty())
             return null;

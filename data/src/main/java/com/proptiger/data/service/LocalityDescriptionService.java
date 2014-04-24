@@ -46,7 +46,7 @@ public class LocalityDescriptionService {
     private LocalityRatingService   localityRatingService;
 
     @Autowired
-    private LocalityAmenityService  localityAmenityService;
+    private LandMarkService  localityAmenityService;
 
     @Autowired
     private BuilderService          builderService;

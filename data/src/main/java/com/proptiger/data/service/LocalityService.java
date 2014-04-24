@@ -25,17 +25,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.proptiger.data.model.LandMark;
+import com.proptiger.data.model.LandMarkTypes;
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.LocalityAmenity;
-import com.proptiger.data.model.LocalityAmenityTypes;
+
+
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
+import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
+import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
@@ -80,7 +85,7 @@ public class LocalityService {
     private LocalityReviewService      localityReviewService;
 
     @Autowired
-    private LocalityAmenityService     localityAmenityService;
+    private LandMarkService            localityAmenityService;
 
     @Autowired
     private LocalityRatingService      localityRatingService;
@@ -110,13 +115,17 @@ public class LocalityService {
      * @param selector
      * @return List<Locality>
      */
-    public List<Locality> getLocalities(Selector selector) {
-        List<Locality> localities = Lists.newArrayList(localityDao.getLocalities(selector).getResults());
-        for (Locality locality : localities) {
-            updateLocalityRatingAndReviewDetails(locality);
+    public PaginatedResponse<List<Locality>> getLocalities(Selector selector) {
+        PaginatedResponse<List<Locality>> paginatedRes = new PaginatedResponse<List<Locality>>();
+        paginatedRes = localityDao.getLocalities(selector);
+        List<Locality> localities = paginatedRes.getResults();
+        
+        if(localities != null){
+            for (Locality locality : localities) {
+                updateLocalityRatingAndReviewDetails(locality);
+            }
         }
-
-        return localities;
+        return paginatedRes;
     }
 
     /**
@@ -328,7 +337,7 @@ public class LocalityService {
         if (locality == null) {
             return null;
         }
-        List<LocalityAmenity> amenities = localityAmenityService.getLocalityAmenities(localityId, null);
+        List<LandMark> amenities = localityAmenityService.getLocalityAmenities(localityId, null);
         Map<String, Integer> localityAmenityCountMap = getLocalityAmenitiesCount(amenities);
 
         locality.setAmenityTypeCount(localityAmenityCountMap);
@@ -357,11 +366,11 @@ public class LocalityService {
      * @return Map<String, Integer> Here String will represent the amenity type
      *         and the Integer will mean the count of amenities found.
      */
-    private Map<String, Integer> getLocalityAmenitiesCount(List<LocalityAmenity> amenities) {
-        Map<Integer, LocalityAmenityTypes> amenityTypes = amenityTypeService.getLocalityAmenityTypes();
+    private Map<String, Integer> getLocalityAmenitiesCount(List<LandMark> amenities) {
+        Map<Integer, LandMarkTypes> amenityTypes = amenityTypeService.getLocalityAmenityTypes();
         Map<String, Integer> localityAmenityCountMap = new HashMap<>();
-        for (LocalityAmenity amenity : amenities) {
-            LocalityAmenityTypes amenityType = amenityTypes.get(amenity.getPlaceTypeId());
+        for (LandMark amenity : amenities) {
+            LandMarkTypes amenityType = amenityTypes.get(amenity.getPlaceTypeId());
             if (amenityType != null) {
                 Integer count = localityAmenityCountMap.get(amenityType.getDisplayName());
                 if (count == null) {
@@ -420,6 +429,24 @@ public class LocalityService {
      * @return List<Locality>
      */
     public List<Locality> getTopRatedLocalities(Integer cityId, Integer suburbId, Selector selector, Integer imageCount) {
+        return getTopRatedLocalities_(cityId, suburbId, selector, imageCount, null);
+    }
+    
+    /**
+     * This method take a locality id that should be exclude while getting locality for city/suburb
+     * @param cityId
+     * @param suburbId
+     * @param selector
+     * @param imageCount
+     * @param excludeLocalityId
+     * @return
+     */
+    private List<Locality> getTopRatedLocalities_(
+            Integer cityId,
+            Integer suburbId,
+            Selector selector,
+            Integer imageCount,
+            Integer excludeLocalityId) {
         List<Locality> result = null;
         List<Object[]> list = null;
 
@@ -431,6 +458,7 @@ public class LocalityService {
                 cityId,
                 suburbId,
                 propertyReader.getRequiredPropertyAsType(PropertyKeys.MINIMUM_RATING_FOR_TOP_LOCALITY, Double.class),
+                excludeLocalityId,
                 pageable);
 
         /*
@@ -459,8 +487,12 @@ public class LocalityService {
 
             // Sorting localities as lookup screwed the order
             result.clear();
-            for (int localityId: localityIds) {
-                result.add(localities.get(localityId));
+            if(!localities.isEmpty()){
+                for (int localityId: localityIds) {
+                    if(localities.get(localityId) != null){
+                        result.add(localities.get(localityId));
+                    }
+                }
             }
         }
 
@@ -514,20 +546,11 @@ public class LocalityService {
              * locality, and if that is not there then try to find for city of
              * that locality
              */
-            // find in suburb
-            localitiesAroundMainLocality = getTopRatedLocalities(
-                    null,
-                    mainLocality.getSuburbId(),
+            localitiesAroundMainLocality = getTopRatedLocalityFallBackToSuburbCity(
                     localitySelector,
-                    imageCount);
-            if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
-                // find in city
-                localitiesAroundMainLocality = getTopRatedLocalities(
-                        mainLocality.getSuburb().getCityId(),
-                        null,
-                        localitySelector,
-                        imageCount);
-            }
+                    imageCount,
+                    mainLocality,
+                    popularLocalityThresholdCount);
         }
         else {
             /*
@@ -590,6 +613,20 @@ public class LocalityService {
             }
         }
 
+        if(localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount){
+            /*
+             * if locality count is not more than or equal to
+             * popularLocalityThresholdCount then as a fallback first try to
+             * find top rated in suburb of this locality, and if that is not
+             * there then try to find for city of that locality
+             */
+            localitiesAroundMainLocality = getTopRatedLocalityFallBackToSuburbCity(
+                    localitySelector,
+                    imageCount,
+                    mainLocality,
+                    popularLocalityThresholdCount);
+        }
+        
         /*
          * All the localities found in specified radius by taking main locality
          * lat lon as center, now need to filter localities for rating > α
@@ -623,6 +660,36 @@ public class LocalityService {
                 }
             }
 
+        }
+        return localitiesAroundMainLocality;
+    }
+
+    /**
+     * @param localitySelector
+     * @param imageCount
+     * @param mainLocality
+     * @param popularLocalityThresholdCount
+     * @return
+     */
+    private List<Locality> getTopRatedLocalityFallBackToSuburbCity(
+            Selector localitySelector,
+            Integer imageCount,
+            Locality mainLocality,
+            Integer popularLocalityThresholdCount) {
+        List<Locality> localitiesAroundMainLocality;
+        // find in suburb
+        localitiesAroundMainLocality = getTopRatedLocalities_(
+                null,
+                mainLocality.getSuburbId(),
+                localitySelector,
+                imageCount, mainLocality.getLocalityId());
+        if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
+            // find in city
+            localitiesAroundMainLocality = getTopRatedLocalities_(
+                    mainLocality.getSuburb().getCityId(),
+                    null,
+                    localitySelector,
+                    imageCount, mainLocality.getLocalityId());
         }
         return localitiesAroundMainLocality;
     }
@@ -703,6 +770,7 @@ public class LocalityService {
      * @return Map<Integer, Double> Here Integer will number of bedrooms and
      *         Double the average price on that bedroom.
      */
+    @Cacheable(value=Constants.CacheName.CACHE)
     public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType) {
         FIQLSelector selector = new FIQLSelector().addAndConditionToFilter("month==" + currentMonth)
                                                 .addAndConditionToFilter("unitType==" + unitType)
@@ -741,7 +809,13 @@ public class LocalityService {
                 .getLocalityId());
 
         locality.setAverageRating(localityRatingDetails.getAverageRatings());
-        Long totalNumberOfReviews = localityReviewService.getLocalityReviewCount(locality.getLocalityId());
+        Long totalNumberOfReviews = (long)0;
+        PaginatedResponse<List<LocalityReviewComments>> reviews = localityReviewService.getLocalityReview(
+                null,
+                new FIQLSelector().addAndConditionToFilter("localityId==" + locality.getLocalityId()));
+        if(reviews != null){
+            totalNumberOfReviews = reviews.getTotalCount();
+        }
         /*
          * Setting total rating counts
          */
@@ -983,10 +1057,24 @@ public class LocalityService {
         String json = "{\"filters\":{\"and\":[{\"equal\":{\"localityId\":[" + StringUtils.join(localityIds, ',')
                 + "]}}]}}";
 
-        return getLocalities(new Gson().fromJson(json, Selector.class));
+        return getLocalities(new Gson().fromJson(json, Selector.class)).getResults();
     }
 
     public PaginatedResponse<List<Locality>> getLocalities(FIQLSelector selector) {
         return localityDao.getLocalities(selector);
+    }
+
+    public List<Locality> getLocalitiesOnCityOrSuburb(DomainObject domainObject, int domainId, Paging paging) {
+        String jsonSelector = "{\"filters\":{\"and\":[{\"equal\":{\"" + domainObject.name()
+                + "Id\":"
+                + domainId
+                + "}}]}, \"paging\":{\"start\":"
+                + paging.getStart()
+                + ",\"rows\":"
+                + paging.getRows()
+                + "}}";
+        
+        Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
+        return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
     }
 }

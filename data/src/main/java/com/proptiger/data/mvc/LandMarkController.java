@@ -13,19 +13,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.pojo.ProAPISuccessResponse;
-import com.proptiger.data.service.LocalityAmenityService;
+import com.proptiger.data.service.LandMarkService;
 
 /**
  * 
  * @author mukand
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/locality")
-public class LocalityAmenityController extends BaseController {
+@RequestMapping(value = "data/v1/entity/")
+public class LandMarkController extends BaseController {
     @Autowired
-    private LocalityAmenityService localityAmenityService;
+    private LandMarkService localityAmenityService;
 
-    @RequestMapping(value = "{id}/amenity", method = RequestMethod.GET)
+    @RequestMapping(value = "locality/{id}/amenity", method = RequestMethod.GET)
     @ResponseBody
     public Object getAmenitiesByLocalityIdAndAmenity(@PathVariable("id") int localityId, @RequestParam(
             value = "amenity",

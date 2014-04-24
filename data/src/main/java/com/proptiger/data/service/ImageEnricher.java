@@ -2,13 +2,13 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
@@ -17,6 +17,7 @@ import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
+import com.proptiger.data.util.ImageUtil;
 
 @Service
 public class ImageEnricher {
@@ -68,8 +69,7 @@ public class ImageEnricher {
 
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
 
-        if (images == null)
-            return;
+        images = checkAndInsertProjectMainImageRandom(images, project.getImageURL());
 
         project.setImages(images);
     }
@@ -81,14 +81,7 @@ public class ImageEnricher {
 
         List<Image> images = imageService.getImages(DomainObject.project, null, project.getProjectId());
 
-        if (images != null) {
-            for (Image image : images) {
-                if (image.getImageTypeObj().getType().equals("main")) {
-                    project.setImageURL(image.getAbsolutePath());
-                    break;
-                }
-            }
-        }
+        images = checkAndInsertProjectMainImageRandom(images, project.getImageURL());
 
         project.setImages(images);
 
@@ -147,8 +140,9 @@ public class ImageEnricher {
     }
 
     /**
-     * Populate images of Locality, in case imagecount is null then populate all images
-     * present in locality, caller need not to check null conditions
+     * Populate images of Locality, in case imagecount is null then populate all
+     * images present in locality, caller need not to check null conditions
+     * 
      * @param locality
      * @param numberOfImages
      */
@@ -160,7 +154,7 @@ public class ImageEnricher {
         if (images != null && images.size() > 0) {
             locality.setImageCount(images.size());
 
-            if (numberOfImages == null || numberOfImages < 0 || numberOfImages > images.size()){
+            if (numberOfImages == null || numberOfImages < 0 || numberOfImages > images.size()) {
                 numberOfImages = images.size();
             }
 
@@ -201,6 +195,55 @@ public class ImageEnricher {
             }
         }
 
+    }
+
+    /**
+     * If the project does not contain any images or image list does not have
+     * main image then random image is being inserted at the first index as It
+     * is ensured that main image will come at top.
+     * 
+     * @param images
+     * @param mainImageURL
+     * @return
+     */
+    private List<Image> checkAndInsertProjectMainImageRandom(List<Image> images, String mainImageURL) {
+        if (images == null) {
+            images = new ArrayList<Image>();
+        }
+
+        if (images.isEmpty() || !images.get(0).getImageTypeObj().getType().equals("main")) {
+            Image image = getProjectRandomMainImage(mainImageURL);
+            if (image != null) {
+                images.add(0, image);
+            }
+        }
+
+        return images;
+    }
+
+    /**
+     * In the case when the project does not contain the main image. A random
+     * image is inserted into the project in the solr in the form of image path.
+     * From the image path, the image id, watermark name and path is extracted
+     * and inserted into the new image object. Sample Image URL: 1/4/6/111.jpeg
+     * => 1/4/6/ is Path, 111.jpeg is watermark name and 111 is Image Id.
+     * 
+     * @param projectMainUrl
+     * @return
+     */
+    private Image getProjectRandomMainImage(String projectMainUrl) {
+        if (projectMainUrl == null || projectMainUrl.isEmpty())
+            return null;
+
+        int index1 = projectMainUrl.lastIndexOf('/');
+        int index2 = projectMainUrl.lastIndexOf('.');
+        long imageId = Long.parseLong(projectMainUrl.substring(index1 + 1, index2));
+
+        String endpoint = ImageUtil.getImageEndpoint(imageId);
+        String path = projectMainUrl.substring(endpoint.length() + 1, index1 + 1);
+        String waterMarkName = projectMainUrl.substring(index1 + 1);
+
+        return imageService.getImage(imageId);
     }
 
 }

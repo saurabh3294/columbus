@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.data.model.City;
-import com.proptiger.data.model.LocalityAmenity;
+import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.enums.DomainObject;
+import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.CityDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
@@ -29,19 +30,19 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class CityService {
     @Autowired
-    private CityDao                cityDao;
+    private CityDao         cityDao;
 
     @Autowired
-    private LocalityService        localityService;
-    
-    @Autowired
-    private ProjectService projectService;
+    private LocalityService localityService;
 
     @Autowired
-    private ImageService imageService;
+    private ProjectService  projectService;
 
     @Autowired
-    private LocalityAmenityService localityAmenityService;
+    private ImageService    imageService;
+
+    @Autowired
+    private LandMarkService localityAmenityService;
 
     /**
      * Get list of city details
@@ -69,29 +70,32 @@ public class CityService {
         }
         updateAirportInfo(city);
         updateProjectCountAndStatusCount(city);
-        city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise("cityId", cityId, city.getDominantUnitType()));
+        city.setAvgBHKPricePerUnitArea(localityService.getAvgPricePerUnitAreaBHKWise(
+                "cityId",
+                cityId,
+                city.getDominantUnitType()));
         city.setImages(imageService.getImages(DomainObject.city, null, cityId));
         return city;
     }
 
-    public City getCity(Integer cityId){
+    public City getCity(Integer cityId) {
         City city = cityDao.getCity(cityId);
         if (city == null) {
-           throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
+            throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
         }
         return city;
     }
-    
+
     /**
      * Updating total projects in city
+     * 
      * @param city
      */
     private void updateProjectCountAndStatusCount(City city) {
-        Selector selector = new Gson().fromJson(
-                "{\"filters\":{\"and\":[{\"equal\":{\"cityId\":" + city.getId() + "}}]}, \"paging\":{\"start\":0,\"rows\":0}}",
-                Selector.class);
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"cityId\":" + city.getId()
+                + "}}]}, \"paging\":{\"start\":0,\"rows\":0}}", Selector.class);
         PaginatedResponse<List<Project>> response = projectService.getProjects(selector);
-        if(response != null){
+        if (response != null) {
             city.setProjectCount(response.getTotalCount());
         }
         Map<String, Long> projectStatusCount = projectService.getProjectStatusCount(selector);
@@ -118,9 +122,10 @@ public class CityService {
      */
     private void updateAirportInfo(City city) {
         if (city != null) {
-            List<LocalityAmenity> amenities = localityAmenityService.getCityAmenities(
+            List<LandMark> amenities = localityAmenityService.getLandMarksByCity(
                     city.getId(),
-                    Constants.AmenityName.AIRPORT);
+                    Constants.AmenityName.AIRPORT,
+                    new Paging(0, 10));
             city.setAmenities(amenities);
         }
     }

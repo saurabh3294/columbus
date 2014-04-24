@@ -162,11 +162,13 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestParam(required = false, defaultValue = "true", value = "loan") Boolean interestedToLoan,
+            @RequestParam(required = false, value = "loanType") String loanType,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         PortfolioListing listing = portfolioService.interestedToHomeLoan(
                 userInfo.getUserIdentifier(),
                 listingId,
-                interestedToLoan);
+                interestedToLoan,
+                loanType);
         return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
     }
 

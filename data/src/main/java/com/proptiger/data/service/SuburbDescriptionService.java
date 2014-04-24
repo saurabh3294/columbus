@@ -39,7 +39,7 @@ public class SuburbDescriptionService {
     private LocalityService         localityService;
     
     @Autowired
-    private LocalityAmenityService  localityAmenityService;
+    private LandMarkService  localityAmenityService;
     
     @Autowired
     private BuilderService          builderService;
@@ -92,7 +92,7 @@ public class SuburbDescriptionService {
         suburbSelector.setPaging(paging);
         Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"suburbId\":" + suburb.getId()
                 + "}}]}}", Selector.class);
-        map.put("localitiesInSuburb", localityService.getLocalities(selector));
+        map.put("localitiesInSuburb", localityService.getLocalities(selector).getResults());
 
         map.put("topBuilders", builderService.getTopBuilders(selector));
         map.put("amenities", localityAmenityService.getSuburbAmenities(suburb.getId()));

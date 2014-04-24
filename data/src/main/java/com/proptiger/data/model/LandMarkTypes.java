@@ -20,14 +20,14 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  * @author mukand
  */
 @Entity
-@Table(name = "NEAR_PLACE_TYPES")
+@Table(name = "cms.landmark_types")
 @ResourceMetaInfo
 @JsonAutoDetect(
         fieldVisibility = JsonAutoDetect.Visibility.ANY,
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class LocalityAmenityTypes extends BaseModel {
+public class LandMarkTypes extends BaseModel {
 
     private static final long serialVersionUID = -5130354389286165685L;
 

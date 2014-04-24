@@ -146,10 +146,12 @@ public class BuilderService {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
         List<Builder> topBuilders = new ArrayList<>();
-        for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
-            for (Group group : groupCommand.getValues()) {
-                List<Builder> builders = convertBuilder(group.getResult());
-                topBuilders.add(builders.get(0));
+        if(queryResponse.getGroupResponse() != null){
+            for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
+                for (Group group : groupCommand.getValues()) {
+                    List<Builder> builders = convertBuilder(group.getResult());
+                    topBuilders.add(builders.get(0));
+                }
             }
         }
 
@@ -157,8 +159,8 @@ public class BuilderService {
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
         PaginatedResponse<List<Builder>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(builders);
-
-        if (queryResponse.getGroupResponse() != null && !queryResponse.getGroupResponse().getValues().isEmpty()) {
+        if (queryResponse != null && queryResponse.getGroupResponse() != null
+                && !queryResponse.getGroupResponse().getValues().isEmpty()) {
             paginatedResponse.setTotalCount(queryResponse.getGroupResponse().getValues().get(0).getNGroups());
         }
 

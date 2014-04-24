@@ -351,9 +351,10 @@ public class PropertyDao {
             String unitType,
             List<Object> projectStatus,
             int limit,
-            List<Object> propertyIds,
+            List<Object> excludeProjectIdBedrooms,
             Double budget,
-            int projectId) {
+            int projectId,
+            List<Object> excludeProjects) {
         SolrQuery solrQuery = createSolrQuery(null);
 
         // TODO to remove the hardcoding the Property class variable Names like
@@ -365,8 +366,10 @@ public class PropertyDao {
 
         if (minArea > 0 && maxArea > 0)
             propertySolrQueryBuilder.addRangeFilter("size", minArea, maxArea);
-        if (propertyIds.size() > 0)
-            propertySolrQueryBuilder.addNotEqualsFilter("projectIdBedroom", propertyIds);
+        if (excludeProjectIdBedrooms.size() > 0)
+            propertySolrQueryBuilder.addNotEqualsFilter("projectIdBedroom", excludeProjectIdBedrooms);
+        if (excludeProjects.size() > 0)
+            propertySolrQueryBuilder.addNotEqualsFilter("projectId", excludeProjects);
 
         SolrQueryBuilder<Property> projectSolrQueryBuilder = new SolrQueryBuilder(solrQuery, Project.class);
         if (latitude != null && longitude != null) {

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.PersistenceException;
+import javax.persistence.Table;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,7 @@ import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.ResourceType;
@@ -126,6 +128,9 @@ public class PortfolioService extends AbstractService {
 
     @Autowired
     private CityService               cityService;
+
+    @Autowired
+    private SubscriptionService       subscriptionService;
 
     /**
      * Get portfolio object for a particular user id
@@ -540,6 +545,10 @@ public class PortfolioService extends AbstractService {
         PortfolioListing created = create(listing);
         created = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, created.getId(), false);
         updateOtherSpecificData(created);
+
+        subscriptionService.enableOrAddUserSubscription(userId, listing.getListingId(), PortfolioListing.class
+                .getAnnotation(Table.class).name(), Constants.SubscriptionType.PORTFOLIO);
+
         return created;
     }
 
@@ -700,6 +709,9 @@ public class PortfolioService extends AbstractService {
         propertyPresent.setDeleted_flag(true);
         propertyPresent.setReason(reason);
 
+        subscriptionService.disableSubscription(userId, listingId, PortfolioListing.class.getAnnotation(Table.class)
+                .name(), Constants.SubscriptionType.PORTFOLIO);
+
         return propertyPresent;
     }
 
@@ -809,10 +821,15 @@ public class PortfolioService extends AbstractService {
      * @param userId
      * @param listingId
      * @param interestedToLoan
+     * @param loanType
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
-    public PortfolioListing interestedToHomeLoan(Integer userId, Integer listingId, Boolean interestedToLoan) {
+    public PortfolioListing interestedToHomeLoan(
+            Integer userId,
+            Integer listingId,
+            Boolean interestedToLoan,
+            String loanType) {
         logger.debug(
                 "Updating loan intereset for user id {} and listing id {} with loan interest {}",
                 userId,
@@ -823,7 +840,7 @@ public class PortfolioService extends AbstractService {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
-        updateLoanInterest(userId, listingId, interestedToLoan, listing);
+        updateLoanInterest(userId, listingId, interestedToLoan, listing, loanType);
         updateOtherSpecificData(listing);
         sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_USER);
         sendMail(userId, listing, MailType.LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL);
@@ -900,9 +917,11 @@ public class PortfolioService extends AbstractService {
             Integer userId,
             Integer listingId,
             Boolean interestedToLoan,
-            PortfolioListing listing) {
+            PortfolioListing listing,
+            String loanType) {
         listing.setInterestedToLoan(interestedToLoan);
         listing.setInterestedToLoanOn(new Date());
+        listing.setLoanType(loanType);
         return listing;
     }
 
