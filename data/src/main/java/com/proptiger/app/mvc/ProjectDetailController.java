@@ -154,13 +154,7 @@ public class ProjectDetailController extends BaseController {
     public @ResponseBody
     ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId)
             throws Exception {
-        Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
-        if (projectSelector == null) {
-            projectSelector = new Selector();
-        }
-
-        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-        return new ProAPISuccessResponse(super.filterFields(project, projectSelector.getFields()));
+        return getProjectDetailsV2(projectId, selector);
     }
 
     @RequestMapping(value = { "app/v2/project-detail/{projectId}" })
@@ -178,7 +172,7 @@ public class ProjectDetailController extends BaseController {
          * Setting project Specification if needed.
          */
         Set<String> fields = projectSelector.getFields();
-        if (fields == null || fields.contains("projectSpecification")) {
+        if (fields == null || fields.contains("specifications")) {
             project.setProjectSpecification(projectService.getProjectSpecificationsV2(projectId));
         }
 
