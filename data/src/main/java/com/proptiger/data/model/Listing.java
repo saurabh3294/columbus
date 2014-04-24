@@ -1,18 +1,26 @@
 package com.proptiger.data.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.data.model.b2b.STATUS;
 
 /**
  * 
@@ -24,13 +32,15 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 @Table(name = "cms.listings")
 @JsonFilter("fieldFilter")
 public class Listing extends BaseModel {
-    private static final long serialVersionUID = 1L;
+    private static final long   serialVersionUID = 1L;
 
     @Id
-    @Column(name = "id")
-    private Integer           id;
+    private Integer             id;
 
-    @ManyToOne
+    @Column(name = "option_id")
+    private Integer             propertyId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "option_id",
             referencedColumnName = "TYPE_ID",
@@ -38,17 +48,18 @@ public class Listing extends BaseModel {
             updatable = false,
             nullable = true)
     @NotFound(action = NotFoundAction.IGNORE)
-    private Property          property;
+    private Property            property;
 
     @Column(name = "phase_id")
-    private Integer           phaseId;
+    private Integer             phaseId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String            status;
+    private STATUS              status;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id", referencedColumnName = "listing_id")
-    private ProjectSupply     projectSupply;
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "listingId", cascade = CascadeType.ALL)
+    private List<ProjectSupply> projectSupply;
 
     public Integer getId() {
         return id;
@@ -56,6 +67,14 @@ public class Listing extends BaseModel {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getPropertyId() {
+        return propertyId;
+    }
+
+    public void setPropertyId(Integer propertyId) {
+        this.propertyId = propertyId;
     }
 
     public Property getProperty() {
@@ -74,19 +93,23 @@ public class Listing extends BaseModel {
         this.phaseId = phaseId;
     }
 
-    public String getStatus() {
+    public STATUS getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(STATUS status) {
         this.status = status;
     }
 
-    public ProjectSupply getProjectSupply() {
+    public List<ProjectSupply> getProjectSupply() {
         return projectSupply;
     }
 
-    public void setProjectSupply(ProjectSupply projectSupply) {
+    public void setProjectSupply(List<ProjectSupply> projectSupply) {
         this.projectSupply = projectSupply;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
     }
 }

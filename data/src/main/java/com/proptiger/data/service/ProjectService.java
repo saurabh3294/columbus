@@ -164,7 +164,7 @@ public class ProjectService {
 
         Project project = solrProjects.get(0);
 
-        List<Property> properties = propertyService.getProperties(projectId);
+        List<Property> properties = propertyService.getPropertiesForProject(projectId);
         for (int i = 0; i < properties.size(); i++) {
             Property property = properties.get(i);
             Double pricePerUnitArea = property.getPricePerUnitArea();

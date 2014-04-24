@@ -981,7 +981,7 @@ public class PortfolioService extends AbstractService {
      * @return
      */
     private ListingResaleMail createListingResaleMailObj(PortfolioListing listing) {
-        List<Property> properties = propertyService.getProperties(listing.getProperty().getProjectId());
+        List<Property> properties = propertyService.getPropertiesForProject(listing.getProperty().getProjectId());
         StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty(PROPTIGER_URL));
         if (properties != null && !properties.isEmpty()) {
             Property required = null;

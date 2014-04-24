@@ -78,7 +78,7 @@ public class ProjectDetailController extends BaseController {
             propertyDetailsSelector = new Selector();
         }
 
-        List<Property> properties = propertyService.getProperties(projectId);
+        List<Property> properties = propertyService.getPropertiesForProject(projectId);
         ProjectSpecification projectSpecification = projectService.getProjectSpecificationsV2(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);

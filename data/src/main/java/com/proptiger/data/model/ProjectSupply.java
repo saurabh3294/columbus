@@ -35,6 +35,9 @@ public class ProjectSupply extends BaseModel {
     @Id
     private Integer                   id;
 
+    @Column(name = "listing_id")
+    private Integer                   listingId;
+
     @Enumerated(EnumType.STRING)
     private DataVersion               version;
 
@@ -54,7 +57,7 @@ public class ProjectSupply extends BaseModel {
     @Column(name = "updated_at")
     private Date                      updatedAt;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "projectSupplyId", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "projectSupplyId", cascade = CascadeType.ALL)
     private List<ProjectAvailability> availabilities;
 
     public Integer getId() {
@@ -63,6 +66,14 @@ public class ProjectSupply extends BaseModel {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getListingId() {
+        return listingId;
+    }
+
+    public void setListingId(Integer listingId) {
+        this.listingId = listingId;
     }
 
     public DataVersion getVersion() {
@@ -127,5 +138,9 @@ public class ProjectSupply extends BaseModel {
 
     public void setAvailabilities(List<ProjectAvailability> availabilities) {
         this.availabilities = availabilities;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
     }
 }

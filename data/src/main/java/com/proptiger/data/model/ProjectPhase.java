@@ -2,7 +2,9 @@ package com.proptiger.data.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,66 +13,116 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.b2b.STATUS;
 import com.proptiger.data.model.enums.DataVersion;
 import com.proptiger.data.model.enums.EntityType;
+import com.proptiger.data.repo.ProjectSecondaryPriceDao.SecondaryPriceForUnitType;
 
-@ResourceMetaInfo
+/**
+ * Model for project phases
+ * 
+ * @author azi
+ * 
+ */
+
 @JsonInclude(Include.NON_NULL)
 @Entity
 @JsonFilter("fieldFilter")
 @Table(name = "cms.resi_project_phase")
 public class ProjectPhase extends BaseModel {
-    private static final long serialVersionUID = 1L;
+    private static final long               serialVersionUID = 1L;
 
     @Id
     @Column(name = "PHASE_ID")
-    private Integer           phaseId;
+    private Integer                         phaseId;
 
     @Enumerated(EnumType.STRING)
-    private DataVersion       version;
+    private DataVersion                     version;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "PHASE_TYPE")
-    private EntityType        phaseType;
+    private EntityType                      phaseType;
 
     @Column(name = "PROJECT_ID")
-    private Integer           projectId;
+    private Integer                         projectId;
 
     @Column(name = "PHASE_NAME")
-    private String            phaseName;
+    private String                          phaseName;
 
     @Column(name = "LAUNCH_DATE")
-    private Date              launchDate;
+    private Date                            launchDate;
 
     @Column(name = "COMPLETION_DATE")
-    private Date              completionDate;
+    private Date                            completionDate;
 
     @Column(name = "REMARKS")
-    private String            remarks;
+    private String                          remarks;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private STATUS            status;
+    private STATUS                          status;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BOOKING_STATUS_ID", referencedColumnName = "id")
+    private BookingStatus                   bookingStatus;
 
     @Column(name = "updated_by")
-    private Integer           updatedBy;
+    private Integer                         updatedBy;
 
     @Column(name = "created_at")
-    private Date              createdAt;
+    private Date                            createdAt;
 
     @Column(name = "updated_at")
-    private Date              updatedAt;
+    private Date                            updatedAt;
 
+    @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "phaseId", cascade = CascadeType.ALL)
-    private List<Listing>     listings         = new ArrayList<>();
+    private List<Listing>                   listings         = new ArrayList<>();
+
+    @Transient
+    private List<Property>                  properties       = new ArrayList<>();
+
+    @Transient
+    private Integer                         supply           = 0;
+
+    @Transient
+    private Integer                         launchedUnit     = 0;
+
+    @Transient
+    private Integer                         sumAvailability;
+
+    @Transient
+    private List<SecondaryPriceForUnitType> secondaryPrices;
+
+    @PostLoad
+    private void populatePostLoadAttributes() {
+        for (Listing listing : listings) {
+            if (listing.getStatus().equals(STATUS.Active)) {
+                // Property property = listing.getProperty();
+                // if (property != null) {
+                // this.properties.add(property);
+                // }
+                List<ProjectSupply> supplies = listing.getProjectSupply();
+                for (ProjectSupply projectSupply : supplies) {
+                    if (projectSupply.getVersion().equals(this.version)) {
+                        this.supply += projectSupply.getSupply();
+                        this.launchedUnit += projectSupply.getLaunchedUnit();
+                    }
+                }
+            }
+        }
+    }
 
     public Integer getPhaseId() {
         return phaseId;
@@ -144,6 +196,14 @@ public class ProjectPhase extends BaseModel {
         this.status = status;
     }
 
+    public BookingStatus getBookingStatus() {
+        return bookingStatus;
+    }
+
+    public void setBookingStatus(BookingStatus bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
+
     public Integer getUpdatedBy() {
         return updatedBy;
     }
@@ -174,5 +234,69 @@ public class ProjectPhase extends BaseModel {
 
     public void setListings(List<Listing> listings) {
         this.listings = listings;
+    }
+
+    public List<Property> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
+    }
+
+    public Integer getSupply() {
+        return supply;
+    }
+
+    public void setSupply(Integer supply) {
+        this.supply = supply;
+    }
+
+    public Integer getLaunchedUnit() {
+        return launchedUnit;
+    }
+
+    public void setLaunchedUnit(Integer launchedUnit) {
+        this.launchedUnit = launchedUnit;
+    }
+
+    public Integer getSumAvailability() {
+        return sumAvailability;
+    }
+
+    public void setSumAvailability(Integer sumAvailability) {
+        this.sumAvailability = sumAvailability;
+    }
+
+    public List<SecondaryPriceForUnitType> getSecondaryPrices() {
+        return secondaryPrices;
+    }
+
+    public void setSecondaryPrices(List<SecondaryPriceForUnitType> secondaryPrices) {
+        this.secondaryPrices = secondaryPrices;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
+
+    public Set<Integer> getSupplyIds() {
+        Set<Integer> supplyIds = new HashSet<>();
+        for (Listing listing : this.listings) {
+            for (ProjectSupply projectSupply : listing.getProjectSupply()) {
+                if (projectSupply.getVersion().equals(this.version)) {
+                    supplyIds.add(projectSupply.getId());
+                }
+            }
+        }
+        return supplyIds;
+    }
+
+    public Set<Integer> getPropertyIds() {
+        Set<Integer> propertyIds = new HashSet<>();
+        for (Listing listing : this.listings) {
+            propertyIds.add(listing.getPropertyId());
+        }
+        return propertyIds;
     }
 }
