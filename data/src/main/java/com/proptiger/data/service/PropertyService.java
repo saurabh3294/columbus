@@ -124,7 +124,9 @@ public class PropertyService {
         selector.setFilters(filter);
         selector.setPaging(new Paging(0, Integer.MAX_VALUE));
 
-        return propertyDao.getProperties(selector);
+        List<Property> properties = propertyDao.getProperties(selector);
+        imageEnricher.setPropertiesImages(properties);
+        return properties;
     }
 
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {

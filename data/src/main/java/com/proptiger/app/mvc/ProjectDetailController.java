@@ -96,8 +96,6 @@ public class ProjectDetailController extends BaseController {
         Double resalePrice;
         if (properties.size() > 0) {
             listLocalityAmenity = localityAmenityService.getLandMarksForProject(properties.get(0).getProject(), null, null);
-            // setting images.
-            imageEnricher.setPropertiesImages(properties);
             Property property;
             projectInfo.setImageURL(properties.get(0).getProject().getImageURL());
             for (int i = 0; i < properties.size(); i++) {

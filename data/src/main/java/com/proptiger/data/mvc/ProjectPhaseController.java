@@ -31,7 +31,7 @@ public class ProjectPhaseController extends BaseController {
         }
         return new ProAPISuccessResponse(super.filterFields(
                 projectPhaseService.getPhaseDetailsForProject(projectId, version),
-                selector.getFieldsSet()));
+                selector.getFieldSet()));
     }
 
     @RequestMapping("data/v1/entity/project/{projectId}/phase/{phaseId}")
@@ -43,6 +43,6 @@ public class ProjectPhaseController extends BaseController {
         }
         return new ProAPISuccessResponse(super.filterFields(
                 projectPhaseService.getPhaseDetail(projectId, phaseId, version),
-                selector.getFieldsSet()));
+                selector.getFieldSet()));
     }
 }

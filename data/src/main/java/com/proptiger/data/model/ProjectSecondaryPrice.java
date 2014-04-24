@@ -120,8 +120,4 @@ public class ProjectSecondaryPrice extends BaseModel {
     public static long getSerialversionuid() {
         return serialVersionUID;
     }
-
-    public static class SecondaryPriceForUnitType {
-        private Integer pricePerUnitArea;
-    }
 }

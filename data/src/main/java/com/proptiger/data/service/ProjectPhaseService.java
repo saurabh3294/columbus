@@ -16,7 +16,6 @@ import com.proptiger.data.model.enums.EntityType;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.ProjectAvailabilityDao;
 import com.proptiger.data.repo.ProjectPhaseDao;
-import com.proptiger.data.repo.ProjectSecondaryPriceDao;
 import com.proptiger.exception.ResourceNotFoundException;
 
 /**
@@ -28,38 +27,35 @@ import com.proptiger.exception.ResourceNotFoundException;
 @Service
 public class ProjectPhaseService {
     @Autowired
-    private ProjectPhaseDao          projectPhaseDao;
+    private ProjectPhaseDao        projectPhaseDao;
 
     @Autowired
-    private ProjectAvailabilityDao   projectAvailabilityDao;
+    private ProjectAvailabilityDao projectAvailabilityDao;
 
     @Autowired
-    private ProjectSecondaryPriceDao projectSecondaryPriceDao;
-
-    @Autowired
-    private PropertyService          propertyService;
+    private PropertyService        propertyService;
 
     public ProjectPhase getPhaseDetail(Integer projectId, Integer phaseId, DataVersion version) {
         FIQLSelector selector = new FIQLSelector();
-        selector.addAndConditionToFilter("phaseId==" + phaseId).addAndConditionToFilter("projectId==" + projectId)
-                .addAndConditionToFilter("version==" + version).addAndConditionToFilter("status==" + STATUS.Active);
-        List<ProjectPhase> phases = getPhaseDetailsFromFiql(selector);
-        if (phases.size() == 0) {
-            throw new ResourceNotFoundException("PhaseId Not Found");
-        }
+        selector.addAndConditionToFilter("phaseId==" + phaseId);
+        List<ProjectPhase> phases = getPhaseDetailsFromFiql(selector, projectId, version);
         return phases.get(0);
     }
 
     public List<ProjectPhase> getPhaseDetailsForProject(Integer projectId, DataVersion version) {
         FIQLSelector selector = new FIQLSelector();
-        selector.addAndConditionToFilter("projectId==" + projectId).addAndConditionToFilter("version==" + version)
-                .addAndConditionToFilter("status==" + STATUS.Active);
-        return getPhaseDetailsFromFiql(selector);
+        return getPhaseDetailsFromFiql(selector, projectId, version);
     }
 
-    public List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector) {
-        return populateProperties(populateAvailabilities(removeInvalidPhases(projectPhaseDao
-                .getFilteredPhases(selector))));
+    private List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version) {
+        List<ProjectPhase> phases = populateProperties(populateAvailabilities(removeInvalidPhases(projectPhaseDao
+                .getFilteredPhases(selector.addAndConditionToFilter("status==" + STATUS.Active)
+                        .addAndConditionToFilter("version==" + version)
+                        .addAndConditionToFilter("projectId==" + projectId)))));
+        if (phases.size() == 0) {
+            throw new ResourceNotFoundException("PhaseId Not Found");
+        }
+        return phases;
     }
 
     private List<ProjectPhase> removeInvalidPhases(List<ProjectPhase> phases) {
@@ -94,13 +90,6 @@ public class ProjectPhaseService {
         return phases;
     }
 
-    private List<ProjectPhase> populateSecondaryPrice(List<ProjectPhase> phases) {
-        for (ProjectPhase phase : phases) {
-            phase.setSecondaryPrices(projectSecondaryPriceDao.getSecondaryPriceForPhase(phase.getPhaseId()));
-        }
-        return phases;
-    }
-
     private List<ProjectPhase> populateProperties(List<ProjectPhase> phases) {
         if (phases.size() > 0) {
             List<Property> properties = removeProjectFromProperties(propertyService.getPropertiesForProject(phases.get(
@@ -113,7 +102,6 @@ public class ProjectPhaseService {
                         phaseProperties.add(property);
                     }
                 }
-
                 phase.setProperties(phaseProperties);
             }
         }

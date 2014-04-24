@@ -164,9 +164,9 @@ public class FIQLSelector implements Cloneable, Serializable {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
-    public Set<String> getFieldsSet() {
+    public Set<String> getFieldSet() {
         Set<String> result = new HashSet<>();
-        if(this.fields != null){
+        if (this.fields != null && !this.fields.trim().isEmpty()) {
             result = new HashSet<>(Arrays.asList(this.fields.split(",")));
         }
         return result;

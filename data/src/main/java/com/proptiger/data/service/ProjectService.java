@@ -198,7 +198,6 @@ public class ProjectService {
          */
         if (fields == null || fields.contains("properties")) {
             project.setProperties(properties);
-            imageEnricher.setPropertiesImages(properties);
         }
 
         /*
