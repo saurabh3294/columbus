@@ -168,6 +168,11 @@ public class ProjectDiscussionsService {
         while (it.hasNext()) {
             projectDiscussions = it.next();
             parentId = projectDiscussions.getParentId();
+
+            if (!projectDiscussions.getUser().getUsername().equals("proptiger")) {
+                projectDiscussions.setAdminUserName(projectDiscussions.getUser().getUsername());
+            }
+
             if (parentId > 0) {
                 projectDiscussionsList = parentChildComments.get(parentId);
                 if (projectDiscussionsList == null) {

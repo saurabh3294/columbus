@@ -11,9 +11,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
@@ -24,6 +28,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 @Table(name = "FORUM_USER")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class ForumUser extends BaseModel {
 
     private static final long serialVersionUID = 6769127512697320945L;
@@ -81,6 +86,11 @@ public class ForumUser extends BaseModel {
     @Column(name = "UNSUBSCRIBED_AT")
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date              unsubscribedAt;
+
+    @JsonProperty
+    public String getImageUrl() {
+        return this.fbImageUrl + this.image;
+    }
 
     public Integer getUserId() {
         return userId;

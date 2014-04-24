@@ -38,7 +38,7 @@ public class LandMarkDaoImpl {
                 localityAmenitiesList.add(localityAmenityResult.getLocalityAmenity());
             }
         }
-
+        
         return localityAmenitiesList;
     }
 
