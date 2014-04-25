@@ -164,7 +164,7 @@ public class ProjectService {
 
         Project project = solrProjects.get(0);
 
-        List<Property> properties = propertyService.getProperties(projectId);
+        List<Property> properties = propertyService.getPropertiesForProject(projectId);
         for (int i = 0; i < properties.size(); i++) {
             Property property = properties.get(i);
             Double pricePerUnitArea = property.getPricePerUnitArea();
@@ -198,7 +198,6 @@ public class ProjectService {
          */
         if (fields == null || fields.contains("properties")) {
             project.setProperties(properties);
-            imageEnricher.setPropertiesImages(properties);
         }
 
         /*
@@ -211,7 +210,7 @@ public class ProjectService {
         /*
          * Setting project Specification if needed.
          */
-        if (fields == null || fields.contains("projectSpecification")) {
+        if (fields == null || fields.contains("specifications")) {
             project.setProjectSpecification(this.getProjectSpecificationsV3(projectId));
         }
 

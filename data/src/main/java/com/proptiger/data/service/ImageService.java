@@ -255,8 +255,8 @@ public class ImageService {
             Image duplicateImage = isImageHashExists(originalHash, objectId, object.getText());
             if (duplicateImage != null)
                 throw new ResourceAlreadyExistException(
-                        "This Image Already Exists for Project Id-" + duplicateImage.getObjectId()
-                                + " with Image Id-"
+                        "This Image Already Exists for "+object.getText()+" id-" + duplicateImage.getObjectId()
+                                + " with image id-"
                                 + duplicateImage.getId()
                                 + " under the category of "
                                 + duplicateImage.getImageTypeObj().getType());

@@ -2,10 +2,15 @@ package com.proptiger.data.internal.dto;
 
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
+import com.proptiger.data.model.portfolio.Dashboard.DashboardType;
 
 /**
  * This POJO acts as a data transfer object for Dashboard object
@@ -20,6 +25,10 @@ public class DashboardDto {
 
     @FieldMetaInfo(displayName = "Dashboard Name", description = "Dashboard Name")
     private String                       name;
+    
+    @Column(name = "dashboard_type")
+    @Enumerated(EnumType.STRING)
+    private DashboardType                       dashboardType = DashboardType.PORTFOLIO ;   // whether portfolio or b2b where portfolio is default 
 
     @FieldMetaInfo(displayName = "Total Rows", description = "Total Rows")
     private int                          totalRow;
@@ -121,6 +130,20 @@ public class DashboardDto {
      */
     public void setWidgets(List<DashboardWidgetMapping> widgets) {
         this.widgets = widgets;
+    }
+    
+    /**
+     * @return dashboardType
+     */
+    public DashboardType getDashboardType() {
+        return dashboardType;
+    }
+
+    /**
+     * @param dashboardType
+     */
+    public void setDashboardType(DashboardType dashboardType) {
+        this.dashboardType = dashboardType;
     }
 
 }
