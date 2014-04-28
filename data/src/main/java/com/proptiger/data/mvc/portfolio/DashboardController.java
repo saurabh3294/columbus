@@ -16,6 +16,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.mvc.BaseController;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
@@ -45,8 +46,9 @@ public class DashboardController extends BaseController {
     @ResponseBody
     public ProAPIResponse getDashboards(
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        List<Dashboard> result = dashboardService.getAllByUserId(userInfo.getUserIdentifier());
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @ModelAttribute FIQLSelector fiqlSelector) {
+        List<Dashboard> result = dashboardService.getAllByUserIdAndType(userInfo.getUserIdentifier(), fiqlSelector);
         return new ProAPISuccessCountResponse(result, result.size());
     }
 

@@ -1,50 +1,50 @@
 package com.proptiger.data.model;
 
-import java.util.Set;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
-import javax.persistence.FetchType;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.data.model.b2b.STATUS;
 
 /**
- * @author Rajeev Pandey
+ * 
+ * @author azi
+ * @author Rajeev
  * 
  */
-// @Entity
-// @Table(name = "cms.listings")
-// @JsonFilter("fieldFilter")
+@Entity
+@Table(name = "cms.listings")
+@JsonFilter("fieldFilter")
 public class Listing extends BaseModel {
-    private static final long serialVersionUID = -1212348039595611394L;
+    private static final long   serialVersionUID = 1L;
 
     @Id
-    @Column(name = "id")
-    private Integer           id;
+    private Integer             id;
 
     @Column(name = "option_id")
-    private Integer           optionId;
+    private Integer             propertyId;
 
     @Column(name = "phase_id")
-    private Integer           phaseId;
+    private Integer             phaseId;
 
-    @Column(name = "listing_category")
-    private String            listingCategory;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String            status;
+    private STATUS              status;
 
-    @ManyToOne
-    @JsonIgnore
-    @JoinColumn(name = "option_id", referencedColumnName = "OPTIONS_ID", insertable = false, updatable = false)
-    private Property          property;
-
-    @OneToMany(mappedBy = "listing", fetch = FetchType.EAGER)
-    @JsonIgnore
-    private Set<ListingPrice> listingPrice;
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @OneToMany(mappedBy = "listingId", cascade = CascadeType.ALL)
+    private List<ProjectSupply> projectSupply;
 
     public Integer getId() {
         return id;
@@ -54,12 +54,12 @@ public class Listing extends BaseModel {
         this.id = id;
     }
 
-    public Integer getOptionId() {
-        return optionId;
+    public Integer getPropertyId() {
+        return propertyId;
     }
 
-    public void setOptionId(Integer optionId) {
-        this.optionId = optionId;
+    public void setPropertyId(Integer propertyId) {
+        this.propertyId = propertyId;
     }
 
     public Integer getPhaseId() {
@@ -70,28 +70,23 @@ public class Listing extends BaseModel {
         this.phaseId = phaseId;
     }
 
-    public String getListingCategory() {
-        return listingCategory;
-    }
-
-    public void setListingCategory(String listingCategory) {
-        this.listingCategory = listingCategory;
-    }
-
-    public String getStatus() {
+    public STATUS getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(STATUS status) {
         this.status = status;
     }
 
-    public Set<ListingPrice> getListingPrice() {
-        return listingPrice;
+    public List<ProjectSupply> getProjectSupply() {
+        return projectSupply;
     }
 
-    public void setListingPrice(Set<ListingPrice> listingPrice) {
-        this.listingPrice = listingPrice;
+    public void setProjectSupply(List<ProjectSupply> projectSupply) {
+        this.projectSupply = projectSupply;
     }
 
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
 }
