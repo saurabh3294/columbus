@@ -20,7 +20,6 @@ import javax.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
 
 /**
@@ -30,12 +29,13 @@ import com.proptiger.data.model.BaseModel;
  * 
  */
 
-@ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "b2b_user_catchments")
 @JsonFilter("fieldFilter")
 public class Catchment extends BaseModel {
+    private static final long      serialVersionUID  = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer                id;
@@ -112,6 +112,10 @@ public class Catchment extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
     }
 
     public List<Integer> getProjectIds() {

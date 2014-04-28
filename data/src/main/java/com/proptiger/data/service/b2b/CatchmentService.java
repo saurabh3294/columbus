@@ -6,7 +6,6 @@ import java.util.List;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 
-import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +21,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.b2b.CatchmentDao;
 import com.proptiger.data.repo.b2b.CatchmentProjectDao;
 import com.proptiger.exception.ResourceAlreadyExistException;
+import com.proptiger.exception.UnauthorizedException;
 
 @Service
 public class CatchmentService {
@@ -60,6 +60,9 @@ public class CatchmentService {
         try {
             updatedCatchment = updateExistingCatchment(catchment, userInfo);
         }
+        catch (UnauthorizedException e) {
+            throw new UnauthorizedException();
+        }
         catch (Exception e) {
             if (e.getCause() != null && e.getCause().getCause() instanceof MySQLIntegrityConstraintViolationException) {
                 throw new ResourceAlreadyExistException(
@@ -95,7 +98,9 @@ public class CatchmentService {
             catchmentDao.save(savedCatchment);
             return savedCatchment;
         }
-        return null;
+        else {
+            throw new UnauthorizedException();
+        }
     }
 
     public List<Catchment> getCatchment(FIQLSelector fiqlSelector) {
