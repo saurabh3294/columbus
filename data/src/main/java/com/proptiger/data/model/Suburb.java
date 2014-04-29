@@ -103,7 +103,8 @@ public class Suburb extends BaseModel {
     private Map<String, Long>	projectStatusCount;
     
     @Transient
-    private Long				projectCount;
+    @Field("SUBURB_PROJECT_COUNT")
+    private Integer				projectCount;
     
     @Transient
     private LocalityAverageRatingByCategory avgRatingsByCategory;
@@ -223,11 +224,11 @@ public class Suburb extends BaseModel {
         this.projectStatusCount = projectStatusCount;
     }
 
-    public Long getProjectCount() {
+    public Integer getProjectCount() {
         return projectCount;
     }
 
-    public void setProjectCount(Long projectCount) {
+    public void setProjectCount(Integer projectCount) {
         this.projectCount = projectCount;
     }
 

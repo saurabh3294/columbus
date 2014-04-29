@@ -241,10 +241,7 @@ public class LocalityService {
             String localityIdStr = localityId + "";
             // setting Project Count
             locality.setProjectStatusCount(localityProjectStatusCount.get(localityId));
-            projectCount = projectCountOnLocality.get(localityIdStr);
-            if (projectCount != null)
-                locality.setProjectCount(projectCount.intValue());
-
+            
             FieldStatsInfo fieldStatsInfo;
             // setting Resale Prices
             if (resalePriceStats != null) {

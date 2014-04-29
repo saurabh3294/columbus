@@ -98,6 +98,9 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "completion_date")
     private Date              completionDate;
 
+    @Column(name = "is_delayed")
+    private Boolean           isDelayed;
+
     @Column(name = "launch_date")
     private Date              launchDate;
 
@@ -459,6 +462,18 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setInvestorDemand(Float investorDemand) {
         this.investorDemand = investorDemand;
+    }
+
+    public Boolean getIsDelayed() {
+        return isDelayed;
+    }
+
+    public void setIsDelayed(Boolean isDelayed) {
+        this.isDelayed = isDelayed;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
     }
 
     public Map<String, Object> convertToMap() {
