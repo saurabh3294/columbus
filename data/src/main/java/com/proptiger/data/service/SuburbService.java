@@ -71,10 +71,6 @@ public class SuburbService {
         Selector selector = new Gson().fromJson(
                 "{\"filters\":{\"and\":[{\"equal\":{\"suburbId\":" + suburb.getId() + "}}]}, \"paging\":{\"start\":0,\"rows\":0}}",
                 Selector.class);
-        PaginatedResponse<List<Project>> response = projectService.getProjects(selector);
-        if(response != null){
-            suburb.setProjectCount(response.getTotalCount());
-        }
         Map<String, Long> projectStatusCount = projectService.getProjectStatusCount(selector);
         suburb.setProjectStatusCount(projectStatusCount);
     }

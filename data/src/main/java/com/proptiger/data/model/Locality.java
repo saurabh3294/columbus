@@ -144,6 +144,7 @@ public class Locality extends BaseModel {
     private Long                            ratingsCount;
 
     @Transient
+    @Field("LOCALITY_PROJECT_COUNT")
     private Integer                         projectCount;
 
     @Transient
