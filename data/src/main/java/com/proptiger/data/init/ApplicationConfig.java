@@ -38,8 +38,8 @@ import com.proptiger.data.util.PropertyReader;
 public class ApplicationConfig {
 
     @Autowired
-    private PropertyReader propertyReader;
-    
+    private PropertyReader              propertyReader;
+
     private static EntityManagerFactory wordpressEntityFactory;
     private static EntityManagerFactory wordpressNewsEntityFactory;
 
@@ -57,7 +57,7 @@ public class ApplicationConfig {
         dataSource.setUrl(dbUrl);
         dataSource.setUsername(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_USERNAME));
         dataSource.setPassword(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_PASSWORD));
-        
+
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaVendorAdapter(createJPAAdapter());
         factory.setDataSource(dataSource);
@@ -67,25 +67,25 @@ public class ApplicationConfig {
         factory.afterPropertiesSet();
         return factory.getObject();
     }
-    
+
     /**
      * Spring data source without pooling Creating Data source
      * 
      * @throws Exception
      */
-    @Bean
-    public DataSource dataSource() throws Exception {
-        /*
-         * Spring data source that does not use pooling
-         */
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_DRIVER));
-        dataSource.setUrl(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_URL));
-        dataSource.setUsername(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_USERNAME));
-        dataSource.setPassword(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_PASSWORD));
-
-        return dataSource;
-    }
+//    @Bean
+//    public DataSource dataSource() throws Exception {
+//        /*
+//         * Spring data source that does not use pooling
+//         */
+//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+//        dataSource.setDriverClassName(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_DRIVER));
+//        dataSource.setUrl(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_URL));
+//        dataSource.setUsername(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_USERNAME));
+//        dataSource.setPassword(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_PASSWORD));
+//
+//        return dataSource;
+//    }
 
     /**
      * Creating c3p0 data source with pooling capability. Modify c3p0.properties
@@ -94,7 +94,7 @@ public class ApplicationConfig {
      * @return
      * @throws Exception
      */
-    // @Bean
+    @Bean
     public DataSource pooledDataSource() throws Exception {
         ComboPooledDataSource comboPooledDataSource = new ComboPooledDataSource();
 
@@ -114,7 +114,8 @@ public class ApplicationConfig {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         // set jpa vendor
         factory.setJpaVendorAdapter(createJPAAdapter());
-        factory.setDataSource(dataSource());
+        // factory.setDataSource(dataSource());
+        factory.setDataSource(pooledDataSource());
         factory.setPersistenceProviderClass(HibernatePersistence.class);
         factory.setPackagesToScan(propertyReader.getRequiredProperty(PropertyKeys.ENTITYMANAGER_PACKAGES_TO_SCAN));
         factory.setJpaProperties(createJPAProperties());
@@ -142,7 +143,9 @@ public class ApplicationConfig {
      */
     private Properties createJPAProperties() {
         Properties properties = new Properties();
-        properties.put(PropertyKeys.HIBERNATE_DIALECT, propertyReader.getRequiredProperty(PropertyKeys.HIBERNATE_DIALECT));
+        properties.put(
+                PropertyKeys.HIBERNATE_DIALECT,
+                propertyReader.getRequiredProperty(PropertyKeys.HIBERNATE_DIALECT));
         return properties;
     }
 

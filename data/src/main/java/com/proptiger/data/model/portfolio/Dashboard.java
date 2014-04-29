@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,7 +19,11 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.resource.NamedResource;
 import com.proptiger.data.model.resource.Resource;
@@ -30,11 +36,20 @@ import com.proptiger.data.model.resource.Resource;
  */
 @Entity
 @Table(name = "dashboards")
-public class Dashboard implements NamedResource, Resource {
+public class Dashboard extends BaseModel implements NamedResource, Resource {
+    
+    public enum DashboardType {
+        PORTFOLIO, B2B
+    }
+
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer                      id;
+    
+    @Column(name = "dashboard_type")
+    @Enumerated(EnumType.STRING)
+    private DashboardType                       dashboardType = DashboardType.PORTFOLIO ;   // whether portfolio or b2b where portfolio is default 
 
     @Column(name = "name")
     private String                       name;
@@ -79,6 +94,20 @@ public class Dashboard implements NamedResource, Resource {
         this.id = id;
     }
 
+    /**
+     * @return dashboardType
+     */
+    public DashboardType getDashboardType() {
+        return dashboardType;
+    }
+
+    /**
+     * @param dashboardType
+     */
+    public void setDashboardType(DashboardType dashboardType) {
+        this.dashboardType = dashboardType;
+    }
+    
     /**
      * @return the name
      */
@@ -179,6 +208,7 @@ public class Dashboard implements NamedResource, Resource {
         private int       totalRows;
         private int       totalColumns;
         private Integer   id;
+        private DashboardType    dashboardType;
 
         Builder(String name, Integer userId) {
             this.name = name;
@@ -192,6 +222,7 @@ public class Dashboard implements NamedResource, Resource {
             dashboard.totalRow = totalRows;
             dashboard.userId = userId;
             dashboard.id = id;
+            dashboard.dashboardType=dashboardType;
             return dashboard;
         }
 
@@ -220,7 +251,13 @@ public class Dashboard implements NamedResource, Resource {
             this.id = id;
             return this;
         }
-
+        /**
+         * @return the DashboardType
+         */
+        public Builder setDashboardType(DashboardType dashboardType){
+            this.dashboardType = dashboardType;
+            return this;
+        }
     }
 
     @PreUpdate
@@ -242,24 +279,7 @@ public class Dashboard implements NamedResource, Resource {
 
     @Override
     public String toString() {
-        return "Dashboard [id=" + id
-                + ", name="
-                + name
-                + ", totalRow="
-                + totalRow
-                + ", totalColumn="
-                + totalColumn
-                + ", userId="
-                + userId
-                + ", createdAt="
-                + createdAt
-                + ", updatedAt="
-                + updatedAt
-                + ", forumUser="
-                + forumUser
-                + ", widgets="
-                + widgets
-                + "]";
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
 }

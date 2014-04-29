@@ -210,7 +210,7 @@ public class ProjectService {
         /*
          * Setting project Specification if needed.
          */
-        if (fields == null || fields.contains("projectSpecification")) {
+        if (fields == null || fields.contains("specifications")) {
             project.setProjectSpecification(this.getProjectSpecificationsV3(projectId));
         }
 
