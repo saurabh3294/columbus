@@ -256,6 +256,15 @@ public class SolrResult extends BaseModel {
     
     @Field("PROJECT_PRICE_RISE_6MONTHS")
     private Double            projectPriceRise6Months;
+    
+    @Field("SUBURB_PROJECT_COUNT")
+    private Integer              suburbProjectCount;
+    
+    @Field("LOCALITY_PROJECT_COUNT")
+    private Integer              localityProjectCount;
+    
+    @Field("BUILDER_PROJECT_COUNT")
+    private Integer              builderProjectCount;
 
     public SolrResult() {
         property.setProject(project);
@@ -876,5 +885,20 @@ public class SolrResult extends BaseModel {
     @Field("PROJECT_PRICE_RISE_6MONTHS")
     public void setProjectPriceRise6Months(Double projectPriceRise6Months) {
         project.setPriceRise6Months(projectPriceRise6Months);
-    } 
+    }
+    
+    @Field("SUBURB_PROJECT_COUNT")
+    public void setSuburbProjectCount(Integer suburbProjectCount) {
+        suburb.setProjectCount(suburbProjectCount);
+    }
+    
+    @Field("LOCALITY_PROJECT_COUNT")
+    public void setLocalityProjectCount(Integer localityProjectCount) {
+        locality.setProjectCount(localityProjectCount);
+    }
+
+    @Field("BUILDER_PROJECT_COUNT")
+    public void setBuilderProjectCount(Integer builderProjectCount) {
+        builder.setProjectCount(builderProjectCount);
+    }
 }

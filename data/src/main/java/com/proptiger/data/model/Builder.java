@@ -72,6 +72,10 @@ public class Builder extends BaseModel {
 
     @Transient
     private Map<String, Long> projectStatusCount;
+    
+    @Transient
+    @Field("BUILDER_PROJECT_COUNT")
+    private Integer                projectCount;
 
     public int getId() {
         return id;
@@ -146,4 +150,11 @@ public class Builder extends BaseModel {
         this.url = url;
     }
 
+    public Integer getProjectCount() {
+        return projectCount;
+    }
+
+    public void setProjectCount(Integer projectCount) {
+        this.projectCount = projectCount;
+    }
 }
