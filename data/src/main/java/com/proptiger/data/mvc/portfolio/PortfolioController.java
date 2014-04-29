@@ -3,6 +3,8 @@ package com.proptiger.data.mvc.portfolio;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Table;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.model.Subscription;
 import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.mvc.BaseController;
@@ -24,6 +27,7 @@ import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.service.portfolio.PortfolioService;
+import com.proptiger.data.service.portfolio.SubscriptionService;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -36,6 +40,8 @@ public class PortfolioController extends BaseController {
 
     @Autowired
     private PortfolioService portfolioService;
+    @Autowired
+    private SubscriptionService subscriptionService;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
@@ -192,16 +198,22 @@ public class PortfolioController extends BaseController {
         return new ProAPISuccessResponse(status);
     }
 
-    // private void updateOldProjectId(PortfolioListing listing){
-    // if(listing.getProperty() != null && listing.getProperty().getProjectId()
-    // > DomainObject.project.getStartId()){
-    // listing.setOldProjectId(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty()));
-    // }
-    // }
-    // private void updateOldProjectId(List<PortfolioListing> listings){
-    // for(PortfolioListing listing: listings){
-    // updateOldProjectId(listing);
-    // }
-    //
-    // }
+    /**
+     * @param userId
+     * @param listingId
+     * @param unsubscribeTypes
+     * @param userInfo
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.POST, value ="/listing/{listingId}/unsubscribe")
+    @ResponseBody
+    public ProAPIResponse unsubscribe(
+            @PathVariable Integer userId,
+            @PathVariable Integer listingId,
+            @RequestParam(required = true, value = "unsubscribeTypes") String[] unsubscribeTypes,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+        List<Subscription> subscriptions = subscriptionService.disableSubscription(userId, listingId, PortfolioListing.class
+                .getAnnotation(Table.class).name(), unsubscribeTypes);
+        return new ProAPISuccessCountResponse(subscriptions, subscriptions.size());
+    }
 }
