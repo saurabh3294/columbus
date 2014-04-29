@@ -31,4 +31,7 @@ public interface ImageDao extends ImageCustomDao, JpaRepository<Image, Long> {
 
     @Query("SELECT I FROM Image as I JOIN FETCH I.imageTypeObj IT JOIN FETCH IT.objectType O WHERE (I.originalHash = ?1 OR I.waterMarkHash = ?1 ) AND I.objectId = ?2 AND I.imageTypeObj.objectType.type = ?3 AND I.active = 1")
     public List<Image> getImageOnHashAndObjectIdAndObjectType(String originalHash, long objectId, String objectType);
+    
+    @Query("SELECT I FROM Image as I JOIN FETCH I.imageTypeObj IT JOIN FETCH IT.objectType O WHERE (I.originalHash = ?1 OR I.waterMarkHash = ?1 ) AND I.imageTypeObj.objectType.type = ?2 AND I.active = 1")
+    public List<Image> getImageOnHashAndObjectType(String originalHash, String objectType);
 }

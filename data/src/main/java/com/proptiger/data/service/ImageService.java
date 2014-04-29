@@ -262,7 +262,7 @@ public class ImageService {
 
             String originalHash = ImageUtil.fileMd5Hash(originalFile);
 
-            Image duplicateImage = isImageHashExists(originalHash, objectId, object.getText());
+            Image duplicateImage = isImageHashExists(originalHash, object.getText());
             if (duplicateImage != null)
                 throw new ResourceAlreadyExistException("This Image Already Exists for " + object.getText()
                         + " id-"
@@ -329,8 +329,8 @@ public class ImageService {
         return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId(), image.getId());
     }
 
-    private Image isImageHashExists(String originalHash, long objectId, String objectType) {
-        List<Image> imageIds = imageDao.getImageOnHashAndObjectIdAndObjectType(originalHash, objectId, objectType);
+    private Image isImageHashExists(String originalHash, String objectType) {
+        List<Image> imageIds = imageDao.getImageOnHashAndObjectType(originalHash, objectType);
 
         if (imageIds == null || imageIds.isEmpty())
             return null;
