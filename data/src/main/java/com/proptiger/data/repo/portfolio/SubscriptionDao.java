@@ -1,14 +1,11 @@
 package com.proptiger.data.repo.portfolio;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.proptiger.data.model.Subscription;
 
-@Repository
-public interface SubscriptionDao extends PagingAndSortingRepository<Subscription, Integer> {
+public interface SubscriptionDao extends JpaRepository<Subscription, Integer>, SubscriptionCustomDao {
 
     public Subscription findByUserId(int userId);
 
-    public Subscription findByUserIdAndTableIdAndTableName(int userId, int tableId, String tableName);
 }

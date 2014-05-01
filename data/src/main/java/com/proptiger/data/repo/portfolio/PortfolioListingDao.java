@@ -16,7 +16,7 @@ public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Int
     
     public PortfolioListing findByUserIdAndListingIdAndDeletedFlag(Integer userId, Integer listingId, Boolean deletedFlag);
 
-    public PortfolioListing findByUserIdAndName(Integer userId, String name);
+    public PortfolioListing findByUserIdAndNameAndDeletedFlag(Integer userId, String name, Boolean deletedFlag);
     
     public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId, Boolean deletedFlag);
 
