@@ -27,7 +27,10 @@ update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id =
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 4) JOIN LOCALITY L ON (L.locality_id = I.object_id) JOIN CITY C ON (L.city_id = C.city_id) set I.alt_text = CONCAT_WS(" ", L.label, C.label, I.title);
 
 /* Project */
-update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 1 AND IT.type = "main") JOIN RESI_PROJECT RP ON (RP.project_id = I.object_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, "(Elevation)"), I.title = "Elevation";
+update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 1 AND IT.type = "main" ) JOIN RESI_PROJECT RP ON (RP.project_id = I.object_id) LEFT JOIN cms.project_plan_images PPI ON (PPI.service_image_id=I.id AND PPI.plan_type="Project Image" AND PPI.title like '%elevation%') set I.title = IF( lower(PPI.title) regexp "^.*elevation.*$", replace(PPI.title, 'elevation', 'Elevation'), NULL) ;
+
+update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 1 AND IT.type = "main" ) JOIN RESI_PROJECT RP ON (RP.project_id = I.object_id)  set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, I.title) ;
+
 
 /* BANK Home Loan */
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 5 AND IT.type = "logo") JOIN BANK_LIST B ON (I.object_id=B.bank_id) set I.alt_text = CONCAT_WS(" ", B.bank_name, "Home Loan");
@@ -58,7 +61,5 @@ update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id =
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 2 AND IT.type = "floorPlan") JOIN RESI_PROJECT_TYPES RPT ON (RPT.type_id=I.object_id) JOIN RESI_PROJECT RP ON (RP.project_id = RPT.project_id) set I.title = CONCAT_WS(" ", RPT.UNIT_NAME, IF(RPT.SIZE>0, CONCAT_WS(" ", RPT.SIZE, RPT.MEASURE), ""));
 
 update Image I JOIN ImageType IT ON (I.imagetype_id=IT.id AND IT.objectType_id = 2 AND IT.type = "floorPlan") JOIN RESI_PROJECT_TYPES RPT ON (RPT.type_id=I.object_id) JOIN RESI_PROJECT RP ON (RP.project_id = RPT.project_id) set I.alt_text = CONCAT_WS(" ", RP.builder_name, RP.project_name, "Floor Plan", I.title);
-
-
 
 
