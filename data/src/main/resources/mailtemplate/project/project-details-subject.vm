@@ -1,0 +1,2 @@
+#parse("./mailtemplate/VM_global_library.vm")
+${projectDetailsMailToUser.senderName} has sent you a link on Proptiger

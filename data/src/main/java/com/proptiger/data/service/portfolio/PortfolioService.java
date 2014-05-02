@@ -26,6 +26,7 @@ import com.proptiger.data.internal.dto.mail.ListingAddMail;
 import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
@@ -978,39 +979,45 @@ public class PortfolioService extends AbstractService {
         ForumUser user = listing.getForumUser();
         String toStr = user.getEmail();
         MailBody mailBody = null;
+        MailDetails mailDetails = null;
         switch (mailTypeEnum) {
             case LISTING_ADD_MAIL_TO_USER:
                 ListingAddMail listingAddMail = createListingAddMailObject(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING,
                         listingAddMail);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_USER:
                 ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_USER,
                         listingLoanRequestMail);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
                 ListingLoanRequestMail listingLoanRequestMailInternal = createListingLoanRequestObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL,
                         listingLoanRequestMailInternal);
                 toStr = propertyReader.getRequiredProperty(PropertyKeys.MAIL_HOME_LOAN_INTERNAL_RECIEPIENT);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
                 ListingResaleMail listingResaleMailInternal = createListingResaleMailObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL,
                         listingResaleMailInternal);
                 toStr = propertyReader.getRequiredProperty(PropertyKeys.MAIL_INTERESTED_TO_SELL_RECIEPIENT);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_USER:
                 ListingResaleMail listingResaleMailUser = createListingResaleMailObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER,
                         listingResaleMailUser);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             default:
                 throw new IllegalArgumentException("Invalid mail type");
         }
@@ -1201,21 +1208,14 @@ public class PortfolioService extends AbstractService {
         String mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.to.recipient");
         String mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.cc.recipient");
 
-        String[] mailCC = null;
-
         if (mailToAddress.length() < 1) {
             logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
 
-        String[] mailTo = mailToAddress.split(",");
-        if (mailCCAddress.length() > 0) {
-            mailCC = mailCCAddress.split(",");
-        }
-
         MailBody mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.SELL_YOUR_PROPERTY, portfolioListing);
-
-        return mailSender.sendMailUsingAws(mailTo, mailCC, null, mailBody.getBody(), mailBody.getSubject());
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
+        return mailSender.sendMailUsingAws(mailDetails);
 
     }
 

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -223,15 +224,15 @@ public class ProjectDiscussionsService {
     @Deprecated
     private boolean sendMailOnProjectComment(ForumUser forumUser, Project project, ProjectDiscussion projectDiscussion) {
 
-        String[] mailTo = propertyReader.getRequiredProperty("mail.project.comment.to.recipient").split(",");
+        String mailTo = propertyReader.getRequiredProperty("mail.project.comment.to.recipient");
 
-        String[] mailCC = propertyReader.getRequiredProperty("mail.project.comment.cc.recipient").split(",");
+        String mailCC = propertyReader.getRequiredProperty("mail.project.comment.cc.recipient");
 
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.ADD_NEW_PROJECT_COMMENT,
                 new ProjectDiscussionMailDTO(project, forumUser, projectDiscussion));
-
-        return mailSender.sendMailUsingAws(mailTo, mailCC, null, mailBody.getBody(), mailBody.getSubject());
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailTo).setMailCC(mailCC);
+        return mailSender.sendMailUsingAws(mailDetails);
 
     }
 

@@ -13,16 +13,18 @@ public class MailBody {
         return subject;
     }
 
-    public void setSubject(String subject) {
+    public MailBody setSubject(String subject) {
         this.subject = subject;
+        return this;
     }
 
     public String getBody() {
         return body;
     }
 
-    public void setBody(String body) {
+    public MailBody setBody(String body) {
         this.body = body;
+        return this;
     }
 
 }
