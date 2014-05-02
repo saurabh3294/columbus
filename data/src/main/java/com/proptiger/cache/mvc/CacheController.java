@@ -24,7 +24,7 @@ public class CacheController {
 	public ProAPIResponse clearCache(
 			@RequestParam(defaultValue = "") String cacheName) {
 		StringBuilder cacheCleared = new StringBuilder();
-		if("".equals(cacheName)){
+		if(cacheName.isEmpty()){
 			cacheCleared.append("All");
 		}
 		String[] caches = cacheName.split(",");
