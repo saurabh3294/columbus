@@ -19,7 +19,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.proptiger.data.model.ObjectType;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.image.ImageType;
+import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.util.ImageUtil;
 
 @Repository
@@ -36,13 +36,13 @@ public class ImageDaoImpl {
         return objType;
     }
 
-    private ImageType getImageType(ObjectType objType, String imageTypeStr, CriteriaBuilder cb, EntityManager em) {
+    private ObjectMediaType getImageType(ObjectType objType, String imageTypeStr, CriteriaBuilder cb, EntityManager em) {
         // Get ImageType
-        CriteriaQuery<ImageType> itQ = cb.createQuery(ImageType.class);
-        Root<ImageType> it = itQ.from(ImageType.class);
+        CriteriaQuery<ObjectMediaType> itQ = cb.createQuery(ObjectMediaType.class);
+        Root<ObjectMediaType> it = itQ.from(ObjectMediaType.class);
         itQ.select(it).where(
                 cb.and(cb.equal(it.get("objectTypeId"), objType.getId()), cb.equal(it.get("type"), imageTypeStr)));
-        ImageType imageType = em.createQuery(itQ).getSingleResult();
+        ObjectMediaType imageType = em.createQuery(itQ).getSingleResult();
         // Return
         return imageType;
     }
@@ -71,7 +71,7 @@ public class ImageDaoImpl {
 
             // Image
             ObjectType objType = getObjectType(objectStr, cb, em);
-            ImageType imageType = getImageType(objType, imageTypeStr, cb, em);
+            ObjectMediaType imageType = getImageType(objType, imageTypeStr, cb, em);
             image.setImageTypeId(imageType.getId());
             image.setObjectId(objectId);
 

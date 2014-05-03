@@ -23,6 +23,12 @@ import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.util.ImageUtil;
 
+/**
+ * @author yugal
+ * 
+ * @author azi
+ * 
+ */
 @Entity(name = "Image")
 @Access(AccessType.FIELD)
 @JsonFilter("fieldFilter")
@@ -42,7 +48,7 @@ public class Image extends BaseModel {
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "ImageType_id", insertable = false, updatable = false)
     @JsonProperty("imageType")
-    private ImageType          imageTypeObj;
+    private ObjectMediaType    imageTypeObj;
 
     @Column(name = "ImageType_id", updatable = false)
     @ExcludeFromBeanCopy
@@ -134,11 +140,11 @@ public class Image extends BaseModel {
         this.id = id;
     }
 
-    public ImageType getImageTypeObj() {
+    public ObjectMediaType getImageTypeObj() {
         return imageTypeObj;
     }
 
-    public void setImageTypeObj(ImageType imageType) {
+    public void setImageTypeObj(ObjectMediaType imageType) {
         this.imageTypeObj = imageType;
     }
 
