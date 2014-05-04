@@ -5,11 +5,14 @@ import java.io.IOException;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.proptiger.data.model.Media;
 import com.proptiger.data.model.enums.DomainObject;
+import com.proptiger.data.model.enums.MediaType;
+import com.proptiger.data.repo.ObjectMediaTypeDao;
 import com.proptiger.data.util.AmazonS3Util;
 import com.proptiger.exception.ProAPIException;
 
@@ -20,12 +23,15 @@ import com.proptiger.exception.ProAPIException;
  */
 
 public abstract class MediaService {
-    protected Integer mediaTypeId = 2;
+    protected MediaType        mediaType = MediaType.Document;
 
     @Value("${imageTempPath}")
-    private String    tempDirPath;
+    private String             tempDirPath;
 
-    private File      tempDir;
+    private File               tempDir;
+
+    @Autowired
+    private ObjectMediaTypeDao objectMediaTypeDao;
 
     @PostConstruct
     private void init() {
