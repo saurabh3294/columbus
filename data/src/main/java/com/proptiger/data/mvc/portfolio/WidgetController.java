@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.portfolio.Widget;
 import com.proptiger.data.pojo.ProAPIResponse;
 import com.proptiger.data.pojo.ProAPISuccessCountResponse;
@@ -33,8 +34,15 @@ public class WidgetController {
         return new ProAPISuccessCountResponse(widgets, widgets.size());
     }
 
+    /**
+     * this API is used once in launching dashboard, So to test db based url
+     * applyig disabled caching.
+     * @param widgetId
+     * @return
+     */
     @RequestMapping(method = RequestMethod.GET, value = "/{widgetId}")
     @ResponseBody
+    @DisableCaching
     public ProAPIResponse getWidget(@PathVariable Integer widgetId) {
         Widget widget = widgetService.getWidget(widgetId);
         return new ProAPISuccessResponse(widget);

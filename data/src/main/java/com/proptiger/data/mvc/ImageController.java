@@ -82,6 +82,7 @@ public class ImageController extends BaseController {
             @ModelAttribute Image imageParams) {
         Image image = imageService.getImage(id);
         Object obj = null;
+        Image newUpdateImage = new Image();
 
         if (file == null || file.isEmpty()) {
             try {
@@ -97,8 +98,9 @@ public class ImageController extends BaseController {
             try {
                 image.setId(0);
                 BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
-                beanUtilsBean.copyProperties(imageParams, image);
-                image.setId(id);
+                beanUtilsBean.copyProperties(newUpdateImage, image);
+                beanUtilsBean.copyProperties(newUpdateImage, imageParams);
+                newUpdateImage.setId(0);
             }
             catch (IllegalAccessException | InvocationTargetException e) {
             }
@@ -109,7 +111,7 @@ public class ImageController extends BaseController {
                     file,
                     !image.getWaterMarkHash().equals(image.getOriginalHash()),
                     image.getImageTypeObj().getType(),
-                    imageParams);
+                    newUpdateImage);
 
             imageService.deleteImage(id);
         }
