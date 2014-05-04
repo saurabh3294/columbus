@@ -90,6 +90,7 @@ public class CatchmentService {
             catchmentProjectDao.delete(deletedCatchmentProjects);
 
             savedCatchment.setName(catchment.getName());
+            savedCatchment.setMetaAttributes(catchment.getMetaAttributes());
             for (CatchmentProject catchmentProject : savedCatchment.getCatchmentProjects()) {
                 if (catchmentProject.getCatchment() == null) {
                     catchmentProject.setCatchment(savedCatchment);
