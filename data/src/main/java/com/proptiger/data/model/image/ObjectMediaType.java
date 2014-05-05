@@ -17,112 +17,119 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.MediaType;
 import com.proptiger.data.model.ObjectType;
 
-
 /**
  * 
  * @author yugal
  * 
  * @author azi
- *
+ * 
  */
 @Entity(name = "object_media_types")
 @JsonFilter("fieldFilter")
 public class ObjectMediaType extends BaseModel {
 
-	private static final long serialVersionUID = 6121401801684707486L;
+    private static final long serialVersionUID = 6121401801684707486L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int               id;
 
-	@ManyToOne(targetEntity = ObjectType.class, fetch = FetchType.EAGER)
-	@Fetch(FetchMode.JOIN)
-	@JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable = false, updatable = false)
-	private ObjectType objectType;
+    @ManyToOne(targetEntity = ObjectType.class, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private ObjectType        objectType;
 
-	@ManyToOne(targetEntity = MediaType.class, fetch = FetchType.EAGER)
-	@Fetch(FetchMode.JOIN)
-	@JoinColumn(name = "media_type_id", referencedColumnName = "id", insertable = false, updatable = false)
-	private MediaType mediaType;
+    @ManyToOne(targetEntity = MediaType.class, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "media_type_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private MediaType         mediaType;
 
-	@Column(name = "ObjectType_id")
-	private String objectTypeId;
+    @Column(name = "ObjectType_id")
+    private int               objectTypeId;
 
-	@Column(name = "media_type_id")
-	private Integer mediaTypeId;
+    @Column(name = "media_type_id")
+    private int               mediaTypeId;
 
-	@Column(name = "type")
-	private String type;
+    @Column(name = "type")
+    private String            type;
 
-	@Column(name = "priority")
-	private int priority;
+    @Column(name = "priority")
+    private int               priority;
 
-	/**
-	 * @return the id
-	 */
-	public long getId() {
-		return id;
-	}
+    /**
+     * @return the id
+     */
+    public int getId() {
+        return id;
+    }
 
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
+    /**
+     * @param id
+     *            the id to set
+     */
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	/**
-	 * @return the objectType
-	 */
-	public ObjectType getObjectType() {
-		return objectType;
-	}
+    /**
+     * @return the objectType
+     */
+    public ObjectType getObjectType() {
+        return objectType;
+    }
 
-	/**
-	 * @param objectType
-	 *            the objectType to set
-	 */
-	public void setObjectType(ObjectType objectType) {
-		this.objectType = objectType;
-	}
+    /**
+     * @param objectType
+     *            the objectType to set
+     */
+    public void setObjectType(ObjectType objectType) {
+        this.objectType = objectType;
+    }
 
-	/**
-	 * @return the objectTypeId
-	 */
-	public String getObjectTypeId() {
-		return objectTypeId;
-	}
+    /**
+     * @return the objectTypeId
+     */
+    public int getObjectTypeId() {
+        return objectTypeId;
+    }
 
-	/**
-	 * @param objectTypeId
-	 *            the objectTypeId to set
-	 */
-	public void setObjectTypeId(String objectTypeId) {
-		this.objectTypeId = objectTypeId;
-	}
+    /**
+     * @param objectTypeId
+     *            the objectTypeId to set
+     */
+    public void setObjectTypeId(int objectTypeId) {
+        this.objectTypeId = objectTypeId;
+    }
 
-	/**
-	 * @return the type
-	 */
-	public String getType() {
-		return type;
-	}
+    public int getMediaTypeId() {
+        return mediaTypeId;
+    }
 
-	/**
-	 * @param type
-	 *            the type to set
-	 */
-	public void setType(String type) {
-		this.type = type;
-	}
+    public void setMediaTypeId(int mediaTypeId) {
+        this.mediaTypeId = mediaTypeId;
+    }
 
-	public int getPriority() {
-		return priority;
-	}
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
 
-	public void setPriority(int priority) {
-		this.priority = priority;
-	}
+    /**
+     * @param type
+     *            the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
 
 }

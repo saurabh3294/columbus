@@ -20,7 +20,7 @@ import com.proptiger.data.model.ObjectType;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.image.ObjectMediaType;
-import com.proptiger.data.util.ImageUtil;
+import com.proptiger.data.util.MediaUtil;
 
 @Repository
 public class ImageDaoImpl {
@@ -67,7 +67,7 @@ public class ImageDaoImpl {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder cb = em.getCriteriaBuilder();
 
-            String watermarkHash = ImageUtil.fileMd5Hash(watermarkImage);
+            String watermarkHash = MediaUtil.fileMd5Hash(watermarkImage);
 
             // Image
             ObjectType objType = getObjectType(objectStr, cb, em);
@@ -85,7 +85,7 @@ public class ImageDaoImpl {
             image.setPath(path);
 
             // MetaData
-            ImageUtil.populateImageMetaInfo(orignalImage, image);
+            MediaUtil.populateImageMetaInfo(orignalImage, image);
 
             // DateTime
             image.setOriginalHash(originalHash);

@@ -39,7 +39,7 @@ import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.ImageUtil;
+import com.proptiger.data.util.MediaUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
@@ -67,8 +67,8 @@ public class ImageService {
 
     @PostConstruct
     private void init() {
-        ImageUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
-        ImageUtil.bucket = propertyReader.getRequiredProperty(PropertyKeys.BUCKET);
+        MediaUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
+        MediaUtil.bucket = propertyReader.getRequiredProperty(PropertyKeys.BUCKET);
 
         String path = propertyReader.getRequiredProperty(PropertyKeys.IMAGE_TEMP_PATH);
         tempDir = new File(path);
@@ -117,9 +117,9 @@ public class ImageService {
     private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException,
             IOException {
         AmazonS3 s3 = createS3Instance();
-        s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
+        s3.putObject(MediaUtil.bucket, image.getPath() + image.getOriginalName(), original);
         original.delete();
-        s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
+        s3.putObject(MediaUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
         createAndUploadMoreResolutions(image, waterMark, format, s3);
     }
 
@@ -144,7 +144,7 @@ public class ImageService {
                     try {
                         resizedFile = resize(waterMark, imageResolution, format);
                         s3.putObject(
-                                ImageUtil.bucket,
+                                MediaUtil.bucket,
                                 image.getPath() + computeResizedImageName(image, imageResolution, format),
                                 resizedFile);
                         resizedFile.delete();
@@ -241,7 +241,7 @@ public class ImageService {
             if (fileUpload.isEmpty())
                 throw new IllegalArgumentException("Empty file uploaded");
             fileUpload.transferTo(originalFile);
-            String format = ImageUtil.getImageFormat(originalFile);
+            String format = MediaUtil.getImageFormat(originalFile);
 
             // Image uploaded
             File processedFile = File.createTempFile("processedImage", Image.DOT + format, tempDir);
@@ -260,7 +260,7 @@ public class ImageService {
                 applyWaterMark(processedFile, format);
             }
 
-            String originalHash = ImageUtil.fileMd5Hash(originalFile);
+            String originalHash = MediaUtil.fileMd5Hash(originalFile);
 
             Image duplicateImage = isImageHashExists(originalHash, object.getText());
             if (duplicateImage != null)

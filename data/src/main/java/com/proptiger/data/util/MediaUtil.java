@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -23,11 +25,19 @@ import com.drew.lang.GeoLocation;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
+import com.proptiger.data.model.Media;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.exception.ProAPIException;
 
-public class ImageUtil {
+/**
+ * @author yugal
+ * 
+ * @author azi
+ * 
+ */
+public class MediaUtil {
 
-    private static Logger  logger = LoggerFactory.getLogger(ImageUtil.class);
+    private static Logger  logger = LoggerFactory.getLogger(MediaUtil.class);
     public static String[] endpoints;
     public static String   bucket;
 
@@ -69,8 +79,6 @@ public class ImageUtil {
     }
 
     public static void populateImageMetaInfo(File imageFile, Image image) throws IOException {
-        ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
-
         try {
             Info info = new Info(imageFile.getAbsolutePath());
             image.setWidth(info.getImageWidth());
@@ -108,6 +116,18 @@ public class ImageUtil {
             logger.debug("Unable to get Exif reader : {}", imageFile.getAbsolutePath());
         }
 
+    }
+
+    public static void populateBasicMediaAttributes(File file, Media media) {
+        try {
+            BasicFileAttributes fileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+            media.setFileCreationTime(new Date(fileAttributes.creationTime().toMillis()));
+            media.setSizeInBytes(fileAttributes.size());
+            media.setContentHash(fileMd5Hash(file));
+        }
+        catch (IOException e) {
+            throw new ProAPIException("Error Fetching Basic FileAttributes", e);
+        }
     }
 
     public static String getImageEndpoint(long id) {

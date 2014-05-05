@@ -8,6 +8,12 @@ import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 
+/**
+ * @author yugal
+ * 
+ * @author azi
+ * 
+ */
 @Entity(name = "ObjectType")
 @JsonFilter("fieldFilter")
 public class ObjectType extends BaseModel {
@@ -19,7 +25,7 @@ public class ObjectType extends BaseModel {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long              id;
+    private int               id;
 
     @Column(name = "type")
     private String            type;
@@ -27,7 +33,7 @@ public class ObjectType extends BaseModel {
     /**
      * @return the id
      */
-    public long getId() {
+    public int getId() {
         return id;
     }
 
@@ -35,7 +41,7 @@ public class ObjectType extends BaseModel {
      * @param id
      *            the id to set
      */
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -53,5 +59,4 @@ public class ObjectType extends BaseModel {
     public void setType(String type) {
         this.type = type;
     }
-
 }

@@ -5,6 +5,8 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -27,6 +29,7 @@ import com.proptiger.data.model.image.ObjectMediaType;
 @Table(name = "media")
 public class Media {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer         id;
 
     @Column(name = "object_media_type_id")
@@ -39,6 +42,12 @@ public class Media {
 
     @Column(name = "object_id")
     private Integer         objectId;
+
+    private String          url;
+
+    @Transient
+    @Column(name = "original_file_name")
+    private String          originalFileName;
 
     @Column(name = "size_in_bytes")
     private Long            sizeInBytes;
@@ -59,16 +68,14 @@ public class Media {
     @Column(name = "active")
     private Boolean         isActive;
 
-    private String          extension;
-
     @Column(name = "file_creation_time")
     private Date            fileCreationTime;
 
     @Column(name = "created_at")
-    private Date            createdAt;
+    private Date            createdAt = new Date();
 
     @Column(name = "updated_at")
-    private Date            updatedAt;
+    private Date            updatedAt = new Date();
 
     public Integer getId() {
         return id;
@@ -92,6 +99,22 @@ public class Media {
 
     public void setObjectId(Integer objectId) {
         this.objectId = objectId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
     }
 
     public Long getSizeInBytes() {
@@ -150,14 +173,6 @@ public class Media {
         this.isActive = isActive;
     }
 
-    public String getExtension() {
-        return extension;
-    }
-
-    public void setExtension(String extension) {
-        this.extension = extension;
-    }
-
     public Date getFileCreationTime() {
         return fileCreationTime;
     }
@@ -176,9 +191,5 @@ public class Media {
 
     public Date getUpdatedAt() {
         return updatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }
