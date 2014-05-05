@@ -101,6 +101,7 @@ public class ImageService {
             imOps.quality(95.0);
             imOps.interlace("Plane");
             imOps.addImage();
+
             MogrifyCmd command = new MogrifyCmd();
             command.run(imOps, outputFile.getAbsolutePath());
         }
@@ -245,6 +246,15 @@ public class ImageService {
             // Image uploaded
             File processedFile = File.createTempFile("processedImage", Image.DOT + format, tempDir);
             Files.copy(originalFile, processedFile);
+            
+            // Converting the image to RGB format.
+            try {
+                File rgbFile = convertToRGB(processedFile, format);
+                Files.copy(rgbFile, processedFile);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
 
             if (addWaterMark) {
                 applyWaterMark(processedFile, format);
@@ -252,14 +262,15 @@ public class ImageService {
 
             String originalHash = ImageUtil.fileMd5Hash(originalFile);
 
-            Image duplicateImage = isImageHashExists(originalHash, objectId, object.getText());
+            Image duplicateImage = isImageHashExists(originalHash, object.getText());
             if (duplicateImage != null)
-                throw new ResourceAlreadyExistException(
-                        "This Image Already Exists for "+object.getText()+" id-" + duplicateImage.getObjectId()
-                                + " with image id-"
-                                + duplicateImage.getId()
-                                + " under the category of "
-                                + duplicateImage.getImageTypeObj().getType());
+                throw new ResourceAlreadyExistException("This Image Already Exists for " + object.getText()
+                        + " id-"
+                        + duplicateImage.getObjectId()
+                        + " with image id-"
+                        + duplicateImage.getId()
+                        + " under the category of "
+                        + duplicateImage.getImageTypeObj().getType());
 
             // Persist
             Image image = imageDao.insertImage(
@@ -286,8 +297,8 @@ public class ImageService {
         deleteImageInCache(id);
         imageDao.setActiveFalse(id);
     }
-    
-    @Cacheable(value = Constants.CacheName.CACHE, key="'imageId:'+#id")
+
+    @Cacheable(value = Constants.CacheName.CACHE, key = "'imageId:'+#id")
     public Image getImage(long id) {
         return imageDao.findOne(id);
     }
@@ -302,7 +313,7 @@ public class ImageService {
         String keys[] = new String[3];
         keys[0] = object.getText() + imageTypeStr + objectId;
         keys[1] = object.getText() + "null" + objectId;
-        keys[2] = "imageId:"+imageId;
+        keys[2] = "imageId:" + imageId;
 
         return keys;
     }
@@ -318,12 +329,25 @@ public class ImageService {
         return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId(), image.getId());
     }
 
-    private Image isImageHashExists(String originalHash, long objectId, String objectType) {
-        List<Image> imageIds = imageDao.getImageOnHashAndObjectIdAndObjectType(originalHash, objectId, objectType);
+    private Image isImageHashExists(String originalHash, String objectType) {
+        List<Image> imageIds = imageDao.getImageOnHashAndObjectType(originalHash, objectType);
 
         if (imageIds == null || imageIds.isEmpty())
             return null;
 
         return imageIds.get(0);
     }
+
+    private File convertToRGB(File imageFile, String format) throws Exception {
+        ConvertCmd convertCmd = new ConvertCmd();
+        IMOperation imOperation = new IMOperation();
+        imOperation.addImage(imageFile.getAbsolutePath());
+        imOperation.colorspace("sRGB");
+        File outputFile = File.createTempFile("rgbImage", Image.DOT + format, tempDir);
+        imOperation.addImage(outputFile.getAbsolutePath());
+        convertCmd.run(imOperation);
+
+        return outputFile;
+    }
+
 }

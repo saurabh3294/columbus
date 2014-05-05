@@ -13,10 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.internal.dto.SenderDetail;
+import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
@@ -38,8 +44,11 @@ import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.data.util.UtilityClass;
+import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.mail.service.MailSender;
+import com.proptiger.mail.service.MailTemplateDetail;
+import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 /**
  * 
@@ -86,7 +95,12 @@ public class ProjectService {
 
     @Autowired
     private ProjectSolrDao         projectSolrDao;
+    
+    @Autowired
+    private TemplateToHtmlGenerator   mailBodyGenerator;
 
+    @Value("${proptiger.url}")
+    private String websiteHost;
     /**
      * This method will return the list of projects and total projects found
      * based on the selector.
@@ -343,27 +357,56 @@ public class ProjectService {
      * @param projectId
      * @return
      */
-    public boolean sendProjectDetailsMail(String to, Integer projectId) {
-        boolean sent = false;
-        Set<Integer> projectIdSet = new HashSet<Integer>();
-        projectIdSet.add(projectId);
-        List<Project> projects = getProjectsByIds(projectIdSet);
-        if (projects != null && projects.size() >= 1) {
-            Project project = projects.get(0);
-            // TODO waiting for html template
-            sent = mailSender.sendMailUsingAws(
-                    to,
-                    null,
-                    null,
-                    "test mail content for ptoject id=" + projectId,
-                    "test subject for ptoject id=" + projectId);
-        }
-        else {
-            throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
-        }
-        return sent;
-    }
+	public boolean sendProjectDetailsMail(Integer projectId,
+			SenderDetail senderDetails) {
+		validateMailDetails(senderDetails);
+		Project project = getProjectData(projectId);
+		ProjectDetailMailContent content = new ProjectDetailMailContent(
+				senderDetails.getSenderName(), websiteHost + project.getURL(), senderDetails.getMessage());
+		MailBody mailBody = mailBodyGenerator.generateMailBody(
+				MailTemplateDetail.PROJECT_DETAILS_MAIL_TO_USER, content);
 
+		MailDetails mailDetailsModified = new MailDetails(mailBody)
+				.setMailTo(senderDetails.getMailTo())
+				.setMailCC(senderDetails.getMailCC());
+		return mailSender.sendMailUsingAws(mailDetailsModified);
+	}
+
+	/**
+	 * Validating emails, and applying check if sender and recipient address are same or not.
+	 * @param mailDetails
+	 */
+	private void validateMailDetails(SenderDetail mailDetails) {
+		EmailValidator emailValiDator = EmailValidator.getInstance();
+		if(!emailValiDator.isValid(mailDetails.getSenderEmail()) || emailValiDator.isValid(mailDetails.getMailTo())){
+			throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid mail");
+		}
+		if(mailDetails.getSenderEmail().equals(mailDetails.getMailTo())){
+			throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Sender and recipient emails are same");
+		}
+	}
+
+	public static class ProjectDetailMailContent{
+		private String senderName;
+		private String projectLink;
+		private String message;
+		public ProjectDetailMailContent(String senderName, String projectLink, String msg) {
+			super();
+			this.senderName = senderName;
+			this.projectLink = projectLink;
+			this.message = msg;
+		}
+		public String getSenderName() {
+			return senderName;
+		}
+		public String getProjectLink() {
+			return projectLink;
+		}
+		public String getMessage() {
+			return message;
+		}
+		
+	}
     /**
      * Get projects by project ids
      * 

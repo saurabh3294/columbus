@@ -39,9 +39,7 @@ public class TemplateToHtmlGenerator {
                 mailTemplateName.getSubjectTemplate(),
                 dataObject);
 
-        MailBody mailbody = new MailBody();
-        mailbody.setBody(body);
-        mailbody.setSubject(subject);
+        MailBody mailbody = new MailBody().setBody(body).setSubject(subject);
         return mailbody;
     }
 

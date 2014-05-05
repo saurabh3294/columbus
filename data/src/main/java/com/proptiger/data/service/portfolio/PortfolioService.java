@@ -1,5 +1,6 @@
 package com.proptiger.data.service.portfolio;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -13,16 +14,19 @@ import java.util.Set;
 import javax.persistence.PersistenceException;
 import javax.persistence.Table;
 
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.mail.ListingAddMail;
 import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
@@ -62,6 +66,7 @@ import com.proptiger.data.util.ResourceTypeField;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.InvalidResourceException;
+import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.mail.service.MailSender;
@@ -512,9 +517,10 @@ public class PortfolioService extends AbstractService {
     protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
         super.preProcessCreate(resource);
         PortfolioListing toCreate = (PortfolioListing) resource;
-        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndName(
+        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndNameAndDeletedFlag(
                 toCreate.getUserId(),
-                toCreate.getName());
+                toCreate.getName(),
+                false);
         if (propertyPresent != null) {
             logger.error("Duplicate resource id {} and name {}", propertyPresent.getId(), propertyPresent.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
@@ -547,8 +553,8 @@ public class PortfolioService extends AbstractService {
         updateOtherSpecificData(created);
 
         subscriptionService.enableOrAddUserSubscription(userId, listing.getListingId(), PortfolioListing.class
-                .getAnnotation(Table.class).name(), Constants.SubscriptionType.PORTFOLIO);
-
+                .getAnnotation(Table.class).name(), Constants.SubscriptionType.PROJECT_UPDATES,
+                Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
         return created;
     }
 
@@ -557,15 +563,20 @@ public class PortfolioService extends AbstractService {
      * 
      * @param userId
      * @param propertyId
-     * @param property
+     * @param listing
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
-    public PortfolioListing updatePortfolioListing(Integer userId, Integer propertyId, PortfolioListing property) {
+    public PortfolioListing updatePortfolioListing(Integer userId, Integer propertyId, PortfolioListing listing) {
         logger.debug("Update portfolio listing {} for user id {}", propertyId, userId);
-        property.setUserId(userId);
-        property.setId(propertyId);
-        PortfolioListing updated = update(property);
+        listing.setUserId(userId);
+        listing.setId(propertyId);
+        /*
+         * as FetchType.Eager of Property is creating new object 
+         * expecting nullaware bean to update property as well
+         */
+        listing.setProperty(null);                     
+        PortfolioListing updated = update(listing);
         updateOtherSpecificData(updated);
         /*
          * Update current price
@@ -616,9 +627,10 @@ public class PortfolioService extends AbstractService {
     protected <T extends Resource> T update(T resource) {
         PortfolioListing toUpdate = (PortfolioListing) resource;
         PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
-        PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndName(
+        PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndNameAndDeletedFlag(
                 toUpdate.getUserId(),
-                toUpdate.getName());
+                toUpdate.getName(),
+                false);
         if (resourceWithSameName != null && !resourcePresent.getId().equals(resourceWithSameName.getId())) {
             logger.error(
                     "Duplicate resource id {} and name {}",
@@ -626,7 +638,16 @@ public class PortfolioService extends AbstractService {
                     resourceWithSameName.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
         }
-        resourcePresent.update(toUpdate);
+        
+        try {
+            BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+            beanUtilsBean.copyProperties(resourcePresent, toUpdate);
+            // updating already present listing i.e resourcePresent  with new data changes contained in toUpdate
+            
+        }
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new ProAPIException("Portfolio listing update failed", e);
+        }
         /*
          * Now need to update other price details if any
          */
@@ -642,8 +663,8 @@ public class PortfolioService extends AbstractService {
      */
     @Transactional
     private void createOrUpdateOtherPrices(PortfolioListing present, PortfolioListing toUpdate) {
-        if ((present.getOtherPrices() == null || present.getOtherPrices().isEmpty()) && (toUpdate.getOtherPrices() == null || toUpdate
-                .getOtherPrices().isEmpty())) {
+        if (toUpdate.getOtherPrices() == null || toUpdate
+                .getOtherPrices().isEmpty()) {
             return;
         }
         if ((present.getOtherPrices() == null || present.getOtherPrices().isEmpty()) && toUpdate.getOtherPrices() != null) {
@@ -683,8 +704,11 @@ public class PortfolioService extends AbstractService {
             logger.error("PortfolioProperty id {} not found", toUpdate.getId());
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.UPDATE);
         }
-        if (toUpdate.getListingSize() == null || toUpdate.getListingSize() <= 0) {
+        if (toUpdate.getListingSize()!=null)
+        {
+            if( toUpdate.getListingSize() <= 0) {
             throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
+            }
         }
         return (T) resourcePresent;
     }
@@ -710,7 +734,8 @@ public class PortfolioService extends AbstractService {
         propertyPresent.setReason(reason);
 
         subscriptionService.disableSubscription(userId, listingId, PortfolioListing.class.getAnnotation(Table.class)
-                .name(), Constants.SubscriptionType.PORTFOLIO);
+                .name(), Constants.SubscriptionType.PROJECT_UPDATES,
+                Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
 
         return propertyPresent;
     }
@@ -954,39 +979,45 @@ public class PortfolioService extends AbstractService {
         ForumUser user = listing.getForumUser();
         String toStr = user.getEmail();
         MailBody mailBody = null;
+        MailDetails mailDetails = null;
         switch (mailTypeEnum) {
             case LISTING_ADD_MAIL_TO_USER:
                 ListingAddMail listingAddMail = createListingAddMailObject(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING,
                         listingAddMail);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_USER:
                 ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_USER,
                         listingLoanRequestMail);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
                 ListingLoanRequestMail listingLoanRequestMailInternal = createListingLoanRequestObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL,
                         listingLoanRequestMailInternal);
                 toStr = propertyReader.getRequiredProperty(PropertyKeys.MAIL_HOME_LOAN_INTERNAL_RECIEPIENT);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
                 ListingResaleMail listingResaleMailInternal = createListingResaleMailObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL,
                         listingResaleMailInternal);
                 toStr = propertyReader.getRequiredProperty(PropertyKeys.MAIL_INTERESTED_TO_SELL_RECIEPIENT);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_USER:
                 ListingResaleMail listingResaleMailUser = createListingResaleMailObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER,
                         listingResaleMailUser);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             default:
                 throw new IllegalArgumentException("Invalid mail type");
         }
@@ -1177,21 +1208,14 @@ public class PortfolioService extends AbstractService {
         String mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.to.recipient");
         String mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.cc.recipient");
 
-        String[] mailCC = null;
-
         if (mailToAddress.length() < 1) {
             logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
 
-        String[] mailTo = mailToAddress.split(",");
-        if (mailCCAddress.length() > 0) {
-            mailCC = mailCCAddress.split(",");
-        }
-
         MailBody mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.SELL_YOUR_PROPERTY, portfolioListing);
-
-        return mailSender.sendMailUsingAws(mailTo, mailCC, null, mailBody.getBody(), mailBody.getSubject());
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
+        return mailSender.sendMailUsingAws(mailDetails);
 
     }
 
