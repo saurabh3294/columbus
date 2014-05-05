@@ -2,7 +2,6 @@ package com.proptiger.data.handler;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.shiro.authz.UnauthorizedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
@@ -29,6 +28,7 @@ import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.exception.ResourceNotFoundException;
+import com.proptiger.exception.UnauthorizedException;
 
 /**
  * This class is a global exception handler, based on type of exception it
