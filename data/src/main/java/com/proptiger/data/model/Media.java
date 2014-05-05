@@ -16,6 +16,7 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.model.image.ObjectMediaType;
 
@@ -45,7 +46,7 @@ public class Media {
 
     private String          url;
 
-    @Transient
+    @JsonIgnore
     @Column(name = "original_file_name")
     private String          originalFileName;
 
@@ -54,14 +55,14 @@ public class Media {
 
     private String          description;
 
+    @JsonIgnore
     @Column(name = "media_extra_attributes")
-    private String          mediaExtraAttributes;
+    private String          stringMediaExtraAttributes;
 
     @Transient
-    private JsonNode        jsonMediaExtraAttributes;
+    private JsonNode        mediaExtraAttributes;
 
-    private Integer         priority;
-
+    @JsonIgnore
     @Column(name = "content_hash")
     private String          contentHash;
 
@@ -133,28 +134,20 @@ public class Media {
         this.description = description;
     }
 
-    public String getMediaExtraAttributes() {
+    public String getStringMediaExtraAttributes() {
+        return stringMediaExtraAttributes;
+    }
+
+    public void setStringMediaExtraAttributes(String stringMediaExtraAttributes) {
+        this.stringMediaExtraAttributes = stringMediaExtraAttributes;
+    }
+
+    public JsonNode getMediaExtraAttributes() {
         return mediaExtraAttributes;
     }
 
-    public void setMediaExtraAttributes(String mediaExtraAttributes) {
+    public void setMediaExtraAttributes(JsonNode mediaExtraAttributes) {
         this.mediaExtraAttributes = mediaExtraAttributes;
-    }
-
-    public JsonNode getJsonMediaExtraAttributes() {
-        return jsonMediaExtraAttributes;
-    }
-
-    public void setJsonMediaExtraAttributes(JsonNode jsonMediaExtraAttributes) {
-        this.jsonMediaExtraAttributes = jsonMediaExtraAttributes;
-    }
-
-    public Integer getPriority() {
-        return priority;
-    }
-
-    public void setPriority(Integer priority) {
-        this.priority = priority;
     }
 
     public String getContentHash() {

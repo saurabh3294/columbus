@@ -63,8 +63,11 @@ public abstract class MediaService {
             Integer objectId,
             MultipartFile file,
             String objectMediaType,
-            Media mediaParams) {
-        Media media = new Media();
+            Media media) {
+        Media finalMdeia = new Media();
+
+        finalMdeia.setDescription(media.getDescription());
+        finalMdeia.setMediaExtraAttributes(media.getMediaExtraAttributes());
 
         try {
             File originalFile;
@@ -74,26 +77,26 @@ public abstract class MediaService {
 
             int objectMediaTypeId = getObjectMediaTypeId(domainObject, objectMediaType);
 
-            media.setOriginalFileName(file.getOriginalFilename());
-            media.setObjectId(objectId);
-            media.setObjectMediaTypeId(objectMediaTypeId);
-            MediaUtil.populateBasicMediaAttributes(originalFile, media);
-            media.setIsActive(false);
-            media.setPriority(0);
+            finalMdeia.setOriginalFileName(file.getOriginalFilename());
 
-            preventDuplicateMediaInsertion(media.getContentHash(), 1);
+            finalMdeia.setObjectId(objectId);
+            finalMdeia.setObjectMediaTypeId(objectMediaTypeId);
+            MediaUtil.populateBasicMediaAttributes(originalFile, finalMdeia);
+            finalMdeia.setIsActive(false);
 
-            mediaDao.save(media);
+            preventDuplicateMediaInsertion(finalMdeia.getContentHash(), 1);
 
-            String url = getMediaS3Url(media);
+            mediaDao.save(finalMdeia);
+
+            String url = getMediaS3Url(finalMdeia);
 
             AmazonS3Util s3Util = new AmazonS3Util();
             s3Util.uploadFile(url, originalFile);
 
-            media.setIsActive(true);
-            media.setUrl(url);
-            mediaDao.save(media);
-            return media;
+            finalMdeia.setIsActive(true);
+            finalMdeia.setUrl(url);
+            mediaDao.save(finalMdeia);
+            return finalMdeia;
         }
         catch (IOException e) {
             throw new ProAPIException(e);
@@ -121,7 +124,7 @@ public abstract class MediaService {
         }
     }
 
-    public void preventDuplicateMediaInsertion(String contentHash, Integer objectTypeId) {
+    protected void preventDuplicateMediaInsertion(String contentHash, Integer objectTypeId) {
         List<Media> mediaList = mediaDao.findByContentHashAndObjectTypeId(contentHash, objectTypeId);
         if (mediaList.size() > 0) {
             throw new ResourceAlreadyExistException("");

@@ -32,9 +32,9 @@ public class MediaController {
     Object postMedia(
             @RequestParam DomainObject objectType,
             @RequestParam Integer objectId,
-            @RequestParam MultipartFile media,
+            @RequestParam MultipartFile file,
             @RequestParam String objectMediaType,
-            @ModelAttribute Media mediaParams) {
-        return documentService.postMedia(objectType, objectId, media, objectMediaType, mediaParams);
+            @ModelAttribute Media media) {
+        return documentService.postMedia(objectType, objectId, file, objectMediaType, media);
     }
 }
