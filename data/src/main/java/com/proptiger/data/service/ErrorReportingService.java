@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
@@ -86,25 +87,15 @@ public class ErrorReportingService {
     private boolean sendMailOnProjectError(ProjectError projectError, Property property, Project project) {
         String mailToAddress = propertyReader.getRequiredProperty("mail.report.error.to.recipient");
         String mailCCAddress = propertyReader.getRequiredProperty("mail.report.error.cc.recipient");
-
-        String[] mailCC = null;
-
         if (mailToAddress.length() < 1) {
             logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
-
-        String[] mailTo = mailToAddress.split(",");
-        if (mailCCAddress.length() > 0) {
-            mailCC = mailCCAddress.split(",");
-        }
-
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.PROJECT_PROPERTY_ERROR_POST,
                 new ReportErrorDTO(projectError, property, project));
-
-        return mailSender.sendMailUsingAws(mailTo, mailCC, null, mailBody.getBody(), mailBody.getSubject());
-
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
+        return mailSender.sendMailUsingAws(mailDetails);
     }
 
     /**
