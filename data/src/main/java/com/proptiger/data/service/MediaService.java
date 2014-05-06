@@ -15,15 +15,18 @@ import com.proptiger.data.model.Media;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.MediaType;
 import com.proptiger.data.model.image.ObjectMediaType;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.MediaDao;
 import com.proptiger.data.repo.MediaTypeDao;
 import com.proptiger.data.repo.ObjectMediaTypeDao;
 import com.proptiger.data.repo.ObjectTypeDao;
 import com.proptiger.data.util.AmazonS3Util;
 import com.proptiger.data.util.MediaUtil;
+import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
+import com.proptiger.exception.ResourceNotFoundException;
 
 /**
  * 
@@ -56,6 +59,11 @@ public abstract class MediaService {
     @PostConstruct
     private void init() {
         tempDir = new File(tempDirPath);
+    }
+
+    public List<Media> getMedia(FIQLSelector selector) {
+        selector.addAndConditionToFilter("isActive==" + true).setRows(UtilityClass.min(selector.getRows(), 10));
+        return mediaDao.getFilteredMedia(selector);
     }
 
     public Media postMedia(
@@ -127,7 +135,7 @@ public abstract class MediaService {
     protected void preventDuplicateMediaInsertion(String contentHash, Integer objectTypeId) {
         List<Media> mediaList = mediaDao.findByContentHashAndObjectTypeId(contentHash, objectTypeId);
         if (mediaList.size() > 0) {
-            throw new ResourceAlreadyExistException("");
+            throw new ResourceAlreadyExistException("Media Already Exists");
         }
     }
 
@@ -144,5 +152,14 @@ public abstract class MediaService {
                 + media.getId()
                 + "."
                 + FilenameUtils.getExtension(media.getOriginalFileName());
+    }
+
+    public void deleteMedia(Integer id) {
+        Media media = mediaDao.findOne(id);
+        if (media == null || !media.getIsActive()) {
+            throw new ResourceNotFoundException();
+        }
+        media.setIsActive(false);
+        mediaDao.save(media);
     }
 }

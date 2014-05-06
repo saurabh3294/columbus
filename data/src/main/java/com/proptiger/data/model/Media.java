@@ -28,55 +28,57 @@ import com.proptiger.data.model.image.ObjectMediaType;
  */
 @Entity
 @Table(name = "media")
-public class Media {
+public class Media extends BaseModel {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer         id;
+    private Integer           id;
 
     @Column(name = "object_media_type_id")
-    private Integer         objectMediaTypeId;
+    private Integer           objectMediaTypeId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "object_media_type_id", insertable = false, updatable = false)
-    private ObjectMediaType objectMediaType;
+    private ObjectMediaType   objectMediaType;
 
     @Column(name = "object_id")
-    private Integer         objectId;
+    private Integer           objectId;
 
-    private String          url;
+    private String            url;
 
     @JsonIgnore
     @Column(name = "original_file_name")
-    private String          originalFileName;
+    private String            originalFileName;
 
     @Column(name = "size_in_bytes")
-    private Long            sizeInBytes;
+    private Long              sizeInBytes;
 
-    private String          description;
+    private String            description;
 
     @JsonIgnore
     @Column(name = "media_extra_attributes")
-    private String          stringMediaExtraAttributes;
+    private String            stringMediaExtraAttributes;
 
     @Transient
-    private JsonNode        mediaExtraAttributes;
+    private JsonNode          mediaExtraAttributes;
 
     @JsonIgnore
     @Column(name = "content_hash")
-    private String          contentHash;
+    private String            contentHash;
 
     @Column(name = "active")
-    private Boolean         isActive;
+    private Boolean           isActive;
 
     @Column(name = "file_creation_time")
-    private Date            fileCreationTime;
+    private Date              fileCreationTime;
 
     @Column(name = "created_at")
-    private Date            createdAt = new Date();
+    private Date              createdAt        = new Date();
 
     @Column(name = "updated_at")
-    private Date            updatedAt = new Date();
+    private Date              updatedAt        = new Date();
 
     public Integer getId() {
         return id;
