@@ -2,9 +2,8 @@ package com.proptiger.data.util;
 
 import java.io.File;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.amazonaws.ClientConfiguration;
 import com.amazonaws.Protocol;
@@ -18,46 +17,30 @@ import com.amazonaws.services.s3.AmazonS3Client;
  * @author azi
  * 
  */
+@Component
 public class AmazonS3Util {
     @Value("${bucket}")
-    private String   bucket;
+    private String  bucket;
 
     @Value("${accessKeyId}")
-    private String   accessKeyId;
+    private String  accessKeyId;
 
     @Value("${secretAccessKey}")
-    private String   secretAccessKey;
+    private String  secretAccessKey;
 
-    private AmazonS3 amazonS3;
+    private Integer maxErrorRetry = 3;
 
-    @PostConstruct
-    public void init() {
-        ClientConfiguration config = new ClientConfiguration();
-        config.withProtocol(Protocol.HTTP);
-        config.setMaxErrorRetry(3);
+    private AmazonS3 getS3Instance() {
+        ClientConfiguration clientConfiguration = new ClientConfiguration();
+        clientConfiguration.withProtocol(Protocol.HTTP);
+        clientConfiguration.setMaxErrorRetry(maxErrorRetry);
 
-        System.out.println("POSTCONSTRUCT " + this.accessKeyId + this.secretAccessKey);
-        // AWSCredentials credentials = new
-        // BasicAWSCredentials(this.accessKeyId,
-        // this.secretAccessKey);
-        // this.amazonS3 = new AmazonS3Client(credentials, config);
-    }
-
-    public AmazonS3Util() {
-        ClientConfiguration config = new ClientConfiguration();
-        config.withProtocol(Protocol.HTTP);
-        config.setMaxErrorRetry(3);
-
-        System.out.println("CONSTRUCTOR " + this.accessKeyId + this.secretAccessKey);
-        AWSCredentials credentials = new BasicAWSCredentials(
-                "AKIAI5FTEFLES7UMOD4A",
-                "HMvOkDtE4OtZJFPkGozE7lEaFuKUWZbcjnNdWnSm");
-        this.amazonS3 = new AmazonS3Client(credentials, config);
+        AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
+        return new AmazonS3Client(credentials, clientConfiguration);
     }
 
     public void uploadFile(String pathInS3Bucket, File file) {
-        System.out.println("PATH = " + pathInS3Bucket + " SIZE " + file.length());
-        System.out.println("FINAL " + this.accessKeyId + this.secretAccessKey);
-        this.amazonS3.putObject("im.proptiger-ws.com", pathInS3Bucket, file);
+        AmazonS3 amazonS3 = getS3Instance();
+        amazonS3.putObject(bucket, pathInS3Bucket, file);
     }
 }

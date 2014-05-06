@@ -35,26 +35,31 @@ import com.proptiger.exception.ResourceNotFoundException;
  */
 
 public abstract class MediaService {
-    protected MediaType        mediaType     = MediaType.Document;
+    protected MediaType          mediaType     = MediaType.Document;
 
     @Value("${imageTempPath}")
-    private String             tempDirPath;
+    private String               tempDirPath;
 
-    private File               tempDir;
-
-    @Autowired
-    private MediaDao           mediaDao;
+    protected File               tempDir;
 
     @Autowired
-    private ObjectTypeDao      objectTypeDao;
+    protected MediaDao           mediaDao;
 
     @Autowired
-    private MediaTypeDao       mediaTypeDao;
+    protected ObjectTypeDao      objectTypeDao;
 
     @Autowired
-    private ObjectMediaTypeDao objectMediaTypeDao;
+    protected MediaTypeDao       mediaTypeDao;
 
-    private String             pathSeparator = "/";
+    @Autowired
+    protected ObjectMediaTypeDao objectMediaTypeDao;
+
+    protected String             pathSeparator = "/";
+
+    protected String             dot           = ".";
+
+    @Autowired
+    protected AmazonS3Util       amazonS3Util;
 
     @PostConstruct
     private void init() {
@@ -98,8 +103,7 @@ public abstract class MediaService {
 
             String url = getMediaS3Url(finalMdeia);
 
-            AmazonS3Util s3Util = new AmazonS3Util();
-            s3Util.uploadFile(url, originalFile);
+            amazonS3Util.uploadFile(url, originalFile);
 
             finalMdeia.setIsActive(true);
             finalMdeia.setUrl(url);
@@ -150,7 +154,7 @@ public abstract class MediaService {
                 + objectMediaType.getId()
                 + pathSeparator
                 + media.getId()
-                + "."
+                + dot
                 + FilenameUtils.getExtension(media.getOriginalFileName());
     }
 
