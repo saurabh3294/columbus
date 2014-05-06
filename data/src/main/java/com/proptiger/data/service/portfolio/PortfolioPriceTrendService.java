@@ -233,7 +233,7 @@ public class PortfolioPriceTrendService {
             Date firstDatePresent = firstPriceTrend.getEffectiveDate();
             cal.setTime(firstDatePresent);
             Date launchDate = projectService.getProjectData(priceTrend.getProjectId()).getLaunchDate();
-            while (prices.size() < noOfMonths && launchDate.before(cal.getTime())) {
+            while (prices.size() < noOfMonths && (launchDate == null || launchDate.before(cal.getTime()))) {
                 PriceDetail detail = new PriceDetail();
                 detail.setPrice(firstPriceTrend.getPrice());
                 cal.add(Calendar.MONTH, -1);
