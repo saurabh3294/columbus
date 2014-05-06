@@ -187,4 +187,12 @@ public class Media extends BaseModel {
     public Date getUpdatedAt() {
         return updatedAt;
     }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
 }

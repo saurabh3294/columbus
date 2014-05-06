@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -97,7 +98,7 @@ public abstract class MediaService {
             MediaUtil.populateBasicMediaAttributes(originalFile, finalMdeia);
             finalMdeia.setIsActive(false);
 
-            preventDuplicateMediaInsertion(finalMdeia.getContentHash(), 1);
+            preventDuplicateMediaInsertion(finalMdeia.getContentHash(), domainObject.toString());
 
             mediaDao.save(finalMdeia);
 
@@ -136,8 +137,8 @@ public abstract class MediaService {
         }
     }
 
-    protected void preventDuplicateMediaInsertion(String contentHash, Integer objectTypeId) {
-        List<Media> mediaList = mediaDao.findByContentHashAndObjectTypeId(contentHash, objectTypeId);
+    protected void preventDuplicateMediaInsertion(String contentHash, String objectType) {
+        List<Media> mediaList = mediaDao.findByContentHashAndObjectType(contentHash, objectType);
         if (mediaList.size() > 0) {
             throw new ResourceAlreadyExistException("Media Already Exists");
         }
@@ -165,5 +166,18 @@ public abstract class MediaService {
         }
         media.setIsActive(false);
         mediaDao.save(media);
+    }
+
+    public Media updateMedia(Media media, Integer id) {
+        Media savedMedia = mediaDao.findOne(id);
+        if (savedMedia == null) {
+            throw new ResourceNotFoundException();
+        }
+        else {
+            savedMedia.setDescription(media.getDescription());
+            savedMedia.setMediaExtraAttributes(media.getMediaExtraAttributes());
+            savedMedia.setUpdatedAt(new Date());
+            return mediaDao.save(savedMedia);
+        }
     }
 }

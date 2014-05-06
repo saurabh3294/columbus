@@ -14,6 +14,6 @@ import com.proptiger.data.model.Media;
  * 
  */
 public interface MediaDao extends PagingAndSortingRepository<Media, Integer>, MediaCustomDao {
-    @Query("select M from Media as M JOIN FETCH M.objectMediaType OMT where M.contentHash = ?1 AND OMT.objectTypeId = ?2 AND M.isActive=1")
-    public List<Media> findByContentHashAndObjectTypeId(String contentHash, Integer objectTypeId);
+    @Query("select M from Media as M JOIN FETCH M.objectMediaType OMT JOIN FETCH OMT.objectType OT where M.contentHash = ?1 AND OT.type = ?2 AND M.isActive=1")
+    public List<Media> findByContentHashAndObjectType(String contentHash, String objectType);
 }
