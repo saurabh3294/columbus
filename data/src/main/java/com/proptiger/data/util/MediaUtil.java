@@ -121,7 +121,6 @@ public class MediaUtil {
     public static void populateBasicMediaAttributes(File file, Media media) {
         try {
             BasicFileAttributes fileAttributes = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-            media.setFileCreationTime(new Date(fileAttributes.creationTime().toMillis()));
             media.setSizeInBytes(fileAttributes.size());
             media.setContentHash(fileMd5Hash(file));
         }

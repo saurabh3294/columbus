@@ -71,9 +71,6 @@ public class Media extends BaseModel {
     @Column(name = "active")
     private Boolean           isActive;
 
-    @Column(name = "file_creation_time")
-    private Date              fileCreationTime;
-
     @Column(name = "created_at")
     private Date              createdAt        = new Date();
 
@@ -166,14 +163,6 @@ public class Media extends BaseModel {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
-    }
-
-    public Date getFileCreationTime() {
-        return fileCreationTime;
-    }
-
-    public void setFileCreationTime(Date fileCreationTime) {
-        this.fileCreationTime = fileCreationTime;
     }
 
     public Date getCreatedAt() {

@@ -57,7 +57,6 @@ public class MediaController {
     @RequestMapping(method = RequestMethod.PUT, value = "/document/{id}")
     @ResponseBody
     public ProAPIResponse updateMedia(@PathVariable Integer id, @ModelAttribute Media media) {
-        documentService.deleteMedia(id);
-        return new ProAPISuccessResponse();
+        return new ProAPISuccessResponse(documentService.updateMedia(media, id));
     }
 }
