@@ -20,6 +20,10 @@ public class ProAPIException extends RuntimeException {
         super(ex);
     }
 
+    public ProAPIException(String responseCode, String message){
+    	super(message);
+    	this.responseCode = responseCode;
+    }
     public ProAPIException(String msg) {
         super(msg);
     }

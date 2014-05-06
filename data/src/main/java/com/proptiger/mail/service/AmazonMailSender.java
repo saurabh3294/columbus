@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.auth.PropertiesCredentials;
@@ -19,8 +20,10 @@ import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendEmailResult;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * Using amazon web service to send mails
@@ -49,28 +52,23 @@ public class AmazonMailSender {
         emailServiceClient = new AmazonSimpleEmailServiceClient(credentials);
         from = propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY);
     }
-
-    public boolean sendMail(String[] mailTo, String[] mailCC, String[] mailBCC, String mailContent, String subject)
+    @Async
+    public boolean sendMail(MailDetails mailDetails)
             throws MailException {
         // Construct an object to contain the recipient address.
-        if (from == null || from.isEmpty()) {
-            logger.debug("from email-Id is null or Empty");
-            return false;
+        if(!validFromAndToAddress(mailDetails.getMailTo())){
+        	return false;
         }
-        if (mailTo == null || mailTo.length == 0) {
-            logger.debug("To email-Id is null or Empty");
-            return false;
-        }
-
-        Destination destination = new Destination().withToAddresses(mailTo);
-        if (mailCC != null && mailCC.length > 0)
-            destination.withCcAddresses(mailCC);
-        if (mailBCC != null && mailBCC.length > 0)
-            destination.withBccAddresses(mailBCC);
+        validateSubject(mailDetails.getSubject());
+        Destination destination = new Destination().withToAddresses(mailDetails.getMailTo());
+        if (mailDetails.getMailCC() != null && mailDetails.getMailCC().length > 0)
+            destination.withCcAddresses(mailDetails.getMailCC());
+        if (mailDetails.getMailBCC() != null && mailDetails.getMailBCC().length > 0)
+            destination.withBccAddresses(mailDetails.getMailBCC());
 
         // Create the subject and body of the message.
-        Content mailSubject = new Content().withData(subject);
-        Content textBody = new Content().withData(mailContent);
+        Content mailSubject = new Content().withData(mailDetails.getSubject());
+        Content textBody = new Content().withData(mailDetails.getBody());
         Body body = new Body().withHtml(textBody);
 
         // Create a message with the specified subject and body.
@@ -79,9 +77,27 @@ public class AmazonMailSender {
         // Assemble the email.
         SendEmailRequest request = new SendEmailRequest().withSource(from).withDestination(destination)
                 .withMessage(message);
-        logger.debug("Sending mails to {}", Arrays.toString(mailTo));
+        logger.debug("Sending mails to {}", Arrays.toString(mailDetails.getMailTo()));
         SendEmailResult result = emailServiceClient.sendEmail(request);
         logger.debug("Mail sent id {}", result.getMessageId());
         return true;
     }
+
+	private void validateSubject(String subject) {
+		if (subject == null || subject.isEmpty()) {
+            throw new ProAPIException("Subject is empty");
+        }
+	}
+
+	private boolean validFromAndToAddress(String[] mailTo) {
+		if (from == null || from.isEmpty()) {
+            logger.debug("from email-Id is null or Empty");
+            return false;
+        }
+        if (mailTo == null || mailTo.length == 0) {
+            logger.debug("To email-Id is null or Empty");
+            return false;
+        }
+        return true;
+	}
 }

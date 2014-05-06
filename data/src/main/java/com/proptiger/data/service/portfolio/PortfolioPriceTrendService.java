@@ -21,6 +21,7 @@ import com.proptiger.data.model.portfolio.PortfolioListingPrice;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
+import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -48,6 +49,9 @@ public class PortfolioPriceTrendService {
 
     @Autowired
     private ProjectDBDao             projectDBDao;
+
+    @Autowired
+    private ProjectService           projectService;
 
     /**
      * Get price trend for a listing associated with user
@@ -228,7 +232,8 @@ public class PortfolioPriceTrendService {
             PriceDetail firstPriceTrend = prices.get(0);
             Date firstDatePresent = firstPriceTrend.getEffectiveDate();
             cal.setTime(firstDatePresent);
-            while (prices.size() < noOfMonths) {
+            Date launchDate = projectService.getProjectData(priceTrend.getProjectId()).getLaunchDate();
+            while (prices.size() < noOfMonths && launchDate.before(cal.getTime())) {
                 PriceDetail detail = new PriceDetail();
                 detail.setPrice(firstPriceTrend.getPrice());
                 cal.add(Calendar.MONTH, -1);
@@ -280,10 +285,12 @@ public class PortfolioPriceTrendService {
              * If there are more price details than required then remove from
              * first
              */
-            if (prices.size() > noOfMonths) {
+            //actual no of months required
+            int actualNoOfMonthRequired = noOfMonths - 1;
+            if (prices.size() > actualNoOfMonthRequired) {
                 // remove from first
                 int removeCounter = 0;
-                int toRemove = prices.size() - noOfMonths;
+                int toRemove = prices.size() - actualNoOfMonthRequired;
                 while (removeCounter < toRemove) {
                     prices.remove(0);
                     removeCounter++;

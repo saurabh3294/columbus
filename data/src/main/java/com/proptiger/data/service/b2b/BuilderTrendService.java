@@ -92,10 +92,14 @@ public class BuilderTrendService {
                         builderTrend.setMaxPricePerUnitArea(UtilityClass.max(
                                 builderTrend.getMaxPricePerUnitArea(),
                                 (Integer) inventoryPriceTrend.getExtraAttributes().get("maxPricePerUnitArea")));
-                        builderTrend.setSupply(builderTrend.getSupply() + ((Long) inventoryPriceTrend
-                                .getExtraAttributes().get("sumLtdSupply")).intValue());
-                        builderTrend.setInventory(builderTrend.getInventory() + ((Long) inventoryPriceTrend
-                                .getExtraAttributes().get("sumInventory")).intValue());
+                        if (inventoryPriceTrend.getExtraAttributes().get("sumLtdSupply") != null) {
+                            builderTrend.setSupply(builderTrend.getSupply() + ((Long) inventoryPriceTrend
+                                    .getExtraAttributes().get("sumLtdSupply")).intValue());
+                        }
+                        if (inventoryPriceTrend.getExtraAttributes().get("sumInventory") != null) {
+                            builderTrend.setInventory(builderTrend.getInventory() + ((Long) inventoryPriceTrend
+                                    .getExtraAttributes().get("sumInventory")).intValue());
+                        }
                         builderTrend.getUnitTypes().add(inventoryPriceTrend.getUnitType());
 
                         if (inventoryPriceTrend.getIsDominantProjectUnitType()) {

@@ -1,5 +1,6 @@
 package com.proptiger.data.model.b2b;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,14 +15,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.meta.ResourceMetaInfo;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jsonschema.util.JsonLoader;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * Catchment model object
@@ -30,12 +36,13 @@ import com.proptiger.data.model.BaseModel;
  * 
  */
 
-@ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "b2b_user_catchments")
 @JsonFilter("fieldFilter")
 public class Catchment extends BaseModel {
+    private static final long      serialVersionUID  = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer                id;
@@ -49,6 +56,13 @@ public class Catchment extends BaseModel {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "catchment", cascade = CascadeType.ALL)
     private List<CatchmentProject> catchmentProjects = new ArrayList<>();
 
+    @JsonIgnore
+    @Column(name = "meta_attributes")
+    private String                 stringMetaAttributes;
+
+    @Transient
+    private JsonNode               metaAttributes;
+
     @Enumerated(EnumType.STRING)
     private STATUS                 status            = STATUS.Active;
 
@@ -57,6 +71,18 @@ public class Catchment extends BaseModel {
 
     @Column(name = "updated_at")
     private Date                   updatedAt;
+
+    @PostLoad
+    public void setJsonPreference() {
+        if (this.stringMetaAttributes != null) {
+            try {
+                this.metaAttributes = JsonLoader.fromString(this.stringMetaAttributes);
+            }
+            catch (IOException e) {
+                throw new ProAPIException(e);
+            }
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -90,6 +116,29 @@ public class Catchment extends BaseModel {
         this.catchmentProjects = catchmentProjects;
     }
 
+    public String getStringMetaAttributes() {
+        return stringMetaAttributes;
+    }
+
+    public void setStringMetaAttributes(String stringMetaAttributes) {
+        try {
+            this.metaAttributes = JsonLoader.fromString(stringMetaAttributes);
+        }
+        catch (IOException e) {
+            throw new ProAPIException(e);
+        }
+        this.stringMetaAttributes = stringMetaAttributes;
+    }
+
+    public JsonNode getMetaAttributes() {
+        return metaAttributes;
+    }
+
+    public void setMetaAttributes(JsonNode metaAttributes) {
+        this.metaAttributes = metaAttributes;
+        this.stringMetaAttributes = metaAttributes.toString();
+    }
+
     public STATUS getStatus() {
         return status;
     }
@@ -112,6 +161,10 @@ public class Catchment extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
     }
 
     public List<Integer> getProjectIds() {

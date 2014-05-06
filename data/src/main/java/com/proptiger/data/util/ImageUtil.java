@@ -1,6 +1,5 @@
 package com.proptiger.data.util;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,6 +13,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import org.im4java.core.Info;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +70,16 @@ public class ImageUtil {
 
     public static void populateImageMetaInfo(File imageFile, Image image) throws IOException {
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
-        BufferedImage buffImage = ImageIO.read(iis);
-        image.setWidth(buffImage.getWidth());
-        image.setHeight(buffImage.getHeight());
+
+        try {
+            Info info = new Info(imageFile.getAbsolutePath());
+            image.setWidth(info.getImageWidth());
+            image.setHeight(info.getImageHeight());
+        }
+        catch (Exception e) {
+            logger.debug("Unable to read the image file.");
+            e.printStackTrace();
+        }
         // Size
         image.setSizeInBytes(imageFile.length());
 
