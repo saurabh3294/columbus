@@ -359,7 +359,7 @@ public class ProjectService {
      */
 	public boolean sendProjectDetailsMail(Integer projectId,
 			SenderDetail senderDetails) {
-		validateMailDetails(senderDetails);
+		validateSenderDetails(senderDetails);
 		Project project = getProjectData(projectId);
 		ProjectDetailMailContent content = new ProjectDetailMailContent(
 				senderDetails.getSenderName(), websiteHost + project.getURL(), senderDetails.getMessage());
@@ -376,13 +376,16 @@ public class ProjectService {
 	 * Validating emails, and applying check if sender and recipient address are same or not.
 	 * @param mailDetails
 	 */
-	private void validateMailDetails(SenderDetail mailDetails) {
+	private void validateSenderDetails(SenderDetail mailDetails) {
 		EmailValidator emailValiDator = EmailValidator.getInstance();
-		if(!emailValiDator.isValid(mailDetails.getSenderEmail()) || emailValiDator.isValid(mailDetails.getMailTo())){
-			throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid mail");
+		if(!emailValiDator.isValid(mailDetails.getSenderEmail()) || !emailValiDator.isValid(mailDetails.getMailTo())){
+			throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid email id");
 		}
 		if(mailDetails.getSenderEmail().equals(mailDetails.getMailTo())){
 			throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Sender and recipient emails are same");
+		}
+		if(mailDetails.getSenderName() == null || mailDetails.getSenderName().isEmpty()){
+		    throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Sender name can not be empty");
 		}
 	}
 
