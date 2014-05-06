@@ -657,8 +657,11 @@ public class PortfolioService extends AbstractService {
         
         try {
             BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+            /*
+             * updating already present listing i.e resourcePresent with new data changes contained in toUpdate
+             */
             beanUtilsBean.copyProperties(resourcePresent, toUpdate);
-            // updating already present listing i.e resourcePresent  with new data changes contained in toUpdate
+            
             
         }
         catch (IllegalAccessException | InvocationTargetException e) {
