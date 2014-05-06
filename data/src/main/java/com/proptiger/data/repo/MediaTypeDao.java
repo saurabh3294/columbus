@@ -12,7 +12,7 @@ import com.proptiger.data.model.MediaType;
  */
 
 public interface MediaTypeDao extends PagingAndSortingRepository<MediaType, Integer> {
-    public MediaType findByName(String mediaTypeName);
+    public MediaType findByName(com.proptiger.data.model.enums.MediaType mediaTypeName);
 
-    public Integer getMediaTypeIdFromMediaTypeName(String mediaTypeName);
+    public Integer getMediaTypeIdFromMediaTypeName(com.proptiger.data.model.enums.MediaType mediaTypeName);
 }

@@ -129,7 +129,7 @@ public class MediaUtil {
         }
     }
 
-    public static String getImageEndpoint(long id) {
+    public static String getMediaEndpoint(long id) {
         return endpoints[(int) (id % endpoints.length)];
     }
 }

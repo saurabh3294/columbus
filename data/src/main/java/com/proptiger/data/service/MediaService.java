@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,14 +17,12 @@ import com.proptiger.data.model.Media;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.MediaType;
 import com.proptiger.data.model.image.ObjectMediaType;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.MediaDao;
 import com.proptiger.data.repo.MediaTypeDao;
 import com.proptiger.data.repo.ObjectMediaTypeDao;
 import com.proptiger.data.repo.ObjectTypeDao;
 import com.proptiger.data.util.AmazonS3Util;
 import com.proptiger.data.util.MediaUtil;
-import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
@@ -67,21 +66,31 @@ public abstract class MediaService {
         tempDir = new File(tempDirPath);
     }
 
-    public List<Media> getMedia(FIQLSelector selector) {
-        selector.addAndConditionToFilter("isActive==" + true).setRows(UtilityClass.min(selector.getRows(), 10));
-        return mediaDao.getFilteredMedia(selector);
+    public List<Media> getMedia(DomainObject domainObject, Integer objectId, String objectMediaType) {
+        List<Media> result = new ArrayList<>();
+        if (objectMediaType == null || objectMediaType.isEmpty()) {
+            result = mediaDao.findByObjectIdAndObjectTypeAndMediaType(objectId, domainObject.toString(), mediaType);
+        }
+        else {
+            result = mediaDao.findByObjectIdAndObjectTypeAndMediaTypeAndObjectMediaType(
+                    objectId,
+                    domainObject.toString(),
+                    mediaType,
+                    objectMediaType);
+        }
+        return result;
     }
 
-    public Media postMedia(
+    public Media createMedia(
             DomainObject domainObject,
             Integer objectId,
             MultipartFile file,
             String objectMediaType,
             Media media) {
-        Media finalMdeia = new Media();
+        Media finalMedia = new Media();
 
-        finalMdeia.setDescription(media.getDescription());
-        finalMdeia.setMediaExtraAttributes(media.getMediaExtraAttributes());
+        finalMedia.setDescription(media.getDescription());
+        finalMedia.setMediaExtraAttributes(media.getMediaExtraAttributes());
 
         try {
             File originalFile;
@@ -91,25 +100,23 @@ public abstract class MediaService {
 
             int objectMediaTypeId = getObjectMediaTypeId(domainObject, objectMediaType);
 
-            finalMdeia.setOriginalFileName(file.getOriginalFilename());
+            finalMedia.setObjectId(objectId);
+            finalMedia.setObjectMediaTypeId(objectMediaTypeId);
+            MediaUtil.populateBasicMediaAttributes(originalFile, finalMedia);
+            finalMedia.setActive(false);
 
-            finalMdeia.setObjectId(objectId);
-            finalMdeia.setObjectMediaTypeId(objectMediaTypeId);
-            MediaUtil.populateBasicMediaAttributes(originalFile, finalMdeia);
-            finalMdeia.setIsActive(false);
+            preventDuplicateMediaInsertion(finalMedia.getContentHash(), domainObject.toString());
 
-            preventDuplicateMediaInsertion(finalMdeia.getContentHash(), domainObject.toString());
+            mediaDao.save(finalMedia);
 
-            mediaDao.save(finalMdeia);
-
-            String url = getMediaS3Url(finalMdeia);
+            String url = getMediaS3Url(finalMedia, file.getOriginalFilename());
 
             amazonS3Util.uploadFile(url, originalFile);
 
-            finalMdeia.setIsActive(true);
-            finalMdeia.setUrl(url);
-            mediaDao.save(finalMdeia);
-            return finalMdeia;
+            finalMedia.setActive(true);
+            finalMedia.setUrl(url);
+            mediaDao.save(finalMedia);
+            return mediaDao.findOne(finalMedia.getId());
         }
         catch (IOException e) {
             throw new ProAPIException(e);
@@ -117,7 +124,7 @@ public abstract class MediaService {
     }
 
     protected Integer getObjectMediaTypeId(DomainObject object, String objectMediaType) {
-        Integer mediaTypeId = mediaTypeDao.getMediaTypeIdFromMediaTypeName(mediaType.toString());
+        Integer mediaTypeId = mediaTypeDao.getMediaTypeIdFromMediaTypeName(mediaType);
         Integer objectTypeId = objectTypeDao.getObjectTypeIdByType(object.toString());
 
         if (mediaTypeId == null || objectTypeId == null) {
@@ -144,7 +151,7 @@ public abstract class MediaService {
         }
     }
 
-    protected String getMediaS3Url(Media media) {
+    protected String getMediaS3Url(Media media, String fileName) {
         int objectMediaTypeId = media.getObjectMediaTypeId();
         ObjectMediaType objectMediaType = objectMediaTypeDao.findOne(objectMediaTypeId);
         return objectMediaType.getMediaTypeId() + pathSeparator
@@ -156,15 +163,15 @@ public abstract class MediaService {
                 + pathSeparator
                 + media.getId()
                 + dot
-                + FilenameUtils.getExtension(media.getOriginalFileName());
+                + FilenameUtils.getExtension(fileName);
     }
 
     public void deleteMedia(Integer id) {
         Media media = mediaDao.findOne(id);
-        if (media == null || !media.getIsActive()) {
+        if (media == null || !media.isActive()) {
             throw new ResourceNotFoundException();
         }
-        media.setIsActive(false);
+        media.setActive(false);
         mediaDao.save(media);
     }
 

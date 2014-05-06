@@ -72,7 +72,7 @@ public class Image extends BaseModel {
 
     @JsonProperty
     public String getAbsolutePath() {
-        return MediaUtil.getImageEndpoint(id) + "/" + path + waterMarkName;
+        return MediaUtil.getMediaEndpoint(id) + "/" + path + waterMarkName;
     }
 
     // XXX - Do not remove! used for creating object from serialized string
@@ -323,6 +323,6 @@ public class Image extends BaseModel {
             imageId = 0;
         }
 
-        return MediaUtil.getImageEndpoint(imageId) + "/" + path;
+        return MediaUtil.getMediaEndpoint(imageId) + "/" + path;
     }
 }

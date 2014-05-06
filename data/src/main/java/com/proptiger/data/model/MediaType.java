@@ -1,6 +1,8 @@
 package com.proptiger.data.model;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -14,12 +16,13 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "media_types")
 public class MediaType extends BaseModel {
-    private static final long serialVersionUID = 1L;
+    private static final long                        serialVersionUID = 1L;
 
     @Id
-    private Integer           id;
+    private Integer                                  id;
 
-    private String            name;
+    @Enumerated(EnumType.STRING)
+    private com.proptiger.data.model.enums.MediaType name;
 
     public Integer getId() {
         return id;
@@ -29,11 +32,11 @@ public class MediaType extends BaseModel {
         this.id = id;
     }
 
-    public String getName() {
+    public com.proptiger.data.model.enums.MediaType getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(com.proptiger.data.model.enums.MediaType name) {
         this.name = name;
     }
 

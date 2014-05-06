@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -19,6 +20,7 @@ import org.hibernate.annotations.FetchMode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.model.image.ObjectMediaType;
+import com.proptiger.data.util.MediaUtil;
 
 /**
  * Model object for media
@@ -46,11 +48,11 @@ public class Media extends BaseModel {
     @Column(name = "object_id")
     private Integer           objectId;
 
+    @JsonIgnore
     private String            url;
 
-    @JsonIgnore
-    @Column(name = "original_file_name")
-    private String            originalFileName;
+    @Transient
+    private String            absoluteUrl;
 
     @Column(name = "size_in_bytes")
     private Long              sizeInBytes;
@@ -68,14 +70,18 @@ public class Media extends BaseModel {
     @Column(name = "content_hash")
     private String            contentHash;
 
-    @Column(name = "active")
-    private Boolean           isActive;
+    private boolean           active;
 
     @Column(name = "created_at")
     private Date              createdAt        = new Date();
 
     @Column(name = "updated_at")
     private Date              updatedAt        = new Date();
+
+    @PostLoad
+    private void postLoad() {
+        this.absoluteUrl = MediaUtil.getMediaEndpoint(this.id) + "/" + this.url;
+    }
 
     public Integer getId() {
         return id;
@@ -107,14 +113,6 @@ public class Media extends BaseModel {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getOriginalFileName() {
-        return originalFileName;
-    }
-
-    public void setOriginalFileName(String originalFileName) {
-        this.originalFileName = originalFileName;
     }
 
     public Long getSizeInBytes() {
@@ -157,14 +155,6 @@ public class Media extends BaseModel {
         this.contentHash = contentHash;
     }
 
-    public Boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
-
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -183,5 +173,29 @@ public class Media extends BaseModel {
 
     public static long getSerialversionuid() {
         return serialVersionUID;
+    }
+
+    public ObjectMediaType getObjectMediaType() {
+        return objectMediaType;
+    }
+
+    public void setObjectMediaType(ObjectMediaType objectMediaType) {
+        this.objectMediaType = objectMediaType;
+    }
+
+    public String getAbsoluteUrl() {
+        return absoluteUrl;
+    }
+
+    public void setAbsoluteUrl(String absoluteUrl) {
+        this.absoluteUrl = absoluteUrl;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

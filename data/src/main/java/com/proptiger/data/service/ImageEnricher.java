@@ -239,7 +239,7 @@ public class ImageEnricher {
         int index2 = projectMainUrl.lastIndexOf('.');
         long imageId = Long.parseLong(projectMainUrl.substring(index1 + 1, index2));
 
-        String endpoint = MediaUtil.getImageEndpoint(imageId);
+        String endpoint = MediaUtil.getMediaEndpoint(imageId);
         String path = projectMainUrl.substring(endpoint.length() + 1, index1 + 1);
         String waterMarkName = projectMainUrl.substring(index1 + 1);
 

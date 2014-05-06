@@ -132,4 +132,15 @@ public class ObjectMediaType extends BaseModel {
         this.priority = priority;
     }
 
+    public MediaType getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(MediaType mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
 }
