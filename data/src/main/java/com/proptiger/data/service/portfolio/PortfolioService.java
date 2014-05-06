@@ -484,7 +484,7 @@ public class PortfolioService extends AbstractService {
      * Get a PortfolioProperty for particular user id and PortfolioProperty id
      * 
      * @param userId
-     * @param propertyId
+     * @param listingId
      * @return
      */
     @Transactional(readOnly = true)
@@ -561,15 +561,15 @@ public class PortfolioService extends AbstractService {
      * Updated an existing PortfolioListing
      * 
      * @param userId
-     * @param propertyId
+     * @param listingId
      * @param listing
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
-    public PortfolioListing updatePortfolioListing(Integer userId, Integer propertyId, PortfolioListing listing) {
-        logger.debug("Update portfolio listing {} for user id {}", propertyId, userId);
+    public PortfolioListing updatePortfolioListing(Integer userId, Integer listingId, PortfolioListing listing) {
+        logger.debug("Update portfolio listing {} for user id {}", listingId, userId);
         listing.setUserId(userId);
-        listing.setId(propertyId);
+        listing.setId(listingId);
         /*
          * as FetchType.Eager of Property is creating new object 
          * expecting nullaware bean to update property as well
@@ -638,6 +638,22 @@ public class PortfolioService extends AbstractService {
             throw new DuplicateNameResourceException("Resource with same name exist");
         }
         
+        /*
+         * Now need to update other price details if any
+         */
+        createOrUpdateOtherPrices(resourcePresent, toUpdate);
+        
+        /*
+         * Setting OtherPrices of toUpdate null as it has already been updated 
+         * otherwise would be set null during copy in BeansUtils NullAware
+         */
+        toUpdate.setOtherPrices(null);
+        /*
+         * As Payment plan is not to be updated,
+         * otherwise would be set null during copy in BeansUtils NullAware
+         */
+        toUpdate.setListingPaymentPlan(null);
+        
         try {
             BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
             beanUtilsBean.copyProperties(resourcePresent, toUpdate);
@@ -647,10 +663,7 @@ public class PortfolioService extends AbstractService {
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new ProAPIException("Portfolio listing update failed", e);
         }
-        /*
-         * Now need to update other price details if any
-         */
-        createOrUpdateOtherPrices(resourcePresent, toUpdate);
+        
         return (T) resourcePresent;
     }
 
@@ -716,7 +729,7 @@ public class PortfolioService extends AbstractService {
      * Deletes PortfolioListing for provided user id and listing id
      * 
      * @param userId
-     * @param propertyId
+     * @param listingId
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
