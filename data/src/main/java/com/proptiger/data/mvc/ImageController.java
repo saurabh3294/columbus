@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.im4java.core.InfoException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -61,7 +63,7 @@ public class ImageController extends BaseController {
             @RequestParam MultipartFile image,
             @RequestParam(required = false) Boolean addWaterMark,
             @RequestParam String imageType,
-            @ModelAttribute Image imageParams) {
+            @ModelAttribute Image imageParams) throws Exception {
         DomainObject domainObject = DomainObject.valueOf(objectType);
         Image img = imageService.uploadImage(
                 domainObject,
@@ -79,7 +81,7 @@ public class ImageController extends BaseController {
     Object updateImage(
             @PathVariable long id,
             @RequestParam(required = false, value = "image") MultipartFile file,
-            @ModelAttribute Image imageParams) {
+            @ModelAttribute Image imageParams) throws Exception {
         Image image = imageService.getImage(id);
         Object obj = null;
         Image newUpdateImage = new Image();

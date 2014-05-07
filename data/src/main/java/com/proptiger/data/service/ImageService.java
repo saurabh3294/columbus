@@ -1,22 +1,30 @@
 package com.proptiger.data.service;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringBufferInputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 
+import org.apache.solr.common.util.DataInputInputStream;
 import org.im4java.core.CompositeCmd;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
+import org.im4java.core.IdentifyCmd;
+import org.im4java.core.Info;
+import org.im4java.core.InfoException;
 import org.im4java.core.MogrifyCmd;
+import org.im4java.process.ArrayListOutputConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +41,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.io.Files;
+import com.google.gson.Gson;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
@@ -78,24 +87,23 @@ public class ImageService {
         taskExecutor = new SimpleAsyncTaskExecutor();
     }
 
-    private void applyWaterMark(File file, String format) throws IOException {
+    private void applyWaterMark(File file, String format) throws IOException, InfoException {
         URL url = this.getClass().getClassLoader().getResource("watermark.png");
-        InputStream waterMarkIS = new FileInputStream(url.getFile());
-        BufferedImage waterMark = ImageIO.read(waterMarkIS);
-
-        BufferedImage image = ImageIO.read(file);
+        
+        Info info = new Info(file.getAbsolutePath());
 
         IMOperation imOps = new IMOperation();
-        imOps.size(image.getWidth(), image.getHeight());
+        imOps.size(info.getImageWidth(), info.getImageWidth());
         imOps.addImage(2);
-        imOps.geometry(image.getWidth() / 2, image.getHeight() / 2, image.getWidth() / 4, image.getHeight() / 4);
+        imOps.geometry(info.getImageWidth() / 2, info.getImageWidth() / 2, info.getImageWidth() / 4, info.getImageWidth() / 4);
         imOps.addImage();
         CompositeCmd cmd = new CompositeCmd();
 
         File outputFile = File.createTempFile("outputImage", Image.DOT + format, tempDir);
 
         try {
-            cmd.run(imOps, waterMark, image, outputFile.getAbsolutePath());
+            cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
+           
             imOps = new IMOperation();
             imOps.strip();
             imOps.quality(95.0);
@@ -111,7 +119,6 @@ public class ImageService {
 
         Files.copy(outputFile, file);
         outputFile.delete();
-        waterMarkIS.close();
     }
 
     private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException,
@@ -230,7 +237,7 @@ public class ImageService {
             long objectId,
             MultipartFile fileUpload,
             Boolean addWaterMark,
-            Image imageParams) {
+            Image imageParams) throws Exception {
 
         // WaterMark by default (true)
         addWaterMark = (addWaterMark != null) ? addWaterMark : true;
@@ -248,14 +255,13 @@ public class ImageService {
             Files.copy(originalFile, processedFile);
             
             // Converting the image to RGB format.
-            try {
+            String colorspace = getColourSpace(processedFile);
+            if( !colorspace.equalsIgnoreCase(Image.ColorSpace.sRGB.name()) && colorspace.equalsIgnoreCase(Image.ColorSpace.RGB.name())){
+                
                 File rgbFile = convertToRGB(processedFile, format);
                 Files.copy(rgbFile, processedFile);
             }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            
             if (addWaterMark) {
                 applyWaterMark(processedFile, format);
             }
@@ -348,6 +354,12 @@ public class ImageService {
         convertCmd.run(imOperation);
 
         return outputFile;
+    }
+    
+    private String getColourSpace(File imageFile) throws InfoException{
+        
+        Info info = new Info(imageFile.getAbsolutePath());
+        return info.getProperty("Colorspace");
     }
 
 }

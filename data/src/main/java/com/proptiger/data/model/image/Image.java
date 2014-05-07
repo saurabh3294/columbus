@@ -29,6 +29,18 @@ import com.proptiger.data.util.ImageUtil;
 public class Image extends BaseModel {
 
     private static final long  serialVersionUID = 3547840734282317975L;
+    
+    public static enum ColorSpace {
+        sRGB("sRGB"), CMYK("CMYK"), RGB("RGB");
+        String colorspace;
+        
+        private ColorSpace(String colorspace){
+            this.colorspace = colorspace;
+        }
+        public String getColorspace() {
+            return colorspace;
+        }
+    }
 
     public static final String DOT              = ".";
 

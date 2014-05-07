@@ -14,6 +14,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import org.im4java.core.Info;
+import org.im4java.core.InfoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,18 +69,14 @@ public class ImageUtil {
         return format.toLowerCase();
     }
 
-    public static void populateImageMetaInfo(File imageFile, Image image) throws IOException {
+    public static void populateImageMetaInfo(File imageFile, Image image) throws IOException, InfoException {
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
 
-        try {
-            Info info = new Info(imageFile.getAbsolutePath());
-            image.setWidth(info.getImageWidth());
-            image.setHeight(info.getImageHeight());
-        }
-        catch (Exception e) {
-            logger.debug("Unable to read the image file.");
-            e.printStackTrace();
-        }
+        
+        Info info = new Info(imageFile.getAbsolutePath());
+        image.setWidth(info.getImageWidth());
+        image.setHeight(info.getImageHeight());
+        
         // Size
         image.setSizeInBytes(imageFile.length());
 
