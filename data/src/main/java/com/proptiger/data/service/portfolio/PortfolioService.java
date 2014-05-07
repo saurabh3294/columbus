@@ -147,9 +147,9 @@ public class PortfolioService extends AbstractService {
     public Portfolio getPortfolioByUserId(Integer userId) {
         logger.debug("Getting portfolio details for user id {}", userId);
         Portfolio portfolio = new Portfolio();
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(
+        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
                 userId,
-                false);
+                false, Constants.SOURCETYPE_LIST);
         // portfolio.setPortfolioListings(listings);
         updatePriceInfoInPortfolio(userId, portfolio, listings);
         // updatePaymentSchedule(listings);
@@ -225,9 +225,9 @@ public class PortfolioService extends AbstractService {
      */
     public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
         logger.debug("Creating portfolio for user id {}", userId);
-        List<PortfolioListing> presentListing = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(
+        List<PortfolioListing> presentListing = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
                 userId,
-                false);
+                false, Constants.SOURCETYPE_LIST);
         List<PortfolioListing> toCreate = portfolio.getPortfolioListings();
         if (presentListing != null && presentListing.size() > 0) {
             logger.error("Portfolio exists for userid {}", userId);
@@ -277,9 +277,9 @@ public class PortfolioService extends AbstractService {
      */
     public Portfolio updatePortfolio(Integer userId, Portfolio portfolio) {
         logger.debug("Update portfolio details for user id {}", userId);
-        List<PortfolioListing> presentListingList = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(
+        List<PortfolioListing> presentListingList = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
                 userId,
-                false);
+                false, Constants.SOURCETYPE_LIST);
         Portfolio updated = new Portfolio();
         if (presentListingList == null || presentListingList.size() == 0) {
             logger.debug("No portfolio listing exists for userid {}", userId);
@@ -293,9 +293,9 @@ public class PortfolioService extends AbstractService {
         else {
             updated = createOrUpdatePortfolioListings(userId, portfolio, presentListingList);
         }
-        List<PortfolioListing> updatedListings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(
+        List<PortfolioListing> updatedListings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
                 userId,
-                false);
+                false, Constants.SOURCETYPE_LIST);
         updated.setPortfolioListings(updatedListings);
         /*
          * Updating price information in portfolio
@@ -389,9 +389,9 @@ public class PortfolioService extends AbstractService {
     @Transactional(readOnly = true)
     public List<PortfolioListing> getAllPortfolioListings(Integer userId) {
         logger.debug("Getting all portfolio listings for user id {}", userId);
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(
+        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
                 userId,
-                false);
+                false, Constants.SOURCETYPE_LIST);
         if (listings != null) {
             for (PortfolioListing listing : listings) {
                 listing.setCurrentPrice(getListingCurrentPrice(listing));
@@ -517,10 +517,10 @@ public class PortfolioService extends AbstractService {
     protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
         super.preProcessCreate(resource);
         PortfolioListing toCreate = (PortfolioListing) resource;
-        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndNameAndDeletedFlag(
+        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
                 toCreate.getUserId(),
                 toCreate.getName(),
-                false);
+                false, Constants.SOURCETYPE_LIST);
         if (propertyPresent != null) {
             logger.error("Duplicate resource id {} and name {}", propertyPresent.getId(), propertyPresent.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
@@ -627,10 +627,10 @@ public class PortfolioService extends AbstractService {
     protected <T extends Resource> T update(T resource) {
         PortfolioListing toUpdate = (PortfolioListing) resource;
         PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
-        PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndNameAndDeletedFlag(
+        PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
                 toUpdate.getUserId(),
                 toUpdate.getName(),
-                false);
+                false, Constants.SOURCETYPE_LIST);
         if (resourceWithSameName != null && !resourcePresent.getId().equals(resourceWithSameName.getId())) {
             logger.error(
                     "Duplicate resource id {} and name {}",
