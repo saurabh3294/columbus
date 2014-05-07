@@ -1,7 +1,9 @@
 package com.proptiger.data.service.portfolio;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.cxf.jaxrs.ext.search.PropertyNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +27,6 @@ public class SubscriptionService {
     @Autowired
     private SubscriptionTypeDao subscriptionTypeDao;
 
-    @Transactional
     public List<Subscription> enableOrAddUserSubscription(
             int userId,
             int tableId,
@@ -42,39 +43,30 @@ public class SubscriptionService {
 
         List<Subscription> subscriptionsPresent;
         try {
-            subscriptionsPresent = subscriptionDao.getSubscriptions(fiqlSelector);
+            subscriptionsPresent = subscriptionDao.getSubscriptions(fiqlSelector);   // Getting old Subscriptions for same tableId, 
         }
         catch (PropertyNotFoundException e) {
             throw new BadRequestException(ResponseErrorMessages.BAD_REQUEST);
         }
+        
         List<Subscription> subscriptionsCreated = new ArrayList<Subscription>();
+        Map<String, Subscription> subscriptionAlreadyPresentMap = new HashMap<String, Subscription>();
 
-        if (subscriptionsPresent.size() < subscriptionTypes.length) {
-
-            for (String subscriptionType : subscriptionTypes) {
-                subscriptionsCreated.add(createUserSubscription(userId, tableId, tableName, subscriptionType));
+        for (Subscription subscriptionPresent : subscriptionsPresent) {
+            subscriptionAlreadyPresentMap.put(subscriptionPresent.getSubscriptionType().getName().toLowerCase(), subscriptionPresent);
+        }
+        for (String subscriptionType : subscriptionTypes) {
+            if (subscriptionAlreadyPresentMap.containsKey(subscriptionType)) {
+                subscriptionAlreadyPresentMap.get(subscriptionType).setIsSubscribed("1");  //Updating old subscriptions
+            }
+            else {
+                subscriptionsCreated.add(createUserSubscription(userId, tableId, tableName, subscriptionType));  // Creating new Subscriptions
             }
         }
-
-        else {
-            /*
-             * As this method is transactional, Hence updating the model value
-             * will result in updating of the value in the database when the
-             * method will return.
-             */
-            for (Subscription subscriptionPresent : subscriptionsPresent) {
-                if (!subscriptionPresent.getIsSubscribed().equals("1")) {
-
-                    subscriptionPresent.setIsSubscribed("1");
-                }
-            }
-            return subscriptionsPresent;
-        }
-
-        return subscriptionsCreated;
+        subscriptionsCreated.addAll(subscriptionsPresent);
+        return subscriptionDao.save(subscriptionsCreated);
     }
 
-    @Transactional
     public List<Subscription> disableSubscription(
             int userId,
             int tableId,
@@ -88,7 +80,7 @@ public class SubscriptionService {
         fiqlSelector.addAndConditionToFilter("userId==" + userId);
         fiqlSelector.addAndConditionToFilter("tableId==" + tableId);
         fiqlSelector.addAndConditionToFilter("tableName==" + tableName);
-
+        
         List<Subscription> subscriptionsPresent;
         try {
             subscriptionsPresent = subscriptionDao.getSubscriptions(fiqlSelector);
@@ -98,7 +90,7 @@ public class SubscriptionService {
         }
 
         if (subscriptionsPresent != null) {
-            /*
+            /*  
              * As this method is transactional, Hence updating the model value
              * will result in updating of the value in the database when the
              * method will return.
@@ -109,7 +101,6 @@ public class SubscriptionService {
 
         }
         return subscriptionDao.save(subscriptionsPresent);
-
     }
 
     public Subscription createUserSubscription(int userId, int tableId, String tableName, String subscriptionType) {
@@ -121,7 +112,7 @@ public class SubscriptionService {
         subscription.setTableId(tableId);
         subscription.setSubscriptionTypeId(alreadySubscriptionType.getId());
 
-        return subscriptionDao.save(subscription);
+        return subscription;
     }
 
     public Subscription getUserSubscription(int userId) {
