@@ -13,12 +13,15 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.util.MediaUtil;
 
@@ -35,31 +38,43 @@ public class Media extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @ExcludeFromBeanCopy
     private Integer           id;
 
     @Column(name = "object_media_type_id")
+    @ExcludeFromBeanCopy
     private Integer           objectMediaTypeId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "object_media_type_id", insertable = false, updatable = false)
+    @ExcludeFromBeanCopy
     private ObjectMediaType   objectMediaType;
 
     @Column(name = "object_id")
+    @ExcludeFromBeanCopy
     private Integer           objectId;
 
     @JsonIgnore
+    @ExcludeFromBeanCopy
     private String            url;
 
+    @Min(value = 1, message = "Priority can't be less than 1")
+    @Max(value = 999, message = "Priority can't be more than 999")
+    private int               priority         = 1;
+
     @Transient
+    @ExcludeFromBeanCopy
     private String            absoluteUrl;
 
     @Column(name = "size_in_bytes")
+    @ExcludeFromBeanCopy
     private Long              sizeInBytes;
 
     private String            description;
 
     @JsonIgnore
+    @ExcludeFromBeanCopy
     @Column(name = "media_extra_attributes")
     private String            stringMediaExtraAttributes;
 
@@ -67,15 +82,19 @@ public class Media extends BaseModel {
     private JsonNode          mediaExtraAttributes;
 
     @JsonIgnore
+    @ExcludeFromBeanCopy
     @Column(name = "content_hash")
     private String            contentHash;
 
+    @ExcludeFromBeanCopy
     private boolean           active;
 
     @Column(name = "created_at")
+    @ExcludeFromBeanCopy
     private Date              createdAt        = new Date();
 
     @Column(name = "updated_at")
+    @ExcludeFromBeanCopy
     private Date              updatedAt        = new Date();
 
     @PostLoad
@@ -197,5 +216,13 @@ public class Media extends BaseModel {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

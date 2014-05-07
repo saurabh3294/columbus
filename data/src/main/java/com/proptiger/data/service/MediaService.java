@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.Media;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.MediaType;
@@ -23,6 +25,8 @@ import com.proptiger.data.repo.ObjectMediaTypeDao;
 import com.proptiger.data.repo.ObjectTypeDao;
 import com.proptiger.data.util.AmazonS3Util;
 import com.proptiger.data.util.MediaUtil;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
@@ -38,7 +42,7 @@ public abstract class MediaService {
     protected MediaType          mediaType     = MediaType.Document;
 
     @Value("${imageTempPath}")
-    private String               tempDirPath;
+    protected String             tempDirPath;
 
     protected File               tempDir;
 
@@ -54,16 +58,24 @@ public abstract class MediaService {
     @Autowired
     protected ObjectMediaTypeDao objectMediaTypeDao;
 
-    protected String             pathSeparator = "/";
+    protected final String       PATHSEPARATOR = "/";
 
-    protected String             dot           = ".";
+    protected final String       DOT           = ".";
 
     @Autowired
     protected AmazonS3Util       amazonS3Util;
 
+    @Autowired
+    protected PropertyReader     propertyReader;
+
     @PostConstruct
     private void init() {
         tempDir = new File(tempDirPath);
+        if (!tempDir.exists()) {
+            tempDir.mkdir();
+        }
+
+        MediaUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
     }
 
     public List<Media> getMedia(DomainObject domainObject, Integer objectId, String objectMediaType) {
@@ -87,14 +99,15 @@ public abstract class MediaService {
             MultipartFile file,
             String objectMediaType,
             Media media) {
-        Media finalMedia = new Media();
 
-        finalMedia.setDescription(media.getDescription());
-        finalMedia.setMediaExtraAttributes(media.getMediaExtraAttributes());
-
+        File originalFile = null;
         try {
-            File originalFile;
-            originalFile = File.createTempFile("originalImage", ".tmp", tempDir);
+            Media finalMedia = new Media();
+
+            ExclusionAwareBeanUtilsBean utilsBean = new ExclusionAwareBeanUtilsBean();
+            utilsBean.copyProperties(finalMedia, media);
+
+            originalFile = File.createTempFile("originalMedia", ".tmp", tempDir);
 
             file.transferTo(originalFile);
 
@@ -109,7 +122,7 @@ public abstract class MediaService {
 
             mediaDao.save(finalMedia);
 
-            String url = getMediaS3Url(finalMedia, file.getOriginalFilename());
+            String url = computeMediaS3Url(finalMedia, file.getOriginalFilename());
 
             amazonS3Util.uploadFile(url, originalFile);
 
@@ -118,8 +131,17 @@ public abstract class MediaService {
             mediaDao.save(finalMedia);
             return mediaDao.findOne(finalMedia.getId());
         }
-        catch (IOException e) {
+        catch (IOException | IllegalAccessException | InvocationTargetException e) {
             throw new ProAPIException(e);
+        }
+        finally {
+            deleteFileFromDisc(originalFile);
+        }
+    }
+
+    protected void deleteFileFromDisc(File file) {
+        if (file != null) {
+            file.delete();
         }
     }
 
@@ -151,18 +173,18 @@ public abstract class MediaService {
         }
     }
 
-    protected String getMediaS3Url(Media media, String fileName) {
+    protected String computeMediaS3Url(Media media, String fileName) {
         int objectMediaTypeId = media.getObjectMediaTypeId();
         ObjectMediaType objectMediaType = objectMediaTypeDao.findOne(objectMediaTypeId);
-        return objectMediaType.getMediaTypeId() + pathSeparator
+        return objectMediaType.getMediaTypeId() + PATHSEPARATOR
                 + objectMediaType.getObjectTypeId()
-                + pathSeparator
+                + PATHSEPARATOR
                 + media.getObjectId()
-                + pathSeparator
+                + PATHSEPARATOR
                 + objectMediaType.getId()
-                + pathSeparator
+                + PATHSEPARATOR
                 + media.getId()
-                + dot
+                + DOT
                 + FilenameUtils.getExtension(fileName);
     }
 
@@ -181,8 +203,13 @@ public abstract class MediaService {
             throw new ResourceNotFoundException();
         }
         else {
-            savedMedia.setDescription(media.getDescription());
-            savedMedia.setMediaExtraAttributes(media.getMediaExtraAttributes());
+            ExclusionAwareBeanUtilsBean utilsBean = new ExclusionAwareBeanUtilsBean();
+            try {
+                utilsBean.copyProperties(savedMedia, media);
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+                throw new ProAPIException("Error Copying Media Object", e);
+            }
             savedMedia.setUpdatedAt(new Date());
             return mediaDao.save(savedMedia);
         }

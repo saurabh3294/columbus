@@ -39,7 +39,6 @@ public class MediaUtil {
 
     private static Logger  logger = LoggerFactory.getLogger(MediaUtil.class);
     public static String[] endpoints;
-    public static String   bucket;
 
     public static String fileMd5Hash(File file) throws FileNotFoundException, IOException {
         int nread = 0;
