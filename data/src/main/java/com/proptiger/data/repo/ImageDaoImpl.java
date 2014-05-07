@@ -6,10 +6,6 @@ import java.io.IOException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,33 +15,19 @@ import com.drew.imaging.ImageProcessingException;
 import com.proptiger.data.model.ObjectType;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.image.ImageType;
-import com.proptiger.data.util.ImageUtil;
+import com.proptiger.data.model.image.ObjectMediaType;
+import com.proptiger.data.util.MediaUtil;
 
 @Repository
 public class ImageDaoImpl {
     @Autowired
     private EntityManagerFactory emf;
 
-    private ObjectType getObjectType(DomainObject objectStr, CriteriaBuilder cb, EntityManager em) {
-        CriteriaQuery<ObjectType> otQ = cb.createQuery(ObjectType.class);
-        Root<ObjectType> ot = otQ.from(ObjectType.class);
-        otQ.select(ot).where(cb.equal(ot.get("type"), objectStr.getText()));
-        TypedQuery<ObjectType> query = em.createQuery(otQ);
-        ObjectType objType = query.getSingleResult();
-        return objType;
-    }
+    @Autowired
+    private ObjectMediaTypeDao   objectMediaTypeDao;
 
-    private ImageType getImageType(ObjectType objType, String imageTypeStr, CriteriaBuilder cb, EntityManager em) {
-        // Get ImageType
-        CriteriaQuery<ImageType> itQ = cb.createQuery(ImageType.class);
-        Root<ImageType> it = itQ.from(ImageType.class);
-        itQ.select(it).where(
-                cb.and(cb.equal(it.get("objectTypeId"), objType.getId()), cb.equal(it.get("type"), imageTypeStr)));
-        ImageType imageType = em.createQuery(itQ).getSingleResult();
-        // Return
-        return imageType;
-    }
+    @Autowired
+    private ObjectTypeDao        objectTypeDao;
 
     /**
      * @param image
@@ -65,27 +47,29 @@ public class ImageDaoImpl {
             String originalHash) {
         try {
             EntityManager em = emf.createEntityManager();
-            CriteriaBuilder cb = em.getCriteriaBuilder();
 
-            String watermarkHash = ImageUtil.fileMd5Hash(watermarkImage);
+            String watermarkHash = MediaUtil.fileMd5Hash(watermarkImage);
 
             // Image
-            ObjectType objType = getObjectType(objectStr, cb, em);
-            ImageType imageType = getImageType(objType, imageTypeStr, cb, em);
-            image.setImageTypeId(imageType.getId());
+            ObjectType objType = objectTypeDao.findByType(objectStr.toString());
+            ObjectMediaType objectMediaType = objectMediaTypeDao.findByMediaTypeIdAndObjectTypeIdAndType(
+                    1,
+                    objType.getId(),
+                    imageTypeStr);
+            image.setImageTypeId(objectMediaType.getId());
             image.setObjectId(objectId);
 
             String[] directories = {
                     String.valueOf(objType.getId()),
                     String.valueOf(objectId),
-                    String.valueOf(imageType.getId()),
+                    String.valueOf(objectMediaType.getId()),
                     "" };
 
             String path = StringUtils.join(directories, File.separator);
             image.setPath(path);
 
             // MetaData
-            ImageUtil.populateImageMetaInfo(orignalImage, image);
+            MediaUtil.populateImageMetaInfo(orignalImage, image);
 
             // DateTime
             image.setOriginalHash(originalHash);

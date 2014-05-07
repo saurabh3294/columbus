@@ -9,7 +9,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 
 import org.im4java.core.CompositeCmd;
@@ -26,33 +25,28 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.Protocol;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.io.Files;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
+import com.proptiger.data.model.enums.MediaType;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.ImageUtil;
-import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.MediaUtil;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
  * @author yugal
  * 
+ * @author azi
+ * 
  */
 @Service
-public class ImageService {
+public class ImageService extends MediaService {
     private static final String HYPHON = "-";
     private static Logger       logger = LoggerFactory.getLogger(ImageService.class);
-    private static File         tempDir;
 
     @Autowired
     private ImageDao            imageDao;
@@ -65,16 +59,8 @@ public class ImageService {
 
     private TaskExecutor        taskExecutor;
 
-    @PostConstruct
-    private void init() {
-        ImageUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
-        ImageUtil.bucket = propertyReader.getRequiredProperty(PropertyKeys.BUCKET);
-
-        String path = propertyReader.getRequiredProperty(PropertyKeys.IMAGE_TEMP_PATH);
-        tempDir = new File(path);
-        if (!tempDir.exists()) {
-            tempDir.mkdir();
-        }
+    public ImageService() {
+        mediaType = MediaType.Image;
         taskExecutor = new SimpleAsyncTaskExecutor();
     }
 
@@ -116,11 +102,10 @@ public class ImageService {
 
     private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException,
             IOException {
-        AmazonS3 s3 = createS3Instance();
-        s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
+        amazonS3Util.uploadFile(image.getPath() + image.getOriginalName(), original);
         original.delete();
-        s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
-        createAndUploadMoreResolutions(image, waterMark, format, s3);
+        amazonS3Util.uploadFile(image.getPath() + image.getWaterMarkName(), waterMark);
+        createAndUploadMoreResolutions(image, waterMark, format);
     }
 
     /**
@@ -131,29 +116,26 @@ public class ImageService {
      * @param format
      * @param s3
      */
-    private void createAndUploadMoreResolutions(
-            final Image image,
-            final File waterMark,
-            final String format,
-            final AmazonS3 s3) {
+    private void createAndUploadMoreResolutions(final Image image, final File waterMark, final String format) {
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 for (ImageResolution imageResolution : ImageResolution.values()) {
-                    File resizedFile;
+                    File resizedFile = null;
                     try {
                         resizedFile = resize(waterMark, imageResolution, format);
-                        s3.putObject(
-                                ImageUtil.bucket,
+                        amazonS3Util.uploadFile(
                                 image.getPath() + computeResizedImageName(image, imageResolution, format),
                                 resizedFile);
-                        resizedFile.delete();
                     }
                     catch (Exception e) {
                         logger.error("Could not resize image for resolution name {}", imageResolution.getLabel(), e);
                     }
+                    finally {
+                        deleteFileFromDisc(resizedFile);
+                    }
                 }
-                waterMark.delete();
+                deleteFileFromDisc(waterMark);
             }
         });
     }
@@ -179,19 +161,6 @@ public class ImageService {
                 + imageResolution.getHeight()
                 + Image.DOT
                 + format;
-    }
-
-    private AmazonS3 createS3Instance() {
-        String accessKeyId = propertyReader.getRequiredProperty(PropertyKeys.ACCESS_KEY_ID);
-        String secretAccessKey = propertyReader.getRequiredProperty(PropertyKeys.SECRET_ACCESS_KEY);
-
-        ClientConfiguration config = new ClientConfiguration();
-        config.withProtocol(Protocol.HTTP);
-        config.setMaxErrorRetry(3);
-
-        AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
-        AmazonS3 s3 = new AmazonS3Client(credentials, config);
-        return s3;
     }
 
     /*
@@ -241,12 +210,12 @@ public class ImageService {
             if (fileUpload.isEmpty())
                 throw new IllegalArgumentException("Empty file uploaded");
             fileUpload.transferTo(originalFile);
-            String format = ImageUtil.getImageFormat(originalFile);
+            String format = MediaUtil.getImageFormat(originalFile);
 
             // Image uploaded
             File processedFile = File.createTempFile("processedImage", Image.DOT + format, tempDir);
             Files.copy(originalFile, processedFile);
-            
+
             // Converting the image to RGB format.
             try {
                 File rgbFile = convertToRGB(processedFile, format);
@@ -260,7 +229,7 @@ public class ImageService {
                 applyWaterMark(processedFile, format);
             }
 
-            String originalHash = ImageUtil.fileMd5Hash(originalFile);
+            String originalHash = MediaUtil.fileMd5Hash(originalFile);
 
             Image duplicateImage = isImageHashExists(originalHash, object.getText());
             if (duplicateImage != null)
@@ -349,5 +318,4 @@ public class ImageService {
 
         return outputFile;
     }
-
 }
