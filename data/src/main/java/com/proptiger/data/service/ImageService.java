@@ -276,7 +276,7 @@ public class ImageService {
                         + " with image id-"
                         + duplicateImage.getId()
                         + " under the category of "
-                        + duplicateImage.getImageTypeObj().getType());
+                        + duplicateImage.getImageTypeObj().getType() + ". The Image URL is: "+duplicateImage.getAbsolutePath());
 
             // Persist
             Image image = imageDao.insertImage(
