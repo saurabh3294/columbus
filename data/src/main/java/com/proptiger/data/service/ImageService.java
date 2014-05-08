@@ -1,30 +1,20 @@
 package com.proptiger.data.service;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
 
-import org.apache.solr.common.util.DataInputInputStream;
 import org.im4java.core.CompositeCmd;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
-import org.im4java.core.IdentifyCmd;
 import org.im4java.core.Info;
 import org.im4java.core.InfoException;
 import org.im4java.core.MogrifyCmd;
-import org.im4java.process.ArrayListOutputConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +31,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.io.Files;
-import com.google.gson.Gson;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
