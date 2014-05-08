@@ -13,7 +13,7 @@ import com.proptiger.data.model.enums.UnitType;
 
 @Entity
 @Table(name = "cms.project_secondary_price")
-public class ProjectSecondaryPrice extends BaseModel {
+public class SecondaryPrice extends BaseModel {
     private static final long serialVersionUID = -1L;
 
     @Id

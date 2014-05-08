@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.b2b.STATUS;
+import com.proptiger.data.model.b2b.Status;
 import com.proptiger.data.model.enums.DataVersion;
 import com.proptiger.data.model.enums.EntityType;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -49,7 +49,7 @@ public class ProjectPhaseService {
 
     private List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version) {
         List<ProjectPhase> phases = populateProperties(populateAvailabilities(removeInvalidPhases(projectPhaseDao
-                .getFilteredPhases(selector.addAndConditionToFilter("status==" + STATUS.Active)
+                .getFilteredPhases(selector.addAndConditionToFilter("status==" + Status.Active)
                         .addAndConditionToFilter("version==" + version)
                         .addAndConditionToFilter("projectId==" + projectId)))));
         if (phases.size() == 0) {

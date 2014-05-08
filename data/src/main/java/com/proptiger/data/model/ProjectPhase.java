@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.model.b2b.STATUS;
+import com.proptiger.data.model.b2b.Status;
 import com.proptiger.data.model.enums.DataVersion;
 import com.proptiger.data.model.enums.EntityType;
 
@@ -70,7 +70,7 @@ public class ProjectPhase extends BaseModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private STATUS            status;
+    private Status            status;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BOOKING_STATUS_ID", referencedColumnName = "id")
@@ -104,7 +104,7 @@ public class ProjectPhase extends BaseModel {
     @PostLoad
     private void populatePostLoadAttributes() {
         for (Listing listing : listings) {
-            if (listing.getStatus().equals(STATUS.Active)) {
+            if (listing.getStatus().equals(Status.Active)) {
                 List<ProjectSupply> supplies = listing.getProjectSupply();
                 for (ProjectSupply projectSupply : supplies) {
                     if (projectSupply.getVersion().equals(this.version)) {
@@ -180,11 +180,11 @@ public class ProjectPhase extends BaseModel {
         this.remarks = remarks;
     }
 
-    public STATUS getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(STATUS status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -267,7 +267,7 @@ public class ProjectPhase extends BaseModel {
     public Set<Integer> getSupplyIdsForActiveListing() {
         Set<Integer> supplyIds = new HashSet<>();
         for (Listing listing : this.listings) {
-            if (listing.getStatus().equals(STATUS.Active)) {
+            if (listing.getStatus().equals(Status.Active)) {
                 for (ProjectSupply projectSupply : listing.getProjectSupply()) {
                     if (projectSupply.getVersion().equals(this.version)) {
                         supplyIds.add(projectSupply.getId());
@@ -281,7 +281,7 @@ public class ProjectPhase extends BaseModel {
     public Set<Integer> getPropertyIdsForActiveListing() {
         Set<Integer> propertyIds = new HashSet<>();
         for (Listing listing : this.listings) {
-            if (listing.getStatus().equals(STATUS.Active)) {
+            if (listing.getStatus().equals(Status.Active)) {
                 propertyIds.add(listing.getPropertyId());
             }
         }

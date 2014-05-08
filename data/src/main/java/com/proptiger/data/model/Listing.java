@@ -15,7 +15,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.proptiger.data.model.b2b.STATUS;
+import com.proptiger.data.model.b2b.Status;
 
 /**
  * 
@@ -40,7 +40,7 @@ public class Listing extends BaseModel {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private STATUS              status;
+    private Status              status;
 
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "listingId", cascade = CascadeType.ALL)
@@ -70,11 +70,11 @@ public class Listing extends BaseModel {
         this.phaseId = phaseId;
     }
 
-    public STATUS getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(STATUS status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
