@@ -261,6 +261,14 @@ public class PortfolioPriceTrendService {
                 detail.setEffectiveDate(cal.getTime());
                 prices.add(0, detail);
             }
+            
+            /* removing price detail before launch date because cms sometime
+             * adds data before launch date for a project.
+             * 
+             */
+            while (launchDate != null && !prices.isEmpty() && prices.get(0).getEffectiveDate().before(launchDate)) {
+                prices.remove(0);
+            }
 
 			/*
 			 * Check if any month data is missing in between
