@@ -266,7 +266,7 @@ public class PortfolioPriceTrendService {
              * adds data before launch date for a project.
              * 
              */
-            while (launchDate != null && prices.get(0) != null && prices.get(0).getEffectiveDate().before(launchDate)) {
+            while (launchDate != null && !prices.isEmpty() && prices.get(0).getEffectiveDate().before(launchDate)) {
                 prices.remove(0);
             }
 
