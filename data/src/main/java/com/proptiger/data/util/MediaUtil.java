@@ -82,11 +82,10 @@ public class MediaUtil {
     public static void populateImageMetaInfo(File imageFile, Image image) throws IOException, InfoException {
         ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
 
-        
         Info info = new Info(imageFile.getAbsolutePath());
         image.setWidth(info.getImageWidth());
         image.setHeight(info.getImageHeight());
-        
+
         // Size
         image.setSizeInBytes(imageFile.length());
 

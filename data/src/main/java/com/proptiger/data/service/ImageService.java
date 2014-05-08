@@ -1,16 +1,10 @@
 package com.proptiger.data.service;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
 
 import org.im4java.core.CompositeCmd;
 import org.im4java.core.ConvertCmd;
@@ -28,12 +22,6 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.Protocol;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.io.Files;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
@@ -75,13 +63,17 @@ public class ImageService extends MediaService {
 
     private void applyWaterMark(File file, String format) throws IOException, InfoException {
         URL url = this.getClass().getClassLoader().getResource("watermark.png");
-        
+
         Info info = new Info(file.getAbsolutePath());
 
         IMOperation imOps = new IMOperation();
         imOps.size(info.getImageWidth(), info.getImageWidth());
         imOps.addImage(2);
-        imOps.geometry(info.getImageWidth() / 2, info.getImageWidth() / 2, info.getImageWidth() / 4, info.getImageWidth() / 4);
+        imOps.geometry(
+                info.getImageWidth() / 2,
+                info.getImageWidth() / 2,
+                info.getImageWidth() / 4,
+                info.getImageWidth() / 4);
         imOps.addImage();
         CompositeCmd cmd = new CompositeCmd();
 
@@ -89,7 +81,7 @@ public class ImageService extends MediaService {
 
         try {
             cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
-           
+
             imOps = new IMOperation();
             imOps.strip();
             imOps.quality(95.0);
@@ -222,15 +214,16 @@ public class ImageService extends MediaService {
             // Image uploaded
             File processedFile = File.createTempFile("processedImage", Image.DOT + format, tempDir);
             Files.copy(originalFile, processedFile);
-            
+
             // Converting the image to RGB format.
             String colorspace = getColourSpace(processedFile);
-            if( !colorspace.equalsIgnoreCase(Image.ColorSpace.sRGB.name()) && colorspace.equalsIgnoreCase(Image.ColorSpace.RGB.name())){
-                
+            if (!colorspace.equalsIgnoreCase(Image.ColorSpace.sRGB.name()) && colorspace
+                    .equalsIgnoreCase(Image.ColorSpace.RGB.name())) {
+
                 File rgbFile = convertToRGB(processedFile, format);
                 Files.copy(rgbFile, processedFile);
             }
-            
+
             if (addWaterMark) {
                 applyWaterMark(processedFile, format);
             }
@@ -245,7 +238,9 @@ public class ImageService extends MediaService {
                         + " with image id-"
                         + duplicateImage.getId()
                         + " under the category of "
-                        + duplicateImage.getImageTypeObj().getType() + ". The Image URL is: "+duplicateImage.getAbsolutePath());
+                        + duplicateImage.getImageTypeObj().getType()
+                        + ". The Image URL is: "
+                        + duplicateImage.getAbsolutePath());
 
             // Persist
             Image image = imageDao.insertImage(
@@ -324,9 +319,9 @@ public class ImageService extends MediaService {
 
         return outputFile;
     }
-    
-    private String getColourSpace(File imageFile) throws InfoException{
-        
+
+    private String getColourSpace(File imageFile) throws InfoException {
+
         Info info = new Info(imageFile.getAbsolutePath());
         return info.getProperty("Colorspace");
     }
