@@ -19,8 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.GraphService;
 
 /**
@@ -98,7 +97,7 @@ public class GraphController {
 
     @RequestMapping(value = "/property_price_trends", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getPropertyPriceTrends(@RequestParam String params) {
+    public APIResponse getPropertyPriceTrends(@RequestParam String params) {
         Type type = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> paramObject = gson.fromJson(params, type);
 
@@ -118,6 +117,6 @@ public class GraphController {
          * priceTrendsComparisionLocalities);
          */
 
-        return new ProAPISuccessResponse(graphService.getPriceTrendsGraphs(paramObject));
+        return new APIResponse(graphService.getPriceTrendsGraphs(paramObject));
     }
 }

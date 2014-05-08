@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.pojo.ProAPIErrorResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.util.CacheClientUtil;
 import com.proptiger.data.util.Constants;
 import com.proptiger.exception.AuthenticationException;
@@ -228,7 +228,7 @@ public class DataAPIAuthenticationFilter implements Filter {
             throws IOException, JsonProcessingException {
         logger.warn("Unauthenticated call from host {}", userIpAddress);
         PrintWriter out = response.getWriter();
-        ProAPIErrorResponse res = new ProAPIErrorResponse(code, msg);
+        APIResponse res = new APIResponse(code, msg);
         ObjectMapper mapper = new ObjectMapper();
         out.println(mapper.writeValueAsString(res));
         return;

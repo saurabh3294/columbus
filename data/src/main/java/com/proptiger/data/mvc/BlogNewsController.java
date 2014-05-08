@@ -11,9 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.WordpressPost;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.BlogNewsService;
 
 /**
@@ -29,7 +28,7 @@ public class BlogNewsController extends BaseController {
     @RequestMapping(value = "data/v1/entity/blog-news", method = RequestMethod.GET)
     @ResponseBody
     @Deprecated
-    public ProAPIResponse getBlogForCity(
+    public APIResponse getBlogForCity(
             @RequestParam(required = true, value = "cityName") String cityName,
             @RequestParam(required = false, defaultValue = "200", value = "contentLimit") int contentLimit,
             @RequestParam(required = false, value = "selector") String selector) {
@@ -39,12 +38,12 @@ public class BlogNewsController extends BaseController {
             blogSelector = new Selector();
         }
         List<WordpressPost> newsList = blogNewsService.getBlogPostsByCity(cityName, contentLimit, blogSelector);
-        return new ProAPISuccessResponse(newsList);
+        return new APIResponse(newsList);
     }
     
     @RequestMapping(value = "data/v1/entity/city/{cityId}/blog", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getBlogForCity(
+    public APIResponse getBlogForCity(
             @PathVariable Integer cityId,
             @RequestParam(required = false, defaultValue = "200", value = "contentLimit") int contentLimit,
             @RequestParam(required = false, value = "selector") String selector) {
@@ -54,12 +53,12 @@ public class BlogNewsController extends BaseController {
             blogSelector = new Selector();
         }
         List<WordpressPost> newsList = blogNewsService.getBlogPostsByCityId(cityId, contentLimit, blogSelector);
-        return new ProAPISuccessResponse(newsList);
+        return new APIResponse(newsList);
     }
     
     @RequestMapping(value = "data/v1/entity/city/{cityId}/news", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getNewsForCity(
+    public APIResponse getNewsForCity(
             @PathVariable Integer cityId,
             @RequestParam(required = false, defaultValue = "200", value = "contentLimit") int contentLimit,
             @RequestParam(required = false, value = "selector") String selector) {
@@ -69,6 +68,6 @@ public class BlogNewsController extends BaseController {
             blogSelector = new Selector();
         }
         List<WordpressPost> newsList = blogNewsService.getNewsByCity(cityId, contentLimit, blogSelector);
-        return new ProAPISuccessResponse(newsList);
+        return new APIResponse(newsList);
     }
 }

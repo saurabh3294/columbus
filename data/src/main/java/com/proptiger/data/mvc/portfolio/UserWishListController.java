@@ -15,8 +15,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.UserWishListDto;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.portfolio.UserWishListService;
 import com.proptiger.data.util.Constants;
 
@@ -33,51 +32,51 @@ public class UserWishListController extends BaseController {
 
     @RequestMapping(value = { "/portfolio/wish-list/project", "wish-list/project" }, method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getProjectUserWishList(
+    public APIResponse getProjectUserWishList(
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         List<UserWishListDto> result = userWishListService.getProjectUserWishList(userInfo.getUserIdentifier());
-        return new ProAPISuccessCountResponse(result, result.size());
+        return new APIResponse(result, result.size());
     }
 
     @RequestMapping(
             value = { "/portfolio/wish-list/property", "wish-list/property" },
             method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getPropertyUserWishList(
+    public APIResponse getPropertyUserWishList(
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         List<UserWishListDto> result = userWishListService.getPropertyUserWishList(userInfo.getUserIdentifier());
-        return new ProAPISuccessCountResponse(result, result.size());
+        return new APIResponse(result, result.size());
     }
 
     @RequestMapping(value = { "/portfolio/wish-list", "wish-list" }, method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getUserWishList(
+    public APIResponse getUserWishList(
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         List<UserWishListDto> result = userWishListService.getUserWishList(userInfo.getUserIdentifier());
-        return new ProAPISuccessCountResponse(result, result.size());
+        return new APIResponse(result, result.size());
     }
 
     @RequestMapping(value = "/wish-list", method = RequestMethod.POST)
     @ResponseBody
-    public ProAPIResponse createUserWishList(
+    public APIResponse createUserWishList(
             @RequestBody UserWishlist userWishlist,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         List<UserWishListDto> result = userWishListService.createUserWishList(
                 userWishlist,
                 userInfo.getUserIdentifier());
-        return new ProAPISuccessCountResponse(result, result.size());
+        return new APIResponse(result, result.size());
     }
 
     @RequestMapping(value = "/wish-list/{wishlistId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ProAPIResponse deleteUserWishList(
+    public APIResponse deleteUserWishList(
             @PathVariable int wishlistId,
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         List<UserWishListDto> result = userWishListService.deleteWishlist(wishlistId);
-        return new ProAPISuccessCountResponse(result, result.size());
+        return new APIResponse(result, result.size());
     }
 }

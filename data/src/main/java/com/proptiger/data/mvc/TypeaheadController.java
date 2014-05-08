@@ -16,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Typeahead;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.TypeaheadService;
 import com.proptiger.data.service.portfolio.DashboardService;
 
@@ -37,7 +36,7 @@ public class TypeaheadController extends BaseController {
 
     @RequestMapping
     @ResponseBody
-    public ProAPIResponse getTypeaheads(
+    public APIResponse getTypeaheads(
             @RequestParam String query,
             @RequestParam(defaultValue = "5") int rows,
             @RequestParam(required = false) String typeAheadType,
@@ -52,6 +51,6 @@ public class TypeaheadController extends BaseController {
         }
 
         List<Typeahead> list = typeaheadService.getTypeaheads(query, rows, filterQueries);
-        return new ProAPISuccessCountResponse(super.filterFields(list, null), list.size());
+        return new APIResponse(super.filterFields(list, null), list.size());
     }
 }

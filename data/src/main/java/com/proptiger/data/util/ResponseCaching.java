@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.pojo.ProAPIErrorResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.exception.ProAPIException;
 
 @Aspect
@@ -51,8 +51,16 @@ public class ResponseCaching {
     public void setResponse(JoinPoint jp, Object retVal) throws Throwable {
         // if response is not valid, then response will not be saved.
         Class<?> className = retVal.getClass();
-        if (className == ProAPIErrorResponse.class || className == ProAPIException.class)
+        if (className == ProAPIException.class){
             return;
+        }
+        else if(className == APIResponse.class){
+            APIResponse response = (APIResponse) retVal;
+            //this check is required if someone returned error normally from a controller method 
+            if(response.getError() != null){
+                return;
+            }
+        }
 
         if (!isCacheEnabled(jp))
             return;

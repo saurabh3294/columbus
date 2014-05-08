@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.enums.DataVersion;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ProjectPhaseService;
 
 @Controller
@@ -22,26 +21,26 @@ public class ProjectPhaseController extends BaseController {
 
     @RequestMapping("data/v1/entity/project/{projectId}/phase")
     @ResponseBody
-    public ProAPIResponse getPhaseDetailsForProject(
+    public APIResponse getPhaseDetailsForProject(
             @PathVariable Integer projectId,
             @RequestParam(required = false) DataVersion version,
             @ModelAttribute FIQLSelector selector) {
         if (version == null) {
             version = DataVersion.Website;
         }
-        return new ProAPISuccessResponse(super.filterFields(
+        return new APIResponse(super.filterFields(
                 projectPhaseService.getPhaseDetailsForProject(projectId, version),
                 selector.getFieldSet()));
     }
 
     @RequestMapping("data/v1/entity/project/{projectId}/phase/{phaseId}")
     @ResponseBody
-    public ProAPIResponse getPhaseDetail(@PathVariable Integer projectId, @PathVariable Integer phaseId, @RequestParam(
+    public APIResponse getPhaseDetail(@PathVariable Integer projectId, @PathVariable Integer phaseId, @RequestParam(
             required = false) DataVersion version, @ModelAttribute FIQLSelector selector) {
         if (version == null) {
             version = DataVersion.Website;
         }
-        return new ProAPISuccessResponse(super.filterFields(
+        return new APIResponse(super.filterFields(
                 projectPhaseService.getPhaseDetail(projectId, phaseId, version),
                 selector.getFieldSet()));
     }

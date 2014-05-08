@@ -17,10 +17,7 @@ import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIErrorResponse;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
@@ -41,21 +38,18 @@ public class LocalityReviewController extends BaseController {
     @ResponseBody
     @DisableCaching
     @Deprecated
-    public ProAPIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(
+    public APIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(
             required = false) Integer numberOfReviews) {
-
-        if (localityId == null || localityId < 1)
-            return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
 
         LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
                 localityId,
                 numberOfReviews);
-        return new ProAPISuccessResponse(reviewRatingDetails);
+        return new APIResponse(reviewRatingDetails);
     }
 
     @RequestMapping(value = "data/v1/entity/user/locality/{localityId}/review", method = RequestMethod.POST)
     @ResponseBody
-    public ProAPIResponse createReview(
+    public APIResponse createReview(
             @PathVariable Integer localityId,
             @RequestBody LocalityReviewComments reviewComments,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
@@ -63,30 +57,30 @@ public class LocalityReviewController extends BaseController {
                 localityId,
                 reviewComments,
                 userInfo.getUserIdentifier());
-        return new ProAPISuccessResponse(created);
+        return new APIResponse(created);
     }
     
     
     @RequestMapping(value = "data/v1/entity/locality/review", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getReview(@ModelAttribute FIQLSelector selector) {
+    public APIResponse getReview(@ModelAttribute FIQLSelector selector) {
         PaginatedResponse<List<LocalityReviewComments>> paginatedResponse = localityReviewService.getLocalityReview(
                 null,
                 selector);
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFieldsFromSelector(paginatedResponse.getResults(), selector),
                 paginatedResponse.getTotalCount());
     }
     
     @RequestMapping(value = "data/v1/entity/user/locality/review", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getReviewForUser(
+    public APIResponse getReviewForUser(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @ModelAttribute FIQLSelector selector) {
         PaginatedResponse<List<LocalityReviewComments>> paginatedResponse = localityReviewService.getLocalityReview(
                 userInfo.getUserIdentifier(),
                 selector);
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFieldsFromSelector(paginatedResponse.getResults(), selector),
                 paginatedResponse.getTotalCount());
     }

@@ -17,9 +17,7 @@ import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.portfolio.DashboardService;
 import com.proptiger.data.util.Constants;
 
@@ -44,12 +42,12 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getDashboards(
+    public APIResponse getDashboards(
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @ModelAttribute FIQLSelector fiqlSelector) {
         List<Dashboard> result = dashboardService.getAllByUserIdAndType(userInfo.getUserIdentifier(), fiqlSelector);
-        return new ProAPISuccessCountResponse(result, result.size());
+        return new APIResponse(result, result.size());
     }
 
     /**
@@ -61,12 +59,12 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.GET, value = "/{dashboardId}")
     @ResponseBody
-    public ProAPIResponse getDashboard(
+    public APIResponse getDashboard(
             @PathVariable Integer userId,
             @PathVariable Integer dashboardId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         Dashboard result = dashboardService.getDashboardById(userInfo.getUserIdentifier(), dashboardId);
-        return new ProAPISuccessResponse(result);
+        return new APIResponse(result);
     }
 
     /**
@@ -78,13 +76,13 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public ProAPIResponse createDashboard(
+    public APIResponse createDashboard(
             @PathVariable Integer userId,
             @RequestBody(required = true) DashboardDto dashboardDto,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         dashboardDto.setUserId(userInfo.getUserIdentifier());
         Dashboard result = dashboardService.createDashboard(dashboardDto);
-        return new ProAPISuccessResponse(result);
+        return new APIResponse(result);
     }
 
     /**
@@ -99,7 +97,7 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/{dashboardId}")
     @ResponseBody
-    public ProAPIResponse updateDashboard(
+    public APIResponse updateDashboard(
             @PathVariable Integer userId,
             @PathVariable Integer dashboardId,
             @RequestBody(required = true) DashboardDto dashboardDto,
@@ -107,7 +105,7 @@ public class DashboardController extends BaseController {
         dashboardDto.setId(dashboardId);
         dashboardDto.setUserId(userInfo.getUserIdentifier());
         Dashboard dashboard = dashboardService.updateDashboard(dashboardDto);
-        return new ProAPISuccessResponse(dashboard);
+        return new APIResponse(dashboard);
     }
 
     /**
@@ -119,12 +117,12 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.GET, value = "/{dashboardId}/widget")
     @ResponseBody
-    public ProAPIResponse getWidgetMappingWithDashboard(
+    public APIResponse getWidgetMappingWithDashboard(
             @PathVariable Integer userId,
             @PathVariable Integer dashboardId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         Dashboard dashboard = dashboardService.getDashboardById(userInfo.getUserIdentifier(), dashboardId);
-        return new ProAPISuccessCountResponse(dashboard.getWidgets(), dashboard.getWidgets() == null ? 0 : dashboard
+        return new APIResponse(dashboard.getWidgets(), dashboard.getWidgets() == null ? 0 : dashboard
                 .getWidgets().size());
     }
 
@@ -138,13 +136,13 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.GET, value = "/{dashboardId}/widget/{widgetId}")
     @ResponseBody
-    public ProAPIResponse getSingleWidgetMappingWithDashboard(
+    public APIResponse getSingleWidgetMappingWithDashboard(
             @PathVariable Integer userId,
             @PathVariable Integer dashboardId,
             @PathVariable Integer widgetId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         Dashboard dashboard = dashboardService.getDashboardById(userInfo.getUserIdentifier(), dashboardId);
-        return new ProAPISuccessCountResponse(dashboard.getWidgets(), dashboard.getWidgets() == null ? 0 : dashboard
+        return new APIResponse(dashboard.getWidgets(), dashboard.getWidgets() == null ? 0 : dashboard
                 .getWidgets().size());
     }
 
@@ -156,7 +154,7 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.POST, value = "/{dashboardId}/widget")
     @ResponseBody
-    public ProAPIResponse createWidgetMappingWithDashboard(
+    public APIResponse createWidgetMappingWithDashboard(
             @PathVariable Integer userId,
             @PathVariable Integer dashboardId,
             @RequestBody(required = true) DashboardWidgetMapping dashboardWidgetMapping,
@@ -165,7 +163,7 @@ public class DashboardController extends BaseController {
                 userInfo.getUserIdentifier(),
                 dashboardId,
                 dashboardWidgetMapping);
-        return new ProAPISuccessResponse(dashboard);
+        return new APIResponse(dashboard);
     }
 
     /**
@@ -180,7 +178,7 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.PUT, value = "/{dashboardId}/widget/{widgetId}")
     @ResponseBody
-    public ProAPIResponse updateWidgetMappingWithDashboard(
+    public APIResponse updateWidgetMappingWithDashboard(
             @PathVariable Integer userId,
             @PathVariable Integer dashboardId,
             @PathVariable Integer widgetId,
@@ -191,7 +189,7 @@ public class DashboardController extends BaseController {
                 dashboardId,
                 widgetId,
                 dashboardWidgetMapping);
-        return new ProAPISuccessResponse(dashboard);
+        return new APIResponse(dashboard);
     }
 
     /**
@@ -203,7 +201,7 @@ public class DashboardController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.DELETE, value = "/{dashboardId}/widget/{widgetId}")
     @ResponseBody
-    public ProAPIResponse deleteWidgetFromDashboard(
+    public APIResponse deleteWidgetFromDashboard(
             @PathVariable Integer userId,
             @PathVariable Integer dashboardId,
             @PathVariable Integer widgetId,
@@ -214,16 +212,16 @@ public class DashboardController extends BaseController {
                 dashboardId,
                 widgetId,
                 dashboardWidgetMapping);
-        return new ProAPISuccessResponse(dashboard);
+        return new APIResponse(dashboard);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/{dashboardId}")
     @ResponseBody
-    public ProAPIResponse deleteDashboard(
+    public APIResponse deleteDashboard(
             @PathVariable Integer userId,
             @PathVariable Integer dashboardId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         Dashboard deleted = dashboardService.deleteDashboard(userInfo.getUserIdentifier(), dashboardId);
-        return new ProAPISuccessResponse(deleted);
+        return new APIResponse(deleted);
     }
 }

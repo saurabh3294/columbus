@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Builder;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 
@@ -36,14 +35,14 @@ public class BuilderController extends BaseController {
      */
     @RequestMapping(value = "/top", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getTopBuilders(@RequestParam(required = false) String selector) {
+    public APIResponse getTopBuilders(@RequestParam(required = false) String selector) {
         Selector builderSelector = new Selector();
         if (selector != null) {
             builderSelector = super.parseJsonToObject(selector, Selector.class);
         }
         PaginatedResponse<List<Builder>> paginatedResponse = builderService.getTopBuilders(builderSelector);
 
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(paginatedResponse.getResults(), builderSelector.getFields()),
                 paginatedResponse.getTotalCount());
     }

@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.portfolio.UnmatchedProjectRequestService;
 import com.proptiger.data.util.Constants;
 
@@ -32,12 +31,12 @@ public class UnmatchedProjectRequestController extends BaseController {
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
-    public ProAPIResponse submitUnmatchedProjectDetails(
+    public APIResponse submitUnmatchedProjectDetails(
             @RequestBody() UnmatchedProjectDetails unmatchedProjectDetails,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         boolean status = unmatchedProjectRequestService
                 .handleUnmatchedProjectRequest(unmatchedProjectDetails, userInfo);
-        return new ProAPISuccessCountResponse(status, 1);
+        return new APIResponse(status, 1);
     }
 
 }

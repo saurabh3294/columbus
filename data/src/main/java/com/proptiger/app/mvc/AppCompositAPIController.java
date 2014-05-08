@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.CompositeAPIService;
 
 /**
@@ -33,13 +32,13 @@ public class AppCompositAPIController {
 
     @RequestMapping
     @ResponseBody
-    public ProAPIResponse getCompositeApiResult(
+    public APIResponse getCompositeApiResult(
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestParam(required = true, value = "api") List<String> api) {
         Map<String, Object> responseMap = null;
         responseMap = compositeAPIService.getResponseForApis(api);
-        return new ProAPISuccessResponse(responseMap);
+        return new APIResponse(responseMap);
     }
 
 }

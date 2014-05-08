@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 
@@ -41,7 +39,7 @@ public class AppLocalityController extends BaseController {
      */
     @RequestMapping
     @ResponseBody
-    public ProAPIResponse getLocalityListingData(@RequestParam(required = false) String selector) {
+    public APIResponse getLocalityListingData(@RequestParam(required = false) String selector) {
         Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
         if (propRequestParam == null) {
             propRequestParam = new Selector();
@@ -49,7 +47,7 @@ public class AppLocalityController extends BaseController {
 
         PaginatedResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
 
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(solrRes.getResults(), propRequestParam.getFields()),
                 solrRes.getTotalCount());
     }
@@ -62,7 +60,7 @@ public class AppLocalityController extends BaseController {
     @RequestMapping(value = "/{localityId}", method = RequestMethod.GET)
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse getLocalityDetails(@PathVariable int localityId, @RequestParam(
+    public APIResponse getLocalityDetails(@PathVariable int localityId, @RequestParam(
             required = false,
             value = "selector") String selectorStr, @RequestParam(
             required = false) Integer imageCount) {
@@ -71,7 +69,7 @@ public class AppLocalityController extends BaseController {
             selector = new Selector();
         }
         Locality locality = localityService.getLocalityInfo(localityId, imageCount);
-        return new ProAPISuccessResponse(super.filterFields(locality, selector.getFields()));
+        return new APIResponse(super.filterFields(locality, selector.getFields()));
     }
 
 }

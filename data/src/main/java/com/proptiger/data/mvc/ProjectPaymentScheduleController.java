@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.ProjectPaymentSchedule;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ProjectPaymentScheduleService;
 
 /**
@@ -27,8 +26,8 @@ public class ProjectPaymentScheduleController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/{projectId}")
     @ResponseBody
-    public ProAPIResponse getProjectPaymentSchedules(@PathVariable Integer projectId) {
+    public APIResponse getProjectPaymentSchedules(@PathVariable Integer projectId) {
         List<ProjectPaymentSchedule> result = paymentScheduleService.getProjectPaymentSchedule(projectId);
-        return new ProAPISuccessCountResponse(result, result.size());
+        return new APIResponse(result, result.size());
     }
 }

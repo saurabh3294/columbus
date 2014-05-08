@@ -26,10 +26,8 @@ import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
@@ -60,7 +58,7 @@ public class PropertyController extends BaseController {
 
     @RequestMapping(value = "data/v1/entity/property")
     public @ResponseBody
-    ProAPIResponse getProperties(@RequestParam(required = false, value = "selector") String selector) throws Exception {
+    APIResponse getProperties(@RequestParam(required = false, value = "selector") String selector) throws Exception {
 
         Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
         if (propRequestParam == null) {
@@ -69,20 +67,20 @@ public class PropertyController extends BaseController {
         List<Property> properties = propertyService.getProperties(propRequestParam);
         Set<String> fieldsSet = propRequestParam.getFields();
 
-        return new ProAPISuccessResponse(super.filterFields(properties, fieldsSet));
+        return new APIResponse(super.filterFields(properties, fieldsSet));
     }
 
     @RequestMapping(value = "data/v2/entity/property")
     public @ResponseBody
-    ProAPIResponse getV2Properties(@ModelAttribute FIQLSelector selector) throws Exception {
+    APIResponse getV2Properties(@ModelAttribute FIQLSelector selector) throws Exception {
         PaginatedResponse<List<Property>> response = propertyService.getProperties(selector);
-        return new ProAPISuccessCountResponse(response.getResults(), response.getTotalCount());
+        return new APIResponse(response.getResults(), response.getTotalCount());
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/property/{propertyId}/report-error")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse reportPropertyError(
+    public APIResponse reportPropertyError(
             @Valid @RequestBody ProjectError projectError,
             @PathVariable int propertyId) {
         if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0)
@@ -92,21 +90,21 @@ public class PropertyController extends BaseController {
                     "Project Id should not be present in the request body as it is for project error.");
 
         projectError.setPropertyId(propertyId);
-        return new ProAPISuccessResponse(errorReportingService.saveReportError(projectError));
+        return new APIResponse(errorReportingService.saveReportError(projectError));
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/property/sell-property")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse sellYourProperty(@RequestBody PortfolioListing portfolioListing) {
-        return new ProAPISuccessResponse(portfolioService.sellYourProperty(portfolioListing));
+    public APIResponse sellYourProperty(@RequestBody PortfolioListing portfolioListing) {
+        return new APIResponse(portfolioService.sellYourProperty(portfolioListing));
     }
     
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/user/property/sell-property")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse userSellYourProperty(@RequestBody PortfolioListing portfolioListing, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+    public APIResponse userSellYourProperty(@RequestBody PortfolioListing portfolioListing, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         portfolioListing.setUserId(userInfo.getUserIdentifier());
-        return new ProAPISuccessResponse(portfolioService.sellYourProperty(portfolioListing));
+        return new APIResponse(portfolioService.sellYourProperty(portfolioListing));
     }
 }

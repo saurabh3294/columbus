@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 
 /**
  * @author mandeep
@@ -30,7 +29,7 @@ public class SeoTextController {
 
     @RequestMapping
     @ResponseBody
-    public ProAPIResponse get(@RequestParam String url) {
-        return new ProAPISuccessResponse(new Gson().fromJson(restTemplate.getForObject(websiteHost + "getSeoTags.php?url={URL}", String.class, Collections.singletonMap("URL", url)), Object.class));
+    public APIResponse get(@RequestParam String url) {
+        return new APIResponse(new Gson().fromJson(restTemplate.getForObject(websiteHost + "getSeoTags.php?url={URL}", String.class, Collections.singletonMap("URL", url)), Object.class));
     }
 }
