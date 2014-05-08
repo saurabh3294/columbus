@@ -1,0 +1,56 @@
+#parse("./mailtemplate/VM_global_library.vm")
+<html>
+<head>
+</head>
+<body>
+<table width="600" border="0" cellspacing="0" cellpadding="0" align="center" style="border:1px solid #333;">
+       <tr>
+          <td>
+          <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                   <td width="120"><img src="${IMG_SERVER}images/proptiger_logo.jpg" width="120" height="144" /></td>
+                   <td width="456"><img src="${IMG_SERVER}images/header_bg.jpg" width="360" height="144" /></td>
+                   <td width="24">
+                      <table width="120" border="0" cellspacing="0" cellpadding="0">
+                         <tr>
+                            <td height="25" bgcolor="#333333" style="font-family:Arial, Helvetica, sans-serif; font-size:14px; color:#fff;">${currentDateTime}</td>
+                         </tr>
+                         <tr>
+                            <td><img src="${IMG_SERVER}images/header_bg_rt.jpg" width="120" height="119" /></td>
+                         </tr>
+                      </table>
+                   </td>
+                </tr>
+             </table>
+             <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                   <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+                   <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
+						Your friend ${projectDetailsMailToUser.senderName} was searching for real estate on <a text-decoration:none;" href="${WEBSITE}">Proptiger</a><br /> and thought you'd be interested
+						in seeing this <BR><BR>${projectDetailsMailToUser.projectLink}.
+						<br /><br />
+						#if(${projectDetailsMailToUser.message})
+							Message from Sender: <i>${projectDetailsMailToUser.message}</i><br /><br />
+						#end
+						<br />
+                      Yours sincerely, <br />
+                      The PropTiger Family<br />
+                      <strong>Web:</strong>  <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com">http://www.proptiger.com</a><br />
+                      <strong>Email:</strong>  <a style="color:#1155cc; text-decoration:none;" href="mailto:${CUSTOMER_SERVICE_MAIL_ID}">${CUSTOMER_SERVICE_MAIL_ID}</a><br />
+                      <strong>Call:</strong> ${HELP_DESK_MOBILE_NO} (Mon to Sat, 9AM to 7:30PM. Sun, 10AM to 6:00PM)<br /><br />
+                      <span style="font-size:11px;">** You have received this email because your email id was given to us on our web site. If it was not you, please 
+                      notify us at <a style="color:#1155cc; text-decoration:none;" href="mailto:${CUSTOMER_SERVICE_MAIL_ID}">${CUSTOMER_SERVICE_MAIL_ID}</a>, or report it on <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/contact_us.php">http://www.proptiger.com/contact_us.php</a></span>
+                   </td>
+                   <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
+                </tr>
+             </table>
+             <table width="600" border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                   <td bgcolor="#f79633" style="font-family:Arial, Helvetica, sans-serif; font-size:13px; color:#000; text-align:center; padding:5px;">${ADDRESS_NOIDA_D12} | Help Desk: ${HELP_DESK_MOBILE_NO}</td>
+                </tr>
+             </table>
+          </td>
+       </tr>
+    </table>
+</body>
+</html>

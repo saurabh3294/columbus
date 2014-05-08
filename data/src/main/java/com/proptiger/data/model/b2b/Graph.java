@@ -19,7 +19,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.google.gson.Gson;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.pojo.FIQLSelector;
 
@@ -30,55 +29,56 @@ import com.proptiger.data.pojo.FIQLSelector;
  * 
  */
 
-@ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "b2b_graphs")
 @JsonFilter("fieldFilter")
 public class Graph extends BaseModel {
+    private static final long serialVersionUID = -2683590682098190102L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer      id;
+    private Integer           id;
 
     @ExcludeFromBeanCopy
     @Column(name = "user_id")
-    private Integer      userId;
+    private Integer           userId;
 
     @ExcludeFromBeanCopy
     @Column(name = "parent_id")
-    private Integer      parentId;
+    private Integer           parentId;
 
     @ExcludeFromBeanCopy
     @Column(name = "parent_type")
     @Enumerated(EnumType.STRING)
-    private PARENTTYPE   parentType;
+    private PARENTTYPE        parentType;
 
-    @Size(min=1, max=255, message="Graph name should be between 1 to 255 characters")
-    private String       name;
+    @Size(min = 1, max = 255, message = "Graph name should be between 1 to 255 characters")
+    private String            name;
 
     @Enumerated(EnumType.STRING)
-    private STATUS       status    = STATUS.Active;
+    private STATUS            status           = STATUS.Active;
 
     @Transient
-    private FIQLSelector filter;
+    private FIQLSelector      filter;
 
     @JsonIgnore
     @Column(name = "filter")
-    private String       stringFilter;
+    private String            stringFilter;
 
     @Column(name = "range_field")
-    private String       rangeField;
+    private String            rangeField;
 
     @Column(name = "range_value")
-    private String       rangeValue;
+    private String            rangeValue;
 
     @ExcludeFromBeanCopy
     @Column(name = "created_at")
-    private Date         createdAt = new Date();
+    private Date              createdAt        = new Date();
 
     @ExcludeFromBeanCopy
     @Column(name = "updated_at")
-    private Date         updatedAt;
+    private Date              updatedAt;
 
     public Integer getId() {
         return id;
@@ -182,5 +182,9 @@ public class Graph extends BaseModel {
 
     public static enum PARENTTYPE {
         Catchment, Builder
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
     }
 }

@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * @author Rajeev Pandey
  * 
  */
+@Deprecated
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResourceMetaInfo {

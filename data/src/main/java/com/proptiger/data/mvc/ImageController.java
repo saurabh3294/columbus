@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.im4java.core.InfoException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -61,7 +63,7 @@ public class ImageController extends BaseController {
             @RequestParam MultipartFile image,
             @RequestParam(required = false) Boolean addWaterMark,
             @RequestParam String imageType,
-            @ModelAttribute Image imageParams) {
+            @ModelAttribute Image imageParams) throws Exception {
         DomainObject domainObject = DomainObject.valueOf(objectType);
         Image img = imageService.uploadImage(
                 domainObject,
@@ -79,9 +81,10 @@ public class ImageController extends BaseController {
     Object updateImage(
             @PathVariable long id,
             @RequestParam(required = false, value = "image") MultipartFile file,
-            @ModelAttribute Image imageParams) {
+            @ModelAttribute Image imageParams) throws Exception {
         Image image = imageService.getImage(id);
         Object obj = null;
+        Image newUpdateImage = new Image();
 
         if (file == null || file.isEmpty()) {
             try {
@@ -97,8 +100,9 @@ public class ImageController extends BaseController {
             try {
                 image.setId(0);
                 BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
-                beanUtilsBean.copyProperties(imageParams, image);
-                image.setId(id);
+                beanUtilsBean.copyProperties(newUpdateImage, image);
+                beanUtilsBean.copyProperties(newUpdateImage, imageParams);
+                newUpdateImage.setId(0);
             }
             catch (IllegalAccessException | InvocationTargetException e) {
             }
@@ -109,7 +113,7 @@ public class ImageController extends BaseController {
                     file,
                     !image.getWaterMarkHash().equals(image.getOriginalHash()),
                     image.getImageTypeObj().getType(),
-                    imageParams);
+                    newUpdateImage);
 
             imageService.deleteImage(id);
         }

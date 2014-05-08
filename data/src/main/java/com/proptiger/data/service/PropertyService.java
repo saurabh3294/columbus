@@ -110,7 +110,7 @@ public class PropertyService {
      * @return
      */
     @Cacheable(value = Constants.CacheName.PROPERTY, key = "#projectId")
-    public List<Property> getProperties(int projectId) {
+    public List<Property> getPropertiesForProject(int projectId) {
         Selector selector = new Selector();
         Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
         List<Map<String, Map<String, Object>>> list = new ArrayList<>();
@@ -124,7 +124,9 @@ public class PropertyService {
         selector.setFilters(filter);
         selector.setPaging(new Paging(0, Integer.MAX_VALUE));
 
-        return propertyDao.getProperties(selector);
+        List<Property> properties = propertyDao.getProperties(selector);
+        imageEnricher.setPropertiesImages(properties);
+        return properties;
     }
 
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {

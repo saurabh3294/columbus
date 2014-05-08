@@ -1,21 +1,17 @@
 package com.proptiger.data.service;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
 
 import org.im4java.core.CompositeCmd;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
+import org.im4java.core.Info;
+import org.im4java.core.InfoException;
 import org.im4java.core.MogrifyCmd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,33 +22,28 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.amazonaws.ClientConfiguration;
-import com.amazonaws.Protocol;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.google.common.io.Files;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
+import com.proptiger.data.model.enums.MediaType;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.ImageUtil;
-import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.MediaUtil;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
 
 /**
  * @author yugal
  * 
+ * @author azi
+ * 
  */
 @Service
-public class ImageService {
+public class ImageService extends MediaService {
     private static final String HYPHON = "-";
     private static Logger       logger = LoggerFactory.getLogger(ImageService.class);
-    private static File         tempDir;
 
     @Autowired
     private ImageDao            imageDao;
@@ -65,42 +56,38 @@ public class ImageService {
 
     private TaskExecutor        taskExecutor;
 
-    @PostConstruct
-    private void init() {
-        ImageUtil.endpoints = propertyReader.getRequiredProperty(PropertyKeys.ENDPOINTS).split(",");
-        ImageUtil.bucket = propertyReader.getRequiredProperty(PropertyKeys.BUCKET);
-
-        String path = propertyReader.getRequiredProperty(PropertyKeys.IMAGE_TEMP_PATH);
-        tempDir = new File(path);
-        if (!tempDir.exists()) {
-            tempDir.mkdir();
-        }
+    public ImageService() {
+        mediaType = MediaType.Image;
         taskExecutor = new SimpleAsyncTaskExecutor();
     }
 
-    private void applyWaterMark(File file, String format) throws IOException {
+    private void applyWaterMark(File file, String format) throws IOException, InfoException {
         URL url = this.getClass().getClassLoader().getResource("watermark.png");
-        InputStream waterMarkIS = new FileInputStream(url.getFile());
-        BufferedImage waterMark = ImageIO.read(waterMarkIS);
 
-        BufferedImage image = ImageIO.read(file);
+        Info info = new Info(file.getAbsolutePath());
 
         IMOperation imOps = new IMOperation();
-        imOps.size(image.getWidth(), image.getHeight());
+        imOps.size(info.getImageWidth(), info.getImageWidth());
         imOps.addImage(2);
-        imOps.geometry(image.getWidth() / 2, image.getHeight() / 2, image.getWidth() / 4, image.getHeight() / 4);
+        imOps.geometry(
+                info.getImageWidth() / 2,
+                info.getImageWidth() / 2,
+                info.getImageWidth() / 4,
+                info.getImageWidth() / 4);
         imOps.addImage();
         CompositeCmd cmd = new CompositeCmd();
 
         File outputFile = File.createTempFile("outputImage", Image.DOT + format, tempDir);
 
         try {
-            cmd.run(imOps, waterMark, image, outputFile.getAbsolutePath());
+            cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
+
             imOps = new IMOperation();
             imOps.strip();
             imOps.quality(95.0);
             imOps.interlace("Plane");
             imOps.addImage();
+
             MogrifyCmd command = new MogrifyCmd();
             command.run(imOps, outputFile.getAbsolutePath());
         }
@@ -110,16 +97,14 @@ public class ImageService {
 
         Files.copy(outputFile, file);
         outputFile.delete();
-        waterMarkIS.close();
     }
 
     private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException,
             IOException {
-        AmazonS3 s3 = createS3Instance();
-        s3.putObject(ImageUtil.bucket, image.getPath() + image.getOriginalName(), original);
+        amazonS3Util.uploadFile(image.getPath() + image.getOriginalName(), original);
         original.delete();
-        s3.putObject(ImageUtil.bucket, image.getPath() + image.getWaterMarkName(), waterMark);
-        createAndUploadMoreResolutions(image, waterMark, format, s3);
+        amazonS3Util.uploadFile(image.getPath() + image.getWaterMarkName(), waterMark);
+        createAndUploadMoreResolutions(image, waterMark, format);
     }
 
     /**
@@ -130,29 +115,26 @@ public class ImageService {
      * @param format
      * @param s3
      */
-    private void createAndUploadMoreResolutions(
-            final Image image,
-            final File waterMark,
-            final String format,
-            final AmazonS3 s3) {
+    private void createAndUploadMoreResolutions(final Image image, final File waterMark, final String format) {
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 for (ImageResolution imageResolution : ImageResolution.values()) {
-                    File resizedFile;
+                    File resizedFile = null;
                     try {
                         resizedFile = resize(waterMark, imageResolution, format);
-                        s3.putObject(
-                                ImageUtil.bucket,
+                        amazonS3Util.uploadFile(
                                 image.getPath() + computeResizedImageName(image, imageResolution, format),
                                 resizedFile);
-                        resizedFile.delete();
                     }
                     catch (Exception e) {
                         logger.error("Could not resize image for resolution name {}", imageResolution.getLabel(), e);
                     }
+                    finally {
+                        deleteFileFromDisc(resizedFile);
+                    }
                 }
-                waterMark.delete();
+                deleteFileFromDisc(waterMark);
             }
         });
     }
@@ -178,19 +160,6 @@ public class ImageService {
                 + imageResolution.getHeight()
                 + Image.DOT
                 + format;
-    }
-
-    private AmazonS3 createS3Instance() {
-        String accessKeyId = propertyReader.getRequiredProperty(PropertyKeys.ACCESS_KEY_ID);
-        String secretAccessKey = propertyReader.getRequiredProperty(PropertyKeys.SECRET_ACCESS_KEY);
-
-        ClientConfiguration config = new ClientConfiguration();
-        config.withProtocol(Protocol.HTTP);
-        config.setMaxErrorRetry(3);
-
-        AWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
-        AmazonS3 s3 = new AmazonS3Client(credentials, config);
-        return s3;
     }
 
     /*
@@ -229,7 +198,7 @@ public class ImageService {
             long objectId,
             MultipartFile fileUpload,
             Boolean addWaterMark,
-            Image imageParams) {
+            Image imageParams) throws Exception {
 
         // WaterMark by default (true)
         addWaterMark = (addWaterMark != null) ? addWaterMark : true;
@@ -240,26 +209,38 @@ public class ImageService {
             if (fileUpload.isEmpty())
                 throw new IllegalArgumentException("Empty file uploaded");
             fileUpload.transferTo(originalFile);
-            String format = ImageUtil.getImageFormat(originalFile);
+            String format = MediaUtil.getImageFormat(originalFile);
 
             // Image uploaded
             File processedFile = File.createTempFile("processedImage", Image.DOT + format, tempDir);
             Files.copy(originalFile, processedFile);
 
+            // Converting the image to RGB format.
+            String colorspace = getColourSpace(processedFile);
+            if (!colorspace.equalsIgnoreCase(Image.ColorSpace.sRGB.name()) && colorspace
+                    .equalsIgnoreCase(Image.ColorSpace.RGB.name())) {
+
+                File rgbFile = convertToRGB(processedFile, format);
+                Files.copy(rgbFile, processedFile);
+            }
+
             if (addWaterMark) {
                 applyWaterMark(processedFile, format);
             }
 
-            String originalHash = ImageUtil.fileMd5Hash(originalFile);
+            String originalHash = MediaUtil.fileMd5Hash(originalFile);
 
-            Image duplicateImage = isImageHashExists(originalHash, objectId, object.getText());
+            Image duplicateImage = isImageHashExists(originalHash, object.getText());
             if (duplicateImage != null)
-                throw new ResourceAlreadyExistException(
-                        "This Image Already Exists for "+object.getText()+" id-" + duplicateImage.getObjectId()
-                                + " with image id-"
-                                + duplicateImage.getId()
-                                + " under the category of "
-                                + duplicateImage.getImageTypeObj().getType());
+                throw new ResourceAlreadyExistException("This Image Already Exists for " + object.getText()
+                        + " id-"
+                        + duplicateImage.getObjectId()
+                        + " with image id-"
+                        + duplicateImage.getId()
+                        + " under the category of "
+                        + duplicateImage.getImageTypeObj().getType()
+                        + ". The Image URL is: "
+                        + duplicateImage.getAbsolutePath());
 
             // Persist
             Image image = imageDao.insertImage(
@@ -286,8 +267,8 @@ public class ImageService {
         deleteImageInCache(id);
         imageDao.setActiveFalse(id);
     }
-    
-    @Cacheable(value = Constants.CacheName.CACHE, key="'imageId:'+#id")
+
+    @Cacheable(value = Constants.CacheName.CACHE, key = "'imageId:'+#id")
     public Image getImage(long id) {
         return imageDao.findOne(id);
     }
@@ -302,7 +283,7 @@ public class ImageService {
         String keys[] = new String[3];
         keys[0] = object.getText() + imageTypeStr + objectId;
         keys[1] = object.getText() + "null" + objectId;
-        keys[2] = "imageId:"+imageId;
+        keys[2] = "imageId:" + imageId;
 
         return keys;
     }
@@ -318,12 +299,31 @@ public class ImageService {
         return getImageCacheKey(domainObject, image.getImageTypeObj().getType(), image.getObjectId(), image.getId());
     }
 
-    private Image isImageHashExists(String originalHash, long objectId, String objectType) {
-        List<Image> imageIds = imageDao.getImageOnHashAndObjectIdAndObjectType(originalHash, objectId, objectType);
+    private Image isImageHashExists(String originalHash, String objectType) {
+        List<Image> imageIds = imageDao.getImageOnHashAndObjectType(originalHash, objectType);
 
         if (imageIds == null || imageIds.isEmpty())
             return null;
 
         return imageIds.get(0);
     }
+
+    private File convertToRGB(File imageFile, String format) throws Exception {
+        ConvertCmd convertCmd = new ConvertCmd();
+        IMOperation imOperation = new IMOperation();
+        imOperation.addImage(imageFile.getAbsolutePath());
+        imOperation.colorspace("sRGB");
+        File outputFile = File.createTempFile("rgbImage", Image.DOT + format, tempDir);
+        imOperation.addImage(outputFile.getAbsolutePath());
+        convertCmd.run(imOperation);
+
+        return outputFile;
+    }
+
+    private String getColourSpace(File imageFile) throws InfoException {
+
+        Info info = new Info(imageFile.getAbsolutePath());
+        return info.getProperty("Colorspace");
+    }
+
 }

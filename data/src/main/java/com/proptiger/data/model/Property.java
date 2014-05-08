@@ -19,11 +19,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 
-@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @Entity
 @Table(name = "RESI_PROJECT_TYPES")

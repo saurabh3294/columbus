@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.util.JsonLoader;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
 
 /**
@@ -28,7 +27,6 @@ import com.proptiger.data.model.BaseModel;
  * 
  */
 
-@ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "b2b_user_details")
@@ -38,6 +36,8 @@ import com.proptiger.data.model.BaseModel;
         getterVisibility = Visibility.NONE,
         isGetterVisibility = Visibility.NONE)
 public class B2bUserDetail extends BaseModel {
+    private static final long serialVersionUID = -6720993214144916804L;
+
     @Id
     @JsonIgnore
     private Integer  id;
@@ -100,6 +100,10 @@ public class B2bUserDetail extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
     }
 
     @PostLoad

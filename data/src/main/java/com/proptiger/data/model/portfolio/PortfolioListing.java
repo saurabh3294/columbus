@@ -186,9 +186,8 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @Column(name = "loan_availed_amount")
     private Double                           loanAvailedAmount;
 
-    @FieldMetaInfo(dataType = DataType.STRING, displayName = "Property Id", description = "Property Id")
+    @FieldMetaInfo(dataType = DataType.STRING, displayName = "Transaction Type", description = "Transaction Type")
     @Column(name = "transaction_type")
-    @JsonIgnore
     @Enumerated(EnumType.STRING)
     private TransactionType                  transactionType;
 
@@ -227,7 +226,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @JsonIgnore
     @Enumerated(EnumType.STRING)
     @JsonDeserialize(using = SourceTypeDeserializer.class)
-    private Source                           sourceType ;
+    private Source                           sourceType = Source.portfolio;
 
     @Column(name = "lead_user")
     private String                           leadUser;

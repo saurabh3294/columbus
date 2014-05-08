@@ -1,10 +1,9 @@
 package com.proptiger.data.service.portfolio;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,20 +14,22 @@ import java.util.Set;
 import javax.persistence.PersistenceException;
 import javax.persistence.Table;
 
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.mail.ListingAddMail;
 import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
 import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
@@ -65,6 +66,7 @@ import com.proptiger.data.util.ResourceTypeField;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.InvalidResourceException;
+import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
 import com.proptiger.mail.service.MailSender;
@@ -131,9 +133,9 @@ public class PortfolioService extends AbstractService {
 
     @Autowired
     private CityService               cityService;
-    
+
     @Autowired
-    private SubscriptionService     subscriptionService;
+    private SubscriptionService       subscriptionService;
 
     /**
      * Get portfolio object for a particular user id
@@ -145,7 +147,9 @@ public class PortfolioService extends AbstractService {
     public Portfolio getPortfolioByUserId(Integer userId) {
         logger.debug("Getting portfolio details for user id {}", userId);
         Portfolio portfolio = new Portfolio();
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
+        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
+                userId,
+                false, Constants.SOURCETYPE_LIST);
         // portfolio.setPortfolioListings(listings);
         updatePriceInfoInPortfolio(userId, portfolio, listings);
         // updatePaymentSchedule(listings);
@@ -221,7 +225,9 @@ public class PortfolioService extends AbstractService {
      */
     public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
         logger.debug("Creating portfolio for user id {}", userId);
-        List<PortfolioListing> presentListing = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
+        List<PortfolioListing> presentListing = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
+                userId,
+                false, Constants.SOURCETYPE_LIST);
         List<PortfolioListing> toCreate = portfolio.getPortfolioListings();
         if (presentListing != null && presentListing.size() > 0) {
             logger.error("Portfolio exists for userid {}", userId);
@@ -271,7 +277,9 @@ public class PortfolioService extends AbstractService {
      */
     public Portfolio updatePortfolio(Integer userId, Portfolio portfolio) {
         logger.debug("Update portfolio details for user id {}", userId);
-        List<PortfolioListing> presentListingList = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
+        List<PortfolioListing> presentListingList = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
+                userId,
+                false, Constants.SOURCETYPE_LIST);
         Portfolio updated = new Portfolio();
         if (presentListingList == null || presentListingList.size() == 0) {
             logger.debug("No portfolio listing exists for userid {}", userId);
@@ -285,7 +293,9 @@ public class PortfolioService extends AbstractService {
         else {
             updated = createOrUpdatePortfolioListings(userId, portfolio, presentListingList);
         }
-        List<PortfolioListing> updatedListings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
+        List<PortfolioListing> updatedListings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
+                userId,
+                false, Constants.SOURCETYPE_LIST);
         updated.setPortfolioListings(updatedListings);
         /*
          * Updating price information in portfolio
@@ -379,7 +389,9 @@ public class PortfolioService extends AbstractService {
     @Transactional(readOnly = true)
     public List<PortfolioListing> getAllPortfolioListings(Integer userId) {
         logger.debug("Getting all portfolio listings for user id {}", userId);
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagOrderByListingIdDesc(userId,false);
+        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
+                userId,
+                false, Constants.SOURCETYPE_LIST);
         if (listings != null) {
             for (PortfolioListing listing : listings) {
                 listing.setCurrentPrice(getListingCurrentPrice(listing));
@@ -473,14 +485,14 @@ public class PortfolioService extends AbstractService {
      * Get a PortfolioProperty for particular user id and PortfolioProperty id
      * 
      * @param userId
-     * @param propertyId
+     * @param listingId
      * @return
      */
     @Transactional(readOnly = true)
     public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId) {
         logger.debug("Getting portfolio listing {} for user id {}", listingId, userId);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId,false);
-        if (listing == null ) {
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId, false);
+        if (listing == null) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
@@ -505,9 +517,10 @@ public class PortfolioService extends AbstractService {
     protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
         super.preProcessCreate(resource);
         PortfolioListing toCreate = (PortfolioListing) resource;
-        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndName(
+        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
                 toCreate.getUserId(),
-                toCreate.getName());
+                toCreate.getName(),
+                false, Constants.SOURCETYPE_LIST);
         if (propertyPresent != null) {
             logger.error("Duplicate resource id {} and name {}", propertyPresent.getId(), propertyPresent.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
@@ -536,15 +549,12 @@ public class PortfolioService extends AbstractService {
          */
         listing.setProperty(null);
         PortfolioListing created = create(listing);
-        created = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, created.getId(),false);
+        created = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, created.getId(), false);
         updateOtherSpecificData(created);
-        
-        subscriptionService.enableOrAddUserSubscription(
-                userId,
-                listing.getListingId(),
-                PortfolioListing.class.getAnnotation(Table.class).name(),
-                Constants.SubscriptionType.PORTFOLIO);
-        
+
+        subscriptionService.enableOrAddUserSubscription(userId, listing.getListingId(), PortfolioListing.class
+                .getAnnotation(Table.class).name(), Constants.SubscriptionType.PROJECT_UPDATES,
+                Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
         return created;
     }
 
@@ -552,16 +562,21 @@ public class PortfolioService extends AbstractService {
      * Updated an existing PortfolioListing
      * 
      * @param userId
-     * @param propertyId
-     * @param property
+     * @param listingId
+     * @param listing
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
-    public PortfolioListing updatePortfolioListing(Integer userId, Integer propertyId, PortfolioListing property) {
-        logger.debug("Update portfolio listing {} for user id {}", propertyId, userId);
-        property.setUserId(userId);
-        property.setId(propertyId);
-        PortfolioListing updated = update(property);
+    public PortfolioListing updatePortfolioListing(Integer userId, Integer listingId, PortfolioListing listing) {
+        logger.debug("Update portfolio listing {} for user id {}", listingId, userId);
+        listing.setUserId(userId);
+        listing.setId(listingId);
+        /*
+         * as FetchType.Eager of Property is creating new object 
+         * expecting nullaware bean to update property as well
+         */
+        listing.setProperty(null);                     
+        PortfolioListing updated = update(listing);
         updateOtherSpecificData(updated);
         /*
          * Update current price
@@ -612,9 +627,10 @@ public class PortfolioService extends AbstractService {
     protected <T extends Resource> T update(T resource) {
         PortfolioListing toUpdate = (PortfolioListing) resource;
         PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
-        PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndName(
+        PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
                 toUpdate.getUserId(),
-                toUpdate.getName());
+                toUpdate.getName(),
+                false, Constants.SOURCETYPE_LIST);
         if (resourceWithSameName != null && !resourcePresent.getId().equals(resourceWithSameName.getId())) {
             logger.error(
                     "Duplicate resource id {} and name {}",
@@ -622,11 +638,36 @@ public class PortfolioService extends AbstractService {
                     resourceWithSameName.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
         }
-        resourcePresent.update(toUpdate);
+        
         /*
          * Now need to update other price details if any
          */
         createOrUpdateOtherPrices(resourcePresent, toUpdate);
+        
+        /*
+         * Setting OtherPrices of toUpdate null as it has already been updated 
+         * otherwise would be set null during copy in BeansUtils NullAware
+         */
+        toUpdate.setOtherPrices(null);
+        /*
+         * As Payment plan is not to be updated,
+         * otherwise would be set null during copy in BeansUtils NullAware
+         */
+        toUpdate.setListingPaymentPlan(null);
+        
+        try {
+            BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+            /*
+             * updating already present listing i.e resourcePresent with new data changes contained in toUpdate
+             */
+            beanUtilsBean.copyProperties(resourcePresent, toUpdate);
+            
+            
+        }
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new ProAPIException("Portfolio listing update failed", e);
+        }
+        
         return (T) resourcePresent;
     }
 
@@ -638,8 +679,8 @@ public class PortfolioService extends AbstractService {
      */
     @Transactional
     private void createOrUpdateOtherPrices(PortfolioListing present, PortfolioListing toUpdate) {
-        if ((present.getOtherPrices() == null || present.getOtherPrices().isEmpty()) && (toUpdate.getOtherPrices() == null || toUpdate
-                .getOtherPrices().isEmpty())) {
+        if (toUpdate.getOtherPrices() == null || toUpdate
+                .getOtherPrices().isEmpty()) {
             return;
         }
         if ((present.getOtherPrices() == null || present.getOtherPrices().isEmpty()) && toUpdate.getOtherPrices() != null) {
@@ -679,8 +720,11 @@ public class PortfolioService extends AbstractService {
             logger.error("PortfolioProperty id {} not found", toUpdate.getId());
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.UPDATE);
         }
-        if (toUpdate.getListingSize() == null || toUpdate.getListingSize() <= 0) {
+        if (toUpdate.getListingSize()!=null)
+        {
+            if( toUpdate.getListingSize() <= 0) {
             throw new InvalidResourceException(getResourceType(), ResourceTypeField.SIZE);
+            }
         }
         return (T) resourcePresent;
     }
@@ -689,23 +733,26 @@ public class PortfolioService extends AbstractService {
      * Deletes PortfolioListing for provided user id and listing id
      * 
      * @param userId
-     * @param propertyId
+     * @param listingId
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
-    public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId , String reason) {
+    public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId, String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
-        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId, false);
+        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(
+                userId,
+                listingId,
+                false);
         if (propertyPresent == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.DELETE);
         }
         propertyPresent.setDeleted_flag(true);
         propertyPresent.setReason(reason);
-        subscriptionService.disableSubscription(userId,
-                listingId,
-                PortfolioListing.class.getAnnotation(Table.class).name(),
-                Constants.SubscriptionType.PORTFOLIO);
-        
+
+        subscriptionService.disableSubscription(userId, listingId, PortfolioListing.class.getAnnotation(Table.class)
+                .name(), Constants.SubscriptionType.PROJECT_UPDATES,
+                Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
+
         return propertyPresent;
     }
 
@@ -815,11 +862,15 @@ public class PortfolioService extends AbstractService {
      * @param userId
      * @param listingId
      * @param interestedToLoan
-     * @param loanType 
+     * @param loanType
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
-    public PortfolioListing interestedToHomeLoan(Integer userId, Integer listingId, Boolean interestedToLoan, String loanType) {
+    public PortfolioListing interestedToHomeLoan(
+            Integer userId,
+            Integer listingId,
+            Boolean interestedToLoan,
+            String loanType) {
         logger.debug(
                 "Updating loan intereset for user id {} and listing id {} with loan interest {}",
                 userId,
@@ -944,39 +995,45 @@ public class PortfolioService extends AbstractService {
         ForumUser user = listing.getForumUser();
         String toStr = user.getEmail();
         MailBody mailBody = null;
+        MailDetails mailDetails = null;
         switch (mailTypeEnum) {
             case LISTING_ADD_MAIL_TO_USER:
                 ListingAddMail listingAddMail = createListingAddMailObject(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.ADD_NEW_PORTFOLIO_LISTING,
                         listingAddMail);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_USER:
                 ListingLoanRequestMail listingLoanRequestMail = createListingLoanRequestObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_USER,
                         listingLoanRequestMail);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case LISTING_HOME_LOAN_CONFIRM_TO_INTERNAL:
                 ListingLoanRequestMail listingLoanRequestMailInternal = createListingLoanRequestObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.LISTING_LOAN_REQUEST_INTERNAL,
                         listingLoanRequestMailInternal);
                 toStr = propertyReader.getRequiredProperty(PropertyKeys.MAIL_HOME_LOAN_INTERNAL_RECIEPIENT);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_INTERNAL:
                 ListingResaleMail listingResaleMailInternal = createListingResaleMailObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_INTERNAL,
                         listingResaleMailInternal);
                 toStr = propertyReader.getRequiredProperty(PropertyKeys.MAIL_INTERESTED_TO_SELL_RECIEPIENT);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             case INTERESTED_TO_SELL_PROPERTY_USER:
                 ListingResaleMail listingResaleMailUser = createListingResaleMailObj(listing);
                 mailBody = mailBodyGenerator.generateMailBody(
                         MailTemplateDetail.INTERESTED_TO_SELL_PROPERTY_USER,
                         listingResaleMailUser);
-                return mailSender.sendMailUsingAws(toStr, null, null, mailBody.getBody(), mailBody.getSubject());
+                mailDetails = new MailDetails(mailBody).setMailTo(toStr);
+                return mailSender.sendMailUsingAws(mailDetails);
             default:
                 throw new IllegalArgumentException("Invalid mail type");
         }
@@ -990,7 +1047,7 @@ public class PortfolioService extends AbstractService {
      * @return
      */
     private ListingResaleMail createListingResaleMailObj(PortfolioListing listing) {
-        List<Property> properties = propertyService.getProperties(listing.getProperty().getProjectId());
+        List<Property> properties = propertyService.getPropertiesForProject(listing.getProperty().getProjectId());
         StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty(PROPTIGER_URL));
         if (properties != null && !properties.isEmpty()) {
             Property required = null;
@@ -1087,33 +1144,6 @@ public class PortfolioService extends AbstractService {
     // return pricePerUnitArea;
     // }
 
-    /**
-     * These would be multiple prices date wise, so this method will pick latest
-     * price
-     * 
-     * @param listingPrice
-     * @return
-     */
-    private ListingPrice getLatestPricePerUnitArea(Set<ListingPrice> listingPrice) {
-        ListingPrice price = null;
-        if (listingPrice != null && !listingPrice.isEmpty()) {
-            List<ListingPrice> list = new ArrayList<>();
-            for (ListingPrice p : listingPrice) {
-                list.add(p);
-            }
-            Collections.sort(list, new Comparator<ListingPrice>() {
-                @Override
-                public int compare(ListingPrice price1, ListingPrice price2) {
-                    return price2.getEffectiveDate().compareTo(price1.getEffectiveDate());
-                }
-            });
-            // Now get first as price per unit area
-            price = list.get(0);
-        }
-
-        return price;
-    }
-
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
 
         if (portfolioListing.getUserId() != null) {
@@ -1194,21 +1224,14 @@ public class PortfolioService extends AbstractService {
         String mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.to.recipient");
         String mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.cc.recipient");
 
-        String[] mailCC = null;
-
         if (mailToAddress.length() < 1) {
             logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
 
-        String[] mailTo = mailToAddress.split(",");
-        if (mailCCAddress.length() > 0) {
-            mailCC = mailCCAddress.split(",");
-        }
-
         MailBody mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.SELL_YOUR_PROPERTY, portfolioListing);
-
-        return mailSender.sendMailUsingAws(mailTo, mailCC, null, mailBody.getBody(), mailBody.getSubject());
+        MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
+        return mailSender.sendMailUsingAws(mailDetails);
 
     }
 

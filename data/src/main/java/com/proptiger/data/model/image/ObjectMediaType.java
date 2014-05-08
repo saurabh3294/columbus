@@ -14,25 +14,41 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.MediaType;
 import com.proptiger.data.model.ObjectType;
 
-@Entity(name = "ImageType")
+/**
+ * 
+ * @author yugal
+ * 
+ * @author azi
+ * 
+ */
+@Entity(name = "object_media_types")
 @JsonFilter("fieldFilter")
-public class ImageType extends BaseModel {
+public class ObjectMediaType extends BaseModel {
 
     private static final long serialVersionUID = 6121401801684707486L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long              id;
+    private int               id;
 
     @ManyToOne(targetEntity = ObjectType.class, fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "ObjectType_id", referencedColumnName = "id", insertable = false, updatable = false)
     private ObjectType        objectType;
 
+    @ManyToOne(targetEntity = MediaType.class, fetch = FetchType.EAGER)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "media_type_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private MediaType         mediaType;
+
     @Column(name = "ObjectType_id")
-    private String            objectTypeId;
+    private int               objectTypeId;
+
+    @Column(name = "media_type_id")
+    private int               mediaTypeId;
 
     @Column(name = "type")
     private String            type;
@@ -43,7 +59,7 @@ public class ImageType extends BaseModel {
     /**
      * @return the id
      */
-    public long getId() {
+    public int getId() {
         return id;
     }
 
@@ -51,7 +67,7 @@ public class ImageType extends BaseModel {
      * @param id
      *            the id to set
      */
-    public void setId(long id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -73,7 +89,7 @@ public class ImageType extends BaseModel {
     /**
      * @return the objectTypeId
      */
-    public String getObjectTypeId() {
+    public int getObjectTypeId() {
         return objectTypeId;
     }
 
@@ -81,8 +97,16 @@ public class ImageType extends BaseModel {
      * @param objectTypeId
      *            the objectTypeId to set
      */
-    public void setObjectTypeId(String objectTypeId) {
+    public void setObjectTypeId(int objectTypeId) {
         this.objectTypeId = objectTypeId;
+    }
+
+    public int getMediaTypeId() {
+        return mediaTypeId;
+    }
+
+    public void setMediaTypeId(int mediaTypeId) {
+        this.mediaTypeId = mediaTypeId;
     }
 
     /**
@@ -108,4 +132,15 @@ public class ImageType extends BaseModel {
         this.priority = priority;
     }
 
+    public MediaType getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(MediaType mediaType) {
+        this.mediaType = mediaType;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
+    }
 }

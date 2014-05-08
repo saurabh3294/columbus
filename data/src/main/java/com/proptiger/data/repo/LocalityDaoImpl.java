@@ -195,7 +195,7 @@ public class LocalityDaoImpl {
                                 + " or locality0_.SUBURB_ID = "
                                 + " "
                                 + suburbId
-                                + ")"
+                                + ") AND locality0_.ACTIVE=1 "
                                 + " group by locality0_.LOCALITY_ID order by ENQUIRY_COUNT DESC, locality0_.PRIORITY ASC"
                                 + " LIMIT "
                                 + paging.getRows()
