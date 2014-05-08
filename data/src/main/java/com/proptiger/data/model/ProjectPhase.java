@@ -40,66 +40,69 @@ import com.proptiger.data.model.enums.EntityType;
 @JsonFilter("fieldFilter")
 @Table(name = "cms.resi_project_phase")
 public class ProjectPhase extends BaseModel {
-    private static final long serialVersionUID = 1L;
+    private static final long    serialVersionUID = 1L;
 
     @Id
     @Column(name = "PHASE_ID")
-    private Integer           phaseId;
+    private Integer              phaseId;
 
     @Enumerated(EnumType.STRING)
-    private DataVersion       version;
+    private DataVersion          version;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "PHASE_TYPE")
-    private EntityType        phaseType;
+    private EntityType           phaseType;
 
     @Column(name = "PROJECT_ID")
-    private Integer           projectId;
+    private Integer              projectId;
 
     @Column(name = "PHASE_NAME")
-    private String            phaseName;
+    private String               phaseName;
 
     @Column(name = "LAUNCH_DATE")
-    private Date              launchDate;
+    private Date                 launchDate;
 
     @Column(name = "COMPLETION_DATE")
-    private Date              completionDate;
+    private Date                 completionDate;
 
     @Column(name = "REMARKS")
-    private String            remarks;
+    private String               remarks;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private Status            status;
+    private Status               status;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BOOKING_STATUS_ID", referencedColumnName = "id")
-    private BookingStatus     bookingStatus;
+    private BookingStatus        bookingStatus;
 
     @Column(name = "updated_by")
-    private Integer           updatedBy;
+    private Integer              updatedBy;
 
     @Column(name = "created_at")
-    private Date              createdAt;
+    private Date                 createdAt;
 
     @Column(name = "updated_at")
-    private Date              updatedAt;
+    private Date                 updatedAt;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "phaseId", cascade = CascadeType.ALL)
-    private List<Listing>     listings         = new ArrayList<>();
+    private List<Listing>        listings         = new ArrayList<>();
 
     @Transient
-    private List<Property>    properties       = new ArrayList<>();
+    private List<Property>       properties       = new ArrayList<>();
+
+    @OneToMany(mappedBy = "phaseId", fetch = FetchType.LAZY)
+    private List<SecondaryPrice> secondaryPrices;
 
     @Transient
-    private Integer           supply           = 0;
+    private Integer              supply           = 0;
 
     @Transient
-    private Integer           launchedUnit     = 0;
+    private Integer              launchedUnit     = 0;
 
     @Transient
-    private Integer           sumAvailability;
+    private Integer              sumAvailability;
 
     @PostLoad
     private void populatePostLoadAttributes() {
@@ -258,6 +261,14 @@ public class ProjectPhase extends BaseModel {
 
     public void setSumAvailability(Integer sumAvailability) {
         this.sumAvailability = sumAvailability;
+    }
+
+    public List<SecondaryPrice> getSecondaryPrices() {
+        return secondaryPrices;
+    }
+
+    public void setSecondaryPrices(List<SecondaryPrice> secondaryPrices) {
+        this.secondaryPrices = secondaryPrices;
     }
 
     public static long getSerialversionuid() {

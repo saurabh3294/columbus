@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -45,6 +46,9 @@ public class Listing extends BaseModel {
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "listingId", cascade = CascadeType.ALL)
     private List<ProjectSupply> projectSupply;
+
+    @OneToMany(mappedBy = "listingId", fetch = FetchType.LAZY)
+    private List<ListingPrice>  listingPrices;
 
     public Integer getId() {
         return id;
@@ -88,5 +92,13 @@ public class Listing extends BaseModel {
 
     public static long getSerialversionuid() {
         return serialVersionUID;
+    }
+
+    public List<ListingPrice> getListingPrices() {
+        return listingPrices;
+    }
+
+    public void setListingPrices(List<ListingPrice> listingPrices) {
+        this.listingPrices = listingPrices;
     }
 }
