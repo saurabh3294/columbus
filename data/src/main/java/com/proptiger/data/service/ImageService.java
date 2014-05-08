@@ -1,20 +1,17 @@
 package com.proptiger.data.service;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.im4java.core.CompositeCmd;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
+import org.im4java.core.Info;
+import org.im4java.core.InfoException;
 import org.im4java.core.MogrifyCmd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,24 +61,27 @@ public class ImageService extends MediaService {
         taskExecutor = new SimpleAsyncTaskExecutor();
     }
 
-    private void applyWaterMark(File file, String format) throws IOException {
+    private void applyWaterMark(File file, String format) throws IOException, InfoException {
         URL url = this.getClass().getClassLoader().getResource("watermark.png");
-        InputStream waterMarkIS = new FileInputStream(url.getFile());
-        BufferedImage waterMark = ImageIO.read(waterMarkIS);
 
-        BufferedImage image = ImageIO.read(file);
+        Info info = new Info(file.getAbsolutePath());
 
         IMOperation imOps = new IMOperation();
-        imOps.size(image.getWidth(), image.getHeight());
+        imOps.size(info.getImageWidth(), info.getImageWidth());
         imOps.addImage(2);
-        imOps.geometry(image.getWidth() / 2, image.getHeight() / 2, image.getWidth() / 4, image.getHeight() / 4);
+        imOps.geometry(
+                info.getImageWidth() / 2,
+                info.getImageWidth() / 2,
+                info.getImageWidth() / 4,
+                info.getImageWidth() / 4);
         imOps.addImage();
         CompositeCmd cmd = new CompositeCmd();
 
         File outputFile = File.createTempFile("outputImage", Image.DOT + format, tempDir);
 
         try {
-            cmd.run(imOps, waterMark, image, outputFile.getAbsolutePath());
+            cmd.run(imOps, url.getFile(), file.getAbsolutePath(), outputFile.getAbsolutePath());
+
             imOps = new IMOperation();
             imOps.strip();
             imOps.quality(95.0);
@@ -97,7 +97,6 @@ public class ImageService extends MediaService {
 
         Files.copy(outputFile, file);
         outputFile.delete();
-        waterMarkIS.close();
     }
 
     private void uploadToS3(Image image, File original, File waterMark, String format) throws IllegalArgumentException,
@@ -199,7 +198,7 @@ public class ImageService extends MediaService {
             long objectId,
             MultipartFile fileUpload,
             Boolean addWaterMark,
-            Image imageParams) {
+            Image imageParams) throws Exception {
 
         // WaterMark by default (true)
         addWaterMark = (addWaterMark != null) ? addWaterMark : true;
@@ -217,12 +216,12 @@ public class ImageService extends MediaService {
             Files.copy(originalFile, processedFile);
 
             // Converting the image to RGB format.
-            try {
+            String colorspace = getColourSpace(processedFile);
+            if (!colorspace.equalsIgnoreCase(Image.ColorSpace.sRGB.name()) && colorspace
+                    .equalsIgnoreCase(Image.ColorSpace.RGB.name())) {
+
                 File rgbFile = convertToRGB(processedFile, format);
                 Files.copy(rgbFile, processedFile);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
             }
 
             if (addWaterMark) {
@@ -239,7 +238,9 @@ public class ImageService extends MediaService {
                         + " with image id-"
                         + duplicateImage.getId()
                         + " under the category of "
-                        + duplicateImage.getImageTypeObj().getType());
+                        + duplicateImage.getImageTypeObj().getType()
+                        + ". The Image URL is: "
+                        + duplicateImage.getAbsolutePath());
 
             // Persist
             Image image = imageDao.insertImage(
@@ -318,4 +319,11 @@ public class ImageService extends MediaService {
 
         return outputFile;
     }
+
+    private String getColourSpace(File imageFile) throws InfoException {
+
+        Info info = new Info(imageFile.getAbsolutePath());
+        return info.getProperty("Colorspace");
+    }
+
 }
