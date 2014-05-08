@@ -22,8 +22,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.b2b.CatchmentService;
 import com.proptiger.data.service.b2b.TrendService;
 import com.proptiger.data.util.Constants;
@@ -42,7 +41,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("data/v1/trend")
     @ResponseBody
-    public ProAPIResponse getTrends(
+    public APIResponse getTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
@@ -62,12 +61,12 @@ public class TrendController extends BaseController {
             }
             response = finalResponse;
         }
-        return new ProAPISuccessResponse(response);
+        return new APIResponse(response);
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend")
     @ResponseBody
-    public ProAPIResponse getUserTrends(
+    public APIResponse getUserTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
@@ -103,7 +102,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("data/v1/trend/current")
     @ResponseBody
-    public ProAPIResponse getCurrentTrend(
+    public APIResponse getCurrentTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
@@ -112,7 +111,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/current")
     @ResponseBody
-    public ProAPIResponse getUserCurrentTrend(
+    public APIResponse getUserCurrentTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
@@ -133,7 +132,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("data/v1/trend/hitherto")
     @ResponseBody
-    public ProAPIResponse getHithertoTrend(
+    public APIResponse getHithertoTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
@@ -143,7 +142,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/hitherto")
     @ResponseBody
-    public ProAPIResponse getUserHithertoTrend(
+    public APIResponse getUserHithertoTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
@@ -166,7 +165,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("data/v1/price-trend")
     public @ResponseBody
-    ProAPIResponse getPriceTrends(
+    APIResponse getPriceTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
@@ -175,7 +174,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend")
     public @ResponseBody
-    ProAPIResponse getUserPriceTrends(
+    APIResponse getUserPriceTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
@@ -196,7 +195,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("data/v1/price-trend/current")
     public @ResponseBody
-    ProAPIResponse getCurrentPriceTrends(
+    APIResponse getCurrentPriceTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
@@ -208,7 +207,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/current")
     public @ResponseBody
-    ProAPIResponse getUserCurrentPriceTrends(
+    APIResponse getUserCurrentPriceTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
@@ -232,7 +231,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("data/v1/price-trend/hitherto")
     public @ResponseBody
-    ProAPIResponse getHithertoPriceTrends(
+    APIResponse getHithertoPriceTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
@@ -245,7 +244,7 @@ public class TrendController extends BaseController {
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/hitherto")
     public @ResponseBody
-    ProAPIResponse getUserHithertoPriceTrends(
+    APIResponse getUserHithertoPriceTrends(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,

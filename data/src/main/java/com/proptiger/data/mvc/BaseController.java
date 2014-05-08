@@ -35,9 +35,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module.Feature;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ProAPIException;
 
@@ -258,18 +257,18 @@ public abstract class BaseController {
         }
     }
 
-    public <T> ProAPIResponse postProcess(T val, int count, Selector selector) {
+    public <T> APIResponse postProcess(T val, int count, Selector selector) {
         if (selector != null && selector.getFields() != null) {
-            return new ProAPISuccessCountResponse(filterOutAllExcept(val, selector.getFields()), count);
+            return new APIResponse(filterOutAllExcept(val, selector.getFields()), count);
         }
-        return new ProAPISuccessCountResponse(val, count);
+        return new APIResponse(val, count);
     }
 
-    public <T> ProAPIResponse postProcess(List<T> val, int count, Selector selector) {
+    public <T> APIResponse postProcess(List<T> val, int count, Selector selector) {
         if (selector != null && selector.getFields() != null) {
-            return new ProAPISuccessCountResponse(filterOutAllExcept(val, selector.getFields()), count);
+            return new APIResponse(filterOutAllExcept(val, selector.getFields()), count);
         }
-        return new ProAPISuccessCountResponse(val, count);
+        return new APIResponse(val, count);
     }
 
     @Deprecated

@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
-import com.proptiger.data.pojo.ProAPIErrorResponse;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.LocalityReviewService;
 
 /**
@@ -31,14 +29,11 @@ public class AppLocalityReviewsController {
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(
+    public APIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(
             required = false) Integer numberOfReviews) {
-        if (localityId == null || localityId < 1) {
-            return new ProAPIErrorResponse("Error", "Enter Valid Locality Id");
-        }
         LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
                 localityId,
                 numberOfReviews);
-        return new ProAPISuccessResponse(reviewRatingDetails);
+        return new APIResponse(reviewRatingDetails);
     }
 }

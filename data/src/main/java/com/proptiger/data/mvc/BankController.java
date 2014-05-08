@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Bank;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.BankService;
 
 /**
@@ -32,19 +31,19 @@ public class BankController extends BaseController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getBankList(@RequestParam(required = false, value = "selector") String selectorStr) {
+    public APIResponse getBankList(@RequestParam(required = false, value = "selector") String selectorStr) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         List<Bank> list = bankService.getBanks();
         Set<String> fieldsToSerialize = null;
         if (selector != null) {
             fieldsToSerialize = selector.getFields();
         }
-        return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
+        return new APIResponse(super.filterFields(list, fieldsToSerialize), list.size());
     }
 
     @RequestMapping(value = "/{bankId}", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getBank(
+    public APIResponse getBank(
             @PathVariable Integer bankId,
             @RequestParam(required = false, value = "selector") String selectorStr) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
@@ -53,6 +52,6 @@ public class BankController extends BaseController {
         if (selector != null) {
             fieldsToSerialize = selector.getFields();
         }
-        return new ProAPISuccessCountResponse(super.filterFields(bank, fieldsToSerialize), 1);
+        return new APIResponse(super.filterFields(bank, fieldsToSerialize), 1);
     }
 }

@@ -26,8 +26,7 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -52,7 +51,7 @@ public class EndpointController {
 
     @RequestMapping(value = "/data/apilist", method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse show() {
+    public APIResponse show() {
         Map<RequestMappingInfo, HandlerMethod> handlerMethodMap = this.handlerMapping.getHandlerMethods();
 
         List<String> apiList = new ArrayList<String>();
@@ -152,7 +151,7 @@ public class EndpointController {
 
             
         }
-        return new ProAPISuccessCountResponse(apiList, apiList.size());
+        return new APIResponse(apiList, apiList.size());
     }
 
     private String getRequestParameterName(MethodParameter methodParameter, RequestParam requestParam) {

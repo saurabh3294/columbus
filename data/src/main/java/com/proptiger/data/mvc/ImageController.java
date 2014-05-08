@@ -20,8 +20,8 @@ import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ImageService;
 
 /**
@@ -49,7 +49,7 @@ public class ImageController extends BaseController {
             imageSelector = super.parseJsonToObject(selector, Selector.class);
         }
 
-        return new ProAPISuccessResponse(super.filterFields(images, imageSelector.getFields()));
+        return new APIResponse(super.filterFields(images, imageSelector.getFields()));
     }
 
     @DisableCaching
@@ -70,7 +70,7 @@ public class ImageController extends BaseController {
                 image,
                 addWaterMark,
                 imageParams);
-        return new ProAPISuccessResponse(super.filterFields(img, null));
+        return new APIResponse(super.filterFields(img, null));
     }
 
     @DisableCaching
@@ -92,7 +92,7 @@ public class ImageController extends BaseController {
             catch (IllegalAccessException | InvocationTargetException e) {
             }
             imageService.update(image);
-            obj = new ProAPISuccessResponse(super.filterFields(image, null));
+            obj = new APIResponse(super.filterFields(image, null));
         }
         else {
             try {
@@ -124,12 +124,12 @@ public class ImageController extends BaseController {
     public @ResponseBody
     Object deleteImage(@PathVariable long id) {
         imageService.deleteImage(id);
-        return new ProAPISuccessResponse();
+        return new APIResponse();
     }
 
     @RequestMapping(value = "resolution-enumerations")
     public @ResponseBody
     Object getResolutionEnumerations() {
-        return new ProAPISuccessResponse(ImageResolution.values());
+        return new APIResponse(ImageResolution.values());
     }
 }

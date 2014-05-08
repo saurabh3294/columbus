@@ -24,10 +24,8 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ProjectService;
@@ -55,7 +53,7 @@ public class ProjectController extends BaseController {
 
     @RequestMapping("data/v1/entity/project")
     public @ResponseBody
-    ProAPIResponse getProjects(@RequestParam(required = false, value = "selector") String selector) throws Exception {
+    APIResponse getProjects(@RequestParam(required = false, value = "selector") String selector) throws Exception {
         Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
         if (propRequestParam == null) {
             propRequestParam = new Selector();
@@ -64,16 +62,16 @@ public class ProjectController extends BaseController {
         PaginatedResponse<List<Project>> response = projectService.getProjects(propRequestParam);
 
         Set<String> fieldsString = propRequestParam.getFields();
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(response.getResults(), fieldsString),
                 response.getTotalCount());
     }
 
     @RequestMapping("data/v2/entity/project")
     public @ResponseBody
-    ProAPIResponse getV2Projects(@ModelAttribute FIQLSelector selector) throws Exception {
+    APIResponse getV2Projects(@ModelAttribute FIQLSelector selector) throws Exception {
         PaginatedResponse<List<Project>> response = projectService.getProjects(selector);
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFieldsFromSelector(response.getResults(), selector),
                 response.getTotalCount());
     }
@@ -90,7 +88,7 @@ public class ProjectController extends BaseController {
     /*
      * @RequestMapping(value = "/new-projects-by-launch-date")
      * 
-     * @ResponseBody public ProAPIResponse
+     * @ResponseBody public APIResponse
      * getNewProjectsByLaunchDate(@RequestParam(required = false) String
      * cityName,
      * 
@@ -105,15 +103,15 @@ public class ProjectController extends BaseController {
      * project.getProjectId()).get(0).getAbsolutePath()); }
      * 
      * Set<String> fieldsString = propRequestParam.getFields(); return new
-     * ProAPISuccessCountResponse(super.filterFields(response.getResult(),
+     * APIResponse(super.filterFields(response.getResult(),
      * fieldsString), response.getTotalResultCount()); }
      */
 
     @RequestMapping("data/v1/entity/project/{projectId}/discussions")
     @ResponseBody
-    public ProAPIResponse getDiscussions(@RequestParam(required = false) Long commentId, @PathVariable int projectId) {
+    public APIResponse getDiscussions(@RequestParam(required = false) Long commentId, @PathVariable int projectId) {
         List<ProjectDiscussion> comments = projectService.getDiscussions(projectId, commentId);
-        return new ProAPISuccessResponse(super.filterFields(comments, null));
+        return new APIResponse(super.filterFields(comments, null));
     }
 
     /*
@@ -123,7 +121,7 @@ public class ProjectController extends BaseController {
      */
     @RequestMapping("data/v1/entity/project/new-projects-by-launch-date")
     @ResponseBody
-    public ProAPIResponse getUpcomingNewProjects(@RequestParam(required = false) String cityName, @RequestParam(
+    public APIResponse getUpcomingNewProjects(@RequestParam(required = false) String cityName, @RequestParam(
             required = false) String selector) {
         Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
         if (propRequestParam == null) {
@@ -132,27 +130,27 @@ public class ProjectController extends BaseController {
         PaginatedResponse<List<Project>> response = projectService.getUpcomingNewProjects(cityName, propRequestParam);
 
         Set<String> fieldsString = propRequestParam.getFields();
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(response.getResults(), fieldsString),
                 response.getTotalCount());
     }
 
     @RequestMapping("data/v1/entity/project/popular")
     @ResponseBody
-    public ProAPIResponse getPopularProjects(@RequestParam(required = false, value = "selector") String selector) {
+    public APIResponse getPopularProjects(@RequestParam(required = false, value = "selector") String selector) {
         Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
         if (projectSelector == null) {
             projectSelector = new Selector();
         }
         List<Project> popularProjects = projectService.getPopularProjects(projectSelector);
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(popularProjects, projectSelector.getFields()),
                 popularProjects.size());
     }
 
     @RequestMapping(value = "data/v1/entity/project/recently-discussed")
     @ResponseBody
-    public ProAPIResponse getRecentlyDiscussedProjects(
+    public APIResponse getRecentlyDiscussedProjects(
             @RequestParam String locationType,
             @RequestParam int locationId,
             @RequestParam(required = false, defaultValue = "4") int lastNumberOfWeeks,
@@ -170,12 +168,12 @@ public class ProjectController extends BaseController {
                 minProjectDiscussionCount);
         int projectCount = projects == null ? 0 : projects.size();
 
-        return new ProAPISuccessCountResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
+        return new APIResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
     }
 
     @RequestMapping(value = "data/v1/entity/project/most-discussed")
     @ResponseBody
-    public ProAPIResponse getMostDiscussedProjects(
+    public APIResponse getMostDiscussedProjects(
             @RequestParam String locationType,
             @RequestParam int locationId,
             @RequestParam(required = false, defaultValue = "4") int lastNumberOfWeeks,
@@ -193,13 +191,13 @@ public class ProjectController extends BaseController {
                 minProjectDiscussionCount);
         int projectCount = projects == null ? 0 : projects.size();
 
-        return new ProAPISuccessCountResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
+        return new APIResponse(super.filterFields(projects, propRequestParam.getFields()), projectCount);
     }
 
     @ResponseBody
     @RequestMapping(value = "/data/v2/entity/project/{projectId}/discussions", method = RequestMethod.GET)
     @DisableCaching
-    public ProAPIResponse getProjectComments(
+    public APIResponse getProjectComments(
             @PathVariable int projectId,
             @RequestParam(required = false) String selector) {
 
@@ -213,14 +211,14 @@ public class ProjectController extends BaseController {
                 projectId,
                 propRequestParam.getPaging());
 
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(projectComments.getResults(), fields),
                 projectComments.getTotalCount());
     }
 
     @RequestMapping(value = "/data/v1/entity/project/highest-return")
     @ResponseBody
-    public ProAPIResponse getHighestReturnProjects(
+    public APIResponse getHighestReturnProjects(
             @RequestParam String locationType,
             @RequestParam int locationId,
             @RequestParam(required = false, defaultValue = "5") int numberOfProjects,
@@ -238,7 +236,7 @@ public class ProjectController extends BaseController {
                 locationId,
                 numberOfProjects,
                 minimumPriceRise);
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(highestReturnProjects.getResults(), fields),
                 highestReturnProjects.getTotalCount());
     }
@@ -246,7 +244,7 @@ public class ProjectController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/project/{projectId}/report-error")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse reportProjectError(@Valid @RequestBody ProjectError projectError, @PathVariable int projectId) {
+    public APIResponse reportProjectError(@Valid @RequestBody ProjectError projectError, @PathVariable int projectId) {
         if (projectError.getProjectId() != null)
             throw new IllegalArgumentException("Project Id should not be present in the request body");
         if (projectError.getPropertyId() != null && projectError.getPropertyId() > 0)
@@ -254,7 +252,7 @@ public class ProjectController extends BaseController {
                     "Property Id should not be present in the request body as it is for project error.");
 
         projectError.setProjectId(projectId);
-        return new ProAPISuccessResponse(errorReportingService.saveReportError(projectError));
+        return new APIResponse(errorReportingService.saveReportError(projectError));
     }
 
 }

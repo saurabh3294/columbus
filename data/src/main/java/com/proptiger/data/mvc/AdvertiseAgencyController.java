@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 
 /**
  * @author mandeep
@@ -53,7 +52,7 @@ public class AdvertiseAgencyController {
 
     @RequestMapping
     @ResponseBody
-    public ProAPIResponse get() {
-        return new ProAPISuccessResponse(AdvertiseAgency.values());
+    public APIResponse get() {
+        return new APIResponse(AdvertiseAgency.values());
     }
 }

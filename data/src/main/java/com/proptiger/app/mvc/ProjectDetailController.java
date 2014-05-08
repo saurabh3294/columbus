@@ -24,9 +24,8 @@ import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.LandMarkService;
@@ -69,7 +68,7 @@ public class ProjectDetailController extends BaseController {
 
     @RequestMapping(value = "app/v1/project-detail")
     public @ResponseBody
-    ProAPIResponse getProjectDetails(
+    APIResponse getProjectDetails(
             @RequestParam(required = false) String propertySelector,
             @RequestParam int projectId) throws Exception {
 
@@ -146,20 +145,20 @@ public class ProjectDetailController extends BaseController {
         response.put("neighborhood", listLocalityAmenity);
         response.put("locality", locality);
 
-        return new ProAPISuccessResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
+        return new APIResponse(super.filterFields(response, propertyDetailsSelector.getFields()));
     }
 
     @RequestMapping(value = "app/v2/project-detail")
     @Deprecated
     public @ResponseBody
-    ProAPIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId)
+    APIResponse getProjectDetails2(@RequestParam(required = false) String selector, @RequestParam int projectId)
             throws Exception {
         return getProjectDetailsV2(projectId, selector);
     }
 
     @RequestMapping(value = { "app/v2/project-detail/{projectId}" })
     @ResponseBody
-    public ProAPIResponse getProjectDetailsV2(
+    public APIResponse getProjectDetailsV2(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
         Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
@@ -176,12 +175,12 @@ public class ProjectDetailController extends BaseController {
             project.setProjectSpecification(projectService.getProjectSpecificationsV2(projectId));
         }
 
-        return new ProAPISuccessResponse(super.filterFields(project, fields));
+        return new APIResponse(super.filterFields(project, fields));
     }
 
     @RequestMapping(value = { "app/v3/project-detail/{projectId}" })
     @ResponseBody
-    public ProAPIResponse getProjectDetailsV3(
+    public APIResponse getProjectDetailsV3(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
         Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
@@ -189,6 +188,6 @@ public class ProjectDetailController extends BaseController {
             projectSelector = new Selector();
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-        return new ProAPISuccessResponse(super.filterFields(project, projectSelector.getFields()));
+        return new APIResponse(super.filterFields(project, projectSelector.getFields()));
     }
 }

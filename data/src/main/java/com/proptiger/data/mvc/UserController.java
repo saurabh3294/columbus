@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.UserService;
 import com.proptiger.data.service.UserService.AlreadyEnquiredDetails;
 import com.proptiger.data.util.Constants;
@@ -33,29 +32,29 @@ public class UserController extends BaseController {
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/enquired")
     @ResponseBody
     @Deprecated
-    public ProAPIResponse hasEnquired(
+    public APIResponse hasEnquired(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @RequestParam(value = "projectId") Integer projectId) {
         AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
                 projectId,
                 userInfo.getUserIdentifier());
-        return new ProAPISuccessResponse(enquiredDetails);
+        return new APIResponse(enquiredDetails);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/project/{projectId}/enquired")
     @ResponseBody
-    public ProAPIResponse hasEnquired_(
+    public APIResponse hasEnquired_(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @PathVariable Integer projectId) {
         AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
                 projectId,
                 userInfo.getUserIdentifier());
-        return new ProAPISuccessResponse(enquiredDetails);
+        return new APIResponse(enquiredDetails);
     }
     
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/registered")
     @ResponseBody
-    public ProAPIResponse isRegistered(String email) {
-        return new ProAPISuccessResponse(userService.isRegistered(email));
+    public APIResponse isRegistered(String email) {
+        return new APIResponse(userService.isRegistered(email));
     }
 }
