@@ -27,7 +27,7 @@
                    <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
                    <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
 						Your friend ${projectDetailsMailToUser.senderName} was searching for real estate on <a text-decoration:none;" href="${WEBSITE}">Proptiger</a><br /> and thought you'd be interested
-						in seeing this ${projectDetailsMailToUser.projectLink}.
+						in seeing this <BR><BR>${projectDetailsMailToUser.projectLink}.
 						<br /><br />
 						#if(${projectDetailsMailToUser.message})
 							Message from Sender: <i>${projectDetailsMailToUser.message}</i><br /><br />

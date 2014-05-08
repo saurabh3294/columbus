@@ -226,7 +226,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @JsonIgnore
     @Enumerated(EnumType.STRING)
     @JsonDeserialize(using = SourceTypeDeserializer.class)
-    private Source                           sourceType ;
+    private Source                           sourceType = Source.portfolio;
 
     @Column(name = "lead_user")
     private String                           leadUser;

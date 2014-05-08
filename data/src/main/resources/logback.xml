@@ -35,6 +35,9 @@
 	<logger name="org.apache.shiro">
 		<level value="ERROR" />
 	</logger>
+	<logger name="com.proptiger.data.service.CompositeAPIService">
+		<level value="DEBUG" />
+	</logger>
 	
 	<root level="ERROR">
 		<appender-ref ref="dal" />

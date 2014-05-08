@@ -21,8 +21,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.util.ImageUtil;
+import com.proptiger.data.util.MediaUtil;
 
+/**
+ * @author yugal
+ * 
+ * @author azi
+ * 
+ */
 @Entity(name = "Image")
 @Access(AccessType.FIELD)
 @JsonFilter("fieldFilter")
@@ -54,7 +60,7 @@ public class Image extends BaseModel {
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "ImageType_id", insertable = false, updatable = false)
     @JsonProperty("imageType")
-    private ImageType          imageTypeObj;
+    private ObjectMediaType    imageTypeObj;
 
     @Column(name = "ImageType_id", updatable = false)
     @ExcludeFromBeanCopy
@@ -78,7 +84,7 @@ public class Image extends BaseModel {
 
     @JsonProperty
     public String getAbsolutePath() {
-        return ImageUtil.getImageEndpoint(id) + "/" + path + waterMarkName;
+        return MediaUtil.getMediaEndpoint(id) + "/" + path + waterMarkName;
     }
 
     // XXX - Do not remove! used for creating object from serialized string
@@ -146,11 +152,11 @@ public class Image extends BaseModel {
         this.id = id;
     }
 
-    public ImageType getImageTypeObj() {
+    public ObjectMediaType getImageTypeObj() {
         return imageTypeObj;
     }
 
-    public void setImageTypeObj(ImageType imageType) {
+    public void setImageTypeObj(ObjectMediaType imageType) {
         this.imageTypeObj = imageType;
     }
 
@@ -315,7 +321,7 @@ public class Image extends BaseModel {
     }
 
     public static String addImageHostUrl(String path) {
-        for (String endpoint : ImageUtil.endpoints) {
+        for (String endpoint : MediaUtil.endpoints) {
             if (path.contains(endpoint)) {
                 return path;
             }
@@ -329,6 +335,6 @@ public class Image extends BaseModel {
             imageId = 0;
         }
 
-        return ImageUtil.getImageEndpoint(imageId) + "/" + path;
+        return MediaUtil.getMediaEndpoint(imageId) + "/" + path;
     }
 }

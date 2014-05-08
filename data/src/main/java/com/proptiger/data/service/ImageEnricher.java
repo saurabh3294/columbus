@@ -17,7 +17,7 @@ import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
-import com.proptiger.data.util.ImageUtil;
+import com.proptiger.data.util.MediaUtil;
 
 @Service
 public class ImageEnricher {
@@ -239,7 +239,7 @@ public class ImageEnricher {
         int index2 = projectMainUrl.lastIndexOf('.');
         long imageId = Long.parseLong(projectMainUrl.substring(index1 + 1, index2));
 
-        String endpoint = ImageUtil.getImageEndpoint(imageId);
+        String endpoint = MediaUtil.getMediaEndpoint(imageId);
         String path = projectMainUrl.substring(endpoint.length() + 1, index1 + 1);
         String waterMarkName = projectMainUrl.substring(index1 + 1);
 

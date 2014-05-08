@@ -1,7 +1,12 @@
 package com.proptiger.data.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import com.proptiger.data.model.portfolio.PortfolioListing.Source;
 
 /**
  * Define all constants in this class, either make a group of constants related
@@ -20,7 +25,9 @@ public class Constants {
     public static final String               PHPSESSID_KEY             = "PHPSESSID";
     public static final int                  DEFAULT_NO_OF_ROWS        = 10;
     public static final String               USERNAME                  = "username";
+    public static final List<Source>         SOURCETYPE_LIST           = Arrays.asList(Source.portfolio, Source.backend);
 
+    
     /**
      * Put all solr Dynamic Field generated in this class.
      */
