@@ -160,6 +160,9 @@ public class PortfolioPriceTrendService {
                 Date d = priceDetail.getEffectiveDate();
                 cal.setTime(d);
                 cal.set(Calendar.DAY_OF_MONTH, 1);
+                cal.set(Calendar.HOUR_OF_DAY, 1); 
+                cal.set(Calendar.MINUTE, 1);      
+                cal.set(Calendar.SECOND, 1); 
                 priceDetail.setEffectiveDate(cal.getTime());
             }
         }
