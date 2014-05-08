@@ -141,6 +141,7 @@ public class PortfolioPriceTrendService {
 		 */
 		addPriceDetailsFromCurrentMonth(projectPriceTrendTemp, noOfMonths,
 				listings);
+		makePriceTrendDateMonthPrecision(projectPriceTrendTemp);
 		/*
 		 * Update per square price received from CMS API to total price
 		 */
@@ -149,6 +150,23 @@ public class PortfolioPriceTrendService {
 	}
 
 	/**
+	 * Changing price trend date to month precision as it would be easy to plot on UI.
+	 * @param projectPriceTrendTemp
+	 */
+	private void makePriceTrendDateMonthPrecision(List<ProjectPriceTrend> projectPriceTrendTemp) {
+	    Calendar cal = Calendar.getInstance();
+        for(ProjectPriceTrend priceTrend: projectPriceTrendTemp){
+            for(PriceDetail priceDetail: priceTrend.getPrices()){
+                Date d = priceDetail.getEffectiveDate();
+                cal.setTime(d);
+                cal.set(Calendar.DAY_OF_MONTH, 1);
+                priceDetail.setEffectiveDate(cal.getTime());
+            }
+        }
+        
+    }
+
+    /**
 	 * Create List of PriceDetail object for portfolio price trend by adding
 	 * corresponding price trend from all project price trends
 	 * 
