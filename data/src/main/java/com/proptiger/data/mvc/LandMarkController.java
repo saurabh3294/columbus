@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.LandMarkService;
 
 /**
@@ -30,7 +30,7 @@ public class LandMarkController extends BaseController {
     public Object getAmenitiesByLocalityIdAndAmenity(@PathVariable("id") int localityId, @RequestParam(
             value = "amenity",
             required = false) String amenityName) {
-        return new ProAPISuccessResponse(localityAmenityService.getLocalityAmenities(localityId, amenityName));
+        return new APIResponse(localityAmenityService.getLocalityAmenities(localityId, amenityName));
 
     }
 }

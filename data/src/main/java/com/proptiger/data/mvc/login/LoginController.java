@@ -9,9 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.Login;
 import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.portfolio.LoginService;
 
 /**
@@ -29,15 +27,15 @@ public class LoginController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/login")
     @ResponseBody
-    public ProAPIResponse login(@RequestBody Login login) {
+    public APIResponse login(@RequestBody Login login) {
         UserInfo userInfo = loginService.login(login.getEmail(), login.getPassword(), login.isRememberme());
-        return new ProAPISuccessResponse(userInfo);
+        return new APIResponse(userInfo);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/logout")
     @ResponseBody
-    public ProAPIResponse logout() {
+    public APIResponse logout() {
         boolean status = loginService.logout();
-        return new ProAPISuccessCountResponse(status, 1);
+        return new APIResponse(status, 1);
     }
 }

@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.im4java.core.InfoException;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -20,8 +22,8 @@ import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ImageService;
 
 /**
@@ -49,7 +51,7 @@ public class ImageController extends BaseController {
             imageSelector = super.parseJsonToObject(selector, Selector.class);
         }
 
-        return new ProAPISuccessResponse(super.filterFields(images, imageSelector.getFields()));
+        return new APIResponse(super.filterFields(images, imageSelector.getFields()));
     }
 
     @DisableCaching
@@ -61,7 +63,7 @@ public class ImageController extends BaseController {
             @RequestParam MultipartFile image,
             @RequestParam(required = false) Boolean addWaterMark,
             @RequestParam String imageType,
-            @ModelAttribute Image imageParams) {
+            @ModelAttribute Image imageParams) throws Exception {
         DomainObject domainObject = DomainObject.valueOf(objectType);
         Image img = imageService.uploadImage(
                 domainObject,
@@ -70,7 +72,7 @@ public class ImageController extends BaseController {
                 image,
                 addWaterMark,
                 imageParams);
-        return new ProAPISuccessResponse(super.filterFields(img, null));
+        return new APIResponse(super.filterFields(img, null));
     }
 
     @DisableCaching
@@ -79,7 +81,7 @@ public class ImageController extends BaseController {
     Object updateImage(
             @PathVariable long id,
             @RequestParam(required = false, value = "image") MultipartFile file,
-            @ModelAttribute Image imageParams) {
+            @ModelAttribute Image imageParams) throws Exception {
         Image image = imageService.getImage(id);
         Object obj = null;
         Image newUpdateImage = new Image();
@@ -92,7 +94,7 @@ public class ImageController extends BaseController {
             catch (IllegalAccessException | InvocationTargetException e) {
             }
             imageService.update(image);
-            obj = new ProAPISuccessResponse(super.filterFields(image, null));
+            obj = new APIResponse(super.filterFields(image, null));
         }
         else {
             try {
@@ -124,12 +126,12 @@ public class ImageController extends BaseController {
     public @ResponseBody
     Object deleteImage(@PathVariable long id) {
         imageService.deleteImage(id);
-        return new ProAPISuccessResponse();
+        return new APIResponse();
     }
 
     @RequestMapping(value = "resolution-enumerations")
     public @ResponseBody
     Object getResolutionEnumerations() {
-        return new ProAPISuccessResponse(ImageResolution.values());
+        return new APIResponse(ImageResolution.values());
     }
 }

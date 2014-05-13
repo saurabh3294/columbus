@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.LocalityRatings;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.LocalityRatingService;
 import com.proptiger.data.util.Constants;
 
@@ -38,11 +37,11 @@ public class LocalityRatingController extends BaseController {
     @RequestMapping(value = { "data/v1/entity/locality/{localityId}/rating" }, method = RequestMethod.POST)
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse createLocalityRating(
+    public APIResponse createLocalityRating(
             @PathVariable Integer localityId,
             @RequestBody LocalityRatings localityReview) {
         LocalityRatings createdRating = localityRatingService.createLocalityRating(null, localityId, localityReview);
-        return new ProAPISuccessResponse(createdRating);
+        return new APIResponse(createdRating);
     }
 
     /**
@@ -55,12 +54,12 @@ public class LocalityRatingController extends BaseController {
     @RequestMapping(value = { "data/v1/entity/user/locality/{localityId}/rating" }, method = RequestMethod.GET)
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse getLocalityRatingByUser(
+    public APIResponse getLocalityRatingByUser(
             @PathVariable Integer localityId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         LocalityRatings rating = localityRatingService
                 .getLocalityRatingOfUser(userInfo.getUserIdentifier(), localityId);
-        return new ProAPISuccessResponse(rating);
+        return new APIResponse(rating);
     }
 
     /**
@@ -74,7 +73,7 @@ public class LocalityRatingController extends BaseController {
     @RequestMapping(value = { "data/v1/entity/user/locality/{localityId}/rating" }, method = RequestMethod.POST)
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse createLocalityRating(
+    public APIResponse createLocalityRating(
             @PathVariable Integer localityId,
             @RequestBody LocalityRatings localityRating,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
@@ -82,6 +81,6 @@ public class LocalityRatingController extends BaseController {
                 userInfo.getUserIdentifier(),
                 localityId,
                 localityRating);
-        return new ProAPISuccessResponse(createdRating);
+        return new APIResponse(createdRating);
     }
 }

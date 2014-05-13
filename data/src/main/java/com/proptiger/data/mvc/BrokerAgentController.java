@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.seller.Agent;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.BrokerAgentService;
 
 /**
@@ -25,15 +24,15 @@ public class BrokerAgentController extends BaseController {
 
     @RequestMapping(value = "data/v1/entity/broker-agent/{agentId}")
     @ResponseBody
-    public ProAPIResponse getAgent(@PathVariable Integer agentId) {
+    public APIResponse getAgent(@PathVariable Integer agentId) {
         Agent agent = brokerAgentService.getAgent(agentId);
-        return new ProAPISuccessCountResponse(super.filterFields(agent, null), 1);
+        return new APIResponse(super.filterFields(agent, null), 1);
     }
 
     @RequestMapping(value = "data/v1/entity/project/{projectId}/agent")
     @ResponseBody
-    public ProAPIResponse getAgenetsForProject(@PathVariable Integer projectId) {
+    public APIResponse getAgenetsForProject(@PathVariable Integer projectId) {
         List<Agent> agents = brokerAgentService.getAgentsForProject(projectId);
-        return new ProAPISuccessCountResponse(super.filterFields(agents, null), agents.size());
+        return new APIResponse(super.filterFields(agents, null), agents.size());
     }
 }

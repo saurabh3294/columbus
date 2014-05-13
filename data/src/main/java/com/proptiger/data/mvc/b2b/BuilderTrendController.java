@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.b2b.BuilderTrendService;
 import com.proptiger.data.util.Constants;
 
@@ -29,17 +28,17 @@ public class BuilderTrendController {
 
     @RequestMapping("app/v1/user/builder-trend/{builderId}")
     @ResponseBody
-    public ProAPIResponse getSingleBuilderTrend(
+    public APIResponse getSingleBuilderTrend(
             @PathVariable Integer builderId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
-        return new ProAPISuccessResponse(builderTrendService.getBuilderTrendForSingleBuilder(builderId, userInfo));
+        return new APIResponse(builderTrendService.getBuilderTrendForSingleBuilder(builderId, userInfo));
     }
 
     @RequestMapping("app/v1/user/builder-trend")
     @ResponseBody
-    public ProAPIResponse getBuilderTrendFromFIQL(
+    public APIResponse getBuilderTrendFromFIQL(
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
-        return new ProAPISuccessResponse(builderTrendService.getBuilderTrend(selector, userInfo));
+        return new APIResponse(builderTrendService.getBuilderTrend(selector, userInfo));
     }
 }

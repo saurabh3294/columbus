@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.SuburbDescriptionService;
 
 /**
@@ -27,8 +26,8 @@ public class SuburbDescriptionController {
 
     @RequestMapping(value = "{suburbId}/description")
     @ResponseBody
-    public ProAPIResponse getSuburbTemplate(@PathVariable Integer suburbId) {
+    public APIResponse getSuburbTemplate(@PathVariable Integer suburbId) {
         String description = suburbDescriptionService.getSuburbDescriptionUsingTemplate(suburbId);
-        return new ProAPISuccessResponse(description);
+        return new APIResponse(description);
     }
 }

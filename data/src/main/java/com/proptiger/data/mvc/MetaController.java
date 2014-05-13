@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.meta.ResourceModelMeta;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.MetaService;
 
 /**
@@ -28,9 +27,9 @@ public class MetaController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getAllResourceMeta(@RequestParam(value = "resourceName", required = false) String resourceName) {
+    public APIResponse getAllResourceMeta(@RequestParam(value = "resourceName", required = false) String resourceName) {
 
         List<ResourceModelMeta> resourceMetaList = metaService.getResourceMeta(resourceName);
-        return new ProAPISuccessResponse(resourceMetaList);
+        return new APIResponse(resourceMetaList);
     }
 }

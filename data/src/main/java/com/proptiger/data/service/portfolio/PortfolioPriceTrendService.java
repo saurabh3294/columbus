@@ -141,6 +141,7 @@ public class PortfolioPriceTrendService {
 		 */
 		addPriceDetailsFromCurrentMonth(projectPriceTrendTemp, noOfMonths,
 				listings);
+		makePriceTrendDateMonthPrecision(projectPriceTrendTemp);
 		/*
 		 * Update per square price received from CMS API to total price
 		 */
@@ -149,6 +150,27 @@ public class PortfolioPriceTrendService {
 	}
 
 	/**
+	 * Changing price trend date to month precision as it would be easy to plot on UI.
+	 * @param projectPriceTrendTemp
+	 */
+	private void makePriceTrendDateMonthPrecision(List<ProjectPriceTrend> projectPriceTrendTemp) {
+	    Calendar cal = Calendar.getInstance();
+        for(ProjectPriceTrend priceTrend: projectPriceTrendTemp){
+            for(PriceDetail priceDetail: priceTrend.getPrices()){
+                Date d = priceDetail.getEffectiveDate();
+                cal.setTime(d);
+                cal.set(Calendar.DAY_OF_MONTH, 1);
+                cal.set(Calendar.HOUR_OF_DAY, 1); 
+                cal.set(Calendar.MINUTE, 1);      
+                cal.set(Calendar.SECOND, 1);
+                cal.set(Calendar.MILLISECOND, 1);
+                priceDetail.setEffectiveDate(cal.getTime());
+            }
+        }
+        
+    }
+
+    /**
 	 * Create List of PriceDetail object for portfolio price trend by adding
 	 * corresponding price trend from all project price trends
 	 * 
@@ -260,6 +282,14 @@ public class PortfolioPriceTrendService {
                 cal.add(Calendar.MONTH, -1);
                 detail.setEffectiveDate(cal.getTime());
                 prices.add(0, detail);
+            }
+            
+            /* removing price detail before launch date because cms sometime
+             * adds data before launch date for a project.
+             * 
+             */
+            while (launchDate != null && !prices.isEmpty() && prices.get(0).getEffectiveDate().before(launchDate)) {
+                prices.remove(0);
             }
 
 			/*

@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.LocalityService;
@@ -47,13 +45,13 @@ public class LocalityController extends BaseController {
      */
     @RequestMapping(value = {"", "/top"})
     @ResponseBody
-    public ProAPIResponse getLocalities(@RequestParam(required = false) String selector) {
+    public APIResponse getLocalities(@RequestParam(required = false) String selector) {
         Selector localitySelector = new Selector();
         if (selector != null) {
             localitySelector = super.parseJsonToObject(selector, Selector.class);
         }
         PaginatedResponse<List<Locality>> localityList = localityService.getLocalities(localitySelector);
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(localityList.getResults(), localitySelector.getFields()),
                 localityList.getTotalCount());
     }
@@ -69,7 +67,7 @@ public class LocalityController extends BaseController {
      */
     @RequestMapping(value = "/popular")
     @ResponseBody
-    public ProAPIResponse getPopularLocalitiesOfCity(
+    public APIResponse getPopularLocalitiesOfCity(
             @RequestParam(required = false, value = "cityId") Integer cityId,
             @RequestParam(required = false, value = "suburbId") Integer suburbId,
             @RequestParam(required = false, value = "enquiryInWeeks", defaultValue = "8") Integer enquiryInWeeks,
@@ -83,7 +81,7 @@ public class LocalityController extends BaseController {
                 suburbId,
                 enquiryInWeeks,
                 localitySelector);
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFields(popularLocalities, localitySelector.getFields()),
                 popularLocalities.size());
     }
@@ -98,7 +96,7 @@ public class LocalityController extends BaseController {
      */
     @RequestMapping(value = "/top-rated")
     @ResponseBody
-    public ProAPIResponse getTopLocalitiesOfCityOrSuburb(
+    public APIResponse getTopLocalitiesOfCityOrSuburb(
             @RequestParam(required = false, value = "cityId") Integer cityId,
             @RequestParam(required = false, value = "suburbId") Integer suburbId,
             @RequestParam(required = false, defaultValue = "4", value = "imageCount") Integer imageCount,
@@ -108,7 +106,7 @@ public class LocalityController extends BaseController {
             localitySelector = super.parseJsonToObject(selector, Selector.class);
         }
         List<Locality> result = localityService.getTopRatedLocalities(cityId, suburbId, localitySelector, imageCount);
-        return new ProAPISuccessCountResponse(super.filterFields(result, localitySelector.getFields()), result.size());
+        return new APIResponse(super.filterFields(result, localitySelector.getFields()), result.size());
     }
 
     /**
@@ -120,8 +118,8 @@ public class LocalityController extends BaseController {
      */
     @RequestMapping(value = "{localityId}/center")
     @ResponseBody
-    public ProAPIResponse getCenter(@PathVariable int localityId) {
-        return new ProAPISuccessResponse(localityService.computeCenter(localityId));
+    public APIResponse getCenter(@PathVariable int localityId) {
+        return new APIResponse(localityService.computeCenter(localityId));
     }
 
     /**
@@ -133,7 +131,7 @@ public class LocalityController extends BaseController {
      */
     @RequestMapping(value = "{localityId}/top-rated")
     @ResponseBody
-    public ProAPIResponse getTopLocalitiesAroundLocality(@PathVariable Integer localityId, @RequestParam(
+    public APIResponse getTopLocalitiesAroundLocality(@PathVariable Integer localityId, @RequestParam(
             required = false,
             defaultValue = "4",
             value = "imageCount") Integer imageCount, @RequestParam(required = false) String selector) {
@@ -146,19 +144,19 @@ public class LocalityController extends BaseController {
                 localitySelector,
                 imageCount,
                 null);
-        return new ProAPISuccessCountResponse(super.filterFields(result, localitySelector.getFields()), result.size());
+        return new APIResponse(super.filterFields(result, localitySelector.getFields()), result.size());
     }
 
     @RequestMapping("/{localityId}/radius")
     @ResponseBody
     @Deprecated
-    public ProAPIResponse getLocalityRadiusOnProject(@PathVariable int localityId) {
-        return new ProAPISuccessResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
+    public APIResponse getLocalityRadiusOnProject(@PathVariable int localityId) {
+        return new APIResponse(localityService.getMaxRadiusForLocalityOnProject(localityId));
     }
 
     @RequestMapping(value = "top-reviewed")
     @ResponseBody
-    public ProAPIResponse getTopReviewedLocality(
+    public APIResponse getTopReviewedLocality(
             @RequestParam String locationType,
             @RequestParam int locationId,
             @RequestParam(required = false, defaultValue = "2") int minReviewCount,
@@ -175,12 +173,12 @@ public class LocalityController extends BaseController {
                 locationId,
                 minReviewCount,
                 numberOfLocalities);
-        return new ProAPISuccessCountResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
+        return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
 
     @RequestMapping(value = "highest-return")
     @ResponseBody
-    public ProAPIResponse getHighestReturnLocalities(
+    public APIResponse getHighestReturnLocalities(
             @RequestParam String locationType,
             @RequestParam int locationId,
             @RequestParam(required = false, defaultValue = "5") int numberOfLocalities,
@@ -197,6 +195,6 @@ public class LocalityController extends BaseController {
                 locationId,
                 numberOfLocalities, minimumPriceRise);
 
-        return new ProAPISuccessCountResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
+        return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
 }

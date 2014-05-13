@@ -14,9 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.portfolio.SavedSearch;
 import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.portfolio.SavedSearchService;
 import com.proptiger.data.util.Constants;
 
@@ -32,25 +30,25 @@ public class SavedSearchController extends BaseController {
 
     @RequestMapping(value = { "/portfolio/saved-searches", "/saved-searches" }, method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getSavedSearches(
+    public APIResponse getSavedSearches(
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         List<SavedSearch> result = savedSearchesService.getUserSavedSearches(userInfo.getUserIdentifier());
 
-        return new ProAPISuccessCountResponse(result, result.size());
+        return new APIResponse(result, result.size());
     }
 
     @RequestMapping(value = "/saved-searches", method = RequestMethod.POST)
     @ResponseBody
-    public ProAPIResponse saveSearch(
+    public APIResponse saveSearch(
             @RequestBody SavedSearch saveSearch,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        return new ProAPISuccessResponse(savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier()));
+        return new APIResponse(savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier()));
     }
 
     @RequestMapping(value = "/saved-searches/{savedSearchId}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ProAPIResponse deleteSavedSearch(
+    public APIResponse deleteSavedSearch(
             @PathVariable int savedSearchId,
             @PathVariable Integer userId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {

@@ -16,6 +16,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
 import org.im4java.core.Info;
+import org.im4java.core.InfoException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,7 @@ public class MediaUtil {
 
     private static Logger  logger = LoggerFactory.getLogger(MediaUtil.class);
     public static String[] endpoints;
+    public static String   bucket;
 
     public static String fileMd5Hash(File file) throws FileNotFoundException, IOException {
         int nread = 0;
@@ -77,16 +79,13 @@ public class MediaUtil {
         return format.toLowerCase();
     }
 
-    public static void populateImageMetaInfo(File imageFile, Image image) throws IOException {
-        try {
-            Info info = new Info(imageFile.getAbsolutePath());
-            image.setWidth(info.getImageWidth());
-            image.setHeight(info.getImageHeight());
-        }
-        catch (Exception e) {
-            logger.debug("Unable to read the image file.");
-            e.printStackTrace();
-        }
+    public static void populateImageMetaInfo(File imageFile, Image image) throws IOException, InfoException {
+        ImageInputStream iis = ImageIO.createImageInputStream(imageFile);
+
+        Info info = new Info(imageFile.getAbsolutePath());
+        image.setWidth(info.getImageWidth());
+        image.setHeight(info.getImageHeight());
+
         // Size
         image.setSizeInBytes(imageFile.length());
 

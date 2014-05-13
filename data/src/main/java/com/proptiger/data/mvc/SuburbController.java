@@ -10,9 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.SuburbService;
 
 /**
@@ -33,13 +32,13 @@ public class SuburbController extends BaseController {
      */
     @RequestMapping
     public @ResponseBody
-    ProAPIResponse getSuburbs(@RequestParam(required = false) String selector) {
+    APIResponse getSuburbs(@RequestParam(required = false) String selector) {
         Selector suburbSelector = new Selector();
         if (selector != null) {
             suburbSelector = super.parseJsonToObject(selector, Selector.class);
         }
 
-        return new ProAPISuccessResponse(super.filterFields(
+        return new APIResponse(super.filterFields(
                 suburbService.getSuburbs(suburbSelector),
                 suburbSelector.getFields()));
     }
@@ -52,8 +51,8 @@ public class SuburbController extends BaseController {
      */
     @RequestMapping("/{suburbId}")
     @ResponseBody
-    public ProAPIResponse getSuburb(@PathVariable int suburbId) {
+    public APIResponse getSuburb(@PathVariable int suburbId) {
 
-        return new ProAPISuccessResponse(super.filterFields(suburbService.getSuburb(suburbId), null));
+        return new APIResponse(super.filterFields(suburbService.getSuburb(suburbId), null));
     }
 }

@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.JobDetail;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.CareerService;
 import com.proptiger.data.service.pojo.PaginatedResponse;
 
@@ -28,9 +27,9 @@ public class CareerController extends BaseController{
     
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getJobDetails(@ModelAttribute FIQLSelector selector){
+    public APIResponse getJobDetails(@ModelAttribute FIQLSelector selector){
         PaginatedResponse<List<JobDetail>> response = careerService.getJobDetails(selector);
-        return new ProAPISuccessCountResponse(
+        return new APIResponse(
                 super.filterFieldsFromSelector(response.getResults(), selector),
                 response.getTotalCount());
     }
