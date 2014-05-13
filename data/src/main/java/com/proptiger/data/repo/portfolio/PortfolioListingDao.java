@@ -17,14 +17,11 @@ public interface PortfolioListingDao extends
 	public List<PortfolioListing> findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
 			Integer userId, Boolean deletedFlag, List<Source> sourceType);
 
-	public PortfolioListing findByUserIdAndListingIdAndDeletedFlag(
-			Integer userId, Integer listingId, Boolean deletedFlag);
+	public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId,
+			Boolean deletedFlag);
 
 	public PortfolioListing findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
 			Integer userId, String name, Boolean deletedFlag,
 			List<Source> sourceType);
-
-	public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId,
-			Boolean deletedFlag);
 
 }

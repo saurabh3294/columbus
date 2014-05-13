@@ -130,11 +130,12 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer listingId,
             @RequestBody PortfolioListing portfolioProperty,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        PortfolioListing listing = portfolioService.updatePortfolioListing(
+        portfolioService.updatePortfolioListing(
                 userInfo.getUserIdentifier(),
                 listingId,
                 portfolioProperty);
-        return new ProAPISuccessResponse(super.filterFieldsWithTree(listing, null));
+        PortfolioListing updatedListing = portfolioService.getPortfolioListingById(userId, listingId);
+        return new ProAPISuccessResponse(super.filterFieldsWithTree(updatedListing, null));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/listing/{listingId}")

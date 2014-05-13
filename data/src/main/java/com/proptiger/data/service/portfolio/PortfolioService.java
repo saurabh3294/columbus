@@ -491,7 +491,7 @@ public class PortfolioService extends AbstractService {
     @Transactional(readOnly = true)
     public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId) {
         logger.debug("Getting portfolio listing {} for user id {}", listingId, userId);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId, false);
+        PortfolioListing listing = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
         if (listing == null) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
@@ -549,7 +549,7 @@ public class PortfolioService extends AbstractService {
          */
         listing.setProperty(null);
         PortfolioListing created = create(listing);
-        created = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, created.getId(), false);
+        created = portfolioListingDao.findByListingIdAndDeletedFlag(created.getId(), false);
         updateOtherSpecificData(created);
 
         subscriptionService.enableOrAddUserSubscription(userId, listing.getListingId(), PortfolioListing.class
@@ -582,6 +582,8 @@ public class PortfolioService extends AbstractService {
          * Update current price
          */
         updated.setCurrentPrice(getListingCurrentPrice(updated));
+        
+        
         return updated;
     }
 
@@ -661,8 +663,7 @@ public class PortfolioService extends AbstractService {
              * updating already present listing i.e resourcePresent with new data changes contained in toUpdate
              */
             beanUtilsBean.copyProperties(resourcePresent, toUpdate);
-            
-            
+           
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new ProAPIException("Portfolio listing update failed", e);
@@ -739,8 +740,7 @@ public class PortfolioService extends AbstractService {
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
     public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId, String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
-        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(
-                userId,
+        PortfolioListing propertyPresent = portfolioListingDao.findByListingIdAndDeletedFlag(
                 listingId,
                 false);
         if (propertyPresent == null) {
@@ -876,7 +876,7 @@ public class PortfolioService extends AbstractService {
                 userId,
                 listingId,
                 interestedToLoan);
-        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndDeletedFlag(userId, listingId, false);
+        PortfolioListing listing = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
         if (listing == null) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
