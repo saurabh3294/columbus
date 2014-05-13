@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -10,16 +11,21 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.ConstructionStatus;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectPhase;
+import com.proptiger.data.model.ProjectPhase.CustomCurrentPhaseSecondaryPrice;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.b2b.Status;
 import com.proptiger.data.model.enums.DataVersion;
 import com.proptiger.data.model.enums.EntityType;
+import com.proptiger.data.model.enums.UnitType;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.ListingPriceDao;
 import com.proptiger.data.repo.ProjectAvailabilityDao;
+import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectPhaseDao;
 import com.proptiger.data.repo.SecondaryPriceDao;
 import com.proptiger.data.util.UtilityClass;
@@ -33,6 +39,9 @@ import com.proptiger.exception.ResourceNotFoundException;
 
 @Service
 public class ProjectPhaseService {
+    @Autowired
+    private ProjectDao             projectDao;
+
     @Autowired
     private ProjectPhaseDao        projectPhaseDao;
 
@@ -61,10 +70,10 @@ public class ProjectPhaseService {
     }
 
     private List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version) {
-        List<ProjectPhase> phases = populatePrimaryPrice(populateProperties(populateAvailabilities(removeInvalidPhases(projectPhaseDao
+        List<ProjectPhase> phases = populatePhaseMetaAttributes(populateSecondaryPrice(populatePrimaryPrice(populateProperties(populateAvailabilities(removeInvalidPhases(projectPhaseDao
                 .getFilteredPhases(selector.addAndConditionToFilter("status==" + Status.Active)
                         .addAndConditionToFilter("version==" + version)
-                        .addAndConditionToFilter("projectId==" + projectId))))));
+                        .addAndConditionToFilter("projectId==" + projectId))))))));
         if (phases.size() == 0) {
             throw new ResourceNotFoundException("PhaseId Not Found");
         }
@@ -156,7 +165,57 @@ public class ProjectPhaseService {
     }
 
     private List<ProjectPhase> populateSecondaryPrice(List<ProjectPhase> phases) {
+        List<Integer> phaseIds = new ArrayList<>();
+        for (ProjectPhase phase : phases) {
+            phaseIds.add(phase.getPhaseId());
+        }
+
+        Map<Integer, Map<UnitType, List<CustomCurrentPhaseSecondaryPrice>>> mappedPhaseSecondaryPrices = (Map<Integer, Map<UnitType, List<CustomCurrentPhaseSecondaryPrice>>>) UtilityClass
+                .groupFieldsAsPerKeys(
+                        secondaryPriceDao.getSecondaryPriceFromPhaseIds(phaseIds),
+                        Arrays.asList("phaseId", "unitType"));
+
+        for (ProjectPhase phase : phases) {
+            int phaseId = phase.getPhaseId();
+            List<Property> properties = phase.getProperties();
+            for (Property property : properties) {
+                UnitType unitType = UnitType.valueOf(property.getUnitType());
+                if (mappedPhaseSecondaryPrices.get(phaseId) != null && mappedPhaseSecondaryPrices.get(phaseId).get(
+                        unitType) != null) {
+                    populatePropertySecondaryPriceAttributes(
+                            property,
+                            mappedPhaseSecondaryPrices.get(phaseId).get(unitType).get(0));
+                }
+            }
+        }
         return phases;
+    }
+
+    private List<ProjectPhase> populatePhaseMetaAttributes(List<ProjectPhase> phases) {
+        Map<Integer, ConstructionStatus> mappedProjectConstructionStatus = new HashMap<>();
+        for (ProjectPhase phase : phases) {
+            int projectId = phase.getProjectId();
+            if (!mappedProjectConstructionStatus.containsKey(projectId)) {
+                Project project = projectDao.findProjectByProjectId(projectId);
+                mappedProjectConstructionStatus.put(
+                        projectId,
+                        ConstructionStatus.fromStringStatus(project.getProjectStatus()));
+            }
+            ConstructionStatus constructionStatus = mappedProjectConstructionStatus.get(projectId);
+            if (constructionStatus != null) {
+                phase.populatePrimaryStatus(constructionStatus);
+                phase.populateResaleStatus(constructionStatus);
+            }
+            phase.populateSoldStatus();
+        }
+        return phases;
+    }
+
+    private void populatePropertySecondaryPriceAttributes(
+            Property property,
+            CustomCurrentPhaseSecondaryPrice phaseSecondaryPrice) {
+        property.setResalePricePerUnitArea(phaseSecondaryPrice.getSecondaryPrice().doubleValue());
+        property.populateResalePrice();
     }
 
     private List<Integer> getActiveListingIdsForPhases(List<ProjectPhase> phases) {

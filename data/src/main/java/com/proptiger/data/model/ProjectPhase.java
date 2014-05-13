@@ -28,6 +28,8 @@ import com.proptiger.data.model.b2b.Status;
 import com.proptiger.data.model.enums.DataVersion;
 import com.proptiger.data.model.enums.EntityType;
 import com.proptiger.data.model.enums.UnitType;
+import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.DateUtil;
 
 /**
  * Model for project phases
@@ -93,6 +95,7 @@ public class ProjectPhase extends BaseModel {
     @Transient
     private List<Property>       properties       = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "phaseId", fetch = FetchType.LAZY)
     private List<SecondaryPrice> secondaryPrices;
 
@@ -104,6 +107,15 @@ public class ProjectPhase extends BaseModel {
 
     @Transient
     private Integer              sumAvailability;
+
+    @Transient
+    private Boolean              isResale;
+
+    @Transient
+    private Boolean              isPrimary;
+
+    @Transient
+    private Boolean              isSoldOut;
 
     @PostLoad
     private void populatePostLoadAttributes() {
@@ -276,6 +288,30 @@ public class ProjectPhase extends BaseModel {
         return serialVersionUID;
     }
 
+    public Boolean getIsResale() {
+        return isResale;
+    }
+
+    public void setIsResale(Boolean isResale) {
+        this.isResale = isResale;
+    }
+
+    public Boolean getIsPrimary() {
+        return isPrimary;
+    }
+
+    public void setIsPrimary(Boolean isPrimary) {
+        this.isPrimary = isPrimary;
+    }
+
+    public Boolean getIsSoldOut() {
+        return isSoldOut;
+    }
+
+    public void setIsSoldOut(Boolean isSoldOut) {
+        this.isSoldOut = isSoldOut;
+    }
+
     public Set<Integer> getSupplyIdsForActiveListing() {
         Set<Integer> supplyIds = new HashSet<>();
         for (Listing listing : this.listings) {
@@ -306,6 +342,42 @@ public class ProjectPhase extends BaseModel {
             result.add(listing.getId());
         }
         return result;
+    }
+
+    public ProjectPhase populateResaleStatus(ConstructionStatus projectConstructionStatus) {
+        this.isResale = !projectConstructionStatus.equals(ConstructionStatus.OnHold) && ((this.sumAvailability == null && Constants.CONSTRUCTION_STATUS_FOR_RESALE
+                .contains(projectConstructionStatus)) || (this.sumAvailability != null && this.sumAvailability == 0) || (this.secondaryPrices != null && this.secondaryPrices
+                .size() > 0));
+        return this;
+    }
+
+    public ProjectPhase populatePrimaryStatus(ConstructionStatus projectConstructionStatus) {
+        if (this.sumAvailability == null) {
+            if (Constants.CONSTRUCTION_STATUS_FOR_PRIMARY.contains(projectConstructionStatus)) {
+                this.isPrimary = false;
+            }
+        }
+        else if (this.sumAvailability == 0) {
+            if (this.completionDate != null && this.completionDate.getTime() < DateUtil.shiftMonths(new Date(), 6)
+                    .getTime()) {
+                this.isPrimary = false;
+            }
+        }
+        else {
+            this.isPrimary = true;
+        }
+
+        return this;
+    }
+
+    public ProjectPhase populateSoldStatus() {
+        if (this.sumAvailability != null && this.sumAvailability == 0) {
+            this.isSoldOut = true;
+        }
+        else {
+            this.isSoldOut = false;
+        }
+        return this;
     }
 
     public static class CustomCurrentPhaseSecondaryPrice {

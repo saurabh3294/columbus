@@ -34,7 +34,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 
@@ -42,28 +41,12 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  * 
  * @author mukand
  */
-@ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "RESI_PROJECT")
 @JsonFilter("fieldFilter")
 public class Project extends BaseModel {
     private static final long serialVersionUID = -6635164496425100051L;
-
-    public static enum ProjectStatus {
-        ReadyForPossession("Ready For Possession"), Occupied("Occupied"), UnderConstruction("Under Construction"), Cancelled(
-                "Cancelled"), OnHold("On Hold"), NotLaunched("Not Launched"), Launch("Launch"), PreLaunch("Pre Launch");
-
-        String status;
-
-        private ProjectStatus(String status) {
-            this.status = status;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-    }
 
     public static enum NestedProperties {
         builderLabel(new String[] { "builder", "name" }), cityLabel(new String[] {
@@ -409,7 +392,7 @@ public class Project extends BaseModel {
     private Integer                 totalProjectDiscussion;
 
     @Transient
-    private List<LandMark>   neighborhood;
+    private List<LandMark>          neighborhood;
 
     @JsonUnwrapped
     @Transient
@@ -459,7 +442,7 @@ public class Project extends BaseModel {
     @Transient
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double                  maxResaleOrPrimaryPrice;
-    
+
     @Transient
     @Field("PROJECT_PRICE_RISE_6MONTHS")
     private Double                  priceRise6Months;
