@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.b2b.Status;
 import com.proptiger.data.model.enums.DataVersion;
 import com.proptiger.data.model.enums.EntityType;
+import com.proptiger.data.model.enums.UnitType;
 
 /**
  * Model for project phases
@@ -297,5 +298,63 @@ public class ProjectPhase extends BaseModel {
             }
         }
         return propertyIds;
+    }
+
+    public Set<Integer> getActiveListingIds() {
+        Set<Integer> result = new HashSet<>();
+        for (Listing listing : listings) {
+            result.add(listing.getId());
+        }
+        return result;
+    }
+
+    public static class CustomCurrentPhaseSecondaryPrice {
+        private int      phaseId;
+        private UnitType unitType;
+        private Date     effectiveMonth;
+        private Integer  secondaryPrice;
+
+        public CustomCurrentPhaseSecondaryPrice(
+                int phaseId,
+                UnitType unitType,
+                Date effectiveMonth,
+                Integer secondaryPrice) {
+            this.phaseId = phaseId;
+            this.unitType = unitType;
+            this.effectiveMonth = effectiveMonth;
+            this.secondaryPrice = secondaryPrice;
+        }
+
+        public int getPhaseId() {
+            return phaseId;
+        }
+
+        public void setPhaseId(int phaseId) {
+            this.phaseId = phaseId;
+        }
+
+        public UnitType getUnitType() {
+            return unitType;
+        }
+
+        public void setUnitType(UnitType unitType) {
+            this.unitType = unitType;
+        }
+
+        public Date getEffectiveMonth() {
+            return effectiveMonth;
+        }
+
+        public void setEffectiveMonth(Date effectiveMonth) {
+            this.effectiveMonth = effectiveMonth;
+        }
+
+        public Integer getSecondaryPrice() {
+            return secondaryPrice;
+        }
+
+        public void setSecondaryPrice(Integer secondaryPrice) {
+            this.secondaryPrice = secondaryPrice;
+        }
     }
 }

@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -15,19 +16,33 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.b2b.Status;
 import com.proptiger.data.model.enums.DataVersion;
 
+/**
+ * 
+ * @author azi
+ * 
+ */
 @Entity
-@Table(name="cms.listing_prices")
+@Table(name = "cms.listing_prices")
 @JsonFilter("fieldFilter")
+// @SqlResultSetMapping(name = "CustomListingPrice", classes = {
+// @ConstructorResult(
+// targetClass =
+// com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice.class,
+// columns = {
+// @ColumnResult(name = "listingId", type = Integer.class),
+// @ColumnResult(name = "pricePerUnitArea", type = Integer.class),
+// @ColumnResult(name = "effectiveMonth", type = Date.class) }) })
 public class ListingPrice extends BaseModel {
     private static final long serialVersionUID = 878870501041637665L;
 
+    @Id
     private int               id;
 
     @Column(name = "listing_id")
     private int               listingId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "listing_id")
+    @JoinColumn(name = "listing_id", insertable = false, updatable = false)
     private Listing           listing;
 
     @Enumerated(EnumType.STRING)
@@ -143,5 +158,41 @@ public class ListingPrice extends BaseModel {
 
     public static long getSerialversionuid() {
         return serialVersionUID;
+    }
+
+    public static class CustomCurrentListingPrice {
+        private int     listingId;
+        private Integer pricePerUnitArea;
+        private Date    effectiveMonth;
+
+        public CustomCurrentListingPrice(int listingId, int pricePerUnitArea, Date effectiveMonth) {
+            this.listingId = listingId;
+            this.pricePerUnitArea = pricePerUnitArea;
+            this.effectiveMonth = effectiveMonth;
+        }
+
+        public int getListingId() {
+            return listingId;
+        }
+
+        public void setListingId(int listingId) {
+            this.listingId = listingId;
+        }
+
+        public Integer getPricePerUnitArea() {
+            return pricePerUnitArea;
+        }
+
+        public void setPricePerUnitArea(Integer pricePerUnitArea) {
+            this.pricePerUnitArea = pricePerUnitArea;
+        }
+
+        public Date getEffectiveMonth() {
+            return effectiveMonth;
+        }
+
+        public void setEffectiveMonth(Date effectiveMonth) {
+            this.effectiveMonth = effectiveMonth;
+        }
     }
 }

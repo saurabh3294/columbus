@@ -1,8 +1,10 @@
 package com.proptiger.data.repo;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
+import org.springframework.data.repository.PagingAndSortingRepository;
+
+import com.proptiger.data.model.ProjectPhase.CustomCurrentPhaseSecondaryPrice;
 import com.proptiger.data.model.SecondaryPrice;
 
 /**
@@ -11,6 +13,6 @@ import com.proptiger.data.model.SecondaryPrice;
  * 
  */
 
-@Repository
 public interface SecondaryPriceDao extends PagingAndSortingRepository<SecondaryPrice, Integer> {
+    public List<CustomCurrentPhaseSecondaryPrice> getSecondaryPriceFromPhaseIds(List<Integer> phaseIds);
 }
