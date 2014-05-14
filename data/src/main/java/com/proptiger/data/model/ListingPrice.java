@@ -15,6 +15,8 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.model.b2b.Status;
 import com.proptiger.data.model.enums.DataVersion;
+import com.proptiger.data.util.DateUtil;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * 
@@ -24,14 +26,6 @@ import com.proptiger.data.model.enums.DataVersion;
 @Entity
 @Table(name = "cms.listing_prices")
 @JsonFilter("fieldFilter")
-// @SqlResultSetMapping(name = "CustomListingPrice", classes = {
-// @ConstructorResult(
-// targetClass =
-// com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice.class,
-// columns = {
-// @ColumnResult(name = "listingId", type = Integer.class),
-// @ColumnResult(name = "pricePerUnitArea", type = Integer.class),
-// @ColumnResult(name = "effectiveMonth", type = Date.class) }) })
 public class ListingPrice extends BaseModel {
     private static final long serialVersionUID = 878870501041637665L;
 
@@ -165,10 +159,15 @@ public class ListingPrice extends BaseModel {
         private Integer pricePerUnitArea;
         private Date    effectiveMonth;
 
-        public CustomCurrentListingPrice(int listingId, int pricePerUnitArea, Date effectiveMonth) {
-            this.listingId = listingId;
-            this.pricePerUnitArea = pricePerUnitArea;
-            this.effectiveMonth = effectiveMonth;
+        public CustomCurrentListingPrice(int listingId, String pricePerUnitArea, String effectiveMonth) {
+            try {
+                this.listingId = listingId;
+                this.pricePerUnitArea = Integer.valueOf(pricePerUnitArea);
+                this.effectiveMonth = DateUtil.parseYYYYmmddStringToDate(effectiveMonth);
+            }
+            catch (Exception e) {
+                throw new ProAPIException("Exception in CustomListingPrice Constructor", e);
+            }
         }
 
         public int getListingId() {
