@@ -14,7 +14,7 @@ import com.proptiger.data.model.enums.DataVersion;
  * 
  */
 public interface ListingPriceDao extends PagingAndSortingRepository<ListingPrice, Integer> {
-    public List<ListingPrice> getPricesfromListingIds(List<Integer> listingIds, DataVersion version);
+    public List<ListingPrice> getPrices(List<Integer> listingIds, DataVersion version);
 
-    public List<CustomCurrentListingPrice> getWebsitePricesfromListingIds(List<Integer> listingIds);
+    public List<CustomCurrentListingPrice> getPrices(List<Integer> listingIds);
 }

@@ -23,7 +23,7 @@ public class ListingPriceDaoImpl {
     @Autowired
     private EntityManagerFactory emf;
 
-    public List<CustomCurrentListingPrice> getPricesfromListingIds(List<Integer> listingIds, DataVersion version) {
+    public List<CustomCurrentListingPrice> getPrices(List<Integer> listingIds, DataVersion version) {
         List<CustomCurrentListingPrice> listingPrices = new ArrayList<>();
         if (!listingIds.isEmpty()) {
             EntityManager em = emf.createEntityManager();
@@ -35,13 +35,13 @@ public class ListingPriceDaoImpl {
             query.setParameter(2, version);
             query.setParameter(3, Status.Active);
 
-            listingPrices = query.getResultList();
+            listingPrices = (List<CustomCurrentListingPrice>) query.getResultList();
             em.close();
         }
         return listingPrices;
     }
 
-    public List<CustomCurrentListingPrice> getWebsitePricesfromListingIds(List<Integer> listingIds) {
-        return getPricesfromListingIds(listingIds, DataVersion.Website);
+    public List<CustomCurrentListingPrice> getPrices(List<Integer> listingIds) {
+        return getPrices(listingIds, DataVersion.Website);
     }
 }

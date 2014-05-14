@@ -2,7 +2,6 @@ package com.proptiger.data.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.model.ConstructionStatus;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice;
-import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.ProjectPhase.CustomCurrentPhaseSecondaryPrice;
 import com.proptiger.data.model.Property;
@@ -136,7 +134,7 @@ public class ProjectPhaseService {
 
     private List<ProjectPhase> populatePrimaryPrice(List<ProjectPhase> phases) {
         List<Integer> listingIds = getActiveListingIdsForPhases(phases);
-        List<CustomCurrentListingPrice> listingPrices = listingPriceDao.getWebsitePricesfromListingIds(listingIds);
+        List<CustomCurrentListingPrice> listingPrices = listingPriceDao.getPrices(listingIds);
 
         Map<Integer, List<CustomCurrentListingPrice>> mappedListingPrices = (Map<Integer, List<CustomCurrentListingPrice>>) UtilityClass
                 .groupFieldsAsPerKeys(listingPrices, Arrays.asList("listingId"));
@@ -160,8 +158,6 @@ public class ProjectPhaseService {
         property.setPricePerUnitArea(listingPrice.getPricePerUnitArea().doubleValue());
         property.setPricePerUnitAreaCms(listingPrice.getPricePerUnitArea().doubleValue());
         property.setBudget(property.getSize() * listingPrice.getPricePerUnitArea());
-
-        // property.setCurrentPrimaryPrice(mappedListingPrices.get(listingId).get(0).getPricePerUnitArea());
     }
 
     private List<ProjectPhase> populateSecondaryPrice(List<ProjectPhase> phases) {
@@ -192,22 +188,24 @@ public class ProjectPhaseService {
     }
 
     private List<ProjectPhase> populatePhaseMetaAttributes(List<ProjectPhase> phases) {
-        Map<Integer, ConstructionStatus> mappedProjectConstructionStatus = new HashMap<>();
-        for (ProjectPhase phase : phases) {
-            int projectId = phase.getProjectId();
-            if (!mappedProjectConstructionStatus.containsKey(projectId)) {
-                Project project = projectDao.findProjectByProjectId(projectId);
-                mappedProjectConstructionStatus.put(
-                        projectId,
-                        ConstructionStatus.fromStringStatus(project.getProjectStatus()));
-            }
-            ConstructionStatus constructionStatus = mappedProjectConstructionStatus.get(projectId);
-            if (constructionStatus != null) {
+        if (phases.size() > 0) {
+            System.out.println("project id " + phases.get(0).getProjectId());
+            System.out.println("project " + projectDao.findProjectByProjectId(phases.get(0).getProjectId()));
+            System.out.println("ststus " + projectDao.findProjectByProjectId(phases.get(0).getProjectId())
+                    .getProjectStatus());
+
+            ConstructionStatus constructionStatus = ConstructionStatus.fromStringStatus(projectDao
+                    .findProjectByProjectId(phases.get(0).getProjectId()).getProjectStatus());
+
+            System.out.println("STATUS   " + constructionStatus);
+
+            for (ProjectPhase phase : phases) {
                 phase.populatePrimaryStatus(constructionStatus);
                 phase.populateResaleStatus(constructionStatus);
+                phase.populateSoldStatus();
             }
-            phase.populateSoldStatus();
         }
+
         return phases;
     }
 

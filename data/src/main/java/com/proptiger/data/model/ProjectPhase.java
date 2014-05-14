@@ -109,13 +109,13 @@ public class ProjectPhase extends BaseModel {
     private Integer              sumAvailability;
 
     @Transient
-    private Boolean              isResale;
+    private boolean              isResale         = true;
 
     @Transient
-    private Boolean              isPrimary;
+    private boolean              isPrimary        = true;
 
     @Transient
-    private Boolean              isSoldOut;
+    private boolean              isSoldOut        = false;
 
     @PostLoad
     private void populatePostLoadAttributes() {
@@ -288,27 +288,27 @@ public class ProjectPhase extends BaseModel {
         return serialVersionUID;
     }
 
-    public Boolean getIsResale() {
+    public boolean getIsResale() {
         return isResale;
     }
 
-    public void setIsResale(Boolean isResale) {
+    public void setIsResale(boolean isResale) {
         this.isResale = isResale;
     }
 
-    public Boolean getIsPrimary() {
+    public boolean getIsPrimary() {
         return isPrimary;
     }
 
-    public void setIsPrimary(Boolean isPrimary) {
+    public void setIsPrimary(boolean isPrimary) {
         this.isPrimary = isPrimary;
     }
 
-    public Boolean getIsSoldOut() {
+    public boolean getIsSoldOut() {
         return isSoldOut;
     }
 
-    public void setIsSoldOut(Boolean isSoldOut) {
+    public void setIsSoldOut(boolean isSoldOut) {
         this.isSoldOut = isSoldOut;
     }
 
@@ -352,8 +352,10 @@ public class ProjectPhase extends BaseModel {
     }
 
     public ProjectPhase populatePrimaryStatus(ConstructionStatus projectConstructionStatus) {
+        this.isPrimary = true;
+
         if (this.sumAvailability == null) {
-            if (Constants.CONSTRUCTION_STATUS_FOR_PRIMARY.contains(projectConstructionStatus)) {
+            if (!Constants.CONSTRUCTION_STATUS_FOR_PRIMARY.contains(projectConstructionStatus)) {
                 this.isPrimary = false;
             }
         }
@@ -363,10 +365,6 @@ public class ProjectPhase extends BaseModel {
                 this.isPrimary = false;
             }
         }
-        else {
-            this.isPrimary = true;
-        }
-
         return this;
     }
 

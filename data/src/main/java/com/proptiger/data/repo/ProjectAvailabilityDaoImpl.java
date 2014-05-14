@@ -20,7 +20,10 @@ public class ProjectAvailabilityDaoImpl {
             Query query = em
                     .createNativeQuery("select sum(availability) from (select substring_index(group_concat(availability order by effective_month desc), ',', 1) availability from cms.project_availabilities where project_supply_id in (?1) group by project_supply_id) t");
             query.setParameter(1, supplyIds);
-            result = ((Double) query.getSingleResult()).intValue();
+            Object resultObject = query.getSingleResult();
+            if (resultObject != null) {
+                result = ((Double) query.getSingleResult()).intValue();
+            }
             em.close();
 
         }

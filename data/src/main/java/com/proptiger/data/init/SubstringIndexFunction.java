@@ -34,7 +34,7 @@ public class SubstringIndexFunction implements SQLFunction {
     @Override
     public String render(Type arg0, List arg1, SessionFactoryImplementor arg2) throws QueryException {
         if (arg1.size() != 3) {
-            throw new QueryException(new IllegalArgumentException("group_concat should have one arg"));
+            throw new QueryException(new IllegalArgumentException("substring_index should have 3 args"));
         }
         return "substring_index(" + arg1.get(0) + "," + arg1.get(1) + "," + arg1.get(2) + ")";
     }

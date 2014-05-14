@@ -24,7 +24,7 @@ public class ProjectPhaseDaoImpl {
         AbstractQueryBuilder<ProjectPhase> builder = new JPAQueryBuilder<>(entityManager, ProjectPhase.class);
         builder.buildQuery(fiqlSelector);
         List<ProjectPhase> result = builder.retrieveResults();
-        entityManager.close();
+        //entityManager.close();
         return result;
     }
 }

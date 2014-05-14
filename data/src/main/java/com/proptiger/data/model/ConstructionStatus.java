@@ -9,7 +9,7 @@ import java.util.Map;
  * 
  */
 public enum ConstructionStatus {
-    ReadyForPossession("Ready For Possession"), Occupied("Occupied"), UnderConstruction("Under Construction"), Cancelled(
+    ReadyForPossession("Ready for Possession"), Occupied("Occupied"), UnderConstruction("Under Construction"), Cancelled(
             "Cancelled"), OnHold("On Hold"), NotLaunched("Not Launched"), Launch("Launch"), PreLaunch("Pre Launch");
 
     private String                                       status;
