@@ -11,9 +11,14 @@ import javax.persistence.Table;
 
 import com.proptiger.data.model.enums.UnitType;
 
+/**
+ * 
+ * @author azi
+ * 
+ */
 @Entity
 @Table(name = "cms.project_secondary_price")
-public class ProjectSecondaryPrice extends BaseModel {
+public class SecondaryPrice extends BaseModel {
     private static final long serialVersionUID = -1L;
 
     @Id
@@ -22,6 +27,9 @@ public class ProjectSecondaryPrice extends BaseModel {
 
     @Column(name = "PROJECT_ID")
     private int               projectId;
+
+    @Column(name = "PHASE_ID")
+    private int               phaseId;
 
     @Column(name = "UNIT_TYPE")
     @Enumerated(EnumType.STRING)
@@ -59,6 +67,14 @@ public class ProjectSecondaryPrice extends BaseModel {
 
     public void setProjectId(int projectId) {
         this.projectId = projectId;
+    }
+
+    public int getPhaseId() {
+        return phaseId;
+    }
+
+    public void setPhaseId(int phaseId) {
+        this.phaseId = phaseId;
     }
 
     public UnitType getUnitType() {

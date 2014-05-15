@@ -24,9 +24,12 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.model.b2b.STATUS;
+import com.proptiger.data.model.b2b.Status;
 import com.proptiger.data.model.enums.DataVersion;
 import com.proptiger.data.model.enums.EntityType;
+import com.proptiger.data.model.enums.UnitType;
+import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.DateUtil;
 
 /**
  * Model for project phases
@@ -40,71 +43,84 @@ import com.proptiger.data.model.enums.EntityType;
 @JsonFilter("fieldFilter")
 @Table(name = "cms.resi_project_phase")
 public class ProjectPhase extends BaseModel {
-    private static final long serialVersionUID = 1L;
+    private static final long    serialVersionUID = 1L;
 
     @Id
     @Column(name = "PHASE_ID")
-    private Integer           phaseId;
+    private Integer              phaseId;
 
     @Enumerated(EnumType.STRING)
-    private DataVersion       version;
+    private DataVersion          version;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "PHASE_TYPE")
-    private EntityType        phaseType;
+    private EntityType           phaseType;
 
     @Column(name = "PROJECT_ID")
-    private Integer           projectId;
+    private Integer              projectId;
 
     @Column(name = "PHASE_NAME")
-    private String            phaseName;
+    private String               phaseName;
 
     @Column(name = "LAUNCH_DATE")
-    private Date              launchDate;
+    private Date                 launchDate;
 
     @Column(name = "COMPLETION_DATE")
-    private Date              completionDate;
+    private Date                 completionDate;
 
     @Column(name = "REMARKS")
-    private String            remarks;
+    private String               remarks;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private STATUS            status;
+    private Status               status;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BOOKING_STATUS_ID", referencedColumnName = "id")
-    private BookingStatus     bookingStatus;
+    private BookingStatus        bookingStatus;
 
     @Column(name = "updated_by")
-    private Integer           updatedBy;
+    private Integer              updatedBy;
 
     @Column(name = "created_at")
-    private Date              createdAt;
+    private Date                 createdAt;
 
     @Column(name = "updated_at")
-    private Date              updatedAt;
+    private Date                 updatedAt;
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "phaseId", cascade = CascadeType.ALL)
-    private List<Listing>     listings         = new ArrayList<>();
+    private List<Listing>        listings         = new ArrayList<>();
 
     @Transient
-    private List<Property>    properties       = new ArrayList<>();
+    private List<Property>       properties       = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "phaseId", fetch = FetchType.LAZY)
+    private List<SecondaryPrice> secondaryPrices;
 
     @Transient
-    private Integer           supply           = 0;
+    private Integer              supply           = 0;
 
     @Transient
-    private Integer           launchedUnit     = 0;
+    private Integer              launchedUnit     = 0;
 
     @Transient
-    private Integer           sumAvailability;
+    private Integer              sumAvailability;
+
+    @Transient
+    private boolean              isResale         = true;
+
+    @Transient
+    private boolean              isPrimary        = true;
+
+    @Transient
+    private boolean              isSoldOut        = false;
 
     @PostLoad
     private void populatePostLoadAttributes() {
         for (Listing listing : listings) {
-            if (listing.getStatus().equals(STATUS.Active)) {
+            if (listing.getStatus().equals(Status.Active)) {
                 List<ProjectSupply> supplies = listing.getProjectSupply();
                 for (ProjectSupply projectSupply : supplies) {
                     if (projectSupply.getVersion().equals(this.version)) {
@@ -180,11 +196,11 @@ public class ProjectPhase extends BaseModel {
         this.remarks = remarks;
     }
 
-    public STATUS getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(STATUS status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -260,14 +276,46 @@ public class ProjectPhase extends BaseModel {
         this.sumAvailability = sumAvailability;
     }
 
+    public List<SecondaryPrice> getSecondaryPrices() {
+        return secondaryPrices;
+    }
+
+    public void setSecondaryPrices(List<SecondaryPrice> secondaryPrices) {
+        this.secondaryPrices = secondaryPrices;
+    }
+
     public static long getSerialversionuid() {
         return serialVersionUID;
+    }
+
+    public boolean getIsResale() {
+        return isResale;
+    }
+
+    public void setIsResale(boolean isResale) {
+        this.isResale = isResale;
+    }
+
+    public boolean getIsPrimary() {
+        return isPrimary;
+    }
+
+    public void setIsPrimary(boolean isPrimary) {
+        this.isPrimary = isPrimary;
+    }
+
+    public boolean getIsSoldOut() {
+        return isSoldOut;
+    }
+
+    public void setIsSoldOut(boolean isSoldOut) {
+        this.isSoldOut = isSoldOut;
     }
 
     public Set<Integer> getSupplyIdsForActiveListing() {
         Set<Integer> supplyIds = new HashSet<>();
         for (Listing listing : this.listings) {
-            if (listing.getStatus().equals(STATUS.Active)) {
+            if (listing.getStatus().equals(Status.Active)) {
                 for (ProjectSupply projectSupply : listing.getProjectSupply()) {
                     if (projectSupply.getVersion().equals(this.version)) {
                         supplyIds.add(projectSupply.getId());
@@ -281,10 +329,102 @@ public class ProjectPhase extends BaseModel {
     public Set<Integer> getPropertyIdsForActiveListing() {
         Set<Integer> propertyIds = new HashSet<>();
         for (Listing listing : this.listings) {
-            if (listing.getStatus().equals(STATUS.Active)) {
+            if (listing.getStatus().equals(Status.Active)) {
                 propertyIds.add(listing.getPropertyId());
             }
         }
         return propertyIds;
+    }
+
+    public Set<Integer> getActiveListingIds() {
+        Set<Integer> result = new HashSet<>();
+        for (Listing listing : listings) {
+            result.add(listing.getId());
+        }
+        return result;
+    }
+
+    public ProjectPhase populateResaleStatus(ConstructionStatus projectConstructionStatus) {
+        this.isResale = !projectConstructionStatus.equals(ConstructionStatus.OnHold) && ((this.sumAvailability == null && Constants.CONSTRUCTION_STATUS_FOR_RESALE
+                .contains(projectConstructionStatus)) || (this.sumAvailability != null && this.sumAvailability == 0) || (this.secondaryPrices != null && this.secondaryPrices
+                .size() > 0));
+        return this;
+    }
+
+    public ProjectPhase populatePrimaryStatus(ConstructionStatus projectConstructionStatus) {
+        this.isPrimary = true;
+
+        if (this.sumAvailability == null) {
+            if (!Constants.CONSTRUCTION_STATUS_FOR_PRIMARY.contains(projectConstructionStatus)) {
+                this.isPrimary = false;
+            }
+        }
+        else if (this.sumAvailability == 0) {
+            if (this.completionDate != null && this.completionDate.getTime() < DateUtil.shiftMonths(new Date(), 6)
+                    .getTime()) {
+                this.isPrimary = false;
+            }
+        }
+        return this;
+    }
+
+    public ProjectPhase populateSoldStatus() {
+        if (this.sumAvailability != null && this.sumAvailability == 0) {
+            this.isSoldOut = true;
+        }
+        else {
+            this.isSoldOut = false;
+        }
+        return this;
+    }
+
+    public static class CustomCurrentPhaseSecondaryPrice {
+        private int      phaseId;
+        private UnitType unitType;
+        private Date     effectiveMonth;
+        private Integer  secondaryPrice;
+
+        public CustomCurrentPhaseSecondaryPrice(
+                int phaseId,
+                UnitType unitType,
+                Date effectiveMonth,
+                Integer secondaryPrice) {
+            this.phaseId = phaseId;
+            this.unitType = unitType;
+            this.effectiveMonth = effectiveMonth;
+            this.secondaryPrice = secondaryPrice;
+        }
+
+        public int getPhaseId() {
+            return phaseId;
+        }
+
+        public void setPhaseId(int phaseId) {
+            this.phaseId = phaseId;
+        }
+
+        public UnitType getUnitType() {
+            return unitType;
+        }
+
+        public void setUnitType(UnitType unitType) {
+            this.unitType = unitType;
+        }
+
+        public Date getEffectiveMonth() {
+            return effectiveMonth;
+        }
+
+        public void setEffectiveMonth(Date effectiveMonth) {
+            this.effectiveMonth = effectiveMonth;
+        }
+
+        public Integer getSecondaryPrice() {
+            return secondaryPrice;
+        }
+
+        public void setSecondaryPrice(Integer secondaryPrice) {
+            this.secondaryPrice = secondaryPrice;
+        }
     }
 }

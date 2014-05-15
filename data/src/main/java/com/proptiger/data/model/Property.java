@@ -342,4 +342,17 @@ public class Property extends BaseModel {
         this.maxResaleOrPrimaryPrice = maxResaleOrPrimaryPrice;
     }
 
+    public Property populateResalePrice() {
+        if (this.resalePricePerUnitArea != null && this.size != null) {
+            this.resalePrice = this.resalePricePerUnitArea * this.size;
+        }
+        return this;
+    }
+
+    public Property populateBudget() {
+        if (this.pricePerUnitArea != null && this.size != null) {
+            this.budget = this.pricePerUnitArea * this.size;
+        }
+        return this;
+    }
 }

@@ -64,7 +64,7 @@ public class Catchment extends BaseModel {
     private JsonNode               metaAttributes;
 
     @Enumerated(EnumType.STRING)
-    private STATUS                 status            = STATUS.Active;
+    private Status                 status            = Status.Active;
 
     @Column(name = "created_at")
     private Date                   createdAt         = new Date();
@@ -139,11 +139,11 @@ public class Catchment extends BaseModel {
         this.stringMetaAttributes = metaAttributes.toString();
     }
 
-    public STATUS getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(STATUS status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
