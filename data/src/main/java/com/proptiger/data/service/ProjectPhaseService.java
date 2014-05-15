@@ -189,15 +189,8 @@ public class ProjectPhaseService {
 
     private List<ProjectPhase> populatePhaseMetaAttributes(List<ProjectPhase> phases) {
         if (phases.size() > 0) {
-            System.out.println("project id " + phases.get(0).getProjectId());
-            System.out.println("project " + projectDao.findProjectByProjectId(phases.get(0).getProjectId()));
-            System.out.println("ststus " + projectDao.findProjectByProjectId(phases.get(0).getProjectId())
-                    .getProjectStatus());
-
             ConstructionStatus constructionStatus = ConstructionStatus.fromStringStatus(projectDao
                     .findProjectByProjectId(phases.get(0).getProjectId()).getProjectStatus());
-
-            System.out.println("STATUS   " + constructionStatus);
 
             for (ProjectPhase phase : phases) {
                 phase.populatePrimaryStatus(constructionStatus);
