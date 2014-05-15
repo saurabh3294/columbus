@@ -21,6 +21,7 @@ import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
+import com.proptiger.data.util.UtilityClass;
 
 @JsonFilter("fieldFilter")
 @Entity
@@ -200,6 +201,8 @@ public class Property extends BaseModel {
 
     public void setPricePerUnitArea(Double pricePerUnitArea) {
         this.pricePerUnitArea = pricePerUnitArea;
+        populateMinResaleOrPrimaryPrice();
+        populateMaxResaleOrPrimaryPrice();
     }
 
     public Double getSize() {
@@ -288,6 +291,8 @@ public class Property extends BaseModel {
 
     public void setPricePerUnitAreaCms(Double pricePerUnitAreaCms) {
         this.pricePerUnitAreaCms = pricePerUnitAreaCms;
+        this.minResaleOrPrimaryPrice = UtilityClass.min(pricePerUnitAreaCms, this.minResaleOrPrimaryPrice);
+        this.maxResaleOrPrimaryPrice = UtilityClass.max(pricePerUnitAreaCms, this.maxResaleOrPrimaryPrice);
     }
 
     public Double getResalePricePerUnitArea() {
@@ -296,6 +301,8 @@ public class Property extends BaseModel {
 
     public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
         this.resalePricePerUnitArea = resalePricePerUnitArea;
+        populateMinResaleOrPrimaryPrice();
+        populateMaxResaleOrPrimaryPrice();
     }
 
     public Double getResalePrice() {
@@ -354,5 +361,13 @@ public class Property extends BaseModel {
             this.budget = this.pricePerUnitArea * this.size;
         }
         return this;
+    }
+
+    public void populateMinResaleOrPrimaryPrice() {
+        this.minResaleOrPrimaryPrice = UtilityClass.min(this.budget, this.resalePrice);
+    }
+
+    public void populateMaxResaleOrPrimaryPrice() {
+        this.minResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
     }
 }
