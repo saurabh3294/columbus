@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -103,6 +104,9 @@ public class Project extends BaseModel {
     @Field(value = "PROJECT_ID")
     @Column(name = "PROJECT_ID", insertable = false, updatable = false)
     private int                     projectId;
+
+    @Transient
+    private boolean                 authorized        = new Random().nextBoolean();
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
@@ -1073,5 +1077,13 @@ public class Project extends BaseModel {
 
     public void setPriceRise6Months(Double priceRise6Months) {
         this.priceRise6Months = priceRise6Months;
+    }
+
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
     }
 }

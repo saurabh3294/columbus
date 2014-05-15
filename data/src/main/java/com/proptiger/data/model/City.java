@@ -2,6 +2,7 @@ package com.proptiger.data.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 
 /**
@@ -24,115 +24,117 @@ import com.proptiger.data.model.image.Image;
  */
 @Entity
 @Table(name = "CITY")
-@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class City extends BaseModel {
-    private static final long     serialVersionUID = -4768005314447247259L;
+    private static final long    serialVersionUID = -4768005314447247259L;
 
     @Id
     @FieldMetaInfo(displayName = "City Id", description = "City Id")
     @Column(name = "CITY_ID")
     @Field("CITY_ID")
-    private Integer               id;
+    private Integer              id;
+
+    @Transient
+    private boolean              authorized       = new Random().nextBoolean();
 
     @FieldMetaInfo(displayName = "Label", description = "City label")
     @Column(name = "LABEL")
     @Field("CITY")
-    private String                label;
+    private String               label;
 
     @FieldMetaInfo(displayName = "North east latitude", description = "North east latitude")
     @Column(name = "NORTH_EAST_LATITUDE")
     @Field(value = "NORTH_EAST_LATITUDE")
-    private Double                northEastLatitude;
+    private Double               northEastLatitude;
 
     @FieldMetaInfo(displayName = "North east longitude", description = "North east longitude")
     @Column(name = "NORTH_EAST_LONGITUDE")
     @Field(value = "NORTH_EAST_LONGITUDE")
-    private Double                northEastLongitude;
+    private Double               northEastLongitude;
 
     @FieldMetaInfo(displayName = "South west latitude", description = "South west latitude")
     @Column(name = "SOUTH_WEST_LATITUDE")
     @Field(value = "SOUTH_WEST_LATITUDE")
-    private Double                southWestLatitude;
+    private Double               southWestLatitude;
 
     @FieldMetaInfo(displayName = "South west longitude", description = "South west latitude")
     @Column(name = "SOUTH_WEST_LONGITUDE")
     @Field(value = "SOUTH_WEST_LONGITUDE")
-    private Double                southWestLongitude;
+    private Double               southWestLongitude;
 
     @FieldMetaInfo(displayName = "Center latitude", description = "Center latitude")
     @Column(name = "CENTER_LATITUDE")
     @Field(value = "CENTER_LATITUDE")
-    private Double                centerLatitude;
+    private Double               centerLatitude;
 
     @FieldMetaInfo(displayName = "Center latitude", description = "Center latitude")
     @Column(name = "CENTER_LONGITUDE")
     @Field(value = "CENTER_LONGITUDE")
-    private Double                centerLongitude;
+    private Double               centerLongitude;
 
     @Column(name = "DISPLAY_PRIORITY")
     @Field(value = "DISPLAY_PRIORITY")
     @FieldMetaInfo(displayName = "Display Priority", description = "Display Priority")
-    private Integer               displayPriority;
+    private Integer              displayPriority;
 
     @Column(name = "DISPLAY_ORDER")
     @Field(value = "CITY_DISPLAY_ORDER")
     @FieldMetaInfo(displayName = "Display Order", description = "Display Order")
-    private Integer               displayOrder;
+    private Integer              displayOrder;
 
     @Column(name = "URL")
     @Field("CITY_URL")
     @FieldMetaInfo(displayName = "URL", description = "URL")
-    private String                url;
+    private String               url;
 
     @Column(name = "DESCRIPTION")
     @Field("DESCRIPTION")
     @FieldMetaInfo(displayName = "Description", description = "Description")
-    private String                description;
+    private String               description;
 
     @Transient
     @Field("CITY_PRICE_PER_UNIT_AREA")
-    private Double                avgPricePerUnitArea;
+    private Double               avgPricePerUnitArea;
 
     @Transient
     @Field("CITY_PRICE_RISE")
-    private Double                avgPriceRisePercentage;
+    private Double               avgPriceRisePercentage;
 
     @Transient
     @Field("CITY_PRICE_RISE_TIME")
-    private Integer               avgPriceRiseMonths;
+    private Integer              avgPriceRiseMonths;
 
     @Column(name = "MIN_ZOOM_LEVEL")
     @Field("CITY_MIN_ZOOM_LEVEL")
-    private Integer               minZoomLevel;
+    private Integer              minZoomLevel;
 
     @Column(name = "MAX_ZOOM_LEVEL")
     @Field("CITY_MAX_ZOOM_LEVEL")
-    private Integer               maxZoomLevel;
+    private Integer              maxZoomLevel;
 
     @Transient
-    private Long                  projectCount;
+    private Long                 projectCount;
 
     @Transient
     @Field("CITY_DOMINANT_UNIT_TYPE")
-    private String                dominantUnitType;
+    private String               dominantUnitType;
 
     @Transient
-    private Map<Integer, Double>  avgBHKPricePerUnitArea;
+    private Map<Integer, Double> avgBHKPricePerUnitArea;
 
     @Transient
-    private List<LandMark> amenities;
+    private List<LandMark>       amenities;
 
     @Transient
     @Field("CITY_OVERVIEW_URL")
-    private String                overviewUrl;
-    
-    @Transient
-    private Map<String, Long>            projectStatusCount;
+    private String               overviewUrl;
 
     @Transient
-    private List<Image>                     images;
+    private Map<String, Long>    projectStatusCount;
+
+    @Transient
+    private List<Image>          images;
 
     public Integer getId() {
         return id;
@@ -325,5 +327,12 @@ public class City extends BaseModel {
     public void setImages(List<Image> images) {
         this.images = images;
     }
-    
+
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
 }

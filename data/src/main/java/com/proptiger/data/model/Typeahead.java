@@ -4,6 +4,10 @@
  */
 package com.proptiger.data.model;
 
+import java.util.Random;
+
+import javax.persistence.Transient;
+
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -12,7 +16,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.meta.ResourceMetaInfo;
 
 /**
  * 
@@ -24,13 +27,15 @@ import com.proptiger.data.meta.ResourceMetaInfo;
         isGetterVisibility = Visibility.NONE)
 @JsonInclude(Include.NON_NULL)
 @JsonFilter("fieldFilter")
-@ResourceMetaInfo
 public class Typeahead extends BaseModel {
 
     private static final long serialVersionUID = 2096261268711516512L;
 
     @Field(value = "id")
     private String            id;
+
+    @Transient
+    private boolean           authorized       = new Random().nextBoolean();
 
     @Field(value = "TYPEAHEAD_LABEL")
     private String            label;
@@ -215,5 +220,13 @@ public class Typeahead extends BaseModel {
 
     public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
         this.localityUnitsDelivered6Months = localityUnitsDelivered6Months;
+    }
+    
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
     }
 }
