@@ -147,7 +147,7 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "units_delivered")
     private Integer           unitsDelivered;
 
-	private Float             demand;
+    private Float             demand;
 
     @Column(name = "customer_demand")
     private Float             customerDemand;

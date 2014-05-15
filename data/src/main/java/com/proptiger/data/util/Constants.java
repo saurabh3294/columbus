@@ -1,11 +1,11 @@
 package com.proptiger.data.util;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.proptiger.data.model.ConstructionStatus;
 import com.proptiger.data.model.portfolio.PortfolioListing.Source;
 
 /**
@@ -27,7 +27,6 @@ public class Constants {
     public static final String               USERNAME                  = "username";
     public static final List<Source>         SOURCETYPE_LIST           = Arrays.asList(Source.portfolio, Source.backend);
 
-    
     /**
      * Put all solr Dynamic Field generated in this class.
      */
@@ -50,9 +49,9 @@ public class Constants {
     }
 
     public static class SubscriptionType {
-        public static final String FORUM  = "forum";
-        public static final String REVIEW = "review";
-        public static final String PROJECT_UPDATES = "projectupdates";
+        public static final String FORUM                    = "forum";
+        public static final String REVIEW                   = "review";
+        public static final String PROJECT_UPDATES          = "projectupdates";
         public static final String DISCUSSIONS_REVIEWS_NEWS = "discussionsreviewsnews";
     }
 
@@ -128,4 +127,13 @@ public class Constants {
 
     }
 
+    public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_PRIMARY = Arrays.asList(
+                                                                                         ConstructionStatus.NotLaunched,
+                                                                                         ConstructionStatus.PreLaunch,
+                                                                                         ConstructionStatus.Launch,
+                                                                                         ConstructionStatus.UnderConstruction);
+
+    public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_RESALE  = Arrays.asList(
+                                                                                         ConstructionStatus.ReadyForPossession,
+                                                                                         ConstructionStatus.Occupied);
 }

@@ -70,6 +70,23 @@ public class UtilityClass {
     }
 
     /**
+     * @return {@link Integer} non zero min of list of integers - null otherwise
+     * 
+     * @param integers
+     *            {@link List<Integer>}
+     * 
+     * @author Azitabh Ajit
+     */
+    public static Integer min(List<Integer> integers) {
+        Integer result = null;
+
+        for (Integer integer : integers) {
+            result = min(result, integer);
+        }
+        return result;
+    }
+
+    /**
      * @return {@link Integer} non zero max of given 2 integers - null otherwise
      * 
      * @param a
@@ -88,6 +105,23 @@ public class UtilityClass {
             c = Math.max(a, b);
         }
         return c;
+    }
+
+    /**
+     * @return {@link Integer} non zero max of list of integers - null otherwise
+     * 
+     * @param integers
+     *            {@link List<Integer>}
+     * 
+     * @author Azitabh Ajit
+     */
+    public static Integer max(List<Integer> integers) {
+        Integer result = null;
+
+        for (Integer integer : integers) {
+            result = max(result, integer);
+        }
+        return result;
     }
 
     public static Integer[] getIntArrFromStringArr(String[] strArr) {

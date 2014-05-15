@@ -1,6 +1,6 @@
 package com.proptiger.data.model.b2b;
 
-public enum STATUS {
+public enum Status {
     Active, Inactive, @Deprecated
     ACTIVE, @Deprecated
     INACTIVE

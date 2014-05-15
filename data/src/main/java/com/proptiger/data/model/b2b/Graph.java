@@ -57,7 +57,7 @@ public class Graph extends BaseModel {
     private String            name;
 
     @Enumerated(EnumType.STRING)
-    private STATUS            status           = STATUS.Active;
+    private Status            status           = Status.Active;
 
     @Transient
     private FIQLSelector      filter;
@@ -120,11 +120,11 @@ public class Graph extends BaseModel {
         this.name = name;
     }
 
-    public STATUS getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(STATUS status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

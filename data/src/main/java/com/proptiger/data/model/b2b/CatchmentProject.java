@@ -16,29 +16,34 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.BaseModel;
 
-@ResourceMetaInfo
+/**
+ * 
+ * @author azi
+ * 
+ */
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "b2b_catchment_projects")
 @JsonFilter("fieldFilter")
 public class CatchmentProject extends BaseModel {
+    private static final long serialVersionUID = -6020089914804953739L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer   id;
+    private Integer           id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "catchment_id")
     @JsonIgnore
-    private Catchment catchment;
+    private Catchment         catchment;
 
     @Column(name = "project_id")
-    private Integer   projectId;
+    private Integer           projectId;
 
     @Column(name = "created_at")
-    private Date      createdAt = new Date();
+    private Date              createdAt        = new Date();
 
     public Integer getId() {
         return id;
@@ -70,5 +75,9 @@ public class CatchmentProject extends BaseModel {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public static long getSerialversionuid() {
+        return serialVersionUID;
     }
 }

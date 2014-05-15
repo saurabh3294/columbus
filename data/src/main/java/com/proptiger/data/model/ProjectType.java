@@ -11,7 +11,6 @@ import javax.persistence.Table;
 
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.enums.UnitType;
 
 /**
@@ -20,7 +19,6 @@ import com.proptiger.data.model.enums.UnitType;
  */
 @Entity
 @Table(name = "RESI_PROJECT_TYPES")
-@ResourceMetaInfo
 public class ProjectType extends BaseModel {
 
     private static final long serialVersionUID = -6620347822420421846L;
