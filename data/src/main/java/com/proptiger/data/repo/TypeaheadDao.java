@@ -163,4 +163,28 @@ public class TypeaheadDao {
         }
         return query.trim();
     }
+
+    public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
+        String[] multiWords = query.split("\\s+");
+        int wordsCounter = 0;
+        StringBuilder queryStringBuilder = new StringBuilder();
+        for (String word : multiWords) {
+            if (++wordsCounter < multiWords.length) {
+                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*" + " AND ");
+            }
+            else {
+                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*");
+            }
+        }
+
+        String exactMatchQuery = queryStringBuilder.toString();
+
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery(exactMatchQuery);
+        for (String fq : filterQueries) {
+            solrQuery.addFilterQuery(fq);
+        }
+        solrQuery.setRows(rows);
+        return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+    }
 }

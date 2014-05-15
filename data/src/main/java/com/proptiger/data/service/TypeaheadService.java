@@ -36,4 +36,9 @@ public class TypeaheadService {
     public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
         return typeaheadDao.getTypeaheads(query, rows, filterQueries);
     }
+
+    public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
+        return typeaheadDao.getExactTypeaheads(query, rows, filterQueries);
+    }
+
 }
