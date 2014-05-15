@@ -63,6 +63,24 @@ public class Typeahead extends BaseModel {
     @Field(value = "LOCALITY_URL")
     private String            localityURL;
 
+    @Field(value = "TYPEAHEAD_LABEL_LOWERCASE")
+    private String            labelLowercase;
+
+    @Field(value = "TYPEAHEAD_LOCALITY_AVG_PRICE_PER_UNIT_AREA")
+    private Double            localityAvgPricePerUnitArea;
+
+    @Field(value = "TYPEAHEAD_LOCALITY_PRICE_APPRECIATION_6MONTHS")
+    private Double            localityPriceRise6Months;
+
+    @Field(value = "TYPEAHEAD_LOCALITY_UNITS_LAUNCHED_6MONTHS")
+    private Integer           localityUnitsLaunched6Months;
+
+    @Field(value = "TYPEAHEAD_LOCALITY_UNITS_SOLD_6MONTHS")
+    private Integer           localityUnitsSold6Months;
+
+    @Field(value = "TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
+    private Integer           localityUnitsDelivered6Months;
+
     public String getId() {
         return id;
     }
@@ -149,5 +167,53 @@ public class Typeahead extends BaseModel {
 
     public void setLocalityURL(String localityURL) {
         this.localityURL = localityURL;
+    }
+
+    public String getLabelLowercase() {
+        return labelLowercase;
+    }
+
+    public void setLabelLowercase(String labelLowercase) {
+        this.labelLowercase = labelLowercase;
+    }
+
+    public Double getLocalityAvgPricePerUnitArea() {
+        return localityAvgPricePerUnitArea;
+    }
+
+    public void setLocalityAvgPricePerUnitArea(Double localityAvgPricePerUnitArea) {
+        this.localityAvgPricePerUnitArea = localityAvgPricePerUnitArea;
+    }
+
+    public Double getLocalityPriceRise6Months() {
+        return localityPriceRise6Months;
+    }
+
+    public void setLocalityPriceRise6Months(Double localityPriceRise6Months) {
+        this.localityPriceRise6Months = localityPriceRise6Months;
+    }
+
+    public Integer getLocalityUnitsLaunched6Months() {
+        return localityUnitsLaunched6Months;
+    }
+
+    public void setLocalityUnitsLaunched6Months(Integer localityUnitsLaunched6Months) {
+        this.localityUnitsLaunched6Months = localityUnitsLaunched6Months;
+    }
+
+    public Integer getLocalityUnitsSold6Months() {
+        return localityUnitsSold6Months;
+    }
+
+    public void setLocalityUnitsSold6Months(Integer localityUnitsSold6Months) {
+        this.localityUnitsSold6Months = localityUnitsSold6Months;
+    }
+
+    public Integer getLocalityUnitsDelivered6Months() {
+        return localityUnitsDelivered6Months;
+    }
+
+    public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
+        this.localityUnitsDelivered6Months = localityUnitsDelivered6Months;
     }
 }

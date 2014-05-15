@@ -29,50 +29,49 @@ import com.proptiger.data.service.TypeaheadService;
 @Controller
 @RequestMapping(value = "app/v1/typeahead")
 public class TypeaheadController extends BaseController {
-	@Autowired
-	private TypeaheadService typeaheadService;
+    @Autowired
+    private TypeaheadService typeaheadService;
 
-	private static Logger logger = LoggerFactory
-			.getLogger(TypeaheadController.class);
+    private static Logger    logger = LoggerFactory.getLogger(TypeaheadController.class);
 
-	@RequestMapping
-	@ResponseBody
-	public APIResponse getTypeaheads(@RequestParam String query,
-			@RequestParam(defaultValue = "5") int rows,
-			@RequestParam(required = false) String typeAheadType,
-			@RequestParam(required = false) String city) {
+    @RequestMapping
+    @ResponseBody
+    public APIResponse getTypeaheads(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(required = false) String typeAheadType,
+            @RequestParam(required = false) String city) {
 
-		List<String> filterQueries = new ArrayList<String>();
-		if (typeAheadType != null && typeAheadType.trim() != "")
-			filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
+        List<String> filterQueries = new ArrayList<String>();
+        if (typeAheadType != null && typeAheadType.trim() != "")
+            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
 
-		if (city != null && city.trim() != "") {
-			filterQueries.add("TYPEAHEAD_CITY:" + city);
-		}
+        if (city != null && city.trim() != "") {
+            filterQueries.add("TYPEAHEAD_CITY:" + city);
+        }
 
-		List<Typeahead> list = typeaheadService.getTypeaheads(query, rows,
-				filterQueries);
-		return new APIResponse(super.filterFields(list, null), list.size());
-	}
+        List<Typeahead> list = typeaheadService.getTypeaheads(query, rows, filterQueries);
+        return new APIResponse(super.filterFields(list, null), list.size());
+    }
 
-	@RequestMapping(method = RequestMethod.GET, value = "/exact")
-	@ResponseBody
-	public APIResponse getExactTypeaheads(@RequestParam String query,
-			@RequestParam(defaultValue = "5") int rows,
-			@RequestParam(required = false) String typeAheadType,
-			@RequestParam(required = false) String city) {
+    @RequestMapping(method = RequestMethod.GET, value = "/exact")
+    @ResponseBody
+    public APIResponse getExactTypeaheads(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(required = false) String typeAheadType,
+            @RequestParam(required = false) String city) {
 
-		List<String> filterQueries = new ArrayList<String>();
-		if (typeAheadType != null && typeAheadType.trim() != "")
-			filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
+        List<String> filterQueries = new ArrayList<String>();
+        if (typeAheadType != null && typeAheadType.trim() != "")
+            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
 
-		if (city != null && city.trim() != "") {
-			filterQueries.add("TYPEAHEAD_CITY:" + city);
-		}
+        if (city != null && city.trim() != "") {
+            filterQueries.add("TYPEAHEAD_CITY:" + city);
+        }
 
-		List<Typeahead> list = typeaheadService.getExactTypeaheads(query, rows,
-				filterQueries);
-		return new APIResponse(super.filterFields(list, null),list.size());
-	}
+        List<Typeahead> list = typeaheadService.getExactTypeaheads(query, rows, filterQueries);
+        return new APIResponse(super.filterFields(list, null), list.size());
+    }
 
 }
