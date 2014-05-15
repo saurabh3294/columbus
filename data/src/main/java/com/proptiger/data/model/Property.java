@@ -291,8 +291,6 @@ public class Property extends BaseModel {
 
     public void setPricePerUnitAreaCms(Double pricePerUnitAreaCms) {
         this.pricePerUnitAreaCms = pricePerUnitAreaCms;
-        this.minResaleOrPrimaryPrice = UtilityClass.min(pricePerUnitAreaCms, this.minResaleOrPrimaryPrice);
-        this.maxResaleOrPrimaryPrice = UtilityClass.max(pricePerUnitAreaCms, this.maxResaleOrPrimaryPrice);
     }
 
     public Double getResalePricePerUnitArea() {
