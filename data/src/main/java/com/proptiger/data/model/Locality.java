@@ -210,6 +210,19 @@ public class Locality extends BaseModel {
     @Transient
     @Field("LOCALITY_PRICE_RISE_6MONTHS")
     private Double                          priceRise6Months;
+    
+    @Transient
+    @Field("TYPEAHEAD_LOCALITY_UNITS_LAUNCHED_6MONTHS")
+    private Integer                         localityUnitsLaunched6Months;
+
+    @Transient
+    @Field("TYPEAHEAD_LOCALITY_UNITS_SOLD_6MONTHS")
+    private Integer                         localityUnitsSold6Months;
+
+    
+    @Transient
+    @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
+    private Integer                         localityUnitsDelivered6Months;
 
     public int getLocalityId() {
         return localityId;
@@ -539,5 +552,29 @@ public class Locality extends BaseModel {
 
     public void setPriceRise6Months(Double priceRise6Months) {
         this.priceRise6Months = priceRise6Months;
+    }
+    
+    public Integer getLocalityUnitsLaunched6Months() {
+        return localityUnitsLaunched6Months;
+    }
+
+    public void setLocalityUnitsLaunched6Months(Integer localityUnitsLaunched6Months) {
+        this.localityUnitsLaunched6Months = localityUnitsLaunched6Months;
+    }
+
+    public Integer getLocalityUnitsSold6Months() {
+        return localityUnitsSold6Months;
+    }
+
+    public void setLocalityUnitsSold6Months(Integer localityUnitsSold6Months) {
+        this.localityUnitsSold6Months = localityUnitsSold6Months;
+    }
+
+    public Integer getLocalityUnitsDelivered6Months() {
+        return localityUnitsDelivered6Months;
+    }
+
+    public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
+        this.localityUnitsDelivered6Months = localityUnitsDelivered6Months;
     }
 }
