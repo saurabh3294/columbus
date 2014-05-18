@@ -60,12 +60,11 @@ import com.proptiger.data.model.resource.Resource;
 @JsonFilter("fieldFilter")
 public class PortfolioListing extends BaseModel implements NamedResource, Resource {
 
-    
     public enum Source {
         portfolio("portfolio"), lead("lead"), backend("backend");
-        
+
         public String source;
-        
+
         Source(String source) {
             this.source = source;
         }
@@ -204,9 +203,9 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
 
     @Column(name = "interested_loan_on")
     private Date                             interestedToLoanOn;
-    
-    @Column(name="loan_type")
-    private String                            loanType;
+
+    @Column(name = "loan_type")
+    private String                           loanType;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -235,7 +234,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     private String                           leadEmail;
 
     @Column(name = "lead_contact")
-    private Long                          leadContact;
+    private Long                             leadContact;
 
     @Column(name = "lead_country_id")
     private Integer                          leadCountryId;
@@ -244,16 +243,15 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @JoinColumn(name = "type_id", nullable = false, insertable = false, updatable = false)
     @JsonUnwrapped
     private Property                         property;
-    
+
     @FieldMetaInfo(displayName = "Deleted Flag", description = "Whether a listing has been soft deleted")
     @Column(name = "deleted_flag")
     public Boolean                           deletedFlag  =  false;
-    
+
     @FieldMetaInfo(displayName = "Reason", description = "Reason for deleting a listing")
     @Column(name = "reason")
     @JsonIgnore
-    public String                           reason ;
-    
+    public String                            reason;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false, insertable = false, updatable = false)
@@ -274,6 +272,9 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
     @Column(name = "project_id")
     private Integer                          projectId;
+
+    @Column(name = "active_enquiries_count")
+    private Integer                          activeEnquiriesCount;
 
     @Override
     public Integer getId() {
@@ -653,11 +654,11 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     public void setIsBroker(Boolean isBroker) {
         this.isBroker = isBroker;
     }
-    
+
     public Source getSourceType() {
         return sourceType;
     }
-    
+
     public void setSourceType(Source sourceType) {
         this.sourceType = sourceType;
     }
@@ -701,7 +702,7 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
     }
-    
+
     public Boolean getDeleted_flag() {
         return deletedFlag;
     }
@@ -725,13 +726,21 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     public void setLoanType(String loanType) {
         this.loanType = loanType;
     }
-    
+
+    public Integer getActiveEnquiriesCount() {
+        return activeEnquiriesCount;
+    }
+
+    public void setActiveEnquiriesCount(Integer activeEnquiriesCount) {
+        this.activeEnquiriesCount = activeEnquiriesCount;
+    }
+
     class SourceTypeDeserializer extends JsonDeserializer<String> {
         @Override
-        public String deserialize(JsonParser parser, DeserializationContext context)
+        public String deserialize(JsonParser parser, DeserializationContext context) 
                 throws IOException, JsonProcessingException {
             return parser.getValueAsString();
         }
     }
-    
+
 }

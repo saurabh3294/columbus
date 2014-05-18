@@ -12,8 +12,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.Graph;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.b2b.UserGraphService;
 import com.proptiger.data.util.Constants;
 
@@ -25,26 +24,26 @@ public class UserGraphController extends BaseController {
 
     @RequestMapping(value = "/data/v1/entity/user/graph", method = RequestMethod.POST)
     public @ResponseBody
-    ProAPIResponse createGraph(
+    APIResponse createGraph(
             @RequestBody Graph graph,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        return new ProAPISuccessResponse(userGraphService.createGraph(graph, userInfo));
+        return new APIResponse(userGraphService.createGraph(graph, userInfo));
     }
 
     @RequestMapping(value = "/data/v1/entity/user/graph", method = RequestMethod.GET)
     public @ResponseBody
-    ProAPIResponse getGraph(
+    APIResponse getGraph(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @ModelAttribute FIQLSelector fiqlSelector) {
-        return new ProAPISuccessResponse(userGraphService.getGraph(fiqlSelector
+        return new APIResponse(userGraphService.getGraph(fiqlSelector
                 .addAndConditionToFilter("userId==" + userInfo.getUserIdentifier())));
     }
 
     @RequestMapping(value = "/data/v1/entity/user/graph", method = RequestMethod.PUT)
     public @ResponseBody
-    ProAPIResponse updateGraph(
+    APIResponse updateGraph(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
             @RequestBody Graph graph) {
-        return new ProAPISuccessResponse(userGraphService.updateGraph(graph, userInfo));
+        return new APIResponse(userGraphService.updateGraph(graph, userInfo));
     }
 }

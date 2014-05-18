@@ -2,6 +2,11 @@ package com.proptiger.data.init;
 
 import org.hibernate.dialect.MySQL5InnoDBDialect;
 
+/**
+ * 
+ * @author azi
+ * 
+ */
 public class CustomMySQL5InnoDBDialec extends MySQL5InnoDBDialect {
     public CustomMySQL5InnoDBDialec() {
         super();
@@ -9,5 +14,6 @@ public class CustomMySQL5InnoDBDialec extends MySQL5InnoDBDialect {
         registerFunction("group_concat_distinct", new GroupConcatDistinctFunction());
         registerFunction("median", new MedianFunction());
         registerFunction("weighted_average", new WeightedAverageFunction());
+        registerFunction("substring_index", new SubstringIndexFunction());
     }
 }

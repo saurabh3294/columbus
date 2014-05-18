@@ -12,10 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.City;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.CityService;
 
 /**
@@ -39,20 +37,20 @@ public class CityController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr) {
+    public APIResponse getCities(@RequestParam(required = false, value = "selector") String selectorStr) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         List<City> list = cityService.getCityList(selector);
         Set<String> fieldsToSerialize = null;
         if (selector != null) {
             fieldsToSerialize = selector.getFields();
         }
-        return new ProAPISuccessCountResponse(super.filterFields(list, fieldsToSerialize), list.size());
+        return new APIResponse(super.filterFields(list, fieldsToSerialize), list.size());
     }
 
     @RequestMapping(value = "/{cityId}")
     @ResponseBody
-    public ProAPIResponse getCity(@PathVariable int cityId) {
+    public APIResponse getCity(@PathVariable int cityId) {
 
-        return new ProAPISuccessResponse(super.filterFields(cityService.getCityInfo(cityId), null));
+        return new APIResponse(super.filterFields(cityService.getCityInfo(cityId), null));
     }
 }

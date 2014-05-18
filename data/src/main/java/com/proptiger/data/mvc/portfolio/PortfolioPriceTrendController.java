@@ -13,9 +13,7 @@ import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.mvc.BaseController;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.portfolio.PortfolioPriceTrendService;
 import com.proptiger.data.util.Constants;
 
@@ -39,14 +37,14 @@ public class PortfolioPriceTrendController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.GET, value = "/price-trend")
     @ResponseBody
-    public ProAPIResponse getPortfolioPriceTrend(@PathVariable Integer userId, @RequestParam(
+    public APIResponse getPortfolioPriceTrend(@PathVariable Integer userId, @RequestParam(
             required = false,
             defaultValue = "3") Integer months, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
 
         PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(
                 userInfo.getUserIdentifier(),
                 months);
-        return new ProAPISuccessCountResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend()
+        return new APIResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend()
                 .size());
     }
 
@@ -59,7 +57,7 @@ public class PortfolioPriceTrendController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.GET, value = "/listing/{listingId}/price-trend")
     @ResponseBody
-    public ProAPIResponse getPortfolioListingPriceTrend(
+    public APIResponse getPortfolioListingPriceTrend(
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestParam(required = false, defaultValue = "3") Integer months,
@@ -69,6 +67,6 @@ public class PortfolioPriceTrendController extends BaseController {
                 userInfo.getUserIdentifier(),
                 listingId,
                 months);
-        return new ProAPISuccessResponse(priceTrend);
+        return new APIResponse(priceTrend);
     }
 }

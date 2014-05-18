@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -34,7 +35,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
 import com.proptiger.data.meta.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 
@@ -42,28 +42,12 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  * 
  * @author mukand
  */
-@ResourceMetaInfo
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "RESI_PROJECT")
 @JsonFilter("fieldFilter")
 public class Project extends BaseModel {
     private static final long serialVersionUID = -6635164496425100051L;
-
-    public static enum ProjectStatus {
-        ReadyForPossession("Ready For Possession"), Occupied("Occupied"), UnderConstruction("Under Construction"), Cancelled(
-                "Cancelled"), OnHold("On Hold"), NotLaunched("Not Launched"), Launch("Launch"), PreLaunch("Pre Launch");
-
-        String status;
-
-        private ProjectStatus(String status) {
-            this.status = status;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-    }
 
     public static enum NestedProperties {
         builderLabel(new String[] { "builder", "name" }), cityLabel(new String[] {
@@ -120,6 +104,9 @@ public class Project extends BaseModel {
     @Field(value = "PROJECT_ID")
     @Column(name = "PROJECT_ID", insertable = false, updatable = false)
     private int                     projectId;
+
+    @Transient
+    private boolean                 authorized        = new Random().nextBoolean();
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
@@ -409,7 +396,7 @@ public class Project extends BaseModel {
     private Integer                 totalProjectDiscussion;
 
     @Transient
-    private List<LandMark>   neighborhood;
+    private List<LandMark>          neighborhood;
 
     @JsonUnwrapped
     @Transient
@@ -459,7 +446,7 @@ public class Project extends BaseModel {
     @Transient
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double                  maxResaleOrPrimaryPrice;
-    
+
     @Transient
     @Field("PROJECT_PRICE_RISE_6MONTHS")
     private Double                  priceRise6Months;
@@ -1090,5 +1077,13 @@ public class Project extends BaseModel {
 
     public void setPriceRise6Months(Double priceRise6Months) {
         this.priceRise6Months = priceRise6Months;
+    }
+
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
     }
 }

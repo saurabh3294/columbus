@@ -16,13 +16,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.Paging;
-import com.proptiger.data.pojo.ProAPIErrorResponse;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.LandMarkService;
 
 /**
@@ -37,11 +35,11 @@ public class AppLandMarkController extends BaseController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
-    public ProAPIResponse getAllAmenitiesOnLocality(
+    public APIResponse getAllAmenitiesOnLocality(
             @RequestParam(value = "city-id", required = false) Integer cityId,
             @RequestParam(value = "locality-ids", required = false) String localityIds) {
         if (cityId == null && localityIds == null) {
-            return new ProAPIErrorResponse("Error", "city-ids and locality-ids both should not be false");
+            return new APIResponse(ResponseCodes.BAD_REQUEST, "city-ids and locality-ids both should not be false");
         }
         Gson gson = new Gson();
         Type type = new TypeToken<List<Integer>>() {}.getType();
@@ -49,12 +47,12 @@ public class AppLandMarkController extends BaseController {
 
         List<LandMark> data = localityAmenityService.getAmenitiesByHighPriorityLocalityId(cityId, localityIdsList);
 
-        return new ProAPISuccessResponse(data);
+        return new APIResponse(data);
     }
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET, params = { "latitude", "longitude", "distance" })
-    public ProAPIResponse getAmenitiesOnRadius(
+    public APIResponse getAmenitiesOnRadius(
             @RequestParam double latitude,
             @RequestParam double longitude,
             @RequestParam double distance,
@@ -69,6 +67,6 @@ public class AppLandMarkController extends BaseController {
                 new Paging(start, rows),
                 amenityName,
                 null);
-        return new ProAPISuccessCountResponse(data, data.size());
+        return new APIResponse(data, data.size());
     }
 }

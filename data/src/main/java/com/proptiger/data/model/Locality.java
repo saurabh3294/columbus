@@ -2,6 +2,7 @@ package com.proptiger.data.model;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -21,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.image.Image;
 
@@ -33,7 +33,6 @@ import com.proptiger.data.model.image.Image;
  */
 @Entity
 @Table(name = "LOCALITY")
-@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Locality extends BaseModel {
@@ -47,6 +46,9 @@ public class Locality extends BaseModel {
     @Id
     @Field("LOCALITY_ID")
     private int                             localityId;
+
+    @Transient
+    private boolean                         authorized       = new Random().nextBoolean();
 
     @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
@@ -204,10 +206,23 @@ public class Locality extends BaseModel {
     @Transient
     @Field("geodist()")
     private Double                          geoDistance;
-    
+
     @Transient
     @Field("LOCALITY_PRICE_RISE_6MONTHS")
     private Double                          priceRise6Months;
+    
+    @Transient
+    @Field("TYPEAHEAD_LOCALITY_UNITS_LAUNCHED_6MONTHS")
+    private Integer                         localityUnitsLaunched6Months;
+
+    @Transient
+    @Field("TYPEAHEAD_LOCALITY_UNITS_SOLD_6MONTHS")
+    private Integer                         localityUnitsSold6Months;
+
+    
+    @Transient
+    @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
+    private Integer                         localityUnitsDelivered6Months;
 
     public int getLocalityId() {
         return localityId;
@@ -507,6 +522,14 @@ public class Locality extends BaseModel {
         this.avgRatingsByCategory = avgRatingsByCategory;
     }
 
+    public boolean isAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        this.authorized = authorized;
+    }
+
     public String getOverviewUrl() {
         return overviewUrl;
     }
@@ -529,5 +552,29 @@ public class Locality extends BaseModel {
 
     public void setPriceRise6Months(Double priceRise6Months) {
         this.priceRise6Months = priceRise6Months;
+    }
+    
+    public Integer getLocalityUnitsLaunched6Months() {
+        return localityUnitsLaunched6Months;
+    }
+
+    public void setLocalityUnitsLaunched6Months(Integer localityUnitsLaunched6Months) {
+        this.localityUnitsLaunched6Months = localityUnitsLaunched6Months;
+    }
+
+    public Integer getLocalityUnitsSold6Months() {
+        return localityUnitsSold6Months;
+    }
+
+    public void setLocalityUnitsSold6Months(Integer localityUnitsSold6Months) {
+        this.localityUnitsSold6Months = localityUnitsSold6Months;
+    }
+
+    public Integer getLocalityUnitsDelivered6Months() {
+        return localityUnitsDelivered6Months;
+    }
+
+    public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
+        this.localityUnitsDelivered6Months = localityUnitsDelivered6Months;
     }
 }

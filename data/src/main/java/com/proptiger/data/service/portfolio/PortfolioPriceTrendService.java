@@ -69,8 +69,7 @@ public class PortfolioPriceTrendService {
 				"Price trend for user id {} and listing id {} for months {}",
 				userId, listingId, noOfMonths);
 		PortfolioListing listing = portfolioListingDao
-				.findByUserIdAndListingIdAndDeletedFlag(userId, listingId,
-						false);
+				.findByListingIdAndDeletedFlag(listingId, false);
 		if (listing == null) {
 			throw new ResourceNotAvailableException(ResourceType.LISTING,
 					ResourceTypeAction.GET);

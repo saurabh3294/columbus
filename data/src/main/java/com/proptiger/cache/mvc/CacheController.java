@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.util.Caching;
 
 @Controller
@@ -21,7 +20,7 @@ public class CacheController {
 
 	@RequestMapping(value = "/clear-cache")
 	@ResponseBody
-	public ProAPIResponse clearCache(
+	public APIResponse clearCache(
 			@RequestParam(defaultValue = "") String cacheName) {
 		StringBuilder cacheCleared = new StringBuilder();
 		if(cacheName.isEmpty()){
@@ -32,7 +31,7 @@ public class CacheController {
 			caching.deleteMultipleResponseFromCacheOnRegex("*", cache);
 			cacheCleared.append(cache).append(",");
 		}
-		return new ProAPISuccessResponse("Cleared Cache Names: "
+		return new APIResponse("Cleared Cache Names: "
 				+ cacheCleared.toString());
 	}
 

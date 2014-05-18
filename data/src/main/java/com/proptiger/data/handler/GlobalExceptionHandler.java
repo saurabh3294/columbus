@@ -17,8 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.pojo.ProAPIErrorResponse;
-import com.proptiger.data.pojo.ProAPIResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
@@ -45,9 +44,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    protected ProAPIResponse handleGenericException(Exception ex, HttpServletRequest httpRequest) {
+    protected APIResponse handleGenericException(Exception ex, HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, ex);
-        return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.SOME_ERROR_OCCURED);
+        return new APIResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.SOME_ERROR_OCCURED);
     }
 
     private void logAPIUrlInLogFile(HttpServletRequest httpRequest, Exception ex) {
@@ -65,31 +64,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ProAPIException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    protected ProAPIResponse handleProAPIException(ProAPIException ex, HttpServletRequest httpRequest) {
+    protected APIResponse handleProAPIException(ProAPIException ex, HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, ex);
 
-        return new ProAPIErrorResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.SOME_ERROR_OCCURED);
+        return new APIResponse(ResponseCodes.INTERNAL_SERVER_ERROR, ResponseErrorMessages.SOME_ERROR_OCCURED);
     }
 
     @ExceptionHandler(ConversionNotSupportedException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleConversionNotSupportedException(
+    protected APIResponse handleConversionNotSupportedException(
             ConversionNotSupportedException ex,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, ex);
-        return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_INVALID, ResponseErrorMessages.REQUEST_PARAM_INVALID);
+        return new APIResponse(ResponseCodes.REQUEST_PARAM_INVALID, ResponseErrorMessages.REQUEST_PARAM_INVALID);
 
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleIllegalArgumentException(
+    protected APIResponse handleIllegalArgumentException(
             IllegalArgumentException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
+        return new APIResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
                 ? ResponseErrorMessages.REQUEST_PARAM_INVALID
                 : exception.getMessage());
     }
@@ -97,11 +96,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotAvailableException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleResourceNotAvailableException(
+    protected APIResponse handleResourceNotAvailableException(
             ResourceNotAvailableException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
+        return new APIResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
                 ? ResponseErrorMessages.REQUEST_PARAM_INVALID
                 : exception.getMessage());
     }
@@ -109,41 +108,41 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidResourceException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleInvalidNameException(
+    protected APIResponse handleInvalidNameException(
             InvalidResourceException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage());
+        return new APIResponse(ResponseCodes.BAD_REQUEST, exception.getMessage());
     }
 
     @ExceptionHandler(DuplicateNameResourceException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleDuplicateNameResourceException(
+    protected APIResponse handleDuplicateNameResourceException(
             DuplicateNameResourceException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_NAME_RESOURCE);
+        return new APIResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_NAME_RESOURCE);
     }
 
     @ExceptionHandler(DuplicateResourceException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleDuplicateResourceException(
+    protected APIResponse handleDuplicateResourceException(
             DuplicateResourceException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_RESOURCE);
+        return new APIResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.DUPLICATE_RESOURCE);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleConstraintVoilationException(
+    protected APIResponse handleConstraintVoilationException(
             ConstraintViolationException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
+        return new APIResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
                 ? ResponseErrorMessages.REQUEST_PARAM_INVALID
                 : exception.getMessage());
     }
@@ -151,21 +150,21 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    protected ProAPIResponse handleHttpMediaTypeNotSupportedException(
+    protected APIResponse handleHttpMediaTypeNotSupportedException(
             HttpMediaTypeNotSupportedException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTENT_TYPE);
+        return new APIResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTENT_TYPE);
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse hanldeHttpRequestMethodNotSupportedException(
+    protected APIResponse hanldeHttpRequestMethodNotSupportedException(
             HttpRequestMethodNotSupportedException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(
+        return new APIResponse(
                 ResponseCodes.BAD_REQUEST,
                 ResponseErrorMessages.INVALID_REQUEST_METHOD_URL_AND_BODY);
     }
@@ -173,57 +172,57 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceAlreadyExistException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleResourceAlreadyExistException(
+    protected APIResponse handleResourceAlreadyExistException(
             ResourceAlreadyExistException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(exception.getResponseCode(), exception.getMessage(), exception.getData());
+        return new APIResponse(exception.getResponseCode(), exception.getMessage()).setData(exception.getData());
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected ProAPIResponse handleHttpMessageNotReadableException(
+    protected APIResponse handleHttpMessageNotReadableException(
             HttpMessageNotReadableException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST);
+        return new APIResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_FORMAT_IN_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    protected ProAPIResponse handleMethodArgumentNotValidException(
+    protected APIResponse handleMethodArgumentNotValidException(
             MethodArgumentNotValidException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.REQUEST_PARAM_INVALID, exception.getMessage());
+        return new APIResponse(ResponseCodes.REQUEST_PARAM_INVALID, exception.getMessage());
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    protected ProAPIResponse handleResourceNotFoundException(
+    protected APIResponse handleResourceNotFoundException(
             ResourceNotFoundException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.RESOURCE_NOT_FOUND, exception.getMessage());
+        return new APIResponse(ResponseCodes.RESOURCE_NOT_FOUND, exception.getMessage());
     }
 
     @ExceptionHandler(UnauthorizedException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    protected ProAPIResponse handleUnauthorizedException(UnauthorizedException exception, HttpServletRequest httpRequest) {
+    protected APIResponse handleUnauthorizedException(UnauthorizedException exception, HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.UNAUTHORIZED, ResponseErrorMessages.UNAUTHORIZED);
+        return new APIResponse(ResponseCodes.UNAUTHORIZED, ResponseErrorMessages.UNAUTHORIZED);
     }
 
     @ExceptionHandler(BadRequestException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    protected ProAPIResponse handleBadRequestException(BadRequestException exception, HttpServletRequest httpRequest) {
+    protected APIResponse handleBadRequestException(BadRequestException exception, HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new ProAPIErrorResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
+        return new APIResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
                 ? ResponseErrorMessages.BAD_REQUEST
                 : exception.getMessage());
     }

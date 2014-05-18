@@ -266,6 +266,15 @@ public class SolrResult extends BaseModel {
     @Field("BUILDER_PROJECT_COUNT")
     private Integer              builderProjectCount;
 
+    @Field("TYPEAHEAD_LOCALITY_UNITS_LAUNCHED_6MONTHS")
+    private Integer              localityUnitsLaunched6Months;
+
+    @Field("TYPEAHEAD_LOCALITY_UNITS_SOLD_6MONTHS")
+    private Integer              localityUnitsSold6Months;
+
+    @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
+    private Integer              localityUnitsDelivered6Months;
+
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -900,5 +909,20 @@ public class SolrResult extends BaseModel {
     @Field("BUILDER_PROJECT_COUNT")
     public void setBuilderProjectCount(Integer builderProjectCount) {
         builder.setProjectCount(builderProjectCount);
+    }
+
+    @Field("TYPEAHEAD_LOCALITY_UNITS_LAUNCHED_6MONTHS")
+    public void setLocalityUnitsLaunched6Months(Integer localityUnitsLaunched6Months) {
+        locality.setLocalityUnitsLaunched6Months(localityUnitsLaunched6Months);
+    }
+
+    @Field("TYPEAHEAD_LOCALITY_UNITS_SOLD_6MONTHS")
+    public void setLocalityUnitsSold6Months(Integer localityUnitsSold6Months) {
+        locality.setLocalityUnitsSold6Months(localityUnitsSold6Months);
+    }
+
+    @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
+    public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
+        locality.setLocalityUnitsDelivered6Months(localityUnitsDelivered6Months);
     }
 }

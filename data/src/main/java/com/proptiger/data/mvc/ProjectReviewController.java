@@ -11,8 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectReview;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ProjectReviewService;
 
 /**
@@ -29,9 +28,9 @@ public class ProjectReviewController {
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/project/{projectId}/review")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse getProjectReviewByProjectId(@PathVariable Long projectId) {
+    public APIResponse getProjectReviewByProjectId(@PathVariable Long projectId) {
         List<ProjectReview> list = projectReviewService.getProjectReviewByProjectId(projectId);
 
-        return new ProAPISuccessResponse(list);
+        return new APIResponse(list);
     }
 }

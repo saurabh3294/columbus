@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.portfolio.Widget;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessCountResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.portfolio.WidgetService;
 
 /**
@@ -29,9 +27,9 @@ public class WidgetController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getWidgets() {
+    public APIResponse getWidgets() {
         List<Widget> widgets = widgetService.getAllWidgets();
-        return new ProAPISuccessCountResponse(widgets, widgets.size());
+        return new APIResponse(widgets, widgets.size());
     }
 
     /**
@@ -43,9 +41,9 @@ public class WidgetController {
     @RequestMapping(method = RequestMethod.GET, value = "/{widgetId}")
     @ResponseBody
     @DisableCaching
-    public ProAPIResponse getWidget(@PathVariable Integer widgetId) {
+    public APIResponse getWidget(@PathVariable Integer widgetId) {
         Widget widget = widgetService.getWidget(widgetId);
-        return new ProAPISuccessResponse(widget);
+        return new APIResponse(widget);
     }
 
 }

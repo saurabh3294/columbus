@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.SenderDetail;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ProjectService;
 
 /**
@@ -26,12 +25,12 @@ public class MailController {
 
 	@ResponseBody
 	@RequestMapping(value = "data/v1/entity/project/{projectId}/email", method = RequestMethod.POST)
-	public ProAPIResponse sendProjectDetailsMail(
+	public APIResponse sendProjectDetailsMail(
 			@PathVariable Integer projectId,
 			@RequestBody SenderDetail senderDetail) {
 		boolean status = projectService.sendProjectDetailsMail(projectId,
 				senderDetail);
-		return new ProAPISuccessResponse(status);
+		return new APIResponse(status);
 	}
 
 }

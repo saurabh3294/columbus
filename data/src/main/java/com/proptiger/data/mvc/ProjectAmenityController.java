@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ProjectAmenityService;
 
 /**
@@ -26,8 +25,8 @@ public class ProjectAmenityController {
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public ProAPIResponse getProjectAmenities(@RequestParam(required = true, value = "projectId") Long projectId) {
+    public APIResponse getProjectAmenities(@RequestParam(required = true, value = "projectId") Long projectId) {
         List<String> list = amenityService.getAmenitiesNameByProjectId(projectId);
-        return new ProAPISuccessResponse(list);
+        return new APIResponse(list);
     }
 }
