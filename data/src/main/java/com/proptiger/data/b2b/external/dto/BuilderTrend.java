@@ -28,6 +28,7 @@ public class BuilderTrend {
 
     private int                                 builderId;
     private String                              builderName;
+    private String                              builderHeadquarterCity;
     private int                                 projectCount;
     private Integer                             minPricePerUnitArea                   = 0;
     private Integer                             maxPricePerUnitArea                   = 0;
@@ -75,6 +76,14 @@ public class BuilderTrend {
 
     public String getBuilderName() {
         return builderName;
+    }
+
+    public String getBuilderHeadquarterCity() {
+        return builderHeadquarterCity;
+    }
+
+    public void setBuilderHeadquarterCity(String builderHeadquarterCity) {
+        this.builderHeadquarterCity = builderHeadquarterCity;
     }
 
     public void setBuilderName(String builderName) {

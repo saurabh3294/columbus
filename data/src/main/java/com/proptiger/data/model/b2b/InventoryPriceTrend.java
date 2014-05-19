@@ -83,6 +83,9 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "builder_name")
     private String            builderName;
 
+    @Column(name = "builder_headquarter_city")
+    private String            builderHeadquarterCity;
+
     @Column(name = "effective_month")
     private Date              month;
 
@@ -143,7 +146,7 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "units_sold")
     private Integer           unitsSold;
-    
+
     @Column(name = "units_delivered")
     private Integer           unitsDelivered;
 
@@ -299,6 +302,14 @@ public class InventoryPriceTrend extends BaseModel {
         this.builderName = builderName;
     }
 
+    public String getBuilderHeadquarterCity() {
+        return builderHeadquarterCity;
+    }
+
+    public void setBuilderHeadquarterCity(String builderHeadquarterCity) {
+        this.builderHeadquarterCity = builderHeadquarterCity;
+    }
+
     public Date getMonth() {
         return month;
     }
@@ -442,14 +453,14 @@ public class InventoryPriceTrend extends BaseModel {
     public void setUnitsSold(Integer unitsSold) {
         this.unitsSold = unitsSold;
     }
-    
-    public Integer getUnitsDelivered() {
-		return unitsDelivered;
-	}
 
-	public void setUnitsDelivered(Integer unitsDelivered) {
-		this.unitsDelivered = unitsDelivered;
-	}
+    public Integer getUnitsDelivered() {
+        return unitsDelivered;
+    }
+
+    public void setUnitsDelivered(Integer unitsDelivered) {
+        this.unitsDelivered = unitsDelivered;
+    }
 
     public Float getDemand() {
         return demand;
