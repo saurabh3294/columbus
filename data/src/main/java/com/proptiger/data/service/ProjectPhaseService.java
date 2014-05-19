@@ -158,6 +158,8 @@ public class ProjectPhaseService {
         property.setPricePerUnitArea(listingPrice.getPricePerUnitArea().doubleValue());
         property.setPricePerUnitAreaCms(listingPrice.getPricePerUnitArea().doubleValue());
         property.setBudget(property.getSize() * listingPrice.getPricePerUnitArea());
+        property.populateMinResaleOrPrimaryPrice();
+        property.populateMaxResaleOrPrimaryPrice();
     }
 
     private List<ProjectPhase> populateSecondaryPrice(List<ProjectPhase> phases) {

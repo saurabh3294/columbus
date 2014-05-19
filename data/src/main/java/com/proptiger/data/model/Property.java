@@ -201,8 +201,6 @@ public class Property extends BaseModel {
 
     public void setPricePerUnitArea(Double pricePerUnitArea) {
         this.pricePerUnitArea = pricePerUnitArea;
-        populateMinResaleOrPrimaryPrice();
-        populateMaxResaleOrPrimaryPrice();
     }
 
     public Double getSize() {
@@ -299,8 +297,6 @@ public class Property extends BaseModel {
 
     public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
         this.resalePricePerUnitArea = resalePricePerUnitArea;
-        populateMinResaleOrPrimaryPrice();
-        populateMaxResaleOrPrimaryPrice();
     }
 
     public Double getResalePrice() {
