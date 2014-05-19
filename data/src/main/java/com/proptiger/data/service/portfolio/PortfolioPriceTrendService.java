@@ -248,7 +248,7 @@ public class PortfolioPriceTrendService {
                 PriceDetail priceDetail = new PriceDetail();
                 PortfolioListing listingForCurrentProject = getListingForProject(
                         priceTrend, listings);
-                priceDetail.setEffectiveDate(cal.getTime());
+                priceDetail.setEffectiveDate(DateUtil.parseYYYYmmddStringToDate(trendCurrentMonth));
                 // priceDetail.setPrice(portfolioService.getPropertyPricePerUnitArea(listingForCurrentProject.getProperty()));
                 Double pricePerUnitArea = listingForCurrentProject
                         .getProperty().getPricePerUnitAreaCms();
@@ -276,78 +276,88 @@ public class PortfolioPriceTrendService {
             
             removePriceTrendDateAfterSpecifiedMonth(prices);
             
-            // add price detail at first
-            PriceDetail firstPriceTrend = prices.get(0);
-            Date firstDatePresent = firstPriceTrend.getEffectiveDate();
-            cal.setTime(firstDatePresent);
-            Date launchDate = projectService.getProjectData(priceTrend.getProjectId()).getLaunchDate();
-            while (prices.size() < noOfMonths && (launchDate == null || launchDate.before(cal.getTime()))) {
-                PriceDetail detail = new PriceDetail();
-                detail.setPrice(firstPriceTrend.getPrice());
-                cal.add(Calendar.MONTH, -1);
-                detail.setEffectiveDate(cal.getTime());
-                prices.add(0, detail);
-            }
-            
-            /* removing price detail before launch date because cms sometime
-             * adds data before launch date for a project.
-             * 
-             */
-            while (launchDate != null && !prices.isEmpty() && prices.get(0).getEffectiveDate().before(launchDate)) {
-                prices.remove(0);
-            }
-
-            /*
-             * Check if any month data is missing in between
-             */
-            if (prices.size() > 1) {
-                int pricesSize = prices.size();
-                PriceDetail last = prices.get(prices.size() - 1);
-                cal.setTime(last.getEffectiveDate());
-                int lastMonth = cal.get(Calendar.MONTH);
-                logger.debug("In adding missing month block");
-                for (int counter = pricesSize - 2; counter >= 0; counter--) {
-                    PriceDetail temp = prices.get(counter);
-                    cal.setTime(temp.getEffectiveDate());
-                    int tempLastMonth = cal.get(Calendar.MONTH);
-                    int currMonth = tempLastMonth;
-                    if ((currMonth + 1) % MONTHS_IN_YEAR == lastMonth) {
-                        // Found continuous month, so skip
-                    } else {
-                        // add missing month price details taking last price
-                        // detail data
-                        int i = 1;
-                        while ((currMonth + 1) % MONTHS_IN_YEAR != lastMonth) {
-                            PriceDetail newPriceDetail = new PriceDetail();
-                            cal.add(Calendar.MONTH, 1);
-                            currMonth = cal.get(Calendar.MONTH);
-                            newPriceDetail.setEffectiveDate(cal.getTime());
-                            newPriceDetail.setPrice(last.getPrice());
-                            prices.add(counter + i++, newPriceDetail);
-                        }
-                    }
-                    last = temp;
-                    lastMonth = tempLastMonth;
+            if (!prices.isEmpty()) {
+             // add price detail at first
+                PriceDetail firstPriceTrend = prices.get(0);
+                Date firstDatePresent = firstPriceTrend.getEffectiveDate();
+                cal.setTime(firstDatePresent);
+                Date launchDate = projectService.getProjectData(priceTrend.getProjectId()).getLaunchDate();
+                while (prices.size() < noOfMonths && (launchDate == null || launchDate.before(cal.getTime()))) {
+                    PriceDetail detail = new PriceDetail();
+                    detail.setPrice(firstPriceTrend.getPrice());
+                    cal.add(Calendar.MONTH, -1);
+                    detail.setEffectiveDate(cal.getTime());
+                    prices.add(0, detail);
                 }
-                logger.debug("After adding missing month block");
-            }
-            
-            /*
-             * If there are more price details than required then remove from
-             * first
-             */
-            // actual no of months required
-            int actualNoOfMonthRequired = noOfMonths - 1;
-            if (prices.size() > actualNoOfMonthRequired) {
-                // remove from first
-                int removeCounter = 0;
-                int toRemove = prices.size() - actualNoOfMonthRequired;
-                while (removeCounter < toRemove) {
+                
+                /* removing price detail before launch date because cms sometime
+                 * adds data before launch date for a project.
+                 * 
+                 */
+                while (launchDate != null && !prices.isEmpty() && prices.get(0).getEffectiveDate().before(launchDate)) {
                     prices.remove(0);
-                    removeCounter++;
                 }
+
+                includeMissingPriceTrendData(cal, prices);
+                
+                removeExtraPriceTrendThanRequired(noOfMonths, prices);
             }
 
+        }
+    }
+
+    private void includeMissingPriceTrendData(Calendar cal, List<PriceDetail> prices) {
+        /*
+         * Check if any month data is missing in between
+         */
+        if (prices.size() > 1) {
+            int pricesSize = prices.size();
+            PriceDetail last = prices.get(prices.size() - 1);
+            cal.setTime(last.getEffectiveDate());
+            int lastMonth = cal.get(Calendar.MONTH);
+            logger.debug("In adding missing month block");
+            for (int counter = pricesSize - 2; counter >= 0; counter--) {
+                PriceDetail temp = prices.get(counter);
+                cal.setTime(temp.getEffectiveDate());
+                int tempLastMonth = cal.get(Calendar.MONTH);
+                int currMonth = tempLastMonth;
+                if ((currMonth + 1) % MONTHS_IN_YEAR == lastMonth) {
+                    // Found continuous month, so skip
+                } else {
+                    // add missing month price details taking last price
+                    // detail data
+                    int i = 1;
+                    while ((currMonth + 1) % MONTHS_IN_YEAR != lastMonth) {
+                        PriceDetail newPriceDetail = new PriceDetail();
+                        cal.add(Calendar.MONTH, 1);
+                        currMonth = cal.get(Calendar.MONTH);
+                        newPriceDetail.setEffectiveDate(cal.getTime());
+                        newPriceDetail.setPrice(last.getPrice());
+                        prices.add(counter + i++, newPriceDetail);
+                    }
+                }
+                last = temp;
+                lastMonth = tempLastMonth;
+            }
+            logger.debug("After adding missing month block");
+        }
+    }
+
+    private void removeExtraPriceTrendThanRequired(Integer noOfMonths, List<PriceDetail> prices) {
+        /*
+         * If there are more price details than required then remove from
+         * first
+         */
+        // actual no of months required
+        int actualNoOfMonthRequired = noOfMonths - 1;
+        if (prices.size() > actualNoOfMonthRequired) {
+            // remove from first
+            int removeCounter = 0;
+            int toRemove = prices.size() - actualNoOfMonthRequired;
+            while (removeCounter < toRemove) {
+                prices.remove(0);
+                removeCounter++;
+            }
         }
     }
 
