@@ -366,6 +366,6 @@ public class Property extends BaseModel {
     }
 
     public void populateMaxResaleOrPrimaryPrice() {
-        this.minResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
+        this.maxResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
     }
 }
