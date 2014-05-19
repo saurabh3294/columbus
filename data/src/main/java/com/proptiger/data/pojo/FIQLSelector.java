@@ -21,7 +21,7 @@ public class FIQLSelector implements Cloneable, Serializable {
     private String            filters;
     private String            group;
     private String            sort;
-    private Integer           start                    = 0;
+    private int               start                    = 0;
     private Integer           rows;
 
     private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
@@ -54,11 +54,11 @@ public class FIQLSelector implements Cloneable, Serializable {
         return this;
     }
 
-    public Integer getStart() {
+    public int getStart() {
         return start;
     }
 
-    public FIQLSelector setStart(Integer start) {
+    public FIQLSelector setStart(int start) {
         this.start = start;
         return this;
     }
