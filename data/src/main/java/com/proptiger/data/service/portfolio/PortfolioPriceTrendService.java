@@ -146,7 +146,6 @@ public class PortfolioPriceTrendService {
         addPriceDetailsFromCurrentMonth(projectPriceTrendTemp, noOfMonths,
                 listings);
         makePriceTrendDateMonthPrecision(projectPriceTrendTemp);
-        
         /*
          * Update per square price received from CMS API to total price
          */
@@ -235,7 +234,8 @@ public class PortfolioPriceTrendService {
         noOfMonths = noOfMonths + 1;
         for (ProjectPriceTrend priceTrend : projectPriceTrends) {
             Calendar cal = Calendar.getInstance();
-            Date currentMonth = cal.getTime();
+            // cal.add(Calendar.MONTH, -1);
+            Date currentDate = cal.getTime();
             logger.debug(
                     "Adding price detail from current month for project id {} and name {}",
                     priceTrend.getProjectId(), priceTrend.getProjectName());
@@ -263,9 +263,9 @@ public class PortfolioPriceTrendService {
             PriceDetail lastPriceTrend = prices.get(prices.size() - 1);
             Date lastDatePresent = lastPriceTrend.getEffectiveDate();
             cal.setTime(lastDatePresent);
-            
+
             // Add price detail at last till current month
-            while (lastDatePresent.compareTo(currentMonth) <= 0) {
+            while (lastDatePresent.compareTo(currentDate) <= 0) {
                 PriceDetail detail = new PriceDetail();
                 detail.setPrice(lastPriceTrend.getPrice());
                 cal.add(Calendar.MONTH, 1);
@@ -273,7 +273,7 @@ public class PortfolioPriceTrendService {
                 lastDatePresent = cal.getTime();
                 prices.add(prices.size(), detail);
             }
-           
+            
             removePriceTrendDateAfterSpecifiedMonth(prices);
             
             // add price detail at first
