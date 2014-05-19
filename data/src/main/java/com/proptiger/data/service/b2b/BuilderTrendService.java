@@ -2,6 +2,7 @@ package com.proptiger.data.service.b2b;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,11 +10,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.comparators.ComparatorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.b2b.external.dto.BuilderTrend;
+import com.proptiger.data.init.comparator.GenericComparator;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
 import com.proptiger.data.model.enums.UnitType;
@@ -32,7 +35,7 @@ import com.proptiger.exception.ResourceNotFoundException;
 
 @Service
 public class BuilderTrendService {
-    private static final String WAVG_PRICE = "wavgPricePerUnitAreaOnSupply";
+    private static final String WAVG_PRICE     = "wavgPricePerUnitAreaOnSupply";
 
     @Autowired
     TrendDao                    trendDao;
@@ -43,34 +46,43 @@ public class BuilderTrendService {
     @Value("${b2b.price-appreciation.duration}")
     private Integer             appreciationDuration;
 
+    private static final String DESC_SPECIFIER = "-";
+
     public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, UserInfo userInfo) {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("builderId==" + builderId);
-        Map<Integer, BuilderTrend> builderTrends = getBuilderTrend(selector, userInfo);
-        if (builderTrends.get(builderId) == null) {
+        List<BuilderTrend> builderTrends = getBuilderTrend(selector, userInfo);
+        if (builderTrends.get(0) == null) {
             throw new ResourceNotFoundException("BuilderId " + builderId + " doesn't exist");
         }
-        return builderTrends.get(builderId);
+        return builderTrends.get(0);
     }
 
-    @SuppressWarnings("unchecked")
-    public Map<Integer, BuilderTrend> getBuilderTrend(FIQLSelector selector, UserInfo userInfo) {
-        Map<Integer, BuilderTrend> result = new HashMap<>();
-        FIQLSelector fiqlSelector = getFIQLFromUserFIQL(selector);
+    public List<BuilderTrend> getBuilderTrend(FIQLSelector userSelector, UserInfo userInfo) {
+        List<BuilderTrend> builderTrends = new ArrayList<>();
+        FIQLSelector fiqlSelector = getFIQLFromUserFIQL(userSelector);
         Date currentDate = DateUtil.parseYYYYmmddStringToDate(currentMonth);
         Date pastDate = DateUtil.shiftMonths(currentDate, -1 * appreciationDuration);
         List<InventoryPriceTrend> inventoryPriceTrends = trendDao.getTrend(fiqlSelector);
 
         if (inventoryPriceTrends.size() != 0) {
+            @SuppressWarnings("unchecked")
             Map<Integer, Map<String, List<InventoryPriceTrend>>> localityUnitTypePricesMap = (Map<Integer, Map<String, List<InventoryPriceTrend>>>) UtilityClass
                     .groupFieldsAsPerKeys(
                             trendDao.getTrend(getFIQLForLocalityPrice(getLocalityDominantTypeFromList(inventoryPriceTrends))),
                             new ArrayList<String>(Arrays.asList("localityId", "unitType")));
 
+            @SuppressWarnings("unchecked")
             Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>> inventoryPriceTrendMap = (Map<Integer, Map<Date, Map<Integer, List<InventoryPriceTrend>>>>) UtilityClass
                     .groupFieldsAsPerKeys(
                             inventoryPriceTrends,
                             new ArrayList<String>(Arrays.asList("builderId", "month", "projectId")));
+
+            @SuppressWarnings("unchecked")
+            Map<Integer, List<InventoryPriceTrend>> mappedDelayedProjects = (Map<Integer, List<InventoryPriceTrend>>) UtilityClass
+                    .groupFieldsAsPerKeys(
+                            trendDao.getTrend(getDelayedFIQLFromUserFiql(userSelector)),
+                            Arrays.asList("builderId"));
 
             for (Integer builderId : inventoryPriceTrendMap.keySet()) {
                 BuilderTrend builderTrend = new BuilderTrend();
@@ -86,21 +98,38 @@ public class BuilderTrendService {
 
                     for (InventoryPriceTrend inventoryPriceTrend : currentMonthProjectDetails) {
                         builderTrend.setBuilderName(inventoryPriceTrend.getBuilderName());
-                        builderTrend.setMinPricePerUnitArea(UtilityClass.min(
-                                builderTrend.getMinPricePerUnitArea(),
-                                (Integer) inventoryPriceTrend.getExtraAttributes().get("minPricePerUnitArea")));
-                        builderTrend.setMaxPricePerUnitArea(UtilityClass.max(
-                                builderTrend.getMaxPricePerUnitArea(),
-                                (Integer) inventoryPriceTrend.getExtraAttributes().get("maxPricePerUnitArea")));
+                        builderTrend.setBuilderHeadquarterCity(inventoryPriceTrend.getBuilderHeadquarterCity());
+
+                        Object minPricePerUnitArea = inventoryPriceTrend.getExtraAttributes()
+                                .get("minPricePerUnitArea");
+                        if (minPricePerUnitArea != null) {
+                            builderTrend.setMinPricePerUnitArea(UtilityClass.min(
+                                    builderTrend.getMinPricePerUnitArea(),
+                                    (Integer) inventoryPriceTrend.getExtraAttributes().get("minPricePerUnitArea")));
+                        }
+
+                        Object maxPricePerUnitArea = inventoryPriceTrend.getExtraAttributes()
+                                .get("maxPricePerUnitArea");
+                        if (maxPricePerUnitArea != null) {
+                            builderTrend.setMaxPricePerUnitArea(UtilityClass.max(
+                                    builderTrend.getMaxPricePerUnitArea(),
+                                    (Integer) maxPricePerUnitArea));
+                        }
+
                         if (inventoryPriceTrend.getExtraAttributes().get("sumLtdSupply") != null) {
                             builderTrend.setSupply(builderTrend.getSupply() + ((Long) inventoryPriceTrend
                                     .getExtraAttributes().get("sumLtdSupply")).intValue());
+                        }
+                        if (inventoryPriceTrend.getExtraAttributes().get("sumLtdLaunchedUnit") != null) {
+                            builderTrend.setLaunchedUnit(builderTrend.getSupply() + ((Long) inventoryPriceTrend
+                                    .getExtraAttributes().get("sumLtdLaunchedUnit")).intValue());
                         }
                         if (inventoryPriceTrend.getExtraAttributes().get("sumInventory") != null) {
                             builderTrend.setInventory(builderTrend.getInventory() + ((Long) inventoryPriceTrend
                                     .getExtraAttributes().get("sumInventory")).intValue());
                         }
-                        builderTrend.getUnitTypes().add(inventoryPriceTrend.getUnitType());
+
+                        populateUnitTypeDetails(builderTrend, inventoryPriceTrend);
 
                         if (inventoryPriceTrend.getIsDominantProjectUnitType()) {
                             Object currentPriceObject = inventoryPriceTrend.getExtraAttributes().get(WAVG_PRICE);
@@ -120,11 +149,12 @@ public class BuilderTrendService {
                     }
                 }
 
-                result.put(builderId, builderTrend);
+                populateDelayedProjectDetails(builderTrend, mappedDelayedProjects);
+                builderTrend.trimUnitTypeDetails();
+                builderTrends.add(builderTrend);
             }
         }
-
-        return result;
+        return getPaginatedResults(getSortedResults(builderTrends, userSelector), userSelector);
     }
 
     private void populatePastPriceComparision(
@@ -160,6 +190,26 @@ public class BuilderTrendService {
         }
     }
 
+    private void populateUnitTypeDetails(BuilderTrend builderTrend, InventoryPriceTrend inventoryPriceTrend) {
+        Map<String, Integer> unitTypeDetails = builderTrend.getUnitTypesDetails()
+                .get(inventoryPriceTrend.getUnitType());
+        unitTypeDetails.put(BuilderTrend.PROJECT_COUNT_KEY, unitTypeDetails.get(BuilderTrend.PROJECT_COUNT_KEY) + 1);
+        Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
+        Object sumSupply = extraAttributes.get("sumLtdSupply");
+        if (sumSupply != null) {
+            unitTypeDetails.put(
+                    BuilderTrend.SUPPLY_KEY,
+                    unitTypeDetails.get(BuilderTrend.SUPPLY_KEY) + Integer.valueOf(sumSupply.toString()));
+        }
+
+        Object sumLtdLaunchedUnit = extraAttributes.get("sumLtdLaunchedUnit");
+        if (sumLtdLaunchedUnit != null) {
+            unitTypeDetails.put(
+                    BuilderTrend.LAUNCHED_KEY,
+                    unitTypeDetails.get(BuilderTrend.LAUNCHED_KEY) + Integer.valueOf(sumLtdLaunchedUnit.toString()));
+        }
+    }
+
     private void populateLocalityPriceComparision(
             Map<Integer, Map<String, List<InventoryPriceTrend>>> localityUnitTypePricesMap,
             BuilderTrend builderTrend,
@@ -178,15 +228,48 @@ public class BuilderTrendService {
         }
     }
 
+    private void populateDelayedProjectDetails(
+            BuilderTrend builderTrend,
+            Map<Integer, List<InventoryPriceTrend>> mappedDelayedProjects) {
+        int builderId = builderTrend.getBuilderId();
+        if (mappedDelayedProjects.containsKey(builderId)) {
+            Map<String, Object> extraAttributes = mappedDelayedProjects.get(builderId).get(0).getExtraAttributes();
+            Map<String, Integer> delayedDetails = builderTrend.getDelayed();
+
+            Object sumSupply = extraAttributes.get("sumLtdSupply");
+            if (sumSupply != null) {
+                delayedDetails.put(
+                        BuilderTrend.SUPPLY_KEY,
+                        delayedDetails.get(BuilderTrend.SUPPLY_KEY) + Integer.valueOf(sumSupply.toString()));
+            }
+
+            Object sumLaunchedUnit = extraAttributes.get("sumLtdLaunchedUnit");
+            if (sumSupply != null) {
+                delayedDetails.put(
+                        BuilderTrend.LAUNCHED_KEY,
+                        delayedDetails.get(BuilderTrend.LAUNCHED_KEY) + Integer.valueOf(sumLaunchedUnit.toString()));
+            }
+
+            Object avgSize = extraAttributes.get("wavgSizeOnLtdSupply");
+            if (avgSize != null) {
+                delayedDetails.put(
+                        BuilderTrend.AVG_SIZE,
+                        delayedDetails.get(BuilderTrend.AVG_SIZE) + Double.valueOf(avgSize.toString()).intValue());
+            }
+        }
+    }
+
     /**
      * 
      * @param inventoryPriceTrends
      * @return {@link Map} unique combination of locality and dominant unit type
      *         for all projects in the supplied list
      */
-    @SuppressWarnings("unchecked")
+
     private Map<Integer, Set<UnitType>> getLocalityDominantTypeFromList(List<InventoryPriceTrend> inventoryPriceTrends) {
         Map<Integer, Set<UnitType>> result = new HashMap<>();
+
+        @SuppressWarnings("unchecked")
         Map<String, List<InventoryPriceTrend>> isDominantSupplyGrouped = (Map<String, List<InventoryPriceTrend>>) UtilityClass
                 .groupFieldsAsPerKeys(
                         inventoryPriceTrends,
@@ -238,7 +321,50 @@ public class BuilderTrendService {
         result.setFilters(userFIQLSelector.getFilters()).addAndConditionToFilter(
                 "month==" + currentMonth + ",month==" + DateUtil.shiftMonths(currentMonth, -1 * appreciationDuration));
         result.setGroup("builderId,month,projectId,unitType");
-        result.setFields("builderId,builderName,minPricePerUnitArea,maxPricePerUnitArea,sumLtdSupply,sumInventory,wavgPricePerUnitAreaOnSupply,month,localityId,isDominantProjectUnitType");
+        result.setFields("builderId,builderName,builderHeadquarterCity,minPricePerUnitArea,maxPricePerUnitArea,sumLtdSupply,sumLtdLaunchedUnit,sumInventory,wavgPricePerUnitAreaOnSupply,month,localityId,isDominantProjectUnitType");
         return result;
+    }
+
+    private FIQLSelector getDelayedFIQLFromUserFiql(FIQLSelector userFIQLSelector) {
+        FIQLSelector result = new FIQLSelector();
+        result.setFilters(userFIQLSelector.getFilters()).addAndConditionToFilter("month==" + currentMonth)
+                .addAndConditionToFilter("isDelayed==true");
+        result.setFields("builderId,sumLtdLaunchedUnit,sumLtdSupply,sumInventory,wavgSizeOnLtdSupply");
+        result.setGroup("builderId");
+        return result;
+    }
+
+    private List<BuilderTrend> getSortedResults(List<BuilderTrend> builderTrends, FIQLSelector selector) {
+        if (selector.getSort() != null && selector.getSort().length() > 0) {
+            String[] fields = selector.getSort().split(",");
+            ComparatorChain chain = new ComparatorChain();
+            for (String field : fields) {
+                field = field.trim();
+                GenericComparator<BuilderTrend> comparator;
+                if (field.contains(DESC_SPECIFIER)) {
+                    comparator = new GenericComparator<>(field.replace(DESC_SPECIFIER, ""), false);
+                }
+                else {
+                    comparator = new GenericComparator<>(field);
+                }
+                chain.addComparator(comparator);
+            }
+            Collections.sort(builderTrends, chain);
+        }
+        return builderTrends;
+    }
+
+    private List<BuilderTrend> getPaginatedResults(List<BuilderTrend> builderTrends, FIQLSelector selector) {
+        int start = selector.getStart();
+        Integer rows = selector.getRows();
+        int size = builderTrends.size();
+
+        if (start >= size) {
+            builderTrends.clear();
+        }
+        else if (rows != null) {
+            builderTrends = builderTrends.subList(start, UtilityClass.min(start + rows, size));
+        }
+        return builderTrends;
     }
 }
