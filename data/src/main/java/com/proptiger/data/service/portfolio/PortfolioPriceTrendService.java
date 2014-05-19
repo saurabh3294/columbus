@@ -362,7 +362,7 @@ public class PortfolioPriceTrendService {
             cal.setTime(trendCurrentDate);
             cal.add(Calendar.MONTH, 1); // Adding one month to include current month trend
             trendCurrentDate = cal.getTime();
-            while (!prices.isEmpty() && prices.get(prices.size() - 1).getEffectiveDate().after(trendCurrentDate)){
+            while (!prices.isEmpty() && !prices.get(prices.size() - 1).getEffectiveDate().before(trendCurrentDate)){
                 prices.remove(prices.size() - 1);
             }
         }
