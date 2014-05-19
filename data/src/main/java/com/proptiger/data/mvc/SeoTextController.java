@@ -17,19 +17,22 @@ import com.proptiger.data.pojo.response.APIResponse;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @Controller
 @RequestMapping("data/v1/seo-text")
 public class SeoTextController {
-    private RestTemplate restTemplate = new RestTemplate();
+	private RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${proptiger.url}")
-    private String websiteHost;
+	@Value("${proptiger.url}")
+	private String websiteHost;
 
-    @RequestMapping
-    @ResponseBody
-    public APIResponse get(@RequestParam String url) {
-        return new APIResponse(new Gson().fromJson(restTemplate.getForObject(websiteHost + "getSeoTags.php?url={URL}", String.class, Collections.singletonMap("URL", url)), Object.class));
-    }
+	@RequestMapping
+	@ResponseBody
+	public APIResponse get(@RequestParam String url) {
+		return new APIResponse(new Gson().fromJson(
+				restTemplate.getForObject(websiteHost
+						+ "getSeoTags.php?url={URL}", String.class,
+						Collections.singletonMap("URL", url)), Object.class));
+	}
 }
