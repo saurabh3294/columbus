@@ -59,6 +59,9 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "construction_status")
     private String            constructionStatus;
 
+    @Column(name = "booking_status")
+    private String            bookingStatus;
+
     @Column(name = "locality_id")
     private Integer           localityId;
 
@@ -101,8 +104,8 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "completion_date")
     private Date              completionDate;
 
-    @Column(name = "is_delayed")
-    private Boolean           isDelayed;
+    @Column(name = "completion_delay")
+    private int               completionDelayInMonth;
 
     @Column(name = "launch_date")
     private Date              launchDate;
@@ -140,6 +143,12 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "ltd_launched_unit")
     private Integer           ltdLaunchedUnit;
+
+    @Column(name = "supply_area")
+    private Integer           supplyArea;
+
+    @Column(name = "ltd_supply_area")
+    private Integer           ltdSupplyArea;
 
     @Column(name = "inventory")
     private Integer           inventory;
@@ -486,12 +495,36 @@ public class InventoryPriceTrend extends BaseModel {
         this.investorDemand = investorDemand;
     }
 
-    public Boolean getIsDelayed() {
-        return isDelayed;
+    public String getBookingStatus() {
+        return bookingStatus;
     }
 
-    public void setIsDelayed(Boolean isDelayed) {
-        this.isDelayed = isDelayed;
+    public void setBookingStatus(String bookingStatus) {
+        this.bookingStatus = bookingStatus;
+    }
+
+    public int getCompletionDelayInMonth() {
+        return completionDelayInMonth;
+    }
+
+    public void setCompletionDelayInMonth(int completionDelayInMonth) {
+        this.completionDelayInMonth = completionDelayInMonth;
+    }
+
+    public Integer getSupplyArea() {
+        return supplyArea;
+    }
+
+    public void setSupplyArea(Integer supplyArea) {
+        this.supplyArea = supplyArea;
+    }
+
+    public Integer getLtdSupplyArea() {
+        return ltdSupplyArea;
+    }
+
+    public void setLtdSupplyArea(Integer ltdSupplyArea) {
+        this.ltdSupplyArea = ltdSupplyArea;
     }
 
     public static long getSerialversionuid() {

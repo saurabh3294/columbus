@@ -328,7 +328,7 @@ public class BuilderTrendService {
     private FIQLSelector getDelayedFIQLFromUserFiql(FIQLSelector userFIQLSelector) {
         FIQLSelector result = new FIQLSelector();
         result.setFilters(userFIQLSelector.getFilters()).addAndConditionToFilter("month==" + currentMonth)
-                .addAndConditionToFilter("isDelayed==true");
+                .addAndConditionToFilter("completionDelayInMonth=gt=0");
         result.setFields("builderId,sumLtdLaunchedUnit,sumLtdSupply,sumInventory,wavgSizeOnLtdSupply");
         result.setGroup("builderId");
         return result;
