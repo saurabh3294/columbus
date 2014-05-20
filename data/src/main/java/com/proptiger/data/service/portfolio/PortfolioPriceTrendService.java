@@ -58,7 +58,7 @@ public class PortfolioPriceTrendService {
     private ProjectService projectService;
     
     @Value("${b2b.price-inventory.max.month}")
-    private String      trendCurrentMonth;
+    public String      trendCurrentMonth;
 
     /**
      * Get price trend for a listing associated with user
