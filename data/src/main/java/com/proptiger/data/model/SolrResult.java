@@ -274,6 +274,9 @@ public class SolrResult extends BaseModel {
 
     @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
     private Integer              localityUnitsDelivered6Months;
+    
+    @Field("BUILDER_URL")
+    private String               builderUrl;
 
     public SolrResult() {
         property.setProject(project);
@@ -924,5 +927,10 @@ public class SolrResult extends BaseModel {
     @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
     public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
         locality.setLocalityUnitsDelivered6Months(localityUnitsDelivered6Months);
+    }
+    
+    @Field("BUILDER_URL")
+    public void setBuilderUrl(String builderUrl) {
+        builder.setUrl(builderUrl);
     }
 }
