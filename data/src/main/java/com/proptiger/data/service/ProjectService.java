@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -40,6 +41,7 @@ import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectSolrDao;
 import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.ResourceType;
 import com.proptiger.data.util.ResourceTypeAction;
@@ -58,49 +60,50 @@ import com.proptiger.mail.service.TemplateToHtmlGenerator;
 @Service
 public class ProjectService {
     @Autowired
-    private ProjectDao             projectDao;
+    private ProjectDao              projectDao;
 
     @Autowired
-    private ImageEnricher          imageEnricher;
+    private ImageEnricher           imageEnricher;
 
     @Autowired
-    private PropertyService        propertyService;
+    private PropertyService         propertyService;
 
     @Autowired
-    private MailSender             mailSender;
+    private MailSender              mailSender;
 
     @Autowired
-    private LandMarkService        localityAmenityService;
+    private LandMarkService         localityAmenityService;
 
     @Autowired
-    private TableAttributesDao     tableAttributesDao;
+    private TableAttributesDao      tableAttributesDao;
 
     @Autowired
-    private LocalityService        localityService;
+    private LocalityService         localityService;
 
     @Autowired
-    private BuilderService         builderService;
+    private BuilderService          builderService;
 
     @Autowired
-    private ProjectAmenityService  projectAmenityService;
+    private ProjectAmenityService   projectAmenityService;
 
     @Autowired
-    private VideoLinksService      videoLinksService;
+    private VideoLinksService       videoLinksService;
 
     @Autowired
-    private BankService            bankService;
+    private BankService             bankService;
 
     @Autowired
-    private TableAttributesService tableAttributesService;
+    private TableAttributesService  tableAttributesService;
 
     @Autowired
-    private ProjectSolrDao         projectSolrDao;
-    
+    private ProjectSolrDao          projectSolrDao;
+
     @Autowired
-    private TemplateToHtmlGenerator   mailBodyGenerator;
+    private TemplateToHtmlGenerator mailBodyGenerator;
 
     @Value("${proptiger.url}")
-    private String websiteHost;
+    private String                  websiteHost;
+
     /**
      * This method will return the list of projects and total projects found
      * based on the selector.
@@ -169,6 +172,7 @@ public class ProjectService {
      * @param projectId
      * @return Project Model Object
      */
+    @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
     public Project getProjectInfoDetails(Selector selector, Integer projectId) {
 
         List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(projectId)));
@@ -357,59 +361,66 @@ public class ProjectService {
      * @param projectId
      * @return
      */
-	public boolean sendProjectDetailsMail(Integer projectId,
-			SenderDetail senderDetails) {
-		validateSenderDetails(senderDetails);
-		Project project = getProjectData(projectId);
-		ProjectDetailMailContent content = new ProjectDetailMailContent(
-				senderDetails.getSenderName(), websiteHost + project.getURL(), senderDetails.getMessage());
-		MailBody mailBody = mailBodyGenerator.generateMailBody(
-				MailTemplateDetail.PROJECT_DETAILS_MAIL_TO_USER, content);
+    public boolean sendProjectDetailsMail(Integer projectId, SenderDetail senderDetails) {
+        validateSenderDetails(senderDetails);
+        Project project = getProjectData(projectId);
+        ProjectDetailMailContent content = new ProjectDetailMailContent(
+                senderDetails.getSenderName(),
+                websiteHost + project.getURL(),
+                senderDetails.getMessage());
+        MailBody mailBody = mailBodyGenerator
+                .generateMailBody(MailTemplateDetail.PROJECT_DETAILS_MAIL_TO_USER, content);
 
-		MailDetails mailDetailsModified = new MailDetails(mailBody)
-				.setMailTo(senderDetails.getMailTo())
-				.setMailCC(senderDetails.getMailCC());
-		return mailSender.sendMailUsingAws(mailDetailsModified);
-	}
+        MailDetails mailDetailsModified = new MailDetails(mailBody).setMailTo(senderDetails.getMailTo()).setMailCC(
+                senderDetails.getMailCC());
+        return mailSender.sendMailUsingAws(mailDetailsModified);
+    }
 
-	/**
-	 * Validating emails, and applying check if sender and recipient address are same or not.
-	 * @param mailDetails
-	 */
-	private void validateSenderDetails(SenderDetail mailDetails) {
-		EmailValidator emailValiDator = EmailValidator.getInstance();
-		if(!emailValiDator.isValid(mailDetails.getSenderEmail()) || !emailValiDator.isValid(mailDetails.getMailTo())){
-			throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid email id");
-		}
-		if(mailDetails.getSenderEmail().equals(mailDetails.getMailTo())){
-			throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Sender and recipient emails are same");
-		}
-		if(mailDetails.getSenderName() == null || mailDetails.getSenderName().isEmpty()){
-		    throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Sender name can not be empty");
-		}
-	}
+    /**
+     * Validating emails, and applying check if sender and recipient address are
+     * same or not.
+     * 
+     * @param mailDetails
+     */
+    private void validateSenderDetails(SenderDetail mailDetails) {
+        EmailValidator emailValiDator = EmailValidator.getInstance();
+        if (!emailValiDator.isValid(mailDetails.getSenderEmail()) || !emailValiDator.isValid(mailDetails.getMailTo())) {
+            throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Invalid email id");
+        }
+        if (mailDetails.getSenderEmail().equals(mailDetails.getMailTo())) {
+            throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Sender and recipient emails are same");
+        }
+        if (mailDetails.getSenderName() == null || mailDetails.getSenderName().isEmpty()) {
+            throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Sender name can not be empty");
+        }
+    }
 
-	public static class ProjectDetailMailContent{
-		private String senderName;
-		private String projectLink;
-		private String message;
-		public ProjectDetailMailContent(String senderName, String projectLink, String msg) {
-			super();
-			this.senderName = senderName;
-			this.projectLink = projectLink;
-			this.message = msg;
-		}
-		public String getSenderName() {
-			return senderName;
-		}
-		public String getProjectLink() {
-			return projectLink;
-		}
-		public String getMessage() {
-			return message;
-		}
-		
-	}
+    public static class ProjectDetailMailContent {
+        private String senderName;
+        private String projectLink;
+        private String message;
+
+        public ProjectDetailMailContent(String senderName, String projectLink, String msg) {
+            super();
+            this.senderName = senderName;
+            this.projectLink = projectLink;
+            this.message = msg;
+        }
+
+        public String getSenderName() {
+            return senderName;
+        }
+
+        public String getProjectLink() {
+            return projectLink;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+    }
+
     /**
      * Get projects by project ids
      * 
