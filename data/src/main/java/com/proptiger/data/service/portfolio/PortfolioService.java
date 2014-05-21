@@ -66,7 +66,6 @@ import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -198,95 +197,6 @@ public class PortfolioService{
             overallReturn.setReturnType(ReturnType.NOCHANGE);
         }
         return overallReturn;
-    }
-
-    /**
-     * Creating a logical entity Portfolio, that consists a list of
-     * PortfolioListing objects
-     * 
-     * @param userId
-     * @param portfolio
-     * @return
-     */
-    public Portfolio createPortfolio(Integer userId, Portfolio portfolio) {
-        logger.debug("Creating portfolio for user id {}", userId);
-        List<PortfolioListing> presentListing = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
-                userId,
-                false, Constants.SOURCETYPE_LIST);
-        List<PortfolioListing> toCreate = portfolio.getPortfolioListings();
-        if (presentListing != null && presentListing.size() > 0) {
-            logger.error("Portfolio exists for userid {}", userId);
-            throw new ResourceAlreadyExistException("Portfolio exist for user id " + userId);
-        }
-
-        Portfolio created = new Portfolio();
-        List<PortfolioListing> listings = createPortfolioListings(userId, toCreate);
-        created.setPortfolioListings(listings);
-        updatePriceInfoInPortfolio(userId, created, listings);
-        return created;
-    }
-
-    /**
-     * Creating list of PortfolioListing objects
-     * 
-     * @param userId
-     * @param toCreateList
-     * @return
-     */
-    private List<PortfolioListing> createPortfolioListings(Integer userId, List<PortfolioListing> toCreateList) {
-        List<PortfolioListing> created = new ArrayList<>();
-        if (toCreateList != null) {
-            for (PortfolioListing toCreate : toCreateList) {
-                created.add(createPortfolioListing(userId, toCreate));
-            }
-        }
-        return created;
-    }
-
-    /**
-     * This method update portfolio for user id. If no portfolio listing exist
-     * then it will create portfolio listing, and if listing is already present
-     * then it will update.
-     * 
-     * If any of the existing listing not passed to be updated in portfolio
-     * object, then that listing will be deleted from database.
-     * 
-     * If any existing listing passed to be updated without passing id, then it
-     * will be treated as new listing to create.
-     * 
-     * existing listings
-     * 
-     * @param userId
-     * @param portfolio
-     * @return
-     */
-    public Portfolio updatePortfolio(Integer userId, Portfolio portfolio) {
-        logger.debug("Update portfolio details for user id {}", userId);
-        List<PortfolioListing> presentListingList = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
-                userId,
-                false, Constants.SOURCETYPE_LIST);
-        Portfolio updated = new Portfolio();
-        if (presentListingList == null || presentListingList.size() == 0) {
-            logger.debug("No portfolio listing exists for userid {}", userId);
-            /*
-             * create new portfolio
-             */
-
-            createPortfolioListings(userId, portfolio.getPortfolioListings());
-
-        }
-        else {
-            updated = createOrUpdatePortfolioListings(userId, portfolio, presentListingList);
-        }
-        List<PortfolioListing> updatedListings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
-                userId,
-                false, Constants.SOURCETYPE_LIST);
-        updated.setPortfolioListings(updatedListings);
-        /*
-         * Updating price information in portfolio
-         */
-        updatePriceInfoInPortfolio(userId, updated, updatedListings);
-        return updated;
     }
 
     /**

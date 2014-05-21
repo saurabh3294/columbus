@@ -57,28 +57,6 @@ public class PortfolioController extends BaseController {
         return new APIResponse(super.filterFields(portfolio, fields), 1);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    @ResponseStatus(value = HttpStatus.CREATED)
-    @ResponseBody
-    public APIResponse createPortfolio(
-            @PathVariable Integer userId,
-            @RequestBody Portfolio portfolio,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        Portfolio created = portfolioService.createPortfolio(userInfo.getUserIdentifier(), portfolio);
-        return new APIResponse(super.filterFields(created, null), 1);
-    }
-
-    @RequestMapping(method = RequestMethod.PUT)
-    @ResponseStatus(value = HttpStatus.ACCEPTED)
-    @ResponseBody
-    public APIResponse updatePortfolio(
-            @PathVariable Integer userId,
-            @RequestBody Portfolio portfolio,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
-        Portfolio updated = portfolioService.updatePortfolio(userInfo.getUserIdentifier(), portfolio);
-        return new APIResponse(updated);
-    }
-
     @RequestMapping(method = RequestMethod.GET, value = "/listing")
     @ResponseBody
     public APIResponse getAllListings(@PathVariable Integer userId, @RequestParam(
