@@ -1,4 +1,4 @@
-package com.proptiger.mail.service;
+package com.proptiger.data.service.mail;
 
 import java.io.IOException;
 import java.util.Arrays;

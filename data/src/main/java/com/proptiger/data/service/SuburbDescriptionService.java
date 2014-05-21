@@ -17,9 +17,9 @@ import com.proptiger.data.model.Suburb;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service
 public class SuburbDescriptionService {

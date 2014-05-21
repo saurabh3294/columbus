@@ -26,9 +26,9 @@ import com.proptiger.data.model.filter.FieldsMapLoader;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ResourceNotAvailableException;
 

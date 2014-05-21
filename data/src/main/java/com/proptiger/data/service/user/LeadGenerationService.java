@@ -1,4 +1,4 @@
-package com.proptiger.data.service.portfolio;
+package com.proptiger.data.service.user;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

@@ -1,4 +1,4 @@
-package com.proptiger.data.service.portfolio;
+package com.proptiger.data.service.user;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.BuilderService;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * 

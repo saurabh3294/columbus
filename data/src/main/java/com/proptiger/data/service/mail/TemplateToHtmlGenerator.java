@@ -1,4 +1,4 @@
-package com.proptiger.mail.service;
+package com.proptiger.data.service.mail;
 
 import java.math.RoundingMode;
 import java.text.NumberFormat;
@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.util.VelocityUtility;
-import com.proptiger.mail.enums.mail.MailTemplateDetail;
 
 /**
  * This class generates html body for mail based on template file passed

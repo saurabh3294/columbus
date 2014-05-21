@@ -1,21 +1,21 @@
-package com.proptiger.data.service.portfolio;
+package com.proptiger.data.service.user;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
-import com.proptiger.mail.enums.mail.MailTemplateDetail;
-import com.proptiger.mail.service.MailSender;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service
 public class UnmatchedProjectRequestService {

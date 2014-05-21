@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc.portfolio;
+package com.proptiger.data.mvc.user;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import com.proptiger.data.internal.dto.UserWishListDto;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.portfolio.UserWishListService;
+import com.proptiger.data.service.user.UserWishListService;
 import com.proptiger.data.util.Constants;
 
 /**

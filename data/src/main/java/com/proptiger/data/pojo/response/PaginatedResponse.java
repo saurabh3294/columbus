@@ -1,4 +1,4 @@
-package com.proptiger.data.service.pojo;
+package com.proptiger.data.pojo.response;
 
 import java.io.Serializable;
 

@@ -18,7 +18,7 @@ import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 
 /**
  * 

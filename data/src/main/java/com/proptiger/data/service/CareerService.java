@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.JobDetail;
 import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.CareerDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author Rajeev Pandey

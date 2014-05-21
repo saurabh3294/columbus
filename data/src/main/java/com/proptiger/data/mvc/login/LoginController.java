@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.Login;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.portfolio.LoginService;
+import com.proptiger.data.service.user.LoginService;
 
 /**
  * Login controller for login and logout functionality

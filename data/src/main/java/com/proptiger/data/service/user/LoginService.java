@@ -1,4 +1,4 @@
-package com.proptiger.data.service.portfolio;
+package com.proptiger.data.service.user;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

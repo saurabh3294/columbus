@@ -1,4 +1,4 @@
-package com.proptiger.mail.enums.mail;
+package com.proptiger.data.enums.mail;
 
 /**
  * This file contains the mail template files and subject file matching for

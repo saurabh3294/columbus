@@ -35,7 +35,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.SolrResponseReader;
 import com.proptiger.data.util.UtilityClass;

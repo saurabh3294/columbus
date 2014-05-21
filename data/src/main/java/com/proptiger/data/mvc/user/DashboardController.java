@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc.portfolio;
+package com.proptiger.data.mvc.user;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.portfolio.DashboardService;
+import com.proptiger.data.service.user.DashboardService;
 import com.proptiger.data.util.Constants;
 
 /**

@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.SortOrder;
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.internal.dto.SenderDetail;
@@ -38,17 +39,16 @@ import com.proptiger.data.model.TableAttributes;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.ProjectSolrDao;
 import com.proptiger.data.repo.TableAttributesDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.IdConverterForDatabase;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.enums.mail.MailTemplateDetail;
-import com.proptiger.mail.service.MailSender;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 /**
  * 

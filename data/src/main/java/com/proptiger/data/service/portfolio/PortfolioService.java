@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.mail.MailTemplateDetail;
+import com.proptiger.data.enums.mail.MailType;
 import com.proptiger.data.enums.portfolio.ReturnType;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
@@ -53,6 +55,10 @@ import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.service.user.LeadGenerationService;
+import com.proptiger.data.service.user.SubscriptionService;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -62,10 +68,6 @@ import com.proptiger.exception.InvalidResourceException;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.enums.mail.MailTemplateDetail;
-import com.proptiger.mail.enums.mail.MailType;
-import com.proptiger.mail.service.MailSender;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 /**
  * This class provides CRUD operations over a property listing that is a

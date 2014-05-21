@@ -16,8 +16,8 @@ import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.CityDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ResourceNotAvailableException;
 

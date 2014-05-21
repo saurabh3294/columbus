@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc.portfolio;
+package com.proptiger.data.mvc.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,7 +13,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.portfolio.ProjectDiscussionsService;
+import com.proptiger.data.service.user.ProjectDiscussionsService;
 import com.proptiger.data.util.Constants;
 
 @Controller

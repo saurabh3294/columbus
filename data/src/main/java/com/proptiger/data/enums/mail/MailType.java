@@ -1,4 +1,4 @@
-package com.proptiger.mail.enums.mail;
+package com.proptiger.data.enums.mail;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Testimonial;
 import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.TestimonialDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author Rajeev Pandey

@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc.portfolio;
+package com.proptiger.data.mvc;
 
 import java.util.List;
 

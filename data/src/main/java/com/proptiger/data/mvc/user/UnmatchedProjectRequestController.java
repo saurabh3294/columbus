@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc.portfolio;
+package com.proptiger.data.mvc.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,7 +12,7 @@ import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.portfolio.UnmatchedProjectRequestService;
+import com.proptiger.data.service.user.UnmatchedProjectRequestService;
 import com.proptiger.data.util.Constants;
 
 /**

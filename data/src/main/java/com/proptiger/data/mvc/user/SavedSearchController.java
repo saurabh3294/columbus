@@ -1,4 +1,4 @@
-package com.proptiger.data.mvc.portfolio;
+package com.proptiger.data.mvc.user;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.portfolio.SavedSearch;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.portfolio.SavedSearchService;
+import com.proptiger.data.service.user.SavedSearchService;
 import com.proptiger.data.util.Constants;
 
 /**

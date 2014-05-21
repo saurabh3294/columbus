@@ -1,4 +1,4 @@
-package com.proptiger.data.service.portfolio;
+package com.proptiger.data.service.user;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -24,18 +25,17 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.portfolio.ProjectCommentLikes;
 import com.proptiger.data.pojo.Paging;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.portfolio.ProjectCommentLikesDao;
 import com.proptiger.data.repo.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
-import com.proptiger.mail.enums.mail.MailTemplateDetail;
-import com.proptiger.mail.service.MailSender;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service
 public class ProjectDiscussionsService {
