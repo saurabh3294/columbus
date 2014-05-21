@@ -1,12 +1,16 @@
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.pojo.Paging;
@@ -25,8 +29,10 @@ public class BlogNewsService {
 
     @Autowired
     private CityService cityService;
+
     /**
      * Get blog for city name
+     * 
      * @param cityName
      * @param contentLimit
      * @param selector
@@ -37,9 +43,8 @@ public class BlogNewsService {
             throw new IllegalArgumentException("Invalid content limit");
         }
         Paging paging = createPaging(selector);
-        List<WordpressPost> list = blogNewsDao.findPublishedBlogByCity(
-                cityName,
-                paging);
+        List<String> cityNameList = Collections.singletonList(cityName);
+        List<WordpressPost> list = blogNewsDao.findPublishedBlogByCity(cityNameList, paging);
         for (WordpressPost post : list) {
             List<String> urlList = blogNewsDao.findImageUrlsForBlogPost(post.getId());
             if (urlList != null && urlList.size() > 0) {
@@ -54,21 +59,30 @@ public class BlogNewsService {
         City city = cityService.getCity(cityId);
         return getBlogPostsByCity(city.getLabel(), contentLimit, selector);
     }
+
     /**
      * Get published news of city
+     * 
      * @param cityName
      * @param contentLimit
      * @param selector
      * @return
      */
-    public List<WordpressPost> getNewsByCity(Integer cityId, int contentLimit, Selector selector){
-
+    public List<WordpressPost> getNewsByCity(List<Integer> cityId, int contentLimit, Selector selector) {
         if (contentLimit <= 0) {
             throw new IllegalArgumentException("Invalid content limit");
         }
+        StringUtils.join(cityId, ',');
+        String selectorString = "{\"filters\":{\"and\":[{\"equal\":{\"id\":" + cityId + "}}]}}";
+        Gson gson = new Gson();
+        Selector citySelector = gson.fromJson(selectorString, Selector.class);
+        List<City> cities = cityService.getCityList(citySelector);
         Paging paging = createPaging(selector);
-        City city = cityService.getCity(cityId);
-        List<WordpressPost> list = blogNewsDao.findPublishedNewsByCity(city.getLabel(), paging);
+        List<String> cityNames = new ArrayList<String>();
+        for (City city : cities) {
+            cityNames.add(city.getLabel());
+        }
+        List<WordpressPost> list = blogNewsDao.findPublishedNewsByCity(cityNames, paging);
         for (WordpressPost post : list) {
             List<String> urlList = blogNewsDao.findImageUrlsForNewsPost(post.getId());
             if (urlList != null && urlList.size() > 0) {
@@ -77,11 +91,11 @@ public class BlogNewsService {
         }
         removeHtmlTagsFromPostContent(list, contentLimit);
         return list;
-    
     }
 
     /**
      * Create paging object
+     * 
      * @param selector
      * @return
      */
@@ -92,9 +106,10 @@ public class BlogNewsService {
         }
         return paging;
     }
-    
+
     /**
      * Removing html tags from post content
+     * 
      * @param list
      * @param contentLimit
      */
@@ -108,4 +123,5 @@ public class BlogNewsService {
 
         }
     }
+
 }
