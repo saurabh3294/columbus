@@ -104,8 +104,44 @@ public class SolrResult extends BaseModel {
 
     @FieldMetaInfo(displayName = "Project enquiry count", description = "Project enquiry count")
     @Field(value = "PROJECT_ENQUIRY_COUNT")
-    private int               projectEnquiryCount;
-
+    private Integer               projectEnquiryCount;
+    
+    @FieldMetaInfo(displayName = "Locality enquiry count", description = "Locality enquiry count")
+    @Field(value = "LOCALITY_ENQUIRY_COUNT")
+    private Integer               localityEnquiryCount;
+    
+    @FieldMetaInfo(displayName = "City enquiry count", description = "City enquiry count")
+    @Field(value = "CITY_ENQUIRY_COUNT")
+    private Integer               cityEnquiryCount;
+    
+    @FieldMetaInfo(displayName = "Suburb enquiry count", description = "Suburb enquiry count")
+    @Field(value = "SUBURB_ENQUIRY_COUNT")
+    private Integer               suburbEnquiryCount;
+    
+    @FieldMetaInfo(displayName = "Builder enquiry count", description = "Builder enquiry count")
+    @Field(value = "BUILDER_ENQUIRY_COUNT")
+    private Integer               builderEnquiryCount;
+    
+    @FieldMetaInfo(displayName = "Project View count", description = "Project View count")
+    @Field(value = "PROJECT_VIEW_COUNT")
+    private Integer               projectViewCount;
+    
+    @FieldMetaInfo(displayName = "Locality View count", description = "Locality View count")
+    @Field(value = "LOCALITY_VIEW_COUNT")
+    private Integer               localityViewCount;
+    
+    @FieldMetaInfo(displayName = "City View count", description = "City View count")
+    @Field(value = "CITY_VIEW_COUNT")
+    private Integer               cityViewCount;
+    
+    @FieldMetaInfo(displayName = "Suburb View count", description = "Suburb View count")
+    @Field(value = "SUBURB_VIEW_COUNT")
+    private Integer               suburbViewCount;
+    
+    @FieldMetaInfo(displayName = "Builder View count", description = "Builder View count")
+    @Field(value = "BUILDER_VIEW_COUNT")
+    private Integer               builderViewCount;
+    
     @FieldMetaInfo(displayName = "Assigned priority of locality", description = "Locality priorities assigned manually")
     @Field(value = "LOCALITY_PRIORITY")
     private Integer           localityPriority;
@@ -912,6 +948,51 @@ public class SolrResult extends BaseModel {
     @Field("BUILDER_PROJECT_COUNT")
     public void setBuilderProjectCount(Integer builderProjectCount) {
         builder.setProjectCount(builderProjectCount);
+    }
+    
+    @Field("LOCALITY_ENQUIRY_COUNT")
+    public void setLocalityEnquiryCount(int localityEnquiryCount) {
+        locality.setLocalityEnquiryCount(localityEnquiryCount);
+    }
+    
+    @Field("CITY_ENQUIRY_COUNT")
+    public void setCityEnquiryCount(int cityEnquiryCount) {
+        city.setCityEnquiryCount(cityEnquiryCount);
+    }
+    
+    @Field("SUBURB_ENQUIRY_COUNT")
+    public void setSuburbEnquiryCount(int suburbEnquiryCount) {
+        suburb.setSuburbEnquiryCount(suburbEnquiryCount);
+    }
+    
+    @Field("BUILDER_ENQUIRY_COUNT")
+    public void setBuilderEnquiryCount(int builderEnquiryCount) {
+        builder.setBuilderEnquiryCount(builderEnquiryCount);
+    }
+    
+    @Field("PROJECT_VIEW_COUNT")
+    public void setProjectViewCount(int projectViewCount) {
+        project.setProjectViewCount(projectViewCount);
+    }
+    
+    @Field("LOCALITY_VIEW_COUNT")
+    public void setLocalityViewCount(int localityViewCount) {
+        locality.setLocalityViewCount(localityViewCount);
+    }
+    
+    @Field("CITY_VIEW_COUNT")
+    public void setCityViewCount(int cityViewCount) {
+        city.setCityViewCount(cityViewCount);
+    }
+    
+    @Field("SUBURB_VIEW_COUNT")
+    public void setSuburbViewCount(int suburbViewCount) {
+        suburb.setSuburbViewCount(suburbViewCount);
+    }
+    
+    @Field("BUILDER_VIEW_COUNT")
+    public void setBuilderViewCount(int builderViewCount) {
+        builder.setBuilderViewCount(builderViewCount);
     }
 
     @Field("TYPEAHEAD_LOCALITY_UNITS_LAUNCHED_6MONTHS")
