@@ -20,17 +20,17 @@ import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.data.enums.DocumentType;
+import com.proptiger.data.enums.SortOrder;
+import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.enums.DocumentType;
-import com.proptiger.data.model.filter.Operator;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.SortOrder;
-import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 
 /**
  * @author mandeep

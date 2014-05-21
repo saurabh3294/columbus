@@ -15,8 +15,8 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.enums.UnitType;
 
 /**
  * Denormalized model for price inventory trends

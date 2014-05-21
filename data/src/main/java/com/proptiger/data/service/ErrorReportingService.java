@@ -7,16 +7,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.repo.ProjectErrorDao;
+import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.PropertyReader;
-import com.proptiger.mail.service.MailSender;
-import com.proptiger.mail.service.MailTemplateDetail;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service
 public class ErrorReportingService {

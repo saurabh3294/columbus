@@ -25,8 +25,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.resource.NamedResource;
-import com.proptiger.data.model.resource.Resource;
 
 /**
  * Dashboard model object
@@ -36,7 +34,7 @@ import com.proptiger.data.model.resource.Resource;
  */
 @Entity
 @Table(name = "dashboards")
-public class Dashboard extends BaseModel implements NamedResource, Resource {
+public class Dashboard extends BaseModel{
     
     public enum DashboardType {
         PORTFOLIO, B2B
@@ -80,7 +78,6 @@ public class Dashboard extends BaseModel implements NamedResource, Resource {
     /**
      * @return the id
      */
-    @Override
     public Integer getId() {
         return id;
     }
@@ -89,7 +86,6 @@ public class Dashboard extends BaseModel implements NamedResource, Resource {
      * @param id
      *            the id to set
      */
-    @Override
     public void setId(Integer id) {
         this.id = id;
     }
@@ -111,7 +107,6 @@ public class Dashboard extends BaseModel implements NamedResource, Resource {
     /**
      * @return the name
      */
-    @Override
     public String getName() {
         return name;
     }
@@ -120,7 +115,6 @@ public class Dashboard extends BaseModel implements NamedResource, Resource {
      * @param name
      *            the name to set
      */
-    @Override
     public void setName(String name) {
         this.name = name;
     }

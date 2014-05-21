@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.Testimonial;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.TestimonialService;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author Rajeev Pandey

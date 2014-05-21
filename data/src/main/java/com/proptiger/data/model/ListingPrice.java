@@ -13,8 +13,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.proptiger.data.model.b2b.Status;
-import com.proptiger.data.model.enums.DataVersion;
+import com.proptiger.data.enums.DataVersion;
+import com.proptiger.data.enums.b2b.Status;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.exception.ProAPIException;
 

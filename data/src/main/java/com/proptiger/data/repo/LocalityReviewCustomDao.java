@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 
 /**
  * @author Rajeev Pandey

@@ -1,13 +1,12 @@
 package com.proptiger.data.model.portfolio;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.proptiger.data.meta.DataType;
+import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 
@@ -22,10 +21,10 @@ import com.proptiger.data.meta.ResourceMetaInfo;
 public class Portfolio {
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "originalVaue", description = "Original Vaue")
-    private BigDecimal             originalValue;
+    private double             originalValue;
 
     @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "currentValue", description = "Current Value")
-    private BigDecimal             currentValue;
+    private double             currentValue;
 
     @FieldMetaInfo(dataType = DataType.OBJECT, displayName = "overallReturn", description = "Overall Return")
     @JsonUnwrapped
@@ -37,18 +36,18 @@ public class Portfolio {
     @FieldMetaInfo(dataType = DataType.ARRAY, displayName = "Listing Ids", description = "Listing Ids")
     private List<Integer>          listings;
 
-    public BigDecimal getOriginalValue() {
+    public double getOriginalValue() {
         return originalValue;
     }
 
-    public void setOriginalValue(BigDecimal originalValue) {
+    public void setOriginalValue(double originalValue) {
         this.originalValue = originalValue;
     }
 
     /**
      * @return the currentValue
      */
-    public BigDecimal getCurrentValue() {
+    public double getCurrentValue() {
         return currentValue;
     }
 
@@ -56,7 +55,7 @@ public class Portfolio {
      * @param currentValue
      *            the currentValue to set
      */
-    public void setCurrentValue(BigDecimal currentValue) {
+    public void setCurrentValue(double currentValue) {
         this.currentValue = currentValue;
     }
 

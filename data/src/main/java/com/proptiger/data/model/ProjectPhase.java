@@ -24,10 +24,11 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.model.b2b.Status;
-import com.proptiger.data.model.enums.DataVersion;
-import com.proptiger.data.model.enums.EntityType;
-import com.proptiger.data.model.enums.UnitType;
+import com.proptiger.data.enums.DataVersion;
+import com.proptiger.data.enums.EntityType;
+import com.proptiger.data.enums.UnitType;
+import com.proptiger.data.enums.b2b.ConstructionStatus;
+import com.proptiger.data.enums.b2b.Status;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.DateUtil;
 

@@ -31,6 +31,7 @@ import org.apache.cxf.jaxrs.ext.search.jpa.JPACriteriaQueryVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;

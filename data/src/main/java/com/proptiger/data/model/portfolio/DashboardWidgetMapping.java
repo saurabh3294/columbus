@@ -14,10 +14,10 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.meta.DataType;
+import com.proptiger.data.enums.DataType;
+import com.proptiger.data.enums.portfolio.WidgetDisplayStatus;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.resource.Resource;
 
 /**
  * @author Rajeev Pandey
@@ -26,7 +26,7 @@ import com.proptiger.data.model.resource.Resource;
 @Entity
 @Table(name = "dashboard_widget_mapping")
 @ResourceMetaInfo
-public class DashboardWidgetMapping implements Resource {
+public class DashboardWidgetMapping{
 
     @Id
     @Column(name = "id")
@@ -157,12 +157,10 @@ public class DashboardWidgetMapping implements Resource {
         updatedAt = createdAt;
     }
 
-    @Override
     public Integer getId() {
         return id;
     }
 
-    @Override
     public void setId(Integer id) {
         this.id = id;
     }
