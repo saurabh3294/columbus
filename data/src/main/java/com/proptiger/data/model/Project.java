@@ -157,6 +157,7 @@ public class Project extends BaseModel {
     private double                  computedPriority;
 
     @Transient
+    @JsonIgnore
     @FieldMetaInfo(displayName = "Project enquiry count", description = "Project enquiry count")
     @Field(value = "PROJECT_ENQUIRY_COUNT")
     private Integer                 projectEnquiryCount;
@@ -450,6 +451,12 @@ public class Project extends BaseModel {
     @Transient
     @Field("PROJECT_PRICE_RISE_6MONTHS")
     private Double                  priceRise6Months;
+    
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "Project view count", description = "Project view count")
+    @Field(value = "PROJECT_VIEW_COUNT")
+    private Integer                 projectViewCount;
 
     public int getProjectId() {
         return projectId;
@@ -1085,5 +1092,13 @@ public class Project extends BaseModel {
 
     public void setAuthorized(boolean authorized) {
         this.authorized = authorized;
+    }
+
+    public Integer getProjectViewCount() {
+        return projectViewCount;
+    }
+
+    public void setProjectViewCount(Integer projectViewCount) {
+        this.projectViewCount = projectViewCount;
     }
 }
