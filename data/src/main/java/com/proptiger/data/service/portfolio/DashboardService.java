@@ -13,20 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.data.enums.portfolio.WidgetDisplayStatus;
+import com.proptiger.data.enums.resource.ResourceType;
+import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.internal.dto.DashboardDto;
 import com.proptiger.data.model.portfolio.Dashboard;
 import com.proptiger.data.model.portfolio.Dashboard.DashboardType;
 import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
-import com.proptiger.data.model.portfolio.WidgetDisplayStatus;
-import com.proptiger.data.model.resource.NamedResource;
-import com.proptiger.data.model.resource.Resource;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.portfolio.DashboardDao;
 import com.proptiger.data.repo.portfolio.DashboardWidgetMappingDao;
 import com.proptiger.data.repo.portfolio.WidgetDao;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.ResourceType;
-import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
@@ -40,7 +38,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
  * 
  */
 @Service
-public class DashboardService extends AbstractService {
+public class DashboardService {
 
     private static Logger             logger = LoggerFactory.getLogger(DashboardService.class);
 
@@ -187,9 +185,8 @@ public class DashboardService extends AbstractService {
      * com.proptiger.data.service.portfolio.AbstractService#preProcessCreate
      * (com.proptiger.data.model.resource.Resource)
      */
-    @Override
-    protected <T extends Resource & NamedResource> void preProcessCreate(T resource) {
-        super.preProcessCreate(resource);
+    private  void preProcessCreate(Dashboard resource) {
+        resource.setId(null);
         Dashboard toCreate = (Dashboard) resource;
         Dashboard dashboardPresent = dashboardDao.findByNameAndUserIdAndDashboardType(toCreate.getName(), toCreate.getUserId(), toCreate.getDashboardType());
         if (dashboardPresent != null) {
@@ -233,11 +230,7 @@ public class DashboardService extends AbstractService {
      * com.proptiger.data.service.portfolio.AbstractService#preProcessUpdate
      * (com.proptiger.data.model.resource.Resource)
      */
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected <T extends Resource> T preProcessUpdate(T resource) {
-        super.preProcessUpdate(resource);
+    private Dashboard preProcessUpdate(Dashboard resource) {
         Dashboard toUpdate = (Dashboard) resource;
         Dashboard dashboardPresent = dashboardDao.findOne(toUpdate.getId());
         if (dashboardPresent == null) {
@@ -251,7 +244,7 @@ public class DashboardService extends AbstractService {
                 }
             }
         }
-        return (T) dashboardPresent;
+        return dashboardPresent;
     }
 
     /**
@@ -336,8 +329,7 @@ public class DashboardService extends AbstractService {
         return createdWidgetsMapping;
     }
 
-    @Override
-    protected <T extends Resource> T create(T resource) {
+    private Dashboard create(Dashboard resource) {
         Dashboard toCreate = (Dashboard) resource;
         preProcessCreate(toCreate);
 
@@ -349,15 +341,14 @@ public class DashboardService extends AbstractService {
             throw new ConstraintViolationException(exception.getMessage(), exception);
         }
         logger.debug("Created dashboard id {} for userid {}", created.getId(), toCreate.getUserId());
-        return (T) created;
+        return  created;
     }
 
-    @Override
-    protected <T extends Resource> T update(T resource) {
+    private Dashboard update(Dashboard resource) {
         Dashboard dashboard = (Dashboard) resource;
         Dashboard updated = preProcessUpdate(dashboard);
         updated.update(dashboard.getName(), dashboard.getTotalColumn(), dashboard.getTotalRow());
-        return (T) updated;
+        return updated;
     }
 
     /**
@@ -445,21 +436,6 @@ public class DashboardService extends AbstractService {
     }
 
     /**
-     * This method get all dashboards widget mapping for dashboard id
-     * 
-     * @param dashboardId
-     * @param widgetId
-     * @return
-     */
-    private List<DashboardWidgetMapping> getAllWidgetMapping(Integer dashboardId) {
-        List<DashboardWidgetMapping> existingMappings = dashboardWidgetMappingDao.findByDashboardId(dashboardId);
-        if (existingMappings == null) {
-            existingMappings = new ArrayList<DashboardWidgetMapping>();
-        }
-        return existingMappings;
-    }
-
-    /**
      * This method deletes a widget association with dashboard
      * 
      * @param userId
@@ -481,8 +457,4 @@ public class DashboardService extends AbstractService {
         return dashboard;
     }
 
-    @Override
-    protected ResourceType getResourceType() {
-        return ResourceType.DASHBOARD;
-    }
 }

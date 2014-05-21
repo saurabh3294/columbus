@@ -15,6 +15,7 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.util.VelocityUtility;
+import com.proptiger.mail.enums.mail.MailTemplateDetail;
 
 /**
  * This class generates html body for mail based on template file passed

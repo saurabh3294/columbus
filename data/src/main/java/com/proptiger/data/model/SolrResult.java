@@ -9,7 +9,7 @@ import java.util.List;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.proptiger.data.meta.DataType;
+import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 
 /**

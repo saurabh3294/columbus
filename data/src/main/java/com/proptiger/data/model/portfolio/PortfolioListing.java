@@ -25,28 +25,27 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.proptiger.data.meta.DataType;
+import com.proptiger.data.enums.DataType;
+import com.proptiger.data.enums.portfolio.ListingStatus;
+import com.proptiger.data.enums.portfolio.LoanStatus;
+import com.proptiger.data.enums.portfolio.PurchasedFor;
+import com.proptiger.data.enums.portfolio.TransactionType;
+import com.proptiger.data.internal.dto.mail.ListingAddMail;
+import com.proptiger.data.internal.dto.mail.ListingLoanRequestMail;
+import com.proptiger.data.internal.dto.mail.ListingResaleMail;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.ProjectError.StringToEnum;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.portfolio.enums.ListingStatus;
-import com.proptiger.data.model.portfolio.enums.LoanStatus;
-import com.proptiger.data.model.portfolio.enums.PurchasedFor;
-import com.proptiger.data.model.portfolio.enums.TransactionType;
-import com.proptiger.data.model.resource.NamedResource;
-import com.proptiger.data.model.resource.Resource;
 
 /**
  * This is a model object corresponding to a addressable property
@@ -58,7 +57,7 @@ import com.proptiger.data.model.resource.Resource;
 @Table(name = "portfolio_listings")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
-public class PortfolioListing extends BaseModel implements NamedResource, Resource {
+public class PortfolioListing extends BaseModel{
 
     public enum Source {
         portfolio("portfolio"), lead("lead"), backend("backend");
@@ -276,12 +275,10 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
     @Column(name = "active_enquiries_count")
     private Integer                          activeEnquiriesCount;
 
-    @Override
     public Integer getId() {
         return listingId;
     }
 
-    @Override
     public void setId(Integer id) {
         this.listingId = id;
     }
@@ -406,12 +403,10 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
         this.userId = userId;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
 
@@ -742,5 +737,79 @@ public class PortfolioListing extends BaseModel implements NamedResource, Resour
             return parser.getValueAsString();
         }
     }
+    
+    /**
+     * Creating listing loan request object details
+     * 
+     * @param listing
+     * @return
+     */
+    public ListingLoanRequestMail createListingLoanRequestObj() {
+        ForumUser forumUser = this.getForumUser();
+        ListingLoanRequestMail listingLoanRequestMail = new ListingLoanRequestMail();
+        listingLoanRequestMail.setProjectCity(this.getCityName());
+        listingLoanRequestMail.setProjectName(this.getProjectName());
+        listingLoanRequestMail.setUserName(this.getForumUser().getUsername());
+        listingLoanRequestMail.setEmail(forumUser.getEmail());
+        listingLoanRequestMail.setMobile(forumUser.getContact() + "");
+        return listingLoanRequestMail;
+    }
 
+    /**
+     * Creating listing resale mail object
+     * 
+     * @param listing
+     * @return
+     */
+    public ListingResaleMail createListingResaleMailObj(String websiteHost) {
+        String url = websiteHost + this.getProperty().getURL();
+        ForumUser forumUser = this.getForumUser();
+        ListingResaleMail listingResaleMail = new ListingResaleMail();
+        listingResaleMail.setBuilder(this.getBuilderName());
+        listingResaleMail.setLocality(this.getLocality());
+        listingResaleMail.setProjectCity(this.getCityName());
+        listingResaleMail.setProjectName(this.getProjectName());
+        listingResaleMail.setPropertyLink(url.toString());
+        listingResaleMail.setPropertyName(this.getName());
+        listingResaleMail.setUserName(forumUser.getUsername());
+        listingResaleMail.setEmail(forumUser.getEmail());
+        listingResaleMail.setMobile(forumUser.getContact() + "");
+        listingResaleMail.setListingSize(this.getListingSize());
+        listingResaleMail.setMeasure(this.getProperty().getMeasure());
+        listingResaleMail.setUnitName(this.getProperty().getUnitName());
+        return listingResaleMail;
+    }
+    /**
+     * Creating listing add mail object
+     * 
+     * @param listing
+     * @return
+     */
+    public ListingAddMail createListingAddMailObject() {
+        ListingAddMail listingAddMail = new ListingAddMail();
+        listingAddMail.setPropertyName(this.getName());
+        listingAddMail.setPurchaseDate(this.getPurchaseDate());
+        listingAddMail.setTotalPrice(this.getTotalPrice());
+        listingAddMail.setUserName(this.getForumUser().getUsername());
+        return listingAddMail;
+    }
+
+    /**
+     * Updating sell interest of user for listing
+     */
+    public void updateInterestedToSell(
+            Boolean interestedToSell) {
+        this.setInterestedToSell(interestedToSell);
+        this.setInterestedToSellOn(new Date());
+    }
+    /**
+     * Updating loan interest of user for listing
+     */
+    public void updateLoanInterest(
+            Boolean interestedToLoan,
+            String loanType) {
+        this.setInterestedToLoan(interestedToLoan);
+        this.setInterestedToLoanOn(new Date());
+        this.setLoanType(loanType);
+    }
 }

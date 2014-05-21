@@ -1,5 +1,9 @@
 package com.proptiger.data.model;
 
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -8,7 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.model.portfolio.enums.PaymentPlan;
+import com.proptiger.data.enums.portfolio.PaymentPlan;
+import com.proptiger.data.model.portfolio.PortfolioListingPaymentPlan;
 
 /**
  * Model class for project payment schedule
@@ -111,6 +116,26 @@ public class ProjectPaymentSchedule extends BaseModel {
 
     public void setComponentValue(double componentValue) {
         this.componentValue = componentValue;
+    }
+
+    public static Set<PortfolioListingPaymentPlan> convertToPortfolioListingPaymentPlan(
+            List<ProjectPaymentSchedule> paymentScheduleList) {
+        Set<PortfolioListingPaymentPlan> list = new LinkedHashSet<PortfolioListingPaymentPlan>();
+        for (ProjectPaymentSchedule paymentSchedule : paymentScheduleList) {
+            PortfolioListingPaymentPlan listingPaymentPlan = new PortfolioListingPaymentPlan();
+            listingPaymentPlan.setAmount(0.0D);
+            listingPaymentPlan.setComponentName(paymentSchedule.getComponentName());
+            listingPaymentPlan.setComponentValue(paymentSchedule.getComponentValue());
+            listingPaymentPlan.setDueDate(null);
+            listingPaymentPlan.setInstallmentName(paymentSchedule.getInstallmentName());
+            listingPaymentPlan.setInstallmentNumber(paymentSchedule.getInstallmentNumber());
+            listingPaymentPlan.setPaymentDate(null);
+            listingPaymentPlan.setPaymentPlan(paymentSchedule.getPaymentPlan());
+            listingPaymentPlan.setPaymentSource(null);
+            listingPaymentPlan.setStatus(null);
+            list.add(listingPaymentPlan);
+        }
+        return list;
     }
 
 }

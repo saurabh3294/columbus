@@ -14,8 +14,8 @@ import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.repo.ProjectErrorDao;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.mail.enums.mail.MailTemplateDetail;
 import com.proptiger.mail.service.MailSender;
-import com.proptiger.mail.service.MailTemplateDetail;
 import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service

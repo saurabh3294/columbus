@@ -54,7 +54,7 @@ public class PortfolioController extends BaseController {
         if (selector != null) {
             fields = selector.getFields();
         }
-        return new APIResponse(super.filterFieldsWithTree(portfolio, fields), 1);
+        return new APIResponse(super.filterFields(portfolio, fields), 1);
     }
 
     @RequestMapping(method = RequestMethod.POST)
@@ -65,7 +65,7 @@ public class PortfolioController extends BaseController {
             @RequestBody Portfolio portfolio,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         Portfolio created = portfolioService.createPortfolio(userInfo.getUserIdentifier(), portfolio);
-        return new APIResponse(super.filterFieldsWithTree(created, null), 1);
+        return new APIResponse(super.filterFields(created, null), 1);
     }
 
     @RequestMapping(method = RequestMethod.PUT)
@@ -105,7 +105,7 @@ public class PortfolioController extends BaseController {
         if (selector != null) {
             fields = selector.getFields();
         }
-        return new APIResponse(super.filterFieldsWithTree(listing, fields), 1);
+        return new APIResponse(super.filterFields(listing, fields), 1);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/listing")
@@ -117,7 +117,7 @@ public class PortfolioController extends BaseController {
         PortfolioListing created = portfolioService.createPortfolioListing(
                 userInfo.getUserIdentifier(),
                 portfolioProperty);
-        return new APIResponse(super.filterFieldsWithTree(created, null));
+        return new APIResponse(super.filterFields(created, null));
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}")
@@ -133,7 +133,7 @@ public class PortfolioController extends BaseController {
                 listingId,
                 portfolioProperty);
         PortfolioListing updatedListing = portfolioService.getPortfolioListingById(userId, listingId);
-        return new APIResponse(super.filterFieldsWithTree(updatedListing, null));
+        return new APIResponse(super.filterFields(updatedListing, null));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/listing/{listingId}")
@@ -144,7 +144,7 @@ public class PortfolioController extends BaseController {
             @RequestParam(required = false, value = "reason") String reason, 
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
         PortfolioListing listing = portfolioService.deletePortfolioListing(userInfo.getUserIdentifier(), listingId , reason);
-        return new APIResponse(super.filterFieldsWithTree(listing, null));
+        return new APIResponse(super.filterFields(listing, null));
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/interested-to-sell")
@@ -158,7 +158,7 @@ public class PortfolioController extends BaseController {
                 userInfo.getUserIdentifier(),
                 listingId,
                 interestedToSell);
-        return new APIResponse(super.filterFieldsWithTree(listing, null));
+        return new APIResponse(super.filterFields(listing, null));
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}/loan-request")
@@ -174,7 +174,7 @@ public class PortfolioController extends BaseController {
                 listingId,
                 interestedToLoan,
                 loanType);
-        return new APIResponse(super.filterFieldsWithTree(listing, null));
+        return new APIResponse(super.filterFields(listing, null));
     }
 
     /**

@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.enums.portfolio.LeadPageName;
+import com.proptiger.data.enums.portfolio.LeadSaleType;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;

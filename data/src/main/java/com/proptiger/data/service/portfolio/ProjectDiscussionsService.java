@@ -33,8 +33,8 @@ import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ResourceAlreadyExistException;
+import com.proptiger.mail.enums.mail.MailTemplateDetail;
 import com.proptiger.mail.service.MailSender;
-import com.proptiger.mail.service.MailTemplateDetail;
 import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service

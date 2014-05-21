@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.util.JsonLoader;
+import com.proptiger.data.enums.b2b.Status;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.exception.ProAPIException;
 

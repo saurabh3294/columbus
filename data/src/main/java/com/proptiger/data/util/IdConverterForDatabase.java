@@ -1,7 +1,7 @@
 package com.proptiger.data.util;
 
+import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.enums.DomainObject;
 
 /**
  * A converter utility that converts id of domian objects from proptiger DB to
