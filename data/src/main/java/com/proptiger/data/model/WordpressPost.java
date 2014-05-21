@@ -27,7 +27,7 @@ import com.proptiger.data.meta.ResourceMetaInfo;
                         + "  WHERE A.termId = B.termId AND"
                         + "  C.termTaxonomyId = B.termTaxonomyId AND"
                         + "  D.id = C.objectId AND"
-                        + " A.name= :cityName AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' ORDER BY D.postDate DESC "),
+                        + " A.name IN :cityName AND D.postStatus = 'publish' AND D.postTitle!='' AND D.postContent!='' GROUP BY D.id ORDER BY D.postDate DESC "),
         @NamedQuery(
                 name = "Post.imageUrl",
                 query = "Select WP.guid from WordpressPost WP where WP.parentId=:postId and WP.postMimeType like 'image%' order by WP.postDate") })
