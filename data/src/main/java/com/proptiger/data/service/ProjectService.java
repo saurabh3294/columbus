@@ -37,7 +37,6 @@ import com.proptiger.data.model.ProjectSpecification;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.TableAttributes;
-import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -47,15 +46,11 @@ import com.proptiger.data.repo.ProjectSolrDao;
 import com.proptiger.data.repo.TableAttributesDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
-import com.proptiger.data.util.ResourceType;
-import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.service.MailSender;
-import com.proptiger.mail.service.MailTemplateDetail;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 /**
  * 
