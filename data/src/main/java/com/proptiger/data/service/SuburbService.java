@@ -26,15 +26,15 @@ import com.proptiger.data.service.pojo.PaginatedResponse;
 public class SuburbService {
     @Autowired
     private SuburbDao       suburbDao;
-    
+
     @Autowired
-    private ProjectService projectService;
+    private ProjectService  projectService;
 
     @Autowired
     private LocalityService localityService;
-    
+
     @Autowired
-    private ImageService imageService;
+    private ImageService    imageService;
 
     /**
      * This method will return the list of localities based on the selector.
@@ -66,11 +66,10 @@ public class SuburbService {
         suburb.setImages(imageService.getImages(DomainObject.suburb, null, suburbId));
         return suburb;
     }
-    
+
     private void updateProjectCountAndStatusCount(Suburb suburb) {
-        Selector selector = new Gson().fromJson(
-                "{\"filters\":{\"and\":[{\"equal\":{\"suburbId\":" + suburb.getId() + "}}]}, \"paging\":{\"start\":0,\"rows\":0}}",
-                Selector.class);
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"suburbId\":" + suburb.getId()
+                + "}}]}, \"paging\":{\"start\":0,\"rows\":0}}", Selector.class);
         Map<String, Long> projectStatusCount = projectService.getProjectStatusCount(selector);
         suburb.setProjectStatusCount(projectStatusCount);
     }

@@ -125,6 +125,8 @@ public class Constants {
 
         public static final String SIMILAR_PROPERTY                      = "similar-property";
 
+        public static final String SEO_FOOTER                            = "seo-footer";
+
     }
 
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_PRIMARY = Arrays.asList(
@@ -136,7 +138,8 @@ public class Constants {
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_RESALE  = Arrays.asList(
                                                                                          ConstructionStatus.ReadyForPossession,
                                                                                          ConstructionStatus.Occupied);
+
     public static class SeoPageTemplate {
-    	/*public static final String CITY_OVERVIEW_PAGE = "\"title\":";*/
+        /* public static final String CITY_OVERVIEW_PAGE = "\"title\":"; */
     }
 }

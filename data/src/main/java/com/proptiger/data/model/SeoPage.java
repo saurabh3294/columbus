@@ -2,9 +2,9 @@ package com.proptiger.data.model;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
-@JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class SeoPage extends BaseModel {
 	
@@ -14,12 +14,13 @@ public class SeoPage extends BaseModel {
 	private static final long serialVersionUID = 6065883078087404621L;
 	
 	private String title;
-	private String description;
+	private String  description;
 	private String 	keywords;
-	private String 	H1;
-	private String 	H2;
-	private String 	H3;
-	private String 	H4;
+	private String 	h1;
+	private String 	h2;
+	private String 	h3;
+	private String 	h4;
+		
 	
 	public enum SeoPageJsonFiles{
 		CityOverviewPage("seo-page/city-overview-page.json"),
@@ -71,28 +72,28 @@ public class SeoPage extends BaseModel {
 		this.keywords = keywords;
 	}
 	public String getH1() {
-		return H1;
+		return h1;
 	}
 	public void setH1(String h1) {
-		H1 = h1;
+		this.h1 = h1;
 	}
 	public String getH2() {
-		return H2;
+		return h2;
 	}
 	public void setH2(String h2) {
-		H2 = h2;
+		this.h2 = h2;
 	}
 	public String getH3() {
-		return H3;
+		return h3;
 	}
 	public void setH3(String h3) {
-		H3 = h3;
+		this.h3 = h3;
 	}
 	public String getH4() {
-		return H4;
+		return h4;
 	}
 	public void setH4(String h4) {
-		H4 = h4;
+		this.h4 = h4;
 	}
 	public String getTitle() {
 		return title;
@@ -106,6 +107,4 @@ public class SeoPage extends BaseModel {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	
-
 }
