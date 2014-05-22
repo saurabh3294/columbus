@@ -13,6 +13,8 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.proptiger.data.model.BaseModel;
+
 /**
  * Model object for widget resource
  * 
@@ -21,7 +23,12 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "widgets")
-public class Widget{
+public class Widget extends BaseModel{
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 4249683505133725259L;
 
     @Id
     @Column(name = "id")
