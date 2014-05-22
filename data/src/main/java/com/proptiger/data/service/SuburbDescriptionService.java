@@ -9,17 +9,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.proptiger.data.enums.resource.ResourceType;
+import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.service.pojo.PaginatedResponse;
-import com.proptiger.data.util.ResourceType;
-import com.proptiger.data.util.ResourceTypeAction;
+import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.exception.ResourceNotAvailableException;
-import com.proptiger.mail.service.TemplateToHtmlGenerator;
 
 @Service
 public class SuburbDescriptionService {

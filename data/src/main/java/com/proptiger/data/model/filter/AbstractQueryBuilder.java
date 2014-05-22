@@ -14,6 +14,7 @@ import org.springframework.beans.SimpleTypeConverter;
 import org.springframework.beans.TypeConverter;
 
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.util.LongToDateConverter;

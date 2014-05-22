@@ -13,6 +13,7 @@ import javax.persistence.Transient;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -135,6 +136,18 @@ public class City extends BaseModel {
 
     @Transient
     private List<Image>          images;
+    
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "City enquiry count", description = "City enquiry count")
+    @Field(value = "CITY_ENQUIRY_COUNT")
+    private Integer                         cityEnquiryCount;
+    
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "City view count", description = "City view count")
+    @Field(value = "CITY_VIEW_COUNT")
+    private Integer                         cityViewCount;
 
     public Integer getId() {
         return id;
@@ -334,5 +347,21 @@ public class City extends BaseModel {
 
     public void setAuthorized(boolean authorized) {
         this.authorized = authorized;
+    }
+
+    public Integer getCityEnquiryCount() {
+        return cityEnquiryCount;
+    }
+
+    public void setCityEnquiryCount(Integer cityEnquiryCount) {
+        this.cityEnquiryCount = cityEnquiryCount;
+    }
+
+    public Integer getCityViewCount() {
+        return cityViewCount;
+    }
+
+    public void setCityViewCount(Integer cityViewCount) {
+        this.cityViewCount = cityViewCount;
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.enums.resource.ResourceType;
+import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.seller.Agent;
@@ -22,8 +24,6 @@ import com.proptiger.data.repo.seller.RuleAgentMappingDao;
 import com.proptiger.data.repo.seller.RuleLocalityMappingDao;
 import com.proptiger.data.repo.seller.RuleProjectMappingDao;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.ResourceType;
-import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**

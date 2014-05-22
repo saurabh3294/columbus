@@ -14,8 +14,9 @@ import com.proptiger.data.pojo.Paging;
 
 /**
  * This class handles queries for both wordpress and wordpress_news database
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Component
 public class BlogNewsDao {
@@ -26,21 +27,23 @@ public class BlogNewsDao {
      * @param paging
      * @return
      */
-    public List<WordpressPost> findPublishedBlogByCity(String cityName, Paging paging) {
+    public List<WordpressPost> findPublishedBlogByCity(List<String> cityName, Paging paging) {
         return findNewsOrBlogsByCity(cityName, ApplicationConfig.getWordpressEntityFactory(), paging);
     }
 
     /**
-     * Using wordpress_news database in this method to find published news for a city
+     * Using wordpress_news database in this method to find published news for
+     * single or multiple city
+     * 
      * @param cityName
      * @param paging
      * @return
      */
-    public List<WordpressPost> findPublishedNewsByCity(String cityName, Paging paging) {
+    public List<WordpressPost> findPublishedNewsByCity(List<String> cityName, Paging paging) {
         return findNewsOrBlogsByCity(cityName, ApplicationConfig.getWordpressNewsEntityFactory(), paging);
     }
 
-    private List<WordpressPost> findNewsOrBlogsByCity(String cityName, EntityManagerFactory emf, Paging paging) {
+    private List<WordpressPost> findNewsOrBlogsByCity(List<String> cityName, EntityManagerFactory emf, Paging paging) {
         EntityManager em = emf.createEntityManager();
         Query query = em.createNamedQuery("Post.blogOrNews").setParameter("cityName", cityName);
         query.setFirstResult(paging.getStart());

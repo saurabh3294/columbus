@@ -16,6 +16,7 @@ import javax.persistence.Transient;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -72,10 +73,22 @@ public class Builder extends BaseModel {
 
     @Transient
     private Map<String, Long> projectStatusCount;
-    
+
     @Transient
     @Field("BUILDER_PROJECT_COUNT")
-    private Integer                projectCount;
+    private Integer           projectCount;
+
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "Builder enquiry count", description = "Builder enquiry count")
+    @Field(value = "BUIULDER_ENQUIRY_COUNT")
+    private Integer           builderEnquiryCount;
+
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "Builder view count", description = "Builder view count")
+    @Field(value = "BUILDER_VIEW_COUNT")
+    private Integer           builderViewCount;
 
     public int getId() {
         return id;
@@ -156,5 +169,21 @@ public class Builder extends BaseModel {
 
     public void setProjectCount(Integer projectCount) {
         this.projectCount = projectCount;
+    }
+
+    public Integer getBuilderEnquiryCount() {
+        return builderEnquiryCount;
+    }
+
+    public void setBuilderEnquiryCount(Integer builderEnquiryCount) {
+        this.builderEnquiryCount = builderEnquiryCount;
+    }
+
+    public Integer getBuilderViewCount() {
+        return builderViewCount;
+    }
+
+    public void setBuilderViewCount(Integer builderViewCount) {
+        this.builderViewCount = builderViewCount;
     }
 }

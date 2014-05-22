@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.io.Files;
-import com.proptiger.data.model.enums.DomainObject;
-import com.proptiger.data.model.enums.ImageResolution;
-import com.proptiger.data.model.enums.MediaType;
+import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.ImageResolution;
+import com.proptiger.data.enums.MediaType;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
@@ -179,6 +179,7 @@ public class ImageService extends MediaService {
     /*
      * Public method to get images of multiple object ids
      */
+    @Cacheable(value = Constants.CacheName.CACHE)
     public List<Image> getImages(DomainObject object, String imageTypeStr, List<Long> objectIds) {
         if (objectIds == null || objectIds.isEmpty())
             return new ArrayList<Image>();

@@ -12,7 +12,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import redis.clients.jedis.Jedis;
 
-import com.proptiger.data.security.enums.MaxAllowedRequestCount;
+import com.proptiger.data.enums.security.MaxAllowedRequestCount;
 
 /**
  * 

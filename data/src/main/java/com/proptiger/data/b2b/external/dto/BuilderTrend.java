@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.model.enums.UnitType;
+import com.proptiger.data.enums.UnitType;
 import com.proptiger.exception.ProAPIException;
 
 /**

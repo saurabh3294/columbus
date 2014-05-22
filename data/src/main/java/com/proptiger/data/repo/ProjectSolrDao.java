@@ -24,14 +24,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proptiger.data.enums.DocumentType;
+import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.SortOrder;
-import com.proptiger.data.service.pojo.PaginatedResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.util.SolrResponseReader;
 
 /**

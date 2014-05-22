@@ -4,8 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.im4java.core.InfoException;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -17,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.enums.DomainObject;
-import com.proptiger.data.model.enums.ImageResolution;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;

@@ -11,14 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.proptiger.data.enums.DocumentType;
+import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkResult;
-import com.proptiger.data.model.enums.DocumentType;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
-import com.proptiger.data.pojo.SortOrder;
 
 public class LandMarkDaoImpl {
     private static Logger logger = LoggerFactory.getLogger(ProjectSolrDao.class);
