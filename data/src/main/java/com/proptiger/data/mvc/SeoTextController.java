@@ -40,7 +40,7 @@ public class SeoTextController {
     @Autowired
     private URLService     urlService;
 
-    @RequestMapping("data/v1/seo-text")
+    /*@RequestMapping("data/v1/seo-text")
     @ResponseBody
     public APIResponse get(@RequestParam String url) {
         return new APIResponse(new Gson().fromJson(
@@ -49,9 +49,9 @@ public class SeoTextController {
                         String.class,
                         Collections.singletonMap("URL", url)),
                 Object.class));
-    }
+    }*/
 
-    @RequestMapping("data/v2/seo-text")
+    @RequestMapping("data/v1/seo-text")
     @ResponseBody
     @DisableCaching
     // to be removed.
