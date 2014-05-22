@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,6 +34,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -45,6 +50,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.data.util.Constants;
+import com.proptiger.exception.BadRequestException;
 
 /**
  * Service class to get result from individual API and put that into a map
@@ -105,12 +112,33 @@ public class CompositeAPIService {
      * response keeping url as key and response as value
      * 
      * @param apis
+     * @param request
      * @return
      */
-    public Map<String, Object> getResponseForApis(List<String> apis) {
+    public Map<String, Object> getResponseForApis(List<String> apis, HttpServletRequest request) {
+        if (apis != null && apis.size() > Constants.LIMIT_OF_COMPOSITE_APIs) {
+            throw new BadRequestException(ResponseErrorMessages.LIMIT_OF_COMPOSITE_API_EXCEEDED);
+        }
         Date start = new Date();
-        Map<String, Long> timeTakenByApis = new HashMap<String, Long>(); 
+        Map<String, Long> timeTakenByApis = new HashMap<String, Long>();
         Map<String, Object> response = null;
+        System.out.println("request:   " + request + "\n");
+        Cookie[] requestCookies = request.getCookies();
+        String phpsessId = null;
+
+        if (requestCookies != null) {
+            for (Cookie c : requestCookies) {
+
+                if (c.getName().equals(Constants.PHPSESSID_KEY)) {
+                    phpsessId = c.getValue();
+                }
+            }
+        }
+        HttpHeaders requestHeaders = new HttpHeaders();
+        requestHeaders.add("Cookie", "PHPSESSID=" + phpsessId);
+
+        final HttpEntity<Object> requestEntity = new HttpEntity<Object>(requestHeaders);
+
         if (apis != null && apis.size() > 0) {
             response = new HashMap<String, Object>();
 
@@ -123,9 +151,14 @@ public class CompositeAPIService {
                     public CallableWithTime call() throws Exception {
                         Date start = new Date();
                         URI uri = new URI(completeUrl);
-                        Object res = restTemplate.getForObject(uri, Object.class);
+                        ResponseEntity<Object> res = restTemplate.exchange(
+                                uri,
+                                HttpMethod.GET,
+                                requestEntity,
+                                Object.class);
+
                         Date end = new Date();
-                        return new CallableWithTime(end.getTime()-start.getTime(), res);
+                        return new CallableWithTime(end.getTime() - start.getTime(), res.getBody());
                     }
                 });
                 futureObjMap.put(api, future);
@@ -303,18 +336,21 @@ public class CompositeAPIService {
         throw new ServletException("No adapter for handler [" + handler
                 + "]: The DispatcherServlet configuration needs to include a HandlerAdapter that supports this handler");
     }
-    
-    private static class CallableWithTime{
-        private long timeTaken;
+
+    private static class CallableWithTime {
+        private long   timeTaken;
         private Object data;
+
         public CallableWithTime(long time, Object data) {
             super();
             this.timeTaken = time;
             this.data = data;
         }
+
         public long getTimeTaken() {
             return timeTaken;
         }
+
         public Object getData() {
             return data;
         }
