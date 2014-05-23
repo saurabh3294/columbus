@@ -25,7 +25,7 @@ public enum PageType {
             "^([\\w]+)/(?:property|apartments-flats|villas|sites-plots)-(sale)/(?:[\\d]bhk)$",
             new String[] { "cityName" }), CITY_LISTING_BHK_BUDGET(
             "^([\\w]+)/(?:property|apartments-flats|villas|sites-plots)-(sale)/(?:[\\d]bhk/)?(?:\\d+-\\d+-lacs)$",
-            new String[] { "cityName" });
+            new String[] { "cityName" }),DEFAULT("(.*)", new String[]{"URL"});
 
     private String   regex;
     private String[] URLDetailFields;

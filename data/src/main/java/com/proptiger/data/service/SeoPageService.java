@@ -246,11 +246,11 @@ public class SeoPageService {
         Set<Integer> distinctBedrooms = new HashSet<>();
         distinctBedrooms = project.getDistinctBedrooms();
         String bedrooms = distinctBedrooms.toString() + " BHK";
-        if (bedrooms.contains("0"))// add condition
+        if (bedrooms.contains("0") || bedrooms == " BHK")
             bedrooms = "";
         bedrooms = bedrooms.replace("[", "");
         bedrooms = bedrooms.replace("]", "");
-        System.out.println(bedrooms);
+
         Locality locality = project.getLocality();
         Suburb suburb = locality.getSuburb();
         City city = suburb.getCity();
