@@ -3,7 +3,6 @@ package com.proptiger.data.service.portfolio;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,10 +20,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.enums.mail.MailType;
-import com.proptiger.data.enums.portfolio.ReturnType;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.enums.resource.ResourceTypeField;
@@ -46,6 +45,7 @@ import com.proptiger.data.model.portfolio.Portfolio;
 import com.proptiger.data.model.portfolio.PortfolioListing;
 import com.proptiger.data.model.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.portfolio.PortfolioListingPrice;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.portfolio.PortfolioListingDao;
@@ -62,6 +62,7 @@ import com.proptiger.data.service.user.SubscriptionService;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.portfolio.PortfolioUtil;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.DuplicateNameResourceException;
 import com.proptiger.exception.InvalidResourceException;
@@ -123,6 +124,7 @@ public class PortfolioService{
 
     @Value("${proptiger.url}")
     private String websiteHost;
+    
     /**
      * Get portfolio object for a particular user id
      * 
@@ -136,7 +138,7 @@ public class PortfolioService{
         List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
                 userId,
                 false, Constants.SOURCETYPE_LIST);
-        updatePriceInfoInPortfolio(userId, portfolio, listings);
+        PortfolioUtil.updatePriceInfoInPortfolio(portfolio, listings);
         if (listings != null) {
             for (PortfolioListing l : listings) {
                 portfolio.addListings(l.getId());
@@ -144,135 +146,6 @@ public class PortfolioService{
         }
 
         return portfolio;
-    }
-
-    /**
-     * Updates price information in Portfolio object
-     * 
-     * @param portfolio
-     * @param listings
-     */
-    private void updatePriceInfoInPortfolio(Integer userId, Portfolio portfolio, List<PortfolioListing> listings) {
-        double originalValue = 0.0;
-        double currentValue = 0.0;
-        if (listings != null) {
-            for (PortfolioListing listing : listings) {
-                originalValue += listing.getTotalPrice();
-                listing.setCurrentPrice(getListingCurrentPrice(listing));
-                currentValue += listing.getCurrentPrice();
-            }
-        }
-        portfolio.setCurrentValue(currentValue);
-        portfolio.setOriginalValue(originalValue);
-        OverallReturn overallReturn = getOverAllReturn(originalValue, currentValue);
-        portfolio.setOverallReturn(overallReturn);
-    }
-
-    /**
-     * Calculates the overall return
-     * 
-     * @param originalValue
-     * @param currentValue
-     * @return
-     */
-    private OverallReturn getOverAllReturn(double originalValue, double currentValue) {
-        OverallReturn overallReturn = new OverallReturn();
-        double changeAmt = currentValue - originalValue;
-        overallReturn.setChangeAmount(changeAmt);
-        if (originalValue == 0.0D) {
-            overallReturn.setChangePercent(0);
-        }
-        else {
-            double div = changeAmt/originalValue;
-            div = div*100;
-            overallReturn.setChangePercent(div);
-        }
-        if (changeAmt < 0) {
-            overallReturn.setReturnType(ReturnType.DECLINE);
-        }
-        else if (changeAmt > 0) {
-            overallReturn.setReturnType(ReturnType.APPRECIATION);
-        }
-        else {
-            overallReturn.setReturnType(ReturnType.NOCHANGE);
-        }
-        return overallReturn;
-    }
-
-    /**
-     * This method either create a new listing objects if not already present
-     * otherwise updates a existing listing object
-     * 
-     * @param userId
-     * @param toUpdatePortfolio
-     * @param presentListingList
-     * @return
-     */
-    @Transactional(rollbackFor = { ConstraintViolationException.class, DuplicateNameResourceException.class })
-    private Portfolio createOrUpdatePortfolioListings(
-            Integer userId,
-            Portfolio toUpdatePortfolio,
-            List<PortfolioListing> presentListingList) {
-        logger.debug("Create or update portfolio details for user id {}", userId);
-        /*
-         * Either a new Listing will be created if not already present otherwise
-         * will be updated
-         */
-        List<Integer> updatedOrCreatedListings = new ArrayList<Integer>();
-        /*
-         * Few listings already mapped with user id, there might be some new
-         * listings to be created and few might need to update
-         */
-        Portfolio updatedPortfolio = new Portfolio();
-        List<PortfolioListing> toUpdateList = toUpdatePortfolio.getPortfolioListings();
-        for (PortfolioListing toUpdate : toUpdateList) {
-            if (toUpdate.getId() == null) {
-                /*
-                 * Need to create new Listing, and adding that to portfolio
-                 */
-                PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
-                updatedOrCreatedListings.add(newListing.getId());
-                updatedPortfolio.addPortfolioListings(newListing);
-            }
-            else {
-                /*
-                 * Check if toUpdate is already present in database, if present
-                 * then update that otherwise create
-                 */
-                boolean isUpdated = false;
-                for (PortfolioListing present : presentListingList) {
-                    if (toUpdate.getId().equals(present.getId())) {
-                        // need to update
-                        present.update(toUpdate);
-                        updatedOrCreatedListings.add(toUpdate.getId());
-                        isUpdated = true;
-                        updatedPortfolio.addPortfolioListings(present);
-                        break;
-                    }
-                }
-
-                if (!isUpdated) {
-                    /*
-                     * Requested PortfolioListing object (toUpdate) is not
-                     * present in database, so creating new
-                     */
-                    PortfolioListing newListing = createPortfolioListing(userId, toUpdate);
-                    updatedOrCreatedListings.add(newListing.getId());
-                    updatedPortfolio.addPortfolioListings(newListing);
-                }
-            }
-
-        }
-        /*
-         * delete listing from database.
-         */
-        for (PortfolioListing listingPresent : presentListingList) {
-            if (!updatedOrCreatedListings.contains(listingPresent.getId())) {
-                portfolioListingDao.delete(listingPresent.getId());
-            }
-
-        }
-        return updatedPortfolio;
     }
 
     /**
@@ -284,50 +157,14 @@ public class PortfolioService{
     @Transactional(readOnly = true)
     public List<PortfolioListing> getAllPortfolioListings(Integer userId) {
         logger.debug("Getting all portfolio listings for user id {}", userId);
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
-                userId,
-                false, Constants.SOURCETYPE_LIST);
-        if (listings != null) {
-            updateOtherSpecificData(listings);
-            updatePaymentSchedule(listings);
-        }
+        List<PortfolioListing> listings = portfolioListingDao
+                .findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(userId, false, Constants.SOURCETYPE_LIST);
+        updateOtherSpecificData(listings);
+        updatePaymentSchedule(listings);
         return listings;
     }
 
-    /**
-     * This method returns current value of listing and if that is 0 then it
-     * will return total price as current price.
-     * 
-     * @param listing
-     * @return
-     */
-    private double getListingCurrentPrice(PortfolioListing listing) {
-        double currentValue = 0.0;
-        Double size = listing.getListingSize();
-        if (size == null) {
-            size = 0.0D;
-        }
-        Double pricePerUnitArea = listing.getProperty().getPricePerUnitAreaCms();
-        if (pricePerUnitArea == null) {
-            pricePerUnitArea = listing.getProperty().getPricePerUnitArea();
-        }
-        currentValue = size * pricePerUnitArea;
-
-        if (currentValue == 0.0D) {
-            logger.debug("Current value not available for Listing {} and project type {}", listing.getId(), listing
-                    .getProperty().getPropertyId());
-            currentValue = listing.getTotalPrice();
-        }
-        else {
-            if (listing.getOtherPrices() != null && !listing.getOtherPrices().isEmpty()) {
-                for (PortfolioListingPrice listingPrice : listing.getOtherPrices()) {
-                    currentValue += listingPrice.getAmount();
-                }
-            }
-        }
-
-        return currentValue;
-    }
+    
 
     /**
      * Updating derived data in listing objects
@@ -335,34 +172,46 @@ public class PortfolioService{
      * @param listing
      */
     private void updateOtherSpecificData(List<PortfolioListing> listings) {
-        Set<Integer> projectIds = new HashSet<>();
-        List<Long> propertyIds = new ArrayList<Long>();
-        List<Long> projectIdsLong = new ArrayList<>();
-        for(PortfolioListing listing: listings){
-            projectIds.add(listing.getProperty().getProjectId());
-            propertyIds.add(new Long(listing.getTypeId()));
-            projectIdsLong.add(new Long(listing.getProperty().getProjectId()));
+        if(listings == null || listings.isEmpty()){
+            return;
         }
-        List<Project> projects = projectService.getProjectsByIds(projectIds);
-        Map<Integer, Project> projectIdToProjectMap = createProjectIdMap(projects);
-       
-        List<Image> projectImages = imageService.getImages(DomainObject.project, null, projectIdsLong);
-        Map<Integer, List<Image>> projectIdToImagesMap = createProjectIdToImageMap(projectImages);
+        List<Long> propertyIds = new ArrayList<Long>();
+        List<Long> projectIds = new ArrayList<>();
+
+        for (PortfolioListing listing : listings) {
+            propertyIds.add(new Long(listing.getTypeId()));
+        }
+        Selector propertySelector = new Gson().fromJson(
+                "{\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyIds
+                        + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
+                Selector.class);
+        List<Property> properties = propertyService.getProperties(propertySelector);
+        Map<Integer, Project> projectIdToProjectMap = PortfolioUtil.createProjectIdMap(properties);
+        for (Property p : properties) {
+            projectIds.add(new Long(p.getProjectId()));
+        }
+        List<Image> projectImages = imageService.getImages(DomainObject.project, null, projectIds);
+        Map<Integer, List<Image>> projectIdToImagesMap = PortfolioUtil.getProjectIdToImageMap(projectImages);
         List<Image> propertyImages = imageService.getImages(DomainObject.property, null, propertyIds);
-        Map<Integer, List<Image>> propertyIdToImageMap = createPropertyIdToImageMap(propertyImages);
-        for(PortfolioListing listing: listings){
+        Map<Integer, List<Image>> propertyIdToImageMap = PortfolioUtil.getPropertyIdToImageMap(propertyImages);
+        for (PortfolioListing listing : listings) {
             /*
              * Update current price
              */
-            listing.setCurrentPrice(getListingCurrentPrice(listing));
+            listing.setCurrentPrice(PortfolioUtil.getListingCurrentPrice(listing));
             /*
              * Adding both property and project images
              */
             listing.setPropertyImages(propertyIdToImageMap.get(listing.getTypeId()));
             if (listing.getPropertyImages() != null) {
-                listing.getPropertyImages().addAll(projectIdToImagesMap.get(listing.getProperty().getProjectId()));
+                if (projectIdToImagesMap.get(listing.getProperty().getProjectId()) != null) {
+                    // if project images are then add that too
+                    listing.getPropertyImages().addAll(projectIdToImagesMap.get(listing.getProperty().getProjectId()));
+                }
+
             }
             else {
+                // if property image were not present then add project images
                 listing.setPropertyImages(projectIdToImagesMap.get(listing.getProperty().getProjectId()));
             }
             Project project = projectIdToProjectMap.get(listing.getProperty().getProjectId());
@@ -376,42 +225,6 @@ public class PortfolioService{
             listing.setLocality(locality.getLabel());
             listing.setLocalityId(locality.getLocalityId());
         }
-    }
-
-    private Map<Integer, List<Image>> createPropertyIdToImageMap(List<Image> propertyImages) {
-        Map<Integer, List<Image>> map = new HashMap<>();
-        if(propertyImages != null && !propertyImages.isEmpty()){
-            for (Image i : propertyImages) {
-                Integer propertyId = new Long(i.getObjectId()).intValue();
-                if (map.get(propertyId) == null) {
-                    map.put(propertyId, new ArrayList<Image>());
-                }
-                map.get(propertyId).add(i);
-            }
-        }
-        return map;
-    }
-
-    private Map<Integer, List<Image>> createProjectIdToImageMap(List<Image> projectImages) {
-        Map<Integer, List<Image>> map = new HashMap<>();
-        if(projectImages != null && !projectImages.isEmpty()){
-            for (Image i : projectImages) {
-                Integer projectId = new Long(i.getObjectId()).intValue();
-                if (map.get(projectId) == null) {
-                    map.put(projectId, new ArrayList<Image>());
-                }
-                map.get(projectId).add(i);
-            }
-        }
-        return map;
-    }
-
-    private Map<Integer, Project> createProjectIdMap(List<Project> projects) {
-        Map<Integer, Project> map = new HashMap<>();
-        for(Project p: projects){
-            map.put(p.getProjectId(), p);
-        }
-        return map;
     }
 
 
@@ -434,7 +247,7 @@ public class PortfolioService{
         }
         updateOtherSpecificData(Arrays.asList(listing));
         updatePaymentSchedule(listing);
-        OverallReturn overallReturn = getOverAllReturn(
+        OverallReturn overallReturn = PortfolioUtil.getOverAllReturn(
                 listing.getTotalPrice(),
                 listing.getCurrentPrice());
         listing.setOverallReturn(overallReturn);
@@ -476,7 +289,7 @@ public class PortfolioService{
         listing.setProperty(null);
         PortfolioListing created = create(listing);
         created = portfolioListingDao.findByListingIdAndDeletedFlag(created.getId(), false);
-        updateOtherSpecificData(Arrays.asList(listing));
+        //updateOtherSpecificData(Arrays.asList(listing));
 
         subscriptionService.enableOrAddUserSubscription(userId, listing.getListingId(), PortfolioListing.class
                 .getAnnotation(Table.class).name(), Constants.SubscriptionType.PROJECT_UPDATES,
@@ -503,7 +316,7 @@ public class PortfolioService{
          */
         listing.setProperty(null);                     
         PortfolioListing updated = update(listing);
-        updateOtherSpecificData(Arrays.asList(listing));
+        //updateOtherSpecificData(Arrays.asList(listing));
         return updated;
     }
 
@@ -667,6 +480,9 @@ public class PortfolioService{
     }
 
     private void updatePaymentSchedule(List<PortfolioListing> portfolioListings) {
+        if(portfolioListings == null || portfolioListings.isEmpty()){
+            return;
+        }
         for (PortfolioListing listing : portfolioListings) {
             updatePaymentSchedule(listing);
         }
