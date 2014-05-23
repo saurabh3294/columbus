@@ -94,16 +94,6 @@ public class CityService {
         List<City> cities = cityDao.getCities(selector);
 
         return cities.get(0);
-        /*
-         * if(selector!=null)
-         * System.out.println("Gotcha-----------------------------------------"
-         * +selector.toString()); List<City> list =
-         * cityService.getCityList(selector);
-         * 
-         * if(selector!=null){ return list.get(0); } else {
-         * System.out.println("HERE-----------------------------------------");
-         * return null; }
-         */
     }
 
     /**

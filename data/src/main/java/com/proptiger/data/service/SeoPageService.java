@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.internal.LinkedTreeMap;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.City;
@@ -97,12 +98,18 @@ public class SeoPageService {
     public Map<String, Object> getSeoContentForPage(String url) throws IllegalAccessException,
             InvocationTargetException, NoSuchMethodException, FileNotFoundException {
 
-        Map<String, Object> seoResponse = new Gson().fromJson(
+        Map<String, Object> seoResponse = null;
+        try{
+             seoResponse = new Gson().fromJson(        
                 restTemplate.getForObject(
                         websiteHost + "getSeoTags.php?url={URL}",
                         String.class,
                         Collections.singletonMap("URL", url)),
                 HashMap.class);
+        }catch(JsonSyntaxException e){
+            
+        }
+        
         if (seoResponse == null) {
             seoResponse = new HashMap<String, Object>();
         }
