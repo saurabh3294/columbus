@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns:mvc="http://www.springframework.org/schema/mvc"
-xmlns:context="http://www.springframework.org/schema/context"
-xmlns:aop="http://www.springframework.org/schema/aop"
-xmlns:cache="http://www.springframework.org/schema/cache"
-xmlns:c="http://www.springframework.org/schema/c"
-xmlns:p="http://www.springframework.org/schema/p"
-xsi:schemaLocation="
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:c="http://www.springframework.org/schema/c" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="
 http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
@@ -15,81 +12,95 @@ http://www.springframework.org/schema/aop http://www.springframework.org/schema/
 http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd">
 
 
-    <!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	<!-- DispatcherServlet Context: defines this servlet's request-processing 
+		infrastructure -->
 
-    <!-- Scans within the base package of the application for @Components to configure as beans -->
-    <!-- @Controller, @Service, @Configuration, etc. -->
-    <context:component-scan base-package="com.proptiger" />
+	<!-- Scans within the base package of the application for @Components to 
+		configure as beans -->
+	<!-- @Controller, @Service, @Configuration, etc. -->
+	<context:component-scan base-package="com.proptiger" />
 
-    <!-- Enables the Spring MVC @Controller programming model -->
-    <mvc:annotation-driven conversion-service="conversionService" >
-    <mvc:message-converters register-defaults="true">
-        <bean
-            class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
-            <property name="objectMapper">
-                <bean class="com.proptiger.data.init.CustomObjectMapper"></bean>
-            </property>
-        </bean>
-    </mvc:message-converters>
-    </mvc:annotation-driven>
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<mvc:annotation-driven conversion-service="conversionService">
+		<mvc:message-converters register-defaults="true">
+			<bean
+				class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="objectMapper">
+					<bean class="com.proptiger.data.init.CustomObjectMapper"></bean>
+				</property>
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
 
-    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
-	  <property name="maxUploadSize" value="104857600"/>
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="104857600" />
 	</bean>
 
-    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
-        <property name="converters">
-            <list>
-                <bean class="com.proptiger.data.util.StringToDateConverter"/>
-                <bean class="com.proptiger.data.util.DateToStringConverter"/>
-                <bean class="com.proptiger.data.util.LongToDateConverter"/>
-            </list>
-        </property>
-    </bean>
-    <mvc:interceptors>
-    	<bean class="com.proptiger.data.init.RequestResponseInterceptor">
-    	</bean>
-    	<mvc:interceptor>
-    		<mvc:mapping path="data/v1/entity/**"/>
-    		<bean class="com.proptiger.data.init.RequestResponseInterceptor"></bean>
-    	</mvc:interceptor>
-    </mvc:interceptors>
-    <bean id="velocityEngine" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
-        <property name="velocityProperties">
-            <value>
-                resource.loader=class
-                class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
-            </value>
-        </property>
-    </bean>
-    
-    <context:property-placeholder location="classpath:/application.properties"/>
-    
-    <!-- Configuration for caching and annotation driven. --> 
-    <cache:annotation-driven />
- 	<aop:aspectj-autoproxy/>
-    <!--bean id="before" class="com.proptiger.data.util.ResponseCaching"/-->
-    
-    <!-- Jedis ConnectionFactory -->
-    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-        p:host-name="${redis.hostName}" p:port="${redis.port}" p:use-pool="${redis.usePool}" />
- 
-    <!-- redis template definition -->
-    <bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate" p:connection-factory-ref="jedisConnectionFactory">
-        <property name="valueSerializer" ref="jdkSerializer" />
+	<bean id="conversionService"
+		class="org.springframework.context.support.ConversionServiceFactoryBean">
+		<property name="converters">
+			<list>
+				<bean class="com.proptiger.data.util.StringToDateConverter" />
+				<bean class="com.proptiger.data.util.DateToStringConverter" />
+				<bean class="com.proptiger.data.util.LongToDateConverter" />
+			</list>
+		</property>
 	</bean>
- 
-    <!-- declare Redis Cache Manager -->
-    <bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager" c:template-ref="redisTemplate">
-    	<!--  Setting default Expiration time in seconds. Currently setting as 1 day. -->
-    	<property name="defaultExpiration" value="${redis.defaultExpirationTime}"></property>
-    	<!--by default use prefix is false, so making it true to use cache name as prefix. -->
-    	<property name="usePrefix" value="true"></property>
-    </bean>
-    
-    <!--  Serializer for redis. -->
-    <bean id="jdkSerializer" class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
-  
-   <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter">
-    </bean>
+	<mvc:interceptors>
+		<bean class="com.proptiger.data.init.RequestResponseInterceptor">
+		</bean>
+		<mvc:interceptor>
+			<mvc:mapping path="data/v1/entity/**" />
+			<bean class="com.proptiger.data.init.RequestResponseInterceptor"></bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<value>
+				resource.loader=class
+				class.resource.loader.class=org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+			</value>
+		</property>
+	</bean>
+
+	<context:property-placeholder location="classpath:/application.properties" />
+
+	<!-- Configuration for caching and annotation driven. -->
+	<cache:annotation-driven key-generator="myKeyGenerator" />
+	<bean id="myKeyGenerator" class="com.proptiger.data.init.CustomDefaultKeyGenerator" />
+
+	<aop:aspectj-autoproxy />
+	<!--bean id="before" class="com.proptiger.data.util.ResponseCaching"/ -->
+
+	<!-- Jedis ConnectionFactory -->
+	<bean id="jedisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		p:host-name="${redis.hostName}" p:port="${redis.port}" p:use-pool="${redis.usePool}" />
+
+	<!-- redis template definition -->
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate"
+		p:connection-factory-ref="jedisConnectionFactory">
+		<property name="valueSerializer" ref="jdkSerializer" />
+	</bean>
+
+	<!-- declare Redis Cache Manager -->
+	<bean id="cacheManager" class="org.springframework.data.redis.cache.RedisCacheManager"
+		c:template-ref="redisTemplate">
+		<!-- Setting default Expiration time in seconds. Currently setting as 1 
+			day. -->
+		<property name="defaultExpiration" value="${redis.defaultExpirationTime}"></property>
+		<!--by default use prefix is false, so making it true to use cache name 
+			as prefix. -->
+		<property name="usePrefix" value="true"></property>
+	</bean>
+
+	<!-- Serializer for redis. -->
+	<bean id="jdkSerializer"
+		class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
+
+	<bean id="exporter"
+		class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter">
+	</bean>
 </beans>

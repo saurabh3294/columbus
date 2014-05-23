@@ -35,6 +35,18 @@ public class TrendDao {
         return modifyWavgKeysInResultSet;
     }
 
+    @Cacheable(value = Constants.CacheName.CACHE)
+    public long getResultCount(FIQLSelector selector) {
+        EntityManager entityManager = emf.createEntityManager();
+        AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
+                entityManager,
+                InventoryPriceTrend.class);
+        builder.buildQuery(modifyWavgFieldsInSelector(selector));
+        long count = builder.retrieveCount();
+        entityManager.close();
+        return count;
+    }
+
     // XXX - Hack to switch column names without clients knowing about it
     private FIQLSelector modifyWavgFieldsInSelector(FIQLSelector selector) {
         FIQLSelector fiqlSelector;
