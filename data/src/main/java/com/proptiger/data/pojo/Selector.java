@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
+import com.proptiger.data.util.HMAC_Client;
+
 /**
  * This class represents the request that include all components of a
  * database/solr query, that includes selct part, filtering part, sorting part
@@ -53,5 +58,16 @@ public class Selector implements Serializable {
 
     public void setSort(LinkedHashSet<SortBy> sort) {
         this.sort = sort;
+    }
+
+    /**
+     * This method will be called explicitly during creation of keys
+     * 
+     * @return
+     */
+    @Override
+    public String toString() {
+        return new HMAC_Client().calculateMD5(ToStringBuilder
+                .reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE));
     }
 }
