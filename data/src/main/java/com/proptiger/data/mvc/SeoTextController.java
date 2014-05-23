@@ -40,16 +40,6 @@ public class SeoTextController {
     @Autowired
     private URLService     urlService;
 
-    /*@RequestMapping("data/v1/seo-text")
-    @ResponseBody
-    public APIResponse get(@RequestParam String url) {
-        return new APIResponse(new Gson().fromJson(
-                restTemplate.getForObject(
-                        websiteHost + "getSeoTags.php?url={URL}",
-                        String.class,
-                        Collections.singletonMap("URL", url)),
-                Object.class));
-    }*/
 
     @RequestMapping("data/v1/seo-text")
     @ResponseBody
@@ -57,6 +47,7 @@ public class SeoTextController {
     // to be removed.
     public APIResponse getSeo(@RequestParam String url) throws FileNotFoundException, IllegalAccessException,
             InvocationTargetException, NoSuchMethodException {
+    	
         return new APIResponse(seoPageService.getSeoContentForPage(url));
 
     }

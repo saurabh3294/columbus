@@ -96,7 +96,6 @@ public class SeoPageService {
 
     public Map<String, Object> getSeoContentForPage(String url) throws IllegalAccessException,
             InvocationTargetException, NoSuchMethodException, FileNotFoundException {
-
         Map<String, Object> seoResponse = new Gson().fromJson(
                 restTemplate.getForObject(
                         websiteHost + "getSeoTags.php?url={URL}",
@@ -106,7 +105,7 @@ public class SeoPageService {
         if (seoResponse == null) {
             seoResponse = new HashMap<String, Object>();
         }
-
+        
         SeoPage seoPage = getSeoMetaContent(url);
 
         BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
@@ -117,7 +116,6 @@ public class SeoPageService {
         }
         metaData.putAll(seoMetaData);
         seoResponse.put("meta", metaData);
-
         seoResponse.put("footer", getSeoFooterUrlsByPage(url).getFooterUrls());
         return seoResponse;
     }
@@ -239,11 +237,10 @@ public class SeoPageService {
         Set<Integer> distinctBedrooms = new HashSet<>();
         distinctBedrooms = project.getDistinctBedrooms();
         String bedrooms = distinctBedrooms.toString() + " BHK";
-        if (bedrooms.contains("0"))// add condition
+        if (bedrooms.contains("0") || bedrooms == " BHK")
             bedrooms = "";
         bedrooms = bedrooms.replace("[", "");
         bedrooms = bedrooms.replace("]", "");
-        System.out.println(bedrooms);
         Locality locality = project.getLocality();
         Suburb suburb = locality.getSuburb();
         City city = suburb.getCity();
