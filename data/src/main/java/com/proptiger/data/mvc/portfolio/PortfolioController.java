@@ -95,6 +95,12 @@ public class PortfolioController extends BaseController {
         PortfolioListing created = portfolioService.createPortfolioListing(
                 userInfo.getUserIdentifier(),
                 portfolioProperty);
+        /*
+         * calling this to get all things updated, since createPortfolioListing
+         * is Transactional so it would not get updated untill that method
+         * returns
+         */
+        created = portfolioService.getPortfolioListingById(userId, created.getId());
         return new APIResponse(super.filterFields(created, null));
     }
 
