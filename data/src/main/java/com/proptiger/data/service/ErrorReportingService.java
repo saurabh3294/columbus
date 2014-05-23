@@ -1,6 +1,7 @@
 package com.proptiger.data.service;
 
 import javax.persistence.PersistenceException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,9 @@ public class ErrorReportingService {
     private ProjectService          projectService;
 
     private static Logger           logger = LoggerFactory.getLogger(ErrorReportingService.class);
+
+    @Autowired
+    private HttpServletRequest      httpServletRequest;
 
     /**
      * This method will save the error reported for a project or a property.
@@ -93,7 +97,7 @@ public class ErrorReportingService {
         }
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.PROJECT_PROPERTY_ERROR_POST,
-                new ReportErrorDTO(projectError, property, project));
+                new ReportErrorDTO(projectError, property, project, httpServletRequest.getServerName()));
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
         return mailSender.sendMailUsingAws(mailDetails);
     }
@@ -105,15 +109,17 @@ public class ErrorReportingService {
      * @author mukand
      */
     public static class ReportErrorDTO {
-        public ReportErrorDTO(ProjectError projectError, Property property, Project project) {
+        public ReportErrorDTO(ProjectError projectError, Property property, Project project, String serverName) {
             this.property = property;
             this.projectError = projectError;
             this.project = project;
+            this.serverName = serverName;
         }
 
         public ProjectError projectError;
         public Property     property;
         public Project      project;
+        public String       serverName;
 
         public ProjectError getProjectError() {
             return projectError;
@@ -137,6 +143,14 @@ public class ErrorReportingService {
 
         public void setProject(Project project) {
             this.project = project;
+        }
+
+        public String getServerName() {
+            return serverName;
+        }
+
+        public void setServerName(String serverName) {
+            this.serverName = serverName;
         }
     }
 }

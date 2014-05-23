@@ -121,10 +121,13 @@ public class Constants {
         public static final String PROJECT_BANKS                         = "project-banks";
         public static final String PROJECT_STATUS_COUNT_ON_LOCALITY      = "project-status-count-on-locality";
         public static final String PROJECT_DISCUSSION                    = "project-discussion";
+        public static final String PROJECT_DETAILS                       = "project-details";
 
         public static final String BUILDER                               = "builder";
 
         public static final String SIMILAR_PROPERTY                      = "similar-property";
+
+        public static final String SEO_FOOTER                            = "seo-footer";
 
     }
 
@@ -137,4 +140,8 @@ public class Constants {
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_RESALE  = Arrays.asList(
                                                                                          ConstructionStatus.ReadyForPossession,
                                                                                          ConstructionStatus.Occupied);
+
+    public static class SeoPageTemplate {
+        /* public static final String CITY_OVERVIEW_PAGE = "\"title\":"; */
+    }
 }

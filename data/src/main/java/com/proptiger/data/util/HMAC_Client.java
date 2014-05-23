@@ -14,6 +14,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
+import com.proptiger.exception.ProAPIException;
+
 /**
  * 
  * @author mukand
@@ -35,11 +37,19 @@ public class HMAC_Client {
         }
     }
 
-    public String calculateMD5(String contentToEncode) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("MD5");
-        digest.update(contentToEncode.getBytes());
-        String result = new String(Base64.encodeBase64(digest.digest()));
-        return result;
+    public String calculateMD5(String contentToEncode) {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+            digest.update(contentToEncode.getBytes());
+            String result = new String(Base64.encodeBase64(digest.digest()));
+            return result;
+        }
+        catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            throw new ProAPIException(e);
+        }
+        
     }
 
 }
