@@ -171,15 +171,15 @@ public class SeoPageService {
     private Map<String, String> buildTokensMap(CompositeSeoTokenData compositeSeoTokenData) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, InstantiationException{
         Map<String, String> mappingTokenValues = new HashMap<String, String>();
         Tokens tokens[] = Tokens.values();
-        System.out.println(new Gson().toJson(compositeSeoTokenData));
+        //System.out.println(new Gson().toJson(compositeSeoTokenData));
         Class<?> classObject= compositeSeoTokenData.getClass();
         Object nestedObject = null;
         Field field;
-        System.out.println(classObject.getName());
+        
         for(int i=0; i<tokens.length; i++){
             nestedObject = compositeSeoTokenData;
             if(tokens[i].getFieldName1() != null){
-                System.out.println(tokens[i]);
+          //      System.out.println(tokens[i]);
                 field = classObject.getDeclaredField(tokens[i].getFieldName1());
                 field.setAccessible(true);
                 nestedObject = field.get(compositeSeoTokenData);
@@ -188,7 +188,7 @@ public class SeoPageService {
             if(nestedObject == null){
                 continue;
             }
-            System.out.println(nestedObject.getClass().getName());
+            //System.out.println(nestedObject.getClass().getName());
             field = nestedObject.getClass().getDeclaredField(tokens[i].getFieldName2());
             field.setAccessible(true);
             mappingTokenValues.put(tokens[i].getValue(), (String)field.get(nestedObject));
@@ -272,6 +272,10 @@ public class SeoPageService {
      * values using the MAPPING
      */
     private String replace(String text, Map<String, String> mappings) {
+        if(text == null){
+            return null;
+        }
+        
         Pattern pattern = Pattern.compile("(<.+?>)");
         Matcher matcher = pattern.matcher(text);
         StringBuffer buffer = new StringBuffer();
