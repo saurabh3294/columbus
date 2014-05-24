@@ -10,7 +10,7 @@ import com.proptiger.data.util.PageType;
  *
  */
 public class URLDetail {
-    private String   URL;
+    private String   url;
     private PageType pageType;
     private String   cityName;
     private Integer  cityId;
@@ -19,16 +19,14 @@ public class URLDetail {
     private Integer  builderId;
     private Integer  suburbId;
     private Integer  propertyId;
-    private String   bedrooms;
+    private Integer   bedrooms;
     /*
      * @TODO merge these three fields into one.
      * Then either all of them should be present or
      * entire object null. Find a way ??
      */
-    private String   minPriceRange;
-    private String   maxPriceRange;
-    private String   priceUnitName;
-
+    private String   PriceRange;
+    
     public Integer getBuilderId() {
         return builderId;
     }
@@ -45,12 +43,12 @@ public class URLDetail {
         this.suburbId = suburbId;
     }
 
-    public String getURL() {
-        return URL;
+    public String getUrl() {
+        return url;
     }
 
-    public void setURL(String uRL) {
-        URL = uRL;
+    public void setUrl(String uRL) {
+        this.url = uRL;
     }
 
     public PageType getPageType() {
@@ -101,36 +99,20 @@ public class URLDetail {
         this.propertyId = propertyId;
     }
 
-    public String getBedrooms() {
+    public Integer getBedrooms() {
         return bedrooms;
     }
 
-    public void setBedrooms(String bedrooms) {
+    public void setBedrooms(Integer bedrooms) {
         this.bedrooms = bedrooms;
     }
 
-    public String getMinPriceRange() {
-        return minPriceRange;
+    public String getPriceRange() {
+        return PriceRange;
     }
 
-    public void setMinPriceRange(String minPriceRange) {
-        this.minPriceRange = minPriceRange;
-    }
-
-    public String getMaxPriceRange() {
-        return maxPriceRange;
-    }
-
-    public void setMaxPriceRange(String maxPriceRange) {
-        this.maxPriceRange = maxPriceRange;
-    }
-
-    public String getPriceUnitName() {
-        return priceUnitName;
-    }
-
-    public void setPriceUnitName(String priceUnitName) {
-        this.priceUnitName = priceUnitName;
+    public void setPriceRange(String priceRange) {
+        PriceRange = priceRange;
     }
 
 }

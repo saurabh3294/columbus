@@ -55,7 +55,7 @@ public class URLService {
 			}
 		}
 		
-		urlDetail.setURL(URL);
+		urlDetail.setUrl(URL);
 		return urlDetail;
 	}
 }

@@ -72,16 +72,21 @@ public class SeoPage extends BaseModel {
 			return js.filePath;
 		}
 	}
-	 //@TODO get reference to the field Name like getting reference to class. 
+	 //@TODO get reference to the field Name like getting reference to class.
+	/**
+	 * @Note The token should be in lowercase.
+	 * @author mukand
+	 *
+	 */
 	public enum Tokens{
-		Locality("<Locality>", "locality", "label"),
-		City("<City>", "city", "label"),
-		Suburb("<Suburb>", "suburb", "label"),
-		BuiderName("<Builder Name>", "builder", "name"),
-		ProjectName("<Project Name>", "project", "name"),
-		UnitName("<Unit Name>", "property", "unitName"),
-		BHK("<BHK>", null, "bedroomsStr"),
-		PriceRange("<min-max priceUnit>", null, "priceRangeStr");
+		Locality("<locality>", "locality", "label"),
+		City("<city>", "city", "label"),
+		Suburb("<suburb>", "suburb", "label"),
+		BuiderName("<builder name>", "builder", "name"),
+		ProjectName("<project name>", "project", "name"),
+		UnitName("<unit name>", "property", "unitName"),
+		BHK("<bhk>", null, "bedroomsStr"),
+		PriceRange("<price range>", null, "priceRangeStr");
 		
 		private String value;
 		private String fieldName1;
