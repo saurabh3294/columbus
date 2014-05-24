@@ -20,11 +20,8 @@ public class URLDetail {
     private Integer  suburbId;
     private Integer  propertyId;
     private Integer  bedrooms;
-    /*
-     * @TODO merge these three fields into one. Then either all of them should
-     * be present or entire object null. Find a way ??
-     */
     private String   PriceRange;
+    private String   fallBackUrl;
 
     public Integer getBuilderId() {
         return builderId;
@@ -112,6 +109,14 @@ public class URLDetail {
 
     public void setPriceRange(String priceRange) {
         PriceRange = priceRange;
+    }
+
+    public String getFallBackUrl() {
+        return fallBackUrl;
+    }
+
+    public void setFallBackUrl(String fallBackUrl) {
+        this.fallBackUrl = fallBackUrl;
     }
 
 }

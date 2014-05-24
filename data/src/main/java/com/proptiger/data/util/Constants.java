@@ -127,6 +127,7 @@ public class Constants {
         public static final String SIMILAR_PROPERTY                      = "similar-property";
 
         public static final String SEO_FOOTER                            = "seo-footer";
+        public static final String SEO_TEMPLATE                          = "seo-template";
 
     }
 

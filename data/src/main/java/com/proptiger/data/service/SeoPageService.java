@@ -1,50 +1,37 @@
 package com.proptiger.data.service;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.BeanUtilsBean2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.internal.LinkedTreeMap;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SeoFooter;
 import com.proptiger.data.model.SeoPage;
-import com.proptiger.data.model.SeoPage.SeoPageJsonFiles;
 import com.proptiger.data.model.SeoPage.Tokens;
 import com.proptiger.data.model.Suburb;
-import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.URLDetail;
 import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.repo.SeoFooterDao;
 import com.proptiger.data.repo.SeoPageDao;
 import com.proptiger.data.util.Constants;
@@ -89,7 +76,7 @@ public class SeoPageService {
     @Value("${proptiger.url}")
     private String             websiteHost;
 
-    public Map<String, Object> getSeoContentForPage(String url) throws IllegalAccessException,
+    public Map<String, Object> getSeoContentForPage(URLDetail urlDetail, String templateId) throws IllegalAccessException,
             InvocationTargetException, NoSuchMethodException, FileNotFoundException {
 
         Map<String, Object> seoResponse = null;
@@ -98,7 +85,7 @@ public class SeoPageService {
                     restTemplate.getForObject(
                             websiteHost + "getSeoTags.php?url={URL}",
                             String.class,
-                            Collections.singletonMap("URL", url)),
+                            Collections.singletonMap("URL", urlDetail.getUrl())),
                     HashMap.class);
         }
         catch (JsonSyntaxException e) {
@@ -109,7 +96,7 @@ public class SeoPageService {
             seoResponse = new HashMap<String, Object>();
         }
 
-        SeoPage seoPage = null;
+        SeoPage seoPage = getSeoMetaContentForPage(urlDetail, templateId);
         BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
         Map<String, Object> seoMetaData = beanUtilsBean.describe(seoPage);
         Map<String, Object> metaData = (Map<String, Object>) seoResponse.get("meta");
@@ -118,7 +105,8 @@ public class SeoPageService {
         }
         metaData.putAll(seoMetaData);
         seoResponse.put("meta", metaData);
-
+        
+        String url = getFooterUrl(urlDetail);
         seoResponse.put("footer", getSeoFooterUrlsByPage(url).getFooterUrls());
         return seoResponse;
     }
@@ -140,7 +128,7 @@ public class SeoPageService {
         return seoPage;
     }
 
-    @Cacheable(value = Constants.CacheName.SEO_FOOTER, key = "#url")
+    @Cacheable(value = Constants.CacheName.SEO_FOOTER)
     public SeoFooter getSeoFooterUrlsByPage(String url) {
         SeoFooter seoFooter = seoFooterDao.findOne(url);
         if (seoFooter == null) {
@@ -149,6 +137,7 @@ public class SeoPageService {
         return seoFooter;
     }
 
+    @Cacheable(value= Constants.CacheName.SEO_TEMPLATE)
     public SeoPage getSeoPageByTemplateId(String templateId) {
         SeoPage seoPage = seoPageDao.findOne(templateId);
         if (seoPage == null) {
@@ -156,7 +145,14 @@ public class SeoPageService {
         }
         return seoPage;
     }
-
+    
+    private String getFooterUrl(URLDetail urlDetail){
+        if(urlDetail.getFallBackUrl() != null)
+            return urlDetail.getFallBackUrl();
+        else
+            return urlDetail.getUrl();
+    }
+    
     private void setSeoTemplate(SeoPage seopage, Map<String, String> mappings) {
         seopage.setTitle(replace(seopage.getTitle(), mappings));
         seopage.setDescription(replace(seopage.getDescription(), mappings));
