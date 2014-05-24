@@ -10,6 +10,8 @@ import java.util.Collections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -43,12 +45,11 @@ public class SeoTextController {
 
     @RequestMapping("data/v1/seo-text")
     @ResponseBody
-    @DisableCaching
-    // to be removed.
-    public APIResponse getSeo(@RequestParam String url) throws FileNotFoundException, IllegalAccessException,
+    public APIResponse getSeo(@ModelAttribute URLDetail urlDetail, @RequestParam String templateId) throws FileNotFoundException, IllegalAccessException,
             InvocationTargetException, NoSuchMethodException {
     	
-        return new APIResponse(seoPageService.getSeoContentForPage(url));
+        return new APIResponse(seoPageService.getSeoMetaContentForPage(urlDetail, templateId));
+        //return new APIResponse(seoPageService.getSeoContentForPage());
 
     }
 }
