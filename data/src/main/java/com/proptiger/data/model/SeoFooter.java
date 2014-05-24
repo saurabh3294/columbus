@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 @JsonInclude(Include.NON_NULL)
 public class SeoFooter extends BaseModel {
 
-    
     /**
      * 
      */
@@ -41,7 +40,7 @@ public class SeoFooter extends BaseModel {
 
     @Transient
     @JsonUnwrapped
-    Map<String, Object>                  footerUrls;
+    Map<String, Object>       footerUrls;
 
     @PostLoad
     public void setJsonPreference() {

@@ -19,14 +19,13 @@ public class URLDetail {
     private Integer  builderId;
     private Integer  suburbId;
     private Integer  propertyId;
-    private Integer   bedrooms;
+    private Integer  bedrooms;
     /*
-     * @TODO merge these three fields into one.
-     * Then either all of them should be present or
-     * entire object null. Find a way ??
+     * @TODO merge these three fields into one. Then either all of them should
+     * be present or entire object null. Find a way ??
      */
     private String   PriceRange;
-    
+
     public Integer getBuilderId() {
         return builderId;
     }

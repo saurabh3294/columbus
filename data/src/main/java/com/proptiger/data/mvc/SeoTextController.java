@@ -42,14 +42,13 @@ public class SeoTextController {
     @Autowired
     private URLService     urlService;
 
-
     @RequestMapping("data/v1/seo-text")
     @ResponseBody
-    public APIResponse getSeo(@ModelAttribute URLDetail urlDetail, @RequestParam String templateId) throws FileNotFoundException, IllegalAccessException,
-            InvocationTargetException, NoSuchMethodException {
-    	
+    public APIResponse getSeo(@ModelAttribute URLDetail urlDetail, @RequestParam String templateId)
+            throws FileNotFoundException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+
         return new APIResponse(seoPageService.getSeoMetaContentForPage(urlDetail, templateId));
-        //return new APIResponse(seoPageService.getSeoContentForPage());
+        // return new APIResponse(seoPageService.getSeoContentForPage());
 
     }
 }

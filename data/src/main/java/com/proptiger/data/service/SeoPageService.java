@@ -77,9 +77,9 @@ public class SeoPageService {
 
     @Autowired
     private SeoFooterDao       seoFooterDao;
-    
+
     @Autowired
-    private SeoPageDao seoPageDao;
+    private SeoPageDao         seoPageDao;
 
     @Autowired
     private URLService         urlService;
@@ -108,7 +108,7 @@ public class SeoPageService {
         if (seoResponse == null) {
             seoResponse = new HashMap<String, Object>();
         }
-        
+
         SeoPage seoPage = null;
         BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
         Map<String, Object> seoMetaData = beanUtilsBean.describe(seoPage);
@@ -122,8 +122,8 @@ public class SeoPageService {
         seoResponse.put("footer", getSeoFooterUrlsByPage(url).getFooterUrls());
         return seoResponse;
     }
-    
-    public SeoPage getSeoMetaContentForPage(URLDetail urlDetail, String templateId){
+
+    public SeoPage getSeoMetaContentForPage(URLDetail urlDetail, String templateId) {
         SeoPage seoPage = getSeoPageByTemplateId(templateId);
         CompositeSeoTokenData compositeSeoTokenData = buildTokensValuesObject(urlDetail);
         Map<String, String> mappings = null;
@@ -136,10 +136,10 @@ public class SeoPageService {
             throw new ProAPIException(e);
         }
         setSeoTemplate(seoPage, mappings);
-        
+
         return seoPage;
     }
-    
+
     @Cacheable(value = Constants.CacheName.SEO_FOOTER, key = "#url")
     public SeoFooter getSeoFooterUrlsByPage(String url) {
         SeoFooter seoFooter = seoFooterDao.findOne(url);
@@ -148,10 +148,10 @@ public class SeoPageService {
         }
         return seoFooter;
     }
-    
-    public SeoPage getSeoPageByTemplateId(String templateId){
+
+    public SeoPage getSeoPageByTemplateId(String templateId) {
         SeoPage seoPage = seoPageDao.findOne(templateId);
-        if(seoPage == null){
+        if (seoPage == null) {
             seoPage = new SeoPage();
         }
         return seoPage;
@@ -168,103 +168,106 @@ public class SeoPageService {
 
     }
 
-    private Map<String, String> buildTokensMap(CompositeSeoTokenData compositeSeoTokenData) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, InstantiationException{
+    private Map<String, String> buildTokensMap(CompositeSeoTokenData compositeSeoTokenData)
+            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException,
+            InstantiationException {
         Map<String, String> mappingTokenValues = new HashMap<String, String>();
         Tokens tokens[] = Tokens.values();
-        //System.out.println(new Gson().toJson(compositeSeoTokenData));
-        Class<?> classObject= compositeSeoTokenData.getClass();
+
+        Class<?> classObject = compositeSeoTokenData.getClass();
         Object nestedObject = null;
-        Field field;
-        
-        for(int i=0; i<tokens.length; i++){
+        Field field = null;
+
+        for (int i = 0; i < tokens.length; i++) {
             nestedObject = compositeSeoTokenData;
-            if(tokens[i].getFieldName1() != null){
-          //      System.out.println(tokens[i]);
+            if (tokens[i].getFieldName1() != null) {
+
                 field = classObject.getDeclaredField(tokens[i].getFieldName1());
                 field.setAccessible(true);
                 nestedObject = field.get(compositeSeoTokenData);
-                
+
             }
-            if(nestedObject == null){
+            if (nestedObject == null) {
                 continue;
             }
-            //System.out.println(nestedObject.getClass().getName());
+
             field = nestedObject.getClass().getDeclaredField(tokens[i].getFieldName2());
             field.setAccessible(true);
-            mappingTokenValues.put(tokens[i].getValue(), (String)field.get(nestedObject));
+            mappingTokenValues.put(tokens[i].getValue(), (String) field.get(nestedObject));
         }
         return mappingTokenValues;
     }
-    private CompositeSeoTokenData buildTokensValuesObject(URLDetail urlDetail){
-         Property property = null;
-         Project project = null;
-         Locality locality = null;
-         Suburb suburb = null;
-         City city = null;
-         Builder builder = null;
-         String bedroomStr = null;
-         String priceRangeStr = null;
-         Gson gson = new Gson();
-         
-         if(urlDetail.getPropertyId() != null){
-             property = propertyService.getProperty(urlDetail.getPropertyId());
-             if(property == null){
-                 throw new ResourceNotAvailableException(ResourceType.PROPERTY, ResourceTypeAction.GET);
-             }
-             project = property.getProject();
-             locality = project.getLocality();
-             suburb = locality.getSuburb();
-             city = suburb.getCity();
-             builder = project.getBuilder();
-         }
-         if(urlDetail.getProjectId() != null){
-             String json = "{\"fields\":[\"distinctBedrooms\"]}";
-             Selector selector = gson.fromJson(json, Selector.class);
-             project = projectService.getProjectInfoDetails(selector, urlDetail.getProjectId());
-             if(project == null){
-                 throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
-             }
-             locality = project.getLocality();
-             suburb = locality.getSuburb();
-             city = suburb.getCity();
-             builder = project.getBuilder();
-             bedroomStr = project.getDistinctBedrooms().toString().replaceAll("[\\[\\]]","") + " BHK";
-         }
-         if(urlDetail.getLocalityId() != null){
-             locality = localityService.getLocality(urlDetail.getLocalityId());
-             if(locality == null){
-                 throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
-             }
-             suburb = locality.getSuburb();
-             city = suburb.getCity();
-         }
-         if(urlDetail.getSuburbId() != null){
-             suburb = suburbService.getSuburbById(urlDetail.getSuburbId());
-             if(suburb == null){
-                 throw new ResourceNotAvailableException(ResourceType.SUBURB, ResourceTypeAction.GET);
-             }
-             city = suburb.getCity();
-         }
-         if(urlDetail.getCityName() != null ){
-             city = cityService.getCity(urlDetail.getCityName());
-             if(city == null){
-                 throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
-             }
-         }
-         if(urlDetail.getBuilderId() != null){
-             builder = builderService.getBuilderById(urlDetail.getBuilderId());
-             if(builder == null){
-                 throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
-             }
-         }
-         if(urlDetail.getBedrooms() != null){
-             bedroomStr = urlDetail.getBedrooms() + " BHK";
-         }
-         if(urlDetail.getPriceRange() != null){
-             priceRangeStr = urlDetail.getPriceRange();
-         }
-             
-         return new CompositeSeoTokenData(property, project, locality, suburb, city, builder,   bedroomStr, priceRangeStr);
+
+    private CompositeSeoTokenData buildTokensValuesObject(URLDetail urlDetail) {
+        Property property = null;
+        Project project = null;
+        Locality locality = null;
+        Suburb suburb = null;
+        City city = null;
+        Builder builder = null;
+        String bedroomStr = null;
+        String priceRangeStr = null;
+        Gson gson = new Gson();
+
+        if (urlDetail.getPropertyId() != null) {
+            property = propertyService.getProperty(urlDetail.getPropertyId());
+            if (property == null) {
+                throw new ResourceNotAvailableException(ResourceType.PROPERTY, ResourceTypeAction.GET);
+            }
+            project = property.getProject();
+            locality = project.getLocality();
+            suburb = locality.getSuburb();
+            city = suburb.getCity();
+            builder = project.getBuilder();
+        }
+        if (urlDetail.getProjectId() != null) {
+            String json = "{\"fields\":[\"distinctBedrooms\"]}";
+            Selector selector = gson.fromJson(json, Selector.class);
+            project = projectService.getProjectInfoDetails(selector, urlDetail.getProjectId());
+            if (project == null) {
+                throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+            }
+            locality = project.getLocality();
+            suburb = locality.getSuburb();
+            city = suburb.getCity();
+            builder = project.getBuilder();
+            bedroomStr = project.getDistinctBedrooms().toString().replaceAll("[\\[\\]]", "") + " BHK";
+        }
+        if (urlDetail.getLocalityId() != null) {
+            locality = localityService.getLocality(urlDetail.getLocalityId());
+            if (locality == null) {
+                throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
+            }
+            suburb = locality.getSuburb();
+            city = suburb.getCity();
+        }
+        if (urlDetail.getSuburbId() != null) {
+            suburb = suburbService.getSuburbById(urlDetail.getSuburbId());
+            if (suburb == null) {
+                throw new ResourceNotAvailableException(ResourceType.SUBURB, ResourceTypeAction.GET);
+            }
+            city = suburb.getCity();
+        }
+        if (urlDetail.getCityName() != null) {
+            city = cityService.getCity(urlDetail.getCityName());
+            if (city == null) {
+                throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
+            }
+        }
+        if (urlDetail.getBuilderId() != null) {
+            builder = builderService.getBuilderById(urlDetail.getBuilderId());
+            if (builder == null) {
+                throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
+            }
+        }
+        if (urlDetail.getBedrooms() != null) {
+            bedroomStr = urlDetail.getBedrooms() + " BHK";
+        }
+        if (urlDetail.getPriceRange() != null) {
+            priceRangeStr = urlDetail.getPriceRange();
+        }
+
+        return new CompositeSeoTokenData(property, project, locality, suburb, city, builder, bedroomStr, priceRangeStr);
     }
 
     /*
@@ -272,10 +275,10 @@ public class SeoPageService {
      * values using the MAPPING
      */
     private String replace(String text, Map<String, String> mappings) {
-        if(text == null){
+        if (text == null) {
             return null;
         }
-        
+
         Pattern pattern = Pattern.compile("(<.+?>)");
         Matcher matcher = pattern.matcher(text);
         StringBuffer buffer = new StringBuffer();
@@ -290,17 +293,25 @@ public class SeoPageService {
         return buffer.toString();
     }
 
-    public static class CompositeSeoTokenData{
+    public static class CompositeSeoTokenData {
         private Property property;
-        private Project project;
+        private Project  project;
         private Locality locality;
-        private Suburb suburb;
-        private City city;
-        private Builder builder;
-        private String bedroomsStr;
-        private String priceRangeStr;
-        
-        public CompositeSeoTokenData(Property property, Project project, Locality locality, Suburb suburb, City city, Builder builder, String bedrooms, String priceRange){
+        private Suburb   suburb;
+        private City     city;
+        private Builder  builder;
+        private String   bedroomsStr;
+        private String   priceRangeStr;
+
+        public CompositeSeoTokenData(
+                Property property,
+                Project project,
+                Locality locality,
+                Suburb suburb,
+                City city,
+                Builder builder,
+                String bedrooms,
+                String priceRange) {
             this.property = property;
             this.project = project;
             this.locality = locality;
@@ -374,6 +385,6 @@ public class SeoPageService {
         public void setBuilder(Builder builder) {
             this.builder = builder;
         }
-        
+
     }
 }
