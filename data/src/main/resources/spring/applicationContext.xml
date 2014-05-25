@@ -68,8 +68,8 @@ http://www.springframework.org/schema/cache http://www.springframework.org/schem
 	<context:property-placeholder location="classpath:/application.properties" />
 
 	<!-- Configuration for caching and annotation driven. -->
-	<cache:annotation-driven key-generator="myKeyGenerator" />
-	<bean id="myKeyGenerator" class="com.proptiger.data.init.CustomDefaultKeyGenerator" />
+	<cache:annotation-driven key-generator="customKeyGenerator" />
+	<bean id="customKeyGenerator" class="com.proptiger.data.init.CustomDefaultKeyGenerator" />
 
 	<aop:aspectj-autoproxy />
 	<!--bean id="before" class="com.proptiger.data.util.ResponseCaching"/ -->

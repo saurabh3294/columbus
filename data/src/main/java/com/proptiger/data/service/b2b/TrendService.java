@@ -136,7 +136,7 @@ public class TrendService {
         return getPaginatedTrend(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getCurrentCatchmentPaginatedTrend(
+    public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentCurrentPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -165,7 +165,7 @@ public class TrendService {
         return getPaginatedTrend(getHithertoDateAppendedSelector(selector, monthDuration), rangeField, rangeValue);
     }
 
-    public PaginatedResponse<List<InventoryPriceTrend>> getHithertoCatchmentPaginatedTrend(
+    public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentHithertoPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
@@ -273,9 +273,7 @@ public class TrendService {
             String rangeValue) {
         List<InventoryPriceTrend> result = new ArrayList<>();
 
-        final List<Integer> rangeValueList = Arrays.asList(UtilityClass.getIntArrFromStringArr(rangeValue.split(",")));
-        Collections.sort(rangeValueList);
-
+        final List<Integer> rangeValueList = new ArrayList<>(getRangeValueListFromUserInput(rangeValue));
         final int rangeValueLength = rangeValueList.size();
 
         ExecutorService executor = Executors.newFixedThreadPool(Math.min(rangeValueLength + 1, MAX_THREAD_POOL_SIZE));
@@ -285,7 +283,7 @@ public class TrendService {
         callables.add(new Callable<List<InventoryPriceTrend>>() {
             public List<InventoryPriceTrend> call() throws Exception {
                 FIQLSelector sel = selector.clone();
-                sel.addAndConditionToFilter(rangeField + FIQLOperator.LessThan + rangeValueList.get(0));
+                sel.addAndConditionToFilter(rangeField + FIQLOperator.LessThan.getValue() + rangeValueList.get(0));
                 return getTrend(sel);
             }
         });
@@ -295,9 +293,9 @@ public class TrendService {
             callables.add(new Callable<List<InventoryPriceTrend>>() {
                 public List<InventoryPriceTrend> call() throws Exception {
                     FIQLSelector sel = selector.clone();
-                    sel.addAndConditionToFilter(rangeField + FIQLOperator.LessThan + rangeValueList.get(j))
+                    sel.addAndConditionToFilter(rangeField + FIQLOperator.LessThan.getValue() + rangeValueList.get(j))
                             .addAndConditionToFilter(
-                                    rangeField + FIQLOperator.GreaterThanEqual + rangeValueList.get(j - 1));
+                                    rangeField + FIQLOperator.GreaterThanEqual.getValue() + rangeValueList.get(j - 1));
                     return getTrend(sel);
                 }
             });
@@ -306,7 +304,7 @@ public class TrendService {
         callables.add(new Callable<List<InventoryPriceTrend>>() {
             public List<InventoryPriceTrend> call() throws Exception {
                 FIQLSelector sel = selector.clone();
-                sel.addAndConditionToFilter(rangeField + FIQLOperator.GreaterThanEqual
+                sel.addAndConditionToFilter(rangeField + FIQLOperator.GreaterThanEqual.getValue()
                         + rangeValueList.get(rangeValueLength - 1));
                 return getTrend(sel);
             }
@@ -329,6 +327,7 @@ public class TrendService {
 
                 List<InventoryPriceTrend> inventoryPriceTrends = future.get();
                 for (InventoryPriceTrend inventoryPriceTrend : inventoryPriceTrends) {
+                    inventoryPriceTrend.setRangeValue(key);
                     Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
                     extraAttributes.put(RANGE_KEY, key);
                     inventoryPriceTrend.setExtraAttributes(extraAttributes);
@@ -373,20 +372,46 @@ public class TrendService {
     }
 
     private FIQLSelector getHithertoDateAppendedSelector(FIQLSelector selector, Integer monthDuration) {
-        selector.addAndConditionToFilter("month=le=" + currentMonth);
+        selector.addAndConditionToFilter("month" + FIQLOperator.LessThanEqual.getValue() + currentMonth);
         if (monthDuration != null) {
-            selector.addAndConditionToFilter("month=gt=" + DateUtil.shiftMonths(currentMonth, -1 * monthDuration));
+            selector.addAndConditionToFilter("month" + FIQLOperator.GreaterThan.getValue()
+                    + DateUtil.shiftMonths(currentMonth, -1 * monthDuration));
         }
         return selector;
     }
 
     private FIQLSelector getCurrentDateAppendedSelector(FIQLSelector selector) {
-        return selector.addAndConditionToFilter("month==" + currentMonth);
+        return selector.addAndConditionToFilter("month" + FIQLOperator.Equal.getValue() + currentMonth);
     }
 
     private FIQLSelector getDominantSupplyAppendedSelector(FIQLSelector selector) {
-        selector.addAndConditionToFilter("unitType==" + getDominantSupply(selector));
+        selector.addAndConditionToFilter("unitType" + FIQLOperator.Equal.getValue() + getDominantSupply(selector));
         selector.addField("unitType");
         return selector;
+    }
+
+    private LinkedHashSet<Integer> getRangeValueListFromUserInput(String rangeValue) {
+        List<Integer> allValues = new ArrayList<>();
+        if (rangeValue != null && rangeValue.length() != 0) {
+            allValues = Arrays.asList(UtilityClass.getIntArrFromStringArr(rangeValue.split(",")));
+            Collections.sort(allValues);
+        }
+
+        return new LinkedHashSet<>(allValues);
+    }
+
+    public LinkedHashSet<String> getRangeValueKeySetFromUserInput(String rangeValue) {
+        LinkedHashSet<String> result = new LinkedHashSet<>();
+        List<Integer> allValues = new ArrayList<>(getRangeValueListFromUserInput(rangeValue));
+        int size = allValues.size();
+
+        if (size > 0) {
+            result.add(RANGE_VALUE_SEPARATOR + allValues.get(0));
+            for (int i = 0; i < size - 1; i++) {
+                result.add(allValues.get(i) + RANGE_VALUE_SEPARATOR + allValues.get(i + 1));
+            }
+            result.add(allValues.get(size - 1) + RANGE_VALUE_SEPARATOR);
+        }
+        return result;
     }
 }
