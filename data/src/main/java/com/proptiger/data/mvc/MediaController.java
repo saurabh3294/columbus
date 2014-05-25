@@ -10,11 +10,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Media;
-import com.proptiger.data.model.enums.DomainObject;
-import com.proptiger.data.pojo.ProAPIResponse;
-import com.proptiger.data.pojo.ProAPISuccessResponse;
+import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.DocumentService;
 
 /**
@@ -42,23 +41,23 @@ public class MediaController {
 
     @RequestMapping(value = "/document")
     @ResponseBody
-    public ProAPIResponse getMedia(
+    public APIResponse getMedia(
             @RequestParam DomainObject objectType,
             @RequestParam Integer objectId,
             @RequestParam(required = false) String documentType) {
-        return new ProAPISuccessResponse(documentService.getMedia(objectType, objectId, documentType));
+        return new APIResponse(documentService.getMedia(objectType, objectId, documentType));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/document/{id}")
     @ResponseBody
-    public ProAPIResponse deleteMedia(@PathVariable Integer id) {
+    public APIResponse deleteMedia(@PathVariable Integer id) {
         documentService.deleteMedia(id);
-        return new ProAPISuccessResponse();
+        return new APIResponse();
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/document/{id}")
     @ResponseBody
-    public ProAPIResponse updateMedia(@PathVariable Integer id, @ModelAttribute Media media) {
-        return new ProAPISuccessResponse(documentService.updateMedia(media, id));
+    public APIResponse updateMedia(@PathVariable Integer id, @ModelAttribute Media media) {
+        return new APIResponse(documentService.updateMedia(media, id));
     }
 }

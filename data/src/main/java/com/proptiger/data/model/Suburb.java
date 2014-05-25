@@ -20,6 +20,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -38,80 +39,92 @@ import com.proptiger.data.model.image.Image;
 @JsonInclude(Include.NON_NULL)
 public class Suburb extends BaseModel {
 
-    private static final long    serialVersionUID = -2218972539984731924L;
+    private static final long               serialVersionUID = -2218972539984731924L;
 
     @Id
     @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
     @Field("SUBURB_ID")
-    private int                  id;
+    private int                             id;
 
     @FieldMetaInfo(displayName = "City Id", description = "City Id")
     @Column(name = "CITY_ID")
     @Field("CITY_ID")
-    private int                  cityId;
+    private int                             cityId;
 
     @FieldMetaInfo(displayName = "Label", description = "Suburb label")
     @Column(name = "LABEL")
     @Field("SUBURB")
-    private String               label;
+    private String                          label;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "CITY_ID", insertable = false, updatable = false)
-    private City                 city;
+    private City                            city;
 
     @Column(name = "URL")
     @Field("SUBURB_URL")
     @FieldMetaInfo(displayName = "URL", description = "URL")
-    private String               url;
+    private String                          url;
 
     @Column(name = "DESCRIPTION")
     @Field("SUBURB_DESCRIPTION")
     @FieldMetaInfo(displayName = "Description", description = "Description")
-    private String               description;
+    private String                          description;
 
     @Column(name = "PRIORITY")
     @Field("SUBURB_PRIORITY")
     @FieldMetaInfo(displayName = "Priority", description = "Priority")
-    private int                  priority;
+    private int                             priority;
 
     @Transient
     @Field("SUBURB_PRICE_PER_UNIT_AREA")
-    private Double               avgPricePerUnitArea;
+    private Double                          avgPricePerUnitArea;
 
     @Transient
     @Field("SUBURB_PRICE_RISE")
-    private Double               avgPriceRisePercentage;
+    private Double                          avgPriceRisePercentage;
 
     @Transient
     @Field("SUBURB_PRICE_RISE_TIME")
-    private Integer              avgPriceRiseMonths;
+    private Integer                         avgPriceRiseMonths;
 
     @Transient
     @Field("SUBURB_DOMINANT_UNIT_TYPE")
-    private String               dominantUnitType;
+    private String                          dominantUnitType;
 
     @Transient
-    private Map<Integer, Double> avgBHKPricePerUnitArea;
+    private Map<Integer, Double>            avgBHKPricePerUnitArea;
 
     @Transient
     @Field("SUBURB_OVERVIEW_URL")
-    private String               overviewUrl;
-    
+    private String                          overviewUrl;
+
     @Transient
-    private Map<String, Long>	projectStatusCount;
-    
+    private Map<String, Long>               projectStatusCount;
+
     @Transient
     @Field("SUBURB_PROJECT_COUNT")
-    private Integer				projectCount;
-    
+    private Integer                         projectCount;
+
     @Transient
     private LocalityAverageRatingByCategory avgRatingsByCategory;
 
     @Transient
     private List<Image>                     images;
-    
+
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "Suburb enquiry count", description = "Suburb enquiry count")
+    @Field(value = "SUBURB_ENQUIRY_COUNT")
+    private Integer                         suburbEnquiryCount;
+
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "Suburb view count", description = "Suburb view count")
+    @Field(value = "SUBURB_VIEW_COUNT")
+    private Integer                         suburbViewCount;
+
     public int getId() {
         return id;
     }
@@ -232,14 +245,13 @@ public class Suburb extends BaseModel {
         this.projectCount = projectCount;
     }
 
-	public LocalityAverageRatingByCategory getAvgRatingsByCategory() {
-		return avgRatingsByCategory;
-	}
+    public LocalityAverageRatingByCategory getAvgRatingsByCategory() {
+        return avgRatingsByCategory;
+    }
 
-	public void setAvgRatingsByCategory(
-			LocalityAverageRatingByCategory avgRatingsByCategory) {
-		this.avgRatingsByCategory = avgRatingsByCategory;
-	}
+    public void setAvgRatingsByCategory(LocalityAverageRatingByCategory avgRatingsByCategory) {
+        this.avgRatingsByCategory = avgRatingsByCategory;
+    }
 
     public List<Image> getImages() {
         return images;
@@ -247,5 +259,21 @@ public class Suburb extends BaseModel {
 
     public void setImages(List<Image> images) {
         this.images = images;
+    }
+
+    public Integer getSuburbEnquiryCount() {
+        return suburbEnquiryCount;
+    }
+
+    public void setSuburbEnquiryCount(Integer suburbEnquiryCount) {
+        this.suburbEnquiryCount = suburbEnquiryCount;
+    }
+
+    public Integer getSuburbViewCount() {
+        return suburbViewCount;
+    }
+
+    public void setSuburbViewCount(Integer suburbViewCount) {
+        this.suburbViewCount = suburbViewCount;
     }
 }

@@ -16,9 +16,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.data.enums.ActivationStatus;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Locality;
-import com.proptiger.data.model.enums.ActivationStatus;
 
 /**
  * @author Rajeev Pandey

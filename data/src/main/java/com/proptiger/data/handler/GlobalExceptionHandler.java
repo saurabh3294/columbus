@@ -52,11 +52,12 @@ public class GlobalExceptionHandler {
     private void logAPIUrlInLogFile(HttpServletRequest httpRequest, Exception ex) {
         if (httpRequest != null) {
             logger.error(
-                    "Exception occured while accessing url {} {} {} {}",
+                    "Exception occured while accessing url {} {} {} {} {}",
                     httpRequest.getMethod(),
                     httpRequest.getRequestURI(),
                     httpRequest.getQueryString(),
                     httpRequest.getHeader("user-agent"),
+                    httpRequest.getRemoteAddr(),
                     ex);
         }
     }

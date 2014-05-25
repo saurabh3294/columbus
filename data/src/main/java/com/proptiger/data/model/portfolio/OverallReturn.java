@@ -1,32 +1,23 @@
 package com.proptiger.data.model.portfolio;
 
-import java.math.BigDecimal;
-
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.proptiger.data.meta.DataType;
-import com.proptiger.data.meta.FieldMetaInfo;
-import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.enums.portfolio.ReturnType;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.portfolio.enums.ReturnType;
 
 /**
  * @author Rajeev Pandey
  * 
  */
-@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 public class OverallReturn extends BaseModel {
 
     private static final long serialVersionUID = 656252525344007387L;
 
-    @FieldMetaInfo(dataType = DataType.STRING, displayName = "returnType", description = "Return Type")
     private ReturnType        returnType;
 
-    @FieldMetaInfo(dataType = DataType.CURRENCY, displayName = "changeAmount", description = "Change Amount")
-    private BigDecimal        changeAmount;
+    private double        changeAmount;
 
-    @FieldMetaInfo(dataType = DataType.DOUBLE, displayName = "changePercent", description = "Change Percent")
-    private BigDecimal        changePercent;
+    private double        changePercent;
 
     public ReturnType getReturnType() {
         return returnType;
@@ -36,19 +27,19 @@ public class OverallReturn extends BaseModel {
         this.returnType = returnType;
     }
 
-    public BigDecimal getChangeAmount() {
+    public double getChangeAmount() {
         return changeAmount;
     }
 
-    public void setChangeAmount(BigDecimal changeAmount) {
+    public void setChangeAmount(double changeAmount) {
         this.changeAmount = changeAmount;
     }
 
-    public BigDecimal getChangePercent() {
+    public double getChangePercent() {
         return changePercent;
     }
 
-    public void setChangePercent(BigDecimal changePercent) {
+    public void setChangePercent(double changePercent) {
         this.changePercent = changePercent;
     }
 

@@ -16,10 +16,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.b2b.external.dto.BuilderTrend;
+import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.init.comparator.GenericComparator;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.b2b.InventoryPriceTrend;
-import com.proptiger.data.model.enums.UnitType;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.b2b.TrendDao;
 import com.proptiger.data.util.DateUtil;
@@ -328,7 +328,7 @@ public class BuilderTrendService {
     private FIQLSelector getDelayedFIQLFromUserFiql(FIQLSelector userFIQLSelector) {
         FIQLSelector result = new FIQLSelector();
         result.setFilters(userFIQLSelector.getFilters()).addAndConditionToFilter("month==" + currentMonth)
-                .addAndConditionToFilter("isDelayed==true");
+                .addAndConditionToFilter("completionDelayInMonth=gt=0");
         result.setFields("builderId,sumLtdLaunchedUnit,sumLtdSupply,sumInventory,wavgSizeOnLtdSupply");
         result.setGroup("builderId");
         return result;

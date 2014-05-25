@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.proptiger.data.model.ConstructionStatus;
+import com.proptiger.data.enums.b2b.ConstructionStatus;
 import com.proptiger.data.model.portfolio.PortfolioListing.Source;
 
 /**

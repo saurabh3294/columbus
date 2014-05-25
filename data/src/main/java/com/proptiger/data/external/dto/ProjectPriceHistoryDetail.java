@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proptiger.data.model.BaseModel;
 
 /**
  * Model object to map cms project history
@@ -12,8 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author Rajeev Pandey
  * 
  */
-public class ProjectPriceHistoryDetail {
+public class ProjectPriceHistoryDetail extends BaseModel {
 
+    private static final long serialVersionUID = -7675787796882515734L;
     private String                                                    status;
     private String                                                    message;
     private Map<String, Map<String, Map<String, ProjectPriceDetail>>> prices;
@@ -42,7 +44,8 @@ public class ProjectPriceHistoryDetail {
         this.prices = prices;
     }
 
-    public static class ProjectPriceDetail {
+    public static class ProjectPriceDetail extends BaseModel {
+        private static final long serialVersionUID = -8474822434478091034L;
         private Integer project_id;
         private Integer options_id;
         private double  price;

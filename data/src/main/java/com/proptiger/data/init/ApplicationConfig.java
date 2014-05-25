@@ -114,7 +114,7 @@ public class ApplicationConfig {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         // set jpa vendor
         factory.setJpaVendorAdapter(createJPAAdapter());
-        // factory.setDataSource(dataSource());
+        //factory.setDataSource(dataSource());
         factory.setDataSource(pooledDataSource());
         factory.setPersistenceProviderClass(HibernatePersistence.class);
         factory.setPackagesToScan(propertyReader.getRequiredProperty(PropertyKeys.ENTITYMANAGER_PACKAGES_TO_SCAN));

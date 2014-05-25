@@ -22,7 +22,8 @@ public class FIQLSelector implements Cloneable, Serializable {
     private String            group;
     private String            sort;
     private int               start                    = 0;
-    private Integer           rows;
+
+    private int               rows                     = 10;
 
     private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
     private static String     monthAlwaysTrueStatement = "month!=1970-01-01";
@@ -170,5 +171,20 @@ public class FIQLSelector implements Cloneable, Serializable {
             result = new HashSet<>(Arrays.asList(this.fields.split(",")));
         }
         return result;
+    }
+
+    public static enum FIQLOperator {
+        Equal("=="), NotEqual("!="), LessThan("=lt="), LessThanEqual("=le="), GreaterThan("=gt="), GreaterThanEqual(
+                "=ge="), And(";"), Or(",");
+
+        private String value;
+
+        private FIQLOperator(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
     }
 }

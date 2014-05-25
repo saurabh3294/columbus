@@ -16,7 +16,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.proptiger.data.model.b2b.Status;
+import com.proptiger.data.enums.b2b.Status;
 
 /**
  * 

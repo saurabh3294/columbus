@@ -13,9 +13,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.resource.NamedResource;
-import com.proptiger.data.model.resource.Resource;
-
 /**
  * Model object for widget resource
  * 
@@ -24,7 +21,7 @@ import com.proptiger.data.model.resource.Resource;
  */
 @Entity
 @Table(name = "widgets")
-public class Widget implements NamedResource, Resource {
+public class Widget{
 
     @Id
     @Column(name = "id")
@@ -50,22 +47,18 @@ public class Widget implements NamedResource, Resource {
     @Column(name = "updated_at")
     private Date       updatedAt;
 
-    @Override
     public Integer getId() {
         return id;
     }
 
-    @Override
     public void setId(Integer id) {
         this.id = id;
     }
 
-    @Override
     public String getName() {
         return name;
     }
 
-    @Override
     public void setName(String name) {
         this.name = name;
     }
