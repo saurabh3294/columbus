@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.URLDetail;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.util.PageType;
 
 /**
@@ -36,7 +35,7 @@ public class URLService {
 			InvocationTargetException {
 		URLDetail urlDetail = new URLDetail();
 		List<String> groups = new ArrayList<String>();
-
+		
 		for (PageType pageType : PageType.values()) {
 			Pattern pattern = Pattern.compile(pageType.getRegex());
 			Matcher matcher = pattern.matcher(URL);
@@ -55,7 +54,8 @@ public class URLService {
 				break;
 			}
 		}
-		urlDetail.setURL(URL);
+		
+		urlDetail.setUrl(URL);
 		return urlDetail;
 	}
 }
