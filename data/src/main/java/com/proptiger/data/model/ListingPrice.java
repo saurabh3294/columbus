@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -154,10 +155,11 @@ public class ListingPrice extends BaseModel {
         return serialVersionUID;
     }
 
-    public static class CustomCurrentListingPrice {
-        private int     listingId;
-        private Integer pricePerUnitArea;
-        private Date    effectiveMonth;
+    public static class CustomCurrentListingPrice implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private int               listingId;
+        private Integer           pricePerUnitArea;
+        private Date              effectiveMonth;
 
         public CustomCurrentListingPrice(int listingId, String pricePerUnitArea, String effectiveMonth) {
             try {
