@@ -43,6 +43,10 @@ public class DataAPIAuthenticationFilter implements Filter {
      * To enable and disable the authentication, modify in shiro.ini
      */
     private boolean             enabled = true;
+    
+    private Pattern userIdPattern = Pattern.compile("USER_ID.+?\"(\\d+?)\"");
+    private Pattern userNamePattern = Pattern.compile("USERNAME.+?\"([a-z|A-Z|0-9].+?)\"");
+    private Pattern emailPattern = Pattern.compile("EMAIL.+?\"(.+?)\"");
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
@@ -251,10 +255,6 @@ public class DataAPIAuthenticationFilter implements Filter {
         if (sessionId != null) {
             String value = (String) CacheClientUtil.getValue(sessionId);
             if (value != null) {
-
-                Pattern userIdPattern = Pattern.compile("USER_ID.+?\"(\\d+?)\"");
-                Pattern userNamePattern = Pattern.compile("USERNAME.+?\"([a-z|A-Z|0-9].+?)\"");
-                Pattern emailPattern = Pattern.compile("EMAIL.+?\"(.+?)\"");
 
                 Matcher userIdMatcher = userIdPattern.matcher(value);
                 Matcher userNameMatcher = userNamePattern.matcher(value);
