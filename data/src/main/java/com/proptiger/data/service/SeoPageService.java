@@ -9,7 +9,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.Valid;
+
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -76,9 +80,17 @@ public class SeoPageService {
     @Value("${proptiger.url}")
     private String             websiteHost;
 
-    public Map<String, Object> getSeoContentForPage(URLDetail urlDetail, String templateId) throws IllegalAccessException,
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    private static Logger      logger       = LoggerFactory.getLogger(SeoPageService.class);
+
+    private Pattern            pattern      = Pattern.compile("(<.+?>)");
+
+    public Map<String, Object> getSeoContentForPage(URLDetail urlDetail) throws IllegalAccessException,
             InvocationTargetException, NoSuchMethodException, FileNotFoundException {
 
+        String templateId = urlDetail.getTemplateId();
         Map<String, Object> seoResponse = null;
         try {
             seoResponse = new Gson().fromJson(
@@ -105,14 +117,17 @@ public class SeoPageService {
         }
         metaData.putAll(seoMetaData);
         seoResponse.put("meta", metaData);
-        
+
         String url = getFooterUrl(urlDetail);
-        seoResponse.put("footer", getSeoFooterUrlsByPage(url).getFooterUrls());
+        // RTRIM the urls with extra slashes.
+        url = url.replaceAll("[/]*$", "");
+        seoResponse.put("footer", applicationContext.getBean(SeoPageService.class).getSeoFooterUrlsByPage(url)
+                .getFooterUrls());
         return seoResponse;
     }
 
     public SeoPage getSeoMetaContentForPage(URLDetail urlDetail, String templateId) {
-        SeoPage seoPage = getSeoPageByTemplateId(templateId);
+        SeoPage seoPage = applicationContext.getBean(SeoPageService.class).getSeoPageByTemplateId(templateId);
         CompositeSeoTokenData compositeSeoTokenData = buildTokensValuesObject(urlDetail);
         Map<String, String> mappings = null;
         try {
@@ -123,7 +138,7 @@ public class SeoPageService {
             // TODO Auto-generated catch block
             throw new ProAPIException(e);
         }
-        setSeoTemplate(seoPage, mappings);
+        setSeoTemplate(seoPage, mappings, urlDetail);
 
         return seoPage;
     }
@@ -137,7 +152,7 @@ public class SeoPageService {
         return seoFooter;
     }
 
-    @Cacheable(value= Constants.CacheName.SEO_TEMPLATE)
+    @Cacheable(value = Constants.CacheName.SEO_TEMPLATE)
     public SeoPage getSeoPageByTemplateId(String templateId) {
         SeoPage seoPage = seoPageDao.findOne(templateId);
         if (seoPage == null) {
@@ -145,22 +160,22 @@ public class SeoPageService {
         }
         return seoPage;
     }
-    
-    private String getFooterUrl(URLDetail urlDetail){
-        if(urlDetail.getFallBackUrl() != null)
+
+    private String getFooterUrl(URLDetail urlDetail) {
+        if (urlDetail.getFallBackUrl() != null)
             return urlDetail.getFallBackUrl();
         else
             return urlDetail.getUrl();
     }
-    
-    private void setSeoTemplate(SeoPage seopage, Map<String, String> mappings) {
-        seopage.setTitle(replace(seopage.getTitle(), mappings));
-        seopage.setDescription(replace(seopage.getDescription(), mappings));
-        seopage.setKeywords(replace(seopage.getKeywords(), mappings));
-        seopage.setH1(replace(seopage.getH1(), mappings));
-        seopage.setH2(replace(seopage.getH2(), mappings));
-        seopage.setH3(replace(seopage.getH3(), mappings));
-        seopage.setH4(replace(seopage.getH4(), mappings));
+
+    private void setSeoTemplate(SeoPage seopage, Map<String, String> mappings, URLDetail urlDetail) {
+        seopage.setTitle(replace(seopage.getTitle(), mappings, urlDetail));
+        seopage.setDescription(replace(seopage.getDescription(), mappings, urlDetail));
+        seopage.setKeywords(replace(seopage.getKeywords(), mappings, urlDetail));
+        seopage.setH1(replace(seopage.getH1(), mappings, urlDetail));
+        seopage.setH2(replace(seopage.getH2(), mappings, urlDetail));
+        seopage.setH3(replace(seopage.getH3(), mappings, urlDetail));
+        seopage.setH4(replace(seopage.getH4(), mappings, urlDetail));
 
     }
 
@@ -173,7 +188,7 @@ public class SeoPageService {
         Class<?> classObject = compositeSeoTokenData.getClass();
         Object nestedObject = null;
         Field field = null;
-
+        Object valueObject = null;
         for (int i = 0; i < tokens.length; i++) {
             nestedObject = compositeSeoTokenData;
             if (tokens[i].getFieldName1() != null) {
@@ -189,7 +204,11 @@ public class SeoPageService {
 
             field = nestedObject.getClass().getDeclaredField(tokens[i].getFieldName2());
             field.setAccessible(true);
-            mappingTokenValues.put(tokens[i].getValue(), (String) field.get(nestedObject));
+            valueObject = field.get(nestedObject);
+            if (valueObject == null) {
+                continue;
+            }
+            mappingTokenValues.put(tokens[i].getValue(), (String) valueObject.toString());
         }
         return mappingTokenValues;
     }
@@ -259,8 +278,8 @@ public class SeoPageService {
         if (urlDetail.getBedrooms() != null) {
             bedroomStr = urlDetail.getBedrooms() + " BHK";
         }
-        if (urlDetail.getPriceRange() != null) {
-            priceRangeStr = urlDetail.getPriceRange();
+        if (urlDetail.getMinBudget() != null) {
+            priceRangeStr = urlDetail.getMinBudget() + "-" + urlDetail.getMaxBudget() + " Lacs";
         }
 
         return new CompositeSeoTokenData(property, project, locality, suburb, city, builder, bedroomStr, priceRangeStr);
@@ -270,20 +289,22 @@ public class SeoPageService {
      * This function(replace()) replaces the tokens in the TEXT with their
      * values using the MAPPING
      */
-    private String replace(String text, Map<String, String> mappings) {
+    private String replace(String text, Map<String, String> mappings, URLDetail urlDetail) {
         if (text == null) {
             return null;
         }
 
-        Pattern pattern = Pattern.compile("(<.+?>)");
-        Matcher matcher = pattern.matcher(text);
+        Matcher matcher = this.pattern.matcher(text);
         StringBuffer buffer = new StringBuffer();
 
         while (matcher.find()) {
             String replacement = mappings.get(matcher.group(1).toLowerCase());
-            if (replacement != null) {
-                matcher.appendReplacement(buffer, replacement);
+            if (replacement == null) {
+                replacement = "";
+                logger.error(matcher.group(1) + " Token Not Found At constructing SEO template with request details: "
+                        + urlDetail);
             }
+            matcher.appendReplacement(buffer, replacement);
         }
         matcher.appendTail(buffer);
         return buffer.toString();

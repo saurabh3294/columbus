@@ -3,6 +3,11 @@
  */
 package com.proptiger.data.model;
 
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import com.proptiger.data.util.PageType;
 
 /**
@@ -10,7 +15,12 @@ import com.proptiger.data.util.PageType;
  *
  */
 public class URLDetail {
+    @NotNull(message = "The url field should not be empty.")
     private String   url;
+
+    @NotNull(message = "The template Id field should not be empty.")
+    private String   templateId;
+
     private PageType pageType;
     private String   cityName;
     private Integer  cityId;
@@ -20,7 +30,8 @@ public class URLDetail {
     private Integer  suburbId;
     private Integer  propertyId;
     private Integer  bedrooms;
-    private String   PriceRange;
+    private Integer   minBudget;
+    private Integer   maxBudget;
     private String   fallBackUrl;
 
     public Integer getBuilderId() {
@@ -103,20 +114,41 @@ public class URLDetail {
         this.bedrooms = bedrooms;
     }
 
-    public String getPriceRange() {
-        return PriceRange;
-    }
-
-    public void setPriceRange(String priceRange) {
-        PriceRange = priceRange;
-    }
-
     public String getFallBackUrl() {
         return fallBackUrl;
     }
 
     public void setFallBackUrl(String fallBackUrl) {
         this.fallBackUrl = fallBackUrl;
+    }
+
+    public String getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
+    public Integer getMinBudget() {
+        return minBudget;
+    }
+
+    public void setMinBudget(Integer minBudget) {
+        this.minBudget = minBudget;
+    }
+
+    public Integer getMaxBudget() {
+        return maxBudget;
+    }
+
+    public void setMaxBudget(Integer maxBudget) {
+        this.maxBudget = maxBudget;
     }
 
 }

@@ -27,13 +27,20 @@ public class SeoPage extends BaseModel {
     /**
      * @Note The token should be in lowercase.
      * @author mukand
-     * 
+     * TODO scope of improvements in the enums. (The field selection heirarchy should be field1.field2.field3 ... instead of field1, field2).
+     *       The enum value should contain the fields for adding prefix or suffix for token replacement.
      */
     public enum Tokens {
+        /*
+         * ENUM_NAME(token name, field1, field2)
+         * They will be mapped with CompositeSeoTokenData class. 
+         * field1 corresponds to the field name in the above mentioned class.
+         * field2 corresponds to the field name in the field1 class. if field1 is null then in above mentioned class.
+         */
         Locality("<locality>", "locality", "label"), City("<city>", "city", "label"), Suburb("<suburb>", "suburb",
                 "label"), BuiderName("<builder name>", "builder", "name"), ProjectName("<project name>", "project",
                 "name"), UnitName("<unit name>", "property", "unitName"), BHK("<bhk>", null, "bedroomsStr"), PriceRange(
-                "<price range>", null, "priceRangeStr");
+                "<price range>", null, "priceRangeStr"), Bathrooms("<t>","property","bathrooms");
 
         private String value;
         private String fieldName1;
