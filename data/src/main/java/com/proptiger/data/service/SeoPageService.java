@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.validation.Valid;
+
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +80,9 @@ public class SeoPageService {
     @Value("${proptiger.url}")
     private String             websiteHost;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
     private static Logger      logger       = LoggerFactory.getLogger(SeoPageService.class);
 
     private Pattern            pattern      = Pattern.compile("(<.+?>)");
@@ -116,12 +121,13 @@ public class SeoPageService {
         String url = getFooterUrl(urlDetail);
         // RTRIM the urls with extra slashes.
         url = url.replaceAll("[/]*$", "");
-        seoResponse.put("footer", getSeoFooterUrlsByPage(url).getFooterUrls());
+        seoResponse.put("footer", applicationContext.getBean(SeoPageService.class).getSeoFooterUrlsByPage(url)
+                .getFooterUrls());
         return seoResponse;
     }
 
     public SeoPage getSeoMetaContentForPage(URLDetail urlDetail, String templateId) {
-        SeoPage seoPage = getSeoPageByTemplateId(templateId);
+        SeoPage seoPage = applicationContext.getBean(SeoPageService.class).getSeoPageByTemplateId(templateId);
         CompositeSeoTokenData compositeSeoTokenData = buildTokensValuesObject(urlDetail);
         Map<String, String> mappings = null;
         try {
@@ -199,7 +205,7 @@ public class SeoPageService {
             field = nestedObject.getClass().getDeclaredField(tokens[i].getFieldName2());
             field.setAccessible(true);
             valueObject = field.get(nestedObject);
-            if(valueObject == null){
+            if (valueObject == null) {
                 continue;
             }
             mappingTokenValues.put(tokens[i].getValue(), (String) valueObject.toString());
@@ -272,8 +278,8 @@ public class SeoPageService {
         if (urlDetail.getBedrooms() != null) {
             bedroomStr = urlDetail.getBedrooms() + " BHK";
         }
-        if (urlDetail.getPriceRange() != null) {
-            priceRangeStr = urlDetail.getPriceRange();
+        if (urlDetail.getMinBudget() != null) {
+            priceRangeStr = urlDetail.getMinBudget() + "-" + urlDetail.getMaxBudget() + " Lacs";
         }
 
         return new CompositeSeoTokenData(property, project, locality, suburb, city, builder, bedroomStr, priceRangeStr);

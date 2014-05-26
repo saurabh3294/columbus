@@ -30,7 +30,8 @@ public class URLDetail {
     private Integer  suburbId;
     private Integer  propertyId;
     private Integer  bedrooms;
-    private String   PriceRange;
+    private Integer   minBudget;
+    private Integer   maxBudget;
     private String   fallBackUrl;
 
     public Integer getBuilderId() {
@@ -113,14 +114,6 @@ public class URLDetail {
         this.bedrooms = bedrooms;
     }
 
-    public String getPriceRange() {
-        return PriceRange;
-    }
-
-    public void setPriceRange(String priceRange) {
-        PriceRange = priceRange;
-    }
-
     public String getFallBackUrl() {
         return fallBackUrl;
     }
@@ -139,8 +132,23 @@ public class URLDetail {
 
     @Override
     public String toString() {
-        return ToStringBuilder
-                .reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+    }
+
+    public Integer getMinBudget() {
+        return minBudget;
+    }
+
+    public void setMinBudget(Integer minBudget) {
+        this.minBudget = minBudget;
+    }
+
+    public Integer getMaxBudget() {
+        return maxBudget;
+    }
+
+    public void setMaxBudget(Integer maxBudget) {
+        this.maxBudget = maxBudget;
     }
 
 }
