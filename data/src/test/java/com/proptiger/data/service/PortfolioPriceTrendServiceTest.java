@@ -22,9 +22,7 @@ import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.service.portfolio.PortfolioPriceTrendService;
 import com.proptiger.data.util.DateUtil;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:spring/applicationContext.xml")
-public class PortfolioPriceTrendServiceTest {
+public class PortfolioPriceTrendServiceTest extends AbstractTest{
     @Autowired
     private PortfolioPriceTrendService portfolioPriceTrendService;
 
