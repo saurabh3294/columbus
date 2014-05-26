@@ -3,6 +3,11 @@
  */
 package com.proptiger.data.model;
 
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 import com.proptiger.data.util.PageType;
 
 /**
@@ -10,7 +15,12 @@ import com.proptiger.data.util.PageType;
  *
  */
 public class URLDetail {
+    @NotNull(message = "The url field should not be empty.")
     private String   url;
+
+    @NotNull(message = "The template Id field should not be empty.")
+    private String   templateId;
+
     private PageType pageType;
     private String   cityName;
     private Integer  cityId;
@@ -117,6 +127,20 @@ public class URLDetail {
 
     public void setFallBackUrl(String fallBackUrl) {
         this.fallBackUrl = fallBackUrl;
+    }
+
+    public String getTemplateId() {
+        return templateId;
+    }
+
+    public void setTemplateId(String templateId) {
+        this.templateId = templateId;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder
+                .reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 
 }

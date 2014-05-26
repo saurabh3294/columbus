@@ -6,6 +6,8 @@ package com.proptiger.data.mvc;
 import java.io.FileNotFoundException;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -40,9 +42,9 @@ public class SeoTextController {
 
     @RequestMapping("data/v1/seo-text")
     @ResponseBody
-    public APIResponse getSeo(@ModelAttribute URLDetail urlDetail, @RequestParam String templateId)
+    public APIResponse getSeo(@Valid @ModelAttribute URLDetail urlDetail)
             throws FileNotFoundException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 
-        return new APIResponse(seoPageService.getSeoContentForPage(urlDetail, templateId));
+        return new APIResponse(seoPageService.getSeoContentForPage(urlDetail));
     }
 }
