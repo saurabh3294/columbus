@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -70,7 +71,7 @@ public class TrendService {
         PaginatedResponse<List<InventoryPriceTrend>> response = new PaginatedResponse<>();
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
-        LinkedHashSet<Callable<Map<String, Object>>> callables = new LinkedHashSet<>();
+        Set<Callable<Map<String, Object>>> callables = new LinkedHashSet<>();
 
         callables.add(new Callable<Map<String, Object>>() {
             public Map<String, Object> call() throws Exception {
@@ -278,7 +279,7 @@ public class TrendService {
 
         ExecutorService executor = Executors.newFixedThreadPool(Math.min(rangeValueLength + 1, MAX_THREAD_POOL_SIZE));
 
-        LinkedHashSet<Callable<List<InventoryPriceTrend>>> callables = new LinkedHashSet<>();
+        Set<Callable<List<InventoryPriceTrend>>> callables = new LinkedHashSet<>();
 
         callables.add(new Callable<List<InventoryPriceTrend>>() {
             public List<InventoryPriceTrend> call() throws Exception {
@@ -390,7 +391,7 @@ public class TrendService {
         return selector;
     }
 
-    private LinkedHashSet<Integer> getRangeValueListFromUserInput(String rangeValue) {
+    private Set<Integer> getRangeValueListFromUserInput(String rangeValue) {
         List<Integer> allValues = new ArrayList<>();
         if (rangeValue != null && rangeValue.length() != 0) {
             allValues = Arrays.asList(UtilityClass.getIntArrFromStringArr(rangeValue.split(",")));
@@ -400,8 +401,8 @@ public class TrendService {
         return new LinkedHashSet<>(allValues);
     }
 
-    public LinkedHashSet<String> getRangeValueKeySetFromUserInput(String rangeValue) {
-        LinkedHashSet<String> result = new LinkedHashSet<>();
+    public Set<String> getRangeValueKeySetFromUserInput(String rangeValue) {
+        Set<String> result = new LinkedHashSet<>();
         List<Integer> allValues = new ArrayList<>(getRangeValueListFromUserInput(rangeValue));
         int size = allValues.size();
 
