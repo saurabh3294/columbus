@@ -23,7 +23,9 @@ public class FIQLSelector implements Cloneable, Serializable {
     private String            sort;
     private int               start                    = 0;
 
-    private int               rows                     = 10;
+    private int               rows                     = 1000;
+
+    private static final int  maxAllowedRows                  = 50000;
 
     private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
     private static String     monthAlwaysTrueStatement = "month!=1970-01-01";
@@ -70,6 +72,9 @@ public class FIQLSelector implements Cloneable, Serializable {
 
     public FIQLSelector setRows(Integer rows) {
         this.rows = rows;
+        if (this.rows > maxAllowedRows) {
+            throw new ProAPIException("Rows more than max allowed rows");
+        }
         return this;
     }
 
