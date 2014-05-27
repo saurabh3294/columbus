@@ -6,10 +6,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.validation.Valid;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
@@ -246,7 +245,11 @@ public class SeoPageService {
             suburb = locality.getSuburb();
             city = suburb.getCity();
             builder = project.getBuilder();
-            bedroomStr = project.getDistinctBedrooms().toString().replaceAll("[\\[\\]]", "") + " BHK";
+            Set<Integer> bedrooms = project.getDistinctBedrooms();
+            bedrooms.remove(0);
+            if(bedrooms.size() > 0){
+                bedroomStr = project.getDistinctBedrooms().toString().replaceAll("[\\[\\]]", "") + " BHK";
+            }
         }
         if (urlDetail.getLocalityId() != null) {
             locality = localityService.getLocality(urlDetail.getLocalityId());
@@ -275,7 +278,7 @@ public class SeoPageService {
                 throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
             }
         }
-        if (urlDetail.getBedrooms() != null) {
+        if (urlDetail.getBedrooms() != null && urlDetail.getBedrooms() > 0) {
             bedroomStr = urlDetail.getBedrooms() + " BHK";
         }
         if (urlDetail.getMinBudget() != null) {
