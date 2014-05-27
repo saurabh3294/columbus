@@ -10,7 +10,7 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.b2b.Status;
+import com.proptiger.data.enums.Status;
 import com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice;
 
 /**

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.proptiger.data.enums.b2b.ConstructionStatus;
-import com.proptiger.data.model.portfolio.PortfolioListing.Source;
+import com.proptiger.data.enums.ConstructionStatus;
+import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 
 /**
  * Define all constants in this class, either make a group of constants related

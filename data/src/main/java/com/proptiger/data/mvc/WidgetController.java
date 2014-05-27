@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.portfolio.Widget;
+import com.proptiger.data.model.user.Widget;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.portfolio.WidgetService;
+import com.proptiger.data.service.user.WidgetService;
 
 /**
  * @author Rajeev Pandey

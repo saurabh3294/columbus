@@ -9,10 +9,10 @@ import com.proptiger.data.enums.portfolio.ReturnType;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.image.Image;
-import com.proptiger.data.model.portfolio.OverallReturn;
-import com.proptiger.data.model.portfolio.Portfolio;
-import com.proptiger.data.model.portfolio.PortfolioListing;
-import com.proptiger.data.model.portfolio.PortfolioListingPrice;
+import com.proptiger.data.model.user.portfolio.OverallReturn;
+import com.proptiger.data.model.user.portfolio.Portfolio;
+import com.proptiger.data.model.user.portfolio.PortfolioListing;
+import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 
 /**
  * Portfolio Utility methods.
