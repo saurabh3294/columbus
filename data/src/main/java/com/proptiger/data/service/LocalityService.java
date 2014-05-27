@@ -35,15 +35,13 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkTypes;
 import com.proptiger.data.model.Locality;
-
-
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
-import com.proptiger.data.model.b2b.InventoryPriceTrend;
+import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Paging;
@@ -52,7 +50,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
-import com.proptiger.data.service.b2b.TrendService;
+import com.proptiger.data.service.trend.TrendService;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;

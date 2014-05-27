@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.model.Subscription;
-import com.proptiger.data.model.portfolio.SubscriptionType;
+import com.proptiger.data.model.user.SubscriptionType;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.repo.portfolio.SubscriptionDao;
-import com.proptiger.data.repo.portfolio.SubscriptionTypeDao;
+import com.proptiger.data.repo.user.SubscriptionDao;
+import com.proptiger.data.repo.user.SubscriptionTypeDao;
 import com.proptiger.exception.BadRequestException;
 
 @Service
