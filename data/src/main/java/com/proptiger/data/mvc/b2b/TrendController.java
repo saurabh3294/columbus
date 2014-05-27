@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -473,7 +473,7 @@ public class TrendController extends BaseController {
                     getGroupKeysFromUserInput(selector, rangeField, rangeValue));
 
             if (rangeField != null || rangeValue != null) {
-                LinkedHashSet<String> keys = trendService.getRangeValueKeySetFromUserInput(rangeValue);
+                Set<String> keys = trendService.getRangeValueKeySetFromUserInput(rangeValue);
                 Iterator<String> iterator = keys.iterator();
                 while (iterator.hasNext()) {
                     String key = iterator.next();
