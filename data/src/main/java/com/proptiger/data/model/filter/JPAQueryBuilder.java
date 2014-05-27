@@ -167,8 +167,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         String prefix = parseAggregateFunctionFromField(fieldName);
         String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         Expression<?> expression = null;
-        if(prefix != null && !prefix.isEmpty()){
-            //some aggregate function found
+        if (prefix != null && !prefix.isEmpty()) {
+            // some aggregate function found
             try {
                 switch (FUNCTIONS.valueOf(prefix)) {
                     case max:
@@ -225,23 +225,25 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 logger.error(e.getMessage(), e);
             }
         }
-        else{
-            if(fieldName.contains(".")){
-                //there might be a accociated field reference, need to create path till the last reference
-                //we expect the fieldname do not have "-" or some other character for sorting etc.
+        else {
+            if (fieldName.contains(".")) {
+                // there might be a accociated field reference, need to create
+                // path till the last reference
+                // we expect the fieldname do not have "-" or some other
+                // character for sorting etc.
                 String[] fields = fieldName.split("\\.");
-                Path<Object> path  = null;
-                for(String f: fields){
-                    if(path == null){
+                Path<Object> path = null;
+                for (String f : fields) {
+                    if (path == null) {
                         path = root.get(f);
                     }
-                    else{
+                    else {
                         path = path.get(f);
                     }
                 }
                 expression = path;
             }
-            else{
+            else {
                 expression = root.get(fieldName);
             }
         }
@@ -381,13 +383,30 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
 
     @Override
     public long retrieveCount() {
-        criteriaQuery.select(criteriaBuilder.tuple(criteriaBuilder.count(root)));
-        List<Tuple> resultList = entityManager.createQuery(criteriaQuery).getResultList();
+        List<Expression<?>> groupExpressions = criteriaQuery.getGroupList();
+
         if (criteriaQuery.getGroupList().isEmpty()) {
-            return (long) resultList.get(0).get(0);
+            criteriaQuery.select(criteriaBuilder.tuple(criteriaBuilder.count(root)));
         }
-        else
-            return (long) resultList.size();
+        else {
+            criteriaQuery.groupBy(new ArrayList<Expression<?>>());
+
+            List<Expression<?>> concatWsExpressions = new ArrayList<>();
+            concatWsExpressions.add(criteriaBuilder.literal(","));
+            concatWsExpressions.addAll(groupExpressions);
+
+            groupExpressions.toArray(new Expression<?>[groupExpressions.size()]);
+
+            criteriaQuery.select(criteriaBuilder.tuple(criteriaBuilder.function(
+                    "count_distinct_concat_ws",
+                    Integer.class,
+                    concatWsExpressions.toArray(new Expression<?>[concatWsExpressions.size()]))));
+        }
+
+        List<Tuple> resultList = entityManager.createQuery(criteriaQuery).getResultList();
+        criteriaQuery.groupBy(groupExpressions);
+
+        return ((Number) resultList.get(0).get(0)).longValue();
     }
 
     public void addEqualsFilter(String fieldName, List<Object> values) {

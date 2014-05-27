@@ -11,6 +11,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -166,6 +167,9 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "investor_demand")
     private Float             investorDemand;
+
+    @Transient
+    private String            rangeValue;
 
     public Integer getId() {
         return id;
@@ -525,6 +529,14 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setLtdSupplyArea(Integer ltdSupplyArea) {
         this.ltdSupplyArea = ltdSupplyArea;
+    }
+
+    public String getRangeValue() {
+        return rangeValue;
+    }
+
+    public void setRangeValue(String rangeValue) {
+        this.rangeValue = rangeValue;
     }
 
     public static long getSerialversionuid() {

@@ -6,17 +6,12 @@ package com.proptiger.data.mvc;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,51 +72,6 @@ public abstract class BaseController {
         }
 
         return filterFields(object, null);
-    }
-
-    /**
-     * 
-     * @param response
-     *            is a list of model objects
-     * @param sel
-     *            is FIQL selector
-     * @return is a map of Objects and Objects
-     */
-    protected <T> Object groupFieldsAsPerSelector(List<T> response, FIQLSelector selector) {
-        FIQLSelector sel;
-        sel = selector.clone();
-        if (sel == null || sel.getGroup() == null || sel.getGroup().isEmpty())
-            return response;
-
-        String groupBy = sel.getGroup().split(",")[0];
-        Map<Object, Object> result = new HashMap<>();
-
-        try {
-            for (T item : response) {
-                Object groupValue = PropertyUtils.getSimpleProperty(item, groupBy);
-                if (groupValue instanceof Date)
-                    groupValue = ((Date) groupValue).getTime();
-                if (result.get(groupValue) == null) {
-                    List<T> newList = new ArrayList<>();
-                    result.put(groupValue, newList);
-                }
-                ((List<T>) result.get(groupValue)).add(item);
-
-            }
-
-            int commaIndex = sel.getGroup().indexOf(',');
-            if (commaIndex != -1) {
-                sel.setGroup(sel.getGroup().substring(commaIndex + 1));
-                for (Object key : result.keySet()) {
-                    result.put(key, groupFieldsAsPerSelector((List<T>) result.get(key), sel));
-                }
-            }
-        }
-        catch (IllegalArgumentException | SecurityException | IllegalAccessException | InvocationTargetException
-                | NoSuchMethodException e) {
-            logger.error("Error grouping results", e);
-        }
-        return result;
     }
 
     protected String getCsvFromMapListAndFIQL(List<Map<String, Object>> maps, FIQLSelector selector) {
