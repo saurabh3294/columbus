@@ -67,6 +67,9 @@ public class WordpressPost extends BaseModel {
 
     @Transient
     private String            primaryImageUrl;
+    
+    @Column(name = "post_date", insertable = false, updatable = false)
+    private java.util.Date    epochPostDate;
 
     public long getId() {
         return id;

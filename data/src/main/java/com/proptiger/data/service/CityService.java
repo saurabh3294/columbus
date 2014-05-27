@@ -86,6 +86,16 @@ public class CityService {
         return city;
     }
 
+    public City getCity(String cityName) {
+        String js = "{\"filters\":{\"and\":[{\"equal\":{\"label\":" + cityName + "}}]}}";
+        CityService cityService = new CityService();
+        Gson gson = new Gson();
+        Selector selector = gson.fromJson(js, Selector.class);
+        List<City> cities = cityDao.getCities(selector);
+
+        return cities.get(0);
+    }
+
     /**
      * Updating total projects in city
      * 

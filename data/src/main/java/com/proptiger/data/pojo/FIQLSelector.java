@@ -187,4 +187,23 @@ public class FIQLSelector implements Cloneable, Serializable {
             return value;
         }
     }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((fields == null) ? 0 : fields.hashCode());
+        result = prime * result + ((filters == null) ? 0 : filters.hashCode());
+        result = prime * result + ((group == null) ? 0 : group.hashCode());
+        result = prime * result + rows;
+        result = prime * result + ((sort == null) ? 0 : sort.hashCode());
+        result = prime * result + start;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ToStringBuilder.reflectionToString(obj, ToStringStyle.SHORT_PREFIX_STYLE).equals(
+                ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE));
+    }
 }

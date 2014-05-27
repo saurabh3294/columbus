@@ -1,11 +1,14 @@
 package com.proptiger.data.service;
 
 import javax.persistence.PersistenceException;
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
@@ -91,9 +94,10 @@ public class ErrorReportingService {
             logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.PROJECT_PROPERTY_ERROR_POST,
-                new ReportErrorDTO(projectError, property, project));
+                new ReportErrorDTO(projectError, property, project, request.getServerName()));
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
         return mailSender.sendMailUsingAws(mailDetails);
     }
@@ -105,15 +109,17 @@ public class ErrorReportingService {
      * @author mukand
      */
     public static class ReportErrorDTO {
-        public ReportErrorDTO(ProjectError projectError, Property property, Project project) {
+        public ReportErrorDTO(ProjectError projectError, Property property, Project project, String serverName) {
             this.property = property;
             this.projectError = projectError;
             this.project = project;
+            this.serverName = serverName;
         }
 
         public ProjectError projectError;
         public Property     property;
         public Project      project;
+        public String       serverName;
 
         public ProjectError getProjectError() {
             return projectError;
@@ -137,6 +143,14 @@ public class ErrorReportingService {
 
         public void setProject(Project project) {
             this.project = project;
+        }
+
+        public String getServerName() {
+            return serverName;
+        }
+
+        public void setServerName(String serverName) {
+            this.serverName = serverName;
         }
     }
 }

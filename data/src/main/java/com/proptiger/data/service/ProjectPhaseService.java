@@ -55,6 +55,14 @@ public class ProjectPhaseService {
     @Autowired
     SecondaryPriceDao              secondaryPriceDao;
 
+    public void setProjectPhaseDao(ProjectPhaseDao projectPhaseDao) {
+        this.projectPhaseDao = projectPhaseDao;
+    }
+
+    public ProjectPhaseDao getProjectPhaseDao() {
+        return this.projectPhaseDao;
+    }
+
     public ProjectPhase getPhaseDetail(Integer projectId, Integer phaseId, DataVersion version) {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("phaseId==" + phaseId);

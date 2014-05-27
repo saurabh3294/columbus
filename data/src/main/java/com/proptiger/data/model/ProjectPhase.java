@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -379,11 +380,12 @@ public class ProjectPhase extends BaseModel {
         return this;
     }
 
-    public static class CustomCurrentPhaseSecondaryPrice {
-        private int      phaseId;
-        private UnitType unitType;
-        private Date     effectiveMonth;
-        private Integer  secondaryPrice;
+    public static class CustomCurrentPhaseSecondaryPrice implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private int               phaseId;
+        private UnitType          unitType;
+        private Date              effectiveMonth;
+        private Integer           secondaryPrice;
 
         public CustomCurrentPhaseSecondaryPrice(
                 int phaseId,
