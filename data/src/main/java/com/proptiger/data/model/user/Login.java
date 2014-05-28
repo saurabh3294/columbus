@@ -1,4 +1,4 @@
-package com.proptiger.data.internal.dto;
+package com.proptiger.data.model.user;
 
 /**
  * @author Rajeev Pandey
@@ -6,16 +6,17 @@ package com.proptiger.data.internal.dto;
  */
 public class Login {
 
-    private String  email;
+    private String username;
     private String  password;
     private boolean rememberme;
 
-    public String getEmail() {
-        return email;
+
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
