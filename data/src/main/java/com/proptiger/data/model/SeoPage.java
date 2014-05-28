@@ -37,19 +37,21 @@ public class SeoPage extends BaseModel {
          * field1 corresponds to the field name in the above mentioned class.
          * field2 corresponds to the field name in the field1 class. if field1 is null then in above mentioned class.
          */
-        Locality("<locality>", "locality", "label"), City("<city>", "city", "label"), Suburb("<suburb>", "suburb",
-                "label"), BuiderName("<builder name>", "builder", "name"), ProjectName("<project name>", "project",
-                "name"), UnitName("<unit name>", "property", "unitName"), BHK("<bhk>", null, "bedroomsStr"), PriceRange(
-                "<price range>", null, "priceRangeStr"), Bathrooms("<t>","property","bathrooms");
+        Locality("<locality>", "locality", "label","%s"), City("<city>", "city", "label","%s"), Suburb("<suburb>", "suburb",
+                "label","%s"), BuiderName("<builder name>", "builder", "name","%s"), ProjectName("<project name>", "project",
+                "name","%s"), UnitName("<unit name>", "property", "unitName","%s"), BHK("<bhk>", null, "bedroomsStr","%s BHK"), PriceRange(
+                "<price range>", null, "priceRangeStr", "%s Lacs"), Bathrooms("<t>","property","bathrooms","%d T");
 
         private String value;
         private String fieldName1;
         private String fieldName2;
+        private String replaceString;
 
-        Tokens(String value, String className, String fieldName) {
+        Tokens(String value, String className, String fieldName, String replaceString) {
             this.value = value;
             this.fieldName1 = className;
             this.fieldName2 = fieldName;
+            this.replaceString = replaceString;
         }
 
         public String getToken(Tokens token) {
@@ -70,6 +72,14 @@ public class SeoPage extends BaseModel {
 
         public String getFieldName2() {
             return fieldName2;
+        }
+
+        public String getReplaceString() {
+            return replaceString;
+        }
+
+        public void setReplaceString(String replaceString) {
+            this.replaceString = replaceString;
         }
     }
 

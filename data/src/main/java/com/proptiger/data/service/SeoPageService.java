@@ -207,7 +207,7 @@ public class SeoPageService {
             if (valueObject == null) {
                 continue;
             }
-            mappingTokenValues.put(tokens[i].getValue(), (String) valueObject.toString());
+            mappingTokenValues.put(tokens[i].getValue(), (String) String.format(tokens[i].getReplaceString(), valueObject) );
         }
         return mappingTokenValues;
     }
@@ -248,7 +248,7 @@ public class SeoPageService {
             Set<Integer> bedrooms = project.getDistinctBedrooms();
             bedrooms.remove(0);
             if(bedrooms.size() > 0){
-                bedroomStr = project.getDistinctBedrooms().toString().replaceAll("[\\[\\]]", "") + " BHK";
+                bedroomStr = project.getDistinctBedrooms().toString().replaceAll("[\\[\\]]", "");
             }
         }
         if (urlDetail.getLocalityId() != null) {
@@ -279,10 +279,10 @@ public class SeoPageService {
             }
         }
         if (urlDetail.getBedrooms() != null && urlDetail.getBedrooms() > 0) {
-            bedroomStr = urlDetail.getBedrooms() + " BHK";
+            bedroomStr = urlDetail.getBedrooms().toString();
         }
         if (urlDetail.getMinBudget() != null) {
-            priceRangeStr = urlDetail.getMinBudget() + "-" + urlDetail.getMaxBudget() + " Lacs";
+            priceRangeStr = urlDetail.getMinBudget() + "-" + urlDetail.getMaxBudget();
         }
 
         return new CompositeSeoTokenData(property, project, locality, suburb, city, builder, bedroomStr, priceRangeStr);
@@ -322,7 +322,7 @@ public class SeoPageService {
         private Builder  builder;
         private String   bedroomsStr;
         private String   priceRangeStr;
-
+        
         public CompositeSeoTokenData(
                 Property property,
                 Project project,
