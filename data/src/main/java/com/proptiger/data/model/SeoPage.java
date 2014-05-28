@@ -40,7 +40,7 @@ public class SeoPage extends BaseModel {
         Locality("<locality>", "locality", "label","%s"), City("<city>", "city", "label","%s"), Suburb("<suburb>", "suburb",
                 "label","%s"), BuiderName("<builder name>", "builder", "name","%s"), ProjectName("<project name>", "project",
                 "name","%s"), UnitName("<unit name>", "property", "unitName","%s"), BHK("<bhk>", null, "bedroomsStr","%s BHK"), PriceRange(
-                "<price range>", null, "priceRangeStr", "%s Lacs"), Bathrooms("<t>","property","bathrooms","%d T");
+                "<price range>", null, "priceRangeStr", "%s Lacs"), Bathrooms("<t>",null ,"bathrooms", "%d T");
 
         private String value;
         private String fieldName1;

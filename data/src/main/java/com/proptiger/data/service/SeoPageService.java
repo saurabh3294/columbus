@@ -221,6 +221,7 @@ public class SeoPageService {
         Builder builder = null;
         String bedroomStr = null;
         String priceRangeStr = null;
+        Integer bathrooms = null;
         Gson gson = new Gson();
 
         if (urlDetail.getPropertyId() != null) {
@@ -233,6 +234,9 @@ public class SeoPageService {
             suburb = locality.getSuburb();
             city = suburb.getCity();
             builder = project.getBuilder();
+            if(property.getBathrooms() > 0){
+                bathrooms = property.getBathrooms();
+            }
         }
         if (urlDetail.getProjectId() != null) {
             String json = "{\"fields\":[\"distinctBedrooms\"]}";
@@ -285,7 +289,7 @@ public class SeoPageService {
             priceRangeStr = urlDetail.getMinBudget() + "-" + urlDetail.getMaxBudget();
         }
 
-        return new CompositeSeoTokenData(property, project, locality, suburb, city, builder, bedroomStr, priceRangeStr);
+        return new CompositeSeoTokenData(property, project, locality, suburb, city, builder, bedroomStr, priceRangeStr, bathrooms);
     }
 
     /*
@@ -322,6 +326,7 @@ public class SeoPageService {
         private Builder  builder;
         private String   bedroomsStr;
         private String   priceRangeStr;
+        private Integer  bathrooms;
         
         public CompositeSeoTokenData(
                 Property property,
@@ -331,7 +336,8 @@ public class SeoPageService {
                 City city,
                 Builder builder,
                 String bedrooms,
-                String priceRange) {
+                String priceRange,
+                Integer bathrooms) {
             this.property = property;
             this.project = project;
             this.locality = locality;
@@ -340,6 +346,7 @@ public class SeoPageService {
             this.builder = builder;
             this.bedroomsStr = bedrooms;
             this.priceRangeStr = priceRange;
+            this.bathrooms = bathrooms;
         }
 
         public Property getProperty() {
@@ -404,6 +411,14 @@ public class SeoPageService {
 
         public void setBuilder(Builder builder) {
             this.builder = builder;
+        }
+
+        public Integer getBathrooms() {
+            return bathrooms;
+        }
+
+        public void setBathrooms(Integer bathrooms) {
+            this.bathrooms = bathrooms;
         }
 
     }
