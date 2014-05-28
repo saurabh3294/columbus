@@ -23,7 +23,7 @@ public class WeightedAverageFunction implements SQLFunction {
     @Override
     public Type getReturnType(org.hibernate.type.Type arg0, Mapping arg1) throws QueryException {
         // TODO Auto-generated method stub
-        return StandardBasicTypes.STRING;
+        return StandardBasicTypes.DOUBLE;
     }
 
     @Override

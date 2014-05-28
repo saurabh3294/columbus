@@ -8,13 +8,12 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
+import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.MediaUtil;
@@ -158,7 +157,7 @@ public class ImageEnricher {
                 numberOfImages = images.size();
             }
 
-            locality.setImages(images.subList(0, numberOfImages));
+            locality.setImages(new ArrayList<Image>(images.subList(0, numberOfImages)));
         }
     }
 
@@ -190,7 +189,7 @@ public class ImageEnricher {
                     bank.setImages(images);
                 }
                 else {
-                    bank.setImages(images.subList(0, imageCount));
+                    bank.setImages(new ArrayList<Image>(images.subList(0, imageCount)));
                 }
             }
         }

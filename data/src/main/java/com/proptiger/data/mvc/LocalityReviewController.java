@@ -18,8 +18,8 @@ import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.LocalityReviewService;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 
 /**

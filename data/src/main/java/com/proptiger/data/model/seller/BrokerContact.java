@@ -8,8 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.data.enums.BrokerType;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.enums.BrokerType;
 
 /**
  * @author Rajeev Pandey

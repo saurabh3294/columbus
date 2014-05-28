@@ -13,6 +13,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -23,9 +25,6 @@ import com.proptiger.exception.ProAPIException;
 public class ResponseCaching {
     @Autowired
     private Caching            caching;
-
-    @Autowired
-    private HttpServletRequest httpServletRequest;
 
     /*
      * This method will be called to check and get the cache response.
@@ -145,11 +144,13 @@ public class ResponseCaching {
     }
 
     private boolean isValidUrlForCache() {
-        String url = httpServletRequest.getRequestURI();
-
-        if (url.matches("/user/"))
-            return false;
-
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        if(request != null){
+            String url = request.getRequestURI();
+            if (url.matches("/user/")){
+                return false;
+            }
+        }
         return true;
     }
 

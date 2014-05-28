@@ -1,7 +1,7 @@
 package com.proptiger.exception;
 
-import com.proptiger.data.util.ResourceType;
-import com.proptiger.data.util.ResourceTypeAction;
+import com.proptiger.data.enums.resource.ResourceType;
+import com.proptiger.data.enums.resource.ResourceTypeAction;
 
 /**
  * @author Rajeev Pandey

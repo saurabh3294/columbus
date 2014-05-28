@@ -26,11 +26,11 @@ import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ProjectService;
-import com.proptiger.data.service.pojo.PaginatedResponse;
-import com.proptiger.data.service.portfolio.ProjectDiscussionsService;
+import com.proptiger.data.service.user.ProjectDiscussionsService;
 
 /**
  * 

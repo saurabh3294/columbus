@@ -6,11 +6,11 @@ import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-import com.proptiger.data.meta.DataType;
+import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
-import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
-import com.proptiger.data.model.portfolio.Dashboard.DashboardType;
+import com.proptiger.data.model.user.DashboardWidgetMapping;
+import com.proptiger.data.model.user.Dashboard.DashboardType;
 
 /**
  * This POJO acts as a data transfer object for Dashboard object

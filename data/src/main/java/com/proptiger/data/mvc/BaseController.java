@@ -6,18 +6,12 @@ package com.proptiger.data.mvc;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,14 +23,11 @@ import org.supercsv.prefs.CsvPreference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module.Feature;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.Selector;
-import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ProAPIException;
 
@@ -81,51 +72,6 @@ public abstract class BaseController {
         }
 
         return filterFields(object, null);
-    }
-
-    /**
-     * 
-     * @param response
-     *            is a list of model objects
-     * @param sel
-     *            is FIQL selector
-     * @return is a map of Objects and Objects
-     */
-    protected <T> Object groupFieldsAsPerSelector(List<T> response, FIQLSelector selector) {
-        FIQLSelector sel;
-        sel = selector.clone();
-        if (sel == null || sel.getGroup() == null || sel.getGroup().isEmpty())
-            return response;
-
-        String groupBy = sel.getGroup().split(",")[0];
-        Map<Object, Object> result = new HashMap<>();
-
-        try {
-            for (T item : response) {
-                Object groupValue = PropertyUtils.getSimpleProperty(item, groupBy);
-                if (groupValue instanceof Date)
-                    groupValue = ((Date) groupValue).getTime();
-                if (result.get(groupValue) == null) {
-                    List<T> newList = new ArrayList<>();
-                    result.put(groupValue, newList);
-                }
-                ((List<T>) result.get(groupValue)).add(item);
-
-            }
-
-            int commaIndex = sel.getGroup().indexOf(',');
-            if (commaIndex != -1) {
-                sel.setGroup(sel.getGroup().substring(commaIndex + 1));
-                for (Object key : result.keySet()) {
-                    result.put(key, groupFieldsAsPerSelector((List<T>) result.get(key), sel));
-                }
-            }
-        }
-        catch (IllegalArgumentException | SecurityException | IllegalAccessException | InvocationTargetException
-                | NoSuchMethodException e) {
-            logger.error("Error grouping results", e);
-        }
-        return result;
     }
 
     protected String getCsvFromMapListAndFIQL(List<Map<String, Object>> maps, FIQLSelector selector) {
@@ -180,64 +126,6 @@ public abstract class BaseController {
     }
 
     /**
-     * This method filters out all fields that in not in fields set
-     * 
-     * @param list
-     * @param fields
-     * @return
-     */
-    @Deprecated
-    protected <T> List<Map<String, Object>> filterOutAllExcept(List<T> list, Set<String> fields) {
-        try {
-            List<Map<String, Object>> result = new ArrayList<>();
-            for (T val : list) {
-                Map map = mapper.convertValue(val, Map.class);
-                if (fields != null && fields.size() > 0) {
-                    Iterator<String> it = map.keySet().iterator();
-                    while (it.hasNext()) {
-                        String key = it.next();
-                        if (!fields.contains(key)) {
-                            it.remove();
-                        }
-                    }
-                }
-                result.add(map);
-            }
-            return result;
-        }
-        catch (Exception e) {
-            throw new ProAPIException("Could not serialize response", e);
-        }
-    }
-
-    /**
-     * This method filters out all fields that in not in fields set
-     * 
-     * @param list
-     * @param fields
-     * @return
-     */
-    @Deprecated
-    protected <T> Map<String, Object> filterOutAllExcept(T val, Set<String> fields) {
-        try {
-            Map<String, Object> map = mapper.convertValue(val, Map.class);
-            if (fields != null && fields.size() > 0) {
-                Iterator<String> it = map.keySet().iterator();
-                while (it.hasNext()) {
-                    String key = it.next();
-                    if (!fields.contains(key)) {
-                        it.remove();
-                    }
-                }
-            }
-            return map;
-        }
-        catch (Exception e) {
-            throw new ProAPIException("Could not serialize response", e);
-        }
-    }
-
-    /**
      * This method parses the json String to specified java class type
      * 
      * @param content
@@ -257,39 +145,4 @@ public abstract class BaseController {
         }
     }
 
-    public <T> APIResponse postProcess(T val, int count, Selector selector) {
-        if (selector != null && selector.getFields() != null) {
-            return new APIResponse(filterOutAllExcept(val, selector.getFields()), count);
-        }
-        return new APIResponse(val, count);
-    }
-
-    public <T> APIResponse postProcess(List<T> val, int count, Selector selector) {
-        if (selector != null && selector.getFields() != null) {
-            return new APIResponse(filterOutAllExcept(val, selector.getFields()), count);
-        }
-        return new APIResponse(val, count);
-    }
-
-    @Deprecated
-    public Object filterFieldsWithTree(Object object, Set<String> fields) {
-        try {
-            Set<String> fieldSet = new HashSet<String>();
-            FilterProvider filterProvider = new SimpleFilterProvider().addFilter(
-                    "fieldFilter",
-                    SimpleBeanPropertyFilter.serializeAllExcept(fieldSet));
-
-            if (fields != null) {
-                filterProvider = new SimpleFilterProvider().addFilter(
-                        "fieldFilter",
-                        SimpleBeanPropertyFilter.filterOutAllExcept(fields));
-            }
-
-            return mapper.readTree(mapper.writer(filterProvider).writeValueAsString(object));
-
-        }
-        catch (Exception e) {
-            throw new ProAPIException("Could not serialize response", e);
-        }
-    }
 }

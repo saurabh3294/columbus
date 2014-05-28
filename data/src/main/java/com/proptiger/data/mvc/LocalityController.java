@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityReviewService;
 import com.proptiger.data.service.LocalityService;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * @author mandeep

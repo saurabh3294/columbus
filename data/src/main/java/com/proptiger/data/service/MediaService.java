@@ -14,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.MediaType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.Media;
-import com.proptiger.data.model.enums.DomainObject;
-import com.proptiger.data.model.enums.MediaType;
 import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.repo.MediaDao;
 import com.proptiger.data.repo.MediaTypeDao;

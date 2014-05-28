@@ -15,8 +15,8 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.LocalityService;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 
 /**
  * Locality related data for specific need. Means many form of data will be

@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.UserService;
-import com.proptiger.data.service.UserService.AlreadyEnquiredDetails;
+import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
 import com.proptiger.data.util.Constants;
 
 /**

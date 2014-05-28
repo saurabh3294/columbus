@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.CompositeAPIService;
 
@@ -32,12 +33,12 @@ public class AppCompositAPIController {
 
     @RequestMapping
     @ResponseBody
-    public APIResponse getCompositeApiResult(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            @RequestParam(required = true, value = "api") List<String> api) {
+    @DisableCaching
+    public APIResponse getCompositeApiResult(HttpServletRequest request, HttpServletResponse response, @RequestParam(
+            required = true,
+            value = "api") List<String> api) {
         Map<String, Object> responseMap = null;
-        responseMap = compositeAPIService.getResponseForApis(api);
+        responseMap = compositeAPIService.getResponseForApis(api, request);
         return new APIResponse(responseMap);
     }
 

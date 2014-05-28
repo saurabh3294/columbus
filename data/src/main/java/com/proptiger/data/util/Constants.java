@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.proptiger.data.model.ConstructionStatus;
-import com.proptiger.data.model.portfolio.PortfolioListing.Source;
+import com.proptiger.data.enums.ConstructionStatus;
+import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 
 /**
  * Define all constants in this class, either make a group of constants related
@@ -26,6 +26,7 @@ public class Constants {
     public static final int                  DEFAULT_NO_OF_ROWS        = 10;
     public static final String               USERNAME                  = "username";
     public static final List<Source>         SOURCETYPE_LIST           = Arrays.asList(Source.portfolio, Source.backend);
+    public static final int                  LIMIT_OF_COMPOSITE_APIs   = 15;
 
     /**
      * Put all solr Dynamic Field generated in this class.
@@ -120,10 +121,14 @@ public class Constants {
         public static final String PROJECT_BANKS                         = "project-banks";
         public static final String PROJECT_STATUS_COUNT_ON_LOCALITY      = "project-status-count-on-locality";
         public static final String PROJECT_DISCUSSION                    = "project-discussion";
+        public static final String PROJECT_DETAILS                       = "project-details";
 
         public static final String BUILDER                               = "builder";
 
         public static final String SIMILAR_PROPERTY                      = "similar-property";
+
+        public static final String SEO_FOOTER                            = "seo-footer";
+        public static final String SEO_TEMPLATE                          = "seo-template";
 
     }
 
@@ -136,4 +141,8 @@ public class Constants {
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_RESALE  = Arrays.asList(
                                                                                          ConstructionStatus.ReadyForPossession,
                                                                                          ConstructionStatus.Occupied);
+
+    public static class SeoPageTemplate {
+        /* public static final String CITY_OVERVIEW_PAGE = "\"title\":"; */
+    }
 }

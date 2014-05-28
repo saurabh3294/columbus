@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -52,11 +53,12 @@ public class GlobalExceptionHandler {
     private void logAPIUrlInLogFile(HttpServletRequest httpRequest, Exception ex) {
         if (httpRequest != null) {
             logger.error(
-                    "Exception occured while accessing url {} {} {} {}",
+                    "Exception occured while accessing url {} {} {} {} {}",
                     httpRequest.getMethod(),
                     httpRequest.getRequestURI(),
                     httpRequest.getQueryString(),
                     httpRequest.getHeader("user-agent"),
+                    httpRequest.getRemoteAddr(),
                     ex);
         }
     }
@@ -108,9 +110,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidResourceException.class)
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
-    protected APIResponse handleInvalidNameException(
-            InvalidResourceException exception,
-            HttpServletRequest httpRequest) {
+    protected APIResponse handleInvalidNameException(InvalidResourceException exception, HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
         return new APIResponse(ResponseCodes.BAD_REQUEST, exception.getMessage());
     }
@@ -164,9 +164,7 @@ public class GlobalExceptionHandler {
             HttpRequestMethodNotSupportedException exception,
             HttpServletRequest httpRequest) {
         logAPIUrlInLogFile(httpRequest, exception);
-        return new APIResponse(
-                ResponseCodes.BAD_REQUEST,
-                ResponseErrorMessages.INVALID_REQUEST_METHOD_URL_AND_BODY);
+        return new APIResponse(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_REQUEST_METHOD_URL_AND_BODY);
     }
 
     @ExceptionHandler(ResourceAlreadyExistException.class)
@@ -225,5 +223,13 @@ public class GlobalExceptionHandler {
         return new APIResponse(ResponseCodes.BAD_REQUEST, exception.getMessage() == null
                 ? ResponseErrorMessages.BAD_REQUEST
                 : exception.getMessage());
+    }
+
+    @ExceptionHandler(BindException.class)
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    protected APIResponse handleBindException(BindException exception, HttpServletRequest httpRequest) {
+        logAPIUrlInLogFile(httpRequest, exception);
+        return new APIResponse(ResponseCodes.BAD_REQUEST, exception.getMessage());
     }
 }

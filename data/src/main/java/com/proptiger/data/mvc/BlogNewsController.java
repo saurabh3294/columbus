@@ -1,5 +1,6 @@
 package com.proptiger.data.mvc;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class BlogNewsController extends BaseController {
         List<WordpressPost> newsList = blogNewsService.getBlogPostsByCity(cityName, contentLimit, blogSelector);
         return new APIResponse(newsList);
     }
-    
+
     @RequestMapping(value = "data/v1/entity/city/{cityId}/blog", method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getBlogForCity(
@@ -55,11 +56,27 @@ public class BlogNewsController extends BaseController {
         List<WordpressPost> newsList = blogNewsService.getBlogPostsByCityId(cityId, contentLimit, blogSelector);
         return new APIResponse(newsList);
     }
-    
+
     @RequestMapping(value = "data/v1/entity/city/{cityId}/news", method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getNewsForCity(
             @PathVariable Integer cityId,
+            @RequestParam(required = false, defaultValue = "200", value = "contentLimit") int contentLimit,
+            @RequestParam(required = false, value = "selector") String selector) {
+
+        Selector blogSelector = super.parseJsonToObject(selector, Selector.class);
+        if (blogSelector == null) {
+            blogSelector = new Selector();
+        }
+        List<Integer> cityIds = Collections.singletonList(cityId);
+        List<WordpressPost> newsList = blogNewsService.getNewsByCity(cityIds, contentLimit, blogSelector);
+        return new APIResponse(newsList);
+    }
+    
+    @RequestMapping(value = "data/v1/entity/news", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getNewsForCities(
+            @RequestParam(required = true, value = "cityId") List<Integer> cityId,
             @RequestParam(required = false, defaultValue = "200", value = "contentLimit") int contentLimit,
             @RequestParam(required = false, value = "selector") String selector) {
 

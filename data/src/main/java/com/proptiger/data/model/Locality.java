@@ -218,11 +218,22 @@ public class Locality extends BaseModel {
     @Transient
     @Field("TYPEAHEAD_LOCALITY_UNITS_SOLD_6MONTHS")
     private Integer                         localityUnitsSold6Months;
-
     
     @Transient
     @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
     private Integer                         localityUnitsDelivered6Months;
+    
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "Locality enquiry count", description = "Locality enquiry count")
+    @Field(value = "LOCALITY_ENQUIRY_COUNT")
+    private Integer                         localityEnquiryCount;
+    
+    @Transient
+    @JsonIgnore
+    @FieldMetaInfo(displayName = "Locality view count", description = "Locality view count")
+    @Field(value = "LOCALITY_VIEW_COUNT")
+    private Integer                         localityViewCount;
 
     public int getLocalityId() {
         return localityId;
@@ -576,5 +587,21 @@ public class Locality extends BaseModel {
 
     public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
         this.localityUnitsDelivered6Months = localityUnitsDelivered6Months;
+    }
+
+    public Integer getLocalityEnquiryCount() {
+        return localityEnquiryCount;
+    }
+
+    public void setLocalityEnquiryCount(Integer localityEnquiryCount) {
+        this.localityEnquiryCount = localityEnquiryCount;
+    }
+
+    public Integer getLocalityViewCount() {
+        return localityViewCount;
+    }
+
+    public void setLocalityViewCount(Integer localityViewCount) {
+        this.localityViewCount = localityViewCount;
     }
 }
