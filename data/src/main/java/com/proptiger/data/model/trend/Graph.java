@@ -32,7 +32,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 
 @JsonInclude(Include.NON_NULL)
 @Entity
-@Table(name = "b2b_graphs")
+@Table(name = "user_graphs")
 @JsonFilter("fieldFilter")
 public class Graph extends BaseModel {
     private static final long serialVersionUID = -2683590682098190102L;

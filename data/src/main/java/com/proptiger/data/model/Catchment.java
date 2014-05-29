@@ -38,7 +38,7 @@ import com.proptiger.exception.ProAPIException;
 
 @JsonInclude(Include.NON_NULL)
 @Entity
-@Table(name = "b2b_user_catchments")
+@Table(name = "user_catchments")
 @JsonFilter("fieldFilter")
 public class Catchment extends BaseModel {
     private static final long      serialVersionUID  = 1L;
