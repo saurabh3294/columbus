@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  */
 @JsonInclude(Include.NON_NULL)
 @Entity
-@Table(name = "b2b_catchment_projects")
+@Table(name = "catchment_projects")
 @JsonFilter("fieldFilter")
 public class CatchmentProject extends BaseModel {
     private static final long serialVersionUID = -6020089914804953739L;
