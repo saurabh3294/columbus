@@ -157,6 +157,9 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "units_sold")
     private Integer           unitsSold;
 
+    @Column(name = "inventory_overhang")
+    private Integer           inventoryOverhang;
+
     @Column(name = "units_delivered")
     private Integer           unitsDelivered;
 
@@ -465,6 +468,14 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setUnitsSold(Integer unitsSold) {
         this.unitsSold = unitsSold;
+    }
+
+    public Integer getInventoryOverhang() {
+        return inventoryOverhang;
+    }
+
+    public void setInventoryOverhang(Integer inventoryOverhang) {
+        this.inventoryOverhang = inventoryOverhang;
     }
 
     public Integer getUnitsDelivered() {
