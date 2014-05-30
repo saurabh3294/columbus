@@ -3,8 +3,11 @@ package com.proptiger.data.service.user.portfolio;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -13,12 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 import com.proptiger.data.repo.ProjectDBDao;
@@ -232,6 +237,7 @@ public class PortfolioPriceTrendService {
          * month price trend.
          */
         noOfMonths = noOfMonths + 1;
+        Map<Integer, Date> idLauchDateMap = getLaunchOrPreLaunchDate(projectPriceTrends);
         for (ProjectPriceTrend priceTrend : projectPriceTrends) {
             Calendar cal = Calendar.getInstance();
             // cal.add(Calendar.MONTH, -1);
@@ -281,7 +287,7 @@ public class PortfolioPriceTrendService {
                 PriceDetail firstPriceTrend = prices.get(0);
                 Date firstDatePresent = firstPriceTrend.getEffectiveDate();
                 cal.setTime(firstDatePresent);
-                Date launchDate = projectService.getProjectData(priceTrend.getProjectId()).getLaunchDate();
+                Date launchDate = idLauchDateMap.get(priceTrend.getProjectId());
                 while (prices.size() < noOfMonths && (launchDate == null || launchDate.before(cal.getTime()))) {
                     PriceDetail detail = new PriceDetail();
                     detail.setPrice(firstPriceTrend.getPrice());
@@ -304,6 +310,33 @@ public class PortfolioPriceTrendService {
             }
 
         }
+    }
+
+    /**
+     * @param projectPriceTrends
+     * @return
+     * Creating Map of Launch-Date or Pre-Launch-Date against
+     * Project-Id
+     */
+    private Map<Integer, Date> getLaunchOrPreLaunchDate(List<ProjectPriceTrend> projectPriceTrends) {
+        Map<Integer, Date> idLaunchDateMap = new HashMap<Integer, Date>();
+        Set<Integer> idSet = new HashSet<Integer>();
+        for (ProjectPriceTrend priceTrend : projectPriceTrends) {
+            idSet.add(priceTrend.getProjectId());
+        }
+        List<Project> projectList = projectService.getProjectsByIds(idSet);
+        if (projectList != null) {
+            for (Project project : projectList) {
+                Integer projectId = project.getProjectId();
+                if (project.getProjectStatus().equalsIgnoreCase(ConstructionStatus.PreLaunch.getStatus())) {
+                    idLaunchDateMap.put(projectId, project.getPreLaunchDate());
+                }
+                else {
+                    idLaunchDateMap.put(projectId, project.getLaunchDate());
+                }
+            }
+        }
+        return idLaunchDateMap;
     }
 
     private void includeMissingPriceTrendData(Calendar cal, List<PriceDetail> prices) {
