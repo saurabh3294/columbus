@@ -3,6 +3,7 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,11 +46,14 @@ public class BlogNewsService {
         Paging paging = createPaging(selector);
         List<String> cityNameList = Collections.singletonList(cityName);
         List<WordpressPost> list = blogNewsDao.findPublishedBlogByCity(cityNameList, paging);
+        List<Long> postIdList = new ArrayList<Long>();
         for (WordpressPost post : list) {
-            List<String> urlList = blogNewsDao.findImageUrlsForBlogPost(post.getId());
-            if (urlList != null && urlList.size() > 0) {
-                post.setPrimaryImageUrl(urlList.get(0));
-            }
+            postIdList.add(post.getId());
+        }
+        Map<Long, String> idUrlMap = blogNewsDao.findThumbnailImageUrlsForBlogPost(postIdList);
+        for (WordpressPost post : list) {
+            String url = idUrlMap.get(post.getId());
+            post.setPrimaryImageUrl(url);
         }
         removeHtmlTagsFromPostContent(list, contentLimit);
         return list;
