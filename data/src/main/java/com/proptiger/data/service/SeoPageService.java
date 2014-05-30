@@ -271,7 +271,7 @@ public class SeoPageService {
             city = suburb.getCity();
         }
         if (urlDetail.getCityName() != null) {
-            city = cityService.getCity(urlDetail.getCityName());
+            city = cityService.getCityByName(urlDetail.getCityName());
             if (city == null) {
                 throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
             }
