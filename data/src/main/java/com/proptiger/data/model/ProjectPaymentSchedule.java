@@ -13,7 +13,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.enums.portfolio.PaymentPlan;
-import com.proptiger.data.model.portfolio.PortfolioListingPaymentPlan;
+import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 
 /**
  * Model class for project payment schedule

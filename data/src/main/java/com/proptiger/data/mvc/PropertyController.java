@@ -24,7 +24,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.portfolio.PortfolioListing;
+import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -32,7 +32,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.portfolio.PortfolioService;
+import com.proptiger.data.service.user.portfolio.PortfolioService;
 import com.proptiger.data.util.Constants;
 
 /**

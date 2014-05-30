@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.model.portfolio.SavedSearch;
+import com.proptiger.data.model.user.SavedSearch;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.SavedSearchService;

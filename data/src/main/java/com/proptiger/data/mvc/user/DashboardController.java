@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.DashboardDto;
 import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.model.portfolio.Dashboard;
-import com.proptiger.data.model.portfolio.DashboardWidgetMapping;
+import com.proptiger.data.model.user.Dashboard;
+import com.proptiger.data.model.user.DashboardWidgetMapping;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;

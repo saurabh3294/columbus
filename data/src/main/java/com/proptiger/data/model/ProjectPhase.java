@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,11 +25,11 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.EntityType;
+import com.proptiger.data.enums.Status;
 import com.proptiger.data.enums.UnitType;
-import com.proptiger.data.enums.b2b.ConstructionStatus;
-import com.proptiger.data.enums.b2b.Status;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.DateUtil;
 
@@ -379,11 +380,12 @@ public class ProjectPhase extends BaseModel {
         return this;
     }
 
-    public static class CustomCurrentPhaseSecondaryPrice {
-        private int      phaseId;
-        private UnitType unitType;
-        private Date     effectiveMonth;
-        private Integer  secondaryPrice;
+    public static class CustomCurrentPhaseSecondaryPrice implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private int               phaseId;
+        private UnitType          unitType;
+        private Date              effectiveMonth;
+        private Integer           secondaryPrice;
 
         public CustomCurrentPhaseSecondaryPrice(
                 int phaseId,

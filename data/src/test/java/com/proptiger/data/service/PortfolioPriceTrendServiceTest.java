@@ -19,12 +19,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
-import com.proptiger.data.service.portfolio.PortfolioPriceTrendService;
+import com.proptiger.data.service.user.portfolio.PortfolioPriceTrendService;
 import com.proptiger.data.util.DateUtil;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:spring/applicationContext.xml")
-public class PortfolioPriceTrendServiceTest {
+public class PortfolioPriceTrendServiceTest extends AbstractTest{
     @Autowired
     private PortfolioPriceTrendService portfolioPriceTrendService;
 
