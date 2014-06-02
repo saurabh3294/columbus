@@ -4,7 +4,7 @@ package com.proptiger.data.model.user;
  * @author Rajeev Pandey
  * 
  */
-public class Login {
+public class LoginCredentials {
 
     private String username;
     private String  password;
