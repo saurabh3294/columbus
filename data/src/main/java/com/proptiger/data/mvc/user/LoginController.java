@@ -28,7 +28,7 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
-    @RequestMapping(method = RequestMethod.POST, value = "logme")
+    @RequestMapping(method = RequestMethod.POST, value = "app/v1/login")
     @ResponseBody
     public APIResponse login(@RequestBody LoginCredentials login) {
         //UserInfo userInfo = loginService.login(login.getEmail(), login.getPassword(), login.isRememberme());
