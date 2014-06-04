@@ -222,6 +222,8 @@ public class SeoPageService {
         String bedroomStr = null;
         String priceRangeStr = null;
         Integer bathrooms = null;
+        Integer minBudget = urlDetail.getMinBudget();
+        Integer maxBudget = urlDetail.getMaxBudget();
         Gson gson = new Gson();
 
         if (urlDetail.getPropertyId() != null) {
@@ -271,7 +273,7 @@ public class SeoPageService {
             city = suburb.getCity();
         }
         if (urlDetail.getCityName() != null) {
-            city = cityService.getCity(urlDetail.getCityName());
+            city = cityService.getCityByName(urlDetail.getCityName());
             if (city == null) {
                 throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
             }
@@ -285,8 +287,11 @@ public class SeoPageService {
         if (urlDetail.getBedrooms() != null && urlDetail.getBedrooms() > 0) {
             bedroomStr = urlDetail.getBedrooms().toString();
         }
-        if (urlDetail.getMinBudget() != null) {
-            priceRangeStr = urlDetail.getMinBudget() + "-" + urlDetail.getMaxBudget();
+        // Conversion of price in Lacs.
+        if (minBudget != null) {
+            minBudget = minBudget/100000;
+            maxBudget = maxBudget/100000;
+            priceRangeStr = minBudget + "-" + maxBudget;
         }
 
         return new CompositeSeoTokenData(property, project, locality, suburb, city, builder, bedroomStr, priceRangeStr, bathrooms);

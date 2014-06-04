@@ -274,12 +274,12 @@ public class BuilderTrendService {
         Map<Integer, Set<UnitType>> result = new HashMap<>();
 
         @SuppressWarnings("unchecked")
-        Map<String, List<InventoryPriceTrend>> isDominantSupplyGrouped = (Map<String, List<InventoryPriceTrend>>) UtilityClass
+        Map<Boolean, List<InventoryPriceTrend>> isDominantSupplyGrouped = (Map<Boolean, List<InventoryPriceTrend>>) UtilityClass
                 .groupFieldsAsPerKeys(
                         inventoryPriceTrends,
                         new ArrayList<String>(Arrays.asList("isDominantProjectUnitType")));
-        if (isDominantSupplyGrouped.get("true") != null) {
-            for (InventoryPriceTrend inventoryPriceTrend : isDominantSupplyGrouped.get("true")) {
+        if (isDominantSupplyGrouped.get(true) != null) {
+            for (InventoryPriceTrend inventoryPriceTrend : isDominantSupplyGrouped.get(true)) {
                 Integer localityId = inventoryPriceTrend.getLocalityId();
                 UnitType unitType = inventoryPriceTrend.getUnitType();
                 if (result.containsKey(localityId)) {
@@ -304,12 +304,16 @@ public class BuilderTrendService {
         FIQLSelector fiqlSelector = new FIQLSelector();
         fiqlSelector.setFields("wavgPricePerUnitAreaOnSupply");
         fiqlSelector.setGroup("localityId,unitType");
+
+        int resultCount = 0;
         for (Integer localityId : localityUnitTypeMap.keySet()) {
             for (UnitType unitType : localityUnitTypeMap.get(localityId)) {
 
                 fiqlSelector.addOrConditionToFilter("localityId==" + localityId + ";unitType==" + unitType);
+                resultCount++;
             }
         }
+        fiqlSelector.setRows(resultCount);
         fiqlSelector.addAndConditionToFilter("month==" + currentMonth);
         fiqlSelector.setRows(MAX_ROWS);
         return fiqlSelector;
