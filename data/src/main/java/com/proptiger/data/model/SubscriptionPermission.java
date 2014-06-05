@@ -6,16 +6,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 /**
  * 
  * @author azi
  * 
  */
-@Entity
-@Table(name = "subscription_permissions")
+@Entity(name = "subscription_permissions")
 public class SubscriptionPermission extends BaseModel {
     private static final long serialVersionUID = 1L;
 
@@ -28,10 +27,11 @@ public class SubscriptionPermission extends BaseModel {
     @Column(name = "permission_id")
     private int               permissionId;
 
-    @OneToOne(mappedBy = "permission_id", fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "permission_id", insertable = false, updatable = false)
     private Permission        permission;
 
-    @Column(name = "created_at")
+    @Column(name = "created_by")
     private int               createdBy;
 
     @Column(name = "created_at")

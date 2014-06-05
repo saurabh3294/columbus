@@ -1,10 +1,15 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 
 /**
  * 
@@ -13,24 +18,34 @@ import javax.persistence.Id;
  */
 @Entity(name = "company_subscriptions")
 public class CompanySubscription extends BaseModel {
-    private static final long serialVersionUID = 1L;
+    private static final long    serialVersionUID = 1L;
     @Id
-    private int               id;
+    private int                  id;
 
     @Column(name = "company_id")
-    private int               companyId;
+    private int                  companyId;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY, targetEntity = Company.class)
+    @JoinColumn(name = "company_id", updatable = false, insertable = false)
+    private Company              company;
 
     @Column(name = "created_by")
-    private int               createdBy;
+    private int                  createdBy;
 
     @Column(name = "expiry_time")
-    private Date              expiryTime;
+    private Date                 expiryTime;
 
     @Column(name = "created_at")
-    private Date              createdAt;
+    private Date                 createdAt;
 
-    @Column(name = "updatedAt")
-    private Date              updatedAt;
+    @Column(name = "updated_at")
+    private Date                 updatedAt;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "subscriptionId")
+    List<SubscriptionSection>    sections;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subscriptionId")
+    List<SubscriptionPermission> permissions;
 
     public int getId() {
         return id;
@@ -78,5 +93,29 @@ public class CompanySubscription extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company company) {
+        this.company = company;
+    }
+
+    public List<SubscriptionSection> getSections() {
+        return sections;
+    }
+
+    public void setSections(List<SubscriptionSection> sections) {
+        this.sections = sections;
+    }
+
+    public List<SubscriptionPermission> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(List<SubscriptionPermission> permissions) {
+        this.permissions = permissions;
     }
 }

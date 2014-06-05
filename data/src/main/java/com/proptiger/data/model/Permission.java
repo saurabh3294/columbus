@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import com.proptiger.data.enums.DataAccessLevel;
 import com.proptiger.data.enums.DomainObject;
@@ -28,9 +29,10 @@ public class Permission extends BaseModel {
     private int               objectId;
 
     @Column(name = "access_level")
+    @Enumerated(EnumType.STRING)
     private DataAccessLevel   accessLevel;
 
-    @Column(name = "object_type_id")
+    @Transient
     @Enumerated(EnumType.STRING)
     private DomainObject      objectType;
 
