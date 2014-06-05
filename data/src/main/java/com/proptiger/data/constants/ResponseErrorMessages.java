@@ -1,5 +1,7 @@
 package com.proptiger.data.constants;
 
+import com.proptiger.data.util.Constants;
+
 /**
  * @author Rajeev Pandey
  * 
@@ -24,4 +26,5 @@ public interface ResponseErrorMessages {
     static String UNAUTHORIZED                        = "Unauthorized";
     static String BAD_REQUEST                         = "Bad Request";
     static String INVALID_USER_PREFERENCE             = "Invalid User Preference";
+    static String LIMIT_OF_COMPOSITE_API_EXCEEDED     = "Maximum limit of" + Constants.LIMIT_OF_COMPOSITE_APIs + " APIs allowed in composite call crossed";
 }

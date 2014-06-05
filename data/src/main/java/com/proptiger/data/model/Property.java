@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.proptiger.data.meta.DataType;
+import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
@@ -201,8 +201,6 @@ public class Property extends BaseModel {
 
     public void setPricePerUnitArea(Double pricePerUnitArea) {
         this.pricePerUnitArea = pricePerUnitArea;
-        populateMinResaleOrPrimaryPrice();
-        populateMaxResaleOrPrimaryPrice();
     }
 
     public Double getSize() {
@@ -299,8 +297,6 @@ public class Property extends BaseModel {
 
     public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
         this.resalePricePerUnitArea = resalePricePerUnitArea;
-        populateMinResaleOrPrimaryPrice();
-        populateMaxResaleOrPrimaryPrice();
     }
 
     public Double getResalePrice() {
@@ -366,6 +362,6 @@ public class Property extends BaseModel {
     }
 
     public void populateMaxResaleOrPrimaryPrice() {
-        this.minResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
+        this.maxResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
     }
 }

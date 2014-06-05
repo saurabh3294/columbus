@@ -21,8 +21,11 @@ public class FIQLSelector implements Cloneable, Serializable {
     private String            filters;
     private String            group;
     private String            sort;
-    private Integer           start                    = 0;
-    private Integer           rows;
+    private int               start                    = 0;
+
+    private int               rows                     = 1000;
+
+    private static final int  maxAllowedRows                  = 50000;
 
     private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
     private static String     monthAlwaysTrueStatement = "month!=1970-01-01";
@@ -54,11 +57,11 @@ public class FIQLSelector implements Cloneable, Serializable {
         return this;
     }
 
-    public Integer getStart() {
+    public int getStart() {
         return start;
     }
 
-    public FIQLSelector setStart(Integer start) {
+    public FIQLSelector setStart(int start) {
         this.start = start;
         return this;
     }
@@ -69,6 +72,9 @@ public class FIQLSelector implements Cloneable, Serializable {
 
     public FIQLSelector setRows(Integer rows) {
         this.rows = rows;
+        if (this.rows > maxAllowedRows) {
+            throw new ProAPIException("Rows more than max allowed rows");
+        }
         return this;
     }
 
@@ -170,5 +176,39 @@ public class FIQLSelector implements Cloneable, Serializable {
             result = new HashSet<>(Arrays.asList(this.fields.split(",")));
         }
         return result;
+    }
+
+    public static enum FIQLOperator {
+        Equal("=="), NotEqual("!="), LessThan("=lt="), LessThanEqual("=le="), GreaterThan("=gt="), GreaterThanEqual(
+                "=ge="), And(";"), Or(",");
+
+        private String value;
+
+        private FIQLOperator(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((fields == null) ? 0 : fields.hashCode());
+        result = prime * result + ((filters == null) ? 0 : filters.hashCode());
+        result = prime * result + ((group == null) ? 0 : group.hashCode());
+        result = prime * result + rows;
+        result = prime * result + ((sort == null) ? 0 : sort.hashCode());
+        result = prime * result + start;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return ToStringBuilder.reflectionToString(obj, ToStringStyle.SHORT_PREFIX_STYLE).equals(
+                ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE));
     }
 }

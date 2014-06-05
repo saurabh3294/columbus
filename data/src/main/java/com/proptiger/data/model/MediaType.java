@@ -22,7 +22,7 @@ public class MediaType extends BaseModel {
     private Integer                                  id;
 
     @Enumerated(EnumType.STRING)
-    private com.proptiger.data.model.enums.MediaType name;
+    private com.proptiger.data.enums.MediaType name;
 
     public Integer getId() {
         return id;
@@ -32,11 +32,11 @@ public class MediaType extends BaseModel {
         this.id = id;
     }
 
-    public com.proptiger.data.model.enums.MediaType getName() {
+    public com.proptiger.data.enums.MediaType getName() {
         return name;
     }
 
-    public void setName(com.proptiger.data.model.enums.MediaType name) {
+    public void setName(com.proptiger.data.enums.MediaType name) {
         this.name = name;
     }
 

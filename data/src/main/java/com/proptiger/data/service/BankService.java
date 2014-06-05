@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
+import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.resource.ResourceType;
+import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.Bank;
-import com.proptiger.data.model.enums.DomainObject;
 import com.proptiger.data.repo.BankDao;
 import com.proptiger.data.repo.ProjectBanksDao;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.IdConverterForDatabase;
-import com.proptiger.data.util.ResourceType;
-import com.proptiger.data.util.ResourceTypeAction;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**

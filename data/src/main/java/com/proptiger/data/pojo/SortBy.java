@@ -2,6 +2,8 @@ package com.proptiger.data.pojo;
 
 import java.io.Serializable;
 
+import com.proptiger.data.enums.SortOrder;
+
 /**
  * @author Rajeev Pandey
  * 

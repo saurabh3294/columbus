@@ -21,8 +21,8 @@ import com.proptiger.data.model.LocalityReviewComments.LocalityReviewCustomDetai
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LocalityReviewDao;
-import com.proptiger.data.service.pojo.PaginatedResponse;
 import com.proptiger.data.util.Constants;
 
 /**
