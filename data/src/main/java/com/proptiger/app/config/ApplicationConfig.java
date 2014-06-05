@@ -1,4 +1,4 @@
-package com.proptiger.data.init;
+package com.proptiger.app.config;
 
 import java.util.Properties;
 
@@ -21,6 +21,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.proptiger.data.init.CustomHibernateJpaVendorAdapter;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 
