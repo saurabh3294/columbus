@@ -5,19 +5,19 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.PostLoad;
-import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.util.JsonLoader;
+import com.proptiger.data.enums.Application;
 
 /**
  * B2b User Detail Model
@@ -27,32 +27,30 @@ import com.github.fge.jsonschema.util.JsonLoader;
  */
 
 @JsonInclude(Include.NON_NULL)
-@Entity
-@Table(name = "b2b_user_details")
+@Entity(name = "b2b_user_details")
 @JsonFilter("fieldFilter")
-@JsonAutoDetect(
-        fieldVisibility = Visibility.ANY,
-        getterVisibility = Visibility.NONE,
-        isGetterVisibility = Visibility.NONE)
-public class UserDetail extends BaseModel {
+public class UserPreference extends BaseModel {
     private static final long serialVersionUID = -6720993214144916804L;
 
     @Id
     @JsonIgnore
-    private Integer  id;
+    private Integer           id;
+
+    @Enumerated(EnumType.STRING)
+    private Application       app;
 
     @Transient
-    private JsonNode preference;
+    private JsonNode          preference;
 
     @JsonIgnore
     @Column(name = "preference")
-    private String   stringPreference;
+    private String            stringPreference;
 
     @Column(name = "created_at")
-    private Date     createdAt = new Date();
+    private Date              createdAt        = new Date();
 
     @Column(name = "updated_at")
-    private Date     updatedAt = new Date();
+    private Date              updatedAt        = new Date();
 
     public Integer getId() {
         return id;

@@ -13,7 +13,7 @@ import javax.persistence.ManyToOne;
  * 
  */
 @Entity(name = "user_subscription_mappings")
-public class SubscriptionUsers extends BaseModel {
+public class UserSubscriptionMapping extends BaseModel {
     private static final long   serialVersionUID = 1L;
 
     @Id

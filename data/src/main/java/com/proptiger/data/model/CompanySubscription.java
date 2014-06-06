@@ -11,6 +11,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 /**
  * 
  * @author azi
@@ -42,10 +45,16 @@ public class CompanySubscription extends BaseModel {
     private Date                 updatedAt;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "subscriptionId")
+    @Fetch(FetchMode.SUBSELECT)
     List<SubscriptionSection>    sections;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "subscriptionId")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "subscriptionId")
+    @Fetch(FetchMode.SUBSELECT)
     List<SubscriptionPermission> permissions;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "subscriptionId")
+    @Fetch(FetchMode.SUBSELECT)
+    List<SubscriptionColumn>     columnGroups;
 
     public int getId() {
         return id;
@@ -117,5 +126,13 @@ public class CompanySubscription extends BaseModel {
 
     public void setPermissions(List<SubscriptionPermission> permissions) {
         this.permissions = permissions;
+    }
+
+    public List<SubscriptionColumn> getColumnGroups() {
+        return columnGroups;
+    }
+
+    public void setColumnGroups(List<SubscriptionColumn> columnGroups) {
+        this.columnGroups = columnGroups;
     }
 }

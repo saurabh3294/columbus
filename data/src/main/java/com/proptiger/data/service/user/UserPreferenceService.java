@@ -5,8 +5,10 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.internal.dto.UserInfo;
-import com.proptiger.data.model.UserDetail;
-import com.proptiger.data.repo.user.UserDetailDao;
+import com.proptiger.data.model.UserPreference;
+import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.user.DashboardDao;
+import com.proptiger.data.repo.user.UserPreferenceDao;
 import com.proptiger.data.util.UserPreferenceProcessor;
 
 /**
@@ -17,11 +19,17 @@ import com.proptiger.data.util.UserPreferenceProcessor;
  */
 
 @Service
-public class UserDetailService {
+public class UserPreferenceService {
     @Autowired
-    private UserDetailDao b2bUserDetailDao;
+    private UserPreferenceDao b2bUserDetailDao;
 
-    public UserDetail updateUserDetails(UserDetail b2bUserDetail, UserInfo userInfo) {
+    @Autowired
+    private DashboardDao      dashboardDao;
+
+    @Autowired
+    private ForumUserDao      userDao;
+
+    public UserPreference updateUserDetails(UserPreference b2bUserDetail, UserInfo userInfo) {
         if (!UserPreferenceProcessor.isValidPreference(b2bUserDetail.getPreference())) {
             throw new com.proptiger.exception.BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
         }
@@ -29,8 +37,8 @@ public class UserDetailService {
         return b2bUserDetailDao.save(b2bUserDetail);
     }
 
-    public UserDetail getUserDetails(UserInfo userInfo) {
-        UserDetail b2bUserDetail = b2bUserDetailDao.findOne(userInfo.getUserIdentifier());
+    public UserPreference getUserDetails(UserInfo userInfo) {
+        UserPreference b2bUserDetail = b2bUserDetailDao.findOne(userInfo.getUserIdentifier());
         b2bUserDetail.setPreference(UserPreferenceProcessor.mergeDefaultPreference(b2bUserDetail.getPreference()));
         return b2bUserDetail;
     }
