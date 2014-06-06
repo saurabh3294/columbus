@@ -92,7 +92,9 @@ public class MediaUtil {
             if (metadata.containsDirectory(ExifSubIFDDirectory.class)) {
                 ExifSubIFDDirectory directory = metadata.getDirectory(ExifSubIFDDirectory.class);
                 Date date = directory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-                image.setTakenAt((date != null) ? (Date) date : null);
+                if (image.getTakenAt() == null) {
+                    image.setTakenAt((date != null) ? (Date) date : null);
+                }
             }
 
             // Latitude - Longitude
