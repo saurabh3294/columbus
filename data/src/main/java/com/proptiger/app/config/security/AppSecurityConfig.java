@@ -75,7 +75,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
          */
 
         http.csrf().disable();
-        http.authorizeRequests().antMatchers("/data/v1/entity/user/**").authenticated();
+        http.authorizeRequests().regexMatchers(".*/user/.*").authenticated();
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
 
         http.addFilter(createUserNamePasswordLoginFilter());
