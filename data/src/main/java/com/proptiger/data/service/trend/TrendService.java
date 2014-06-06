@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.UnitType;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.FIQLSelector.FIQLOperator;
@@ -120,7 +120,7 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
                 rangeField,
@@ -143,7 +143,7 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 getCurrentDateAppendedSelector(selector).addAndConditionToFilter(
                         catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
@@ -173,7 +173,7 @@ public class TrendService {
             String rangeValue,
             Integer monthDuration,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 getHithertoDateAppendedSelector(selector, monthDuration).addAndConditionToFilter(
                         catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
@@ -197,7 +197,7 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(getDominantSupplyAppendedSelector(selector.addAndConditionToFilter(catchmentService
                 .getCatchmentFIQLFilter(catchmentId, userInfo))), rangeField, rangeValue);
     }
@@ -224,7 +224,7 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 getDominantSupplyAppendedSelector(getCurrentDateAppendedSelector(selector.addAndConditionToFilter(catchmentService
                         .getCatchmentFIQLFilter(catchmentId, userInfo)))),
@@ -260,7 +260,7 @@ public class TrendService {
             String rangeValue,
             Integer monthDuration,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(
                         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),

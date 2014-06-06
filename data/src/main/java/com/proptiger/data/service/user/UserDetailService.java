@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.UserDetail;
 import com.proptiger.data.repo.user.UserDetailDao;
 import com.proptiger.data.util.UserPreferenceProcessor;
@@ -21,7 +21,7 @@ public class UserDetailService {
     @Autowired
     private UserDetailDao b2bUserDetailDao;
 
-    public UserDetail updateUserDetails(UserDetail b2bUserDetail, UserInfo userInfo) {
+    public UserDetail updateUserDetails(UserDetail b2bUserDetail, ActiveUser userInfo) {
         if (!UserPreferenceProcessor.isValidPreference(b2bUserDetail.getPreference())) {
             throw new com.proptiger.exception.BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
         }
@@ -29,7 +29,7 @@ public class UserDetailService {
         return b2bUserDetailDao.save(b2bUserDetail);
     }
 
-    public UserDetail getUserDetails(UserInfo userInfo) {
+    public UserDetail getUserDetails(ActiveUser userInfo) {
         UserDetail b2bUserDetail = b2bUserDetailDao.findOne(userInfo.getUserIdentifier());
         b2bUserDetail.setPreference(UserPreferenceProcessor.mergeDefaultPreference(b2bUserDetail.getPreference()));
         return b2bUserDetail;

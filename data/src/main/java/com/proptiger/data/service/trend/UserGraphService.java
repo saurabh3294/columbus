@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.Graph;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.GraphDao;
@@ -26,7 +26,7 @@ public class UserGraphService {
     @Autowired
     private GraphDao graphDao;
 
-    public Graph createGraph(Graph graph, UserInfo userInfo) {
+    public Graph createGraph(Graph graph, ActiveUser userInfo) {
         graph.setUserId(userInfo.getUserIdentifier());
         try {
             return graphDao.save(graph);
@@ -45,7 +45,7 @@ public class UserGraphService {
         return graphDao.getFilteredGraphs(fiqlSelector);
     }
 
-    public Graph updateGraph(Graph graph, UserInfo userInfo) {
+    public Graph updateGraph(Graph graph, ActiveUser userInfo) {
         Graph updatedGraph = null;
 
         try {
@@ -82,7 +82,7 @@ public class UserGraphService {
     }
 
     @Transactional
-    public Graph updateExistingGraph(Graph graph, UserInfo userInfo) throws Exception {
+    public Graph updateExistingGraph(Graph graph, ActiveUser userInfo) throws Exception {
         Graph savedGraph = graphDao.findOne(graph.getId());
         if (savedGraph.getUserId().equals(userInfo.getUserIdentifier())) {
             ExclusionAwareBeanUtilsBean exclusionAwareBeanUtilsBean = new ExclusionAwareBeanUtilsBean();

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.Graph;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -26,14 +26,14 @@ public class UserGraphController extends BaseController {
     public @ResponseBody
     APIResponse createGraph(
             @RequestBody Graph graph,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         return new APIResponse(userGraphService.createGraph(graph, userInfo));
     }
 
     @RequestMapping(value = "/data/v1/entity/user/graph", method = RequestMethod.GET)
     public @ResponseBody
     APIResponse getGraph(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @ModelAttribute FIQLSelector fiqlSelector) {
         return new APIResponse(userGraphService.getGraph(fiqlSelector
                 .addAndConditionToFilter("userId==" + userInfo.getUserIdentifier())));
@@ -42,7 +42,7 @@ public class UserGraphController extends BaseController {
     @RequestMapping(value = "/data/v1/entity/user/graph", method = RequestMethod.PUT)
     public @ResponseBody
     APIResponse updateGraph(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @RequestBody Graph graph) {
         return new APIResponse(userGraphService.updateGraph(graph, userInfo));
     }

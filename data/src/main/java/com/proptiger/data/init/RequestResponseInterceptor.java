@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import redis.clients.jedis.Jedis;
@@ -21,10 +20,8 @@ import com.proptiger.data.enums.security.MaxAllowedRequestCount;
  * 
  */
 public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
-    @Value("${redis.hostName}")
     private String  redisHost;
 
-    @Value("${redis.port}")
     private Integer redisPort;
 
     private Logger  logger = LoggerFactory.getLogger(RequestResponseInterceptor.class);
@@ -69,4 +66,21 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
         }
         jedis.setex(key, timeFrame, count.toString());
     }
+
+    public String getRedisHost() {
+        return redisHost;
+    }
+
+    public void setRedisHost(String redisHost) {
+        this.redisHost = redisHost;
+    }
+
+    public Integer getRedisPort() {
+        return redisPort;
+    }
+
+    public void setRedisPort(Integer redisPort) {
+        this.redisPort = redisPort;
+    }
+    
 }
