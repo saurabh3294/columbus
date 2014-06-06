@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Catchment;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -17,6 +18,7 @@ import com.proptiger.data.util.Constants;
 
 @Controller
 @RequestMapping
+@DisableCaching
 public class CatchmentController extends BaseController {
     @Autowired
     private CatchmentService catchmentService;
@@ -34,8 +36,8 @@ public class CatchmentController extends BaseController {
     APIResponse getCatchment(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @ModelAttribute FIQLSelector fiqlSelector) {
-        return new APIResponse(catchmentService.getCatchment(fiqlSelector
-                .addAndConditionToFilter("userId==" + userInfo.getUserIdentifier())));
+        return new APIResponse(catchmentService.getCatchment(fiqlSelector.addAndConditionToFilter("userId==" + userInfo
+                .getUserIdentifier())));
     }
 
     @RequestMapping(value = "/data/v1/entity/user/catchment", method = RequestMethod.PUT)

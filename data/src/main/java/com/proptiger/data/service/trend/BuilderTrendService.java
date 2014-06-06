@@ -33,6 +33,8 @@ import com.proptiger.exception.ResourceNotFoundException;
  * 
  */
 
+// XXX This service will silently fail(provide incorrect data) if the user
+// provided FIQL results in large dataset
 @Service
 public class BuilderTrendService {
     private static final String WAVG_PRICE     = "wavgPricePerUnitAreaOnSupply";
@@ -45,6 +47,8 @@ public class BuilderTrendService {
 
     @Value("${b2b.price-appreciation.duration}")
     private Integer             appreciationDuration;
+
+    private static final int    MAX_ROWS       = 5000;
 
     private static final String DESC_SPECIFIER = "-";
 
@@ -270,12 +274,12 @@ public class BuilderTrendService {
         Map<Integer, Set<UnitType>> result = new HashMap<>();
 
         @SuppressWarnings("unchecked")
-        Map<String, List<InventoryPriceTrend>> isDominantSupplyGrouped = (Map<String, List<InventoryPriceTrend>>) UtilityClass
+        Map<Boolean, List<InventoryPriceTrend>> isDominantSupplyGrouped = (Map<Boolean, List<InventoryPriceTrend>>) UtilityClass
                 .groupFieldsAsPerKeys(
                         inventoryPriceTrends,
                         new ArrayList<String>(Arrays.asList("isDominantProjectUnitType")));
-        if (isDominantSupplyGrouped.get("true") != null) {
-            for (InventoryPriceTrend inventoryPriceTrend : isDominantSupplyGrouped.get("true")) {
+        if (isDominantSupplyGrouped.get(true) != null) {
+            for (InventoryPriceTrend inventoryPriceTrend : isDominantSupplyGrouped.get(true)) {
                 Integer localityId = inventoryPriceTrend.getLocalityId();
                 UnitType unitType = inventoryPriceTrend.getUnitType();
                 if (result.containsKey(localityId)) {
@@ -300,13 +304,18 @@ public class BuilderTrendService {
         FIQLSelector fiqlSelector = new FIQLSelector();
         fiqlSelector.setFields("wavgPricePerUnitAreaOnSupply");
         fiqlSelector.setGroup("localityId,unitType");
+
+        int resultCount = 0;
         for (Integer localityId : localityUnitTypeMap.keySet()) {
             for (UnitType unitType : localityUnitTypeMap.get(localityId)) {
 
                 fiqlSelector.addOrConditionToFilter("localityId==" + localityId + ";unitType==" + unitType);
+                resultCount++;
             }
         }
+        fiqlSelector.setRows(resultCount);
         fiqlSelector.addAndConditionToFilter("month==" + currentMonth);
+        fiqlSelector.setRows(MAX_ROWS);
         return fiqlSelector;
     }
 
@@ -322,6 +331,7 @@ public class BuilderTrendService {
                 "month==" + currentMonth + ",month==" + DateUtil.shiftMonths(currentMonth, -1 * appreciationDuration));
         result.setGroup("builderId,month,projectId,unitType");
         result.setFields("builderId,builderName,builderHeadquarterCity,minPricePerUnitArea,maxPricePerUnitArea,sumLtdSupply,sumLtdLaunchedUnit,sumInventory,wavgPricePerUnitAreaOnSupply,month,localityId,isDominantProjectUnitType");
+        result.setRows(MAX_ROWS);
         return result;
     }
 
@@ -331,6 +341,7 @@ public class BuilderTrendService {
                 .addAndConditionToFilter("completionDelayInMonth=gt=0");
         result.setFields("builderId,sumLtdLaunchedUnit,sumLtdSupply,sumInventory,wavgSizeOnLtdSupply");
         result.setGroup("builderId");
+        result.setRows(MAX_ROWS);
         return result;
     }
 
