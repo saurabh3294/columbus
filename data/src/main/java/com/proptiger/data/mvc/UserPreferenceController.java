@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.user.UserDetailService;
+import com.proptiger.data.service.user.UserPreferenceService;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -25,7 +25,7 @@ import com.proptiger.data.util.Constants;
 @RequestMapping
 public class UserPreferenceController extends BaseController {
     @Autowired
-    UserDetailService b2bUserDetailService;
+    UserPreferenceService b2bUserDetailService;
 
     @RequestMapping(value = "/data/v1/entity/user/preference", method = RequestMethod.PUT)
     @ResponseBody

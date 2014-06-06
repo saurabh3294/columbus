@@ -99,6 +99,9 @@ public class ForumUser extends BaseModel {
     @OneToMany(mappedBy = "userId")
     private List<Dashboard>                     dashboards;
 
+    @OneToMany(mappedBy = "userId")
+    private List<UserPreference>                preferences;
+
     @Transient
     private HashMap<Application, UserAppDetail> appDetails;
 
@@ -249,5 +252,13 @@ public class ForumUser extends BaseModel {
 
     public void setAppDetails(HashMap<Application, UserAppDetail> appDetails) {
         this.appDetails = appDetails;
+    }
+
+    public List<UserPreference> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(List<UserPreference> preferences) {
+        this.preferences = preferences;
     }
 }

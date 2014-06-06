@@ -27,7 +27,7 @@ import com.proptiger.data.enums.Application;
  */
 
 @JsonInclude(Include.NON_NULL)
-@Entity(name = "b2b_user_details")
+@Entity(name = "user_preferences")
 @JsonFilter("fieldFilter")
 public class UserPreference extends BaseModel {
     private static final long serialVersionUID = -6720993214144916804L;
@@ -35,6 +35,9 @@ public class UserPreference extends BaseModel {
     @Id
     @JsonIgnore
     private Integer           id;
+
+    @Column(name = "user_id")
+    private Integer           userId;
 
     @Enumerated(EnumType.STRING)
     private Application       app;
@@ -74,13 +77,8 @@ public class UserPreference extends BaseModel {
     }
 
     public void setStringPreference(String preference) {
-        try {
-            this.preference = JsonLoader.fromString(preference);
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         this.stringPreference = preference;
+        convertStringPreferenceToJsonPreference();
     }
 
     public Date getCreatedAt() {
@@ -103,10 +101,30 @@ public class UserPreference extends BaseModel {
         return serialVersionUID;
     }
 
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Application getApp() {
+        return app;
+    }
+
+    public void setApp(Application app) {
+        this.app = app;
+    }
+
     @PostLoad
     public void setJsonPreference() {
+        convertStringPreferenceToJsonPreference();
+    }
+
+    private void convertStringPreferenceToJsonPreference() {
         try {
-            this.preference = JsonLoader.fromString(this.stringPreference);
+            this.preference = JsonLoader.fromString(stringPreference);
         }
         catch (IOException e) {
             throw new RuntimeException(e);
