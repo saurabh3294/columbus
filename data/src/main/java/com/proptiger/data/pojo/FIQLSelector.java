@@ -25,7 +25,7 @@ public class FIQLSelector implements Cloneable, Serializable {
 
     private int               rows                     = 1000;
 
-    private static final int  maxAllowedRows                  = 50000;
+    private static final int  maxAllowedRows           = 500000;
 
     private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
     private static String     monthAlwaysTrueStatement = "month!=1970-01-01";

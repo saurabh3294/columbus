@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -106,7 +105,7 @@ public class Project extends BaseModel {
     private int                     projectId;
 
     @Transient
-    private boolean                 authorized        = new Random().nextBoolean();
+    private boolean                 authorized        = true;
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
@@ -451,7 +450,7 @@ public class Project extends BaseModel {
     @Transient
     @Field("PROJECT_PRICE_RISE_6MONTHS")
     private Double                  priceRise6Months;
-    
+
     @Transient
     @JsonIgnore
     @FieldMetaInfo(displayName = "Project view count", description = "Project view count")

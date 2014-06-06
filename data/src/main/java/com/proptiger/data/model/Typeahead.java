@@ -4,8 +4,6 @@
  */
 package com.proptiger.data.model;
 
-import java.util.Random;
-
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -35,7 +33,7 @@ public class Typeahead extends BaseModel {
     private String            id;
 
     @Transient
-    private boolean           authorized       = new Random().nextBoolean();
+    private boolean           authorized       = true;
 
     @Field(value = "TYPEAHEAD_LABEL")
     private String            label;
@@ -221,7 +219,7 @@ public class Typeahead extends BaseModel {
     public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
         this.localityUnitsDelivered6Months = localityUnitsDelivered6Months;
     }
-    
+
     public boolean isAuthorized() {
         return authorized;
     }
