@@ -30,9 +30,12 @@ public class URLDetail {
     private Integer  suburbId;
     private Integer  propertyId;
     private Integer  bedrooms;
-    private Integer   minBudget;
-    private Integer   maxBudget;
+    private Integer  minBudget;
+    private Integer  maxBudget;
     private String   fallBackUrl;
+    private String   bedroomString;
+    private String   priceString;
+    private String   propertyType;
 
     public Integer getBuilderId() {
         return builderId;
@@ -149,6 +152,30 @@ public class URLDetail {
 
     public void setMaxBudget(Integer maxBudget) {
         this.maxBudget = maxBudget;
+    }
+
+    public String getBedroomString() {
+        return bedroomString;
+    }
+
+    public void setBedroomString(String bedroomString) {
+        this.bedroomString = bedroomString;
+    }
+
+    public String getPriceString() {
+        return priceString;
+    }
+
+    public void setPriceString(String priceString) {
+        this.priceString = priceString;
+    }
+
+    public String getPropertyType() {
+        return propertyType;
+    }
+
+    public void setPropertyType(String propertyType) {
+        this.propertyType = propertyType;
     }
 
 }
