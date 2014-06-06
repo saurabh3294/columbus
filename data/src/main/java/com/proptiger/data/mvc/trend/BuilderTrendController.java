@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.trend.BuilderTrendService;
@@ -22,7 +23,7 @@ import com.proptiger.data.util.Constants;
 
 @Controller
 @RequestMapping
-public class BuilderTrendController {
+public class BuilderTrendController extends BaseController{
     @Autowired
     private BuilderTrendService builderTrendService;
 
