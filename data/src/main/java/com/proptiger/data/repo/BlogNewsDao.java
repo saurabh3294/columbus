@@ -15,7 +15,7 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.app.config.ApplicationConfig;
+import com.proptiger.app.config.AppRepositoryConfig;
 import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.pojo.Paging;
 
@@ -42,7 +42,7 @@ public class BlogNewsDao {
      * @return
      */
     public List<WordpressPost> findPublishedBlogByCity(List<String> cityName, Paging paging) {
-        return findNewsOrBlogsByCity(cityName, ApplicationConfig.getWordpressEntityFactory(), paging);
+        return findNewsOrBlogsByCity(cityName, AppRepositoryConfig.getWordpressEntityFactory(), paging);
     }
 
     /**
@@ -54,7 +54,7 @@ public class BlogNewsDao {
      * @return
      */
     public List<WordpressPost> findPublishedNewsByCity(List<String> cityName, Paging paging) {
-        return findNewsOrBlogsByCity(cityName, ApplicationConfig.getWordpressNewsEntityFactory(), paging);
+        return findNewsOrBlogsByCity(cityName, AppRepositoryConfig.getWordpressNewsEntityFactory(), paging);
     }
 
     private List<WordpressPost> findNewsOrBlogsByCity(List<String> cityName, EntityManagerFactory emf, Paging paging) {
@@ -72,7 +72,7 @@ public class BlogNewsDao {
      * @return
      */
     public List<String> findImageUrlsForBlogPost(Long postId) {
-        EntityManager em = ApplicationConfig.getWordpressEntityFactory().createEntityManager();
+        EntityManager em = AppRepositoryConfig.getWordpressEntityFactory().createEntityManager();
         Query query = em.createNamedQuery("Post.imageUrl").setParameter("postId", postId);
         List<String> results = query.getResultList();
         return results;
@@ -84,7 +84,7 @@ public class BlogNewsDao {
      * @return
      */
     public List<String> findImageUrlsForNewsPost(Long postId) {
-        EntityManager em = ApplicationConfig.getWordpressNewsEntityFactory().createEntityManager();
+        EntityManager em = AppRepositoryConfig.getWordpressNewsEntityFactory().createEntityManager();
         Query query = em.createNamedQuery("Post.imageUrl").setParameter("postId", postId);
         List<String> results = query.getResultList();
         return results;
@@ -100,7 +100,7 @@ public class BlogNewsDao {
         if (postIdList == null || postIdList.isEmpty()) {
             return idUrlsMap;
         }
-        EntityManager em = ApplicationConfig.getWordpressEntityFactory().createEntityManager();
+        EntityManager em = AppRepositoryConfig.getWordpressEntityFactory().createEntityManager();
         String repQueryStr = THUMBNAIL_QUERY_STRING.replaceAll("postIdList", postIdList.toString()).replace("[", "")
                 .replace("]", "");
         Query query = em.createNativeQuery(repQueryStr);

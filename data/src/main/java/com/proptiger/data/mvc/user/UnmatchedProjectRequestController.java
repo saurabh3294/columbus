@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UnmatchedProjectRequestService;
@@ -33,7 +33,7 @@ public class UnmatchedProjectRequestController extends BaseController {
     @ResponseBody
     public APIResponse submitUnmatchedProjectDetails(
             @RequestBody() UnmatchedProjectDetails unmatchedProjectDetails,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         boolean status = unmatchedProjectRequestService
                 .handleUnmatchedProjectRequest(unmatchedProjectDetails, userInfo);
         return new APIResponse(status, 1);

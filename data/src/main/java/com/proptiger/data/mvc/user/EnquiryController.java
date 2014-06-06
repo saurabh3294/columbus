@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Enquiry.EnquiryCustomDetails;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -34,7 +34,7 @@ public class EnquiryController extends BaseController {
     @ResponseBody
     public APIResponse getEnquiredProperties(
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
          List<EnquiryCustomDetails> result = enquiryService.getEnquiries(userInfo.getUserIdentifier());
         return new APIResponse(result, result.size());
     }
