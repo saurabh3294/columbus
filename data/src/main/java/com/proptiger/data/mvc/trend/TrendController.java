@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.mvc.BaseController;
@@ -83,7 +83,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(getMappedResults(
                 trendService.getCatchmentPaginatedTrend(selector, rangeField, rangeValue, catchmentId, userInfo),
                 rangeField,
@@ -98,7 +98,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(trendService.getCatchmentPaginatedTrend(
                 selector,
                 rangeField,
@@ -147,7 +147,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(
                 getMappedResults(trendService.getCatchmentCurrentPaginatedTrend(
                         selector,
@@ -164,7 +164,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(trendService.getCatchmentCurrentPaginatedTrend(
                 selector,
                 rangeField,
@@ -219,7 +219,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @RequestParam(required = false) Integer monthDuration,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(getMappedResults(trendService.getCatchmentHithertoPaginatedTrend(
                 selector,
                 rangeField,
@@ -237,7 +237,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @RequestParam(required = false) Integer monthDuration,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(trendService.getCatchmentHithertoPaginatedTrend(
                 selector,
                 rangeField,
@@ -287,7 +287,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(getMappedResults(
                 trendService.getCatchmentPricePaginatedTrend(selector, rangeField, rangeValue, catchmentId, userInfo),
                 rangeField,
@@ -302,7 +302,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(trendService.getCatchmentPricePaginatedTrend(
                 selector,
                 rangeField,
@@ -351,7 +351,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(getMappedResults(trendService.getCatchmentCurrentPricePaginatedTrend(
                 selector,
                 rangeField,
@@ -367,7 +367,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(trendService.getCatchmentCurrentPricePaginatedTrend(
                 selector,
                 rangeField,
@@ -426,7 +426,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
             @RequestParam Integer monthDuration,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
         return new APIResponse(getMappedResults(trendService.getCatchmentHithertoPricePaginatedTrend(
                 selector,
@@ -445,7 +445,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
             @RequestParam Integer monthDuration,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
         return new APIResponse(trendService.getCatchmentHithertoPricePaginatedTrend(
                 selector,

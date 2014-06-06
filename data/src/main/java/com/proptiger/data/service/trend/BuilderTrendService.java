@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.init.comparator.GenericComparator;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
@@ -52,7 +52,7 @@ public class BuilderTrendService {
 
     private static final String DESC_SPECIFIER = "-";
 
-    public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, UserInfo userInfo) {
+    public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, ActiveUser userInfo) {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("builderId==" + builderId);
         List<BuilderTrend> builderTrends = getBuilderTrend(selector, userInfo);
@@ -62,7 +62,7 @@ public class BuilderTrendService {
         return builderTrends.get(0);
     }
 
-    public List<BuilderTrend> getBuilderTrend(FIQLSelector userSelector, UserInfo userInfo) {
+    public List<BuilderTrend> getBuilderTrend(FIQLSelector userSelector, ActiveUser userInfo) {
         List<BuilderTrend> builderTrends = new ArrayList<>();
         FIQLSelector fiqlSelector = getFIQLFromUserFIQL(userSelector);
         Date currentDate = DateUtil.parseYYYYmmddStringToDate(currentMonth);

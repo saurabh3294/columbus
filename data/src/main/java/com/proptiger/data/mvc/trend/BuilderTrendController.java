@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.trend.BuilderTrendService;
@@ -30,7 +30,7 @@ public class BuilderTrendController {
     @ResponseBody
     public APIResponse getSingleBuilderTrend(
             @PathVariable Integer builderId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(builderTrendService.getBuilderTrendForSingleBuilder(builderId, userInfo));
     }
 
@@ -38,7 +38,7 @@ public class BuilderTrendController {
     @ResponseBody
     public APIResponse getBuilderTrendFromFIQL(
             @ModelAttribute FIQLSelector selector,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) throws Exception {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(builderTrendService.getBuilderTrend(selector, userInfo));
     }
 }
