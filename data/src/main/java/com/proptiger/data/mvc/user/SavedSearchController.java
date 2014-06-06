@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.user.SavedSearch;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -32,7 +32,7 @@ public class SavedSearchController extends BaseController {
     @ResponseBody
     public APIResponse getSavedSearches(
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<SavedSearch> result = savedSearchesService.getUserSavedSearches(userInfo.getUserIdentifier());
 
         return new APIResponse(result, result.size());
@@ -42,7 +42,7 @@ public class SavedSearchController extends BaseController {
     @ResponseBody
     public APIResponse saveSearch(
             @RequestBody SavedSearch saveSearch,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         return new APIResponse(savedSearchesService.setUserSearch(saveSearch, userInfo.getUserIdentifier()));
     }
 
@@ -51,7 +51,7 @@ public class SavedSearchController extends BaseController {
     public APIResponse deleteSavedSearch(
             @PathVariable int savedSearchId,
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         savedSearchesService.deleteSavedSearch(savedSearchId);
         return getSavedSearches(userId, userInfo);
     }
