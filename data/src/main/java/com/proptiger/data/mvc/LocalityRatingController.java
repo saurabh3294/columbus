@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.LocalityRatings;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -56,7 +56,7 @@ public class LocalityRatingController extends BaseController {
     @DisableCaching
     public APIResponse getLocalityRatingByUser(
             @PathVariable Integer localityId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         LocalityRatings rating = localityRatingService
                 .getLocalityRatingOfUser(userInfo.getUserIdentifier(), localityId);
         return new APIResponse(rating);
@@ -76,7 +76,7 @@ public class LocalityRatingController extends BaseController {
     public APIResponse createLocalityRating(
             @PathVariable Integer localityId,
             @RequestBody LocalityRatings localityRating,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         LocalityRatings createdRating = localityRatingService.createLocalityRating(
                 userInfo.getUserIdentifier(),
                 localityId,

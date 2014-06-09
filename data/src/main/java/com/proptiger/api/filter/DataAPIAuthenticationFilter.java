@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.util.CacheClientUtil;
 import com.proptiger.data.util.Constants;
@@ -32,6 +32,8 @@ import com.proptiger.exception.AuthenticationException;
  * will allow to pass the request otherwise return the 403 response. The login
  * information will be picked from memcache against PHPSESSID passed in cookie,
  * where website write on log in
+ * 
+ * TODO NOT being used, will be removed.
  * 
  * @author Rajeev Pandey
  * 
@@ -53,7 +55,7 @@ public class DataAPIAuthenticationFilter implements Filter {
             ServletException {
         HttpServletRequest httpRequest = ((HttpServletRequest) request);
         String userIpAddress = httpRequest.getRemoteAddr();
-        UserInfo userInfo = null;
+        ActiveUser userInfo = null;
 
         Cookie[] cookies = httpRequest.getCookies();
         String sessionId = null;
@@ -140,7 +142,6 @@ public class DataAPIAuthenticationFilter implements Filter {
             try {
                 userInfo = getUserInfoFromMemcache(sessionId);
                 if (userInfo.getUserIdentifier().equals(Constants.ADMIN_USER_ID)) {
-                    userInfo.setAdmin(true);
                     if (userIdOnBehalfOfAdmin != null) {
                         // If user id is present in request parameter then admin
                         // might try to
@@ -205,10 +206,10 @@ public class DataAPIAuthenticationFilter implements Filter {
                 return;
             }
             logger.debug("Skipping authentication, serve request for user id {}", userId);
-            userInfo = new UserInfo();
+            //userInfo = new ActiveUser();
             userInfo.setUserIdentifier(userId);
             if (userInfo.getUserIdentifier().equals(Constants.ADMIN_USER_ID)) {
-                userInfo.setAdmin(true);
+                //userInfo.setAdmin(true);
                 if (userIdOnBehalfOfAdmin != null) {
                     // If user id is present in request parameter then admin
                     // might try to
@@ -244,11 +245,11 @@ public class DataAPIAuthenticationFilter implements Filter {
      * @param sessionId
      * @return
      */
-    private UserInfo getUserInfoFromMemcache(String sessionId) {
+    private ActiveUser getUserInfoFromMemcache(String sessionId) {
         if (sessionId == null) {
             throw new AuthenticationException("Session id null");
         }
-        UserInfo userInfo = new UserInfo();
+        ActiveUser userInfo = null;//new ActiveUser();
         Integer userId = null;
         String userName = null;
         String email = null;
@@ -282,7 +283,6 @@ public class DataAPIAuthenticationFilter implements Filter {
             throw new AuthenticationException("session data not found in memcache for sessionkey " + sessionId);
         }
         else {
-            userInfo.setName(userName);
             userInfo.setUserIdentifier(userId);
         }
         return userInfo;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.portfolio.PortfolioPriceTrendService;
@@ -39,7 +39,7 @@ public class PortfolioPriceTrendController extends BaseController {
     @ResponseBody
     public APIResponse getPortfolioPriceTrend(@PathVariable Integer userId, @RequestParam(
             required = false,
-            defaultValue = "3") Integer months, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            defaultValue = "3") Integer months, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
 
         PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(
                 userInfo.getUserIdentifier(),
@@ -61,7 +61,7 @@ public class PortfolioPriceTrendController extends BaseController {
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestParam(required = false, defaultValue = "3") Integer months,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
 
         ProjectPriceTrend priceTrend = portfolioPriceTrendService.getListingPriceTrend(
                 userInfo.getUserIdentifier(),

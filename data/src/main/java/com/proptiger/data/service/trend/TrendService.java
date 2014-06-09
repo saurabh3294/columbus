@@ -20,15 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
 import com.proptiger.data.enums.UnitType;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.FIQLSelector.FIQLOperator;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.user.CatchmentService;
-import com.proptiger.data.trend.dto.internal.HithertoDurationSelector;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
 
@@ -130,7 +130,7 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
                 rangeField,
@@ -153,7 +153,7 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 getCurrentDateAppendedSelector(selector).addAndConditionToFilter(
                         catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
@@ -183,7 +183,7 @@ public class TrendService {
             String rangeValue,
             HithertoDurationSelector hithertoDurationSelector,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 getHithertoDateAppendedSelector(selector, hithertoDurationSelector).addAndConditionToFilter(
                         catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
@@ -207,7 +207,7 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(getDominantSupplyAppendedSelector(selector.addAndConditionToFilter(catchmentService
                 .getCatchmentFIQLFilter(catchmentId, userInfo))), rangeField, rangeValue);
     }
@@ -234,7 +234,7 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 getDominantSupplyAppendedSelector(getCurrentDateAppendedSelector(selector.addAndConditionToFilter(catchmentService
                         .getCatchmentFIQLFilter(catchmentId, userInfo)))),
@@ -270,7 +270,7 @@ public class TrendService {
             String rangeValue,
             HithertoDurationSelector hithertoDurationSelector,
             Integer catchmentId,
-            UserInfo userInfo) {
+            ActiveUser userInfo) {
         return getPaginatedTrend(
                 getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(
                         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),

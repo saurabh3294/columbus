@@ -1,4 +1,4 @@
-package com.proptiger.data.trend.dto.internal;
+package com.proptiger.data.dto.internal.trend;
 
 import com.proptiger.data.util.DateUtil;
 
