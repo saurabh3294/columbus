@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.trend.BuilderTrendService;
+import com.proptiger.data.trend.external.dto.BuilderTrend;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -54,5 +56,13 @@ public class BuilderTrendServiceTest extends AbstractTest {
                 | InvocationTargetException e) {
             throw new ProAPIException(e);
         }
+    }
+
+    @Test
+    public void getBuilderTrendTest() {
+        FIQLSelector selector = new FIQLSelector();
+        selector.setFilters("builderId==100002");
+        BuilderTrend builderTrend = builderTrendService.getBuilderTrend(selector, null).get(0);
+        Assert.assertEquals(builderTrend.getSupply() >= builderTrend.getLaunchedUnit(), true);
     }
 }
