@@ -39,6 +39,6 @@ public class UserPreferenceController extends BaseController {
     @ResponseBody
     public APIResponse getUserPreference(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo)
             throws Exception {
-        return new APIResponse(b2bUserDetailService.getUserDetails(userInfo));
+        return new APIResponse(b2bUserDetailService.getUserPreferences(userInfo.getUserIdentifier()));
     }
 }

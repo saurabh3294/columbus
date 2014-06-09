@@ -136,18 +136,22 @@ public class City extends BaseModel {
 
     @Transient
     private List<Image>          images;
-    
+
     @Transient
     @JsonIgnore
     @FieldMetaInfo(displayName = "City enquiry count", description = "City enquiry count")
     @Field(value = "CITY_ENQUIRY_COUNT")
-    private Integer                         cityEnquiryCount;
-    
+    private Integer              cityEnquiryCount;
+
     @Transient
     @JsonIgnore
     @FieldMetaInfo(displayName = "City view count", description = "City view count")
     @Field(value = "CITY_VIEW_COUNT")
-    private Integer                         cityViewCount;
+    private Integer              cityViewCount;
+
+    @Transient
+    @JsonIgnore
+    private List<Locality>       localities;
 
     public Integer getId() {
         return id;
@@ -363,5 +367,13 @@ public class City extends BaseModel {
 
     public void setCityViewCount(Integer cityViewCount) {
         this.cityViewCount = cityViewCount;
+    }
+
+    public List<Locality> getLocalities() {
+        return localities;
+    }
+
+    public void setLocalities(List<Locality> localities) {
+        this.localities = localities;
     }
 }

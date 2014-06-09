@@ -1,16 +1,33 @@
 package com.proptiger.data.enums;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.proptiger.exception.ProAPIException;
+
 public enum DomainObject {
-    project("project", 500000), property("property", 5000000), builder("builder", 100000), locality("locality", 50000), city(
-            "city", 0), suburb("suburb", 10000), bank("bank", 0), brokerCompany("brokerCompany", 0), sellerCompany(
-            "sellerCompany", 0), landmark("landmark", 0);
+    project("project", 500000, 1), property("property", 5000000, 2), builder("builder", 100000, 3), locality(
+            "locality", 50000, 4), city("city", 0, 6), suburb("suburb", 10000, 7), bank("bank", 0, 5), brokerCompany(
+            "brokerCompany", 0, 8), sellerCompany("sellerCompany", 0, 9), landmark("landmark", 0, 10);
 
-    String text;
-    int    startId;
+    private static final Map<Integer, DomainObject> domainObjectById = new HashMap<>();
 
-    DomainObject(String x, int startId) {
+    private final String                            text;
+    private final int                               startId;
+    private final int                               objectTypeId;
+
+    static {
+        for (DomainObject object : DomainObject.values()) {
+            if (domainObjectById.put(object.getObjectTypeId(), object) != null) {
+                throw new ProAPIException();
+            }
+        }
+    }
+
+    DomainObject(String x, int startId, int objectTypeId) {
         this.text = x;
         this.startId = startId;
+        this.objectTypeId = objectTypeId;
     }
 
     public String getText() {
@@ -19,5 +36,9 @@ public enum DomainObject {
 
     public int getStartId() {
         return startId;
+    }
+
+    public int getObjectTypeId() {
+        return objectTypeId;
     }
 }

@@ -1,7 +1,10 @@
 package com.proptiger.data.external.dto;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.SubscriptionSection;
@@ -13,7 +16,7 @@ import com.proptiger.data.model.City;
  * 
  */
 public class UserAppDetail {
-    private List<UserAppSubscription> subscriptions;
+    private List<UserAppSubscription> subscriptions = new ArrayList<>();
     private JsonNode                  preferences;
 
     public List<UserAppSubscription> getSubscriptions() {
@@ -32,28 +35,28 @@ public class UserAppDetail {
         this.preferences = preferences;
     }
 
-    public class UserAppSubscription {
-        private List<SubscriptionSection> sections;
-        private List<City>                cities;
-        private int                       cityCount;
-        private int                       localityCount;
-        private int                       projectCount;
-        private Date                      expiryDate;
-        private String                    userType;
+    public static class UserAppSubscription {
+        private Set<SubscriptionSection> sections = new HashSet<>();
+        private Set<City>                cities   = new HashSet<>();
+        private int                      cityCount;
+        private int                      localityCount;
+        private int                      projectCount;
+        private Date                     expiryTime;
+        private String                   userType;
 
-        public List<SubscriptionSection> getSections() {
+        public Set<SubscriptionSection> getSections() {
             return sections;
         }
 
-        public void setSections(List<SubscriptionSection> sections) {
+        public void setSections(Set<SubscriptionSection> sections) {
             this.sections = sections;
         }
 
-        public List<City> getCities() {
+        public Set<City> getCities() {
             return cities;
         }
 
-        public void setCities(List<City> cities) {
+        public void setCities(Set<City> cities) {
             this.cities = cities;
         }
 
@@ -81,12 +84,12 @@ public class UserAppDetail {
             this.projectCount = projectCount;
         }
 
-        public Date getExpiryDate() {
-            return expiryDate;
+        public Date getExpiryTime() {
+            return expiryTime;
         }
 
-        public void setExpiryDate(Date expiryDate) {
-            this.expiryDate = expiryDate;
+        public void setExpiryTime(Date expiryTime) {
+            this.expiryTime = expiryTime;
         }
 
         public String getUserType() {

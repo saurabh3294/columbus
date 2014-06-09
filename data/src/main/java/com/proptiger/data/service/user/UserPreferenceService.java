@@ -1,5 +1,7 @@
 package com.proptiger.data.service.user;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,7 @@ import com.proptiger.data.util.UserPreferenceProcessor;
 @Service
 public class UserPreferenceService {
     @Autowired
-    private UserPreferenceDao b2bUserDetailDao;
+    private UserPreferenceDao userPreferenceDao;
 
     @Autowired
     private DashboardDao      dashboardDao;
@@ -34,12 +36,14 @@ public class UserPreferenceService {
             throw new com.proptiger.exception.BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
         }
         b2bUserDetail.setId(userInfo.getUserIdentifier());
-        return b2bUserDetailDao.save(b2bUserDetail);
+        return userPreferenceDao.save(b2bUserDetail);
     }
 
-    public UserPreference getUserDetails(UserInfo userInfo) {
-        UserPreference b2bUserDetail = b2bUserDetailDao.findOne(userInfo.getUserIdentifier());
-        b2bUserDetail.setPreference(UserPreferenceProcessor.mergeDefaultPreference(b2bUserDetail.getPreference()));
-        return b2bUserDetail;
+    public List<UserPreference> getUserPreferences(int userId) {
+        List<UserPreference> preferences = userPreferenceDao.findByuserId(userId);
+        for (UserPreference preference : preferences) {
+            preference.setPreference(UserPreferenceProcessor.mergeDefaultPreference(preference.getPreference()));
+        }
+        return preferences;
     }
 }
