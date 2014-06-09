@@ -27,7 +27,7 @@ public class UrlController extends BaseController {
     public APIResponse getProjects(@RequestParam String url, HttpServletResponse response) throws IOException {
 
         ValidURLResponse validURLResponse = urlService.getURLStatus(url);
-        System.out.println(new Gson().toJson(validURLResponse));
+        
         response.setStatus(validURLResponse.getHttpStatus());
         if (validURLResponse.getRedirectUrl() != null) {
             response.sendRedirect("/" + validURLResponse.getRedirectUrl());
