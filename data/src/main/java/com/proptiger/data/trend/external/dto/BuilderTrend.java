@@ -30,11 +30,12 @@ public class BuilderTrend {
     private String                              builderName;
     private String                              builderHeadquarterCity;
     private int                                 projectCount;
-    private Integer                             minPricePerUnitArea                   = 0;
-    private Integer                             maxPricePerUnitArea                   = 0;
-    private Integer                             supply                                = 0;
-    private Integer                             launchedUnit;
-    private Integer                             inventory                             = 0;
+    private int                                 minPricePerUnitArea                   = 0;
+    private int                                 maxPricePerUnitArea                   = 0;
+    private int                                 supply                                = 0;
+    private int                                 launchedUnit                          = 0;
+    private int                                 inventory                             = 0;
+    private int                                 totalArea                             = 0;
     private Map<UnitType, Map<String, Integer>> unitTypesDetails                      = new HashMap<>();
     private int                                 projectCountHavingPriceAppreciation   = 0;
     private int                                 projectCountHavingPriceDepreciation   = 0;
@@ -98,11 +99,11 @@ public class BuilderTrend {
         this.projectCount = projectCount;
     }
 
-    public Integer getMinPricePerUnitArea() {
+    public int getMinPricePerUnitArea() {
         return minPricePerUnitArea;
     }
 
-    public void setMinPricePerUnitArea(Integer minPricePerUnitArea) {
+    public void setMinPricePerUnitArea(int minPricePerUnitArea) {
         this.minPricePerUnitArea = minPricePerUnitArea;
     }
 
@@ -114,20 +115,28 @@ public class BuilderTrend {
         this.maxPricePerUnitArea = maxPricePerUnitArea;
     }
 
-    public Integer getSupply() {
+    public int getSupply() {
         return supply;
     }
 
-    public void setSupply(Integer supply) {
+    public void setSupply(int supply) {
         this.supply = supply;
     }
 
-    public Integer getInventory() {
+    public int getInventory() {
         return inventory;
     }
 
-    public void setInventory(Integer inventory) {
+    public void setInventory(int inventory) {
         this.inventory = inventory;
+    }
+
+    public int getTotalArea() {
+        return totalArea;
+    }
+
+    public void setTotalArea(int totalArea) {
+        this.totalArea = totalArea;
     }
 
     public int getProjectCountHavingPriceAppreciation() {
@@ -178,11 +187,11 @@ public class BuilderTrend {
         this.delayed = delayed;
     }
 
-    public Integer getLaunchedUnit() {
+    public int getLaunchedUnit() {
         return launchedUnit;
     }
 
-    public BuilderTrend setLaunchedUnit(Integer launchedUnit) {
+    public BuilderTrend setLaunchedUnit(int launchedUnit) {
         this.launchedUnit = launchedUnit;
         return this;
     }
