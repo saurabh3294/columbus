@@ -22,7 +22,7 @@ public class UrlController extends BaseController {
     @Autowired
     private URLService urlService;
 
-    @RequestMapping("data/v1/valid-url")
+    @RequestMapping("data/v1/url")
     @ResponseBody
     public APIResponse getProjects(@RequestParam String url, HttpServletResponse response) throws IOException {
 
