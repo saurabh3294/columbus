@@ -21,7 +21,7 @@ import com.proptiger.data.internal.dto.UserInfo;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
-import com.proptiger.data.trend.external.dto.BuilderTrend;
+import com.proptiger.data.trend.dto.external.BuilderTrend;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ResourceNotFoundException;

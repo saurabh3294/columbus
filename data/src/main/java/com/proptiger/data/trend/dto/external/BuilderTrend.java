@@ -1,4 +1,4 @@
-package com.proptiger.data.trend.external.dto;
+package com.proptiger.data.trend.dto.external;
 
 import java.util.HashMap;
 import java.util.Iterator;

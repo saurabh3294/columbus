@@ -6,7 +6,7 @@ import java.util.Comparator;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
-import com.proptiger.data.trend.external.dto.BuilderTrend;
+import com.proptiger.data.trend.dto.external.BuilderTrend;
 import com.proptiger.exception.ProAPIException;
 
 /**

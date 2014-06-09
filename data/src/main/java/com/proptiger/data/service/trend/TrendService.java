@@ -14,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ import com.proptiger.data.pojo.FIQLSelector.FIQLOperator;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.user.CatchmentService;
-import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.trend.dto.internal.HithertoDurationSelector;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
 
@@ -52,6 +54,14 @@ public class TrendService {
     private static final String COUNT_KEY             = "count";
     private static final int    MAX_THREAD_POOL_SIZE  = 5;
 
+    @PostConstruct
+    private void initialise()
+    {
+    	//HithertoDurationSelector.currentMonth = "2014-02-0;
+    	HithertoDurationSelector.currentMonth = currentMonth;
+    	
+    }
+    
     public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
         return trendDao.getTrend(selector);
     }
@@ -155,27 +165,27 @@ public class TrendService {
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
-            Integer monthDuration) {
-        return getTrend(getHithertoDateAppendedSelector(selector, monthDuration), rangeField, rangeValue);
+            HithertoDurationSelector hithertoDurationSelector) {
+        return getTrend(getHithertoDateAppendedSelector(selector, hithertoDurationSelector), rangeField, rangeValue);
     }
 
     public PaginatedResponse<List<InventoryPriceTrend>> getHithertoPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
-            Integer monthDuration) {
-        return getPaginatedTrend(getHithertoDateAppendedSelector(selector, monthDuration), rangeField, rangeValue);
+            HithertoDurationSelector hithertoDurationSelector) {
+        return getPaginatedTrend(getHithertoDateAppendedSelector(selector, hithertoDurationSelector), rangeField, rangeValue);
     }
 
     public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentHithertoPaginatedTrend(
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
-            Integer monthDuration,
+            HithertoDurationSelector hithertoDurationSelector,
             Integer catchmentId,
             UserInfo userInfo) {
         return getPaginatedTrend(
-                getHithertoDateAppendedSelector(selector, monthDuration).addAndConditionToFilter(
+                getHithertoDateAppendedSelector(selector, hithertoDurationSelector).addAndConditionToFilter(
                         catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
                 rangeField,
                 rangeValue);
@@ -236,9 +246,9 @@ public class TrendService {
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
-            Integer monthDuration) {
+            HithertoDurationSelector hithertoDurationSelector) {
         return getTrend(
-                getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(selector, monthDuration)),
+                getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(selector, hithertoDurationSelector)),
                 rangeField,
                 rangeValue);
     }
@@ -247,9 +257,9 @@ public class TrendService {
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
-            Integer monthDuration) {
+            HithertoDurationSelector hithertoDurationSelector) {
         return getPaginatedTrend(
-                getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(selector, monthDuration)),
+                getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(selector, hithertoDurationSelector)),
                 rangeField,
                 rangeValue);
     }
@@ -258,13 +268,13 @@ public class TrendService {
             FIQLSelector selector,
             String rangeField,
             String rangeValue,
-            Integer monthDuration,
+            HithertoDurationSelector hithertoDurationSelector,
             Integer catchmentId,
             UserInfo userInfo) {
         return getPaginatedTrend(
                 getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(
                         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
-                        monthDuration)),
+                        hithertoDurationSelector)),
                 rangeField,
                 rangeValue);
     }
@@ -373,12 +383,25 @@ public class TrendService {
         return maps;
     }
 
-    private FIQLSelector getHithertoDateAppendedSelector(FIQLSelector selector, Integer monthDuration) {
-        selector.addAndConditionToFilter("month" + FIQLOperator.LessThanEqual.getValue() + currentMonth);
-        if (monthDuration != null) {
-            selector.addAndConditionToFilter("month" + FIQLOperator.GreaterThan.getValue()
-                    + DateUtil.shiftMonths(currentMonth, -1 * monthDuration));
-        }
+//    private FIQLSelector getHithertoDateAppendedSelector(FIQLSelector selector, Integer monthDuration) {
+//        selector.addAndConditionToFilter("month" + FIQLOperator.LessThanEqual.getValue() + currentMonth);
+//        if (monthDuration != null) {
+//            selector.addAndConditionToFilter("month" + FIQLOperator.GreaterThan.getValue()
+//                    + DateUtil.shiftMonths(currentMonth, -1 * monthDuration));
+//        }
+//        return selector;
+//    }
+
+    private FIQLSelector getHithertoDateAppendedSelector(FIQLSelector selector, HithertoDurationSelector hithertoDurationSelector) 
+    {
+        if (hithertoDurationSelector == null) 
+        {	return selector;	}
+ 
+    	String startMonth = hithertoDurationSelector.getStartMonth();
+    	String endMonth = hithertoDurationSelector.getEndMonth();
+    	
+        selector.addAndConditionToFilter("month" + FIQLOperator.GreaterThanEqual.getValue() + startMonth);
+        selector.addAndConditionToFilter("month" + FIQLOperator.LessThanEqual.getValue() + endMonth);
         return selector;
     }
 
