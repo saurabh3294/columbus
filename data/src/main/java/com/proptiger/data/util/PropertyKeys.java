@@ -42,4 +42,9 @@ public final class PropertyKeys {
     public static final String MAIL_FROM_NOREPLY                          = "mail.from.noreply";
     public static final String WORDPRESS_DATABASE_URL                     = "wordpress.db.url";
     public static final String WORDPRESS_NEWS_DATABASE_URL                = "wordpress_news.db.url";
+
+    public static final String REDIS_HOST                                 = "redis.hostName";
+    public static final String REDIS_PORT                                 = "redis.port";
+    public static final String REDIS_USE_POOL                             = "redis.usePool";
+    public static final String REDIS_DEFAULT_EXPIRATION_TIME              = "redis.defaultExpirationTime";
 }

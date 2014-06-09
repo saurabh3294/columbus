@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
@@ -33,7 +33,7 @@ public class UserController extends BaseController {
     @ResponseBody
     @Deprecated
     public APIResponse hasEnquired(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @RequestParam(value = "projectId") Integer projectId) {
         AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
                 projectId,
@@ -44,7 +44,7 @@ public class UserController extends BaseController {
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/project/{projectId}/enquired")
     @ResponseBody
     public APIResponse hasEnquired_(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @PathVariable Integer projectId) {
         AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
                 projectId,

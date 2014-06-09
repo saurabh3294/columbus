@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.user.DashboardDao;
@@ -31,7 +31,7 @@ public class UserPreferenceService {
     @Autowired
     private ForumUserDao      userDao;
 
-    public UserPreference updateUserDetails(UserPreference b2bUserDetail, UserInfo userInfo) {
+    public UserPreference updateUserPreference(UserPreference b2bUserDetail, ActiveUser userInfo) {
         if (!UserPreferenceProcessor.isValidPreference(b2bUserDetail.getPreference())) {
             throw new com.proptiger.exception.BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
         }

@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.init.comparator.GenericComparator;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
@@ -52,17 +52,17 @@ public class BuilderTrendService {
 
     private static final String DESC_SPECIFIER = "-";
 
-    public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, UserInfo userInfo) {
+    public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, ActiveUser userInfo) {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("builderId==" + builderId);
         List<BuilderTrend> builderTrends = getBuilderTrend(selector, userInfo);
-        if (builderTrends.get(0) == null) {
+        if (builderTrends.isEmpty()) {
             throw new ResourceNotFoundException("BuilderId " + builderId + " doesn't exist");
         }
         return builderTrends.get(0);
     }
 
-    public List<BuilderTrend> getBuilderTrend(FIQLSelector userSelector, UserInfo userInfo) {
+    public List<BuilderTrend> getBuilderTrend(FIQLSelector userSelector, ActiveUser userInfo) {
         List<BuilderTrend> builderTrends = new ArrayList<>();
         FIQLSelector fiqlSelector = getFIQLFromUserFIQL(userSelector);
         Date currentDate = DateUtil.parseYYYYmmddStringToDate(currentMonth);
@@ -125,8 +125,14 @@ public class BuilderTrendService {
                                     .getExtraAttributes().get("sumLtdSupply")).intValue());
                         }
                         if (inventoryPriceTrend.getExtraAttributes().get("sumLtdLaunchedUnit") != null) {
-                            builderTrend.setLaunchedUnit(builderTrend.getSupply() + ((Long) inventoryPriceTrend
-                                    .getExtraAttributes().get("sumLtdLaunchedUnit")).intValue());
+                            int launchedUnits = ((Long) inventoryPriceTrend.getExtraAttributes().get(
+                                    "sumLtdLaunchedUnit")).intValue();
+                            builderTrend.setLaunchedUnit(builderTrend.getLaunchedUnit() + launchedUnits);
+                            if (inventoryPriceTrend.getExtraAttributes().get("wavgSizeOnLtdLaunchedUnit") != null) {
+                                builderTrend.setTotalArea(builderTrend.getTotalArea() + ((Double) inventoryPriceTrend
+                                        .getExtraAttributes().get("wavgSizeOnLtdLaunchedUnit")).intValue()
+                                        * launchedUnits);
+                            }
                         }
                         if (inventoryPriceTrend.getExtraAttributes().get("sumInventory") != null) {
                             builderTrend.setInventory(builderTrend.getInventory() + ((Long) inventoryPriceTrend
@@ -330,7 +336,7 @@ public class BuilderTrendService {
         result.setFilters(userFIQLSelector.getFilters()).addAndConditionToFilter(
                 "month==" + currentMonth + ",month==" + DateUtil.shiftMonths(currentMonth, -1 * appreciationDuration));
         result.setGroup("builderId,month,projectId,unitType");
-        result.setFields("builderId,builderName,builderHeadquarterCity,minPricePerUnitArea,maxPricePerUnitArea,sumLtdSupply,sumLtdLaunchedUnit,sumInventory,wavgPricePerUnitAreaOnSupply,month,localityId,isDominantProjectUnitType");
+        result.setFields("builderId,builderName,builderHeadquarterCity,minPricePerUnitArea,maxPricePerUnitArea,sumLtdSupply,sumLtdLaunchedUnit,sumInventory,wavgPricePerUnitAreaOnSupply,month,localityId,isDominantProjectUnitType,wavgSizeOnLtdLaunchedUnit");
         result.setRows(MAX_ROWS);
         return result;
     }

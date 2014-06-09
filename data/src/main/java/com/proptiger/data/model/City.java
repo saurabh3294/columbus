@@ -2,7 +2,6 @@ package com.proptiger.data.model;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,7 +36,7 @@ public class City extends BaseModel {
     private Integer              id;
 
     @Transient
-    private boolean              authorized       = new Random().nextBoolean();
+    private boolean              authorized       = true;
 
     @FieldMetaInfo(displayName = "Label", description = "City label")
     @Column(name = "LABEL")
