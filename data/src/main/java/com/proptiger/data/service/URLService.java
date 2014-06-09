@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.service;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,12 +11,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.model.Builder;
+import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
@@ -59,29 +62,61 @@ public class URLService {
         PageType pageType = urlDetail.getPageType();
         int responseStatus = HttpStatus.SC_OK;
         String redirectUrl = null, domainUrl = null;
+
+        if (urlDetail.getBedroomString() == null) {
+            urlDetail.setBedroomString("");
+        }
+        if (urlDetail.getPriceString() == null) {
+            urlDetail.setPriceString("");
+        }
+        if (urlDetail.getCityName() == null) {
+            urlDetail.setCityName("");
+        }
+
         switch (pageType) {
             case PROPERTY_URLS:
-                Property property = propertyService.getProperty(urlDetail.getPropertyId());
+                Property property = null;
+                try {
+                    property = propertyService.getProperty(urlDetail.getPropertyId());
+                }
+                catch (Exception e) {
+                    property = null;
+                }
+
                 if (property == null) {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
-                else if (property.getURL() != urlDetail.getUrl()) {
+                else if (!property.getURL().equals(urlDetail.getUrl())) {
                     responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     redirectUrl = property.getURL();
                 }
                 break;
             case PROJECT_URLS:
-                Project project = projectService.getProjectData(urlDetail.getProjectId());
+                Project project = null;
+                try {
+                    project = projectService.getProjectData(urlDetail.getProjectId());
+                }
+                catch (Exception e) {
+                    project = null;
+                }
+
                 if (project == null) {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
-                else if (project.getURL() != urlDetail.getUrl()) {
+                else if (!project.getURL().equals(urlDetail.getUrl())) {
                     responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     redirectUrl = project.getURL();
                 }
                 break;
             case BUILDER_URLS:
-                Builder builder = builderService.getBuilderById(urlDetail.getBuilderId());
+                Builder builder = null;
+                try {
+                    builder = builderService.getBuilderById(urlDetail.getBuilderId());
+                }
+                catch (Exception e) {
+                    builder = null;
+                }
+
                 if (builder == null) {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
@@ -96,11 +131,13 @@ public class URLService {
             case LOCALITY_SUBURB_LISTING:
                 // localitySuburbListingUrl, cityName, response status
                 Object[] localitySuburbData = getLocalitySuburbListingUrl(urlDetail);
+
                 domainUrl = (String) localitySuburbData[0];
                 responseStatus = (Integer) localitySuburbData[2];
-                if (domainUrl == null) {
+                if (domainUrl.length() < 1) {
                     break;
                 }
+
                 domainUrl = domainUrl.replaceFirst("property-sale", urlDetail.getPropertyType()) + urlDetail
                         .getBedroomString() + urlDetail.getPriceString();
                 if (!domainUrl.equals(urlDetail.getUrl())) {
@@ -111,20 +148,31 @@ public class URLService {
             case LOCALITY_SUBURB_OVERVIEW:
                 // localitySuburbListingUrl, cityName, response status
                 Object[] localitySuburbUrlData = getLocalitySuburbListingUrl(urlDetail);
+
                 domainUrl = (String) localitySuburbUrlData[0];
                 responseStatus = (Integer) localitySuburbUrlData[2];
                 String cityName = (String) localitySuburbUrlData[1];
-                if (domainUrl == null) {
+                if (domainUrl.length() < 1) {
                     break;
                 }
+
+                domainUrl = domainUrl.replaceFirst("property-sale-", "");
                 domainUrl = domainUrl.replaceFirst(cityName, cityName + "-real-estate") + "/overview";
+
                 if (!domainUrl.equals(urlDetail.getUrl())) {
                     responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     redirectUrl = domainUrl;
                 }
                 break;
             case CITY_URLS:
-                if (cityService.getCityByName(urlDetail.getCityName()) == null) {
+                City city = null;
+                try {
+                    city = cityService.getCityByName(urlDetail.getCityName());
+                }
+                catch (Exception e) {
+                    city = null;
+                }
+                if (city == null) {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
                 break;
@@ -138,7 +186,7 @@ public class URLService {
 
     private Object[] getLocalitySuburbListingUrl(URLDetail urlDetail) {
         DomainObject domainObject = DomainObject.getDomainInstance(urlDetail.getLocalityId().longValue());
-        String newUrl = null, cityName = null;
+        String newUrl = "", cityName = "", domainName = "";
         int responseStatus = HttpStatus.SC_OK;
         switch (domainObject) {
             case locality:
@@ -148,7 +196,8 @@ public class URLService {
                 }
                 else {
                     newUrl = locality.getUrl();
-                    cityName = locality.getLabel();
+                    cityName = locality.getSuburb().getCity().getLabel();
+                    domainName = locality.getLabel();
                 }
                 break;
             case suburb:
@@ -158,14 +207,15 @@ public class URLService {
                 }
                 else {
                     newUrl = suburb.getUrl();
-                    cityName = suburb.getLabel();
+                    cityName = suburb.getCity().getLabel();
+                    domainName = suburb.getLabel();
                 }
                 break;
             default:
                 responseStatus = HttpStatus.SC_NOT_FOUND;
         }
 
-        return new Object[] { newUrl, cityName, responseStatus };
+        return new Object[] { newUrl, cityName.toLowerCase(), responseStatus, domainName.toLowerCase() };
     }
 
     /*
@@ -199,9 +249,13 @@ public class URLService {
         return urlDetail;
     }
 
-    public static class ValidURLResponse {
-        private int    httpStatus;
-        private String redirectUrl;
+    public static class ValidURLResponse implements Serializable {
+        /**
+         * 
+         */
+        private static final long serialVersionUID = 1L;
+        private int               httpStatus;
+        private String            redirectUrl;
 
         public ValidURLResponse(int httpStatus, String redirectUrl) {
             this.httpStatus = httpStatus;

@@ -33,8 +33,14 @@ public class URLDetail {
     private Integer  minBudget;
     private Integer  maxBudget;
     private String   fallBackUrl;
-    private String   bedroomString;
-    private String   priceString;
+    /**
+     * Default Value of bedroomString is empty string. Do not change it.
+     */
+    private String   bedroomString = "";
+    /**
+     * Default Value of priceString is empty string. Do not change it.
+     */
+    private String   priceString   = "";
     private String   propertyType;
 
     public Integer getBuilderId() {
