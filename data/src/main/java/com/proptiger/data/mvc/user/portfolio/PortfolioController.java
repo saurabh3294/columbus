@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.persistence.Table;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -92,7 +91,6 @@ public class PortfolioController extends BaseController {
     @ResponseBody
     public APIResponse createListing(
             HttpServletRequest request,
-            HttpServletResponse response,
             @PathVariable Integer userId,
             @RequestBody PortfolioListing portfolioProperty,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
@@ -114,7 +112,7 @@ public class PortfolioController extends BaseController {
     }
 
     private void setUserAgent(HttpServletRequest request, PortfolioListing portfolioProperty) {
-        String userAgent = request.getHeader("user-agent");
+        String userAgent = request.getHeader(Constants.USER_AGENT);
         if (userAgent != null && !userAgent.isEmpty()) {
             portfolioProperty.setUserAgent(userAgent);
         }
