@@ -15,13 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.dto.external.trend.BuilderTrend;
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.init.comparator.GenericComparator;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
-import com.proptiger.data.trend.external.dto.BuilderTrend;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ResourceNotFoundException;
