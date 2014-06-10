@@ -58,7 +58,7 @@ public class TrendService {
     private void initialize() {
         HithertoDurationSelector.currentMonth = currentMonth;
     }
-   
+
     public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
         return trendDao.getTrend(selector);
     }
@@ -171,7 +171,10 @@ public class TrendService {
             String rangeField,
             String rangeValue,
             HithertoDurationSelector hithertoDurationSelector) {
-        return getPaginatedTrend(getHithertoDateAppendedSelector(selector, hithertoDurationSelector), rangeField, rangeValue);
+        return getPaginatedTrend(
+                getHithertoDateAppendedSelector(selector, hithertoDurationSelector),
+                rangeField,
+                rangeValue);
     }
 
     public PaginatedResponse<List<InventoryPriceTrend>> getCatchmentHithertoPaginatedTrend(
@@ -383,6 +386,11 @@ public class TrendService {
     private FIQLSelector getHithertoDateAppendedSelector(
             FIQLSelector selector,
             HithertoDurationSelector hithertoDurationSelector) {
+        if (hithertoDurationSelector.getMonthDuration() == 0) {
+            selector.addAndConditionToFilter("month" + FIQLOperator.LessThanEqual.getValue() + currentMonth);
+            return selector;
+        }
+
         if (hithertoDurationSelector == null) {
             return selector;
         }

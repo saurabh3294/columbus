@@ -127,4 +127,7 @@ public class HithertoDurationSelector {
         recalulateMonthRangeUsingYearFinancialYearDuration();
     }
 
+    public int getMonthDuration() {
+        return monthDuration;
+    }
 }
