@@ -14,8 +14,9 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
 
 /**
- * Custom implementation of UserDetailsService to provide criteria to authenicate a user.
- * This class uses database to authenticate.
+ * Custom implementation of UserDetailsService to provide criteria to
+ * authenicate a user. This class uses database to authenticate.
+ * 
  * @author Rajeev Pandey
  *
  */
@@ -27,19 +28,26 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        ForumUser forumUser = forumUserDao.findByEmail(username);
         UserDetails userDetails = null;
-        if (forumUser == null) {
+        if (username != null && !username.isEmpty()) {
+            ForumUser forumUser = forumUserDao.findByEmail(username);
+            if (forumUser != null) {
+                userDetails = new ActiveUser(
+                        forumUser.getUserId(),
+                        forumUser.getEmail(),
+                        forumUser.getPassword(),
+                        true,
+                        true,
+                        true,
+                        true,
+                        new ArrayList<GrantedAuthority>());
+            }
+
+        }
+        //if no user found with given username(email)
+        if (userDetails == null) {
             throw new UsernameNotFoundException("User name or password are incorrect");
         }
-        userDetails = new ActiveUser(forumUser.getUserId(),
-                forumUser.getEmail(),
-                forumUser.getPassword(),
-                true,
-                true,
-                true,
-                true,
-                new ArrayList<GrantedAuthority>());
         return userDetails;
     }
 
