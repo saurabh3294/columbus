@@ -93,12 +93,14 @@ public class ForumUser extends BaseModel {
     @Temporal(javax.persistence.TemporalType.DATE)
     private Date                                unsubscribedAt;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "userId", fetch = FetchType.EAGER)
     private List<UserSubscriptionMapping>       userSubscriptionMappings;
 
     @OneToMany(mappedBy = "userId")
     private List<Dashboard>                     dashboards;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "userId")
     private List<UserPreference>                preferences;
 

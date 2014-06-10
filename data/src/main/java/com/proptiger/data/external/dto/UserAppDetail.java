@@ -9,6 +9,7 @@ import java.util.Set;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.SubscriptionSection;
 import com.proptiger.data.model.City;
+import com.proptiger.data.model.Company;
 
 /**
  * 
@@ -36,6 +37,7 @@ public class UserAppDetail {
     }
 
     public static class UserAppSubscription {
+        private Company                  company;
         private Set<SubscriptionSection> sections      = new HashSet<>();
         private Set<City>                cities        = new HashSet<>();
         private int                      cityCount     = 0;
@@ -98,6 +100,14 @@ public class UserAppDetail {
 
         public void setUserType(String userType) {
             this.userType = userType;
+        }
+
+        public Company getCompany() {
+            return company;
+        }
+
+        public void setCompany(Company company) {
+            this.company = company;
         }
     }
 }
