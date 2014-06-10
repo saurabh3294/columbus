@@ -64,4 +64,8 @@ public enum DomainObject {
     public int getObjectTypeId() {
         return objectTypeId;
     }
+
+    public static DomainObject getFromObjectTypeId(int objectTypeId) {
+        return domainObjectById.get(objectTypeId);
+    }
 }

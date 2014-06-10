@@ -149,7 +149,6 @@ public class City extends BaseModel {
     private Integer              cityViewCount;
 
     @Transient
-    @JsonIgnore
     private List<Locality>       localities;
 
     public Integer getId() {

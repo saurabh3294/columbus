@@ -7,6 +7,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * 
  * @author azi
@@ -17,6 +19,7 @@ public class UserSubscriptionMapping extends BaseModel {
     private static final long   serialVersionUID = 1L;
 
     @Id
+    @JsonIgnore
     private int                 id;
 
     @Column(name = "user_id")

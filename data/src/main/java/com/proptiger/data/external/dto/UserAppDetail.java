@@ -36,11 +36,11 @@ public class UserAppDetail {
     }
 
     public static class UserAppSubscription {
-        private Set<SubscriptionSection> sections = new HashSet<>();
-        private Set<City>                cities   = new HashSet<>();
-        private int                      cityCount;
-        private int                      localityCount;
-        private int                      projectCount;
+        private Set<SubscriptionSection> sections      = new HashSet<>();
+        private Set<City>                cities        = new HashSet<>();
+        private int                      cityCount     = 0;
+        private int                      localityCount = 0;
+        private int                      projectCount  = 0;
         private Date                     expiryTime;
         private String                   userType;
 
