@@ -10,11 +10,11 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.EntityType;
+import com.proptiger.data.enums.Status;
 import com.proptiger.data.enums.UnitType;
-import com.proptiger.data.enums.b2b.ConstructionStatus;
-import com.proptiger.data.enums.b2b.Status;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.ListingPrice.CustomCurrentListingPrice;
 import com.proptiger.data.model.ProjectPhase;
@@ -54,6 +54,14 @@ public class ProjectPhaseService {
 
     @Autowired
     SecondaryPriceDao              secondaryPriceDao;
+
+    public void setProjectPhaseDao(ProjectPhaseDao projectPhaseDao) {
+        this.projectPhaseDao = projectPhaseDao;
+    }
+
+    public ProjectPhaseDao getProjectPhaseDao() {
+        return this.projectPhaseDao;
+    }
 
     public ProjectPhase getPhaseDetail(Integer projectId, Integer phaseId, DataVersion version) {
         FIQLSelector selector = new FIQLSelector();

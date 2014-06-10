@@ -157,7 +157,7 @@ public class ImageEnricher {
                 numberOfImages = images.size();
             }
 
-            locality.setImages(images.subList(0, numberOfImages));
+            locality.setImages(new ArrayList<Image>(images.subList(0, numberOfImages)));
         }
     }
 
@@ -189,7 +189,7 @@ public class ImageEnricher {
                     bank.setImages(images);
                 }
                 else {
-                    bank.setImages(images.subList(0, imageCount));
+                    bank.setImages(new ArrayList<Image>(images.subList(0, imageCount)));
                 }
             }
         }

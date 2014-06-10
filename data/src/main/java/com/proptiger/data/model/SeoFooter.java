@@ -1,6 +1,6 @@
 package com.proptiger.data.model;
 
-import java.io.IOException;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,14 +9,11 @@ import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonschema.util.JsonLoader;
-import com.proptiger.exception.ProAPIException;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.google.gson.Gson;
 
 @Entity
 @Table(name = "seo_footer")
@@ -43,17 +40,12 @@ public class SeoFooter extends BaseModel {
 
     @Transient
     @JsonUnwrapped
-    JsonNode                  footerUrls;
+    Map<String, Object>       footerUrls;
 
     @PostLoad
     public void setJsonPreference() {
         if (this.footerJson != null) {
-            try {
-                this.footerUrls = JsonLoader.fromString(this.footerJson);
-            }
-            catch (IOException e) {
-                throw new ProAPIException(e);
-            }
+            this.footerUrls = new Gson().fromJson(this.footerJson, Map.class);
         }
     }
 
@@ -81,11 +73,11 @@ public class SeoFooter extends BaseModel {
         this.pageType = pageType;
     }
 
-    public JsonNode getFooterUrls() {
+    public Map<String, Object> getFooterUrls() {
         return footerUrls;
     }
 
-    public void setFooterUrls(JsonNode footerUrls) {
+    public void setFooterUrls(Map<String, Object> footerUrls) {
         this.footerUrls = footerUrls;
     }
 }

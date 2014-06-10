@@ -71,4 +71,15 @@ public class SuburbService {
         Map<String, Long> projectStatusCount = projectService.getProjectStatusCount(selector);
         suburb.setProjectStatusCount(projectStatusCount);
     }
+    
+    public Suburb getSuburbById(int suburbId){
+    	String js = "{\"filters\":{\"and\":[{\"equal\":{\"id\":" + suburbId + "}}]}}";
+    	Gson gson = new Gson();
+        Selector selector = gson.fromJson(js, Selector.class);
+        List<Suburb> suburbs = getSuburbs(selector);
+        if(suburbs == null || suburbs.isEmpty())
+        	return null;
+        	
+        return suburbs.get(0); 
+    }
 }

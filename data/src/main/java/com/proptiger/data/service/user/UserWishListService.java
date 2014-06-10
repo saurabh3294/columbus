@@ -15,7 +15,7 @@ import com.proptiger.data.internal.dto.UserWishListDto;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.UserWishlist;
-import com.proptiger.data.repo.portfolio.UserWishListDao;
+import com.proptiger.data.repo.user.UserWishListDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.exception.ResourceAlreadyExistException;
 

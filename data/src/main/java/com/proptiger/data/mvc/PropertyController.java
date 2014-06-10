@@ -20,11 +20,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.ProjectError;
 import com.proptiger.data.model.Property;
-import com.proptiger.data.model.portfolio.PortfolioListing;
+import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -32,7 +32,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.ErrorReportingService;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.PropertyService;
-import com.proptiger.data.service.portfolio.PortfolioService;
+import com.proptiger.data.service.user.portfolio.PortfolioService;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -103,7 +103,7 @@ public class PropertyController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "data/v1/entity/user/property/sell-property")
     @ResponseBody
     @DisableCaching
-    public APIResponse userSellYourProperty(@RequestBody PortfolioListing portfolioListing, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+    public APIResponse userSellYourProperty(@RequestBody PortfolioListing portfolioListing, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         portfolioListing.setUserId(userInfo.getUserIdentifier());
         return new APIResponse(portfolioService.sellYourProperty(portfolioListing));
     }

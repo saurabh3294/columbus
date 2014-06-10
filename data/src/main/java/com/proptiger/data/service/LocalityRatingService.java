@@ -91,7 +91,7 @@ public class LocalityRatingService {
                 .getAvgRatingOfAmenitiesForLocality(localityId);
         return avgRatingOfAmenities;
     }
-    
+
     /**
      * Computing average rating of all amenities of suburb. Excluding null and
      * zero values while calculating average.
@@ -112,8 +112,9 @@ public class LocalityRatingService {
             Constants.CacheName.LOCALITY_RATING_USERS }, key = "#localityId")
     @Transactional(rollbackFor = { ConstraintViolationException.class })
     public LocalityRatings createLocalityRating(Integer userId, Integer localityId, LocalityRatings localityRatings) {
-        //TODO in case of multiple request from same user and same locality this method creates two row in database
-        //TODO need to prevent this
+        // TODO in case of multiple request from same user and same locality
+        // this method creates two row in database
+        // TODO need to prevent this
         logger.debug("create locality rating for user {} locality {}", userId, localityId);
         LocalityRatings created = null;
         localityRatings.setLocalityId(localityId);
@@ -127,25 +128,30 @@ public class LocalityRatingService {
             created = localityRatingDao.save(localityRatings);
         }
         else {
-            // find if rating already exist for this user and locality then
-            // update that
-            LocalityRatings ratingPresent = localityRatingDao.findByUserIdAndLocalityId(userId, localityId);
-            if (ratingPresent != null) {
-                // update already existing ratings
-                BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
-                try {
-                    beanUtilsBean.copyProperties(ratingPresent, localityRatings);
+            // TODO to make locks based on the userId and localityId. Not the
+            // global level locking.
+            synchronized (this) {
+                // find if rating already exist for this user and locality then
+                // update that
+                LocalityRatings ratingPresent = localityRatingDao.findByUserIdAndLocalityId(userId, localityId);
+                if (ratingPresent != null) {
+                    // update already existing ratings
+                    BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+                    try {
+                        beanUtilsBean.copyProperties(ratingPresent, localityRatings);
+                    }
+                    catch (IllegalAccessException | InvocationTargetException e) {
+                        throw new ProAPIException("locality review update failed", e);
+                    }
+                    created = ratingPresent;
                 }
-                catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new ProAPIException("locality review update failed", e);
+                else {
+                    // creating new rating by user for locality
+                    localityRatings.setUserId(userId);
+                    created = localityRatingDao.save(localityRatings);
                 }
-                created = ratingPresent;
             }
-            else {
-                // creating new rating by user for locality
-                localityRatings.setUserId(userId);
-                created = localityRatingDao.save(localityRatings);
-            }
+
         }
 
         return created;

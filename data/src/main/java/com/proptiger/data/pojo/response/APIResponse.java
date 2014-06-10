@@ -13,7 +13,7 @@ import com.proptiger.data.constants.ResponseCodes;
  * 
  */
 @JsonInclude(Include.NON_NULL)
-public class APIResponse implements Serializable{
+public class APIResponse implements Serializable {
 
     private static final long serialVersionUID = -7809000164180146201L;
     private Long              totalCount;
@@ -25,6 +25,7 @@ public class APIResponse implements Serializable{
         super();
         this.statusCode = ResponseCodes.SUCCESS;
     }
+
     public APIResponse(Object data) {
         super();
         this.statusCode = ResponseCodes.SUCCESS;
@@ -45,11 +46,19 @@ public class APIResponse implements Serializable{
         this.data = data;
     }
 
-    public APIResponse(String statusCode, String errorMessage){
+    public APIResponse(String statusCode, String errorMessage) {
         super();
         this.statusCode = statusCode;
         this.error = new APIError(errorMessage);
     }
+
+    public APIResponse(PaginatedResponse<?> paginatedResponse) {
+        super();
+        this.statusCode = ResponseCodes.SUCCESS;
+        this.data = paginatedResponse.getResults();
+        this.totalCount = paginatedResponse.getTotalCount();
+    }
+
     public Long getTotalCount() {
         return totalCount;
     }
@@ -65,7 +74,7 @@ public class APIResponse implements Serializable{
 
     public void setStatusCode(String statusCode) {
         this.statusCode = statusCode;
-        //return this;
+        // return this;
     }
 
     public Object getData() {
@@ -86,22 +95,27 @@ public class APIResponse implements Serializable{
         return this;
     }
 
-    public APIResponse setErrorMessage(String msg){
+    public APIResponse setErrorMessage(String msg) {
         this.error = new APIError(msg);
         return this;
     }
+
     static class APIError {
         private String msg;
+
         public APIError(String msg) {
             super();
             this.msg = msg;
         }
+
         public String getMsg() {
             return msg;
         }
+
         public void setMsg(String msg) {
             this.msg = msg;
         }
+
         @Override
         public String toString() {
             return "{msg=" + msg + "}";

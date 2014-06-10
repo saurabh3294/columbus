@@ -35,15 +35,13 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkTypes;
 import com.proptiger.data.model.Locality;
-
-
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
-import com.proptiger.data.model.b2b.InventoryPriceTrend;
+import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Paging;
@@ -52,7 +50,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LocalityDao;
 import com.proptiger.data.repo.ProjectDao;
 import com.proptiger.data.repo.PropertyDao;
-import com.proptiger.data.service.b2b.TrendService;
+import com.proptiger.data.service.trend.TrendService;
 import com.proptiger.data.thirdparty.Circle;
 import com.proptiger.data.thirdparty.Point;
 import com.proptiger.data.thirdparty.SEC;
@@ -118,8 +116,8 @@ public class LocalityService {
         PaginatedResponse<List<Locality>> paginatedRes = new PaginatedResponse<List<Locality>>();
         paginatedRes = localityDao.getLocalities(selector);
         List<Locality> localities = paginatedRes.getResults();
-        
-        if(localities != null){
+
+        if (localities != null) {
             for (Locality locality : localities) {
                 updateLocalityRatingAndReviewDetails(locality);
             }
@@ -192,7 +190,9 @@ public class LocalityService {
                 });
 
                 if (localities.size() > LOCALITY_PAGE_SIZE) {
-                    List<Locality> remainingLocalities = localities.subList(LOCALITY_PAGE_SIZE, localities.size() - 1);
+                    List<Locality> remainingLocalities = new ArrayList<Locality>(localities.subList(
+                            LOCALITY_PAGE_SIZE,
+                            localities.size() - 1));
                     Collections.sort(remainingLocalities, new Comparator<Locality>() {
 
                         @Override
@@ -201,7 +201,7 @@ public class LocalityService {
                         }
                     });
 
-                    localities = localities.subList(0, LOCALITY_PAGE_SIZE - 1);
+                    localities = new ArrayList<Locality>(localities.subList(0, LOCALITY_PAGE_SIZE - 1));
                     localities.addAll(remainingLocalities);
                 }
             }
@@ -240,7 +240,7 @@ public class LocalityService {
             String localityIdStr = localityId + "";
             // setting Project Count
             locality.setProjectStatusCount(localityProjectStatusCount.get(localityId));
-            
+
             FieldStatsInfo fieldStatsInfo;
             // setting Resale Prices
             if (resalePriceStats != null) {
@@ -427,9 +427,11 @@ public class LocalityService {
     public List<Locality> getTopRatedLocalities(Integer cityId, Integer suburbId, Selector selector, Integer imageCount) {
         return getTopRatedLocalities_(cityId, suburbId, selector, imageCount, null);
     }
-    
+
     /**
-     * This method take a locality id that should be exclude while getting locality for city/suburb
+     * This method take a locality id that should be exclude while getting
+     * locality for city/suburb
+     * 
      * @param cityId
      * @param suburbId
      * @param selector
@@ -483,9 +485,9 @@ public class LocalityService {
 
             // Sorting localities as lookup screwed the order
             result.clear();
-            if(!localities.isEmpty()){
-                for (int localityId: localityIds) {
-                    if(localities.get(localityId) != null){
+            if (!localities.isEmpty()) {
+                for (int localityId : localityIds) {
+                    if (localities.get(localityId) != null) {
                         result.add(localities.get(localityId));
                     }
                 }
@@ -494,7 +496,6 @@ public class LocalityService {
 
         imageEnricher.setLocalitiesImages(result, imageCount);
 
-            
         return result;
     }
 
@@ -609,7 +610,7 @@ public class LocalityService {
             }
         }
 
-        if(localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount){
+        if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
             /*
              * if locality count is not more than or equal to
              * popularLocalityThresholdCount then as a fallback first try to
@@ -622,7 +623,7 @@ public class LocalityService {
                     mainLocality,
                     popularLocalityThresholdCount);
         }
-        
+
         /*
          * All the localities found in specified radius by taking main locality
          * lat lon as center, now need to filter localities for rating > α
@@ -678,14 +679,16 @@ public class LocalityService {
                 null,
                 mainLocality.getSuburbId(),
                 localitySelector,
-                imageCount, mainLocality.getLocalityId());
+                imageCount,
+                mainLocality.getLocalityId());
         if (localitiesAroundMainLocality == null || localitiesAroundMainLocality.size() < popularLocalityThresholdCount) {
             // find in city
             localitiesAroundMainLocality = getTopRatedLocalities_(
                     mainLocality.getSuburb().getCityId(),
                     null,
                     localitySelector,
-                    imageCount, mainLocality.getLocalityId());
+                    imageCount,
+                    mainLocality.getLocalityId());
         }
         return localitiesAroundMainLocality;
     }
@@ -766,17 +769,16 @@ public class LocalityService {
      * @return Map<Integer, Double> Here Integer will number of bedrooms and
      *         Double the average price on that bedroom.
      */
-    @Cacheable(value=Constants.CacheName.CACHE)
+    @Cacheable(value = Constants.CacheName.CACHE)
     public Map<Integer, Double> getAvgPricePerUnitAreaBHKWise(String locationType, int locationId, String unitType) {
         FIQLSelector selector = new FIQLSelector().addAndConditionToFilter("month==" + currentMonth)
-                                                .addAndConditionToFilter("unitType==" + unitType)
-                                                .addAndConditionToFilter(locationType + "==" + locationId)
-                                                .addGroupByAtBeginning("bedrooms")
-                                                .addField("wavgPricePerUnitAreaOnSupply");
+                .addAndConditionToFilter("unitType==" + unitType)
+                .addAndConditionToFilter(locationType + "==" + locationId).addGroupByAtBeginning("bedrooms")
+                .addField("wavgPricePerUnitAreaOnSupply");
 
         Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
 
-        for(InventoryPriceTrend inventoryPriceTrend: trendService.getTrend(selector)) {
+        for (InventoryPriceTrend inventoryPriceTrend : trendService.getTrend(selector)) {
             Object avgPricePerUnitArea = inventoryPriceTrend.getExtraAttributes().get("wavgPricePerUnitAreaOnSupply");
             if (avgPricePerUnitArea != null) {
                 avgPrice.put(inventoryPriceTrend.getBedrooms(), Double.valueOf(avgPricePerUnitArea.toString()));
@@ -805,11 +807,11 @@ public class LocalityService {
                 .getLocalityId());
 
         locality.setAverageRating(localityRatingDetails.getAverageRatings());
-        Long totalNumberOfReviews = (long)0;
+        Long totalNumberOfReviews = (long) 0;
         PaginatedResponse<List<LocalityReviewComments>> reviews = localityReviewService.getLocalityReview(
                 null,
                 new FIQLSelector().addAndConditionToFilter("localityId==" + locality.getLocalityId()));
-        if(reviews != null){
+        if (reviews != null) {
             totalNumberOfReviews = reviews.getTotalCount();
         }
         /*
@@ -1069,7 +1071,7 @@ public class LocalityService {
                 + ",\"rows\":"
                 + paging.getRows()
                 + "}}";
-        
+
         Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
         return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
     }

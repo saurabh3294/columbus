@@ -86,24 +86,16 @@ public class CityService {
         return city;
     }
 
-    public City getCity(String cityName) {
+    public City getCityByName(String cityName) {
         String js = "{\"filters\":{\"and\":[{\"equal\":{\"label\":" + cityName + "}}]}}";
-        CityService cityService = new CityService();
         Gson gson = new Gson();
         Selector selector = gson.fromJson(js, Selector.class);
-        List<City> cities = cityDao.getCities(selector);
+        List<City> cities = getCityList(selector);
+        if(cities == null || cities.isEmpty()){
+            return null;
+        }
 
         return cities.get(0);
-        /*
-         * if(selector!=null)
-         * System.out.println("Gotcha-----------------------------------------"
-         * +selector.toString()); List<City> list =
-         * cityService.getCityList(selector);
-         * 
-         * if(selector!=null){ return list.get(0); } else {
-         * System.out.println("HERE-----------------------------------------");
-         * return null; }
-         */
     }
 
     /**

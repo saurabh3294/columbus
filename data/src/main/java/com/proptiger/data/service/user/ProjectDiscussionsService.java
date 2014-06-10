@@ -17,18 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
-import com.proptiger.data.model.portfolio.ProjectCommentLikes;
+import com.proptiger.data.model.user.ProjectCommentLikes;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.ForumUserDao;
-import com.proptiger.data.repo.portfolio.ProjectCommentLikesDao;
-import com.proptiger.data.repo.portfolio.ProjectDiscussionsDao;
+import com.proptiger.data.repo.user.portfolio.ProjectCommentLikesDao;
+import com.proptiger.data.repo.user.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
@@ -67,7 +67,7 @@ public class ProjectDiscussionsService {
     @Autowired
     private Caching                 caching;
 
-    public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, UserInfo userInfo) {
+    public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, ActiveUser userInfo) {
 
         if (projectDiscussion.getComment() == null || projectDiscussion.getComment().isEmpty()) {
             throw new IllegalArgumentException("Comments cannot be null");
@@ -110,7 +110,7 @@ public class ProjectDiscussionsService {
     }
 
     @Transactional
-    public ProjectDiscussion incrementProjectCommentLikes(long commentId, UserInfo userInfo) {
+    public ProjectDiscussion incrementProjectCommentLikes(long commentId, ActiveUser userInfo) {
         ProjectDiscussion projectDiscussion = projectDiscussionDao.findOne(commentId);
 
         if (projectDiscussion == null) {

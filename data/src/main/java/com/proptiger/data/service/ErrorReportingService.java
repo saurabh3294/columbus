@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
@@ -41,9 +43,6 @@ public class ErrorReportingService {
     private ProjectService          projectService;
 
     private static Logger           logger = LoggerFactory.getLogger(ErrorReportingService.class);
-
-    @Autowired
-    private HttpServletRequest      httpServletRequest;
 
     /**
      * This method will save the error reported for a project or a property.
@@ -95,9 +94,10 @@ public class ErrorReportingService {
             logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.PROJECT_PROPERTY_ERROR_POST,
-                new ReportErrorDTO(projectError, property, project, httpServletRequest.getServerName()));
+                new ReportErrorDTO(projectError, property, project, request.getServerName()));
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
         return mailSender.sendMailUsingAws(mailDetails);
     }
