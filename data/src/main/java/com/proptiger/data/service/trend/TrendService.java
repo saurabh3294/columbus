@@ -55,13 +55,10 @@ public class TrendService {
     private static final int    MAX_THREAD_POOL_SIZE  = 5;
 
     @PostConstruct
-    private void initialise()
-    {
-    	//HithertoDurationSelector.currentMonth = "2014-02-0;
-    	HithertoDurationSelector.currentMonth = currentMonth;
-    	
+    private void initialize() {
+        HithertoDurationSelector.currentMonth = currentMonth;
     }
-    
+   
     public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
         return trendDao.getTrend(selector);
     }
@@ -383,23 +380,16 @@ public class TrendService {
         return maps;
     }
 
-//    private FIQLSelector getHithertoDateAppendedSelector(FIQLSelector selector, Integer monthDuration) {
-//        selector.addAndConditionToFilter("month" + FIQLOperator.LessThanEqual.getValue() + currentMonth);
-//        if (monthDuration != null) {
-//            selector.addAndConditionToFilter("month" + FIQLOperator.GreaterThan.getValue()
-//                    + DateUtil.shiftMonths(currentMonth, -1 * monthDuration));
-//        }
-//        return selector;
-//    }
+    private FIQLSelector getHithertoDateAppendedSelector(
+            FIQLSelector selector,
+            HithertoDurationSelector hithertoDurationSelector) {
+        if (hithertoDurationSelector == null) {
+            return selector;
+        }
 
-    private FIQLSelector getHithertoDateAppendedSelector(FIQLSelector selector, HithertoDurationSelector hithertoDurationSelector) 
-    {
-        if (hithertoDurationSelector == null) 
-        {	return selector;	}
- 
-    	String startMonth = hithertoDurationSelector.getStartMonth();
-    	String endMonth = hithertoDurationSelector.getEndMonth();
-    	
+        String startMonth = hithertoDurationSelector.getStartMonth();
+        String endMonth = hithertoDurationSelector.getEndMonth();
+
         selector.addAndConditionToFilter("month" + FIQLOperator.GreaterThanEqual.getValue() + startMonth);
         selector.addAndConditionToFilter("month" + FIQLOperator.LessThanEqual.getValue() + endMonth);
         return selector;
