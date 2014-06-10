@@ -26,6 +26,7 @@ import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.URLDetail;
 import com.proptiger.data.util.PageType;
 import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 
@@ -72,6 +73,9 @@ public class URLService {
         if (urlDetail.getCityName() == null) {
             urlDetail.setCityName("");
         }
+        if (urlDetail.getPropertyType() == null) {
+            urlDetail.setPropertyType("");
+        }
 
         switch (pageType) {
             case PROPERTY_URLS:
@@ -79,7 +83,7 @@ public class URLService {
                 try {
                     property = propertyService.getProperty(urlDetail.getPropertyId());
                 }
-                catch (Exception e) {
+                catch (ResourceNotAvailableException e) {
                     property = null;
                 }
 
@@ -96,7 +100,7 @@ public class URLService {
                 try {
                     project = projectService.getProjectData(urlDetail.getProjectId());
                 }
-                catch (Exception e) {
+                catch (ResourceNotAvailableException e) {
                     project = null;
                 }
 
@@ -109,11 +113,12 @@ public class URLService {
                 }
                 break;
             case BUILDER_URLS:
+            case BUILDER_URLS_SEO:
                 Builder builder = null;
                 try {
                     builder = builderService.getBuilderById(urlDetail.getBuilderId());
                 }
-                catch (Exception e) {
+                catch (ResourceNotAvailableException e) {
                     builder = null;
                 }
 
@@ -121,7 +126,9 @@ public class URLService {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
                 else {
-                    domainUrl = urlDetail.getCityName() + builder.getUrl() + urlDetail.getBedroomString();
+                    domainUrl = urlDetail.getCityName() + urlDetail.getPropertyType()
+                            + builder.getUrl()
+                            + urlDetail.getBedroomString();
                     if (!domainUrl.equals(urlDetail.getUrl())) {
                         responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                         redirectUrl = domainUrl;
@@ -129,6 +136,7 @@ public class URLService {
                 }
                 break;
             case LOCALITY_SUBURB_LISTING:
+            case LOCALITY_SUBURB_LISTING_SEO:
                 // localitySuburbListingUrl, cityName, response status
                 Object[] localitySuburbData = getLocalitySuburbListingUrl(urlDetail);
 
@@ -169,12 +177,15 @@ public class URLService {
                 try {
                     city = cityService.getCityByName(urlDetail.getCityName());
                 }
-                catch (Exception e) {
+                catch (ResourceNotAvailableException e) {
                     city = null;
                 }
                 if (city == null) {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
+                break;
+            case STATIC_URLS:
+                responseStatus = HttpStatus.SC_OK;
                 break;
             default:
                 responseStatus = HttpStatus.SC_NOT_FOUND;
@@ -190,7 +201,14 @@ public class URLService {
         int responseStatus = HttpStatus.SC_OK;
         switch (domainObject) {
             case locality:
-                Locality locality = localityService.getLocality(urlDetail.getLocalityId());
+                Locality locality = null;
+                try {
+                    locality = localityService.getLocality(urlDetail.getLocalityId());
+                }
+                catch (ResourceNotAvailableException e) {
+                    locality = null;
+                }
+
                 if (locality == null) {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
@@ -201,7 +219,14 @@ public class URLService {
                 }
                 break;
             case suburb:
-                Suburb suburb = suburbService.getSuburbById(urlDetail.getLocalityId());
+                Suburb suburb = null;
+                try {
+                    suburb = suburbService.getSuburbById(urlDetail.getLocalityId());
+                }
+                catch (ResourceNotAvailableException e) {
+                    suburb = null;
+                }
+
                 if (suburb == null) {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
