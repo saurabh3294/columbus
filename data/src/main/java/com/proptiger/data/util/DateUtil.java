@@ -5,6 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.proptiger.data.repo.CMSDao;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -15,6 +19,11 @@ import com.proptiger.exception.ProAPIException;
  */
 
 public class DateUtil {
+    private static Logger logger              = LoggerFactory.getLogger(DateUtil.class);
+
+    public static int     MonthCountInQuarter = 3;
+    public static int     MonthStartDate      = 1;
+
     /**
      * @return {@link Date} date in YYYY-dd-mm format
      * 
@@ -49,6 +58,66 @@ public class DateUtil {
     public static String shiftMonths(String stringDate, Integer shift) {
         Date date = parseYYYYmmddStringToDate(stringDate);
         return new SimpleDateFormat("yyyy-MM-dd").format(shiftMonths(date, shift)).toString();
+    }
+
+    /**
+     * @param stringDate
+     *            {@link String} date in YYYY-dd-mm format
+     * @param shift
+     *            {@link Integer} no of months to go back.
+     * @return {@link String} subtracted date in YYYY-dd-mm format
+     */
+    /* Wrapper over "shift months" to enforce subtraction only */
+    public static String subtractMonths(String stringDate, Integer shift) {
+        if (shift <= 0) {
+            return stringDate;
+        }
+        else {
+            return shiftMonths(stringDate, -1 * shift);
+        }
+    }
+
+    /**
+     * @return {@link String} start month of this Quarter in YYYY-mm-dd format.
+     *         or null if something goes wrong.
+     * @param date
+     *            {@link String} in YYYY-mm--dd format
+     * 
+     * */
+    public static String getQuarterStartDateString(String stringDate) {
+        if (stringDate == null || stringDate.isEmpty()) {
+            return null;
+        }
+
+        try {
+            Date date = parseYYYYmmddStringToDate(stringDate);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int monthNumber = calendar.get(Calendar.MONTH);
+            int quarterStartMonthNumber = ((monthNumber / MonthCountInQuarter) * (MonthCountInQuarter));
+            calendar.set(Calendar.MONTH, quarterStartMonthNumber);
+            calendar.set(Calendar.DATE, MonthStartDate);
+
+            /* Formatting back to Date-String */
+            return (new SimpleDateFormat("yyyy-MM-dd").format(calendar.getTime()));
+        }
+        /* TODO :: what are the conventions? (Null Return VS ApiExeption throw) */
+        catch (Exception e) {
+            logger.error("Error while parsing date : " + stringDate, e);
+            return null;
+        }
+    }
+
+    /**
+     * @param stringDate
+     *            {@link String} in YYYY-mm-dd format
+     * @return integer between 0-11 representing month number.
+     */
+    public static int getMonthNumberFromDateString(String stringDate) {
+        Date date = parseYYYYmmddStringToDate(stringDate);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.MONTH);
     }
 
     /**

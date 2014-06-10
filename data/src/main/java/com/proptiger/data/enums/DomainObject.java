@@ -7,7 +7,29 @@ public enum DomainObject {
 
     String text;
     int    startId;
-
+    
+    public static DomainObject getDomainInstance(Long id){
+        
+        if(id < suburb.getStartId()){
+            return city;
+        }
+        else if(id < locality.getStartId()){
+            return suburb;
+        }
+        else if(id < builder.getStartId()){
+            return locality;
+        }
+        else if(id < project.getStartId()){
+            return builder;
+        }
+        else if(id < property.getStartId()){
+            return project;
+        }
+        else{ 
+            return property;
+        }
+        
+    }
     DomainObject(String x, int startId) {
         this.text = x;
         this.startId = startId;

@@ -274,6 +274,10 @@ public class PortfolioListing extends BaseModel{
 
     @Column(name = "active_enquiries_count")
     private Integer                          activeEnquiriesCount;
+    
+    @JsonIgnore
+    @Column(name = "user_agent")
+    private String                           userAgent;
 
     public Integer getId() {
         return listingId;
@@ -728,6 +732,14 @@ public class PortfolioListing extends BaseModel{
 
     public void setActiveEnquiriesCount(Integer activeEnquiriesCount) {
         this.activeEnquiriesCount = activeEnquiriesCount;
+    }
+    
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 
     class SourceTypeDeserializer extends JsonDeserializer<String> {
