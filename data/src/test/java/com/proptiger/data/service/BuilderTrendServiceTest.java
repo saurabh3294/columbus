@@ -12,11 +12,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.proptiger.data.dto.external.trend.BuilderTrend;
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.trend.BuilderTrendService;
-import com.proptiger.data.trend.external.dto.BuilderTrend;
 import com.proptiger.exception.ProAPIException;
 
 /**
