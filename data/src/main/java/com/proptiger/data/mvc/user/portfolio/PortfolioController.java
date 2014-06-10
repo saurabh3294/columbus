@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Table;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -89,9 +91,16 @@ public class PortfolioController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "/listing")
     @ResponseBody
     public APIResponse createListing(
+            HttpServletRequest request,
+            HttpServletResponse response,
             @PathVariable Integer userId,
             @RequestBody PortfolioListing portfolioProperty,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        /*
+         * Setting user-agent to the portfolio-listing to track the platform
+         * info for analysis purpose.
+         */
+        setUserAgent(request, portfolioProperty);
         PortfolioListing created = portfolioService.createPortfolioListing(
                 userInfo.getUserIdentifier(),
                 portfolioProperty);
@@ -104,6 +113,12 @@ public class PortfolioController extends BaseController {
         return new APIResponse(super.filterFields(created, null));
     }
 
+    private void setUserAgent(HttpServletRequest request, PortfolioListing portfolioProperty) {
+        String userAgent = request.getHeader("user-agent");
+        if (userAgent != null && !userAgent.isEmpty()) {
+            portfolioProperty.setUserAgent(userAgent);
+        }
+    }
     @RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}")
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     @ResponseBody
