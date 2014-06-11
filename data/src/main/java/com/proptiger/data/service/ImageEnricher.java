@@ -29,11 +29,11 @@ import com.proptiger.data.util.MediaUtil;
 public class ImageEnricher {
 
     @Autowired
-    private ImageService imageService;
+    private ImageService  imageService;
 
     @Autowired
-    private ImageDao     imageDao;
-    
+    private ImageDao      imageDao;
+
     private static Logger logger = LoggerFactory.getLogger(ImageEnricher.class);
 
     public void setProjectsImages(List<Project> projects) {
@@ -104,10 +104,12 @@ public class ImageEnricher {
             propertyIds.add(new Long(property.getPropertyId()));
         }
         List<Image> images = imageService.getImages(DomainObject.property, null, propertyIds);
-        if (images == null){
+        if (images == null) {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                     .getRequest();
-            logger.info("Images NULL AT URL: "+request.getRequestURI() + " FOR Property IDs: "+ ToStringBuilder.reflectionToString(propertyIds));
+            logger.info("Images NULL AT URL: " + request.getRequestURI()
+                    + " FOR Property IDs: "
+                    + ToStringBuilder.reflectionToString(propertyIds));
             return;
         }
 

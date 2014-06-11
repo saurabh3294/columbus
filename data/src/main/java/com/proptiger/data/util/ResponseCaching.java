@@ -67,7 +67,7 @@ public class ResponseCaching {
         }
 
         String key = getCacheKey(jp);
-        if (!isCacheEnabled(jp) || getResponse(key, getProxyMethodReturnType(jp)) != null){
+        if (!isCacheEnabled(jp) || getResponse(key, getProxyMethodReturnType(jp)) != null) {
             return;
         }
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
@@ -85,7 +85,7 @@ public class ResponseCaching {
     private <T> T getResponse(String key, Class<T> returnType) {
         T savedResponse = caching.getSavedResponse(key, returnType);
 
-        if (savedResponse == null){
+        if (savedResponse == null) {
             caching.deleteResponseFromCache(key);
         }
         return savedResponse;
@@ -111,7 +111,7 @@ public class ResponseCaching {
         catch (Exception e) {
             return key;
         }
-        
+
         return encodeKey;
     }
 
