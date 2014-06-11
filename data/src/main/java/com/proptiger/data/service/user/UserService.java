@@ -89,7 +89,6 @@ public class UserService {
      * @param user
      * @return {@link ForumUser}
      */
-    @Transactional
     private ForumUser setAppDetails(ForumUser user) {
         HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
 
