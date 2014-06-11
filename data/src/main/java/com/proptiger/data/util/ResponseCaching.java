@@ -111,7 +111,7 @@ public class ResponseCaching {
         catch (Exception e) {
             return key;
         }
-        System.out.println("key : " + key + " encode: " + encodeKey);
+        
         return encodeKey;
     }
 
