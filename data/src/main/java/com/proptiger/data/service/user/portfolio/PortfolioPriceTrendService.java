@@ -1,6 +1,7 @@
 package com.proptiger.data.service.user.portfolio;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.ConstructionStatus;
+import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
@@ -44,26 +46,25 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PortfolioPriceTrendService {
 
-    private static Logger logger = LoggerFactory
-            .getLogger(PortfolioPriceTrendService.class);
+    private static Logger            logger         = LoggerFactory.getLogger(PortfolioPriceTrendService.class);
 
-    private static Integer MONTHS_IN_YEAR = 12;
+    private static Integer           MONTHS_IN_YEAR = 12;
     @Autowired
-    private PortfolioListingDao portfolioListingDao;
+    private PortfolioListingDao      portfolioListingDao;
 
     @Autowired
-    private PortfolioService portfolioService;
+    private PortfolioService         portfolioService;
     @Autowired
     private ProjectPriceTrendService projectPriceTrendService;
 
     @Autowired
-    private ProjectDBDao projectDBDao;
+    private ProjectDBDao             projectDBDao;
 
     @Autowired
-    private ProjectService projectService;
-    
+    private ProjectService           projectService;
+
     @Value("${b2b.price-inventory.max.month}")
-    public String      trendCurrentMonth;
+    public String                    trendCurrentMonth;
 
     /**
      * Get price trend for a listing associated with user
@@ -73,22 +74,16 @@ public class PortfolioPriceTrendService {
      * @param noOfMonths
      * @return
      */
-    public ProjectPriceTrend getListingPriceTrend(Integer userId,
-            Integer listingId, Integer noOfMonths) {
-        logger.debug(
-                "Price trend for user id {} and listing id {} for months {}",
-                userId, listingId, noOfMonths);
-        PortfolioListing listing = portfolioListingDao
-                .findByListingIdAndDeletedFlag(listingId, false);
+    public ProjectPriceTrend getListingPriceTrend(Integer userId, Integer listingId, Integer noOfMonths) {
+        logger.debug("Price trend for user id {} and listing id {} for months {}", userId, listingId, noOfMonths);
+        PortfolioListing listing = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
         if (listing == null) {
-            throw new ResourceNotAvailableException(ResourceType.LISTING,
-                    ResourceTypeAction.GET);
+            throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
 
         List<PortfolioListing> listings = new ArrayList<PortfolioListing>();
         listings.add(listing);
-        List<ProjectPriceTrend> projectPriceTrend = getProjectPriceTrends(
-                noOfMonths, listings);
+        List<ProjectPriceTrend> projectPriceTrend = getProjectPriceTrends(noOfMonths, listings);
         if (projectPriceTrend != null && projectPriceTrend.size() > 0) {
             return projectPriceTrend.get(0);
         }
@@ -104,8 +99,7 @@ public class PortfolioPriceTrendService {
     private void updateProjectName(List<PortfolioListing> listings) {
         for (PortfolioListing listing : listings) {
             // listing.setProjectName(projectDBDao.getProjectNameById(IdConverterForDatabase.convertProjectIdFromCMSToProptiger(listing.getProperty())));
-            listing.setProjectName(projectDBDao.getProjectNameById(listing
-                    .getProperty().getProjectId()));
+            listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
         }
 
     }
@@ -118,38 +112,39 @@ public class PortfolioPriceTrendService {
      * @param noOfMonths
      * @return
      */
-    public PortfolioPriceTrend getPortfolioPriceTrend(Integer userId,
+    public PortfolioPriceTrend getPortfolioPriceTrend(
+            Integer userId,
             Integer noOfMonths) {
         PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
-        logger.debug("Price trend for user id {} for months {}", userId,
-                noOfMonths);
+        logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
         List<PortfolioListing> listings = portfolioListingDao
-                .findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
-                        userId, false, Constants.SOURCETYPE_LIST);
+                .findByUserIdAndDeletedFlagAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
+                        userId,
+                        false,
+                        Constants.SOURCETYPE_LIST,
+                        Arrays.asList(ListingStatus.ACTIVE));
         if (listings == null || listings.size() == 0) {
             List<ProjectPriceTrend> list = new ArrayList<>();
             portfolioPriceTrend.setProjectPriceTrend(list);
             return portfolioPriceTrend;
         }
-        List<ProjectPriceTrend> projectPriceTrendTemp = getProjectPriceTrends(
-                noOfMonths, listings);
+        List<ProjectPriceTrend> projectPriceTrendTemp = getProjectPriceTrends(noOfMonths, listings);
         portfolioPriceTrend.setProjectPriceTrend(projectPriceTrendTemp);
         // updatePriceTrendForPortfolio(portfolioPriceTrend, noOfMonths);
         return portfolioPriceTrend;
     }
 
-    private List<ProjectPriceTrend> getProjectPriceTrends(Integer noOfMonths,
-            List<PortfolioListing> listings) {
+    private List<ProjectPriceTrend> getProjectPriceTrends(Integer noOfMonths, List<PortfolioListing> listings) {
         updateProjectName(listings);
         List<ProjectPriceTrendInput> inputs = createProjectPriceTrendInputs(listings);
-        List<ProjectPriceTrend> projectPriceTrendTemp = projectPriceTrendService
-                .getProjectPriceHistory(inputs, noOfMonths);
+        List<ProjectPriceTrend> projectPriceTrendTemp = projectPriceTrendService.getProjectPriceHistory(
+                inputs,
+                noOfMonths);
         /*
          * Now add price trend from current month and make price trend number
          * equal to noOfMonths
          */
-        addPriceDetailsFromCurrentMonth(projectPriceTrendTemp, noOfMonths,
-                listings);
+        addPriceDetailsFromCurrentMonth(projectPriceTrendTemp, noOfMonths, listings);
         makePriceTrendDateMonthPrecision(projectPriceTrendTemp);
         /*
          * Update per square price received from CMS API to total price
@@ -159,24 +154,26 @@ public class PortfolioPriceTrendService {
     }
 
     /**
-     * Changing price trend date to month precision as it would be easy to plot on UI.
+     * Changing price trend date to month precision as it would be easy to plot
+     * on UI.
+     * 
      * @param projectPriceTrendTemp
      */
     private void makePriceTrendDateMonthPrecision(List<ProjectPriceTrend> projectPriceTrendTemp) {
         Calendar cal = Calendar.getInstance();
-        for(ProjectPriceTrend priceTrend: projectPriceTrendTemp){
-            for(PriceDetail priceDetail: priceTrend.getPrices()){
+        for (ProjectPriceTrend priceTrend : projectPriceTrendTemp) {
+            for (PriceDetail priceDetail : priceTrend.getPrices()) {
                 Date d = priceDetail.getEffectiveDate();
                 cal.setTime(d);
                 cal.set(Calendar.DAY_OF_MONTH, 1);
-                cal.set(Calendar.HOUR_OF_DAY, 1); 
-                cal.set(Calendar.MINUTE, 1);      
+                cal.set(Calendar.HOUR_OF_DAY, 1);
+                cal.set(Calendar.MINUTE, 1);
                 cal.set(Calendar.SECOND, 1);
                 cal.set(Calendar.MILLISECOND, 1);
                 priceDetail.setEffectiveDate(cal.getTime());
             }
         }
-        
+
     }
 
     /**
@@ -186,25 +183,21 @@ public class PortfolioPriceTrendService {
      * @param portfolioPriceTrend
      * @param noOfMonths
      */
-    private void updatePriceTrendForPortfolio(
-            PortfolioPriceTrend portfolioPriceTrend, Integer noOfMonths) {
+    private void updatePriceTrendForPortfolio(PortfolioPriceTrend portfolioPriceTrend, Integer noOfMonths) {
         List<PriceDetail> portfolioPriceTrendDetals = new ArrayList<>();
         for (int counter = 0; counter < noOfMonths; counter++) {
             PriceDetail priceDetail = new PriceDetail();
             Date date = null;
-            for (ProjectPriceTrend projectPriceTrend : portfolioPriceTrend
-                    .getProjectPriceTrend()) {
+            for (ProjectPriceTrend projectPriceTrend : portfolioPriceTrend.getProjectPriceTrend()) {
                 /*
                  * Ignoring ProjectPriceTrend that does not have priceDetail
                  * list
                  */
                 if (projectPriceTrend.getPrices() != null) {
-                    priceDetail
-                            .setPrice((int) (priceDetail.getPrice() + projectPriceTrend
-                                    .getPrices().get(counter).getPrice()));
+                    priceDetail.setPrice((int) (priceDetail.getPrice() + projectPriceTrend.getPrices().get(counter)
+                            .getPrice()));
                     if (date == null) {
-                        date = projectPriceTrend.getPrices().get(counter)
-                                .getEffectiveDate();
+                        date = projectPriceTrend.getPrices().get(counter).getEffectiveDate();
                     }
                 }
 
@@ -230,7 +223,8 @@ public class PortfolioPriceTrendService {
      * @param listings
      */
     private void addPriceDetailsFromCurrentMonth(
-            List<ProjectPriceTrend> projectPriceTrends, Integer noOfMonths,
+            List<ProjectPriceTrend> projectPriceTrends,
+            Integer noOfMonths,
             List<PortfolioListing> listings) {
         /*
          * Adding one month extra price trend, as we have to remove current
@@ -244,7 +238,8 @@ public class PortfolioPriceTrendService {
             Date currentDate = cal.getTime();
             logger.debug(
                     "Adding price detail from current month for project id {} and name {}",
-                    priceTrend.getProjectId(), priceTrend.getProjectName());
+                    priceTrend.getProjectId(),
+                    priceTrend.getProjectName());
             List<PriceDetail> prices = priceTrend.getPrices();
             if (prices == null) {
                 // Could not get price trend for this project id from CMS API,
@@ -252,15 +247,12 @@ public class PortfolioPriceTrendService {
                 // project
                 prices = new ArrayList<>();
                 PriceDetail priceDetail = new PriceDetail();
-                PortfolioListing listingForCurrentProject = getListingForProject(
-                        priceTrend, listings);
+                PortfolioListing listingForCurrentProject = getListingForProject(priceTrend, listings);
                 priceDetail.setEffectiveDate(DateUtil.parseYYYYmmddStringToDate(trendCurrentMonth));
                 // priceDetail.setPrice(portfolioService.getPropertyPricePerUnitArea(listingForCurrentProject.getProperty()));
-                Double pricePerUnitArea = listingForCurrentProject
-                        .getProperty().getPricePerUnitAreaCms();
+                Double pricePerUnitArea = listingForCurrentProject.getProperty().getPricePerUnitAreaCms();
                 if (pricePerUnitArea == null) {
-                    pricePerUnitArea = listingForCurrentProject.getProperty()
-                            .getPricePerUnitArea();
+                    pricePerUnitArea = listingForCurrentProject.getProperty().getPricePerUnitArea();
                 }
                 priceDetail.setPrice(pricePerUnitArea);
                 prices.add(priceDetail);
@@ -279,11 +271,11 @@ public class PortfolioPriceTrendService {
                 lastDatePresent = cal.getTime();
                 prices.add(prices.size(), detail);
             }
-            
+
             removePriceTrendDateAfterSpecifiedMonth(prices);
-            
+
             if (!prices.isEmpty()) {
-             // add price detail at first
+                // add price detail at first
                 PriceDetail firstPriceTrend = prices.get(0);
                 Date firstDatePresent = firstPriceTrend.getEffectiveDate();
                 cal.setTime(firstDatePresent);
@@ -295,17 +287,17 @@ public class PortfolioPriceTrendService {
                     detail.setEffectiveDate(cal.getTime());
                     prices.add(0, detail);
                 }
-                
-                /* removing price detail before launch date because cms sometime
+
+                /*
+                 * removing price detail before launch date because cms sometime
                  * adds data before launch date for a project.
-                 * 
                  */
                 while (launchDate != null && !prices.isEmpty() && prices.get(0).getEffectiveDate().before(launchDate)) {
                     prices.remove(0);
                 }
 
                 includeMissingPriceTrendData(cal, prices);
-                
+
                 removeExtraPriceTrendThanRequired(noOfMonths, prices);
             }
 
@@ -314,9 +306,7 @@ public class PortfolioPriceTrendService {
 
     /**
      * @param projectPriceTrends
-     * @return
-     * Creating Map of Launch-Date or Pre-Launch-Date against
-     * Project-Id
+     * @return Creating Map of Launch-Date or Pre-Launch-Date against Project-Id
      */
     private Map<Integer, Date> getLaunchOrPreLaunchDate(List<ProjectPriceTrend> projectPriceTrends) {
         Map<Integer, Date> idLaunchDateMap = new HashMap<Integer, Date>();
@@ -356,7 +346,8 @@ public class PortfolioPriceTrendService {
                 int currMonth = tempLastMonth;
                 if ((currMonth + 1) % MONTHS_IN_YEAR == lastMonth) {
                     // Found continuous month, so skip
-                } else {
+                }
+                else {
                     // add missing month price details taking last price
                     // detail data
                     int i = 1;
@@ -378,8 +369,7 @@ public class PortfolioPriceTrendService {
 
     private void removeExtraPriceTrendThanRequired(Integer noOfMonths, List<PriceDetail> prices) {
         /*
-         * If there are more price details than required then remove from
-         * first
+         * If there are more price details than required then remove from first
          */
         // actual no of months required
         int actualNoOfMonthRequired = noOfMonths - 1;
@@ -395,17 +385,18 @@ public class PortfolioPriceTrendService {
     }
 
     /*
-     * Removing price trend after specified month provided 
-     * in application.properties.
+     * Removing price trend after specified month provided in
+     * application.properties.
      */
     private void removePriceTrendDateAfterSpecifiedMonth(List<PriceDetail> prices) {
-        if(prices != null){
+        if (prices != null) {
             Date trendCurrentDate = DateUtil.parseYYYYmmddStringToDate(trendCurrentMonth);
             Calendar cal = Calendar.getInstance();
             cal.setTime(trendCurrentDate);
-            cal.add(Calendar.MONTH, 1); // Adding one month to include current month trend
+            cal.add(Calendar.MONTH, 1); // Adding one month to include current
+                                        // month trend
             trendCurrentDate = cal.getTime();
-            while (!prices.isEmpty() && !prices.get(prices.size() - 1).getEffectiveDate().before(trendCurrentDate)){
+            while (!prices.isEmpty() && !prices.get(prices.size() - 1).getEffectiveDate().before(trendCurrentDate)) {
                 prices.remove(prices.size() - 1);
             }
         }
@@ -421,12 +412,10 @@ public class PortfolioPriceTrendService {
     private void updatePriceAsTotalListingPriceInTrend(
             List<ProjectPriceTrend> projectPriceTrends,
             List<PortfolioListing> listings) {
-        Iterator<ProjectPriceTrend> priceTrendItr = projectPriceTrends
-                .iterator();
+        Iterator<ProjectPriceTrend> priceTrendItr = projectPriceTrends.iterator();
         while (priceTrendItr.hasNext()) {
             ProjectPriceTrend projectPriceTrend = priceTrendItr.next();
-            PortfolioListing listing = getListingForProject(projectPriceTrend,
-                    listings);
+            PortfolioListing listing = getListingForProject(projectPriceTrend, listings);
             if (listing != null) {
                 Double size = listing.getListingSize();
                 if (size == null) {
@@ -438,15 +427,14 @@ public class PortfolioPriceTrendService {
                  * 
                  * TODO change this if we change in get portfolio or listing
                  */
-                double totalOtherPrice = getTotalOtherPrice(listing
-                        .getOtherPrices());
+                double totalOtherPrice = getTotalOtherPrice(listing.getOtherPrices());
                 // double totalOtherPrice = 0.0D;
                 if (projectPriceTrend.getPrices() != null) {
-                    for (PriceDetail priceDetail : projectPriceTrend
-                            .getPrices()) {
+                    for (PriceDetail priceDetail : projectPriceTrend.getPrices()) {
                         if (priceDetail.getPrice() == 0.0D) {
                             priceDetail.setPrice(listing.getTotalPrice());
-                        } else {
+                        }
+                        else {
                             double totPrice = priceDetail.getPrice();
                             totPrice = totPrice * size + totalOtherPrice;
                             priceDetail.setPrice((int) totPrice);
@@ -455,7 +443,8 @@ public class PortfolioPriceTrendService {
                     }
                 }
 
-            } else {
+            }
+            else {
                 priceTrendItr.remove();
             }
         }
@@ -482,12 +471,10 @@ public class PortfolioPriceTrendService {
      * @param listings
      * @return
      */
-    private PortfolioListing getListingForProject(
-            ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
+    private PortfolioListing getListingForProject(ProjectPriceTrend projectPriceTrend, List<PortfolioListing> listings) {
         for (PortfolioListing listing : listings) {
-            if (listing.getTypeId().equals(projectPriceTrend.getTypeId())
-                    && listing.getProperty().getProjectId() == projectPriceTrend
-                            .getProjectId().intValue()) {
+            if (listing.getTypeId().equals(projectPriceTrend.getTypeId()) && listing.getProperty().getProjectId() == projectPriceTrend
+                    .getProjectId().intValue()) {
                 return listing;
             }
         }
@@ -500,8 +487,7 @@ public class PortfolioPriceTrendService {
      * @param listings
      * @return
      */
-    public List<ProjectPriceTrendInput> createProjectPriceTrendInputs(
-            List<PortfolioListing> listings) {
+    public List<ProjectPriceTrendInput> createProjectPriceTrendInputs(List<PortfolioListing> listings) {
         List<ProjectPriceTrendInput> inputs = new ArrayList<ProjectPriceTrendInput>();
         for (PortfolioListing listing : listings) {
             ProjectPriceTrendInput input = new ProjectPriceTrendInput();
