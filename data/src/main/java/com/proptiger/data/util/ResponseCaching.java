@@ -72,7 +72,7 @@ public class ResponseCaching {
         }
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                 .getRequest();
-        logger.info(" CACHING URL: " + request.getRequestURI() + " key: " + key + " response: " + retVal);
+        logger.error(" CACHING URL: " + request.getRequestURI() + " key: " + key + " RESPONSE CLASS hascode : "+retVal.hashCode());
         caching.saveResponse(getCacheKey(jp), retVal);
     }
 

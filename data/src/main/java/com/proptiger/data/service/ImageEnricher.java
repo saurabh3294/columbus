@@ -107,7 +107,7 @@ public class ImageEnricher {
         if (images == null) {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                     .getRequest();
-            logger.info("Images NULL AT URL: " + request.getRequestURI()
+            logger.error("Images NULL AT URL: " + request.getRequestURI()
                     + " FOR Property IDs: "
                     + ToStringBuilder.reflectionToString(propertyIds));
             return;
