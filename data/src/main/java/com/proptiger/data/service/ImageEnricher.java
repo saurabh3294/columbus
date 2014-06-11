@@ -5,8 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.model.Bank;
@@ -26,6 +33,8 @@ public class ImageEnricher {
 
     @Autowired
     private ImageDao     imageDao;
+    
+    private static Logger logger = LoggerFactory.getLogger(ImageEnricher.class);
 
     public void setProjectsImages(List<Project> projects) {
         if (projects == null || projects.isEmpty())
@@ -95,8 +104,12 @@ public class ImageEnricher {
             propertyIds.add(new Long(property.getPropertyId()));
         }
         List<Image> images = imageService.getImages(DomainObject.property, null, propertyIds);
-        if (images == null)
+        if (images == null){
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                    .getRequest();
+            logger.info("Images NULL AT URL: "+request.getRequestURI() + " FOR Property IDs: "+ ToStringBuilder.reflectionToString(properties));
             return;
+        }
 
         Map<Long, List<Image>> imagesMap = new HashMap<>();
         List<Image> domainImages;

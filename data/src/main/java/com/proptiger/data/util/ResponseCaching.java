@@ -11,6 +11,8 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -24,7 +26,9 @@ import com.proptiger.exception.ProAPIException;
 @Component
 public class ResponseCaching {
     @Autowired
-    private Caching            caching;
+    private Caching       caching;
+
+    private static Logger logger = LoggerFactory.getLogger(ResponseCaching.class);
 
     /*
      * This method will be called to check and get the cache response.
@@ -50,19 +54,25 @@ public class ResponseCaching {
     public void setResponse(JoinPoint jp, Object retVal) throws Throwable {
         // if response is not valid, then response will not be saved.
         Class<?> className = retVal.getClass();
-        if (className == ProAPIException.class){
+        if (className == ProAPIException.class) {
             return;
         }
-        else if(className == APIResponse.class){
+        else if (className == APIResponse.class) {
             APIResponse response = (APIResponse) retVal;
-            //this check is required if someone returned error normally from a controller method 
-            if(response.getError() != null){
+            // this check is required if someone returned error normally from a
+            // controller method
+            if (response.getError() != null) {
                 return;
             }
         }
 
-        if (!isCacheEnabled(jp))
+        String key = getCacheKey(jp);
+        if (!isCacheEnabled(jp) || getResponse(key, getProxyMethodReturnType(jp)) != null){
             return;
+        }
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest();
+        logger.info(" CACHING URL: " + request.getRequestURI() + " key: " + key + " response: " + retVal);
         caching.saveResponse(getCacheKey(jp), retVal);
     }
 
@@ -75,9 +85,9 @@ public class ResponseCaching {
     private <T> T getResponse(String key, Class<T> returnType) {
         T savedResponse = caching.getSavedResponse(key, returnType);
 
-        if (savedResponse == null)
+        if (savedResponse == null){
             caching.deleteResponseFromCache(key);
-
+        }
         return savedResponse;
     }
 
@@ -101,7 +111,7 @@ public class ResponseCaching {
         catch (Exception e) {
             return key;
         }
-
+        System.out.println("key : " + key + " encode: " + encodeKey);
         return encodeKey;
     }
 
@@ -144,10 +154,11 @@ public class ResponseCaching {
     }
 
     private boolean isValidUrlForCache() {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        if(request != null){
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest();
+        if (request != null) {
             String url = request.getRequestURI();
-            if (url.matches("/user/")){
+            if (url.matches("/user/")) {
                 return false;
             }
         }
