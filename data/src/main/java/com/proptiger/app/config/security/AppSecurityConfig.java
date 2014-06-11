@@ -36,9 +36,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Rajeev Pandey
  *
  */
-//@Configuration
-//@EnableWebSecurity
-//@ComponentScan(basePackages = { "com.proptiger" })
+@Configuration
+@EnableWebSecurity
+@ComponentScan(basePackages = { "com.proptiger" })
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String     COOKIE_NAME_JSESSIONID  = "JSESSIONID";
