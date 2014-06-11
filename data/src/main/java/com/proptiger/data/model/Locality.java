@@ -2,7 +2,6 @@ package com.proptiger.data.model;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -48,7 +47,7 @@ public class Locality extends BaseModel {
     private int                             localityId;
 
     @Transient
-    private boolean                         authorized       = new Random().nextBoolean();
+    private boolean                         authorized       = true;
 
     @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
@@ -210,7 +209,7 @@ public class Locality extends BaseModel {
     @Transient
     @Field("LOCALITY_PRICE_RISE_6MONTHS")
     private Double                          priceRise6Months;
-    
+
     @Transient
     @Field("TYPEAHEAD_LOCALITY_UNITS_LAUNCHED_6MONTHS")
     private Integer                         localityUnitsLaunched6Months;
@@ -218,17 +217,17 @@ public class Locality extends BaseModel {
     @Transient
     @Field("TYPEAHEAD_LOCALITY_UNITS_SOLD_6MONTHS")
     private Integer                         localityUnitsSold6Months;
-    
+
     @Transient
     @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
     private Integer                         localityUnitsDelivered6Months;
-    
+
     @Transient
     @JsonIgnore
     @FieldMetaInfo(displayName = "Locality enquiry count", description = "Locality enquiry count")
     @Field(value = "LOCALITY_ENQUIRY_COUNT")
     private Integer                         localityEnquiryCount;
-    
+
     @Transient
     @JsonIgnore
     @FieldMetaInfo(displayName = "Locality view count", description = "Locality view count")
@@ -564,7 +563,7 @@ public class Locality extends BaseModel {
     public void setPriceRise6Months(Double priceRise6Months) {
         this.priceRise6Months = priceRise6Months;
     }
-    
+
     public Integer getLocalityUnitsLaunched6Months() {
         return localityUnitsLaunched6Months;
     }

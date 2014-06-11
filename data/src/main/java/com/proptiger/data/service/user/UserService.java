@@ -1,16 +1,39 @@
 package com.proptiger.data.service.user;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
+import com.proptiger.data.enums.Application;
+import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.external.dto.UserAppDetail;
+import com.proptiger.data.external.dto.UserAppDetail.UserAppSubscription;
+import com.proptiger.data.model.City;
+import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
+import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.SubscriptionPermission;
+import com.proptiger.data.model.SubscriptionSection;
+import com.proptiger.data.model.UserPreference;
+import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.util.UtilityClass;
 
 /**
  * Service class to get if user have already enquired about an entity
@@ -22,13 +45,19 @@ import com.proptiger.data.repo.ForumUserDao;
 public class UserService {
 
     @Value("${enquired.within.days}")
-    private Integer      enquiredWithinDays;
+    private Integer               enquiredWithinDays;
 
     @Autowired
-    private EnquiryDao   enquiryDao;
+    private EnquiryDao            enquiryDao;
 
     @Autowired
-    private ForumUserDao forumUserDao;
+    private ForumUserDao          forumUserDao;
+
+    @Autowired
+    private UserPreferenceService preferenceService;
+
+    @Autowired
+    private LocalityService       localityService;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -36,6 +65,118 @@ public class UserService {
         }
 
         return false;
+    }
+
+    /**
+     * Returns details forum user object for a user including all his dashboards
+     * and preferences and subscription details
+     * 
+     * @param userInfo
+     * @return {@link ForumUser}
+     */
+    @Transactional
+    public ForumUser getUserDetails(int userId) {
+        ForumUser user = forumUserDao.findByUserId(userId);
+        Hibernate.initialize(user.getDashboards());
+
+        setAppDetails(user);
+        return user;
+    }
+
+    /**
+     * Sets app specific details for user object
+     * 
+     * @param user
+     * @return {@link ForumUser}
+     */
+    @Transactional
+    private ForumUser setAppDetails(ForumUser user) {
+        HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
+
+        for (UserPreference preference : preferenceService.getUserPreferences(user.getUserId())) {
+            UserAppDetail appDetail = new UserAppDetail();
+            appDetail.setPreferences(preference.getPreference());
+            appDetailsMap.put(preference.getApp(), appDetail);
+        }
+
+        List<UserAppSubscription> subscriptions = new ArrayList<>();
+        for (UserSubscriptionMapping mapping : user.getUserSubscriptionMappings()) {
+            CompanySubscription subscription = mapping.getSubscription();
+
+            UserAppSubscription appSubscription = new UserAppSubscription();
+            for (SubscriptionSection section : subscription.getSections()) {
+                appSubscription.getSections().add(section.getSection());
+            }
+            appSubscription.setExpiryTime(subscription.getExpiryTime());
+
+            Hibernate.initialize(subscription.getCompany());
+            appSubscription.setCompany(subscription.getCompany());
+
+            setUserAppSubscriptionDetails(subscription.getPermissions(), appSubscription);
+            subscriptions.add(appSubscription);
+        }
+
+        if (!appDetailsMap.containsKey(Application.B2b)) {
+            appDetailsMap.put(Application.B2b, new UserAppDetail());
+        }
+        appDetailsMap.get(Application.B2b).setSubscriptions(subscriptions);
+        user.setAppDetails(appDetailsMap);
+        return user;
+    }
+
+    /**
+     * 
+     * @param subscriptionPermissions
+     * @param userAppSubscription
+     * @return
+     */
+    private UserAppSubscription setUserAppSubscriptionDetails(
+            List<SubscriptionPermission> subscriptionPermissions,
+            UserAppSubscription userAppSubscription) {
+        List<Integer> subscribedIds = new ArrayList<>();
+        for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
+            subscribedIds.add(subscriptionPermission.getPermission().getObjectId());
+        }
+
+        if (!subscribedIds.isEmpty()) {
+            userAppSubscription.setUserType(DomainObject.getFromObjectTypeId(
+                    subscriptionPermissions.get(0).getPermission().getObjectTypeId()).toString());
+
+            String json = "{\"filters\":{\"and\":[{\"equal\":{\"" + userAppSubscription.getUserType()
+                    + "Id\":["
+                    + StringUtils.join(subscribedIds, ',')
+                    + "]}}]},\"paging\":{\"start\":0,\"rows\":9999}}";
+
+            List<Locality> localities = localityService.getLocalities(new Gson().fromJson(json, Selector.class))
+                    .getResults();
+
+            @SuppressWarnings("unchecked")
+            Map<Integer, List<Locality>> cityGroupedLocalities = (Map<Integer, List<Locality>>) UtilityClass
+                    .groupFieldsAsPerKeys(localities, Arrays.asList("cityId"));
+
+            for (Integer cityId : cityGroupedLocalities.keySet()) {
+                userAppSubscription.setCityCount(userAppSubscription.getCityCount() + 1);
+                List<Locality> cityLocalities = cityGroupedLocalities.get(cityId);
+                City city = new City();
+                city.setId(cityId);
+                city.setLabel(cityLocalities.get(0).getSuburb().getCity().getLabel());
+
+                List<Locality> cityFinalLocalities = new ArrayList<>();
+                for (Locality locality : cityLocalities) {
+                    userAppSubscription.setLocalityCount(userAppSubscription.getLocalityCount() + 1);
+                    userAppSubscription.setProjectCount(userAppSubscription.getProjectCount() + locality
+                            .getProjectCount());
+
+                    Locality cityLocality = new Locality();
+                    cityLocality.setLocalityId(locality.getLocalityId());
+                    cityLocality.setLabel(locality.getLabel());
+                    cityFinalLocalities.add(cityLocality);
+                }
+                city.setLocalities(cityFinalLocalities);
+                userAppSubscription.getCities().add(city);
+            }
+        }
+        return userAppSubscription;
     }
 
     /**

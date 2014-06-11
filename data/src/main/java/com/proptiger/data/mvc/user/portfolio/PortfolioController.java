@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Table;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Subscription;
 import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
@@ -46,7 +47,7 @@ public class PortfolioController extends BaseController {
     public APIResponse getPortfolio(
             @PathVariable Integer userId,
             @RequestParam(required = false, value = "selector") String selectorStr,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
 
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         Portfolio portfolio = portfolioService.getPortfolioByUserId(userInfo.getUserIdentifier());
@@ -61,7 +62,7 @@ public class PortfolioController extends BaseController {
     @ResponseBody
     public APIResponse getAllListings(@PathVariable Integer userId, @RequestParam(
             required = false,
-            value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
 
         List<PortfolioListing> listings = portfolioService.getAllPortfolioListings(userInfo.getUserIdentifier());
@@ -76,7 +77,7 @@ public class PortfolioController extends BaseController {
     @ResponseBody
     public APIResponse getOneListing(@PathVariable Integer userId, @PathVariable Integer listingId, @RequestParam(
             required = false,
-            value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         PortfolioListing listing = portfolioService.getPortfolioListingById(userInfo.getUserIdentifier(), listingId);
         Set<String> fields = null;
@@ -89,9 +90,15 @@ public class PortfolioController extends BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "/listing")
     @ResponseBody
     public APIResponse createListing(
+            HttpServletRequest request,
             @PathVariable Integer userId,
             @RequestBody PortfolioListing portfolioProperty,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        /*
+         * Setting user-agent to the portfolio-listing to track the platform
+         * info for analysis purpose.
+         */
+        setUserAgent(request, portfolioProperty);
         PortfolioListing created = portfolioService.createPortfolioListing(
                 userInfo.getUserIdentifier(),
                 portfolioProperty);
@@ -104,6 +111,12 @@ public class PortfolioController extends BaseController {
         return new APIResponse(super.filterFields(created, null));
     }
 
+    private void setUserAgent(HttpServletRequest request, PortfolioListing portfolioProperty) {
+        String userAgent = request.getHeader(Constants.USER_AGENT);
+        if (userAgent != null && !userAgent.isEmpty()) {
+            portfolioProperty.setUserAgent(userAgent);
+        }
+    }
     @RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}")
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     @ResponseBody
@@ -111,7 +124,7 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestBody PortfolioListing portfolioProperty,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         portfolioService.updatePortfolioListing(
                 userInfo.getUserIdentifier(),
                 listingId,
@@ -126,7 +139,7 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestParam(required = false, value = "reason") String reason, 
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         PortfolioListing listing = portfolioService.deletePortfolioListing(userInfo.getUserIdentifier(), listingId , reason);
         return new APIResponse(super.filterFields(listing, null));
     }
@@ -137,7 +150,7 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestParam(required = true, value = "interestedToSell") Boolean interestedToSell,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         PortfolioListing listing = portfolioService.interestedToSellListing(
                 userInfo.getUserIdentifier(),
                 listingId,
@@ -152,7 +165,7 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer listingId,
             @RequestParam(required = false, defaultValue = "true", value = "loan") Boolean interestedToLoan,
             @RequestParam(required = false, value = "loanType") String loanType,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         PortfolioListing listing = portfolioService.interestedToHomeLoan(
                 userInfo.getUserIdentifier(),
                 listingId,
@@ -176,7 +189,7 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestParam(required = true, value = "mailType") String mailType,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         boolean status = portfolioService.handleMailRequest(userInfo.getUserIdentifier(), listingId, mailType);
         return new APIResponse(status);
     }
@@ -194,7 +207,7 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestParam(required = true, value = "unsubscribeTypes") String[] unsubscribeTypes,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<Subscription> subscriptions = subscriptionService.disableSubscription(userId, listingId, PortfolioListing.class
                 .getAnnotation(Table.class).name(), unsubscribeTypes);
         return new APIResponse(subscriptions, subscriptions.size());

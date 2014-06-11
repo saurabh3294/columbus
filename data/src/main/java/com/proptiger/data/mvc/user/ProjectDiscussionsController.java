@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -27,7 +27,7 @@ public class ProjectDiscussionsController extends BaseController {
     @RequestMapping(method = RequestMethod.POST)
     public APIResponse saveProjectComments(
             @RequestBody ProjectDiscussion projectDiscussion,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         return new APIResponse(projectDiscussionsService.saveProjectComments(projectDiscussion, userInfo));
     }
 
@@ -35,7 +35,7 @@ public class ProjectDiscussionsController extends BaseController {
     @RequestMapping(value = "/{commentId}/likes", method = RequestMethod.POST)
     public APIResponse incrementProjectCommentLikes(
             @PathVariable long commentId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         return new APIResponse(projectDiscussionsService.incrementProjectCommentLikes(commentId, userInfo));
     }
 

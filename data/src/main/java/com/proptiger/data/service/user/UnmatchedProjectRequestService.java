@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.ForumUser;
@@ -39,7 +39,7 @@ public class UnmatchedProjectRequestService {
      * @param userInfo
      * @return
      */
-    public boolean handleUnmatchedProjectRequest(UnmatchedProjectDetails unmatchedProjectDetails, UserInfo userInfo) {
+    public boolean handleUnmatchedProjectRequest(UnmatchedProjectDetails unmatchedProjectDetails, ActiveUser userInfo) {
         ForumUser forumUser = forumUserDao.findOne(userInfo.getUserIdentifier());
         unmatchedProjectDetails.setUserEmail(forumUser.getEmail());
         unmatchedProjectDetails.setContact(forumUser.getContact());
