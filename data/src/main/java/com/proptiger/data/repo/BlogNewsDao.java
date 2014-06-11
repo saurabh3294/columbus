@@ -15,7 +15,7 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.data.init.ApplicationConfig;
+import com.proptiger.app.config.ApplicationConfig;
 import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.pojo.Paging;
 
@@ -96,12 +96,15 @@ public class BlogNewsDao {
      * @return
      */
     public Map<Long, String> findThumbnailImageUrlsForBlogPost(List<Long> postIdList) {
+        Map<Long, String> idUrlsMap = new HashMap<Long, String>();
+        if (postIdList == null || postIdList.isEmpty()) {
+            return idUrlsMap;
+        }
         EntityManager em = ApplicationConfig.getWordpressEntityFactory().createEntityManager();
         String repQueryStr = THUMBNAIL_QUERY_STRING.replaceAll("postIdList", postIdList.toString()).replace("[", "")
                 .replace("]", "");
         Query query = em.createNativeQuery(repQueryStr);
         List<Object[]> results = query.getResultList();
-        Map<Long, String> idUrlsMap = new HashMap<Long, String>();
         for (Object[] ob : results) {
             Long postId = ((BigInteger) ob[0]).longValue();
             String jsonStr = (String) ob[1];
