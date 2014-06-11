@@ -1,6 +1,5 @@
 package com.proptiger.data.internal.dto;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -15,13 +14,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Rajeev Pandey
  * 
  */
-public class ActiveUser implements Serializable {
+public class ActiveUser extends User {
     private static final long serialVersionUID = -3022788419586557079L;
     private Integer           userIdentifier;
     @JsonIgnore
     public boolean            admin            = false;
 
-    /*public ActiveUser(
+    public ActiveUser(
             Integer id,
             String username,
             String password,
@@ -32,7 +31,7 @@ public class ActiveUser implements Serializable {
             Collection<? extends GrantedAuthority> authorities) {
         super(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, authorities);
         this.userIdentifier = id;
-    }*/
+    }
 
     public Integer getUserIdentifier() {
         return userIdentifier;
