@@ -304,10 +304,11 @@ public class PortfolioService {
             logger.error("Duplicate resource id {} and name {}", propertyPresent.getId(), propertyPresent.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
         }
-        if (toCreate.getListingStatus() == ListingStatus.ACTIVE) {
-            if (toCreate.getListingSize() == null || toCreate.getListingSize() <= 0) {
+        if(toCreate.getTypeId() == null || toCreate.getListingSize() == null || toCreate.getName() == null || toCreate.getBasePrice() == null || toCreate.getTotalPrice() == null){
+            toCreate.setListingStatus(ListingStatus.INCOMPLETE);
+        }
+        else if (toCreate.getListingSize() == null || toCreate.getListingSize() <= 0) {
                 throw new InvalidResourceException(ResourceType.LISTING, ResourceTypeField.SIZE);
-            }
         }
     }
 
