@@ -3,9 +3,11 @@ package com.proptiger.data.repo;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,4 +98,24 @@ public class ImageDaoImpl {
         em.getTransaction().commit();
     }
 
+    public List<Image> getImageOnHashAndObjectType(String originalHash, String objectType) {
+
+        EntityManager em = emf.createEntityManager();
+        Query query = em
+                .createNativeQuery(
+                        "SELECT * FROM Image as I JOIN ImageType IT ON (I.imagetype_id=IT.id) JOIN ObjectType O ON (IT.objecttype_id=O.id) " + " WHERE I.original_hash = '"
+                                + originalHash
+                                + "' AND O.type = '"
+                                + objectType
+                                + "' AND I.active = 1 UNION "
+                                + " SELECT * FROM Image as I JOIN ImageType IT ON (I.imagetype_id=IT.id) JOIN ObjectType O ON (IT.objecttype_id=O.id) "
+                                + " WHERE I.watermark_hash = '"
+                                + originalHash
+                                + "' AND O.type = '"
+                                + objectType
+                                + "' AND I.active = 1 ",
+                        Image.class);
+        List<Image> result = query.getResultList();
+        return result;
+    }
 }
