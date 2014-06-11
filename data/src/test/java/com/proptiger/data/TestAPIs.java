@@ -154,7 +154,7 @@ public class TestAPIs {
      * @throws IOException
      * @throws ConfigurationException
      */
-//    @Test
+    @Test
     public void checkStatusCode() throws IOException, ConfigurationException {
         String apilist = "";
         try {

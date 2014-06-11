@@ -36,7 +36,7 @@ import com.proptiger.data.util.PropertyReader;
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
 @EnableJpaRepositories("com.proptiger.data.repo")
-public class ApplicationConfig {
+public class AppRepositoryConfig {
 
     @Autowired
     private PropertyReader              propertyReader;

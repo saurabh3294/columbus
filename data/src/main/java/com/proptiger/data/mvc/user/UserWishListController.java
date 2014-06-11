@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.UserWishListDto;
 import com.proptiger.data.model.UserWishlist;
 import com.proptiger.data.mvc.BaseController;
@@ -34,7 +34,7 @@ public class UserWishListController extends BaseController {
     @ResponseBody
     public APIResponse getProjectUserWishList(
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<UserWishListDto> result = userWishListService.getProjectUserWishList(userInfo.getUserIdentifier());
         return new APIResponse(result, result.size());
     }
@@ -45,7 +45,7 @@ public class UserWishListController extends BaseController {
     @ResponseBody
     public APIResponse getPropertyUserWishList(
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<UserWishListDto> result = userWishListService.getPropertyUserWishList(userInfo.getUserIdentifier());
         return new APIResponse(result, result.size());
     }
@@ -54,7 +54,7 @@ public class UserWishListController extends BaseController {
     @ResponseBody
     public APIResponse getUserWishList(
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<UserWishListDto> result = userWishListService.getUserWishList(userInfo.getUserIdentifier());
         return new APIResponse(result, result.size());
     }
@@ -63,7 +63,7 @@ public class UserWishListController extends BaseController {
     @ResponseBody
     public APIResponse createUserWishList(
             @RequestBody UserWishlist userWishlist,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<UserWishListDto> result = userWishListService.createUserWishList(
                 userWishlist,
                 userInfo.getUserIdentifier());
@@ -75,7 +75,7 @@ public class UserWishListController extends BaseController {
     public APIResponse deleteUserWishList(
             @PathVariable int wishlistId,
             @PathVariable Integer userId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<UserWishListDto> result = userWishListService.deleteWishlist(wishlistId);
         return new APIResponse(result, result.size());
     }

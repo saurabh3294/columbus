@@ -9,8 +9,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
+import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
@@ -20,6 +21,7 @@ import com.proptiger.data.util.Constants;
  * APIs to find whether a user have already enquired about a entity
  * 
  * @author Rajeev Pandey
+ * @author azi
  * 
  */
 @Controller
@@ -33,28 +35,30 @@ public class UserController extends BaseController {
     @ResponseBody
     @Deprecated
     public APIResponse hasEnquired(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @RequestParam(value = "projectId") Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
-                projectId,
-                userInfo.getUserIdentifier());
+        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(projectId, userInfo.getUserIdentifier());
         return new APIResponse(enquiredDetails);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/project/{projectId}/enquired")
     @ResponseBody
     public APIResponse hasEnquired_(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @PathVariable Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
-                projectId,
-                userInfo.getUserIdentifier());
+        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(projectId, userInfo.getUserIdentifier());
         return new APIResponse(enquiredDetails);
     }
-    
+
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/registered")
     @ResponseBody
     public APIResponse isRegistered(String email) {
         return new APIResponse(userService.isRegistered(email));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/app/v1/user/details")
+    @ResponseBody
+    public ForumUser getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        return userService.getUserDetails(userInfo.getUserIdentifier());
     }
 }

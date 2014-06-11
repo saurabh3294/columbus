@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.LocalityReviewComments.LocalityReviewRatingDetails;
@@ -52,7 +52,7 @@ public class LocalityReviewController extends BaseController {
     public APIResponse createReview(
             @PathVariable Integer localityId,
             @RequestBody LocalityReviewComments reviewComments,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         LocalityReviewComments created = localityReviewService.createLocalityReviewComment(
                 localityId,
                 reviewComments,
@@ -75,7 +75,7 @@ public class LocalityReviewController extends BaseController {
     @RequestMapping(value = "data/v1/entity/user/locality/review", method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getReviewForUser(
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) UserInfo userInfo,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @ModelAttribute FIQLSelector selector) {
         PaginatedResponse<List<LocalityReviewComments>> paginatedResponse = localityReviewService.getLocalityReview(
                 userInfo.getUserIdentifier(),

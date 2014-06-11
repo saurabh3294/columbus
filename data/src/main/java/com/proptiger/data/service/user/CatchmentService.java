@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.proptiger.data.constants.ResponseCodes;
-import com.proptiger.data.internal.dto.UserInfo;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Catchment;
 import com.proptiger.data.model.CatchmentProject;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -33,7 +33,7 @@ public class CatchmentService {
     private CatchmentProjectDao catchmentProjectDao;
 
     @Transactional
-    public Catchment createCatchment(Catchment catchment, UserInfo userInfo) {
+    public Catchment createCatchment(Catchment catchment, ActiveUser userInfo) {
         catchment.setUserId(userInfo.getUserIdentifier());
         for (CatchmentProject catchmentProject : catchment.getCatchmentProjects()) {
             catchmentProject.setCatchment(catchment);
@@ -55,7 +55,7 @@ public class CatchmentService {
         }
     }
 
-    public Catchment updateCatchment(Catchment catchment, UserInfo userInfo) {
+    public Catchment updateCatchment(Catchment catchment, ActiveUser userInfo) {
         Catchment updatedCatchment = null;
         try {
             updatedCatchment = updateExistingCatchment(catchment, userInfo);
@@ -74,7 +74,7 @@ public class CatchmentService {
     }
 
     @Transactional
-    public Catchment updateExistingCatchment(Catchment catchment, UserInfo userInfo) throws Exception {
+    public Catchment updateExistingCatchment(Catchment catchment, ActiveUser userInfo) throws Exception {
         catchment.setUserId(userInfo.getUserIdentifier());
         Catchment savedCatchment = catchmentDao.findOne(catchment.getId());
         if (savedCatchment.getUserId().equals(catchment.getUserId())) {
@@ -108,7 +108,7 @@ public class CatchmentService {
         return catchmentDao.getFilteredCatchments(fiqlSelector);
     }
 
-    public String getCatchmentFIQLFilter(Integer catchmentId, UserInfo userInfo) {
+    public String getCatchmentFIQLFilter(Integer catchmentId, ActiveUser userInfo) {
         FIQLSelector selector = new FIQLSelector();
         Catchment catchment = catchmentDao.findOne(catchmentId);
         if (!catchment.getUserId().equals(userInfo.getUserIdentifier())) {

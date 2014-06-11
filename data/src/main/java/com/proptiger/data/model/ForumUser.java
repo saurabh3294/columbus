@@ -5,19 +5,27 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.enums.Application;
+import com.proptiger.data.external.dto.UserAppDetail;
+import com.proptiger.data.model.user.Dashboard;
 
 /**
  * 
@@ -25,66 +33,79 @@ import com.proptiger.data.meta.ResourceMetaInfo;
  */
 @Entity
 @Table(name = "FORUM_USER")
-@ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class ForumUser extends BaseModel {
 
-    private static final long serialVersionUID = 6769127512697320945L;
+    private static final long                   serialVersionUID = 6769127512697320945L;
 
     @Column(name = "USER_ID")
     @Id
-    private Integer           userId;
+    private Integer                             userId;
 
     @Column(name = "USERNAME")
-    private String            username;
+    private String                              username;
 
     @Column(name = "EMAIL")
     @JsonIgnore
-    private String            email;
+    private String                              email;
 
     @Column(name = "CONTACT")
     @JsonIgnore
-    private long              contact;
+    private long                                contact;
 
     @Column(name = "PROVIDERID")
-    private String            providerid;
+    private String                              providerid;
 
     @Column(name = "PROVIDER")
-    private String            provider;
+    private String                              provider;
 
     @Column(name = "FB_IMAGE_URL")
-    private String            fbImageUrl;
+    private String                              fbImageUrl;
 
     @Column(name = "IMAGE")
-    private String            image;
+    private String                              image;
 
     @JsonIgnore
     @Column(name = "PASSWORD")
-    private String            password;
+    private String                              password;
 
     @Column(name = "CITY")
-    private String            city;
+    private String                              city;
 
     @Column(name = "COUNTRY_ID")
-    private int               countryId;
+    private int                                 countryId;
 
     @Column(name = "UNIQUE_USER_ID")
-    private String            uniqueUserId;
+    private String                              uniqueUserId;
 
     @Column(name = "CREATED_DATE")
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Date              createdDate;
+    private Date                                createdDate;
 
     @Column(name = "STATUS")
-    private String            status;
+    private String                              status;
 
     @Column(name = "IS_SUBSCRIBED")
-    private byte              isSubscribed;
+    private byte                                isSubscribed;
 
     @Column(name = "UNSUBSCRIBED_AT")
     @Temporal(javax.persistence.TemporalType.DATE)
-    private Date              unsubscribedAt;
+    private Date                                unsubscribedAt;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "userId", fetch = FetchType.EAGER)
+    private List<UserSubscriptionMapping>       userSubscriptionMappings;
+
+    @OneToMany(mappedBy = "userId")
+    private List<Dashboard>                     dashboards;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "userId")
+    private List<UserPreference>                preferences;
+
+    @Transient
+    private HashMap<Application, UserAppDetail> appDetails;
 
     @JsonProperty
     public String getImageUrl() {
@@ -211,4 +232,35 @@ public class ForumUser extends BaseModel {
         this.unsubscribedAt = unsubscribedAt;
     }
 
+    public List<UserSubscriptionMapping> getUserSubscriptionMappings() {
+        return userSubscriptionMappings;
+    }
+
+    public void setUserSubscriptionMappings(List<UserSubscriptionMapping> userSubscriptionMappings) {
+        this.userSubscriptionMappings = userSubscriptionMappings;
+    }
+
+    public List<Dashboard> getDashboards() {
+        return dashboards;
+    }
+
+    public void setDashboards(List<Dashboard> dashboards) {
+        this.dashboards = dashboards;
+    }
+
+    public HashMap<Application, UserAppDetail> getAppDetails() {
+        return appDetails;
+    }
+
+    public void setAppDetails(HashMap<Application, UserAppDetail> appDetails) {
+        this.appDetails = appDetails;
+    }
+
+    public List<UserPreference> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(List<UserPreference> preferences) {
+        this.preferences = preferences;
+    }
 }
