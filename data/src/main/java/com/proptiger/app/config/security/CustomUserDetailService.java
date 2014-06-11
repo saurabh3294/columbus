@@ -32,7 +32,7 @@ public class CustomUserDetailService implements UserDetailsService {
         if (username != null && !username.isEmpty()) {
             ForumUser forumUser = forumUserDao.findByEmail(username);
             if (forumUser != null) {
-                userDetails = new ActiveUser(
+                /*userDetails = new ActiveUser(
                         forumUser.getUserId(),
                         forumUser.getEmail(),
                         forumUser.getPassword(),
@@ -40,7 +40,7 @@ public class CustomUserDetailService implements UserDetailsService {
                         true,
                         true,
                         true,
-                        new ArrayList<GrantedAuthority>());
+                        new ArrayList<GrantedAuthority>());*/
             }
 
         }
