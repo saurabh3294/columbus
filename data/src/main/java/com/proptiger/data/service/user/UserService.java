@@ -18,9 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.google.gson.Gson;
 import com.proptiger.data.enums.Application;
 import com.proptiger.data.enums.DomainObject;
-import com.proptiger.data.external.dto.UserAppDetail;
-import com.proptiger.data.external.dto.UserAppDetail.UserAppSubscription;
-import com.proptiger.data.model.City;
+import com.proptiger.data.external.dto.CustomUser;
+import com.proptiger.data.external.dto.CustomUser.UserAppDetail;
+import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomCity;
+import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
+import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
@@ -75,12 +77,20 @@ public class UserService {
      * @return {@link ForumUser}
      */
     @Transactional
-    public ForumUser getUserDetails(int userId) {
+    public CustomUser getUserDetails(int userId) {
         ForumUser user = forumUserDao.findByUserId(userId);
-        Hibernate.initialize(user.getDashboards());
+        CustomUser customUser = new CustomUser();
+        customUser.setId(user.getUserId());
+        customUser.setEmail(user.getEmail());
+        customUser.setFirstName(user.getUsername());
+        customUser.setContactNumber(Long.toString(user.getContact()));
+        customUser.setProfileImageUrl(user.getFbImageUrl());
 
-        setAppDetails(user);
-        return user;
+        Hibernate.initialize(user.getDashboards());
+        customUser.setDashboards(user.getDashboards());
+
+        setAppDetails(customUser, user);
+        return customUser;
     }
 
     /**
@@ -89,7 +99,7 @@ public class UserService {
      * @param user
      * @return {@link ForumUser}
      */
-    private ForumUser setAppDetails(ForumUser user) {
+    private CustomUser setAppDetails(CustomUser customUser, ForumUser user) {
         HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
 
         for (UserPreference preference : preferenceService.getUserPreferences(user.getUserId())) {
@@ -101,12 +111,17 @@ public class UserService {
         List<UserAppSubscription> subscriptions = new ArrayList<>();
         for (UserSubscriptionMapping mapping : user.getUserSubscriptionMappings()) {
             CompanySubscription subscription = mapping.getSubscription();
+            customUser.getCompanyIds().add(subscription.getCompanyId());
+
+            if (subscription.getExpiryTime().getTime() < new Date().getTime()) {
+                continue;
+            }
 
             UserAppSubscription appSubscription = new UserAppSubscription();
             for (SubscriptionSection section : subscription.getSections()) {
                 appSubscription.getSections().add(section.getSection());
             }
-            appSubscription.setExpiryTime(subscription.getExpiryTime());
+            appSubscription.setExpiryDate(subscription.getExpiryTime());
 
             Hibernate.initialize(subscription.getCompany());
             appSubscription.setCompany(subscription.getCompany());
@@ -115,12 +130,12 @@ public class UserService {
             subscriptions.add(appSubscription);
         }
 
-        if (!appDetailsMap.containsKey(Application.B2b)) {
-            appDetailsMap.put(Application.B2b, new UserAppDetail());
+        if (!appDetailsMap.containsKey(Application.B2B)) {
+            appDetailsMap.put(Application.B2B, new UserAppDetail());
         }
-        appDetailsMap.get(Application.B2b).setSubscriptions(subscriptions);
-        user.setAppDetails(appDetailsMap);
-        return user;
+        appDetailsMap.get(Application.B2B).setSubscriptions(subscriptions);
+        customUser.setAppDetails(appDetailsMap);
+        return customUser;
     }
 
     /**
@@ -156,22 +171,22 @@ public class UserService {
             for (Integer cityId : cityGroupedLocalities.keySet()) {
                 userAppSubscription.setCityCount(userAppSubscription.getCityCount() + 1);
                 List<Locality> cityLocalities = cityGroupedLocalities.get(cityId);
-                City city = new City();
+                CustomCity city = new CustomCity();
                 city.setId(cityId);
-                city.setLabel(cityLocalities.get(0).getSuburb().getCity().getLabel());
+                city.setName(cityLocalities.get(0).getSuburb().getCity().getLabel());
 
-                List<Locality> cityFinalLocalities = new ArrayList<>();
+                List<CustomLocality> cityCustomLocalities = new ArrayList<>();
                 for (Locality locality : cityLocalities) {
                     userAppSubscription.setLocalityCount(userAppSubscription.getLocalityCount() + 1);
                     userAppSubscription.setProjectCount(userAppSubscription.getProjectCount() + locality
                             .getProjectCount());
 
-                    Locality cityLocality = new Locality();
-                    cityLocality.setLocalityId(locality.getLocalityId());
-                    cityLocality.setLabel(locality.getLabel());
-                    cityFinalLocalities.add(cityLocality);
+                    CustomLocality cityLocality = new CustomLocality();
+                    cityLocality.setId(locality.getLocalityId());
+                    cityLocality.setName(locality.getLabel());
+                    cityCustomLocalities.add(cityLocality);
                 }
-                city.setLocalities(cityFinalLocalities);
+                city.setLocalities(cityCustomLocalities);
                 userAppSubscription.getCities().add(city);
             }
         }
