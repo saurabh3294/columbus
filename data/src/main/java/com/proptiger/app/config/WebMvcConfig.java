@@ -111,7 +111,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
     }
-    @Bean
+    @Bean(name = "multipartResolver")
     public CommonsMultipartResolver getMultiPartResolver(){
         CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
         multipartResolver.setMaxUploadSize(104857600);
