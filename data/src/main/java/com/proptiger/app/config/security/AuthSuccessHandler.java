@@ -12,8 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.Constants;
@@ -24,18 +24,19 @@ import com.proptiger.data.util.Constants;
  * to controllers
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Autowired
-    private UserService userService;
-    
+    private UserService  userService;
+
     @Autowired
     private ObjectMapper objectMapper;
-    
+
     public AuthSuccessHandler() {
         super();
     }
+
     @Override
     public void onAuthenticationSuccess(
             final HttpServletRequest request,
@@ -53,8 +54,8 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             request.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, userInfo);
         }
         PrintWriter out = response.getWriter();
-        ForumUser forumUserDetails = userService.getUserDetails(userInfo.getUserIdentifier());
-        out.println(objectMapper.writeValueAsString(new APIResponse(forumUserDetails)));
+        CustomUser customUserDetails = userService.getUserDetails(userInfo.getUserIdentifier());
+        out.println(objectMapper.writeValueAsString(new APIResponse(customUserDetails)));
         clearAuthenticationAttributes(request);
 
     }
