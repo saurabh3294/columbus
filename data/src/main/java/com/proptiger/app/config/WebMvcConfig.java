@@ -24,7 +24,7 @@ import org.springframework.ui.velocity.VelocityEngineFactory;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.init.CustomObjectMapper;
@@ -42,10 +42,9 @@ import com.proptiger.data.util.StringToDateConverter;
  */
 @Configuration
 @ComponentScan(basePackages = { "com.proptiger" })
-@EnableWebMvc
 @EnableAspectJAutoProxy
 @PropertySource("classpath:application.properties")
-public class WebMvcConfig extends WebMvcConfigurerAdapter {
+public class WebMvcConfig extends WebMvcConfigurationSupport {
 
     @Autowired
     private PropertyReader propertyReader;
@@ -83,7 +82,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(messageConverter());
-        super.configureMessageConverters(converters);
+        addDefaultHttpMessageConverters(converters);
     }
 
     @Bean
