@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
+import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.constants.ResponseErrorMessages;
+
 /**
  * Handle authenication failure case.
  * @author Rajeev Pandey
@@ -20,6 +23,11 @@ public class AuthFailureHandler implements AuthenticationFailureHandler {
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException exception) throws IOException, ServletException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Bad credentials");
+        String userIpAddress = request.getRemoteAddr();
+        ResponseErrorWriter.writeErrorToResponse(
+                response,
+                ResponseCodes.UNAUTHORIZED,
+                ResponseErrorMessages.BAD_CREDENTIAL,
+                userIpAddress);
     }
 }

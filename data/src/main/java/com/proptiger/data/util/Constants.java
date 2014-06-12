@@ -141,6 +141,7 @@ public class Constants {
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_RESALE  = Arrays.asList(
                                                                                          ConstructionStatus.ReadyForPossession,
                                                                                          ConstructionStatus.Occupied);
+    public static final String USER_AGENT = "user-agent";
 
     public static class SeoPageTemplate {
         /* public static final String CITY_OVERVIEW_PAGE = "\"title\":"; */

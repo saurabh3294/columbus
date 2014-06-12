@@ -148,6 +148,9 @@ public class City extends BaseModel {
     @Field(value = "CITY_VIEW_COUNT")
     private Integer              cityViewCount;
 
+    @Transient
+    private List<Locality>       localities;
+
     public Integer getId() {
         return id;
     }
@@ -362,5 +365,13 @@ public class City extends BaseModel {
 
     public void setCityViewCount(Integer cityViewCount) {
         this.cityViewCount = cityViewCount;
+    }
+
+    public List<Locality> getLocalities() {
+        return localities;
+    }
+
+    public void setLocalities(List<Locality> localities) {
+        this.localities = localities;
     }
 }

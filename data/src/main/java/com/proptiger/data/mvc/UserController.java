@@ -20,6 +20,7 @@ import com.proptiger.data.util.Constants;
  * APIs to find whether a user have already enquired about a entity
  * 
  * @author Rajeev Pandey
+ * @author azi
  * 
  */
 @Controller
@@ -35,9 +36,7 @@ public class UserController extends BaseController {
     public APIResponse hasEnquired(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @RequestParam(value = "projectId") Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
-                projectId,
-                userInfo.getUserIdentifier());
+        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(projectId, userInfo.getUserIdentifier());
         return new APIResponse(enquiredDetails);
     }
 
@@ -46,15 +45,19 @@ public class UserController extends BaseController {
     public APIResponse hasEnquired_(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @PathVariable Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(
-                projectId,
-                userInfo.getUserIdentifier());
+        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(projectId, userInfo.getUserIdentifier());
         return new APIResponse(enquiredDetails);
     }
-    
+
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/registered")
     @ResponseBody
     public APIResponse isRegistered(String email) {
         return new APIResponse(userService.isRegistered(email));
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/app/v1/user/details")
+    @ResponseBody
+    public APIResponse getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        return new APIResponse(userService.getUserDetails(userInfo.getUserIdentifier()));
     }
 }

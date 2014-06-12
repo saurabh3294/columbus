@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.UserDetail;
+import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.user.UserDetailService;
+import com.proptiger.data.service.user.UserPreferenceService;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -23,22 +23,23 @@ import com.proptiger.data.util.Constants;
 
 @Controller
 @RequestMapping
-public class UserDetailController extends BaseController {
+public class UserPreferenceController extends BaseController {
     @Autowired
-    UserDetailService b2bUserDetailService;
+    UserPreferenceService b2bUserPreferenceService;
 
-    @RequestMapping(value = "/data/v1/entity/user/b2b/user-details", method = RequestMethod.PUT)
+    @RequestMapping(value = "/data/v1/entity/user/preference", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateUserPreference(
-            @RequestBody UserDetail b2bUserDetail,
+            @RequestBody UserPreference b2bUserDetail,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
-        return new APIResponse(b2bUserDetailService.updateUserDetails(b2bUserDetail, userInfo));
+
+        return new APIResponse(b2bUserPreferenceService.updateUserPreference(b2bUserDetail, userInfo));
     }
 
-    @RequestMapping(value = "/data/v1/entity/user/b2b/user-details", method = RequestMethod.GET)
+    @RequestMapping(value = "/data/v1/entity/user/b2b/appDetails", method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getUserPreference(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo)
             throws Exception {
-        return new APIResponse(b2bUserDetailService.getUserDetails(userInfo));
+        return new APIResponse(b2bUserPreferenceService.getUserPreferences(userInfo.getUserIdentifier()));
     }
 }

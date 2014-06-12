@@ -20,9 +20,11 @@ public class WebInitializer implements WebApplicationInitializer {
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
         rootContext.register(WebMvcConfig.class);
+        
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet("dispatcher", new DispatcherServlet(
                 rootContext));
         dispatcher.addMapping("/");
         dispatcher.setLoadOnStartup(1);
+                
     }
 }

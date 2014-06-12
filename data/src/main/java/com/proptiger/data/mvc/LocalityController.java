@@ -50,7 +50,7 @@ public class LocalityController extends BaseController {
         if (selector != null) {
             localitySelector = super.parseJsonToObject(selector, Selector.class);
         }
-        PaginatedResponse<List<Locality>> localityList = localityService.getLocalities(localitySelector);
+        PaginatedResponse<List<Locality>> localityList = localityService.getLocalitiesWithRatingsAndReviews(localitySelector);
         return new APIResponse(
                 super.filterFields(localityList.getResults(), localitySelector.getFields()),
                 localityList.getTotalCount());

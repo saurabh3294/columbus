@@ -7,6 +7,7 @@ import com.proptiger.data.model.ForumUser;
 
 /**
  * @author Rajeev Pandey
+ * @author Azi
  * 
  */
 public interface ForumUserDao extends JpaRepository<ForumUser, Integer> {
@@ -15,4 +16,6 @@ public interface ForumUserDao extends JpaRepository<ForumUser, Integer> {
     public String findEmailByUserId(Integer userId);
 
     public ForumUser findByEmail(String email);
+
+    public ForumUser findByUserId(int userId);
 }

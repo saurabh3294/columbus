@@ -206,7 +206,7 @@ public class DataAPIAuthenticationFilter implements Filter {
                 return;
             }
             logger.debug("Skipping authentication, serve request for user id {}", userId);
-            //userInfo = new ActiveUser();
+            userInfo = null;//new ActiveUser();
             userInfo.setUserIdentifier(userId);
             if (userInfo.getUserIdentifier().equals(Constants.ADMIN_USER_ID)) {
                 //userInfo.setAdmin(true);

@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
@@ -50,7 +51,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String     LOGIN_URL               = "/app/v1/login";
 
-    private static final String     APP_REMEMBER_ME_KEY     = "api-key";
+    private static final String     APP_REMEMBER_ME_KEY     = "auth-key";
 
     @Autowired
     private CustomUserDetailService userDetailService;
@@ -62,11 +63,9 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         /*
          * to enable form login for testing purpose uncomment these start
          */
-
         // http.csrf().disable();
-        // http.authorizeRequests().antMatchers("/data/v1/entity/user/**").authenticated().and().formLogin();
-        // http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
-        // http.addFilter(createRememberMeLoginFilter());
+        // http.authorizeRequests().antMatchers("/data/v1/entity/user/**").authenticated().and().formLogin().successHandler(createAuthSuccessHandler());
+        // //http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
         // http.addFilter(createUserNamePasswordLoginFilter());
         // http.logout().logoutSuccessHandler(createLogoutHanlder()).logoutUrl(LOGOUT_URL);
         /*
@@ -75,9 +74,9 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
          */
 
         http.csrf().disable();
-        http.authorizeRequests().regexMatchers(".*/user/.*").authenticated();
+        http.authorizeRequests().regexMatchers(".*/user/.*").authenticated()/*.and().requiresChannel()
+                .antMatchers(LOGIN_URL).requiresSecure().anyRequest().requiresInsecure()*/;
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
-
         http.addFilter(createUserNamePasswordLoginFilter());
         http.addFilter(createRememberMeAuthFilter());
 
@@ -91,8 +90,10 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AuthEntryPoint createAuthEntryPoint() {
-        return new AuthEntryPoint();
+    public LoginUrlAuthenticationEntryPoint createAuthEntryPoint() {
+        AuthEntryPoint authEntryPoint = new AuthEntryPoint(LOGIN_URL);
+        //authEntryPoint.setForceHttps(true);
+        return authEntryPoint;
     }
 
     @Bean
