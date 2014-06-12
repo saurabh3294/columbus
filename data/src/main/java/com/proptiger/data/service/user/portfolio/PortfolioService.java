@@ -77,9 +77,9 @@ import com.proptiger.exception.ResourceNotAvailableException;
  * 
  */
 @Service
-public class PortfolioService{
+public class PortfolioService {
 
-    private static Logger             logger        = LoggerFactory.getLogger(PortfolioService.class);
+    private static Logger             logger = LoggerFactory.getLogger(PortfolioService.class);
     @Autowired
     private PortfolioListingDao       portfolioListingDao;
 
@@ -123,8 +123,8 @@ public class PortfolioService{
     private SubscriptionService       subscriptionService;
 
     @Value("${proptiger.url}")
-    private String websiteHost;
-    
+    private String                    websiteHost;
+
     /**
      * Get portfolio object for a particular user id
      * 
@@ -135,9 +135,8 @@ public class PortfolioService{
     public Portfolio getPortfolioByUserId(Integer userId) {
         logger.debug("Getting portfolio details for user id {}", userId);
         Portfolio portfolio = new Portfolio();
-        List<PortfolioListing> listings = portfolioListingDao.findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
-                userId,
-                false, Constants.SOURCETYPE_LIST);
+        List<PortfolioListing> listings = portfolioListingDao
+                .findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(userId, false, Constants.SOURCETYPE_LIST);
         PortfolioUtil.updatePriceInfoInPortfolio(portfolio, listings);
         if (listings != null) {
             for (PortfolioListing l : listings) {
@@ -164,15 +163,13 @@ public class PortfolioService{
         return listings;
     }
 
-    
-
     /**
      * Updating derived data in listing objects
      * 
      * @param listing
      */
     private void updateOtherSpecificData(List<PortfolioListing> listings) {
-        if(listings == null || listings.isEmpty()){
+        if (listings == null || listings.isEmpty()) {
             return;
         }
         List<Long> propertyIds = new ArrayList<Long>();
@@ -227,7 +224,6 @@ public class PortfolioService{
         }
     }
 
-
     /**
      * Get a PortfolioProperty for particular user id and PortfolioProperty id
      * 
@@ -238,18 +234,17 @@ public class PortfolioService{
     @Transactional(readOnly = true)
     public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId) {
         logger.debug("Getting portfolio listing {} for user id {}", listingId, userId);
-        
+
         PortfolioListing listing = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
-       
+
         if (listing == null) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
         updateOtherSpecificData(Arrays.asList(listing));
         updatePaymentSchedule(listing);
-        OverallReturn overallReturn = PortfolioUtil.getOverAllReturn(
-                listing.getTotalPrice(),
-                listing.getCurrentPrice());
+        OverallReturn overallReturn = PortfolioUtil
+                .getOverAllReturn(listing.getTotalPrice(), listing.getCurrentPrice());
         listing.setOverallReturn(overallReturn);
         return listing;
     }
@@ -259,7 +254,8 @@ public class PortfolioService{
         PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
                 toCreate.getUserId(),
                 toCreate.getName(),
-                false, Constants.SOURCETYPE_LIST);
+                false,
+                Constants.SOURCETYPE_LIST);
         if (propertyPresent != null) {
             logger.error("Duplicate resource id {} and name {}", propertyPresent.getId(), propertyPresent.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
@@ -289,10 +285,13 @@ public class PortfolioService{
         listing.setProperty(null);
         PortfolioListing created = create(listing);
         created = portfolioListingDao.findByListingIdAndDeletedFlag(created.getId(), false);
-        //updateOtherSpecificData(Arrays.asList(listing));
+        // updateOtherSpecificData(Arrays.asList(listing));
 
-        subscriptionService.enableOrAddUserSubscription(userId, listing.getListingId(), PortfolioListing.class
-                .getAnnotation(Table.class).name(), Constants.SubscriptionType.PROJECT_UPDATES,
+        subscriptionService.enableOrAddUserSubscription(
+                userId,
+                listing.getListingId(),
+                PortfolioListing.class.getAnnotation(Table.class).name(),
+                Constants.SubscriptionType.PROJECT_UPDATES,
                 Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
         return created;
     }
@@ -311,12 +310,12 @@ public class PortfolioService{
         listing.setUserId(userId);
         listing.setId(listingId);
         /*
-         * as FetchType.Eager of Property is creating new object 
-         * expecting null aware bean to update property as well
+         * as FetchType.Eager of Property is creating new object expecting null
+         * aware bean to update property as well
          */
-        listing.setProperty(null);                     
+        listing.setProperty(null);
         PortfolioListing updated = update(listing);
-        //updateOtherSpecificData(Arrays.asList(listing));
+        // updateOtherSpecificData(Arrays.asList(listing));
         return updated;
     }
 
@@ -359,7 +358,8 @@ public class PortfolioService{
         PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
                 toUpdate.getUserId(),
                 toUpdate.getName(),
-                false, Constants.SOURCETYPE_LIST);
+                false,
+                Constants.SOURCETYPE_LIST);
         if (resourceWithSameName != null && !resourcePresent.getId().equals(resourceWithSameName.getId())) {
             logger.error(
                     "Duplicate resource id {} and name {}",
@@ -367,35 +367,36 @@ public class PortfolioService{
                     resourceWithSameName.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
         }
-        
+
         /*
          * Now need to update other price details if any
          */
         createOrUpdateOtherPrices(resourcePresent, toUpdate);
-        
+
         /*
-         * Setting OtherPrices of toUpdate null as it has already been updated 
+         * Setting OtherPrices of toUpdate null as it has already been updated
          * otherwise would be set null during copy in BeansUtils NullAware
          */
         toUpdate.setOtherPrices(null);
         /*
-         * As Payment plan is not to be updated,
-         * otherwise would be set null during copy in BeansUtils NullAware
+         * As Payment plan is not to be updated, otherwise would be set null
+         * during copy in BeansUtils NullAware
          */
         toUpdate.setListingPaymentPlan(null);
-        
+
         try {
             BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
             /*
-             * updating already present listing i.e resourcePresent with new data changes contained in toUpdate
+             * updating already present listing i.e resourcePresent with new
+             * data changes contained in toUpdate
              */
             beanUtilsBean.copyProperties(resourcePresent, toUpdate);
-           
+
         }
         catch (IllegalAccessException | InvocationTargetException e) {
             throw new ProAPIException("Portfolio listing update failed", e);
         }
-        
+
         return resourcePresent;
     }
 
@@ -407,8 +408,7 @@ public class PortfolioService{
      */
     @Transactional
     private void createOrUpdateOtherPrices(PortfolioListing present, PortfolioListing toUpdate) {
-        if (toUpdate.getOtherPrices() == null || toUpdate
-                .getOtherPrices().isEmpty()) {
+        if (toUpdate.getOtherPrices() == null || toUpdate.getOtherPrices().isEmpty()) {
             return;
         }
         if ((present.getOtherPrices() == null || present.getOtherPrices().isEmpty()) && toUpdate.getOtherPrices() != null) {
@@ -444,10 +444,9 @@ public class PortfolioService{
             logger.error("PortfolioProperty id {} not found", toUpdate.getId());
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.UPDATE);
         }
-        if (toUpdate.getListingSize()!=null)
-        {
-            if( toUpdate.getListingSize() <= 0) {
-            throw new InvalidResourceException(ResourceType.LISTING, ResourceTypeField.SIZE);
+        if (toUpdate.getListingSize() != null) {
+            if (toUpdate.getListingSize() <= 0) {
+                throw new InvalidResourceException(ResourceType.LISTING, ResourceTypeField.SIZE);
             }
         }
         return resourcePresent;
@@ -463,24 +462,25 @@ public class PortfolioService{
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
     public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId, String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
-        PortfolioListing propertyPresent = portfolioListingDao.findByListingIdAndDeletedFlag(
-                listingId,
-                false);
+        PortfolioListing propertyPresent = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
         if (propertyPresent == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.DELETE);
         }
         propertyPresent.setDeleted_flag(true);
         propertyPresent.setReason(reason);
 
-        subscriptionService.disableSubscription(userId, listingId, PortfolioListing.class.getAnnotation(Table.class)
-                .name(), Constants.SubscriptionType.PROJECT_UPDATES,
+        subscriptionService.disableSubscription(
+                userId,
+                listingId,
+                PortfolioListing.class.getAnnotation(Table.class).name(),
+                Constants.SubscriptionType.PROJECT_UPDATES,
                 Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
 
         return propertyPresent;
     }
 
     private void updatePaymentSchedule(List<PortfolioListing> portfolioListings) {
-        if(portfolioListings == null || portfolioListings.isEmpty()){
+        if (portfolioListings == null || portfolioListings.isEmpty()) {
             return;
         }
         for (PortfolioListing listing : portfolioListings) {
@@ -507,13 +507,15 @@ public class PortfolioService{
                 if (portfolioListing.getProperty() != null) {
                     List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
                             .findByProjectIdGroupByInstallmentNo(portfolioListing.getProperty().getProjectId());
-                    Set<PortfolioListingPaymentPlan> listingPaymentPlan = ProjectPaymentSchedule.convertToPortfolioListingPaymentPlan(paymentScheduleList);
+                    Set<PortfolioListingPaymentPlan> listingPaymentPlan = ProjectPaymentSchedule
+                            .convertToPortfolioListingPaymentPlan(paymentScheduleList);
                     portfolioListing.setListingPaymentPlan(listingPaymentPlan);
                 }
             }
 
         }
     }
+
     /**
      * Updating user preference of sell interest for property based on listing
      * id, After changing preference sending lead request
@@ -658,16 +660,17 @@ public class PortfolioService{
     }
 
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
-
+        ForumUser forumUser = null;
         if (portfolioListing.getUserId() != null) {
-            if (forumUserDao.findOne(portfolioListing.getUserId()) == null){
+            forumUser = forumUserDao.findOne(portfolioListing.getUserId());
+            if (forumUser == null) {
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
             }
         }
 
         if (portfolioListing.getTypeId() != null) {
             Property property = propertyService.getProperty(portfolioListing.getTypeId());
-            if (property == null){
+            if (property == null) {
                 throw new ResourceNotAvailableException(ResourceType.PROPERTY, ResourceTypeAction.GET);
             }
             portfolioListing.setProjectId(property.getProjectId());
@@ -682,15 +685,15 @@ public class PortfolioService{
         }
         else if (portfolioListing.getLocalityId() != null) {
             Locality locality = localityService.getLocality(portfolioListing.getLocalityId());
-            if (locality == null){
+            if (locality == null) {
                 throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
             }
             portfolioListing.setCityId(locality.getSuburb().getCityId());
         }
         else if (portfolioListing.getCityId() != null) {
             /*
-             * checking whether city id is valid or not,  if not a valid city then cityService will
-             * throw an exception
+             * checking whether city id is valid or not, if not a valid city
+             * then cityService will throw an exception
              */
             cityService.getCity(portfolioListing.getCityId());
         }
@@ -723,9 +726,10 @@ public class PortfolioService{
         portfolioListing.setListingMeasure(null);
 
         PortfolioListing savePortfolioListing = portfolioListingDao.save(portfolioListing);
-        if (savePortfolioListing == null){
+        if (savePortfolioListing == null) {
             throw new PersistenceException("Sell your property request cannot be saved.");
         }
+        savePortfolioListing.setForumUser(forumUser);
         sendMailOnSellYourProperty(savePortfolioListing);
         return savePortfolioListing;
     }
