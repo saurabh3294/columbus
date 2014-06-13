@@ -178,8 +178,11 @@ public class UserService {
                 List<CustomLocality> cityCustomLocalities = new ArrayList<>();
                 for (Locality locality : cityLocalities) {
                     userAppSubscription.setLocalityCount(userAppSubscription.getLocalityCount() + 1);
-                    userAppSubscription.setProjectCount(userAppSubscription.getProjectCount() + locality
-                            .getProjectCount());
+
+                    if (locality.getProjectCount() != null) {
+                        userAppSubscription.setProjectCount(userAppSubscription.getProjectCount() + locality
+                                .getProjectCount());
+                    }
 
                     CustomLocality cityLocality = new CustomLocality();
                     cityLocality.setId(locality.getLocalityId());
