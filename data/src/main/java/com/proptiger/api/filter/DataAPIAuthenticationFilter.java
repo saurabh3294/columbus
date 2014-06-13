@@ -206,7 +206,7 @@ public class DataAPIAuthenticationFilter implements Filter {
                 return;
             }
             logger.debug("Skipping authentication, serve request for user id {}", userId);
-            userInfo = null;//new ActiveUser();
+            userInfo = new ActiveUser();
             userInfo.setUserIdentifier(userId);
             if (userInfo.getUserIdentifier().equals(Constants.ADMIN_USER_ID)) {
                 //userInfo.setAdmin(true);
@@ -249,7 +249,7 @@ public class DataAPIAuthenticationFilter implements Filter {
         if (sessionId == null) {
             throw new AuthenticationException("Session id null");
         }
-        ActiveUser userInfo = null;//new ActiveUser();
+        ActiveUser userInfo = new ActiveUser();
         Integer userId = null;
         String userName = null;
         String email = null;
