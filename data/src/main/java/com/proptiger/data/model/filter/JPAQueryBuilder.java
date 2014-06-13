@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -252,7 +253,23 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         return expression;
     }
 
-    private String parseAggregateFunctionFromField(String fieldName) {
+    public static String extractActualFieldName(String fieldName) {
+        String prefix = parseAggregateFunctionFromField(fieldName);
+        String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
+        if (prefix.equals(FUNCTIONS.wavg.name())) {
+            try {
+                String[] fieldNameSplit = actualFieldName.split("[a-z]On[A-Z]");
+                actualFieldName = actualFieldName.substring(0, fieldNameSplit[0].length() + 1);
+                actualFieldName = StringUtils.uncapitalize(actualFieldName);
+            }
+            catch (Exception e) {
+                return null;
+            }
+        }
+        return actualFieldName;
+    }
+
+    private static String parseAggregateFunctionFromField(String fieldName) {
         FUNCTIONS[] functions = FUNCTIONS.values();
         Arrays.sort(functions, new DescendingDeFunctionsComparator());
 

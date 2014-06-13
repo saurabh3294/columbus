@@ -117,7 +117,7 @@ public class FIQLSelector implements Cloneable, Serializable {
     }
 
     public FIQLSelector addField(String field) {
-        if (fields == null) {
+        if (fields == null || fields.trim().isEmpty()) {
             fields = field;
         }
         else {
