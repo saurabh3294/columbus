@@ -31,6 +31,8 @@ import com.proptiger.data.model.BaseModel;
 @Table(name = "cms.d_inventory_prices")
 @JsonFilter("fieldFilter")
 public class InventoryPriceTrend extends BaseModel {
+ 
+
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -101,7 +103,10 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "year")
     private Date              year;
-
+    
+    @Column(name = "financial_year")
+    private Date              financialYear;
+    
     @Column(name = "completion_date")
     private Date              completionDate;
 
@@ -124,9 +129,28 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "average_price_per_unit_area")
     private Integer           pricePerUnitArea;
 
+    @Column(name = "average_price_per_unit_area_quarter")
+    private Integer           pricePerUnitAreaQuarter;
+    
+    @Column(name = "average_price_per_unit_area_year")
+    private Integer           pricePerUnitAreaYear;
+    
+    @Column(name = "average_price_per_unit_area_financial_year")
+    private Integer           pricePerUnitAreaFinancialYear;
+    
     @Column(name = "average_secondary_price_per_unit_area")
     private Integer           secondaryPricePerUnitArea;
 
+    @Column(name = "average_secondary_price_per_unit_area_quarter")
+    private Integer           secondaryPricePerUnitAreaQuarter;
+    
+    @Column(name = "average_secondary_price_per_unit_area_year")
+    private Integer           secondaryPricePerUnitAreaYear;
+    
+    @Column(name = "average_secondary_price_per_unit_area_financial_year")
+    private Integer           secondaryPricePerUnitAreaFinancialYear;
+
+    
     @Column(name = "average_size")
     private Integer           size;
 
@@ -144,6 +168,15 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "ltd_launched_unit")
     private Integer           ltdLaunchedUnit;
+    
+    @Column(name = "ltd_launched_unit_quarter")
+    private Integer           ltdLaunchedUnitQuarter;
+    
+    @Column(name = "ltd_launched_unit_year")
+    private Integer           ltdLaunchedUnitYear;
+    
+    @Column(name = "ltd_launched_unit_financial_year")
+    private Integer           ltdLaunchedUnitFinancialYear;
 
     @Column(name = "supply_area")
     private Integer           supplyArea;
@@ -154,11 +187,29 @@ public class InventoryPriceTrend extends BaseModel {
     @Column(name = "inventory")
     private Integer           inventory;
 
+    @Column(name = "inventory_quarter")
+    private Integer           inventoryQuarter;
+
+    @Column(name = "inventory_year")
+    private Integer           inventoryYear;
+    
+    @Column(name = "inventory_financial_year")
+    private Integer           inventoryFinancialYear;
+    
     @Column(name = "units_sold")
     private Integer           unitsSold;
 
     @Column(name = "inventory_overhang")
     private Integer           inventoryOverhang;
+    
+    @Column(name = "inventory_overhang_quarter")
+    private Integer           inventoryOverhangQuarter;
+
+    @Column(name = "inventory_overhang_year")
+    private Integer           inventoryOverhangYear;
+    
+    @Column(name = "inventory_overhang_financial_year")
+    private Integer           inventoryOverhangFinancialYear;
 
     @Column(name = "units_delivered")
     private Integer           unitsDelivered;
@@ -357,6 +408,14 @@ public class InventoryPriceTrend extends BaseModel {
     public void setYear(Date year) {
         this.year = year;
     }
+    
+    public Date getFinancialYear() {
+        return financialYear;
+    }
+
+    public void setFinancialYear(Date financialYear) {
+        this.financialYear = financialYear;
+    }
 
     public Date getCompletionDate() {
         return completionDate;
@@ -408,6 +467,30 @@ public class InventoryPriceTrend extends BaseModel {
 
     public Integer getSecondaryPricePerUnitArea() {
         return secondaryPricePerUnitArea;
+    }
+    
+    public Integer getPricePerUnitAreaQuarter() {
+        return pricePerUnitAreaQuarter;
+    }
+
+    public void setPricePerUnitAreaQuarter(Integer pricePerUnitAreaQuarter) {
+        this.pricePerUnitAreaQuarter = pricePerUnitAreaQuarter;
+    }
+
+    public Integer getPricePerUnitAreaYear() {
+        return pricePerUnitAreaYear;
+    }
+
+    public void setPricePerUnitAreaYear(Integer pricePerUnitAreaYear) {
+        this.pricePerUnitAreaYear = pricePerUnitAreaYear;
+    }
+
+    public Integer getPricePerUnitAreaFinancialYear() {
+        return pricePerUnitAreaFinancialYear;
+    }
+
+    public void setPricePerUnitAreaFinancialYear(Integer pricePerUnitAreaFinancialYear) {
+        this.pricePerUnitAreaFinancialYear = pricePerUnitAreaFinancialYear;
     }
 
     public void setSecondaryPricePerUnitArea(Integer secondaryPricePerUnitArea) {
@@ -548,6 +631,102 @@ public class InventoryPriceTrend extends BaseModel {
 
     public void setRangeValue(String rangeValue) {
         this.rangeValue = rangeValue;
+    }
+    
+    public Integer getSecondaryPricePerUnitAreaQuarter() {
+        return secondaryPricePerUnitAreaQuarter;
+    }
+
+    public void setSecondaryPricePerUnitAreaQuarter(Integer secondaryPricePerUnitAreaQuarter) {
+        this.secondaryPricePerUnitAreaQuarter = secondaryPricePerUnitAreaQuarter;
+    }
+
+    public Integer getSecondaryPricePerUnitAreaYear() {
+        return secondaryPricePerUnitAreaYear;
+    }
+
+    public void setSecondaryPricePerUnitAreaYear(Integer secondaryPricePerUnitAreaYear) {
+        this.secondaryPricePerUnitAreaYear = secondaryPricePerUnitAreaYear;
+    }
+
+    public Integer getSecondaryPricePerUnitAreaFinancialYear() {
+        return secondaryPricePerUnitAreaFinancialYear;
+    }
+
+    public void setSecondaryPricePerUnitAreaFinancialYear(Integer secondaryPricePerUnitAreaFinancialYear) {
+        this.secondaryPricePerUnitAreaFinancialYear = secondaryPricePerUnitAreaFinancialYear;
+    }
+
+    public Integer getLtdLaunchedUnitQuarter() {
+        return ltdLaunchedUnitQuarter;
+    }
+
+    public void setLtdLaunchedUnitQuarter(Integer ltdLaunchedUnitQuarter) {
+        this.ltdLaunchedUnitQuarter = ltdLaunchedUnitQuarter;
+    }
+
+    public Integer getLtdLaunchedUnitYear() {
+        return ltdLaunchedUnitYear;
+    }
+
+    public void setLtdLaunchedUnitYear(Integer ltdLaunchedUnitYear) {
+        this.ltdLaunchedUnitYear = ltdLaunchedUnitYear;
+    }
+
+    public Integer getLtdLaunchedUnitFinancialYear() {
+        return ltdLaunchedUnitFinancialYear;
+    }
+
+    public void setLtdLaunchedUnitFinancialYear(Integer ltdLaunchedUnitFinancialYear) {
+        this.ltdLaunchedUnitFinancialYear = ltdLaunchedUnitFinancialYear;
+    }
+
+    public Integer getInventoryQuarter() {
+        return inventoryQuarter;
+    }
+
+    public void setInventoryQuarter(Integer inventoryQuarter) {
+        this.inventoryQuarter = inventoryQuarter;
+    }
+
+    public Integer getInventoryYear() {
+        return inventoryYear;
+    }
+
+    public void setInventoryYear(Integer inventoryYear) {
+        this.inventoryYear = inventoryYear;
+    }
+
+    public Integer getInventoryFinancialYear() {
+        return inventoryFinancialYear;
+    }
+
+    public void setInventoryFinancialYear(Integer inventoryFinancialYear) {
+        this.inventoryFinancialYear = inventoryFinancialYear;
+    }
+
+    public Integer getInventoryOverhangQuarter() {
+        return inventoryOverhangQuarter;
+    }
+
+    public void setInventoryOverhangQuarter(Integer inventoryOverhangQuarter) {
+        this.inventoryOverhangQuarter = inventoryOverhangQuarter;
+    }
+
+    public Integer getInventoryOverhangYear() {
+        return inventoryOverhangYear;
+    }
+
+    public void setInventoryOverhangYear(Integer inventoryOverhangYear) {
+        this.inventoryOverhangYear = inventoryOverhangYear;
+    }
+
+    public Integer getInventoryOverhangFinancialYear() {
+        return inventoryOverhangFinancialYear;
+    }
+
+    public void setInventoryOverhangFinancialYear(Integer inventoryOverhangFinancialYear) {
+        this.inventoryOverhangFinancialYear = inventoryOverhangFinancialYear;
     }
 
     public static long getSerialversionuid() {
