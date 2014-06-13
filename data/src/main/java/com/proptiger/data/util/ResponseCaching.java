@@ -73,8 +73,14 @@ public class ResponseCaching {
         }
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                 .getRequest();
-        String contentHash = new  HMAC_Client().calculateMD5(new Gson().toJson(retVal));
-        logger.error(" CACHING URL: " + request.getRequestURI() + " key: " + key + " RESPONSE data hashcode : "+contentHash);
+        String contentHash = new HMAC_Client().calculateMD5(new Gson().toJson(retVal));
+        logger.error(" CACHING URL: " + request.getRequestURI()
+                + " REQUEST PARAMS "
+                + request.getQueryString()
+                + " key: "
+                + key
+                + " RESPONSE data hashcode : "
+                + contentHash);
         caching.saveResponse(getCacheKey(jp), retVal);
     }
 
