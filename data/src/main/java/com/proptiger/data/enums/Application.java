@@ -1,5 +1,5 @@
 package com.proptiger.data.enums;
 
 public enum Application {
-    B2b
+    B2B
 }

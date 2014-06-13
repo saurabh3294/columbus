@@ -35,15 +35,18 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
 
     private void preventCrawling(HttpServletRequest request) {
 
-        String requestIP = request.getRemoteAddr();
         Jedis jedis = new Jedis(redisHost, redisPort);
         for (MaxAllowedRequestCount maxAllowedRequestCount : MaxAllowedRequestCount.values()) {
-            preventSpecificCrawling(maxAllowedRequestCount, requestIP, jedis);
+            preventSpecificCrawling(maxAllowedRequestCount, request, jedis);
         }
         jedis.disconnect();
     }
 
-    private void preventSpecificCrawling(MaxAllowedRequestCount maxAllowedRequestCount, String requestIP, Jedis jedis) {
+    private void preventSpecificCrawling(
+            MaxAllowedRequestCount maxAllowedRequestCount,
+            HttpServletRequest request,
+            Jedis jedis) {
+        String requestIP = request.getRemoteAddr();
         Integer timeFrame = maxAllowedRequestCount.getTimeFrame();
         Integer maxRequestCount = maxAllowedRequestCount.getAllowedRequestCount();
 
@@ -61,7 +64,15 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
                         + " IP: "
                         + requestIP
                         + "  Request Count in Time Slot: "
-                        + count);
+                        + count
+                        + " URL: "
+                        + request.getRequestURI()
+                        + " AGENT "
+                        + request.getHeader("user-agent")
+                        + " PROTOCOL: "
+                        + request.getProtocol()
+                        + " USER HOST: "
+                        + request.getRemoteHost());
             }
         }
         jedis.setex(key, timeFrame, count.toString());
@@ -82,5 +93,5 @@ public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
     public void setRedisPort(Integer redisPort) {
         this.redisPort = redisPort;
     }
-    
+
 }
