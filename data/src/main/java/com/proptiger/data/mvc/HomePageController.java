@@ -15,11 +15,11 @@ import com.proptiger.data.service.HomePageService;
 @Controller
 @RequestMapping(value = "app/v1/homepage")
 public class HomePageController {
-    @Autowired
-    private HomePageService homePageService;
-
     private static Long     CRORE_FACTOR = (long) Math.pow(10, 7);
     private static Long     MULT_FACTOR  = 100L;
+    
+    @Autowired
+    private HomePageService homePageService;
 
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
