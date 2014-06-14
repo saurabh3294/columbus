@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.PostLoad;
 import javax.persistence.Transient;
@@ -17,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.util.JsonLoader;
+import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.enums.Application;
 
 /**
@@ -33,13 +36,16 @@ public class UserPreference extends BaseModel {
     private static final long serialVersionUID = -6720993214144916804L;
 
     @Id
-    @JsonIgnore
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @ExcludeFromBeanCopy
     private Integer           id;
 
     @Column(name = "user_id")
+    @ExcludeFromBeanCopy
     private Integer           userId;
 
     @Enumerated(EnumType.STRING)
+    @ExcludeFromBeanCopy
     private Application       app;
 
     @Transient
@@ -50,9 +56,11 @@ public class UserPreference extends BaseModel {
     private String            stringPreference;
 
     @Column(name = "created_at")
-    private Date              createdAt        = new Date();
+    @ExcludeFromBeanCopy
+    private Date              createdAt;
 
     @Column(name = "updated_at")
+    @ExcludeFromBeanCopy
     private Date              updatedAt        = new Date();
 
     public Integer getId() {
@@ -76,8 +84,8 @@ public class UserPreference extends BaseModel {
         return stringPreference;
     }
 
-    public void setStringPreference(String preference) {
-        this.stringPreference = preference;
+    public void setStringPreference(String stringPreference) {
+        this.stringPreference = stringPreference;
         convertStringPreferenceToJsonPreference();
     }
 
