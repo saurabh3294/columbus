@@ -22,13 +22,19 @@ public class TestHithertoDurationSelector {
 		message = "Test for : CurrentMonth = [" + currentMonth + "] & MonthDuration = ";
 		HithertoDurationSelector.currentMonth = (currentMonth);
 		
+		assertEquals(("Validity Test"), false, hds.isValid());
+		
 		hds.setMonthDuration(0);
 		assertEquals((message + "0" + " & StartMonth"), "2014-05-01", hds.getStartMonth());
 		assertEquals((message + "0" + " & EndMonth"), "2014-04-01", hds.getEndMonth());
-		
+	
+		assertEquals(("Validity Test"), true, hds.isValid());
+		    
 		hds.setMonthDuration(3);
 		assertEquals((message + "3" + " & StartMonth"), "2014-02-01", hds.getStartMonth());
 		assertEquals((message + "3" + " & EndMonth"), "2014-04-01", hds.getEndMonth());
+		
+	    
 		
 		hds.setMonthDuration(17);
 		assertEquals((message + "17" + " & StartMonth"), "2012-12-01", hds.getStartMonth());

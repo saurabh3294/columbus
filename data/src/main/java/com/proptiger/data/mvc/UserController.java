@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
@@ -58,7 +57,7 @@ public class UserController extends BaseController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/app/v1/user/details")
     @ResponseBody
-    public ForumUser getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        return userService.getUserDetails(userInfo.getUserIdentifier());
+    public APIResponse getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        return new APIResponse(userService.getUserDetails(userInfo.getUserIdentifier()));
     }
 }

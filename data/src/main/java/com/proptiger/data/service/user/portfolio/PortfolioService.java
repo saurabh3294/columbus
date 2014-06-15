@@ -332,7 +332,6 @@ public class PortfolioService {
         listing.setProperty(null);
         PortfolioListing created = create(listing);
         created = portfolioListingDao.findByListingIdAndDeletedFlag(created.getId(), false);
-        // updateOtherSpecificData(Arrays.asList(listing));
         if (created.getListingStatus() == ListingStatus.ACTIVE) {
             subscriptionService.enableOrAddUserSubscription(
                     userId,
@@ -341,7 +340,7 @@ public class PortfolioService {
                     Constants.SubscriptionType.PROJECT_UPDATES,
                     Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
         }
-        return created;
+       return created;
     }
 
     /**

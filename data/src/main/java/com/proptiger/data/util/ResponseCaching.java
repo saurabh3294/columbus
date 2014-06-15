@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.google.gson.Gson;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.exception.ProAPIException;
@@ -72,7 +73,14 @@ public class ResponseCaching {
         }
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                 .getRequest();
-        logger.error(" CACHING URL: " + request.getRequestURI() + " key: " + key + " RESPONSE CLASS hascode : "+retVal.hashCode());
+        String contentHash = new HMAC_Client().calculateMD5(new Gson().toJson(retVal));
+        logger.error(" CACHING URL: " + request.getRequestURI()
+                + " REQUEST PARAMS "
+                + request.getQueryString()
+                + " key: "
+                + key
+                + " RESPONSE data hashcode : "
+                + contentHash);
         caching.saveResponse(getCacheKey(jp), retVal);
     }
 

@@ -386,12 +386,8 @@ public class TrendService {
     private FIQLSelector getHithertoDateAppendedSelector(
             FIQLSelector selector,
             HithertoDurationSelector hithertoDurationSelector) {
-        if (hithertoDurationSelector.getMonthDuration() == 0) {
+        if (!hithertoDurationSelector.isValid()) {
             selector.addAndConditionToFilter("month" + FIQLOperator.LessThanEqual.getValue() + currentMonth);
-            return selector;
-        }
-
-        if (hithertoDurationSelector == null) {
             return selector;
         }
 

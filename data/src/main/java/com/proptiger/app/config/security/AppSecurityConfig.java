@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
@@ -35,9 +36,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Rajeev Pandey
  *
  */
-@Configuration
-@EnableWebSecurity
-@ComponentScan(basePackages = { "com.proptiger" })
+//@Configuration
+//@EnableWebSecurity
+//@ComponentScan(basePackages = { "com.proptiger" })
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String     COOKIE_NAME_JSESSIONID  = "JSESSIONID";
@@ -62,11 +63,11 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         /*
          * to enable form login for testing purpose uncomment these start
          */
-//         http.csrf().disable();
-//         http.authorizeRequests().antMatchers("/data/v1/entity/user/**").authenticated().and().formLogin().successHandler(createAuthSuccessHandler());
-//         //http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
-//         http.addFilter(createUserNamePasswordLoginFilter());
-//         http.logout().logoutSuccessHandler(createLogoutHanlder()).logoutUrl(LOGOUT_URL);
+        // http.csrf().disable();
+        // http.authorizeRequests().antMatchers("/data/v1/entity/user/**").authenticated().and().formLogin().successHandler(createAuthSuccessHandler());
+        // //http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
+        // http.addFilter(createUserNamePasswordLoginFilter());
+        // http.logout().logoutSuccessHandler(createLogoutHanlder()).logoutUrl(LOGOUT_URL);
         /*
          * to enable form login for testing purpose uncomment these end and
          * comment below code
@@ -76,7 +77,6 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().regexMatchers(".*/user/.*").authenticated()/*.and().requiresChannel()
                 .antMatchers(LOGIN_URL).requiresSecure().anyRequest().requiresInsecure()*/;
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
-        http.headers().disable();
         http.addFilter(createUserNamePasswordLoginFilter());
         http.addFilter(createRememberMeAuthFilter());
 
@@ -90,8 +90,9 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AuthEntryPoint createAuthEntryPoint() {
-        AuthEntryPoint authEntryPoint = new AuthEntryPoint();
+    public LoginUrlAuthenticationEntryPoint createAuthEntryPoint() {
+        AuthEntryPoint authEntryPoint = new AuthEntryPoint(LOGIN_URL);
+        //authEntryPoint.setForceHttps(true);
         return authEntryPoint;
     }
 

@@ -1,10 +1,8 @@
 package com.proptiger.app.config;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.VelocityException;
@@ -14,17 +12,16 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.ConversionServiceFactoryBean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.ui.velocity.VelocityEngineFactory;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.init.CustomObjectMapper;
 import com.proptiger.data.init.RequestResponseInterceptor;
 import com.proptiger.data.util.DateToStringConverter;
@@ -40,10 +37,9 @@ import com.proptiger.data.util.StringToDateConverter;
  */
 @Configuration
 @ComponentScan(basePackages = { "com.proptiger" })
-@EnableWebMvc
 @EnableAspectJAutoProxy
 @PropertySource("classpath:application.properties")
-public class WebMvcConfig extends WebMvcConfigurerAdapter {
+public class WebMvcConfig extends WebMvcConfigurationSupport {
 
     @Autowired
     private PropertyReader propertyReader;
@@ -61,34 +57,29 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
         registry.addInterceptor(createRequestResponseInterceptor());
     }
 
-    @Bean(name = "conversionService")
-    public ConversionService getConversionService() {
-        ConversionServiceFactoryBean bean = new ConversionServiceFactoryBean();
-        bean.setConverters(getConverters());
-        bean.afterPropertiesSet();
-        ConversionService object = bean.getObject();
-        return object;
-    }
-
-    public Set<Converter<?, ?>> getConverters() {
-        Set<Converter<?, ?>> converters = new HashSet<Converter<?, ?>>();
-        converters.add(new StringToDateConverter());
-        converters.add(new DateToStringConverter());
-        converters.add(new LongToDateConverter());
-        return converters;
+    @Override
+    protected void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new StringToDateConverter());
+        registry.addConverter(new DateToStringConverter());
+        registry.addConverter(new LongToDateConverter());
     }
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(messageConverter());
-        super.configureMessageConverters(converters);
+        addDefaultHttpMessageConverters(converters);
     }
 
     @Bean
     public MappingJackson2HttpMessageConverter messageConverter() {
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.setObjectMapper(new CustomObjectMapper());
+        converter.setObjectMapper(getObjectMapper());
         return converter;
+    }
+
+    @Bean
+    public ObjectMapper getObjectMapper() {
+        return new CustomObjectMapper();
     }
 
     @Bean(name = "velocityEngine")
@@ -104,5 +95,11 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     @Bean
     public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
         return new PropertySourcesPlaceholderConfigurer();
+    }
+    @Bean(name = "multipartResolver")
+    public CommonsMultipartResolver getMultiPartResolver(){
+        CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver();
+        multipartResolver.setMaxUploadSize(104857600);
+        return multipartResolver;
     }
 }
