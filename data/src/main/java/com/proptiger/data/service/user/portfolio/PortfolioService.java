@@ -708,9 +708,10 @@ public class PortfolioService {
     }
 
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
-
+        ForumUser forumUser = null;
         if (portfolioListing.getUserId() != null) {
-            if (forumUserDao.findOne(portfolioListing.getUserId()) == null) {
+            forumUser = forumUserDao.findOne(portfolioListing.getUserId());
+            if (forumUser == null) {
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
             }
         }
@@ -776,6 +777,7 @@ public class PortfolioService {
         if (savePortfolioListing == null) {
             throw new PersistenceException("Sell your property request cannot be saved.");
         }
+        savePortfolioListing.setForumUser(forumUser);
         sendMailOnSellYourProperty(savePortfolioListing);
         return savePortfolioListing;
     }
