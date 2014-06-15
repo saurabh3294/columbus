@@ -20,7 +20,7 @@ import com.proptiger.data.util.Constants;
 @Repository
 public class TrendDao {
     @Autowired
-    private EntityManagerFactory emf;
+    private EntityManagerFactory  emf;
 
     private TrendDaoFieldSwitcher trendDaoFieldSwitcher;
 
@@ -79,7 +79,9 @@ public class TrendDao {
             /* First switch back manually-overridden-columns */
 
             for (Map.Entry<String, String> mapEntry : fieldSwitchMap.entrySet()) {
-                newExtraAttributes.put(mapEntry.getKey(), extraAttributes.get(mapEntry.getValue()));
+                if (extraAttributes.keySet().contains(mapEntry.getValue())) {
+                    newExtraAttributes.put(mapEntry.getKey(), extraAttributes.get(mapEntry.getValue()));
+                }
             }
             inventoryPriceTrend.setExtraAttributes(newExtraAttributes);
         }
