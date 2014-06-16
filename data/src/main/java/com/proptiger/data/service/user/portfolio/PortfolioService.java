@@ -3,6 +3,7 @@ package com.proptiger.data.service.user.portfolio;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -24,6 +25,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.enums.mail.MailType;
+import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.enums.resource.ResourceTypeField;
@@ -129,14 +131,19 @@ public class PortfolioService {
      * Get portfolio object for a particular user id
      * 
      * @param userId
+     * @param listingStatus
      * @return
      */
     @Transactional(readOnly = true)
-    public Portfolio getPortfolioByUserId(Integer userId) {
+    public Portfolio getPortfolioByUserId(Integer userId, List<ListingStatus> listingStatus) {
         logger.debug("Getting portfolio details for user id {}", userId);
         Portfolio portfolio = new Portfolio();
         List<PortfolioListing> listings = portfolioListingDao
-                .findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(userId, false, Constants.SOURCETYPE_LIST);
+                .findByUserIdAndDeletedFlagAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
+                        userId,
+                        false,
+                        Constants.SOURCETYPE_LIST,
+                        listingStatus);
         PortfolioUtil.updatePriceInfoInPortfolio(portfolio, listings);
         if (listings != null) {
             for (PortfolioListing l : listings) {
@@ -154,10 +161,15 @@ public class PortfolioService {
      * @return
      */
     @Transactional(readOnly = true)
-    public List<PortfolioListing> getAllPortfolioListings(Integer userId) {
+    public List<PortfolioListing> getAllPortfolioListings(Integer userId, List<ListingStatus> listingStatus) {
         logger.debug("Getting all portfolio listings for user id {}", userId);
         List<PortfolioListing> listings = portfolioListingDao
-                .findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(userId, false, Constants.SOURCETYPE_LIST);
+                .findByUserIdAndDeletedFlagAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
+                        userId,
+                        false,
+                        Constants.SOURCETYPE_LIST,
+                        listingStatus);
+
         updateOtherSpecificData(listings);
         updatePaymentSchedule(listings);
         return listings;
@@ -173,25 +185,55 @@ public class PortfolioService {
             return;
         }
         List<Long> propertyIds = new ArrayList<Long>();
-        List<Long> projectIds = new ArrayList<>();
+        List<Long> completeProjectIds = new ArrayList<>();
+        Set<Integer> incompleteProjectIds = new HashSet<Integer>();
 
         for (PortfolioListing listing : listings) {
-            propertyIds.add(new Long(listing.getTypeId()));
+            if (listing.getListingStatus() == ListingStatus.ACTIVE) {  // add both ProjectIds and PropertyIds for ACTIVE listings
+                propertyIds.add(new Long(listing.getTypeId()));
+                if (listing.getProjectId() == null) {
+                    completeProjectIds.add(new Long(listing.getProperty().getProjectId()));
+                }
+                else if (listing.getTypeId() != null) {
+                    completeProjectIds.add(new Long(listing.getProjectId()));
+                }
+            }
+            else if (listing.getListingStatus() == ListingStatus.INCOMPLETE) {  // add only ProjectIds for INCOMPLETE listings
+                incompleteProjectIds.add(listing.getProjectId());
+            }
         }
-        Selector propertySelector = new Gson().fromJson(
-                "{\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyIds
-                        + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
-                Selector.class);
-        List<Property> properties = propertyService.getProperties(propertySelector);
-        Map<Integer, Project> projectIdToProjectMap = PortfolioUtil.createProjectIdMap(properties);
-        for (Property p : properties) {
-            projectIds.add(new Long(p.getProjectId()));
+        Map<Integer, Project> projectIdToProjectMap = new HashMap<Integer, Project>();
+        Map<Integer, List<Image>> propertyIdToImageMap = new HashMap<Integer, List<Image>>();
+        if (!propertyIds.isEmpty()) {
+            Selector propertySelector = new Gson().fromJson(
+                    "{\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyIds
+                            + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
+                    Selector.class);
+            List<Property> properties = propertyService.getProperties(propertySelector);
+
+            projectIdToProjectMap = PortfolioUtil.createProjectIdMap(properties);
+
+            List<Image> propertyImages = imageService.getImages(DomainObject.property, null, propertyIds);
+            propertyIdToImageMap = PortfolioUtil.getPropertyIdToImageMap(propertyImages); 
         }
-        List<Image> projectImages = imageService.getImages(DomainObject.project, null, projectIds);
-        Map<Integer, List<Image>> projectIdToImagesMap = PortfolioUtil.getProjectIdToImageMap(projectImages);
-        List<Image> propertyImages = imageService.getImages(DomainObject.property, null, propertyIds);
-        Map<Integer, List<Image>> propertyIdToImageMap = PortfolioUtil.getPropertyIdToImageMap(propertyImages);
+
+        List<Project> projects = new ArrayList<Project>();
+        if (!incompleteProjectIds.isEmpty()) {
+            projects = projectService.getProjectsByIds(incompleteProjectIds);
+        }
+        for (Project project : projects) {
+            projectIdToProjectMap.put(project.getProjectId(), project);
+        }
+        List<Image> projectImages = imageService.getImages(DomainObject.project, null, completeProjectIds);
+        Map<Integer, List<Image>> projectIdToImagesMap = PortfolioUtil.getProjectIdToImageMap(projectImages); 
+        Integer projectId;
         for (PortfolioListing listing : listings) {
+            if (listing.getProjectId() == null) {
+                projectId = listing.getProperty().getProjectId();
+            }
+            else {
+                projectId = listing.getProjectId();
+            }
             /*
              * Update current price
              */
@@ -201,17 +243,17 @@ public class PortfolioService {
              */
             listing.setPropertyImages(propertyIdToImageMap.get(listing.getTypeId()));
             if (listing.getPropertyImages() != null) {
-                if (projectIdToImagesMap.get(listing.getProperty().getProjectId()) != null) {
+                if (projectIdToImagesMap.get(projectId) != null) {
                     // if project images are then add that too
-                    listing.getPropertyImages().addAll(projectIdToImagesMap.get(listing.getProperty().getProjectId()));
+                    listing.getPropertyImages().addAll(projectIdToImagesMap.get(projectId));
                 }
 
             }
             else {
                 // if property image were not present then add project images
-                listing.setPropertyImages(projectIdToImagesMap.get(listing.getProperty().getProjectId()));
+                listing.setPropertyImages(projectIdToImagesMap.get(projectId));
             }
-            Project project = projectIdToProjectMap.get(listing.getProperty().getProjectId());
+            Project project = projectIdToProjectMap.get(projectId);
             listing.setProjectName(project.getName());
             listing.setBuilderName(project.getBuilder().getName());
             listing.setCompletionDate(project.getPossessionDate());
@@ -249,19 +291,24 @@ public class PortfolioService {
         return listing;
     }
 
-    private void preProcessCreate(PortfolioListing toCreate) {
+    private void preCreateValidations(PortfolioListing toCreate) {
         toCreate.setId(null);
-        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
-                toCreate.getUserId(),
-                toCreate.getName(),
-                false,
-                Constants.SOURCETYPE_LIST);
+        PortfolioListing propertyPresent = portfolioListingDao
+                .findByUserIdAndNameAndProjectIdAndDeletedFlagAndSourceTypeIn(
+                        toCreate.getUserId(),
+                        toCreate.getName(),
+                        toCreate.getProjectId(),
+                        false,
+                        Constants.SOURCETYPE_LIST);
         if (propertyPresent != null) {
             logger.error("Duplicate resource id {} and name {}", propertyPresent.getId(), propertyPresent.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
         }
-        if (toCreate.getListingSize() == null || toCreate.getListingSize() <= 0) {
-            throw new InvalidResourceException(ResourceType.LISTING, ResourceTypeField.SIZE);
+        if(toCreate.getTypeId() == null || toCreate.getListingSize() == null || toCreate.getName() == null || toCreate.getBasePrice() == null || toCreate.getTotalPrice() == null){
+            toCreate.setListingStatus(ListingStatus.INCOMPLETE);
+        }
+        else if (toCreate.getListingSize() == null || toCreate.getListingSize() <= 0) {
+                throw new InvalidResourceException(ResourceType.LISTING, ResourceTypeField.SIZE);
         }
     }
 
@@ -285,15 +332,15 @@ public class PortfolioService {
         listing.setProperty(null);
         PortfolioListing created = create(listing);
         created = portfolioListingDao.findByListingIdAndDeletedFlag(created.getId(), false);
-        // updateOtherSpecificData(Arrays.asList(listing));
-
-        subscriptionService.enableOrAddUserSubscription(
-                userId,
-                listing.getListingId(),
-                PortfolioListing.class.getAnnotation(Table.class).name(),
-                Constants.SubscriptionType.PROJECT_UPDATES,
-                Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
-        return created;
+        if (created.getListingStatus() == ListingStatus.ACTIVE) {
+            subscriptionService.enableOrAddUserSubscription(
+                    userId,
+                    listing.getListingId(),
+                    PortfolioListing.class.getAnnotation(Table.class).name(),
+                    Constants.SubscriptionType.PROJECT_UPDATES,
+                    Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
+        }
+       return created;
     }
 
     /**
@@ -322,8 +369,7 @@ public class PortfolioService {
     @Transactional(rollbackFor = { ConstraintViolationException.class, DuplicateNameResourceException.class })
     private PortfolioListing create(PortfolioListing toCreate) {
         logger.debug("Creating PortfolioProperty for userid {}", toCreate.getUserId());
-        preProcessCreate(toCreate);
-        PortfolioListing created = null;
+        preCreateValidations(toCreate);
         /*
          * Creating back reference to parent in child entity, so that while
          * saving parent, child will be saved.
@@ -342,7 +388,7 @@ public class PortfolioService {
                 listingPaymentPlan.setListingPaymentPlanId(null);
             }
         }
-
+        PortfolioListing created = null;
         try {
             created = portfolioListingDao.save(toCreate);
         }
@@ -355,11 +401,13 @@ public class PortfolioService {
 
     private PortfolioListing update(PortfolioListing toUpdate) {
         PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
-        PortfolioListing resourceWithSameName = portfolioListingDao.findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
-                toUpdate.getUserId(),
-                toUpdate.getName(),
-                false,
-                Constants.SOURCETYPE_LIST);
+        PortfolioListing resourceWithSameName = portfolioListingDao
+                .findByUserIdAndNameAndProjectIdAndDeletedFlagAndSourceTypeIn(
+                        toUpdate.getUserId(),
+                        toUpdate.getName(),
+                        toUpdate.getProjectId(),
+                        false,
+                        Constants.SOURCETYPE_LIST);
         if (resourceWithSameName != null && !resourcePresent.getId().equals(resourceWithSameName.getId())) {
             logger.error(
                     "Duplicate resource id {} and name {}",
@@ -468,14 +516,14 @@ public class PortfolioService {
         }
         propertyPresent.setDeleted_flag(true);
         propertyPresent.setReason(reason);
-
-        subscriptionService.disableSubscription(
-                userId,
-                listingId,
-                PortfolioListing.class.getAnnotation(Table.class).name(),
-                Constants.SubscriptionType.PROJECT_UPDATES,
-                Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
-
+        if (propertyPresent.getListingStatus() == ListingStatus.ACTIVE) {
+            subscriptionService.disableSubscription(
+                    userId,
+                    listingId,
+                    PortfolioListing.class.getAnnotation(Table.class).name(),
+                    Constants.SubscriptionType.PROJECT_UPDATES,
+                    Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
+        }
         return propertyPresent;
     }
 

@@ -6,5 +6,5 @@ package com.proptiger.data.enums.portfolio;
  */
 public enum ListingStatus {
 
-    ACTIVE, INACTIVE;
+    ACTIVE, INACTIVE, INCOMPLETE;
 }
