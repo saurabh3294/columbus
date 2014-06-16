@@ -1,21 +1,17 @@
 package com.proptiger.app.config.security;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -27,11 +23,8 @@ import com.proptiger.data.util.Constants;
  * 
  */
 public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    @Autowired
-    private UserService  userService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     public AuthSuccessHandler() {
         super();
@@ -53,10 +46,17 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
              */
             request.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, userInfo);
         }
-        PrintWriter out = response.getWriter();
-        CustomUser customUserDetails = userService.getUserDetails(userInfo.getUserIdentifier());
-        out.println(objectMapper.writeValueAsString(new APIResponse(customUserDetails)));
         clearAuthenticationAttributes(request);
+        redirectStrategy.sendRedirect(request, response, determineTargetUrl(request, response));
+    }
 
+    @Override
+    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response) {
+        if (request.getRequestURI().equals(Constants.Security.LOGIN_URL)) {
+            return Constants.Security.DEFAULT_TARGET_URL;
+        }
+        else {
+            return request.getRequestURI();
+        }
     }
 }
