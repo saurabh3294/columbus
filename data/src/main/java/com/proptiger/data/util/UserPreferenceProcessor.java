@@ -1,9 +1,13 @@
 package com.proptiger.data.util;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonschema.util.JsonLoader;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * Class for various json processing on b2b user preference
@@ -18,12 +22,19 @@ public class UserPreferenceProcessor {
     private static final JsonUtil jsonUtil = new JsonUtil();
 
     static {
+        ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+        URL preferenceSahemaUrl = classloader.getResource("b2b/userPreferenceSchema.json");
+        URL defaultPreferenceUrl = classloader.getResource("b2b/userPreferenceDefault.json");
+
         try {
-            preferenceSahema = JsonLoader.fromPath("src/main/resources/b2b/userPreferenceSchema.json");
-            defaultPreference = JsonLoader.fromPath("src/main/resources/b2b/userPreferenceDefault.json");
+            File preferenceSahemaFile = new File(preferenceSahemaUrl.toURI());
+            preferenceSahema = JsonLoader.fromFile(preferenceSahemaFile);
+
+            File defaultPreferenceFile = new File(defaultPreferenceUrl.toURI());
+            defaultPreference = JsonLoader.fromFile(defaultPreferenceFile);
         }
-        catch (IOException e) {
-            throw new RuntimeException(e);
+        catch (URISyntaxException | IOException e) {
+            throw new ProAPIException(e);
         }
     }
 

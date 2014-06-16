@@ -25,6 +25,5 @@ public class WebInitializer implements WebApplicationInitializer {
                 rootContext));
         dispatcher.addMapping("/");
         dispatcher.setLoadOnStartup(1);
-                
     }
 }

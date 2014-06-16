@@ -2,6 +2,7 @@ package com.proptiger.data.repo.trend;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -31,7 +32,8 @@ public class TrendDaoFieldSwitcher {
 
         HashMap<String, String> fieldSwitchMap = new HashMap<String, String>();
 
-        String groupName = selector.getGroup();
+        Set<String> groupSet = selector.getGroupSet();
+        String groupName = getMarkedGroupFromGroupSet(groupSet);
 
         /* Lists are used because order is important */
         ArrayList<String> switchedfieldList = new ArrayList<String>(selector.getFieldSet());
@@ -70,6 +72,15 @@ public class TrendDaoFieldSwitcher {
         }
 
         return fieldSwitchMap;
+    }
+
+    private String getMarkedGroupFromGroupSet(Set<String> groupSet) {
+        for (String groupName : groupSet) {
+            if (markedGroupList.contains(groupName)) {
+                return groupName;
+            }
+        }
+        return null;
     }
 
     private void fillMarkedBaseFieldList() {

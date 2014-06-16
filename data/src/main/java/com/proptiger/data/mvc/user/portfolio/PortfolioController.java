@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Subscription;
 import com.proptiger.data.model.user.portfolio.Portfolio;
@@ -38,7 +39,7 @@ import com.proptiger.data.util.Constants;
 public class PortfolioController extends BaseController {
 
     @Autowired
-    private PortfolioService portfolioService;
+    private PortfolioService    portfolioService;
     @Autowired
     private SubscriptionService subscriptionService;
 
@@ -46,11 +47,12 @@ public class PortfolioController extends BaseController {
     @ResponseBody
     public APIResponse getPortfolio(
             @PathVariable Integer userId,
+            @RequestParam(required = false, defaultValue = "ACTIVE", value = "listingStatus") List<ListingStatus> listingStatus,
             @RequestParam(required = false, value = "selector") String selectorStr,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
 
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
-        Portfolio portfolio = portfolioService.getPortfolioByUserId(userInfo.getUserIdentifier());
+        Portfolio portfolio = portfolioService.getPortfolioByUserId(userInfo.getUserIdentifier(), listingStatus);
         Set<String> fields = null;
         if (selector != null) {
             fields = selector.getFields();
@@ -60,12 +62,16 @@ public class PortfolioController extends BaseController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/listing")
     @ResponseBody
-    public APIResponse getAllListings(@PathVariable Integer userId, @RequestParam(
-            required = false,
-            value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+    public APIResponse getAllListings(
+            @PathVariable Integer userId,
+            @RequestParam(required = false, defaultValue = "ACTIVE", value = "listingStatus") List<ListingStatus> listingStatus,
+            @RequestParam(required = false, value = "selector") String selectorStr,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
 
-        List<PortfolioListing> listings = portfolioService.getAllPortfolioListings(userInfo.getUserIdentifier());
+        List<PortfolioListing> listings = portfolioService.getAllPortfolioListings(
+                userInfo.getUserIdentifier(),
+                listingStatus);
         Set<String> fields = null;
         if (selector != null) {
             fields = selector.getFields();
@@ -75,9 +81,11 @@ public class PortfolioController extends BaseController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/listing/{listingId}")
     @ResponseBody
-    public APIResponse getOneListing(@PathVariable Integer userId, @PathVariable Integer listingId, @RequestParam(
-            required = false,
-            value = "selector") String selectorStr, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+    public APIResponse getOneListing(
+            @PathVariable Integer userId,
+            @PathVariable Integer listingId,
+            @RequestParam(required = false, value = "selector") String selectorStr,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         PortfolioListing listing = portfolioService.getPortfolioListingById(userInfo.getUserIdentifier(), listingId);
         Set<String> fields = null;
@@ -117,6 +125,7 @@ public class PortfolioController extends BaseController {
             portfolioProperty.setUserAgent(userAgent);
         }
     }
+
     @RequestMapping(method = RequestMethod.PUT, value = "/listing/{listingId}")
     @ResponseStatus(value = HttpStatus.ACCEPTED)
     @ResponseBody
@@ -125,22 +134,20 @@ public class PortfolioController extends BaseController {
             @PathVariable Integer listingId,
             @RequestBody PortfolioListing portfolioProperty,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        portfolioService.updatePortfolioListing(
-                userInfo.getUserIdentifier(),
-                listingId,
-                portfolioProperty);
+        portfolioService.updatePortfolioListing(userInfo.getUserIdentifier(), listingId, portfolioProperty);
         PortfolioListing updatedListing = portfolioService.getPortfolioListingById(userId, listingId);
         return new APIResponse(super.filterFields(updatedListing, null));
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/listing/{listingId}")
     @ResponseBody
-    public APIResponse deleteListing(
-            @PathVariable Integer userId,
-            @PathVariable Integer listingId,
-            @RequestParam(required = false, value = "reason") String reason, 
+    public APIResponse deleteListing(@PathVariable Integer userId, @PathVariable Integer listingId, 
+            @RequestParam(required = false,value = "reason") String reason, 
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        PortfolioListing listing = portfolioService.deletePortfolioListing(userInfo.getUserIdentifier(), listingId , reason);
+        PortfolioListing listing = portfolioService.deletePortfolioListing(
+                userInfo.getUserIdentifier(),
+                listingId,
+                reason);
         return new APIResponse(super.filterFields(listing, null));
     }
 
@@ -185,11 +192,10 @@ public class PortfolioController extends BaseController {
      */
     @RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/mail")
     @ResponseBody
-    public APIResponse sendMailForListing(
-            @PathVariable Integer userId,
-            @PathVariable Integer listingId,
-            @RequestParam(required = true, value = "mailType") String mailType,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+    public APIResponse sendMailForListing(@PathVariable Integer userId, @PathVariable Integer listingId, 
+            @RequestParam(
+            required = true,
+            value = "mailType") String mailType, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         boolean status = portfolioService.handleMailRequest(userInfo.getUserIdentifier(), listingId, mailType);
         return new APIResponse(status);
     }
@@ -201,15 +207,18 @@ public class PortfolioController extends BaseController {
      * @param userInfo
      * @return
      */
-    @RequestMapping(method = RequestMethod.POST, value ="/listing/{listingId}/unsubscribe")
+    @RequestMapping(method = RequestMethod.POST, value = "/listing/{listingId}/unsubscribe")
     @ResponseBody
     public APIResponse unsubscribe(
             @PathVariable Integer userId,
             @PathVariable Integer listingId,
             @RequestParam(required = true, value = "unsubscribeTypes") String[] unsubscribeTypes,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        List<Subscription> subscriptions = subscriptionService.disableSubscription(userId, listingId, PortfolioListing.class
-                .getAnnotation(Table.class).name(), unsubscribeTypes);
+        List<Subscription> subscriptions = subscriptionService.disableSubscription(
+                userId,
+                listingId,
+                PortfolioListing.class.getAnnotation(Table.class).name(),
+                unsubscribeTypes);
         return new APIResponse(subscriptions, subscriptions.size());
     }
 }
