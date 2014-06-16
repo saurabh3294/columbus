@@ -30,6 +30,8 @@ public class HithertoDurationSelector {
     private String       startMonth                    = "0000-00-00";
     private String       endMonth                      = "0000-00-00";
 
+    private boolean      valid                         = false;
+
     public HithertoDurationSelector() {
     }
 
@@ -54,7 +56,6 @@ public class HithertoDurationSelector {
         endMonth = currentMonth;
         startMonth = DateUtil.subtractMonths(endMonth, monthDuration);
         startMonth = DateUtil.shiftMonths(startMonth, 1);
-
     }
 
     private void recalulateMonthRangeUsingQuaterDuration() {
@@ -108,26 +109,30 @@ public class HithertoDurationSelector {
     /**** SET Methods *****/
 
     public void setMonthDuration(int monthDuration) {
+        valid = true;
         this.monthDuration = monthDuration;
         recalulateMonthRangeUsingMonthDuration();
     }
 
     public void setQuarterDuration(int quarterDuration) {
+        valid = true;
         this.quarterDuration = quarterDuration;
         recalulateMonthRangeUsingQuaterDuration();
     }
 
     public void setYearDuration(int yearDuration) {
+        valid = true;
         this.yearDuration = yearDuration;
         recalulateMonthRangeUsingNormalYearDuration();
     }
 
     public void setFinancialYearDuration(int financialYearDuration) {
+        valid = true;
         this.financialYearDuration = financialYearDuration;
         recalulateMonthRangeUsingYearFinancialYearDuration();
     }
 
-    public int getMonthDuration() {
-        return monthDuration;
+    public boolean isValid() {
+        return valid;
     }
 }
