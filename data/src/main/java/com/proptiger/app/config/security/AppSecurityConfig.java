@@ -37,9 +37,9 @@ import com.proptiger.data.util.Constants;
  * @author Rajeev Pandey
  *
  */
-//@Configuration
-//@EnableWebSecurity
-//@ComponentScan(basePackages = { "com.proptiger" })
+@Configuration
+@EnableWebSecurity
+@ComponentScan(basePackages = { "com.proptiger" })
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired

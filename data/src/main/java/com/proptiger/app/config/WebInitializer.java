@@ -4,8 +4,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
-import org.apache.shiro.web.env.EnvironmentLoaderListener;
-import org.apache.shiro.web.servlet.ShiroFilter;
 import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -27,10 +25,5 @@ public class WebInitializer implements WebApplicationInitializer {
                 rootContext));
         dispatcher.addMapping("/");
         dispatcher.setLoadOnStartup(1);
-                
-        servletContext.addListener(new EnvironmentLoaderListener());
-        servletContext.addFilter("ShiroFilter", new ShiroFilter())
-                .addMappingForUrlPatterns(null, false, "/*");
-
     }
 }
