@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.enums.portfolio.ReturnType;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
@@ -15,8 +16,7 @@ import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 
 /**
- * Portfolio Utility methods.
- * reference
+ * Portfolio Utility methods. reference
  * 
  * @author Rajeev Pandey
  * 
@@ -34,6 +34,9 @@ public class PortfolioUtil {
         double currentValue = 0.0;
         if (listings != null) {
             for (PortfolioListing listing : listings) {
+                if (listing.getListingStatus() == ListingStatus.INCOMPLETE) {  //Incomplete Listings not to be counted for Overall Return
+                    continue;
+                }
                 originalValue += listing.getTotalPrice();
                 listing.setCurrentPrice(getListingCurrentPrice(listing));
                 currentValue += listing.getCurrentPrice();
@@ -58,13 +61,17 @@ public class PortfolioUtil {
         if (size == null) {
             size = 0.0D;
         }
-        Double pricePerUnitArea = listing.getProperty().getPricePerUnitAreaCms();
-        if (pricePerUnitArea == null) {
-            pricePerUnitArea = listing.getProperty().getPricePerUnitArea();
-        }
-        currentValue = size * pricePerUnitArea;
+        Double pricePerUnitArea = null;
+        if (listing.getProperty() != null) {
+            pricePerUnitArea = listing.getProperty().getPricePerUnitAreaCms();
 
-        if (currentValue == 0.0D) {
+            if (pricePerUnitArea == null) {
+                pricePerUnitArea = listing.getProperty().getPricePerUnitArea();
+            }
+
+            currentValue = size * pricePerUnitArea;
+        }
+        if (currentValue == 0.0D && listing.getTotalPrice() != null) {    ///
             currentValue = listing.getTotalPrice();
         }
         else {
@@ -74,7 +81,6 @@ public class PortfolioUtil {
                 }
             }
         }
-
         return currentValue;
     }
 
@@ -85,8 +91,11 @@ public class PortfolioUtil {
      * @param currentValue
      * @return
      */
-    public static OverallReturn getOverAllReturn(double originalValue, double currentValue) {
+    public static OverallReturn getOverAllReturn(Double originalValue, Double currentValue) {
         OverallReturn overallReturn = new OverallReturn();
+        if(originalValue == null || currentValue == null){
+            return overallReturn;
+        }
         double changeAmt = currentValue - originalValue;
         overallReturn.setChangeAmount(changeAmt);
         if (originalValue == 0.0D) {

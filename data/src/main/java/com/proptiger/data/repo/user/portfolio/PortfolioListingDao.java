@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 
@@ -11,17 +12,21 @@ import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
  * @author Rajeev Pandey
  * 
  */
-public interface PortfolioListingDao extends
-		JpaRepository<PortfolioListing, Integer> {
+public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Integer> {
 
-	public List<PortfolioListing> findByUserIdAndDeletedFlagAndSourceTypeInOrderByListingIdDesc(
-			Integer userId, Boolean deletedFlag, List<Source> sourceType);
+    public List<PortfolioListing> findByUserIdAndDeletedFlagAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
+            Integer userId,
+            Boolean deletedFlag,
+            List<Source> sourceType,
+            List<ListingStatus> listingStatus);
 
-	public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId,
-			Boolean deletedFlag);
+    public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId, Boolean deletedFlag);
 
-	public PortfolioListing findByUserIdAndNameAndDeletedFlagAndSourceTypeIn(
-			Integer userId, String name, Boolean deletedFlag,
-			List<Source> sourceType);
+    public PortfolioListing findByUserIdAndNameAndProjectIdAndDeletedFlagAndSourceTypeIn(
+            Integer userId,
+            String name,
+            Integer projectId,
+            Boolean deletedFlag,
+            List<Source> sourceType);
 
 }

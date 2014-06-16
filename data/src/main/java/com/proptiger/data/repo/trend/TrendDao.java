@@ -79,7 +79,7 @@ public class TrendDao {
             /* First switch back manually-overridden-columns */
 
             for (Map.Entry<String, String> mapEntry : fieldSwitchMap.entrySet()) {
-                if (extraAttributes.keySet().contains(mapEntry.getValue())) {
+                if (extraAttributes.containsKey(mapEntry.getValue())) {
                     newExtraAttributes.put(mapEntry.getKey(), extraAttributes.get(mapEntry.getValue()));
                 }
             }
