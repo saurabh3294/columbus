@@ -130,6 +130,8 @@ public class Constants {
         public static final String SEO_FOOTER                            = "seo-footer";
         public static final String SEO_TEMPLATE                          = "seo-template";
 
+        public static final String REDIRECT_URL_MAP                      = "redirect-url-map";
+
     }
 
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_PRIMARY = Arrays.asList(
@@ -141,7 +143,7 @@ public class Constants {
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_RESALE  = Arrays.asList(
                                                                                          ConstructionStatus.ReadyForPossession,
                                                                                          ConstructionStatus.Occupied);
-    public static final String USER_AGENT = "user-agent";
+    public static final String                   USER_AGENT                      = "user-agent";
 
     public static class SeoPageTemplate {
         /* public static final String CITY_OVERVIEW_PAGE = "\"title\":"; */
