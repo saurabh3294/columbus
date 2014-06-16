@@ -57,6 +57,23 @@ public class TrendController extends BaseController {
                 selector));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/trend")
+    @ResponseBody
+    public APIResponse getAuthTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(getMappedResults(
+                trendService.getPaginatedTrend(selector, rangeField, rangeValue),
+                rangeField,
+                rangeValue,
+                selector));
+    }
+
     @RequestMapping("data/v1/trend-list")
     @ResponseBody
     public APIResponse getListTrend(
@@ -66,12 +83,40 @@ public class TrendController extends BaseController {
         return new APIResponse(trendService.getPaginatedTrend(selector, rangeField, rangeValue));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/trend-list")
+    @ResponseBody
+    public APIResponse getAuthListTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(trendService.getPaginatedTrend(selector, rangeField, rangeValue));
+    }
+
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend.csv")
     @ResponseBody
     public String getCsvTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
+        return super.getCsvFromMapListAndFIQL(
+                trendService.getFlattenedList(trendService.getTrend(selector, rangeField, rangeValue)),
+                selector);
+    }
+
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/auth/trend.csv")
+    @ResponseBody
+    public String getAuthCsvTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return super.getCsvFromMapListAndFIQL(
                 trendService.getFlattenedList(trendService.getTrend(selector, rangeField, rangeValue)),
                 selector);
@@ -121,6 +166,23 @@ public class TrendController extends BaseController {
                 selector));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/trend/current")
+    @ResponseBody
+    public APIResponse getAuthCurrentTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(getMappedResults(
+                trendService.getCurrentPaginatedTrend(selector, rangeField, rangeValue),
+                rangeField,
+                rangeValue,
+                selector));
+    }
+
     @RequestMapping("data/v1/trend-list/current")
     @ResponseBody
     public APIResponse getListCurrentTrend(
@@ -130,12 +192,40 @@ public class TrendController extends BaseController {
         return new APIResponse(trendService.getCurrentPaginatedTrend(selector, rangeField, rangeValue));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/trend-list/current")
+    @ResponseBody
+    public APIResponse getAuthListCurrentTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(trendService.getCurrentPaginatedTrend(selector, rangeField, rangeValue));
+    }
+
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/current.csv")
     @ResponseBody
     public String getCsvCurrentTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
+        return super.getCsvFromMapListAndFIQL(
+                trendService.getFlattenedList(trendService.getCurrentTrend(selector, rangeField, rangeValue)),
+                selector);
+    }
+
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/auth/trend/current.csv")
+    @ResponseBody
+    public String getAuthCsvCurrentTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return super.getCsvFromMapListAndFIQL(
                 trendService.getFlattenedList(trendService.getCurrentTrend(selector, rangeField, rangeValue)),
                 selector);
@@ -188,6 +278,24 @@ public class TrendController extends BaseController {
                 selector));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/trend/hitherto")
+    @ResponseBody
+    public APIResponse getAuthHithertoTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(getMappedResults(
+                trendService.getHithertoPaginatedTrend(selector, rangeField, rangeValue, hithertoDurationSelector),
+                rangeField,
+                rangeValue,
+                selector));
+    }
+
     @RequestMapping("data/v1/trend-list/hitherto")
     @ResponseBody
     public APIResponse getListHithertoTrend(
@@ -195,7 +303,29 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector) throws Exception {
-        return new APIResponse(trendService.getHithertoPaginatedTrend(selector, rangeField, rangeValue, hithertoDurationSelector));
+        return new APIResponse(trendService.getHithertoPaginatedTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                hithertoDurationSelector));
+    }
+
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/trend-list/hitherto")
+    @ResponseBody
+    public APIResponse getAuthListHithertoTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(trendService.getHithertoPaginatedTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                hithertoDurationSelector));
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/hitherto.csv")
@@ -205,6 +335,24 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector) throws Exception {
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService.getHithertoTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                hithertoDurationSelector)), selector);
+    }
+
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/auth/trend/hitherto.csv")
+    @ResponseBody
+    public String getAuthCsvHithertoTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService.getHithertoTrend(
                 selector,
                 rangeField,
@@ -261,6 +409,23 @@ public class TrendController extends BaseController {
                 selector));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/price-trend")
+    public @ResponseBody
+    APIResponse getAuthPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(getMappedResults(
+                trendService.getPricePaginatedTrend(selector, rangeField, rangeValue),
+                rangeField,
+                rangeValue,
+                selector));
+    }
+
     @RequestMapping("data/v1/price-trend-list")
     @ResponseBody
     public APIResponse getListPriceTrend(
@@ -270,12 +435,40 @@ public class TrendController extends BaseController {
         return new APIResponse(trendService.getPricePaginatedTrend(selector, rangeField, rangeValue));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/price-trend-list")
+    @ResponseBody
+    public APIResponse getAuthListPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(trendService.getPricePaginatedTrend(selector, rangeField, rangeValue));
+    }
+
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend.csv")
     public @ResponseBody
     String getCsvPriceTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
+        return super.getCsvFromMapListAndFIQL(
+                trendService.getFlattenedList(trendService.getPriceTrend(selector, rangeField, rangeValue)),
+                selector);
+    }
+
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/auth/price-trend.csv")
+    public @ResponseBody
+    String getAuthCsvPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return super.getCsvFromMapListAndFIQL(
                 trendService.getFlattenedList(trendService.getPriceTrend(selector, rangeField, rangeValue)),
                 selector);
@@ -325,6 +518,23 @@ public class TrendController extends BaseController {
                 selector));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/price-trend/current")
+    public @ResponseBody
+    APIResponse getAuthCurrentPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(getMappedResults(
+                trendService.getCurrentPricePaginatedTrend(selector, rangeField, rangeValue),
+                rangeField,
+                rangeValue,
+                selector));
+    }
+
     @RequestMapping("data/v1/price-trend-list/current")
     @ResponseBody
     public APIResponse getListCurrentPriceTrend(
@@ -334,12 +544,37 @@ public class TrendController extends BaseController {
         return new APIResponse(trendService.getCurrentPricePaginatedTrend(selector, rangeField, rangeValue));
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/price-trend-list/current")
+    @ResponseBody
+    public APIResponse getAuthListCurrentPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(trendService.getCurrentPricePaginatedTrend(selector, rangeField, rangeValue));
+    }
+
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/price-trend/current.csv")
     public @ResponseBody
     String getCsvCurrentPriceTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
+        return super.getCsvFromMapListAndFIQL(
+                trendService.getFlattenedList(trendService.getCurrentPriceTrend(selector, rangeField, rangeValue)),
+                selector);
+    }
+
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/auth/price-trend/current.csv")
+    public @ResponseBody
+    String getAuthCsvCurrentPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return super.getCsvFromMapListAndFIQL(
                 trendService.getFlattenedList(trendService.getCurrentPriceTrend(selector, rangeField, rangeValue)),
                 selector);
@@ -384,16 +619,53 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector) throws Exception {
-        return new APIResponse(getMappedResults(
-                trendService.getHithertoPricePaginatedTrend(selector, rangeField, rangeValue, hithertoDurationSelector),
-                rangeField,
-                rangeValue,
-                selector));
+        return new APIResponse(
+                getMappedResults(trendService.getHithertoPricePaginatedTrend(
+                        selector,
+                        rangeField,
+                        rangeValue,
+                        hithertoDurationSelector), rangeField, rangeValue, selector));
+    }
+
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/price-trend/hitherto")
+    public @ResponseBody
+    APIResponse getAuthHithertoPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return new APIResponse(
+                getMappedResults(trendService.getHithertoPricePaginatedTrend(
+                        selector,
+                        rangeField,
+                        rangeValue,
+                        hithertoDurationSelector), rangeField, rangeValue, selector));
     }
 
     @RequestMapping("data/v1/price-trend-list/hitherto")
     public @ResponseBody
     APIResponse getListHithertoPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector) throws Exception {
+        return new APIResponse(trendService.getHithertoPricePaginatedTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                hithertoDurationSelector));
+    }
+
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping("data/v1/auth/price-trend-list/hitherto")
+    public @ResponseBody
+    APIResponse getAuthListHithertoPriceTrend(
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
@@ -419,6 +691,24 @@ public class TrendController extends BaseController {
                 hithertoDurationSelector)), selector);
     }
 
+    /**
+     * Show data only to loggedin user based on his credentials
+     * */
+    @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/auth/price-trend/hitherto")
+    public @ResponseBody
+    String getAuthCsvHithertoPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService.getHithertoPriceTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                hithertoDurationSelector)), selector);
+    }
+
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/hitherto")
     public @ResponseBody
     APIResponse getCatchmmentHithertoPriceTrend(
@@ -426,7 +716,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute HithertoDurationSelector  hithertoDurationSelector,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
         return new APIResponse(getMappedResults(trendService.getCatchmentHithertoPricePaginatedTrend(
@@ -445,7 +735,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute HithertoDurationSelector  hithertoDurationSelector,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
         return new APIResponse(trendService.getCatchmentHithertoPricePaginatedTrend(

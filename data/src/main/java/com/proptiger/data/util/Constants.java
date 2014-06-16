@@ -141,7 +141,7 @@ public class Constants {
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_RESALE  = Arrays.asList(
                                                                                          ConstructionStatus.ReadyForPossession,
                                                                                          ConstructionStatus.Occupied);
-    public static final String USER_AGENT = "user-agent";
+    public static final String                   USER_AGENT                      = "user-agent";
 
     public static class SeoPageTemplate {
         /* public static final String CITY_OVERVIEW_PAGE = "\"title\":"; */
@@ -151,7 +151,7 @@ public class Constants {
      * Put security related constants in this inner class
      * 
      * @author Rajeev Pandey
-     *
+     * 
      */
     public static final class Security {
         public static final String COOKIE_NAME_JSESSIONID      = "JSESSIONID";
@@ -164,13 +164,15 @@ public class Constants {
 
         public static final String LOGIN_URL                   = "/app/v1/login";
 
-        public static final String API_SECRET_KEY         = "api.sec.key";
+        public static final String API_SECRET_KEY              = "api.sec.key";
 
         public static final String APP_V1_USER_DETAILS         = "/app/v1/user/details";
 
         public static final String DEFAULT_TARGET_URL          = APP_V1_USER_DETAILS;
 
-        public static final String USER_API_REQUIRES_AUTH      = ".*/user/.*";
+        public static final String USER_API_REGEX              = ".*/user/.*";
+
+        public static final String AUTH_API_REGEX              = ".*/auth/.*";
 
         public static final String REMEMBER_ME_PARAMETER       = "rememberme";
 
