@@ -79,7 +79,9 @@ public class TrendDao {
             /* First switch back manually-overridden-columns */
 
             for (Map.Entry<String, String> mapEntry : fieldSwitchMap.entrySet()) {
-                newExtraAttributes.put(mapEntry.getKey(), extraAttributes.get(mapEntry.getValue()));
+                if (extraAttributes.containsKey(mapEntry.getValue())) {
+                    newExtraAttributes.put(mapEntry.getKey(), extraAttributes.get(mapEntry.getValue()));
+                }
             }
             inventoryPriceTrend.setExtraAttributes(newExtraAttributes);
         }

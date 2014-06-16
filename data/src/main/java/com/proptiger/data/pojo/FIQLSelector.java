@@ -171,9 +171,17 @@ public class FIQLSelector implements Cloneable, Serializable {
     }
 
     public Set<String> getFieldSet() {
+        return (getTokenizedValuesAsSet(this.fields, ","));
+    }
+
+    public Set<String> getGroupSet() {
+        return (getTokenizedValuesAsSet(this.group, ","));
+    }
+
+    private Set<String> getTokenizedValuesAsSet(String line, String dlim) {
         Set<String> result = new HashSet<>();
-        if (this.fields != null && !this.fields.trim().isEmpty()) {
-            result = new HashSet<>(Arrays.asList(this.fields.split(",")));
+        if (line != null && !line.trim().isEmpty()) {
+            result = new HashSet<>(Arrays.asList(line.split(dlim)));
         }
         return result;
     }
