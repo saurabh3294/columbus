@@ -55,7 +55,7 @@ public class UserController extends BaseController {
         return new APIResponse(userService.isRegistered(email));
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/app/v1/user/details")
+    @RequestMapping(method = RequestMethod.GET, value = Constants.Security.DEFAULT_TARGET_URL)
     @ResponseBody
     public APIResponse getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         return new APIResponse(userService.getUserDetails(userInfo.getUserIdentifier()));
