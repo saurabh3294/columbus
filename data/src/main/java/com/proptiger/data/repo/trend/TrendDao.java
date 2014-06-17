@@ -7,7 +7,6 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
@@ -23,14 +22,23 @@ public class TrendDao {
     @Autowired
     private EntityManagerFactory emf;
 
+    private TrendDaoFieldSwitcher trendDaoFieldSwitcher;
+
+    public TrendDao() {
+        trendDaoFieldSwitcher = new TrendDaoFieldSwitcher();
+    }
+
     @Cacheable(value = Constants.CacheName.CACHE)
     public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
         EntityManager entityManager = emf.createEntityManager();
         AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
                 entityManager,
                 InventoryPriceTrend.class);
-        builder.buildQuery(modifyWavgFieldsInSelector(selector));
-        List<InventoryPriceTrend> modifyWavgKeysInResultSet = modifyWavgKeysInResultSet(builder.retrieveResults());
+        HashMap<String, String> fieldSwitchMap = trendDaoFieldSwitcher.getFieldSwitchMap(selector);
+        builder.buildQuery(modifyWavgFieldsInSelector(selector, fieldSwitchMap));
+        List<InventoryPriceTrend> modifyWavgKeysInResultSet = modifyWavgKeysInResultSet(
+                builder.retrieveResults(),
+                fieldSwitchMap);
         entityManager.close();
         return modifyWavgKeysInResultSet;
     }
@@ -41,29 +49,39 @@ public class TrendDao {
         AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
                 entityManager,
                 InventoryPriceTrend.class);
-        builder.buildQuery(modifyWavgFieldsInSelector(selector));
+        builder.buildQuery(modifyWavgFieldsInSelector(selector, trendDaoFieldSwitcher.getFieldSwitchMap(selector)));
         long count = builder.retrieveCount();
         entityManager.close();
         return count;
     }
 
     // XXX - Hack to switch column names without clients knowing about it
-    private FIQLSelector modifyWavgFieldsInSelector(FIQLSelector selector) {
-        FIQLSelector fiqlSelector;
-        fiqlSelector = selector.clone();
-        fiqlSelector.setFields(StringUtils.replace(fiqlSelector.getFields(), "OnSupply", "OnLtdSupply"));
+    private FIQLSelector modifyWavgFieldsInSelector(FIQLSelector selector, HashMap<String, String> fieldSwitchMap) {
+
+        FIQLSelector fiqlSelector = selector.clone();
+        fiqlSelector.setFields("");
+        for (Map.Entry<String, String> mapEntry : fieldSwitchMap.entrySet()) {
+            fiqlSelector.addField(mapEntry.getValue());
+        }
         return fiqlSelector;
     }
 
     // XXX - Hack to switch column names without clients knowing about it
-    private List<InventoryPriceTrend> modifyWavgKeysInResultSet(List<InventoryPriceTrend> list) {
+    private List<InventoryPriceTrend> modifyWavgKeysInResultSet(
+            List<InventoryPriceTrend> list,
+            HashMap<String, String> fieldSwitchMap) {
+
         for (InventoryPriceTrend inventoryPriceTrend : list) {
+
             Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
             Map<String, Object> newExtraAttributes = new HashMap<>();
 
-            for (String key : extraAttributes.keySet()) {
-                String newKey = StringUtils.replace(key, "OnLtdSupply", "OnSupply");
-                newExtraAttributes.put(newKey, extraAttributes.get(key));
+            /* First switch back manually-overridden-columns */
+
+            for (Map.Entry<String, String> mapEntry : fieldSwitchMap.entrySet()) {
+                if (extraAttributes.containsKey(mapEntry.getValue())) {
+                    newExtraAttributes.put(mapEntry.getKey(), extraAttributes.get(mapEntry.getValue()));
+                }
             }
             inventoryPriceTrend.setExtraAttributes(newExtraAttributes);
         }
