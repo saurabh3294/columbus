@@ -1,0 +1,13 @@
+<configuration xmlns="http://logging.apache.org/log4php/">
+    <appender name="myAppender" class="LoggerAppenderRollingFile">
+        <layout class="LoggerLayoutPattern">
+            <param name="conversionPattern" value="%d{Y-m-d H:i:s.u} %c %-5p %m%n" />
+        </layout>
+        <param name="file" value="/var/log/php5.log" />
+    </appender>
+
+    <root>
+        <level value="INFO" />
+        <appender_ref ref="myAppender" />
+    </root>
+</configuration>
