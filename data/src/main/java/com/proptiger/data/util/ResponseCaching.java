@@ -29,8 +29,6 @@ public class ResponseCaching {
     @Autowired
     private Caching       caching;
 
-    private static Logger logger = LoggerFactory.getLogger(ResponseCaching.class);
-
     /*
      * This method will be called to check and get the cache response.
      */
@@ -71,16 +69,7 @@ public class ResponseCaching {
         if (!isCacheEnabled(jp) || getResponse(key, getProxyMethodReturnType(jp)) != null) {
             return;
         }
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                .getRequest();
-        String contentHash = new HMAC_Client().calculateMD5(new Gson().toJson(retVal));
-        logger.error(" CACHING URL: " + request.getRequestURI()
-                + " REQUEST PARAMS "
-                + request.getQueryString()
-                + " key: "
-                + key
-                + " RESPONSE data hashcode : "
-                + contentHash);
+
         caching.saveResponse(getCacheKey(jp), retVal);
     }
 
