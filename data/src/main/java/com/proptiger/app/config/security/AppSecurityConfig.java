@@ -64,11 +64,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.rememberMe().rememberMeServices(createPersistentTokenBasedRememberMeService())
                 .key(Constants.Security.REMEMBER_ME_COOKIE);
         http.csrf().disable();
-        http.authorizeRequests().regexMatchers(Constants.Security.USER_API_REQUIRES_AUTH).authenticated();
-
-        // http.authorizeRequests().regexMatchers(".*/user/.*").authenticated().and().requiresChannel()
-        // .antMatchers(LOGIN_URL).requiresSecure();
-
+        http.authorizeRequests().regexMatchers(Constants.Security.USER_API_REGEX, Constants.Security.AUTH_API_REGEX).authenticated();
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
         http.addFilter(createUserNamePasswordLoginFilter());
         http.addFilter(createRememberMeAuthFilter());
