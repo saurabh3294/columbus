@@ -51,6 +51,9 @@ public class ResponseCaching {
             pointcut = "execution(* com.proptiger.*.mvc.*.*(..)) && !execution(* com.proptiger.*.mvc.portfolio.*(..))",
             returning = "retVal")
     public void setResponse(JoinPoint jp, Object retVal) throws Throwable {
+        if(retVal == null){
+            return;
+        }
         // if response is not valid, then response will not be saved.
         Class<?> className = retVal.getClass();
         if (className == ProAPIException.class) {
