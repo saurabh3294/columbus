@@ -1,12 +1,16 @@
 package com.proptiger.data.mvc;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -131,5 +136,11 @@ public class ImageController extends BaseController {
     public @ResponseBody
     Object getResolutionEnumerations() {
         return new APIResponse(ImageResolution.values());
+    }
+    
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        // true passed to CustomDateEditor constructor means convert empty String to null
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(new ISO8601DateFormat(), true));
     }
 }
