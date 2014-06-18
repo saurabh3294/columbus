@@ -2,14 +2,14 @@ package com.proptiger.data.service;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.Test;
 
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.Status;
@@ -26,6 +26,7 @@ import com.proptiger.data.repo.ProjectPhaseDao;
  * @author azi
  * 
  */
+
 public class ProjectPhaseServiceTest extends AbstractTest {
 
     @Autowired
@@ -50,22 +51,22 @@ public class ProjectPhaseServiceTest extends AbstractTest {
 
         for (Property property : phase.getProperties()) {
             if (property.getPropertyId() == 5010148) {
-                Assert.assertEquals("PricePerUnitArea Failed", Double.valueOf(4500.0), property.getPricePerUnitArea());
-                Assert.assertEquals(
+                assertEquals("PricePerUnitArea Failed", Double.valueOf(4500.0), property.getPricePerUnitArea());
+                assertEquals(
                         "PricePerUnitAreaCms Failed",
                         Double.valueOf(4500),
                         property.getPricePerUnitAreaCms());
-                Assert.assertEquals(
+                assertEquals(
                         "ResalePricePerUnitArea Failed",
                         Double.valueOf(5000),
                         property.getResalePricePerUnitArea());
-                Assert.assertEquals("Budget Failed", Double.valueOf(6754500), property.getBudget());
-                Assert.assertEquals("ResalePrice Failed", Double.valueOf(7505000), property.getResalePrice());
-                Assert.assertEquals(
+                assertEquals("Budget Failed", Double.valueOf(6754500), property.getBudget());
+                assertEquals("ResalePrice Failed", Double.valueOf(7505000), property.getResalePrice());
+                assertEquals(
                         "MinResaleOrPrimaryPrice",
                         Double.valueOf(6754500),
                         property.getMinResaleOrPrimaryPrice());
-                Assert.assertEquals(
+                assertEquals(
                         "MaxResaleOrPrimaryPrice Failed",
                         Double.valueOf(7505000),
                         property.getMaxResaleOrPrimaryPrice());
