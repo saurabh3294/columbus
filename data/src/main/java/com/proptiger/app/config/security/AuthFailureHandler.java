@@ -26,7 +26,7 @@ public class AuthFailureHandler implements AuthenticationFailureHandler {
         String userIpAddress = request.getRemoteAddr();
         ResponseErrorWriter.writeErrorToResponse(
                 response,
-                ResponseCodes.UNAUTHORIZED,
+                ResponseCodes.BAD_CREDENTIAL,
                 ResponseErrorMessages.BAD_CREDENTIAL,
                 userIpAddress);
     }
