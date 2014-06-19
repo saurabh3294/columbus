@@ -145,4 +145,12 @@ public abstract class BaseController {
         }
     }
 
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
+    public void setMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
 }
