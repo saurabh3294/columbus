@@ -16,6 +16,7 @@ import com.proptiger.data.enums.DataType;
  */
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface FieldMetaInfo {
     public static final String DEF_NAME = "Default";
 

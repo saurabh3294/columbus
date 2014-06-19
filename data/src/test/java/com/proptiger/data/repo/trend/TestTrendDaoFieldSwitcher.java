@@ -1,8 +1,11 @@
 package com.proptiger.data.repo.trend;
 
-import static org.junit.Assert.*;
+import static org.testng.AssertJUnit.assertEquals;
+
 import java.util.HashMap;
-import org.junit.Test;
+
+import org.testng.annotations.Test;
+
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
 
@@ -11,7 +14,6 @@ public class TestTrendDaoFieldSwitcher {
     @Test
     public void testExtractActualFieldName() {
         String testMsg = "Method = extractActualFieldName,fieldname = ";
-
         String fieldName = "avgPricePerUnitArea";
         assertEquals(testMsg + fieldName, "pricePerUnitArea", JPAQueryBuilder.extractActualFieldName(fieldName));
 

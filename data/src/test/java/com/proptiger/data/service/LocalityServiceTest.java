@@ -1,8 +1,9 @@
 package com.proptiger.data.service;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.testng.AssertJUnit.assertEquals;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.Test;
 
 import com.proptiger.data.model.Locality;
 
@@ -13,6 +14,6 @@ public class LocalityServiceTest extends AbstractTest{
     @Test
     public void testLocalityService() {
         Locality locality = localityService.getLocality(50186);
-        Assert.assertEquals("Locality Name Matched", "Electronics City", locality.getLabel());
+        assertEquals("Locality Name Matched", "Electronics City", locality.getLabel());
     }
 }

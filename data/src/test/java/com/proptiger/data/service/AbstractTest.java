@@ -1,9 +1,9 @@
 package com.proptiger.data.service;
 
-import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.testng.annotations.Test;
 
 import com.proptiger.app.config.WebMvcConfig;
 
@@ -13,9 +13,9 @@ import com.proptiger.app.config.WebMvcConfig;
  * @author Rajeev Pandey
  * 
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@Test
 @ContextConfiguration(classes=WebMvcConfig.class)
 @WebAppConfiguration
-public abstract class AbstractTest {
+public abstract class AbstractTest extends AbstractTestNGSpringContextTests {
 
 }
