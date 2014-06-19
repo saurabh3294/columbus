@@ -33,7 +33,7 @@ public class LocalityDescriptionService {
     @Value("${locality.template.base.path}")
     private String                  localityTemplateBasePath;
 
-    @Value("${locality.template.files}")
+    @Value("#{'${locality.template.files}'.split(',')}")
     private List<String>            templateFiles;
 
     @Autowired

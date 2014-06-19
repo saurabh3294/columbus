@@ -33,7 +33,7 @@ public class TestimonialDao{
         }
         AbstractQueryBuilder<Testimonial> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Testimonial.class);
         selector.addAndConditionToFilter("status==1");
-        selector.addSortASC("clientId");
+        selector.addSortDESC("createdDate");
         builder.buildQuery(selector);
         PaginatedResponse<List<Testimonial>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(builder.retrieveResults());

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,9 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.supercsv.io.CsvMapWriter;
 import org.supercsv.io.ICsvMapWriter;
@@ -25,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module.Feature;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -153,4 +158,9 @@ public abstract class BaseController {
         this.mapper = mapper;
     }
 
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        // true passed to CustomDateEditor constructor means convert empty String to null
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(new ISO8601DateFormat(), true));
+    }
 }

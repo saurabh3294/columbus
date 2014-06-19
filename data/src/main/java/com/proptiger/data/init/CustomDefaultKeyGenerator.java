@@ -2,9 +2,9 @@ package com.proptiger.data.init;
 
 import java.lang.reflect.Method;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.cache.interceptor.KeyGenerator;
+
+import com.google.gson.Gson;
 
 /**
  * Implementing Custom Default KeyGenerator
@@ -13,8 +13,6 @@ import org.springframework.cache.interceptor.KeyGenerator;
  * 
  */
 public class CustomDefaultKeyGenerator implements KeyGenerator {
-    private static final int NULL_PARAM_KEY = 53;
-
     @Override
     public Object generate(Object target, Method method, Object... params) {
         int hashCode = 17;
@@ -22,10 +20,8 @@ public class CustomDefaultKeyGenerator implements KeyGenerator {
         hashCode = 31 * hashCode + method.getName().toString().hashCode();
 
         for (Object object : params) {
-            hashCode = 31 * hashCode
-                    + (object == null ? NULL_PARAM_KEY : ToStringBuilder.reflectionToString(
-                            object,
-                            ToStringStyle.SHORT_PREFIX_STYLE).hashCode());
+            int jsonHashCode = new Gson().toJson(object).hashCode();
+            hashCode = 31 * hashCode + jsonHashCode;
         }
         return Integer.valueOf(hashCode);
     }

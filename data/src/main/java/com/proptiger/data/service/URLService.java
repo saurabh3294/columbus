@@ -11,9 +11,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.DomainObject;
@@ -22,8 +22,11 @@ import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
+import com.proptiger.data.model.RedirectUrlMap;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.URLDetail;
+import com.proptiger.data.repo.RedirectUrlMapDao;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PageType;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -35,22 +38,25 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class URLService {
     @Autowired
-    private CityService     cityService;
+    private CityService       cityService;
 
     @Autowired
-    private LocalityService localityService;
+    private LocalityService   localityService;
 
     @Autowired
-    private SuburbService   suburbService;
+    private SuburbService     suburbService;
 
     @Autowired
-    private ProjectService  projectService;
+    private ProjectService    projectService;
 
     @Autowired
-    private PropertyService propertyService;
+    private PropertyService   propertyService;
 
     @Autowired
-    private BuilderService  builderService;
+    private BuilderService    builderService;
+
+    @Autowired
+    private RedirectUrlMapDao redirectUrlMapDao;
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
@@ -272,6 +278,12 @@ public class URLService {
 
         urlDetail.setUrl(URL);
         return urlDetail;
+    }
+    
+    @Deprecated
+    @Cacheable(value = Constants.CacheName.REDIRECT_URL_MAP)
+    public RedirectUrlMap getRedirectUrlForOldUrl(String fromUrl) {
+        return redirectUrlMapDao.findOne(fromUrl);
     }
 
     public static class ValidURLResponse implements Serializable {
