@@ -17,6 +17,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.FacetField;
 import org.apache.solr.client.solrj.response.FacetField.Count;
+import org.apache.solr.client.solrj.response.Group;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -265,5 +266,29 @@ public class ProjectSolrDao {
             }
         }
         return projectStatusCount;
+    }
+    
+    /**
+     * This method get project count by project status for provided filter.
+     * @param builderId 
+     * 
+     * @param selector
+     * @return
+     */
+    public Map<String, Integer> getProjectCountByCities(Integer builderId, Selector selector) {
+        Map<String, Integer> projectCountByCityMap = new HashMap<String, Integer>();
+        SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.PROJECT);
+        solrQuery.add("group", "true");
+        solrQuery.add("group.field", "CITY");
+        solrQuery.add("group.limit", "0");
+        String fq = "BUILDER_ID:" + builderId;
+        solrQuery.addFilterQuery(fq);
+        SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
+        solrQueryBuilder.buildQuery(selector, null);
+        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+        for (Group response : queryResponse.getGroupResponse().getValues().get(0).getValues()){
+            projectCountByCityMap.put(response.getGroupValue(), (int) response.getResult().getNumFound());
+        }
+        return projectCountByCityMap;
     }
 }

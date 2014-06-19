@@ -618,4 +618,8 @@ public class ProjectService {
     public Map<String, Long> getProjectStatusCount(Selector selector) {
         return projectSolrDao.getProjectStatusCount(selector);
     }
+
+    public Map<String, Integer> getProjectCountByCities(Integer builderId, Selector selector) {
+        return projectSolrDao.getProjectCountByCities(builderId, selector);
+    }
 }
