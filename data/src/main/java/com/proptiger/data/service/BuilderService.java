@@ -58,7 +58,7 @@ public class BuilderService {
     private ImageEnricher   imageEnricher;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectService  projectService;
 
     /**
      * This methods get builder info with some derived information about total
@@ -75,11 +75,22 @@ public class BuilderService {
             throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
         }
 
+        builder.setProjectStatusCount(getProjectStatusCountMap(builderId, selector));
+        return builder;
+    }
+
+    /**
+     * This method returns a map with project_status as key and count as value.
+     * Ex : {"on hold" ,0}
+     * 
+     * @return projectStatusCountMap
+     * */
+    public Map<String, Long> getProjectStatusCountMap(Integer builderId, Selector selector) {
+
         Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
         Map<String, Long> projectStatusCountMap = projectService.getProjectStatusCount(tempSelector);
-        builder.setProjectStatusCount(projectStatusCountMap);
+        return projectStatusCountMap;
 
-        return builder;
     }
 
     /**
@@ -146,7 +157,7 @@ public class BuilderService {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
         List<Builder> topBuilders = new ArrayList<>();
-        if(queryResponse.getGroupResponse() != null){
+        if (queryResponse.getGroupResponse() != null) {
             for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
                 for (Group group : groupCommand.getValues()) {
                     List<Builder> builders = convertBuilder(group.getResult());

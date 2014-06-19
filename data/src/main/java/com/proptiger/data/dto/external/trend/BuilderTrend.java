@@ -41,6 +41,7 @@ public class BuilderTrend {
     private int                                 projectCountHavingPriceDepreciation   = 0;
     private int                                 projectCountHavingPriceMoreThanLocAvg = 0;
     private int                                 projectCountHavingPriceLessThanLocAvg = 0;
+    private int                                 projectCountOnHold                    = 0;
     private Map<String, Integer>                delayed                               = new HashMap<>();
 
     public BuilderTrend() {
@@ -171,6 +172,14 @@ public class BuilderTrend {
         this.projectCountHavingPriceLessThanLocAvg = projectCountHavingPriceLessThanLocAvg;
     }
 
+    public int getProjectCountOnHold() {
+        return projectCountOnHold;
+    }
+
+    public void setProjectCountOnHold(int projectCountOnHold) {
+        this.projectCountOnHold = projectCountOnHold;
+    }
+
     public Map<UnitType, Map<String, Integer>> getUnitTypesDetails() {
         return unitTypesDetails;
     }
@@ -206,4 +215,5 @@ public class BuilderTrend {
         }
         return this;
     }
+
 }

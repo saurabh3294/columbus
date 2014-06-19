@@ -22,6 +22,7 @@ import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ResourceNotFoundException;
@@ -51,6 +52,9 @@ public class BuilderTrendService {
     private static final int    MAX_ROWS       = 5000;
 
     private static final String DESC_SPECIFIER = "-";
+
+    @Autowired
+    private BuilderService      builderService;
 
     public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, ActiveUser userInfo) {
         FIQLSelector selector = new FIQLSelector();
@@ -161,6 +165,10 @@ public class BuilderTrendService {
 
                 populateDelayedProjectDetails(builderTrend, mappedDelayedProjects);
                 builderTrend.trimUnitTypeDetails();
+
+                // set project on-hold count info
+                builderTrend.setProjectCountOnHold(builderService.getProjectStatusCountMap(builderId, null)
+                        .get("on hold").intValue());
                 builderTrends.add(builderTrend);
             }
         }
