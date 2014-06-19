@@ -619,7 +619,7 @@ public class ProjectService {
         return projectSolrDao.getProjectStatusCount(selector);
     }
 
-    public Map<String, Integer> getProjectCountByCities(Integer builderId, Selector selector) {
-        return projectSolrDao.getProjectCountByCities(builderId, selector);
+    public Map<String, Integer> getProjectCountByCities(Integer builderId) {
+        return projectSolrDao.getProjectCountByCities(builderId);
     }
 }

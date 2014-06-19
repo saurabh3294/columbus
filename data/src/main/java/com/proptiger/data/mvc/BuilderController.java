@@ -2,8 +2,10 @@ package com.proptiger.data.mvc;
 
 import java.util.List;
 import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.Builder;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.pojo.response.PaginatedResponse;
@@ -55,14 +58,9 @@ public class BuilderController extends BaseController {
     @ResponseBody
     public APIResponse getBuilderDetails(
             @PathVariable Integer builderId,
-            @RequestParam(required = false) String selector) {
-        Selector builderSelector = new Selector();
-        if (selector != null) {
-            builderSelector = super.parseJsonToObject(selector, Selector.class);
-        }
-        Builder builder = builderService.getBuilderDetails(builderId, builderSelector);
-
-        Set<String> fields = builderSelector.getFields();
+            @ModelAttribute FIQLSelector selector) {
+        Builder builder = builderService.getBuilderDetails(builderId, selector);
+        Set<String> fields = selector.getFieldSet();
         return new APIResponse(super.filterFields(builder, fields));
     }
 }

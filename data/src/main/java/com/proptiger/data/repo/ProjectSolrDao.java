@@ -275,7 +275,7 @@ public class ProjectSolrDao {
      * @param selector
      * @return
      */
-    public Map<String, Integer> getProjectCountByCities(Integer builderId, Selector selector) {
+    public Map<String, Integer> getProjectCountByCities(Integer builderId) {
         Map<String, Integer> projectCountByCityMap = new HashMap<String, Integer>();
         SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.PROJECT);
         solrQuery.add("group", "true");
@@ -284,7 +284,7 @@ public class ProjectSolrDao {
         String fq = "BUILDER_ID:" + builderId;
         solrQuery.addFilterQuery(fq);
         SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
-        solrQueryBuilder.buildQuery(selector, null);
+        solrQueryBuilder.buildQuery(null, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         for (Group response : queryResponse.getGroupResponse().getValues().get(0).getValues()){
             projectCountByCityMap.put(response.getGroupValue(), (int) response.getResult().getNumFound());
