@@ -232,6 +232,16 @@ public class UserService {
         return subscriptionPermissions;
     }
 
+    /*
+     * Returns a MultiKeyMap with 2 keys. [K1 = ObjectTypeId, K2 = ObjectId],
+     * [Value = Permission Object]
+     * 
+     * [1]. In case of locality, checking existence of the key should be enough.
+     * [2]. For city, a key will exist (with a value null), even if the user has
+     * a permission for some locality in the city. To check for full city
+     * permission, check if the value mapped to that key is not null.
+     */
+
     public MultiKeyMap getUserSubscriptionMap(int userId) {
         List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
         MultiKeyMap userSubscriptionMap = new MultiKeyMap();

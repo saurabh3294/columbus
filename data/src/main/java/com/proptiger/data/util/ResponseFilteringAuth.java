@@ -7,13 +7,13 @@ import java.util.Map;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.Project;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 
@@ -25,7 +25,16 @@ import com.proptiger.data.service.user.UserService;
 public class ResponseFilteringAuth {
 
     @Autowired
-    private UserService userService;
+    private UserService   userService;
+
+    private final int     objTypeIdLocality  = DomainObject.locality.getObjectTypeId();
+
+    private final int     objTypeIdCity      = DomainObject.city.getObjectTypeId();
+
+    private final String  fieldTagAuthorized = "authorized";
+
+    @Autowired
+    private static Logger logger             = LoggerFactory.getLogger(ResponseFilteringAuth.class);
 
     @SuppressWarnings("unchecked")
     @AfterReturning(
@@ -39,29 +48,68 @@ public class ResponseFilteringAuth {
             return;
         }
 
-        /* Filtering */
-        HashMap<String, Object> resultMap = (HashMap<String, Object>) data;
-        List<Object> projectItemsList = (List<Object>) resultMap.get("items");
-
-        int objTypeIdLocality = DomainObject.locality.getObjectTypeId();
-        int objTypeIdCity = DomainObject.city.getObjectTypeId();
-
-        /*
-         * [1]. For locality-id keys we only need to check if a key exists. [2].
-         * For city-id a key will exist (with a value null) even if the user has
-         * a permission for some locality in the city. To check for full city
-         * permission we nee to check if the value mapped to that key is not
-         * null.
-         */
-
-        for (Object value : projectItemsList) {
-            int localityId = (Integer) (((Map<String, Object>) value).get("localityId"));
-            if (userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) {
-                ((Map<String, Object>) value).put("authorized", true);
+        HashMap<String, Object> responseMap = (HashMap<String, Object>) data;
+        List<Object> projectItemsList = (List<Object>) responseMap.get("items");
+        for (Object element : projectItemsList) {
+            int localityId = getEntityIdFromResponseElement(element, "localityId");
+            int cityId = extractCityIdFromProjectListingResponse(element);
+            if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || 
+                (userSubscriptionMap.get(objTypeIdCity, cityId) != null)) {
+                ((Map<String, Object>) element).put(fieldTagAuthorized, true);
             }
-            else if (userSubscriptionMap.get(objTypeIdCity, extractCityIdFromProjectListingResponse(value)) != null) {
-                ((Map<String, Object>) value).put("authorized", true);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @AfterReturning(
+            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.app.mvc.AppLocalityController.getLocalityListingData(..))",
+            returning = "retVal")
+    public void filterResponseLocalityListings(Object retVal) throws Throwable {
+        Object data = getApiResponseData(retVal);
+        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        if (data == null || userSubscriptionMap == null) {
+            return;
+        }
+
+        List<Object> resultList = (List<Object>) data;
+        for (Object element : resultList) {
+            int localityId = getEntityIdFromResponseElement(element, "localityId");
+            int cityId = getEntityIdFromResponseElement(element, "cityId");
+
+            if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || 
+                (userSubscriptionMap.get(objTypeIdCity, cityId) != null)) {
+                ((Map<String, Object>) element).put(fieldTagAuthorized, true);
             }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @AfterReturning(
+            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.data.mvc.CityController.getCities(..))",
+            returning = "retVal")
+    public void filterResponseCityListings(Object retVal) throws Throwable {
+        Object data = getApiResponseData(retVal);
+        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
+        if (data == null || userSubscriptionMap == null) {
+            return;
+        }
+
+        List<Object> resultList = (List<Object>) data;
+        for (Object element : resultList) {
+            int cityId = getEntityIdFromResponseElement(element, "id");
+            if (userSubscriptionMap.containsKey(objTypeIdCity, cityId)) {
+                ((Map<String, Object>) element).put(fieldTagAuthorized, true);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private int getEntityIdFromResponseElement(Object response, String entityTag) {
+        try {
+            return ((Integer) (((Map<String, Object>) response).get(entityTag)));
+        }
+        catch (Exception e) {
+            return -1;
         }
     }
 
@@ -76,52 +124,12 @@ public class ResponseFilteringAuth {
         catch (Exception ex) {
             return -1;
         }
-
-    }
-
-    @AfterReturning(
-            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.app.mvc.AppLocalityController.getLocalityListingData(..))",
-            returning = "retVal")
-    public void filterResponseLocalityListings(Object retVal) throws Throwable {
-        findAndReplaceInResponseData(
-                retVal,
-                DomainObject.locality.getObjectTypeId(),
-                "localityId",
-                "authorized",
-                ((Boolean) true));
-    }
-
-    @AfterReturning(
-            pointcut = "execution(com.proptiger.data.pojo.response.APIResponse com.proptiger.data.mvc.CityController.getCities(..))",
-            returning = "retVal")
-    public void filterResponseCityListings(Object retVal) throws Throwable {
-        findAndReplaceInResponseData(retVal, DomainObject.city.getObjectTypeId(), "id", "authorized", ((Boolean) true));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void findAndReplaceInResponseData(
-            Object retVal,
-            int objectTypeId,
-            String objectIdTag,
-            String replaceFieldTag,
-            Object replaceFieldValue) {
-        MultiKeyMap userSubscriptionMap = getUserSubscriptionMap();
-
-        Object data = getApiResponseData(retVal);
-        if (data == null || userSubscriptionMap == null) {
-            return;
-        }
-
-        List<Object> resultList = (List<Object>) data;
-        for (Object result : resultList) {
-            int objectId = (Integer) (((Map<String, Object>) result).get(objectIdTag));
-            if (userSubscriptionMap.containsKey(objectTypeId, objectId)) {
-                ((Map<String, Object>) result).put(replaceFieldTag, replaceFieldValue);
-            }
-        }
     }
 
     private Object getApiResponseData(Object retVal) {
+        if (retVal == null || !(retVal instanceof APIResponse)) {
+            return null;
+        }
         APIResponse apiResponse = (APIResponse) retVal;
         if (apiResponse.getError() != null) {
             return null;
