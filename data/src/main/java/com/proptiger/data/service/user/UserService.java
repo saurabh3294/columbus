@@ -66,10 +66,10 @@ public class UserService {
     private LocalityService       localityService;
 
     @Autowired
-    UserSubscriptionMappingDao    userSubscriptionMappingDao;
+    private UserSubscriptionMappingDao    userSubscriptionMappingDao;
 
     @Autowired
-    SubscriptionPermissionDao     subscriptionPermissionDao;
+    private SubscriptionPermissionDao     subscriptionPermissionDao;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
