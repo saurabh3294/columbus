@@ -35,7 +35,6 @@ import org.testng.Assert;
 import org.testng.Reporter;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-import static org.testng.Assert.assertEquals;
 
 /**
  * This TestNG test case checks the status code of all the APIs and print
@@ -89,6 +88,7 @@ public class TestAPIs {
         exclusionList.add("data/v1/entity/broker-agent");
         exclusionList.add("sell-property");
         exclusionList.add(".csv");
+        exclusionList.add("data/v1/entity/media/document");
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -121,6 +121,9 @@ public class TestAPIs {
         populateMapforPostData.put(
                 apiKeysValuesMap.get("BASE_URL").get(0) + "/data/v1/entity/locality/{localityId}/rating",
                 "post_rating");
+        populateMapforPostData.put(
+                apiKeysValuesMap.get("BASE_URL").get(0) + "/data/v1/entity/project/{projectId}/email",
+                "project_email");
     }
 
     /**

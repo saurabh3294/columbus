@@ -3,14 +3,15 @@
  */
 package com.proptiger.data.service;
 
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.validator.routines.UrlValidator;
-import org.junit.Assert;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.testng.annotations.Test;
 
 import com.proptiger.data.model.WordpressPost;
 import com.proptiger.data.pojo.Selector;
@@ -33,8 +34,8 @@ public class BlogNewsServiceTest extends AbstractTest {
                 String url = wp.getPrimaryImageUrl();
                 boolean isValidUrl = urlValidator.isValid(url);
                 boolean isThumbnailImg = getDimensionPattern(url);
-                Assert.assertTrue("Thumbnail Image URL invalid", isValidUrl);
-                Assert.assertTrue("Thumbnail Image dimension invalid", isThumbnailImg);
+                assertTrue("Thumbnail Image URL invalid", isValidUrl);
+                assertTrue("Thumbnail Image dimension invalid", isThumbnailImg);
             }
         }
     }
