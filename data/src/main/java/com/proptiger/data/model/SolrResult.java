@@ -104,44 +104,44 @@ public class SolrResult extends BaseModel {
 
     @FieldMetaInfo(displayName = "Project enquiry count", description = "Project enquiry count")
     @Field(value = "PROJECT_ENQUIRY_COUNT")
-    private Integer               projectEnquiryCount;
-    
+    private Integer           projectEnquiryCount;
+
     @FieldMetaInfo(displayName = "Locality enquiry count", description = "Locality enquiry count")
     @Field(value = "LOCALITY_ENQUIRY_COUNT")
-    private Integer               localityEnquiryCount;
-    
+    private Integer           localityEnquiryCount;
+
     @FieldMetaInfo(displayName = "City enquiry count", description = "City enquiry count")
     @Field(value = "CITY_ENQUIRY_COUNT")
-    private Integer               cityEnquiryCount;
-    
+    private Integer           cityEnquiryCount;
+
     @FieldMetaInfo(displayName = "Suburb enquiry count", description = "Suburb enquiry count")
     @Field(value = "SUBURB_ENQUIRY_COUNT")
-    private Integer               suburbEnquiryCount;
-    
+    private Integer           suburbEnquiryCount;
+
     @FieldMetaInfo(displayName = "Builder enquiry count", description = "Builder enquiry count")
     @Field(value = "BUILDER_ENQUIRY_COUNT")
-    private Integer               builderEnquiryCount;
-    
+    private Integer           builderEnquiryCount;
+
     @FieldMetaInfo(displayName = "Project View count", description = "Project View count")
     @Field(value = "PROJECT_VIEW_COUNT")
-    private Integer               projectViewCount;
-    
+    private Integer           projectViewCount;
+
     @FieldMetaInfo(displayName = "Locality View count", description = "Locality View count")
     @Field(value = "LOCALITY_VIEW_COUNT")
-    private Integer               localityViewCount;
-    
+    private Integer           localityViewCount;
+
     @FieldMetaInfo(displayName = "City View count", description = "City View count")
     @Field(value = "CITY_VIEW_COUNT")
-    private Integer               cityViewCount;
-    
+    private Integer           cityViewCount;
+
     @FieldMetaInfo(displayName = "Suburb View count", description = "Suburb View count")
     @Field(value = "SUBURB_VIEW_COUNT")
-    private Integer               suburbViewCount;
-    
+    private Integer           suburbViewCount;
+
     @FieldMetaInfo(displayName = "Builder View count", description = "Builder View count")
     @Field(value = "BUILDER_VIEW_COUNT")
-    private Integer               builderViewCount;
-    
+    private Integer           builderViewCount;
+
     @FieldMetaInfo(displayName = "Assigned priority of locality", description = "Locality priorities assigned manually")
     @Field(value = "LOCALITY_PRIORITY")
     private Integer           localityPriority;
@@ -286,33 +286,45 @@ public class SolrResult extends BaseModel {
 
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double            maxResaleOrPrimaryPrice;
-    
+
     @Field("LOCALITY_PRICE_RISE_6MONTHS")
     private Double            localityPriceRise6Months;
-    
+
     @Field("PROJECT_PRICE_RISE_6MONTHS")
     private Double            projectPriceRise6Months;
-    
+
     @Field("SUBURB_PROJECT_COUNT")
-    private Integer              suburbProjectCount;
-    
+    private Integer           suburbProjectCount;
+
     @Field("LOCALITY_PROJECT_COUNT")
-    private Integer              localityProjectCount;
-    
+    private Integer           localityProjectCount;
+
     @Field("BUILDER_PROJECT_COUNT")
-    private Integer              builderProjectCount;
+    private Integer           builderProjectCount;
 
     @Field("TYPEAHEAD_LOCALITY_UNITS_LAUNCHED_6MONTHS")
-    private Integer              localityUnitsLaunched6Months;
+    private Integer           localityUnitsLaunched6Months;
 
     @Field("TYPEAHEAD_LOCALITY_UNITS_SOLD_6MONTHS")
-    private Integer              localityUnitsSold6Months;
+    private Integer           localityUnitsSold6Months;
 
     @Field("TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
-    private Integer              localityUnitsDelivered6Months;
-    
+    private Integer           localityUnitsDelivered6Months;
+
+    @Field("PROJECT_SAFETY_SCORE")
+    private Double            projectSafetyScore;
+
+    @Field("PROJECT_LIVABILITY_SCORE")
+    private Float             projectLivabilityScore;
+
+    @Field("LOCALITY_SAFETY_SCORE")
+    private Double            localitySafetyScore;
+
+    @Field("LOCALITY_LIVABILITY_SCORE")
+    private Float             localityLivabilityScore;
+
     @Field("BUILDER_URL")
-    private String               builderUrl;
+    private String            builderUrl;
 
     public SolrResult() {
         property.setProject(project);
@@ -924,7 +936,7 @@ public class SolrResult extends BaseModel {
     public void setMaxResaleOrPrimaryPrice(double maxResaleOrPrimaryPrice) {
         property.setMaxResaleOrPrimaryPrice(maxResaleOrPrimaryPrice);
     }
-    
+
     @Field("LOCALITY_PRICE_RISE_6MONTHS")
     public void setLocalityPriceRise6Months(Double localityPriceRise6Months) {
         locality.setPriceRise6Months(localityPriceRise6Months);
@@ -934,12 +946,12 @@ public class SolrResult extends BaseModel {
     public void setProjectPriceRise6Months(Double projectPriceRise6Months) {
         project.setPriceRise6Months(projectPriceRise6Months);
     }
-    
+
     @Field("SUBURB_PROJECT_COUNT")
     public void setSuburbProjectCount(Integer suburbProjectCount) {
         suburb.setProjectCount(suburbProjectCount);
     }
-    
+
     @Field("LOCALITY_PROJECT_COUNT")
     public void setLocalityProjectCount(Integer localityProjectCount) {
         locality.setProjectCount(localityProjectCount);
@@ -949,47 +961,47 @@ public class SolrResult extends BaseModel {
     public void setBuilderProjectCount(Integer builderProjectCount) {
         builder.setProjectCount(builderProjectCount);
     }
-    
+
     @Field("LOCALITY_ENQUIRY_COUNT")
     public void setLocalityEnquiryCount(int localityEnquiryCount) {
         locality.setLocalityEnquiryCount(localityEnquiryCount);
     }
-    
+
     @Field("CITY_ENQUIRY_COUNT")
     public void setCityEnquiryCount(int cityEnquiryCount) {
         city.setCityEnquiryCount(cityEnquiryCount);
     }
-    
+
     @Field("SUBURB_ENQUIRY_COUNT")
     public void setSuburbEnquiryCount(int suburbEnquiryCount) {
         suburb.setSuburbEnquiryCount(suburbEnquiryCount);
     }
-    
+
     @Field("BUILDER_ENQUIRY_COUNT")
     public void setBuilderEnquiryCount(int builderEnquiryCount) {
         builder.setBuilderEnquiryCount(builderEnquiryCount);
     }
-    
+
     @Field("PROJECT_VIEW_COUNT")
     public void setProjectViewCount(int projectViewCount) {
         project.setProjectViewCount(projectViewCount);
     }
-    
+
     @Field("LOCALITY_VIEW_COUNT")
     public void setLocalityViewCount(int localityViewCount) {
         locality.setLocalityViewCount(localityViewCount);
     }
-    
+
     @Field("CITY_VIEW_COUNT")
     public void setCityViewCount(int cityViewCount) {
         city.setCityViewCount(cityViewCount);
     }
-    
+
     @Field("SUBURB_VIEW_COUNT")
     public void setSuburbViewCount(int suburbViewCount) {
         suburb.setSuburbViewCount(suburbViewCount);
     }
-    
+
     @Field("BUILDER_VIEW_COUNT")
     public void setBuilderViewCount(int builderViewCount) {
         builder.setBuilderViewCount(builderViewCount);
@@ -1009,9 +1021,30 @@ public class SolrResult extends BaseModel {
     public void setLocalityUnitsDelivered6Months(Integer localityUnitsDelivered6Months) {
         locality.setLocalityUnitsDelivered6Months(localityUnitsDelivered6Months);
     }
-    
+
+    @Field("PROJECT_SAFETY_SCORE")
+    public void setProjectSafetyScore(Double projectSafetyScore) {
+        project.setSafetyScore(projectSafetyScore);
+    }
+
+    @Field("PROJECT_LIVABILITY_SCORE")
+    public void setProjectLivabilityScore(Float projectLivabilityScore) {
+        project.setLivabilityScore(projectLivabilityScore);
+    }
+
+    @Field("LOCALITY_SAFETY_SCORE")
+    public void setLocalitySafetyScore(Double localitySafetyScore) {
+        locality.setSafetyScore(localitySafetyScore);
+    }
+
+    @Field("LOCALITY_LIVABILITY_SCORE")
+    public void setLocalityLivabilityScore(Float localityLivabilityScore) {
+        locality.setLivabilityScore(localityLivabilityScore);
+    }
+
     @Field("BUILDER_URL")
     public void setBuilderUrl(String builderUrl) {
         builder.setUrl(builderUrl);
     }
+
 }
