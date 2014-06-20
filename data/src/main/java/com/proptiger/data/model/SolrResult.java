@@ -325,6 +325,15 @@ public class SolrResult extends BaseModel {
 
     @Field("BUILDER_URL")
     private String            builderUrl;
+    
+    @Field("BUILDER_WEBSITE")
+    private String            builderWebsite;
+    
+    @Field("BUILDER_ADDRESS")
+    private String            builderAddress;
+    
+    @Field("BUILDER_LOCALITY_COUNT")
+    private Integer           builderLocalityCount;   
 
     public SolrResult() {
         property.setProject(project);
@@ -1046,5 +1055,20 @@ public class SolrResult extends BaseModel {
     public void setBuilderUrl(String builderUrl) {
         builder.setUrl(builderUrl);
     }
+    
+    @Field("BUILDER_WEBSITE")
+    public void setBuilderWebsite(String builderWebsite) {
+        builder.setBuilderWebsite(builderWebsite);
+    }
+    
+    @Field("BUILDER_ADDRESS")
+    public void setBuilderAddress(String builderAddress) {
+        builder.setBuilderAddress(builderAddress);
+    }
+    
+    @Field("BUILDER_LOCALITY_COUNT")
+    public void setBuilderLocalityCount(Integer builderLocalityCount) {
+        builder.setBuilderLocalityCount(builderLocalityCount);
+    } 
 
 }

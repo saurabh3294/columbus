@@ -95,6 +95,19 @@ public class Builder extends BaseModel {
 
     @Transient
     private Map<String, Integer> projectCountByCity;
+ 
+    @Transient
+    @Field(value = "BUILDER_WEBSITE")
+    private String            builderWebsite;
+    
+    @Transient
+    @Field(value = "BUILDER_ADDRESS")
+    private String            builderAddress;
+    
+    @Transient
+    @Field(value = "BUILDER_LOCALITY_COUNT")
+    private Integer           builderLocalityCount;
+    
     
     public int getId() {
         return id;
@@ -207,6 +220,30 @@ public class Builder extends BaseModel {
 
     public void setProjectCountByCity(Map<String, Integer> projectCountByCity) {
         this.projectCountByCity = projectCountByCity;
+    }
+
+    public String getBuilderWebsite() {
+        return builderWebsite;
+    }
+
+    public void setBuilderWebsite(String builderWebsite) {
+        this.builderWebsite = builderWebsite;
+    }
+
+    public String getBuilderAddress() {
+        return builderAddress;
+    }
+
+    public void setBuilderAddress(String builderAddress) {
+        this.builderAddress = builderAddress;
+    }
+
+    public Integer getBuilderLocalityCount() {
+        return builderLocalityCount;
+    }
+
+    public void setBuilderLocalityCount(Integer builderLocalityCount) {
+        this.builderLocalityCount = builderLocalityCount;
     }
     
 }
