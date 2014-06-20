@@ -42,7 +42,7 @@ public class SeoTextController {
     @Autowired
     private URLService     urlService;
 
-    @RequestMapping(value = "data/v1/seo-text", params = {"url"})
+    @RequestMapping(value = "data/v1/seo-text", params = { "url" })
     @ResponseBody
     public APIResponse get(@RequestParam String url) {
         return new APIResponse(new Gson().fromJson(
@@ -53,13 +53,13 @@ public class SeoTextController {
                 Object.class));
     }
 
-    @RequestMapping(value = "data/v1/seo-text", params = {"urlDetails"})
+    @RequestMapping(value = "data/v1/seo-text", params = { "urlDetails" })
     @ResponseBody
     public APIResponse getSeo(@RequestParam String urlDetails) throws FileNotFoundException, IllegalAccessException,
             InvocationTargetException, NoSuchMethodException {
 
         URLDetail objectUrlDetails = new Gson().fromJson(urlDetails, URLDetail.class);
-        if (objectUrlDetails.getUrl() == null || objectUrlDetails.getUrl().isEmpty()) {
+        if (objectUrlDetails.getUrl() == null) {
             throw new IllegalArgumentException("URL Field should not be empty.");
         }
         if (objectUrlDetails.getTemplateId() == null || objectUrlDetails.getTemplateId().isEmpty()) {

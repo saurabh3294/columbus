@@ -179,7 +179,8 @@ public class ImageService extends MediaService {
     /*
      * Public method to get images of multiple object ids
      */
-    @Cacheable(value = Constants.CacheName.CACHE)
+    // Do not remove commented cacheable.
+    //@Cacheable(value = Constants.CacheName.CACHE)
     public List<Image> getImages(DomainObject object, String imageTypeStr, List<Long> objectIds) {
         if (objectIds == null || objectIds.isEmpty())
             return new ArrayList<Image>();

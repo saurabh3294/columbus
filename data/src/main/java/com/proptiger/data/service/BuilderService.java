@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
@@ -28,6 +29,7 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.filter.SolrQueryBuilder;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -58,7 +60,7 @@ public class BuilderService {
     private ImageEnricher   imageEnricher;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectService  projectService;
 
     /**
      * This methods get builder info with some derived information about total
@@ -146,7 +148,7 @@ public class BuilderService {
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
         List<Builder> topBuilders = new ArrayList<>();
-        if(queryResponse.getGroupResponse() != null){
+        if (queryResponse.getGroupResponse() != null) {
             for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
                 for (Group group : groupCommand.getValues()) {
                     List<Builder> builders = convertBuilder(group.getResult());
@@ -206,4 +208,26 @@ public class BuilderService {
         return builderIds;
     }
 
+    public Builder getBuilderDetails(Integer builderId, FIQLSelector selector) {
+        Builder builder = builderDao.getBuilderById(builderId);
+        Set<String> fields = selector.getFieldSet();
+        if (fields != null && fields.contains("projectCountByCity")) {
+            Map<String, Integer> projectCountByCityMap = projectService.getProjectCountByCities(builderId);
+            builder.setProjectCountByCity(projectCountByCityMap);
+        }
+
+        if (fields != null && fields.contains("projectStatusCount")) {
+            Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, null);
+            Map<String, Long> projectStatusCountMap = projectService.getProjectStatusCount(tempSelector);
+            builder.setProjectStatusCount(projectStatusCountMap);
+        }
+
+        if (fields != null && fields.contains("avgCompletionTimeMonths")) {
+            Double avgCompletionTime = builderDao.getAvgCompletionTimeMonths(builderId);
+            if (avgCompletionTime != null) {
+                builder.setAvgCompletionTimeMonths(avgCompletionTime.intValue());
+            }
+        }
+        return builder;
+    }
 }

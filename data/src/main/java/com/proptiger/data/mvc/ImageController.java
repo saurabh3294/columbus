@@ -132,4 +132,5 @@ public class ImageController extends BaseController {
     Object getResolutionEnumerations() {
         return new APIResponse(ImageResolution.values());
     }
+    
 }

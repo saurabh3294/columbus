@@ -130,6 +130,8 @@ public class Constants {
         public static final String SEO_FOOTER                            = "seo-footer";
         public static final String SEO_TEMPLATE                          = "seo-template";
 
+        public static final String REDIRECT_URL_MAP                      = "redirect-url-map";
+
     }
 
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_PRIMARY = Arrays.asList(

@@ -126,7 +126,9 @@ public class SeoPageService {
     }
 
     public SeoPage getSeoMetaContentForPage(URLDetail urlDetail, String templateId) {
-        SeoPage seoPage = applicationContext.getBean(SeoPageService.class).getSeoPageByTemplateId(templateId);
+        SeoPage seoPage = applicationContext.getBean(SeoPageService.class).getSeoPageByTemplateId(
+                templateId,
+                urlDetail.getUrl());
         CompositeSeoTokenData compositeSeoTokenData = buildTokensValuesObject(urlDetail);
         Map<String, String> mappings = null;
         try {
@@ -152,9 +154,10 @@ public class SeoPageService {
     }
 
     @Cacheable(value = Constants.CacheName.SEO_TEMPLATE)
-    public SeoPage getSeoPageByTemplateId(String templateId) {
+    public SeoPage getSeoPageByTemplateId(String templateId, String url) {
         SeoPage seoPage = seoPageDao.findOne(templateId);
         if (seoPage == null) {
+            logger.error(" SEO CONTENT NOT FOUND For templateId, url : " + templateId + "," + url);
             seoPage = new SeoPage();
         }
         return seoPage;
@@ -207,7 +210,9 @@ public class SeoPageService {
             if (valueObject == null) {
                 continue;
             }
-            mappingTokenValues.put(tokens[i].getValue(), (String) String.format(tokens[i].getReplaceString(), valueObject) );
+            mappingTokenValues.put(
+                    tokens[i].getValue(),
+                    (String) String.format(tokens[i].getReplaceString(), valueObject));
         }
         return mappingTokenValues;
     }
@@ -236,7 +241,7 @@ public class SeoPageService {
             suburb = locality.getSuburb();
             city = suburb.getCity();
             builder = project.getBuilder();
-            if(property.getBathrooms() > 0){
+            if (property.getBathrooms() > 0) {
                 bathrooms = property.getBathrooms();
             }
         }
@@ -253,7 +258,7 @@ public class SeoPageService {
             builder = project.getBuilder();
             Set<Integer> bedrooms = project.getDistinctBedrooms();
             bedrooms.remove(0);
-            if(bedrooms.size() > 0){
+            if (bedrooms.size() > 0) {
                 bedroomStr = project.getDistinctBedrooms().toString().replaceAll("[\\[\\]]", "");
             }
         }
@@ -289,12 +294,21 @@ public class SeoPageService {
         }
         // Conversion of price in Lacs.
         if (minBudget != null) {
-            minBudget = minBudget/100000;
-            maxBudget = maxBudget/100000;
+            minBudget = minBudget / 100000;
+            maxBudget = maxBudget / 100000;
             priceRangeStr = minBudget + "-" + maxBudget;
         }
 
-        return new CompositeSeoTokenData(property, project, locality, suburb, city, builder, bedroomStr, priceRangeStr, bathrooms);
+        return new CompositeSeoTokenData(
+                property,
+                project,
+                locality,
+                suburb,
+                city,
+                builder,
+                bedroomStr,
+                priceRangeStr,
+                bathrooms);
     }
 
     /*
@@ -332,7 +346,7 @@ public class SeoPageService {
         private String   bedroomsStr;
         private String   priceRangeStr;
         private Integer  bathrooms;
-        
+
         public CompositeSeoTokenData(
                 Property property,
                 Project project,

@@ -10,7 +10,7 @@ import java.util.Map;
  */
 public enum ConstructionStatus {
     ReadyForPossession("Ready for Possession"), Occupied("Occupied"), UnderConstruction("Under Construction"), Cancelled(
-            "Cancelled"), OnHold("On Hold"), NotLaunched("Not Launched"), Launch("Launch"), PreLaunch("Pre Launch");
+            "Cancelled"), OnHold("On Hold"), NotLaunched("Not Launched"), Launch("Launch"), PreLaunch("Pre Launch"), Completed("Completed");
 
     private String                                       status;
     private static final Map<String, ConstructionStatus> lookup = new HashMap<>();

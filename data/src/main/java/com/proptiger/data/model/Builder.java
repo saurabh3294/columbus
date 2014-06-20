@@ -89,7 +89,13 @@ public class Builder extends BaseModel {
     @FieldMetaInfo(displayName = "Builder view count", description = "Builder view count")
     @Field(value = "BUILDER_VIEW_COUNT")
     private Integer           builderViewCount;
+    
+    @Transient
+    private Integer           avgCompletionTimeMonths;
 
+    @Transient
+    private Map<String, Integer> projectCountByCity;
+    
     public int getId() {
         return id;
     }
@@ -186,4 +192,21 @@ public class Builder extends BaseModel {
     public void setBuilderViewCount(Integer builderViewCount) {
         this.builderViewCount = builderViewCount;
     }
+
+    public Integer getAvgCompletionTimeMonths() {
+        return avgCompletionTimeMonths;
+    }
+
+    public void setAvgCompletionTimeMonths(Integer avgCompletionTimeMonths) {
+        this.avgCompletionTimeMonths = avgCompletionTimeMonths;
+    }
+
+    public Map<String, Integer> getProjectCountByCity() {
+        return projectCountByCity;
+    }
+
+    public void setProjectCountByCity(Map<String, Integer> projectCountByCity) {
+        this.projectCountByCity = projectCountByCity;
+    }
+    
 }
