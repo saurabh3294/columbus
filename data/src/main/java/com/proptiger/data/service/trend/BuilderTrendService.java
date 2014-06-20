@@ -168,8 +168,11 @@ public class BuilderTrendService {
                 builderTrend.trimUnitTypeDetails();
 
                 // set project on-hold count info
-                builderTrend.setProjectCountOnHold(builderService.getProjectStatusCountMap(builderId, null)
-                        .get(ConstructionStatus.OnHold.getStatus().toLowerCase()).intValue());
+                if (builderService.getProjectStatusCountMap(builderId, null).get(
+                        ConstructionStatus.OnHold.getStatus().toLowerCase()) != null) {
+                    builderTrend.setProjectCountOnHold(builderService.getProjectStatusCountMap(builderId, null)
+                            .get(ConstructionStatus.OnHold.getStatus().toLowerCase()).intValue());
+                }
                 builderTrends.add(builderTrend);
             }
         }
