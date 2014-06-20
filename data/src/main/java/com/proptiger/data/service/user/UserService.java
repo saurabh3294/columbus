@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
@@ -34,6 +36,8 @@ import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.SubscriptionPermissionDao;
+import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.util.UtilityClass;
 
@@ -60,6 +64,12 @@ public class UserService {
 
     @Autowired
     private LocalityService       localityService;
+
+    @Autowired
+    UserSubscriptionMappingDao    userSubscriptionMappingDao;
+
+    @Autowired
+    SubscriptionPermissionDao     subscriptionPermissionDao;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -194,6 +204,62 @@ public class UserService {
             }
         }
         return userAppSubscription;
+    }
+
+    /**
+     * @param userId
+     *            userId for which subscription permissions are needed.
+     * @return List of subscriptionPermissions or an empty-list if there are no
+     *         permissions installed.
+     */
+    private List<SubscriptionPermission> getUserAppSubscriptionDetails(int userId) {
+        List<UserSubscriptionMapping> userSubscriptionMappingList = userSubscriptionMappingDao.findAllByUserId(userId);
+        if (userSubscriptionMappingList == null) {
+            return (new ArrayList<SubscriptionPermission>());
+        }
+
+        List<Integer> subscriptionIdList = new ArrayList<Integer>();
+        for (UserSubscriptionMapping usm : userSubscriptionMappingList) {
+            subscriptionIdList.add(usm.getSubscriptionId());
+        }
+
+        List<SubscriptionPermission> subscriptionPermissions = subscriptionPermissionDao
+                .findAllBySubscriptionId(subscriptionIdList);
+        if (subscriptionPermissions == null) {
+            return (new ArrayList<SubscriptionPermission>());
+        }
+
+        return subscriptionPermissions;
+    }
+
+    public MultiKeyMap getUserSubscriptionMap(int userId) {
+        List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
+        MultiKeyMap userSubscriptionMap = new MultiKeyMap();
+        Permission permission;
+        int objectTypeId, objectId;
+        for (SubscriptionPermission sp : subscriptionPermissions) {
+            permission = sp.getPermission();
+
+            if (permission != null) {
+                objectTypeId = permission.getObjectTypeId();
+                objectId = permission.getObjectId();
+                userSubscriptionMap.put(objectTypeId, objectId, permission);
+                if (objectTypeId == DomainObject.locality.getObjectTypeId()) {
+                    int cityId = getCityIdFromLocalityId(objectId);
+                    userSubscriptionMap.put(DomainObject.city.getObjectTypeId(), cityId, null);
+                }
+            }
+        }
+        return userSubscriptionMap;
+    }
+
+    private int getCityIdFromLocalityId(int localityId) {
+        try {
+            return localityService.getLocality(localityId).getSuburb().getCityId();
+        }
+        catch (Exception ex) {
+            return -1;
+        }
     }
 
     /**

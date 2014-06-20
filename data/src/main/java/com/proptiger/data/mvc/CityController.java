@@ -21,7 +21,7 @@ import com.proptiger.data.service.CityService;
  * 
  */
 @Controller
-@RequestMapping(value = "data/v1/entity/city")
+@RequestMapping(value = {"data/v1/entity/city", "data/v1/auth/entity/city"})
 public class CityController extends BaseController {
 
     @Autowired
