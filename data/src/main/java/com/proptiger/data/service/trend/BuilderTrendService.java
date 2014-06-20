@@ -114,7 +114,7 @@ public class BuilderTrendService {
                         if (minPricePerUnitArea != null) {
                             builderTrend.setMinPricePerUnitArea(UtilityClass.min(
                                     builderTrend.getMinPricePerUnitArea(),
-                                    (Integer) inventoryPriceTrend.getExtraAttributes().get("minPricePerUnitArea")));
+                                    (Integer) minPricePerUnitArea));
                         }
 
                         Object maxPricePerUnitArea = inventoryPriceTrend.getExtraAttributes()
@@ -125,23 +125,25 @@ public class BuilderTrendService {
                                     (Integer) maxPricePerUnitArea));
                         }
 
-                        if (inventoryPriceTrend.getExtraAttributes().get("sumLtdSupply") != null) {
-                            builderTrend.setSupply(builderTrend.getSupply() + ((Long) inventoryPriceTrend
-                                    .getExtraAttributes().get("sumLtdSupply")).intValue());
+                        Object sumLtdSupply = inventoryPriceTrend.getExtraAttributes().get("sumLtdSupply");
+                        if (sumLtdSupply != null) {
+                            builderTrend.setSupply(builderTrend.getSupply() + ((Long) sumLtdSupply).intValue());
                         }
-                        if (inventoryPriceTrend.getExtraAttributes().get("sumLtdLaunchedUnit") != null) {
-                            int launchedUnits = ((Long) inventoryPriceTrend.getExtraAttributes().get(
-                                    "sumLtdLaunchedUnit")).intValue();
+                        Object sumLtdLaunchedUnit = inventoryPriceTrend.getExtraAttributes().get("sumLtdLaunchedUnit");
+                        if (sumLtdLaunchedUnit != null) {
+                            int launchedUnits = ((Long) sumLtdLaunchedUnit).intValue();
                             builderTrend.setLaunchedUnit(builderTrend.getLaunchedUnit() + launchedUnits);
-                            if (inventoryPriceTrend.getExtraAttributes().get("wavgSizeOnLtdLaunchedUnit") != null) {
-                                builderTrend.setTotalArea(builderTrend.getTotalArea() + ((Double) inventoryPriceTrend
-                                        .getExtraAttributes().get("wavgSizeOnLtdLaunchedUnit")).intValue()
-                                        * launchedUnits);
+                            Object wavgSizeOnLtdLaunchedUnit = inventoryPriceTrend.getExtraAttributes().get(
+                                    "wavgSizeOnLtdLaunchedUnit");
+                            if (wavgSizeOnLtdLaunchedUnit != null) {
+                                builderTrend
+                                        .setTotalArea(builderTrend.getTotalArea() + ((Double) wavgSizeOnLtdLaunchedUnit)
+                                                .intValue() * launchedUnits);
                             }
                         }
-                        if (inventoryPriceTrend.getExtraAttributes().get("sumInventory") != null) {
-                            builderTrend.setInventory(builderTrend.getInventory() + ((Long) inventoryPriceTrend
-                                    .getExtraAttributes().get("sumInventory")).intValue());
+                        Object sumInventory = inventoryPriceTrend.getExtraAttributes().get("sumInventory");
+                        if (sumInventory != null) {
+                            builderTrend.setInventory(builderTrend.getInventory() + ((Long) sumInventory).intValue());
                         }
 
                         populateUnitTypeDetails(builderTrend, inventoryPriceTrend);
@@ -168,10 +170,10 @@ public class BuilderTrendService {
                 builderTrend.trimUnitTypeDetails();
 
                 // set project on-hold count info
-                if (builderService.getProjectStatusCountMap(builderId, null).get(
-                        ConstructionStatus.OnHold.getStatus().toLowerCase()) != null) {
-                    builderTrend.setProjectCountOnHold(builderService.getProjectStatusCountMap(builderId, null)
-                            .get(ConstructionStatus.OnHold.getStatus().toLowerCase()).intValue());
+                Long projectCountOnHold = builderService.getProjectStatusCountMap(builderId, null).get(
+                        ConstructionStatus.OnHold.getStatus().toLowerCase());
+                if (projectCountOnHold != null) {
+                    builderTrend.setProjectCountOnHold(projectCountOnHold.intValue());
                 }
                 builderTrends.add(builderTrend);
             }
