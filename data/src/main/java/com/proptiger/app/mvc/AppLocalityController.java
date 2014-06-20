@@ -27,7 +27,7 @@ import com.proptiger.data.service.LocalityService;
  * 
  */
 @Controller
-@RequestMapping(value = "app/v1/locality")
+@RequestMapping(value = {"app/v1/locality", "app/v1/auth/locality"})
 public class AppLocalityController extends BaseController {
 
     @Autowired
