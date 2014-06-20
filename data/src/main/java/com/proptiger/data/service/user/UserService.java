@@ -39,6 +39,7 @@ import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
 
 /**
@@ -49,6 +50,9 @@ import com.proptiger.data.util.UtilityClass;
  */
 @Service
 public class UserService {
+
+    @Value("${b2b.price-inventory.max.month}")
+    private String                currentMonth;
 
     @Value("${enquired.within.days}")
     private Integer               enquiredWithinDays;
@@ -114,7 +118,7 @@ public class UserService {
 
         for (UserPreference preference : preferenceService.getUserPreferences(user.getUserId())) {
             UserAppDetail appDetail = new UserAppDetail();
-            appDetail.setPreferences(preference.getPreference());
+            appDetail.setPreference(preference);
             appDetailsMap.put(preference.getApp(), appDetail);
         }
 
@@ -137,6 +141,7 @@ public class UserService {
             appSubscription.setCompany(subscription.getCompany());
 
             setUserAppSubscriptionDetails(subscription.getPermissions(), appSubscription);
+            appSubscription.setDataUpdationDate(DateUtil.parseYYYYmmddStringToDate(currentMonth));
             subscriptions.add(appSubscription);
         }
 
