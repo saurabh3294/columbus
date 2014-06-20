@@ -36,7 +36,7 @@ public class City extends BaseModel {
     private Integer              id;
 
     @Transient
-    private boolean              authorized       = false;
+    private boolean              authorized       = true;
 
     @FieldMetaInfo(displayName = "Label", description = "City label")
     @Column(name = "LABEL")
