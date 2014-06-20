@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.dto.external.trend.BuilderTrend;
+import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.init.comparator.GenericComparator;
 import com.proptiger.data.internal.dto.ActiveUser;
@@ -168,7 +169,7 @@ public class BuilderTrendService {
 
                 // set project on-hold count info
                 builderTrend.setProjectCountOnHold(builderService.getProjectStatusCountMap(builderId, null)
-                        .get("on hold").intValue());
+                        .get(ConstructionStatus.OnHold.getStatus().toLowerCase()).intValue());
                 builderTrends.add(builderTrend);
             }
         }
