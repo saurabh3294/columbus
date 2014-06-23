@@ -84,6 +84,9 @@ public class URLService {
         }
 
         switch (pageType) {
+            case HOME_PAGE:
+                responseStatus = HttpStatus.SC_OK;
+                break;
             case PROPERTY_URLS:
                 Property property = null;
                 try {
@@ -279,7 +282,7 @@ public class URLService {
         urlDetail.setUrl(URL);
         return urlDetail;
     }
-    
+
     @Deprecated
     @Cacheable(value = Constants.CacheName.REDIRECT_URL_MAP)
     public RedirectUrlMap getRedirectUrlForOldUrl(String fromUrl) {
