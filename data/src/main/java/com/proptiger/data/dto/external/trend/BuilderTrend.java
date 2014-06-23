@@ -30,8 +30,8 @@ public class BuilderTrend {
     private String                              builderName;
     private String                              builderHeadquarterCity;
     private int                                 projectCount;
-    private int                                 minPricePerUnitArea                   = 0;
-    private int                                 maxPricePerUnitArea                   = 0;
+    private Integer                             minPricePerUnitArea;
+    private Integer                             maxPricePerUnitArea;
     private int                                 supply                                = 0;
     private int                                 launchedUnit                          = 0;
     private int                                 inventory                             = 0;
@@ -100,19 +100,19 @@ public class BuilderTrend {
         this.projectCount = projectCount;
     }
 
-    public int getMinPricePerUnitArea() {
+    public Integer getMinPricePerUnitArea() {
         return minPricePerUnitArea;
     }
 
-    public void setMinPricePerUnitArea(int minPricePerUnitArea) {
+    public void setMinPricePerUnitArea(Integer minPricePerUnitArea) {
         this.minPricePerUnitArea = minPricePerUnitArea;
     }
 
-    public int getMaxPricePerUnitArea() {
+    public Integer getMaxPricePerUnitArea() {
         return maxPricePerUnitArea;
     }
 
-    public void setMaxPricePerUnitArea(int maxPricePerUnitArea) {
+    public void setMaxPricePerUnitArea(Integer maxPricePerUnitArea) {
         this.maxPricePerUnitArea = maxPricePerUnitArea;
     }
 
