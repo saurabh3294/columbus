@@ -12,6 +12,7 @@ public enum PageType {
      * URL should match the specification, then only the regex will work
      * correctly
      */
+    HOME_PAGE("^$", new String[]{}),
     CITY_URLS("^([\\w]+)(?:(/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale)(/[\\d]bhk)?(/\\d+-\\d+-lacs)?)|(-real-estate(/overview)?)|/(resale-property|ready-to-move-property|under-construction-properties|upcoming-properties|upcoming-projects|luxury-projects|low-budget-flats|affordable-flats|new-projects-for-sale|upcoming-flats-for-sale|ready-to-move-flats|resale-apartments|new-apartments-for-sale|all-builders))$", new String[] { "cityName" }),
     LOCALITY_SUBURB_LISTING_SEO("^(?:[\\w]+)/(society-flats-in|resale-property-in|ready-to-move-property-in|under-construction-properties-in|upcoming-properties-in|upcoming-Projects-in|luxury-projects-in|low-budget-flats-in|affordable-flats-in|new-projects-for-sale-in|residential-property-for-sale-in|upcoming-flats-for-sale-in|ready-to-move-flats-in|resale-apartments-in|new-apartments-for-sale-in)-(?:[\\w][\\-\\w]+[\\w])-(\\d{5,5})$", new String[] { "propertyType", "localityId"}),
     LOCALITY_SUBURB_LISTING("^(?:[\\w]+)/(apartments-flats-sale|property-sale|house-sale|villas-sale|sites-plots-sale)-(?:[\\w][\\-\\w]+[\\w])-(\\d{5,5})(/[\\d]bhk)?(/\\d+-\\d+-lacs)?$", new String[] { "propertyType", "localityId", "bedroomString", "priceString" }), 
