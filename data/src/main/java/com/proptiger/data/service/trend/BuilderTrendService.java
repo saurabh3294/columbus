@@ -16,12 +16,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.dto.external.trend.BuilderTrend;
+import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.init.comparator.GenericComparator;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ResourceNotFoundException;
@@ -51,6 +53,9 @@ public class BuilderTrendService {
     private static final int    MAX_ROWS       = 5000;
 
     private static final String DESC_SPECIFIER = "-";
+
+    @Autowired
+    private BuilderService      builderService;
 
     public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, ActiveUser userInfo) {
         FIQLSelector selector = new FIQLSelector();
@@ -109,7 +114,7 @@ public class BuilderTrendService {
                         if (minPricePerUnitArea != null) {
                             builderTrend.setMinPricePerUnitArea(UtilityClass.min(
                                     builderTrend.getMinPricePerUnitArea(),
-                                    (Integer) inventoryPriceTrend.getExtraAttributes().get("minPricePerUnitArea")));
+                                    (Integer) minPricePerUnitArea));
                         }
 
                         Object maxPricePerUnitArea = inventoryPriceTrend.getExtraAttributes()
@@ -120,23 +125,25 @@ public class BuilderTrendService {
                                     (Integer) maxPricePerUnitArea));
                         }
 
-                        if (inventoryPriceTrend.getExtraAttributes().get("sumLtdSupply") != null) {
-                            builderTrend.setSupply(builderTrend.getSupply() + ((Long) inventoryPriceTrend
-                                    .getExtraAttributes().get("sumLtdSupply")).intValue());
+                        Object sumLtdSupply = inventoryPriceTrend.getExtraAttributes().get("sumLtdSupply");
+                        if (sumLtdSupply != null) {
+                            builderTrend.setSupply(builderTrend.getSupply() + ((Long) sumLtdSupply).intValue());
                         }
-                        if (inventoryPriceTrend.getExtraAttributes().get("sumLtdLaunchedUnit") != null) {
-                            int launchedUnits = ((Long) inventoryPriceTrend.getExtraAttributes().get(
-                                    "sumLtdLaunchedUnit")).intValue();
+                        Object sumLtdLaunchedUnit = inventoryPriceTrend.getExtraAttributes().get("sumLtdLaunchedUnit");
+                        if (sumLtdLaunchedUnit != null) {
+                            int launchedUnits = ((Long) sumLtdLaunchedUnit).intValue();
                             builderTrend.setLaunchedUnit(builderTrend.getLaunchedUnit() + launchedUnits);
-                            if (inventoryPriceTrend.getExtraAttributes().get("wavgSizeOnLtdLaunchedUnit") != null) {
-                                builderTrend.setTotalArea(builderTrend.getTotalArea() + ((Double) inventoryPriceTrend
-                                        .getExtraAttributes().get("wavgSizeOnLtdLaunchedUnit")).intValue()
-                                        * launchedUnits);
+                            Object wavgSizeOnLtdLaunchedUnit = inventoryPriceTrend.getExtraAttributes().get(
+                                    "wavgSizeOnLtdLaunchedUnit");
+                            if (wavgSizeOnLtdLaunchedUnit != null) {
+                                builderTrend
+                                        .setTotalArea(builderTrend.getTotalArea() + ((Double) wavgSizeOnLtdLaunchedUnit)
+                                                .intValue() * launchedUnits);
                             }
                         }
-                        if (inventoryPriceTrend.getExtraAttributes().get("sumInventory") != null) {
-                            builderTrend.setInventory(builderTrend.getInventory() + ((Long) inventoryPriceTrend
-                                    .getExtraAttributes().get("sumInventory")).intValue());
+                        Object sumInventory = inventoryPriceTrend.getExtraAttributes().get("sumInventory");
+                        if (sumInventory != null) {
+                            builderTrend.setInventory(builderTrend.getInventory() + ((Long) sumInventory).intValue());
                         }
 
                         populateUnitTypeDetails(builderTrend, inventoryPriceTrend);
@@ -161,6 +168,13 @@ public class BuilderTrendService {
 
                 populateDelayedProjectDetails(builderTrend, mappedDelayedProjects);
                 builderTrend.trimUnitTypeDetails();
+
+                // set project on-hold count info
+                Long projectCountOnHold = builderService.getProjectStatusCountMap(builderId, null).get(
+                        ConstructionStatus.OnHold.getStatus().toLowerCase());
+                if (projectCountOnHold != null) {
+                    builderTrend.setProjectCountOnHold(projectCountOnHold.intValue());
+                }
                 builderTrends.add(builderTrend);
             }
         }
