@@ -33,7 +33,7 @@ public class Typeahead extends BaseModel {
     private String            id;
 
     @Transient
-    private boolean           authorized       = true;
+    private boolean           authorized       = false;
 
     @Field(value = "TYPEAHEAD_LABEL")
     private String            label;
