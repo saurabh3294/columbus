@@ -27,7 +27,7 @@ import com.proptiger.data.service.LocalityService;
  * 
  */
 @Controller
-@RequestMapping(value = {"app/v1/locality", "app/v1/auth/locality"})
+@RequestMapping(value = "app/v1/locality")
 public class AppLocalityController extends BaseController {
 
     @Autowired
@@ -62,8 +62,7 @@ public class AppLocalityController extends BaseController {
     @DisableCaching
     public APIResponse getLocalityDetails(@PathVariable int localityId, @RequestParam(
             required = false,
-            value = "selector") String selectorStr, @RequestParam(
-            required = false) Integer imageCount) {
+            value = "selector") String selectorStr, @RequestParam(required = false) Integer imageCount) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         if (selector == null) {
             selector = new Selector();
