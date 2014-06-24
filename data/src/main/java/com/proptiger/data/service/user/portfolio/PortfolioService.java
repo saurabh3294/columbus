@@ -53,6 +53,7 @@ import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.CityService;
+import com.proptiger.data.service.ImageEnricher;
 import com.proptiger.data.service.ImageService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
@@ -126,6 +127,9 @@ public class PortfolioService {
 
     @Value("${proptiger.url}")
     private String                    websiteHost;
+
+    @Autowired
+    private ImageEnricher             imageEnricher;
 
     /**
      * Get portfolio object for a particular user id
@@ -254,6 +258,10 @@ public class PortfolioService {
                 listing.setPropertyImages(projectIdToImagesMap.get(projectId));
             }
             Project project = projectIdToProjectMap.get(projectId);
+            if (listing.getPropertyImages().isEmpty()) {
+                Image defaultProjectImage = imageEnricher.getDefaultProjectImage(project.getImageURL());
+                listing.setPropertyImages(Arrays.asList(defaultProjectImage));
+            }
             listing.setProjectName(project.getName());
             listing.setBuilderName(project.getBuilder().getName());
             listing.setCompletionDate(project.getPossessionDate());
