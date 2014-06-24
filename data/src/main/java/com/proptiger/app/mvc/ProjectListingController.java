@@ -32,7 +32,7 @@ import com.proptiger.data.service.PropertyService;
  * 
  */
 @Controller
-@RequestMapping(value = {"app/v1/project-listing", "app/v1/auth/project-listing"})
+@RequestMapping(value = "app/v1/project-listing")
 public class ProjectListingController extends BaseController {
     @Autowired
     private PropertyService propertyService;
