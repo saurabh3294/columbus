@@ -105,7 +105,7 @@ public class Project extends BaseModel {
     private int                     projectId;
 
     @Transient
-    private boolean                 authorized        = false;
+    private boolean                 authorized        = true;
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
