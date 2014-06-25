@@ -57,7 +57,8 @@ public class Project extends BaseModel {
                 "locality",
                 "suburb",
                 "city",
-                "id" }), suburbId(new String[] { "locality", "suburb", "id" }), localityLabel(new String[] {
+                "cityId",
+                "id" }), suburbId(new String[] { "locality", "suburb","suburbId", "id" }), localityLabel(new String[] {
                 "locality",
                 "label" }), builderImageURL(new String[] { "builder", "imageURL" }), bedrooms(new String[] {
                 "properties",
@@ -105,7 +106,7 @@ public class Project extends BaseModel {
     private int                     projectId;
 
     @Transient
-    private boolean                 authorized        = true;
+    private boolean                 authorized        = false;
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
