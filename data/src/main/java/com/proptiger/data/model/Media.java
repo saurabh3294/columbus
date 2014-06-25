@@ -10,6 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -96,6 +97,11 @@ public class Media extends BaseModel {
     @Column(name = "updated_at")
     @ExcludeFromBeanCopy
     private Date              updatedAt        = new Date();
+
+    @OneToOne(optional = true)
+    @JoinColumn(name = "id", insertable = false, updatable = false)
+    @ExcludeFromBeanCopy
+    private AudioAttributes   audioAttributes;
 
     @PostLoad
     private void postLoad() {
@@ -224,5 +230,13 @@ public class Media extends BaseModel {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public AudioAttributes getAudioAttributes() {
+        return audioAttributes;
+    }
+
+    public void setAudioAttributes(AudioAttributes audioAttributes) {
+        this.audioAttributes = audioAttributes;
     }
 }
