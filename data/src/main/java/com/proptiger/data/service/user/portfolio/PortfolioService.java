@@ -272,7 +272,7 @@ public class PortfolioService {
                 listing.setPropertyImages(projectIdToImagesMap.get(projectId));
             }
             Project project = projectIdToProjectMap.get(projectId);
-            if (listing.getPropertyImages().isEmpty()) {
+            if ((listing.getPropertyImages() == null) || (listing.getPropertyImages().isEmpty())) {
                 Image defaultProjectImage = imageEnricher.getDefaultProjectImage(project.getImageURL());
                 listing.setPropertyImages(Arrays.asList(defaultProjectImage));
             }
