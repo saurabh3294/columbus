@@ -132,6 +132,8 @@ public class Constants {
 
         public static final String REDIRECT_URL_MAP                      = "redirect-url-map";
 
+        public static final String PORTFOLIO_LISTING                     = "portfolio-listing";
+
     }
 
     public static final List<ConstructionStatus> CONSTRUCTION_STATUS_FOR_PRIMARY = Arrays.asList(
