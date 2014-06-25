@@ -39,7 +39,7 @@ import com.proptiger.exception.ResourceNotFoundException;
 // provided FIQL results in large dataset
 @Service
 public class BuilderTrendService {
-    private static final String WAVG_PRICE     = "wavgPricePerUnitAreaOnSupply";
+    private static final String WAVG_PRICE        = "wavgPricePerUnitAreaOnSupply";
 
     @Autowired
     TrendDao                    trendDao;
@@ -50,9 +50,11 @@ public class BuilderTrendService {
     @Value("${b2b.price-appreciation.duration}")
     private Integer             appreciationDuration;
 
-    private static final int    MAX_ROWS       = 5000;
+    private static final int    MAX_ROWS          = 5000;
 
-    private static final String DESC_SPECIFIER = "-";
+    private static final int    MAX_ALLOWED_DELAY = 5;
+
+    private static final String DESC_SPECIFIER    = "-";
 
     @Autowired
     private BuilderService      builderService;
@@ -260,6 +262,10 @@ public class BuilderTrendService {
             Map<String, Object> extraAttributes = mappedDelayedProjects.get(builderId).get(0).getExtraAttributes();
             Map<String, Integer> delayedDetails = builderTrend.getDelayed();
 
+            delayedDetails.put(
+                    BuilderTrend.PROJECT_COUNT_KEY,
+                    Integer.valueOf(extraAttributes.get("countDistinctProjectId").toString()));
+
             Object sumSupply = extraAttributes.get("sumLtdSupply");
             if (sumSupply != null) {
                 delayedDetails.put(
@@ -358,8 +364,8 @@ public class BuilderTrendService {
     private FIQLSelector getDelayedFIQLFromUserFiql(FIQLSelector userFIQLSelector) {
         FIQLSelector result = new FIQLSelector();
         result.setFilters(userFIQLSelector.getFilters()).addAndConditionToFilter("month==" + currentMonth)
-                .addAndConditionToFilter("completionDelayInMonth=gt=0");
-        result.setFields("builderId,sumLtdLaunchedUnit,sumLtdSupply,sumInventory,wavgSizeOnLtdSupply");
+                .addAndConditionToFilter("completionDelayInMonth=gt=" + MAX_ALLOWED_DELAY);
+        result.setFields("builderId,countDistinctProjectId,sumLtdLaunchedUnit,sumLtdSupply,sumInventory,wavgSizeOnLtdSupply");
         result.setGroup("builderId");
         result.setRows(MAX_ROWS);
         return result;
