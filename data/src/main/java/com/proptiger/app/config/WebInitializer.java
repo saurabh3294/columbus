@@ -17,6 +17,8 @@ import org.springframework.web.servlet.DispatcherServlet;
  *
  */
 public class WebInitializer implements WebApplicationInitializer {
+    private static final int JSESSIONID_MAX_AGE = 60*60*24*7;
+
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext rootContext = new AnnotationConfigWebApplicationContext();
@@ -33,6 +35,8 @@ public class WebInitializer implements WebApplicationInitializer {
          * object address will not be used to create etag values.
          */
         servletContext.addFilter("etagFilter", new ShallowEtagHeaderFilter()).addMappingForUrlPatterns(null, false, "/*");
+        
+        servletContext.getSessionCookieConfig().setMaxAge(JSESSIONID_MAX_AGE);
     }
 
 }
