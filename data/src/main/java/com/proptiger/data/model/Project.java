@@ -458,6 +458,14 @@ public class Project extends BaseModel {
     @Field(value = "PROJECT_VIEW_COUNT")
     private Integer                 projectViewCount;
 
+    @Transient
+    @Field(value = "PROJECT_SAFETY_SCORE")
+    private Double                 safetyScore;
+
+    @Transient
+    @Field(value = "PROJECT_LIVABILITY_SCORE")
+    private Float                 livabilityScore;
+
     public int getProjectId() {
         return projectId;
     }
@@ -1101,4 +1109,21 @@ public class Project extends BaseModel {
     public void setProjectViewCount(Integer projectViewCount) {
         this.projectViewCount = projectViewCount;
     }
+
+    public Double getSafetyScore() {
+        return safetyScore;
+    }
+
+    public void setSafetyScore(Double safetyScore) {
+        this.safetyScore = safetyScore;
+    }
+
+    public Float getLivabilityScore() {
+        return livabilityScore;
+    }
+
+    public void setLivabilityScore(Float livabilityScore) {
+        this.livabilityScore = livabilityScore;
+    }
+
 }

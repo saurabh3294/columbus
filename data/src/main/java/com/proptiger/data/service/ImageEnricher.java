@@ -234,6 +234,17 @@ public class ImageEnricher {
 
         return images;
     }
+    
+    /**
+     * Method returns default Project Image for 
+     * Project's Main Url
+     * 
+     * @param mainImageUrl
+     * @return
+     */
+    public Image getDefaultProjectImage(String projectMainImageUrl) {
+        return getProjectRandomMainImage(projectMainImageUrl);
+    }
 
     /**
      * In the case when the project does not contain the main image. A random
