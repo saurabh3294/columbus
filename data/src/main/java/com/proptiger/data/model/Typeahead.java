@@ -66,6 +66,9 @@ public class Typeahead extends BaseModel {
     @Field(value = "LOCALITY_URL")
     private String            localityURL;
 
+    @Field(value = "LOCALITY_ID")
+    private Integer           localityId;
+
     @Field(value = "TYPEAHEAD_LABEL_LOWERCASE")
     private String            labelLowercase;
 
@@ -226,5 +229,13 @@ public class Typeahead extends BaseModel {
 
     public void setAuthorized(boolean authorized) {
         this.authorized = authorized;
+    }
+
+    public Integer getLocalityId() {
+        return localityId;
+    }
+
+    public void setLocalityId(Integer localityId) {
+        this.localityId = localityId;
     }
 }
