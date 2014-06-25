@@ -1,5 +1,7 @@
 package com.proptiger.data.mvc;
 
+import java.io.File;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -14,7 +16,9 @@ import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.Media;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.service.AudioService;
 import com.proptiger.data.service.DocumentService;
+import com.proptiger.data.util.FileUtil;
 
 /**
  * 
@@ -27,15 +31,19 @@ import com.proptiger.data.service.DocumentService;
 public class MediaController {
     @Autowired
     private DocumentService documentService;
+    
+    @Autowired
+    private AudioService audioService;
 
     @RequestMapping(method = RequestMethod.POST, value = "/document")
     public @ResponseBody
     Object createMedia(
             @RequestParam DomainObject objectType,
             @RequestParam Integer objectId,
-            @RequestParam MultipartFile file,
+            @RequestParam MultipartFile multipartFile,
             @RequestParam String documentType,
             @ModelAttribute Media media) {
+        File file = FileUtil.createFileFromMultipartFile(multipartFile);
         return documentService.createMedia(objectType, objectId, file, documentType, media);
     }
 
@@ -59,5 +67,41 @@ public class MediaController {
     @ResponseBody
     public APIResponse updateMedia(@PathVariable Integer id, @ModelAttribute Media media) {
         return new APIResponse(documentService.updateMedia(media, id));
+    }
+    
+    /********** AUDIO ************/
+    
+    @RequestMapping(method = RequestMethod.POST, value = "/audio")
+    public @ResponseBody
+    Object createMediaAudio(
+            @RequestParam DomainObject objectType,
+            @RequestParam Integer objectId,
+            @RequestParam MultipartFile multipartFile,
+            @RequestParam String documentType,
+            @ModelAttribute Media media) {
+        File file = FileUtil.createFileFromMultipartFile(multipartFile);
+        return audioService.createMedia(objectType, objectId, file, documentType, media);
+    }
+
+    @RequestMapping(value = "/audio")
+    @ResponseBody
+    public APIResponse getMediaAudio(
+            @RequestParam DomainObject objectType,
+            @RequestParam Integer objectId,
+            @RequestParam(required = false) String documentType) {
+        return new APIResponse(audioService.getMedia(objectType, objectId, documentType));
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, value = "/audio/{id}")
+    @ResponseBody
+    public APIResponse deleteMediaAudio(@PathVariable Integer id) {
+        audioService.deleteMedia(id);
+        return new APIResponse();
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/audio/{id}")
+    @ResponseBody
+    public APIResponse updateMediaAudio(@PathVariable Integer id, @ModelAttribute Media media) {
+        return new APIResponse(audioService.updateMedia(media, id));
     }
 }
