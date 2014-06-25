@@ -10,13 +10,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.init.NullAwareBeanUtilsBean;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
@@ -25,7 +26,9 @@ import com.proptiger.data.model.Property;
 import com.proptiger.data.model.RedirectUrlMap;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.URLDetail;
+import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.repo.RedirectUrlMapDao;
+import com.proptiger.data.service.user.portfolio.PortfolioService;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.PageType;
 import com.proptiger.exception.ProAPIException;
@@ -57,6 +60,9 @@ public class URLService {
 
     @Autowired
     private RedirectUrlMapDao redirectUrlMapDao;
+
+    @Autowired
+    private PortfolioService  portfolioService;
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
@@ -124,14 +130,19 @@ public class URLService {
             case BUILDER_URLS:
             case BUILDER_URLS_SEO:
                 Builder builder = null;
+                City builderCity = new City();
                 try {
                     builder = builderService.getBuilderById(urlDetail.getBuilderId());
+                    if (urlDetail.getCityName() != null && !urlDetail.getCityName().isEmpty()) {
+                        builderCity = cityService.getCityByName(urlDetail.getCityName().replace("/", ""));
+                    }
                 }
                 catch (ResourceNotAvailableException e) {
                     builder = null;
+                    builderCity = null;
                 }
 
-                if (builder == null) {
+                if (builder == null || builderCity == null) {
                     responseStatus = HttpStatus.SC_NOT_FOUND;
                 }
                 else {
@@ -196,6 +207,15 @@ public class URLService {
             case STATIC_URLS:
                 responseStatus = HttpStatus.SC_OK;
                 break;
+            case PORTFOLIO_URLS:
+                if (urlDetail.getPortfolioId() != null) {
+                    PortfolioListing portfolioListing = portfolioService.getActivePortfolioOnId(urlDetail
+                            .getPortfolioId());
+                    if (portfolioListing == null) {
+                        responseStatus = HttpStatus.SC_NOT_FOUND;
+                    }
+                }
+                break;
             default:
                 responseStatus = HttpStatus.SC_NOT_FOUND;
                 break;
@@ -259,6 +279,7 @@ public class URLService {
     public URLDetail parse(String URL) throws IllegalAccessException, InvocationTargetException {
         URLDetail urlDetail = new URLDetail();
         List<String> groups = new ArrayList<String>();
+        BeanUtilsBean beanUtilsBean = new NullAwareBeanUtilsBean();
 
         for (PageType pageType : PageType.values()) {
             Pattern pattern = Pattern.compile(pageType.getRegex());
@@ -273,7 +294,7 @@ public class URLService {
                 int i = 0;
 
                 for (String field : pageType.getURLDetailFields()) {
-                    BeanUtils.copyProperty(urlDetail, field, groups.get(i++));
+                    beanUtilsBean.copyProperty(urlDetail, field, groups.get(i++));
                 }
                 break;
             }

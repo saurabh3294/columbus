@@ -18,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -193,7 +195,14 @@ public class PortfolioService {
         Set<Integer> incompleteProjectIds = new HashSet<Integer>();
 
         for (PortfolioListing listing : listings) {
-            if (listing.getListingStatus() == ListingStatus.ACTIVE) {  // add both ProjectIds and PropertyIds for ACTIVE listings
+            if (listing.getListingStatus() == ListingStatus.ACTIVE) { // add
+                                                                      // both
+                                                                      // ProjectIds
+                                                                      // and
+                                                                      // PropertyIds
+                                                                      // for
+                                                                      // ACTIVE
+                                                                      // listings
                 propertyIds.add(new Long(listing.getTypeId()));
                 if (listing.getProjectId() == null) {
                     completeProjectIds.add(new Long(listing.getProperty().getProjectId()));
@@ -202,7 +211,12 @@ public class PortfolioService {
                     completeProjectIds.add(new Long(listing.getProjectId()));
                 }
             }
-            else if (listing.getListingStatus() == ListingStatus.INCOMPLETE) {  // add only ProjectIds for INCOMPLETE listings
+            else if (listing.getListingStatus() == ListingStatus.INCOMPLETE) { // add
+                                                                               // only
+                                                                               // ProjectIds
+                                                                               // for
+                                                                               // INCOMPLETE
+                                                                               // listings
                 incompleteProjectIds.add(listing.getProjectId());
             }
         }
@@ -218,7 +232,7 @@ public class PortfolioService {
             projectIdToProjectMap = PortfolioUtil.createProjectIdMap(properties);
 
             List<Image> propertyImages = imageService.getImages(DomainObject.property, null, propertyIds);
-            propertyIdToImageMap = PortfolioUtil.getPropertyIdToImageMap(propertyImages); 
+            propertyIdToImageMap = PortfolioUtil.getPropertyIdToImageMap(propertyImages);
         }
 
         List<Project> projects = new ArrayList<Project>();
@@ -229,7 +243,7 @@ public class PortfolioService {
             projectIdToProjectMap.put(project.getProjectId(), project);
         }
         List<Image> projectImages = imageService.getImages(DomainObject.project, null, completeProjectIds);
-        Map<Integer, List<Image>> projectIdToImagesMap = PortfolioUtil.getProjectIdToImageMap(projectImages); 
+        Map<Integer, List<Image>> projectIdToImagesMap = PortfolioUtil.getProjectIdToImageMap(projectImages);
         Integer projectId;
         for (PortfolioListing listing : listings) {
             if (listing.getProjectId() == null) {
@@ -312,11 +326,14 @@ public class PortfolioService {
             logger.error("Duplicate resource id {} and name {}", propertyPresent.getId(), propertyPresent.getName());
             throw new DuplicateNameResourceException("Resource with same name exist");
         }
-        if(toCreate.getTypeId() == null || toCreate.getListingSize() == null || toCreate.getName() == null || toCreate.getBasePrice() == null || toCreate.getTotalPrice() == null){
+        if (toCreate.getTypeId() == null || toCreate.getListingSize() == null
+                || toCreate.getName() == null
+                || toCreate.getBasePrice() == null
+                || toCreate.getTotalPrice() == null) {
             toCreate.setListingStatus(ListingStatus.INCOMPLETE);
         }
         else if (toCreate.getListingSize() == null || toCreate.getListingSize() <= 0) {
-                throw new InvalidResourceException(ResourceType.LISTING, ResourceTypeField.SIZE);
+            throw new InvalidResourceException(ResourceType.LISTING, ResourceTypeField.SIZE);
         }
     }
 
@@ -348,7 +365,7 @@ public class PortfolioService {
                     Constants.SubscriptionType.PROJECT_UPDATES,
                     Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
         }
-       return created;
+        return created;
     }
 
     /**
@@ -360,6 +377,7 @@ public class PortfolioService {
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
+    @CacheEvict(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#listingId")
     public PortfolioListing updatePortfolioListing(Integer userId, Integer listingId, PortfolioListing listing) {
         logger.debug("Update portfolio listing {} for user id {}", listingId, userId);
         listing.setUserId(userId);
@@ -516,6 +534,7 @@ public class PortfolioService {
      * @return
      */
     @Transactional(rollbackFor = ResourceNotAvailableException.class)
+    @CacheEvict(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#listingId")
     public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId, String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
         PortfolioListing propertyPresent = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
@@ -811,6 +830,17 @@ public class PortfolioService {
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
         return mailSender.sendMailUsingAws(mailDetails);
 
+    }
+
+    /**
+     * This method is used by URLService for checking the 404 status of
+     * portfolio property URL. Hence, fetching only active and non deleted
+     * portfolios. This cache will be evicted on portfolio deletion. This method
+     * not be used under Portfolio Calls.
+     */
+    @Cacheable(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#portfolioId")
+    public PortfolioListing getActivePortfolioOnId(int portfolioId) {
+        return portfolioListingDao.findByListingIdAndDeletedFlag(portfolioId, false);
     }
 
 }
