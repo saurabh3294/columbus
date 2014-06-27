@@ -95,6 +95,7 @@ public class URLService {
                 responseStatus = HttpStatus.SC_OK;
                 break;
             case PROPERTY_URLS:
+                responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Property property = null;
                 try {
                     property = propertyService.getProperty(urlDetail.getPropertyId());
@@ -105,14 +106,16 @@ public class URLService {
 
                 if (property == null) {
                     redirectUrl = getHigherHierarchyUrl(urlDetail.getPropertyId(), DomainObject.property.getText());
-                    responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 }
                 else if (!property.getURL().equals(urlDetail.getUrl())) {
-                    responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     redirectUrl = property.getURL();
+                }
+                else {
+                    responseStatus = HttpStatus.SC_OK;
                 }
                 break;
             case PROJECT_URLS:
+                responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Project project = null;
                 try {
                     project = projectService.getProjectData(urlDetail.getProjectId());
@@ -123,15 +126,17 @@ public class URLService {
 
                 if (project == null) {
                     redirectUrl = getHigherHierarchyUrl(urlDetail.getProjectId(), DomainObject.project.getText()); 
-                    responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 }
                 else if (!project.getURL().equals(urlDetail.getUrl())) {
-                    responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     redirectUrl = project.getURL();
+                }
+                else {
+                    responseStatus = HttpStatus.SC_OK;
                 }
                 break;
             case BUILDER_URLS:
             case BUILDER_URLS_SEO:
+                responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Builder builder = null;
                 City builderCity = new City();
                 try {
@@ -150,23 +155,19 @@ public class URLService {
                 }
                 
                 if (builder == null || builderCity == null) {
-                    if (builder == null && builderCity != null) {
+                    if (builderCity != null) {
                         if (urlDetail.getCityName() != null && !urlDetail.getCityName().isEmpty()) {
                             redirectUrl = builderCity.getUrl();
-                            responseStatus = HttpStatus.SC_MOVED_PERMANENTLY; 
                         }
                         else {
                             redirectUrl = EMPTY_URL;
-                            responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                         }
                     }
-                    else if (builder != null && builderCity == null) {
+                    else if (builder != null) {
                         redirectUrl = builder.getUrl();
-                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     }
                     else {
-                        redirectUrl = builder.getUrl();
-                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
+                        redirectUrl = EMPTY_URL;
                     }
                 }
                 else {
@@ -174,14 +175,17 @@ public class URLService {
                             + builder.getUrl()
                             + urlDetail.getBedroomString();
                     if (!domainUrl.equals(urlDetail.getUrl())) {
-                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                         redirectUrl = domainUrl;
+                    }
+                    else {
+                        responseStatus = HttpStatus.SC_OK;
                     }
                 }
                 break;
             case LOCALITY_SUBURB_LISTING:
             case LOCALITY_SUBURB_LISTING_SEO:
                 // localitySuburbListingUrl, cityName, response status
+                responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Object[] localitySuburbData = getLocalitySuburbListingUrl(urlDetail);
 
                 domainUrl = (String) localitySuburbData[0];
@@ -200,8 +204,10 @@ public class URLService {
                             .getBedroomString() + urlDetail.getPriceString();
                     
                     if (!domainUrl.equals(urlDetail.getUrl())) {
-                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                         redirectUrl = domainUrl;
+                    }
+                    else {
+                        responseStatus = HttpStatus.SC_OK;
                     }
                 }
                 break;
@@ -274,12 +280,10 @@ public class URLService {
             if (projectId != null) {
                 try {
                     project = projectService.getProjectData(projectId);
-                }
-                catch (ResourceNotAvailableException e) {
-                    project = null;
-                }
-                if (project != null) {
                     return project.getURL();
+                }
+                catch (ResourceNotAvailableException | NullPointerException e) {
+                    project = null;
                 }
             }
             project = projectService.getActiveOrInactiveProjectById(id);
@@ -297,12 +301,10 @@ public class URLService {
             if (localityId != null) {
                 try {
                     locality = localityService.getLocality(localityId);
-                }
-                catch (ResourceNotAvailableException e) {
-                    locality = null;
-                }
-                if (locality != null) {
                     return locality.getUrl();
+                }
+                catch (ResourceNotAvailableException | NullPointerException e) {
+                    locality = null;
                 }
             }
             else {
@@ -310,10 +312,10 @@ public class URLService {
                 if (locality == null) {
                       return EMPTY_URL;
                 }
-            }
-            if (locality != null) {
-                suburbId = locality.getSuburbId();
-                cityId = locality.getSuburb().getCityId();
+                else {
+                    suburbId = locality.getSuburbId();
+                    cityId = locality.getSuburb().getCityId();
+                }
             }
             id = suburbId;
             domainType = DomainObject.city.getText();
@@ -323,22 +325,20 @@ public class URLService {
             if (suburbId != null) {
                 try {
                     suburb = suburbService.getSuburb(suburbId);
-                }
-                catch (ResourceNotAvailableException e) {
-                    suburb = null;
-                }
-                if (suburb != null) {
                     return suburb.getUrl();
+                }
+                catch (ResourceNotAvailableException | NullPointerException e) {
+                    suburb = null;
                 }
             }
             else {
                 suburb = suburbService.getActiveOrInactiveSuburbById(id);
                 if (suburb == null) {
                     return EMPTY_URL;
+                } 
+                else {
+                    cityId = suburb.getCityId();
                 }
-            }
-            if (suburb != null) {
-                cityId = suburb.getCityId();
             }
             id = cityId;
             domainType = DomainObject.city.getText();
@@ -348,12 +348,10 @@ public class URLService {
             if (cityId != null) {
                 try {
                     city = cityService.getCity(cityId);
-                }
-                catch (ResourceNotAvailableException e) {
-                    city = null;
-                }
-                if (city != null) {
                     return city.getUrl();
+                }
+                catch (ResourceNotAvailableException | NullPointerException e) {
+                    city = null;
                 }
             }
         }
