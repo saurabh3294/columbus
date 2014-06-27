@@ -623,12 +623,12 @@ public class ProjectService {
         return projectSolrDao.getProjectCountByCities(builderId);
     }
     
-    @Cacheable(value = Constants.CacheName.FALLBACK_404, key = "#propertyId")
+    @Cacheable(value = Constants.CacheName.PROPERTY_INACTIVE)
     public Integer getProjectIdForPropertyId(Integer propertyId) {
         return projectDao.getProjectIdForPropertyId(propertyId);
     }
 
-    @Cacheable(value = Constants.CacheName.FALLBACK_404, key = "#projectId")
+    @Cacheable(value = Constants.CacheName.PROJECT_INACTIVE)
     public Project getActiveOrInactiveProjectById(Integer projectId) {
         return projectDao.findActiveOrInactiveProjectById(projectId);
     }

@@ -85,7 +85,7 @@ public class SuburbService {
         return suburbs.get(0); 
     }
 
-    @Cacheable(value = Constants.CacheName.FALLBACK_404, key = "#id")
+    @Cacheable(value = Constants.CacheName.SUBURB_INACTIVE)
     public Suburb getActiveOrInactiveSuburbById(Integer id) {
         return suburbDao.findOne(id);
     }

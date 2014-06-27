@@ -133,7 +133,10 @@ public class Constants {
         public static final String REDIRECT_URL_MAP                      = "redirect-url-map";
 
         public static final String PORTFOLIO_LISTING                     = "portfolio-listing";
-        public static final String FALLBACK_404                          = "fallback-404"; 
+        public static final String PROPERTY_INACTIVE                     = "property-inactive";
+        public static final String PROJECT_INACTIVE                      = "project-inactive";
+        public static final String LOCALITY_INACTIVE                     = "locality-inactive";
+        public static final String SUBURB_INACTIVE                       = "suburb-inactive";  
 
     }
 
