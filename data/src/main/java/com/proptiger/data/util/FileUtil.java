@@ -3,7 +3,6 @@ package com.proptiger.data.util;
 import java.io.File;
 
 import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,7 +13,8 @@ public class FileUtil {
 
     private static File   tempDir;
 
-    public static final String TempFileExtension = ".tmp";
+    public static final String TempFilePrefix = "tmp-";
+    public static final String TempNameSeparator = "-";
     
     @PostConstruct
     private void init() {
@@ -26,6 +26,7 @@ public class FileUtil {
 
     /**
      * Converts a multi-part file to a regular file.
+     * Conserves the file extension.
      * If a temp-file is created but conversion fails then it deletes the temp-file.
      * @param multipartFile
      * @return File object on success, 'null' on failure.
@@ -33,7 +34,7 @@ public class FileUtil {
     public static File createFileFromMultipartFile(MultipartFile multipartFile) {
         File file = null;
         try {
-            file = File.createTempFile(multipartFile.getOriginalFilename(), TempFileExtension, tempDir);
+            file = File.createTempFile(TempFilePrefix, TempNameSeparator + multipartFile.getOriginalFilename(), tempDir);
             multipartFile.transferTo(file);
             return file;
         }
@@ -43,7 +44,5 @@ public class FileUtil {
             }
             return null;
         }
-
     }
-
 }

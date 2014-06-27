@@ -3,6 +3,9 @@ package com.proptiger.data.service;
 import java.io.File;
 import java.util.List;
 
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,7 @@ public class AudioService extends MediaService {
             int uniqueId = finalMedia.getId();
             AudioAttributes audioAttributes = extractAndPopulateAudioAttributes(uniqueId, file);
             audioAttributeDao.save(audioAttributes);
+            finalMedia.setAudioAttributes(audioAttributes);
             return finalMedia;
         }
         catch (Exception ex) {
@@ -47,7 +51,6 @@ public class AudioService extends MediaService {
 
     @Override
     public void deleteMedia(Integer id) {
-        // TODO Auto-generated method stub
         super.deleteMedia(id);
     }
 
@@ -61,9 +64,25 @@ public class AudioService extends MediaService {
         return super.updateMedia(media, id);
     }
 
+    /**
+     * First fill default values then try to extract attributes.
+     */
     private AudioAttributes extractAndPopulateAudioAttributes(int uniqueId, File file) {
-        // TODO Auto-generated method stub
-        return null;
+        AudioAttributes audioAttributes = new AudioAttributes();
+        audioAttributes.setId(uniqueId);
+        audioAttributes.setDuration(null);
+        audioAttributes.setSampleRate(null);
+        try {
+            AudioFile f = AudioFileIO.read(file);
+            AudioHeader audioHeader = f.getAudioHeader();
+            audioAttributes.setDuration(audioHeader.getTrackLength());
+            audioAttributes.setSampleRate(audioHeader.getSampleRateAsNumber());
+        }
+        catch (Exception ex) {
+            logger.error("Exception while extracting audio attributes.", ex);
+        }
+
+        return audioAttributes;
     }
 
 }

@@ -9,6 +9,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -94,11 +95,10 @@ public abstract class MediaService {
     protected Media createMedia(
             DomainObject domainObject,
             Integer objectId,
-            File file,
+            File originalFile,
             String objectMediaType,
             Media media) throws Exception {
 
-        File originalFile = null;
         try {
             Media finalMedia = new Media();
 
@@ -116,9 +116,7 @@ public abstract class MediaService {
 
             mediaDao.save(finalMedia);
 
-            /* Removing the .tmp extension */
-            String originaleFileName = FilenameUtils.removeExtension(file.getName());
-
+            String originaleFileName = originalFile.getName();
             String url = computeMediaS3Url(finalMedia, originaleFileName);
 
             amazonS3Util.uploadFile(url, originalFile);
