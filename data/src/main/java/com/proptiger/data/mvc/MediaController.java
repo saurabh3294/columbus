@@ -40,11 +40,11 @@ public class MediaController {
     Object createMedia(
             @RequestParam DomainObject objectType,
             @RequestParam Integer objectId,
-            @RequestParam MultipartFile multipartFile,
+            @RequestParam MultipartFile file,
             @RequestParam String documentType,
             @ModelAttribute Media media) {
-        File file = FileUtil.createFileFromMultipartFile(multipartFile);
-        return documentService.createMedia(objectType, objectId, file, documentType, media);
+        File tempFile  = FileUtil.createFileFromMultipartFile(file);
+        return documentService.createMedia(objectType, objectId, tempFile , documentType, media);
     }
 
     @RequestMapping(value = "/document")
@@ -76,11 +76,11 @@ public class MediaController {
     Object createMediaAudio(
             @RequestParam DomainObject objectType,
             @RequestParam Integer objectId,
-            @RequestParam MultipartFile multipartFile,
+            @RequestParam MultipartFile file,
             @RequestParam String documentType,
             @ModelAttribute Media media) {
-        File file = FileUtil.createFileFromMultipartFile(multipartFile);
-        return audioService.createMedia(objectType, objectId, file, documentType, media);
+        File tempFile  = FileUtil.createFileFromMultipartFile(file);
+        return audioService.createMedia(objectType, objectId, tempFile , documentType, media);
     }
 
     @RequestMapping(value = "/audio")

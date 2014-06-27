@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -13,9 +14,10 @@ public class AudioAttributes extends BaseModel {
     @Id
     private int               id;
 
-    private int               duration;             /* In seconds */
+    private Integer           duration         = null;          /* In seconds */
 
-    private String            author;
+    @Column(name = "sample_rate")
+    private Integer           sampleRate       = null;
 
     public int getId() {
         return id;
@@ -25,20 +27,20 @@ public class AudioAttributes extends BaseModel {
         this.id = id;
     }
 
-    public int getDuration() {
+    public Integer getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(Integer duration) {
         this.duration = duration;
     }
 
-    public String getAuthor() {
-        return author;
+    public Integer getSampleRate() {
+        return sampleRate;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setSampleRate(Integer sampleRate) {
+        this.sampleRate = sampleRate;
     }
 
 }
