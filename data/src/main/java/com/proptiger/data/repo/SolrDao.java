@@ -1,5 +1,6 @@
 package com.proptiger.data.repo;
-
+import java.io.FileWriter;
+import java.io.IOException;
 import javax.annotation.PostConstruct;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -33,6 +34,7 @@ public class SolrDao {
     @PostConstruct
     private void init() {
         httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty(PropertyKeys.SOLR_SERVER_URL));
+//    	httpSolrServer = new HttpSolrServer("http://guest:guest@localhost:8983/solr/");
     }
 
     /**
