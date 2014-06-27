@@ -1081,6 +1081,7 @@ public class LocalityService {
         return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
     }
 
+    @Cacheable(value = Constants.CacheName.FALLBACK_404, key = "#id")
     public Locality getActiveOrInactiveLocalityById(Integer id) {
         return localityDao.findOne(id);
     }

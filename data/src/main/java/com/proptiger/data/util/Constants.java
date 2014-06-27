@@ -133,6 +133,7 @@ public class Constants {
         public static final String REDIRECT_URL_MAP                      = "redirect-url-map";
 
         public static final String PORTFOLIO_LISTING                     = "portfolio-listing";
+        public static final String FALLBACK_404                          = "fallback-404"; 
 
     }
 

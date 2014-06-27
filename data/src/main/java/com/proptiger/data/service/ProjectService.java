@@ -622,11 +622,13 @@ public class ProjectService {
     public Map<String, Integer> getProjectCountByCities(Integer builderId) {
         return projectSolrDao.getProjectCountByCities(builderId);
     }
-
+    
+    @Cacheable(value = Constants.CacheName.FALLBACK_404, key = "#propertyId")
     public Integer getProjectIdForPropertyId(Integer propertyId) {
         return projectDao.getProjectIdForPropertyId(propertyId);
     }
 
+    @Cacheable(value = Constants.CacheName.FALLBACK_404, key = "#projectId")
     public Project getActiveOrInactiveProjectById(Integer projectId) {
         return projectDao.findActiveOrInactiveProjectById(projectId);
     }

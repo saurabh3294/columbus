@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -15,6 +16,7 @@ import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.SuburbDao;
+import com.proptiger.data.util.Constants;
 
 /**
  * @author mandeep
@@ -83,6 +85,7 @@ public class SuburbService {
         return suburbs.get(0); 
     }
 
+    @Cacheable(value = Constants.CacheName.FALLBACK_404, key = "#id")
     public Suburb getActiveOrInactiveSuburbById(Integer id) {
         return suburbDao.findOne(id);
     }
