@@ -82,4 +82,8 @@ public class SuburbService {
         	
         return suburbs.get(0); 
     }
+
+    public Suburb getActiveOrInactiveSuburbById(Integer id) {
+        return suburbDao.findOne(id);
+    }
 }

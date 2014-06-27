@@ -1080,4 +1080,8 @@ public class LocalityService {
         Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
         return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
     }
+
+    public Locality getActiveOrInactiveLocalityById(Integer id) {
+        return localityDao.findOne(id);
+    }
 }

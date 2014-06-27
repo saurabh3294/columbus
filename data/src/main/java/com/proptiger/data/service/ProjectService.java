@@ -622,4 +622,12 @@ public class ProjectService {
     public Map<String, Integer> getProjectCountByCities(Integer builderId) {
         return projectSolrDao.getProjectCountByCities(builderId);
     }
+
+    public Integer getProjectIdForPropertyId(Integer propertyId) {
+        return projectDao.getProjectIdForPropertyId(propertyId);
+    }
+
+    public Project getActiveOrInactiveProjectById(Integer projectId) {
+        return projectDao.findActiveOrInactiveProjectById(projectId);
+    }
 }
