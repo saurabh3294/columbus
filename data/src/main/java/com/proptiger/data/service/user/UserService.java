@@ -5,14 +5,17 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,7 @@ import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
 
@@ -217,6 +221,7 @@ public class UserService {
      * @return List of subscriptionPermissions or an empty-list if there are no
      *         permissions installed.
      */
+    @Cacheable(value = Constants.CacheName.CACHE)
     private List<SubscriptionPermission> getUserAppSubscriptionDetails(int userId) {
         List<UserSubscriptionMapping> userSubscriptionMappingList = userSubscriptionMappingDao.findAllByUserId(userId);
         if (userSubscriptionMappingList == null) {
@@ -252,6 +257,10 @@ public class UserService {
         MultiKeyMap userSubscriptionMap = new MultiKeyMap();
         Permission permission;
         int objectTypeId, objectId;
+        List<Integer> localityIDList = new ArrayList<Integer>();
+        
+        int objTypeIdLocality  = DomainObject.locality.getObjectTypeId();
+        int objTypeIdCity      = DomainObject.city.getObjectTypeId(); 
         for (SubscriptionPermission sp : subscriptionPermissions) {
             permission = sp.getPermission();
 
@@ -259,22 +268,31 @@ public class UserService {
                 objectTypeId = permission.getObjectTypeId();
                 objectId = permission.getObjectId();
                 userSubscriptionMap.put(objectTypeId, objectId, permission);
-                if (objectTypeId == DomainObject.locality.getObjectTypeId()) {
-                    int cityId = getCityIdFromLocalityId(objectId);
-                    userSubscriptionMap.put(DomainObject.city.getObjectTypeId(), cityId, null);
+                if (objectTypeId == objTypeIdLocality) {
+                    localityIDList.add(objectId);
                 }
             }
         }
+        
+        /* populating psuedo permissions for city if any locality in that city is permitted */
+        Set<Integer> cityIdList = getCityIdListFromLocalityIdList(localityIDList);
+        for(int cityId : cityIdList)
+        {   
+            userSubscriptionMap.put(objTypeIdCity, cityId, null);
+        }
+        
         return userSubscriptionMap;
     }
-
-    private int getCityIdFromLocalityId(int localityId) {
-        try {
-            return localityService.getLocality(localityId).getSuburb().getCityId();
+    
+    private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList)
+    {
+        Set<Integer> cityIdList = new HashSet<Integer>();
+        List<Locality> localiltyList = localityService.findByLocalityIdList(localityIDList).getResults();
+        for(Locality locality : localiltyList)
+        {
+            cityIdList.add(locality.getSuburb().getCityId());
         }
-        catch (Exception ex) {
-            return -1;
-        }
+        return cityIdList;
     }
 
     /**
