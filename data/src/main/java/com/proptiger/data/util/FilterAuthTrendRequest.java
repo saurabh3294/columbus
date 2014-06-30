@@ -1,0 +1,47 @@
+package com.proptiger.data.util;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.service.user.UserService;
+
+/**
+ * This class appends the subscription permissions for logged in user to the
+ * FIQL selector .
+ */
+@Aspect
+@Component
+public class FilterAuthTrendRequest {
+
+    @Autowired
+    private UserService userService;
+
+    @Pointcut(value = "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..))")
+    public void addSubscriptionPermissionsToSelectorPointCut() {
+    }
+
+    @Before(value = "addSubscriptionPermissionsToSelectorPointCut()")
+    public void beforeAddSubscriptionPermissionsToSelectorPointCut(JoinPoint jointPoint) throws Throwable {
+        ActiveUser user = SecurityContextUtils.getLoggedInUser();
+        if (user != null) {
+            Object[] methodArgs = jointPoint.getArgs();
+            for (Object arg : methodArgs) {
+                if (arg != null && arg.getClass().equals(FIQLSelector.class)) {
+                    ((FIQLSelector) arg).addAndConditionToFilter(userService.getUserAppSubscriptionFilters(
+                            user.getUserIdentifier()).getFilters());
+
+                }
+
+            }
+
+        }
+
+    }
+
+}
