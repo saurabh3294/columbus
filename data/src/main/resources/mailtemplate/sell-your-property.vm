@@ -35,11 +35,11 @@
                         #set($userName = "Anonymous")
                       #end
                       
-					 A new property has been registered for resale by the user ${userName} at ${currentDateTime}. The details of the property for resale are as following:<br /><br />
-					 
 					   #if( $sellYourPropertyData.isBroker == true)
+					   A new broker has submitted his contact details at ${currentDateTime}. The details of the broker are as follows:<br /><br />
 					   	#set( $broker="broker" )
 					   #else
+					   A new property has been registered for resale by the user ${userName} at ${currentDateTime}. The details of the property for resale are as following:<br /><br />
 					   	#set($broker = "owner")
 					   #end 
 					   
@@ -48,13 +48,22 @@
 					   <strong>Client Mobile:</strong> ${sellYourPropertyData.leadContact}<br />
 					   <strong>Seller Type:</strong> ${broker}<br />
 					   <br />
-					   #if($sellYourPropertyData.projectName && $sellYourPropertyData.isBroker == false)
-					   	<strong>Property Name:</strong> ${sellYourPropertyData.projectName}<br />
-					   	<strong>Project City:</strong> ${sellYourPropertyData.cityName}<br />
-					   	<strong>Locality:</strong> ${sellYourPropertyData.locality}<br />
-					   	<strong>Unit Name:</strong> ${sellYourPropertyData.name}<br />
+					   #if($sellYourPropertyData.projectName)
+					    	#if ( $sellYourPropertyData.isBroker == true)
+					   			<strong>City:</strong> ${sellYourPropertyData.cityName}<br />
+					   			<strong>Locality:</strong> ${sellYourPropertyData.locality}<br />
+					    	#else
+					    		<strong>Property Name:</strong> ${sellYourPropertyData.projectName}<br />
+					   			<strong>Project City:</strong> ${sellYourPropertyData.cityName}<br />
+					   			<strong>Locality:</strong> ${sellYourPropertyData.locality}<br />
+					   			<strong>Unit Name:</strong> ${sellYourPropertyData.name}<br />
+					    	#end
 					   #end
-					   Please contact the client for more details.<br /><br />
+					   #if ( $sellYourPropertyData.isBroker == true)
+					   		Please contact the broker for more details.<br /><br />
+					   	#else
+					   		Please contact the client for more details.<br /><br />
+					   	#end
 						Thanks and Regards,<br /><br />
 					  
                    </td>
