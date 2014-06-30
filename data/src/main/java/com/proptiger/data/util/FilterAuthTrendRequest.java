@@ -33,8 +33,10 @@ public class FilterAuthTrendRequest {
             Object[] methodArgs = jointPoint.getArgs();
             for (Object arg : methodArgs) {
                 if (arg != null && arg.getClass().equals(FIQLSelector.class)) {
-                    ((FIQLSelector) arg).addAndConditionToFilter(userService.getUserAppSubscriptionFilters(
-                            user.getUserIdentifier()).getFilters());
+
+                    String filters = userService.getUserAppSubscriptionFilters(user.getUserIdentifier()).getFilters();
+                    if (filters != null)
+                        ((FIQLSelector) arg).addAndConditionToFilter(filters);
 
                 }
 
