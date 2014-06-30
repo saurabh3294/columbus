@@ -66,13 +66,13 @@ public class UserController extends BaseController {
         return new APIResponse(userService.getUserDetails(userInfo.getUserIdentifier()));
     }
     
-    @RequestMapping(value = "data/v1/whoami", method = RequestMethod.GET)
+    @RequestMapping(value = "data/v1/entity/user/who-am-i", method = RequestMethod.GET)
     @ResponseBody
     public APIResponse whoAmI(){
         return new APIResponse(userService.getWhoAmIDetail());
     }
     
-    @RequestMapping(value = "data/v1/entity/user/changepassword", method = RequestMethod.POST)
+    @RequestMapping(value = "data/v1/entity/user/change-password", method = RequestMethod.POST)
     @ResponseBody
     public APIResponse changePassword(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,

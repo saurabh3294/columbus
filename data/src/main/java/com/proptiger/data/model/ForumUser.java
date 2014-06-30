@@ -252,20 +252,20 @@ public class ForumUser extends BaseModel {
     public static class WhoAmIDetail extends BaseModel{
         private static final long serialVersionUID = 708536340494027592L;
         private String userName;
-        private String avatar;
+        private String imageUrl;
         public WhoAmIDetail(String userName, String avatar) {
             super();
             this.userName = userName;
-            this.avatar = avatar;
+            this.imageUrl = avatar;
         }
         public String getUserName() {
             return userName;
         }
-        public String getAvatar() {
-            return avatar;
+        public String getImageUrl() {
+            return imageUrl;
         }
-        public void setAvatar(String avatar) {
-            this.avatar = avatar;
+        public void setImageUrl(String url) {
+            this.imageUrl = url;
         }
     }
 }

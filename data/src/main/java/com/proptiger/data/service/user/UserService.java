@@ -101,6 +101,9 @@ public class UserService {
     
     @Autowired
     private PropertyReader propertyReader;
+    
+    @Value("${cdn.image.url}")
+    private String cdnImageBase;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -389,8 +392,8 @@ public class UserService {
             throw new UnauthorizedException();
         }
         WhoAmIDetail whoAmIDetail = forumUserDao.getWhoAmIDetail(activeUser.getUserIdentifier());
-        if (whoAmIDetail.getAvatar() == null || whoAmIDetail.getAvatar().isEmpty()) {
-            whoAmIDetail.setAvatar(propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
+        if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
+            whoAmIDetail.setImageUrl(cdnImageBase+propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
         }
         return whoAmIDetail;
     }
