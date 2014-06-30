@@ -818,14 +818,21 @@ public class PortfolioService {
      * @return
      */
     private boolean sendMailOnSellYourProperty(PortfolioListing portfolioListing) {
-        String mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.to.recipient");
-        String mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.cc.recipient");
-
+        String mailToAddress = "";
+        String mailCCAddress = "";
+        boolean isBroker = portfolioListing.getIsBroker();
+        if (isBroker) {
+            mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.broker.to.recipient");
+            mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.broker.cc.recipient");
+        }
+        else {
+            mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.owner.to.recipient");
+            mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.owner.cc.recipient");
+        }
         if (mailToAddress.length() < 1) {
-            logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
+            logger.error("Website Sell Your Property (" + (isBroker ? "Broker" : "Owner" )+ ") is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
-
         MailBody mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.SELL_YOUR_PROPERTY, portfolioListing);
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
         return mailSender.sendMailUsingAws(mailDetails);
