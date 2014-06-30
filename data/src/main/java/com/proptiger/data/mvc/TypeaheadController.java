@@ -35,7 +35,7 @@ public class TypeaheadController extends BaseController {
 
     @RequestMapping(value = "app/v1/typeahead")
     @ResponseBody
-    public APIResponse getTypeaheadsV2(
+    public APIResponse getTypeaheads(
             @RequestParam String query,
             @RequestParam(defaultValue = "10") int rows,
             @RequestParam(required = false) String typeAheadType,
@@ -56,7 +56,7 @@ public class TypeaheadController extends BaseController {
   
     @RequestMapping(value = "app/v2/typeahead")
     @ResponseBody
-    public APIResponse getTypeaheads(
+    public APIResponse getTypeaheadsV2(
             @RequestParam String query,
             @RequestParam(defaultValue = "5") int rows,
             @RequestParam(required = false) String typeAheadType,
