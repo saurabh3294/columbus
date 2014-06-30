@@ -158,30 +158,29 @@ public class Constants {
      * 
      */
     public static final class Security {
-        public static final String COOKIE_NAME_JSESSIONID      = "JSESSIONID";
+        public static final String COOKIE_NAME_JSESSIONID           = "JSESSIONID";
 
-        public static final String LOGOUT_URL                  = "/app/v1/logout";
+        public static final String LOGOUT_URL                       = "/app/v1/logout";
 
-        public static final String PASSWORD_PARAMETER_NAME     = "password";
+        public static final String PASSWORD_PARAMETER_NAME          = "password";
 
-        public static final String USERNAME_PARAMETER_NAME     = "username";
+        public static final String USERNAME_PARAMETER_NAME          = "username";
 
-        public static final String LOGIN_URL                   = "/app/v1/login";
+        public static final String LOGIN_URL                        = "/app/v1/login";
 
-        public static final String API_SECRET_KEY              = "api.sec.key";
+        public static final String API_SECRET_KEY                   = "api.sec.key";
 
-        public static final String APP_V1_USER_DETAILS         = "/app/v1/user/details";
+        public static final String USER_API_REGEX                   = ".*/user/.*";
 
-        public static final String DEFAULT_TARGET_URL          = APP_V1_USER_DETAILS;
+        public static final String AUTH_API_REGEX                   = ".*/auth/.*";
 
-        public static final String USER_API_REGEX              = ".*/user/.*";
+        public static final String REMEMBER_ME_PARAMETER            = "rememberme";
 
-        public static final String AUTH_API_REGEX              = ".*/auth/.*";
+        public static final String REMEMBER_ME_COOKIE               = "api.rememberme.cookie";
 
-        public static final String REMEMBER_ME_PARAMETER       = "rememberme";
+        public static final int    REMEMBER_ME_COOKIE_VALIDITY      = 60 * 60 * 24 * 365;
 
-        public static final String REMEMBER_ME_COOKIE          = "api.rememberme.cookie";
-
-        public static final int    REMEMBER_ME_COOKIE_VALIDITY = 60 * 60 * 24 * 365;
+        //cookie valid for 7 days, make sure to set session max inactive interval to same value.
+        public static final int JSESSION_COOKIE_MAX_AGE          = 60 * 60 * 24 * 7;
     }
 }
