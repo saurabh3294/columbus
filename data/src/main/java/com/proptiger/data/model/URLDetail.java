@@ -29,6 +29,7 @@ public class URLDetail {
     private Integer  builderId;
     private Integer  suburbId;
     private Integer  propertyId;
+    private Integer  portfolioId;
     private Integer  bedrooms;
     private Integer  minBudget;
     private Integer  maxBudget;
@@ -182,6 +183,14 @@ public class URLDetail {
 
     public void setPropertyType(String propertyType) {
         this.propertyType = propertyType;
+    }
+
+    public Integer getPortfolioId() {
+        return portfolioId;
+    }
+
+    public void setPortfolioId(Integer portfolioId) {
+        this.portfolioId = portfolioId;
     }
 
 }

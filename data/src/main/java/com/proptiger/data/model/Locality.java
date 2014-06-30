@@ -233,6 +233,14 @@ public class Locality extends BaseModel {
     @FieldMetaInfo(displayName = "Locality view count", description = "Locality view count")
     @Field(value = "LOCALITY_VIEW_COUNT")
     private Integer                         localityViewCount;
+    
+    @Transient
+    @Field(value = "LOCALITY_SAFETY_SCORE")
+    private Double                         safetyScore;
+    
+    @Transient
+    @Field(value = "LOCALITY_LIVABILITY_SCORE")
+    private Float                         livabilityScore;
 
     public int getLocalityId() {
         return localityId;
@@ -602,5 +610,21 @@ public class Locality extends BaseModel {
 
     public void setLocalityViewCount(Integer localityViewCount) {
         this.localityViewCount = localityViewCount;
+    }
+
+    public Double getSafetyScore() {
+        return safetyScore;
+    }
+
+    public void setSafetyScore(Double safetyScore) {
+        this.safetyScore = safetyScore;
+    }
+
+    public Float getLivabilityScore() {
+        return livabilityScore;
+    }
+
+    public void setLivabilityScore(Float livabilityScore) {
+        this.livabilityScore = livabilityScore;
     }
 }
