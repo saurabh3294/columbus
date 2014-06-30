@@ -11,12 +11,21 @@ import java.util.Map;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.external.dto.CustomUser;
@@ -24,9 +33,12 @@ import com.proptiger.data.external.dto.CustomUser.UserAppDetail;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomCity;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
+import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.SubscriptionPermission;
@@ -40,7 +52,13 @@ import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.util.PasswordUtils;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.data.util.UtilityClass;
+import com.proptiger.exception.BadRequestException;
+import com.proptiger.exception.UnauthorizedException;
 
 /**
  * Service class to get if user have already enquired about an entity
@@ -50,30 +68,39 @@ import com.proptiger.data.util.UtilityClass;
  */
 @Service
 public class UserService {
+    private static Logger              logger          = LoggerFactory.getLogger(UserService.class);
 
     @Value("${b2b.price-inventory.max.month}")
-    private String                currentMonth;
+    private String                     currentMonth;
 
     @Value("${enquired.within.days}")
-    private Integer               enquiredWithinDays;
+    private Integer                    enquiredWithinDays;
 
     @Autowired
-    private EnquiryDao            enquiryDao;
+    private EnquiryDao                 enquiryDao;
 
     @Autowired
-    private ForumUserDao          forumUserDao;
+    private ForumUserDao               forumUserDao;
 
     @Autowired
-    private UserPreferenceService preferenceService;
+    private UserPreferenceService      preferenceService;
 
     @Autowired
-    private LocalityService       localityService;
+    private LocalityService            localityService;
 
     @Autowired
-    private UserSubscriptionMappingDao    userSubscriptionMappingDao;
+    private UserSubscriptionMappingDao userSubscriptionMappingDao;
 
     @Autowired
-    private SubscriptionPermissionDao     subscriptionPermissionDao;
+    private SubscriptionPermissionDao  subscriptionPermissionDao;
+
+    @Autowired
+    private AuthenticationManager      authManager;
+
+    private Md5PasswordEncoder         passwordEncoder = new Md5PasswordEncoder();
+    
+    @Autowired
+    private PropertyReader propertyReader;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -348,4 +375,49 @@ public class UserService {
         }
 
     }
+
+    /**
+     * Get minimal details needed for active user as whoami. In case user is not
+     * logged in then throws UnauthorizedException
+     * 
+     * @param userIdentifier
+     * @return
+     */
+    public WhoAmIDetail getWhoAmIDetail() {
+        ActiveUser activeUser = SecurityContextUtils.getLoggedInUser();
+        if (activeUser == null) {
+            throw new UnauthorizedException();
+        }
+        WhoAmIDetail whoAmIDetail = forumUserDao.getWhoAmIDetail(activeUser.getUserIdentifier());
+        if (whoAmIDetail.getAvatar() == null || whoAmIDetail.getAvatar().isEmpty()) {
+            whoAmIDetail.setAvatar(propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
+        }
+        return whoAmIDetail;
+    }
+
+    /**
+     * Change password of active user after old and new password validation.
+     * Updating principle in SecurityContextHolder after password change.
+     * 
+     * @param activeUser
+     * @param changePassword
+     */
+    public void changePassword(ActiveUser activeUser, ChangePassword changePassword) {
+
+        try {
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(activeUser.getUsername(), changePassword
+                    .getOldPassword()));
+        }
+        catch (AuthenticationException e) {
+            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.BAD_CREDENTIAL);
+        }
+        PasswordUtils.validatePasword(changePassword);
+        logger.debug("Changing password for user {}", activeUser.getUsername());
+        ForumUser forumUser = forumUserDao.findOne(activeUser.getUserIdentifier());
+        forumUser.setPassword(passwordEncoder.encodePassword(changePassword.getNewPassword(), null));
+        forumUser = forumUserDao.save(forumUser);
+
+        SecurityContextHolder.getContext().setAuthentication(SecurityContextUtils.createNewAuthentication(forumUser));
+    }
+
 }
