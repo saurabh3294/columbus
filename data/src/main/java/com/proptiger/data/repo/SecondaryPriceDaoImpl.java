@@ -24,7 +24,7 @@ public class SecondaryPriceDaoImpl {
         if (!phaseIds.isEmpty()) {
             EntityManager em = emf.createEntityManager();
             Query query = em
-                    .createNativeQuery("select phase_id phaseId, unit_type unitType, substring_index(group_concat(avg_price order by effective_date desc), ',', 1) secondaryPrice, substring_index(group_concat(effective_date order by effective_date desc), ',', 1) effectiveMonth from (select phase_id, unit_type, effective_date, avg((MIN_PRICE+MAX_PRICE)/2) avg_price from " + SecondaryPrice.class
+                    .createNativeQuery("select phase_id phaseId, unit_type unitType, cast(substring_index(group_concat(avg_price order by effective_date desc), ',', 1) as char(20)), cast(substring_index(group_concat(effective_date order by effective_date desc), ',', 1) as char(10)) effectiveMontha from (select phase_id, unit_type, effective_date, avg((MIN_PRICE+MAX_PRICE)/2) avg_price from " + SecondaryPrice.class
                             .getAnnotation(Table.class).name()
                             + " where phase_id in (?1) group by phase_id, unit_type, effective_date) t group by phase_id, unit_type");
             query.setParameter(1, phaseIds);
