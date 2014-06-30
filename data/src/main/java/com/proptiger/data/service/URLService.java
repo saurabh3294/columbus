@@ -194,10 +194,6 @@ public class URLService {
                 
                 if (is404FallbackSet) {
                     redirectUrl = domainUrl;
-                    if (!domainUrl.isEmpty()) {
-                        domainUrl = domainUrl.replaceFirst("-real-estate", "");
-                        redirectUrl = domainUrl + "/" + urlDetail.getPropertyType();
-                    }
                 }
                 else {
                     domainUrl = domainUrl.replaceFirst("property-sale", urlDetail.getPropertyType()) + urlDetail
