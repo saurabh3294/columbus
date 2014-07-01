@@ -47,4 +47,8 @@ public final class PropertyKeys {
     public static final String REDIS_PORT                                 = "redis.port";
     public static final String REDIS_USE_POOL                             = "redis.usePool";
     public static final String REDIS_DEFAULT_EXPIRATION_TIME              = "redis.defaultExpirationTime";
+
+    public static final String SESSION_MAX_INTERACTIVE_INTERVAL           = "session.max.inactive.interval";
+
+    public static final String AVATAR_IMAGE_URL                           = "avatar.image.url";
 }
