@@ -45,6 +45,7 @@ import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
@@ -98,12 +99,12 @@ public class UserService {
     private AuthenticationManager      authManager;
 
     private Md5PasswordEncoder         passwordEncoder = new Md5PasswordEncoder();
-    
+
     @Autowired
-    private PropertyReader propertyReader;
-    
+    private PropertyReader             propertyReader;
+
     @Value("${cdn.image.url}")
-    private String cdnImageBase;
+    private String                     cdnImageBase;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -239,6 +240,34 @@ public class UserService {
             }
         }
         return userAppSubscription;
+    }
+
+    public FIQLSelector getUserAppSubscriptionFilters(int userId) {
+
+        FIQLSelector selector = new FIQLSelector();
+
+        List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
+
+        for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
+
+            Permission permission = subscriptionPermission.getPermission();
+            int objectTypeId = permission.getObjectTypeId();
+
+            switch (DomainObject.getFromObjectTypeId(objectTypeId)) {
+
+                case city:
+                    selector.addOrConditionToFilter("cityId==" + permission.getObjectId());
+                    break;
+
+                case locality:
+                    selector.addOrConditionToFilter("localityId==" + permission.getObjectId());
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        return selector;
     }
 
     /**
@@ -393,7 +422,7 @@ public class UserService {
         }
         WhoAmIDetail whoAmIDetail = forumUserDao.getWhoAmIDetail(activeUser.getUserIdentifier());
         if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
-            whoAmIDetail.setImageUrl(cdnImageBase+propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
+            whoAmIDetail.setImageUrl(cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
         }
         return whoAmIDetail;
     }
