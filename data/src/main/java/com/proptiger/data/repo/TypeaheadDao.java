@@ -51,7 +51,6 @@ public class TypeaheadDao {
 		return solrQuery;
 	}
 
-
 	public List<Typeahead> getTypeaheadsV2(String query, int rows,
 			List<String> filterQueries) {
 
@@ -59,8 +58,9 @@ public class TypeaheadDao {
 		List<String> cityList = this.findCities(query);
 		query = this.parseCities(query, cityList);// removes city name if query
 													// contains other terms too
-		for (String city : cityList)
+		for (String city : cityList) {
 			filterQueries.add("TYPEAHEAD_CITY:" + city);
+		}
 
 		List<SolrQuery> solrQueries = new ArrayList<SolrQuery>();
 		solrQueries.add(this.getSolrQueryV2(query, rows, filterQueries));
@@ -133,26 +133,28 @@ public class TypeaheadDao {
 
 		List<String> boostList = new ArrayList<String>();
 		for (String qry : queryTokens) {
-			if (qry.split(" ").length == 1)
+			if (qry.split(" ").length == 1) {
 				boostList
 						.add("query({!edismax qf='tp_city tp_locality tp_builder tp_suburb tp_project' tie=0.1 v='$q' boost=''}, "
 								+ String.format("%.2f", wt) + ")");
-			else
+			} else {
 				boostList
 						.add("query({!edismax qf='tp_city tp_locality tp_builder tp_suburb tp_project' tie=0.1 v='\"$q\"' boost=''}, $wt)");
+			}
 		}
 
 		String boost = new String();
-		if (boostList.size() > 1)
+		if (boostList.size() > 1) {
 			boost = "sum(" + Joiner.on(",").skipNulls().join(boostList) + ")";
-		else
+		} else {
 			boost = boostList.get(0);
-
+		}
 		boost = "product(map(query({!v='TYPEAHEAD_TYPE:CITY'}),0,0,1,1.5),map(query({!v='TYPEAHEAD_TYPE:BUILDER'}),0,0,1,1.1),map(query({!v='TYPEAHEAD_TYPE:PROJECT'}),0,0,1,1.3),map(query({!v='TYPEAHEAD_TYPE:LOCALITY'}),0,0,1,1.3),map(query({!v='TYPEAHEAD_TYPE:SUBURB'}),0,0,1,1.3),"
 				+ boost + ")";
 
-		if (cityList.size() > 0)
+		if (cityList.size() > 0) {
 			boost = "product(query({!v='" + ctq + "'}, 1.0), " + boost + ")";
+		}
 
 		solrQuery.setParam("boost", boost);
 		return solrQuery;
@@ -192,8 +194,9 @@ public class TypeaheadDao {
 		List<List<String>> powerset = this.powerset(qList);
 		for (List<String> list : powerset) {
 			String st = Joiner.on(" ").skipNulls().join(list);
-			if (st.trim() != "" && st != null)
+			if (st.trim() != "" && st != null) {
 				qList.add(st);
+			}
 		}
 		return qList;
 	}
@@ -208,10 +211,11 @@ public class TypeaheadDao {
 	private String parseCities(String query, List<String> queryCities) {
 		String query_new = this.substituteQuery(query, queryCities);
 
-		if (query_new.trim().isEmpty())
+		if (query_new.trim().isEmpty()) {
 			return query;
-		else
+		} else {
 			return query_new;
+		}
 	}
 
 	private List<String> findCities(String query) {
@@ -221,15 +225,17 @@ public class TypeaheadDao {
 
 		for (City city : cityList) {
 			String label = city.getLabel();
-			if (label != "")
+			if (label != "") {
 				cityLabels.add(city.getLabel());
+			}
 		}
 
 		List<String> matchedCities = new ArrayList<String>();
 		for (String city : cityLabels) {
 			if (query.matches("(?i).*" + city + ".*")) {
-				if (city != "")
+				if (city != "") {
 					matchedCities.add(city);
+				}
 			}
 		}
 		return matchedCities;
