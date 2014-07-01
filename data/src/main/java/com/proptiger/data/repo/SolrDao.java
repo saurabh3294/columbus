@@ -1,5 +1,6 @@
 package com.proptiger.data.repo;
-
+import java.io.FileWriter;
+import java.io.IOException;
 import javax.annotation.PostConstruct;
 
 import org.apache.solr.client.solrj.SolrQuery;
