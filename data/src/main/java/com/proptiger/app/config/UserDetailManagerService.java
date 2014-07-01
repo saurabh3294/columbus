@@ -1,7 +1,9 @@
-package com.proptiger.app.config.security;
+package com.proptiger.app.config;
 
 import java.util.ArrayList;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,10 +23,11 @@ import com.proptiger.data.repo.ForumUserDao;
  *
  */
 @Service
-public class CustomUserDetailService implements UserDetailsService {
+public class UserDetailManagerService implements UserDetailsService {
 
+    private static Logger         logger = LoggerFactory.getLogger(UserDetailManagerService.class);
     @Autowired
-    private ForumUserDao forumUserDao;
+    private ForumUserDao          forumUserDao;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -42,9 +45,11 @@ public class CustomUserDetailService implements UserDetailsService {
                         true,
                         new ArrayList<GrantedAuthority>());
             }
-
+            else{
+                logger.error("User not found with email {}",username);
+            }
         }
-        //if no user found with given username(email)
+        // if no user found with given username(email)
         if (userDetails == null) {
             throw new UsernameNotFoundException("User name or password are incorrect");
         }
