@@ -51,4 +51,5 @@ public final class PropertyKeys {
     public static final String SESSION_MAX_INTERACTIVE_INTERVAL           = "session.max.inactive.interval";
 
     public static final String AVATAR_IMAGE_URL                           = "avatar.image.url";
+    public static final String ACCESS_LOG_INTERNAL_DS_SIZE_THRESHOLD      = "assesslog.internal.ds.size.threshold";
 }
