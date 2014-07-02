@@ -26,10 +26,14 @@ public class SecurityContextUtils {
      */
     public static ActiveUser getLoggedInUser() {
         ActiveUser activeUser = null;
-        Object activeUserObj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (activeUserObj instanceof ActiveUser) {
-            activeUser = (ActiveUser) activeUserObj;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication != null){
+            Object activeUserObj = authentication.getPrincipal();
+            if (activeUserObj instanceof ActiveUser) {
+                activeUser = (ActiveUser) activeUserObj;
+            }
         }
+       
         return activeUser;
     }
     
