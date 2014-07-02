@@ -3,9 +3,6 @@ package com.proptiger.app.mvc;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,13 +11,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.CompositeAPIService;
 import com.proptiger.data.service.PipelineAPIService;
 
 /**
  * 
- * @author 
- *
+ * @author
+ * 
  */
 
 @Controller
@@ -29,15 +25,15 @@ public class AppPipelineAPIController {
 
     @Autowired
     private PipelineAPIService pipelineAPIService;
-    
+
     @RequestMapping
     @ResponseBody
     @DisableCaching
-    public APIResponse getCompositeApiResult(HttpServletRequest request, HttpServletResponse response, @RequestParam(
-            required = true,
-            value = "api") List<String> api) {
+    public APIResponse getPipelineApiResult(
+            @RequestParam(required = true, value = "api") List<String> api,
+            @RequestParam(required = false, value = "include") String include) {
         Map<String, Object> responseMap = null;
-        responseMap = pipelineAPIService.getResponseForApis(api, request);
+        responseMap = pipelineAPIService.getResponseForApis(api, include);
         return new APIResponse(responseMap);
     }
 
