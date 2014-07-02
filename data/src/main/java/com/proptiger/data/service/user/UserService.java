@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
@@ -45,12 +48,14 @@ import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PasswordUtils;
 import com.proptiger.data.util.PropertyKeys;
@@ -98,12 +103,12 @@ public class UserService {
     private AuthenticationManager      authManager;
 
     private Md5PasswordEncoder         passwordEncoder = new Md5PasswordEncoder();
-    
+
     @Autowired
-    private PropertyReader propertyReader;
-    
+    private PropertyReader             propertyReader;
+
     @Value("${cdn.image.url}")
-    private String cdnImageBase;
+    private String                     cdnImageBase;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -241,12 +246,41 @@ public class UserService {
         return userAppSubscription;
     }
 
+    public FIQLSelector getUserAppSubscriptionFilters(int userId) {
+
+        FIQLSelector selector = new FIQLSelector();
+
+        List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
+
+        for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
+
+            Permission permission = subscriptionPermission.getPermission();
+            int objectTypeId = permission.getObjectTypeId();
+
+            switch (DomainObject.getFromObjectTypeId(objectTypeId)) {
+
+                case city:
+                    selector.addOrConditionToFilter("cityId==" + permission.getObjectId());
+                    break;
+
+                case locality:
+                    selector.addOrConditionToFilter("localityId==" + permission.getObjectId());
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        return selector;
+    }
+
     /**
      * @param userId
      *            userId for which subscription permissions are needed.
      * @return List of subscriptionPermissions or an empty-list if there are no
      *         permissions installed.
      */
+    @Cacheable(value = Constants.CacheName.CACHE)
     private List<SubscriptionPermission> getUserAppSubscriptionDetails(int userId) {
         List<UserSubscriptionMapping> userSubscriptionMappingList = userSubscriptionMappingDao.findAllByUserId(userId);
         if (userSubscriptionMappingList == null) {
@@ -282,6 +316,10 @@ public class UserService {
         MultiKeyMap userSubscriptionMap = new MultiKeyMap();
         Permission permission;
         int objectTypeId, objectId;
+        List<Integer> localityIDList = new ArrayList<Integer>();
+        
+        int objTypeIdLocality  = DomainObject.locality.getObjectTypeId();
+        int objTypeIdCity      = DomainObject.city.getObjectTypeId(); 
         for (SubscriptionPermission sp : subscriptionPermissions) {
             permission = sp.getPermission();
 
@@ -289,22 +327,31 @@ public class UserService {
                 objectTypeId = permission.getObjectTypeId();
                 objectId = permission.getObjectId();
                 userSubscriptionMap.put(objectTypeId, objectId, permission);
-                if (objectTypeId == DomainObject.locality.getObjectTypeId()) {
-                    int cityId = getCityIdFromLocalityId(objectId);
-                    userSubscriptionMap.put(DomainObject.city.getObjectTypeId(), cityId, null);
+                if (objectTypeId == objTypeIdLocality) {
+                    localityIDList.add(objectId);
                 }
             }
         }
+        
+        /* populating psuedo permissions for city if any locality in that city is permitted */
+        Set<Integer> cityIdList = getCityIdListFromLocalityIdList(localityIDList);
+        for(int cityId : cityIdList)
+        {   
+            userSubscriptionMap.put(objTypeIdCity, cityId, null);
+        }
+        
         return userSubscriptionMap;
     }
-
-    private int getCityIdFromLocalityId(int localityId) {
-        try {
-            return localityService.getLocality(localityId).getSuburb().getCityId();
+    
+    private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList)
+    {
+        Set<Integer> cityIdList = new HashSet<Integer>();
+        List<Locality> localiltyList = localityService.findByLocalityIdList(localityIDList).getResults();
+        for(Locality locality : localiltyList)
+        {
+            cityIdList.add(locality.getSuburb().getCityId());
         }
-        catch (Exception ex) {
-            return -1;
-        }
+        return cityIdList;
     }
 
     /**
@@ -393,7 +440,7 @@ public class UserService {
         }
         WhoAmIDetail whoAmIDetail = forumUserDao.getWhoAmIDetail(activeUser.getUserIdentifier());
         if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
-            whoAmIDetail.setImageUrl(cdnImageBase+propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
+            whoAmIDetail.setImageUrl(cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
         }
         return whoAmIDetail;
     }
