@@ -212,7 +212,7 @@ public class ProjectDiscussionsService {
             paging = new Paging();
         }
         if (paging.getStart() > totalRootComments) {
-            throw new ArrayIndexOutOfBoundsException("Max comments in the project is: " + totalRootComments);
+            return new ArrayList<ProjectDiscussion>();
         }
 
         int pagingRows = paging.getRows() + paging.getStart();
