@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -21,170 +22,257 @@ import com.proptiger.data.service.CityService;
 
 @Repository
 public class TypeaheadDao {
-    @Autowired
-    private CityService cityService;
+	@Autowired
+	private CityService cityService;
 
-    @Autowired
-    private SolrDao     solrDao;
+	@Autowired
+	private SolrDao solrDao;
 
-    private SolrQuery getSolrQuery(String query, int rows, List<String> filterQueries) {
-        SolrQuery solrQuery = this.getQueryParams(query);
+	// Add parameters to use the custom requestHandler
+	private SolrQuery getSolrQueryV2(String query, int rows,
+			List<String> filterQueries) {
 
-        for (String fq : filterQueries) {
-            solrQuery.addFilterQuery(fq);
-        }
+		SolrQuery solrQuery = this.getQueryParamsV2(query);
 
-        solrQuery.setRows(rows);
-        return solrQuery;
-    }
+		for (String fq : filterQueries) {
+			solrQuery.addFilterQuery(fq);
+		}
 
-    private SolrQuery getQueryParams(String query) {
-        SolrQuery solrQuery = new SolrQuery();
-        List<String> queryTokens = this.tokenizeQuery(query);
-        List<String> cityList = this.findCities(query);
-        query = this.parseCities(query, cityList);
-        String ctq = this.getCityQuery(cityList);
+		solrQuery.setRows(rows);
+		solrQuery.setParam("qt", "/payload");
+		solrQuery.setParam("defType", "payload");
 
-        double wt = 1.0;
-        if (query.trim().isEmpty())
-            wt = 1.0 / queryTokens.size();
+		return solrQuery;
+	}
 
-        solrQuery.setQuery(query);
-        solrQuery.setParam("defType", "edismax");
-        solrQuery.setParam("qf", "tp_engram^5.0 tp_ngram^0.5 tp_phonetic^0.2");
+	private SolrQuery getQueryParamsV2(String query) {
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(query);
+		return solrQuery;
+	}
 
-        List<String> boostList = new ArrayList<String>();
-        for (String qry : queryTokens) {
-            if (qry.split(" ").length == 1)
-                boostList
-                        .add("query({!edismax qf='tp_city tp_locality tp_builder tp_suburb tp_project' tie=0.1 v='$q' boost=''}, " + String
-                                .format("%.2f", wt) + ")");
-            else
-                boostList
-                        .add("query({!edismax qf='tp_city tp_locality tp_builder tp_suburb tp_project' tie=0.1 v='\"$q\"' boost=''}, $wt)");
-        }
+	public List<Typeahead> getTypeaheadsV2(String query, int rows,
+			List<String> filterQueries) {
 
-        String boost = new String();
-        if (boostList.size() > 1)
-            boost = "sum(" + Joiner.on(",").skipNulls().join(boostList) + ")";
-        else
-            boost = boostList.get(0);
+		// Add the city filter if it exist in the query
+		List<String> cityList = this.findCities(query);
+		query = this.parseCities(query, cityList);// removes city name if query
+													// contains other terms too
+		for (String city : cityList) {
+			filterQueries.add("TYPEAHEAD_CITY:" + city);
+		}
 
-        boost = "product(map(query({!v='TYPEAHEAD_TYPE:CITY'}),0,0,1,1.5),map(query({!v='TYPEAHEAD_TYPE:BUILDER'}),0,0,1,1.1),map(query({!v='TYPEAHEAD_TYPE:PROJECT'}),0,0,1,1.3),map(query({!v='TYPEAHEAD_TYPE:LOCALITY'}),0,0,1,1.3),map(query({!v='TYPEAHEAD_TYPE:SUBURB'}),0,0,1,1.3)," + boost
-                + ")";
+		List<SolrQuery> solrQueries = new ArrayList<SolrQuery>();
+		solrQueries.add(this.getSolrQueryV2(query, rows, filterQueries));
 
-        if (cityList.size() > 0)
-            boost = "product(query({!v='" + ctq + "'}, 1.0), " + boost + ")";
+		if (!filterQueries.isEmpty()) {// Adding another query if filters exist
+			solrQueries.add(this.getSolrQueryV2(query, rows,
+					new ArrayList<String>()));
+		}
 
-        solrQuery.setParam("boost", boost);
-        return solrQuery;
-    }
+		List<Typeahead> results = new ArrayList<Typeahead>();
 
-    private String getCityQuery(List<String> cityList) {
-        List<String> newCityList = new ArrayList<String>();
+		for (SolrQuery q : solrQueries) {
+			results.addAll(getResponse(q, rows, filterQueries));
+		}
 
-        for (String city : cityList) {
-            newCityList.add("TYPEAHEAD_CITY:" + city.trim());
-        }
-        String ctq = Joiner.on(" OR ").skipNulls().join(newCityList);
-        return ctq;
-    }
+		return results;
+	}
 
-    public List<List<String>> powerset(List<String> list) {
-        List<List<String>> ps = new ArrayList<List<String>>();
-        ps.add(new ArrayList<String>());
+	/*
+	 * If the query has a typo and can be corrected then new query is generated
+	 * using the suggestions and executed automatically
+	 */
 
-        for (String item : list) {
-            List<List<String>> newPs = new ArrayList<List<String>>();
+	private List<Typeahead> getResponse(SolrQuery solrQuery, int rows,
+			List<String> filterQueries) {
 
-            for (List<String> subset : ps) {
-                newPs.add(subset);
-                List<String> newSubset = new ArrayList<String>(subset);
-                newSubset.add(item);
-                newPs.add(newSubset);
-            }
+		List<Typeahead> results = new ArrayList<Typeahead>();
+		QueryResponse response = solrDao.executeQuery(solrQuery);
+		String spellsuggestion = response.getSpellCheckResponse()
+				.getCollatedResult();
+		results = response.getBeans(Typeahead.class);
 
-            ps = newPs;
-        }
-        return ps;
-    }
+		if (spellsuggestion != null) {
+			SolrQuery newQuery = this.getSolrQueryV2(
+					spellsuggestion.toString(), rows, filterQueries);
+			return solrDao.executeQuery(newQuery).getBeans(Typeahead.class);
+		} else {
+			return results;
+		}
+	}
 
-    private List<String> tokenizeQuery(String query) {
-        List<String> qList = new ArrayList<String>();
-        List<List<String>> powerset = this.powerset(qList);
-        for (List<String> list : powerset) {
-            String st = Joiner.on(" ").skipNulls().join(list);
-            if (st.trim() != "" && st != null)
-                qList.add(st);
-        }
-        return qList;
-    }
+	// Previous functions:
 
-    public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
+	private SolrQuery getSolrQuery(String query, int rows,
+			List<String> filterQueries) {
+		SolrQuery solrQuery = this.getQueryParams(query);
 
-        SolrQuery solrQuery = this.getSolrQuery(query, rows, filterQueries);
-        return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
-    }
+		for (String fq : filterQueries) {
+			solrQuery.addFilterQuery(fq);
+		}
 
-    private String parseCities(String query, List<String> queryCities) {
-        String query_new = this.substituteQuery(query, queryCities);
+		solrQuery.setRows(rows);
+		return solrQuery;
+	}
 
-        if (query_new.trim().isEmpty())
-            return query;
-        else
-            return query_new;
-    }
+	private SolrQuery getQueryParams(String query) {
+		SolrQuery solrQuery = new SolrQuery();
+		List<String> queryTokens = this.tokenizeQuery(query);
+		List<String> cityList = this.findCities(query);
+		query = this.parseCities(query, cityList);
+		String ctq = this.getCityQuery(cityList);
 
-    private List<String> findCities(String query) {
-        // TODO Auto-generated method stub
-        List<City> cityList = cityService.getCityList(null);
-        List<String> cityLabels = new ArrayList<String>();
+		double wt = 1.0;
+		if (query.trim().isEmpty())
+			wt = 1.0 / queryTokens.size();
 
-        for (City city : cityList) {
-            String label = city.getLabel();
-            if (label != "")
-                cityLabels.add(city.getLabel());
-        }
+		solrQuery.setQuery(query);
+		solrQuery.setParam("defType", "edismax");
+		solrQuery.setParam("qf", "tp_engram^5.0 tp_ngram^0.5 tp_phonetic^0.2");
 
-        List<String> matchedCities = new ArrayList<String>();
-        for (String city : cityLabels) {
-            if (query.matches("(?i).*" + city + ".*")) {
-                if (city != "")
-                    matchedCities.add(city);
-            }
-        }
-        return matchedCities;
-    }
+		List<String> boostList = new ArrayList<String>();
+		for (String qry : queryTokens) {
+			if (qry.split(" ").length == 1) {
+				boostList
+						.add("query({!edismax qf='tp_city tp_locality tp_builder tp_suburb tp_project' tie=0.1 v='$q' boost=''}, "
+								+ String.format("%.2f", wt) + ")");
+			} else {
+				boostList
+						.add("query({!edismax qf='tp_city tp_locality tp_builder tp_suburb tp_project' tie=0.1 v='\"$q\"' boost=''}, $wt)");
+			}
+		}
 
-    private String substituteQuery(String query, List<String> terms) {
-        // replaces terms in query with terms
-        for (String term : terms) {
-            query = query.replace(term.toLowerCase(), "");
-        }
-        return query.trim();
-    }
+		String boost = new String();
+		if (boostList.size() > 1) {
+			boost = "sum(" + Joiner.on(",").skipNulls().join(boostList) + ")";
+		} else {
+			boost = boostList.get(0);
+		}
+		boost = "product(map(query({!v='TYPEAHEAD_TYPE:CITY'}),0,0,1,1.5),map(query({!v='TYPEAHEAD_TYPE:BUILDER'}),0,0,1,1.1),map(query({!v='TYPEAHEAD_TYPE:PROJECT'}),0,0,1,1.3),map(query({!v='TYPEAHEAD_TYPE:LOCALITY'}),0,0,1,1.3),map(query({!v='TYPEAHEAD_TYPE:SUBURB'}),0,0,1,1.3),"
+				+ boost + ")";
 
-    public List<Typeahead> getExactTypeaheads(String query, int rows, List<String> filterQueries) {
-        String[] multiWords = query.split("\\s+");
-        int wordsCounter = 0;
-        StringBuilder queryStringBuilder = new StringBuilder();
-        for (String word : multiWords) {
-            if (++wordsCounter < multiWords.length) {
-                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*" + " AND ");
-            }
-            else {
-                queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*" + word + "*");
-            }
-        }
+		if (cityList.size() > 0) {
+			boost = "product(query({!v='" + ctq + "'}, 1.0), " + boost + ")";
+		}
 
-        String exactMatchQuery = queryStringBuilder.toString();
+		solrQuery.setParam("boost", boost);
+		return solrQuery;
+	}
 
-        SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery(exactMatchQuery);
-        for (String fq : filterQueries) {
-            solrQuery.addFilterQuery(fq);
-        }
-        solrQuery.setRows(rows);
-        return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
-    }
+	private String getCityQuery(List<String> cityList) {
+		List<String> newCityList = new ArrayList<String>();
+
+		for (String city : cityList) {
+			newCityList.add("TYPEAHEAD_CITY:" + city.trim());
+		}
+		String ctq = Joiner.on(" OR ").skipNulls().join(newCityList);
+		return ctq;
+	}
+
+	public List<List<String>> powerset(List<String> list) {
+		List<List<String>> ps = new ArrayList<List<String>>();
+		ps.add(new ArrayList<String>());
+
+		for (String item : list) {
+			List<List<String>> newPs = new ArrayList<List<String>>();
+
+			for (List<String> subset : ps) {
+				newPs.add(subset);
+				List<String> newSubset = new ArrayList<String>(subset);
+				newSubset.add(item);
+				newPs.add(newSubset);
+			}
+
+			ps = newPs;
+		}
+		return ps;
+	}
+
+	private List<String> tokenizeQuery(String query) {
+		List<String> qList = new ArrayList<String>();
+		List<List<String>> powerset = this.powerset(qList);
+		for (List<String> list : powerset) {
+			String st = Joiner.on(" ").skipNulls().join(list);
+			if (st.trim() != "" && st != null) {
+				qList.add(st);
+			}
+		}
+		return qList;
+	}
+
+	public List<Typeahead> getTypeaheads(String query, int rows,
+			List<String> filterQueries) {
+
+		SolrQuery solrQuery = this.getSolrQuery(query, rows, filterQueries);
+		return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+	}
+
+	private String parseCities(String query, List<String> queryCities) {
+		String query_new = this.substituteQuery(query, queryCities);
+
+		if (query_new.trim().isEmpty()) {
+			return query;
+		} else {
+			return query_new;
+		}
+	}
+
+	private List<String> findCities(String query) {
+		// TODO Auto-generated method stub
+		List<City> cityList = cityService.getCityList(null);
+		List<String> cityLabels = new ArrayList<String>();
+
+		for (City city : cityList) {
+			String label = city.getLabel();
+			if (label != "") {
+				cityLabels.add(city.getLabel());
+			}
+		}
+
+		List<String> matchedCities = new ArrayList<String>();
+		for (String city : cityLabels) {
+			if (query.matches("(?i).*" + city + ".*")) {
+				if (city != "") {
+					matchedCities.add(city);
+				}
+			}
+		}
+		return matchedCities;
+	}
+
+	private String substituteQuery(String query, List<String> terms) {
+		// replaces terms in query with terms
+		for (String term : terms) {
+			query = query.replace(term.toLowerCase(), "");
+		}
+		return query.trim();
+	}
+
+	public List<Typeahead> getExactTypeaheads(String query, int rows,
+			List<String> filterQueries) {
+		String[] multiWords = query.split("\\s+");
+		int wordsCounter = 0;
+		StringBuilder queryStringBuilder = new StringBuilder();
+		for (String word : multiWords) {
+			if (++wordsCounter < multiWords.length) {
+				queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*"
+						+ word + "*" + " AND ");
+			} else {
+				queryStringBuilder.append("TYPEAHEAD_LABEL_LOWERCASE:" + "*"
+						+ word + "*");
+			}
+		}
+
+		String exactMatchQuery = queryStringBuilder.toString();
+
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setQuery(exactMatchQuery);
+		for (String fq : filterQueries) {
+			solrQuery.addFilterQuery(fq);
+		}
+		solrQuery.setRows(rows);
+		return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+	}
+
 }

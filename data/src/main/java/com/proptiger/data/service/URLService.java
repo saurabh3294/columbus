@@ -194,10 +194,6 @@ public class URLService {
                 
                 if (is404FallbackSet) {
                     redirectUrl = domainUrl;
-                    if (!domainUrl.isEmpty()) {
-                        domainUrl = domainUrl.replaceFirst("-real-estate", "");
-                        redirectUrl = domainUrl + "/" + urlDetail.getPropertyType();
-                    }
                 }
                 else {
                     domainUrl = domainUrl.replaceFirst("property-sale", urlDetail.getPropertyType()) + urlDetail
@@ -213,21 +209,30 @@ public class URLService {
                 break;
             case LOCALITY_SUBURB_OVERVIEW:
                 // localitySuburbListingUrl, cityName, response status
+                responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Object[] localitySuburbUrlData = getLocalitySuburbListingUrl(urlDetail);
 
                 domainUrl = (String) localitySuburbUrlData[0];
                 responseStatus = (Integer) localitySuburbUrlData[2];
                 String cityName = (String) localitySuburbUrlData[1];
-                if (domainUrl.length() < 1) {
-                    break;
-                }
+                is404FallbackSet = (boolean) localitySuburbUrlData[4];
 
-                domainUrl = domainUrl.replaceFirst("property-sale-", "");
-                domainUrl = domainUrl.replaceFirst(cityName, cityName + "-real-estate") + "/overview";
-
-                if (!domainUrl.equals(urlDetail.getUrl())) {
-                    responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
+                if (is404FallbackSet) {
                     redirectUrl = domainUrl;
+                    if (domainUrl != null && !domainUrl.isEmpty()) {
+                        redirectUrl = domainUrl + "/overview";
+                    }
+                }
+                else {
+                    domainUrl = domainUrl.replaceFirst("property-sale-", "");
+                    domainUrl = domainUrl.replaceFirst(cityName, cityName + "-real-estate") + "/overview";
+
+                    if (!domainUrl.equals(urlDetail.getUrl())) {
+                        redirectUrl = domainUrl;
+                    }
+                    else {
+                        responseStatus = HttpStatus.SC_OK;
+                    }
                 }
                 break;
             case CITY_URLS:

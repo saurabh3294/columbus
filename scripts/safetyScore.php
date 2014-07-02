@@ -1,5 +1,12 @@
 <?php
-include_once 'dbConfig.php';
+
+// Database Connectivity
+$dbProperties = parse_ini_file(dirname(__DIR__).'/data/src/main/resources/application.properties', false, INI_SCANNER_RAW );
+$dbUrl = explode("/", $dbProperties['db.url']);
+preg_match("/(.*):/", $dbUrl[2], $results);
+$db = mysql_connect($results[1],$dbProperties['db.username'], $dbProperties['db.password']);
+$dblink = mysql_select_db("proptiger", $db);
+//Logging configurations
 require_once 'log4php/Logger.php';
 Logger::configure(dirname(__FILE__) . '/log4php.xml');
 $logger = Logger::getLogger("main");
