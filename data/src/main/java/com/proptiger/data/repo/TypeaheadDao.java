@@ -75,7 +75,12 @@ public class TypeaheadDao {
 		for (SolrQuery q : solrQueries) {
 			results.addAll(getResponse(q, rows, filterQueries));
 		}
-
+			
+		List<Typeahead> rtrn = new ArrayList<>();
+		if (results.size()>rows){
+		rtrn = results.subList(0, rows);	
+		return rtrn;
+		}
 		return results;
 	}
 
