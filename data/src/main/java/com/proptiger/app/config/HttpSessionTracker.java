@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Just to pring session id with access data for debug purpose
+ * Listner to print session id with access time data for debuging purpose
  * 
  * @author Rajeev Pandey
  *
