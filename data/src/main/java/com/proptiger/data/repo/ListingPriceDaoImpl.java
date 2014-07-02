@@ -29,7 +29,7 @@ public class ListingPriceDaoImpl {
             EntityManager em = emf.createEntityManager();
 
             Query query = em
-                    .createQuery("select NEW com.proptiger.data.model.ListingPrice$CustomCurrentListingPrice(listingId, substring_index(group_concat(pricePerUnitArea,effectiveDate,effectiveDate,1,effectiveDate,-1,effectiveDate), ',', 1), substring_index(group_concat(effectiveDate), ',', 1)) from ListingPrice where listingId in (?1) and version = ?2 and status = ?3 group by listingId");
+                    .createQuery("select NEW com.proptiger.data.model.ListingPrice$CustomCurrentListingPrice(listingId, substring_index(group_concat(pricePerUnitArea,effectiveDate,-1), ',', 1), substring_index(group_concat(effectiveDate,effectiveDate,-1), ',', 1)) from ListingPrice where listingId in (?1) and version = ?2 and status = ?3 group by listingId");
 
             query.setParameter(1, listingIds);
             query.setParameter(2, version);
