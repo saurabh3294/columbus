@@ -751,12 +751,20 @@ public class PortfolioService {
             portfolioListing.setProjectId(property.getProjectId());
             portfolioListing.setLocalityId(property.getProject().getLocalityId());
             portfolioListing.setCityId(property.getProject().getLocality().getSuburb().getCityId());
+            portfolioListing.setName(property.getUnitName());
+            portfolioListing.setProjectName(property.getProject().getName());
+            portfolioListing.setLocality(property.getProject().getLocality().getLabel());
+            portfolioListing.setCityName(property.getProject().getLocality().getSuburb().getCity().getLabel());
         }
         else if (portfolioListing.getProjectId() != null) {
             Project project = projectService.getProjectData(portfolioListing.getProjectId());
 
             portfolioListing.setLocalityId(project.getLocalityId());
             portfolioListing.setCityId(project.getLocality().getSuburb().getCityId());
+
+            portfolioListing.setProjectName(project.getName());
+            portfolioListing.setLocality(project.getLocality().getLabel());
+            portfolioListing.setCityName(project.getLocality().getSuburb().getCity().getLabel());
         }
         else if (portfolioListing.getLocalityId() != null) {
             Locality locality = localityService.getLocality(portfolioListing.getLocalityId());
@@ -764,13 +772,17 @@ public class PortfolioService {
                 throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
             }
             portfolioListing.setCityId(locality.getSuburb().getCityId());
+
+            portfolioListing.setLocality(locality.getLabel());
+            portfolioListing.setCityName(locality.getSuburb().getCity().getLabel());
         }
         else if (portfolioListing.getCityId() != null) {
             /*
              * checking whether city id is valid or not, if not a valid city
              * then cityService will throw an exception
              */
-            cityService.getCity(portfolioListing.getCityId());
+            City city = cityService.getCity(portfolioListing.getCityId());
+            portfolioListing.setCityName(city.getLabel());
         }
 
         if (portfolioListing.getIsBroker() == null || portfolioListing.getLeadUser() == null
