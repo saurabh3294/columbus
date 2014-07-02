@@ -27,7 +27,7 @@ public class PipelineAPIService {
     private static String       includeParamAll   = "all";
     private static String       includeParamNone  = "last";
 
-    @Value("${pipeline.api.base.url}")
+    @Value("${composite.api.base.url}")
     private String              BASE_URL;
 
     private RestTemplate        restTemplate      = new RestTemplate();
