@@ -76,8 +76,12 @@ public class TypeaheadDao {
 			results.addAll(getResponse(q, rows, filterQueries));
 		}
 			
-		List<Typeahead> rtrn = new ArrayList<>(results.subList(0, rows));
+		List<Typeahead> rtrn = new ArrayList<>();
+		if (results.size()>5){
+		rtrn = results.subList(0, rows);	
 		return rtrn;
+		}
+		return results;
 	}
 
 	/*
