@@ -77,7 +77,7 @@ public class TypeaheadDao {
 		}
 			
 		List<Typeahead> rtrn = new ArrayList<>();
-		if (results.size()>5){
+		if (results.size()>rows){
 		rtrn = results.subList(0, rows);	
 		return rtrn;
 		}
