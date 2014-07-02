@@ -22,7 +22,8 @@ public class FilterAuthTrendRequest {
     @Autowired
     private UserService userService;
 
-    @Pointcut(value = "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..))")
+    @Pointcut(
+            value = "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..)) || execution(* com.proptiger.data.mvc.trend.BuilderTrendController.get*(..))")
     public void addSubscriptionPermissionsToSelectorPointCut() {
     }
 
