@@ -56,15 +56,15 @@ public class TypeaheadDao {
 
 		// Add the city filter if it exist in the query
 		List<String> cityList = this.findCities(query);
-		query = this.parseCities(query, cityList);// removes city name if query
-													// contains other terms too
+
+		// removes city name if query contains other terms too
+		String new_query = this.parseCities(query, cityList);
 		for (String city : cityList) {
 			filterQueries.add("TYPEAHEAD_CITY:" + city);
 		}
 
 		List<SolrQuery> solrQueries = new ArrayList<SolrQuery>();
-		solrQueries.add(this.getSolrQueryV2(query, rows, filterQueries));
-
+		solrQueries.add(this.getSolrQueryV2(new_query, rows, filterQueries));
 		if (!filterQueries.isEmpty()) {// Adding another query if filters exist
 			solrQueries.add(this.getSolrQueryV2(query, rows,
 					new ArrayList<String>()));
@@ -75,11 +75,11 @@ public class TypeaheadDao {
 		for (SolrQuery q : solrQueries) {
 			results.addAll(getResponse(q, rows, filterQueries));
 		}
-			
+
 		List<Typeahead> rtrn = new ArrayList<>();
-		if (results.size()>rows){
-		rtrn = results.subList(0, rows);	
-		return rtrn;
+		if (results.size() > rows) {
+			rtrn = new ArrayList<>(results.subList(0, rows));
+			return rtrn;
 		}
 		return results;
 	}
