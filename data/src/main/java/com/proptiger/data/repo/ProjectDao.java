@@ -81,7 +81,10 @@ public class ProjectDao extends ProjectSolrDao {
 
     public Integer getProjectIdForPropertyId(Integer propertyId) {
         EntityManager em = emf.createEntityManager();
-        Query query = em.createNativeQuery("SELECT PROJECT_ID FROM proptiger.DELETED_RESI_PROJECT_TYPES WHERE TYPE_ID =" + propertyId);
+        Query query = em
+                .createNativeQuery("SELECT PROJECT_ID FROM proptiger.DELETED_RESI_PROJECT_TYPES WHERE TYPE_ID =" + propertyId
+                        + " UNION SELECT PROJECT_ID FROM proptiger.RESI_PROJECT_TYPES WHERE TYPE_ID ="
+                        + propertyId);
         List<Integer> projectIds = query.getResultList();
         em.close();
         if (projectIds != null && !projectIds.isEmpty()) {
