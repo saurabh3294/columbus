@@ -244,9 +244,12 @@ public class Media extends BaseModel {
     public void setAudioAttributes(AudioAttributes audioAttributes) {
         this.audioAttributes = audioAttributes;
     }
-    
-    private void extractAndSetExtraAttributesFromString()
-    {
+
+    private void extractAndSetExtraAttributesFromString() {
+        if (this.stringMediaExtraAttributes == null) {
+            return;
+        }
+
         try {
             this.mediaExtraAttributes = JsonLoader.fromString(this.stringMediaExtraAttributes);
         }
