@@ -66,7 +66,7 @@ public class MediaController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/document/{id}")
     @ResponseBody
-    public APIResponse updateMedia(@PathVariable Integer id, @ModelAttribute Media media) {
+    public APIResponse updateMedia(@PathVariable Integer id, @RequestBody Media media) {
         return new APIResponse(documentService.updateMedia(media, id));
     }
     
