@@ -126,7 +126,7 @@ public class MediaUtil {
             throw new ProAPIException("Error Fetching Basic FileAttributes", e);
         }
     }
-    
+
     public static String getMediaEndpoint(long id) {
         return endpoints[(int) (id % endpoints.length)];
     }
