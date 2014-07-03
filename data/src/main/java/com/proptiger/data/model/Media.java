@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.io.IOException;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -22,6 +23,7 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jsonschema.util.JsonLoader;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.util.MediaUtil;
@@ -106,6 +108,7 @@ public class Media extends BaseModel {
     @PostLoad
     private void postLoad() {
         this.absoluteUrl = MediaUtil.getMediaEndpoint(this.id) + "/" + this.url;
+        extractAndSetExtraAttributesFromString();
     }
 
     public Integer getId() {
@@ -162,6 +165,7 @@ public class Media extends BaseModel {
 
     public void setStringMediaExtraAttributes(String stringMediaExtraAttributes) {
         this.stringMediaExtraAttributes = stringMediaExtraAttributes;
+        extractAndSetExtraAttributesFromString();
     }
 
     public JsonNode getMediaExtraAttributes() {
@@ -170,6 +174,7 @@ public class Media extends BaseModel {
 
     public void setMediaExtraAttributes(JsonNode mediaExtraAttributes) {
         this.mediaExtraAttributes = mediaExtraAttributes;
+        this.stringMediaExtraAttributes = mediaExtraAttributes.toString();
     }
 
     public String getContentHash() {
@@ -238,5 +243,15 @@ public class Media extends BaseModel {
 
     public void setAudioAttributes(AudioAttributes audioAttributes) {
         this.audioAttributes = audioAttributes;
+    }
+    
+    private void extractAndSetExtraAttributesFromString()
+    {
+        try {
+            this.mediaExtraAttributes = JsonLoader.fromString(this.stringMediaExtraAttributes);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

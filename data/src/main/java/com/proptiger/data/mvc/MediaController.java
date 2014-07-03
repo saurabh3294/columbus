@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,7 +28,7 @@ import com.proptiger.data.util.FileUtil;
  */
 @Controller
 @DisableCaching
-@RequestMapping(value = "data/v1/entity/media")
+@RequestMapping(value = "data/v1/entity")
 public class MediaController {
     @Autowired
     private DocumentService documentService;
@@ -101,7 +102,7 @@ public class MediaController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/audio/{id}")
     @ResponseBody
-    public APIResponse updateMediaAudio(@PathVariable Integer id, @ModelAttribute Media media) {
+    public APIResponse updateMediaAudio(@PathVariable Integer id, @RequestBody Media media) {
         return new APIResponse(audioService.updateMedia(media, id));
     }
 }

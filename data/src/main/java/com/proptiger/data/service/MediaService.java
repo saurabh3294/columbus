@@ -9,7 +9,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -203,7 +202,8 @@ public abstract class MediaService {
                 throw new ProAPIException("Error Copying Media Object", e);
             }
             savedMedia.setUpdatedAt(new Date());
-            return mediaDao.save(savedMedia);
+            mediaDao.save(savedMedia);
+            return savedMedia;
         }
     }
 }
