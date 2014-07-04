@@ -53,18 +53,18 @@ public class TypeaheadDao {
 
 	public List<Typeahead> getTypeaheadsV2(String query, int rows,
 			List<String> filterQueries) {
-
+		
 		// Add the city filter if it exist in the query
 		List<String> cityList = this.findCities(query);
-		query = this.parseCities(query, cityList);// removes city name if query
-													// contains other terms too
+
+		// removes city name if query contains other terms too
+		String new_query = this.parseCities(query, cityList);
 		for (String city : cityList) {
 			filterQueries.add("TYPEAHEAD_CITY:" + city);
 		}
 
 		List<SolrQuery> solrQueries = new ArrayList<SolrQuery>();
-		solrQueries.add(this.getSolrQueryV2(query, rows, filterQueries));
-
+		solrQueries.add(this.getSolrQueryV2(new_query, rows, filterQueries));
 		if (!filterQueries.isEmpty()) {// Adding another query if filters exist
 			solrQueries.add(this.getSolrQueryV2(query, rows,
 					new ArrayList<String>()));
@@ -75,11 +75,11 @@ public class TypeaheadDao {
 		for (SolrQuery q : solrQueries) {
 			results.addAll(getResponse(q, rows, filterQueries));
 		}
-			
+
 		List<Typeahead> rtrn = new ArrayList<>();
-		if (results.size()>rows){
-		rtrn = results.subList(0, rows);	
-		return rtrn;
+		if (results.size() > rows) {
+			rtrn = new ArrayList<>(results.subList(0, rows));
+			return rtrn;
 		}
 		return results;
 	}
@@ -98,10 +98,14 @@ public class TypeaheadDao {
 				.getCollatedResult();
 		results = response.getBeans(Typeahead.class);
 
-		if (spellsuggestion != null) {
+		if (spellsuggestion != null && results.size() < 5) {
 			SolrQuery newQuery = this.getSolrQueryV2(
 					spellsuggestion.toString(), rows, filterQueries);
-			return solrDao.executeQuery(newQuery).getBeans(Typeahead.class);
+			List<Typeahead> suggestResults = new ArrayList<Typeahead>();
+			suggestResults = solrDao.executeQuery(newQuery).getBeans(
+					Typeahead.class);
+			results.addAll(suggestResults);
+			return results;
 		} else {
 			return results;
 		}
