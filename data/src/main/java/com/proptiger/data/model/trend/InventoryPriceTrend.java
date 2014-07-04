@@ -198,7 +198,7 @@ public class InventoryPriceTrend extends BaseModel {
     private Integer           unitsSold;
 
     @Column(name = "rate_of_sale")
-    private Integer           rateOfSale;
+    private Float             rateOfSale;
 
     @Column(name = "rate_of_sale_quarter")
     private Integer           rateOfSaleQuarter;
@@ -563,7 +563,7 @@ public class InventoryPriceTrend extends BaseModel {
         this.unitsSold = unitsSold;
     }
 
-    public Integer getRateOfSale() {
+    public Float getRateOfSale() {
         return rateOfSale;
     }
 
@@ -591,10 +591,11 @@ public class InventoryPriceTrend extends BaseModel {
         this.rateOfSaleFinancialYear = rateOfSaleFinancialYear;
     }
 
-    public void setRateOfSale(Integer rateOfSale) {
+    public void setRateOfSale(Float rateOfSale) {
         this.rateOfSale = rateOfSale;
     }
 
+    
     public Integer getInventoryOverhang() {
         return inventoryOverhang;
     }
