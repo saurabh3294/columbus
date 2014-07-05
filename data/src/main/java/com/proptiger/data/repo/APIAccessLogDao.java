@@ -1,6 +1,7 @@
 package com.proptiger.data.repo;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,5 +13,5 @@ public interface APIAccessLogDao extends JpaRepository<APIAccessLog, Integer> {
 
     public APIAccessLog findByAccessHash(String accessHash);
     
-    public List<APIAccessLog> findByAccessHashIn(List<String> accessHashList);
+    public List<APIAccessLog> findByAccessHashIn(Set<String> accessHashList);
 }
