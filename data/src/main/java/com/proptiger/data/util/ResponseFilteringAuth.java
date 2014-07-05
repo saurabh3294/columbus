@@ -37,18 +37,21 @@ public class ResponseFilteringAuth {
     @Autowired
     private UserService   userService;
 
-    private final int     objTypeIdLocality  = DomainObject.locality.getObjectTypeId();
+    private final int     objTypeIdLocality    = DomainObject.locality.getObjectTypeId();
 
-    private final int     objTypeIdCity      = DomainObject.city.getObjectTypeId();
+    private final int     objTypeIdCity        = DomainObject.city.getObjectTypeId();
+    private final int     objTypeIdBuilder     = DomainObject.builder.getObjectTypeId();
 
-    private final String  objTypeTextCity     = DomainObject.city.getText();
-    private final String  objTypeTextLocality = DomainObject.locality.getText();
-    private final String  objTypeTextProject  = DomainObject.project.getText();
+    private final String  objTypeTextCity      = DomainObject.city.getText();
+    private final String  objTypeTextLocality  = DomainObject.locality.getText();
+    private final String  objTypeTextProject   = DomainObject.project.getText();
+    private final String  objTypeTextBuilder   = DomainObject.builder.getText();
 
-    private final String  fieldTagAuthorized = "authorized";
+    private final String  fieldTagAuthorized   = "authorized";
+    private final String  typeAheadIdSeparator = "-";
 
     @Autowired
-    private static Logger logger             = LoggerFactory.getLogger(ResponseFilteringAuth.class);
+    private static Logger logger               = LoggerFactory.getLogger(ResponseFilteringAuth.class);
 
     @SuppressWarnings("unchecked")
     @AfterReturning(
@@ -67,8 +70,9 @@ public class ResponseFilteringAuth {
         for (Object element : projectItemsList) {
             int localityId = getEntityIdFromResponseElement(element, "localityId");
             int cityId = extractCityIdFromProjectListingResponse(element);
-            if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || 
-                (userSubscriptionMap.get(objTypeIdCity, cityId) != null)) {
+            if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+                    objTypeIdCity,
+                    cityId) != null)) {
                 ((Map<String, Object>) element).put(fieldTagAuthorized, true);
             }
         }
@@ -90,8 +94,9 @@ public class ResponseFilteringAuth {
             int localityId = getEntityIdFromResponseElement(element, "localityId");
             int cityId = getEntityIdFromResponseElement(element, "cityId");
 
-            if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || 
-                (userSubscriptionMap.get(objTypeIdCity, cityId) != null)) {
+            if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+                    objTypeIdCity,
+                    cityId) != null)) {
                 ((Map<String, Object>) element).put(fieldTagAuthorized, true);
             }
         }
@@ -134,6 +139,7 @@ public class ResponseFilteringAuth {
             Map<String, Object> map = ((Map<String, Object>) element);
             String entityType = String.valueOf(map.get("type"));
             String typeAheadRespId = String.valueOf(map.get("id"));
+
             if (entityType.equalsIgnoreCase(objTypeTextCity)) {
                 cityId = extractEntityIdFromTypeaheadResponseId(typeAheadRespId);
                 if (userSubscriptionMap.get(objTypeIdCity, cityId) != null) {
@@ -143,16 +149,25 @@ public class ResponseFilteringAuth {
             else if (entityType.equalsIgnoreCase(objTypeTextLocality)) {
                 localityId = extractEntityIdFromTypeaheadResponseId(typeAheadRespId);
                 cityId = getEntityIdFromResponseElement(element, "cityId");
-                if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || 
-                    (userSubscriptionMap.get(objTypeIdCity, cityId) != null)) {
+                if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+                        objTypeIdCity,
+                        cityId) != null)) {
                     ((Map<String, Object>) element).put(fieldTagAuthorized, true);
                 }
             }
             else if (entityType.equalsIgnoreCase(objTypeTextProject)) {
                 cityId = getEntityIdFromResponseElement(element, "cityId");
                 localityId = getEntityIdFromResponseElement(element, "localityId");
-                if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) ||
-                    (userSubscriptionMap.get(objTypeIdCity, cityId) != null)) {
+                if ((userSubscriptionMap.containsKey(objTypeIdLocality, localityId)) || (userSubscriptionMap.get(
+                        objTypeIdCity,
+                        cityId) != null)) {
+                    ((Map<String, Object>) element).put(fieldTagAuthorized, true);
+                }
+            }
+            else if (entityType.equalsIgnoreCase(objTypeTextBuilder)) {
+                String[] typeAheadIdParts = typeAheadRespId.split(typeAheadIdSeparator);
+                int builderId = Integer.parseInt(typeAheadIdParts[typeAheadIdParts.length - 1]);
+                if (userSubscriptionMap.containsKey(objTypeIdBuilder, builderId)) {
                     ((Map<String, Object>) element).put(fieldTagAuthorized, true);
                 }
             }
