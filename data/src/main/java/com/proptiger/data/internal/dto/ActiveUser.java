@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.social.security.SocialUser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -14,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author Rajeev Pandey
  * 
  */
-public class ActiveUser extends User {
+public class ActiveUser extends SocialUser {
     private static final long serialVersionUID = -3022788419586557079L;
     private Integer           userIdentifier;
     @JsonIgnore

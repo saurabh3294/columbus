@@ -10,9 +10,12 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
@@ -37,6 +40,7 @@ public class ForumUser extends BaseModel {
 
     @Column(name = "USER_ID")
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer                       userId;
 
     @Column(name = "USERNAME")
@@ -249,6 +253,14 @@ public class ForumUser extends BaseModel {
         this.preferences = preferences;
     }
     
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    @PrePersist
+    public void prePersist(){
+        this.createdDate = new Date();
+    }
     public static class WhoAmIDetail extends BaseModel{
         private static final long serialVersionUID = 708536340494027592L;
         private String userName;

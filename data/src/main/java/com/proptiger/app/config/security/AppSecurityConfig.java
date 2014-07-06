@@ -29,6 +29,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
 import com.proptiger.app.config.UserDetailManagerService;
+import com.proptiger.app.config.security.social.CustomSpringSocialConfigurer;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -72,6 +73,14 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilter(createRememberMeAuthFilter());
         http.logout().logoutSuccessHandler(createLogoutHanlder()).logoutUrl(Constants.Security.LOGOUT_URL)
                 .deleteCookies(Constants.Security.COOKIE_NAME_JSESSIONID, Constants.Security.REMEMBER_ME_COOKIE);
+        
+        http.apply(createSocialAuthConfigurer());
+        
+    }
+
+    @Bean
+    public CustomSpringSocialConfigurer createSocialAuthConfigurer() {
+        return new CustomSpringSocialConfigurer();
     }
 
     @Bean

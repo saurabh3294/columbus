@@ -17,6 +17,8 @@
 		<logback.version>1.0.13</logback.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<shiro.version>1.2.1</shiro.version>
+		<spring.social.version>1.1.0.RELEASE</spring.social.version>
+        <spring.social.facebook.version>1.1.0.M4</spring.social.facebook.version>
 		<skipTests>true</skipTests>
 	</properties>
 	<build>
@@ -350,6 +352,44 @@
 			<version>1.0.1</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- Spring social dependency start -->
+		 <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-config</artifactId>
+            <version>${spring.social.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-core</artifactId>
+            <version>${spring.social.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-security</artifactId>
+            <version>${spring.social.version}</version>
+        </dependency>
+		<!-- Spring Social Facebook -->
+		<dependency>
+			<groupId>org.springframework.social</groupId>
+			<artifactId>spring-social-facebook-web</artifactId>
+			<version>1.1.1.RELEASE</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.social</groupId>
+		    <artifactId>spring-social-facebook</artifactId>
+		    <version>${spring.social.facebook.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.springframework.social</groupId>
+		  <artifactId>spring-social-google</artifactId>
+		  <version>1.0.0.RELEASE</version>
+		</dependency>
+		<dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.3</version>
+        </dependency>
+		<!--Spring social dependency ends  -->
 	</dependencies>
 	<repositories>
 		<repository>
