@@ -1,0 +1,98 @@
+package com.proptiger.app.config.security.social;
+
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.social.UserIdSource;
+import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.security.SocialAuthenticationFilter;
+import org.springframework.social.security.SocialAuthenticationServiceLocator;
+
+import com.proptiger.app.config.security.ModifiableHttpServletRequest;
+import com.proptiger.data.util.PropertyReader;
+
+/**
+ * Custom social authentication filter hack request to change for service
+ * provider.
+ * 
+ * @author Rajeev Pandey
+ *
+ */
+public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
+
+    private static final String SCOPE = "scope";
+    private PropertyReader      propertyReader;
+
+    public CustomSocialAuthFilter(
+            PropertyReader propertyReader,
+            AuthenticationManager authManager,
+            UserIdSource userIdSource,
+            UsersConnectionRepository usersConnectionRepository,
+            SocialAuthenticationServiceLocator authServiceLocator) {
+        super(authManager, userIdSource, usersConnectionRepository, authServiceLocator);
+        this.propertyReader = propertyReader;
+    }
+
+    @Override
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
+        HttpServletRequest wrappedRequest = addScopeInParameter(request);
+        return super.attemptAuthentication(wrappedRequest, response);
+    }
+
+    /**
+     * Adding scope varibale in request parameter as that is mandatory for
+     * google auth, for rest like facebook it may be empty
+     * 
+     * @param request
+     * @return
+     */
+    private HttpServletRequest addScopeInParameter(HttpServletRequest request) {
+        String providerId = getProviderId(request);
+        String scopeKey = providerId + "." + SCOPE;
+        Map<String, String[]> extraParams = new TreeMap<String, String[]>();
+        String[] values = { propertyReader.getRequiredProperty(scopeKey) };
+        extraParams.put(SCOPE, values);
+        HttpServletRequest wrappedRequest = new ModifiableHttpServletRequest(request, extraParams);
+        return wrappedRequest;
+    }
+
+    /**
+     * Default implementation copied from super class.
+     * @param request
+     * @return
+     */
+    @SuppressWarnings("deprecation")
+    private String getProviderId(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        int pathParamIndex = uri.indexOf(';');
+
+        if (pathParamIndex > 0) {
+            // strip everything after the first semi-colon
+            uri = uri.substring(0, pathParamIndex);
+        }
+
+        // uri must start with context path
+        uri = uri.substring(request.getContextPath().length());
+
+        // remaining uri must start with filterProcessesUrl
+        if (!uri.startsWith(getFilterProcessesUrl())) {
+            return null;
+        }
+        uri = uri.substring(getFilterProcessesUrl().length());
+
+        // expect /filterprocessesurl/provider, not /filterprocessesurlproviderr
+        if (uri.startsWith("/")) {
+            return uri.substring(1);
+        }
+        else {
+            return null;
+        }
+    }
+}
