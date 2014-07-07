@@ -33,6 +33,10 @@ public class TypeaheadService {
      * @param filterQueries
      * @return List<Typeahead>
      */
+    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
+        return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
+    }
+    
     public List<Typeahead> getTypeaheads(String query, int rows, List<String> filterQueries) {
         return typeaheadDao.getTypeaheads(query, rows, filterQueries);
     }

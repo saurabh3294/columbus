@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import java.io.IOException;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -21,6 +23,7 @@ import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jsonschema.util.JsonLoader;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.util.MediaUtil;
@@ -97,9 +100,15 @@ public class Media extends BaseModel {
     @ExcludeFromBeanCopy
     private Date              updatedAt        = new Date();
 
+    @OneToOne(optional = true)
+    @JoinColumn(name = "id", insertable = false, updatable = false)
+    @ExcludeFromBeanCopy
+    private AudioAttributes   audioAttributes;
+
     @PostLoad
     private void postLoad() {
         this.absoluteUrl = MediaUtil.getMediaEndpoint(this.id) + "/" + this.url;
+        extractAndSetExtraAttributesFromString();
     }
 
     public Integer getId() {
@@ -156,6 +165,7 @@ public class Media extends BaseModel {
 
     public void setStringMediaExtraAttributes(String stringMediaExtraAttributes) {
         this.stringMediaExtraAttributes = stringMediaExtraAttributes;
+        extractAndSetExtraAttributesFromString();
     }
 
     public JsonNode getMediaExtraAttributes() {
@@ -164,6 +174,7 @@ public class Media extends BaseModel {
 
     public void setMediaExtraAttributes(JsonNode mediaExtraAttributes) {
         this.mediaExtraAttributes = mediaExtraAttributes;
+        this.stringMediaExtraAttributes = mediaExtraAttributes.toString();
     }
 
     public String getContentHash() {
@@ -224,5 +235,26 @@ public class Media extends BaseModel {
 
     public void setPriority(int priority) {
         this.priority = priority;
+    }
+
+    public AudioAttributes getAudioAttributes() {
+        return audioAttributes;
+    }
+
+    public void setAudioAttributes(AudioAttributes audioAttributes) {
+        this.audioAttributes = audioAttributes;
+    }
+
+    private void extractAndSetExtraAttributesFromString() {
+        if (this.stringMediaExtraAttributes == null) {
+            return;
+        }
+
+        try {
+            this.mediaExtraAttributes = JsonLoader.fromString(this.stringMediaExtraAttributes);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
