@@ -17,8 +17,6 @@ public final class ConnectionSignUpImpl implements ConnectionSignUp {
 
     private static final String PROFILE_IMAGE_FORMAT = ".jpg";
 
-    private static final String ACTIVE               = "1";
-
     @Autowired
     private ForumUserDao        forumUserDao;
 
@@ -41,7 +39,7 @@ public final class ConnectionSignUpImpl implements ConnectionSignUp {
         forumUser.setCity("");
         forumUser.setPassword("");
         forumUser.setUniqueUserId("");
-        forumUser.setStatus(ACTIVE);
+        forumUser.setStatus(ForumUser.USER_STATUS_ACTIVE);
         forumUser = forumUserDao.save(forumUser);
         return forumUser.getUserId().toString();
     }

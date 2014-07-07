@@ -1,4 +1,4 @@
-package com.proptiger.app.config;
+package com.proptiger.app.config.security;
 
 import java.util.ArrayList;
 

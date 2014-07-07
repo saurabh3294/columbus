@@ -17,6 +17,7 @@ import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.social.security.SpringSocialConfigurer;
 
 import com.proptiger.app.config.security.AuthSuccessHandler;
+import com.proptiger.data.util.Constants;
 
 /**
  * Spring social filter configuration that will intercept provider login starting 
@@ -29,7 +30,6 @@ public class CustomSpringSocialConfigurer extends SpringSocialConfigurer{
     private AuthSuccessHandler authSuccessHandler;
     
     public CustomSpringSocialConfigurer(){
-        super();
     }
 
     @Override
@@ -45,9 +45,12 @@ public class CustomSpringSocialConfigurer extends SpringSocialConfigurer{
                 usersConnectionRepository, 
                 authServiceLocator);
         filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(
-                "/app/v1/login",
+                Constants.Security.LOGIN_URL,
                 "POST"));
-        filter.setFilterProcessesUrl("/app/v1/login");
+        filter.setFilterProcessesUrl(Constants.Security.LOGIN_URL);
+        /*
+         * set authentication success handler to return same result as of app/v1/login
+         */
         filter.setAuthenticationSuccessHandler(authSuccessHandler);
         RememberMeServices rememberMe = http.getSharedObject(RememberMeServices.class);
         if (rememberMe != null) {
