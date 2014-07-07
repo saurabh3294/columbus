@@ -29,7 +29,9 @@ public interface ResponseErrorMessages {
     static String LIMIT_OF_COMPOSITE_API_EXCEEDED     = "Maximum limit of" + Constants.LIMIT_OF_COMPOSITE_APIs
                                                               + " APIs allowed in composite call crossed";
     static String BAD_CREDENTIAL                      = "Bad credentials";
-    static String INVALID_PASSWORD                    = "Invalid password";
+    static String LOG_MESSAGE_ERROR                   = "Log message Empty or Log level invalid";
+    
+	static String INVALID_PASSWORD                    = "Invalid password";
     static String OLD_PASSWORD_REQUIRED               = "Old password required";
     static String NEW_PASS_CONFIRM_PASS_NOT_MATCHED   = "New password and confirm password do not match";
     static String INVALID_EMAIL                       = "Invalid email address";

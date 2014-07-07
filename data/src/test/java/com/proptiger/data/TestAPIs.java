@@ -89,6 +89,8 @@ public class TestAPIs {
         exclusionList.add("sell-property");
         exclusionList.add(".csv");
         exclusionList.add("data/v1/entity/media/document");
+        exclusionList.add("data/v1/entity/audio");
+        exclusionList.add("data/v1/entity/document");
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -368,6 +370,7 @@ public class TestAPIs {
                 responseCode = addApiResponseCode(postResponse, finalUrl, method);
             }
             else if (method == "PUT") {
+                logger.error("############# TESTAPI URL ########### " + apiUrl);
                 String post_rating = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
