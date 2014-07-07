@@ -28,6 +28,8 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
+import com.proptiger.app.config.UserDetailManagerService;
+import com.proptiger.app.config.security.social.CustomSpringSocialConfigurer;
 import com.proptiger.data.util.Constants;
 
 /**
@@ -43,7 +45,8 @@ import com.proptiger.data.util.Constants;
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private CustomUserDetailService userDetailService;
+    private UserDetailManagerService userService;
+
     @Autowired
     private DataSource              dataSource;
 
@@ -70,6 +73,14 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilter(createRememberMeAuthFilter());
         http.logout().logoutSuccessHandler(createLogoutHanlder()).logoutUrl(Constants.Security.LOGOUT_URL)
                 .deleteCookies(Constants.Security.COOKIE_NAME_JSESSIONID, Constants.Security.REMEMBER_ME_COOKIE);
+        
+        http.apply(createSocialAuthConfigurer());
+        
+    }
+
+    @Bean
+    public CustomSpringSocialConfigurer createSocialAuthConfigurer() {
+        return new CustomSpringSocialConfigurer();
     }
 
     @Bean
@@ -109,13 +120,23 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationManager createAuthenticationManager() {
         List<AuthenticationProvider> authProvider = new ArrayList<>();
-        DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider();
-        daoAuthProvider.setUserDetailsService(userDetailService);
-        daoAuthProvider.setPasswordEncoder(new Md5PasswordEncoder());
+        DaoAuthenticationProvider daoAuthProvider = createDaoAuthProvider();
         authProvider.add(daoAuthProvider);
 
         authProvider.add(createRememberMeAuthProvider());
         return new ProviderManager(authProvider);
+    }
+    @Bean
+    public DaoAuthenticationProvider createDaoAuthProvider() {
+        DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider();
+        daoAuthProvider.setUserDetailsService(userService);
+        daoAuthProvider.setPasswordEncoder(createPasswordEncoder());
+        return daoAuthProvider;
+    }
+
+    @Bean
+    public Md5PasswordEncoder createPasswordEncoder() {
+        return new Md5PasswordEncoder();
     }
 
     @Bean
@@ -125,10 +146,9 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public GenericFilterBean createRememberMeAuthFilter() {
-        RememberMeAuthenticationFilter rememberMeFilter = new RememberMeAuthenticationFilter(
+        RememberMeAuthenticationFilter rememberMeFilter = new CustomRememberMeAuthFilter(
                 createAuthenticationManager(),
                 createPersistentTokenBasedRememberMeService());
-        rememberMeFilter.setAuthenticationSuccessHandler(createAuthSuccessHandler());
         return rememberMeFilter;
     }
 
@@ -136,7 +156,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     public PersistentTokenBasedRememberMeServices createPersistentTokenBasedRememberMeService() {
         PersistentTokenBasedRememberMeServices tokenBasedRememberMeService = new PersistentTokenBasedRememberMeServices(
                 Constants.Security.API_SECRET_KEY,
-                userDetailService,
+                userService,
                 createPersistentLoginRepository());
         tokenBasedRememberMeService.setParameter(Constants.Security.REMEMBER_ME_PARAMETER);
         tokenBasedRememberMeService.setCookieName(Constants.Security.REMEMBER_ME_COOKIE);

@@ -30,4 +30,7 @@ public interface ResponseErrorMessages {
                                                               + " APIs allowed in composite call crossed";
     static String BAD_CREDENTIAL                      = "Bad credentials";
     static String LOG_MESSAGE_ERROR                   = "Log message Empty or Log level invalid";
+    static String INVALID_PASSWORD_DETAILS              = "Invalid password details";
+    static String OLD_PASSWORD_REQUIRED             = "Old password required";
+    static String NEW_PASS_CONFIRM_PASS_NOT_MATCHED = "New password and confirm password do not match";
 }
