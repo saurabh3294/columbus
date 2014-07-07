@@ -39,6 +39,7 @@ import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
+import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
@@ -63,6 +64,7 @@ import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PasswordUtils;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.RegistrationUtils;
 import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.BadRequestException;
@@ -107,8 +109,6 @@ public class UserService {
 
     @Autowired
     private AuthenticationManager      authManager;
-
-    private Md5PasswordEncoder         passwordEncoder = new Md5PasswordEncoder();
 
     @Autowired
     private PropertyReader             propertyReader;
@@ -493,13 +493,30 @@ public class UserService {
         catch (AuthenticationException e) {
             throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.BAD_CREDENTIAL);
         }
-        PasswordUtils.validatePasword(changePassword);
+        PasswordUtils.validateChangePasword(changePassword);
         logger.debug("Changing password for user {}", activeUser.getUsername());
         ForumUser forumUser = forumUserDao.findOne(activeUser.getUserIdentifier());
-        forumUser.setPassword(passwordEncoder.encodePassword(changePassword.getNewPassword(), null));
+        forumUser.setPassword(changePassword.getNewPassword());
         forumUser = forumUserDao.save(forumUser);
 
         SecurityContextHolder.getContext().setAuthentication(SecurityContextUtils.createNewAuthentication(forumUser));
     }
 
+    /**
+     * Register a new user after data validation 
+     * @param register
+     * @return
+     */
+    @Transactional
+    public ForumUser register(Register register) {
+        RegistrationUtils.validateRegistration(register);
+        ForumUser userPresent = forumUserDao.findByEmail(register.getEmail());
+        if(userPresent != null){
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+        }
+        ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
+        return savedUser;
+    }
+
+    
 }

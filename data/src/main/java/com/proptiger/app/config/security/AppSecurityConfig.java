@@ -28,7 +28,6 @@ import org.springframework.security.web.authentication.rememberme.RememberMeAuth
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
-import com.proptiger.app.config.UserDetailManagerService;
 import com.proptiger.app.config.security.social.CustomSpringSocialConfigurer;
 import com.proptiger.data.util.Constants;
 

@@ -19,7 +19,9 @@ public interface ForumUserDao extends JpaRepository<ForumUser, Integer> {
     public String findEmailByUserId(Integer userId);
 
     public ForumUser findByEmail(String email);
-
+    
+    public ForumUser findByEmailAndProvider(String email, String provider);
+    
     public ForumUser findByUserId(int userId);
 
     @Query(" SELECT NEW com.proptiger.data.model.ForumUser$WhoAmIDetail(FU.username, FU.fbImageUrl) " 
