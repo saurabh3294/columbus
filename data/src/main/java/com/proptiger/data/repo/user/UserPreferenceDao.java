@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import com.proptiger.data.enums.Application;
 import com.proptiger.data.model.UserPreference;
 
 /**
@@ -14,4 +15,6 @@ import com.proptiger.data.model.UserPreference;
 
 public interface UserPreferenceDao extends PagingAndSortingRepository<UserPreference, Integer> {
     public List<UserPreference> findByuserId(int userId);
+
+    public UserPreference findByUserIdAndApp(int userId, Application app);
 }

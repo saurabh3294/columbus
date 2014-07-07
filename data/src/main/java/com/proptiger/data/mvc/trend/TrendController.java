@@ -195,7 +195,11 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector) throws Exception {
-        return new APIResponse(trendService.getHithertoPaginatedTrend(selector, rangeField, rangeValue, hithertoDurationSelector));
+        return new APIResponse(trendService.getHithertoPaginatedTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                hithertoDurationSelector));
     }
 
     @RequestMapping(produces = "text/csv; charset=utf-8", value = "data/v1/trend/hitherto.csv")
@@ -384,11 +388,12 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector) throws Exception {
-        return new APIResponse(getMappedResults(
-                trendService.getHithertoPricePaginatedTrend(selector, rangeField, rangeValue, hithertoDurationSelector),
-                rangeField,
-                rangeValue,
-                selector));
+        return new APIResponse(
+                getMappedResults(trendService.getHithertoPricePaginatedTrend(
+                        selector,
+                        rangeField,
+                        rangeValue,
+                        hithertoDurationSelector), rangeField, rangeValue, selector));
     }
 
     @RequestMapping("data/v1/price-trend-list/hitherto")
@@ -426,7 +431,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute HithertoDurationSelector  hithertoDurationSelector,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
         return new APIResponse(getMappedResults(trendService.getCatchmentHithertoPricePaginatedTrend(
@@ -445,7 +450,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
-            @ModelAttribute HithertoDurationSelector  hithertoDurationSelector,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
         return new APIResponse(trendService.getCatchmentHithertoPricePaginatedTrend(

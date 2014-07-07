@@ -31,7 +31,6 @@ import com.proptiger.data.model.BaseModel;
 @Table(name = "cms.d_inventory_prices")
 @JsonFilter("fieldFilter")
 public class InventoryPriceTrend extends BaseModel {
- 
 
     private static final long serialVersionUID = 1L;
 
@@ -103,10 +102,10 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "year")
     private Date              year;
-    
+
     @Column(name = "financial_year")
     private Date              financialYear;
-    
+
     @Column(name = "completion_date")
     private Date              completionDate;
 
@@ -131,26 +130,25 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "average_price_per_unit_area_quarter")
     private Integer           pricePerUnitAreaQuarter;
-    
+
     @Column(name = "average_price_per_unit_area_year")
     private Integer           pricePerUnitAreaYear;
-    
+
     @Column(name = "average_price_per_unit_area_financial_year")
     private Integer           pricePerUnitAreaFinancialYear;
-    
+
     @Column(name = "average_secondary_price_per_unit_area")
     private Integer           secondaryPricePerUnitArea;
 
     @Column(name = "average_secondary_price_per_unit_area_quarter")
     private Integer           secondaryPricePerUnitAreaQuarter;
-    
+
     @Column(name = "average_secondary_price_per_unit_area_year")
     private Integer           secondaryPricePerUnitAreaYear;
-    
+
     @Column(name = "average_secondary_price_per_unit_area_financial_year")
     private Integer           secondaryPricePerUnitAreaFinancialYear;
 
-    
     @Column(name = "average_size")
     private Integer           size;
 
@@ -168,13 +166,13 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "ltd_launched_unit")
     private Integer           ltdLaunchedUnit;
-    
+
     @Column(name = "ltd_launched_unit_quarter")
     private Integer           ltdLaunchedUnitQuarter;
-    
+
     @Column(name = "ltd_launched_unit_year")
     private Integer           ltdLaunchedUnitYear;
-    
+
     @Column(name = "ltd_launched_unit_financial_year")
     private Integer           ltdLaunchedUnitFinancialYear;
 
@@ -192,22 +190,34 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "inventory_year")
     private Integer           inventoryYear;
-    
+
     @Column(name = "inventory_financial_year")
     private Integer           inventoryFinancialYear;
-    
+
     @Column(name = "units_sold")
     private Integer           unitsSold;
 
+    @Column(name = "rate_of_sale")
+    private Float             rateOfSale;
+
+    @Column(name = "rate_of_sale_quarter")
+    private Integer           rateOfSaleQuarter;
+
+    @Column(name = "rate_of_sale_year")
+    private Integer           rateOfSaleYear;
+
+    @Column(name = "rate_of_sale_financial_year")
+    private Integer           rateOfSaleFinancialYear;
+
     @Column(name = "inventory_overhang")
     private Integer           inventoryOverhang;
-    
+
     @Column(name = "inventory_overhang_quarter")
     private Integer           inventoryOverhangQuarter;
 
     @Column(name = "inventory_overhang_year")
     private Integer           inventoryOverhangYear;
-    
+
     @Column(name = "inventory_overhang_financial_year")
     private Integer           inventoryOverhangFinancialYear;
 
@@ -408,7 +418,7 @@ public class InventoryPriceTrend extends BaseModel {
     public void setYear(Date year) {
         this.year = year;
     }
-    
+
     public Date getFinancialYear() {
         return financialYear;
     }
@@ -468,7 +478,7 @@ public class InventoryPriceTrend extends BaseModel {
     public Integer getSecondaryPricePerUnitArea() {
         return secondaryPricePerUnitArea;
     }
-    
+
     public Integer getPricePerUnitAreaQuarter() {
         return pricePerUnitAreaQuarter;
     }
@@ -553,6 +563,39 @@ public class InventoryPriceTrend extends BaseModel {
         this.unitsSold = unitsSold;
     }
 
+    public Float getRateOfSale() {
+        return rateOfSale;
+    }
+
+    public Integer getRateOfSaleQuarter() {
+        return rateOfSaleQuarter;
+    }
+
+    public void setRateOfSaleQuarter(Integer rateOfSaleQuarter) {
+        this.rateOfSaleQuarter = rateOfSaleQuarter;
+    }
+
+    public Integer getRateOfSaleYear() {
+        return rateOfSaleYear;
+    }
+
+    public void setRateOfSaleYear(Integer rateOfSaleYear) {
+        this.rateOfSaleYear = rateOfSaleYear;
+    }
+
+    public Integer getRateOfSaleFinancialYear() {
+        return rateOfSaleFinancialYear;
+    }
+
+    public void setRateOfSaleFinancialYear(Integer rateOfSaleFinancialYear) {
+        this.rateOfSaleFinancialYear = rateOfSaleFinancialYear;
+    }
+
+    public void setRateOfSale(Float rateOfSale) {
+        this.rateOfSale = rateOfSale;
+    }
+
+    
     public Integer getInventoryOverhang() {
         return inventoryOverhang;
     }
@@ -632,7 +675,7 @@ public class InventoryPriceTrend extends BaseModel {
     public void setRangeValue(String rangeValue) {
         this.rangeValue = rangeValue;
     }
-    
+
     public Integer getSecondaryPricePerUnitAreaQuarter() {
         return secondaryPricePerUnitAreaQuarter;
     }

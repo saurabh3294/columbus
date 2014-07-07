@@ -4,13 +4,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.internal.dto.ChangePassword;
+import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.meta.DisableCaching;
+import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
@@ -36,6 +40,10 @@ public class UserController extends BaseController {
     public APIResponse hasEnquired(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @RequestParam(value = "projectId") Integer projectId) {
+        return hasEnquiredByUser(userInfo, projectId);
+    }
+
+    private APIResponse hasEnquiredByUser(ActiveUser userInfo, Integer projectId) {
         AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(projectId, userInfo.getUserIdentifier());
         return new APIResponse(enquiredDetails);
     }
@@ -45,8 +53,7 @@ public class UserController extends BaseController {
     public APIResponse hasEnquired_(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
             @PathVariable Integer projectId) {
-        AlreadyEnquiredDetails enquiredDetails = userService.hasEnquired(projectId, userInfo.getUserIdentifier());
-        return new APIResponse(enquiredDetails);
+        return hasEnquiredByUser(userInfo, projectId);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "data/v1/registered")
@@ -59,5 +66,26 @@ public class UserController extends BaseController {
     @ResponseBody
     public APIResponse getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         return new APIResponse(userService.getUserDetails(userInfo.getUserIdentifier()));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/user/who-am-i", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse whoAmI(){
+        return new APIResponse(userService.getWhoAmIDetail());
+    }
+    
+    @RequestMapping(value = "data/v1/entity/user/change-password", method = RequestMethod.POST)
+    @ResponseBody
+    public APIResponse changePassword(
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
+            @RequestBody ChangePassword changePassword) {
+        userService.changePassword(userInfo, changePassword);
+        return new APIResponse();
+    }
+    @RequestMapping(value = "app/v1/register", method = RequestMethod.POST)
+    @ResponseBody
+    public APIResponse register(@RequestBody Register register){
+        ForumUser forumUser = userService.register(register);
+        return new APIResponse(forumUser);
     }
 }

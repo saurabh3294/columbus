@@ -33,7 +33,7 @@ public class Typeahead extends BaseModel {
     private String            id;
 
     @Transient
-    private boolean           authorized       = true;
+    private boolean           authorized       = false;
 
     @Field(value = "TYPEAHEAD_LABEL")
     private String            label;
@@ -65,6 +65,12 @@ public class Typeahead extends BaseModel {
 
     @Field(value = "LOCALITY_URL")
     private String            localityURL;
+
+    @Field(value = "LOCALITY_ID")
+    private Integer           localityId;
+
+    @Field(value = "CITY_ID")
+    private Integer           cityId;
 
     @Field(value = "TYPEAHEAD_LABEL_LOWERCASE")
     private String            labelLowercase;
@@ -226,5 +232,21 @@ public class Typeahead extends BaseModel {
 
     public void setAuthorized(boolean authorized) {
         this.authorized = authorized;
+    }
+
+    public Integer getLocalityId() {
+        return localityId;
+    }
+
+    public void setLocalityId(Integer localityId) {
+        this.localityId = localityId;
+    }
+
+    public Integer getCityId() {
+        return cityId;
+    }
+
+    public void setCityId(Integer cityId) {
+        this.cityId = cityId;
     }
 }
