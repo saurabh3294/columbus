@@ -190,33 +190,6 @@ public class PropertyDao {
                 solrQuery.setStart(paging.getStart());
             }
 
-            // Set<String> fieldsTemporarityAdded = new HashSet<String>();
-
-            // // XXX - including price, size, bedrooms, unitTypes fields as
-            // needed
-            // Set<String> fields = selector.getFields();
-            // if (fields != null && fields.size() > 0) {
-            // if ((fields.contains("maxPricePerUnitArea") ||
-            // fields.contains("minPricePerUnitArea")) &&
-            // !fields.contains("pricePerUnitArea")) {
-            // fields.add("pricePerUnitArea");
-            // fieldsTemporarityAdded.add("pricePerUnitArea");
-            // }
-            //
-            // if (fields.contains("maxSize") || fields.contains("minSize")) {
-            // fields.add("size");
-            // }
-            //
-            // if (fields.contains("minBedrooms") ||
-            // fields.contains("maxBedrooms")) {
-            // fields.add("bedrooms");
-            // }
-            //
-            // if (fields.contains("propertyUnitTypes")) {
-            // fields.add("unitType");
-            // }
-            // }
-
             SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
 
             if (selector.getSort() == null) {
