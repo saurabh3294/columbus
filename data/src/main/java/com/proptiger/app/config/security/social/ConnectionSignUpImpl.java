@@ -17,8 +17,6 @@ public final class ConnectionSignUpImpl implements ConnectionSignUp {
 
     private static final String PROFILE_IMAGE_FORMAT = ".jpg";
 
-    private static final String ACTIVE               = "1";
-
     @Autowired
     private ForumUserDao        forumUserDao;
 
@@ -30,18 +28,31 @@ public final class ConnectionSignUpImpl implements ConnectionSignUp {
         ConnectionKey connectionKey = connection.getKey();
         UserProfile userProfile = connection.fetchUserProfile();
         ForumUser forumUser = new ForumUser();
-        forumUser.setProvider(connectionKey.getProviderId());
         forumUser.setProviderid(connectionKey.getProviderUserId());
         forumUser.setUsername(userProfile.getName());
         forumUser.setEmail(userProfile.getEmail());
         if (connectionKey.getProviderId().equalsIgnoreCase("facebook")) {
+            //setting provider with first char as caps, to provide backward compatibility from database
+            forumUser.setProvider("Facebook");
             forumUser.setFbImageUrl(connection.getImageUrl());
             forumUser.setImage(connectionKey.getProviderUserId() + PROFILE_IMAGE_FORMAT);
         }
+        else if(connectionKey.getProviderId().equalsIgnoreCase("google")){
+            //setting provider with first char as caps, to provide backward compatibility from database
+            forumUser.setProvider("Google");
+            forumUser.setFbImageUrl("");
+            forumUser.setImage("");
+        }
+        else{
+            forumUser.setProvider(connectionKey.getProviderId());
+            forumUser.setFbImageUrl("");
+            forumUser.setImage("");
+        }
+        
         forumUser.setCity("");
         forumUser.setPassword("");
         forumUser.setUniqueUserId("");
-        forumUser.setStatus(ACTIVE);
+        forumUser.setStatus(ForumUser.USER_STATUS_ACTIVE);
         forumUser = forumUserDao.save(forumUser);
         return forumUser.getUserId().toString();
     }

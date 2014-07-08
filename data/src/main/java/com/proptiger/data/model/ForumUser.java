@@ -35,6 +35,7 @@ import com.proptiger.data.model.user.Dashboard;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class ForumUser extends BaseModel {
+    public static final String USER_STATUS_ACTIVE = "1";
 
     private static final long             serialVersionUID = 6769127512697320945L;
 

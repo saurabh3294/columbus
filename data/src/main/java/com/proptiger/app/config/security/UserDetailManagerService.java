@@ -1,4 +1,4 @@
-package com.proptiger.app.config;
+package com.proptiger.app.config.security;
 
 import java.util.ArrayList;
 
@@ -33,7 +33,13 @@ public class UserDetailManagerService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDetails userDetails = null;
         if (username != null && !username.isEmpty()) {
-            ForumUser forumUser = forumUserDao.findByEmail(username);
+            /*
+             * since there can be multiple rows for same email, say one from direct registration
+             * and other from srom some service provider login like facebook.
+             * 
+             * TODO this call need to be changed once we make user merge live
+             */
+            ForumUser forumUser = forumUserDao.findByEmailAndProvider(username, "");
             if (forumUser != null) {
                 userDetails = new ActiveUser(
                         forumUser.getUserId(),
