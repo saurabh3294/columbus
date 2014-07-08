@@ -201,13 +201,13 @@ public class InventoryPriceTrend extends BaseModel {
     private Float             rateOfSale;
 
     @Column(name = "rate_of_sale_quarter")
-    private Integer           rateOfSaleQuarter;
+    private Float             rateOfSaleQuarter;
 
     @Column(name = "rate_of_sale_year")
-    private Integer           rateOfSaleYear;
+    private Float             rateOfSaleYear;
 
     @Column(name = "rate_of_sale_financial_year")
-    private Integer           rateOfSaleFinancialYear;
+    private Float             rateOfSaleFinancialYear;
 
     @Column(name = "inventory_overhang")
     private Integer           inventoryOverhang;
@@ -567,27 +567,27 @@ public class InventoryPriceTrend extends BaseModel {
         return rateOfSale;
     }
 
-    public Integer getRateOfSaleQuarter() {
+    public Float getRateOfSaleQuarter() {
         return rateOfSaleQuarter;
     }
 
-    public void setRateOfSaleQuarter(Integer rateOfSaleQuarter) {
+    public void setRateOfSaleQuarter(Float rateOfSaleQuarter) {
         this.rateOfSaleQuarter = rateOfSaleQuarter;
     }
 
-    public Integer getRateOfSaleYear() {
+    public Float getRateOfSaleYear() {
         return rateOfSaleYear;
     }
 
-    public void setRateOfSaleYear(Integer rateOfSaleYear) {
+    public void setRateOfSaleYear(Float rateOfSaleYear) {
         this.rateOfSaleYear = rateOfSaleYear;
     }
 
-    public Integer getRateOfSaleFinancialYear() {
+    public Float getRateOfSaleFinancialYear() {
         return rateOfSaleFinancialYear;
     }
 
-    public void setRateOfSaleFinancialYear(Integer rateOfSaleFinancialYear) {
+    public void setRateOfSaleFinancialYear(Float rateOfSaleFinancialYear) {
         this.rateOfSaleFinancialYear = rateOfSaleFinancialYear;
     }
 
@@ -595,7 +595,6 @@ public class InventoryPriceTrend extends BaseModel {
         this.rateOfSale = rateOfSale;
     }
 
-    
     public Integer getInventoryOverhang() {
         return inventoryOverhang;
     }
