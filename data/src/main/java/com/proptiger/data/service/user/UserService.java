@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
@@ -38,6 +39,7 @@ import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
+import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
@@ -48,18 +50,21 @@ import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
+import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PasswordUtils;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.RegistrationUtils;
 import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.BadRequestException;
@@ -100,9 +105,10 @@ public class UserService {
     private SubscriptionPermissionDao  subscriptionPermissionDao;
 
     @Autowired
-    private AuthenticationManager      authManager;
+    private TrendDao                   trendDao;
 
-    private Md5PasswordEncoder         passwordEncoder = new Md5PasswordEncoder();
+    @Autowired
+    private AuthenticationManager      authManager;
 
     @Autowired
     private PropertyReader             propertyReader;
@@ -317,9 +323,9 @@ public class UserService {
         Permission permission;
         int objectTypeId, objectId;
         List<Integer> localityIDList = new ArrayList<Integer>();
-        
-        int objTypeIdLocality  = DomainObject.locality.getObjectTypeId();
-        int objTypeIdCity      = DomainObject.city.getObjectTypeId(); 
+
+        int objTypeIdLocality = DomainObject.locality.getObjectTypeId();
+        int objTypeIdCity = DomainObject.city.getObjectTypeId();
         for (SubscriptionPermission sp : subscriptionPermissions) {
             permission = sp.getPermission();
 
@@ -332,23 +338,49 @@ public class UserService {
                 }
             }
         }
-        
-        /* populating psuedo permissions for city if any locality in that city is permitted */
+
+        /*
+         * populating psuedo permissions for city if any locality in that city
+         * is permitted
+         */
         Set<Integer> cityIdList = getCityIdListFromLocalityIdList(localityIDList);
-        for(int cityId : cityIdList)
-        {   
+        for (int cityId : cityIdList) {
             userSubscriptionMap.put(objTypeIdCity, cityId, null);
         }
-        
+
+        List<Integer> subscribedBuilders = getSubscribedBuilderList(userId);
+        for (Integer builderId : subscribedBuilders) {
+            userSubscriptionMap.put(DomainObject.builder.getObjectTypeId(), builderId, builderId);
+        }
         return userSubscriptionMap;
     }
-    
-    private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList)
-    {
+
+    @Async
+    public void preloadUserSubscriptionMap(int userId) {
+        getUserSubscriptionMap(userId);
+    }
+
+    @Cacheable(value = Constants.CacheName.CACHE)
+    private List<Integer> getSubscribedBuilderList(int userId) {
+        FIQLSelector selector = getUserAppSubscriptionFilters(userId);
+        List<Integer> builderList = new ArrayList<>();
+        if (selector.getFilters() != null) {
+            String builderId = "builderId";
+            selector.setFields(builderId);
+            selector.setGroup(builderId);
+
+            List<InventoryPriceTrend> list = trendDao.getTrend(selector);
+            for (InventoryPriceTrend inventoryPriceTrend : list) {
+                builderList.add(inventoryPriceTrend.getBuilderId());
+            }
+        }
+        return builderList;
+    }
+
+    private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList) {
         Set<Integer> cityIdList = new HashSet<Integer>();
         List<Locality> localiltyList = localityService.findByLocalityIdList(localityIDList).getResults();
-        for(Locality locality : localiltyList)
-        {
+        for (Locality locality : localiltyList) {
             cityIdList.add(locality.getSuburb().getCityId());
         }
         return cityIdList;
@@ -461,13 +493,30 @@ public class UserService {
         catch (AuthenticationException e) {
             throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.BAD_CREDENTIAL);
         }
-        PasswordUtils.validatePasword(changePassword);
+        PasswordUtils.validateChangePasword(changePassword);
         logger.debug("Changing password for user {}", activeUser.getUsername());
         ForumUser forumUser = forumUserDao.findOne(activeUser.getUserIdentifier());
-        forumUser.setPassword(passwordEncoder.encodePassword(changePassword.getNewPassword(), null));
+        forumUser.setPassword(changePassword.getNewPassword());
         forumUser = forumUserDao.save(forumUser);
 
         SecurityContextHolder.getContext().setAuthentication(SecurityContextUtils.createNewAuthentication(forumUser));
     }
 
+    /**
+     * Register a new user after data validation 
+     * @param register
+     * @return
+     */
+    @Transactional
+    public ForumUser register(Register register) {
+        RegistrationUtils.validateRegistration(register);
+        ForumUser userPresent = forumUserDao.findByEmail(register.getEmail());
+        if(userPresent != null){
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+        }
+        ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
+        return savedUser;
+    }
+
+    
 }

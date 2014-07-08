@@ -255,8 +255,15 @@ public class LocalityService {
             localityId = locality.getLocalityId();
             String localityIdStr = localityId + "";
             // setting Project Count
+            projectCount = projectCountOnLocality.get(localityIdStr);
+            locality.setProjectCount(null);
+            if(projectCount != null){
+                locality.setProjectCount(projectCount.intValue());
+            }
+            
+            // setting Project Status Count
             locality.setProjectStatusCount(localityProjectStatusCount.get(localityId));
-
+            
             FieldStatsInfo fieldStatsInfo;
             // setting Resale Prices
             if (resalePriceStats != null) {
@@ -1090,5 +1097,10 @@ public class LocalityService {
 
         Selector selector = new Gson().fromJson(jsonSelector, Selector.class);
         return Lists.newArrayList(localityDao.getLocalities(selector).getResults());
+    }
+
+    @Cacheable(value = Constants.CacheName.LOCALITY_INACTIVE)
+    public Locality getActiveOrInactiveLocalityById(Integer id) {
+        return localityDao.findOne(id);
     }
 }

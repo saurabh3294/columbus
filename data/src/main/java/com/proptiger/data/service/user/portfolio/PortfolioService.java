@@ -272,7 +272,7 @@ public class PortfolioService {
                 listing.setPropertyImages(projectIdToImagesMap.get(projectId));
             }
             Project project = projectIdToProjectMap.get(projectId);
-            if (listing.getPropertyImages().isEmpty()) {
+            if ((listing.getPropertyImages() == null) || (listing.getPropertyImages().isEmpty())) {
                 Image defaultProjectImage = imageEnricher.getDefaultProjectImage(project.getImageURL());
                 listing.setPropertyImages(Arrays.asList(defaultProjectImage));
             }
@@ -751,12 +751,20 @@ public class PortfolioService {
             portfolioListing.setProjectId(property.getProjectId());
             portfolioListing.setLocalityId(property.getProject().getLocalityId());
             portfolioListing.setCityId(property.getProject().getLocality().getSuburb().getCityId());
+            portfolioListing.setName(property.getUnitName());
+            portfolioListing.setProjectName(property.getProject().getName());
+            portfolioListing.setLocality(property.getProject().getLocality().getLabel());
+            portfolioListing.setCityName(property.getProject().getLocality().getSuburb().getCity().getLabel());
         }
         else if (portfolioListing.getProjectId() != null) {
             Project project = projectService.getProjectData(portfolioListing.getProjectId());
 
             portfolioListing.setLocalityId(project.getLocalityId());
             portfolioListing.setCityId(project.getLocality().getSuburb().getCityId());
+
+            portfolioListing.setProjectName(project.getName());
+            portfolioListing.setLocality(project.getLocality().getLabel());
+            portfolioListing.setCityName(project.getLocality().getSuburb().getCity().getLabel());
         }
         else if (portfolioListing.getLocalityId() != null) {
             Locality locality = localityService.getLocality(portfolioListing.getLocalityId());
@@ -764,13 +772,17 @@ public class PortfolioService {
                 throw new ResourceNotAvailableException(ResourceType.LOCALITY, ResourceTypeAction.GET);
             }
             portfolioListing.setCityId(locality.getSuburb().getCityId());
+
+            portfolioListing.setLocality(locality.getLabel());
+            portfolioListing.setCityName(locality.getSuburb().getCity().getLabel());
         }
         else if (portfolioListing.getCityId() != null) {
             /*
              * checking whether city id is valid or not, if not a valid city
              * then cityService will throw an exception
              */
-            cityService.getCity(portfolioListing.getCityId());
+            City city = cityService.getCity(portfolioListing.getCityId());
+            portfolioListing.setCityName(city.getLabel());
         }
 
         if (portfolioListing.getIsBroker() == null || portfolioListing.getLeadUser() == null
@@ -818,14 +830,21 @@ public class PortfolioService {
      * @return
      */
     private boolean sendMailOnSellYourProperty(PortfolioListing portfolioListing) {
-        String mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.to.recipient");
-        String mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.cc.recipient");
-
+        String mailToAddress = "";
+        String mailCCAddress = "";
+        boolean isBroker = portfolioListing.getIsBroker();
+        if (isBroker) {
+            mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.broker.to.recipient");
+            mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.broker.cc.recipient");
+        }
+        else {
+            mailToAddress = propertyReader.getRequiredProperty("mail.property.sell.owner.to.recipient");
+            mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.owner.cc.recipient");
+        }
         if (mailToAddress.length() < 1) {
-            logger.error("Project/Property Error Reporting is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
+            logger.error("Website Sell Your Property (" + (isBroker ? "Broker" : "Owner" )+ ") is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
-
         MailBody mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.SELL_YOUR_PROPERTY, portfolioListing);
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(mailToAddress).setMailCC(mailCCAddress);
         return mailSender.sendMailUsingAws(mailDetails);

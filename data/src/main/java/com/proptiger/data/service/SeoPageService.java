@@ -229,6 +229,7 @@ public class SeoPageService {
         Integer bathrooms = null;
         Integer minBudget = urlDetail.getMinBudget();
         Integer maxBudget = urlDetail.getMaxBudget();
+        Integer size = null;
         Gson gson = new Gson();
 
         if (urlDetail.getPropertyId() != null) {
@@ -243,6 +244,9 @@ public class SeoPageService {
             builder = project.getBuilder();
             if (property.getBathrooms() > 0) {
                 bathrooms = property.getBathrooms();
+            }
+            if (property.getSize() != null) {
+                size = property.getSize().intValue();
             }
         }
         if (urlDetail.getProjectId() != null) {
@@ -308,7 +312,8 @@ public class SeoPageService {
                 builder,
                 bedroomStr,
                 priceRangeStr,
-                bathrooms);
+                bathrooms,
+                size);
     }
 
     /*
@@ -346,6 +351,7 @@ public class SeoPageService {
         private String   bedroomsStr;
         private String   priceRangeStr;
         private Integer  bathrooms;
+        private Integer  size;
 
         public CompositeSeoTokenData(
                 Property property,
@@ -356,7 +362,8 @@ public class SeoPageService {
                 Builder builder,
                 String bedrooms,
                 String priceRange,
-                Integer bathrooms) {
+                Integer bathrooms,
+                Integer size) {
             this.property = property;
             this.project = project;
             this.locality = locality;
@@ -366,6 +373,7 @@ public class SeoPageService {
             this.bedroomsStr = bedrooms;
             this.priceRangeStr = priceRange;
             this.bathrooms = bathrooms;
+            this.size = size;
         }
 
         public Property getProperty() {
@@ -438,6 +446,14 @@ public class SeoPageService {
 
         public void setBathrooms(Integer bathrooms) {
             this.bathrooms = bathrooms;
+        }
+
+        public Integer getSize() {
+            return size;
+        }
+
+        public void setSize(Integer size) {
+            this.size = size;
         }
 
     }

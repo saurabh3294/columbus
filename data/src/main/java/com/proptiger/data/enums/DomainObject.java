@@ -8,7 +8,7 @@ import com.proptiger.exception.ProAPIException;
 public enum DomainObject {
     project("project", 500000, 1), property("property", 5000000, 2), builder("builder", 100000, 3), locality(
             "locality", 50000, 4), city("city", 0, 6), suburb("suburb", 10000, 7), bank("bank", 0, 5), brokerCompany(
-            "brokerCompany", 0, 8), sellerCompany("sellerCompany", 0, 9), landmark("landmark", 0, 10);
+            "brokerCompany", 0, 8), sellerCompany("sellerCompany", 0, 9), landmark("landmark", 0, 10), company("company", 0, 11);
 
     private static final Map<Integer, DomainObject> domainObjectById = new HashMap<>();
 

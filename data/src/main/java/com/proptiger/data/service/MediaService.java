@@ -1,7 +1,6 @@
 package com.proptiger.data.service;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -12,7 +11,6 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.MediaType;
@@ -93,23 +91,18 @@ public abstract class MediaService {
         return result;
     }
 
-    public Media createMedia(
+    protected Media createMedia(
             DomainObject domainObject,
             Integer objectId,
-            MultipartFile file,
+            File originalFile,
             String objectMediaType,
-            Media media) {
+            Media media) throws Exception {
 
-        File originalFile = null;
         try {
             Media finalMedia = new Media();
 
             ExclusionAwareBeanUtilsBean utilsBean = new ExclusionAwareBeanUtilsBean();
             utilsBean.copyProperties(finalMedia, media);
-
-            originalFile = File.createTempFile("originalMedia", ".tmp", tempDir);
-
-            file.transferTo(originalFile);
 
             int objectMediaTypeId = getObjectMediaTypeId(domainObject, objectMediaType);
 
@@ -122,7 +115,8 @@ public abstract class MediaService {
 
             mediaDao.save(finalMedia);
 
-            String url = computeMediaS3Url(finalMedia, file.getOriginalFilename());
+            String originaleFileName = originalFile.getName();
+            String url = computeMediaS3Url(finalMedia, originaleFileName);
 
             amazonS3Util.uploadFile(url, originalFile);
 
@@ -131,11 +125,8 @@ public abstract class MediaService {
             mediaDao.save(finalMedia);
             return mediaDao.findOne(finalMedia.getId());
         }
-        catch (IOException | IllegalAccessException | InvocationTargetException e) {
-            throw new ProAPIException(e);
-        }
-        finally {
-            deleteFileFromDisc(originalFile);
+        catch (IllegalAccessException | InvocationTargetException ex) {
+            throw (ex);
         }
     }
 
@@ -197,7 +188,7 @@ public abstract class MediaService {
         mediaDao.save(media);
     }
 
-    public Media updateMedia(Media media, Integer id) {
+    public Media updateMedia(Media inputMedia, Integer id) {
         Media savedMedia = mediaDao.findOne(id);
         if (savedMedia == null) {
             throw new ResourceNotFoundException();
@@ -205,13 +196,14 @@ public abstract class MediaService {
         else {
             ExclusionAwareBeanUtilsBean utilsBean = new ExclusionAwareBeanUtilsBean();
             try {
-                utilsBean.copyProperties(savedMedia, media);
+                utilsBean.copyProperties(savedMedia, inputMedia);
             }
             catch (IllegalAccessException | InvocationTargetException e) {
                 throw new ProAPIException("Error Copying Media Object", e);
             }
             savedMedia.setUpdatedAt(new Date());
-            return mediaDao.save(savedMedia);
+            mediaDao.save(savedMedia);
+            return savedMedia;
         }
     }
 }

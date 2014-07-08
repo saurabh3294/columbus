@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
+import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.meta.DisableCaching;
+import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
@@ -79,5 +81,11 @@ public class UserController extends BaseController {
             @RequestBody ChangePassword changePassword) {
         userService.changePassword(userInfo, changePassword);
         return new APIResponse();
+    }
+    @RequestMapping(value = "app/v1/register", method = RequestMethod.POST)
+    @ResponseBody
+    public APIResponse register(@RequestBody Register register){
+        ForumUser forumUser = userService.register(register);
+        return new APIResponse(forumUser);
     }
 }
