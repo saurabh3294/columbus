@@ -230,10 +230,21 @@ public class BuilderTrendService {
 
         Object sumLtdLaunchedUnit = extraAttributes.get("sumLtdLaunchedUnit");
         if (sumLtdLaunchedUnit != null) {
+            int launchedUnits = ((Long) sumLtdLaunchedUnit).intValue();
             unitTypeDetails.put(
                     BuilderTrend.LAUNCHED_KEY,
-                    unitTypeDetails.get(BuilderTrend.LAUNCHED_KEY) + Integer.valueOf(sumLtdLaunchedUnit.toString()));
+                    unitTypeDetails.get(BuilderTrend.LAUNCHED_KEY) + launchedUnits);
+
+            Object wavgSizeOnLtdLaunchedUnit = extraAttributes.get("wavgSizeOnLtdLaunchedUnit");
+            if (wavgSizeOnLtdLaunchedUnit != null) {
+                unitTypeDetails.put(
+                        BuilderTrend.AREA_KEY,
+                        unitTypeDetails.get(BuilderTrend.AREA_KEY) + ((Double) wavgSizeOnLtdLaunchedUnit).intValue()
+                                * launchedUnits);
+
+            }
         }
+
     }
 
     private void populateLocalityPriceComparision(
