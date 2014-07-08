@@ -443,7 +443,7 @@ public class URLService {
             }
         }
 
-        urlDetail.setUrl(URL);
+        urlDetail.setUrl(URL.split("\\?")[0]);
         return urlDetail;
     }
 
