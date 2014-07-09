@@ -255,7 +255,8 @@ public class URLService {
                     city = null;
                 }
                 if (city == null) {
-                    responseStatus = HttpStatus.SC_NOT_FOUND;
+                    redirectUrl = EMPTY_URL;
+                    responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 }
                 break;
             case STATIC_URLS:
