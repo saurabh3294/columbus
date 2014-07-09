@@ -96,6 +96,8 @@ public class TestAPIs {
         exclusionList.add("data/v1/entity/audio");
         exclusionList.add("data/v1/entity/document");
         exclusionList.add("data/v1/log");
+        exclusionList.add("data/v1/entity/project/{projectId}/phase");                  // to be removed when b2b is merged with develop
+        exclusionList.add("data/v1/entity/project/{projectId}/phase/{phaseId}");        // to be removed when b2b is merged with develop
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -525,7 +527,7 @@ public class TestAPIs {
      * @return
      */
     boolean addApiResponseCode(String apiResponse, String finalUrl, String method) {
-        Pattern responsePattern = Pattern.compile("\\\"statusCode\\\":(\\s*)\\\"(\\d\\D\\D)\\\",");
+        Pattern responsePattern = Pattern.compile("\\\"statusCode\\\":(\\s*)\\\"(\\d\\D\\D)\\\"");
         Matcher m = responsePattern.matcher(apiResponse);
         boolean dataPresent = false;
         String statusCode = "";
