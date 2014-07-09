@@ -75,7 +75,11 @@ public class TestAPIs {
     private Map<String, List<String>> apiKeysValuesMap;
     private Map<String, String>       populateMapforPostData;
 
-    Set<String>                       exclusionList      = new HashSet<String>();
+    Set<String>                       exclusionList      = new HashSet<String>();  // Set of APIs excluded
+    Set<String>                       excludedPOSTAPIs   = new HashSet<String>();  // Set of APIs whose POST data is not 
+                                                                                   // available in TestNG properties file
+    Set<String>                       excludedPUTAPIs   = new HashSet<String>();   // Set of APIs whose PUT data is not 
+                                                                                   // available in TestNG properties file
 
     @BeforeTest
     public void init() throws ConfigurationException {
@@ -89,6 +93,9 @@ public class TestAPIs {
         exclusionList.add("sell-property");
         exclusionList.add(".csv");
         exclusionList.add("data/v1/entity/media/document");
+        exclusionList.add("data/v1/entity/audio");
+        exclusionList.add("data/v1/entity/document");
+        exclusionList.add("data/v1/log");
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -232,6 +239,14 @@ public class TestAPIs {
             for (String element : successPUTUrlList) {
                 logger.debug(element);
             }
+            Reporter.log("POST data not available for APIs  :");
+            for (String element : excludedPOSTAPIs) {
+                Reporter.log(element);
+            }
+            Reporter.log("PUT data not available for APIs  :");
+            for (String element : excludedPUTAPIs) {
+                Reporter.log(element);
+            }
             Reporter.log("List of failed GET APIs :");
             for (Map.Entry<String, String> entry : failedGETUrlList.entrySet()) {
                 Reporter.log("\n " + entry.getKey());
@@ -359,19 +374,30 @@ public class TestAPIs {
                 responseCode = addApiResponseCode(apiResponse, finalUrl, method);
             }
             else if (method == "POST") {
+                if (VariableFromPostMap == null){
+                    failedUrl++;
+                    excludedPOSTAPIs.add(apiUrl);
+                    return;  
+                }
                 String dataToPost = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 HttpEntity<String> entity = new HttpEntity<String>(dataToPost, headers);
                 String postResponse = restTemplate.postForObject(expanded, entity, String.class);
-                logger.debug("postReRsponse    " + postResponse);
+                logger.debug("postResponse    " + postResponse);
                 responseCode = addApiResponseCode(postResponse, finalUrl, method);
             }
             else if (method == "PUT") {
-                String post_rating = apiKeysValuesMap.get(VariableFromPostMap).get(0);
+                if (VariableFromPostMap == null){
+                    failedUrl++;
+                    excludedPUTAPIs.add(apiUrl);
+                    return;  
+                }
+                logger.error("############# TESTAPI URL ########### " + apiUrl);
+                String dataToPost = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<String> entity = new HttpEntity<String>(post_rating, headers);
+                HttpEntity<String> entity = new HttpEntity<String>(dataToPost, headers);
                 ResponseEntity<Object> putResponse = restTemplate.exchange(
                         expanded,
                         HttpMethod.PUT,
