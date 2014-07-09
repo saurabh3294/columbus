@@ -15,7 +15,6 @@ import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.facebook.connect.FacebookConnectionFactory;
-import org.springframework.social.google.connect.GoogleConnectionFactory;
 import org.springframework.social.security.AuthenticationNameUserIdSource;
 
 /**
@@ -34,7 +33,10 @@ public class AppSocialSecurityConfig implements SocialConfigurer {
         cfConfig.addConnectionFactory(new FacebookConnectionFactory(env.getProperty("app.fb.appid"), env
                 .getProperty("app.fb.secret")));
 
-        cfConfig.addConnectionFactory(new GoogleConnectionFactory(env.getProperty("app.google.appid"), env
+        /*
+         * adding custom google connection factory
+         */
+        cfConfig.addConnectionFactory(new CustomGoogleConnectionFactory(env.getProperty("app.google.appid"), env
                 .getProperty("app.google.secret")));
     }
 
