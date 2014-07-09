@@ -26,8 +26,12 @@ import com.proptiger.data.util.PropertyReader;
  */
 public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
 
-    private static final String SCOPE = "scope";
-    private PropertyReader      propertyReader;
+    private static final String                 SCOPE = "scope";
+    private PropertyReader                      propertyReader;
+
+    private UsersConnectionRepository           connectionRepository;
+
+    private CustomJdbcUsersConnectionRepository customJdbcUsersConnectionRepository;
 
     public CustomSocialAuthFilter(
             PropertyReader propertyReader,
@@ -37,13 +41,41 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
             SocialAuthenticationServiceLocator authServiceLocator) {
         super(authManager, userIdSource, usersConnectionRepository, authServiceLocator);
         this.propertyReader = propertyReader;
+        this.connectionRepository = usersConnectionRepository;
+        if (connectionRepository instanceof CustomJdbcUsersConnectionRepository) {
+            customJdbcUsersConnectionRepository = (CustomJdbcUsersConnectionRepository) connectionRepository;
+        }
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-        HttpServletRequest wrappedRequest = addScopeInParameter(request);
+        Authentication authentication = createAuthIfLoggedInUsingPHPCall(request);
+        if (authentication != null) {
+            /*
+             * this flow is to make website or other clien work even without
+             * posting on our app/v1/login/{provider} api. So if authentication
+             * created then return it other wise normal flow should execute.
+             */
+            return authentication;
+        }
+        HttpServletRequest wrappedRequest = addScopeInRequestParameter(request);
         return super.attemptAuthentication(wrappedRequest, response);
+    }
+
+    private Authentication createAuthIfLoggedInUsingPHPCall(HttpServletRequest request) {
+        // these string constants are as per defined in checkuser.php
+        String provider = request.getParameter("provider");
+        String providerUserId = request.getParameter("providerUserId");
+        if (provider != null && providerUserId != null && !provider.isEmpty() && !providerUserId.isEmpty()) {
+            if (customJdbcUsersConnectionRepository != null) {
+                return customJdbcUsersConnectionRepository.createAuthenicationByProviderAndProviderUserId(
+                        provider,
+                        providerUserId);
+            }
+
+        }
+        return null;
     }
 
     /**
@@ -53,7 +85,7 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
      * @param request
      * @return
      */
-    private HttpServletRequest addScopeInParameter(HttpServletRequest request) {
+    private HttpServletRequest addScopeInRequestParameter(HttpServletRequest request) {
         String providerId = getProviderId(request);
         String scopeKey = providerId + "." + SCOPE;
         Map<String, String[]> extraParams = new TreeMap<String, String[]>();
@@ -65,6 +97,7 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
 
     /**
      * Default implementation copied from super class.
+     * 
      * @param request
      * @return
      */

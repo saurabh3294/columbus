@@ -3,7 +3,6 @@ package com.proptiger.data.internal.dto;
 import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.social.security.SocialUser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -40,6 +39,11 @@ public class ActiveUser extends SocialUser {
 
     public void setUserIdentifier(Integer userId) {
         this.userIdentifier = userId;
+    }
+    
+    @Override
+    public String getUserId() {
+        return userIdentifier.toString();
     }
 
 }
