@@ -26,7 +26,7 @@ public class SuburbDescriptionService {
 	@Value("${suburb.template.base.path}")
     private String                  suburbTemplateBasePath;
 
-    @Value("${suburb.template.files}")
+    @Value("#{'${suburb.template.files}'.split(',')}")
     private List<String>            templateFiles;
 
     @Autowired
