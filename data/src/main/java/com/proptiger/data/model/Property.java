@@ -29,7 +29,8 @@ import com.proptiger.data.util.UtilityClass;
 @JsonInclude(Include.NON_NULL)
 public class Property extends BaseModel {
 
-    private static final long serialVersionUID = -3350129763568409835L;
+
+	private static final long serialVersionUID = -3350129763568409835L;
 
     @FieldMetaInfo(displayName = "Property Id", description = "Property Id")
     @Field(value = "TYPE_ID")
@@ -155,6 +156,18 @@ public class Property extends BaseModel {
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double            maxResaleOrPrimaryPrice;
 
+    @Transient
+    @Field("PROJECT_NAME")
+    private String 			  projectName;
+    
+    public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+    
     public int getProjectId() {
         return projectId;
     }

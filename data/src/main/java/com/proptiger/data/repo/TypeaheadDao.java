@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.google.common.base.Joiner;
 import com.proptiger.data.model.City;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.service.CityService;
 
@@ -77,6 +78,7 @@ public class TypeaheadDao {
 		}
 
 		List<Typeahead> rtrn = new ArrayList<>();
+		
 		if (results.size() > rows) {
 			rtrn = new ArrayList<>(results.subList(0, rows));
 			return rtrn;
@@ -282,6 +284,19 @@ public class TypeaheadDao {
 		}
 		solrQuery.setRows(rows);
 		return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+	}
+	
+	public QueryResponse auxilliary(String query, int rows, List<String> filters) {
+		SolrQuery solrQuery = new SolrQuery();
+		
+		solrQuery.setRows(rows);
+		solrQuery.setQuery(query);
+		for (String fq : filters) {
+			solrQuery.addFilterQuery(fq);
+		}
+		
+		QueryResponse result = solrDao.executeQuery(solrQuery);
+		return result;
 	}
 
 }

@@ -4,6 +4,9 @@
  */
 package com.proptiger.data.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -27,7 +30,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonFilter("fieldFilter")
 public class Typeahead extends BaseModel {
 
-    private static final long serialVersionUID = 2096261268711516512L;
+
+
+
+	private static final long serialVersionUID = 2096261268711516512L;
 
     @Field(value = "id")
     private String            id;
@@ -84,6 +90,16 @@ public class Typeahead extends BaseModel {
     @Field(value = "TYPEAHEAD_LOCALITY_UNITS_DELIVERED_6MONTHS")
     private Integer           localityUnitsDelivered6Months;
 
+    private List<String> suggestion;
+
+	public List<String> getSuggestion() {
+		return suggestion;
+	}
+
+	public void setSuggestion(List<String> suggestion) {
+		this.suggestion = suggestion;
+	}
+	
     public String getId() {
         return id;
     }
