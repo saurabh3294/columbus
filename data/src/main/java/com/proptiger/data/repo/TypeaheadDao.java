@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.google.common.base.Joiner;
 import com.proptiger.data.model.City;
+import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.service.CityService;
 
@@ -53,7 +54,7 @@ public class TypeaheadDao {
 
 	public List<Typeahead> getTypeaheadsV2(String query, int rows,
 			List<String> filterQueries) {
-
+		
 		// Add the city filter if it exist in the query
 		List<String> cityList = this.findCities(query);
 
@@ -77,6 +78,7 @@ public class TypeaheadDao {
 		}
 
 		List<Typeahead> rtrn = new ArrayList<>();
+		
 		if (results.size() > rows) {
 			rtrn = new ArrayList<>(results.subList(0, rows));
 			return rtrn;
@@ -98,10 +100,14 @@ public class TypeaheadDao {
 				.getCollatedResult();
 		results = response.getBeans(Typeahead.class);
 
-		if (spellsuggestion != null) {
+		if (spellsuggestion != null && results.size() < 5) {
 			SolrQuery newQuery = this.getSolrQueryV2(
 					spellsuggestion.toString(), rows, filterQueries);
-			return solrDao.executeQuery(newQuery).getBeans(Typeahead.class);
+			List<Typeahead> suggestResults = new ArrayList<Typeahead>();
+			suggestResults = solrDao.executeQuery(newQuery).getBeans(
+					Typeahead.class);
+			results.addAll(suggestResults);
+			return results;
 		} else {
 			return results;
 		}
@@ -278,6 +284,19 @@ public class TypeaheadDao {
 		}
 		solrQuery.setRows(rows);
 		return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
+	}
+	
+	public QueryResponse auxilliary(String query, int rows, List<String> filters) {
+		SolrQuery solrQuery = new SolrQuery();
+		
+		solrQuery.setRows(rows);
+		solrQuery.setQuery(query);
+		for (String fq : filters) {
+			solrQuery.addFilterQuery(fq);
+		}
+		
+		QueryResponse result = solrDao.executeQuery(solrQuery);
+		return result;
 	}
 
 }
