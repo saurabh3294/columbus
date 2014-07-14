@@ -299,4 +299,16 @@ public class TypeaheadDao {
 		return result;
 	}
 
+	public QueryResponse getTemplates(String query,int rows,List<String> filters){
+		SolrQuery solrQuery = new SolrQuery();
+		filters.add("TYPEAHEAD_TYPE:TEMPLATE");
+		solrQuery.setRows(rows);
+		solrQuery.setQuery(query);
+		for (String fq : filters) {
+			solrQuery.addFilterQuery(fq);
+		}
+		
+		QueryResponse result = solrDao.executeQuery(solrQuery);
+		return result;
+	}
 }
