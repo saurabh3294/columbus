@@ -12,10 +12,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Set;
 
+import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.Typeahead;
@@ -33,6 +35,7 @@ import com.proptiger.data.enums.Suggestions;
 public class TypeaheadService {
 	@Autowired
 	private TypeaheadDao typeaheadDao;
+	private LocalityService localityService;
 
 	/**
 	 * This method will return the list of typeahead results based on the
@@ -67,6 +70,9 @@ public class TypeaheadService {
 		List<Typeahead> suggestions = new ArrayList<Typeahead>();
 		suggestions = auxilliaryService(results);
 		results.addAll(suggestions);
+		
+		String city = "Noida";
+		matchTemplate(query,filterQueries, city);
 		
 		return results;
 	}
@@ -209,4 +215,36 @@ public class TypeaheadService {
 			
 		return recommendation;
 	}
+	
+	
+	public List<Typeahead> matchTemplate(String query, List<String> queryFilters, String city){
+		//Generate query to fetch the template from the solr
+		List<Typeahead> matched = new ArrayList<Typeahead>(); 
+		List<Typeahead> results = new ArrayList<Typeahead>(); 
+		List<String> displayTexts = new ArrayList<String>();
+		List<String> redirectUrls = new ArrayList<String>();
+		List<Locality> topLocalities = new ArrayList<Locality>();
+		
+		queryFilters.add("TYPEAHEAD_TYPE:TEMPLATE");
+		QueryResponse response = typeaheadDao.auxilliary(query,1,queryFilters);
+		matched = response.getBeans(Typeahead.class);
+		//generate the displaytext and urls
+		displayTexts.add(matched.get(0).getTemplateText()+city);
+		redirectUrls.add(city.toLowerCase()+"-real-estate");
+		
+		topLocalities = localityService.getLocalities(null);
+		for(int i=0;i<2;i++){
+			redirectUrls.add(topLocalities.get(i).getUrl());
+			displayTexts.add(matched.get(0).getTemplateText()+topLocalities.get(i).getLabel());
+		}
+
+		for (int i=0;i<3;i++){
+			Typeahead obj = new Typeahead();
+			obj.setDisplayText(displayTexts.get(i));
+			obj.setRedirectUrl(redirectUrls.get(i));
+			results.add(obj);
+		}
+		return matched;
+	}
+	
 }
