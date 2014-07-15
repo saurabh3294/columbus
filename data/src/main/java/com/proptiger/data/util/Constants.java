@@ -28,7 +28,7 @@ public class Constants {
     public static final List<Source>         SOURCETYPE_LIST           = Arrays.asList(Source.portfolio, Source.backend);
     public static final int                  LIMIT_OF_COMPOSITE_APIs   = 15;
 
-    public static final String               APPLICATION_NAME_HEADER   = "app-name";
+    public static final String               APPLICATION_NAME_HEADER   = "applicationType";
     /**
      * Put all solr Dynamic Field generated in this class.
      */
