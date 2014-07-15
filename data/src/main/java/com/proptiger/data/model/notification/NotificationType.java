@@ -2,11 +2,11 @@ package com.proptiger.data.model.notification;
 
 import java.util.List;
 
-import com.proptiger.data.model.event.DBEvent;
+import com.proptiger.data.model.event.EventType;
 
 public class NotificationType {
     private int id;
-    private List<DBEvent> events;
+    private List<EventType> events;
     private String schedulePolicy;
-    private List<NotificationMedium> notificationMedia;
+   
 }
