@@ -34,7 +34,7 @@ public class TrendDao {
         AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
                 entityManager,
                 InventoryPriceTrend.class);
-        HashMap<String, String> fieldSwitchMap = trendDaoFieldSwitcher.getFieldSwitchMap(selector);
+        HashMap<String, String> fieldSwitchMap = trendDaoFieldSwitcher.getFieldSwitchMapForSelectorFields(selector);
         builder.buildQuery(modifyWavgFieldsInSelector(selector, fieldSwitchMap));
         List<InventoryPriceTrend> modifyWavgKeysInResultSet = modifyWavgKeysInResultSet(
                 builder.retrieveResults(),
@@ -49,7 +49,7 @@ public class TrendDao {
         AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
                 entityManager,
                 InventoryPriceTrend.class);
-        builder.buildQuery(modifyWavgFieldsInSelector(selector, trendDaoFieldSwitcher.getFieldSwitchMap(selector)));
+        builder.buildQuery(modifyWavgFieldsInSelector(selector, trendDaoFieldSwitcher.getFieldSwitchMapForSelectorFields(selector)));
         long count = builder.retrieveCount();
         entityManager.close();
         return count;
@@ -63,6 +63,10 @@ public class TrendDao {
         for (Map.Entry<String, String> mapEntry : fieldSwitchMap.entrySet()) {
             fiqlSelector.addField(mapEntry.getValue());
         }
+        
+        String newSorter = trendDaoFieldSwitcher.getFieldSwitchedSorter(fiqlSelector);
+        fiqlSelector.setSort(newSorter);
+
         return fiqlSelector;
     }
 
