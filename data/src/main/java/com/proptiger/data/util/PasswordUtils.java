@@ -1,6 +1,9 @@
 package com.proptiger.data.util;
 
+import java.security.SecureRandom;
+
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
+import org.springframework.security.crypto.codec.Base64;
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
@@ -17,6 +20,8 @@ public class PasswordUtils {
 
     private static final int          REQUIRED_PASS_LEN = 6;
     private static Md5PasswordEncoder passwordEncoder   = new Md5PasswordEncoder();
+    private static int tokenLength = 16;
+    private static SecureRandom secureRandom = new SecureRandom();
 
     /**
      * validate change password requirements and set new password m5d encoded
@@ -77,4 +82,15 @@ public class PasswordUtils {
         }
     }
 
+    public static String generateTokenBase64Encoded() {
+        byte[] newToken = new byte[tokenLength];
+        secureRandom.nextBytes(newToken);
+        return new String(Base64.encode(newToken));
+    }
+    
+    public static String base64Encode(String toEncode){
+        byte[] encodedBytes = Base64.encode(toEncode.getBytes());
+        return new String(encodedBytes);
+    }
+    
 }
