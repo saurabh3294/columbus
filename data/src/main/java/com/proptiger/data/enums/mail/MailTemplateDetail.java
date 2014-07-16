@@ -40,7 +40,7 @@ public enum MailTemplateDetail {
     PROJECT_DETAILS_MAIL_TO_USER("projectDetailsMailToUser", "mailtemplate/project/project-details.vm",
             "mailtemplate/project/project-details-subject.vm"),
 
-    RESET_PASSWORD("retrievePassword", "mailtemplate/resetpassword/reset-password-mail.vm",
+    RESET_PASSWORD("resetpassword", "mailtemplate/resetpassword/reset-password-mail.vm",
             "mailtemplate/resetpassword/reset-password-mail-subject.vm");
 
     private MailTemplateDetail(String key, String body, String subject) {
