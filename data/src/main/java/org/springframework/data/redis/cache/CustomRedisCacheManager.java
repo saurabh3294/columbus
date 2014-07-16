@@ -13,6 +13,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.data.redis.cache.DefaultRedisCachePrefix;
 import org.springframework.data.redis.cache.RedisCachePrefix;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -68,12 +69,15 @@ public class CustomRedisCacheManager implements CacheManager {
      * @return
      */
     private String decideCacheName(String name) {
-        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                .getRequest();
-        String appname = request.getHeader(Constants.APPLICATION_NAME_HEADER);
-        if (appname != null && !appname.isEmpty()) {
-            return appname + "-" + name;
+        RequestAttributes requestAttribute = RequestContextHolder.getRequestAttributes();
+        if(requestAttribute != null){
+            HttpServletRequest request = ((ServletRequestAttributes) requestAttribute).getRequest();
+            String appname = request.getHeader(Constants.APPLICATION_NAME_HEADER);
+            if (appname != null && !appname.isEmpty()) {
+                return appname + "-" + name;
+            }
         }
+       
         return name;
     }
 

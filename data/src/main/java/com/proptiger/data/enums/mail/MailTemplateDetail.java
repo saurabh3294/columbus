@@ -32,12 +32,16 @@ public enum MailTemplateDetail {
             "mailtemplate/comment_post_email_template_subject.vm"),
 
     PROJECT_PROPERTY_ERROR_POST("projectPropertyErrorData", "mailtemplate/report_error_template.vm",
-            "mailtemplate/report_error_template_subject.vm"), 
-    
-    SELL_YOUR_PROPERTY("sellYourPropertyData",
-            "mailtemplate/sell-your-property.vm", "mailtemplate/sell-your-property-subject.vm"),
-    
-    PROJECT_DETAILS_MAIL_TO_USER("projectDetailsMailToUser", "mailtemplate/project/project-details.vm", "mailtemplate/project/project-details-subject.vm");
+            "mailtemplate/report_error_template_subject.vm"),
+
+    SELL_YOUR_PROPERTY("sellYourPropertyData", "mailtemplate/sell-your-property.vm",
+            "mailtemplate/sell-your-property-subject.vm"),
+
+    PROJECT_DETAILS_MAIL_TO_USER("projectDetailsMailToUser", "mailtemplate/project/project-details.vm",
+            "mailtemplate/project/project-details-subject.vm"),
+
+    RESET_PASSWORD("retrievePassword", "mailtemplate/resetpassword/reset-password-mail.vm",
+            "mailtemplate/resetpassword/reset-password-mail-subject.vm");
 
     private MailTemplateDetail(String key, String body, String subject) {
         this.key = key;
