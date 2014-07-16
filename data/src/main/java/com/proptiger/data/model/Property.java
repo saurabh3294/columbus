@@ -25,12 +25,13 @@ import com.proptiger.data.util.UtilityClass;
 
 @JsonFilter("fieldFilter")
 @Entity
-@Table(name = "RESI_PROJECT_TYPES")
+@Table(name = "cms.resi_project_options")
 @JsonInclude(Include.NON_NULL)
 public class Property extends BaseModel {
 
     private static final long serialVersionUID = -3350129763568409835L;
 
+    
     @FieldMetaInfo(displayName = "Property Id", description = "Property Id")
     @Field(value = "TYPE_ID")
     @Column(name = "TYPE_ID")

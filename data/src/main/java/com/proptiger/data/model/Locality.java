@@ -31,7 +31,7 @@ import com.proptiger.data.model.image.Image;
  * 
  */
 @Entity
-@Table(name = "LOCALITY")
+@Table(name = "cms.locality")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Locality extends BaseModel {
