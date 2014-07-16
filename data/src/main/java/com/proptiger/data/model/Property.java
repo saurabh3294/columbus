@@ -25,7 +25,7 @@ import com.proptiger.data.util.UtilityClass;
 
 @JsonFilter("fieldFilter")
 @Entity
-@Table(name = "RESI_PROJECT_TYPES")
+@Table(name = "cms.resi_project_options")
 @JsonInclude(Include.NON_NULL)
 public class Property extends BaseModel {
 
