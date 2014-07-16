@@ -100,11 +100,14 @@ public class Image extends BaseModel {
             }
 
             if (tmpAltText.endsWith(HYPHEN)) {
-                seoName = tmpAltText + seoName;
+                seoName = tmpAltText + id + DOT + format;
             }
             else {
-                seoName = tmpAltText + HYPHEN + seoName;
+                seoName = tmpAltText + HYPHEN + id + DOT + format;
             }
+        }
+        else {
+            seoName = id + DOT + format;
         }
     }
 
