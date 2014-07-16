@@ -90,6 +90,7 @@ public class Image extends BaseModel {
      * be imageId.format   
      */
     public void assignSeoName(String format) {
+        seoName = id + DOT + format;
         if (altText != null && !altText.isEmpty()) {
             String tmpAltText = altText;
             tmpAltText = tmpAltText.replaceAll(PATTERN, HYPHEN).toLowerCase();
@@ -99,14 +100,11 @@ public class Image extends BaseModel {
             }
 
             if (tmpAltText.endsWith(HYPHEN)) {
-                seoName = tmpAltText + id + DOT + format;
+                seoName = tmpAltText + seoName;
             }
             else {
-                seoName = tmpAltText + HYPHEN + id + DOT + format;
+                seoName = tmpAltText + HYPHEN + seoName;
             }
-        }
-        else {
-            seoName = id + DOT + format;
         }
     }
 
