@@ -34,21 +34,24 @@ import com.proptiger.data.util.MediaUtil;
 @JsonFilter("fieldFilter")
 public class Image extends BaseModel {
 
-    private static final long  serialVersionUID = 3547840734282317975L;
-    
+    private static final long serialVersionUID = 3547840734282317975L;
+
     public static enum ColorSpace {
         sRGB("sRGB"), CMYK("CMYK"), RGB("RGB");
         String colorspace;
-        
-        private ColorSpace(String colorspace){
+
+        private ColorSpace(String colorspace) {
             this.colorspace = colorspace;
         }
+
         public String getColorspace() {
             return colorspace;
         }
     }
 
-    public static final String DOT              = ".";
+    public static final String DOT     = ".";
+    public static final String HYPHEN  = "-";
+    public static final String PATTERN = "[^a-zA-Z0-9]+";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -77,6 +80,33 @@ public class Image extends BaseModel {
     public void assignWatermarkName(String format) {
         waterMarkName = id + DOT + format;
     }
+    
+    /*
+     * seoName field is populated as altText-imageId.format
+     * if altText contains any special character then it is replaced with
+     * hyphen and converted into lower case, then altText and imageId.format
+     * is grouped by hyphen to form seoName. 
+     * if alText is null or empty then seoName constructed will
+     * be imageId.format   
+     */
+    public void assignSeoName(String format) {
+        seoName = id + DOT + format;
+        if (altText != null && !altText.isEmpty()) {
+            String tmpAltText = altText;
+            tmpAltText = tmpAltText.replaceAll(PATTERN, HYPHEN).toLowerCase();
+
+            if (tmpAltText.startsWith(HYPHEN)) {
+                tmpAltText = tmpAltText.replaceFirst(HYPHEN, "");
+            }
+
+            if (tmpAltText.endsWith(HYPHEN)) {
+                seoName = tmpAltText + seoName;
+            }
+            else {
+                seoName = tmpAltText + HYPHEN + seoName;
+            }
+        }
+    }
 
     public void assignOriginalName(String format) {
         originalName = originalHash + DOT + format;
@@ -84,7 +114,7 @@ public class Image extends BaseModel {
 
     @JsonProperty
     public String getAbsolutePath() {
-        return MediaUtil.getMediaEndpoint(id) + "/" + path + waterMarkName;
+        return MediaUtil.getMediaEndpoint(id) + "/" + path + seoName;
     }
 
     // XXX - Do not remove! used for creating object from serialized string
@@ -143,6 +173,9 @@ public class Image extends BaseModel {
 
     @ExcludeFromBeanCopy
     private boolean active;
+
+    @Column(name = "seo_name")
+    private String  seoName;
 
     public long getId() {
         return id;
@@ -318,6 +351,14 @@ public class Image extends BaseModel {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public String getSeoName() {
+        return seoName;
+    }
+
+    public void setSeoName(String seoName) {
+        this.seoName = seoName;
     }
 
     public static String addImageHostUrl(String path) {
