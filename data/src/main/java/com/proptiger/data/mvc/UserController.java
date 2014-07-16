@@ -88,4 +88,12 @@ public class UserController extends BaseController {
         ForumUser forumUser = userService.register(register);
         return new APIResponse(forumUser);
     }
+    
+    @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST)
+    @ResponseBody
+    public APIResponse resetPassword(@RequestBody String email){
+        String message = userService.resetPassword(email);
+        return new APIResponse(message);
+    }
+    
 }

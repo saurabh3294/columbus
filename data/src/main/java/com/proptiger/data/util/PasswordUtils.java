@@ -63,10 +63,10 @@ public class PasswordUtils {
         }
         validatePasswordLength(newPassword);
         validateSpecialCharRequirement(newPassword);
-        return encodePassword(newPassword);
+        return encode(newPassword);
     }
 
-    public static String encodePassword(String pass) {
+    public static String encode(String pass) {
         return passwordEncoder.encodePassword(pass, null);
     }
 
