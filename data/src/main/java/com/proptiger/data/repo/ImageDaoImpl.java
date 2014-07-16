@@ -83,6 +83,7 @@ public class ImageDaoImpl {
             em.persist(image);
             em.getTransaction().commit();
             image.assignWatermarkName(format);
+            image.assignSeoName(format);
             return image;
         }
         catch (Exception e) {

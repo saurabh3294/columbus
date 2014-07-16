@@ -25,8 +25,9 @@ public final class PropertyKeys {
     public static final String CMS_USERNAME                               = "cms_username";
     public static final String CMS_PASSWORD                               = "cms_password";
     public static final String CMS_BASE_URL                               = "cms_base_url";
-
-    public static final String SOLR_SERVER_URL                            = "solr.server.url";
+    
+    public static final String SOLR_SERVER_DEFAULT_URL                    = "solr.server.url";
+    public static final String SOLR_SERVER_B2B_URL                        = "solr.server.url.b2b";
 
     public static final String IMAGE_TEMP_PATH                            = "imageTempPath";
     public static final String BUCKET                                     = "bucket";
