@@ -44,6 +44,7 @@ public class SeoTextController {
 
     @RequestMapping(value = "data/v1/seo-text", params = { "url" })
     @ResponseBody
+    @Deprecated
     public APIResponse get(@RequestParam String url) {
         return new APIResponse(new Gson().fromJson(
                 restTemplate.getForObject(
