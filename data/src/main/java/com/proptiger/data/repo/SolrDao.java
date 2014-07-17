@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -53,16 +54,17 @@ public class SolrDao {
     public QueryResponse executeQuery(SolrQuery query) {
         try {
             logger.debug("SolrQuery {}", query);
-            String applicationType = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                    .getRequest().getHeader("applicationType");
-            if ( applicationType != null && applicationType.equals("b2b")) {
-                logger.debug("Running SolrQuery for b2b ");
-                return httpSolrServerb2b.query(query);
+            RequestAttributes requestAttribute = RequestContextHolder.getRequestAttributes();
+            if (requestAttribute != null) {
+                String applicationType = ((ServletRequestAttributes) requestAttribute).getRequest().getHeader(
+                        "applicationType");
+                if (applicationType != null && applicationType.equals("b2b")) {
+                    logger.debug("Running SolrQuery for b2b ");
+                    return httpSolrServerb2b.query(query);
+                }
             }
-            else {
-                logger.debug("Running SolrQuery for website");
-                return httpSolrServerDefault.query(query);
-            }
+            logger.debug("Running SolrQuery for website");
+            return httpSolrServerDefault.query(query);
         }
         catch (Exception e) {
             throw new ProAPIException("Could not run Solr query", e);
