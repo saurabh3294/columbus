@@ -518,7 +518,7 @@ public class UserService {
         forumUser.setPassword(changePassword.getNewPassword());
         forumUser = forumUserDao.save(forumUser);
 
-        SecurityContextHolder.getContext().setAuthentication(SecurityContextUtils.createNewAuthentication(forumUser));
+        SecurityContextUtils.autoLogin(forumUser);
     }
 
     /**
@@ -535,6 +535,10 @@ public class UserService {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
         }
         ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
+        /*
+         * after registration make user auto login
+         */
+        SecurityContextUtils.autoLogin(savedUser);
         return savedUser;
     }
 
