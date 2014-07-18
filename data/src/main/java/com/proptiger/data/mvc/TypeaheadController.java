@@ -56,7 +56,7 @@ public class TypeaheadController extends BaseController {
     @ResponseBody
     public APIResponse getTypeaheadsV2(
             @RequestParam String query,
-            @RequestParam(defaultValue = "10") int rows,
+            @RequestParam(defaultValue = "15") int rows,
             @RequestParam(required = false) String typeAheadType,
             @RequestParam(required = false, defaultValue = defaultCityName) String city) {
 
