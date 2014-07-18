@@ -88,7 +88,7 @@ public class Typeahead extends BaseModel {
     private String            templateText;
 
     @Field(value = "score")
-    private Double            score;
+    private Float            score;
     
     public String getId() {
         return id;
@@ -234,11 +234,11 @@ public class Typeahead extends BaseModel {
         this.authorized = authorized;
     }
     
-    public Double getScore() {
+    public Float getScore() {
         return score;
     }
 
-    public void setScore(Double score) {
+    public void setScore(Float score) {
         this.score = score;
     }
 

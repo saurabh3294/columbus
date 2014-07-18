@@ -39,7 +39,7 @@ public class TypeaheadService {
 
     private Logger          logger      = LoggerFactory.getLogger(TypeaheadService.class);
 
-    private double suggestionScoreThreshold = 20.0d;
+    private float suggestionScoreThreshold = 20.0f;
 
     @Autowired
     private LocalityService localityService;

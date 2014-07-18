@@ -92,7 +92,7 @@ public class THandlerProjectIn extends RootTHandler {
 
     public Typeahead getTopResult(Typeahead typeahead, String city) {
         String displayText = (typeahead.getTemplateText() + city);
-        String redirectUrl = (city.toLowerCase() + "-real-estate");
+        String redirectUrl = getRedirectUrl(typeahead.getTemplateText(), city);
         return (getTypeaheadObjectByTextAndURL(displayText, redirectUrl));
     }
     
