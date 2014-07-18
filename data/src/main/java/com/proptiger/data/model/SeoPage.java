@@ -1,18 +1,19 @@
 package com.proptiger.data.model;
 
+import java.util.Map;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.proptiger.data.service.SeoPageService;
-import com.proptiger.data.service.SuburbService;
+import com.google.gson.Gson;
 
 @Entity
 @Table(name = "seo_meta_content_templates")
@@ -37,10 +38,16 @@ public class SeoPage extends BaseModel {
          * field1 corresponds to the field name in the above mentioned class.
          * field2 corresponds to the field name in the field1 class. if field1 is null then in above mentioned class.
          */
-        Locality("<locality>", "locality", "label","%s"), City("<city>", "city", "label","%s"), Suburb("<suburb>", "suburb",
-                "label","%s"), BuiderName("<builder name>", "builder", "name","%s"), ProjectName("<project name>", "project",
-                "name","%s"), UnitName("<unit name>", "property", "unitName","%s"), BHK("<bhk>", null, "bedroomsStr","%s BHK"), PriceRange(
-                "<price range>", null, "priceRangeStr", "%s Lacs"), Bathrooms("<t>",null ,"bathrooms", "%d T");
+        Locality("<locality>", "locality", "label", "%s"), City("<city>", "city", "label", "%s"), Suburb("<suburb>",
+                "suburb", "label", "%s"), BuiderName("<builder name>", "builder", "name", "%s"), ProjectName(
+                "<project name>", "project", "name", "%s"), UnitName("<unit name>", "property", "unitName", "%s"), BHK(
+                "<bhk>", null, "bedroomsStr", "%s BHK"), PriceRange("<price range>", null, "priceRangeStr", "%s Lacs"), Bathrooms(
+                "<t>", null, "bathrooms", "%dT"), Sqft("<sq ft>", null, "size", "%d sq ft"), CityLatitude(
+                "<city latitude>", "city", "centerLatitude", "%f"), CityLongitude("<city longitude>", "city",
+                "centerLongitude", "%f"), ProjectLatitude("<project latitude>", "project", "longitude", "%f"), ProjectLongitude(
+                "<project longitude>", "project", "longitude", "%f"), ServerName("<server name>", null, "serverName",
+                "%s"), Url("<url>", null, "url", "%s"), ProjectImageUrl("<project image url>", "project", "imageURL",
+                "%s");
 
         private String value;
         private String fieldName1;
@@ -108,6 +115,30 @@ public class SeoPage extends BaseModel {
 
     @Column(name = "h4")
     private String h4;
+    
+    @Column(name = "others")
+    @JsonIgnore
+    private String others;
+
+    @Transient
+    @JsonIgnore
+    private Map<String, String> otherParams;
+    
+    @PostLoad
+    public void setOtherParamsMap() {
+        if (this.others != null) {
+            this.otherParams = new Gson().fromJson(this.others, Map.class);
+        }
+    }
+    
+    public void setOtherParams(Map<String, String> otherParams) {
+        this.otherParams = otherParams;
+    }
+    
+    @JsonAnyGetter
+    public Map<String, String> getOtherParams() {
+        return otherParams;
+    }
 
     public String getKeywords() {
         return keywords;
