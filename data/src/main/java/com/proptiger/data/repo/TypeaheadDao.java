@@ -2,6 +2,7 @@ package com.proptiger.data.repo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -32,24 +33,40 @@ public class TypeaheadDao {
 	private SolrQuery getSolrQueryV2(String query, int rows,
 			List<String> filterQueries) {
 
-		SolrQuery solrQuery = this.getQueryParamsV2(query);
+		SolrQuery solrQuery = new SolrQuery();
+		String boostQuery = "";
+		StringTokenizer tokens = new StringTokenizer(query);
+		float boost = 10;
 
+        while (tokens.hasMoreElements()) {
+        	String added;
+        	if(boost == 10){
+        		added = "Core_text:"+tokens.nextToken()+"^"+boost+" ";
+        	}
+        	else
+        		if(boost>0 && boost<10){
+            		added = "ENGram:"+tokens.nextToken()+"^"+boost+" ";
+        		}
+        		else{
+        		added = tokens.nextToken()+" ";
+        	}
+        	boostQuery += added;
+        	boost -=4;	
+			}
+		
 		for (String fq : filterQueries) {
 			solrQuery.addFilterQuery(fq);
 		}
-
 		solrQuery.setRows(rows);
+		solrQuery.setQuery(query);
+		solrQuery.setParam("bq",boostQuery);
 		solrQuery.setParam("qt", "/payload");
 		solrQuery.setParam("defType", "payload");
 
 		return solrQuery;
 	}
 
-	private SolrQuery getQueryParamsV2(String query) {
-		SolrQuery solrQuery = new SolrQuery();
-		solrQuery.setQuery(query);
-		return solrQuery;
-	}
+
 
 	public List<Typeahead> getTypeaheadsV2(String query, int rows,
 			List<String> filterQueries) {
