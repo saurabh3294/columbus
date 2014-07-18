@@ -75,9 +75,9 @@ public class TypeaheadService {
 
         /* Get recommendations type results */
         List<Typeahead> suggestions = auxilliaryService(results);
-        results.addAll(suggestions);
-
-        return (consolidateResults(rows, nlpResults, results));
+        List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results);
+        consolidatedResults.addAll(suggestions);
+        return consolidatedResults;
     }
 
     /*
