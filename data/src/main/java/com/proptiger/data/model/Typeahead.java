@@ -4,9 +4,6 @@
  */
 package com.proptiger.data.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -89,26 +86,10 @@ public class Typeahead extends BaseModel {
 
     @Field(value = "TEMPLATE_TEXT")
     private String            templateText;
+
+    @Field(value = "score")
+    private Double            score;
     
-    private List<String> suggestion;
-    
-
-	public String getTemplateText() {
-		return templateText;
-	}
-
-	public void setTemplateText(String templateText) {
-		this.templateText = templateText;
-	}
-
-	public List<String> getSuggestion() {
-		return suggestion;
-	}
-
-	public void setSuggestion(List<String> suggestion) {
-		this.suggestion = suggestion;
-	}
-	
     public String getId() {
         return id;
     }
@@ -252,4 +233,21 @@ public class Typeahead extends BaseModel {
     public void setAuthorized(boolean authorized) {
         this.authorized = authorized;
     }
+    
+    public Double getScore() {
+        return score;
+    }
+
+    public void setScore(Double score) {
+        this.score = score;
+    }
+
+    public String getTemplateText() {
+        return templateText;
+    }
+
+    public void setTemplateText(String templateText) {
+        this.templateText = templateText;
+    }
+
 }

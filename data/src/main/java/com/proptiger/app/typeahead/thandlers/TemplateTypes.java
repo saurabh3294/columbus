@@ -10,8 +10,8 @@ public enum TemplateTypes {
     ReadyToMoveProjectsIn("ready to move projects in", THandlerProjectIn.class), 
     AffordableProjectsIn("affordable projects in", THandlerProjectIn.class), 
     LuxuryProjectsIn("luxury projects in", THandlerProjectIn.class), 
-    TopProjectsIn("top rojects in", THandlerProjectIn.class), 
-    TopPropertiesIn("top projects in", THandlerProjectIn.class), 
+    TopProjectsIn("top projects in", THandlerProjectIn.class), 
+    TopPropertiesIn("top properties in", THandlerProjectIn.class), 
     
     ProjectBy("projects by", THandlerProjectsBy.class),
     PropertyBy("property by", THandlerProjectsBy.class),

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import com.google.common.base.Joiner;
 import com.proptiger.data.model.City;
-import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.service.CityService;
 
@@ -83,7 +82,7 @@ public class TypeaheadDao {
         SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
         solrQuery.setParam("qt", "/payload");
         solrQuery.setParam("defType", "payload");
-
+        solrQuery.setParam("fl", "*,score");
         return solrQuery;
     }
     

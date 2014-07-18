@@ -13,7 +13,7 @@ import com.proptiger.data.pojo.Selector;
 @Component
 public class THandlerProjectIn extends RootTHandler {
 
-    private String selectorLocalitiesInCityByCityName = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
+    private String selectorCityFilter = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
     
     private String genericUrlProjectsIn               = "%s-real-estate";
     private String genericUrlLuxuryProjectsIn         = "%s/luxury-projects";
@@ -29,11 +29,6 @@ public class THandlerProjectIn extends RootTHandler {
     
     private String localityFilter = "?locality=%s";
     
-    public THandlerProjectIn() {
-        super();
-        setType(TemplateTypes.ProjectsIn);
-    }
-
     @Override
     public List<Typeahead> getResults(Typeahead typeahead, String city, int rows) {
 
@@ -103,7 +98,7 @@ public class THandlerProjectIn extends RootTHandler {
     
     private List<Locality> getTopLocalities(String cityName)
     {
-        Selector selector = (new Gson()).fromJson(String.format(selectorLocalitiesInCityByCityName, cityName), Selector.class);
+        Selector selector = (new Gson()).fromJson(String.format(selectorCityFilter, cityName), Selector.class);
         List<Locality> topLocalities = localityService.getLocalities(selector).getResults();
         return topLocalities;
     }

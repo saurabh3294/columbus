@@ -4,21 +4,24 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TemplateMap extends HashMap<String, Class<? extends RootTHandler>> {
+public class TemplateMap extends HashMap<String, TemplateTypes> {
 
     private static final long serialVersionUID = 1L;
 
     private static Logger     logger           = LoggerFactory.getLogger(TemplateMap.class);
-
+    
     public TemplateMap() {
         super();
         fillMap();
     }
     
     public RootTHandler getTemplate(String text) {
+        TemplateTypes ttype;
         try {
             if (this.containsKey(text)) {
-                RootTHandler rtt = this.get(text).newInstance();
+                ttype = this.get(text);
+                RootTHandler rtt = ttype.getClazz().newInstance();
+                rtt.setType(ttype);
                 return rtt;
             }
             else {
@@ -35,7 +38,8 @@ public class TemplateMap extends HashMap<String, Class<? extends RootTHandler>> 
         TemplateTypes[] allTemplateTypes = TemplateTypes.values();
         for(TemplateTypes ttype : allTemplateTypes)
         {
-            this.put(ttype.getText(), ttype.getClazz());
+            this.put(ttype.getText(), ttype);
         }
     }
+ 
 }

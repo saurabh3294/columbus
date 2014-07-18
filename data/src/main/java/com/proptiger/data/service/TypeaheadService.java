@@ -33,15 +33,20 @@ import com.proptiger.data.enums.Suggestions;
 @Service
 public class TypeaheadService {
     @Autowired
-    private TypeaheadDao  typeaheadDao;
+    private TypeaheadDao    typeaheadDao;
 
-    private TemplateMap templateMap = new TemplateMap();
+    private TemplateMap     templateMap = new TemplateMap();
 
-    private Logger        logger      = LoggerFactory.getLogger(TypeaheadService.class);
+    private Logger          logger      = LoggerFactory.getLogger(TypeaheadService.class);
+
+    private double suggestionScoreThreshold = 20.0d;
 
     @Autowired
     private LocalityService localityService;
-    
+
+    @Autowired
+    private BuilderService  builderService;
+
     /**
      * This method will return the list of typeahead results based on the
      * params.
@@ -64,10 +69,11 @@ public class TypeaheadService {
         /* Get NLP based results */
         List<Typeahead> nlpResults = getNlpTemplateBasedResults(query, city, rows);
 
-        /* If a pattern is hit and sufficient results are returned, we are done. */
-        if (nlpResults.size() >= rows) {
-            return UtilityClass.getFirstNElementsOfList(nlpResults, rows);
-        }
+        // /* If a pattern is hit and sufficient results are returned, we are
+        // done. */
+        // if (nlpResults.size() >= rows) {
+        // return UtilityClass.getFirstNElementsOfList(nlpResults, rows);
+        // }
 
         /* Get Normal Results matching the query String */
         filterQueries.add("-TYPEAHEAD_TYPE:TEMPLATE");
@@ -75,8 +81,12 @@ public class TypeaheadService {
 
         /* Get recommendations type results */
         List<Typeahead> suggestions = auxilliaryService(results);
-        List<Typeahead> consolidatedResults = consolidateResults(rows, nlpResults, results);
-        consolidatedResults.addAll(suggestions);
+
+        List<Typeahead> consolidatedResults = new ArrayList<Typeahead>();
+        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(nlpResults, rows / 3));
+        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(results, rows / 3));
+        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(suggestions, rows / 3));
+
         return consolidatedResults;
     }
 
@@ -84,6 +94,7 @@ public class TypeaheadService {
      * Select final results to be send from results fetched using different
      * methods
      */
+    @SuppressWarnings("unused")
     private List<Typeahead> consolidateResults(int totalRows, List<Typeahead> nlpResults, List<Typeahead> results) {
         if (nlpResults.isEmpty()) {
             return UtilityClass.getFirstNElementsOfList(results, totalRows);
@@ -96,9 +107,21 @@ public class TypeaheadService {
 
     private List<Typeahead> auxilliaryService(List<Typeahead> results) {
 
-        String text = results.get(0).getId();
-        List<String> tokens = new ArrayList<String>();
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
+
+        if (results == null || results.isEmpty()) {
+            return suggestions;
+        }
+
+        Typeahead typeahead = results.get(0);
+
+        if (typeahead.getScore() < suggestionScoreThreshold) {
+            return suggestions;
+        }
+
+        String text = results.get(0).getId();
+
+        List<String> tokens = new ArrayList<String>();
 
         Pattern pattern = Pattern.compile("([\\w]+)");
         Matcher matcher = pattern.matcher(text);
@@ -106,9 +129,9 @@ public class TypeaheadService {
         String label = results.get(0).getLabel();
 
         while (matcher.find()) {
-            tokens.add(matcher.group(1).toUpperCase());// 2nd element is
-                                                       // docType, 3rd is id
-                                                       // number
+            tokens.add(matcher.group(1).toUpperCase());
+            // 2nd element is docType, 3rd is id
+            // number
             System.out.println(matcher.group(1).toString());
         }
 
@@ -116,15 +139,16 @@ public class TypeaheadService {
 
             switch (tokens.get(1)) {
                 case "PROJECT":
-                    suggestions = ProjectSuggestion(tokens);
+                    suggestions = getSuggestionByProjectName(tokens);
                     break;
                 case "CITY":
-                    suggestions = CitySuggestion(tokens, redirectUrl, label);
+                    suggestions = getSuggestionByCityName(tokens, redirectUrl, label);
                     break;
                 case "BUILDER":
-                    suggestions = BuilderSuggestion(tokens, redirectUrl, label);
+                    suggestions = getSuggestionByBuilderName(tokens, redirectUrl, label);
+                    break;
                 case "LOCALITY":
-                    suggestions = LocalitySuggestion(tokens, redirectUrl, label);
+                    suggestions = getSuggestionByLocalityName(tokens, redirectUrl, label);
                     break;
                 default:
                     break;
@@ -134,7 +158,7 @@ public class TypeaheadService {
         return suggestions;
     }
 
-    private List<Typeahead> ProjectSuggestion(List<String> tokens) {
+    private List<Typeahead> getSuggestionByProjectName(List<String> tokens) {
 
         List<Typeahead> recommendation = new ArrayList<Typeahead>();
         List<Property> properties = new ArrayList<Property>();
@@ -175,7 +199,7 @@ public class TypeaheadService {
         return recommendation;
     }
 
-    private List<Typeahead> BuilderSuggestion(List<String> tokens, String redirectUrl, String builderName) {
+    private List<Typeahead> getSuggestionByBuilderName(List<String> tokens, String redirectUrl, String builderName) {
         List<Typeahead> recommendation = new ArrayList<Typeahead>();
         Typeahead obj = new Typeahead();
         redirectUrl += "/filters?projectStatus=not%20launched,pre%20launch";
@@ -186,7 +210,7 @@ public class TypeaheadService {
         return recommendation;
     }
 
-    private List<Typeahead> CitySuggestion(List<String> tokens, String redirectUrl, String cityName) {
+    private List<Typeahead> getSuggestionByCityName(List<String> tokens, String redirectUrl, String cityName) {
         List<Typeahead> recommendation = new ArrayList<Typeahead>();
         String newUrl;
         Typeahead obj1 = new Typeahead();
@@ -213,7 +237,7 @@ public class TypeaheadService {
         return recommendation;
     }
 
-    private List<Typeahead> LocalitySuggestion(List<String> tokens, String redirectUrl, String localityName) {
+    private List<Typeahead> getSuggestionByLocalityName(List<String> tokens, String redirectUrl, String localityName) {
         List<Typeahead> recommendation = new ArrayList<Typeahead>();
         Typeahead obj1 = new Typeahead();
         Typeahead obj2 = new Typeahead();
@@ -250,12 +274,13 @@ public class TypeaheadService {
 
         /* Get All results for first template. */
         RootTHandler thandler = templateMap.getTemplate(templateHits.get(0).getTemplateText().trim());
-        thandler.setLocalityService(localityService);
+        setTemplateServices(thandler);
+
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
-        if(thandler != null){
+        if (thandler != null) {
             resultsFirstHandler = thandler.getResults(templateHits.get(0), city, rows);
         }
-        
+
         /*
          * Get top result for each template. (as we needed to incorporate
          * multiple template hits)
@@ -265,9 +290,9 @@ public class TypeaheadService {
         for (Typeahead t : templateHits) {
             templateText = t.getTemplateText().trim();
             rootTaTemplate = templateMap.getTemplate(templateText);
-            
+
             if (rootTaTemplate != null) {
-                rootTaTemplate.setLocalityService(localityService);
+                setTemplateServices(rootTaTemplate);
                 results.add(rootTaTemplate.getTopResult(t, city));
             }
             else {
@@ -289,5 +314,10 @@ public class TypeaheadService {
         }
 
         return results;
+    }
+
+    private void setTemplateServices(RootTHandler rootTHandler) {
+        rootTHandler.setLocalityService(localityService);
+        rootTHandler.setBuilderService(builderService);
     }
 }

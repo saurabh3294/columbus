@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.model.Typeahead;
+import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.service.LocalityService;
 
 @Component
@@ -13,7 +14,8 @@ public abstract class RootTHandler {
     protected TemplateTypes type;
     
     protected LocalityService localityService;
-
+    protected BuilderService builderService;
+    
     public TemplateTypes getType() {
         return type;
     }
@@ -24,6 +26,10 @@ public abstract class RootTHandler {
 
     public void setLocalityService(LocalityService localityService) {
         this.localityService = localityService;
+    }
+
+    public void setBuilderService(BuilderService builderService) {
+        this.builderService = builderService;
     }
 
     protected Typeahead getTypeaheadObjectByTextAndURL(String displayText, String redirectUrl) {

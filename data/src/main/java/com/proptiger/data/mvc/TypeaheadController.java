@@ -28,7 +28,7 @@ public class TypeaheadController extends BaseController {
     @Autowired
     private TypeaheadService typeaheadService;
 
-    private String           defaultCityName = "Noida";
+    private final String     defaultCityName = "Noida";
 
     @RequestMapping(value = "app/v1/typeahead")
     @ResponseBody
@@ -56,9 +56,9 @@ public class TypeaheadController extends BaseController {
     @ResponseBody
     public APIResponse getTypeaheadsV2(
             @RequestParam String query,
-            @RequestParam(defaultValue = "5") int rows,
+            @RequestParam(defaultValue = "10") int rows,
             @RequestParam(required = false) String typeAheadType,
-            @RequestParam(required = false) String city) {
+            @RequestParam(required = false, defaultValue = defaultCityName) String city) {
 
         List<String> filterQueries = new ArrayList<String>();
         if (typeAheadType != null && typeAheadType.trim() != "") {
