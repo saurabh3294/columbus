@@ -80,7 +80,7 @@ public class BuilderService {
         Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
         Map<String, Long> projectStatusCountMap = projectService.getProjectStatusCount(tempSelector);
         builder.setProjectStatusCount(projectStatusCountMap);
-
+        imageEnricher.setBuilderImages(builder);
         return builder;
     }
 
