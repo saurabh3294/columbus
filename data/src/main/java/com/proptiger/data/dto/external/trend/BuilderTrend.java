@@ -25,6 +25,8 @@ public class BuilderTrend {
     public static final String                  LAUNCHED_KEY                          = "launchedUnit";
     @JsonIgnore
     public static final String                  AVG_SIZE                              = "wavgSizeOnLtdSupply";
+    @JsonIgnore
+    public static final String                  AREA_KEY                              = "totalArea";
 
     private int                                 builderId;
     private String                              builderName;
@@ -53,6 +55,7 @@ public class BuilderTrend {
                     countMap.put(PROJECT_COUNT_KEY, 0);
                     countMap.put(SUPPLY_KEY, 0);
                     countMap.put(LAUNCHED_KEY, 0);
+                    countMap.put(AREA_KEY, 0);
 
                     this.unitTypesDetails.put(unitType, countMap);
                 }

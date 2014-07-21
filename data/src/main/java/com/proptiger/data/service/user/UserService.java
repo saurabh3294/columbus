@@ -21,7 +21,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -32,6 +31,7 @@ import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
 import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomCity;
@@ -40,10 +40,14 @@ import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscript
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.Register;
+import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
+import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ForumUser.WhoAmIDetail;
+import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.SubscriptionPermission;
@@ -55,10 +59,13 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.Constants;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PasswordUtils;
@@ -78,13 +85,16 @@ import com.proptiger.exception.UnauthorizedException;
  */
 @Service
 public class UserService {
-    private static Logger              logger          = LoggerFactory.getLogger(UserService.class);
+    private static Logger              logger = LoggerFactory.getLogger(UserService.class);
 
     @Value("${b2b.price-inventory.max.month}")
     private String                     currentMonth;
 
     @Value("${enquired.within.days}")
     private Integer                    enquiredWithinDays;
+
+    @Value("${proptiger.url}")
+    private String                     proptigerUrl;
 
     @Autowired
     private EnquiryDao                 enquiryDao;
@@ -115,6 +125,15 @@ public class UserService {
 
     @Value("${cdn.image.url}")
     private String                     cdnImageBase;
+
+    @Autowired
+    private MailSender                 mailSender;
+
+    @Autowired
+    private ForumUserTokenDao          forumUserTokenDao;
+
+    @Autowired
+    private TemplateToHtmlGenerator    htmlGenerator;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -499,11 +518,12 @@ public class UserService {
         forumUser.setPassword(changePassword.getNewPassword());
         forumUser = forumUserDao.save(forumUser);
 
-        SecurityContextHolder.getContext().setAuthentication(SecurityContextUtils.createNewAuthentication(forumUser));
+        SecurityContextUtils.autoLogin(forumUser);
     }
 
     /**
-     * Register a new user after data validation 
+     * Register a new user after data validation
+     * 
      * @param register
      * @return
      */
@@ -511,12 +531,47 @@ public class UserService {
     public ForumUser register(Register register) {
         RegistrationUtils.validateRegistration(register);
         ForumUser userPresent = forumUserDao.findByEmail(register.getEmail());
-        if(userPresent != null){
+        if (userPresent != null) {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
         }
         ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
+        /*
+         * after registration make user auto login
+         */
+        SecurityContextUtils.autoLogin(savedUser);
         return savedUser;
     }
 
-    
+    /**
+     * This method verifies the user by email from database, if registered then
+     * send a password recovery mail
+     * 
+     * @param email
+     * @return
+     */
+    public String resetPassword(String email) {
+        ForumUser forumUser = forumUserDao.findByEmailAndProvider(email, "");
+        if (forumUser == null) {
+            return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
+        }
+        // token valid for 1 month
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, 1);
+        String token = PasswordUtils.generateTokenBase64Encoded();
+        token = PasswordUtils.encode(token);
+        String encodedEmail = PasswordUtils.base64Encode(email);
+        ForumUserToken forumUserToken = new ForumUserToken();
+        forumUserToken.setToken(token);
+        forumUserToken.setExpirationDate(calendar.getTime());
+        forumUserTokenDao.save(forumUserToken);
+        String retrivePasswordLink = proptigerUrl + "/forgotpass.php?token=" + token + "&id=" + encodedEmail;
+        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
+                forumUser.getUsername(),
+                retrivePasswordLink);
+        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
+        MailDetails details = new MailDetails(mailBody).setMailTo(email);
+        mailSender.sendMailUsingAws(details);
+        return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
+    }
+
 }

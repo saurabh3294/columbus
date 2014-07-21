@@ -56,6 +56,12 @@ public class CustomSpringSocialConfigurer extends SpringSocialConfigurer {
                 new AuthenticationNameUserIdSource(),
                 usersConnectionRepository,
                 authServiceLocator);
+        /*
+         * Since we are not using default table provided by Spring to disabling
+         * this. We are saving part of connection data in FORUM_USER table,
+         * could introduce more fields in same table
+         */
+        filter.setUpdateConnections(false);
         filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(Constants.Security.LOGIN_URL, "POST"));
         filter.setFilterProcessesUrl(Constants.Security.LOGIN_URL);
         /*
