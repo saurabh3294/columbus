@@ -91,6 +91,11 @@ public class ImageController extends BaseController {
             }
             catch (IllegalAccessException | InvocationTargetException e) {
             }
+            // Updating Seo Name if Alt-Text field is modified.
+            if (image.getAltText() != null) {
+                String format = image.getWaterMarkName().substring(image.getWaterMarkName().indexOf(Image.DOT) + 1);
+                image.assignSeoName(format);
+            }
             imageService.update(image);
             obj = new APIResponse(super.filterFields(image, null));
         }
