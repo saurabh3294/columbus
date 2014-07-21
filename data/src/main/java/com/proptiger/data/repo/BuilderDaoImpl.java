@@ -53,9 +53,10 @@ public class BuilderDaoImpl {
 
         String builderStr = StringUtils.join(builderIds.toArray(), ",");
 
-        Selector selector = new Gson().fromJson(
-                "{\"filters\":{\"and\":[{\"equal\":{\"id\":[" + builderStr + "]}}]}}",
-                Selector.class);
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"id\":[" + builderStr
+                + "]}}]}, \"paging\":{\"start\":0,\"rows\":"
+                + builderIds.size()
+                + "}}", Selector.class);
 
         SolrQuery solrQuery = createSolrQuery(selector);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
@@ -83,12 +84,12 @@ public class BuilderDaoImpl {
 
         return solrQuery;
     }
-    
+
     public Set<SortBy> getDefaultSort() {
         return new Gson()
                 .fromJson(
                         "{\"sort\":[{\"field\":\"priority\",\"sortOrder\":\"ASC\"},{\"field\":\"name\",\"sortOrder\":\"ASC\"}]}",
                         Selector.class).getSort();
     }
-    
+
 }
