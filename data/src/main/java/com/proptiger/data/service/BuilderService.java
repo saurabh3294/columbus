@@ -78,6 +78,7 @@ public class BuilderService {
         }
 
         builder.setProjectStatusCount(getProjectStatusCountMap(builderId, selector));
+        imageEnricher.setBuilderImages(builder);
         return builder;
     }
 
@@ -88,11 +89,9 @@ public class BuilderService {
      * @return projectStatusCountMap
      * */
     public Map<String, Long> getProjectStatusCountMap(Integer builderId, Selector selector) {
-
         Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
         Map<String, Long> projectStatusCountMap = projectService.getProjectStatusCount(tempSelector);
         return projectStatusCountMap;
-
     }
 
     /**
