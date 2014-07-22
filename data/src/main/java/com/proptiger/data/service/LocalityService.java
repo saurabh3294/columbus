@@ -124,6 +124,7 @@ public class LocalityService {
         return paginatedRes;
     }
 
+    @Cacheable(value = Constants.CacheName.CACHE)
     public PaginatedResponse<List<Locality>> getLocalities(Selector selector) {
         PaginatedResponse<List<Locality>> paginatedRes = new PaginatedResponse<List<Locality>>();
         paginatedRes = localityDao.getLocalities(selector);
