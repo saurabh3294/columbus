@@ -39,7 +39,7 @@ public class TypeaheadService {
 
     private Logger          logger      = LoggerFactory.getLogger(TypeaheadService.class);
 
-    private float suggestionScoreThreshold = 20.0f;
+    private float suggestionScoreThreshold = 0.0f;
 
     @Autowired
     private LocalityService localityService;
@@ -66,6 +66,19 @@ public class TypeaheadService {
 
     public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries, String city) {
 
+        /* Get Normal Results matching the query String */
+        filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
+        List<Typeahead> results = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
+
+        /* Get recommendations type results */
+        List<Typeahead> suggestions = auxilliaryService(results);
+
+        results.addAll(suggestions);
+        return results;
+     }
+
+    public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String city) {
+
         /* Get NLP based results */
         List<Typeahead> nlpResults = getNlpTemplateBasedResults(query, city, rows);
 
@@ -76,7 +89,8 @@ public class TypeaheadService {
         // }
 
         /* Get Normal Results matching the query String */
-        filterQueries.add("-TYPEAHEAD_TYPE:TEMPLATE");
+        //filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
+        filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
         List<Typeahead> results = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
 
         /* Get recommendations type results */
@@ -274,10 +288,10 @@ public class TypeaheadService {
 
         /* Get All results for first template. */
         RootTHandler thandler = templateMap.getTemplate(templateHits.get(0).getTemplateText().trim());
-        setTemplateServices(thandler);
-
+        
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
         if (thandler != null) {
+            setTemplateServices(thandler);
             resultsFirstHandler = thandler.getResults(templateHits.get(0), city, rows);
         }
 

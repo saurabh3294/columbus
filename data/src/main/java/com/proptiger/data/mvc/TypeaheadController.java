@@ -56,7 +56,7 @@ public class TypeaheadController extends BaseController {
     @ResponseBody
     public APIResponse getTypeaheadsV2(
             @RequestParam String query,
-            @RequestParam(defaultValue = "15") int rows,
+            @RequestParam(defaultValue = "5") int rows,
             @RequestParam(required = false) String typeAheadType,
             @RequestParam(required = false, defaultValue = defaultCityName) String city) {
 
@@ -67,6 +67,31 @@ public class TypeaheadController extends BaseController {
         if (city != null && city.trim() != "") {
             filterQueries.add("TYPEAHEAD_CITY:" + city);
         }
+
+        /* If users city is not given then we populate it with a default city */
+        if (city == null || city.isEmpty()) {
+            city = defaultCityName;
+        }
+        List<Typeahead> list = typeaheadService.getTypeaheadsV2(query, rows, filterQueries, city);
+        
+        return new APIResponse(super.filterFields(list, null), list.size());
+    }
+    
+    @RequestMapping(value = "app/v3/typeahead")
+    @ResponseBody
+    public APIResponse getTypeaheadsV3(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "15") int rows,
+            @RequestParam(required = false) String typeAheadType,
+            @RequestParam(required = false, defaultValue = defaultCityName) String city) {
+
+        List<String> filterQueries = new ArrayList<String>();
+        if (typeAheadType != null && typeAheadType.trim() != "") {
+            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
+        }
+//        if (city != null && city.trim() != "") {
+//            filterQueries.add("TYPEAHEAD_CITY:" + city);
+//        }
 
         /* If users city is not given then we populate it with a default city */
         if (city == null || city.isEmpty()) {

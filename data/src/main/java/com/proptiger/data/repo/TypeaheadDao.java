@@ -44,6 +44,8 @@ public class TypeaheadDao {
     public List<Typeahead> getTypeaheadsV2(String query, int rows,
             List<String> filterQueries) {
         
+        List<String> filterQueriesOld = new ArrayList<String>(filterQueries);
+        
         // Add the city filter if it exist in the query
         List<String> cityList = this.findCities(query);
 
@@ -56,8 +58,7 @@ public class TypeaheadDao {
         List<SolrQuery> solrQueries = new ArrayList<SolrQuery>();
         solrQueries.add(this.getSolrQueryV2(new_query, rows, filterQueries));
         if (!filterQueries.isEmpty()) {// Adding another query if filters exist
-            solrQueries.add(this.getSolrQueryV2(query, rows,
-                    new ArrayList<String>()));
+            solrQueries.add(this.getSolrQueryV2(query, rows, filterQueriesOld));
         }
 
         List<Typeahead> results = new ArrayList<Typeahead>();
