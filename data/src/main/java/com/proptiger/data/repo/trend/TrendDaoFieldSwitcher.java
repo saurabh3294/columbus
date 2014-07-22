@@ -136,6 +136,8 @@ public class TrendDaoFieldSwitcher {
         markedBaseFieldList.add("inventoryOverhang");
         markedBaseFieldList.add("ltdLaunchedUnit");
         markedBaseFieldList.add("rateOfSale");
+        markedBaseFieldList.add("constructionStatus");
+
     }
 
     private void fillMarkedGroupList() {
