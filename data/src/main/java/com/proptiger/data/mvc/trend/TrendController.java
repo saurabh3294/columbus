@@ -108,6 +108,22 @@ public class TrendController extends BaseController {
                 userInfo));
     }
 
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend.csv")
+    @ResponseBody
+    public String getCsvCatchmentTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService.getCatchmentTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                catchmentId,
+                userInfo)), selector);
+    }
+
     @RequestMapping("data/v1/trend/current")
     @ResponseBody
     public APIResponse getCurrentTrend(
@@ -156,6 +172,22 @@ public class TrendController extends BaseController {
                         rangeValue,
                         catchmentId,
                         userInfo), rangeField, rangeValue, selector));
+    }
+
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/current.csv")
+    @ResponseBody
+    public String getCsvCatchmentCurrentTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService.getCatchmentCurrentTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                catchmentId,
+                userInfo)), selector);
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend-list/current")
@@ -234,6 +266,24 @@ public class TrendController extends BaseController {
                 userInfo), rangeField, rangeValue, selector));
     }
 
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/hitherto.csv")
+    @ResponseBody
+    public String getCsvCatchmentHithertoTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService.getCatchmentHithertoTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                hithertoDurationSelector,
+                catchmentId,
+                userInfo)), selector);
+    }
+
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend-list/hitherto")
     @ResponseBody
     public APIResponse getListCatchmentHithertoTrend(
@@ -300,6 +350,22 @@ public class TrendController extends BaseController {
                 selector));
     }
 
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend.csv")
+    public @ResponseBody
+    String getCsvCatchmentPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService.getCatchmentPriceTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                catchmentId,
+                userInfo)), selector);
+    }
+
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend-list")
     public @ResponseBody
     APIResponse getListCatchmentPriceTrend(
@@ -363,6 +429,22 @@ public class TrendController extends BaseController {
                 rangeValue,
                 catchmentId,
                 userInfo), rangeField, rangeValue, selector));
+    }
+
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/current.csv")
+    public @ResponseBody
+    String getCsvCatchmentCurrentPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService.getCatchmentCurrentPriceTrend(
+                selector,
+                rangeField,
+                rangeValue,
+                catchmentId,
+                userInfo)), selector);
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend-list/current")
@@ -460,6 +542,27 @@ public class TrendController extends BaseController {
                 hithertoDurationSelector,
                 catchmentId,
                 userInfo));
+    }
+
+    @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/hitherto.csv")
+    public @ResponseBody
+    String getCsvCatchmmentHithertoPriceTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue,
+            @PathVariable Integer catchmentId,
+            @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
+        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
+
+        return super.getCsvFromMapListAndFIQL(trendService.getFlattenedList(trendService
+                .getCatchmentHithertoPriceTrend(
+                        selector,
+                        rangeField,
+                        rangeValue,
+                        hithertoDurationSelector,
+                        catchmentId,
+                        userInfo)), selector);
     }
 
     private PaginatedResponse<Object> getMappedResults(
