@@ -146,7 +146,7 @@ public class TypeaheadService {
             tokens.add(matcher.group(1).toUpperCase());
             // 2nd element is docType, 3rd is id
             // number
-            System.out.println(matcher.group(1).toString());
+            //System.out.println(matcher.group(1).toString());
         }
 
         if (tokens != null) {
