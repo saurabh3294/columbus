@@ -64,17 +64,9 @@ public class TypeaheadService {
         return typeaheadDao.getExactTypeaheads(query, rows, filterQueries);
     }
 
-    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries, String city) {
-
-        /* Get Normal Results matching the query String */
+    public List<Typeahead> getTypeaheadsV2(String query, int rows, List<String> filterQueries) {
         filterQueries.add("(-TYPEAHEAD_TYPE:TEMPLATE)");
-        List<Typeahead> results = typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
-
-        /* Get recommendations type results */
-        List<Typeahead> suggestions = auxilliaryService(results);
-
-        results.addAll(suggestions);
-        return results;
+        return typeaheadDao.getTypeaheadsV2(query, rows, filterQueries);
      }
 
     public List<Typeahead> getTypeaheadsV3(String query, int rows, List<String> filterQueries, String city) {

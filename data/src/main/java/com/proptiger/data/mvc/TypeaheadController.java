@@ -66,12 +66,7 @@ public class TypeaheadController extends BaseController {
             filterQueries.add("TYPEAHEAD_CITY:" + city);
         }
 
-        /* If users city is not given then we populate it with a default city */
-        if (city == null || city.isEmpty()) {
-            city = defaultCityName;
-        }
-        List<Typeahead> list = typeaheadService.getTypeaheadsV2(query, rows, filterQueries, city);
-
+        List<Typeahead> list = typeaheadService.getTypeaheadsV2(query, rows, filterQueries);
         return new APIResponse(super.filterFields(list, null), list.size());
     }
 
