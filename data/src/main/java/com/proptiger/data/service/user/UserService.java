@@ -317,6 +317,11 @@ public class UserService {
             subscriptionIdList.add(usm.getSubscriptionId());
         }
 
+        if (subscriptionIdList.isEmpty()) {
+            return (new ArrayList<SubscriptionPermission>());
+
+        }
+
         List<SubscriptionPermission> subscriptionPermissions = subscriptionPermissionDao
                 .findAllBySubscriptionId(subscriptionIdList);
         if (subscriptionPermissions == null) {
