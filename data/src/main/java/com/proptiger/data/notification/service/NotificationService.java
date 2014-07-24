@@ -1,9 +1,9 @@
 /**
  * 
  */
-package com.proptiger.data.service.notification;
+package com.proptiger.data.notification.service;
 
-import com.proptiger.data.model.notification.NotificationMessage;
+import com.proptiger.data.notification.model.NotificationMessage;
 
 /**
  * @author mandeep

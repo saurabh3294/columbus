@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.proptiger.data.model.notification;
+package com.proptiger.data.notification.model;
 
 import java.util.Date;
 import java.util.Map;

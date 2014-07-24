@@ -1,4 +1,4 @@
-package com.proptiger.data.processor.notification;
+package com.proptiger.data.notification.generator;
 
 import java.util.Date;
 import java.util.List;
