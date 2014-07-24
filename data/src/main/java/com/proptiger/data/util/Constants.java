@@ -188,5 +188,9 @@ public class Constants {
         // cookie valid for 7 days, make sure to set session max inactive
         // interval to same value.
         public static final int    JSESSION_COOKIE_MAX_AGE     = 60 * 60 * 24 * 7;
+
+        public static final String SERVER_CURR_TIME            = "server-time";
+        public static final String SECRET_HASH_HEADER_KEY      = "_shhkey";
+        public static final String API_SECRET_KEYWORD          = "_askey";
     }
 }

@@ -52,4 +52,6 @@ public final class PropertyKeys {
 
     public static final String AVATAR_IMAGE_URL                           = "avatar.image.url";
     public static final String ACCESS_LOG_INTERNAL_DS_SIZE_THRESHOLD      = "assesslog.internal.ds.size.threshold";
+    public static final String ILLEGAL_API_ACCESS_THRESHOLD_COUNT         = "illegal.api.access.threshold.count";
+    public static final String ENABLE_BOT_PREVENTAION                     = "enable.bot.prevention";
 }
