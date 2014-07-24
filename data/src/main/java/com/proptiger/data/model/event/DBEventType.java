@@ -1,5 +1,6 @@
 package com.proptiger.data.model.event;
 
+@Deprecated
 public class DBEventType {
     private int id;
     private String tableName;
