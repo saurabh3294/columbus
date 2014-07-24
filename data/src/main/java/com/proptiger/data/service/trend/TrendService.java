@@ -134,6 +134,18 @@ public class TrendService {
                 rangeValue);
     }
 
+    public List<InventoryPriceTrend> getCatchmentTrend(
+            FIQLSelector selector,
+            String rangeField,
+            String rangeValue,
+            Integer catchmentId,
+            ActiveUser userInfo) {
+        return getTrend(
+                selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
+                rangeField,
+                rangeValue);
+    }
+
     public List<InventoryPriceTrend> getCurrentTrend(FIQLSelector selector, String rangeField, String rangeValue) {
         return getTrend(getCurrentDateAppendedSelector(selector), rangeField, rangeValue);
     }
@@ -152,6 +164,19 @@ public class TrendService {
             Integer catchmentId,
             ActiveUser userInfo) {
         return getPaginatedTrend(
+                getCurrentDateAppendedSelector(selector).addAndConditionToFilter(
+                        catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
+                rangeField,
+                rangeValue);
+    }
+
+    public List<InventoryPriceTrend> getCatchmentCurrentTrend(
+            FIQLSelector selector,
+            String rangeField,
+            String rangeValue,
+            Integer catchmentId,
+            ActiveUser userInfo) {
+        return getTrend(
                 getCurrentDateAppendedSelector(selector).addAndConditionToFilter(
                         catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
                 rangeField,
@@ -191,6 +216,20 @@ public class TrendService {
                 rangeValue);
     }
 
+    public List<InventoryPriceTrend> getCatchmentHithertoTrend(
+            FIQLSelector selector,
+            String rangeField,
+            String rangeValue,
+            HithertoDurationSelector hithertoDurationSelector,
+            Integer catchmentId,
+            ActiveUser userInfo) {
+        return getTrend(
+                getHithertoDateAppendedSelector(selector, hithertoDurationSelector).addAndConditionToFilter(
+                        catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
+                rangeField,
+                rangeValue);
+    }
+
     public List<InventoryPriceTrend> getPriceTrend(FIQLSelector selector, String rangeField, String rangeValue) {
         return getTrend(getDominantSupplyAppendedSelector(selector), rangeField, rangeValue);
     }
@@ -209,6 +248,16 @@ public class TrendService {
             Integer catchmentId,
             ActiveUser userInfo) {
         return getPaginatedTrend(getDominantSupplyAppendedSelector(selector.addAndConditionToFilter(catchmentService
+                .getCatchmentFIQLFilter(catchmentId, userInfo))), rangeField, rangeValue);
+    }
+
+    public List<InventoryPriceTrend> getCatchmentPriceTrend(
+            FIQLSelector selector,
+            String rangeField,
+            String rangeValue,
+            Integer catchmentId,
+            ActiveUser userInfo) {
+        return getTrend(getDominantSupplyAppendedSelector(selector.addAndConditionToFilter(catchmentService
                 .getCatchmentFIQLFilter(catchmentId, userInfo))), rangeField, rangeValue);
     }
 
@@ -236,6 +285,19 @@ public class TrendService {
             Integer catchmentId,
             ActiveUser userInfo) {
         return getPaginatedTrend(
+                getDominantSupplyAppendedSelector(getCurrentDateAppendedSelector(selector.addAndConditionToFilter(catchmentService
+                        .getCatchmentFIQLFilter(catchmentId, userInfo)))),
+                rangeField,
+                rangeValue);
+    }
+
+    public List<InventoryPriceTrend> getCatchmentCurrentPriceTrend(
+            FIQLSelector selector,
+            String rangeField,
+            String rangeValue,
+            Integer catchmentId,
+            ActiveUser userInfo) {
+        return getTrend(
                 getDominantSupplyAppendedSelector(getCurrentDateAppendedSelector(selector.addAndConditionToFilter(catchmentService
                         .getCatchmentFIQLFilter(catchmentId, userInfo)))),
                 rangeField,
@@ -272,6 +334,21 @@ public class TrendService {
             Integer catchmentId,
             ActiveUser userInfo) {
         return getPaginatedTrend(
+                getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(
+                        selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
+                        hithertoDurationSelector)),
+                rangeField,
+                rangeValue);
+    }
+
+    public List<InventoryPriceTrend> getCatchmentHithertoPriceTrend(
+            FIQLSelector selector,
+            String rangeField,
+            String rangeValue,
+            HithertoDurationSelector hithertoDurationSelector,
+            Integer catchmentId,
+            ActiveUser userInfo) {
+        return getTrend(
                 getDominantSupplyAppendedSelector(getHithertoDateAppendedSelector(
                         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo)),
                         hithertoDurationSelector)),

@@ -40,7 +40,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
  */
 @Service
 public class URLService {
-    private String EMPTY_URL = "";
+    private String            EMPTY_URL = "";
     @Autowired
     private CityService       cityService;
 
@@ -67,6 +67,17 @@ public class URLService {
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
+
+        /*
+         * Removing the URL request params and saving them in variable.
+         */
+        String[] URLSplit = url.split("\\?");
+        String URLRequestParamString = "";
+        if (URLSplit.length > 1) {
+            URLRequestParamString = "?" + URLSplit[1];
+        }
+        url = URLSplit[0];
+
         try {
             urlDetail = parse(url);
         }
@@ -125,7 +136,7 @@ public class URLService {
                 }
 
                 if (project == null) {
-                    redirectUrl = getHigherHierarchyUrl(urlDetail.getProjectId(), DomainObject.project.getText()); 
+                    redirectUrl = getHigherHierarchyUrl(urlDetail.getProjectId(), DomainObject.project.getText());
                 }
                 else if (!project.getURL().equals(urlDetail.getUrl())) {
                     redirectUrl = project.getURL();
@@ -153,7 +164,7 @@ public class URLService {
                 catch (ResourceNotAvailableException e) {
                     builderCity = null;
                 }
-                
+
                 if (builder == null || builderCity == null) {
                     if (builderCity != null) {
                         if (urlDetail.getCityName() != null && !urlDetail.getCityName().isEmpty()) {
@@ -191,14 +202,14 @@ public class URLService {
                 domainUrl = (String) localitySuburbData[0];
                 responseStatus = (Integer) localitySuburbData[2];
                 boolean is404FallbackSet = (boolean) localitySuburbData[4];
-                
+
                 if (is404FallbackSet) {
                     redirectUrl = domainUrl;
                 }
                 else {
                     domainUrl = domainUrl.replaceFirst("property-sale", urlDetail.getPropertyType()) + urlDetail
                             .getBedroomString() + urlDetail.getPriceString();
-                    
+
                     if (!domainUrl.equals(urlDetail.getUrl())) {
                         redirectUrl = domainUrl;
                     }
@@ -244,7 +255,8 @@ public class URLService {
                     city = null;
                 }
                 if (city == null) {
-                    responseStatus = HttpStatus.SC_NOT_FOUND;
+                    redirectUrl = EMPTY_URL;
+                    responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 }
                 break;
             case STATIC_URLS:
@@ -263,7 +275,9 @@ public class URLService {
                 responseStatus = HttpStatus.SC_NOT_FOUND;
                 break;
         }
-
+        if (redirectUrl != null && !redirectUrl.isEmpty()) {
+            redirectUrl += URLRequestParamString;
+        }
         return new ValidURLResponse(responseStatus, redirectUrl);
     }
 
@@ -315,7 +329,7 @@ public class URLService {
             else {
                 locality = localityService.getActiveOrInactiveLocalityById(id);
                 if (locality == null) {
-                      return EMPTY_URL;
+                    return EMPTY_URL;
                 }
                 else {
                     suburbId = locality.getSuburbId();
@@ -340,7 +354,7 @@ public class URLService {
                 suburb = suburbService.getActiveOrInactiveSuburbById(id);
                 if (suburb == null) {
                     return EMPTY_URL;
-                } 
+                }
                 else {
                     cityId = suburb.getCityId();
                 }
@@ -379,7 +393,7 @@ public class URLService {
                 }
 
                 if (locality == null) {
-                    newUrl = getHigherHierarchyUrl(urlDetail.getLocalityId(), DomainObject.locality.getText()); 
+                    newUrl = getHigherHierarchyUrl(urlDetail.getLocalityId(), DomainObject.locality.getText());
                     responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     is404FallbackSet = true;
                 }
@@ -398,7 +412,7 @@ public class URLService {
                     suburb = null;
                 }
                 if (suburb == null) {
-                    newUrl = getHigherHierarchyUrl(urlDetail.getLocalityId(), DomainObject.suburb.getText()); 
+                    newUrl = getHigherHierarchyUrl(urlDetail.getLocalityId(), DomainObject.suburb.getText());
                     responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     is404FallbackSet = true;
                 }
@@ -412,7 +426,12 @@ public class URLService {
                 responseStatus = HttpStatus.SC_NOT_FOUND;
         }
 
-        return new Object[] { newUrl, cityName.toLowerCase(), responseStatus, domainName.toLowerCase(), is404FallbackSet };
+        return new Object[] {
+                newUrl,
+                cityName.toLowerCase(),
+                responseStatus,
+                domainName.toLowerCase(),
+                is404FallbackSet };
     }
 
     /*

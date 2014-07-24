@@ -169,4 +169,20 @@ public class UtilityClass {
         }
         return result;
     }
+
+    /**
+     * @param list
+     * @param count
+     * @return first count elements of the list OR whole list if it has less N elements.
+     */
+    public static <T> List<T> getFirstNElementsOfList(List<T> list, int count) {
+        if (list == null) {
+            return null;
+        }
+        else {
+            int finalIndex = Math.min(list.size(), count);
+            return (new ArrayList<T>(list.subList(0, finalIndex)));
+        }
+    }
+    
 }

@@ -126,17 +126,26 @@ public class CompositeAPIService {
         System.out.println("request:   " + request + "\n");
         Cookie[] requestCookies = request.getCookies();
         String phpsessId = null;
-
+        String jsessionId = null;
+        
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
 
                 if (c.getName().equals(Constants.PHPSESSID_KEY)) {
                     phpsessId = c.getValue();
                 }
+                else if (c.getName().equals(Constants.JSESSIONID)) {
+                    jsessionId = c.getValue();
+                }
+                else{
+                    continue;
+                }
             }
-        }
+        }     
+        
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Cookie", "PHPSESSID=" + phpsessId);
+        requestHeaders.add("Cookie", "JSESSIONID=" + jsessionId);
 
         final HttpEntity<Object> requestEntity = new HttpEntity<Object>(requestHeaders);
 
