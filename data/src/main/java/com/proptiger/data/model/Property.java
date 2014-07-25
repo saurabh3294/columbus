@@ -25,16 +25,16 @@ import com.proptiger.data.util.UtilityClass;
 
 @JsonFilter("fieldFilter")
 @Entity
-@Table(name = "RESI_PROJECT_TYPES")
+@Table(name = "cms.resi_project_options")
 @JsonInclude(Include.NON_NULL)
 public class Property extends BaseModel {
 
+    private static final long serialVersionUID = -3350129763568409835L;
 
-	private static final long serialVersionUID = -3350129763568409835L;
-
+    
     @FieldMetaInfo(displayName = "Property Id", description = "Property Id")
     @Field(value = "TYPE_ID")
-    @Column(name = "TYPE_ID")
+    @Column(name = "OPTIONS_ID")
     @Id
     private int               propertyId;
 
@@ -55,12 +55,12 @@ public class Property extends BaseModel {
 
     @FieldMetaInfo(displayName = "Unit type", description = "Unit type")
     @Field(value = "UNIT_TYPE")
-    @Column(name = "UNIT_TYPE")
+    @Column(name = "OPTION_TYPE")
     private String            unitType;
 
     @FieldMetaInfo(displayName = "Unit name", description = "Unit name")
     @Field(value = "UNIT_NAME")
-    @Column(name = "UNIT_NAME")
+    @Column(name = "OPTION_NAME")
     private String            unitName;
 
     @FieldMetaInfo(
@@ -70,15 +70,7 @@ public class Property extends BaseModel {
     @Field(value = "PRICE_PER_UNIT_AREA")
     @JsonSerialize(converter = DoubletoIntegerConverter.class)
     @JsonInclude(Include.NON_EMPTY)
-    @Column(name = "PRICE_PER_UNIT_AREA")
     private Double            pricePerUnitArea;
-
-    @FieldMetaInfo(
-            dataType = DataType.CURRENCY,
-            displayName = "Price per unit area",
-            description = "Price per unit area")
-    @Column(name = "PRICE_PER_UNIT_AREA_CMS")
-    private Double            pricePerUnitAreaCms;
 
     @FieldMetaInfo(displayName = "Size", description = "Size")
     @Field(value = "SIZE")
@@ -90,7 +82,7 @@ public class Property extends BaseModel {
     @FieldMetaInfo(displayName = "Measure", description = "Measure")
     @Field(value = "MEASURE")
     @Column(name = "MEASURE")
-    private String            measure;
+    private String            measure = "sqft";
 
     @FieldMetaInfo(displayName = "URL", description = "URL")
     @Field(value = "PROPERTY_URL")
@@ -294,14 +286,6 @@ public class Property extends BaseModel {
 
     public void setProjectIdBedroom(String projectIdBedroom) {
         this.projectIdBedroom = projectIdBedroom;
-    }
-
-    public Double getPricePerUnitAreaCms() {
-        return pricePerUnitAreaCms;
-    }
-
-    public void setPricePerUnitAreaCms(Double pricePerUnitAreaCms) {
-        this.pricePerUnitAreaCms = pricePerUnitAreaCms;
     }
 
     public Double getResalePricePerUnitArea() {
