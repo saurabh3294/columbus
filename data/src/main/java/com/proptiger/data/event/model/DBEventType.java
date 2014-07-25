@@ -1,4 +1,4 @@
-package com.proptiger.data.model.event;
+package com.proptiger.data.event.model;
 
 @Deprecated
 public class DBEventType {

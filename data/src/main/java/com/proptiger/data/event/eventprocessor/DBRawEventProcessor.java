@@ -1,12 +1,12 @@
 /**
  * 
  */
-package com.proptiger.data.notification.eventprocessor;
+package com.proptiger.data.event.eventprocessor;
 
 import java.util.List;
 
-import com.proptiger.data.model.event.DBEventGenerated;
-import com.proptiger.data.model.event.Event;
+import com.proptiger.data.event.model.DBEventGenerated;
+import com.proptiger.data.event.model.Event;
 
 /**
  * @author mandeep

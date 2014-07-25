@@ -1,9 +1,9 @@
-package com.proptiger.data.notification.generator;
+package com.proptiger.data.event.generator;
 
 import java.util.Date;
 import java.util.List;
 
-import com.proptiger.data.model.event.DBEventGenerated;
+import com.proptiger.data.event.model.DBEventGenerated;
 
 public class DBRawEventGenerator implements EventGenerator {
 

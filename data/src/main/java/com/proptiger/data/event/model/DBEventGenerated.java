@@ -1,4 +1,4 @@
-package com.proptiger.data.model.event;
+package com.proptiger.data.event.model;
 
 import java.util.Date;
 
@@ -51,8 +51,8 @@ public class DBEventGenerated extends Event {
     @Column(name = "status")
     private EventStatus eventStatus;
     
-    @Column(name = "merge_parent_id")
-    private int mergeParentId;
+    @Column(name = "merge_event_id")
+    private int mergedEventId;
     
     @Transient
     private EventTypePayload eventTypePayload;
@@ -60,6 +60,10 @@ public class DBEventGenerated extends Event {
     @PostLoad
     public void setPayload(){
         this.eventTypePayload = (EventTypePayload)new Gson().fromJson(this.data, eventType.getName().getDataClassName());
+    }
+    
+    public DBEventGenerated test(DBEventGenerated t){
+        return this;
     }
 
     public int getId() {

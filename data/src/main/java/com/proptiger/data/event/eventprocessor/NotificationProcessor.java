@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.proptiger.data.notification.eventprocessor;
+package com.proptiger.data.event.eventprocessor;
 
 /**
  * @author mandeep
