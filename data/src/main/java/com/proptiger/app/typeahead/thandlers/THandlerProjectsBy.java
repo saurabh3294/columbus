@@ -21,7 +21,7 @@ public class THandlerProjectsBy extends RootTHandler {
         String redirectURL;
         for (Builder builder : topBuilders) {
             redirectURL = builder.getUrl();
-            results.add(getTypeaheadObjectByTextAndURL((typeahead.getTemplateText() + builder.getName()), redirectURL));
+            results.add(getTypeaheadObjectByTextAndURL((this.getType().getText() + " " + builder.getName()), redirectURL));
             if (results.size() == rows) {
                 break;
             }
