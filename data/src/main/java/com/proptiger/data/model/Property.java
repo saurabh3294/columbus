@@ -148,6 +148,18 @@ public class Property extends BaseModel {
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double            maxResaleOrPrimaryPrice;
 
+    @Transient
+    @Field("PROJECT_NAME")
+    private String 			  projectName;
+    
+    public String getProjectName() {
+		return projectName;
+	}
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+    
     public int getProjectId() {
         return projectId;
     }

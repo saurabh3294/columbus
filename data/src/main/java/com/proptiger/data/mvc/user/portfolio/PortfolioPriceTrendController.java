@@ -44,8 +44,7 @@ public class PortfolioPriceTrendController extends BaseController {
         PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(
                 userInfo.getUserIdentifier(),
                 months);
-        return new APIResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend()
-                .size());
+        return new APIResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend().size());
     }
 
     /**
