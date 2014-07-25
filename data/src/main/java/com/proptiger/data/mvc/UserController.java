@@ -82,7 +82,7 @@ public class UserController extends BaseController {
         userService.changePassword(userInfo, changePassword);
         return new APIResponse();
     }
-    @RequestMapping(value = "app/v1/register", method = RequestMethod.POST)
+    @RequestMapping(value = Constants.Security.REGISTER_URL, method = RequestMethod.POST)
     @ResponseBody
     public APIResponse register(@RequestBody Register register){
         ForumUser forumUser = userService.register(register);

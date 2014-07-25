@@ -1,21 +1,34 @@
 package com.proptiger.app.config.security.social;
 
+import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.social.UserIdSource;
+import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.support.OAuth2ConnectionFactory;
+import org.springframework.social.oauth2.AccessGrant;
 import org.springframework.social.security.SocialAuthenticationFilter;
 import org.springframework.social.security.SocialAuthenticationServiceLocator;
+import org.springframework.social.security.SocialAuthenticationToken;
+import org.springframework.social.security.SocialUserDetails;
+import org.springframework.social.security.provider.SocialAuthenticationService;
+import org.springframework.util.Assert;
 
 import com.proptiger.app.config.security.ModifiableHttpServletRequest;
+import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Custom social authentication filter hack request to change for service
@@ -26,7 +39,7 @@ import com.proptiger.data.util.PropertyReader;
  */
 public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
 
-    private static final String                 SCOPE = "scope";
+    private static final String                 SCOPE                    = "scope";
     private PropertyReader                      propertyReader;
 
     private UsersConnectionRepository           connectionRepository;
@@ -50,20 +63,69 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
-        Authentication authentication = createAuthIfLoggedInUsingPHPCall(request);
+        /*
+         * this code ensures to login in spring social if user have already
+         * logged using oauth sdk on mobile device or on website. So once logged
+         * in using SDK client will pass the access token and this block of code
+         * will validate the same, and make user logged in SecurityContext.
+         */
+        String accessToken = request.getParameter(Constants.Security.ACCESS_TOKEN);
+        if (accessToken != null && !accessToken.isEmpty()) {
+            return attemptAuthUsingAccessToken(request, accessToken);
+        }
+
+        /*
+         * this flow is to make website or other client work even without
+         * posting on our app/v1/login/{provider} api. So if authentication
+         * created then return it other wise normal flow should execute.
+         */
+        Authentication authentication = attemptAuthUsingProviderAndProviderId(request);
         if (authentication != null) {
-            /*
-             * this flow is to make website or other clien work even without
-             * posting on our app/v1/login/{provider} api. So if authentication
-             * created then return it other wise normal flow should execute.
-             */
             return authentication;
         }
         HttpServletRequest wrappedRequest = addScopeInRequestParameter(request);
         return super.attemptAuthentication(wrappedRequest, response);
     }
 
-    private Authentication createAuthIfLoggedInUsingPHPCall(HttpServletRequest request) {
+    /**
+     * Attempt authentication using access_token passed in request
+     * @param request
+     * @param accessToken
+     * @return
+     */
+    private Authentication attemptAuthUsingAccessToken(HttpServletRequest request, String accessToken) {
+        Set<String> authProviders = getAuthServiceLocator().registeredAuthenticationProviderIds();
+        String authProviderId = getProviderId(request);
+        if (!authProviders.isEmpty() && authProviderId != null && authProviders.contains(authProviderId)) {
+            SocialAuthenticationService<?> authService = getAuthServiceLocator().getAuthenticationService(
+                    authProviderId);
+            try {
+                OAuth2ConnectionFactory<?> factory = (OAuth2ConnectionFactory<?>) authService.getConnectionFactory();
+                Connection<?> connection = factory.createConnection(new AccessGrant(accessToken, null, null, DateUtil
+                        .addDays(new Date(), Constants.Security.ACCESS_TOKEN_VALITY_DAYS).getTime()));
+                final SocialAuthenticationToken token = new SocialAuthenticationToken(connection, null);
+                Assert.notNull(token.getConnection());
+                Authentication auth = SecurityContextUtils.getAuthentication();
+                if (auth == null || !auth.isAuthenticated()) {
+                    return authenticateTokenByAuthManager(token);
+                }
+                return auth;
+            }
+            catch (Exception e) {
+                logger.error("Invalid access token {}", e);
+                throw new AuthenticationServiceException("invalid access token");
+            }
+        }
+        throw new AuthenticationServiceException("could not determine auth service provider");
+    }
+
+    private Authentication authenticateTokenByAuthManager(SocialAuthenticationToken token) {
+        Authentication success = getAuthenticationManager().authenticate(token);
+        Assert.isInstanceOf(SocialUserDetails.class, success.getPrincipal(), "unexpected principle type");
+        return success;
+    }
+
+    private Authentication attemptAuthUsingProviderAndProviderId(HttpServletRequest request) {
         // these string constants are as per defined in checkuser.php
         String provider = request.getParameter("provider");
         String providerUserId = request.getParameter("providerUserId");
