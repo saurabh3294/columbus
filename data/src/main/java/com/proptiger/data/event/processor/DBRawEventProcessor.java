@@ -1,11 +1,11 @@
 /**
  * 
  */
-package com.proptiger.data.event.eventprocessor;
+package com.proptiger.data.event.processor;
 
 import java.util.List;
 
-import com.proptiger.data.event.model.DBEventGenerated;
+import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.Event;
 
 /**
@@ -18,7 +18,7 @@ public class DBRawEventProcessor implements RawEventProcessor {
      * @see com.proptiger.data.processor.notification.RawEventProcessor#process(java.util.List)
      */
     @Override
-    public List<DBEventGenerated> process(List<Event> events) {
+    public List<EventGenerated> process(List<Event> events) {
         // TODO Auto-generated method stub
         return null;
     }

@@ -2,7 +2,7 @@ package com.proptiger.data.model.event.payload;
 
 import java.util.Date;
 
-import com.proptiger.data.event.model.DBEventGenerated.EventStatus;
+import com.proptiger.data.event.model.EventGenerated.EventStatus;
 
 public class EventTypeUpdateHistory {
     private EventStatus eventStatus;

@@ -17,7 +17,7 @@ import com.proptiger.data.model.event.payload.EventTypePayload;
 
 @Entity
 @Table(name = "raw_event_generated")
-public class DBEventGenerated extends Event {
+public class EventGenerated extends Event {
 
     public enum EventStatus {
         Raw("raw"), Merged("merged"), Discarded("discarded"), Verfied("verified"), PendingVerification(
@@ -63,7 +63,7 @@ public class DBEventGenerated extends Event {
                 .getDataClassName());
     }
 
-    public DBEventGenerated test(DBEventGenerated t) {
+    public EventGenerated test(EventGenerated t) {
         return this;
     }
 
