@@ -1,5 +1,7 @@
 package com.proptiger.data.event.model;
 
+import com.proptiger.data.event.enums.DBOperation;
+
 @Deprecated
 public class DBEventType {
     private int id;
