@@ -30,39 +30,40 @@ public class DBEventGenerated extends Event {
             // TODO Auto-generated constructor stub
         }
     }
-    
+
     @Column(name = "id")
     @Id
-    private int         id;
-    
+    private int              id;
+
     @Column(name = "data")
-    private String      data;
-    
-    @OneToOne(fetch=FetchType.EAGER)
+    private String           data;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_type_id")
-    private EventType   eventType;
-    
+    private EventType        eventType;
+
     @Column(name = "created_date")
-    private Date        createdDate;
-    
+    private Date             createdDate;
+
     @Column(name = "updated_date")
-    private Date        updatedDate;
-    
+    private Date             updatedDate;
+
     @Column(name = "status")
-    private EventStatus eventStatus;
-    
+    private EventStatus      eventStatus;
+
     @Column(name = "merge_event_id")
-    private int mergedEventId;
-    
+    private Integer              mergedEventId;
+
     @Transient
     private EventTypePayload eventTypePayload;
-    
+
     @PostLoad
-    public void setPayload(){
-        this.eventTypePayload = (EventTypePayload)new Gson().fromJson(this.data, eventType.getName().getDataClassName());
+    public void setPayload() {
+        this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getName()
+                .getDataClassName());
     }
-    
-    public DBEventGenerated test(DBEventGenerated t){
+
+    public DBEventGenerated test(DBEventGenerated t) {
         return this;
     }
 
@@ -113,13 +114,4 @@ public class DBEventGenerated extends Event {
     public void setEventStatus(EventStatus eventStatus) {
         this.eventStatus = eventStatus;
     }
-    
-    
-    /*private String      tableName;
-    private String      attrName;
-    private Object      oldValue;
-    private Object      newValue;
-    private DBOperation dbOperation;
-
-    private String      schedulePolicy;*/
 }

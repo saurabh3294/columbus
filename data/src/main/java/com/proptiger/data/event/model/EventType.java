@@ -7,7 +7,6 @@ import javax.persistence.Table;
 
 import com.proptiger.data.model.event.payload.DefaultEventTypePayload;
 
-
 @Entity
 @Table(name = "event_type")
 /**
@@ -20,49 +19,57 @@ import com.proptiger.data.model.event.payload.DefaultEventTypePayload;
 public class EventType {
     // TODO remove the Types ENUM. make it dynamic.
     public enum Types {
-        PortfolioPriceChange("portfolio_price_change", DefaultEventTypePayload.class), PortfolioPhotoAdded("portfolio_photo_added", DefaultEventTypePayload.class);
-        
-        private String name;
+        PortfolioPriceChange("portfolio_price_change", DefaultEventTypePayload.class), PortfolioPhotoAdded(
+                "portfolio_photo_added", DefaultEventTypePayload.class);
+
+        private String   name;
         private Class<?> dataClassName;
-        Types(String name, Class<?> dataClassName){
+
+        Types(String name, Class<?> dataClassName) {
             this.name = name;
             this.dataClassName = dataClassName;
         }
+
         public String getName() {
             return name;
         }
+
         public void setName(String name) {
             this.name = name;
         }
+
         public Class<?> getDataClassName() {
             return dataClassName;
         }
+
         public void setDataClassName(Class<?> dataClassName) {
             this.dataClassName = dataClassName;
         }
     }
+
     public enum Operation {
         Replace, Merge;
     }
+
     @Id
     @Column(name = "id")
-    private int id;
-    
+    private int       id;
+
     @Column(name = "name")
-    private Types name;
-    
+    private Types     name;
+
     @Column(name = "is_mergeable")
-    private boolean isMergeable;
-    
+    private boolean   isMergeable;
+
     @Column(name = "validation_cycle_in_hours")
-    private int validationCycleHours;
-    
+    private int       validationCycleHours;
+
     @Column(name = "verification_required")
-    private int verficationRequired;
-    
+    private int       verficationRequired;
+
     @Column(name = "queued_items_in_validation_cycle")
-    private int queuedItemsValidationCycle;
-    
+    private int       queuedItemsValidationCycle;
+
     @Column(name = "operation")
     private Operation operation;
 

@@ -2,7 +2,7 @@ package com.proptiger.data.notification.model;
 
 import java.util.List;
 
-import com.proptiger.data.model.event.EventType;
+import com.proptiger.data.event.model.EventType;
 
 public class NotificationType {
     private int id;
