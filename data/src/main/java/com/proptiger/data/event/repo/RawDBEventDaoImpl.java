@@ -1,4 +1,4 @@
-package com.proptiger.data.event.dao;
+package com.proptiger.data.event.repo;
 
 /**
  * 

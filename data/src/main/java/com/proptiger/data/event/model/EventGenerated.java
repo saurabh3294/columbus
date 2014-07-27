@@ -1,6 +1,7 @@
 package com.proptiger.data.event.model;
 
 import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -52,15 +55,31 @@ public class EventGenerated extends Event {
     private EventStatus      eventStatus;
 
     @Column(name = "merge_event_id")
-    private Integer              mergedEventId;
+    private Integer          mergedEventId;
+
+    @Column(name = "expiry_date")
+    private Date             expiryDate;
 
     @Transient
     private EventTypePayload eventTypePayload;
 
     @PostLoad
     public void setPayload() {
+        // TODO to look into the Gson works on the recursive level of objects from json or not.
         this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getName()
                 .getDataClassName());
+
+        String uniqueKeyString = "";
+        for (Map.Entry<String, Object> entry : eventTypePayload.getIdMap().entrySet()) {
+            uniqueKeyString += entry.getValue() + "-";
+        }
+        this.eventTypePayload.setUniqueKeyString(uniqueKeyString);
+    }
+    
+    @PreUpdate
+    public void updatePayload() {
+        // TODO to look into the Gson works on the recursive level of objects from json or not.
+        this.data = new Gson().toJson(this.eventTypePayload);
     }
 
     public EventGenerated test(EventGenerated t) {
@@ -113,5 +132,29 @@ public class EventGenerated extends Event {
 
     public void setEventStatus(EventStatus eventStatus) {
         this.eventStatus = eventStatus;
+    }
+
+    public Integer getMergedEventId() {
+        return mergedEventId;
+    }
+
+    public void setMergedEventId(Integer mergedEventId) {
+        this.mergedEventId = mergedEventId;
+    }
+
+    public EventTypePayload getEventTypePayload() {
+        return eventTypePayload;
+    }
+
+    public void setEventTypePayload(EventTypePayload eventTypePayload) {
+        this.eventTypePayload = eventTypePayload;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
     }
 }

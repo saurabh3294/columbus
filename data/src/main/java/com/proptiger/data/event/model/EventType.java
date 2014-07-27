@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.proptiger.data.model.event.payload.DefaultEventTypePayload;
+import com.proptiger.data.event.enums.Types;
 
 @Entity
 @Table(name = "event_type")
@@ -17,36 +17,6 @@ import com.proptiger.data.model.event.payload.DefaultEventTypePayload;
  *
  */
 public class EventType {
-    // TODO remove the Types ENUM. make it dynamic.
-    public enum Types {
-        PortfolioPriceChange("portfolio_price_change", DefaultEventTypePayload.class), PortfolioPhotoAdded(
-                "portfolio_photo_added", DefaultEventTypePayload.class);
-
-        private String   name;
-        private Class<?> dataClassName;
-
-        Types(String name, Class<?> dataClassName) {
-            this.name = name;
-            this.dataClassName = dataClassName;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public Class<?> getDataClassName() {
-            return dataClassName;
-        }
-
-        public void setDataClassName(Class<?> dataClassName) {
-            this.dataClassName = dataClassName;
-        }
-    }
-
     public enum Operation {
         Replace, Merge;
     }
@@ -72,7 +42,7 @@ public class EventType {
 
     @Column(name = "operation")
     private Operation operation;
-
+    
     public int getId() {
         return id;
     }

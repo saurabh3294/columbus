@@ -12,6 +12,6 @@ import com.proptiger.data.event.model.Event;
  *
  * This handles merging/suppression of events
  */
-public interface RawEventProcessor {
-    List<? extends Event> process(List<Event> events);
+public interface RawEventProcessorHandler {
+    void handleRawEvents();
 }

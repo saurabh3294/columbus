@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.data.event.dao.EventGeneratedDao;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.repo.EventGeneratedDao;
 
 /**
  * This is the implementation of EventGenerator to generate events from DB source
