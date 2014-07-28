@@ -180,7 +180,8 @@ public class Project extends BaseModel {
     @Field(value = "PROMISED_COMPLETION_DATE")
     @Column(name = "PROMISED_COMPLETION_DATE")
     private Date                    possessionDate;
-
+    
+    @Transient
     @FieldMetaInfo(displayName = "Submitted Date", description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
     @Column(name = "SUBMITTED_DATE")
@@ -198,12 +199,14 @@ public class Project extends BaseModel {
     @Deprecated
     private String                  offer;
 
+    @Transient
     @FieldMetaInfo(displayName = "Offer Heading", description = "Offer Heading")
     @Field(value = "OFFER_HEADING")
     @Column(name = "OFFER_HEADING")
     @Deprecated
     private String                  offerHeading;
-
+    
+    @Transient
     @FieldMetaInfo(displayName = "Offer Description", description = "Offer Description")
     @Field(value = "OFFER_DESC")
     @Column(name = "OFFER_DESC")
@@ -280,12 +283,14 @@ public class Project extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Max Bedroooms", description = "Max Bedroooms")
     private int                     maxBedrooms;
-
+    
+    @Transient
     @FieldMetaInfo(displayName = "Project Status", description = "Project Status")
     @Field(value = "PROJECT_STATUS")
     @Column(name = "PROJECT_STATUS")
     private String                  projectStatus;
 
+    @Transient
     @Field(value = "IS_RESALE")
     @Column(name = "FORCE_RESALE")
     private boolean                 isResale;
@@ -364,7 +369,7 @@ public class Project extends BaseModel {
     private Integer                 avgPriceRiseMonths;
 
     @FieldMetaInfo(displayName = "AVAILABILITY", description = "AVAILABILITY")
-    @Column(name = "AVAILABILITY")
+    @Column(name = "D_AVAILABILITY")
     @Field("AVAILABILITY")
     private Integer                 derivedAvailability;
 
