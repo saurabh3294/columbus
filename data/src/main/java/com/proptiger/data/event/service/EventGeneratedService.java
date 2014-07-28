@@ -84,7 +84,7 @@ public class EventGeneratedService {
             
             EventGenerated eventGenerated = new EventGenerated();
             eventGenerated.setEventType(eventType);
-            // TODO: set payload in eventGenerated
+            eventGenerated.setEventTypePayload(payload);
             eventGeneratedList.add(eventGenerated);
         }
 
