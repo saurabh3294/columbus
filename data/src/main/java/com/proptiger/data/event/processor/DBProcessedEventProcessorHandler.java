@@ -1,27 +1,18 @@
-/**
- * 
- */
 package com.proptiger.data.event.processor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.Event;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 
-/**
- * @author mandeep
- *
- */
-public class DBRawEventProcessorHandler extends DBEventProcessorHandler {
-    
+public class DBProcessedEventProcessorHandler extends DBEventProcessorHandler{
     @Autowired
     private EventGeneratedDao eventGeneratedDao;
     
@@ -30,7 +21,7 @@ public class DBRawEventProcessorHandler extends DBEventProcessorHandler {
      */
     @Override
     public void handleEvents() {
-         List<EventGenerated> eventsGenerated = eventGeneratedDao.findByStatusOrderByCreatedDateAsc(EventGenerated.EventStatus.Raw.name());
+         List<EventGenerated> eventsGenerated = eventGeneratedDao.findByStatusAndExpiryDateOrderByCreatedDateAsc(EventGenerated.EventStatus.Processed.name(), new Date());
          Map<EventType, List<EventGenerated>> EventsGroupedByEventType = groupEventsByEventType(eventsGenerated);
          
          // TODO to make the loop as multi threaded or Async
@@ -39,7 +30,5 @@ public class DBRawEventProcessorHandler extends DBEventProcessorHandler {
          }
         // TODO Auto-generated method stub
     }
-    
-    
-
+        
 }

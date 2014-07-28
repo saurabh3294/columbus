@@ -10,9 +10,11 @@ import org.apache.commons.lang.time.DateUtils;
 
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
+import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.model.event.payload.EventTypeUpdateHistory;
 
 public abstract class DBEventProcessor implements EventProcessor {
+    
     abstract List<EventGenerated> processRawEvents(List<EventGenerated> events);
 
     abstract List<EventGenerated> processProcessedEvents(List<EventGenerated> events);
@@ -41,19 +43,22 @@ public abstract class DBEventProcessor implements EventProcessor {
         // TODO Auto-generated method stub
         return groupEventsByUniqueKey;
     }
-    
-    void updateEventHistories(EventGenerated eventGenerated, EventStatus eventStatus){
-        List<EventTypeUpdateHistory> eventTypeUpdateHistories = eventGenerated.getEventTypePayload().getEventTypeUpdateHistories();
-        if(eventTypeUpdateHistories == null){
+
+    void updateEventHistories(EventGenerated eventGenerated, EventStatus eventStatus) {
+        List<EventTypeUpdateHistory> eventTypeUpdateHistories = eventGenerated.getEventTypePayload()
+                .getEventTypeUpdateHistories();
+        if (eventTypeUpdateHistories == null) {
             eventTypeUpdateHistories = new ArrayList<EventTypeUpdateHistory>();
         }
         EventTypeUpdateHistory newHistory = new EventTypeUpdateHistory(eventStatus, new Date());
         eventTypeUpdateHistories.add(newHistory);
         eventGenerated.getEventTypePayload().setEventTypeUpdateHistories(eventTypeUpdateHistories);
     }
-    
-    void updateEventExpiryTime(EventGenerated eventGenerated){
-        Date expiredDate = DateUtils.addHours(new Date(), eventGenerated.getEventType().getQueuedItemsValidationCycle());
+
+    void updateEventExpiryTime(EventGenerated eventGenerated) {
+        Date expiredDate = DateUtils
+                .addHours(new Date(), eventGenerated.getEventType().getQueuedItemsValidationCycle());
         eventGenerated.setExpiryDate(expiredDate);
     }
+       
 }

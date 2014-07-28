@@ -1,15 +1,10 @@
 package com.proptiger.data.model.event.payload;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
 public class DefaultEventTypePayload extends EventTypePayload {
 
-    private String                       oldValue;
-    private String                       newValue;
-        
+    private String oldValue;
+    private String newValue;
+
     public String getOldValue() {
         return oldValue;
     }
@@ -25,5 +20,5 @@ public class DefaultEventTypePayload extends EventTypePayload {
     public void setNewValue(String newValue) {
         this.newValue = newValue;
     }
-    
+
 }

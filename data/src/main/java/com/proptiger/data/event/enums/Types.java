@@ -13,27 +13,27 @@ import com.proptiger.data.model.event.payload.EventTypePayload;
 
 // TODO remove the Types ENUM. make it dynamic.
 public enum Types {
-    PortfolioPriceChange("portfolio_price_change", DefaultEventTypePayload.class, PriceChangeProcessor.class, null), 
-    PortfolioPhotoAdded("portfolio_photo_added", DefaultEventTypePayload.class, PhotoChangeProcessor.class, null);
+    PortfolioPriceChange("portfolio_price_change", DefaultEventTypePayload.class, PriceChangeProcessor.class, null), PortfolioPhotoAdded(
+            "portfolio_photo_added", DefaultEventTypePayload.class, PhotoChangeProcessor.class, null);
 
     private String                            name;
     private Class<? extends EventTypePayload> dataClassName;
     private Class<? extends DBEventProcessor> processorClassName;
     private EventTypeIdConstants[]            idNames;
-    private DBEventProcessor processorObject;
-    private EventTypePayload eventTypePayloadObject;
-    
+    private DBEventProcessor                  processorObject;
+    private EventTypePayload                  eventTypePayloadObject;
+
     @Autowired
-    private ApplicationContext applicationContext;
+    private ApplicationContext                applicationContext;
 
     static {
         PortfolioPriceChange.setIdNames(new EventTypeIdConstants[] { EventTypeIdConstants.PropertyId });
         PortfolioPhotoAdded.setIdNames(new EventTypeIdConstants[] { EventTypeIdConstants.PropertyId });
     }
-    
+
     @PostLoad
     // TODO to handle it without applicationContext
-    public void setObject(){
+    public void setObject() {
         this.processorObject = applicationContext.getBean(this.processorClassName);
         this.eventTypePayloadObject = applicationContext.getBean(this.dataClassName);
     }
@@ -43,7 +43,7 @@ public enum Types {
             Class<? extends EventTypePayload> dataClassName,
             Class<? extends DBEventProcessor> procClass,
             EventTypeIdConstants[] idNames) {
-        
+
         this.name = name;
         this.dataClassName = dataClassName;
         this.processorClassName = procClass;
