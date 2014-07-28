@@ -12,32 +12,50 @@ import com.proptiger.data.event.model.EventGenerated.EventStatus;
 public class PriceChangeProcessor extends DBEventProcessor {
 
     @Override
+    // TODO Does transactional works on list of objects.
     public List<EventGenerated> processRawEvents(List<EventGenerated> events) {
         Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
-        
-        // TODO to process them in separate threads 
-        for(Map.Entry<String, List<EventGenerated>> entry: groupEventMap.entrySet()){
-        
-            for(EventGenerated eventGenerated: entry.getValue()){
+
+        // TODO to process them in separate threads
+        for (Map.Entry<String, List<EventGenerated>> entry : groupEventMap.entrySet()) {
+
+            for (EventGenerated eventGenerated : entry.getValue()) {
                 eventGenerated.setEventStatus(EventStatus.Discarded);
             }
             /*
-             * In Price Change, Only first latest event(by date) has to be considered. Rest have to
-             * be discarded.
+             * In Price Change, Only first latest event(by date) has to be
+             * considered. Rest have to be discarded.
              */
             EventGenerated firstEvent = entry.getValue().get(0);
             firstEvent.setEventStatus(EventStatus.Processed);
             updateEventHistories(firstEvent, EventStatus.Processed);
             updateEventExpiryTime(firstEvent);
         }
-        
+
         return events;
     }
 
     @Override
     public List<EventGenerated> processProcessedEvents(List<EventGenerated> events) {
-        // TODO Auto-generated method stub
-        return null;
+        Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
+        
+     // TODO to process them in separate threads
+        for (Map.Entry<String, List<EventGenerated>> entry : groupEventMap.entrySet()) {
+
+            for (EventGenerated eventGenerated : entry.getValue()) {
+                eventGenerated.setEventStatus(EventStatus.Discarded);
+            }
+            /*
+             * In Price Change, Only first latest event(by date) has to be
+             * considered for verification. Rest have to be discarded.
+             */
+            EventGenerated firstEvent = entry.getValue().get(0);
+            firstEvent.setEventStatus(EventStatus.PendingVerification);
+            updateEventHistories(firstEvent, EventStatus.PendingVerification);
+            updateEventExpiryTime(firstEvent);
+        }
+
+        return events;
     }
 
     @Override
