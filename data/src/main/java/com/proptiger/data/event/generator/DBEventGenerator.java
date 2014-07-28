@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.proptiger.data.event.constants.Constant;
+import com.proptiger.data.event.constants.EventConstants;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.processor.DBEventProcessor;
@@ -31,7 +31,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
 		
 		Integer rawEventCount = eventGeneratedDao.getEventCountByEventStatus(EventGenerated.EventStatus.Raw);
 		
-		if (rawEventCount > Constant.MAX_RAW_EVENT_COUNT) {
+		if (rawEventCount > EventConstants.MAX_RAW_EVENT_COUNT) {
 			return false;
 		}
 		
