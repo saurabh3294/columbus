@@ -14,7 +14,8 @@ import com.proptiger.data.event.model.EventGenerated;
  */
 public interface EventGeneratedDao extends PagingAndSortingRepository<EventGenerated, Integer>{
     public List<EventGenerated> findByStatusOrderByCreatedDateAsc(String status);
-    public List<EventGenerated> findByStatusAndExpiryDateOrderByCreatedDateAsc(String status, Date expiryDate);
+    public List<EventGenerated> findByStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(String status, Date expiryDate);
+    public List<EventGenerated> findByStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(String status, Date expiryDate);
 	
 	public Integer getEventCountByEventStatus(EventGenerated.EventStatus eventStatus);
 }
