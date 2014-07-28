@@ -91,10 +91,11 @@ public class EventGenerated extends Event {
         for (Map.Entry<String, Object> entry : eventTypePayload.getIdMap().entrySet()) {
             uniqueKeyString += entry.getValue() + "-";
         }
-        // TODO to be removed. It will be set in the generator.
+        
         this.setEventTypeUniqueKey(uniqueKeyString);
-
-        updatePayload();
+        this.setEventStatus(EventStatus.Raw);
+        
+        autoUpdateFields();
     }
 
     public EventGenerated test(EventGenerated t) {
