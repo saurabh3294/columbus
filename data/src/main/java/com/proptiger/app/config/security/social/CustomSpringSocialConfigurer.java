@@ -33,6 +33,7 @@ public class CustomSpringSocialConfigurer extends SpringSocialConfigurer {
 
     @Autowired
     private PropertyReader     propertyReader;
+    
 
     public CustomSpringSocialConfigurer() {
     }
@@ -64,11 +65,14 @@ public class CustomSpringSocialConfigurer extends SpringSocialConfigurer {
         filter.setUpdateConnections(false);
         filter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(Constants.Security.LOGIN_URL, "POST"));
         filter.setFilterProcessesUrl(Constants.Security.LOGIN_URL);
+        filter.setAuthenticationFailureHandler(new SocialAuthFailureHandler("/"+Constants.Security.REGISTER_URL));
+        
         /*
          * set authentication success handler to return same result as of
          * app/v1/login
          */
         filter.setAuthenticationSuccessHandler(authSuccessHandler);
+        filter.setSignupUrl(Constants.Security.REGISTER_URL);
         RememberMeServices rememberMe = http.getSharedObject(RememberMeServices.class);
         if (rememberMe != null) {
             filter.setRememberMeServices(rememberMe);
