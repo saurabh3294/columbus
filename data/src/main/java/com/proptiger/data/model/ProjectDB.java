@@ -7,6 +7,7 @@ package com.proptiger.data.model;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -15,6 +16,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
+
+import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.meta.FieldMetaInfo;
@@ -248,6 +251,9 @@ public class ProjectDB extends BaseModel {
 
     @Transient
     private List<Image>       images;
+    
+    @Transient
+    private Map<String, Integer>      imageCountByType;   
 
     @Transient
     private Double            minPricePerUnitArea;
@@ -764,5 +770,13 @@ public class ProjectDB extends BaseModel {
 
     public void setImageURL(String imageUrl) {
         this.imageURL = imageUrl;
+    }
+    
+    public Map<String, Integer> getImageCountByType() {
+        return imageCountByType;
+    }
+
+    public void setImageCountByType(Map<String, Integer> imageCountByType) {
+        this.imageCountByType = imageCountByType;
     }
 }

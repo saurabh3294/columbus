@@ -81,6 +81,8 @@ public class ImageEnricher {
         images = checkAndInsertProjectMainImageRandom(images, project.getImageURL());
 
         project.setImages(images);
+        setProjectImagesByTypeCount(project, images);
+
     }
 
     @Deprecated
@@ -93,6 +95,7 @@ public class ImageEnricher {
         images = checkAndInsertProjectMainImageRandom(images, project.getImageURL());
 
         project.setImages(images);
+        setProjectDbImagesByTypeCount(project, images);
 
     }
 
@@ -178,6 +181,57 @@ public class ImageEnricher {
     }
 
     /**
+     * Returns the type of images and the count in a map for example {
+     * layoutPlan=1, floorPlan=3 }
+     * 
+     * @param project
+     * @param images
+     */
+    public void setProjectImagesByTypeCount(Project project, List<Image> images) {
+        Map<String, Integer> imagesByTypeCount = new HashMap<String, Integer>();
+        for (Image image : images) {
+            String imageType = image.getImageTypeObj().getType();
+
+            if (imagesByTypeCount.containsKey(imageType)) {
+                imagesByTypeCount.put(imageType, imagesByTypeCount.get(imageType) + 1);
+
+            }
+            else {
+                imagesByTypeCount.put(imageType, 1);
+            }
+
+        }
+        project.setImageCountByType(imagesByTypeCount);
+
+    }
+
+    /**
+     * Returns the type of images and the count in a map for example {
+     * layoutPlan=1, floorPlan=3 }
+     * 
+     * @param project
+     * @param images
+     */
+    public void setProjectDbImagesByTypeCount(ProjectDB project, List<Image> images) {
+        Map<String, Integer> imagesByTypeCount = new HashMap<String, Integer>();
+        for (Image image : images) {
+            // Long imageTypeId = image.getImageTypeId();
+            String imageType = image.getImageTypeObj().getType();
+
+            if (imagesByTypeCount.containsKey(imageType)) {
+                imagesByTypeCount.put(imageType, imagesByTypeCount.get(imageType) + 1);
+
+            }
+            else {
+                imagesByTypeCount.put(imageType, 1);
+            }
+
+        }
+        project.setImageCountByType(imagesByTypeCount);
+
+    }
+
+    /**
      * Set images of banks
      * 
      * @param banks
@@ -235,10 +289,9 @@ public class ImageEnricher {
 
         return images;
     }
-    
+
     /**
-     * Method returns default Project Image for 
-     * Project's Main Url
+     * Method returns default Project Image for Project's Main Url
      * 
      * @param mainImageUrl
      * @return
