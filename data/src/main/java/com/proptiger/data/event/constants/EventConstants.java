@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class Constant {
+public class EventConstants {
 	
 	public static final Integer MAX_RAW_EVENT_COUNT = 100;
 
