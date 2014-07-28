@@ -15,6 +15,7 @@ import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.Event;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.repo.EventGeneratedDao;
+import com.proptiger.data.event.service.EventGeneratedService;
 
 /**
  * @author mandeep
@@ -23,14 +24,16 @@ import com.proptiger.data.event.repo.EventGeneratedDao;
 public class DBRawEventProcessorHandler extends DBEventProcessorHandler {
     
     @Autowired
-    private EventGeneratedDao eventGeneratedDao;
+    private EventGeneratedService eventGeneratedService;
     
     /* (non-Javadoc)
      * @see com.proptiger.data.processor.notification.RawEventProcessor#process(java.util.List)
+     * TODO splitting the code to handle db generated Events and processing in seperate methods. to handle
+     * multithreading.
      */
     @Override
     public void handleEvents() {
-         List<EventGenerated> eventsGenerated = eventGeneratedDao.findByStatusOrderByCreatedDateAsc(EventGenerated.EventStatus.Raw.name());
+         List<EventGenerated> eventsGenerated = eventGeneratedService.getRawEvents();
          Map<EventType, List<EventGenerated>> EventsGroupedByEventType = groupEventsByEventType(eventsGenerated);
          
          // TODO to make the loop as multi threaded or Async

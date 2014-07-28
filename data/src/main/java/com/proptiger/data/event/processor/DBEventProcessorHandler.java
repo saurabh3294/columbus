@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.proptiger.data.event.model.Event;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventType;
@@ -18,7 +20,7 @@ import com.proptiger.data.event.model.EventType;
  *         This handles merging/suppression of events
  */
 public abstract class DBEventProcessorHandler implements EventProcessorHandler {
-
+        
     protected Map<EventType, List<EventGenerated>> groupEventsByEventType(List<EventGenerated> eventsGenerated) {
         Map<EventType, List<EventGenerated>> mapEvents = new HashMap<EventType, List<EventGenerated>>();
         List<EventGenerated> groupEvents;// = new ArrayList<EventGenerated>();

@@ -65,8 +65,6 @@ public class EventGenerated extends Event {
 
     @PostLoad
     public void setPayload() {
-        // TODO to look into the Gson works on the recursive level of objects
-        // from json or not.
         this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getName()
                 .getDataClassName());
 

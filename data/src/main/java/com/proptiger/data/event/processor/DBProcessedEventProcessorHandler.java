@@ -11,22 +11,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.repo.EventGeneratedDao;
+import com.proptiger.data.event.service.EventGeneratedService;
 
 public class DBProcessedEventProcessorHandler extends DBEventProcessorHandler{
     @Autowired
-    private EventGeneratedDao eventGeneratedDao;
+    private EventGeneratedService eventGeneratedService;
     
     /* (non-Javadoc)
      * @see com.proptiger.data.processor.notification.RawEventProcessor#process(java.util.List)
      */
     @Override
     public void handleEvents() {
-         List<EventGenerated> eventsGenerated = eventGeneratedDao.findByStatusAndExpiryDateOrderByCreatedDateAsc(EventGenerated.EventStatus.Processed.name(), new Date());
+         List<EventGenerated> eventsGenerated = eventGeneratedService.getProcessedEvents();
          Map<EventType, List<EventGenerated>> EventsGroupedByEventType = groupEventsByEventType(eventsGenerated);
          
          // TODO to make the loop as multi threaded or Async
          for(Map.Entry<EventType, List<EventGenerated>> entry: EventsGroupedByEventType.entrySet()){
-             entry.getKey().getName().getProcessorObject().processRawEvents(entry.getValue());
+             entry.getKey().getName().getProcessorObject().processProcessedEvents(entry.getValue());
          }
         // TODO Auto-generated method stub
     }
