@@ -45,5 +45,11 @@ public class PriceChangeProcessor extends DBEventProcessor {
         // TODO Auto-generated method stub
         return null;
     }
+
+	@Override
+	public void populateEventSpecificData(EventGenerated event) {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

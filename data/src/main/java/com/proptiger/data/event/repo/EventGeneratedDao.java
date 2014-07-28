@@ -11,8 +11,10 @@ import com.proptiger.data.event.model.EventGenerated;
  * @author sahil
  *
  */
-public interface EventGeneratedDao extends PagingAndSortingRepository<EventGenerated, Integer>{
-    public List<EventGenerated> findByStatusOrderByCreatedDateAsc(String status);
+public interface EventGeneratedDao extends PagingAndSortingRepository<EventGenerated, Integer> {
+    
+	public List<EventGenerated> findByStatusOrderByCreatedDateAsc(String status);
 	
 	public Integer getEventCountByEventStatus(EventGenerated.EventStatus eventStatus);
+	
 }

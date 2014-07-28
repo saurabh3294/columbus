@@ -14,4 +14,8 @@ public class RawDBEventGenerator {
 	public List<RawDBEvent> getRawDBEvents() {
 		return null;		
 	}
+	
+	public void populateRawDBEventData(RawDBEvent rawDBEvent) {
+
+	}
 }

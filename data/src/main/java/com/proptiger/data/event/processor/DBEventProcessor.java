@@ -18,6 +18,8 @@ public abstract class DBEventProcessor implements EventProcessor {
     abstract List<EventGenerated> processProcessedEvents(List<EventGenerated> events);
 
     abstract List<EventGenerated> processVerifiedEvents(List<EventGenerated> events);
+    
+    public abstract void populateEventSpecificData(EventGenerated event);
 
     Map<String, List<EventGenerated>> groupEventsByKey(List<EventGenerated> events) {
         Map<String, List<EventGenerated>> groupEventsByUniqueKey = new HashMap<String, List<EventGenerated>>();
