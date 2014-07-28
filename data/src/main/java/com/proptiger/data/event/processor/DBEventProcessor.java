@@ -10,7 +10,6 @@ import org.apache.commons.lang.time.DateUtils;
 
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
-import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.model.event.payload.EventTypeUpdateHistory;
 
 public abstract class DBEventProcessor implements EventProcessor {
@@ -28,8 +27,7 @@ public abstract class DBEventProcessor implements EventProcessor {
 
         List<EventGenerated> eventsGeneratedByKeyGroup = null;
         for (EventGenerated eventGenerated : events) {
-            eventsGeneratedByKeyGroup = groupEventsByUniqueKey.get(eventGenerated.getEventTypePayload()
-                    .getUniqueKeyString());
+            eventsGeneratedByKeyGroup = groupEventsByUniqueKey.get(eventGenerated.getEventTypeUniqueKey());
 
             if (eventsGeneratedByKeyGroup == null) {
                 eventsGeneratedByKeyGroup = new ArrayList<EventGenerated>();
@@ -37,7 +35,7 @@ public abstract class DBEventProcessor implements EventProcessor {
 
             eventsGeneratedByKeyGroup.add(eventGenerated);
             groupEventsByUniqueKey.put(
-                    eventGenerated.getEventTypePayload().getUniqueKeyString(),
+                    eventGenerated.getEventTypeUniqueKey(),
                     eventsGeneratedByKeyGroup);
 
         }

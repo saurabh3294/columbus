@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -14,6 +15,8 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.SQLUpdate;
 
 import com.google.gson.Gson;
 import com.proptiger.data.model.event.payload.EventTypePayload;
@@ -36,22 +39,24 @@ public class EventGenerated extends Event {
 
     @Column(name = "id")
     @Id
+    @GeneratedValue
     private int              id;
 
     @Column(name = "data")
     private String           data;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "event_type_id")
+    @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
     private EventType        eventType;
 
-    @Column(name = "created_date")
+    @Column(name = "created_date", updatable = false)
     private Date             createdDate;
 
     @Column(name = "updated_date")
     private Date             updatedDate;
 
     @Column(name = "status")
+    // @SQLUpdate
     private EventStatus      eventStatus;
 
     @Column(name = "merge_event_id")
@@ -60,6 +65,9 @@ public class EventGenerated extends Event {
     @Column(name = "expiry_date")
     private Date             expiryDate;
 
+    @Column(name = "event_type_unique_key")
+    private String           eventTypeUniqueKey;
+
     @Transient
     private EventTypePayload eventTypePayload;
 
@@ -67,19 +75,27 @@ public class EventGenerated extends Event {
     public void setPayload() {
         this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getName()
                 .getDataClassName());
+    }
+
+    @PreUpdate
+    public void autoUpdateFields() {
+        this.data = new Gson().toJson(this.eventTypePayload);
+    }
+
+    @PrePersist
+    public void autoPopulateFields() {
+        this.createdDate = new Date();
+        this.updatedDate = new Date();
 
         String uniqueKeyString = "";
         for (Map.Entry<String, Object> entry : eventTypePayload.getIdMap().entrySet()) {
             uniqueKeyString += entry.getValue() + "-";
         }
-        this.eventTypePayload.setUniqueKeyString(uniqueKeyString);
-    }
-
-    @PreUpdate
-    public void updatePayload() {
-        // TODO to look into the Gson works on the recursive level of objects
-        // from json or not.
-        this.data = new Gson().toJson(this.eventTypePayload);
+        
+        this.setEventTypeUniqueKey(uniqueKeyString);
+        this.setEventStatus(EventStatus.Raw);
+        
+        autoUpdateFields();
     }
 
     public EventGenerated test(EventGenerated t) {
@@ -156,5 +172,13 @@ public class EventGenerated extends Event {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public String getEventTypeUniqueKey() {
+        return eventTypeUniqueKey;
+    }
+
+    public void setEventTypeUniqueKey(String eventTypeUniqueKey) {
+        this.eventTypeUniqueKey = eventTypeUniqueKey;
     }
 }

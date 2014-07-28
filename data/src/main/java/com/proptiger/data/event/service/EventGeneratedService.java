@@ -23,7 +23,11 @@ public class EventGeneratedService {
     }
     
     public List<EventGenerated> getProcessedEvents(){
-        return eventGeneratedDao.findByStatusAndExpiryDateOrderByCreatedDateAsc(EventGenerated.EventStatus.Processed.name(), new Date());
+        return eventGeneratedDao.findByStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(EventGenerated.EventStatus.Processed.name(), new Date());
+    }
+    
+    public List<EventGenerated> getProcessedEventsToBeMerged(){
+        return eventGeneratedDao.findByStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(EventGenerated.EventStatus.Processed.name(), new Date());
     }
         
 }
