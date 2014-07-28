@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
@@ -65,4 +64,10 @@ public class PriceChangeProcessor extends DBEventProcessor {
         return null;
     }
 
+	@Override
+	public void populateEventSpecificData(EventGenerated event) {
+		// TODO Auto-generated method stub
+		
+	}
+    
 }

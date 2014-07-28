@@ -29,7 +29,7 @@ public interface EventGeneratorInterface {
 	 * e.g. lastMonthsPrice for PriceChangeEvent
 	 * @param event
 	 */
-	public void populateSpecificEventData(EventGenerated event);
+	public void populateEventSpecificData(EventGenerated event);
 	
 	/**
 	 * Persists the event in the DB

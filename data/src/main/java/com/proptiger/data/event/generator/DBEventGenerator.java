@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.event.constants.Constant;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 
 /**
@@ -17,10 +19,7 @@ import com.proptiger.data.event.repo.EventGeneratedDao;
 
 @Component
 public class DBEventGenerator implements EventGeneratorInterface {
-
-	// TODO: Get from config
-	private static final Integer MAX_RAW_EVENT_COUNT = 100;
-	
+		
 	@Autowired
 	private EventGeneratedDao eventGeneratedDao;
 	
@@ -32,7 +31,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
 		
 		Integer rawEventCount = eventGeneratedDao.getEventCountByEventStatus(EventGenerated.EventStatus.Raw);
 		
-		if (rawEventCount > MAX_RAW_EVENT_COUNT) {
+		if (rawEventCount > Constant.MAX_RAW_EVENT_COUNT) {
 			return false;
 		}
 		
@@ -42,24 +41,28 @@ public class DBEventGenerator implements EventGeneratorInterface {
 	@Override
 	public Integer generateEvents() {
 		
+		Integer eventCount = 0;
+		
+		// TODO:
 		List<RawDBEvent> rawDBEvents = rawDBEventGenerator.getRawDBEvents();
 		
 		// TODO: Run below code in multiple threads
 		
 		for (RawDBEvent rawDBEvent : rawDBEvents) {
 			
-			// TODO: add rawDBEventGenerator.populateDBEvents
-		
+			// TODO:
+			rawDBEventGenerator.populateRawDBEventData(rawDBEvent);
+			
 			List<EventGenerated> events = generateEventFromRawDBEvent(rawDBEvent);
+			eventCount += events.size();
 			
 			for (EventGenerated event: events) { 
-				populateSpecificEventData(event);
+				populateEventSpecificData(event);
 				persistEvent(event);
 			}
 		}
 		
-		// TODO: Add proper return statement
-		return null;
+		return eventCount;
 	}
 
 	private List<EventGenerated> generateEventFromRawDBEvent(RawDBEvent rawDBEvent) {
@@ -68,16 +71,14 @@ public class DBEventGenerator implements EventGeneratorInterface {
 	}
 
 	@Override
-	public void populateSpecificEventData(EventGenerated event) {
-		// TODO Auto-generated method stub
-		
+	public void populateEventSpecificData(EventGenerated event) {
+		DBEventProcessor dbEventProcessor = event.getEventType().getName().getProcessorObject();
+		dbEventProcessor.populateEventSpecificData(event);		
 	}
 
 	@Override
 	public void persistEvent(EventGenerated event) {
-		// TODO Auto-generated method stub
-		
+		eventGeneratedDao.save(event);		
 	}
-
 
 }
