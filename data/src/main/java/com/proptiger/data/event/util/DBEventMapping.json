@@ -1,0 +1,329 @@
+{
+  "cms-db": {
+    "cms_queue": {
+      "_t_city": {
+        "id": [
+          "CITY_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_listing_prices": {
+        "id": [
+          "listing_id"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_listings": {
+        "id": [
+          "id",
+          "option_id"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_locality": {
+        "id": [
+          "LOCALITY_ID",
+          "SUBURB_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_resi_builder": {
+        "id": [
+          "BUILDER_ID",
+          "CITY_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_resi_project": {
+        "id": [
+          "PROJECT_ID",
+          "LOCALITY_ID",
+          "BUILDER_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_resi_project_options": {
+        "id": [
+          "OPTIONS_ID",
+          "PROJECT_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_suburb": {
+        "id": [
+          "SUBURB_ID",
+          "CITY_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "proptiger": {
+    "ptiger_queue_gen": {
+      "_t_CITY": {
+        "id": [
+          "CITY_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_LOCALITY": {
+        "id": [
+          "LOCALITY_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_SUBURB": {
+        "id": [
+          "SUBURB_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      },
+      "_t_RESI_BUILDER": {
+        "id": [
+          "BUILDER_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      }
+    },
+    "ptiger_queue_project": {
+      "_t_RESI_PROJECT": {
+        "id": [
+          "PROJECT_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      }
+    },
+    "ptiger_queue_property": {
+      "_t_RESI_PROJECT_TYPES": {
+        "id": [
+          "TYPE_ID"
+        ],
+        "date": "_t_transaction_date",
+        "operation": {
+          "insert": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "delete": [
+            "TEMP_EVENT_TYPE"
+          ],
+          "update": {
+            "TEMP_COLUMN_1": [
+              "TEMP_EVENT_TYPE"
+            ],
+            "TEMP_COLUMN_2": [
+              "TEMP_EVENT_TYPE"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

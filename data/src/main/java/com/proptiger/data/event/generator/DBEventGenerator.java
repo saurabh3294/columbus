@@ -10,6 +10,7 @@ import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.repo.EventGeneratedDao;
+import com.proptiger.data.event.service.EventGeneratedService;
 
 /**
  * This is the implementation of EventGenerator to generate events from DB source
@@ -21,7 +22,7 @@ import com.proptiger.data.event.repo.EventGeneratedDao;
 public class DBEventGenerator implements EventGeneratorInterface {
 		
 	@Autowired
-	private EventGeneratedDao eventGeneratedDao;
+	private EventGeneratedService eventGeneratedService;
 	
 	@Autowired
 	private RawDBEventGenerator rawDBEventGenerator;
@@ -29,7 +30,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
 	@Override
 	public boolean isEventGenerationRequired() {
 		
-		Integer rawEventCount = eventGeneratedDao.getEventCountByEventStatus(EventGenerated.EventStatus.Raw);
+		Integer rawEventCount = eventGeneratedService.getRawEventCount();
 		
 		if (rawEventCount > EventConstants.MAX_RAW_EVENT_COUNT) {
 			return false;
@@ -53,32 +54,18 @@ public class DBEventGenerator implements EventGeneratorInterface {
 			// TODO:
 			rawDBEventGenerator.populateRawDBEventData(rawDBEvent);
 			
-			List<EventGenerated> events = generateEventFromRawDBEvent(rawDBEvent);
+			List<EventGenerated> events = eventGeneratedService.generateEventFromRawDBEvent(rawDBEvent);
 			eventCount += events.size();
 			
 			for (EventGenerated event: events) { 
-				populateEventSpecificData(event);
-				persistEvent(event);
+				DBEventProcessor dbEventProcessor = event.getEventType().getName().getProcessorObject();
+				dbEventProcessor.populateEventSpecificData(event);
 			}
+			
+			eventGeneratedService.persistEvents(events);
 		}
 		
 		return eventCount;
-	}
-
-	private List<EventGenerated> generateEventFromRawDBEvent(RawDBEvent rawDBEvent) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void populateEventSpecificData(EventGenerated event) {
-		DBEventProcessor dbEventProcessor = event.getEventType().getName().getProcessorObject();
-		dbEventProcessor.populateEventSpecificData(event);		
-	}
-
-	@Override
-	public void persistEvent(EventGenerated event) {
-		eventGeneratedDao.save(event);		
 	}
 
 }
