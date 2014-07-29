@@ -1,6 +1,5 @@
 package com.proptiger.data.repo;
-import java.io.FileWriter;
-import java.io.IOException;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.solr.client.solrj.SolrQuery;
@@ -10,6 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.enums.DocumentType;
 import com.proptiger.data.util.PropertyKeys;
@@ -29,11 +31,16 @@ public class SolrDao {
     @Autowired
     protected PropertyReader propertyReader;
 
-    private HttpSolrServer   httpSolrServer;
+    private HttpSolrServer   httpSolrServerb2b;
+
+    private HttpSolrServer   httpSolrServerDefault;
 
     @PostConstruct
     private void init() {
-        httpSolrServer = new HttpSolrServer(propertyReader.getRequiredProperty(PropertyKeys.SOLR_SERVER_URL));
+
+        httpSolrServerb2b = new HttpSolrServer(propertyReader.getRequiredProperty(PropertyKeys.SOLR_SERVER_B2B_URL));
+        httpSolrServerDefault = new HttpSolrServer(
+                propertyReader.getRequiredProperty(PropertyKeys.SOLR_SERVER_DEFAULT_URL));
     }
 
     /**
@@ -47,7 +54,17 @@ public class SolrDao {
     public QueryResponse executeQuery(SolrQuery query) {
         try {
             logger.debug("SolrQuery {}", query);
-            return httpSolrServer.query(query);
+            RequestAttributes requestAttribute = RequestContextHolder.getRequestAttributes();
+            if (requestAttribute != null) {
+                String applicationType = ((ServletRequestAttributes) requestAttribute).getRequest().getHeader(
+                        "applicationType");
+                if (applicationType != null && applicationType.equals("b2b")) {
+                    logger.debug("Running SolrQuery for b2b ");
+                    return httpSolrServerb2b.query(query);
+                }
+            }
+            logger.debug("Running SolrQuery for website");
+            return httpSolrServerDefault.query(query);
         }
         catch (Exception e) {
             throw new ProAPIException("Could not run Solr query", e);

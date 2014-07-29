@@ -3,12 +3,14 @@ package com.proptiger.data.service;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
@@ -19,22 +21,27 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
+import com.proptiger.data.model.ProjectSeoTags;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SeoFooter;
 import com.proptiger.data.model.SeoPage;
 import com.proptiger.data.model.SeoPage.Tokens;
 import com.proptiger.data.model.Suburb;
 import com.proptiger.data.model.URLDetail;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
+import com.proptiger.data.repo.ProjectSeoTagsDao;
 import com.proptiger.data.repo.SeoFooterDao;
 import com.proptiger.data.repo.SeoPageDao;
 import com.proptiger.data.util.Constants;
@@ -78,45 +85,22 @@ public class SeoPageService {
 
     @Value("${proptiger.url}")
     private String             websiteHost;
-
+    
     @Autowired
     private ApplicationContext applicationContext;
+
+    @Autowired
+    private ProjectSeoTagsDao  projectSeoTagsDao;
 
     private static Logger      logger       = LoggerFactory.getLogger(SeoPageService.class);
 
     private Pattern            pattern      = Pattern.compile("(<.+?>)");
 
     public Map<String, Object> getSeoContentForPage(URLDetail urlDetail) throws IllegalAccessException,
-            InvocationTargetException, NoSuchMethodException, FileNotFoundException {
-
-        String templateId = urlDetail.getTemplateId();
-        Map<String, Object> seoResponse = null;
-        try {
-            seoResponse = new Gson().fromJson(
-                    restTemplate.getForObject(
-                            websiteHost + "getSeoTags.php?url={URL}",
-                            String.class,
-                            Collections.singletonMap("URL", urlDetail.getUrl())),
-                    HashMap.class);
-        }
-        catch (JsonSyntaxException e) {
-
-        }
-
-        if (seoResponse == null) {
-            seoResponse = new HashMap<String, Object>();
-        }
-
-        SeoPage seoPage = getSeoMetaContentForPage(urlDetail, templateId);
-        BeanUtilsBean beanUtilsBean = new BeanUtilsBean();
-        Map<String, Object> seoMetaData = beanUtilsBean.describe(seoPage);
-        Map<String, Object> metaData = (Map<String, Object>) seoResponse.get("meta");
-        if (metaData == null) {
-            metaData = new HashMap<String, Object>();
-        }
-        metaData.putAll(seoMetaData);
-        seoResponse.put("meta", metaData);
-
+            InvocationTargetException, NoSuchMethodException {
+        SeoPage seoPage = getSeoPage(urlDetail);
+        Map<String, Object> seoResponse = new HashMap<String, Object>();
+        seoResponse.put("meta", seoPage);
         String url = getFooterUrl(urlDetail);
         // RTRIM the urls with extra slashes.
         url = url.replaceAll("[/]*$", "");
@@ -125,10 +109,50 @@ public class SeoPageService {
         return seoResponse;
     }
 
-    public SeoPage getSeoMetaContentForPage(URLDetail urlDetail, String templateId) {
+    /*
+     * First ProjectSeoTags is retrieved from DB (PROJECT_SEO_TAGS Table) for an
+     * URL, and all fields except null or empty, are copied to the seoPage for a 
+     * templateId. If there exist any tags in the seoPage it get replaced with
+     * the appropriate entry and finally returned.
+     */
+    private SeoPage getSeoPage(URLDetail urlDetail) {
+        String url = urlDetail.getUrl();
         SeoPage seoPage = applicationContext.getBean(SeoPageService.class).getSeoPageByTemplateId(
-                templateId,
-                urlDetail.getUrl());
+                urlDetail.getTemplateId(),
+                url);
+        ProjectSeoTags projectSeoTags = getProjectSeoTags(url);
+        if (projectSeoTags != null) {
+            copyProperties(projectSeoTags, seoPage);
+        }
+        return getSeoMetaContentForPage(urlDetail, seoPage);
+    }
+
+    private void copyProperties(ProjectSeoTags projectSeoTags, SeoPage seoPage) {
+        BeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+        for (Field field : projectSeoTags.getClass().getDeclaredFields()) {
+            try {
+                field.setAccessible(true);
+                Object fieldVal = field.get(projectSeoTags);
+                if (fieldVal != null && !fieldVal.equals("")) {
+                    beanUtilsBean.copyProperty(seoPage, field.getName(), fieldVal);
+                }
+            }
+            catch (IllegalAccessException | InvocationTargetException e) {
+            }
+        }
+    }
+
+    private ProjectSeoTags getProjectSeoTags(String url) {
+        List<ProjectSeoTags> projectSeoTags = projectSeoTagsDao.findByUrlOrderByIdDesc(url, new LimitOffsetPageRequest(
+                0,
+                1));
+        if (projectSeoTags != null && !projectSeoTags.isEmpty()) {
+            return projectSeoTags.get(0);
+        }
+        return null;
+    }
+
+    public SeoPage getSeoMetaContentForPage(URLDetail urlDetail, SeoPage seoPage) {
         CompositeSeoTokenData compositeSeoTokenData = buildTokensValuesObject(urlDetail);
         Map<String, String> mappings = null;
         try {
@@ -140,7 +164,6 @@ public class SeoPageService {
             throw new ProAPIException(e);
         }
         setSeoTemplate(seoPage, mappings, urlDetail);
-
         return seoPage;
     }
 
@@ -178,7 +201,11 @@ public class SeoPageService {
         seopage.setH2(replace(seopage.getH2(), mappings, urlDetail));
         seopage.setH3(replace(seopage.getH3(), mappings, urlDetail));
         seopage.setH4(replace(seopage.getH4(), mappings, urlDetail));
-
+        if (seopage.getOtherParams() != null) {
+            for(String key : seopage.getOtherParams().keySet()) {
+                seopage.getOtherParams().put(key, replace(seopage.getOtherParams().get(key), mappings, urlDetail));
+            }
+        }
     }
 
     private Map<String, String> buildTokensMap(CompositeSeoTokenData compositeSeoTokenData)
@@ -230,6 +257,13 @@ public class SeoPageService {
         Integer minBudget = urlDetail.getMinBudget();
         Integer maxBudget = urlDetail.getMaxBudget();
         Integer size = null;
+        Double centerLatitude = null;
+        Double centerLongitude = null;
+        Double latitude = null;
+        Double longitude = null;
+        String serverName = null;
+        String url = null;
+        String imageURL = null;
         Gson gson = new Gson();
 
         if (urlDetail.getPropertyId() != null) {
@@ -265,6 +299,9 @@ public class SeoPageService {
             if (bedrooms.size() > 0) {
                 bedroomStr = project.getDistinctBedrooms().toString().replaceAll("[\\[\\]]", "");
             }
+            latitude = project.getLatitude();
+            longitude = project.getLongitude();
+            imageURL = project.getImageURL();
         }
         if (urlDetail.getLocalityId() != null) {
             locality = localityService.getLocality(urlDetail.getLocalityId());
@@ -286,6 +323,8 @@ public class SeoPageService {
             if (city == null) {
                 throw new ResourceNotAvailableException(ResourceType.CITY, ResourceTypeAction.GET);
             }
+            centerLatitude = city.getCenterLatitude();
+            centerLongitude = city.getCenterLongitude();
         }
         if (urlDetail.getBuilderId() != null) {
             builder = builderService.getBuilderById(urlDetail.getBuilderId());
@@ -303,6 +342,15 @@ public class SeoPageService {
             priceRangeStr = minBudget + "-" + maxBudget;
         }
 
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        if (request.getServerName() != null) {
+            serverName = request.getServerName();
+        }
+        
+        if (urlDetail.getUrl() != null) {
+            url = urlDetail.getUrl();
+        }
+        
         return new CompositeSeoTokenData(
                 property,
                 project,
@@ -313,7 +361,14 @@ public class SeoPageService {
                 bedroomStr,
                 priceRangeStr,
                 bathrooms,
-                size);
+                size,
+                centerLatitude,
+                centerLongitude,
+                latitude,
+                longitude,
+                serverName,
+                url,
+                imageURL);
     }
 
     /*
@@ -352,6 +407,13 @@ public class SeoPageService {
         private String   priceRangeStr;
         private Integer  bathrooms;
         private Integer  size;
+        private Double   centerLatitude;
+        private Double   centerLongitude;
+        private Double   latitude;
+        private Double   longitude;
+        private String   serverName;
+        private String   url;
+        private String   imageURL;
 
         public CompositeSeoTokenData(
                 Property property,
@@ -363,7 +425,14 @@ public class SeoPageService {
                 String bedrooms,
                 String priceRange,
                 Integer bathrooms,
-                Integer size) {
+                Integer size, 
+                Double centerLatitude,
+                Double centerLongitude,
+                Double latitude,
+                Double longitude,
+                String serverName,
+                String url,
+                String imageURL) {
             this.property = property;
             this.project = project;
             this.locality = locality;
@@ -374,6 +443,13 @@ public class SeoPageService {
             this.priceRangeStr = priceRange;
             this.bathrooms = bathrooms;
             this.size = size;
+            this.centerLatitude = centerLatitude;
+            this.centerLongitude = centerLongitude;
+            this.latitude = latitude;
+            this.longitude = longitude;
+            this.serverName = serverName;
+            this.url = url;
+            this.imageURL = imageURL;
         }
 
         public Property getProperty() {
@@ -455,6 +531,61 @@ public class SeoPageService {
         public void setSize(Integer size) {
             this.size = size;
         }
+        
+        public Double getCenterLongitude() {
+            return centerLongitude;
+        }
 
+        public void setCenterLongitude(Double centerLongitude) {
+            this.centerLongitude = centerLongitude;
+        }
+
+        public Double getCenterLatitude() {
+            return centerLatitude;
+        }
+
+        public void setCenterLatitude(Double centerLatitude) {
+            this.centerLatitude = centerLatitude;
+        }
+
+        public Double getLatitude() {
+            return latitude;
+        }
+
+        public void setLatitude(Double latitude) {
+            this.latitude = latitude;
+        }
+
+        public Double getLongitude() {
+            return longitude;
+        }
+
+        public void setLongitude(Double longitude) {
+            this.longitude = longitude;
+        }
+
+        public String getServerName() {
+            return serverName;
+        }
+
+        public void setServerName(String serverName) {
+            this.serverName = serverName;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getImageURL() {
+            return imageURL;
+        }
+
+        public void setImageURL(String imageURL) {
+            this.imageURL = imageURL;
+        }
     }
 }

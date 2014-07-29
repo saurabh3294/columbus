@@ -17,6 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.model.Bank;
+import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
@@ -269,6 +270,14 @@ public class ImageEnricher {
         String waterMarkName = projectMainUrl.substring(index1 + 1);
 
         return imageService.getImage(imageId);
+    }
+
+    public void setBuilderImages(Builder builder) {
+        if (builder == null) {
+            return;
+        }
+        List<Image> images = imageService.getImages(DomainObject.builder, null, builder.getId());
+        builder.setImages(images);
     }
 
 }

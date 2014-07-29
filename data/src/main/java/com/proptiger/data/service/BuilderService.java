@@ -80,7 +80,7 @@ public class BuilderService {
         Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
         Map<String, Long> projectStatusCountMap = projectService.getProjectStatusCount(tempSelector);
         builder.setProjectStatusCount(projectStatusCountMap);
-
+        imageEnricher.setBuilderImages(builder);
         return builder;
     }
 
@@ -135,6 +135,7 @@ public class BuilderService {
      * @param builderSelector
      * @return
      */
+    @Cacheable(value = Constants.CacheName.CACHE)
     public PaginatedResponse<List<Builder>> getTopBuilders(Selector builderSelector) {
         SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.PROJECT);
         solrQuery.add("group", "true");

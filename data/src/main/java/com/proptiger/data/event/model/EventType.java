@@ -1,0 +1,101 @@
+package com.proptiger.data.event.model;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import com.proptiger.data.event.enums.Types;
+
+@Entity
+@Table(name = "event_type")
+/**
+ * TODO to make the configuration required for the event type in json format and then load it
+ * into the  coressponding model for each event type. The model mapping will be present in the
+ * Types Enum.
+ * @author Mukand Agarwal
+ *
+ */
+public class EventType {
+    public enum Operation {
+        Replace, Merge;
+    }
+
+    @Id
+    @Column(name = "id")
+    private int       id;
+
+    @Column(name = "name")
+    private Types     name;
+
+    @Column(name = "is_mergeable")
+    private boolean   isMergeable;
+
+    @Column(name = "validation_cycle_in_hours")
+    private int       validationCycleHours;
+
+    @Column(name = "verification_required")
+    private int       verficationRequired;
+
+    @Column(name = "queued_items_in_validation_cycle")
+    private int       queuedItemsValidationCycle;
+
+    @Column(name = "operation")
+    private Operation operation;
+    
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Types getName() {
+        return name;
+    }
+
+    public void setName(Types name) {
+        this.name = name;
+    }
+
+    public boolean isMergeable() {
+        return isMergeable;
+    }
+
+    public void setMergeable(boolean isMergeable) {
+        this.isMergeable = isMergeable;
+    }
+
+    public int getValidationCycleHours() {
+        return validationCycleHours;
+    }
+
+    public void setValidationCycleHours(int validationCycleHours) {
+        this.validationCycleHours = validationCycleHours;
+    }
+
+    public int getVerficationRequired() {
+        return verficationRequired;
+    }
+
+    public void setVerficationRequired(int verficationRequired) {
+        this.verficationRequired = verficationRequired;
+    }
+
+    public int getQueuedItemsValidationCycle() {
+        return queuedItemsValidationCycle;
+    }
+
+    public void setQueuedItemsValidationCycle(int queuedItemsValidationCycle) {
+        this.queuedItemsValidationCycle = queuedItemsValidationCycle;
+    }
+
+    public Operation getOperation() {
+        return operation;
+    }
+
+    public void setOperation(Operation operation) {
+        this.operation = operation;
+    }
+}
