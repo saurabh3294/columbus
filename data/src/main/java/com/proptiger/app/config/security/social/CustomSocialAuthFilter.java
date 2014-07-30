@@ -102,7 +102,7 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
             try {
                 OAuth2ConnectionFactory<?> factory = (OAuth2ConnectionFactory<?>) authService.getConnectionFactory();
                 Connection<?> connection = factory.createConnection(new AccessGrant(accessToken, null, null, DateUtil
-                        .addDays(new Date(), Constants.Security.ACCESS_TOKEN_VALITY_DAYS).getTime()));
+                        .addDays(new Date(), Constants.Security.ACCESS_TOKEN_VALIDITY_DAYS).getTime()));
                 final SocialAuthenticationToken token = new SocialAuthenticationToken(connection, null);
                 Assert.notNull(token.getConnection());
                 Authentication auth = SecurityContextUtils.getAuthentication();

@@ -91,7 +91,7 @@ public class UserController extends BaseController {
     
     @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST)
     @ResponseBody
-    public APIResponse resetPassword(@RequestBody String email){
+    public APIResponse resetPassword(@RequestParam String email){
         String message = userService.resetPassword(email);
         return new APIResponse(message);
     }
