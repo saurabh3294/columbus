@@ -10,7 +10,7 @@ import org.apache.commons.lang.time.DateUtils;
 
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
-import com.proptiger.data.model.event.payload.EventTypeUpdateHistory;
+import com.proptiger.data.event.model.payload.EventTypeUpdateHistory;
 
 public abstract class DBEventProcessor implements EventProcessor {
     

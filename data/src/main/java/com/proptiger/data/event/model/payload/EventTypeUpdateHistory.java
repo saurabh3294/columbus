@@ -1,4 +1,4 @@
-package com.proptiger.data.model.event.payload;
+package com.proptiger.data.event.model.payload;
 
 import java.util.Date;
 

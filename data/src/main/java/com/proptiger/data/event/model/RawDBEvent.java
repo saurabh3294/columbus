@@ -9,7 +9,7 @@ import com.proptiger.data.event.enums.DBOperation;
  * @author sahil
  *
  */
-public abstract class RawDBEvent {
+public class RawDBEvent {
 	
 	private String hostName;
 	private String dbName;
@@ -19,8 +19,8 @@ public abstract class RawDBEvent {
 	/* Map of Attribute and (oldDbValue, newDbValue) */
 	private Map<String, Object> dbValueMap;
 	
-	/* Map of Attribute and tablePrimaryKey */
-	private Map<String, Object> idMap;
+	private String idName;
+	private String idValue;
 
 	
 	public String getHostName() {
@@ -63,12 +63,22 @@ public abstract class RawDBEvent {
 		this.dbValueMap = dbValueMap;
 	}
 
-	public Map<String, Object> getIdMap() {
-		return idMap;
-	}
+    public String getIdName() {
+        return idName;
+    }
 
-	public void setIdMap(Map<String, Object> idMap) {
-		this.idMap = idMap;
-	}
+    public void setIdName(String idName) {
+        this.idName = idName;
+    }
+
+    public String getIdValue() {
+        return idValue;
+    }
+
+    public void setIdValue(String idValue) {
+        this.idValue = idValue;
+    }
+
+	
 		
 }

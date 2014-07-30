@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
+import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.repo.DBEventMappingDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
-import com.proptiger.data.event.util.DBEventMapper;
-import com.proptiger.data.model.event.payload.DefaultEventTypePayload;
 
 @Service
 public class EventGeneratedService {
@@ -23,7 +23,7 @@ public class EventGeneratedService {
     private EventGeneratedDao eventGeneratedDao;
 
     @Autowired
-    private DBEventMapper     dbEventMapper;
+    private DBEventMappingDao dbEventMappingDao;
 
     public void persistEvents(List<EventGenerated> eventGenerateds) {
         eventGeneratedDao.save(eventGenerateds);
@@ -32,13 +32,17 @@ public class EventGeneratedService {
     public List<EventGenerated> getRawEvents() {
         return eventGeneratedDao.findByStatusOrderByCreatedDateAsc(EventGenerated.EventStatus.Raw.name());
     }
-    
-    public List<EventGenerated> getProcessedEvents(){
-        return eventGeneratedDao.findByStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(EventGenerated.EventStatus.Processed.name(), new Date());
+
+    public List<EventGenerated> getProcessedEvents() {
+        return eventGeneratedDao.findByStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(
+                EventGenerated.EventStatus.Processed.name(),
+                new Date());
     }
-    
-    public List<EventGenerated> getProcessedEventsToBeMerged(){
-        return eventGeneratedDao.findByStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(EventGenerated.EventStatus.Processed.name(), new Date());
+
+    public List<EventGenerated> getProcessedEventsToBeMerged() {
+        return eventGeneratedDao.findByStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(
+                EventGenerated.EventStatus.Processed.name(),
+                new Date());
     }
 
     public Integer getRawEventCount() {
@@ -50,38 +54,46 @@ public class EventGeneratedService {
         List<EventType> eventTypeList;
 
         if (DBOperation.INSERT.equals(rawDBEvent.getDbOperation())) {
-            eventTypeList = dbEventMapper.getEventTypesForInsertDBOperation(
+            eventTypeList = dbEventMappingDao.getEventTypesForInsertDBOperation(
                     rawDBEvent.getHostName(),
                     rawDBEvent.getDbName(),
                     rawDBEvent.getTableName());
-
+            generateEvents(rawDBEvent, eventTypeList, null);
         }
         else if (DBOperation.DELETE.equals(rawDBEvent.getDbOperation())) {
-            eventTypeList = dbEventMapper.getEventTypesForDeleteDBOperation(
+            eventTypeList = dbEventMappingDao.getEventTypesForDeleteDBOperation(
                     rawDBEvent.getHostName(),
                     rawDBEvent.getDbName(),
                     rawDBEvent.getTableName());
-
+            generateEvents(rawDBEvent, eventTypeList, null);
         }
         else if (DBOperation.UPDATE.equals(rawDBEvent.getDbOperation())) {
-            eventTypeList = dbEventMapper.getEventTypesForUpdateDBOperation(
-                    rawDBEvent.getHostName(),
-                    rawDBEvent.getDbName(),
-                    rawDBEvent.getTableName(),
-                    rawDBEvent.getDbValueMap().keySet());
-        }
-        else {
-            eventTypeList = new ArrayList<EventType>();
+            for (String attributeName : rawDBEvent.getDbValueMap().keySet()) {
+                eventTypeList = dbEventMappingDao.getEventTypesForUpdateDBOperation(
+                        rawDBEvent.getHostName(),
+                        rawDBEvent.getDbName(),
+                        rawDBEvent.getTableName(),
+                        attributeName);
+                generateEvents(rawDBEvent, eventTypeList, attributeName);
+            }
         }
 
+        return eventGeneratedList;
+    }
+
+    private List<EventGenerated> generateEvents(
+            RawDBEvent rawDBEvent,
+            List<EventType> eventTypeList,
+            String attributeName) {
+
+        List<EventGenerated> eventGeneratedList = new ArrayList<EventGenerated>();
+
         for (EventType eventType : eventTypeList) {
-            DefaultEventTypePayload payload = new DefaultEventTypePayload();
-            payload.setIdMap(rawDBEvent.getIdMap());
-            
-            // TODO: set old and new value
-            //payload.setOldValue(oldValue);
-            //payload.setNewValue(newValue);
-            
+            EventTypePayload payload = eventType.getEventTypeConfig().getEventTypePayloadObject();
+            payload.setIdName(rawDBEvent.getIdName());
+            payload.setIdValue(rawDBEvent.getIdValue());
+            payload.populatePayloadValues(rawDBEvent, attributeName);
+
             EventGenerated eventGenerated = new EventGenerated();
             eventGenerated.setEventType(eventType);
             eventGenerated.setEventTypePayload(payload);

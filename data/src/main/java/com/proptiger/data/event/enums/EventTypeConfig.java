@@ -6,13 +6,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
+import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.processor.PhotoChangeProcessor;
 import com.proptiger.data.event.processor.PriceChangeProcessor;
 import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
-import com.proptiger.data.model.event.payload.DefaultEventTypePayload;
-import com.proptiger.data.model.event.payload.EventTypePayload;
 
 // TODO remove the Types ENUM. make it dynamic.
 public class EventTypeConfig {
