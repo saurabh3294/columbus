@@ -11,10 +11,10 @@ import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.Application;
 import com.proptiger.data.enums.SubscriptionSection;
 import com.proptiger.data.model.Company;
+import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.user.Dashboard;
 
 /**
@@ -108,7 +108,7 @@ public class CustomUser {
 
     public static class UserAppDetail {
         private List<UserAppSubscription> subscriptions = new ArrayList<>();
-        private JsonNode                  preferences;
+        private UserPreference            preference;
 
         public List<UserAppSubscription> getSubscriptions() {
             return subscriptions;
@@ -118,12 +118,12 @@ public class CustomUser {
             this.subscriptions = subscriptions;
         }
 
-        public JsonNode getPreferences() {
-            return preferences;
+        public UserPreference getPreference() {
+            return preference;
         }
 
-        public void setPreferences(JsonNode preferences) {
-            this.preferences = preferences;
+        public void setPreference(UserPreference preference) {
+            this.preference = preference;
         }
 
         public static class UserAppSubscription {
@@ -133,6 +133,7 @@ public class CustomUser {
             private int                      cityCount     = 0;
             private int                      localityCount = 0;
             private int                      projectCount  = 0;
+            private Date                     dataUpdationDate;
             private Date                     expiryDate;
             private String                   userType;
 
@@ -174,6 +175,14 @@ public class CustomUser {
 
             public void setProjectCount(int projectCount) {
                 this.projectCount = projectCount;
+            }
+
+            public Date getDataUpdationDate() {
+                return dataUpdationDate;
+            }
+
+            public void setDataUpdationDate(Date dataUpdationDate) {
+                this.dataUpdationDate = dataUpdationDate;
             }
 
             public Date getExpiryDate() {

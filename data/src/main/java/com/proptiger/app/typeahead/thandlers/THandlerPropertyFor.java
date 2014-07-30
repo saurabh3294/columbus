@@ -32,7 +32,7 @@ public class THandlerPropertyFor extends RootTHandler {
         for (Locality locality : topLocalities) {
             redirectURL = getRedirectUrl();
             redirectURL = String.format(redirectURL, city, ("-" + locality.getLabel() + "-" + locality.getLocalityId()));
-            results.add(getTypeaheadObjectByTextAndURL((typeahead.getTemplateText() + locality.getLabel()), redirectURL));
+            results.add(getTypeaheadObjectByTextAndURL((this.getType().getText() + " " + locality.getLabel()), redirectURL));
             if (results.size() == rows) {
                 break;
             }
@@ -60,7 +60,7 @@ public class THandlerPropertyFor extends RootTHandler {
     
     @Override
     public Typeahead getTopResult(Typeahead typeahead, String city) {
-        String displayText = (typeahead.getTemplateText() + city);
+        String displayText = (this.getType().getText() + " " + city);
         String redirectUrl = getRedirectUrl();
         redirectUrl = String.format(redirectUrl, city.toLowerCase(), "");
         return (getTypeaheadObjectByTextAndURL(displayText, redirectUrl));

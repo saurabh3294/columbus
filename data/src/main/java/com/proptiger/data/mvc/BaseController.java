@@ -149,6 +149,15 @@ public abstract class BaseController {
             throw new ProAPIException("Could not parse request", e);
         }
     }
+
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
+    public void setMapper(ObjectMapper mapper) {
+        this.mapper = mapper;
+    }
+
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         // true passed to CustomDateEditor constructor means convert empty String to null

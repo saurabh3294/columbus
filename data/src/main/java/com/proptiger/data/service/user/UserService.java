@@ -5,37 +5,77 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
 import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomCity;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.CustomLocality;
 import com.proptiger.data.external.dto.CustomUser.UserAppDetail.UserAppSubscription;
+import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.internal.dto.ChangePassword;
+import com.proptiger.data.internal.dto.Register;
+import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
+import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.ForumUser.WhoAmIDetail;
+import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.ForumUserTokenDao;
+import com.proptiger.data.repo.SubscriptionPermissionDao;
+import com.proptiger.data.repo.UserSubscriptionMappingDao;
+import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.util.PasswordUtils;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.RegistrationUtils;
+import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.data.util.UtilityClass;
+import com.proptiger.exception.BadRequestException;
+import com.proptiger.exception.UnauthorizedException;
 
 /**
  * Service class to get if user have already enquired about an entity
@@ -45,21 +85,55 @@ import com.proptiger.data.util.UtilityClass;
  */
 @Service
 public class UserService {
+    private static Logger              logger = LoggerFactory.getLogger(UserService.class);
+
+    @Value("${b2b.price-inventory.max.month}")
+    private String                     currentMonth;
 
     @Value("${enquired.within.days}")
-    private Integer               enquiredWithinDays;
+    private Integer                    enquiredWithinDays;
+
+    @Value("${proptiger.url}")
+    private String                     proptigerUrl;
 
     @Autowired
-    private EnquiryDao            enquiryDao;
+    private EnquiryDao                 enquiryDao;
 
     @Autowired
-    private ForumUserDao          forumUserDao;
+    private ForumUserDao               forumUserDao;
 
     @Autowired
-    private UserPreferenceService preferenceService;
+    private UserPreferenceService      preferenceService;
 
     @Autowired
-    private LocalityService       localityService;
+    private LocalityService            localityService;
+
+    @Autowired
+    private UserSubscriptionMappingDao userSubscriptionMappingDao;
+
+    @Autowired
+    private SubscriptionPermissionDao  subscriptionPermissionDao;
+
+    @Autowired
+    private TrendDao                   trendDao;
+
+    @Autowired
+    private AuthenticationManager      authManager;
+
+    @Autowired
+    private PropertyReader             propertyReader;
+
+    @Value("${cdn.image.url}")
+    private String                     cdnImageBase;
+
+    @Autowired
+    private MailSender                 mailSender;
+
+    @Autowired
+    private ForumUserTokenDao          forumUserTokenDao;
+
+    @Autowired
+    private TemplateToHtmlGenerator    htmlGenerator;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -104,7 +178,7 @@ public class UserService {
 
         for (UserPreference preference : preferenceService.getUserPreferences(user.getUserId())) {
             UserAppDetail appDetail = new UserAppDetail();
-            appDetail.setPreferences(preference.getPreference());
+            appDetail.setPreference(preference);
             appDetailsMap.put(preference.getApp(), appDetail);
         }
 
@@ -127,6 +201,7 @@ public class UserService {
             appSubscription.setCompany(subscription.getCompany());
 
             setUserAppSubscriptionDetails(subscription.getPermissions(), appSubscription);
+            appSubscription.setDataUpdationDate(DateUtil.parseYYYYmmddStringToDate(currentMonth));
             subscriptions.add(appSubscription);
         }
 
@@ -194,6 +269,145 @@ public class UserService {
             }
         }
         return userAppSubscription;
+    }
+
+    public FIQLSelector getUserAppSubscriptionFilters(int userId) {
+
+        FIQLSelector selector = new FIQLSelector();
+
+        List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
+
+        for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
+
+            Permission permission = subscriptionPermission.getPermission();
+            int objectTypeId = permission.getObjectTypeId();
+
+            switch (DomainObject.getFromObjectTypeId(objectTypeId)) {
+
+                case city:
+                    selector.addOrConditionToFilter("cityId==" + permission.getObjectId());
+                    break;
+
+                case locality:
+                    selector.addOrConditionToFilter("localityId==" + permission.getObjectId());
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        return selector;
+    }
+
+    /**
+     * @param userId
+     *            userId for which subscription permissions are needed.
+     * @return List of subscriptionPermissions or an empty-list if there are no
+     *         permissions installed.
+     */
+    @Cacheable(value = Constants.CacheName.CACHE)
+    private List<SubscriptionPermission> getUserAppSubscriptionDetails(int userId) {
+        List<UserSubscriptionMapping> userSubscriptionMappingList = userSubscriptionMappingDao.findAllByUserId(userId);
+        if (userSubscriptionMappingList == null) {
+            return (new ArrayList<SubscriptionPermission>());
+        }
+
+        List<Integer> subscriptionIdList = new ArrayList<Integer>();
+        for (UserSubscriptionMapping usm : userSubscriptionMappingList) {
+            subscriptionIdList.add(usm.getSubscriptionId());
+        }
+
+        if (subscriptionIdList.isEmpty()) {
+            return (new ArrayList<SubscriptionPermission>());
+
+        }
+
+        List<SubscriptionPermission> subscriptionPermissions = subscriptionPermissionDao
+                .findAllBySubscriptionId(subscriptionIdList);
+        if (subscriptionPermissions == null) {
+            return (new ArrayList<SubscriptionPermission>());
+        }
+
+        return subscriptionPermissions;
+    }
+
+    /*
+     * Returns a MultiKeyMap with 2 keys. [K1 = ObjectTypeId, K2 = ObjectId],
+     * [Value = Permission Object]
+     * 
+     * [1]. In case of locality, checking existence of the key should be enough.
+     * [2]. For city, a key will exist (with a value null), even if the user has
+     * a permission for some locality in the city. To check for full city
+     * permission, check if the value mapped to that key is not null.
+     */
+
+    public MultiKeyMap getUserSubscriptionMap(int userId) {
+        List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
+        MultiKeyMap userSubscriptionMap = new MultiKeyMap();
+        Permission permission;
+        int objectTypeId, objectId;
+        List<Integer> localityIDList = new ArrayList<Integer>();
+
+        int objTypeIdLocality = DomainObject.locality.getObjectTypeId();
+        int objTypeIdCity = DomainObject.city.getObjectTypeId();
+        for (SubscriptionPermission sp : subscriptionPermissions) {
+            permission = sp.getPermission();
+
+            if (permission != null) {
+                objectTypeId = permission.getObjectTypeId();
+                objectId = permission.getObjectId();
+                userSubscriptionMap.put(objectTypeId, objectId, permission);
+                if (objectTypeId == objTypeIdLocality) {
+                    localityIDList.add(objectId);
+                }
+            }
+        }
+
+        /*
+         * populating psuedo permissions for city if any locality in that city
+         * is permitted
+         */
+        Set<Integer> cityIdList = getCityIdListFromLocalityIdList(localityIDList);
+        for (int cityId : cityIdList) {
+            userSubscriptionMap.put(objTypeIdCity, cityId, null);
+        }
+
+        List<Integer> subscribedBuilders = getSubscribedBuilderList(userId);
+        for (Integer builderId : subscribedBuilders) {
+            userSubscriptionMap.put(DomainObject.builder.getObjectTypeId(), builderId, builderId);
+        }
+        return userSubscriptionMap;
+    }
+
+    @Async
+    public void preloadUserSubscriptionMap(int userId) {
+        getUserSubscriptionMap(userId);
+    }
+
+    @Cacheable(value = Constants.CacheName.CACHE)
+    private List<Integer> getSubscribedBuilderList(int userId) {
+        FIQLSelector selector = getUserAppSubscriptionFilters(userId);
+        List<Integer> builderList = new ArrayList<>();
+        if (selector.getFilters() != null) {
+            String builderId = "builderId";
+            selector.setFields(builderId);
+            selector.setGroup(builderId);
+
+            List<InventoryPriceTrend> list = trendDao.getTrend(selector);
+            for (InventoryPriceTrend inventoryPriceTrend : list) {
+                builderList.add(inventoryPriceTrend.getBuilderId());
+            }
+        }
+        return builderList;
+    }
+
+    private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList) {
+        Set<Integer> cityIdList = new HashSet<Integer>();
+        List<Locality> localiltyList = localityService.findByLocalityIdList(localityIDList).getResults();
+        for (Locality locality : localiltyList) {
+            cityIdList.add(locality.getSuburb().getCityId());
+        }
+        return cityIdList;
     }
 
     /**
@@ -267,4 +481,102 @@ public class UserService {
         }
 
     }
+
+    /**
+     * Get minimal details needed for active user as whoami. In case user is not
+     * logged in then throws UnauthorizedException
+     * 
+     * @param userIdentifier
+     * @return
+     */
+    public WhoAmIDetail getWhoAmIDetail() {
+        ActiveUser activeUser = SecurityContextUtils.getLoggedInUser();
+        if (activeUser == null) {
+            throw new UnauthorizedException();
+        }
+        WhoAmIDetail whoAmIDetail = forumUserDao.getWhoAmIDetail(activeUser.getUserIdentifier());
+        if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
+            whoAmIDetail.setImageUrl(cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
+        }
+        return whoAmIDetail;
+    }
+
+    /**
+     * Change password of active user after old and new password validation.
+     * Updating principle in SecurityContextHolder after password change.
+     * 
+     * @param activeUser
+     * @param changePassword
+     */
+    public void changePassword(ActiveUser activeUser, ChangePassword changePassword) {
+
+        try {
+            authManager.authenticate(new UsernamePasswordAuthenticationToken(activeUser.getUsername(), changePassword
+                    .getOldPassword()));
+        }
+        catch (AuthenticationException e) {
+            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, ResponseErrorMessages.BAD_CREDENTIAL);
+        }
+        PasswordUtils.validateChangePasword(changePassword);
+        logger.debug("Changing password for user {}", activeUser.getUsername());
+        ForumUser forumUser = forumUserDao.findOne(activeUser.getUserIdentifier());
+        forumUser.setPassword(changePassword.getNewPassword());
+        forumUser = forumUserDao.save(forumUser);
+
+        SecurityContextUtils.autoLogin(forumUser);
+    }
+
+    /**
+     * Register a new user after data validation
+     * 
+     * @param register
+     * @return
+     */
+    @Transactional
+    public ForumUser register(Register register) {
+        RegistrationUtils.validateRegistration(register);
+        ForumUser userPresent = forumUserDao.findByEmail(register.getEmail());
+        if (userPresent != null) {
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+        }
+        ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
+        /*
+         * after registration make user auto login
+         */
+        SecurityContextUtils.autoLogin(savedUser);
+        return savedUser;
+    }
+
+    /**
+     * This method verifies the user by email from database, if registered then
+     * send a password recovery mail
+     * 
+     * @param email
+     * @return
+     */
+    public String resetPassword(String email) {
+        ForumUser forumUser = forumUserDao.findByEmailAndProvider(email, "");
+        if (forumUser == null) {
+            return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
+        }
+        // token valid for 1 month
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, 1);
+        String token = PasswordUtils.generateTokenBase64Encoded();
+        token = PasswordUtils.encode(token);
+        String encodedEmail = PasswordUtils.base64Encode(email);
+        ForumUserToken forumUserToken = new ForumUserToken();
+        forumUserToken.setToken(token);
+        forumUserToken.setExpirationDate(calendar.getTime());
+        forumUserTokenDao.save(forumUserToken);
+        String retrivePasswordLink = proptigerUrl + "/forgotpass.php?token=" + token + "&id=" + encodedEmail;
+        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
+                forumUser.getUsername(),
+                retrivePasswordLink);
+        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
+        MailDetails details = new MailDetails(mailBody).setMailTo(email);
+        mailSender.sendMailUsingAws(details);
+        return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
+    }
+
 }
