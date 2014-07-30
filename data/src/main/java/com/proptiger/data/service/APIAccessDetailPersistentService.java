@@ -48,12 +48,12 @@ import com.proptiger.data.util.SecurityContextUtils;
         objectName = "com.proptiger.data.service:name=APIAccessDetailPersistentService",
         description = "API access details service")
 public class APIAccessDetailPersistentService {
-    private static final String                 MIXPANEL_DISTINCT_ID                  = "distinct_id";
-    private static final String                 MP_MIXPANEL_COOKIE_REGEX              = "mp_.*_mixpanel";
-    private static final Logger                 logger                                = LoggerFactory
-                                                                                              .getLogger(APIAccessDetailPersistentService.class);
-    private static final int                    ACCESS_LOG_FETCH_BATCH_THRESHOLD      = 100;
-    private boolean                             schedulingEnabled                     = true;
+    private static final String                 MIXPANEL_DISTINCT_ID             = "distinct_id";
+    private static final String                 MP_MIXPANEL_COOKIE_REGEX         = "mp_.*_mixpanel";
+    private static final Logger                 logger                           = LoggerFactory
+                                                                                         .getLogger(APIAccessDetailPersistentService.class);
+    private static final int                    ACCESS_LOG_FETCH_BATCH_THRESHOLD = 100;
+    private boolean                             schedulingEnabled                = true;
     private ObjectMapper                        mapper;
 
     private ConcurrentLinkedQueue<APIAccessLog> apiAccessLogToPersist;
@@ -62,8 +62,8 @@ public class APIAccessDetailPersistentService {
     private APIAccessLogDao                     apiAccessLogDao;
 
     @Autowired
-    private PropertyReader propertyreader;
-    
+    private PropertyReader                      propertyreader;
+
     @PostConstruct
     public void postConstruct() {
         mapper = new ObjectMapper();
@@ -126,9 +126,12 @@ public class APIAccessDetailPersistentService {
     private void addAccessLogToInternalDS(ActiveUser activeUser, HttpServletRequest request) {
         APIAccessLog accessLog = createUserAccessLogObj(activeUser, request);
         apiAccessLogToPersist.add(accessLog);
-        int threshold = propertyreader.getRequiredPropertyAsType(PropertyKeys.ACCESS_LOG_INTERNAL_DS_SIZE_THRESHOLD, Integer.class);
-        if (apiAccessLogToPersist.size() > threshold ) {
-            // TODO need to run scheduled task based on some trigger like size > threshold
+        int threshold = propertyreader.getRequiredPropertyAsType(
+                PropertyKeys.ACCESS_LOG_INTERNAL_DS_SIZE_THRESHOLD,
+                Integer.class);
+        if (apiAccessLogToPersist.size() > threshold) {
+            // TODO need to run scheduled task based on some trigger like size >
+            // threshold
             logger.error(
                     "apiAccessLogToPersist size {} is more than threshold {}",
                     apiAccessLogToPersist.size(),
@@ -284,10 +287,15 @@ public class APIAccessDetailPersistentService {
     public void setSchedulingEnabled(boolean schedulingEnabled) {
         this.schedulingEnabled = schedulingEnabled;
     }
-    
-    @ManagedOperation(description = "Reset access log container to empty")
-    public void resetAPIAccessLogContainer(){
+
+    @ManagedOperation(
+            description = "Reset access log container to empty, all access log will be lost from last persist")
+    public void resetAPIAccessLogContainer() {
         apiAccessLogToPersist = new ConcurrentLinkedQueue<>();
     }
 
+    @ManagedOperation(description = "Get the size of api access to persist")
+    public int getSizeOfApiToPersist() {
+        return apiAccessLogToPersist.size();
+    }
 }

@@ -90,4 +90,8 @@ public class SecurityContextUtils {
         SecurityContextHolder.getContext().setAuthentication(auth);
         return auth;
     }
+    
+    public static Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
 }

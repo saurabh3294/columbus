@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -58,7 +59,7 @@ public class Project extends BaseModel {
                 "suburb",
                 "city",
                 "cityId",
-                "id" }), suburbId(new String[] { "locality", "suburb","suburbId", "id" }), localityLabel(new String[] {
+                "id" }), suburbId(new String[] { "locality", "suburb", "suburbId", "id" }), localityLabel(new String[] {
                 "locality",
                 "label" }), builderImageURL(new String[] { "builder", "imageURL" }), bedrooms(new String[] {
                 "properties",
@@ -433,6 +434,9 @@ public class Project extends BaseModel {
     private Integer                 imagesCount;
 
     @Transient
+    private Map<String, Integer>    imageCountByType;
+
+    @Transient
     @Field("PROJECT_VIDEOS_COUNT")
     private Integer                 videosCount;
 
@@ -460,11 +464,11 @@ public class Project extends BaseModel {
 
     @Transient
     @Field(value = "PROJECT_SAFETY_SCORE")
-    private Double                 safetyScore;
+    private Double                  safetyScore;
 
     @Transient
     @Field(value = "PROJECT_LIVABILITY_SCORE")
-    private Float                 livabilityScore;
+    private Float                   livabilityScore;
 
     public int getProjectId() {
         return projectId;
@@ -1124,6 +1128,14 @@ public class Project extends BaseModel {
 
     public void setLivabilityScore(Float livabilityScore) {
         this.livabilityScore = livabilityScore;
+    }
+
+    public Map<String, Integer> getImageCountByType() {
+        return imageCountByType;
+    }
+
+    public void setImageCountByType(Map<String, Integer> imageCountByType) {
+        this.imageCountByType = imageCountByType;
     }
 
 }
