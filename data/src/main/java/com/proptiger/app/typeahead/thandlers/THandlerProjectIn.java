@@ -80,9 +80,6 @@ public class THandlerProjectIn extends RootTHandler {
             case TopProjectsIn:
                 redirectUrl = String.format(genericUrlProjectsIn, city.toLowerCase());
                 break;
-            case TopPropertiesIn:
-                redirectUrl = String.format(genericUrlProjectsIn, city.toLowerCase());
-                break;
             default:
                 break;
         }

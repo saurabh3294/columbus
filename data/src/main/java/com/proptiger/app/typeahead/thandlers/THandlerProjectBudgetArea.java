@@ -100,10 +100,10 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
         Typeahead typeahead;
-        for (int[] x : areaRanges) {
+        for (int[] x : budgetRanges) {
             typeahead = new Typeahead();
             typeahead.setDisplayText(String.format(genericBetweenTextBudget, templateText, budgetUnit, x[0], x[1], city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, minArea, x));
+            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
             results.add(typeahead);
         }
         return results;
@@ -144,7 +144,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         for (int[] x : areaRanges) {
             typeahead = new Typeahead();
             typeahead.setDisplayText(String.format(genericBetweenTextArea, templateText, x[0], x[1], areaUnit, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, minArea, x));
+            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
             results.add(typeahead);
         }
         return results;

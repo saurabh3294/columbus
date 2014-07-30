@@ -84,11 +84,11 @@ public class TypeaheadService {
             List<Typeahead> suggestions) {
 
         List<Typeahead> consolidatedResults = new ArrayList<Typeahead>();
-        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(results, rows / 3));
-        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(suggestions, rows / 3));
-        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(nlpResults, rows / 3));
-
-        return consolidatedResults;
+        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(results, rows / 2));
+        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(suggestions, rows / 2));
+        consolidatedResults.addAll(UtilityClass.getFirstNElementsOfList(nlpResults, rows / 2));
+        
+        return (UtilityClass.getFirstNElementsOfList(consolidatedResults, rows));
     }
 
 }
