@@ -192,7 +192,7 @@ public class Constants {
         public static final String SERVER_CURR_TIME            = "server-time";
         public static final String SECRET_HASH_HEADER_KEY      = "_shhkey";
         public static final String API_SECRET_KEYWORD          = "_askey";
-        public static final int    ACCESS_TOKEN_VALITY_DAYS    = 7;
+        public static final int    ACCESS_TOKEN_VALIDITY_DAYS    = 7;
         public static final String REGISTER_URL                = "app/v1/register";
         public static final String ACCESS_TOKEN                = "access_token";
     }
