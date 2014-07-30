@@ -16,7 +16,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.google.gson.Gson;
-import com.proptiger.data.model.event.payload.EventTypePayload;
+import com.proptiger.data.event.model.payload.EventTypePayload;
 
 @Entity
 @Table(name = "raw_event_generated")

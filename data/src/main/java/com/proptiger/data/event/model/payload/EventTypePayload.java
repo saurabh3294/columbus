@@ -1,6 +1,8 @@
-package com.proptiger.data.model.event.payload;
+package com.proptiger.data.event.model.payload;
 
 import java.util.List;
+
+import com.proptiger.data.event.model.RawDBEvent;
 
 
 public abstract class EventTypePayload {
@@ -27,5 +29,7 @@ public abstract class EventTypePayload {
     public void setIdValue(Object idValue) {
         this.idValue = idValue;
     }
+    
+    public abstract void populatePayloadValues(RawDBEvent rawDBEvent, String attributeName);
     
 }

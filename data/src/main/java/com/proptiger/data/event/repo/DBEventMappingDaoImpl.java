@@ -1,15 +1,14 @@
-package com.proptiger.data.event.util;
+package com.proptiger.data.event.repo;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
-import java.util.Set;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.proptiger.data.event.model.EventType;
 
-public class DBEventMapper {
+public class DBEventMappingDaoImpl implements DBEventMappingDao {
 	
 	private static final String DB_EVENT_MAPPING_FILE = "DBEventMapping.json";
 	
@@ -32,7 +31,7 @@ public class DBEventMapper {
 		return null;		
 	}
 	
-	public List<EventType> getEventTypesForUpdateDBOperation(String hostName, String dbName, String tableName, Set<String> attributeSet) {
+	public List<EventType> getEventTypesForUpdateDBOperation(String hostName, String dbName, String tableName, String attributeName) {
 		return null;		
 	}
 	
