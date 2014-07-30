@@ -4,7 +4,7 @@ import com.proptiger.data.event.model.EventGenerated;
 
 public class DBEventVerification implements EventVerification {
     
-    boolean verifyEvents(EventGenerated eventGenerated) {
+    public boolean verifyEvents(EventGenerated eventGenerated) {
         return true;
     }
 
