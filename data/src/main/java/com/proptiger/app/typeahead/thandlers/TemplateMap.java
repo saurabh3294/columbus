@@ -38,7 +38,7 @@ public class TemplateMap extends HashMap<String, TemplateTypes> {
         TemplateTypes[] allTemplateTypes = TemplateTypes.values();
         for(TemplateTypes ttype : allTemplateTypes)
         {
-            this.put(ttype.getText(), ttype);
+            this.put(ttype.getText().toLowerCase(), ttype);
         }
     }
  

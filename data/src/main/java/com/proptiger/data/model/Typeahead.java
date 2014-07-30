@@ -92,7 +92,10 @@ public class Typeahead extends BaseModel {
 
     @Field(value = "TEMPLATE_TEXT")
     private String            templateText;
-
+    
+    @Field(value = "TEMPLATE_TYPE")
+    private String            templateType;
+    
     @Field(value = "score")
     private Float            score;
     
@@ -270,6 +273,14 @@ public class Typeahead extends BaseModel {
 
     public void setTemplateText(String templateText) {
         this.templateText = templateText;
+    }
+    
+    public String getTemplateType() {
+        return templateType;
+    }
+
+    public void setTemplateType(String templateType) {
+        this.templateType = templateType;
     }
 
 }
