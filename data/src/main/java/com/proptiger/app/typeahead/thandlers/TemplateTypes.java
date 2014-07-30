@@ -16,8 +16,23 @@ public enum TemplateTypes {
     ProjectBy("Projects by", THandlerProjectsBy.class),
     PropertyBy("Property by", THandlerProjectsBy.class),
     PropertyForSaleIn("Property for sale in", THandlerPropertyFor.class),
-    PropertyForResaleIn("Property for resale in", THandlerPropertyFor.class);
+    PropertyForResaleIn("Property for resale in", THandlerPropertyFor.class),
     
+    ProjectsUnder("Projects Under", THandlerProjectBudgetArea.class),
+    ProjectsBelow("Projects Below", THandlerProjectBudgetArea.class),
+    ProjectsAbove("Projects Above", THandlerProjectBudgetArea.class),
+    ProjectsBetween("Projects Between", THandlerProjectBudgetArea.class),
+
+    PropertyUnder("Properties Under", THandlerProjectBudgetArea.class),
+    PropertyBelow("Properties Below", THandlerProjectBudgetArea.class),
+    PropertyAbove("Properties Above", THandlerProjectBudgetArea.class),
+    PropertyBetween("Properties Between", THandlerProjectBudgetArea.class),
+    
+    BHKUnder("BHK Under", THandlerBhkBudgetArea.class),
+    BHKBelow("BHK Below", THandlerBhkBudgetArea.class),
+    BHKAbove("BHK Above", THandlerBhkBudgetArea.class),
+    BHKBetween("BHK Between", THandlerBhkBudgetArea.class);
+
     private String                         text;
     Class<? extends RootTHandler> clazz;
 
