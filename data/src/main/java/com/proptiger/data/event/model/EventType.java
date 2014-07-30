@@ -23,10 +23,6 @@ public class EventType {
         Replace, Merge;
     }
 
-    static {
-        //map = id => "{payr*CLassNAme = abdbad.class}"
-    }
-    
     @Id
     @Column(name = "id")
     private int       id;
@@ -61,7 +57,7 @@ public class EventType {
         if(this.overwriteConfigName != null){
             configName = this.overwriteConfigName;
         }
-        EventTypeConfig savedEventTypeConfig = EventTypeConfig.eventTypeConfig.get(configName);
+        EventTypeConfig savedEventTypeConfig = EventTypeConfig.eventTypeConfigMap.get(configName);
         // TODO to handle the case when there is no mapping of name in the config.
         // Code execution should not be stopped as a proper logging of error has to be done.
         if(eventTypeConfig == null){

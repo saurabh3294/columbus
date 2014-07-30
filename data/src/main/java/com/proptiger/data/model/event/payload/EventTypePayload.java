@@ -1,24 +1,31 @@
 package com.proptiger.data.model.event.payload;
 
 import java.util.List;
-import java.util.Map;
 
 
 public abstract class EventTypePayload {
-    private Map<String, Object>          idMap;
+    private String idName;
+    private Object idValue;
+    
     private List<EventTypeUpdateHistory> eventTypeUpdateHistories;
         
-    public Map<String, Object> getIdMap() {
-        return idMap;
-    }
-    public void setIdMap(Map<String, Object> idMap) {
-        this.idMap = idMap;
-    }
     public List<EventTypeUpdateHistory> getEventTypeUpdateHistories() {
         return eventTypeUpdateHistories;
     }
     public void setEventTypeUpdateHistories(List<EventTypeUpdateHistory> eventTypeUpdateHistories) {
         this.eventTypeUpdateHistories = eventTypeUpdateHistories;
+    }
+    public String getIdName() {
+        return idName;
+    }
+    public void setIdName(String idName) {
+        this.idName = idName;
+    }
+    public Object getIdValue() {
+        return idValue;
+    }
+    public void setIdValue(Object idValue) {
+        this.idValue = idValue;
     }
     
 }

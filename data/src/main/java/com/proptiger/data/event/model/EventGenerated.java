@@ -1,7 +1,6 @@
 package com.proptiger.data.event.model;
 
 import java.util.Date;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,8 +14,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-
-import org.hibernate.annotations.SQLUpdate;
 
 import com.google.gson.Gson;
 import com.proptiger.data.model.event.payload.EventTypePayload;
@@ -87,14 +84,9 @@ public class EventGenerated extends Event {
         this.createdDate = new Date();
         this.updatedDate = new Date();
 
-        String uniqueKeyString = "";
-        for (Map.Entry<String, Object> entry : eventTypePayload.getIdMap().entrySet()) {
-            uniqueKeyString += entry.getValue() + "-";
-        }
-        
-        this.setEventTypeUniqueKey(uniqueKeyString);
-        this.setEventStatus(EventStatus.Raw);
-        
+        this.eventTypeUniqueKey = this.eventTypePayload.getIdName() + "-" + this.eventTypePayload.getIdValue();
+        this.eventStatus = EventStatus.Raw;
+
         autoUpdateFields();
     }
 

@@ -3,9 +3,6 @@ package com.proptiger.data.event.enums;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.PostConstruct;
-import javax.persistence.PostLoad;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -27,24 +24,22 @@ public class EventTypeConfig {
      * DefaultEventTypePayload.class, PhotoChangeProcessor.class, null,
      * DBEventVerification.class);
      */
-    public static Map<String, EventTypeConfig>  eventTypeConfig;
+    public static Map<String, EventTypeConfig>  eventTypeConfigMap;
     static {
         // PortfolioPriceChange.setIdNames(new EventTypeIdConstants[] {
         // EventTypeIdConstants.PropertyId });
         // PortfolioPhotoAdded.setIdNames(new EventTypeIdConstants[] {
         // EventTypeIdConstants.PropertyId });
-        eventTypeConfig = new HashMap<String, EventTypeConfig>();
+        eventTypeConfigMap = new HashMap<String, EventTypeConfig>();
         
-        eventTypeConfig.put("portfolio_price_change", new EventTypeConfig(
+        eventTypeConfigMap.put("portfolio_price_change", new EventTypeConfig(
                 DefaultEventTypePayload.class,
                 PriceChangeProcessor.class,
-                null,
                 PriceChangeVerification.class));
         
-        eventTypeConfig.put("portfolio_photo_added", new EventTypeConfig(
+        eventTypeConfigMap.put("portfolio_photo_added", new EventTypeConfig(
                 DefaultEventTypePayload.class,
                 PhotoChangeProcessor.class,
-                null,
                 DBEventVerification.class));
 
     }
@@ -52,7 +47,6 @@ public class EventTypeConfig {
     private Class<? extends EventTypePayload>    dataClassName         = DefaultEventTypePayload.class;
     private Class<? extends DBEventProcessor>    processorClassName    = PriceChangeProcessor.class;
     private Class<? extends DBEventVerification> verificationClassName = DBEventVerification.class;
-    private EventTypeIdConstants[]               idNames;
     private DBEventProcessor                     processorObject;
     private EventTypePayload                     eventTypePayloadObject;
     private DBEventVerification                  eventVerificationObject;
@@ -70,12 +64,10 @@ public class EventTypeConfig {
     EventTypeConfig(
             Class<? extends EventTypePayload> dataClassName,
             Class<? extends DBEventProcessor> procClass,
-            EventTypeIdConstants[] idNames,
             Class<? extends DBEventVerification> verifiClassName) {
 
         this.dataClassName = dataClassName;
         this.processorClassName = procClass;
-        this.idNames = idNames;
         this.verificationClassName = verifiClassName;
         setObject();
     }
@@ -98,14 +90,6 @@ public class EventTypeConfig {
 
     public void setProcessorClassName(Class<? extends DBEventProcessor> processorClassName) {
         this.processorClassName = processorClassName;
-    }
-
-    public EventTypeIdConstants[] getIdNames() {
-        return idNames;
-    }
-
-    public void setIdNames(EventTypeIdConstants[] idNames) {
-        this.idNames = idNames;
     }
 
     public DBEventProcessor getProcessorObject() {
