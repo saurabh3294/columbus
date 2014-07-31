@@ -3,10 +3,18 @@ package com.proptiger.data.model.user;
 import java.util.Date;
 
 import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.Id;
 
 import com.proptiger.data.model.BaseModel;
 
+/**
+ * 
+ * @author azi
+ * 
+ */
+
+@Entity(name = "user.user_contact_numbers")
 public class UserContactNumber extends BaseModel {
     private static final long serialVersionUID = 1L;
 

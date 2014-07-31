@@ -1,6 +1,7 @@
 package com.proptiger.data.model.user;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import com.proptiger.data.enums.Status;
 import com.proptiger.data.model.BaseModel;
@@ -15,33 +19,42 @@ import com.proptiger.data.model.BaseModel;
 /**
  * 
  * @author azi
- *
+ * 
  */
 
-@Entity(name = "users")
+@Entity
+@Table(name = "user.users")
 public class User extends BaseModel {
-    private static final long serialVersionUID = 1L;
+    private static final long       serialVersionUID = 1L;
 
+    @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int               id;
+    private int                     id;
 
-    private String            fullName;
+    @Column(name="full_name")
+    private String                  fullName;
 
-    private String            password;
+    private String                  password;
 
     @Column(name = "country_id")
-    private int               countryId;
+    private Integer                     countryId;
 
     @Enumerated(EnumType.STRING)
-    private Status            status;
+    private Status                  status;
 
-    private boolean           subscribed;
+    private boolean                 subscribed;
+
+    @OneToMany(mappedBy = "userId")
+    private List<UserEmail>         emails;
+
+    @OneToMany
+    private List<UserContactNumber> contactNumbers;
 
     @Column(name = "created_at")
-    private Date              createdAt;
+    private Date                    createdAt;
 
     @Column(name = "updated_at")
-    private Date              updatedAt;
+    private Date                    updatedAt;
 
     public int getId() {
         return id;
@@ -67,11 +80,11 @@ public class User extends BaseModel {
         this.password = password;
     }
 
-    public int getCountryId() {
+    public Integer getCountryId() {
         return countryId;
     }
 
-    public void setCountryId(int countryId) {
+    public void setCountryId(Integer countryId) {
         this.countryId = countryId;
     }
 
@@ -89,6 +102,22 @@ public class User extends BaseModel {
 
     public void setSubscribed(boolean subscribed) {
         this.subscribed = subscribed;
+    }
+
+    public List<UserEmail> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<UserEmail> emails) {
+        this.emails = emails;
+    }
+
+    public List<UserContactNumber> getContactNumbers() {
+        return contactNumbers;
+    }
+
+    public void setContactNumbers(List<UserContactNumber> contactNumbers) {
+        this.contactNumbers = contactNumbers;
     }
 
     public Date getCreatedAt() {

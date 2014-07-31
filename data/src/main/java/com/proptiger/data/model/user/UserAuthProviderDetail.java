@@ -14,7 +14,7 @@ import com.proptiger.data.model.BaseModel;
  * 
  */
 
-@Entity(name = "user_auth_provider_details")
+@Entity(name = "user.user_auth_provider_details")
 public class UserAuthProviderDetail extends BaseModel {
     private static final long serialVersionUID = 1L;
 

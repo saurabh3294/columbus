@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.Email;
 
@@ -13,29 +14,32 @@ import com.proptiger.data.model.BaseModel;
 /**
  * 
  * @author azi
- *
+ * 
  */
 
-@Entity(name="user_emails")
-public class UserEmail extends BaseModel{
-    private static final long serialVersionUID = 1L;
+@Entity
+@Table(name = "user.user_emails")
+public class UserEmail extends BaseModel {
+    private static final long serialVersionUID     = 1L;
+
+    public static final int  primaryEmailPriority = 1;
 
     @Id
-    private int id;
-    
-    @Column(name="user_id")
-    private int user_id;
-    
+    private int               id;
+
+    @Column(name = "user_id")
+    private int               userId;
+
     @Email
-    private String email;
-    
-    private int priority;
-    
-    @Column(name="created_by")
-    private int createdBy;
-    
-    @Column(name="created_at")
-    private Date createdAt;
+    private String            email;
+
+    private int               priority;
+
+    @Column(name = "created_by")
+    private int               createdBy;
+
+    @Column(name = "created_at")
+    private Date              createdAt;
 
     public int getId() {
         return id;
@@ -45,12 +49,12 @@ public class UserEmail extends BaseModel{
         this.id = id;
     }
 
-    public int getUser_id() {
-        return user_id;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getEmail() {
