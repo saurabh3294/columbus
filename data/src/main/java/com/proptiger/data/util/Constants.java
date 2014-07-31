@@ -24,6 +24,7 @@ public class Constants {
     public static final String               JSESSIONID                = "JSESSIONID";
     public static final String               PHPSESSID_KEY             = "PHPSESSID";
     public static final int                  DEFAULT_NO_OF_ROWS        = 10;
+    public static final int                  DEFAULT_NO_OF_ALL_ROWS        = 9999;
     public static final String               USERNAME                  = "username";
     public static final List<Source>         SOURCETYPE_LIST           = Arrays.asList(Source.portfolio, Source.backend);
     public static final int                  LIMIT_OF_COMPOSITE_APIs   = 15;
