@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.proptiger.data.event.model.EventType;
 
-public interface DBEventMappingDao {
+public interface DBRawEventToEventTypeMappingDao {
 	
 	public List<EventType> getEventTypesForInsertDBOperation(String hostName, String dbName, String tableName);
 	
