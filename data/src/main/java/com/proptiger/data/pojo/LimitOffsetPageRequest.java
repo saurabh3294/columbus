@@ -76,4 +76,16 @@ public class LimitOffsetPageRequest implements Pageable {
         return "[offset=" + offset + ", rows=" + rows + "]";
     }
 
+    /**
+     * Create LimitOffsetPageRequest object using FIQLSelector with default rows as possibly all. 
+     * @param fiqlSelector
+     * @return
+     */
+    public static LimitOffsetPageRequest createPageableDefaultRowsAll(FIQLSelector fiqlSelector){
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, Constants.DEFAULT_NO_OF_ALL_ROWS);
+        if(fiqlSelector != null){
+            pageable = new LimitOffsetPageRequest(fiqlSelector.getStart(), fiqlSelector.getRows());
+        }
+        return pageable;
+    }
 }
