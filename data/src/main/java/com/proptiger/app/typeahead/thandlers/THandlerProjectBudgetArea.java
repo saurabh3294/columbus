@@ -44,7 +44,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private String genericUrlCity              = "%s-real-estate/";
 
     @Override
-    public List<Typeahead> getResults(Typeahead typeahead, String city, int rows) {
+    public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
         String templateText = typeahead.getTemplateText();
@@ -151,8 +151,8 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     }
 
     @Override
-    public Typeahead getTopResult(Typeahead typeahead, String city) {
-        List<Typeahead> results = getResults(typeahead, city, 1);
+    public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
+        List<Typeahead> results = getResults(query, typeahead, city, 1);
         if(results.isEmpty()){
             return null;
         }
