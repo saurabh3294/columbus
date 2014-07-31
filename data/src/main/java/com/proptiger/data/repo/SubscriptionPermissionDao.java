@@ -7,5 +7,5 @@ import com.proptiger.data.model.SubscriptionPermission;
 
 public interface SubscriptionPermissionDao extends JpaRepository<SubscriptionPermission, Integer> {
 
-    public List<SubscriptionPermission> findAllBySubscriptionId(List<Integer> subscriptionIdList);
+    public List<SubscriptionPermission> findBySubscriptionIdIn(List<Integer> subscriptionIdList);
 }
