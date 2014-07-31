@@ -8,7 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.proptiger.data.event.model.EventType;
 
-public class DBEventMappingDaoImpl implements DBEventMappingDao {
+public class DBRawEventToEventTypeMappingDaoImpl implements DBRawEventToEventTypeMappingDao {
 	
 	private static final String DB_EVENT_MAPPING_FILE = "DBEventMapping.json";
 	
