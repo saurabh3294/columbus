@@ -74,14 +74,6 @@ public class EventType {
         this.id = id;
     }
 
-    public EventTypeConfig getName() {
-        return eventTypeConfig;
-    }
-
-    public void setName(EventTypeConfig name) {
-        this.eventTypeConfig = name;
-    }
-
     public boolean isMergeable() {
         return isMergeable;
     }
@@ -132,5 +124,17 @@ public class EventType {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getOverwriteConfigName() {
+        return overwriteConfigName;
+    }
+
+    public void setOverwriteConfigName(String overwriteConfigName) {
+        this.overwriteConfigName = overwriteConfigName;
+    }
+
+    public String getName() {
+        return name;
     }
 }

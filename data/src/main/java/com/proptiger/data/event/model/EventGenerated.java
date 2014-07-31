@@ -70,7 +70,7 @@ public class EventGenerated extends Event {
 
     @PostLoad
     public void setPayload() {
-        this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getName()
+        this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getEventTypeConfig()
                 .getDataClassName());
     }
 
