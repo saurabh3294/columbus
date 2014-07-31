@@ -58,7 +58,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
 			eventCount += events.size();
 			
 			for (EventGenerated event: events) { 
-				DBEventProcessor dbEventProcessor = event.getEventType().getName().getProcessorObject();
+				DBEventProcessor dbEventProcessor = event.getEventType().getEventTypeConfig().getProcessorObject();
 				dbEventProcessor.populateEventSpecificData(event);
 			}
 			
