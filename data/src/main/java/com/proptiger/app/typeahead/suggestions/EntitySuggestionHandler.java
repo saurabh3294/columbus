@@ -30,6 +30,9 @@ public class EntitySuggestionHandler {
     @Autowired
     private ProjectSuggestions  projectSuggestions;
 
+    @Autowired
+    private SuburbSuggestions   suburbSuggestions;
+
     public List<Typeahead> getEntityBasedSuggestions(List<Typeahead> results, int count) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
@@ -67,7 +70,6 @@ public class EntitySuggestionHandler {
 
         switch (idTokens[1]) {
             case "PROJECT":
-                
                 suggestions = projectSuggestions.getSuggestions(entityId, label, redirectUrl, count);
                 break;
             case "CITY":
@@ -76,9 +78,13 @@ public class EntitySuggestionHandler {
             case "BUILDER":
                 suggestions = builderSuggestions.getSuggestions(entityId, label, redirectUrl, count);
                 break;
+            case "SUBURB":
+                suggestions = suburbSuggestions.getSuggestions(entityId, label, redirectUrl, topResult.getCity(), count);
+                break;
             case "LOCALITY":
                 String cityName = topResult.getCity();
-                suggestions = localitySuggestions.getSuggestions(entityId, label, redirectUrl, cityName, count);
+                String localityName = topResult.getLocality();
+                suggestions = localitySuggestions.getSuggestions(entityId, label, redirectUrl, cityName, localityName, count);
                 break;
             default:
                 break;
