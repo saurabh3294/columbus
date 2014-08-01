@@ -1,0 +1,92 @@
+package com.proptiger.data.event.generator.model;
+
+import java.util.List;
+
+public class DBRawEventTableConfig {
+    private int               id;
+    private String            hostName;
+    private String            dbName;
+    private String            tableName;
+    private String            primaryKeyName;
+    private String            transactionKeyName;
+    private List<DBRawEventOperationConfig> dbRawEventOperationConfigs;
+
+    public int getId() {
+        return id;
+    }
+
+    public DBRawEventTableConfig() {
+        super();
+    }
+
+    public DBRawEventTableConfig(
+            int id,
+            String hostName,
+            String dbName,
+            String tableName,
+            String primaryKeyName,
+            String transactionKeyName,
+            List<DBRawEventOperationConfig> dbRawEventOperationConfigs) {
+        super();
+        this.id = id;
+        this.hostName = hostName;
+        this.dbName = dbName;
+        this.tableName = tableName;
+        this.primaryKeyName = primaryKeyName;
+        this.transactionKeyName = transactionKeyName;
+        this.dbRawEventOperationConfigs = dbRawEventOperationConfigs;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public void setDbName(String dbName) {
+        this.dbName = dbName;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getPrimaryKeyName() {
+        return primaryKeyName;
+    }
+
+    public void setPrimaryKeyName(String primaryKeyName) {
+        this.primaryKeyName = primaryKeyName;
+    }
+
+    public String getTransactionKeyName() {
+        return transactionKeyName;
+    }
+
+    public void setTransactionKeyName(String transactionKeyName) {
+        this.transactionKeyName = transactionKeyName;
+    }
+
+    public List<DBRawEventOperationConfig> getDbRawEventOperationConfigs() {
+        return dbRawEventOperationConfigs;
+    }
+
+    public void setDbRawEventOperationConfigs(List<DBRawEventOperationConfig> dbRawEventOperationConfigs) {
+        this.dbRawEventOperationConfigs = dbRawEventOperationConfigs;
+    }
+    
+}
