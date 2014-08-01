@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.user.User;
-import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.user.UserDao;
 
 /**
@@ -21,14 +20,13 @@ import com.proptiger.data.repo.user.UserDao;
  * authenicate a user. This class uses database to authenticate.
  * 
  * @author Rajeev Pandey
+ * @author azi
  * 
  */
 @Service
 public class UserDetailManagerService implements UserDetailsService {
 
     private static Logger logger = LoggerFactory.getLogger(UserDetailManagerService.class);
-    @Autowired
-    private ForumUserDao  forumUserDao;
 
     @Autowired
     private UserDao       userDao;
