@@ -52,7 +52,6 @@ public class Locality extends BaseModel {
     @Transient
     private boolean                         authorized       = true;
     
- //   @Transient
     @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
     @Field("SUBURB_ID")
@@ -64,8 +63,8 @@ public class Locality extends BaseModel {
     private Suburb                          suburb;
 
     // XXX TODO - This is to be removed
+    @Transient
     @Deprecated
-    @Column(name = "CITY_ID")
     @Field("CITY_ID")
     private int                             cityId;
 
