@@ -13,7 +13,7 @@ public class THandlerProjectsBy extends RootTHandler {
     private String selectorCityFilter = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
 
     @Override
-    public List<Typeahead> getResults(Typeahead typeahead, String city, int rows) {
+    public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
         List<Builder> topBuilders = getTopBuilders(city);
@@ -31,9 +31,9 @@ public class THandlerProjectsBy extends RootTHandler {
     }
 
     @Override
-    public Typeahead getTopResult(Typeahead typeahead, String city) {
+    public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
 
-        List<Typeahead> results = getResults(typeahead, city, 1);
+        List<Typeahead> results = getResults(query, typeahead, city, 1);
         if (results != null && !results.isEmpty()) {
             return results.get(0);
         }

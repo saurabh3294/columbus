@@ -41,8 +41,8 @@ public abstract class RootTHandler {
     
     /* Abstract Methods */
 
-    public abstract List<Typeahead> getResults(Typeahead typeahead, String city, int rows);
+    public abstract List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows);
     
-    public abstract Typeahead getTopResult(Typeahead typeahead, String city);
+    public abstract Typeahead getTopResult(String query, Typeahead typeahead, String city);
 
 }

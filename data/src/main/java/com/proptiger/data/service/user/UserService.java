@@ -22,7 +22,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -314,16 +313,17 @@ public class UserService {
 
         List<Integer> subscriptionIdList = new ArrayList<Integer>();
         for (UserSubscriptionMapping usm : userSubscriptionMappingList) {
-            subscriptionIdList.add(usm.getSubscriptionId());
+            if (usm.getSubscription().getExpiryTime().getTime() > new Date().getTime()) {
+                subscriptionIdList.add(usm.getSubscriptionId());
+            }
         }
 
         if (subscriptionIdList.isEmpty()) {
             return (new ArrayList<SubscriptionPermission>());
-
         }
 
         List<SubscriptionPermission> subscriptionPermissions = subscriptionPermissionDao
-                .findAllBySubscriptionId(subscriptionIdList);
+                .findBySubscriptionIdIn(subscriptionIdList);
         if (subscriptionPermissions == null) {
             return (new ArrayList<SubscriptionPermission>());
         }
