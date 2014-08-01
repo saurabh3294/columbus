@@ -546,11 +546,10 @@ public class UserService {
         }
         PasswordUtils.validateChangePasword(changePassword);
         logger.debug("Changing password for user {}", activeUser.getUsername());
-        ForumUser forumUser = forumUserDao.findOne(activeUser.getUserIdentifier());
-        forumUser.setPassword(changePassword.getNewPassword());
-        forumUser = forumUserDao.save(forumUser);
-
-        SecurityContextUtils.autoLogin(forumUser);
+        User user = userDao.findOne(activeUser.getUserIdentifier());
+        user.setPassword(changePassword.getNewPassword());
+        userDao.save(user);
+        SecurityContextUtils.autoLogin(forumUserDao.findByUserId(user.getId()));
     }
 
     /**
