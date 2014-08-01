@@ -17,7 +17,7 @@ import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.DBRawEventToEventTypeMappingDao;
+import com.proptiger.data.event.repo.EventTypeMappingDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.service.LocalityService;
 
@@ -29,7 +29,7 @@ public class EventGeneratedService {
     private EventGeneratedDao eventGeneratedDao;
 
     @Autowired
-    private DBRawEventToEventTypeMappingDao dbEventMappingDao;
+    private EventTypeMappingDao dbEventMappingDao;
 
     public void persistEvents(List<EventGenerated> eventGenerateds) {
         eventGeneratedDao.save(eventGenerateds);
@@ -52,7 +52,7 @@ public class EventGeneratedService {
     }
 
     public Integer getRawEventCount() {
-        return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw);
+        return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw.name());
     }
 
     @Transactional

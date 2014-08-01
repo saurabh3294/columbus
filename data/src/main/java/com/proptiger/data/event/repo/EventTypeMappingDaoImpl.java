@@ -8,20 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.proptiger.data.event.model.EventType;
 
-public class DBRawEventToEventTypeMappingDaoImpl implements DBRawEventToEventTypeMappingDao {
-	
-	private static final String DB_EVENT_MAPPING_FILE = "DBEventMapping.json";
-	
-	private JsonObject read() {
-		JsonParser parser = new JsonParser();	
-		JsonObject obj = null;
-		try {	 
-			obj = (JsonObject) parser.parse(new FileReader(DB_EVENT_MAPPING_FILE));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return obj;
-	}
+public class EventTypeMappingDaoImpl {
 	
 	public List<EventType> getEventTypesForInsertDBOperation(String hostName, String dbName, String tableName) {
 		return null;		
