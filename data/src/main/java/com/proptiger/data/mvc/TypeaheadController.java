@@ -17,11 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.TypeaheadService;
-import com.proptiger.data.util.Constants;
 
 /**
  * 
