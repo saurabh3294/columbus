@@ -9,6 +9,8 @@ public class DBRawEventTableConfig {
     private String            tableName;
     private String            primaryKeyName;
     private String            transactionKeyName;
+    private String            dateAttributeName;
+    private String            dateAttributeValue;
     private List<DBRawEventOperationConfig> dbRawEventOperationConfigs;
 
     public int getId() {
@@ -85,6 +87,22 @@ public class DBRawEventTableConfig {
 
     public void setDbRawEventOperationConfigs(List<DBRawEventOperationConfig> dbRawEventOperationConfigs) {
         this.dbRawEventOperationConfigs = dbRawEventOperationConfigs;
+    }
+
+    public String getDateAttributeName() {
+        return dateAttributeName;
+    }
+
+    public void setDateAttributeName(String dateAttributeName) {
+        this.dateAttributeName = dateAttributeName;
+    }
+
+    public String getDateAttributeValue() {
+        return dateAttributeValue;
+    }
+
+    public void setDateAttributeValue(String dateAttributeValue) {
+        this.dateAttributeValue = dateAttributeValue;
     }
     
 }

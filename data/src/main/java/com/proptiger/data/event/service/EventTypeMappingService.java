@@ -154,5 +154,9 @@ public class EventTypeMappingService {
             }
         }
     }
+    
+    public List<DBRawEventTableConfig> getDBRawEventTableConfigs() {
+        return null;
+    }
 
 }

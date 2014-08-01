@@ -1,0 +1,70 @@
+{
+  "cms-db": {
+    "cms_queue": {
+      "_t_city": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_listing_prices": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_listings": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_locality": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_resi_builder": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_resi_project": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_resi_project_options": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_suburb": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      }
+    }
+  },
+  "proptiger": {
+    "ptiger_queue_gen": {
+      "_t_CITY": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_LOCALITY": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_SUBURB": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      },
+      "_t_RESI_BUILDER": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      }
+    },
+    "ptiger_queue_project": {
+      "_t_RESI_PROJECT": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      }
+    },
+    "ptiger_queue_property": {
+      "_t_RESI_PROJECT_TYPES": {
+        "date_attribute_name": "_t_transaction_date",
+        "last_accessed_date": "2014-07-30 18:23"
+      }
+    }
+  }
+}

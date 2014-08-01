@@ -9,7 +9,6 @@ import com.proptiger.data.event.constants.EventConstants;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.processor.DBEventProcessor;
-import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.event.service.EventGeneratedService;
 
 /**
@@ -44,14 +43,11 @@ public class DBEventGenerator implements EventGeneratorInterface {
 		
 		Integer eventCount = 0;
 		
-		// TODO:
 		List<RawDBEvent> rawDBEvents = rawDBEventGenerator.getRawDBEvents();
 		
-		// TODO: Run below code in multiple threads
-		
+		// TODO: Run below code in multiple threads		
 		for (RawDBEvent rawDBEvent : rawDBEvents) {
 			
-			// TODO:
 			rawDBEventGenerator.populateRawDBEventData(rawDBEvent);
 			
 			List<EventGenerated> events = eventGeneratedService.generateEventFromRawDBEvent(rawDBEvent);
