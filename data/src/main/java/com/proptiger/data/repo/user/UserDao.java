@@ -12,8 +12,8 @@ import com.proptiger.data.model.user.UserEmail;
  * 
  */
 
-public interface UserDao extends PagingAndSortingRepository<User, Integer> {
-    @Query("SELECT U, E FROM User U join U.emails E WHERE U.id=E.userId AND " + " E.email = ?1 AND E.priority = "
+public interface UserDao extends PagingAndSortingRepository<User, Integer>, UserCustomDao {
+    @Query("SELECT U FROM User U join U.emails E WHERE U.id=E.userId AND " + " E.email = ?1 AND E.priority = "
             + UserEmail.primaryEmailPriority)
     public User findByPrimaryEmail(String email);
 }

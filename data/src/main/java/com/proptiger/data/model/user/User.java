@@ -5,15 +5,13 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.proptiger.data.enums.Status;
 import com.proptiger.data.model.BaseModel;
 
 /**
@@ -31,23 +29,21 @@ public class User extends BaseModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int                     id;
 
-    @Column(name="full_name")
+    @Column(name = "full_name")
     private String                  fullName;
 
     private String                  password;
 
     @Column(name = "country_id")
-    private Integer                     countryId;
+    private Integer                 countryId;
 
-    @Enumerated(EnumType.STRING)
-    private Status                  status;
+    @Column(name = "is_registered")
+    private boolean                 registered;
 
-    private boolean                 subscribed;
-
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "userId", fetch = FetchType.EAGER)
     private List<UserEmail>         emails;
 
-    @OneToMany
+    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<UserContactNumber> contactNumbers;
 
     @Column(name = "created_at")
@@ -88,20 +84,12 @@ public class User extends BaseModel {
         this.countryId = countryId;
     }
 
-    public Status getStatus() {
-        return status;
+    public boolean isRegistered() {
+        return registered;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public boolean isSubscribed() {
-        return subscribed;
-    }
-
-    public void setSubscribed(boolean subscribed) {
-        this.subscribed = subscribed;
+    public void setRegistered(boolean registered) {
+        this.registered = registered;
     }
 
     public List<UserEmail> getEmails() {
