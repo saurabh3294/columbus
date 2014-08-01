@@ -52,7 +52,7 @@ public class NLPSuggestionHandler {
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
         if (thandler != null) {
             setTemplateServices(thandler);
-            resultsFirstHandler = thandler.getResults(templateHits.get(0), city, rows);
+            resultsFirstHandler = thandler.getResults(query, templateHits.get(0), city, rows);
         }
 
         /*
@@ -67,7 +67,7 @@ public class NLPSuggestionHandler {
 
             if (rootTaTemplate != null) {
                 setTemplateServices(rootTaTemplate);
-                results.add(rootTaTemplate.getTopResult(t, city));
+                results.add(rootTaTemplate.getTopResult(query, t, city));
             }
             else {
                 logger.warn("No Template Handler found for typeahead template : " + templateText);

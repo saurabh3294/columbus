@@ -313,16 +313,17 @@ public class UserService {
 
         List<Integer> subscriptionIdList = new ArrayList<Integer>();
         for (UserSubscriptionMapping usm : userSubscriptionMappingList) {
-            subscriptionIdList.add(usm.getSubscriptionId());
+            if (usm.getSubscription().getExpiryTime().getTime() > new Date().getTime()) {
+                subscriptionIdList.add(usm.getSubscriptionId());
+            }
         }
 
         if (subscriptionIdList.isEmpty()) {
             return (new ArrayList<SubscriptionPermission>());
-
         }
 
         List<SubscriptionPermission> subscriptionPermissions = subscriptionPermissionDao
-                .findAllBySubscriptionId(subscriptionIdList);
+                .findBySubscriptionIdIn(subscriptionIdList);
         if (subscriptionPermissions == null) {
             return (new ArrayList<SubscriptionPermission>());
         }
