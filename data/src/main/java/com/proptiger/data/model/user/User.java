@@ -134,4 +134,13 @@ public class User extends BaseModel {
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+    public String getPrimaryEmail() {
+        for (UserEmail email : emails) {
+            if (email.getPriority() == UserEmail.primaryEmailPriority) {
+                return email.getEmail();
+            }
+        }
+        return null;
+    }
 }

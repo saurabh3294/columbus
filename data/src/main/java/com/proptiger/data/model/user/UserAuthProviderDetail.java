@@ -45,7 +45,7 @@ public class UserAuthProviderDetail extends BaseModel {
     private Date              createdAt;
 
     @Column(name = "updated_at")
-    private Date              updatedAt;
+    private Date              updatedAt        = new Date();
 
     public int getId() {
         return id;

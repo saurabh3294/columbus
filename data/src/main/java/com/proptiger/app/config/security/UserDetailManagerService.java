@@ -37,10 +37,11 @@ public class UserDetailManagerService implements UserDetailsService {
         if (username != null && !username.isEmpty()) {
             User user = userDao.findByPrimaryEmail(username);
             if (user != null) {
+                String password = user.getPassword() == null ? "" : user.getPassword();
                 userDetails = new ActiveUser(
                         user.getId(),
-                        user.getEmails().get(0).getEmail(),
-                        user.getPassword(),
+                        user.getPrimaryEmail(),
+                        password,
                         true,
                         true,
                         true,
