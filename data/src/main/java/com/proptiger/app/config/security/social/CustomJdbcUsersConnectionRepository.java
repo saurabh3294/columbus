@@ -49,7 +49,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
     public List<String> findUserIdsWithConnection(Connection<?> connection) {
         ConnectionKey key = connection.getKey();
         List<String> localUserIds = new ArrayList<String>();
-        User socialForumUser = userDao.findByProviderIdAndProviderUserid(
+        User socialForumUser = userDao.findByProviderIdAndProviderUserId(
                 AuthProvider.getAuthProviderIgnoreCase(key.getProviderId()).getProviderId(),
                 key.getProviderUserId());
 
@@ -81,7 +81,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
      * @return
      */
     public Authentication createAuthenicationByProviderAndProviderUserId(String provider, String providerUserId) {
-        User user = userDao.findByProviderIdAndProviderUserid(AuthProvider.getAuthProviderIgnoreCase(provider)
+        User user = userDao.findByProviderIdAndProviderUserId(AuthProvider.getAuthProviderIgnoreCase(provider)
                 .getProviderId(), providerUserId.toString());
         if (user != null) {
             String password = user.getPassword() == null ? "" : user.getPassword();

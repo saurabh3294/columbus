@@ -21,5 +21,8 @@ public interface UserDao extends PagingAndSortingRepository<User, Integer>, User
     public User findByEmail(String email);
 
     @Query("SELECT U FROM User U join U.userAuthProviderDetails APD WHERE " + " APD.providerId = ?1 AND APD.providerUserId = ?2")
-    public User findByProviderIdAndProviderUserid(int providerId, String providerUserId);
+    public User findByProviderIdAndProviderUserId(int providerId, String providerUserId);
+
+    @Query("SELECT U FROM User U join U.contactNumbers CN Left join U.emails E WHERE " + " CN.contactNumber = ?1 AND E.email is null")
+    public User findByContactNumberWithoutEmail(String contactNumber);
 }

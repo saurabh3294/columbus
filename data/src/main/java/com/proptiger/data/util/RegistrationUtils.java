@@ -11,7 +11,7 @@ import com.proptiger.exception.BadRequestException;
  * Util class to validate user registration data
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public class RegistrationUtils {
 
@@ -33,19 +33,21 @@ public class RegistrationUtils {
         }
         validateName(register.getUserName());
         validateEmail(register.getEmail());
-        String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
-                register.getPassword(),
-                register.getConfirmPassword());
+        if (register.getRegisterMe()) {
+            String encodedPass = PasswordUtils.validateNewAndConfirmPassword(
+                    register.getPassword(),
+                    register.getConfirmPassword());
+            register.setPassword(encodedPass);
+        }
 
         if (register.getCountryId() == null) {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_COUNTRY);
         }
         validateContactNumber(register.getContact());
-        register.setPassword(encodedPass);
     }
 
     private static void validateContactNumber(Long contact) {
-        //TODO can check minimum and maximum length of phone number as well
+        // TODO can check minimum and maximum length of phone number as well
         if (contact == null || contact <= 0) {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_CONTACT_NUMBER);
         }

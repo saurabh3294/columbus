@@ -60,6 +60,7 @@ import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
+import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.model.user.UserEmail;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
@@ -561,16 +562,67 @@ public class UserService {
     @Transactional
     public ForumUser register(Register register) {
         RegistrationUtils.validateRegistration(register);
-        ForumUser userPresent = forumUserDao.findByEmail(register.getEmail());
-        if (userPresent != null) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+        User user = getUserFromRegister(register);
+
+        user = userDao.save(user);
+
+        manageEmailOnRegistration(user, register);
+        manageContactNumberOnRegistration(user, register);
+
+        // auto login after registration
+        ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
+        SecurityContextUtils.autoLogin(registeredUser);
+
+        return registeredUser;
+    }
+
+    private User getUserFromRegister(Register register) {
+        User user = userDao.findByPrimaryEmail(register.getEmail());
+        if (user == null) {
+            user = createFreshUserFromRegister(register);
         }
-        ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
-        /*
-         * after registration make user auto login
-         */
-        SecurityContextUtils.autoLogin(savedUser);
-        return savedUser;
+        else {
+            if (user.isRegistered()) {
+                throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+            }
+            else {
+                copyFieldsFromRegisterToUser(register, user);
+            }
+        }
+        return user;
+    }
+
+    private User createFreshUserFromRegister(Register register) {
+        User user = new User();
+        copyFieldsFromRegisterToUser(register, user);
+        user.setCreatedAt(new Date());
+        return user;
+    }
+
+    private void copyFieldsFromRegisterToUser(Register register, User user) {
+        user.setFullName(register.getUserName());
+        user.setPassword(register.getPassword());
+        user.setCountryId(user.getCountryId());
+        user.setRegistered(true);
+    }
+
+    // manages emails for every registration
+    // will be more relevant once we start supporting multiple emails
+    private void manageEmailOnRegistration(User user, Register register) {
+        if (user.getEmails() == null) {
+            String email = register.getEmail();
+            UserEmail userEmail = new UserEmail(email, user.getId());
+            emailDao.save(userEmail);
+        }
+    }
+
+    // manages contact numbers for every registration
+    // will be more relevant once we start supporting multiple contacts
+    private void manageContactNumberOnRegistration(User user, Register register) {
+        if (user.getContactNumbers() == null) {
+            String contactNumber = register.getContact().toString();
+            contactNumberDao.save(new UserContactNumber(contactNumber, user.getId()));
+        }
     }
 
     /**

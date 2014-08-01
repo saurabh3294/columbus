@@ -36,13 +36,23 @@ public class UserEmail extends BaseModel {
     @Email
     private String            email;
 
-    private int               priority             = 1;
+    private int               priority             = primaryEmailPriority;
 
     @Column(name = "created_by")
     private int               createdBy;
 
     @Column(name = "created_at")
     private Date              createdAt            = new Date();
+
+    public UserEmail() {
+
+    }
+
+    public UserEmail(String email, int userId) {
+        this.email = email;
+        this.userId = userId;
+        this.createdBy = userId;
+    }
 
     public int getId() {
         return id;
