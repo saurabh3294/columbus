@@ -130,7 +130,6 @@ public class PortfolioPriceTrendService {
         return portfolioPriceTrend;
     }
 
-    
     /**
      * @param noOfMonths
      * @param listings
@@ -148,6 +147,10 @@ public class PortfolioPriceTrendService {
          * equal to noOfMonths
          */
         addPriceDetailsFromCurrentMonth(projectPriceTrendTemp, noOfMonths, listings);
+        /*
+         * Update Price with total price of Listing
+         */
+        updatePriceAsTotalListingPriceInTrend(projectPriceTrendTemp, listings);
         return projectPriceTrendTemp;
     }
 
@@ -228,8 +231,7 @@ public class PortfolioPriceTrendService {
                 }
 
                 /*
-                 * removing price detail before launch date because cms sometime
-                 * adds data before launch date for a project.
+                 * removing price detail before launch date.
                  */
                 while (launchDate != null && !prices.isEmpty() && prices.get(0).getEffectiveDate().before(launchDate)) {
                     prices.remove(0);
@@ -335,6 +337,74 @@ public class PortfolioPriceTrendService {
                 prices.remove(prices.size() - 1);
             }
         }
+    }
+
+    /**
+     * CMS API gives per square unit price, This method updates the prices
+     * receive from CMS API as total price for property size
+     * 
+     * @param projectPriceTrends
+     * @param listings
+     */
+    private void updatePriceAsTotalListingPriceInTrend(
+            List<ProjectPriceTrend> projectPriceTrends,
+            List<PortfolioListing> listings) {
+        Iterator<ProjectPriceTrend> priceTrendItr = projectPriceTrends.iterator();
+        while (priceTrendItr.hasNext()) {
+            ProjectPriceTrend projectPriceTrend = priceTrendItr.next();
+            PortfolioListing listing = getListingForProject(projectPriceTrend, listings);
+            if (listing != null) {
+                Double size = listing.getListingSize();
+                if (size == null) {
+                    size = 0.0D;
+                }
+                /*
+                 * Adding other pricess too in price trend becoz while getting
+                 * portfolio/listing we add other prices in current price
+                 * 
+                 * TODO change this if we change in get portfolio or listing
+                 */
+                double totalOtherPrice = getTotalOtherPrice(listing.getOtherPrices());
+                // double totalOtherPrice = 0.0D;
+                if (projectPriceTrend.getPrices() != null) {
+                    for (PriceDetail priceDetail : projectPriceTrend.getPrices()) {
+                        if (priceDetail.getPrice() == 0.0D) {
+                            priceDetail.setPricePerUnitArea(Math.rint(listing.getTotalPrice() / listing.getListingSize()));
+                            priceDetail.setPrice(listing.getTotalPrice());
+                            
+                        }
+                        else {
+                            double totPrice = priceDetail.getPrice();
+                            priceDetail.setPricePerUnitArea(priceDetail.getPrice());
+                            totPrice = totPrice * size + totalOtherPrice;
+                            priceDetail.setPrice((int) totPrice);
+                            
+                        }
+
+                    }
+                }
+
+            }
+            else {
+                priceTrendItr.remove();
+            }
+        }
+    }
+
+    /**
+     * Calculate total other price
+     * 
+     * @param otherPrices
+     * @return
+     */
+    private double getTotalOtherPrice(Set<PortfolioListingPrice> otherPrices) {
+        double price = 0.0D;
+        if (otherPrices != null) {
+            for (PortfolioListingPrice listingPrice : otherPrices) {
+                price = price + listingPrice.getAmount();
+            }
+        }
+        return price;
     }
 
     /**
