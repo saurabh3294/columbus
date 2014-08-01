@@ -3,12 +3,14 @@ package com.proptiger.data.event.service;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
-import java.util.Map;
+
+import org.springframework.stereotype.Service;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 
+@Service
 public class TableDateMappingService {
     
 private static final String DB_EVENT_MAPPING_FILE = "DBEventMapping.json";
@@ -26,6 +28,7 @@ private static final String DB_EVENT_MAPPING_FILE = "DBEventMapping.json";
     
     // TODO
     public List<DBRawEventTableConfig> polulateLastAccessedDate(List<DBRawEventTableConfig> dbRawEventTableConfigs) {
+        // if date is not set then don't add the date
         return null;
     }
     

@@ -154,8 +154,25 @@ public class EventTypeMappingService {
             }
         }
     }
-    
+
     public List<DBRawEventTableConfig> getDBRawEventTableConfigs() {
+        return null;
+    }
+
+    public List<EventType> getEventTypesForInsertDBOperation(String hostName, String dbName, String tableName) {
+        return null;
+
+    }
+
+    public List<EventType> getEventTypesForDeleteDBOperation(String hostName, String dbName, String tableName) {
+        return null;
+    }
+
+    public List<EventType> getEventTypesForUpdateDBOperation(
+            String hostName,
+            String dbName,
+            String tableName,
+            String attributeName) {
         return null;
     }
 

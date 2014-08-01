@@ -15,12 +15,10 @@ public class RawDBEvent {
 	private String dbName;
 	private String tableName;
 	private DBOperation dbOperation;
-	
-	/* Map of Attribute and (oldDbValue, newDbValue) */
-	private Map<String, Object> dbValueMap;
-	
+	private Map<String, Object> oldDBValueMap;
+	private Map<String, Object> newDBValueMap;	
 	private String idName;
-	private String idValue;
+	private Object idValue;
 
 	
 	public String getHostName() {
@@ -55,13 +53,21 @@ public class RawDBEvent {
 		this.dbOperation = dbOperation;
 	}
 
-	public Map<String, Object> getDbValueMap() {
-		return dbValueMap;
-	}
+    public Map<String, Object> getOldDBValueMap() {
+        return oldDBValueMap;
+    }
 
-	public void setDbValueMap(Map<String, Object> dbValueMap) {
-		this.dbValueMap = dbValueMap;
-	}
+    public void setOldDBValueMap(Map<String, Object> oldDBValueMap) {
+        this.oldDBValueMap = oldDBValueMap;
+    }
+
+    public Map<String, Object> getNewDBValueMap() {
+        return newDBValueMap;
+    }
+
+    public void setNewDBValueMap(Map<String, Object> newDBValueMap) {
+        this.newDBValueMap = newDBValueMap;
+    }
 
     public String getIdName() {
         return idName;
@@ -71,11 +77,11 @@ public class RawDBEvent {
         this.idName = idName;
     }
 
-    public String getIdValue() {
+    public Object getIdValue() {
         return idValue;
     }
 
-    public void setIdValue(String idValue) {
+    public void setIdValue(Object idValue) {
         this.idValue = idValue;
     }
 

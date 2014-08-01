@@ -31,31 +31,29 @@ public class RawDBEventGenerator {
         dbRawEventTableConfigs = tableDataMappingService.polulateLastAccessedDate(dbRawEventTableConfigs);
 
         for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
-            List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(
-                    dbRawEventTableConfig.getTableName(),
-                    dbRawEventTableConfig.getDateAttributeName(),
-                    dbRawEventTableConfig.getDateAttributeValue());
+            List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
 
-            finalRawDBEventList.addAll(rawDBEvents);
-            dbRawEventTableConfig.setDateAttributeValue(getLastAccessedDate(
-                    rawDBEvents,
-                    dbRawEventTableConfig.getDateAttributeName()));
+            if (!rawDBEvents.isEmpty()) {
+                finalRawDBEventList.addAll(rawDBEvents);
+                dbRawEventTableConfig.setDateAttributeValue(getLastAccessedDate(
+                        rawDBEvents,
+                        dbRawEventTableConfig.getDateAttributeName()));
+            }
         }
 
         tableDataMappingService.updateTableDateMap(dbRawEventTableConfigs);
         return finalRawDBEventList;
     }
 
-    private String getLastAccessedDate(List<RawDBEvent> rawDBEvents, String dateAttributeName) {
-        Date lastAccessedDate = null;
+    private Date getLastAccessedDate(List<RawDBEvent> rawDBEvents, String dateAttributeName) {
+        Date lastAccessedDate = new Date();
         for (RawDBEvent rawDBEvent : rawDBEvents) {
-            // TODO: Get the new date from the map
-            Date rawDBEventDate = (Date) rawDBEvent.getDbValueMap().get(dateAttributeName);
+            Date rawDBEventDate = (Date) rawDBEvent.getNewDBValueMap().get(dateAttributeName);
             if (lastAccessedDate == null || lastAccessedDate.before(rawDBEventDate)) {
                 lastAccessedDate = rawDBEventDate;
             }
         }
-        return lastAccessedDate.toString();
+        return lastAccessedDate;
     }
 
     public void populateRawDBEventData(RawDBEvent rawDBEvent) {

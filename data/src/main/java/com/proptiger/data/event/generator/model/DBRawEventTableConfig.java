@@ -1,16 +1,20 @@
 package com.proptiger.data.event.generator.model;
 
+import java.util.Date;
 import java.util.List;
 
 public class DBRawEventTableConfig {
-    private int               id;
-    private String            hostName;
-    private String            dbName;
-    private String            tableName;
-    private String            primaryKeyName;
-    private String            transactionKeyName;
-    private String            dateAttributeName;
-    private String            dateAttributeValue;
+
+    private static final String             DB_OPERATION_ATTRIBUTE_NAME = "_t_operation";
+
+    private int                             id;
+    private String                          hostName;
+    private String                          dbName;
+    private String                          tableName;
+    private String                          primaryKeyName;
+    private String                          transactionKeyName;
+    private String                          dateAttributeName;
+    private Date                            dateAttributeValue          = new Date();
     private List<DBRawEventOperationConfig> dbRawEventOperationConfigs;
 
     public int getId() {
@@ -97,12 +101,16 @@ public class DBRawEventTableConfig {
         this.dateAttributeName = dateAttributeName;
     }
 
-    public String getDateAttributeValue() {
+    public Date getDateAttributeValue() {
         return dateAttributeValue;
     }
 
-    public void setDateAttributeValue(String dateAttributeValue) {
+    public void setDateAttributeValue(Date dateAttributeValue) {
         this.dateAttributeValue = dateAttributeValue;
     }
-    
+
+    public static String getDbOperationAttributeName() {
+        return DB_OPERATION_ATTRIBUTE_NAME;
+    }
+
 }

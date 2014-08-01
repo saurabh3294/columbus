@@ -17,7 +17,6 @@ import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.EventTypeMappingDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.service.LocalityService;
 
@@ -29,7 +28,7 @@ public class EventGeneratedService {
     private EventGeneratedDao eventGeneratedDao;
 
     @Autowired
-    private EventTypeMappingDao dbEventMappingDao;
+    private EventTypeMappingService eventTypeMappingService;
 
     public void persistEvents(List<EventGenerated> eventGenerateds) {
         eventGeneratedDao.save(eventGenerateds);
@@ -89,22 +88,22 @@ public class EventGeneratedService {
         List<EventType> eventTypeList;
 
         if (DBOperation.INSERT.equals(rawDBEvent.getDbOperation())) {
-            eventTypeList = dbEventMappingDao.getEventTypesForInsertDBOperation(
+            eventTypeList = eventTypeMappingService.getEventTypesForInsertDBOperation(
                     rawDBEvent.getHostName(),
                     rawDBEvent.getDbName(),
                     rawDBEvent.getTableName());
             generateEvents(rawDBEvent, eventTypeList, null);
         }
         else if (DBOperation.DELETE.equals(rawDBEvent.getDbOperation())) {
-            eventTypeList = dbEventMappingDao.getEventTypesForDeleteDBOperation(
+            eventTypeList = eventTypeMappingService.getEventTypesForDeleteDBOperation(
                     rawDBEvent.getHostName(),
                     rawDBEvent.getDbName(),
                     rawDBEvent.getTableName());
             generateEvents(rawDBEvent, eventTypeList, null);
         }
         else if (DBOperation.UPDATE.equals(rawDBEvent.getDbOperation())) {
-            for (String attributeName : rawDBEvent.getDbValueMap().keySet()) {
-                eventTypeList = dbEventMappingDao.getEventTypesForUpdateDBOperation(
+            for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
+                eventTypeList = eventTypeMappingService.getEventTypesForUpdateDBOperation(
                         rawDBEvent.getHostName(),
                         rawDBEvent.getDbName(),
                         rawDBEvent.getTableName(),
