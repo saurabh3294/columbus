@@ -86,7 +86,7 @@ public class UserController extends BaseController {
     @ResponseBody
     public APIResponse register(@RequestBody Register register){
         ForumUser forumUser = userService.register(register);
-        return new APIResponse(forumUser);
+        return new APIResponse(userService.getUserDetails(forumUser.getUserId()));
     }
     
     @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST)
