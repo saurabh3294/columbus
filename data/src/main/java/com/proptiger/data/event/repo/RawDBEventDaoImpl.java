@@ -9,8 +9,12 @@ import java.util.Map;
  */
 public class RawDBEventDaoImpl implements RawDBEventDao {
 
+
+
     @Override
     public Map<String, String> getRawDBEventByTableNameAndDate(
+            String hostName,
+            String dbName,
             String tableName,
             String dateAttributeName,
             String dateAttributeValue) {
