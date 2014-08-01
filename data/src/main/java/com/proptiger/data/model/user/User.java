@@ -23,34 +23,37 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "user.users")
 public class User extends BaseModel {
-    private static final long       serialVersionUID = 1L;
+    private static final long            serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int                     id;
+    private int                          id;
 
     @Column(name = "full_name")
-    private String                  fullName;
+    private String                       fullName;
 
-    private String                  password;
+    private String                       password;
 
     @Column(name = "country_id")
-    private Integer                 countryId;
+    private Integer                      countryId;
 
     @Column(name = "is_registered")
-    private boolean                 registered;
+    private boolean                      registered       = true;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.EAGER)
-    private List<UserEmail>         emails;
+    private List<UserEmail>              emails;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
-    private List<UserContactNumber> contactNumbers;
+    private List<UserContactNumber>      contactNumbers;
+
+    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
+    private List<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
-    private Date                    createdAt;
+    private Date                         createdAt;
 
     @Column(name = "updated_at")
-    private Date                    updatedAt;
+    private Date                         updatedAt;
 
     public int getId() {
         return id;
@@ -106,6 +109,14 @@ public class User extends BaseModel {
 
     public void setContactNumbers(List<UserContactNumber> contactNumbers) {
         this.contactNumbers = contactNumbers;
+    }
+
+    public List<UserAuthProviderDetail> getUserAuthProviderDetails() {
+        return userAuthProviderDetails;
+    }
+
+    public void setUserAuthProviderDetails(List<UserAuthProviderDetail> userAuthProviderDetails) {
+        this.userAuthProviderDetails = userAuthProviderDetails;
     }
 
     public Date getCreatedAt() {

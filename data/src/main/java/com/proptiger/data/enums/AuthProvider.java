@@ -2,6 +2,8 @@ package com.proptiger.data.enums;
 
 import java.util.HashMap;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * 
  * @author azi
@@ -26,5 +28,14 @@ public enum AuthProvider {
 
     public int getProviderId() {
         return this.providerId;
+    }
+
+    public static AuthProvider getAuthProviderIgnoreCase(String provider) {
+        for (AuthProvider authProvider : AuthProvider.values()) {
+            if (StringUtils.equalsIgnoreCase(provider, authProvider.toString())) {
+                return authProvider;
+            }
+        }
+        return null;
     }
 }

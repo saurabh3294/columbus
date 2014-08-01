@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.proptiger.data.model.BaseModel;
@@ -19,6 +21,7 @@ public class UserContactNumber extends BaseModel {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int               id;
 
     @Column(name = "user_id")
@@ -27,13 +30,13 @@ public class UserContactNumber extends BaseModel {
     @Column(name = "contact_number")
     private String            contactNumber;
 
-    private int               priority;
+    private int               priority         = 1;
 
     @Column(name = "created_by")
     private int               createdBy;
 
     @Column(name = "created_at")
-    private Date              createdAt;
+    private Date              createdAt        = new Date();
 
     public int getId() {
         return id;
