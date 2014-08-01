@@ -42,7 +42,7 @@ public class TestTrendDaoFieldSwitcher {
         selector.addField("wavgInventoryOverhangOnSupply");
         selector.setGroup("quarter");
 
-        HashMap<String, String> fieldSwitchMap = tdfw.getFieldSwitchMap(selector);
+        HashMap<String, String> fieldSwitchMap = tdfw.getFieldSwitchMapForSelectorFields(selector);
 
         assertEquals(testMsg, "avgPricePerUnitAreaQuarter", fieldSwitchMap.get("avgPricePerUnitArea"));
         assertEquals(testMsg, "wavgPricePerUnitAreaQuarterOnLtdSupply", fieldSwitchMap.get("wavgPricePerUnitAreaOnSupply"));
@@ -63,7 +63,7 @@ public class TestTrendDaoFieldSwitcher {
         selector.addField("wavgInventoryOverhangOnSupply");
         selector.setGroup("month");
 
-        fieldSwitchMap = tdfw.getFieldSwitchMap(selector);
+        fieldSwitchMap = tdfw.getFieldSwitchMapForSelectorFields(selector);
 
         assertEquals(testMsg, "avgPricePerUnitArea", fieldSwitchMap.get("avgPricePerUnitArea"));
         assertEquals(testMsg, "wavgPricePerUnitAreaOnLtdSupply", fieldSwitchMap.get("wavgPricePerUnitAreaOnSupply"));

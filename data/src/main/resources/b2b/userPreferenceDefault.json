@@ -8,5 +8,6 @@
 	"lengthUnit": "m",
 	"catchmentSize": 5000,
 	"budgetRange": {},
-	"yearType": "calendar"
+	"yearType": "calendar",
+	"unitType": ["Apartment", "Villa"]
 }

@@ -7,11 +7,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import redis.clients.jedis.Jedis;
 
 import com.proptiger.data.enums.security.MaxAllowedRequestCount;
+import com.proptiger.data.service.APIAccessDetailPersistentService;
+import com.proptiger.data.service.BotPreventionService;
 
 /**
  * 
@@ -20,17 +23,27 @@ import com.proptiger.data.enums.security.MaxAllowedRequestCount;
  * 
  */
 public class RequestResponseInterceptor extends HandlerInterceptorAdapter {
-    private String  redisHost;
+    private String                           redisHost;
 
-    private Integer redisPort;
+    private Integer                          redisPort;
 
-    private Logger  logger = LoggerFactory.getLogger(RequestResponseInterceptor.class);
+    private Logger                           logger = LoggerFactory.getLogger(RequestResponseInterceptor.class);
+
+    @Autowired
+    private APIAccessDetailPersistentService userAccessDetailPersistentService;
+
+    @Autowired
+    private BotPreventionService             botPreventionService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        preventCrawling(request);
-        response.addHeader("Access-Control-Allow-Origin", "*");
-        return super.preHandle(request, response, handler);
+        if (botPreventionService.isValidRequest(request, response, handler)) {
+            preventCrawling(request);
+            response.addHeader("Access-Control-Allow-Origin", "*");
+            userAccessDetailPersistentService.processRequest(request, response);
+            return super.preHandle(request, response, handler);
+        }
+        return false;
     }
 
     private void preventCrawling(HttpServletRequest request) {

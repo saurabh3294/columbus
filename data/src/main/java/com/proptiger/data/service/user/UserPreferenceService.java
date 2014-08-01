@@ -1,17 +1,23 @@
 package com.proptiger.data.service.user;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
-import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.user.DashboardDao;
 import com.proptiger.data.repo.user.UserPreferenceDao;
 import com.proptiger.data.util.UserPreferenceProcessor;
+import com.proptiger.exception.BadRequestException;
+import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.ResourceAlreadyExistException;
+import com.proptiger.exception.UnauthorizedException;
 
 /**
  * B2b User Detail Service Class
@@ -31,12 +37,44 @@ public class UserPreferenceService {
     @Autowired
     private ForumUserDao      userDao;
 
-    public UserPreference updateUserPreference(UserPreference b2bUserDetail, ActiveUser userInfo) {
-        if (!UserPreferenceProcessor.isValidPreference(b2bUserDetail.getPreference())) {
-            throw new com.proptiger.exception.BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
+    public UserPreference createUserPreference(UserPreference preference, int userId) {
+        if (userPreferenceDao.findByUserIdAndApp(userId, preference.getApp()) != null) {
+            throw new ResourceAlreadyExistException("Preference Already Created For the app " + preference.getApp());
         }
-        b2bUserDetail.setId(userInfo.getUserIdentifier());
-        return userPreferenceDao.save(b2bUserDetail);
+        if (!UserPreferenceProcessor.isValidPreference(preference.getPreference())) {
+            throw new BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
+        }
+
+        preference.setCreatedAt(new Date());
+        preference.setUserId(userId);
+        preference.setId(null);
+
+        userPreferenceDao.save(preference);
+        return preference;
+    }
+
+    public UserPreference updateUserPreference(UserPreference preference, int UserId) {
+        UserPreference pastPreference = userPreferenceDao.findOne(preference.getId());
+
+        if (pastPreference.getUserId() != UserId) {
+            throw new UnauthorizedException();
+        }
+        if (!UserPreferenceProcessor.isValidPreference(preference.getPreference()) || !pastPreference.getApp().equals(
+                preference.getApp())) {
+            throw new BadRequestException(ResponseErrorMessages.INVALID_USER_PREFERENCE);
+        }
+
+        ExclusionAwareBeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+        try {
+            beanUtilsBean.copyProperties(pastPreference, preference);
+        }
+        catch (IllegalAccessException | InvocationTargetException e) {
+            throw new ProAPIException(e);
+        }
+
+        pastPreference.setUpdatedAt(new Date());
+        userPreferenceDao.save(pastPreference);
+        return pastPreference;
     }
 
     public List<UserPreference> getUserPreferences(int userId) {

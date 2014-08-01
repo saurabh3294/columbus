@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.cache.CustomRedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,7 +33,7 @@ public class AppCachingConfig implements CachingConfigurer {
     @Bean(name = "cacheManager")
     @Override
     public CacheManager cacheManager() {
-        RedisCacheManager cacheManager = new RedisCacheManager(getRedisTemplate());
+        CustomRedisCacheManager cacheManager = new CustomRedisCacheManager(getRedisTemplate());
         cacheManager.setDefaultExpiration(propertyReader.getRequiredPropertyAsType(
                 PropertyKeys.REDIS_DEFAULT_EXPIRATION_TIME,
                 Integer.class));

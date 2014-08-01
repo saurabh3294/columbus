@@ -14,11 +14,12 @@ import com.proptiger.data.constants.ResponseErrorMessages;
 /**
  * The Entry Point will not redirect to any sort of Login - it will return the
  * 401, in case of protected url called without login.
+ * @author Rajeev Pandey
  */
 public class AuthEntryPoint extends LoginUrlAuthenticationEntryPoint {
 
-    public AuthEntryPoint(String url){
-        super(url);
+    public AuthEntryPoint(String loginUrl){
+        super(loginUrl);
     }
     
     @Override
@@ -33,11 +34,5 @@ public class AuthEntryPoint extends LoginUrlAuthenticationEntryPoint {
                 ResponseErrorMessages.AUTHENTICATION_ERROR,
                 userIpAddress);
     }
-    @Override
-    protected String determineUrlToUseForThisRequest(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException exception) {
-        return super.determineUrlToUseForThisRequest(request, response, exception);
-    }
+    
 }

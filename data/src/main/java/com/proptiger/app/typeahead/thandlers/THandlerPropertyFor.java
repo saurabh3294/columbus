@@ -21,18 +21,18 @@ public class THandlerPropertyFor extends RootTHandler {
     private String selectorCityFilter = "{\"filters\":{\"and\":[{\"equal\":{\"cityLabel\":%s}}]}}";
     
     @Override
-    public List<Typeahead> getResults(Typeahead typeahead, String city, int rows) {
+    public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        results.add(getTopResult(typeahead, city));
+        results.add(getTopResult(query, typeahead, city));
 
         List<Locality> topLocalities = getTopLocalities(city);
         String redirectURL;
         for (Locality locality : topLocalities) {
             redirectURL = getRedirectUrl();
             redirectURL = String.format(redirectURL, city, ("-" + locality.getLabel() + "-" + locality.getLocalityId()));
-            results.add(getTypeaheadObjectByTextAndURL((typeahead.getTemplateText() + locality.getLabel()), redirectURL));
+            results.add(getTypeaheadObjectByTextAndURL((this.getType().getText() + " " + locality.getLabel()), redirectURL));
             if (results.size() == rows) {
                 break;
             }
@@ -59,8 +59,8 @@ public class THandlerPropertyFor extends RootTHandler {
    }
     
     @Override
-    public Typeahead getTopResult(Typeahead typeahead, String city) {
-        String displayText = (typeahead.getTemplateText() + city);
+    public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
+        String displayText = (this.getType().getText() + " " + city);
         String redirectUrl = getRedirectUrl();
         redirectUrl = String.format(redirectUrl, city.toLowerCase(), "");
         return (getTypeaheadObjectByTextAndURL(displayText, redirectUrl));

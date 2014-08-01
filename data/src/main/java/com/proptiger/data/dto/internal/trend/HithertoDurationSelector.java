@@ -59,7 +59,10 @@ public class HithertoDurationSelector {
     }
 
     private void recalulateMonthRangeUsingQuaterDuration() {
-        endMonth = DateUtil.getQuarterStartDateString(currentMonth);
+        /* Hack to include the current quarter if last quarter month is set as the cuurent_month */
+        String quarterCurrentMonth = DateUtil.shiftMonths(currentMonth, 1);
+        
+        endMonth = DateUtil.getQuarterStartDateString(quarterCurrentMonth);
         startMonth = DateUtil.subtractMonths(endMonth, quarterDuration * DateUtil.MonthCountInQuarter);
         endMonth = DateUtil.subtractMonths(endMonth, 1);
     }

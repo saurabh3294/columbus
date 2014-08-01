@@ -8,9 +8,9 @@ import org.springframework.security.web.context.*;
  *
  */
 public class SecurityWebApplicationInitializer
-      /*extends AbstractSecurityWebApplicationInitializer*/ {
+      extends AbstractSecurityWebApplicationInitializer {
 
-    /*public SecurityWebApplicationInitializer() {
+    public SecurityWebApplicationInitializer() {
         super(AppSecurityConfig.class);
-    }*/
+    }
 }
