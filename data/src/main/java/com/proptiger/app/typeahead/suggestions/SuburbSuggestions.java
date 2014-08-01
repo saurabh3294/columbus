@@ -23,7 +23,7 @@ public class SuburbSuggestions {
         Typeahead obj;
         for (String[] template : suggestionTemplates) {
             obj = new Typeahead();
-            obj.setDisplayText(String.format(template[0], name) + ", " + cityName);
+            obj.setDisplayText(String.format(template[0], name));
             obj.setRedirectUrl(cityName.toLowerCase() + "/" + String.format(template[1], makeSuburbRedirectUrl(redirectUrl)));
             suggestions.add(obj);
         }
