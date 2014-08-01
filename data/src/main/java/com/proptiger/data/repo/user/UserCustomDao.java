@@ -9,5 +9,4 @@ import com.proptiger.data.model.user.User;
  */
 
 public interface UserCustomDao {
-    public User findUserDetailsByPrimaryEmail(String email);
 }
