@@ -212,6 +212,7 @@ public class URLService {
 
                     if (!domainUrl.equals(urlDetail.getUrl())) {
                         redirectUrl = domainUrl;
+                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     }
                     else {
                         responseStatus = HttpStatus.SC_OK;
@@ -240,6 +241,7 @@ public class URLService {
 
                     if (!domainUrl.equals(urlDetail.getUrl())) {
                         redirectUrl = domainUrl;
+                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     }
                     else {
                         responseStatus = HttpStatus.SC_OK;
