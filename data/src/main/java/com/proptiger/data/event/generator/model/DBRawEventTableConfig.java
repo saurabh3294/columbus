@@ -20,7 +20,6 @@ public class DBRawEventTableConfig {
     }
 
     public DBRawEventTableConfig(
-            int id,
             String hostName,
             String dbName,
             String tableName,
@@ -28,7 +27,6 @@ public class DBRawEventTableConfig {
             String transactionKeyName,
             List<DBRawEventOperationConfig> dbRawEventOperationConfigs) {
         super();
-        this.id = id;
         this.hostName = hostName;
         this.dbName = dbName;
         this.tableName = tableName;
