@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 
-public class TableDataMappingService {
+public class TableDateMappingService {
     
 private static final String DB_EVENT_MAPPING_FILE = "DBEventMapping.json";
     

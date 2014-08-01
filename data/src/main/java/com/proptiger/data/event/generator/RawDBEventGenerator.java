@@ -9,7 +9,7 @@ import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.service.EventTypeMappingService;
 import com.proptiger.data.event.service.RawDBEventService;
-import com.proptiger.data.event.service.TableDataMappingService;
+import com.proptiger.data.event.service.TableDateMappingService;
 
 /**
  * Generates the Raw Events from DB
@@ -21,7 +21,7 @@ import com.proptiger.data.event.service.TableDataMappingService;
 public class RawDBEventGenerator {
 
     private EventTypeMappingService eventTypeMappingService;
-    private TableDataMappingService tableDataMappingService;
+    private TableDateMappingService tableDataMappingService;
     private RawDBEventService       rawDBEventService;
 
     public List<RawDBEvent> getRawDBEvents() {
