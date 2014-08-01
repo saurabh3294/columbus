@@ -1,11 +1,7 @@
 package com.proptiger.data.event.repo;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.List;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.proptiger.data.event.model.EventType;
 
 public class EventTypeMappingDaoImpl {
