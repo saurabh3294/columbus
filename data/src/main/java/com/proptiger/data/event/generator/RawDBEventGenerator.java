@@ -32,14 +32,15 @@ public class RawDBEventGenerator {
 
         for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
             List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(
-                    dbRawEventTableConfig.getTableName(),
-                    dbRawEventTableConfig.getDateAttributeName(),
-                    dbRawEventTableConfig.getDateAttributeValue());
+                    dbRawEventTableConfig.getDbRawEventTableLog().getTableName(),
+                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeName(),
+                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeValue());
 
             finalRawDBEventList.addAll(rawDBEvents);
-            dbRawEventTableConfig.setDateAttributeValue(getLastAccessedDate(
+            // TODO handling the setting of date back to the Log model.
+            dbRawEventTableConfig.getDbRawEventTableLog().setDateAttributeValue(getLastAccessedDate(
                     rawDBEvents,
-                    dbRawEventTableConfig.getDateAttributeName()));
+                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeName()));
         }
 
         tableDataMappingService.updateTableDateMap(dbRawEventTableConfigs);

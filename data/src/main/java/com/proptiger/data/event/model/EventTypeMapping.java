@@ -17,22 +17,7 @@ public class EventTypeMapping {
     @Column(name = "id")
     @Id
     private int         id;
-
-    @Column(name = "host_name")
-    private String      hostName;
-
-    @Column(name = "db_name")
-    private String      dbName;
-
-    @Column(name = "table_name")
-    private String      tableName;
-
-    @Column(name = "primary_key_name")
-    private String      primaryKeyName;
-
-    @Column(name = "transaction_key_name")
-    private String      transactionKeyName;
-
+    
     @Column(name = "dbOperation")
     private DBOperation dbOperation;
 
@@ -42,6 +27,10 @@ public class EventTypeMapping {
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
     private EventType   eventType;
+    
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "raw_event_table_id")
+    private DBRawEventTableLog dbRawEventTableLog;
 
     public int getId() {
         return id;
@@ -49,30 +38,6 @@ public class EventTypeMapping {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public String getDbName() {
-        return dbName;
-    }
-
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public String getPrimaryKeyName() {
-        return primaryKeyName;
-    }
-
-    public void setPrimaryKeyName(String primaryKeyName) {
-        this.primaryKeyName = primaryKeyName;
     }
 
     public DBOperation getDbOperation() {
@@ -99,20 +64,11 @@ public class EventTypeMapping {
         this.eventType = eventType;
     }
 
-    public String getHostName() {
-        return hostName;
+    public DBRawEventTableLog getDbRawEventTableLog() {
+        return dbRawEventTableLog;
     }
 
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
+    public void setDbRawEventTableLog(DBRawEventTableLog dbRawEventTableLog) {
+        this.dbRawEventTableLog = dbRawEventTableLog;
     }
-
-    public String getTransactionKeyName() {
-        return transactionKeyName;
-    }
-
-    public void setTransactionKeyName(String transactionKeyName) {
-        this.transactionKeyName = transactionKeyName;
-    }
-
 }

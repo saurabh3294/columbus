@@ -16,7 +16,7 @@ import com.proptiger.data.event.service.EventGeneratedService;
  * @author mandeep
  *
  */
-public class DBRawEventProcessorHandler extends DBEventProcessorHandler {
+public class DBRawEventHandler extends DBEventProcessorHandler {
     
     @Autowired
     private EventGeneratedService eventGeneratedService;
