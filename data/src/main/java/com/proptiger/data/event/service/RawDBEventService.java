@@ -12,4 +12,5 @@ public class RawDBEventService {
     public List<RawDBEvent> getRawDBEvents(String tableName, String dateAttributeName, String dateAttributeValue) {
         return null;
     }
+    
 }

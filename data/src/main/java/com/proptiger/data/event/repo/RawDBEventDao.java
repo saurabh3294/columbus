@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.service.ImageService;
 
 /**
@@ -72,24 +73,23 @@ public class RawDBEventDao {
             Object primaryKeyValue) {
         
         String queryString = "";
-        try {
-            queryString = "SELECT * FROM " + dbName
+        queryString = "SELECT * FROM " + dbName
                     + "."
                     + tableName
                     + " WHERE "
                     + transactionKeyName
-                    + " = "
+                    + " < "
                     + transactionKeyValue 
                     + " AND "
                     + primaryKeyName
                     + " = "
                     + primaryKeyValue
                     + " ORDER BY "
-                    //+ dateAttributeName
-                    + " ASC ";
-        }
-        catch (Exception e) {
-            logger.error(e.getMessage());
+                    + transactionKeyName
+                    + " DESC limit 1";
+        List<Map<String, Object>> results = runDynamicTableQuery(queryString);
+        if(results != null && results.size() > 0){
+            return results.get(0);
         }
         
         return null;
@@ -112,7 +112,7 @@ public class RawDBEventDao {
             results = query.list();
         }
         catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("Query "+queryString+" : Error Message : "+e.getMessage());
         }
 
         if (results == null) {
@@ -120,5 +120,10 @@ public class RawDBEventDao {
         }
 
         return results;
+    }
+    
+    private Double getOldPriceForPriceChangeEvent(){
+        
+        return null;
     }
 }

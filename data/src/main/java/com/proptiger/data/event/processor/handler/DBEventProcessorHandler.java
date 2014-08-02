@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.proptiger.data.event.processor;
+package com.proptiger.data.event.processor.handler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
