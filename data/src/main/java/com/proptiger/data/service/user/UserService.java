@@ -1,5 +1,6 @@
 package com.proptiger.data.service.user;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.social.connect.UserProfile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
+import com.proptiger.data.enums.AuthProvider;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.external.dto.CustomUser;
@@ -49,19 +52,29 @@ import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Permission;
+import com.proptiger.data.model.ProjectDiscussionSubscription;
 import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.UserAuthProviderDetail;
+import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.data.model.user.UserEmail;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
+import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
+import com.proptiger.data.repo.user.UserContactNumberDao;
+import com.proptiger.data.repo.user.UserDao;
+import com.proptiger.data.repo.user.UserEmailDao;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
@@ -84,55 +97,70 @@ import com.proptiger.exception.UnauthorizedException;
  */
 @Service
 public class UserService {
-    private static Logger              logger = LoggerFactory.getLogger(UserService.class);
+    private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
     @Value("${b2b.price-inventory.max.month}")
-    private String                     currentMonth;
+    private String                           currentMonth;
 
     @Value("${enquired.within.days}")
-    private Integer                    enquiredWithinDays;
+    private Integer                          enquiredWithinDays;
 
     @Value("${proptiger.url}")
-    private String                     proptigerUrl;
+    private String                           proptigerUrl;
 
     @Autowired
-    private EnquiryDao                 enquiryDao;
+    private EnquiryDao                       enquiryDao;
 
     @Autowired
-    private ForumUserDao               forumUserDao;
+    private ForumUserDao                     forumUserDao;
 
     @Autowired
-    private UserPreferenceService      preferenceService;
+    private UserDao                          userDao;
 
     @Autowired
-    private LocalityService            localityService;
+    private UserEmailDao                     emailDao;
 
     @Autowired
-    private UserSubscriptionMappingDao userSubscriptionMappingDao;
+    private UserContactNumberDao             contactNumberDao;
 
     @Autowired
-    private SubscriptionPermissionDao  subscriptionPermissionDao;
+    private UserAuthProviderDetailDao        authProviderDetailDao;
 
     @Autowired
-    private TrendDao                   trendDao;
+    private ProjectDiscussionSubscriptionDao discussionSubscriptionDao;
 
     @Autowired
-    private AuthenticationManager      authManager;
+    private UserPreferenceService            preferenceService;
 
     @Autowired
-    private PropertyReader             propertyReader;
+    private LocalityService                  localityService;
+
+    @Autowired
+    private UserSubscriptionMappingDao       userSubscriptionMappingDao;
+
+    @Autowired
+    private SubscriptionPermissionDao        subscriptionPermissionDao;
+
+    @Autowired
+    private TrendDao                         trendDao;
+
+    @Autowired
+    private AuthenticationManager            authManager;
+
+    @Autowired
+    private PropertyReader                   propertyReader;
 
     @Value("${cdn.image.url}")
-    private String                     cdnImageBase;
+    private String                           cdnImageBase;
 
     @Autowired
-    private MailSender                 mailSender;
+    private MailSender                       mailSender;
 
     @Autowired
-    private ForumUserTokenDao          forumUserTokenDao;
+    private ForumUserTokenDao                forumUserTokenDao;
 
     @Autowired
-    private TemplateToHtmlGenerator    htmlGenerator;
+    private TemplateToHtmlGenerator          htmlGenerator;
 
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
@@ -519,11 +547,10 @@ public class UserService {
         }
         PasswordUtils.validateChangePasword(changePassword);
         logger.debug("Changing password for user {}", activeUser.getUsername());
-        ForumUser forumUser = forumUserDao.findOne(activeUser.getUserIdentifier());
-        forumUser.setPassword(changePassword.getNewPassword());
-        forumUser = forumUserDao.save(forumUser);
-
-        SecurityContextUtils.autoLogin(forumUser);
+        User user = userDao.findOne(activeUser.getUserIdentifier());
+        user.setPassword(changePassword.getNewPassword());
+        userDao.save(user);
+        SecurityContextUtils.autoLogin(forumUserDao.findByUserId(user.getId()));
     }
 
     /**
@@ -535,16 +562,67 @@ public class UserService {
     @Transactional
     public ForumUser register(Register register) {
         RegistrationUtils.validateRegistration(register);
-        ForumUser userPresent = forumUserDao.findByEmail(register.getEmail());
-        if (userPresent != null) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+        User user = getUserFromRegister(register);
+
+        user = userDao.save(user);
+
+        manageEmailOnRegistration(user, register);
+        manageContactNumberOnRegistration(user, register);
+
+        // auto login after registration
+        ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
+        SecurityContextUtils.autoLogin(registeredUser);
+
+        return registeredUser;
+    }
+
+    private User getUserFromRegister(Register register) {
+        User user = userDao.findByPrimaryEmail(register.getEmail());
+        if (user == null) {
+            user = createFreshUserFromRegister(register);
         }
-        ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
-        /*
-         * after registration make user auto login
-         */
-        SecurityContextUtils.autoLogin(savedUser);
-        return savedUser;
+        else {
+            if (user.isRegistered()) {
+                throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+            }
+            else {
+                copyFieldsFromRegisterToUser(register, user);
+            }
+        }
+        return user;
+    }
+
+    private User createFreshUserFromRegister(Register register) {
+        User user = new User();
+        copyFieldsFromRegisterToUser(register, user);
+        user.setCreatedAt(new Date());
+        return user;
+    }
+
+    private void copyFieldsFromRegisterToUser(Register register, User user) {
+        user.setFullName(register.getUserName());
+        user.setPassword(register.getPassword());
+        user.setCountryId(user.getCountryId());
+        user.setRegistered(true);
+    }
+
+    // manages emails for every registration
+    // will be more relevant once we start supporting multiple emails
+    private void manageEmailOnRegistration(User user, Register register) {
+        if (user.getEmails() == null) {
+            String email = register.getEmail();
+            UserEmail userEmail = new UserEmail(email, user.getId());
+            emailDao.save(userEmail);
+        }
+    }
+
+    // manages contact numbers for every registration
+    // will be more relevant once we start supporting multiple contacts
+    private void manageContactNumberOnRegistration(User user, Register register) {
+        if (user.getContactNumbers() == null) {
+            String contactNumber = register.getContact().toString();
+            contactNumberDao.save(new UserContactNumber(contactNumber, user.getId()));
+        }
     }
 
     /**
@@ -579,4 +657,56 @@ public class UserService {
         return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
     }
 
+    @Transactional
+    public User createSocialAuthDetails(
+            UserProfile userProfile,
+            AuthProvider provider,
+            String providerUserId,
+            URL imageUrl) {
+        User user;
+        UserAuthProviderDetail authProviderDetail = authProviderDetailDao.findByProviderIdAndProviderUserId(
+                provider.getProviderId(),
+                providerUserId);
+        if (authProviderDetail != null) {
+            return userDao.findOne(authProviderDetail.getUserId());
+        }
+        else {
+            authProviderDetail = new UserAuthProviderDetail();
+            authProviderDetail.setProviderId(provider.getProviderId());
+            authProviderDetail.setProviderUserId(providerUserId);
+            if (imageUrl != null) {
+                authProviderDetail.setImageUrl(imageUrl.toString());
+            }
+
+            String email = userProfile.getEmail();
+            user = userDao.findByEmail(email);
+
+            if (user == null) {
+                user = new User();
+                user.setFullName(userProfile.getName());
+                user.setCreatedAt(new Date());
+                user.setUpdatedAt(new Date());
+                user = userDao.save(user);
+
+                int userId = user.getId();
+                createDefaultProjectDiscussionSubscriptionForUser(userId);
+
+                UserEmail userEmail = new UserEmail();
+                userEmail.setUserId(userId);
+                userEmail.setEmail(email);
+                userEmail.setCreatedBy(userId);
+                emailDao.save(userEmail);
+            }
+            authProviderDetail.setUserId(user.getId());
+            authProviderDetail.setCreatedAt(new Date());
+            authProviderDetailDao.save(authProviderDetail);
+        }
+        return userDao.findOne(user.getId());
+    }
+
+    private ProjectDiscussionSubscription createDefaultProjectDiscussionSubscriptionForUser(int userId) {
+        ProjectDiscussionSubscription discussionSubscription = new ProjectDiscussionSubscription();
+        discussionSubscription.setUserId(userId);
+        return discussionSubscriptionDao.save(discussionSubscription);
+    }
 }

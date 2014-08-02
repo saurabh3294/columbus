@@ -7,7 +7,8 @@ import com.proptiger.data.model.ForumUser;
  * Registration DTO
  * 
  * @author Rajeev Pandey
- *
+ * @author azi
+ * 
  */
 public class Register extends BaseModel {
     private static final long serialVersionUID = 5973266034024200507L;
@@ -18,6 +19,7 @@ public class Register extends BaseModel {
     private String            password;
     private String            confirmPassword;
     private Integer           countryId;
+    private boolean           registerMe       = true;
 
     public String getUserName() {
         return userName;
@@ -58,13 +60,21 @@ public class Register extends BaseModel {
     public void setCountryId(Integer countryId) {
         this.countryId = countryId;
     }
-    
+
     public String getConfirmPassword() {
         return confirmPassword;
     }
 
     public void setConfirmPassword(String confirmPassword) {
         this.confirmPassword = confirmPassword;
+    }
+
+    public boolean getRegisterMe() {
+        return registerMe;
+    }
+
+    public void setRegisterMe(boolean registerMe) {
+        this.registerMe = registerMe;
     }
 
     public ForumUser createForumUserObject() {
@@ -74,7 +84,8 @@ public class Register extends BaseModel {
         forumUser.setContact(this.contact);
         forumUser.setCountryId(this.countryId);
         forumUser.setPassword(this.password);
-        //TODO these empty string should be removed once we alter forum_user table
+        // TODO these empty string should be removed once we alter forum_user
+        // table
         forumUser.setCity("");
         forumUser.setImage("");
         forumUser.setFbImageUrl("");
