@@ -81,7 +81,7 @@ public class EventTypeMappingService {
                 dbEventTypemap.put(eventTypeKey, eventTypeMapping.getEventType());
 
                 DBRawEventTableConfig TableConfig = new DBRawEventTableConfig(
-                         eventTypeMapping.getDbRawEventTableLog(),
+                        eventTypeMapping.getDbRawEventTableLog(),
                         operationConfigslist);
                 dbRawEventMapping.put(eventKey, TableConfig);
                 dbRawEventTableConfig.add(TableConfig);
@@ -149,9 +149,13 @@ public class EventTypeMappingService {
             }
         }
     }
-    
+
     public List<DBRawEventTableConfig> getDBRawEventTableConfigs() {
         return null;
+    }
+
+    public EventTypeMapping getMappingByEventTypeId(Integer eventTypeId) {
+        return eventTypeMappingDao.findByEventTypeId(eventTypeId).get(0);
     }
 
 }

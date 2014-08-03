@@ -10,28 +10,28 @@ import javax.persistence.Table;
 public class DBRawEventTableLog {
     @Id
     @Column(name = "id")
-    private int               id;
-    
+    private int    id;
+
     @Column(name = "host_name")
-    private String            hostName;
-    
+    private String hostName;
+
     @Column(name = "db_name")
-    private String            dbName;
-    
+    private String dbName;
+
     @Column(name = "table_name")
-    private String            tableName;
-    
+    private String tableName;
+
     @Column(name = "primary_column_name")
-    private String            primaryKeyName;
-    
+    private String primaryKeyName;
+
     @Column(name = "transaction_column_name")
-    private String            transactionKeyName;
-    
+    private String transactionKeyName;
+
     @Column(name = "transaction_date_column_name")
-    private String            dateAttributeName;
-    
+    private String dateAttributeName;
+
     @Column(name = "transaction_date_column_value")
-    private String            dateAttributeValue;
+    private String dateAttributeValue;
 
     public int getId() {
         return id;

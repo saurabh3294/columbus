@@ -23,6 +23,9 @@ public class EventTypeMapping {
 
     @Column(name = "attribute_name")
     private String      attributeName;
+    
+    @Column(name = "event_type_id", insertable = false, updatable = false)
+    private Integer eventTypeId;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
@@ -70,5 +73,13 @@ public class EventTypeMapping {
 
     public void setDbRawEventTableLog(DBRawEventTableLog dbRawEventTableLog) {
         this.dbRawEventTableLog = dbRawEventTableLog;
+    }
+
+    public Integer getEventTypeId() {
+        return eventTypeId;
+    }
+
+    public void setEventTypeId(Integer eventTypeId) {
+        this.eventTypeId = eventTypeId;
     }
 }
