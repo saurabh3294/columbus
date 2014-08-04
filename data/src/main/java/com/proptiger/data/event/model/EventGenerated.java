@@ -32,7 +32,6 @@ public class EventGenerated extends Event {
 
         EventStatus(String name) {
             this.name = name;
-            // TODO Auto-generated constructor stub
         }
     }
 
@@ -88,8 +87,7 @@ public class EventGenerated extends Event {
     @PrePersist
     public void autoPopulateFields() {
         this.createdDate = new Date();
-
-        this.eventTypeUniqueKey = this.eventTypePayload.getIdName() + "-" + this.eventTypePayload.getPrimaryKeyValue();
+        this.eventTypeUniqueKey = this.eventTypePayload.getPrimaryKeyName() + "-" + this.eventTypePayload.getPrimaryKeyValue();
         this.eventStatus = EventStatus.Raw;
 
         autoUpdateFields();

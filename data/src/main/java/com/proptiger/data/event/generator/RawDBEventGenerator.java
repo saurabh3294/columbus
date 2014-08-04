@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.proptiger.data.event.enums.DBOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
+import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 import com.proptiger.data.event.service.EventTypeMappingService;
 import com.proptiger.data.event.service.RawDBEventService;
-import com.proptiger.data.event.service.TableDateMappingService;
 
 /**
  * Generates the Raw Events from DB
@@ -18,32 +21,37 @@ import com.proptiger.data.event.service.TableDateMappingService;
  * 
  */
 
+@Service
 public class RawDBEventGenerator {
 
+    @Autowired
     private EventTypeMappingService eventTypeMappingService;
-    private TableDateMappingService tableDataMappingService;
+
+    @Autowired
     private RawDBEventService       rawDBEventService;
+
+    @Autowired
+    public DBRawEventTableLogDao    dbRawEventTableLogDao;
 
     public List<RawDBEvent> getRawDBEvents() {
 
         List<RawDBEvent> finalRawDBEventList = new ArrayList<RawDBEvent>();
-        List<DBRawEventTableConfig> dbRawEventTableConfigs = eventTypeMappingService.getDBRawEventTableConfigs();
-        dbRawEventTableConfigs = tableDataMappingService.polulateLastAccessedDate(dbRawEventTableConfigs);
+        List<DBRawEventTableConfig> dbRawEventTableConfigs = eventTypeMappingService.getDbRawEventTableConfigs();
 
         for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
-            List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(
-                    dbRawEventTableConfig.getDbRawEventTableLog().getTableName(),
-                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeName(),
-                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeValue());
-
+            List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
             finalRawDBEventList.addAll(rawDBEvents);
-            // TODO handling the setting of date back to the Log model.
-            dbRawEventTableConfig.getDbRawEventTableLog().setDateAttributeValue(getLastAccessedDate(
-                    rawDBEvents,
-                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeName()));
+
+            // Updating the dateAttribute value after generating the rawDBEvents
+            // till previous date
+            DBRawEventTableLog dbRawEventTableLog = dbRawEventTableConfig.getDbRawEventTableLog();
+            dbRawEventTableLog.setDateAttributeValue(getLastAccessedDate(rawDBEvents, dbRawEventTableConfig
+                    .getDbRawEventTableLog().getDateAttributeName()));
+            dbRawEventTableLogDao.updateDateAttributeValueById(
+                    dbRawEventTableLog.getId(),
+                    dbRawEventTableLog.getDateAttributeValue());
         }
 
-        tableDataMappingService.updateTableDateMap(dbRawEventTableConfigs);
         return finalRawDBEventList;
     }
 
@@ -58,27 +66,4 @@ public class RawDBEventGenerator {
         return lastAccessedDate;
     }
 
-    public void populateRawDBEventData(RawDBEvent rawDBEvent) {
-        if (DBOperation.INSERT.equals(rawDBEvent.getDbOperation())) {
-            populateInsertRawDBEventData(rawDBEvent);
-        }
-        else if (DBOperation.DELETE.equals(rawDBEvent.getDbOperation())) {
-            populateDeleteRawDBEventData(rawDBEvent);
-        }
-        else if (DBOperation.UPDATE.equals(rawDBEvent.getDbOperation())) {
-            populateUpdateRawDBEventData(rawDBEvent);
-        }
-    }
-
-    public void populateInsertRawDBEventData(RawDBEvent rawDBEvent) {
-
-    }
-
-    public void populateDeleteRawDBEventData(RawDBEvent rawDBEvent) {
-
-    }
-
-    public void populateUpdateRawDBEventData(RawDBEvent rawDBEvent) {
-
-    }
 }

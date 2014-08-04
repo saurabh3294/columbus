@@ -22,9 +22,9 @@ import com.proptiger.data.event.repo.EventTypeMappingDao;
 public class EventTypeMappingService {
 
     @Autowired
-    private EventTypeMappingDao               eventTypeMappingDao;
+    private EventTypeMappingDao        eventTypeMappingDao;
 
-    public static List<DBRawEventTableConfig> dbRawEventTableConfig;
+    public List<DBRawEventTableConfig> dbRawEventTableConfigs;
 
     @PostConstruct
     public void constructDbConfig() {
@@ -39,7 +39,7 @@ public class EventTypeMappingService {
         List<DBRawEventOperationConfig> operationConfigslist;
         List<DBRawEventAttributeConfig> attributeConfigslist;
 
-        dbRawEventTableConfig = new ArrayList<DBRawEventTableConfig>();
+        dbRawEventTableConfigs = new ArrayList<DBRawEventTableConfig>();
         while (listEventTypeMapping.hasNext()) {
             EventTypeMapping eventTypeMapping = listEventTypeMapping.next();
             Integer eventKey = eventTypeMapping.getDbRawEventTableLog().getId();
@@ -84,7 +84,7 @@ public class EventTypeMappingService {
                         eventTypeMapping.getDbRawEventTableLog(),
                         operationConfigslist);
                 dbRawEventMapping.put(eventKey, TableConfig);
-                dbRawEventTableConfig.add(TableConfig);
+                dbRawEventTableConfigs.add(TableConfig);
 
             }
             else if (dbOperationMap.get(attributeKey) == null) {
@@ -150,29 +150,16 @@ public class EventTypeMappingService {
         }
     }
 
-    public List<DBRawEventTableConfig> getDBRawEventTableConfigs() {
-        return null;
-    }
-
-    public List<EventType> getEventTypesForInsertDBOperation(String hostName, String dbName, String tableName) {
-        return null;
-
-    }
-
-    public List<EventType> getEventTypesForDeleteDBOperation(String hostName, String dbName, String tableName) {
-        return null;
-    }
-
-    public List<EventType> getEventTypesForUpdateDBOperation(
-            String hostName,
-            String dbName,
-            String tableName,
-            String attributeName) {
-        return null;
-    }
-
     public EventTypeMapping getMappingByEventTypeId(Integer eventTypeId) {
         return eventTypeMappingDao.findByEventTypeId(eventTypeId).get(0);
+    }
+
+    public List<DBRawEventTableConfig> getDbRawEventTableConfigs() {
+        return dbRawEventTableConfigs;
+    }
+
+    public void setDbRawEventTableConfigs(List<DBRawEventTableConfig> dbRawEventTableConfigs) {
+        this.dbRawEventTableConfigs = dbRawEventTableConfigs;
     }
 
 }

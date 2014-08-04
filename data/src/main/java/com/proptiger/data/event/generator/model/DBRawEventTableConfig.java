@@ -1,12 +1,17 @@
 package com.proptiger.data.event.generator.model;
 
-import java.util.Date;
 import java.util.List;
 
+import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 
 public class DBRawEventTableConfig {
+    
+    private static final String DB_OPERATION_ATTRIBUTE_NAME = "_t_operation";
+    
     private DBRawEventTableLog dbRawEventTableLog;
+    
+    // TODO: Use Map instead of List
     private List<DBRawEventOperationConfig> dbRawEventOperationConfigs;
 
     public DBRawEventTableConfig(
@@ -40,5 +45,14 @@ public class DBRawEventTableConfig {
     public static String getDbOperationAttributeName() {
         return DB_OPERATION_ATTRIBUTE_NAME;
     }
-
+    
+    public DBRawEventOperationConfig getDbRawEventOperationConfig(DBOperation dbOperation) {
+        for (DBRawEventOperationConfig dbRawEventOperationConfig : dbRawEventOperationConfigs) {
+            if (dbRawEventOperationConfig.getDbOperation().equals(dbOperation)) {
+                return dbRawEventOperationConfig;
+            }
+        }
+        return null;
+    }
+    
 }

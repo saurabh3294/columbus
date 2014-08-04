@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
@@ -15,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * 
  */
 @Repository
-public class RawDBEventDao extends DynamicTableDao{
+public class RawDBEventDao extends DynamicTableDao {
     @Autowired
     private ConversionService conversionService;
 
@@ -50,35 +49,35 @@ public class RawDBEventDao extends DynamicTableDao{
         return runDynamicTableQuery(queryString);
     }
 
-    public Map<String, Object> getRaw(
+    public Map<String, Object> getOldRawDBEvent(
             String hostname,
             String dbName,
             String tableName,
             String transactionKeyName,
-            String transactionKeyValue,
+            Object transactionKeyValue,
             String primaryKeyName,
             Object primaryKeyValue) {
-        
+
         String queryString = "";
         queryString = "SELECT * FROM " + dbName
-                    + "."
-                    + tableName
-                    + " WHERE "
-                    + transactionKeyName
-                    + " < "
-                    + transactionKeyValue 
-                    + " AND "
-                    + primaryKeyName
-                    + " = "
-                    + primaryKeyValue
-                    + " ORDER BY "
-                    + transactionKeyName
-                    + " DESC limit 1";
+                + "."
+                + tableName
+                + " WHERE "
+                + transactionKeyName
+                + " < "
+                + transactionKeyValue
+                + " AND "
+                + primaryKeyName
+                + " = "
+                + primaryKeyValue
+                + " ORDER BY "
+                + transactionKeyName
+                + " DESC limit 1";
         List<Map<String, Object>> results = runDynamicTableQuery(queryString);
-        if(results != null && results.size() > 0){
+        if (results != null && results.size() > 0) {
             return results.get(0);
         }
-        
+
         return null;
 
     }

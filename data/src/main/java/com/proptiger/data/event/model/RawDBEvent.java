@@ -1,57 +1,41 @@
 package com.proptiger.data.event.model;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
-import com.proptiger.data.event.enums.DBOperation;
+import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
 
 /**
  * 
  * @author sahil
- *
+ * 
  */
 public class RawDBEvent {
-	
-	private String hostName;
-	private String dbName;
-	private String tableName;
-	private DBOperation dbOperation;
-	private Map<String, Object> oldDBValueMap;
-	private Map<String, Object> newDBValueMap;	
-	private String idName;
-	private Object idValue;
 
-	
-	public String getHostName() {
-		return hostName;
-	}
+    private DBRawEventTableLog  dbRawEventTableLog;
+    private DBRawEventOperationConfig dbRawEventOperationConfig;
+    private Map<String, Object> oldDBValueMap = new HashMap<>();
+    private Map<String, Object> newDBValueMap = new HashMap<>();
+    private Object              primaryKeyValue;
+    private Object              transactionKeyValue;
+    private Date                transactionDate;
 
-	public void setHostName(String hostName) {
-		this.hostName = hostName;
-	}
+    public DBRawEventTableLog getDbRawEventTableLog() {
+        return dbRawEventTableLog;
+    }
 
-	public String getDbName() {
-		return dbName;
-	}
+    public void setDbRawEventTableLog(DBRawEventTableLog dbRawEventTableLog) {
+        this.dbRawEventTableLog = dbRawEventTableLog;
+    }
 
-	public void setDbName(String dbName) {
-		this.dbName = dbName;
-	}
+    public DBRawEventOperationConfig getDbRawEventOperationConfig() {
+        return dbRawEventOperationConfig;
+    }
 
-	public String getTableName() {
-		return tableName;
-	}
-
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
-
-	public DBOperation getDbOperation() {
-		return dbOperation;
-	}
-
-	public void setDbOperation(DBOperation dbOperation) {
-		this.dbOperation = dbOperation;
-	}
+    public void setDbRawEventOperationConfig(DBRawEventOperationConfig dbRawEventOperationConfig) {
+        this.dbRawEventOperationConfig = dbRawEventOperationConfig;
+    }
 
     public Map<String, Object> getOldDBValueMap() {
         return oldDBValueMap;
@@ -69,22 +53,28 @@ public class RawDBEvent {
         this.newDBValueMap = newDBValueMap;
     }
 
-    public String getIdName() {
-        return idName;
+    public Object getPrimaryKeyValue() {
+        return primaryKeyValue;
     }
 
-    public void setIdName(String idName) {
-        this.idName = idName;
+    public void setPrimaryKeyValue(Object primaryKeyValue) {
+        this.primaryKeyValue = primaryKeyValue;
     }
 
-    public Object getIdValue() {
-        return idValue;
+    public Object getTransactionKeyValue() {
+        return transactionKeyValue;
     }
 
-    public void setIdValue(Object idValue) {
-        this.idValue = idValue;
+    public void setTransactionKeyValue(Object transactionKeyValue) {
+        this.transactionKeyValue = transactionKeyValue;
     }
 
-	
-		
+    public Date getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
+    }
+
 }
