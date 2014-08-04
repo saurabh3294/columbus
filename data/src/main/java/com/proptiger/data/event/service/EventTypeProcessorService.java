@@ -38,10 +38,10 @@ public class EventTypeProcessorService {
                 dbRawEventTableLog.getHostName(),
                 dbRawEventTableLog.getTableName(),
                 dbRawEventTableLog.getPrimaryKeyName(),
-                eventGenerated.getEventTypePayload().getIdValue(),
+                eventGenerated.getEventTypePayload().getPrimaryKeyValue(),
                 eventTypeMapping.getAttributeName(),
                 dbRawEventTableLog.getTransactionKeyName(),
-                eventGenerated.getEventTypePayload().getId(),
+                eventGenerated.getEventTypePayload().getTransactionId(),
                 dbRawEventTableLog.getDateAttributeName(),
                 cal.getTime());
 
