@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -13,8 +14,10 @@ import org.hibernate.transform.AliasToEntityMapResultTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
-public abstract class DynamicTableDao {
+@Repository
+public class DynamicTableDao {
 
     @Autowired
     protected SessionFactory sessionFactory;
@@ -25,7 +28,7 @@ public abstract class DynamicTableDao {
         if (queryString == null || queryString.isEmpty()) {
             return new ArrayList<Map<String, Object>>();
         }
-
+        
         Session session = sessionFactory.getCurrentSession();
 
         Query query = session.createQuery(queryString);

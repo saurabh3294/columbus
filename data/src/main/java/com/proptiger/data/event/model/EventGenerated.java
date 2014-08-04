@@ -4,6 +4,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -56,7 +58,7 @@ public class EventGenerated extends Event {
     private Date             updatedDate;
 
     @Column(name = "status")
-    // @SQLUpdate
+    @Enumerated(EnumType.STRING)
     private EventStatus      eventStatus;
 
     @Column(name = "merge_event_id")
@@ -80,14 +82,14 @@ public class EventGenerated extends Event {
     @PreUpdate
     public void autoUpdateFields() {
         this.data = new Gson().toJson(this.eventTypePayload);
+        this.updatedDate = new Date();
     }
 
     @PrePersist
     public void autoPopulateFields() {
         this.createdDate = new Date();
-        this.updatedDate = new Date();
 
-        this.eventTypeUniqueKey = this.eventTypePayload.getIdName() + "-" + this.eventTypePayload.getIdValue();
+        this.eventTypeUniqueKey = this.eventTypePayload.getIdName() + "-" + this.eventTypePayload.getPrimaryKeyValue();
         this.eventStatus = EventStatus.Raw;
 
         autoUpdateFields();

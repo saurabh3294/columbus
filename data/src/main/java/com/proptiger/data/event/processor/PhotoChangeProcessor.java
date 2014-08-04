@@ -27,11 +27,9 @@ public class PhotoChangeProcessor extends DBEventProcessor {
     }
 
     @Override
-    public void populateEventSpecificData(EventGenerated event) {
+    public boolean populateEventSpecificData(EventGenerated event) {
         // TODO Auto-generated method stub
-        
+        return false;
     }
 
-    
-   
 }
