@@ -126,7 +126,7 @@ public class EventGeneratedService {
         for (EventType eventType : eventTypeList) {
             EventTypePayload payload = eventType.getEventTypeConfig().getEventTypePayloadObject();
             payload.setPrimaryKeyName(rawDBEvent.getIdName());
-            payload.setIdValue(rawDBEvent.getIdValue());
+            payload.setPrimaryKeyValue(rawDBEvent.getIdValue());
             payload.populatePayloadValues(rawDBEvent, attributeName);
 
             EventGenerated eventGenerated = new EventGenerated();

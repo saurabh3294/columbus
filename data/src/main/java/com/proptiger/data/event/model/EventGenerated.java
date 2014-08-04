@@ -89,17 +89,13 @@ public class EventGenerated extends Event {
     public void autoPopulateFields() {
         this.createdDate = new Date();
 
-        this.eventTypeUniqueKey = this.eventTypePayload.getIdName() + "-" + this.eventTypePayload.getPrimaryKeyValue();
+        this.eventTypeUniqueKey = this.eventTypePayload.getPrimaryKeyName() + "-" + this.eventTypePayload.getPrimaryKeyValue();
         this.eventStatus = EventStatus.Raw;
 
         autoUpdateFields();
     }
 
-    public EventGenerated test(EventGenerated t) {
-        return this;
-    }
-
-    public int getId() {
+   public int getId() {
         return id;
     }
 
