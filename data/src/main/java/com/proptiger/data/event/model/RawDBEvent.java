@@ -13,13 +13,13 @@ import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
  */
 public class RawDBEvent {
 
-    private DBRawEventTableLog  dbRawEventTableLog;
+    private DBRawEventTableLog        dbRawEventTableLog;
     private DBRawEventOperationConfig dbRawEventOperationConfig;
-    private Map<String, Object> oldDBValueMap = new HashMap<>();
-    private Map<String, Object> newDBValueMap = new HashMap<>();
-    private Object              primaryKeyValue;
-    private Object              transactionKeyValue;
-    private Date                transactionDate;
+    private Map<String, Object>       oldDBValueMap = new HashMap<>();
+    private Map<String, Object>       newDBValueMap = new HashMap<>();
+    private Object                    primaryKeyValue;
+    private Object                    transactionKeyValue;
+    private Date                      transactionDate;
 
     public DBRawEventTableLog getDbRawEventTableLog() {
         return dbRawEventTableLog;

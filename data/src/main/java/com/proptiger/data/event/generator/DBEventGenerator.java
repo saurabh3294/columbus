@@ -43,7 +43,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
 
         return true;
     }
-
+   
     @Override
     public Integer generateEvents() {
 
@@ -61,12 +61,11 @@ public class DBEventGenerator implements EventGeneratorInterface {
 
             for (EventGenerated event : events) {
                 DBEventProcessor dbEventProcessor = event.getEventType().getEventTypeConfig().getProcessorObject();
-
-                // TODO
                 dbEventProcessor.populateEventSpecificData(event);
             }
-
-            eventGeneratedService.persistEvents(events);
+            
+            // persist the events and update the last date in dbRawEventTableLog
+            eventGeneratedService.persistEvents(events, rawDBEvent.getDbRawEventTableLog());
         }
 
         return eventCount;

@@ -38,7 +38,6 @@ public abstract class DBEventProcessor implements EventProcessor {
 
         }
 
-        // TODO Auto-generated method stub
         return groupEventsByUniqueKey;
     }
 

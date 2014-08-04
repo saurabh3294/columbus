@@ -14,11 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.DBRawEventAttributeConfig;
 import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
+import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.service.LocalityService;
 
@@ -32,8 +34,15 @@ public class EventGeneratedService {
     @Autowired
     private EventTypeMappingService eventTypeMappingService;
 
-    public void persistEvents(List<EventGenerated> eventGenerateds) {
+    @Autowired
+    private DBRawEventTableLogDao   dbRawEventTableLogDao;
+
+    // TODO: Make this transactional
+    public void persistEvents(List<EventGenerated> eventGenerateds, DBRawEventTableLog dbRawEventTableLog) {
         eventGeneratedDao.save(eventGenerateds);
+        dbRawEventTableLogDao.updateDateAttributeValueById(
+                dbRawEventTableLog.getId(),
+                dbRawEventTableLog.getDateAttributeValue());
     }
 
     public List<EventGenerated> getRawEvents() {

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 import com.proptiger.data.event.service.EventTypeMappingService;
 import com.proptiger.data.event.service.RawDBEventService;
 
@@ -30,9 +29,6 @@ public class RawDBEventGenerator {
     @Autowired
     private RawDBEventService       rawDBEventService;
 
-    @Autowired
-    public DBRawEventTableLogDao    dbRawEventTableLogDao;
-
     public List<RawDBEvent> getRawDBEvents() {
 
         List<RawDBEvent> finalRawDBEventList = new ArrayList<RawDBEvent>();
@@ -43,13 +39,9 @@ public class RawDBEventGenerator {
             finalRawDBEventList.addAll(rawDBEvents);
 
             // Updating the dateAttribute value after generating the rawDBEvents
-            // till previous date
             DBRawEventTableLog dbRawEventTableLog = dbRawEventTableConfig.getDbRawEventTableLog();
             dbRawEventTableLog.setDateAttributeValue(getLastAccessedDate(rawDBEvents, dbRawEventTableConfig
                     .getDbRawEventTableLog().getDateAttributeName()));
-            dbRawEventTableLogDao.updateDateAttributeValueById(
-                    dbRawEventTableLog.getId(),
-                    dbRawEventTableLog.getDateAttributeValue());
         }
 
         return finalRawDBEventList;
