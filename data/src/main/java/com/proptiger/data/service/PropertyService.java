@@ -50,6 +50,8 @@ public class PropertyService {
     @Autowired
     private SolrDao             solrDao;
 
+    private static int ROWS_THRESHOLD = 200;
+
     /**
      * Returns properties given a selector
      * 
@@ -72,8 +74,36 @@ public class PropertyService {
      * @param propertyListingSelector
      * @return
      */
-    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
-        PaginatedResponse<List<Project>> projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector)
+    {
+        PaginatedResponse<List<Project>> projects = null;
+
+        if (propertyListingSelector != null && propertyListingSelector.getPaging() != null &&
+            propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD)
+        {
+            projects = new PaginatedResponse<>();
+            projects.setResults(new ArrayList<Project>());
+            int startOriginal = propertyListingSelector.getPaging().getStart();
+            int rowsOriginal  = propertyListingSelector.getPaging().getRows();
+            
+            int remainingRowsToBeFetched = rowsOriginal;
+            int rowsFetchedLast = ROWS_THRESHOLD;
+            for (int start = startOriginal; remainingRowsToBeFetched > 0 && rowsFetchedLast == ROWS_THRESHOLD; start += ROWS_THRESHOLD) {
+                propertyListingSelector.getPaging().setStart(start);
+                propertyListingSelector.getPaging().setRows(Math.min(ROWS_THRESHOLD, remainingRowsToBeFetched));
+                PaginatedResponse<List<Project>> projectsLocal = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+                projects.getResults().addAll(projectsLocal.getResults());
+                projects.setTotalCount(projectsLocal.getTotalCount());                
+                rowsFetchedLast = projectsLocal.getResults().size();
+                remainingRowsToBeFetched -= ROWS_THRESHOLD;
+            }
+
+            propertyListingSelector.getPaging().setStart(startOriginal);
+            propertyListingSelector.getPaging().setRows(rowsOriginal);
+        }
+        else {
+            projects = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+        }
 
         return projects;
     }
