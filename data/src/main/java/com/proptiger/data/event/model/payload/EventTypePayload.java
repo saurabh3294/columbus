@@ -6,9 +6,10 @@ import com.proptiger.data.event.model.RawDBEvent;
 
 
 public abstract class EventTypePayload {
+    private Object id;
     private String idName;
     private Object idValue;
-    
+        
     private List<EventTypeUpdateHistory> eventTypeUpdateHistories;
         
     public List<EventTypeUpdateHistory> getEventTypeUpdateHistories() {
@@ -31,5 +32,11 @@ public abstract class EventTypePayload {
     }
     
     public abstract void populatePayloadValues(RawDBEvent rawDBEvent, String attributeName);
+    public Object getId() {
+        return id;
+    }
+    public void setId(Object id) {
+        this.id = id;
+    }
     
 }

@@ -3,86 +3,22 @@ package com.proptiger.data.event.generator.model;
 import java.util.Date;
 import java.util.List;
 
+import com.proptiger.data.event.model.DBRawEventTableLog;
+
 public class DBRawEventTableConfig {
-
-    private static final String             DB_OPERATION_ATTRIBUTE_NAME = "_t_operation";
-
-    private int                             id;
-    private String                          hostName;
-    private String                          dbName;
-    private String                          tableName;
-    private String                          primaryKeyName;
-    private String                          transactionKeyName;
-    private String                          dateAttributeName;
-    private Date                            dateAttributeValue          = new Date();
+    private DBRawEventTableLog dbRawEventTableLog;
     private List<DBRawEventOperationConfig> dbRawEventOperationConfigs;
 
-    public int getId() {
-        return id;
+    public DBRawEventTableConfig(
+            DBRawEventTableLog dbRawEventTableLog,
+            List<DBRawEventOperationConfig> dbRawEventOperationConfigs) {
+        super();
+        this.dbRawEventTableLog = dbRawEventTableLog;
+        this.dbRawEventOperationConfigs = dbRawEventOperationConfigs;
     }
 
     public DBRawEventTableConfig() {
         super();
-    }
-
-    public DBRawEventTableConfig(
-            String hostName,
-            String dbName,
-            String tableName,
-            String primaryKeyName,
-            String transactionKeyName,
-            List<DBRawEventOperationConfig> dbRawEventOperationConfigs) {
-        super();
-        this.hostName = hostName;
-        this.dbName = dbName;
-        this.tableName = tableName;
-        this.primaryKeyName = primaryKeyName;
-        this.transactionKeyName = transactionKeyName;
-        this.dbRawEventOperationConfigs = dbRawEventOperationConfigs;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getHostName() {
-        return hostName;
-    }
-
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
-    }
-
-    public String getDbName() {
-        return dbName;
-    }
-
-    public void setDbName(String dbName) {
-        this.dbName = dbName;
-    }
-
-    public String getTableName() {
-        return tableName;
-    }
-
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public String getPrimaryKeyName() {
-        return primaryKeyName;
-    }
-
-    public void setPrimaryKeyName(String primaryKeyName) {
-        this.primaryKeyName = primaryKeyName;
-    }
-
-    public String getTransactionKeyName() {
-        return transactionKeyName;
-    }
-
-    public void setTransactionKeyName(String transactionKeyName) {
-        this.transactionKeyName = transactionKeyName;
     }
 
     public List<DBRawEventOperationConfig> getDbRawEventOperationConfigs() {
@@ -93,20 +29,12 @@ public class DBRawEventTableConfig {
         this.dbRawEventOperationConfigs = dbRawEventOperationConfigs;
     }
 
-    public String getDateAttributeName() {
-        return dateAttributeName;
+    public DBRawEventTableLog getDbRawEventTableLog() {
+        return dbRawEventTableLog;
     }
 
-    public void setDateAttributeName(String dateAttributeName) {
-        this.dateAttributeName = dateAttributeName;
-    }
-
-    public Date getDateAttributeValue() {
-        return dateAttributeValue;
-    }
-
-    public void setDateAttributeValue(Date dateAttributeValue) {
-        this.dateAttributeValue = dateAttributeValue;
+    public void setDbRawEventTableLog(DBRawEventTableLog dbRawEventTableLog) {
+        this.dbRawEventTableLog = dbRawEventTableLog;
     }
 
     public static String getDbOperationAttributeName() {

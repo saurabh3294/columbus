@@ -1,4 +1,4 @@
-package com.proptiger.data.event.processor;
+package com.proptiger.data.event.processor.handler;
 
 import java.util.List;
 import java.util.Map;
@@ -9,7 +9,7 @@ import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.service.EventGeneratedService;
 
-public class DBProcessedEventProcessorHandler extends DBEventProcessorHandler{
+public class DBProcessedEventHandler extends DBEventProcessorHandler{
     @Autowired
     private EventGeneratedService eventGeneratedService;
     

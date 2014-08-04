@@ -24,10 +24,12 @@ public class Constants {
     public static final String               JSESSIONID                = "JSESSIONID";
     public static final String               PHPSESSID_KEY             = "PHPSESSID";
     public static final int                  DEFAULT_NO_OF_ROWS        = 10;
+    public static final int                  DEFAULT_NO_OF_ALL_ROWS        = 9999;
     public static final String               USERNAME                  = "username";
     public static final List<Source>         SOURCETYPE_LIST           = Arrays.asList(Source.portfolio, Source.backend);
     public static final int                  LIMIT_OF_COMPOSITE_APIs   = 15;
 
+    public static final String               APPLICATION_NAME_HEADER   = "applicationType";
     /**
      * Put all solr Dynamic Field generated in this class.
      */
@@ -136,7 +138,7 @@ public class Constants {
         public static final String PROPERTY_INACTIVE                     = "property-inactive";
         public static final String PROJECT_INACTIVE                      = "project-inactive";
         public static final String LOCALITY_INACTIVE                     = "locality-inactive";
-        public static final String SUBURB_INACTIVE                       = "suburb-inactive";  
+        public static final String SUBURB_INACTIVE                       = "suburb-inactive";
 
     }
 
@@ -153,5 +155,46 @@ public class Constants {
 
     public static class SeoPageTemplate {
         /* public static final String CITY_OVERVIEW_PAGE = "\"title\":"; */
+    }
+
+    /**
+     * Put security related constants in this inner class
+     * 
+     * @author Rajeev Pandey
+     * 
+     */
+    public static final class Security {
+        public static final String COOKIE_NAME_JSESSIONID      = "JSESSIONID";
+
+        public static final String LOGOUT_URL                  = "/app/v1/logout";
+
+        public static final String PASSWORD_PARAMETER_NAME     = "password";
+
+        public static final String USERNAME_PARAMETER_NAME     = "username";
+
+        public static final String LOGIN_URL                   = "/app/v1/login";
+
+        public static final String API_SECRET_KEY              = "api.sec.key";
+
+        public static final String USER_API_REGEX              = ".*/user/.*";
+
+        public static final String AUTH_API_REGEX              = ".*/auth/.*";
+
+        public static final String REMEMBER_ME_PARAMETER       = "rememberme";
+
+        public static final String REMEMBER_ME_COOKIE          = "api.rememberme.cookie";
+
+        public static final int    REMEMBER_ME_COOKIE_VALIDITY = 60 * 60 * 24 * 365;
+
+        // cookie valid for 7 days, make sure to set session max inactive
+        // interval to same value.
+        public static final int    JSESSION_COOKIE_MAX_AGE     = 60 * 60 * 24 * 7;
+
+        public static final String SERVER_CURR_TIME            = "server-time";
+        public static final String SECRET_HASH_HEADER_KEY      = "_shhkey";
+        public static final String API_SECRET_KEYWORD          = "_askey";
+        public static final int    ACCESS_TOKEN_VALIDITY_DAYS    = 7;
+        public static final String REGISTER_URL                = "app/v1/register";
+        public static final String ACCESS_TOKEN                = "access_token";
     }
 }

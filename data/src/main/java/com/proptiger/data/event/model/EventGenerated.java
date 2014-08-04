@@ -46,6 +46,9 @@ public class EventGenerated extends Event {
     @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
     private EventType        eventType;
 
+    @Column(name = "event_created_date")
+    private Date             eventCreatedDate;
+
     @Column(name = "created_date", updatable = false)
     private Date             createdDate;
 
@@ -172,5 +175,13 @@ public class EventGenerated extends Event {
 
     public void setEventTypeUniqueKey(String eventTypeUniqueKey) {
         this.eventTypeUniqueKey = eventTypeUniqueKey;
+    }
+
+    public Date getEventCreatedDate() {
+        return eventCreatedDate;
+    }
+
+    public void setEventCreatedDate(Date eventCreatedDate) {
+        this.eventCreatedDate = eventCreatedDate;
     }
 }

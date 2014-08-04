@@ -51,6 +51,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.URLUtil;
 import com.proptiger.exception.BadRequestException;
 
 /**
@@ -125,17 +126,26 @@ public class CompositeAPIService {
         System.out.println("request:   " + request + "\n");
         Cookie[] requestCookies = request.getCookies();
         String phpsessId = null;
-
+        String jsessionId = null;
+        
         if (requestCookies != null) {
             for (Cookie c : requestCookies) {
 
                 if (c.getName().equals(Constants.PHPSESSID_KEY)) {
                     phpsessId = c.getValue();
                 }
+                else if (c.getName().equals(Constants.JSESSIONID)) {
+                    jsessionId = c.getValue();
+                }
+                else{
+                    continue;
+                }
             }
-        }
+        }     
+        
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.add("Cookie", "PHPSESSID=" + phpsessId);
+        requestHeaders.add("Cookie", "JSESSIONID=" + jsessionId);
 
         final HttpEntity<Object> requestEntity = new HttpEntity<Object>(requestHeaders);
 
@@ -145,7 +155,7 @@ public class CompositeAPIService {
             ExecutorService executors = Executors.newFixedThreadPool(apis.size());
             Map<String, Future<CallableWithTime>> futureObjMap = new ConcurrentHashMap<String, Future<CallableWithTime>>();
             for (String api : apis) {
-                final String completeUrl = getCompleteUrl(api);
+                final String completeUrl = URLUtil.getCompleteUrl(api, BASE_URL);
                 Future<CallableWithTime> future = executors.submit(new Callable<CallableWithTime>() {
                     @Override
                     public CallableWithTime call() throws Exception {
@@ -192,29 +202,7 @@ public class CompositeAPIService {
         return response;
     }
 
-    /**
-     * Get complete url. if url passed have forward slash at start then remove
-     * that since we already have forward slash in base url part. This method
-     * will encode url.
-     * 
-     * @param uri
-     * @return
-     */
-    private String getCompleteUrl(String uri) {
-
-        if (uri.startsWith(FORWARD_SLASH)) {
-            uri = uri.replaceFirst(FORWARD_SLASH, "");
-        }
-        try {
-            uri = URLDecoder.decode(uri, "UTF-8");
-        }
-        catch (UnsupportedEncodingException e1) {
-            logger.error("Could not decode uri {}", uri, e1);
-        }
-        String completeUrl = BASE_URL + uri;
-        String encoded = UriComponentsBuilder.fromUriString(completeUrl).build().encode().toString();
-        return encoded;
-    }
+ 
 
     /**
      * This method is to use spring's internal architecture to hit required

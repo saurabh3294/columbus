@@ -30,7 +30,7 @@ public class EventTypeMappingService {
     public void constructDbConfig() {
         Iterator<EventTypeMapping> listEventTypeMapping = eventTypeMappingDao.findAll().iterator();
 
-        Map<String, DBRawEventTableConfig> dbRawEventMapping = new HashMap<String, DBRawEventTableConfig>();
+        Map<Integer, DBRawEventTableConfig> dbRawEventMapping = new HashMap<Integer, DBRawEventTableConfig>();
         Map<String, DBRawEventOperationConfig> dbOperationMap = new HashMap<String, DBRawEventOperationConfig>();
         Map<String, DBRawEventAttributeConfig> dbAttributeMap = new HashMap<String, DBRawEventAttributeConfig>();
         Map<String, EventType> dbEventTypemap = new HashMap<String, EventType>();
@@ -42,8 +42,7 @@ public class EventTypeMappingService {
         dbRawEventTableConfig = new ArrayList<DBRawEventTableConfig>();
         while (listEventTypeMapping.hasNext()) {
             EventTypeMapping eventTypeMapping = listEventTypeMapping.next();
-            String eventKey = eventTypeMapping.getHostName() + eventTypeMapping.getDbName()
-                    + eventTypeMapping.getTableName();
+            Integer eventKey = eventTypeMapping.getDbRawEventTableLog().getId();
             String operationKey = eventKey + eventTypeMapping.getDbOperation().name();
             String attributeKey = operationKey;
             if (eventTypeMapping.getAttributeName() != null) {
@@ -82,11 +81,7 @@ public class EventTypeMappingService {
                 dbEventTypemap.put(eventTypeKey, eventTypeMapping.getEventType());
 
                 DBRawEventTableConfig TableConfig = new DBRawEventTableConfig(
-                        eventTypeMapping.getHostName(),
-                        eventTypeMapping.getDbName(),
-                        eventTypeMapping.getTableName(),
-                        eventTypeMapping.getPrimaryKeyName(),
-                        eventTypeMapping.getTransactionKeyName(),
+                        eventTypeMapping.getDbRawEventTableLog(),
                         operationConfigslist);
                 dbRawEventMapping.put(eventKey, TableConfig);
                 dbRawEventTableConfig.add(TableConfig);
@@ -174,6 +169,10 @@ public class EventTypeMappingService {
             String tableName,
             String attributeName) {
         return null;
+    }
+
+    public EventTypeMapping getMappingByEventTypeId(Integer eventTypeId) {
+        return eventTypeMappingDao.findByEventTypeId(eventTypeId).get(0);
     }
 
 }

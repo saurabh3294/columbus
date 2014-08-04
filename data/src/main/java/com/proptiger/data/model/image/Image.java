@@ -12,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -80,14 +82,13 @@ public class Image extends BaseModel {
     public void assignWatermarkName(String format) {
         waterMarkName = id + DOT + format;
     }
-    
+
     /*
-     * seoName field is populated as altText-imageId.format
-     * if altText contains any special character then it is replaced with
-     * hyphen and converted into lower case, then altText and imageId.format
-     * is grouped by hyphen to form seoName. 
-     * if alText is null or empty then seoName constructed will
-     * be imageId.format   
+     * seoName field is populated as altText-imageId.format if altText contains
+     * any special character then it is replaced with hyphen and converted into
+     * lower case, then altText and imageId.format is grouped by hyphen to form
+     * seoName. if alText is null or empty then seoName constructed will be
+     * imageId.format
      */
     public void assignSeoName(String format) {
         seoName = id + DOT + format;
@@ -112,13 +113,14 @@ public class Image extends BaseModel {
         originalName = originalHash + DOT + format;
     }
 
-    @JsonProperty
-    public String getAbsolutePath() {
-        return MediaUtil.getMediaEndpoint(id) + "/" + path + seoName;
+    @PostLoad
+    public void setAbsolutePathForImages() {
+        this.absolutePath = MediaUtil.getMediaEndpoint(id) + "/" + path + seoName;
     }
 
     // XXX - Do not remove! used for creating object from serialized string
     public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = absolutePath;
     }
 
     @Column(name = "created_at", updatable = false)
@@ -176,6 +178,9 @@ public class Image extends BaseModel {
 
     @Column(name = "seo_name")
     private String  seoName;
+
+    @Transient
+    private String  absolutePath;
 
     public long getId() {
         return id;
@@ -377,5 +382,9 @@ public class Image extends BaseModel {
         }
 
         return MediaUtil.getMediaEndpoint(imageId) + "/" + path;
+    }
+
+    public String getAbsolutePath() {
+        return absolutePath;
     }
 }

@@ -37,6 +37,13 @@
         "yearType": {
         	"description": "Stores whether user wants to see calendar year or fiscal year",
             "enum": ["calendar", "fiscal"]
+        },
+        "unitType":{
+        	"description": "Stores default unit type for user",
+        	"type": "array",
+        	"items": {
+            	"enum": ["Apartment", "Villa", "Plot"]
+            }
         }
     },
     "required": ["majorMovementPercentage", "areaUnit", "lengthUnit", "catchmentSize", "budgetRange", "yearType"]

@@ -31,14 +31,16 @@ public class RawDBEventGenerator {
         dbRawEventTableConfigs = tableDataMappingService.polulateLastAccessedDate(dbRawEventTableConfigs);
 
         for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
-            List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
+            List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(
+                    dbRawEventTableConfig.getDbRawEventTableLog().getTableName(),
+                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeName(),
+                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeValue());
 
-            if (!rawDBEvents.isEmpty()) {
-                finalRawDBEventList.addAll(rawDBEvents);
-                dbRawEventTableConfig.setDateAttributeValue(getLastAccessedDate(
-                        rawDBEvents,
-                        dbRawEventTableConfig.getDateAttributeName()));
-            }
+            finalRawDBEventList.addAll(rawDBEvents);
+            // TODO handling the setting of date back to the Log model.
+            dbRawEventTableConfig.getDbRawEventTableLog().setDateAttributeValue(getLastAccessedDate(
+                    rawDBEvents,
+                    dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeName()));
         }
 
         tableDataMappingService.updateTableDateMap(dbRawEventTableConfigs);

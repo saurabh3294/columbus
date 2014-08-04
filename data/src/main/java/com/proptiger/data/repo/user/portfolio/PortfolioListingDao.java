@@ -2,6 +2,7 @@ package com.proptiger.data.repo.user.portfolio;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.proptiger.data.enums.portfolio.ListingStatus;
@@ -18,7 +19,7 @@ public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Int
             Integer userId,
             Boolean deletedFlag,
             List<Source> sourceType,
-            List<ListingStatus> listingStatus);
+            List<ListingStatus> listingStatus, Pageable limitOffsetPageRequest);
 
     public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId, Boolean deletedFlag);
 

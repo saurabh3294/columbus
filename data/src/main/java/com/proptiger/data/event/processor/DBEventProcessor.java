@@ -13,14 +13,14 @@ import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypeUpdateHistory;
 
 public abstract class DBEventProcessor implements EventProcessor {
-    
-    abstract List<EventGenerated> processRawEvents(List<EventGenerated> events);
 
-    abstract List<EventGenerated> processProcessedEvents(List<EventGenerated> events);
+    abstract public List<EventGenerated> processRawEvents(List<EventGenerated> events);
 
-    abstract List<EventGenerated> processVerifiedEvents(List<EventGenerated> events);
-    
-    public abstract void populateEventSpecificData(EventGenerated event);
+    abstract public List<EventGenerated> processProcessedEvents(List<EventGenerated> events);
+
+    abstract public List<EventGenerated> processVerifiedEvents(List<EventGenerated> events);
+
+    abstract public boolean populateEventSpecificData(EventGenerated event);
 
     Map<String, List<EventGenerated>> groupEventsByKey(List<EventGenerated> events) {
         Map<String, List<EventGenerated>> groupEventsByUniqueKey = new HashMap<String, List<EventGenerated>>();
@@ -34,9 +34,7 @@ public abstract class DBEventProcessor implements EventProcessor {
             }
 
             eventsGeneratedByKeyGroup.add(eventGenerated);
-            groupEventsByUniqueKey.put(
-                    eventGenerated.getEventTypeUniqueKey(),
-                    eventsGeneratedByKeyGroup);
+            groupEventsByUniqueKey.put(eventGenerated.getEventTypeUniqueKey(), eventsGeneratedByKeyGroup);
 
         }
 
@@ -60,5 +58,5 @@ public abstract class DBEventProcessor implements EventProcessor {
                 .addHours(new Date(), eventGenerated.getEventType().getQueuedItemsValidationCycle());
         eventGenerated.setExpiryDate(expiredDate);
     }
-       
+
 }

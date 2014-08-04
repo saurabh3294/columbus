@@ -30,7 +30,7 @@ public class PortfolioPriceTrendServiceTest extends AbstractTest{
         int specifiedMonth = getMonthFromDate(trendCurDate);
         Integer userId = 38003;
         Integer noOfMonths = 9;
-        PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths);
+        PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths, null);
         List<ProjectPriceTrend> projectPriceTrends = priceTrend.getProjectPriceTrend();
         Iterator<ProjectPriceTrend> it = projectPriceTrends.iterator();
         while (it.hasNext()) {
@@ -54,7 +54,7 @@ public class PortfolioPriceTrendServiceTest extends AbstractTest{
         int specifiedMonth = getMonthFromDate(trendCurDate);
         Integer userId = 38003;
         Integer noOfMonths = 9;
-        PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths);
+        PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths, null);
         List<ProjectPriceTrend> projectPriceTrends = priceTrend.getProjectPriceTrend();
         Iterator<ProjectPriceTrend> it = projectPriceTrends.iterator();
         while (it.hasNext()) {
@@ -75,7 +75,7 @@ public class PortfolioPriceTrendServiceTest extends AbstractTest{
         int specifiedMonth = getMonthFromDate(trendCurDate);
         Integer userId = 38003;
         Integer noOfMonths = 9;
-        PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths);
+        PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths, null);
         List<ProjectPriceTrend> projectPriceTrends = priceTrend.getProjectPriceTrend();
         Iterator<ProjectPriceTrend> it = projectPriceTrends.iterator();
         while (it.hasNext()) {

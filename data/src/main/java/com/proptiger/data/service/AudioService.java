@@ -1,6 +1,7 @@
 package com.proptiger.data.service;
 
 import java.io.File;
+import java.util.List;
 
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -16,7 +17,7 @@ import com.proptiger.data.model.AudioAttributes;
 import com.proptiger.data.model.Media;
 import com.proptiger.data.repo.AudioAttributeDao;
 import com.proptiger.exception.ProAPIException;
-import com.proptiger.exception.ResourceAlreadyExistException;
+
 
 @Service
 public class AudioService extends MediaService {
@@ -40,9 +41,6 @@ public class AudioService extends MediaService {
             finalMedia.setAudioAttributes(audioAttributes);
             return finalMedia;
         }
-        catch (ResourceAlreadyExistException rex) {
-            throw rex;
-        }
         catch (Exception ex) {
             logger.error("Exception while creating audio.", ex);
             throw new ProAPIException(ex);
@@ -52,12 +50,29 @@ public class AudioService extends MediaService {
         }
     }
 
+    @Override
+    public void deleteMedia(Integer id) {
+        super.deleteMedia(id);
+    }
+
+    @Override
+    public List<Media> getMedia(DomainObject domainObject, Integer objectId, String objectMediaType) {
+        return super.getMedia(domainObject, objectId, objectMediaType);
+    }
+
+    @Override
+    public Media updateMedia(Media media, Integer id) {
+        return super.updateMedia(media, id);
+    }
+
     /**
      * First fill default values then try to extract attributes.
      */
     private AudioAttributes extractAndPopulateAudioAttributes(int uniqueId, File file) {
         AudioAttributes audioAttributes = new AudioAttributes();
         audioAttributes.setId(uniqueId);
+        audioAttributes.setDuration(null);
+        audioAttributes.setSampleRate(null);
         try {
             AudioFile f = AudioFileIO.read(file);
             AudioHeader audioHeader = f.getAudioHeader();

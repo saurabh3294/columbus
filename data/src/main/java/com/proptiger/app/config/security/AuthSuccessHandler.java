@@ -1,7 +1,7 @@
 package com.proptiger.app.config.security;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -12,11 +12,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proptiger.data.external.dto.CustomUser;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.Constants;
+import com.proptiger.data.mvc.UserController;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Auth success handler to manage session and response after authentication. It
@@ -28,10 +30,10 @@ import com.proptiger.data.util.Constants;
  */
 public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Autowired
-    private UserService  userService;
-
+    private UserController   userController;
+    
     @Autowired
-    private ObjectMapper objectMapper;
+    private PropertyReader propertyReader;
 
     public AuthSuccessHandler() {
         super();
@@ -43,20 +45,20 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             final HttpServletResponse response,
             final Authentication authentication) throws ServletException, IOException {
 
-        ActiveUser userInfo = null;
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof ActiveUser) {
-            userInfo = (ActiveUser) principal;
-            /*
-             * putting in request session so it would be acessible to
-             * controllers
-             */
-            request.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, userInfo);
-        }
-        PrintWriter out = response.getWriter();
-        CustomUser customUserDetails = userService.getUserDetails(userInfo.getUserIdentifier());
-        out.println(objectMapper.writeValueAsString(new APIResponse(customUserDetails)));
+        /*
+         * session will be valid for SESSION_MAX_INTERACTIVE_INTERVAL value, this should be
+         * same as of cookie life time, so both should be synched.
+         */
+        request.getSession().setMaxInactiveInterval(
+                propertyReader.getRequiredPropertyAsType(PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL, Integer.class));
+        ActiveUser userInfo = SecurityContextUtils.putActiveUserInSession(request, authentication);
         clearAuthenticationAttributes(request);
+        SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter(
+                "fieldFilter",
+                SimpleBeanPropertyFilter.serializeAllExcept(new HashSet<String>()));
 
+        ObjectMapper mapper = userController.getMapper();
+        response.getWriter().print(
+                mapper.writer(filterProvider).writeValueAsString(userController.getUserDetails(userInfo)));
     }
 }
