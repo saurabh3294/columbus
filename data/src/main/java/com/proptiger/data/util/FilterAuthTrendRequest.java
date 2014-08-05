@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.user.UserService;
 
 /**
@@ -20,7 +21,10 @@ import com.proptiger.data.service.user.UserService;
 public class FilterAuthTrendRequest {
 
     @Autowired
-    private UserService userService;
+    ApplicationNameService applicationNameService;
+
+    @Autowired
+    private UserService    userService;
 
     @Pointcut(
             value = "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..)) || execution(* com.proptiger.data.mvc.trend.BuilderTrendController.get*(..))")
@@ -36,9 +40,18 @@ public class FilterAuthTrendRequest {
                 if (arg != null && arg.getClass().equals(FIQLSelector.class)) {
 
                     String filters = userService.getUserAppSubscriptionFilters(user.getUserIdentifier()).getFilters();
-                    if (filters != null)
+                    if (filters != null) {
                         ((FIQLSelector) arg).addAndConditionToFilter(filters);
-
+                    }
+                    /* TODO :: Hack here : 
+                     * => implement using application name context
+                     * => implement using fiqlSelector.setRows(0);
+                     */
+                    else {
+                        ((FIQLSelector) arg).addAndConditionToFilter("cityId==500000");
+                    }
+                    
+                    
                 }
 
             }
