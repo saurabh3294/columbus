@@ -36,4 +36,11 @@ public class LeadController {
     public APIResponse get(@RequestParam FIQLSelector fiqlSelector) {
         return new APIResponse(leadService.getLeads(fiqlSelector));
     }
+    
+    @RequestMapping(value = "data/v1/entity/lead/exists")
+    @ResponseBody
+    public APIResponse get(@RequestParam(required = false) String email, @RequestParam(required = false) String contactNumber, @RequestParam int cityId) {
+        return new APIResponse(leadService.exists(email, contactNumber, cityId));
+    }
+
 }

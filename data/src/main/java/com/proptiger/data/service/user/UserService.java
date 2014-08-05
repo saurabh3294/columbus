@@ -170,6 +170,52 @@ public class UserService {
         return false;
     }
 
+    
+    public User getUserFromEmailAndPhone(String email,String contactNumber)
+    {
+        User user = userDao.findByPrimaryEmailOrPhone(email, contactNumber);
+        return user;
+    }
+    
+    public User getUserFromEmail(String email)
+    {
+        User user = userDao.findByPrimaryEmail(email);
+        return user;
+    }
+    
+    public User getUserFromPhone(String contactNumber)
+    {
+        User user = userDao.findByPhone(contactNumber);
+        return user;
+    }    
+    
+    public boolean isRegisteredUser(String email, String contactNumber) {
+        if(userDao.findByPrimaryEmailOrPhone(email,contactNumber) != null)
+        {
+            return true;
+        }
+        return false;       
+    }
+    
+    public boolean isRegisteredEmail(String email) {
+        if(userDao.findByPrimaryEmail(email) != null)
+        {
+            return true;
+        }
+        return false;       
+    }
+    public boolean isRegisteredPhone(String contactNumber) {
+        if(userDao.findByPhone(contactNumber) != null)
+        {
+            return true;
+        }
+        return false;       
+    }
+    
+    
+    
+    
+    
     /**
      * Returns details forum user object for a user including all his dashboards
      * and preferences and subscription details
