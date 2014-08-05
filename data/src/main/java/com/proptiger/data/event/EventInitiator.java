@@ -45,7 +45,7 @@ public class EventInitiator {
 		logger.info("DBEventGenerator: Generated " + numberOfEvents + " DB Events.");
 	}
 	
-	@Scheduled(fixedDelay = 5000)
+	@Scheduled(fixedDelay = 500000)
 	public void dbRawEventProcessor(){
 	    logger.info("DBRawEventProcessor: Process Raw Events started");
 	    dbRawEventHandler.handleEvents();

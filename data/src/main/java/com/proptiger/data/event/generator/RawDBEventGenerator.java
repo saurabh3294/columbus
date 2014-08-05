@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.RawDBEvent;
@@ -17,7 +19,7 @@ import com.proptiger.data.event.service.TableDateMappingService;
  * @author sahil
  * 
  */
-
+@Service
 public class RawDBEventGenerator {
 
     private EventTypeMappingService eventTypeMappingService;

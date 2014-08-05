@@ -4,11 +4,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.service.EventGeneratedService;
 
+@Service
 public class DBProcessedEventHandler extends DBEventProcessorHandler{
     @Autowired
     private EventGeneratedService eventGeneratedService;

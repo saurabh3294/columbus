@@ -17,6 +17,8 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
@@ -25,15 +27,7 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 public class EventGenerated extends Event {
 
     public enum EventStatus {
-        Raw("raw"), Merged("merged"), Discarded("discarded"), Verfied("verified"), PendingVerification(
-                "pending_verfication"), Sent("sent"), Processed("processed");
-
-        private String name;
-
-        EventStatus(String name) {
-            this.name = name;
-            // TODO Auto-generated constructor stub
-        }
+        Raw, Merged, Discarded, Verfied, PendingVerification, Sent, Processed;
     }
 
     @Column(name = "id")
@@ -44,9 +38,14 @@ public class EventGenerated extends Event {
     @Column(name = "data")
     private String           data;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
+    // @OneToOne(fetch = FetchType.EAGER)
+    // @JoinColumn(name = "event_type_id", insertable = false, updatable =
+    // false)
+    @Transient
     private EventType        eventType;
+
+    @Column(name = "event_type_id")
+    private Integer          eventTypeId;
 
     @Column(name = "event_created_date")
     private Date             eventCreatedDate;
@@ -61,7 +60,7 @@ public class EventGenerated extends Event {
     @Enumerated(EnumType.STRING)
     private EventStatus      eventStatus;
 
-    @Column(name = "merge_event_id")
+    @Column(name = "merged_event_id")
     private Integer          mergedEventId;
 
     @Column(name = "expiry_date")
@@ -75,13 +74,22 @@ public class EventGenerated extends Event {
 
     @PostLoad
     public void setPayload() {
+        // System.out.println(new Gson().toJson(this));
+        // System.out.println("DATA"+this.data);
         this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getEventTypeConfig()
                 .getDataClassName());
+
     }
 
     @PreUpdate
     public void autoUpdateFields() {
-        this.data = new Gson().toJson(this.eventTypePayload);
+        try {
+            this.data = new ObjectMapper().writeValueAsString(this.eventTypePayload);
+        }
+        catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         this.updatedDate = new Date();
     }
 
@@ -89,13 +97,14 @@ public class EventGenerated extends Event {
     public void autoPopulateFields() {
         this.createdDate = new Date();
 
-        this.eventTypeUniqueKey = this.eventTypePayload.getPrimaryKeyName() + "-" + this.eventTypePayload.getPrimaryKeyValue();
+        this.eventTypeUniqueKey = this.eventTypePayload.getPrimaryKeyName() + "-"
+                + this.eventTypePayload.getPrimaryKeyValue();
         this.eventStatus = EventStatus.Raw;
 
         autoUpdateFields();
     }
 
-   public int getId() {
+    public int getId() {
         return id;
     }
 
@@ -181,5 +190,13 @@ public class EventGenerated extends Event {
 
     public void setEventCreatedDate(Date eventCreatedDate) {
         this.eventCreatedDate = eventCreatedDate;
+    }
+
+    public Integer getEventTypeId() {
+        return eventTypeId;
+    }
+
+    public void setEventTypeId(Integer eventTypeId) {
+        this.eventTypeId = eventTypeId;
     }
 }

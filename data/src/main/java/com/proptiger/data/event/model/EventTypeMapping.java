@@ -1,12 +1,17 @@
 package com.proptiger.data.event.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.proptiger.data.event.enums.DBOperation;
 
@@ -18,7 +23,8 @@ public class EventTypeMapping {
     @Id
     private int         id;
     
-    @Column(name = "dbOperation")
+    @Column(name = "db_operation")
+    @Enumerated(EnumType.STRING)
     private DBOperation dbOperation;
 
     @Column(name = "attribute_name")
@@ -27,13 +33,17 @@ public class EventTypeMapping {
     @Column(name = "event_type_id", insertable = false, updatable = false)
     private Integer eventTypeId;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
+    //@OneToOne(fetch = FetchType.EAGER)
+    //@JoinColumn(name = "event_type_id", insertable = false, updatable = false)
+    @Transient
     private EventType   eventType;
     
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "raw_event_table_id")
     private DBRawEventTableLog dbRawEventTableLog;
+    
+    @Column(name = "created_date")
+    private Date createdDate;
 
     public int getId() {
         return id;
@@ -81,5 +91,13 @@ public class EventTypeMapping {
 
     public void setEventTypeId(Integer eventTypeId) {
         this.eventTypeId = eventTypeId;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 }
