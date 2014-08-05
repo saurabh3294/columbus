@@ -182,9 +182,12 @@ public class URLService {
                     }
                 }
                 else {
-                    domainUrl = urlDetail.getCityName() + urlDetail.getPropertyType()
+                    domainUrl = urlDetail.getPropertyType()
                             + builder.getUrl()
                             + urlDetail.getBedroomString();
+                    if (builder.getBuilderCities() != null && builder.getBuilderCities().size() > 1) {
+                        domainUrl = urlDetail.getCityName() + domainUrl;
+                    }
                     if (!domainUrl.equals(urlDetail.getUrl())) {
                         redirectUrl = domainUrl;
                     }

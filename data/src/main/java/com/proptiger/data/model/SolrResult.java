@@ -333,8 +333,11 @@ public class SolrResult extends BaseModel {
     private String            builderAddress;
     
     @Field("BUILDER_LOCALITY_COUNT")
-    private Integer           builderLocalityCount;   
-
+    private Integer           builderLocalityCount;
+    
+    @Field("BUILDER_CITIES")
+    private List<String>      builderCities;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -1070,5 +1073,9 @@ public class SolrResult extends BaseModel {
     public void setBuilderLocalityCount(Integer builderLocalityCount) {
         builder.setBuilderLocalityCount(builderLocalityCount);
     } 
-
+    
+    @Field("BUILDER_CITIES")
+    public void setBuilderCities(List<String> builderCities) {
+        builder.setBuilderCities(builderCities);
+    }
 }
