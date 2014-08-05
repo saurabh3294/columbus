@@ -709,4 +709,22 @@ public class UserService {
         discussionSubscription.setUserId(userId);
         return discussionSubscriptionDao.save(discussionSubscription);
     }
+
+    // Take care of duplicacy of client here
+    public User createUser(User user) {
+        if (exists(user)) {
+//            patchUser(user);
+        }
+        else {
+            userDao.save(user);
+        }
+        
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    private boolean exists(User user) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }
