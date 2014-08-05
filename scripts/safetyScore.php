@@ -78,13 +78,13 @@ function getScoreProjectAndLocality($objectType){
  	for($i=0; $i<$len; $i++){
  	$document = &$documents[$i];
  	if($objectType=='PROJECT'){
- 		$updateSql = "UPDATE cms.resi_project set SAFETY_SCORE = "."ROUND((".$document['SAFETY_SCORE']."/20),1)"." where PROJECT_ID = ".$document['PROJECT_ID'];
+ 		$updateSql = "UPDATE cms.resi_project set SAFETY_SCORE = "."ROUND((".$document['SAFETY_SCORE']."/10),1)"." where PROJECT_ID = ".$document['PROJECT_ID'];
     	//Logging details for debugging
  		$logger->info("\n\n ProjectId: ".$document['PROJECT_ID']." Latitude: ".$document['LATITUDE'].
  		" Longitude: ".$document['LONGITUDE']." SafetyScore: ".$document['SAFETY_SCORE']);
  	}
  	else if($objectType=='LOCALITY'){
- 		$updateSql = "UPDATE cms.locality set SAFETY_SCORE = "."ROUND((".$document['SAFETY_SCORE']."/20),1)"." where LOCALITY_ID = ".$document['LOCALITY_ID'];
+ 		$updateSql = "UPDATE cms.locality set SAFETY_SCORE = "."ROUND((".$document['SAFETY_SCORE']."/10),1)"." where LOCALITY_ID = ".$document['LOCALITY_ID'];
  		//Logging details for debugging
  	 	$logger->info("\n\n LocalityId: ".$document['LOCALITY_ID']." Latitude: ".$document['LATITUDE'].
  		" Longitude: ".$document['LONGITUDE']." SafetyScore: ".$document['SAFETY_SCORE']);
