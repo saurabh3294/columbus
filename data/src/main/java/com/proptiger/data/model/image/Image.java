@@ -49,9 +49,12 @@ public class Image extends BaseModel {
         }
     }
 
-    public static final String DOT     = ".";
-    public static final String HYPHEN  = "-";
-    public static final String PATTERN = "[^a-zA-Z0-9]+";
+    public static final String DOT             = ".";
+    public static final String HYPHEN          = "-";
+    public static final String PATTERN         = "[^a-zA-Z0-9]+";
+    public static final String OPTIMAL         = "-O";
+    public static final double BEST_QUALITY    = 95.0;
+    public static final double OPTIMAL_QUALITY = 70.0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -80,14 +83,13 @@ public class Image extends BaseModel {
     public void assignWatermarkName(String format) {
         waterMarkName = id + DOT + format;
     }
-    
+
     /*
-     * seoName field is populated as altText-imageId.format
-     * if altText contains any special character then it is replaced with
-     * hyphen and converted into lower case, then altText and imageId.format
-     * is grouped by hyphen to form seoName. 
-     * if alText is null or empty then seoName constructed will
-     * be imageId.format   
+     * seoName field is populated as altText-imageId.format if altText contains
+     * any special character then it is replaced with hyphen and converted into
+     * lower case, then altText and imageId.format is grouped by hyphen to form
+     * seoName. if alText is null or empty then seoName constructed will be
+     * imageId.format
      */
     public void assignSeoName(String format) {
         seoName = id + DOT + format;
