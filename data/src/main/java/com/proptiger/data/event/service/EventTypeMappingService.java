@@ -42,7 +42,7 @@ public class EventTypeMappingService {
         List<DBRawEventOperationConfig> operationConfigslist;
         List<DBRawEventAttributeConfig> attributeConfigslist;
 
-        dbRawEventTableConfig = new ArrayList<DBRawEventTableConfig>();
+        dbRawEventTableConfigs = new ArrayList<DBRawEventTableConfig>();
         while (listEventTypeMapping.hasNext()) {
             EventTypeMapping eventTypeMapping = listEventTypeMapping.next();
             Integer eventKey = eventTypeMapping.getDbRawEventTableLog().getId();
@@ -87,7 +87,7 @@ public class EventTypeMappingService {
                         eventTypeMapping.getDbRawEventTableLog(),
                         operationConfigslist);
                 dbRawEventMapping.put(eventKey, TableConfig);
-                dbRawEventTableConfig.add(TableConfig);
+                dbRawEventTableConfigs.add(TableConfig);
 
             }
             else if (dbOperationMap.get(attributeKey) == null) {
@@ -156,6 +156,7 @@ public class EventTypeMappingService {
     public List<DBRawEventTableConfig> getDBRawEventTableConfigs() {
         return null;
     }
+
     public Iterator<EventTypeMapping> getAllMappingOfRawEventsToEventType(){
         Iterator<EventTypeMapping> listEventTypeMapping = eventTypeMappingDao.findAll().iterator();
         
@@ -179,4 +180,11 @@ public class EventTypeMappingService {
         eventTypeMapping.setEventType(eventType);
     }
 
+    public List<DBRawEventTableConfig> getDbRawEventTableConfigs() {
+        return dbRawEventTableConfigs;
+    }
+
+    public void setDbRawEventTableConfigs(List<DBRawEventTableConfig> dbRawEventTableConfigs) {
+        this.dbRawEventTableConfigs = dbRawEventTableConfigs;
+    }
 }

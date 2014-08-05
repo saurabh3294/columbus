@@ -7,7 +7,10 @@ import com.proptiger.data.event.model.EventType;
 
 public class DBRawEventOperationConfig {
     private DBOperation dbOperation;
+    
+    // TODO: Use Map instead of List
     private List<DBRawEventAttributeConfig> listDBRawEventAttributeConfigs;
+    
     private List<EventType> listEventTypes;
     
     public DBRawEventOperationConfig(
@@ -41,5 +44,14 @@ public class DBRawEventOperationConfig {
     }
     public void setListEventTypes(List<EventType> listEventTypes) {
         this.listEventTypes = listEventTypes;
+    }
+    
+    public DBRawEventAttributeConfig getDBRawEventAttributeConfig(String attributeName) {
+        for (DBRawEventAttributeConfig dbRawEventAttributeConfig : listDBRawEventAttributeConfigs) {
+            if (dbRawEventAttributeConfig.getAttributeName().equals(attributeName)) {
+                return dbRawEventAttributeConfig;
+            }
+        }
+        return null;
     }
 }

@@ -1,5 +1,7 @@
 package com.proptiger.data.event.model;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -29,9 +31,9 @@ public class DBRawEventTableLog {
 
     @Column(name = "transaction_date_column_name")
     private String dateAttributeName;
-
+    
     @Column(name = "transaction_date_column_value")
-    private String dateAttributeValue;
+    private Date dateAttributeValue;  // This is the last date till which events have been read
 
     public int getId() {
         return id;
@@ -89,11 +91,11 @@ public class DBRawEventTableLog {
         this.dateAttributeName = dateAttributeName;
     }
 
-    public String getDateAttributeValue() {
+    public Date getDateAttributeValue() {
         return dateAttributeValue;
     }
 
-    public void setDateAttributeValue(String dateAttributeValue) {
+    public void setDateAttributeValue(Date dateAttributeValue) {
         this.dateAttributeValue = dateAttributeValue;
     }
 }

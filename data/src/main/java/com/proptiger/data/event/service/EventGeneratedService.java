@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.event.enums.DBOperation;
+import com.proptiger.data.event.generator.model.DBRawEventAttributeConfig;
+import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
+import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypePayload;
@@ -20,13 +23,20 @@ import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.repo.EventTypeMappingDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 
 @Service
 public class EventGeneratedService {
-    private static Logger     logger = LoggerFactory.getLogger(LocalityService.class);
+    private static Logger           logger = LoggerFactory.getLogger(LocalityService.class);
 
     @Autowired
-    private EventGeneratedDao eventGeneratedDao;
+    private EventGeneratedDao       eventGeneratedDao;
+
+    @Autowired
+    private EventTypeMappingService eventTypeMappingService;
+	
+    @Autowired
+    private DBRawEventTableLogDao   dbRawEventTableLogDao;
 
     @Autowired
     private EventTypeMappingDao dbEventMappingDao;
@@ -36,6 +46,9 @@ public class EventGeneratedService {
 
     public void persistEvents(List<EventGenerated> eventGenerateds) {
         eventGeneratedDao.save(eventGenerateds);
+        dbRawEventTableLogDao.updateDateAttributeValueById(
+                dbRawEventTableLog.getId(),
+                dbRawEventTableLog.getDateAttributeValue());
     }
 
     public List<EventGenerated> getRawEvents() {
@@ -68,7 +81,8 @@ public class EventGeneratedService {
     }
 
     @Transactional
-    // TODO to handle the status of update queries. Currently, reverting them back to their old value.
+    // TODO to handle the status of update queries. Currently, reverting them
+    // back to their old value.
     public void updateEventsOnOldEventStatus(Map<EventStatus, List<EventGenerated>> updateEventGeneratedByOldValue) {
         Integer numberOfRowsAffected;
         for (Map.Entry<EventStatus, List<EventGenerated>> entry : updateEventGeneratedByOldValue.entrySet()) {
@@ -79,9 +93,11 @@ public class EventGeneratedService {
                         + " was being updated from Old Status : "
                         + entry.getKey()
                         + " to New Status : "
-                        + eventGenerated.getEventStatus()+". The number Of rows affected : "+numberOfRowsAffected);
+                        + eventGenerated.getEventStatus()
+                        + ". The number Of rows affected : "
+                        + numberOfRowsAffected);
                 // Row was not updated.
-                if(numberOfRowsAffected < 1){
+                if (numberOfRowsAffected < 1) {
                     // reverting the changes in the model.
                     eventGenerated.setEventStatus(entry.getKey());
                 }
@@ -96,32 +112,24 @@ public class EventGeneratedService {
     public EventGenerated saveOrUpdateOneEvent(EventGenerated event) {
         return eventGeneratedDao.save(event);
     }
+
     public List<EventGenerated> generateEventFromRawDBEvent(RawDBEvent rawDBEvent) {
         List<EventGenerated> eventGeneratedList = new ArrayList<EventGenerated>();
-        List<EventType> eventTypeList;
+        DBRawEventOperationConfig dbRawEventOperationConfig = rawDBEvent.getDbRawEventOperationConfig();
 
-        if (DBOperation.INSERT.equals(rawDBEvent.getDbOperation())) {
-            eventTypeList = dbEventMappingDao.getEventTypesForInsertDBOperation(
-                    rawDBEvent.getHostName(),
-                    rawDBEvent.getDbName(),
-                    rawDBEvent.getTableName());
-            generateEvents(rawDBEvent, eventTypeList, null);
+        if (DBOperation.INSERT.equals(dbRawEventOperationConfig.getDbOperation())) {
+            generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null);
         }
-        else if (DBOperation.DELETE.equals(rawDBEvent.getDbOperation())) {
-            eventTypeList = dbEventMappingDao.getEventTypesForDeleteDBOperation(
-                    rawDBEvent.getHostName(),
-                    rawDBEvent.getDbName(),
-                    rawDBEvent.getTableName());
-            generateEvents(rawDBEvent, eventTypeList, null);
+        else if (DBOperation.DELETE.equals(dbRawEventOperationConfig.getDbOperation())) {
+            generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null);
         }
-        else if (DBOperation.UPDATE.equals(rawDBEvent.getDbOperation())) {
-            for (String attributeName : rawDBEvent.getDbValueMap().keySet()) {
-                eventTypeList = dbEventMappingDao.getEventTypesForUpdateDBOperation(
-                        rawDBEvent.getHostName(),
-                        rawDBEvent.getDbName(),
-                        rawDBEvent.getTableName(),
-                        attributeName);
-                generateEvents(rawDBEvent, eventTypeList, attributeName);
+        else if (DBOperation.UPDATE.equals(dbRawEventOperationConfig.getDbOperation())) {
+            for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
+                DBRawEventAttributeConfig dbRawEventAttributeConfig = dbRawEventOperationConfig
+                        .getDBRawEventAttributeConfig(attributeName);
+                if (dbRawEventAttributeConfig != null) {
+                    generateEvents(rawDBEvent, dbRawEventAttributeConfig.getListEventTypes(), attributeName);
+                }
             }
         }
 
@@ -137,8 +145,12 @@ public class EventGeneratedService {
 
         for (EventType eventType : eventTypeList) {
             EventTypePayload payload = eventType.getEventTypeConfig().getEventTypePayloadObject();
-            payload.setPrimaryKeyName(rawDBEvent.getIdName());
-            payload.setPrimaryKeyValue(rawDBEvent.getIdValue());
+            payload.setTransactionKeyName(rawDBEvent.getDbRawEventTableLog().getTransactionKeyName());
+            payload.setTransactionId(rawDBEvent.getTransactionKeyValue());
+            payload.setPrimaryKeyName(rawDBEvent.getDbRawEventTableLog().getPrimaryKeyName());
+            payload.setPrimaryKeyValue(rawDBEvent.getPrimaryKeyValue());
+            payload.setTransactionDateKeyName(rawDBEvent.getDbRawEventTableLog().getDateAttributeName());
+            payload.setTransactionDateKeyValue(rawDBEvent.getTransactionDate());
             payload.populatePayloadValues(rawDBEvent, attributeName);
 
             EventGenerated eventGenerated = new EventGenerated();
