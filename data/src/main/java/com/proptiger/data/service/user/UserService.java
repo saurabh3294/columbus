@@ -565,6 +565,7 @@ public class UserService {
         User user = getUserFromRegister(register);
 
         user = userDao.save(user);
+        createDefaultProjectDiscussionSubscriptionForUser(user.getId());
 
         manageEmailOnRegistration(user, register);
         manageContactNumberOnRegistration(user, register);
@@ -619,9 +620,17 @@ public class UserService {
     // manages contact numbers for every registration
     // will be more relevant once we start supporting multiple contacts
     private void manageContactNumberOnRegistration(User user, Register register) {
-        if (user.getContactNumbers() == null) {
+        if (!user.isContactPresent(register.getContact().toString())) {
+            Integer priority = user.getMaxContactNumberPriority();
+            if (priority == null) {
+                priority = 0;
+            }
             String contactNumber = register.getContact().toString();
-            contactNumberDao.save(new UserContactNumber(contactNumber, user.getId()));
+
+            UserContactNumber userContactNumber = new UserContactNumber(contactNumber, user.getId());
+            userContactNumber.setPriority(priority + 1);
+
+            contactNumberDao.save(userContactNumber);
         }
     }
 
@@ -705,8 +714,12 @@ public class UserService {
     }
 
     private ProjectDiscussionSubscription createDefaultProjectDiscussionSubscriptionForUser(int userId) {
-        ProjectDiscussionSubscription discussionSubscription = new ProjectDiscussionSubscription();
-        discussionSubscription.setUserId(userId);
+        ProjectDiscussionSubscription discussionSubscription = discussionSubscriptionDao.findOne(userId);
+        if (discussionSubscription == null) {
+            discussionSubscription = new ProjectDiscussionSubscription();
+            discussionSubscription.setUserId(userId);
+        }
+        discussionSubscription.setSubscribed(true);
         return discussionSubscriptionDao.save(discussionSubscription);
     }
 }

@@ -19,6 +19,7 @@ public class ProjectDiscussionSubscription extends BaseModel {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @Column(name="user_id")
     private int               userId;
 
     @Column(name = "is_subscribed")

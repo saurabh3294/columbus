@@ -13,6 +13,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.util.UtilityClass;
 
 /**
  * 
@@ -142,5 +143,26 @@ public class User extends BaseModel {
             }
         }
         return null;
+    }
+
+    public boolean isContactPresent(String userContactNumber) {
+        if (contactNumbers != null) {
+            for (UserContactNumber contactNumber : contactNumbers) {
+                if (contactNumber.getContactNumber().equals(userContactNumber)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public Integer getMaxContactNumberPriority() {
+        Integer priority = null;
+        if (contactNumbers != null) {
+            for (UserContactNumber contactNumber : contactNumbers) {
+                priority = UtilityClass.max(priority, contactNumber.getPriority());
+            }
+        }
+        return priority;
     }
 }

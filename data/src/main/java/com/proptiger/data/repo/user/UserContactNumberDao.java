@@ -11,5 +11,4 @@ import com.proptiger.data.model.user.UserContactNumber;
  */
 
 public interface UserContactNumberDao extends PagingAndSortingRepository<UserContactNumber, Integer> {
-
 }
