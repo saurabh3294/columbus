@@ -95,7 +95,9 @@ public class ImageService extends MediaService {
 
             imOps = new IMOperation();
             imOps.strip();
+
             imOps.quality(95.0);
+
             imOps.interlace("Plane");
             imOps.addImage();
 
@@ -133,10 +135,22 @@ public class ImageService extends MediaService {
                 for (ImageResolution imageResolution : ImageResolution.values()) {
                     File resizedFile = null;
                     try {
-                        resizedFile = resize(waterMark, imageResolution, format);
+
+                        // get the value of quality for this imageType and
+                        // resolution
+
+                        resizedFile = resize(waterMark, imageResolution, Image.BEST_QUALITY, format);
+
+                        // upload original as well
                         amazonS3Util.uploadFile(
-                                image.getPath() + computeResizedImageName(image, imageResolution, format),
+                                image.getPath() + computeResizedImageName(image, imageResolution, null, format),
                                 resizedFile);
+
+                        resizedFile = resize(waterMark, imageResolution, Image.OPTIMAL_QUALITY, format);
+                        amazonS3Util.uploadFile(
+                                image.getPath() + computeResizedImageName(image, imageResolution, Image.OPTIMAL, format),
+                                resizedFile);
+
                     }
                     catch (Exception e) {
                         logger.error("Could not resize image for resolution name {}", imageResolution.getLabel(), e);
@@ -147,30 +161,55 @@ public class ImageService extends MediaService {
                 }
                 deleteFileFromDisc(waterMark);
             }
+
         });
     }
 
-    private File resize(File waterMark, ImageResolution imageResolution, String format) throws Exception {
+    private File resize(File waterMark, ImageResolution imageResolution, double quality, String format)
+            throws Exception {
         ConvertCmd convertCmd = new ConvertCmd();
         IMOperation imOperation = new IMOperation();
         imOperation.addImage(waterMark.getAbsolutePath());
         imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight(), ">");
         imOperation.strip();
-        imOperation.quality(95.0);
-        imOperation.interlace("Plane");
+        imOperation.quality(quality);
+
+        if (!imageResolution.getLabel().equalsIgnoreCase("thumbnail"))
+            imOperation.interlace("Plane");
+
         File outputFile = File.createTempFile("resizedImage", Image.DOT + format, tempDir);
         imOperation.addImage(outputFile.getAbsolutePath());
         convertCmd.run(imOperation);
         return outputFile;
     }
 
-    private String computeResizedImageName(Image image, ImageResolution imageResolution, String format) {
-        return image.getId() + HYPHON
-                + imageResolution.getWidth()
-                + HYPHON
-                + imageResolution.getHeight()
-                + Image.DOT
-                + format;
+    private String computeResizedImageName(
+            Image image,
+            ImageResolution imageResolution,
+            String optimalSuffix,
+            String format) {
+        String resizedImageName;
+        if (!optimalSuffix.equals(null)) {
+
+            resizedImageName = image.getId() + HYPHON
+                    + imageResolution.getWidth()
+                    + HYPHON
+                    + imageResolution.getHeight()
+                    + HYPHON
+                    + optimalSuffix
+                    + Image.DOT
+                    + format;
+        }
+        else {
+
+            resizedImageName = image.getId() + HYPHON
+                    + imageResolution.getWidth()
+                    + HYPHON
+                    + imageResolution.getHeight()
+                    + Image.DOT
+                    + format;
+        }
+        return resizedImageName;
     }
 
     /*
@@ -191,7 +230,7 @@ public class ImageService extends MediaService {
      * Public method to get images of multiple object ids
      */
     // Do not remove commented cacheable.
-    //@Cacheable(value = Constants.CacheName.CACHE)
+    // @Cacheable(value = Constants.CacheName.CACHE)
     public List<Image> getImages(DomainObject object, String imageTypeStr, List<Long> objectIds) {
         if (objectIds == null || objectIds.isEmpty())
             return new ArrayList<Image>();
