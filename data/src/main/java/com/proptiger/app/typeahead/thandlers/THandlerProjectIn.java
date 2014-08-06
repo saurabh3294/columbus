@@ -30,17 +30,17 @@ public class THandlerProjectIn extends RootTHandler {
     private String localityFilter = "?locality=%s";
     
     @Override
-    public List<Typeahead> getResults(Typeahead typeahead, String city, int rows) {
+    public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
 
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        results.add(getTopResult(typeahead, city));
+        results.add(getTopResult(query, typeahead, city));
 
         List<Locality> topLocalities = getTopLocalities(city);
         String redirectURL;
         for (Locality locality : topLocalities) {
-            redirectURL = getRedirectUrl(typeahead.getTemplateText(), city) + (String.format(localityFilter, locality.getLabel()));
-            results.add(getTypeaheadObjectByTextAndURL((typeahead.getTemplateText() + locality.getLabel()), redirectURL));
+            redirectURL = getRedirectUrl(this.getType().getText() + " ", city) + (String.format(localityFilter, locality.getLabel()));
+            results.add(getTypeaheadObjectByTextAndURL((this.getType().getText() + " " + locality.getLabel()), redirectURL));
             if (results.size() == rows) {
                 break;
             }
@@ -80,9 +80,6 @@ public class THandlerProjectIn extends RootTHandler {
             case TopProjectsIn:
                 redirectUrl = String.format(genericUrlProjectsIn, city.toLowerCase());
                 break;
-            case TopPropertiesIn:
-                redirectUrl = String.format(genericUrlProjectsIn, city.toLowerCase());
-                break;
             default:
                 break;
         }
@@ -90,9 +87,9 @@ public class THandlerProjectIn extends RootTHandler {
         return redirectUrl;
     }
 
-    public Typeahead getTopResult(Typeahead typeahead, String city) {
-        String displayText = (typeahead.getTemplateText() + city);
-        String redirectUrl = getRedirectUrl(typeahead.getTemplateText(), city);
+    public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
+        String displayText = (this.getType().getText() + " " + city);
+        String redirectUrl = getRedirectUrl(this.getType().getText() + " ", city);
         return (getTypeaheadObjectByTextAndURL(displayText, redirectUrl));
     }
     

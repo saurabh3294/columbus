@@ -3,15 +3,22 @@
  */
 package com.proptiger.data.event.model;
 
-import java.util.Date;
+import com.proptiger.data.model.BaseModel;
 
-/**H
+/**
+ * H
+ * 
  * @author mandeep
- *
+ * 
  */
-public abstract class Event {
-    Date createdAt;
-    public Event test(Event t){
-        return this;
-    }
+public abstract class Event extends BaseModel{
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6007396696611004758L;
+
+    /*
+     * @Transient private Date createdAt;
+     */
 }

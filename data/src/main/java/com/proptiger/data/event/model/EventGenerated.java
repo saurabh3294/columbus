@@ -1,10 +1,11 @@
 package com.proptiger.data.event.model;
 
 import java.util.Date;
-import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -14,27 +15,26 @@ import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.SQLUpdate;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.proptiger.data.model.event.payload.EventTypePayload;
+import com.proptiger.data.event.model.payload.EventTypePayload;
 
 @Entity
 @Table(name = "raw_event_generated")
 public class EventGenerated extends Event {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 778194433417706629L;
+
     public enum EventStatus {
-        Raw("raw"), Merged("merged"), Discarded("discarded"), Verfied("verified"), PendingVerification(
-                "pending_verfication"), Sent("sent"), Processed("processed");
-
-        private String name;
-
-        EventStatus(String name) {
-            this.name = name;
-            // TODO Auto-generated constructor stub
-        }
+        Raw, Merged, Discarded, Verfied, PendingVerification, Sent, Processed;
     }
 
     @Column(name = "id")
@@ -45,21 +45,32 @@ public class EventGenerated extends Event {
     @Column(name = "data")
     private String           data;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
+    // @OneToOne(fetch = FetchType.EAGER)
+    // @JoinColumn(name = "event_type_id", insertable = false, updatable =
+    // false)
+    @Transient
     private EventType        eventType;
 
+    @Column(name = "event_type_id")
+    private Integer          eventTypeId;
+
+    @Column(name = "event_created_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date             eventCreatedDate;
+
     @Column(name = "created_date", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date             createdDate;
 
     @Column(name = "updated_date")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date             updatedDate;
 
     @Column(name = "status")
-    // @SQLUpdate
+    @Enumerated(EnumType.STRING)
     private EventStatus      eventStatus;
 
-    @Column(name = "merge_event_id")
+    @Column(name = "merged_event_id")
     private Integer          mergedEventId;
 
     @Column(name = "expiry_date")
@@ -71,35 +82,20 @@ public class EventGenerated extends Event {
     @Transient
     private EventTypePayload eventTypePayload;
 
-    @PostLoad
-    public void setPayload() {
-        this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getName()
-                .getDataClassName());
-    }
-
     @PreUpdate
     public void autoUpdateFields() {
-        this.data = new Gson().toJson(this.eventTypePayload);
+        this.updatedDate = new Date();
     }
 
     @PrePersist
     public void autoPopulateFields() {
         this.createdDate = new Date();
-        this.updatedDate = new Date();
 
-        String uniqueKeyString = "";
-        for (Map.Entry<String, Object> entry : eventTypePayload.getIdMap().entrySet()) {
-            uniqueKeyString += entry.getValue() + "-";
-        }
-        
-        this.setEventTypeUniqueKey(uniqueKeyString);
-        this.setEventStatus(EventStatus.Raw);
-        
+        this.eventTypeUniqueKey = this.eventTypePayload.getPrimaryKeyName() + "-"
+                + this.eventTypePayload.getPrimaryKeyValue();
+        this.eventStatus = EventStatus.Raw;
+
         autoUpdateFields();
-    }
-
-    public EventGenerated test(EventGenerated t) {
-        return this;
     }
 
     public int getId() {
@@ -180,5 +176,21 @@ public class EventGenerated extends Event {
 
     public void setEventTypeUniqueKey(String eventTypeUniqueKey) {
         this.eventTypeUniqueKey = eventTypeUniqueKey;
+    }
+
+    public Date getEventCreatedDate() {
+        return eventCreatedDate;
+    }
+
+    public void setEventCreatedDate(Date eventCreatedDate) {
+        this.eventCreatedDate = eventCreatedDate;
+    }
+
+    public Integer getEventTypeId() {
+        return eventTypeId;
+    }
+
+    public void setEventTypeId(Integer eventTypeId) {
+        this.eventTypeId = eventTypeId;
     }
 }

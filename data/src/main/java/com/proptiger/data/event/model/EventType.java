@@ -3,9 +3,16 @@ package com.proptiger.data.event.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
-import com.proptiger.data.event.enums.Types;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.data.event.EventTypeConfig;
+import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "event_type")
@@ -16,7 +23,7 @@ import com.proptiger.data.event.enums.Types;
  * @author Mukand Agarwal
  *
  */
-public class EventType {
+public class EventType extends BaseModel{
     public enum Operation {
         Replace, Merge;
     }
@@ -26,8 +33,8 @@ public class EventType {
     private int       id;
 
     @Column(name = "name")
-    private Types     name;
-
+    private String name;
+    
     @Column(name = "is_mergeable")
     private boolean   isMergeable;
 
@@ -43,20 +50,19 @@ public class EventType {
     @Column(name = "operation")
     private Operation operation;
     
+    @Column(name = "overwrite_config_name")
+    private String overwriteConfigName;
+    
+    @Transient
+    @JsonIgnore
+    private transient EventTypeConfig     eventTypeConfig;
+    
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public Types getName() {
-        return name;
-    }
-
-    public void setName(Types name) {
-        this.name = name;
     }
 
     public boolean isMergeable() {
@@ -97,5 +103,29 @@ public class EventType {
 
     public void setOperation(Operation operation) {
         this.operation = operation;
+    }
+
+    public EventTypeConfig getEventTypeConfig() {
+        return eventTypeConfig;
+    }
+
+    public void setEventTypeConfig(EventTypeConfig eventTypeConfig) {
+        this.eventTypeConfig = eventTypeConfig;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getOverwriteConfigName() {
+        return overwriteConfigName;
+    }
+
+    public void setOverwriteConfigName(String overwriteConfigName) {
+        this.overwriteConfigName = overwriteConfigName;
+    }
+
+    public String getName() {
+        return name;
     }
 }

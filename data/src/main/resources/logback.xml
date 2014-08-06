@@ -38,8 +38,11 @@
 	<logger name="com.proptiger.data.service.CompositeAPIService">
 		<level value="DEBUG" />
 	</logger>
+	<logger name="com.proptiger.app.config.HttpSessionTracker">
+		<level value="DEBUG" />
+	</logger>
 	
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="dal" />
 		<appender-ref ref="STDOUT" />
 	</root>
