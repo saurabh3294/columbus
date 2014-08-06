@@ -1,12 +1,16 @@
 package com.proptiger.data.event.model;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.event.enums.EventTypeConfig;
 
 @Entity
@@ -49,22 +53,8 @@ public class EventType {
     private String overwriteConfigName;
     
     @Transient
+    @JsonIgnore
     private EventTypeConfig     eventTypeConfig;
-    
-    @PostConstruct
-    public void populateConfig(){
-        String configName = this.name;
-        if(this.overwriteConfigName != null){
-            configName = this.overwriteConfigName;
-        }
-        EventTypeConfig savedEventTypeConfig = EventTypeConfig.eventTypeConfigMap.get(configName);
-        // TODO to handle the case when there is no mapping of name in the config.
-        // Code execution should not be stopped as a proper logging of error has to be done.
-        if(eventTypeConfig == null){
-            
-        }
-        this.eventTypeConfig = savedEventTypeConfig;
-    }
     
     public int getId() {
         return id;

@@ -28,7 +28,7 @@ public class DynamicTableDao {
         if (queryString == null || queryString.isEmpty()) {
             return new ArrayList<Map<String, Object>>();
         }
-        
+
         Session session = sessionFactory.getCurrentSession();
 
         Query query = session.createQuery(queryString);

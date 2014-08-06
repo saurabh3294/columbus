@@ -33,7 +33,7 @@ public class EventTypeProcessorService {
                 .getEventType().getId());
         DBRawEventTableLog dbRawEventTableLog = eventTypeMapping.getDbRawEventTableLog();
 
-        Double OldPrice = (Double)eventTypeProcessorDao.getOldValueOfEventTypeOnLastMonth(
+        Double OldPrice = (Double) eventTypeProcessorDao.getOldValueOfEventTypeOnLastMonth(
                 dbRawEventTableLog.getHostName(),
                 dbRawEventTableLog.getHostName(),
                 dbRawEventTableLog.getTableName(),

@@ -14,6 +14,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
+import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
@@ -35,21 +36,28 @@ import com.proptiger.data.util.PropertyReader;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
-@EnableJpaRepositories("com.proptiger.data.repo")
+@EnableJpaRepositories({ "com.proptiger.data.repo", "com.proptiger.data.event.repo" })
 public class AppRepositoryConfig {
 
     @Autowired
     private PropertyReader              propertyReader;
 
+    private static String[]             packagesToScan;
     private static EntityManagerFactory wordpressEntityFactory;
     private static EntityManagerFactory wordpressNewsEntityFactory;
 
+    static {
+    }
+
     @PostConstruct
     protected void init() throws Exception {
+        packagesToScan = propertyReader.getRequiredProperty(PropertyKeys.ENTITYMANAGER_PACKAGES_TO_SCAN).split(",");
+
         wordpressEntityFactory = createWordpressEntityManagerFactory(propertyReader
                 .getRequiredProperty(PropertyKeys.WORDPRESS_DATABASE_URL));
         wordpressNewsEntityFactory = createWordpressEntityManagerFactory(propertyReader
                 .getRequiredProperty(PropertyKeys.WORDPRESS_NEWS_DATABASE_URL));
+
     }
 
     private EntityManagerFactory createWordpressEntityManagerFactory(String dbUrl) {
@@ -63,7 +71,7 @@ public class AppRepositoryConfig {
         factory.setJpaVendorAdapter(createJPAAdapter());
         factory.setDataSource(dataSource);
         factory.setPersistenceProviderClass(HibernatePersistence.class);
-        factory.setPackagesToScan(propertyReader.getRequiredProperty(PropertyKeys.ENTITYMANAGER_PACKAGES_TO_SCAN));
+        factory.setPackagesToScan(packagesToScan);
         factory.setJpaProperties(createJPAProperties());
         factory.afterPropertiesSet();
         return factory.getObject();
@@ -74,19 +82,19 @@ public class AppRepositoryConfig {
      * 
      * @throws Exception
      */
-//    @Bean
-//    public DataSource dataSource() throws Exception {
-//        /*
-//         * Spring data source that does not use pooling
-//         */
-//        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-//        dataSource.setDriverClassName(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_DRIVER));
-//        dataSource.setUrl(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_URL));
-//        dataSource.setUsername(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_USERNAME));
-//        dataSource.setPassword(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_PASSWORD));
-//
-//        return dataSource;
-//    }
+    // @Bean
+    // public DataSource dataSource() throws Exception {
+    // /*
+    // * Spring data source that does not use pooling
+    // */
+    // DriverManagerDataSource dataSource = new DriverManagerDataSource();
+    // dataSource.setDriverClassName(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_DRIVER));
+    // dataSource.setUrl(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_URL));
+    // dataSource.setUsername(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_USERNAME));
+    // dataSource.setPassword(propertyReader.getRequiredProperty(PropertyKeys.DATABASE_PASSWORD));
+    //
+    // return dataSource;
+    // }
 
     /**
      * Creating c3p0 data source with pooling capability. Modify c3p0.properties
@@ -115,10 +123,10 @@ public class AppRepositoryConfig {
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         // set jpa vendor
         factory.setJpaVendorAdapter(createJPAAdapter());
-        //factory.setDataSource(dataSource());
+        // factory.setDataSource(dataSource());
         factory.setDataSource(pooledDataSource());
         factory.setPersistenceProviderClass(HibernatePersistence.class);
-        factory.setPackagesToScan(propertyReader.getRequiredProperty(PropertyKeys.ENTITYMANAGER_PACKAGES_TO_SCAN));
+        factory.setPackagesToScan(packagesToScan);
         factory.setJpaProperties(createJPAProperties());
 
         factory.afterPropertiesSet();
@@ -150,6 +158,12 @@ public class AppRepositoryConfig {
         return properties;
     }
 
+    private Properties getHibernateProperties() {
+        Properties properties = createJPAProperties();
+
+        return properties;
+    }
+
     @Bean
     public HibernateExceptionTranslator hibernateExceptionTranslator() {
         return new HibernateExceptionTranslator();
@@ -169,6 +183,17 @@ public class AppRepositoryConfig {
 
     public static EntityManagerFactory getWordpressNewsEntityFactory() {
         return wordpressNewsEntityFactory;
+    }
+
+    @Bean
+    public LocalSessionFactoryBean sessionFactory() throws Exception {
+        LocalSessionFactoryBean sessionFactoryBean = new LocalSessionFactoryBean();
+        sessionFactoryBean.setDataSource(pooledDataSource());
+
+        sessionFactoryBean.setHibernateProperties(getHibernateProperties());
+
+        sessionFactoryBean.afterPropertiesSet();
+        return sessionFactoryBean;
     }
 
 }

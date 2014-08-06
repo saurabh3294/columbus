@@ -3,9 +3,12 @@ package com.proptiger.data.event.processor;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.stereotype.Service;
+
 import com.proptiger.data.event.model.Event;
 import com.proptiger.data.event.model.EventGenerated;
 
+@Service
 public class PhotoChangeProcessor extends DBEventProcessor {
 
     @Override

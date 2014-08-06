@@ -3,6 +3,9 @@ package com.proptiger.data.event.enums;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+import javax.persistence.PostLoad;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -16,27 +19,17 @@ import com.proptiger.data.event.verification.PriceChangeVerification;
 
 // TODO remove the Types ENUM. make it dynamic.
 public class EventTypeConfig {
-    /*
-     * PortfolioPriceChange("portfolio_price_change",
-     * DefaultEventTypePayload.class, PriceChangeProcessor.class, null,
-     * PriceChangeVerification.class),
-     * PortfolioPhotoAdded("portfolio_photo_added",
-     * DefaultEventTypePayload.class, PhotoChangeProcessor.class, null,
-     * DBEventVerification.class);
-     */
-    public static Map<String, EventTypeConfig>  eventTypeConfigMap;
+
+    public static Map<String, EventTypeConfig>   eventTypeConfigMap;
     static {
-        // PortfolioPriceChange.setIdNames(new EventTypeIdConstants[] {
-        // EventTypeIdConstants.PropertyId });
-        // PortfolioPhotoAdded.setIdNames(new EventTypeIdConstants[] {
-        // EventTypeIdConstants.PropertyId });
+
         eventTypeConfigMap = new HashMap<String, EventTypeConfig>();
-        
+
         eventTypeConfigMap.put("portfolio_price_change", new EventTypeConfig(
                 DefaultEventTypePayload.class,
                 PriceChangeProcessor.class,
                 PriceChangeVerification.class));
-        
+
         eventTypeConfigMap.put("portfolio_photo_added", new EventTypeConfig(
                 DefaultEventTypePayload.class,
                 PhotoChangeProcessor.class,
@@ -51,25 +44,20 @@ public class EventTypeConfig {
     private EventTypePayload                     eventTypePayloadObject;
     private DBEventVerification                  eventVerificationObject;
 
-    @Autowired
-    private ApplicationContext                   applicationContext;
-
-    // TODO to handle it without applicationContext
-    public void setObject() {
-        this.processorObject = applicationContext.getBean(this.processorClassName);
-        this.eventTypePayloadObject = applicationContext.getBean(this.dataClassName);
-        this.eventVerificationObject = applicationContext.getBean(this.verificationClassName);
-    }
-
     EventTypeConfig(
             Class<? extends EventTypePayload> dataClassName,
             Class<? extends DBEventProcessor> procClass,
             Class<? extends DBEventVerification> verifiClassName) {
 
-        this.dataClassName = dataClassName;
-        this.processorClassName = procClass;
-        this.verificationClassName = verifiClassName;
-        setObject();
+        if (dataClassName != null) {
+            this.dataClassName = dataClassName;
+        }
+        if (processorClassName != null) {
+            this.processorClassName = procClass;
+        }
+        if (verifiClassName != null) {
+            this.verificationClassName = verifiClassName;
+        }
     }
 
     public EventTypeConfig() {

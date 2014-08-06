@@ -36,6 +36,9 @@ public class EventGeneratedService {
 
     @Autowired
     private DBRawEventTableLogDao   dbRawEventTableLogDao;
+	
+	@Autowired
+    private EventTypeService 		eventTypeService;
 
     // TODO: Make this transactional
     public void persistEvents(List<EventGenerated> eventGenerateds, DBRawEventTableLog dbRawEventTableLog) {
@@ -46,23 +49,32 @@ public class EventGeneratedService {
     }
 
     public List<EventGenerated> getRawEvents() {
-        return eventGeneratedDao.findByStatusOrderByCreatedDateAsc(EventGenerated.EventStatus.Raw.name());
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByEventStatusOrderByCreatedDateAsc(EventGenerated.EventStatus.Raw);
+        setEventTypesOnListEventGenerated(listEventGenerateds);
+        return listEventGenerateds;
     }
 
     public List<EventGenerated> getProcessedEvents() {
-        return eventGeneratedDao.findByStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(
-                EventGenerated.EventStatus.Processed.name(),
+        List<EventGenerated> listEventGenerateds =  eventGeneratedDao.findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(
+                EventGenerated.EventStatus.Processed,
                 new Date());
+        setEventTypesOnListEventGenerated(listEventGenerateds);
+        
+        return listEventGenerateds;
     }
 
     public List<EventGenerated> getProcessedEventsToBeMerged() {
-        return eventGeneratedDao.findByStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(
-                EventGenerated.EventStatus.Processed.name(),
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByEventStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(
+                EventGenerated.EventStatus.Processed,
                 new Date());
+        
+        setEventTypesOnListEventGenerated(listEventGenerateds);
+        
+        return listEventGenerateds;
     }
-
+    
     public Integer getRawEventCount() {
-        return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw.name());
+        return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw);
     }
 
     @Transactional
@@ -73,7 +85,7 @@ public class EventGeneratedService {
         for (Map.Entry<EventStatus, List<EventGenerated>> entry : updateEventGeneratedByOldValue.entrySet()) {
             for (EventGenerated eventGenerated : entry.getValue()) {
                 numberOfRowsAffected = eventGeneratedDao.updateEventStatusByIdAndOldStatus(eventGenerated
-                        .getEventStatus().name(), entry.getKey().name(), eventGenerated.getId());
+                        .getEventStatus(), entry.getKey().name(), eventGenerated.getId());
                 logger.info("Event with Id" + eventGenerated.getId()
                         + " was being updated from Old Status : "
                         + entry.getKey()

@@ -22,13 +22,16 @@ import com.proptiger.data.event.repo.EventTypeMappingDao;
 public class EventTypeMappingService {
 
     @Autowired
-    private EventTypeMappingDao        eventTypeMappingDao;
+    private EventTypeMappingDao               eventTypeMappingDao;
+    
+    @Autowired
+    private EventTypeService 				  eventTypeService;
 
-    public List<DBRawEventTableConfig> dbRawEventTableConfigs;
+    public static List<DBRawEventTableConfig> dbRawEventTableConfig;
 
     @PostConstruct
     public void constructDbConfig() {
-        Iterator<EventTypeMapping> listEventTypeMapping = eventTypeMappingDao.findAll().iterator();
+        Iterator<EventTypeMapping> listEventTypeMapping = getAllMappingOfRawEventsToEventType();
 
         Map<Integer, DBRawEventTableConfig> dbRawEventMapping = new HashMap<Integer, DBRawEventTableConfig>();
         Map<String, DBRawEventOperationConfig> dbOperationMap = new HashMap<String, DBRawEventOperationConfig>();
@@ -150,8 +153,27 @@ public class EventTypeMappingService {
         }
     }
 
+    public Iterator<EventTypeMapping> getAllMappingOfRawEventsToEventType(){
+        Iterator<EventTypeMapping> listEventTypeMapping = eventTypeMappingDao.findAll().iterator();
+        
+        while(listEventTypeMapping.hasNext()){
+            EventTypeMapping eventTypeMapping = listEventTypeMapping.next();
+            setEventTypeObject(eventTypeMapping);
+        }
+        
+        return listEventTypeMapping;
+    }
+    
     public EventTypeMapping getMappingByEventTypeId(Integer eventTypeId) {
-        return eventTypeMappingDao.findByEventTypeId(eventTypeId).get(0);
+        EventTypeMapping eventTypeMapping = eventTypeMappingDao.findByEventTypeId(eventTypeId).get(0);
+        setEventTypeObject(eventTypeMapping);
+        
+        return eventTypeMapping;
+    }
+    
+    private void setEventTypeObject(EventTypeMapping eventTypeMapping){
+        EventType eventType = eventTypeService.getEventTypeByEventTypeId(eventTypeMapping.getEventTypeId());
+        eventTypeMapping.setEventType(eventType);
     }
 
     public List<DBRawEventTableConfig> getDbRawEventTableConfigs() {
