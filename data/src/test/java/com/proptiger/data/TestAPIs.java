@@ -98,6 +98,11 @@ public class TestAPIs {
         exclusionList.add("data/v1/log");
         exclusionList.add("data/v1/entity/project/{projectId}/phase");                  // to be removed when b2b is merged with develop
         exclusionList.add("data/v1/entity/project/{projectId}/phase/{phaseId}");        // to be removed when b2b is merged with develop
+        exclusionList.add("/data/v1/entity/user/change-password");
+        exclusionList.add("/app/v1/reset-password");
+        //TODO If registered with same user from TestNG.properties, will throw error
+        exclusionList.add("/app/v1/register");
+        
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -362,6 +367,11 @@ public class TestAPIs {
 
         for (String key : result) {
             max = apiKeysValuesMap.get(key).size();
+            if (apiKeysValuesMap.get(key) == null){
+                failedUrl++;
+                excludedPOSTAPIs.add(apiUrl);
+                return;  
+            }
             maximumValues = Math.max(maximumValues, max);
         }
 

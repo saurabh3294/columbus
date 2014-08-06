@@ -43,7 +43,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  */
 @JsonInclude(Include.NON_NULL)
 @Entity
-@Table(name = "cms.RESI_PROJECT_VIEW")
+@Table(name = "cms.resi_project_view")
 @JsonFilter("fieldFilter")
 public class Project extends BaseModel {
     private static final long serialVersionUID = -6635164496425100051L;
@@ -184,7 +184,6 @@ public class Project extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Submitted Date", description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
-    @Column(name = "SUBMITTED_DATE")
     private Date                    submittedDate;
 
     // XXX - In order to make itnot null and avoid App crash
@@ -202,14 +201,12 @@ public class Project extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Offer Heading", description = "Offer Heading")
     @Field(value = "OFFER_HEADING")
-    @Column(name = "OFFER_HEADING")
     @Deprecated
     private String                  offerHeading;
     
     @Transient
     @FieldMetaInfo(displayName = "Offer Description", description = "Offer Description")
     @Field(value = "OFFER_DESC")
-    @Column(name = "OFFER_DESC")
     @Deprecated
     private String                  offerDesc;
 
@@ -287,12 +284,10 @@ public class Project extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Project Status", description = "Project Status")
     @Field(value = "PROJECT_STATUS")
-    @Column(name = "PROJECT_STATUS")
     private String                  projectStatus;
 
     @Transient
     @Field(value = "IS_RESALE")
-    @Column(name = "FORCE_RESALE")
     private boolean                 isResale;
 
     @Transient
@@ -329,7 +324,7 @@ public class Project extends BaseModel {
 
     @Transient
     @Field(value = "MEASURE")
-    private String                  propertySizeMeasure;
+    private String                  propertySizeMeasure =  "sqft";
 
     @Transient
     @Field(value = "PROJECT_DOMINANT_UNIT_TYPE")
@@ -384,8 +379,8 @@ public class Project extends BaseModel {
     @JsonIgnore
     private String                  youtubeVideo;
 
+    @Transient
     @FieldMetaInfo(displayName = "NO OF FLATS", description = "NO OF FLATS")
-    @Column(name = "NO_OF_FLATES")
     @Field("PROJECT_SUPPLY")
     private Integer                 supply;
 
@@ -425,7 +420,7 @@ public class Project extends BaseModel {
     private List<Offer>             offers;
 
     @Transient
-    @Field("PROJECT_LAST_UPDATED_DATE")
+    @Field("PROJECT_LAST_UPDATED_TIME")
     private Date                    lastUpdatedDate;
 
     @Transient
@@ -886,14 +881,6 @@ public class Project extends BaseModel {
 
     public boolean isResale() {
         return isResale;
-    }
-
-    public Integer getAvailability() {
-        return derivedAvailability;
-    }
-
-    public void setAvailability(Integer availability) {
-        this.derivedAvailability = availability;
     }
 
     public Date getPreLaunchDate() {

@@ -92,13 +92,6 @@ public class Locality extends BaseModel {
     @Column(name = "URL")
     @Field("LOCALITY_URL")
     private String                          url;
-
-//    @Transient
-    @FieldMetaInfo(displayName = "Active", description = "Active")
-    @Column(name = "ACTIVE")
-    @JsonIgnore
-    @Deprecated
-    private boolean                         isActive;
     
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
@@ -327,14 +320,6 @@ public class Locality extends BaseModel {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
     }
 
     public String getDescription() {
