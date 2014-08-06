@@ -54,10 +54,6 @@ public class EventGenerated extends Event {
     @Column(name = "event_type_id")
     private Integer          eventTypeId;
 
-    @Column(name = "event_created_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date             eventCreatedDate;
-
     @Column(name = "created_date", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date             createdDate;
@@ -176,14 +172,6 @@ public class EventGenerated extends Event {
 
     public void setEventTypeUniqueKey(String eventTypeUniqueKey) {
         this.eventTypeUniqueKey = eventTypeUniqueKey;
-    }
-
-    public Date getEventCreatedDate() {
-        return eventCreatedDate;
-    }
-
-    public void setEventCreatedDate(Date eventCreatedDate) {
-        this.eventCreatedDate = eventCreatedDate;
     }
 
     public Integer getEventTypeId() {

@@ -29,24 +29,24 @@ import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 
 @Service
 public class EventGeneratedService {
-    private static Logger           logger     = LoggerFactory.getLogger(LocalityService.class);
+    private static Logger                     logger     = LoggerFactory.getLogger(LocalityService.class);
 
     @Autowired
-    private EventGeneratedDao       eventGeneratedDao;
+    private EventGeneratedDao                 eventGeneratedDao;
 
     @Autowired
     private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Autowired
-    private DBRawEventTableLogDao   dbRawEventTableLogDao;
+    private DBRawEventTableLogDao             dbRawEventTableLogDao;
 
     @Autowired
     private RawEventToEventTypeMappingDao     dbEventMappingDao;
 
     @Autowired
-    private EventTypeService        eventTypeService;
+    private EventTypeService                  eventTypeService;
 
-    private Gson                    serializer = new Gson();
+    private Gson                              serializer = new Gson();
 
     public void persistEvents(List<EventGenerated> eventGenerateds, DBRawEventTableLog dbRawEventTableLog) {
         saveOrUpdateEvents(eventGenerateds);
@@ -63,13 +63,20 @@ public class EventGeneratedService {
     }
 
     public List<EventGenerated> getProcessedEvents() {
-
         List<EventGenerated> listEventGenerateds = eventGeneratedDao
                 .findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(
                         EventGenerated.EventStatus.Processed,
                         new Date());
         populateEventsDataAfterLoad(listEventGenerateds);
+        return listEventGenerateds;
+    }
 
+    public List<EventGenerated> getVerifiedEventsFromDate(Date fromDate) {
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao
+                .findByEventStatusAndUpdatedDateGreaterThanOrderByUpdatedDateAsc(
+                        EventGenerated.EventStatus.Verfied,
+                        fromDate);
+        populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds;
     }
 
