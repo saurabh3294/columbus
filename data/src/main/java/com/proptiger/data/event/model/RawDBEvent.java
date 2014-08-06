@@ -4,14 +4,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
+import com.proptiger.data.model.BaseModel;
 
 /**
  * 
  * @author sahil
  * 
  */
-public class RawDBEvent {
+public class RawDBEvent extends BaseModel{
 
     private DBRawEventTableLog        dbRawEventTableLog;
     private DBRawEventOperationConfig dbRawEventOperationConfig;
@@ -19,6 +23,7 @@ public class RawDBEvent {
     private Map<String, Object>       newDBValueMap = new HashMap<>();
     private Object                    primaryKeyValue;
     private Object                    transactionKeyValue;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date                      transactionDate;
 
     public DBRawEventTableLog getDbRawEventTableLog() {

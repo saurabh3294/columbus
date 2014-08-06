@@ -5,7 +5,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.enums.EventTypeConfig;
+import com.proptiger.data.event.EventTypeConfig;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.repo.EventTypeDao;
 
@@ -18,7 +18,6 @@ public class EventTypeService {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @Cacheable(value = "event")
     public EventType getEventTypeByEventTypeId(int eventTypeId) {
         EventType eventType = eventTypeDao.findOne(eventTypeId);
         populateConfig(eventType);
@@ -37,7 +36,7 @@ public class EventTypeService {
         // Code execution should not be stopped as a proper logging of error has
         // to be done.
         if (savedEventTypeConfig == null) {
-
+            System.out.println("**** ERROR ******8"+eventType.getName());
         }
         setEventTypeConfigObjectAttributes(savedEventTypeConfig);
         eventType.setEventTypeConfig(savedEventTypeConfig);

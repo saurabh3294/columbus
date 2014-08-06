@@ -21,11 +21,12 @@ public class DBProcessedEventHandler extends DBEventProcessorHandler{
     @Override
     public void handleEvents() {
          List<EventGenerated> eventsGenerated = eventGeneratedService.getProcessedEvents();
-         Map<EventType, List<EventGenerated>> EventsGroupedByEventType = groupEventsByEventType(eventsGenerated);
+         Map<String, List<EventGenerated>> EventsGroupedByEventType = groupEventsByEventType(eventsGenerated);
          
          // TODO to make the loop as multi threaded or Async
-         for(Map.Entry<EventType, List<EventGenerated>> entry: EventsGroupedByEventType.entrySet()){
-             entry.getKey().getEventTypeConfig().getProcessorObject().processProcessedEvents(entry.getValue());
+         for(Map.Entry<String, List<EventGenerated>> entry: EventsGroupedByEventType.entrySet()){
+             EventGenerated eventGenerated = entry.getValue().get(0);
+             eventGenerated.getEventType().getEventTypeConfig().getProcessorObject().processProcessedEvents(entry.getValue());
          }
         // TODO Auto-generated method stub
     }

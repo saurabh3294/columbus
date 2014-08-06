@@ -11,7 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.event.enums.EventTypeConfig;
+import com.proptiger.data.event.EventTypeConfig;
+import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "event_type")
@@ -22,7 +23,7 @@ import com.proptiger.data.event.enums.EventTypeConfig;
  * @author Mukand Agarwal
  *
  */
-public class EventType {
+public class EventType extends BaseModel{
     public enum Operation {
         Replace, Merge;
     }
@@ -54,7 +55,7 @@ public class EventType {
     
     @Transient
     @JsonIgnore
-    private EventTypeConfig     eventTypeConfig;
+    private transient EventTypeConfig     eventTypeConfig;
     
     public int getId() {
         return id;

@@ -1,4 +1,4 @@
-package com.proptiger.data.event.enums;
+package com.proptiger.data.event;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,9 +16,10 @@ import com.proptiger.data.event.processor.PhotoChangeProcessor;
 import com.proptiger.data.event.processor.PriceChangeProcessor;
 import com.proptiger.data.event.verification.DBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
+import com.proptiger.data.model.BaseModel;
 
 // TODO remove the Types ENUM. make it dynamic.
-public class EventTypeConfig {
+public class EventTypeConfig extends BaseModel{
 
     public static Map<String, EventTypeConfig>   eventTypeConfigMap;
     static {

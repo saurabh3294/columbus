@@ -11,13 +11,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.proptiger.data.event.enums.DBOperation;
+import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "event_type_mapping")
-public class EventTypeMapping {
+public class EventTypeMapping extends BaseModel{
 
     @Column(name = "id")
     @Id
@@ -43,6 +46,7 @@ public class EventTypeMapping {
     private DBRawEventTableLog dbRawEventTableLog;
     
     @Column(name = "created_date")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
     public int getId() {

@@ -1,16 +1,21 @@
 package com.proptiger.data.event.model.payload;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import com.proptiger.data.event.model.RawDBEvent;
 
-public abstract class EventTypePayload {
+public abstract class EventTypePayload implements Serializable{
     private String                       transactionKeyName;
     private Object                       transactionId;
     private String                       primaryKeyName;
     private Object                       primaryKeyValue;
     private String                       transactionDateKeyName;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date                         transactionDateKeyValue;
 
     private List<EventTypeUpdateHistory> eventTypeUpdateHistories;

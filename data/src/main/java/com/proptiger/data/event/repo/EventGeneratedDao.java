@@ -22,7 +22,7 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
          
     @Modifying
     @Query("Update EventGenerated E set E.eventStatus = ?1 where E.eventStatus = ?2 and E.id=?3 ")
-    public Integer updateEventStatusByIdAndOldStatus(EventStatus newEventStatus, String oldEventStatus, int id );
+    public Integer updateEventStatusByIdAndOldStatus(EventStatus newEventStatus, EventStatus oldEventStatus, int id );
 	
     @Query("Select count(id) from EventGenerated E where E.eventStatus = ?1 ")
 	public Integer getEventCountByEventStatus(EventStatus eventStatus);

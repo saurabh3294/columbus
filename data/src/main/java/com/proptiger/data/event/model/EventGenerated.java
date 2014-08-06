@@ -15,6 +15,8 @@ import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,6 +27,11 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 @Entity
 @Table(name = "raw_event_generated")
 public class EventGenerated extends Event {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 778194433417706629L;
 
     public enum EventStatus {
         Raw, Merged, Discarded, Verfied, PendingVerification, Sent, Processed;
@@ -48,12 +55,15 @@ public class EventGenerated extends Event {
     private Integer          eventTypeId;
 
     @Column(name = "event_created_date")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date             eventCreatedDate;
 
     @Column(name = "created_date", updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date             createdDate;
 
     @Column(name = "updated_date")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date             updatedDate;
 
     @Column(name = "status")
@@ -72,24 +82,8 @@ public class EventGenerated extends Event {
     @Transient
     private EventTypePayload eventTypePayload;
 
-    @PostLoad
-    public void setPayload() {
-        // System.out.println(new Gson().toJson(this));
-        // System.out.println("DATA"+this.data);
-        this.eventTypePayload = (EventTypePayload) new Gson().fromJson(this.data, eventType.getEventTypeConfig()
-                .getDataClassName());
-
-    }
-
     @PreUpdate
     public void autoUpdateFields() {
-        try {
-            this.data = new ObjectMapper().writeValueAsString(this.eventTypePayload);
-        }
-        catch (JsonProcessingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         this.updatedDate = new Date();
     }
 

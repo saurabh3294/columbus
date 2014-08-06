@@ -5,18 +5,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.gson.Gson;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
+import com.proptiger.data.event.processor.handler.DBEventProcessorHandler;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.event.service.EventTypeProcessorService;
 
 @Component
 public class PriceChangeProcessor extends DBEventProcessor {
+    private static Logger         logger = LoggerFactory.getLogger(PriceChangeProcessor.class);
 
     @Autowired
     private EventGeneratedService eventGeneratedService;
@@ -29,6 +34,7 @@ public class PriceChangeProcessor extends DBEventProcessor {
         List<EventGenerated> processedEvents = eventGeneratedService.getProcessedEventsToBeMerged();
 
         Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
+        System.out.println(" MAPPING "+new Gson().toJson(groupEventMap));
         Map<String, List<EventGenerated>> allCurrentProcessedEvents = groupEventsByKey(processedEvents);
 
         // Map for Updating the Events by their old status.
@@ -36,6 +42,7 @@ public class PriceChangeProcessor extends DBEventProcessor {
         updateEventsByOldStatusMap.put(EventStatus.Processed, new ArrayList<EventGenerated>());
 
         List<EventGenerated> processedEventsByEventStatus = null;
+        int size;
         // TODO to process them in separate threads
         for (Map.Entry<String, List<EventGenerated>> entry : groupEventMap.entrySet()) {
             // All old Raw Events to be discarded.
@@ -55,10 +62,13 @@ public class PriceChangeProcessor extends DBEventProcessor {
              * In Price Change, Only first latest event(by date) has to be
              * considered. Rest have to be discarded.
              */
-            EventGenerated firstEvent = entry.getValue().get(0);
-            firstEvent.setEventStatus(EventStatus.Processed);
-            updateEventHistories(firstEvent, EventStatus.Processed);
-            updateEventExpiryTime(firstEvent);
+            size = entry.getValue().size()-1;
+            EventGenerated lastEvent = entry.getValue().get(size);
+            lastEvent.setEventStatus(EventStatus.Processed);
+            updateEventHistories(lastEvent, EventStatus.Processed);
+            updateEventExpiryTime(lastEvent);
+            logger.info(new Gson().toJson(lastEvent.getEventTypePayload()));
+            
         }
 
         // Updating processed Raw Events.

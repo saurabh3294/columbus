@@ -27,7 +27,7 @@ public class EventTypeMappingService {
     @Autowired
     private EventTypeService eventTypeService;
 
-    public static List<DBRawEventTableConfig> dbRawEventTableConfig;
+    public static List<DBRawEventTableConfig> dbRawEventTableConfigs;
 
     @PostConstruct
     public void constructDbConfig() {

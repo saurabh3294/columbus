@@ -7,33 +7,50 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.proptiger.data.model.BaseModel;
+
 @Entity
 @Table(name = "raw_event_table_details")
-public class DBRawEventTableLog {
+public class DBRawEventTableLog extends BaseModel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4192519971268898777L;
+
     @Id
     @Column(name = "id")
-    private int    id;
+    private int               id;
 
     @Column(name = "host_name")
-    private String hostName;
+    private String            hostName;
 
     @Column(name = "db_name")
-    private String dbName;
+    private String            dbName;
 
     @Column(name = "table_name")
-    private String tableName;
+    private String            tableName;
 
     @Column(name = "primary_column_name")
-    private String primaryKeyName;
+    private String            primaryKeyName;
 
     @Column(name = "transaction_column_name")
-    private String transactionKeyName;
+    private String            transactionKeyName;
 
     @Column(name = "transaction_date_column_name")
-    private String dateAttributeName;
-    
+    private String            dateAttributeName;
+
     @Column(name = "transaction_date_column_value")
-    private Date dateAttributeValue;  // This is the last date till which events have been read
+    private Date              dateAttributeValue;                      // This
+                                                                        // is
+                                                                        // the
+                                                                        // last
+                                                                        // date
+                                                                        // till
+                                                                        // which
+                                                                        // events
+                                                                        // have
+                                                                        // been
+                                                                        // read
 
     public int getId() {
         return id;
