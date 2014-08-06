@@ -21,17 +21,17 @@ import com.proptiger.data.event.model.EventType;
  */
 public abstract class DBEventProcessorHandler implements EventProcessorHandler {
         
-    protected Map<EventType, List<EventGenerated>> groupEventsByEventType(List<EventGenerated> eventsGenerated) {
-        Map<EventType, List<EventGenerated>> mapEvents = new HashMap<EventType, List<EventGenerated>>();
+    protected Map<String, List<EventGenerated>> groupEventsByEventType(List<EventGenerated> eventsGenerated) {
+        Map<String, List<EventGenerated>> mapEvents = new HashMap<String, List<EventGenerated>>();
         List<EventGenerated> groupEvents;// = new ArrayList<EventGenerated>();
 
         for (EventGenerated eventGenerated : eventsGenerated) {
-            groupEvents = mapEvents.get(eventGenerated.getEventType());
+            groupEvents = mapEvents.get(eventGenerated.getEventType().getName());
             if (groupEvents == null) {
                 groupEvents = new ArrayList<EventGenerated>();
             }
             groupEvents.add(eventGenerated);
-            mapEvents.put(eventGenerated.getEventType(), groupEvents);
+            mapEvents.put(eventGenerated.getEventType().getName(), groupEvents);
         }
 
         return mapEvents;

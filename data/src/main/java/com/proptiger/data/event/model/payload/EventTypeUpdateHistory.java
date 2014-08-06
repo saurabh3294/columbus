@@ -2,10 +2,14 @@ package com.proptiger.data.event.model.payload;
 
 import java.util.Date;
 
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 
 public class EventTypeUpdateHistory {
     private EventStatus eventStatus;
+    @Temporal(TemporalType.TIMESTAMP)
     private Date        updatedDate;
     
     public EventTypeUpdateHistory(){

@@ -2,6 +2,7 @@ package com.proptiger.data.event.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
 import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.DBRawEventAttributeConfig;
 import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
@@ -20,13 +22,14 @@ import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.DBRawEventTableLogDao;
+import com.proptiger.data.event.repo.EventTypeMappingDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 
 @Service
 public class EventGeneratedService {
-    private static Logger           logger = LoggerFactory.getLogger(LocalityService.class);
+    private static Logger           logger     = LoggerFactory.getLogger(LocalityService.class);
 
     @Autowired
     private EventGeneratedDao       eventGeneratedDao;
@@ -36,43 +39,51 @@ public class EventGeneratedService {
 
     @Autowired
     private DBRawEventTableLogDao   dbRawEventTableLogDao;
-	
-	@Autowired
-    private EventTypeService 		eventTypeService;
 
-    // TODO: Make this transactional
+    @Autowired
+    private EventTypeMappingDao     dbEventMappingDao;
+
+    @Autowired
+    private EventTypeService        eventTypeService;
+
+    private Gson                    serializer = new Gson();
+
     public void persistEvents(List<EventGenerated> eventGenerateds, DBRawEventTableLog dbRawEventTableLog) {
-        eventGeneratedDao.save(eventGenerateds);
+        saveOrUpdateEvents(eventGenerateds);
         dbRawEventTableLogDao.updateDateAttributeValueById(
                 dbRawEventTableLog.getId(),
                 dbRawEventTableLog.getDateAttributeValue());
     }
 
     public List<EventGenerated> getRawEvents() {
-        List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByEventStatusOrderByCreatedDateAsc(EventGenerated.EventStatus.Raw);
-        setEventTypesOnListEventGenerated(listEventGenerateds);
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao
+                .findByEventStatusOrderByCreatedDateAsc(EventGenerated.EventStatus.Raw);
+        populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds;
     }
 
     public List<EventGenerated> getProcessedEvents() {
-        List<EventGenerated> listEventGenerateds =  eventGeneratedDao.findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(
-                EventGenerated.EventStatus.Processed,
-                new Date());
-        setEventTypesOnListEventGenerated(listEventGenerateds);
-        
+
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao
+                .findByEventStatusAndExpiryDateLessThanEqualOrderByCreatedDateAsc(
+                        EventGenerated.EventStatus.Processed,
+                        new Date());
+        populateEventsDataAfterLoad(listEventGenerateds);
+
         return listEventGenerateds;
     }
 
     public List<EventGenerated> getProcessedEventsToBeMerged() {
-        List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByEventStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(
-                EventGenerated.EventStatus.Processed,
-                new Date());
-        
-        setEventTypesOnListEventGenerated(listEventGenerateds);
-        
+
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao
+                .findByEventStatusAndExpiryDateGreaterThanOrderByCreatedDateAsc(
+                        EventGenerated.EventStatus.Processed,
+                        new Date());
+        populateEventsDataAfterLoad(listEventGenerateds);
+
         return listEventGenerateds;
     }
-    
+
     public Integer getRawEventCount() {
         return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw);
     }
@@ -84,8 +95,10 @@ public class EventGeneratedService {
         Integer numberOfRowsAffected;
         for (Map.Entry<EventStatus, List<EventGenerated>> entry : updateEventGeneratedByOldValue.entrySet()) {
             for (EventGenerated eventGenerated : entry.getValue()) {
-                numberOfRowsAffected = eventGeneratedDao.updateEventStatusByIdAndOldStatus(eventGenerated
-                        .getEventStatus(), entry.getKey().name(), eventGenerated.getId());
+                numberOfRowsAffected = eventGeneratedDao.updateEventStatusByIdAndOldStatus(
+                        eventGenerated.getEventStatus(),
+                        entry.getKey(),
+                        eventGenerated.getId());
                 logger.info("Event with Id" + eventGenerated.getId()
                         + " was being updated from Old Status : "
                         + entry.getKey()
@@ -103,11 +116,26 @@ public class EventGeneratedService {
     }
 
     public Iterable<EventGenerated> saveOrUpdateEvents(Iterable<EventGenerated> events) {
-        return eventGeneratedDao.save(events);
+        Iterator<EventGenerated> iterator = events.iterator();
+        while (iterator.hasNext()) {
+            populateEventsDataBeforeSave(iterator.next());
+        }
+        eventGeneratedDao.save(events);
+        /*
+         * Not returning the save object received from JPA as it will empty the
+         * transient fields.
+         */
+        return events;
     }
 
     public EventGenerated saveOrUpdateOneEvent(EventGenerated event) {
-        return eventGeneratedDao.save(event);
+        populateEventsDataBeforeSave(event);
+        eventGeneratedDao.save(event);
+        /*
+         * Not returning the save object received from JPA as it will empty the
+         * transient fields.
+         */
+        return event;
     }
 
     public List<EventGenerated> generateEventFromRawDBEvent(RawDBEvent rawDBEvent) {
@@ -157,6 +185,30 @@ public class EventGeneratedService {
         }
 
         return eventGeneratedList;
+    }
+
+    private void populateEventsDataAfterLoad(List<EventGenerated> listEventGenerated) {
+        for (EventGenerated eventGenerated : listEventGenerated) {
+            setEventTypeOnEventGenerated(eventGenerated);
+
+            System.out.println(new Gson().toJson(eventGenerated));
+            System.out.println(" DATA class name " + eventGenerated.getEventType().getEventTypeConfig()
+                    .getDataClassName().getName());
+            eventGenerated.setEventTypePayload((EventTypePayload) new Gson().fromJson(
+                    eventGenerated.getData(),
+                    eventGenerated.getEventType().getEventTypeConfig().getDataClassName()));
+        }
+    }
+
+    private void setEventTypeOnEventGenerated(EventGenerated eventGenerated) {
+        EventType eventType = eventTypeService.getEventTypeByEventTypeId(eventGenerated.getEventTypeId());
+        eventGenerated.setEventType(eventType);
+    }
+
+    private void populateEventsDataBeforeSave(EventGenerated eventGenerated) {
+        logger.info("\n SAVE BEING CALLED \n");
+        eventGenerated.setData(serializer.toJson(eventGenerated.getEventTypePayload()));
+        logger.info(" EVENT ID " + eventGenerated.getId() + " DATA " + eventGenerated.getData() + "\n");
     }
 
 }

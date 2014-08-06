@@ -25,9 +25,9 @@ public class EventTypeMappingService {
     private EventTypeMappingDao               eventTypeMappingDao;
     
     @Autowired
-    private EventTypeService 				  eventTypeService;
+    private EventTypeService eventTypeService;
 
-    public static List<DBRawEventTableConfig> dbRawEventTableConfig;
+    public static List<DBRawEventTableConfig> dbRawEventTableConfigs;
 
     @PostConstruct
     public void constructDbConfig() {
@@ -153,6 +153,10 @@ public class EventTypeMappingService {
         }
     }
 
+    public List<DBRawEventTableConfig> getDBRawEventTableConfigs() {
+        return null;
+    }
+
     public Iterator<EventTypeMapping> getAllMappingOfRawEventsToEventType(){
         Iterator<EventTypeMapping> listEventTypeMapping = eventTypeMappingDao.findAll().iterator();
         
@@ -183,5 +187,4 @@ public class EventTypeMappingService {
     public void setDbRawEventTableConfigs(List<DBRawEventTableConfig> dbRawEventTableConfigs) {
         this.dbRawEventTableConfigs = dbRawEventTableConfigs;
     }
-
 }

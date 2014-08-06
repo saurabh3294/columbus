@@ -7,12 +7,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
+import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.service.EventTypeMappingService;
 import com.proptiger.data.event.service.RawDBEventService;
-
 
 /**
  * Generates the Raw Events from DB
@@ -58,6 +57,5 @@ public class RawDBEventGenerator {
         }
         return lastAccessedDate;
     }
-
 
 }
