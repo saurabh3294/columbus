@@ -595,7 +595,6 @@ public class UserService {
     private User createFreshUserFromRegister(Register register) {
         User user = new User();
         copyFieldsFromRegisterToUser(register, user);
-        user.setCreatedAt(new Date());
         return user;
     }
 
@@ -662,7 +661,7 @@ public class UserService {
             UserProfile userProfile,
             AuthProvider provider,
             String providerUserId,
-            URL imageUrl) {
+            String imageUrl) {
         User user;
         UserAuthProviderDetail authProviderDetail = authProviderDetailDao.findByProviderIdAndProviderUserId(
                 provider.getProviderId(),
@@ -674,9 +673,7 @@ public class UserService {
             authProviderDetail = new UserAuthProviderDetail();
             authProviderDetail.setProviderId(provider.getProviderId());
             authProviderDetail.setProviderUserId(providerUserId);
-            if (imageUrl != null) {
-                authProviderDetail.setImageUrl(imageUrl.toString());
-            }
+            authProviderDetail.setImageUrl(imageUrl);
 
             String email = userProfile.getEmail();
             user = userDao.findByEmail(email);
@@ -684,12 +681,11 @@ public class UserService {
             if (user == null) {
                 user = new User();
                 user.setFullName(userProfile.getName());
-                user.setCreatedAt(new Date());
-                user.setUpdatedAt(new Date());
                 user = userDao.save(user);
 
                 int userId = user.getId();
-                createDefaultProjectDiscussionSubscriptionForUser(userId);
+                //TODO uncomment once we create table 
+                //createDefaultProjectDiscussionSubscriptionForUser(userId);
 
                 UserEmail userEmail = new UserEmail();
                 userEmail.setUserId(userId);
@@ -698,7 +694,6 @@ public class UserService {
                 emailDao.save(userEmail);
             }
             authProviderDetail.setUserId(user.getId());
-            authProviderDetail.setCreatedAt(new Date());
             authProviderDetailDao.save(authProviderDetail);
         }
         return userDao.findOne(user.getId());
