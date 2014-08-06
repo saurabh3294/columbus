@@ -7,7 +7,7 @@ package com.proptiger.exception;
  * 
  */
 
-public class BadRequestException extends IllegalArgumentException {
+public class BadRequestException extends ProAPIException {
     private static final long serialVersionUID = -1L;
 
     public BadRequestException() {
@@ -16,5 +16,8 @@ public class BadRequestException extends IllegalArgumentException {
 
     public BadRequestException(String s) {
         super(s);
+    }
+    public BadRequestException(String responseCode, String message) {
+        super(responseCode, message);
     }
 }

@@ -28,6 +28,8 @@ import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
+import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
@@ -110,11 +112,12 @@ public class PortfolioPriceTrendService {
      * 
      * @param userId
      * @param noOfMonths
+     * @param selector 
      * @return
      */
     public PortfolioPriceTrend getPortfolioPriceTrend(
             Integer userId,
-            Integer noOfMonths) {
+            Integer noOfMonths, FIQLSelector selector) {
         PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
         logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
         List<PortfolioListing> listings = portfolioListingDao
@@ -122,7 +125,7 @@ public class PortfolioPriceTrendService {
                         userId,
                         false,
                         Constants.SOURCETYPE_LIST,
-                        Arrays.asList(ListingStatus.ACTIVE));
+                        Arrays.asList(ListingStatus.ACTIVE), LimitOffsetPageRequest.createPageableDefaultRowsAll(selector));
         if (listings == null || listings.size() == 0) {
             List<ProjectPriceTrend> list = new ArrayList<>();
             portfolioPriceTrend.setProjectPriceTrend(list);
@@ -130,7 +133,6 @@ public class PortfolioPriceTrendService {
         }
         List<ProjectPriceTrend> projectPriceTrendTemp = getProjectPriceTrends(noOfMonths, listings);
         portfolioPriceTrend.setProjectPriceTrend(projectPriceTrendTemp);
-        // updatePriceTrendForPortfolio(portfolioPriceTrend, noOfMonths);
         return portfolioPriceTrend;
     }
 
@@ -174,38 +176,6 @@ public class PortfolioPriceTrendService {
             }
         }
 
-    }
-
-    /**
-     * Create List of PriceDetail object for portfolio price trend by adding
-     * corresponding price trend from all project price trends
-     * 
-     * @param portfolioPriceTrend
-     * @param noOfMonths
-     */
-    private void updatePriceTrendForPortfolio(PortfolioPriceTrend portfolioPriceTrend, Integer noOfMonths) {
-        List<PriceDetail> portfolioPriceTrendDetals = new ArrayList<>();
-        for (int counter = 0; counter < noOfMonths; counter++) {
-            PriceDetail priceDetail = new PriceDetail();
-            Date date = null;
-            for (ProjectPriceTrend projectPriceTrend : portfolioPriceTrend.getProjectPriceTrend()) {
-                /*
-                 * Ignoring ProjectPriceTrend that does not have priceDetail
-                 * list
-                 */
-                if (projectPriceTrend.getPrices() != null) {
-                    priceDetail.setPrice((int) (priceDetail.getPrice() + projectPriceTrend.getPrices().get(counter)
-                            .getPrice()));
-                    if (date == null) {
-                        date = projectPriceTrend.getPrices().get(counter).getEffectiveDate();
-                    }
-                }
-
-            }
-            priceDetail.setEffectiveDate(date);
-            portfolioPriceTrendDetals.add(priceDetail);
-        }
-        // portfolioPriceTrend.setPortfolioPriceTrend(portfolioPriceTrendDetals);
     }
 
     /**

@@ -2,7 +2,6 @@ package com.proptiger.data.repo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.QueryResponse;
@@ -28,85 +27,82 @@ public class TypeaheadDao {
 
 	@Autowired
 	private SolrDao solrDao;
+	
+    public QueryResponse getResponseSuggestions(String query, int rows, List<String> filterQueries) {
+        SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
+        QueryResponse result = solrDao.executeQuery(solrQuery);
+        return result;
+    }
+    
+    public QueryResponse getResponseV2(String query, int rows, List<String> filterQueries)
+    {
+        SolrQuery solrQuery = getSolrQueryV2(query, rows, filterQueries);
+        QueryResponse result = solrDao.executeQuery(solrQuery);
+        return result;
+    }
+    
+    public List<Typeahead> getTypeaheadsV2(String query, int rows,
+            List<String> filterQueries) {
+        
+        List<String> filterQueriesOld = new ArrayList<String>(filterQueries);
+        
+        // Add the city filter if it exist in the query
+        List<String> cityList = this.findCities(query);
+
+        // removes city name if query contains other terms too
+        String new_query = this.parseCities(query, cityList);
+        for (String city : cityList) {
+            filterQueries.add("TYPEAHEAD_CITY:" + city);
+        }
+
+        List<SolrQuery> solrQueries = new ArrayList<SolrQuery>();
+        solrQueries.add(this.getSolrQueryV2(new_query, rows, filterQueries));
+        if (!filterQueries.isEmpty()) {// Adding another query if filters exist
+            solrQueries.add(this.getSolrQueryV2(query, rows, filterQueriesOld));
+        }
+
+        List<Typeahead> results = new ArrayList<Typeahead>();
+
+        for (SolrQuery q : solrQueries) {
+            results.addAll(getSpellCheckedResponseV2(q, rows, filterQueries));
+        }
+
+        List<Typeahead> rtrn = new ArrayList<>();
+        
+        if (results.size() > rows) {
+            rtrn = new ArrayList<>(results.subList(0, rows));
+            return rtrn;
+        }
+        return results;
+    }
 
 	// Add parameters to use the custom requestHandler
-	private SolrQuery getSolrQueryV2(String query, int rows,
-			List<String> filterQueries) {
+    private SolrQuery getSolrQueryV2(String query, int rows,
+            List<String> filterQueries) {
 
-		SolrQuery solrQuery = new SolrQuery();
-		String boostQuery = "";
-		StringTokenizer tokens = new StringTokenizer(query);
-		float boost = 10;
+        SolrQuery solrQuery = getSimpleSolrQuery(query, rows, filterQueries);
+        solrQuery.setParam("qt", "/payload");
+        solrQuery.setParam("defType", "payload");
+        solrQuery.setParam("fl", "*,score");
+        return solrQuery;
+    }
+    
+    private SolrQuery getSimpleSolrQuery(String query, int rows, List<String> filterQueries) {
+        SolrQuery solrQuery = new SolrQuery();
+        solrQuery.setQuery(query);
+        for (String fq : filterQueries) {
+            solrQuery.addFilterQuery(fq);
+        }
 
-        while (tokens.hasMoreElements()) {
-        	String added;
-        	if(boost == 10){
-        		added = "Core_text:"+tokens.nextToken()+"^"+boost+" ";
-        	}
-        	else
-        		if(boost>0 && boost<10){
-            		added = "ENGram:"+tokens.nextToken()+"^"+boost+" ";
-        		}
-        		else{
-        		added = tokens.nextToken()+" ";
-        	}
-        	boostQuery += added;
-        	boost -=4;	
-			}
-		
-		for (String fq : filterQueries) {
-			solrQuery.addFilterQuery(fq);
-		}
-		solrQuery.setRows(rows);
-		solrQuery.setQuery(query);
-		solrQuery.setParam("bq",boostQuery);
-		solrQuery.setParam("qt", "/payload");
-		solrQuery.setParam("defType", "payload");
+        solrQuery.setRows(rows);
+        return solrQuery;
+    }
 
-		return solrQuery;
-	}
-
-
-
-	public List<Typeahead> getTypeaheadsV2(String query, int rows,
-			List<String> filterQueries) {
-		
-		// Add the city filter if it exist in the query
-		List<String> cityList = this.findCities(query);
-
-		// removes city name if query contains other terms too
-		String new_query = this.parseCities(query, cityList);
-		for (String city : cityList) {
-			filterQueries.add("TYPEAHEAD_CITY:" + city);
-		}
-
-		List<SolrQuery> solrQueries = new ArrayList<SolrQuery>();
-		solrQueries.add(this.getSolrQueryV2(new_query, rows, filterQueries));
-		if (!filterQueries.isEmpty()) {// Adding another query if filters exist
-			solrQueries.add(this.getSolrQueryV2(query, rows,
-					new ArrayList<String>()));
-		}
-
-		List<Typeahead> results = new ArrayList<Typeahead>();
-
-		for (SolrQuery q : solrQueries) {
-			results.addAll(getResponse(q, rows, filterQueries));
-		}
-
-		List<Typeahead> rtrn = new ArrayList<>();
-		if (results.size() > rows) {
-			rtrn = new ArrayList<>(results.subList(0, rows));
-			return rtrn;
-		}
-		return results;
-	}
-
-	/*
+	/**
 	 * If the query has a typo and can be corrected then new query is generated
 	 * using the suggestions and executed automatically
 	 */
-
-	private List<Typeahead> getResponse(SolrQuery solrQuery, int rows,
+	private List<Typeahead> getSpellCheckedResponseV2(SolrQuery solrQuery, int rows,
 			List<String> filterQueries) {
 
 		List<Typeahead> results = new ArrayList<Typeahead>();
@@ -127,7 +123,7 @@ public class TypeaheadDao {
 			return results;
 		}
 	}
-
+    
 	// Previous functions:
 
 	private SolrQuery getSolrQuery(String query, int rows,
@@ -300,5 +296,5 @@ public class TypeaheadDao {
 		solrQuery.setRows(rows);
 		return solrDao.executeQuery(solrQuery).getBeans(Typeahead.class);
 	}
-
+	
 }

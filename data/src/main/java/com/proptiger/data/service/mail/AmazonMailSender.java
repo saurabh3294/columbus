@@ -53,12 +53,10 @@ public class AmazonMailSender {
         from = propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY);
     }
     @Async
-    public boolean sendMail(MailDetails mailDetails)
+    public void sendMail(MailDetails mailDetails)
             throws MailException {
         // Construct an object to contain the recipient address.
-        if(!validFromAndToAddress(mailDetails.getMailTo())){
-        	return false;
-        }
+        validateFromAndToAddress(mailDetails.getMailTo());
         validateSubject(mailDetails.getSubject());
         Destination destination = new Destination().withToAddresses(mailDetails.getMailTo());
         if (mailDetails.getMailCC() != null && mailDetails.getMailCC().length > 0)
@@ -75,12 +73,12 @@ public class AmazonMailSender {
         Message message = new Message().withSubject(mailSubject).withBody(body);
 
         // Assemble the email.
-        SendEmailRequest request = new SendEmailRequest().withSource(from).withDestination(destination)
+        SendEmailRequest request = new SendEmailRequest()
+                .withSource(mailDetails.getFrom() != null ? mailDetails.getFrom() : from).withDestination(destination)
                 .withMessage(message);
         logger.debug("Sending mails to {}", Arrays.toString(mailDetails.getMailTo()));
         SendEmailResult result = emailServiceClient.sendEmail(request);
         logger.debug("Mail sent id {}", result.getMessageId());
-        return true;
     }
 
 	private void validateSubject(String subject) {
@@ -89,15 +87,14 @@ public class AmazonMailSender {
         }
 	}
 
-	private boolean validFromAndToAddress(String[] mailTo) {
+	private void validateFromAndToAddress(String[] mailTo) {
 		if (from == null || from.isEmpty()) {
             logger.debug("from email-Id is null or Empty");
-            return false;
+            throw new ProAPIException("from email-Id is null or Empty");
         }
         if (mailTo == null || mailTo.length == 0) {
             logger.debug("To email-Id is null or Empty");
-            return false;
+            throw new ProAPIException("from email-Id is null or Empty");
         }
-        return true;
 	}
 }

@@ -30,6 +30,8 @@ public class FIQLSelector implements Cloneable, Serializable {
     private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
     private static String     monthAlwaysTrueStatement = "month!=1970-01-01";
 
+    public static String FIQLSortDescSymbol = "-";
+    
     public String getFields() {
         return fields;
     }
@@ -151,10 +153,10 @@ public class FIQLSelector implements Cloneable, Serializable {
     public FIQLSelector addSortDESC(String fieldName) {
         if (fieldName != null) {
             if (this.sort == null || this.sort.trim().isEmpty()) {
-                this.sort = "-" + fieldName;
+                this.sort = FIQLSortDescSymbol + fieldName;
             }
             else {
-                this.sort += ",-" + fieldName;
+                this.sort += "," + FIQLSortDescSymbol + fieldName;
             }
         }
         return this;

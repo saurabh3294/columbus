@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+
+import javax.annotation.PostConstruct;
 
 import org.im4java.core.CompositeCmd;
 import org.im4java.core.ConvertCmd;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.io.Files;
+import com.google.common.util.concurrent.Striped;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.enums.MediaType;
@@ -56,6 +60,13 @@ public class ImageService extends MediaService {
 
     private TaskExecutor        taskExecutor;
 
+    private Striped<Lock>       locks;
+
+    @PostConstruct
+    private void init() {
+        locks = Striped.lock(propertyReader.getRequiredPropertyAsType("image.lock.stripes.count", Integer.class));
+    }
+
     public ImageService() {
         mediaType = MediaType.Image;
         taskExecutor = new SimpleAsyncTaskExecutor();
@@ -84,7 +95,9 @@ public class ImageService extends MediaService {
 
             imOps = new IMOperation();
             imOps.strip();
+
             imOps.quality(95.0);
+
             imOps.interlace("Plane");
             imOps.addImage();
 
@@ -122,10 +135,22 @@ public class ImageService extends MediaService {
                 for (ImageResolution imageResolution : ImageResolution.values()) {
                     File resizedFile = null;
                     try {
-                        resizedFile = resize(waterMark, imageResolution, format);
+
+                        // get the value of quality for this imageType and
+                        // resolution
+
+                        resizedFile = resize(waterMark, imageResolution, Image.BEST_QUALITY, format);
+
+                        // upload original as well
                         amazonS3Util.uploadFile(
-                                image.getPath() + computeResizedImageName(image, imageResolution, format),
+                                image.getPath() + computeResizedImageName(image, imageResolution, null, format),
                                 resizedFile);
+
+                        resizedFile = resize(waterMark, imageResolution, Image.OPTIMAL_QUALITY, format);
+                        amazonS3Util.uploadFile(
+                                image.getPath() + computeResizedImageName(image, imageResolution, Image.OPTIMAL, format),
+                                resizedFile);
+
                     }
                     catch (Exception e) {
                         logger.error("Could not resize image for resolution name {}", imageResolution.getLabel(), e);
@@ -136,30 +161,55 @@ public class ImageService extends MediaService {
                 }
                 deleteFileFromDisc(waterMark);
             }
+
         });
     }
 
-    private File resize(File waterMark, ImageResolution imageResolution, String format) throws Exception {
+    private File resize(File waterMark, ImageResolution imageResolution, double quality, String format)
+            throws Exception {
         ConvertCmd convertCmd = new ConvertCmd();
         IMOperation imOperation = new IMOperation();
         imOperation.addImage(waterMark.getAbsolutePath());
         imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight(), ">");
         imOperation.strip();
-        imOperation.quality(95.0);
-        imOperation.interlace("Plane");
+        imOperation.quality(quality);
+
+        if (!imageResolution.getLabel().equalsIgnoreCase("thumbnail"))
+            imOperation.interlace("Plane");
+
         File outputFile = File.createTempFile("resizedImage", Image.DOT + format, tempDir);
         imOperation.addImage(outputFile.getAbsolutePath());
         convertCmd.run(imOperation);
         return outputFile;
     }
 
-    private String computeResizedImageName(Image image, ImageResolution imageResolution, String format) {
-        return image.getId() + HYPHON
-                + imageResolution.getWidth()
-                + HYPHON
-                + imageResolution.getHeight()
-                + Image.DOT
-                + format;
+    private String computeResizedImageName(
+            Image image,
+            ImageResolution imageResolution,
+            String optimalSuffix,
+            String format) {
+        String resizedImageName;
+        if (!optimalSuffix.equals(null)) {
+
+            resizedImageName = image.getId() + HYPHON
+                    + imageResolution.getWidth()
+                    + HYPHON
+                    + imageResolution.getHeight()
+                    + HYPHON
+                    + optimalSuffix
+                    + Image.DOT
+                    + format;
+        }
+        else {
+
+            resizedImageName = image.getId() + HYPHON
+                    + imageResolution.getWidth()
+                    + HYPHON
+                    + imageResolution.getHeight()
+                    + Image.DOT
+                    + format;
+        }
+        return resizedImageName;
     }
 
     /*
@@ -180,7 +230,7 @@ public class ImageService extends MediaService {
      * Public method to get images of multiple object ids
      */
     // Do not remove commented cacheable.
-    //@Cacheable(value = Constants.CacheName.CACHE)
+    // @Cacheable(value = Constants.CacheName.CACHE)
     public List<Image> getImages(DomainObject object, String imageTypeStr, List<Long> objectIds) {
         if (objectIds == null || objectIds.isEmpty())
             return new ArrayList<Image>();
@@ -231,32 +281,39 @@ public class ImageService extends MediaService {
             }
 
             String originalHash = MediaUtil.fileMd5Hash(originalFile);
+            Image image = null;
+            Lock lock = locks.get(originalHash);
+            try {
+                lock.lock();
+                Image duplicateImage = isImageHashExists(originalHash, object.getText());
+                if (duplicateImage != null) {
+                    throw new ResourceAlreadyExistException("This Image Already Exists for " + object.getText()
+                            + " id-"
+                            + duplicateImage.getObjectId()
+                            + " with image id-"
+                            + duplicateImage.getId()
+                            + " under the category of "
+                            + duplicateImage.getImageTypeObj().getType()
+                            + ". The Image URL is: "
+                            + duplicateImage.getAbsolutePath());
+                }
+                // Persist
+                image = imageDao.insertImage(
+                        object,
+                        imageTypeStr,
+                        objectId,
+                        originalFile,
+                        processedFile,
+                        imageParams,
+                        format,
+                        originalHash);
 
-            Image duplicateImage = isImageHashExists(originalHash, object.getText());
-            if (duplicateImage != null)
-                throw new ResourceAlreadyExistException("This Image Already Exists for " + object.getText()
-                        + " id-"
-                        + duplicateImage.getObjectId()
-                        + " with image id-"
-                        + duplicateImage.getId()
-                        + " under the category of "
-                        + duplicateImage.getImageTypeObj().getType()
-                        + ". The Image URL is: "
-                        + duplicateImage.getAbsolutePath());
-
-            // Persist
-            Image image = imageDao.insertImage(
-                    object,
-                    imageTypeStr,
-                    objectId,
-                    originalFile,
-                    processedFile,
-                    imageParams,
-                    format,
-                    originalHash);
-            uploadToS3(image, originalFile, processedFile, format);
-            imageDao.markImageAsActive(image);
-
+                uploadToS3(image, originalFile, processedFile, format);
+                imageDao.markImageAsActive(image);
+            }
+            finally {
+                lock.unlock();
+            }
             caching.deleteMultipleResponseFromCache(getImageCacheKey(object, imageTypeStr, objectId, image.getId()));
             return image;
         }
