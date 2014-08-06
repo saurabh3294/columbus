@@ -12,6 +12,8 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
@@ -28,7 +30,7 @@ import com.proptiger.data.model.image.Image;
  * @author mukand
  */
 @Entity
-@Table(name = "RESI_PROJECT")
+@Table(name = "cms.resi_project_view")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @Deprecated
@@ -44,6 +46,10 @@ public class ProjectDB extends BaseModel {
     @FieldMetaInfo(displayName = "BUILDER ID", description = "BUILDER ID")
     @Column(name = "BUILDER_ID")
     private int               builderId;
+    
+    @ManyToOne
+    @JoinColumn(name = "BUILDER_ID", insertable = false, updatable = false)
+    private Builder                 builder;
 
     @Transient
     @FieldMetaInfo(displayName = "CITY ID", description = "CITY ID")
@@ -76,6 +82,7 @@ public class ProjectDB extends BaseModel {
     @Field(value = "PROJECT_TYPES")
     private String            projectTypes;
 
+    @Transient
     @FieldMetaInfo(displayName = "BUILDER NAME", description = "BUILDER NAME")
     @Field(value = "BUILDER_NAME")
     private String            builderName;
@@ -125,10 +132,6 @@ public class ProjectDB extends BaseModel {
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date              submittedDate;
 
-    @FieldMetaInfo(displayName = "PAYMENT PLAN", description = "PAYMENT PLAN")
-    @Column(name = "APPLICATION_FORM")
-    private String            paymentPlan;
-
     @FieldMetaInfo(displayName = "NO OF TOWERS", description = "NO OF TOWERS")
     @Column(name = "NO_OF_TOWERS")
     private int               noOfTowers;
@@ -151,8 +154,8 @@ public class ProjectDB extends BaseModel {
     @Column(name = "DISPLAY_ORDER_SUBURB")
     private int               displayOrderSuburb;
 
-    @FieldMetaInfo(displayName = "YOUTUBE VEDIO", description = "YOUTUBE VEDIO")
-    @Column(name = "YOUTUBE_VEDIO")
+    @FieldMetaInfo(displayName = "YOUTUBE VIDEO", description = "YOUTUBE VEDIO")
+    @Column(name = "YOUTUBE_VIDEO")
     private String            youtubeVedio;
 
     @FieldMetaInfo(displayName = "APPLICATION FORM", description = "APPLICATION FORM")
@@ -362,14 +365,6 @@ public class ProjectDB extends BaseModel {
         this.submittedDate = submittedDate;
     }
     
-    public String getPaymentPlan() {
-        return paymentPlan;
-    }
-
-    public void setPaymentPlan(String paymentPlan) {
-        this.paymentPlan = paymentPlan;
-    }
-
     public int getNoOfTowers() {
         return noOfTowers;
     }

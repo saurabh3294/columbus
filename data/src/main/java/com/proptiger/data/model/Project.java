@@ -43,7 +43,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  */
 @JsonInclude(Include.NON_NULL)
 @Entity
-@Table(name = "cms.RESI_PROJECT_VIEW")
+@Table(name = "cms.resi_project_view")
 @JsonFilter("fieldFilter")
 public class Project extends BaseModel {
     private static final long serialVersionUID = -6635164496425100051L;
