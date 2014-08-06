@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import com.proptiger.data.model.BaseModel;
@@ -109,5 +111,15 @@ public class UserAuthProviderDetail extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    @PrePersist
+    public void prePersist(){
+        this.createdAt = new Date();
+        this.updatedAt = this.createdAt;
+    }
+    @PreUpdate
+    public void preUpdate(){
+        this.updatedAt = new Date();
     }
 }

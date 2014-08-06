@@ -51,9 +51,12 @@ public class Image extends BaseModel {
         }
     }
 
-    public static final String DOT     = ".";
-    public static final String HYPHEN  = "-";
-    public static final String PATTERN = "[^a-zA-Z0-9]+";
+    public static final String DOT             = ".";
+    public static final String HYPHEN          = "-";
+    public static final String PATTERN         = "[^a-zA-Z0-9]+";
+    public static final String OPTIMAL         = "-O";
+    public static final double BEST_QUALITY    = 95.0;
+    public static final double OPTIMAL_QUALITY = 70.0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
