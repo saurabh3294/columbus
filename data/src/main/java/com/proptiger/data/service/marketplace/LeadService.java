@@ -6,67 +6,76 @@ package com.proptiger.data.service.marketplace;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.marketplace.LeadDao;
+import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
+import com.proptiger.data.repo.marketplace.LeadSubmissionsDao;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.exception.BadRequestException;
 
 /**
  * @author mandeep
  *
  */
+@Service
 public class LeadService {
     @Autowired
     private UserService userService;
     
     @Autowired
-
     private LeadDao     leadDao;
     
     private int dealClosed = 9;
     private int dead = 7;
     private int closedLost = 8;
     
+    private List<Lead> leadList;
     
-
->>>>>>> b851f83... changes
+    @Autowired
+    private LeadRequirementsDao leadRequirementsDao;
+    
+    @Autowired
+    private LeadSubmissionsDao leadSubmissionsDao;
+    
     public List<Lead> getLeads(FIQLSelector fiqlSelector) {
-        return null;
+           return null;
     }
     
     public Lead createLead(Lead lead) {
         if (lead.getClientId() == 0) {
-            //lead.setClient(userService.createUser(lead.getClient()));
-            //lead.setClientId(lead.getClient().getId());
+            lead.setClient(userService.createUser(lead.getClient()));
+            lead.setClientId(lead.getClient().getId());
         }
 
-        /*if (exists(lead)) {
-            //patchLead(lead);
+        if (exists(lead.getClient().getEmails().get(0).getEmail(),lead.getClient().getContactNumbers().get(0).getContactNumber(),lead.getCityId())) {            
+            patchLead(lead);
         }
         else {
-            // leadDao.save(lead);
-        }*/
+            leadDao.save(lead);
+        }
 
         return null;
     }
 
     private void patchLead(Lead lead) {
-        // TODO Auto-generated method stub
-        
+        lead.getLeadRequirements().get(0).setLeadId(leadList.get(0).getId());
+        lead.getLeadSubmissions().get(0).setLeadId(leadList.get(0).getId());
+                
+        leadRequirementsDao.save(lead.getLeadRequirements().get(0));
+        leadSubmissionsDao.save(lead.getLeadSubmissions().get(0));
     }
 
-<<<<<<< HEAD
-    private boolean exists(Lead lead) {
-        // leadDao.findAll();
-        // TODO Auto-generated method stub
-        return false;
-=======
-    public boolean exists(String email, String contactNumber, int cityId) {
 
-        try {
+    public boolean exists(String email, String contactNumber, int cityId) {
+        
+        //try 
+        {
             if (cityId == 0) {
                 throw new BadRequestException(ResponseCodes.BAD_REQUEST, "Please provide City id");
             }
@@ -104,7 +113,7 @@ public class LeadService {
 
             boolean duplicacy = false;
             if (duplicateOrNot == true) {
-                List<Lead> leadList = getLeadsData(user.getId());
+                leadList = getLeadsData(user.getId());
                 duplicacy = getDuplicacyStatus(leadList, cityId);
             }
             else {
@@ -113,11 +122,8 @@ public class LeadService {
 
             return duplicacy;
         }
-        catch (Exception e) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, e.toString());
-        }
         
->>>>>>> b851f83... changes
+        
     }
     
     public List<Lead> getLeadsData(int Id) {       
@@ -158,8 +164,5 @@ public class LeadService {
     
     return duplicacy;
     
-    }
-    
-    
-    
+    }    
 }

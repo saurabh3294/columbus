@@ -59,12 +59,10 @@ public class Lead extends BaseModel {
     private Integer           maxSize;
 
     @Column(name = "client_type")
-    @Enumerated
-    private ClientType        clientType;
+    private String        clientType;
 
     @Column(name = "transaction_type")
-    @Enumerated
-    private TransactionType   transactionType;
+    private String   transactionType;
 
     @Column(name = "score")
     private int               score;
@@ -86,6 +84,45 @@ public class Lead extends BaseModel {
     
     @Transient
     private User client;
+    
+    @OneToMany(mappedBy = "leadId", fetch = FetchType.LAZY)
+    private List<LeadRequirements> leadRequirements;
+
+    @OneToMany(mappedBy = "leadId", fetch = FetchType.LAZY)
+    private List<LeadSubmissions> leadSubmissions;
+        
+
+    public List<LeadRequirements> getLeadRequirements() {
+        return leadRequirements;
+    }
+
+    public void setLeadRequirements(List<LeadRequirements> leadRequirements) {
+        this.leadRequirements = leadRequirements;
+    }
+
+    public List<LeadSubmissions> getLeadSubmissions() {
+        return leadSubmissions;
+    }
+
+    public void setLeadSubmissions(List<LeadSubmissions> leadSubmissions) {
+        this.leadSubmissions = leadSubmissions;
+    }
+
+    public String getClientType() {
+        return clientType;
+    }
+
+    public void setClientType(String clientType) {
+        this.clientType = clientType;
+    }
+
+    public String getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
 
     public int getId() {
         return id;
@@ -141,22 +178,6 @@ public class Lead extends BaseModel {
 
     public void setMaxSize(Integer maxSize) {
         this.maxSize = maxSize;
-    }
-
-    public ClientType getClientType() {
-        return clientType;
-    }
-
-    public void setClientType(ClientType clientType) {
-        this.clientType = clientType;
-    }
-
-    public TransactionType getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
     }
 
     public int getScore() {

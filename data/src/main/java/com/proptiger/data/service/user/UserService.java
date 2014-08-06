@@ -162,6 +162,7 @@ public class UserService {
     @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
+
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
             return true;
@@ -170,52 +171,42 @@ public class UserService {
         return false;
     }
 
-    
-    public User getUserFromEmailAndPhone(String email,String contactNumber)
-    {
+    public User getUserFromEmailAndPhone(String email, String contactNumber) {
         User user = userDao.findByPrimaryEmailOrPhone(email, contactNumber);
         return user;
     }
-    
-    public User getUserFromEmail(String email)
-    {
+
+    public User getUserFromEmail(String email) {
         User user = userDao.findByPrimaryEmail(email);
         return user;
     }
-    
-    public User getUserFromPhone(String contactNumber)
-    {
+
+    public User getUserFromPhone(String contactNumber) {
         User user = userDao.findByPhone(contactNumber);
         return user;
-    }    
-    
+    }
+
     public boolean isRegisteredUser(String email, String contactNumber) {
-        if(userDao.findByPrimaryEmailOrPhone(email,contactNumber) != null)
-        {
+        if (userDao.findByPrimaryEmailOrPhone(email, contactNumber) != null) {
             return true;
         }
-        return false;       
+        return false;
     }
-    
+
     public boolean isRegisteredEmail(String email) {
-        if(userDao.findByPrimaryEmail(email) != null)
-        {
+        if (userDao.findByPrimaryEmail(email) != null) {
             return true;
         }
-        return false;       
+        return false;
     }
+
     public boolean isRegisteredPhone(String contactNumber) {
-        if(userDao.findByPhone(contactNumber) != null)
-        {
+        if (userDao.findByPhone(contactNumber) != null) {
             return true;
         }
-        return false;       
+        return false;
     }
-    
-    
-    
-    
-    
+
     /**
      * Returns details forum user object for a user including all his dashboards
      * and preferences and subscription details
@@ -759,18 +750,58 @@ public class UserService {
     // Take care of duplicacy of client here
     public User createUser(User user) {
         if (exists(user)) {
-//            patchUser(user);
+            // patchUser(user);
         }
         else {
             userDao.save(user);
         }
-        
-        // TODO Auto-generated method stub
-        return null;
+
+        return user;
     }
 
     private boolean exists(User user) {
-        // TODO Auto-generated method stub
-        return false;
+        
+        String contactNumber = user.getContactNumbers().get(0).getContactNumber();   
+        String email = user.getEmails().get(0).getEmail();
+        
+        boolean duplicateOrNot;
+        if (contactNumber != "" && email != "") {               
+            duplicateOrNot = isRegisteredUser(email, contactNumber);
+            if (duplicateOrNot == true) {
+                user = getUserFromEmailAndPhone(email, contactNumber);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if (email != "") {
+            
+            duplicateOrNot = isRegisteredEmail(email);
+
+            if (duplicateOrNot == true) {
+                user = getUserFromEmail(email);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if (contactNumber != "") {
+            duplicateOrNot = isRegisteredPhone(contactNumber);
+            if (duplicateOrNot == true) {
+                user = getUserFromPhone(contactNumber);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else {
+            return false;
+        }
     }
 }

@@ -50,10 +50,10 @@ public class User extends BaseModel {
     private List<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
-    private Date                         createdAt;
+    private Date                         createdAt = new Date();
 
     @Column(name = "updated_at")
-    private Date                         updatedAt;
+    private Date                         updatedAt = new Date();
 
     public int getId() {
         return id;

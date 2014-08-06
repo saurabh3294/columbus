@@ -13,6 +13,6 @@ import com.proptiger.data.model.marketplace.Lead;
  * @author mandeep
  *
  */
-public interface LeadDao extends PagingAndSortingRepository<Integer, Lead> {
+public interface LeadDao extends PagingAndSortingRepository<Lead , Integer> {
     public List<Lead> findByclientId(int Id);
 }
