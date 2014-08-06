@@ -276,6 +276,21 @@ public class URLService {
                     }
                 }
                 break;
+            case NEWS_URLS:
+                if (urlDetail.getCityName() != null && !urlDetail.getCityName().isEmpty()) {
+                    city = null;
+                    try {
+                        city = cityService.getCityByName(urlDetail.getCityName());
+                    }
+                    catch (ResourceNotAvailableException e) {
+                        city = null;
+                    }
+                    if (city == null) {
+                        redirectUrl = EMPTY_URL;
+                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
+                    }
+                }
+                break;
             default:
                 responseStatus = HttpStatus.SC_NOT_FOUND;
                 break;
