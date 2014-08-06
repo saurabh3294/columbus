@@ -73,7 +73,8 @@ public class AmazonMailSender {
         Message message = new Message().withSubject(mailSubject).withBody(body);
 
         // Assemble the email.
-        SendEmailRequest request = new SendEmailRequest().withSource(from).withDestination(destination)
+        SendEmailRequest request = new SendEmailRequest()
+                .withSource(mailDetails.getFrom() != null ? mailDetails.getFrom() : from).withDestination(destination)
                 .withMessage(message);
         logger.debug("Sending mails to {}", Arrays.toString(mailDetails.getMailTo()));
         SendEmailResult result = emailServiceClient.sendEmail(request);
