@@ -25,6 +25,7 @@ public class SolrResult extends BaseModel {
     private Suburb            suburb           = new Suburb();
     private City              city             = new City();
     private Builder           builder          = new Builder();
+    private ProjectDB         projectDB        = new ProjectDB();
 
     @FieldMetaInfo(
             dataType = DataType.CURRENCY,
@@ -412,9 +413,10 @@ public class SolrResult extends BaseModel {
         project.setName(projectName);
     }
 
-    @Field("UNIT_TYPES")
+    @Field("PROJECT_TYPES")
     public void setUnitTypes(String unitTypes) {
         project.setUnitTypes(unitTypes);
+        projectDB.setProjectTypes(unitTypes);
     }
 
     @Field("LAUNCH_DATE")
@@ -460,6 +462,7 @@ public class SolrResult extends BaseModel {
     @Field("SUBMITTED_DATE")
     public void setSubmittedDate(Date submittedDate) {
         project.setSubmittedDate(submittedDate);
+        projectDB.setSubmittedDate(submittedDate);
     }
 
     @Field("OFFER")
@@ -470,11 +473,13 @@ public class SolrResult extends BaseModel {
     @Field("OFFER_HEADING")
     public void setOfferHeading(String offerHeading) {
         project.setOfferHeading(offerHeading);
+        projectDB.setOfferHeading(offerHeading);
     }
 
     @Field("OFFER_DESC")
     public void setOfferDesc(String offerDesc) {
         project.setOfferDesc(offerDesc);
+        projectDB.setOfferDesc(offerDesc);
     }
 
     @Field("PROJECT_URL")
@@ -515,6 +520,7 @@ public class SolrResult extends BaseModel {
     @Field("PROJECT_STATUS")
     public void setStatus(String status) {
         project.setProjectStatus(status);
+        projectDB.setProjectStatus(status);
     }
 
     @Field("IS_RESALE")
@@ -535,12 +541,14 @@ public class SolrResult extends BaseModel {
     @Field("BUILDER_NAME")
     public void setBuilderName(String builderName) {
         builder.setName(builderName);
+        projectDB.setBuilderName(builderName);
     }
 
     @Field("SUBURB_ID")
     public void setSuburbId(int suburbId) {
         locality.setSuburbId(suburbId);
         suburb.setId(suburbId);
+        projectDB.setSuburbId(suburbId);
     }
 
     @Field("LOCALITY")
@@ -558,6 +566,8 @@ public class SolrResult extends BaseModel {
         suburb.setCityId(cityId);
         city.setId(cityId);
         locality.setCityId(cityId);
+        projectDB.setCityId(cityId);
+        
     }
 
     @Field("CITY")
@@ -869,6 +879,7 @@ public class SolrResult extends BaseModel {
     @Field("PROJECT_SUPPLY")
     public void setProjectSupply(int supply) {
         project.setSupply(supply);
+        projectDB.setNoOfFlates(supply);
     }
 
     @Field("PRE_LAUNCH_DATE")
