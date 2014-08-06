@@ -22,7 +22,7 @@ import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.EventTypeMappingDao;
+import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.event.repo.DBRawEventTableLogDao;
@@ -35,13 +35,13 @@ public class EventGeneratedService {
     private EventGeneratedDao       eventGeneratedDao;
 
     @Autowired
-    private EventTypeMappingService eventTypeMappingService;
+    private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Autowired
     private DBRawEventTableLogDao   dbRawEventTableLogDao;
 
     @Autowired
-    private EventTypeMappingDao     dbEventMappingDao;
+    private RawEventToEventTypeMappingDao     dbEventMappingDao;
 
     @Autowired
     private EventTypeService        eventTypeService;
@@ -191,9 +191,6 @@ public class EventGeneratedService {
         for (EventGenerated eventGenerated : listEventGenerated) {
             setEventTypeOnEventGenerated(eventGenerated);
 
-            System.out.println(new Gson().toJson(eventGenerated));
-            System.out.println(" DATA class name " + eventGenerated.getEventType().getEventTypeConfig()
-                    .getDataClassName().getName());
             eventGenerated.setEventTypePayload((EventTypePayload) new Gson().fromJson(
                     eventGenerated.getData(),
                     eventGenerated.getEventType().getEventTypeConfig().getDataClassName()));

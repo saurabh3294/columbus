@@ -1,5 +1,7 @@
 package com.proptiger.data.event.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContext;
@@ -7,10 +9,12 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.EventTypeConfig;
 import com.proptiger.data.event.model.EventType;
+import com.proptiger.data.event.processor.DBEventProcessor;
 import com.proptiger.data.event.repo.EventTypeDao;
 
 @Service
 public class EventTypeService {
+    private static Logger         logger = LoggerFactory.getLogger(EventTypeService.class);
 
     @Autowired
     private EventTypeDao       eventTypeDao;
@@ -36,7 +40,7 @@ public class EventTypeService {
         // Code execution should not be stopped as a proper logging of error has
         // to be done.
         if (savedEventTypeConfig == null) {
-            System.out.println("**** ERROR ******8"+eventType.getName());
+            logger.error("Event ID "+eventType.getId()+" Having no mapping of Event Type Config");
         }
         setEventTypeConfigObjectAttributes(savedEventTypeConfig);
         eventType.setEventTypeConfig(savedEventTypeConfig);

@@ -20,7 +20,12 @@ import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "event_type_mapping")
-public class EventTypeMapping extends BaseModel{
+public class RawEventToEventTypeMapping extends BaseModel{
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 8620987853665861856L;
 
     @Column(name = "id")
     @Id

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventTypeMapping;
+import com.proptiger.data.event.model.RawEventToEventTypeMapping;
 import com.proptiger.data.event.repo.EventTypeProcessorDao;
 
 @Service
@@ -19,7 +19,7 @@ public class EventTypeProcessorService {
     private EventTypeProcessorDao   eventTypeProcessorDao;
 
     @Autowired
-    private EventTypeMappingService eventTypeMappingService;
+    private RawEventToEventTypeMappingService eventTypeMappingService;
 
     public Double getPriceChangeOldValue(EventGenerated eventGenerated) {
         // Getting the First Day of the Month.
@@ -29,7 +29,7 @@ public class EventTypeProcessorService {
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
         cal.set(Calendar.HOUR_OF_DAY, 0);
 
-        EventTypeMapping eventTypeMapping = eventTypeMappingService.getMappingByEventTypeId(eventGenerated
+        RawEventToEventTypeMapping eventTypeMapping = eventTypeMappingService.getMappingByEventTypeId(eventGenerated
                 .getEventType().getId());
         DBRawEventTableLog dbRawEventTableLog = eventTypeMapping.getDbRawEventTableLog();
 
