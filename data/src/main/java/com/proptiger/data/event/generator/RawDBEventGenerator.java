@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.service.EventTypeMappingService;
+import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
 import com.proptiger.data.event.service.RawDBEventService;
 
 /**
@@ -24,7 +24,7 @@ import com.proptiger.data.event.service.RawDBEventService;
 public class RawDBEventGenerator {
 
     @Autowired
-    private EventTypeMappingService eventTypeMappingService;
+    private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Autowired
     private RawDBEventService       rawDBEventService;

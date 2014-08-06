@@ -15,23 +15,23 @@ import com.proptiger.data.event.generator.model.DBRawEventAttributeConfig;
 import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.EventType;
-import com.proptiger.data.event.model.EventTypeMapping;
-import com.proptiger.data.event.repo.EventTypeMappingDao;
+import com.proptiger.data.event.model.RawEventToEventTypeMapping;
+import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
 
 @Service
-public class EventTypeMappingService {
+public class RawEventToEventTypeMappingService {
 
     @Autowired
-    private EventTypeMappingDao               eventTypeMappingDao;
-    
+    private RawEventToEventTypeMappingDao     rawEventToEventTypeMappingDao;
+
     @Autowired
-    private EventTypeService eventTypeService;
+    private EventTypeService                  eventTypeService;
 
     public static List<DBRawEventTableConfig> dbRawEventTableConfigs;
 
     @PostConstruct
     public void constructDbConfig() {
-        Iterator<EventTypeMapping> listEventTypeMapping = getAllMappingOfRawEventsToEventType();
+        Iterator<RawEventToEventTypeMapping> listEventTypeMapping = getAllMappingOfRawEventsToEventType();
 
         Map<Integer, DBRawEventTableConfig> dbRawEventMapping = new HashMap<Integer, DBRawEventTableConfig>();
         Map<String, DBRawEventOperationConfig> dbOperationMap = new HashMap<String, DBRawEventOperationConfig>();
@@ -44,7 +44,7 @@ public class EventTypeMappingService {
 
         dbRawEventTableConfigs = new ArrayList<DBRawEventTableConfig>();
         while (listEventTypeMapping.hasNext()) {
-            EventTypeMapping eventTypeMapping = listEventTypeMapping.next();
+            RawEventToEventTypeMapping eventTypeMapping = listEventTypeMapping.next();
             Integer eventKey = eventTypeMapping.getDbRawEventTableLog().getId();
             String operationKey = eventKey + eventTypeMapping.getDbOperation().name();
             String attributeKey = operationKey;
@@ -157,25 +157,26 @@ public class EventTypeMappingService {
         return null;
     }
 
-    public Iterator<EventTypeMapping> getAllMappingOfRawEventsToEventType(){
-        Iterator<EventTypeMapping> listEventTypeMapping = eventTypeMappingDao.findAll().iterator();
-        
-        while(listEventTypeMapping.hasNext()){
-            EventTypeMapping eventTypeMapping = listEventTypeMapping.next();
+    public Iterator<RawEventToEventTypeMapping> getAllMappingOfRawEventsToEventType() {
+        Iterator<RawEventToEventTypeMapping> listEventTypeMapping = rawEventToEventTypeMappingDao.findAll().iterator();
+
+        while (listEventTypeMapping.hasNext()) {
+            RawEventToEventTypeMapping eventTypeMapping = listEventTypeMapping.next();
             setEventTypeObject(eventTypeMapping);
         }
-        
+
         return listEventTypeMapping;
     }
-    
-    public EventTypeMapping getMappingByEventTypeId(Integer eventTypeId) {
-        EventTypeMapping eventTypeMapping = eventTypeMappingDao.findByEventTypeId(eventTypeId).get(0);
+
+    public RawEventToEventTypeMapping getMappingByEventTypeId(Integer eventTypeId) {
+        RawEventToEventTypeMapping eventTypeMapping = rawEventToEventTypeMappingDao.findByEventTypeId(eventTypeId).get(
+                0);
         setEventTypeObject(eventTypeMapping);
-        
+
         return eventTypeMapping;
     }
-    
-    private void setEventTypeObject(EventTypeMapping eventTypeMapping){
+
+    private void setEventTypeObject(RawEventToEventTypeMapping eventTypeMapping) {
         EventType eventType = eventTypeService.getEventTypeByEventTypeId(eventTypeMapping.getEventTypeId());
         eventTypeMapping.setEventType(eventType);
     }
