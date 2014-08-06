@@ -570,10 +570,16 @@ public class UserService {
         manageContactNumberOnRegistration(user, register);
 
         ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
-        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
-        MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
-                propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
-        mailSender.sendMailUsingAws(details);
+        /*
+         * send mail only if user registers
+         */
+        if(user.isRegistered()){
+            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
+            MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
+                    propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
+            mailSender.sendMailUsingAws(details);
+        }
+        
         /*
          * after registration make user auto login
          */
