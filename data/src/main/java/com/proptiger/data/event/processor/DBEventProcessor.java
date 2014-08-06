@@ -66,7 +66,8 @@ public abstract class DBEventProcessor implements EventProcessor {
 
     void updateEventExpiryTime(EventGenerated eventGenerated) {
         Date expiredDate = DateUtils
-                .addHours(new Date(), eventGenerated.getEventType().getQueuedItemsValidationCycle());
+                .addHours(new Date(), eventGenerated.getEventType().getValidationCycleHours());
+        logger.info("EVENT TYPE ID "+eventGenerated.getId()+" Number of Hours"+eventGenerated.getEventType().getValidationCycleHours()+ "SETTING EXPIRY DATE "+expiredDate);
         eventGenerated.setExpiryDate(expiredDate);
     }
 

@@ -191,9 +191,6 @@ public class EventGeneratedService {
         for (EventGenerated eventGenerated : listEventGenerated) {
             setEventTypeOnEventGenerated(eventGenerated);
 
-            System.out.println(new Gson().toJson(eventGenerated));
-            System.out.println(" DATA class name " + eventGenerated.getEventType().getEventTypeConfig()
-                    .getDataClassName().getName());
             eventGenerated.setEventTypePayload((EventTypePayload) new Gson().fromJson(
                     eventGenerated.getData(),
                     eventGenerated.getEventType().getEventTypeConfig().getDataClassName()));

@@ -34,7 +34,7 @@ public class PriceChangeProcessor extends DBEventProcessor {
         List<EventGenerated> processedEvents = eventGeneratedService.getProcessedEventsToBeMerged();
 
         Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
-        System.out.println(" MAPPING "+new Gson().toJson(groupEventMap));
+        logger.info(" MAPPING "+new Gson().toJson(groupEventMap));
         Map<String, List<EventGenerated>> allCurrentProcessedEvents = groupEventsByKey(processedEvents);
 
         // Map for Updating the Events by their old status.
