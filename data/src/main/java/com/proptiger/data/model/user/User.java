@@ -14,6 +14,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.model.BaseModel;
 
 /**
@@ -154,5 +155,12 @@ public class User extends BaseModel {
     @PreUpdate
     public void preUpdate(){
         this.updatedAt = new Date();
+    }
+    
+    public void copyFieldsFromRegisterToUser(Register register) {
+        this.setFullName(register.getUserName());
+        this.setPassword(register.getPassword());
+        this.setCountryId(register.getCountryId());
+        this.setRegistered(register.getRegisterMe());
     }
 }

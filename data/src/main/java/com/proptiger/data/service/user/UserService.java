@@ -560,7 +560,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    public ForumUser register(Register register) {
+    public CustomUser register(Register register) {
         RegistrationUtils.validateRegistration(register);
         User user = getUserFromRegister(register);
 
@@ -569,11 +569,17 @@ public class UserService {
         manageEmailOnRegistration(user, register);
         manageContactNumberOnRegistration(user, register);
 
-        // auto login after registration
         ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
+        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
+        MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
+                propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
+        mailSender.sendMailUsingAws(details);
+        /*
+         * after registration make user auto login
+         */
         SecurityContextUtils.autoLogin(registeredUser);
 
-        return registeredUser;
+        return getUserDetails(user.getId());
     }
 
     private User getUserFromRegister(Register register) {
@@ -586,7 +592,7 @@ public class UserService {
                 throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
             }
             else {
-                copyFieldsFromRegisterToUser(register, user);
+                user.copyFieldsFromRegisterToUser(register);
             }
         }
         return user;
@@ -594,16 +600,11 @@ public class UserService {
 
     private User createFreshUserFromRegister(Register register) {
         User user = new User();
-        copyFieldsFromRegisterToUser(register, user);
+        user.copyFieldsFromRegisterToUser(register);
         return user;
     }
 
-    private void copyFieldsFromRegisterToUser(Register register, User user) {
-        user.setFullName(register.getUserName());
-        user.setPassword(register.getPassword());
-        user.setCountryId(user.getCountryId());
-        user.setRegistered(true);
-    }
+   
 
     // manages emails for every registration
     // will be more relevant once we start supporting multiple emails
