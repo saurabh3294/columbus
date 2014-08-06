@@ -2,6 +2,9 @@ package com.proptiger.data.notification.service;
 
 import java.util.Date;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class SubscriberConfigService {
 
     public Integer getMaxActiveNotificationTypeCount() {
