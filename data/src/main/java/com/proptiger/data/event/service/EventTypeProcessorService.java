@@ -43,7 +43,8 @@ public class EventTypeProcessorService {
                 dbRawEventTableLog.getTransactionKeyName(),
                 eventGenerated.getEventTypePayload().getTransactionId(),
                 dbRawEventTableLog.getDateAttributeName(),
-                cal.getTime());
+                cal.getTime(),
+                dbRawEventTableLog.getMapKeyValue());
 
         return OldPrice;
     }

@@ -62,4 +62,23 @@ public class DynamicTableDao {
         session.close();
         return results;
     }
+    
+    protected String mapConditionToSQLCondition(Map<String, Object> map){
+        if(map == null){
+            return "";
+        }
+            
+        String condition = "";
+        for(Map.Entry<String, Object> entry: map.entrySet()){
+            condition += " AND "+entry.getKey()+"= ";
+            if(entry.getValue() instanceof  Number){
+                condition += entry.getValue();
+            }
+            else{
+                condition += " '"+entry.getValue()+"'";
+            }
+        }
+        
+        return condition;
+    }
 }

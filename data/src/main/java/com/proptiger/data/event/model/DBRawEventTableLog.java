@@ -1,12 +1,17 @@
 package com.proptiger.data.event.model;
 
 import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
@@ -39,18 +44,25 @@ public class DBRawEventTableLog extends BaseModel {
     @Column(name = "transaction_date_column_name")
     private String            dateAttributeName;
 
-    @Column(name = "transaction_date_column_value")
-    private Date              dateAttributeValue;                      // This
-                                                                        // is
-                                                                        // the
-                                                                        // last
-                                                                        // date
-                                                                        // till
-                                                                        // which
-                                                                        // events
-                                                                        // have
-                                                                        // been
-                                                                        // read
+    @Column(name = "transaction_column_value")
+    private Long              lastTransactionKeyValue;
+    
+    @Column(name = "condition_key_value")
+    private String conditionKeyValue;
+    
+    @Transient
+    private Map<String, Object> mapKeyValue;
+    
+    @PostLoad
+    public void populateTransientFields(){
+        if(this.conditionKeyValue != null){
+            try{
+                this.mapKeyValue = new Gson().fromJson(this.conditionKeyValue, Map.class);
+            }catch(JsonSyntaxException e){
+                
+            }
+        }
+    }
 
     public int getId() {
         return id;
@@ -108,11 +120,27 @@ public class DBRawEventTableLog extends BaseModel {
         this.dateAttributeName = dateAttributeName;
     }
 
-    public Date getDateAttributeValue() {
-        return dateAttributeValue;
+    public Long getLastTransactionKeyValue() {
+        return lastTransactionKeyValue;
     }
 
-    public void setDateAttributeValue(Date dateAttributeValue) {
-        this.dateAttributeValue = dateAttributeValue;
+    public void setLastTransactionKeyValue(Long lastTransactionKeyValue) {
+        this.lastTransactionKeyValue = lastTransactionKeyValue;
+    }
+
+    public String getConditionKeyValue() {
+        return conditionKeyValue;
+    }
+
+    public void setConditionKeyValue(String conditionKeyValue) {
+        this.conditionKeyValue = conditionKeyValue;
+    }
+
+    public Map<String, Object> getMapKeyValue() {
+        return mapKeyValue;
+    }
+
+    public void setMapKeyValue(Map<String, Object> mapKeyValue) {
+        this.mapKeyValue = mapKeyValue;
     }
 }

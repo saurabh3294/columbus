@@ -23,8 +23,9 @@ public class RawDBEventDao extends DynamicTableDao {
             String hostName,
             String dbName,
             String tableName,
-            String dateAttributeName,
-            Date dateAttributeValue) {
+            String transactionAttributeName,
+            Long transactionAttributeValue,
+            Map<String, Object> conditionKeyValue) {
 
         /* *
          * The rows will sorted in ascending order by their current time. As
@@ -32,15 +33,17 @@ public class RawDBEventDao extends DynamicTableDao {
          */
         String queryString = "";
         try {
+            
             queryString = "SELECT * FROM " + dbName
                     + "."
                     + tableName
                     + " WHERE "
-                    + dateAttributeName
+                    + transactionAttributeName
                     + " > '"
-                    + conversionService.convert(dateAttributeValue, String.class)
+                    + transactionAttributeValue
+                    + mapConditionToSQLCondition(conditionKeyValue)
                     + "' ORDER BY "
-                    + dateAttributeName
+                    + transactionAttributeName
                     + " ASC limit 1";
             logger.info(queryString);
         }
@@ -58,7 +61,8 @@ public class RawDBEventDao extends DynamicTableDao {
             String transactionKeyName,
             Object transactionKeyValue,
             String primaryKeyName,
-            Object primaryKeyValue) {
+            Object primaryKeyValue,
+            Map<String, Object> conditionKeyValue) {
 
         String queryString = "";
         queryString = "SELECT * FROM " + dbName
@@ -72,6 +76,7 @@ public class RawDBEventDao extends DynamicTableDao {
                 + primaryKeyName
                 + " = "
                 + primaryKeyValue
+                + mapConditionToSQLCondition(conditionKeyValue)
                 + " ORDER BY "
                 + transactionKeyName
                 + " DESC limit 1";
@@ -85,4 +90,6 @@ public class RawDBEventDao extends DynamicTableDao {
         return null;
 
     }
+    
+    
 }

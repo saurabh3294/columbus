@@ -40,7 +40,7 @@ public class RawDBEventGenerator {
 
             // Updating the dateAttribute value after generating the rawDBEvents
             DBRawEventTableLog dbRawEventTableLog = dbRawEventTableConfig.getDbRawEventTableLog();
-            dbRawEventTableLog.setDateAttributeValue(getLastAccessedDate(rawDBEvents, dbRawEventTableConfig
+            dbRawEventTableLog.setLastTransactionKeyValue(getLastAccessedDate(rawDBEvents, dbRawEventTableConfig
                     .getDbRawEventTableLog().getDateAttributeName()));
         }
 

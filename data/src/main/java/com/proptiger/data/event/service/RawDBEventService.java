@@ -28,7 +28,8 @@ public class RawDBEventService {
                 dbRawEventTableConfig.getDbRawEventTableLog().getDbName(),
                 dbRawEventTableConfig.getDbRawEventTableLog().getTableName(),
                 dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeName(),
-                dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeValue());
+                dbRawEventTableConfig.getDbRawEventTableLog().getLastTransactionKeyValue(),
+                dbRawEventTableConfig.getDbRawEventTableLog().getMapKeyValue());
 
         for (Map<String, Object> rawDBEventMap : rawDBEventDataList) {
 
@@ -80,7 +81,8 @@ public class RawDBEventService {
                 rawDBEvent.getDbRawEventTableLog().getTransactionKeyName(),
                 rawDBEvent.getTransactionKeyValue(),
                 rawDBEvent.getDbRawEventTableLog().getPrimaryKeyName(),
-                rawDBEvent.getPrimaryKeyValue());
+                rawDBEvent.getPrimaryKeyValue(),
+                rawDBEvent.getDbRawEventTableLog().getMapKeyValue());
 
         Map<String, Object> newRawEventDataMap = rawDBEvent.getOldDBValueMap();
 

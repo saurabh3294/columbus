@@ -50,9 +50,9 @@ public class EventGeneratedService {
 
     public void persistEvents(List<EventGenerated> eventGenerateds, DBRawEventTableLog dbRawEventTableLog) {
         saveOrUpdateEvents(eventGenerateds);
-        dbRawEventTableLogDao.updateDateAttributeValueById(
+        dbRawEventTableLogDao.updateLastTransactionKeyValueById(
                 dbRawEventTableLog.getId(),
-                dbRawEventTableLog.getDateAttributeValue());
+                dbRawEventTableLog.getLastTransactionKeyValue());
     }
 
     public List<EventGenerated> getRawEvents() {
