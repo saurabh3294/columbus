@@ -23,7 +23,7 @@ public class EventTypeProcessorService {
 
     public Double getPriceChangeOldValue(EventGenerated eventGenerated) {
         // Getting the First Day of the Month.
-        Date eventCreatedDate = eventGenerated.getEventCreatedDate();
+        Date eventCreatedDate = eventGenerated.getEventTypePayload().getTransactionDateKeyValue();
         Calendar cal = Calendar.getInstance();
         cal.setTime(eventCreatedDate);
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));

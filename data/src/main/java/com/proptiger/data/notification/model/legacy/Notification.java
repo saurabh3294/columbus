@@ -1,4 +1,4 @@
-package com.proptiger.data.notification.model;
+package com.proptiger.data.notification.model.legacy;
 
 import java.util.Date;
 
