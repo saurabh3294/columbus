@@ -55,6 +55,7 @@ public class User extends BaseModel {
     @Column(name = "updated_at")
     private Date                         updatedAt = new Date();
 
+
     public int getId() {
         return id;
     }

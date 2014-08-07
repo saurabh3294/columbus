@@ -16,6 +16,8 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
 import com.proptiger.data.repo.marketplace.LeadSubmissionsDao;
+import com.proptiger.data.repo.user.UserContactNumberDao;
+import com.proptiger.data.repo.user.UserEmailDao;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.exception.BadRequestException;
 
@@ -35,7 +37,14 @@ public class LeadService {
     private int dead = 7;
     private int closedLost = 8;
     
-    private List<Lead> leadList;
+    
+    @Autowired
+    private UserEmailDao userEmailDao;
+    
+    @Autowired
+    private UserContactNumberDao userContactNumberDao;
+    
+    private List<Lead> leadListGlobal;
     
     @Autowired
     private LeadRequirementsDao leadRequirementsDao;
@@ -48,24 +57,54 @@ public class LeadService {
     }
     
     public Lead createLead(Lead lead) {
-        if (lead.getClientId() == 0) {
-            lead.setClient(userService.createUser(lead.getClient()));
-            lead.setClientId(lead.getClient().getId());
-        }
-
         if (exists(lead.getClient().getEmails().get(0).getEmail(),lead.getClient().getContactNumbers().get(0).getContactNumber(),lead.getCityId())) {            
+            System.out.println("patch");
             patchLead(lead);
         }
         else {
-            leadDao.save(lead);
+            System.out.println("new");            
+            if (lead.getClientId() == 0) {
+                
+                if(!userService.exists(lead.getClient()))
+                {
+                    lead.setClient(userService.createUser(lead.getClient()));                    
+                }
+                lead.setClientId(lead.getClient().getId());           
+                lead.getClient().getEmails().get(0).setUserId(lead.getClientId());
+                lead.getClient().getContactNumbers().get(0).setUserId(lead.getClientId());
+                lead.getClient().getEmails().get(0).setCreatedBy(lead.getClientId());
+                lead.getClient().getContactNumbers().get(0).setCreatedBy(lead.getClientId());
+                if(userEmailDao.findByEmail(lead.getClient().getEmails().get(0).getEmail()).size()>0)
+                {}
+                else
+                {
+                    userEmailDao.save(lead.getClient().getEmails().get(0));
+                }
+                if(userContactNumberDao.findByContactNumber(lead.getClient().getContactNumbers().get(0).getContactNumber()).size() > 0)
+                {}
+                else
+                {
+                    userContactNumberDao.save(lead.getClient().getContactNumbers().get(0));   
+                }                
+           }
+                        
+            lead.setId(leadDao.save(lead).getId());
+            
+            System.out.println(leadDao.save(lead).getId());
+            System.out.println(lead.getId());
+            
+            lead.getLeadRequirements().get(0).setLeadId(lead.getId());
+            lead.getLeadSubmissions().get(0).setLeadId(lead.getId());
+            
+            leadRequirementsDao.save(lead.getLeadRequirements().get(0));
+            leadSubmissionsDao.save(lead.getLeadSubmissions().get(0));            
         }
-
         return null;
     }
 
     private void patchLead(Lead lead) {
-        lead.getLeadRequirements().get(0).setLeadId(leadList.get(0).getId());
-        lead.getLeadSubmissions().get(0).setLeadId(leadList.get(0).getId());
+        lead.getLeadRequirements().get(0).setLeadId(leadListGlobal.get(0).getId());
+        lead.getLeadSubmissions().get(0).setLeadId(leadListGlobal.get(0).getId());
                 
         leadRequirementsDao.save(lead.getLeadRequirements().get(0));
         leadSubmissionsDao.save(lead.getLeadSubmissions().get(0));
@@ -110,11 +149,16 @@ public class LeadService {
             else {
                 throw new BadRequestException(ResponseCodes.BAD_REQUEST, "Please provide Email or phone number");
             }
-
+            
+            System.out.println(duplicateOrNot);
+            
             boolean duplicacy = false;
             if (duplicateOrNot == true) {
-                leadList = getLeadsData(user.getId());
+                List<Lead> leadList = getLeadsData(user.getId());
+                leadListGlobal = leadList;
                 duplicacy = getDuplicacyStatus(leadList, cityId);
+                
+                System.out.println(duplicacy);
             }
             else {
                 duplicacy = false;
@@ -136,10 +180,15 @@ public class LeadService {
         boolean duplicacy = false;
         for (Lead l:leadList)
         {                       
+            System.out.println(l.getCityId());
+            System.out.println("==");
+            System.out.println(cityId);
+            
             if(l.getCityId() == cityId)
             {
                     for(LeadOffer lo: l.getLeadOffers())
                     {
+                        System.out.println(duplicacy);
                         int statusId = lo.getStatusId();
                         if(statusId == closedLost || statusId == dead || statusId == dealClosed)
                         {

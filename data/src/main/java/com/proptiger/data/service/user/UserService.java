@@ -750,16 +750,15 @@ public class UserService {
     // Take care of duplicacy of client here
     public User createUser(User user) {
         if (exists(user)) {
-            // patchUser(user);
         }
         else {
-            userDao.save(user);
+            user.setId(userDao.save(user).getId());
         }
 
         return user;
     }
 
-    private boolean exists(User user) {
+    public boolean exists(User user) {
         
         String contactNumber = user.getContactNumbers().get(0).getContactNumber();   
         String email = user.getEmails().get(0).getEmail();

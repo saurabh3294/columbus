@@ -39,7 +39,7 @@ public class UserEmail extends BaseModel {
     private int               priority             = primaryEmailPriority;
 
     @Column(name = "created_by")
-    private int               createdBy;
+    private Integer               createdBy;
 
     @Column(name = "created_at")
     private Date              createdAt            = new Date();
@@ -86,11 +86,11 @@ public class UserEmail extends BaseModel {
         this.priority = priority;
     }
 
-    public int getCreatedBy() {
+    public Integer getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(int createdBy) {
+    public void setCreatedBy(Integer createdBy) {
         this.createdBy = createdBy;
     }
 
