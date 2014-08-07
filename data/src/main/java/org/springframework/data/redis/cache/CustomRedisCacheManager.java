@@ -60,6 +60,16 @@ public class CustomRedisCacheManager implements CacheManager {
         return c;
     }
 
+    public Cache getCache(String name, long expiration) {
+        name = decideCacheName(name);
+        Cache c = caches.get(name);
+        if (c == null) {
+            c = new RedisCache(name, (usePrefix ? cachePrefix.prefix(name) : null), template, expiration);
+            caches.put(name, c);
+        }
+
+        return c;
+    } 
     /**
      * This method modify the cache name based on application name header. So at
      * runtime if user request with this header then different cache should be

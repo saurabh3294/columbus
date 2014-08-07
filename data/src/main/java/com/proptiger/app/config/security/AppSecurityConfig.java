@@ -63,6 +63,9 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
          * to enable form login for testing purpose uncomment these end and
          * comment below code
          */
+        
+        
+//        http.requiresChannel().antMatchers(Constants.Security.USER_API_REGEX, Constants.Security.AUTH_API_REGEX).requiresSecure();
         http.rememberMe().rememberMeServices(createPersistentTokenBasedRememberMeService())
                 .key(Constants.Security.REMEMBER_ME_COOKIE);
         http.csrf().disable();
@@ -90,7 +93,6 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public LoginUrlAuthenticationEntryPoint createAuthEntryPoint() {
         AuthEntryPoint authEntryPoint = new AuthEntryPoint(Constants.Security.LOGIN_URL);
-        // authEntryPoint.setForceHttps(true);
         return authEntryPoint;
     }
 
