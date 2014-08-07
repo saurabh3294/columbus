@@ -35,7 +35,7 @@ public class DBEventGenerator implements EventGeneratorInterface {
     @Override
     public boolean isEventGenerationRequired() {
 
-        Integer rawEventCount = eventGeneratedService.getRawEventCount();
+        Long rawEventCount = eventGeneratedService.getRawEventCount();
 
         if (rawEventCount > EventConstants.MAX_RAW_EVENT_COUNT) {
             return false;

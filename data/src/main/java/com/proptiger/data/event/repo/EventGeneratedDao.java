@@ -25,5 +25,5 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
     public Integer updateEventStatusByIdAndOldStatus(EventStatus newEventStatus, EventStatus oldEventStatus, int id );
 	
     @Query("Select count(id) from EventGenerated E where E.eventStatus = ?1 ")
-	public Integer getEventCountByEventStatus(EventStatus eventStatus);
+	public Long getEventCountByEventStatus(EventStatus eventStatus);
 }
