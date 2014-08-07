@@ -14,6 +14,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.HibernateExceptionTranslator;
+import org.springframework.orm.hibernate4.HibernateTransactionManager;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -174,6 +175,7 @@ public class AppRepositoryConfig {
     public JpaTransactionManager transactionManager() throws Exception {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory());
+        
         return transactionManager;
     }
 
@@ -194,6 +196,14 @@ public class AppRepositoryConfig {
 
         sessionFactoryBean.afterPropertiesSet();
         return sessionFactoryBean;
+    }
+    
+    @Bean
+    public HibernateTransactionManager hibernateTransactionManager() throws Exception{
+        HibernateTransactionManager hibernateTransactionManager = new HibernateTransactionManager();
+        hibernateTransactionManager.setSessionFactory(sessionFactory().getObject());
+        
+        return hibernateTransactionManager;
     }
 
 }

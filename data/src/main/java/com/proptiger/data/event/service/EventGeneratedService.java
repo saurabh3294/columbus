@@ -91,7 +91,7 @@ public class EventGeneratedService {
         return listEventGenerateds;
     }
 
-    public Integer getRawEventCount() {
+    public Long getRawEventCount() {
         return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw);
     }
 

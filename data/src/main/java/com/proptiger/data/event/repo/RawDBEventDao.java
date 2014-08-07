@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class RawDBEventDao extends DynamicTableDao {
+    
     @Autowired
     private ConversionService conversionService;
 
@@ -36,11 +37,12 @@ public class RawDBEventDao extends DynamicTableDao {
                     + tableName
                     + " WHERE "
                     + dateAttributeName
-                    + " > "
+                    + " > '"
                     + conversionService.convert(dateAttributeValue, String.class)
-                    + " ORDER BY "
+                    + "' ORDER BY "
                     + dateAttributeName
-                    + " ASC ";
+                    + " ASC limit 1";
+            logger.info(queryString);
         }
         catch (Exception e) {
             logger.error(e.getMessage());
@@ -73,6 +75,8 @@ public class RawDBEventDao extends DynamicTableDao {
                 + " ORDER BY "
                 + transactionKeyName
                 + " DESC limit 1";
+        logger.info(queryString);
+
         List<Map<String, Object>> results = runDynamicTableQuery(queryString);
         if (results != null && results.size() > 0) {
             return results.get(0);
