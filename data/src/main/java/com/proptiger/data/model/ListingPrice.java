@@ -53,7 +53,7 @@ public class ListingPrice extends BaseModel {
     private Date              effectiveDate;
 
     @Column(name = "price_per_unit_area")
-    private int               pricePerUnitArea;
+    private Integer               pricePerUnitArea;
 
     @Column(name = "plot_cost_per_unit_area")
     private Integer           plotCostPerUnitArea;
@@ -122,11 +122,11 @@ public class ListingPrice extends BaseModel {
         this.effectiveDate = effectiveDate;
     }
 
-    public int getPricePerUnitArea() {
+    public Integer getPricePerUnitArea() {
         return pricePerUnitArea;
     }
 
-    public void setPricePerUnitArea(int pricePerUnitArea) {
+    public void setPricePerUnitArea(Integer pricePerUnitArea) {
         this.pricePerUnitArea = pricePerUnitArea;
     }
 

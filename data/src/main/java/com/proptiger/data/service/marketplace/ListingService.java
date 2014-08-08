@@ -1,6 +1,9 @@
 package com.proptiger.data.service.marketplace;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,5 +101,27 @@ public class ListingService {
         if(listingCategory == ListingCategory.Primary){
             throw new BadRequestException("Primary listing category not allowed");
         }
+    }
+
+    public List<Listing> getListings(Integer userId) {
+       List<Listing> listings = listingDao.findBySellerId(userId);
+       List<Integer> listingPriceIds = new ArrayList<>();
+       for(Listing l: listings){
+           listingPriceIds.add(l.getCurrentPriceId());
+       }
+       List<ListingPrice> listingPrices = listingPriceService.getListingPrices(listingPriceIds);
+       Map<Integer, ListingPrice> map = new HashMap<Integer, ListingPrice>();
+       for(ListingPrice lp: listingPrices){
+           map.put(lp.getId(), lp);
+       }
+       for(Listing l: listings){
+          l.setCurrentListingPrice(map.get(l.getCurrentPriceId()));
+       }
+       return listings;
+    }
+
+    public Listing getListing(Integer userId, Integer listingId) {
+        Listing listing = listingDao.findBySellerIdAndId(userId, listingId);
+        return listing;
     }
 }
