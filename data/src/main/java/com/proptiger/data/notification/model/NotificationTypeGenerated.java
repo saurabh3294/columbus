@@ -35,11 +35,11 @@ public class NotificationTypeGenerated {
     @Enumerated(EnumType.STRING)
     private NotificationStatus notificationStatus;
     
-    @Column(name = "created_date", updatable = false)
+    @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date             createdDate;
 
-    @Column(name = "updated_date")
+    @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date             updatedDate;
 

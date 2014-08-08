@@ -23,7 +23,7 @@ public class Subscriber {
     @GeneratedValue
     private int            id;
 
-    @Column(name = "subscriber_name")
+    @Column(name = "name")
     @Enumerated(EnumType.STRING)
     private SubscriberName subscriberName;
 
