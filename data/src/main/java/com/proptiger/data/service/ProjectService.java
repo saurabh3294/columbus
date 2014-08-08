@@ -113,8 +113,6 @@ public class ProjectService {
      */
     public PaginatedResponse<List<Project>> getProjects(Selector projectFilter) {
         PaginatedResponse<List<Project>> projects = projectDao.getProjects(projectFilter);
-        imageEnricher.setProjectsImages(projects.getResults());
-
         return projects;
     }
 
@@ -434,7 +432,6 @@ public class ProjectService {
                 projects.add(solrResult.getProject());
             }
         }
-        imageEnricher.setImagesOfProjects(projects);
         return projects;
     }
 
@@ -607,9 +604,7 @@ public class ProjectService {
                 + "}}}]},\"sort\":[{\"field\":\"projectPriceAppreciationRate\",\"sortOrder\":\"DESC\"}]}";
 
         Selector selector = new Gson().fromJson(json, Selector.class);
-        PaginatedResponse<List<Project>> paginatedResponse = projectDao.getProjects(selector);
-        imageEnricher.setImagesOfProjects(paginatedResponse.getResults());
-        return paginatedResponse;
+        return projectDao.getProjects(selector);
     }
 
     /**

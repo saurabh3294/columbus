@@ -305,48 +305,6 @@ public class ImageEnricher {
         return imageService.getImage(imageId);
     }
 
-    public void setBuilderImages(Builder builder) {
-        if (builder == null) {
-            return;
-        }
-        List<Image> images = imageService.getImages(DomainObject.builder, null, builder.getId());
-        builder.setImages(images);
-    }
-
-    public void setImagesOfProjects(List<Project> projects) {
-        if (projects == null || projects.isEmpty()) {
-            return;
-        }
-        List<Long> projectIds = new ArrayList<>();
-        for (Project project : projects) {
-            projectIds.add(new Long(project.getProjectId()));
-        }
-        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.project, projectIds);
-        if (imagesMap == null) {
-            return;
-        }
-        for (Project project : projects) {
-            project.setImages(imagesMap.get(new Long(project.getProjectId())));
-        }
-    }
-
-    public void setImagesOfBuilders(List<Builder> builders) {
-        if (builders == null || builders.isEmpty()) {
-            return;
-        }
-        List<Long> builderIds = new ArrayList<>();
-        for (Builder builder : builders) {
-            builderIds.add(new Long(builder.getId()));
-        }
-        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.builder, builderIds);
-        if (imagesMap == null) {
-            return;
-        }
-        for (Builder builder : builders) {
-            builder.setImages(imagesMap.get(new Long(builder.getId())));
-        }
-    }
-
     private Map<Long, List<Image>> getImagesMap(DomainObject domainObject, List<Long> objectIds) {
         Map<Long, List<Image>> imagesMap = new HashMap<>();
         List<Image> images = imageService.getImages(domainObject, null, objectIds);

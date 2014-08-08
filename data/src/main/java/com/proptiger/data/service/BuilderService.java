@@ -78,7 +78,6 @@ public class BuilderService {
         }
 
         builder.setProjectStatusCount(getProjectStatusCountMap(builderId, selector));
-        imageEnricher.setBuilderImages(builder);
         return builder;
     }
 
@@ -170,7 +169,6 @@ public class BuilderService {
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
-        imageEnricher.setImagesOfBuilders(builders);
         PaginatedResponse<List<Builder>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(builders);
         if (queryResponse != null && queryResponse.getGroupResponse() != null

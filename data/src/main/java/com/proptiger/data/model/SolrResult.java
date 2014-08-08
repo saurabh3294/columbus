@@ -338,6 +338,18 @@ public class SolrResult extends BaseModel {
     @Field("BUILDER_CITIES")
     private List<String>      builderCities;
     
+    @Field("BUILDER_IMAGE_ALTTEXT")
+    private String            builderImgAltText;
+    
+    @Field("BUILDER_IMAGE_TITLE")
+    private String            builderImgTitle;
+    
+    @Field("PROJECT_IMAGE_ALTTEXT")
+    private String            projectImgAltText;
+    
+    @Field("PROJECT_IMAGE_TITLE")
+    private String            projectImgTitle;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -1077,5 +1089,25 @@ public class SolrResult extends BaseModel {
     @Field("BUILDER_CITIES")
     public void setBuilderCities(List<String> builderCities) {
         builder.setBuilderCities(builderCities);
+    }
+
+    @Field("BUILDER_IMAGE_ALTTEXT")
+    public void setBuilderImgAltText(String builderImgAltText) {
+        builder.setAltText(builderImgAltText);
+    }
+
+    @Field("BUILDER_IMAGE_TITLE")
+    public void setBuilderImgTitle(String builderImgTitle) {
+       builder.setTitle(builderImgTitle);
+    }
+
+    @Field("PROJECT_IMAGE_ALTTEXT")
+    public void setProjectImgAltText(String projectImgAltText) {
+        project.setAltText(projectImgAltText);
+    }
+    
+    @Field("PROJECT_IMAGE_TITLE")
+    public void setProjectImgTitle(String projectImgTitle) {
+       project.setTitle(projectImgTitle);
     }
 }

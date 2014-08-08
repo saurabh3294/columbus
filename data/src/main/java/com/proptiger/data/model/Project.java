@@ -337,6 +337,14 @@ public class Project extends BaseModel {
 
     @Transient
     private List<Image>             images;
+    
+    @Transient
+    @Field("PROJECT_IMAGE_ALTTEXT")
+    private String                  altText;
+    
+    @Transient
+    @Field("PROJECT_IMAGE_TITLE")
+    private String                  title;
 
     @Transient
     @Field(value = "LOCALITY_LABEL_PRIORITY")
@@ -1138,4 +1146,19 @@ public class Project extends BaseModel {
         this.imageCountByType = imageCountByType;
     }
 
+    public String getAltText() {
+        return altText;
+    }
+
+    public void setAltText(String altText) {
+        this.altText = altText;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 }
