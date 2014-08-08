@@ -273,7 +273,7 @@ public class UserService {
     public FIQLSelector getUserAppSubscriptionFilters(int userId) {
 
         FIQLSelector selector = new FIQLSelector();
-        
+
         List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
 
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
