@@ -38,7 +38,8 @@ public class NotificationTypeGenerator {
         Integer ntCount = 0;
         Date fromDate = subscriberConfigService.getLastEventDateReadByNotification();
         List<EventGenerated> eventGeneratedList = eventGeneratedService.getVerifiedEventsFromDate(fromDate);
-
+        
+        // TODO: sort items
         Date lastEventDate = fromDate;
         for (EventGenerated eventGenerated : eventGeneratedList) {
             if (lastEventDate.before(eventGenerated.getUpdatedDate())) {
@@ -49,7 +50,7 @@ public class NotificationTypeGenerator {
             ntCount += ntGeneratedList.size();
             ntGenerationService.persistNotificationTypes(ntGeneratedList);
         }
-
+        
         subscriberConfigService.setLastEventDateReadByNotification(lastEventDate);
         return ntCount;
     }

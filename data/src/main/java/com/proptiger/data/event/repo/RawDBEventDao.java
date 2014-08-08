@@ -1,12 +1,13 @@
 package com.proptiger.data.event.repo;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
+
+import com.proptiger.data.event.model.DBRawEventTableLog;
 
 /**
  * 
@@ -15,17 +16,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class RawDBEventDao extends DynamicTableDao {
-    
+
     @Autowired
     private ConversionService conversionService;
 
-    public List<Map<String, Object>> getRawDBEventByTableNameAndDate(
-            String hostName,
-            String dbName,
-            String tableName,
-            String transactionAttributeName,
-            Long transactionAttributeValue,
-            Map<String, Object> conditionKeyValue) {
+    public List<Map<String, Object>> getRawDBEventByTableNameAndId(DBRawEventTableLog tableLog) {
 
         /* *
          * The rows will sorted in ascending order by their current time. As
@@ -33,18 +28,19 @@ public class RawDBEventDao extends DynamicTableDao {
          */
         String queryString = "";
         try {
-            
-            queryString = "SELECT * FROM " + dbName
+
+            queryString = "SELECT * FROM " + tableLog.getDbName()
                     + "."
-                    + tableName
+                    + tableLog.getTableName()
                     + " WHERE "
-                    + transactionAttributeName
+                    + tableLog.getTransactionKeyName()
                     + " > '"
-                    + transactionAttributeValue
-                    + mapConditionToSQLCondition(conditionKeyValue)
-                    + "' ORDER BY "
-                    + transactionAttributeName
-                    + " ASC limit 1";
+                    + tableLog.getLastTransactionKeyValue()
+                    + "' "
+                    + convertMapToSql(tableLog.getFilterMap())
+                    + " ORDER BY "
+                    + tableLog.getTransactionKeyName()
+                    + " ASC";
             logger.info(queryString);
         }
         catch (Exception e) {
@@ -55,30 +51,26 @@ public class RawDBEventDao extends DynamicTableDao {
     }
 
     public Map<String, Object> getOldRawDBEvent(
-            String hostname,
-            String dbName,
-            String tableName,
-            String transactionKeyName,
+            DBRawEventTableLog tableLog,
             Object transactionKeyValue,
-            String primaryKeyName,
-            Object primaryKeyValue,
-            Map<String, Object> conditionKeyValue) {
+            Object primaryKeyValue) {
 
         String queryString = "";
-        queryString = "SELECT * FROM " + dbName
+        queryString = "SELECT * FROM " + tableLog.getDbName()
                 + "."
-                + tableName
+                + tableLog.getTableName()
                 + " WHERE "
-                + transactionKeyName
+                + tableLog.getTransactionKeyName()
                 + " < "
                 + transactionKeyValue
                 + " AND "
-                + primaryKeyName
-                + " = "
+                + tableLog.getPrimaryKeyName()
+                + " = '"
                 + primaryKeyValue
-                + mapConditionToSQLCondition(conditionKeyValue)
+                + "' "
+                + convertMapToSql(tableLog.getFilterMap())
                 + " ORDER BY "
-                + transactionKeyName
+                + tableLog.getTransactionKeyName()
                 + " DESC limit 1";
         logger.info(queryString);
 
@@ -90,6 +82,5 @@ public class RawDBEventDao extends DynamicTableDao {
         return null;
 
     }
-    
-    
+
 }

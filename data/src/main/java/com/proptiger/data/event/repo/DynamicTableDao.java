@@ -63,7 +63,7 @@ public class DynamicTableDao {
         return results;
     }
     
-    protected String mapConditionToSQLCondition(Map<String, Object> map){
+    protected String convertMapToSql(Map<String, Object> map){
         if(map == null){
             return "";
         }

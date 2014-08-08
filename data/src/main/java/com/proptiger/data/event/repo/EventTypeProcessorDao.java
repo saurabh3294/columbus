@@ -25,12 +25,12 @@ public class EventTypeProcessorDao extends DynamicTableDao {
             Object transactionKeyValue,
             String transactionDateName,
             Date lastDate,
-            Map<String, Object> conditionKeyValue) {
+            Map<String, Object> filterMap) {
 
         String queryString = "";
         String otherQuery = "";
         try {
-            String conditionStr = mapConditionToSQLCondition(conditionKeyValue);
+            String conditionStr = convertMapToSql(filterMap);
             /**
              * The query which will get the last value based on the latest value
              * before first day of the month.

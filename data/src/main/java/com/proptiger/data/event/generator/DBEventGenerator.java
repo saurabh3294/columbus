@@ -57,12 +57,15 @@ public class DBEventGenerator implements EventGeneratorInterface {
             rawDBEvent = rawDBEventService.populateRawDBEventData(rawDBEvent);
 
             List<EventGenerated> events = eventGeneratedService.generateEventFromRawDBEvent(rawDBEvent);
-            eventCount += events.size();
 
             for (EventGenerated event : events) {
                 DBEventProcessor dbEventProcessor = event.getEventType().getEventTypeConfig().getProcessorObject();
-                dbEventProcessor.populateEventSpecificData(event);
+                if(!dbEventProcessor.populateEventSpecificData(event)) {
+                    events.remove(event);
+                }
             }
+            
+            eventCount += events.size();
             
             // persist the events and update the last date in dbRawEventTableLog
             eventGeneratedService.persistEvents(events, rawDBEvent.getDbRawEventTableLog());

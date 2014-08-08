@@ -1,6 +1,5 @@
 package com.proptiger.data.event.model;
 
-import java.util.Date;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -20,46 +19,47 @@ public class DBRawEventTableLog extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = -4192519971268898777L;
+    private static final long   serialVersionUID = -4192519971268898777L;
 
     @Id
     @Column(name = "id")
-    private int               id;
+    private int                 id;
 
     @Column(name = "host_name")
-    private String            hostName;
+    private String              hostName;
 
     @Column(name = "db_name")
-    private String            dbName;
+    private String              dbName;
 
     @Column(name = "table_name")
-    private String            tableName;
+    private String              tableName;
 
     @Column(name = "primary_column_name")
-    private String            primaryKeyName;
+    private String              primaryKeyName;
 
     @Column(name = "transaction_column_name")
-    private String            transactionKeyName;
+    private String              transactionKeyName;
 
     @Column(name = "transaction_date_column_name")
-    private String            dateAttributeName;
+    private String              dateAttributeName;
 
     @Column(name = "transaction_column_value")
-    private Long              lastTransactionKeyValue;
-    
-    @Column(name = "condition_key_value")
-    private String conditionKeyValue;
-    
+    private Long                lastTransactionKeyValue;
+
+    @Column(name = "filters")
+    private String              filters;
+
     @Transient
-    private Map<String, Object> mapKeyValue;
-    
+    private Map<String, Object> filterMap;
+
     @PostLoad
-    public void populateTransientFields(){
-        if(this.conditionKeyValue != null){
-            try{
-                this.mapKeyValue = new Gson().fromJson(this.conditionKeyValue, Map.class);
-            }catch(JsonSyntaxException e){
-                
+    public void populateTransientFields() {
+        if (this.filters != null) {
+            try {
+                this.filterMap = new Gson().fromJson(this.filters, Map.class);
+            }
+            catch (JsonSyntaxException e) {
+
             }
         }
     }
@@ -128,19 +128,20 @@ public class DBRawEventTableLog extends BaseModel {
         this.lastTransactionKeyValue = lastTransactionKeyValue;
     }
 
-    public String getConditionKeyValue() {
-        return conditionKeyValue;
+    public String getFilters() {
+        return filters;
     }
 
-    public void setConditionKeyValue(String conditionKeyValue) {
-        this.conditionKeyValue = conditionKeyValue;
+    public void setFilters(String filters) {
+        this.filters = filters;
     }
 
-    public Map<String, Object> getMapKeyValue() {
-        return mapKeyValue;
+    public Map<String, Object> getFilterMap() {
+        return filterMap;
     }
 
-    public void setMapKeyValue(Map<String, Object> mapKeyValue) {
-        this.mapKeyValue = mapKeyValue;
+    public void setFilterMap(Map<String, Object> filterMap) {
+        this.filterMap = filterMap;
     }
+
 }

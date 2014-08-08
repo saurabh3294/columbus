@@ -1,7 +1,6 @@
 package com.proptiger.data.event.generator;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +26,7 @@ public class RawDBEventGenerator {
     private RawEventToEventTypeMappingService eventTypeMappingService;
 
     @Autowired
-    private RawDBEventService       rawDBEventService;
+    private RawDBEventService                 rawDBEventService;
 
     public List<RawDBEvent> getRawDBEvents() {
 
@@ -38,24 +37,28 @@ public class RawDBEventGenerator {
             List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
             finalRawDBEventList.addAll(rawDBEvents);
 
-            // Updating the dateAttribute value after generating the rawDBEvents
-            DBRawEventTableLog dbRawEventTableLog = dbRawEventTableConfig.getDbRawEventTableLog();
-            dbRawEventTableLog.setLastTransactionKeyValue(getLastAccessedDate(rawDBEvents, dbRawEventTableConfig
-                    .getDbRawEventTableLog().getDateAttributeName()));
+            // Updating the last accessed Transaction Key after generating the
+            // rawDBEvents
+            if (!rawDBEvents.isEmpty()) {
+                DBRawEventTableLog dbRawEventTableLog = dbRawEventTableConfig.getDbRawEventTableLog();
+                dbRawEventTableLog.setLastTransactionKeyValue(getLastAccessedTransactionId(
+                        rawDBEvents,
+                        dbRawEventTableConfig.getDbRawEventTableLog().getTransactionKeyName()));
+            }
         }
 
         return finalRawDBEventList;
     }
 
-    private Date getLastAccessedDate(List<RawDBEvent> rawDBEvents, String dateAttributeName) {
-        Date lastAccessedDate = new Date();
+    private Long getLastAccessedTransactionId(List<RawDBEvent> rawDBEvents, String transactionKeyName) {
+        Long lastAccessedId = null;
         for (RawDBEvent rawDBEvent : rawDBEvents) {
-            Date rawDBEventDate = (Date) rawDBEvent.getNewDBValueMap().get(dateAttributeName);
-            if (lastAccessedDate == null || lastAccessedDate.before(rawDBEventDate)) {
-                lastAccessedDate = rawDBEventDate;
+            Long transactionKey = (Long) rawDBEvent.getNewDBValueMap().get(transactionKeyName);
+            if (lastAccessedId == null || lastAccessedId < transactionKey) {
+                lastAccessedId = transactionKey;
             }
         }
-        return lastAccessedDate;
+        return lastAccessedId;
     }
 
 }

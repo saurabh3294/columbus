@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
+import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.repo.RawDBEventDao;
 
@@ -22,14 +23,9 @@ public class RawDBEventService {
     public List<RawDBEvent> getRawDBEvents(DBRawEventTableConfig dbRawEventTableConfig) {
 
         List<RawDBEvent> rawDBEventList = new ArrayList<RawDBEvent>();
+        DBRawEventTableLog tableLog = dbRawEventTableConfig.getDbRawEventTableLog();
 
-        List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndDate(
-                dbRawEventTableConfig.getDbRawEventTableLog().getHostName(),
-                dbRawEventTableConfig.getDbRawEventTableLog().getDbName(),
-                dbRawEventTableConfig.getDbRawEventTableLog().getTableName(),
-                dbRawEventTableConfig.getDbRawEventTableLog().getDateAttributeName(),
-                dbRawEventTableConfig.getDbRawEventTableLog().getLastTransactionKeyValue(),
-                dbRawEventTableConfig.getDbRawEventTableLog().getMapKeyValue());
+        List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndId(tableLog);
 
         for (Map<String, Object> rawDBEventMap : rawDBEventDataList) {
 
@@ -37,15 +33,12 @@ public class RawDBEventService {
                     .getDbOperationAttributeName()));
 
             RawDBEvent rawDBEvent = new RawDBEvent();
-            rawDBEvent.setDbRawEventTableLog(dbRawEventTableConfig.getDbRawEventTableLog());
+            rawDBEvent.setDbRawEventTableLog(tableLog);
             rawDBEvent.setDbRawEventOperationConfig(dbRawEventTableConfig.getDbRawEventOperationConfig(dbOperation));
             rawDBEvent.setNewDBValueMap(rawDBEventMap);
-            rawDBEvent.setPrimaryKeyValue(rawDBEventMap.get(dbRawEventTableConfig.getDbRawEventTableLog()
-                    .getPrimaryKeyName()));
-            rawDBEvent.setTransactionKeyValue(rawDBEventMap.get(dbRawEventTableConfig.getDbRawEventTableLog()
-                    .getTransactionKeyName()));
-            rawDBEvent.setTransactionDate((Date) rawDBEventMap.get(dbRawEventTableConfig.getDbRawEventTableLog()
-                    .getDateAttributeName()));
+            rawDBEvent.setPrimaryKeyValue(rawDBEventMap.get(tableLog.getPrimaryKeyName()));
+            rawDBEvent.setTransactionKeyValue(rawDBEventMap.get(tableLog.getTransactionKeyName()));
+            rawDBEvent.setTransactionDate((Date) rawDBEventMap.get(tableLog.getDateAttributeName()));
             rawDBEventList.add(rawDBEvent);
         }
 
@@ -74,15 +67,11 @@ public class RawDBEventService {
     }
 
     public RawDBEvent populateUpdateRawDBEventData(RawDBEvent rawDBEvent) {
+        DBRawEventTableLog tableLog = rawDBEvent.getDbRawEventTableLog();
         Map<String, Object> oldRawEventDataMap = rawDBEventDao.getOldRawDBEvent(
-                rawDBEvent.getDbRawEventTableLog().getDbName(),
-                rawDBEvent.getDbRawEventTableLog().getDbName(),
-                rawDBEvent.getDbRawEventTableLog().getTableName(),
-                rawDBEvent.getDbRawEventTableLog().getTransactionKeyName(),
+                tableLog,
                 rawDBEvent.getTransactionKeyValue(),
-                rawDBEvent.getDbRawEventTableLog().getPrimaryKeyName(),
-                rawDBEvent.getPrimaryKeyValue(),
-                rawDBEvent.getDbRawEventTableLog().getMapKeyValue());
+                rawDBEvent.getPrimaryKeyValue());
 
         Map<String, Object> newRawEventDataMap = rawDBEvent.getOldDBValueMap();
 
