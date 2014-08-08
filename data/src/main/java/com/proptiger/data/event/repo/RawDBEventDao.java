@@ -1,5 +1,6 @@
 package com.proptiger.data.event.repo;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -81,6 +82,23 @@ public class RawDBEventDao extends DynamicTableDao {
 
         return null;
 
+    }
+
+    public Map<String, Object> getRawEventDataOnTransactionId(DBRawEventTableLog tableLog, Object transactionKeyValue) {
+        String queryString = " SELECT * From" + tableLog.getDbName()
+                + "."
+                + tableLog.getTableName()
+                + " WHERE "
+                + tableLog.getTransactionKeyName()
+                + "="
+                + transactionKeyValue;
+        List<Map<String, Object>> results = runDynamicTableQuery(queryString);
+
+        if (results != null && results.size() > 0) {
+            return results.get(0);
+        }
+
+        return null;
     }
 
 }

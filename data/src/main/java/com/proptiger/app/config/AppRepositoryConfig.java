@@ -37,7 +37,7 @@ import com.proptiger.data.util.PropertyReader;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:application.properties")
-@EnableJpaRepositories({ "com.proptiger.data.repo", "com.proptiger.data.event.repo" })
+@EnableJpaRepositories({ "com.proptiger.data.repo", "com.proptiger.data.event.repo", "com.proptiger.data.notification.repo" })
 public class AppRepositoryConfig {
 
     @Autowired

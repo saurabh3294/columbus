@@ -88,4 +88,7 @@ public class RawDBEventService {
         return rawDBEvent;
     }
 
+    public Map<String, Object> getRawEventTransactionRow(DBRawEventTableLog dbRawEventTableLog, Object transactionKeyValue){
+        return rawDBEventDao.getRawEventDataOnTransactionId(dbRawEventTableLog, transactionKeyValue);
+    }
 }

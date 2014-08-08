@@ -16,7 +16,7 @@ import com.proptiger.data.model.BaseModel;
  * 
  */
 public class RawDBEvent extends BaseModel{
-
+    
     private DBRawEventTableLog        dbRawEventTableLog;
     private DBRawEventOperationConfig dbRawEventOperationConfig;
     private Map<String, Object>       oldDBValueMap = new HashMap<>();

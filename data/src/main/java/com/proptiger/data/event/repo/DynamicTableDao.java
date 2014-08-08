@@ -25,6 +25,7 @@ public class DynamicTableDao {
     protected SessionFactory sessionFactory;
 
     protected Logger         logger = LoggerFactory.getLogger(this.getClass());
+    
 
     protected List<Map<String, Object>> runDynamicTableQuery(String queryString) {
         if (queryString == null || queryString.isEmpty()) {

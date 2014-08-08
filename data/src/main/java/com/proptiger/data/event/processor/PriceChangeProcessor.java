@@ -1,6 +1,7 @@
 package com.proptiger.data.event.processor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +19,12 @@ import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.processor.handler.DBEventProcessorHandler;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.event.service.EventTypeProcessorService;
+import com.proptiger.data.util.DateUtil;
 
 @Component
 public class PriceChangeProcessor extends DBEventProcessor {
     private static Logger         logger = LoggerFactory.getLogger(PriceChangeProcessor.class);
-
+    
     @Autowired
     private EventGeneratedService eventGeneratedService;
     
@@ -125,7 +127,22 @@ public class PriceChangeProcessor extends DBEventProcessor {
 
     @Override
     public boolean populateEventSpecificData(EventGenerated event) {
-        Double oldValue = eventTypeProcessorService.getPriceChangeOldValue(event);
+        Map<String, Object> transactionRow = eventTypeProcessorService.getEventTransactionRow(event);
+        if(transactionRow == null){
+            return false;
+        }
+        Date effectiveDate = (Date)transactionRow.get("effective_date");
+        Date firstDayOfMonth = DateUtil.getFirstDayOfCurrentMonth(event.getEventTypePayload().getTransactionDateKeyValue());
+        
+        /**
+         * PortfolioPriceChange, Only current month price changes are to be accepted.
+         * Rest are to be discarded.
+         */
+        if(!effectiveDate.equals(firstDayOfMonth)){
+            return false;
+        }
+        
+        Double oldValue = eventTypeProcessorService.getPriceChangeOldValue(event, effectiveDate);
         if(oldValue == null){
             return false;
         }
@@ -134,5 +151,6 @@ public class PriceChangeProcessor extends DBEventProcessor {
         
         return true;
     }
-
+    
+    
 }

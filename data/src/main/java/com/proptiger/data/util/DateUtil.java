@@ -140,4 +140,13 @@ public class DateUtil {
         calendar.add(Calendar.DAY_OF_YEAR, daysToAdd);
         return calendar.getTime();
     }
+    
+    public static Date getFirstDayOfCurrentMonth(Date currentDate){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        
+        return cal.getTime();
+    }
 }

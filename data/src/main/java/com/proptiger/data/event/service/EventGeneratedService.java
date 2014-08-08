@@ -176,6 +176,7 @@ public class EventGeneratedService {
         List<EventGenerated> eventGeneratedList = new ArrayList<EventGenerated>();
 
         for (EventType eventType : eventTypeList) {
+            // TODO to seperate the payload set and new event generated in seperate methods.
             EventTypePayload payload = eventType.getEventTypeConfig().getEventTypePayloadObject();
             payload.setTransactionKeyName(rawDBEvent.getDbRawEventTableLog().getTransactionKeyName());
             payload.setTransactionId(rawDBEvent.getTransactionKeyValue());
