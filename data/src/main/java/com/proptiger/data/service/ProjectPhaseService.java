@@ -75,7 +75,7 @@ public class ProjectPhaseService {
         return getPhaseDetailsFromFiql(selector, projectId, version);
     }
 
-    private List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version) {
+    public List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version) {
         List<ProjectPhase> phases = populatePhaseMetaAttributes(populateSecondaryPrice(populatePrimaryPrice(populateProperties(populateAvailabilities(removeInvalidPhases(projectPhaseDao
                 .getFilteredPhases(selector.addAndConditionToFilter("status==" + Status.Active)
                         .addAndConditionToFilter("version==" + version)
