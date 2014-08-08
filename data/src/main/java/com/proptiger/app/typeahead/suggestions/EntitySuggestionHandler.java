@@ -32,7 +32,10 @@ public class EntitySuggestionHandler {
 
     @Autowired
     private SuburbSuggestions   suburbSuggestions;
-
+    
+    @Autowired
+    private LandmarkSuggestions landmarkSuggestions ;
+    
     public List<Typeahead> getEntityBasedSuggestions(List<Typeahead> results, int count) {
 
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
@@ -85,6 +88,9 @@ public class EntitySuggestionHandler {
                 String cityName = topResult.getCity();
                 String localityName = topResult.getLocality();
                 suggestions = localitySuggestions.getSuggestions(entityId, label, redirectUrl, cityName, localityName, count);
+                break;
+            case "LANDMARK":
+                suggestions = landmarkSuggestions.getSuggestions(entityId, topResult, count);
                 break;
             default:
                 break;
