@@ -112,14 +112,9 @@ public class Builder extends BaseModel {
     @JsonIgnore
     @Field("BUILDER_CITIES")
     private List<String>      builderCities;
-    
+
     @Transient
-    @Field("BUILDER_IMAGE_ALTTEXT")
-    private String            altText;
-    
-    @Transient
-    @Field("BUILDER_IMAGE_TITLE")
-    private String            title;
+    private Image             mainImage        = new Image();
     
     public int getId() {
         return id;
@@ -266,19 +261,26 @@ public class Builder extends BaseModel {
         this.builderCities = builderCities;
     }
 
-    public String getAltText() {
-        return altText;
+    public Image getMainImage() {
+        return mainImage;
     }
 
-    public void setAltText(String altText) {
-        this.altText = altText;
+    public void setMainImage(Image mainImage) {
+        this.mainImage = mainImage;
     }
 
-    public String getTitle() {
-        return title;
+    @Field("BUILDER_IMAGE_ALTTEXT")
+    public void setImageAltText(String altText) {
+        mainImage.setAltText(altText);
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    @Field("BUILDER_IMAGE_TITLE")
+    public void setImageTitle(String title) {
+        mainImage.setTitle(title);
+    }
+
+    @Field("BUILDER_LOGO_IMAGE")
+    public void setAbsolutePath(String absolutePath) {
+        mainImage.setAbsolutePath(absolutePath);
     }
 }
