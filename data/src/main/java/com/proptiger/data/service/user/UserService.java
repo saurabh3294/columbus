@@ -162,7 +162,78 @@ public class UserService {
     @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
+    
+    /**
+     * 
+     * @param user
+     * @param clientId
+     * @param priority
+     * merges email and phone number in user_emails table and user_contact_numbers
+     * also set clientid and priority
+     * @return
+     */
+    
+    
+    public User setUserIdAndCreatedByOfClientForEmailsAndContactNumbersAndSave(User user,int clientId,int priority)
+    {
+        user.getEmails().get(0).setUserId(clientId);
+        user.getEmails().get(0).setPriority(priority);
+        user.getContactNumbers().get(0).setUserId(clientId);
+        user.getEmails().get(0).setCreatedBy(clientId);
+        user.getContactNumbers().get(0).setCreatedBy(clientId);
+        if (emailDao.findByEmail(user.getEmails().get(0).getEmail()).size() > 0) 
+        {
+        }
+        else 
+        {
+          emailDao.save(user.getEmails().get(0));
+      }
+      if (contactNumberDao.findByContactNumber(
+              user.getContactNumbers().get(0).getContactNumber()).size() > 0) {
+      }
+      else {
+          contactNumberDao.save(user.getContactNumbers().get(0));
+      }
+      return user;
+    }
+    
+    /**
+     * 
+     * @param email
+     * @param contactNumber
+     * get user on the basis of email or contact_numbers
+     * @return
+     */
+    
+    
+    public User getUser(String email , String contactNumber)
+    {
+        User user = null;
+        boolean duplicateOrNot;
+        if (contactNumber != "" && email != "") {
+            duplicateOrNot = isRegisteredUser(email, contactNumber);
+            if (duplicateOrNot == true) {
+                user = getUserFromEmailOrPhone(email, contactNumber);
+            }
+        }
+        else if (email != "") {
 
+            duplicateOrNot = isRegisteredEmail(email);
+
+            if (duplicateOrNot == true) {
+                user = getUserFromEmail(email);
+            }
+        }
+        else if (contactNumber != "") {
+            duplicateOrNot = isRegisteredPhone(contactNumber);
+            if (duplicateOrNot == true) {
+                user = getUserFromPhone(contactNumber);
+            }
+        }
+        return user;
+    }
+    
+        
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
             return true;
@@ -171,7 +242,7 @@ public class UserService {
         return false;
     }
 
-    public User getUserFromEmailAndPhone(String email, String contactNumber) {
+    public User getUserFromEmailOrPhone(String email, String contactNumber) {
         User user = userDao.findByPrimaryEmailOrPhone(email, contactNumber);
         return user;
     }
@@ -750,14 +821,22 @@ public class UserService {
     // Take care of duplicacy of client here
     public User createUser(User user) {
         if (exists(user)) {
+           user = getUser(user.getEmails().get(0).getEmail(),user.getContactNumbers().get(0).getContactNumber());
         }
         else {
-            user.setId(userDao.save(user).getId());
+            user.setId(userDao.saveAndFlush(user).getId());
         }
-
         return user;
     }
 
+    
+    /**
+     * 
+     * @param user
+     * checks weather a user is present in the system or not on the basis of email or phone number
+     * @return boolean
+     */
+    
     public boolean exists(User user) {
         
         String contactNumber = user.getContactNumbers().get(0).getContactNumber();   
@@ -767,7 +846,7 @@ public class UserService {
         if (contactNumber != "" && email != "") {               
             duplicateOrNot = isRegisteredUser(email, contactNumber);
             if (duplicateOrNot == true) {
-                user = getUserFromEmailAndPhone(email, contactNumber);
+                user = getUserFromEmailOrPhone(email, contactNumber);
                 return true;
             }
             else

@@ -28,7 +28,7 @@ import com.proptiger.data.model.user.User;
  * 
  */
 @JsonInclude(Include.NON_NULL)
-@Entity(name = "leads")
+@Entity
 @Table(name = "marketplace.leads")
 @JsonFilter("fieldFilter")
 public class Lead extends BaseModel {
@@ -82,32 +82,32 @@ public class Lead extends BaseModel {
     @Column(name = "updated_by")
     private Integer           updatedBy;
 
-    @OneToMany(mappedBy = "leadId", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "leadId")
     private List<LeadOffer>   leadOffers;
     
     @Transient
     private User client;
     
-    @OneToMany(mappedBy = "leadId", fetch = FetchType.LAZY)
-    private List<LeadRequirements> leadRequirements;
+    @OneToMany(mappedBy = "leadId")
+    private List<LeadRequirement> leadRequirements;
 
-    @OneToMany(mappedBy = "leadId", fetch = FetchType.LAZY)
-    private List<LeadSubmissions> leadSubmissions;
+    @OneToMany(mappedBy = "leadId")
+    private List<LeadSubmission> leadSubmissions;
         
 
-    public List<LeadRequirements> getLeadRequirements() {
+    public List<LeadRequirement> getLeadRequirements() {
         return leadRequirements;
     }
 
-    public void setLeadRequirements(List<LeadRequirements> leadRequirements) {
+    public void setLeadRequirements(List<LeadRequirement> leadRequirements) {
         this.leadRequirements = leadRequirements;
     }
 
-    public List<LeadSubmissions> getLeadSubmissions() {
+    public List<LeadSubmission> getLeadSubmissions() {
         return leadSubmissions;
     }
 
-    public void setLeadSubmissions(List<LeadSubmissions> leadSubmissions) {
+    public void setLeadSubmissions(List<LeadSubmission> leadSubmissions) {
         this.leadSubmissions = leadSubmissions;
     }
 

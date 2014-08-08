@@ -1,7 +1,7 @@
 package com.proptiger.data.repo.user;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.PagingAndSortingRepository;
 
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserEmail;
@@ -12,7 +12,7 @@ import com.proptiger.data.model.user.UserEmail;
  * 
  */
 
-public interface UserDao extends PagingAndSortingRepository<User, Integer>, UserCustomDao {
+public interface UserDao extends JpaRepository<User, Integer>, UserCustomDao {
     @Query("SELECT U FROM User U join U.emails E WHERE " + " E.email = ?1 AND E.priority = "
             + UserEmail.primaryEmailPriority)
     public User findByPrimaryEmail(String email);
