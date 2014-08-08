@@ -53,5 +53,14 @@ public class ListingController extends BaseController {
         Listing listing = listingService.getListing(userInfo.getUserIdentifier(), listingId);
         return new APIResponse(super.filterFields(listing, null));
     }
+    
+    @ResponseBody
+    @RequestMapping(value = "{listingId}", method = RequestMethod.DELETE)
+    public APIResponse deleteListing(
+            @PathVariable Integer listingId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        Listing listing = listingService.deleteListing(userInfo.getUserIdentifier(), listingId);
+        return new APIResponse(super.filterFields(listing, null));
+    }
 
 }
