@@ -46,21 +46,31 @@ public class DBRawEventTableLog extends BaseModel {
     @Column(name = "transaction_column_value")
     private Long                lastTransactionKeyValue;
 
-    @Column(name = "filters")
-    private String              filters;
+    @Column(name = "pre_filters")
+    private String              prefilters;
+
+    @Column(name = "unique_keys")
+    private String              uniqueKeys;
 
     @Transient
     private Map<String, Object> filterMap;
 
+    @Transient
+    private String[]            uniqueKeysArray;
+
     @PostLoad
     public void populateTransientFields() {
-        if (this.filters != null) {
+        if (this.prefilters != null) {
             try {
-                this.filterMap = new Gson().fromJson(this.filters, Map.class);
+                this.filterMap = new Gson().fromJson(this.prefilters, Map.class);
             }
             catch (JsonSyntaxException e) {
 
             }
+        }
+
+        if(this.uniqueKeys != null){
+            this.uniqueKeysArray = this.uniqueKeys.split(",");
         }
     }
 
@@ -128,12 +138,12 @@ public class DBRawEventTableLog extends BaseModel {
         this.lastTransactionKeyValue = lastTransactionKeyValue;
     }
 
-    public String getFilters() {
-        return filters;
+    public String getPreFilters() {
+        return prefilters;
     }
 
-    public void setFilters(String filters) {
-        this.filters = filters;
+    public void setPreFilters(String preFilters) {
+        this.prefilters = preFilters;
     }
 
     public Map<String, Object> getFilterMap() {
@@ -142,6 +152,30 @@ public class DBRawEventTableLog extends BaseModel {
 
     public void setFilterMap(Map<String, Object> filterMap) {
         this.filterMap = filterMap;
+    }
+
+    public String getPrefilters() {
+        return prefilters;
+    }
+
+    public void setPrefilters(String prefilters) {
+        this.prefilters = prefilters;
+    }
+
+    public String[] getUniqueKeysArray() {
+        return uniqueKeysArray;
+    }
+
+    public void setUniqueKeysArray(String[] postFilterKeysArray) {
+        this.uniqueKeysArray = postFilterKeysArray;
+    }
+
+    public String getUniqueKeys() {
+        return uniqueKeys;
+    }
+
+    public void setUniqueKeys(String uniqueKeys) {
+        this.uniqueKeys = uniqueKeys;
     }
 
 }

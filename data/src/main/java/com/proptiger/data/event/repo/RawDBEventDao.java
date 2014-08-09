@@ -1,6 +1,5 @@
 package com.proptiger.data.event.repo;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class RawDBEventDao extends DynamicTableDao {
                     + convertMapToSql(tableLog.getFilterMap())
                     + " ORDER BY "
                     + tableLog.getTransactionKeyName()
-                    + " ASC";
+                    + " ASC limit 1";
             logger.info(queryString);
         }
         catch (Exception e) {
@@ -54,7 +53,8 @@ public class RawDBEventDao extends DynamicTableDao {
     public Map<String, Object> getOldRawDBEvent(
             DBRawEventTableLog tableLog,
             Object transactionKeyValue,
-            Object primaryKeyValue) {
+            Object primaryKeyValue, 
+            Map<String, Object> uniqueKeysValuesMap) {
 
         String queryString = "";
         queryString = "SELECT * FROM " + tableLog.getDbName()
@@ -70,6 +70,7 @@ public class RawDBEventDao extends DynamicTableDao {
                 + primaryKeyValue
                 + "' "
                 + convertMapToSql(tableLog.getFilterMap())
+                + convertMapToSql(uniqueKeysValuesMap)
                 + " ORDER BY "
                 + tableLog.getTransactionKeyName()
                 + " DESC limit 1";

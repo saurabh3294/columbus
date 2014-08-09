@@ -2,9 +2,11 @@ package com.proptiger.data.event.service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import com.proptiger.data.event.repo.RawDBEventDao;
 
 @Service
 public class RawDBEventService {
+    private static Logger logger = Logger.getLogger(RawDBEventService.class);
 
     @Autowired
     private RawDBEventDao rawDBEventDao;
@@ -28,10 +31,11 @@ public class RawDBEventService {
         List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndId(tableLog);
 
         for (Map<String, Object> rawDBEventMap : rawDBEventDataList) {
-
-            DBOperation dbOperation = DBOperation.getDBOperationEnum((String) rawDBEventMap.get(DBRawEventTableConfig
-                    .getDbOperationAttributeName()));
-
+            // TODO to handle the null value of the dbOperation if it is not
+            // found.
+            DBOperation dbOperation = DBOperation.getDBOperationEnum((Character) rawDBEventMap
+                    .get(DBRawEventTableConfig.getDbOperationAttributeName()));
+            logger.info(dbOperation);
             RawDBEvent rawDBEvent = new RawDBEvent();
             rawDBEvent.setDbRawEventTableLog(tableLog);
             rawDBEvent.setDbRawEventOperationConfig(dbRawEventTableConfig.getDbRawEventOperationConfig(dbOperation));
@@ -39,6 +43,7 @@ public class RawDBEventService {
             rawDBEvent.setPrimaryKeyValue(rawDBEventMap.get(tableLog.getPrimaryKeyName()));
             rawDBEvent.setTransactionKeyValue(rawDBEventMap.get(tableLog.getTransactionKeyName()));
             rawDBEvent.setTransactionDate((Date) rawDBEventMap.get(tableLog.getDateAttributeName()));
+            rawDBEvent.setUniqueKeyValuesMap(getUniqueKeyValuesMap(rawDBEventMap, tableLog));
             rawDBEventList.add(rawDBEvent);
         }
 
@@ -71,7 +76,8 @@ public class RawDBEventService {
         Map<String, Object> oldRawEventDataMap = rawDBEventDao.getOldRawDBEvent(
                 tableLog,
                 rawDBEvent.getTransactionKeyValue(),
-                rawDBEvent.getPrimaryKeyValue());
+                rawDBEvent.getPrimaryKeyValue(),
+                rawDBEvent.getUniqueKeyValuesMap());
 
         Map<String, Object> newRawEventDataMap = rawDBEvent.getOldDBValueMap();
 
@@ -88,7 +94,28 @@ public class RawDBEventService {
         return rawDBEvent;
     }
 
-    public Map<String, Object> getRawEventTransactionRow(DBRawEventTableLog dbRawEventTableLog, Object transactionKeyValue){
+    public Map<String, Object> getRawEventTransactionRow(
+            DBRawEventTableLog dbRawEventTableLog,
+            Object transactionKeyValue) {
         return rawDBEventDao.getRawEventDataOnTransactionId(dbRawEventTableLog, transactionKeyValue);
+    }
+
+    private Map<String, Object> getUniqueKeyValuesMap(
+            Map<String, Object> rawDbEventDataMap,
+            DBRawEventTableLog dbRawEventTableLog) {
+        String[] uniqueKeyStrings = dbRawEventTableLog.getUniqueKeysArray();
+        Map<String, Object> postFiltersMap = new HashMap<String, Object>();
+        Object value = null;
+        if (uniqueKeyStrings != null && uniqueKeyStrings.length > 0) {
+            for (int i = 0; i < uniqueKeyStrings.length; i++) {
+                value = rawDbEventDataMap.get(uniqueKeyStrings[i]);
+                if (value != null) {
+                    postFiltersMap.put(uniqueKeyStrings[i], value);
+                }
+            }
+        }
+
+        return postFiltersMap;
+
     }
 }

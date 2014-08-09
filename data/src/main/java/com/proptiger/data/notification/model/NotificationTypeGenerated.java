@@ -8,6 +8,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -28,7 +30,9 @@ public class NotificationTypeGenerated {
     private String           data;
 
     private EventGenerated   eventGenerated;
-
+    
+    @OneToOne
+    @JoinColumn(name = "notification_type_id")
     private NotificationType notificationType;
     
     @Column(name = "notification_status")

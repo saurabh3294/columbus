@@ -3,9 +3,11 @@ package com.proptiger.data.event.generator;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
@@ -21,7 +23,7 @@ import com.proptiger.data.event.service.RawDBEventService;
 
 @Service
 public class RawDBEventGenerator {
-
+    private static Logger                     logger = Logger.getLogger(RawDBEventGenerator.class);
     @Autowired
     private RawEventToEventTypeMappingService eventTypeMappingService;
 
@@ -35,6 +37,7 @@ public class RawDBEventGenerator {
 
         for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
             List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
+            logger.info(new Gson().toJson(rawDBEvents));
             finalRawDBEventList.addAll(rawDBEvents);
 
             // Updating the last accessed Transaction Key after generating the
@@ -53,7 +56,8 @@ public class RawDBEventGenerator {
     private Long getLastAccessedTransactionId(List<RawDBEvent> rawDBEvents, String transactionKeyName) {
         Long lastAccessedId = null;
         for (RawDBEvent rawDBEvent : rawDBEvents) {
-            Long transactionKey = (Long) rawDBEvent.getNewDBValueMap().get(transactionKeyName);
+            Number number = (Number) rawDBEvent.getNewDBValueMap().get(transactionKeyName);
+            Long transactionKey = number.longValue();
             if (lastAccessedId == null || lastAccessedId < transactionKey) {
                 lastAccessedId = transactionKey;
             }

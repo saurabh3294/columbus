@@ -18,7 +18,7 @@ import javax.persistence.Transient;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
 @Entity
-@Table(name = "raw_event_generated")
+@Table(name = "event_generated")
 public class EventGenerated extends Event {
 
     /**
