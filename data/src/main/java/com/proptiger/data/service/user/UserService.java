@@ -668,7 +668,7 @@ public class UserService {
      * @return
      */
     @Transactional
-    public ForumUser register(Register register) {
+    public CustomUser register(Register register) {
         RegistrationUtils.validateRegistration(register);
         User user = getUserFromRegister(register);
 
@@ -677,11 +677,23 @@ public class UserService {
         manageEmailOnRegistration(user, register);
         manageContactNumberOnRegistration(user, register);
 
-        // auto login after registration
         ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
+        /*
+         * send mail only if user registers
+         */
+        if(user.isRegistered()){
+            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
+            MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
+                    propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
+            mailSender.sendMailUsingAws(details);
+        }
+        
+        /*
+         * after registration make user auto login
+         */
         SecurityContextUtils.autoLogin(registeredUser);
 
-        return registeredUser;
+        return getUserDetails(user.getId());
     }
 
     private User getUserFromRegister(Register register) {
@@ -694,7 +706,7 @@ public class UserService {
                 throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
             }
             else {
-                copyFieldsFromRegisterToUser(register, user);
+                user.copyFieldsFromRegisterToUser(register);
             }
         }
         return user;
@@ -702,17 +714,11 @@ public class UserService {
 
     private User createFreshUserFromRegister(Register register) {
         User user = new User();
-        copyFieldsFromRegisterToUser(register, user);
-        user.setCreatedAt(new Date());
+        user.copyFieldsFromRegisterToUser(register);
         return user;
     }
 
-    private void copyFieldsFromRegisterToUser(Register register, User user) {
-        user.setFullName(register.getUserName());
-        user.setPassword(register.getPassword());
-        user.setCountryId(user.getCountryId());
-        user.setRegistered(true);
-    }
+   
 
     // manages emails for every registration
     // will be more relevant once we start supporting multiple emails
@@ -770,7 +776,7 @@ public class UserService {
             UserProfile userProfile,
             AuthProvider provider,
             String providerUserId,
-            URL imageUrl) {
+            String imageUrl) {
         User user;
         UserAuthProviderDetail authProviderDetail = authProviderDetailDao.findByProviderIdAndProviderUserId(
                 provider.getProviderId(),
@@ -782,9 +788,7 @@ public class UserService {
             authProviderDetail = new UserAuthProviderDetail();
             authProviderDetail.setProviderId(provider.getProviderId());
             authProviderDetail.setProviderUserId(providerUserId);
-            if (imageUrl != null) {
-                authProviderDetail.setImageUrl(imageUrl.toString());
-            }
+            authProviderDetail.setImageUrl(imageUrl);
 
             String email = userProfile.getEmail();
             user = userDao.findByEmail(email);
@@ -792,12 +796,11 @@ public class UserService {
             if (user == null) {
                 user = new User();
                 user.setFullName(userProfile.getName());
-                user.setCreatedAt(new Date());
-                user.setUpdatedAt(new Date());
                 user = userDao.save(user);
 
                 int userId = user.getId();
-                createDefaultProjectDiscussionSubscriptionForUser(userId);
+                //TODO uncomment once we create table 
+                //createDefaultProjectDiscussionSubscriptionForUser(userId);
 
                 UserEmail userEmail = new UserEmail();
                 userEmail.setUserId(userId);
@@ -806,7 +809,6 @@ public class UserService {
                 emailDao.save(userEmail);
             }
             authProviderDetail.setUserId(user.getId());
-            authProviderDetail.setCreatedAt(new Date());
             authProviderDetailDao.save(authProviderDetail);
         }
         return userDao.findOne(user.getId());

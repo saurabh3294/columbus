@@ -27,7 +27,6 @@ import com.proptiger.data.init.CustomObjectMapper;
 import com.proptiger.data.init.RequestResponseInterceptor;
 import com.proptiger.data.util.DateToStringConverter;
 import com.proptiger.data.util.LongToDateConverter;
-import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.StringToDateConverter;
 
@@ -48,8 +47,6 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     @Bean
     public RequestResponseInterceptor createRequestResponseInterceptor() {
         RequestResponseInterceptor interceptor = new RequestResponseInterceptor();
-        interceptor.setRedisHost(propertyReader.getRequiredProperty(PropertyKeys.REDIS_HOST));
-        interceptor.setRedisPort(propertyReader.getRequiredPropertyAsType(PropertyKeys.REDIS_PORT, Integer.class));
         return interceptor;
     }
 

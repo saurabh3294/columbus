@@ -25,7 +25,7 @@ public final class PropertyKeys {
     public static final String CMS_USERNAME                               = "cms_username";
     public static final String CMS_PASSWORD                               = "cms_password";
     public static final String CMS_BASE_URL                               = "cms_base_url";
-    
+
     public static final String SOLR_SERVER_DEFAULT_URL                    = "solr.server.url";
     public static final String SOLR_SERVER_B2B_URL                        = "solr.server.url.b2b";
 
@@ -55,4 +55,5 @@ public final class PropertyKeys {
     public static final String ACCESS_LOG_INTERNAL_DS_SIZE_THRESHOLD      = "assesslog.internal.ds.size.threshold";
     public static final String ILLEGAL_API_ACCESS_THRESHOLD_COUNT         = "illegal.api.access.threshold.count";
     public static final String ENABLE_BOT_PREVENTAION                     = "enable.bot.prevention";
+    public static final String MAIL_FROM_SUPPORT                          = "mail.from.support";
 }

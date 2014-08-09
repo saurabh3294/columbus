@@ -30,6 +30,7 @@ public class CustomUser {
     private String                          lastName;
     private String                          contactNumber;
     private String                          profileImageUrl;
+    private Date                            createdDate;
     private Set<Integer>                    companyIds = new HashSet<>();
     private List<Dashboard>                 dashboards = new ArrayList<>();
     private Map<Application, UserAppDetail> appDetails = new HashMap<>();
@@ -104,6 +105,14 @@ public class CustomUser {
 
     public void setAppDetails(Map<Application, UserAppDetail> appDetails) {
         this.appDetails = appDetails;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 
     public static class UserAppDetail {
