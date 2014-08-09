@@ -109,6 +109,9 @@ public class Builder extends BaseModel {
     private Integer           builderLocalityCount;
     
     @Transient
+    private List<Image>       images;
+    
+    @Transient
     @JsonIgnore
     @Field("BUILDER_CITIES")
     private List<String>      builderCities;
@@ -253,6 +256,14 @@ public class Builder extends BaseModel {
         this.builderLocalityCount = builderLocalityCount;
     }
 
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+        
     public List<String> getBuilderCities() {
         return builderCities;
     }
