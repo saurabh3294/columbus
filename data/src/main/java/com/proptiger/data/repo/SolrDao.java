@@ -9,11 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.enums.DocumentType;
+import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ProAPIException;
@@ -34,6 +32,9 @@ public class SolrDao {
     private HttpSolrServer   httpSolrServerb2b;
 
     private HttpSolrServer   httpSolrServerDefault;
+    
+    @Autowired
+    ApplicationNameService applicationNameService;
 
     @PostConstruct
     private void init() {
@@ -54,14 +55,10 @@ public class SolrDao {
     public QueryResponse executeQuery(SolrQuery query) {
         try {
             logger.debug("SolrQuery {}", query);
-            RequestAttributes requestAttribute = RequestContextHolder.getRequestAttributes();
-            if (requestAttribute != null) {
-                String applicationType = ((ServletRequestAttributes) requestAttribute).getRequest().getHeader(
-                        "applicationType");
-                if (applicationType != null && applicationType.equals("b2b")) {
-                    logger.debug("Running SolrQuery for b2b ");
-                    return httpSolrServerb2b.query(query);
-                }
+
+            if (applicationNameService.isB2BApplicationRequest()) {
+                logger.debug("Running SolrQuery for b2b ");
+                return httpSolrServerb2b.query(query);
             }
             logger.debug("Running SolrQuery for website");
             return httpSolrServerDefault.query(query);
