@@ -9,7 +9,7 @@ import javax.persistence.TemporalType;
 
 import com.proptiger.data.event.model.RawDBEvent;
 
-public abstract class EventTypePayload implements Serializable{
+public abstract class EventTypePayload implements Serializable {
     private String                       transactionKeyName;
     private Object                       transactionId;
     private String                       primaryKeyName;
@@ -17,6 +17,8 @@ public abstract class EventTypePayload implements Serializable{
     private String                       transactionDateKeyName;
     @Temporal(TemporalType.TIMESTAMP)
     private Date                         transactionDateKeyValue;
+    private String                       eventCreatedDateKeyName;
+    private Date                         eventCreatedDateKeyValue;
 
     private List<EventTypeUpdateHistory> eventTypeUpdateHistories;
 
@@ -76,6 +78,22 @@ public abstract class EventTypePayload implements Serializable{
 
     public void setTransactionDateKeyValue(Date transactionDateKeyValue) {
         this.transactionDateKeyValue = transactionDateKeyValue;
+    }
+
+    public String getEventCreatedDateKeyName() {
+        return eventCreatedDateKeyName;
+    }
+
+    public void setEventCreatedDateKeyName(String eventCreatedDateKeyName) {
+        this.eventCreatedDateKeyName = eventCreatedDateKeyName;
+    }
+
+    public Date getEventCreatedDateKeyValue() {
+        return eventCreatedDateKeyValue;
+    }
+
+    public void setEventCreatedDateKeyValue(Date eventCreatedDateKeyValue) {
+        this.eventCreatedDateKeyValue = eventCreatedDateKeyValue;
     }
 
 }

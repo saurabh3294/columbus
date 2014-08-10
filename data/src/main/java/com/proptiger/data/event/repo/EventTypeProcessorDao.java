@@ -4,14 +4,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class EventTypeProcessorDao extends DynamicTableDao {
-    @Autowired
-    private ConversionService conversionService;
+    
 
     // TODO Using FIQL selector
     public Object getOldValueOfEventTypeOnLastMonth(
@@ -36,12 +33,12 @@ public class EventTypeProcessorDao extends DynamicTableDao {
              * before first day of the month.
              */
 
-            queryString = "SELECT %s,%s FROM %s.%s WHERE %s=%s AND %s<%s AND %s<%s %s ORDER BY %s DESC LIMIT 1";
+            queryString = "SELECT %s,%s FROM %s.%s WHERE %s=%s AND %s<%s AND %s<'%s' %s ORDER BY %s DESC LIMIT 1";
             /**
              * The query which will get the last value based on the first value
              * on the current month.
              */
-            otherQuery = "SELECT %s,%s FROM %s.%s WHERE %s=%s AND %s<%s AND %s>%s %s ORDER BY %s ASC LIMIT 1";
+            otherQuery = "SELECT %s,%s FROM %s.%s WHERE %s=%s AND %s<%s AND %s>'%s' %s ORDER BY %s ASC LIMIT 1";
             queryString = String.format(
                     queryString,
                     attributeName,
@@ -87,7 +84,8 @@ public class EventTypeProcessorDao extends DynamicTableDao {
             return results.get(0).get(attributeName);
         }
         catch (Exception e) {
-            logger.error(" ERROR IN QUERY FORMATION " + e.getMessage());
+            logger.error(" ERROR IN QUERY "+queryString+" \n ERROR QUERY FORMATION : " + e.getMessage()+"\n ");
+            e.printStackTrace();
             return null;
         }
 

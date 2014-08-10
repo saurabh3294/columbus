@@ -1,12 +1,12 @@
 package com.proptiger.data.event.generator;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
 import com.proptiger.data.event.constants.EventConstants;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.RawDBEvent;
@@ -49,29 +49,38 @@ public class DBEventGenerator implements EventGeneratorInterface {
 
     @Override
     public Integer generateEvents() {
+        logger.info(" Generate Raw Events.");
 
         Integer eventCount = 0;
-
         List<RawDBEvent> rawDBEvents = rawDBEventGenerator.getRawDBEvents();
-        logger.info(" RETRIEVED RAW DB EVENTS "+new Gson().toJson(rawDBEvents));
         // TODO: Run below code in multiple threads
         for (RawDBEvent rawDBEvent : rawDBEvents) {
-            System.out.println("\n*************\n");
-            System.out.println(" EACH RAW "+new Gson().toJson(rawDBEvent));
-            System.out.flush();
+
             rawDBEvent = rawDBEventService.populateRawDBEventData(rawDBEvent);
+            // Skipping the raw DB Event if its old value is null.
+            if (rawDBEvent == null) {
+                logger.info(" OLD VALUE NOT FOUND For transaction Id" + rawDBEvent.getTransactionKeyValue()
+                        + " Hence skipping the raw event.");
+                continue;
+            }
 
             List<EventGenerated> events = eventGeneratedService.generateEventFromRawDBEvent(rawDBEvent);
 
-            for (EventGenerated event : events) {
+            Iterator<EventGenerated> it = events.iterator();
+            while (it.hasNext()) {
+                EventGenerated event = it.next();
+                logger.info(" Iterating Event Type For Populating Old Value Based on Event Type " + event
+                        .getEventType().getName());
+
                 DBEventProcessor dbEventProcessor = event.getEventType().getEventTypeConfig().getProcessorObject();
                 if (!dbEventProcessor.populateEventSpecificData(event)) {
-                    events.remove(event);
+                    logger.info(" Event Being Removed ");
+                    it.remove();
                 }
             }
 
             eventCount += events.size();
-
+            
             // persist the events and update the last date in dbRawEventTableLog
             eventGeneratedService.persistEvents(events, rawDBEvent.getDbRawEventTableLog());
         }

@@ -8,11 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.proptiger.data.event.model.Event;
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventType;
 
 /**
  * @author mandeep

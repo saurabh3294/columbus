@@ -11,13 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.proptiger.data.event.EventInitiator;
 import com.proptiger.data.event.model.EventGenerated;
-import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.service.EventGeneratedService;
 
 /**

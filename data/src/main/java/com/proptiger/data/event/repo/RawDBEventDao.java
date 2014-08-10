@@ -32,7 +32,7 @@ public class RawDBEventDao extends DynamicTableDao {
             queryString = "SELECT * FROM " + tableLog.getDbName()
                     + "."
                     + tableLog.getTableName()
-                    + " WHERE "
+                    + " WHERE _t_operation= 'U' AND "
                     + tableLog.getTransactionKeyName()
                     + " > '"
                     + tableLog.getLastTransactionKeyValue()
@@ -41,10 +41,10 @@ public class RawDBEventDao extends DynamicTableDao {
                     + " ORDER BY "
                     + tableLog.getTransactionKeyName()
                     + " ASC limit 1";
-            logger.info(queryString);
         }
         catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(" QUERY " + queryString + " FORMATION FAILED " + e.getMessage());
+            e.printStackTrace();
         }
 
         return runDynamicTableQuery(queryString);
@@ -53,7 +53,7 @@ public class RawDBEventDao extends DynamicTableDao {
     public Map<String, Object> getOldRawDBEvent(
             DBRawEventTableLog tableLog,
             Object transactionKeyValue,
-            Object primaryKeyValue, 
+            Object primaryKeyValue,
             Map<String, Object> uniqueKeysValuesMap) {
 
         String queryString = "";
@@ -74,7 +74,6 @@ public class RawDBEventDao extends DynamicTableDao {
                 + " ORDER BY "
                 + tableLog.getTransactionKeyName()
                 + " DESC limit 1";
-        logger.info(queryString);
 
         List<Map<String, Object>> results = runDynamicTableQuery(queryString);
         if (results != null && results.size() > 0) {
@@ -86,7 +85,7 @@ public class RawDBEventDao extends DynamicTableDao {
     }
 
     public Map<String, Object> getRawEventDataOnTransactionId(DBRawEventTableLog tableLog, Object transactionKeyValue) {
-        String queryString = " SELECT * From" + tableLog.getDbName()
+        String queryString = " SELECT * FROM " + tableLog.getDbName()
                 + "."
                 + tableLog.getTableName()
                 + " WHERE "

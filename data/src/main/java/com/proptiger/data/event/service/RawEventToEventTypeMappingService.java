@@ -20,7 +20,6 @@ import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawEventToEventTypeMapping;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
-import com.proptiger.data.service.LocalityService;
 
 @Service
 public class RawEventToEventTypeMappingService {

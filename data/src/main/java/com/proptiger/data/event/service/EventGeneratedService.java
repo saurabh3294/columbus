@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,13 +20,14 @@ import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
-import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
-import com.proptiger.data.event.repo.EventGeneratedDao;
-import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.repo.DBRawEventTableLogDao;
+import com.proptiger.data.event.repo.EventGeneratedDao;
+import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
+import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.util.Serializer;
 
 @Service
 public class EventGeneratedService {
@@ -46,13 +48,26 @@ public class EventGeneratedService {
     @Autowired
     private EventTypeService                  eventTypeService;
 
+    @Autowired
+    private ApplicationContext                applicationContext;
+
     private Gson                              serializer = new Gson();
 
+    @Transactional(value = "transactionManager")
     public void persistEvents(List<EventGenerated> eventGenerateds, DBRawEventTableLog dbRawEventTableLog) {
-        saveOrUpdateEvents(eventGenerateds);
+        logger.info(eventGenerateds.size() + " Events Being Persisting ");
+
+        applicationContext.getBean(this.getClass()).saveOrUpdateEvents(eventGenerateds);
+        
+        logger.info(" Events Saved .");
+        
         dbRawEventTableLogDao.updateLastTransactionKeyValueById(
                 dbRawEventTableLog.getId(),
                 dbRawEventTableLog.getLastTransactionKeyValue());
+        
+        logger.info(" Updated the Last Transaction Value " + dbRawEventTableLog.getLastTransactionKeyValue()
+                + " for table Config "
+                + dbRawEventTableLog.getId());
     }
 
     public List<EventGenerated> getRawEvents() {
@@ -95,7 +110,7 @@ public class EventGeneratedService {
         return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw);
     }
 
-    @Transactional
+    @Transactional(value = "transactionManager")
     // TODO to handle the status of update queries. Currently, reverting them
     // back to their old value.
     public void updateEventsOnOldEventStatus(Map<EventStatus, List<EventGenerated>> updateEventGeneratedByOldValue) {
@@ -122,6 +137,7 @@ public class EventGeneratedService {
         }
     }
 
+    @Transactional(value = "transactionManager")
     public Iterable<EventGenerated> saveOrUpdateEvents(Iterable<EventGenerated> events) {
         Iterator<EventGenerated> iterator = events.iterator();
         while (iterator.hasNext()) {
@@ -135,6 +151,7 @@ public class EventGeneratedService {
         return events;
     }
 
+    @Transactional
     public EventGenerated saveOrUpdateOneEvent(EventGenerated event) {
         populateEventsDataBeforeSave(event);
         eventGeneratedDao.save(event);
@@ -146,24 +163,37 @@ public class EventGeneratedService {
     }
 
     public List<EventGenerated> generateEventFromRawDBEvent(RawDBEvent rawDBEvent) {
+        logger.info(" Generate the Events from Raw Event " + rawDBEvent.getTransactionKeyValue());
+
         List<EventGenerated> eventGeneratedList = new ArrayList<EventGenerated>();
         DBRawEventOperationConfig dbRawEventOperationConfig = rawDBEvent.getDbRawEventOperationConfig();
 
         if (DBOperation.INSERT.equals(dbRawEventOperationConfig.getDbOperation())) {
-            generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null);
+            generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null, eventGeneratedList);
         }
         else if (DBOperation.DELETE.equals(dbRawEventOperationConfig.getDbOperation())) {
-            generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null);
+            generateEvents(rawDBEvent, dbRawEventOperationConfig.getListEventTypes(), null, eventGeneratedList);
         }
         else if (DBOperation.UPDATE.equals(dbRawEventOperationConfig.getDbOperation())) {
+
             for (String attributeName : rawDBEvent.getNewDBValueMap().keySet()) {
+                logger.debug(" Attribute Name " + attributeName);
+
                 DBRawEventAttributeConfig dbRawEventAttributeConfig = dbRawEventOperationConfig
                         .getDBRawEventAttributeConfig(attributeName);
                 if (dbRawEventAttributeConfig != null) {
-                    generateEvents(rawDBEvent, dbRawEventAttributeConfig.getListEventTypes(), attributeName);
+                    logger.debug(" List of Events Mapped from Attribute Name " + Serializer
+                            .toJson(dbRawEventAttributeConfig.getListEventTypes()));
+
+                    generateEvents(
+                            rawDBEvent,
+                            dbRawEventAttributeConfig.getListEventTypes(),
+                            attributeName,
+                            eventGeneratedList);
                 }
             }
         }
+        logger.info(" Number of Events Generated are: " + eventGeneratedList.size());
 
         return eventGeneratedList;
     }
@@ -171,12 +201,14 @@ public class EventGeneratedService {
     private List<EventGenerated> generateEvents(
             RawDBEvent rawDBEvent,
             List<EventType> eventTypeList,
-            String attributeName) {
-
-        List<EventGenerated> eventGeneratedList = new ArrayList<EventGenerated>();
+            String attributeName,
+            List<EventGenerated> eventGeneratedList) {
+        logger.info(" Generate Events ");
 
         for (EventType eventType : eventTypeList) {
-            // TODO to seperate the payload set and new event generated in seperate methods.
+            logger.debug(" Event Type " + eventType.getName());
+            // TODO to seperate the payload set and new event generated in
+            // seperate methods.
             EventTypePayload payload = eventType.getEventTypeConfig().getEventTypePayloadObject();
             payload.setTransactionKeyName(rawDBEvent.getDbRawEventTableLog().getTransactionKeyName());
             payload.setTransactionId(rawDBEvent.getTransactionKeyValue());
@@ -189,9 +221,12 @@ public class EventGeneratedService {
             EventGenerated eventGenerated = new EventGenerated();
             eventGenerated.setEventType(eventType);
             eventGenerated.setEventTypePayload(payload);
+            eventGenerated.setEventTypeUniqueKey(rawDBEvent.getPrimaryKeyValue().toString());
+            eventGenerated.setEventTypeId(eventType.getId());
             eventGeneratedList.add(eventGenerated);
-        }
 
+            logger.debug(Serializer.toJson(eventGenerated));
+        }
         return eventGeneratedList;
     }
 
@@ -211,9 +246,9 @@ public class EventGeneratedService {
     }
 
     private void populateEventsDataBeforeSave(EventGenerated eventGenerated) {
-        logger.info("\n SAVE BEING CALLED \n");
+        logger.debug(" Payload Serialization for Event " + eventGenerated.getEventTypeUniqueKey());
+
         eventGenerated.setData(serializer.toJson(eventGenerated.getEventTypePayload()));
-        logger.info(" EVENT ID " + eventGenerated.getId() + " DATA " + eventGenerated.getData() + "\n");
     }
 
 }

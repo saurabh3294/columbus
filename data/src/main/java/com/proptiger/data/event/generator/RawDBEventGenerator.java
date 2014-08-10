@@ -7,12 +7,12 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.gson.Gson;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
-import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
 import com.proptiger.data.event.service.RawDBEventService;
+import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
+import com.proptiger.data.util.Serializer;
 
 /**
  * Generates the Raw Events from DB
@@ -34,14 +34,19 @@ public class RawDBEventGenerator {
 
         List<RawDBEvent> finalRawDBEventList = new ArrayList<RawDBEvent>();
         List<DBRawEventTableConfig> dbRawEventTableConfigs = eventTypeMappingService.getDbRawEventTableConfigs();
+        logger.info("Iterating " + dbRawEventTableConfigs.size() + " table configurations.");
 
         for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
+            logger.debug(" Iterate " + Serializer.toJson(dbRawEventTableConfig));
+
             List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
-            logger.info(new Gson().toJson(rawDBEvents));
             finalRawDBEventList.addAll(rawDBEvents);
 
             // Updating the last accessed Transaction Key after generating the
             // rawDBEvents
+            // TODO to move the setting of last transaction Id at the end when
+            // rows have been inserted.
+            // as we are taking the configuration on static not every db call.
             if (!rawDBEvents.isEmpty()) {
                 DBRawEventTableLog dbRawEventTableLog = dbRawEventTableConfig.getDbRawEventTableLog();
                 dbRawEventTableLog.setLastTransactionKeyValue(getLastAccessedTransactionId(
@@ -50,6 +55,7 @@ public class RawDBEventGenerator {
             }
         }
 
+        logger.info(" Iterated the table configurations.");
         return finalRawDBEventList;
     }
 
@@ -62,6 +68,7 @@ public class RawDBEventGenerator {
                 lastAccessedId = transactionKey;
             }
         }
+        logger.info(" Getting the Last Transaction id " + lastAccessedId);
         return lastAccessedId;
     }
 

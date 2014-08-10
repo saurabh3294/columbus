@@ -14,7 +14,6 @@ import com.google.gson.Gson;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.EventTypeUpdateHistory;
-import com.proptiger.data.event.processor.handler.DBEventProcessorHandler;
 
 public abstract class DBEventProcessor implements EventProcessor {
     private static Logger         logger = LoggerFactory.getLogger(DBEventProcessor.class);

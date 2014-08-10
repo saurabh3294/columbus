@@ -3,6 +3,8 @@ package com.proptiger.data.event.service;
 import java.util.Date;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import com.proptiger.data.util.DateUtil;
 
 @Service
 public class EventTypeProcessorService {
+    private static Logger                     logger = LoggerFactory.getLogger(EventTypeProcessorService.class);
 
     @Autowired
     private EventTypeProcessorDao             eventTypeProcessorDao;
@@ -25,6 +28,9 @@ public class EventTypeProcessorService {
     private RawDBEventService                 rawDBEventService;
 
     public Double getPriceChangeOldValue(EventGenerated eventGenerated, Date effeDate) {
+        logger.info(" Getting the Old Price Value for Price Change Event. " + eventGenerated.getEventTypePayload()
+                .getTransactionId());
+        
         // Getting the First Day of the Month.
         Date eventCreatedDate = eventGenerated.getEventTypePayload().getTransactionDateKeyValue();
         Date firstDayOfMonth = DateUtil.getFirstDayOfCurrentMonth(eventCreatedDate);
@@ -37,9 +43,9 @@ public class EventTypeProcessorService {
         // getting the old value of the 1 month before latest value.
         filtersMap.put("effective_date", DateUtil.shiftMonths(effeDate, -1));
 
-        Double OldPrice = (Double) eventTypeProcessorDao.getOldValueOfEventTypeOnLastMonth(
+        Number OldPrice = (Number) eventTypeProcessorDao.getOldValueOfEventTypeOnLastMonth(
                 dbRawEventTableLog.getHostName(),
-                dbRawEventTableLog.getHostName(),
+                dbRawEventTableLog.getDbName(),
                 dbRawEventTableLog.getTableName(),
                 dbRawEventTableLog.getPrimaryKeyName(),
                 eventGenerated.getEventTypePayload().getPrimaryKeyValue(),
@@ -50,7 +56,7 @@ public class EventTypeProcessorService {
                 firstDayOfMonth,
                 dbRawEventTableLog.getFilterMap());
 
-        return OldPrice;
+        return OldPrice.doubleValue();
     }
 
     public Map<String, Object> getEventTransactionRow(EventGenerated eventGenerated) {

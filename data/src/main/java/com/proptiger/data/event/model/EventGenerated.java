@@ -38,9 +38,6 @@ public class EventGenerated extends Event {
     @Column(name = "data")
     private String           data;
 
-    // @OneToOne(fetch = FetchType.EAGER)
-    // @JoinColumn(name = "event_type_id", insertable = false, updatable =
-    // false)
     @Transient
     private EventType        eventType;
 
@@ -79,9 +76,6 @@ public class EventGenerated extends Event {
     @PrePersist
     public void autoPopulateFields() {
         this.createdDate = new Date();
-
-        this.eventTypeUniqueKey = this.eventTypePayload.getPrimaryKeyName() + "-"
-                + this.eventTypePayload.getPrimaryKeyValue();
         this.eventStatus = EventStatus.Raw;
 
         autoUpdateFields();
