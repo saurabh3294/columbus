@@ -50,8 +50,8 @@ public class Locality extends BaseModel {
     private int                             localityId;
 
     @Transient
-    private boolean                         authorized       = true;
-    
+    private boolean                         authorized       = false;
+
     @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
     @Field("SUBURB_ID")

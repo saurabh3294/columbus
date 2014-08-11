@@ -7,6 +7,7 @@ package com.proptiger.data.model;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -191,6 +192,9 @@ public class ProjectDB extends BaseModel {
 
     @Transient
     private List<Image>       images;
+    
+    @Transient
+    private Map<String, Integer>      imageCountByType;   
 
     @Transient
     private Double            minPricePerUnitArea;
@@ -571,5 +575,13 @@ public class ProjectDB extends BaseModel {
 
     public void setImageURL(String imageUrl) {
         this.imageURL = imageUrl;
+    }
+    
+    public Map<String, Integer> getImageCountByType() {
+        return imageCountByType;
+    }
+
+    public void setImageCountByType(Map<String, Integer> imageCountByType) {
+        this.imageCountByType = imageCountByType;
     }
 }

@@ -49,6 +49,7 @@ import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
@@ -149,7 +150,7 @@ public class PortfolioService {
                         userId,
                         false,
                         Constants.SOURCETYPE_LIST,
-                        listingStatus);
+                        listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
         PortfolioUtil.updatePriceInfoInPortfolio(portfolio, listings);
         if (listings != null) {
             for (PortfolioListing l : listings) {
@@ -174,7 +175,7 @@ public class PortfolioService {
                         userId,
                         false,
                         Constants.SOURCETYPE_LIST,
-                        listingStatus);
+                        listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
         setPropertyInListings(listings);
         updateOtherSpecificData(listings);
         updatePaymentSchedule(listings);

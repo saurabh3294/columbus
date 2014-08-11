@@ -12,6 +12,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -34,21 +36,27 @@ import com.proptiger.data.util.MediaUtil;
 @JsonFilter("fieldFilter")
 public class Image extends BaseModel {
 
-    private static final long  serialVersionUID = 3547840734282317975L;
-    
+    private static final long serialVersionUID = 3547840734282317975L;
+
     public static enum ColorSpace {
         sRGB("sRGB"), CMYK("CMYK"), RGB("RGB");
         String colorspace;
-        
-        private ColorSpace(String colorspace){
+
+        private ColorSpace(String colorspace) {
             this.colorspace = colorspace;
         }
+
         public String getColorspace() {
             return colorspace;
         }
     }
 
-    public static final String DOT              = ".";
+    public static final String DOT             = ".";
+    public static final String HYPHEN          = "-";
+    public static final String PATTERN         = "[^a-zA-Z0-9]+";
+    public static final String OPTIMAL         = "-O";
+    public static final double BEST_QUALITY    = 95.0;
+    public static final double OPTIMAL_QUALITY = 70.0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -78,17 +86,44 @@ public class Image extends BaseModel {
         waterMarkName = id + DOT + format;
     }
 
+    /*
+     * seoName field is populated as altText-imageId.format if altText contains
+     * any special character then it is replaced with hyphen and converted into
+     * lower case, then altText and imageId.format is grouped by hyphen to form
+     * seoName. if alText is null or empty then seoName constructed will be
+     * imageId.format
+     */
+    public void assignSeoName(String format) {
+        seoName = id + DOT + format;
+        if (altText != null && !altText.isEmpty()) {
+            String tmpAltText = altText;
+            tmpAltText = tmpAltText.replaceAll(PATTERN, HYPHEN).toLowerCase();
+
+            if (tmpAltText.startsWith(HYPHEN)) {
+                tmpAltText = tmpAltText.replaceFirst(HYPHEN, "");
+            }
+
+            if (tmpAltText.endsWith(HYPHEN)) {
+                seoName = tmpAltText + seoName;
+            }
+            else {
+                seoName = tmpAltText + HYPHEN + seoName;
+            }
+        }
+    }
+
     public void assignOriginalName(String format) {
         originalName = originalHash + DOT + format;
     }
 
-    @JsonProperty
-    public String getAbsolutePath() {
-        return MediaUtil.getMediaEndpoint(id) + "/" + path + waterMarkName;
+    @PostLoad
+    public void setAbsolutePathForImages() {
+        this.absolutePath = MediaUtil.getMediaEndpoint(id) + "/" + path + seoName;
     }
 
     // XXX - Do not remove! used for creating object from serialized string
     public void setAbsolutePath(String absolutePath) {
+        this.absolutePath = absolutePath;
     }
 
     @Column(name = "created_at", updatable = false)
@@ -143,6 +178,12 @@ public class Image extends BaseModel {
 
     @ExcludeFromBeanCopy
     private boolean active;
+
+    @Column(name = "seo_name")
+    private String  seoName;
+
+    @Transient
+    private String  absolutePath;
 
     public long getId() {
         return id;
@@ -320,6 +361,14 @@ public class Image extends BaseModel {
         this.active = active;
     }
 
+    public String getSeoName() {
+        return seoName;
+    }
+
+    public void setSeoName(String seoName) {
+        this.seoName = seoName;
+    }
+
     public static String addImageHostUrl(String path) {
         for (String endpoint : MediaUtil.endpoints) {
             if (path.contains(endpoint)) {
@@ -336,5 +385,9 @@ public class Image extends BaseModel {
         }
 
         return MediaUtil.getMediaEndpoint(imageId) + "/" + path;
+    }
+
+    public String getAbsolutePath() {
+        return absolutePath;
     }
 }

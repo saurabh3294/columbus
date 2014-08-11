@@ -28,7 +28,7 @@ public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, 
     @Query("SELECT p.projectName FROM ProjectDB p WHERE p.projectId = ?1")
     public String getProjectNameById(Integer projectId);
 
-    @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd " + "WHERE pd.projectId=p.projectId AND pd.createdDate >= ?1"
+    @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd " + "WHERE pd.projectId=p.projectId AND p.version='Website' AND pd.createdDate >= ?1"
             + " AND CASE ?2 WHEN 1 THEN p.locality.suburb.city.id  WHEN 2 THEN p.locality.suburb.id WHEN 3 THEN p.localityId END = ?3 "
             + " GROUP BY pd.projectId HAVING COUNT(*) > ?4 ORDER BY pd.createdDate DESC, COUNT(*) DESC , p.assignedPriority ASC")
     public List<Integer> getRecentlyMostDiscussedProjects(
@@ -37,7 +37,7 @@ public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, 
             @Param int cityId,
             @Param long minCount);
 
-    @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd " + "WHERE pd.projectId=p.projectId AND pd.createdDate >= ?1"
+    @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd " + "WHERE pd.projectId=p.projectId AND p.version='Website' AND pd.createdDate >= ?1"
             + " AND CASE ?2 WHEN 1 THEN p.locality.suburb.city.id  WHEN 2 THEN p.locality.suburb.id WHEN 3 THEN p.localityId END = ?3 "
             + " GROUP BY pd.projectId HAVING COUNT(*) > ?4 ORDER BY COUNT(*) DESC , p.assignedPriority ASC")
     public List<Integer> getMostDiscussedProjects(

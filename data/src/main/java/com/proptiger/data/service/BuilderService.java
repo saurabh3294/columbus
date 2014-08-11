@@ -77,11 +77,21 @@ public class BuilderService {
             throw new ResourceNotAvailableException(ResourceType.BUILDER, ResourceTypeAction.GET);
         }
 
+        builder.setProjectStatusCount(getProjectStatusCountMap(builderId, selector));
+        imageEnricher.setBuilderImages(builder);
+        return builder;
+    }
+
+    /**
+     * This method returns a map with project_status as key and count as value.
+     * Ex : {"on hold" ,0}
+     * 
+     * @return projectStatusCountMap
+     * */
+    public Map<String, Long> getProjectStatusCountMap(Integer builderId, Selector selector) {
         Selector tempSelector = createSelectorForTotalProjectOfBuilder(builderId, selector);
         Map<String, Long> projectStatusCountMap = projectService.getProjectStatusCount(tempSelector);
-        builder.setProjectStatusCount(projectStatusCountMap);
-
-        return builder;
+        return projectStatusCountMap;
     }
 
     /**
@@ -135,6 +145,7 @@ public class BuilderService {
      * @param builderSelector
      * @return
      */
+    @Cacheable(value = Constants.CacheName.CACHE)
     public PaginatedResponse<List<Builder>> getTopBuilders(Selector builderSelector) {
         SolrQuery solrQuery = SolrDao.createSolrQuery(DocumentType.PROJECT);
         solrQuery.add("group", "true");
@@ -159,6 +170,7 @@ public class BuilderService {
 
         List<Integer> builderIds = getBuilderIds(topBuilders);
         List<Builder> builders = builderDao.getBuildersByIds(builderIds);
+        imageEnricher.setImagesOfBuilders(builders);
         PaginatedResponse<List<Builder>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(builders);
         if (queryResponse != null && queryResponse.getGroupResponse() != null
