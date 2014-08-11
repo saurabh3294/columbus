@@ -162,11 +162,85 @@ public class UserService {
     @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
+    /**
+     * 
+     * @param user
+     * @param clientId
+     * @param priority
+     *            merges email and phone number in user_emails table and
+     *            user_contact_numbers also set clientid and priority
+     * @return
+     */
+
+    public User patchUser(User user, int clientId, int priority) {
+
+        if (!user.getEmails().isEmpty() && user.getEmails().get(0).getEmail() != "") {
+            UserEmail userEmail = user.getEmails().get(0);
+            userEmail.setUserId(clientId);
+            userEmail.setPriority(priority);
+            userEmail.setCreatedBy(clientId);
+            if (!(emailDao.findByEmail(userEmail.getEmail()).size() > 0)) {
+                emailDao.save(userEmail);
+            }
+        }
+
+        if ((!user.getContactNumbers().isEmpty()) && user.getContactNumbers().get(0).getContactNumber() != "") {
+            UserContactNumber userContactNumber = user.getContactNumbers().get(0);
+            userContactNumber.setUserId(clientId);
+            userContactNumber.setCreatedBy(clientId);
+            userContactNumber.setPriority(0);
+            if (!(contactNumberDao.findByContactNumber(userContactNumber.getContactNumber()).size() > 0)) {
+                contactNumberDao.save(userContactNumber);
+            }
+        }
+        return user;
+    }
+
+    /**
+     * 
+     * @param email
+     * @param contactNumber
+     *            get user on the basis of email or contact_numbers
+     * @return
+     */
+
+    public User getUser(String email, String contactNumber) {
+        User user = null;
+        boolean duplicateOrNot;
+        duplicateOrNot = isUser(email, contactNumber);
+        if (duplicateOrNot == true) {
+            user = getUserFromEmailOrPhone(email, contactNumber);
+        }
+        return user;
+    }
+
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
             return true;
         }
 
+        return false;
+    }
+
+    public User getUserFromEmailOrPhone(String email, String contactNumber) {
+        User user = userDao.findByPrimaryEmailOrPhone(email, contactNumber);
+        return user;
+    }
+
+    public User getUserFromEmail(String email) {
+        User user = userDao.findByPrimaryEmail(email);
+        return user;
+    }
+
+    public User getUserFromPhone(String contactNumber) {
+        User user = userDao.findByPhone(contactNumber);
+        return user;
+    }
+
+    public boolean isUser(String email, String contactNumber) {
+        if (userDao.findByPrimaryEmailOrPhone(email, contactNumber) != null) {
+            return true;
+        }
         return false;
     }
 
@@ -573,13 +647,13 @@ public class UserService {
         /*
          * send mail only if user registers
          */
-        if(user.isRegistered()){
+        if (user.isRegistered()) {
             MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
             MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
                     propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
             mailSender.sendMailUsingAws(details);
         }
-        
+
         /*
          * after registration make user auto login
          */
@@ -609,8 +683,6 @@ public class UserService {
         user.copyFieldsFromRegisterToUser(register);
         return user;
     }
-
-   
 
     // manages emails for every registration
     // will be more relevant once we start supporting multiple emails
@@ -691,8 +763,8 @@ public class UserService {
                 user = userDao.save(user);
 
                 int userId = user.getId();
-                //TODO uncomment once we create table 
-                //createDefaultProjectDiscussionSubscriptionForUser(userId);
+                // TODO uncomment once we create table
+                // createDefaultProjectDiscussionSubscriptionForUser(userId);
 
                 UserEmail userEmail = new UserEmail();
                 userEmail.setUserId(userId);
@@ -712,21 +784,37 @@ public class UserService {
         return discussionSubscriptionDao.save(discussionSubscription);
     }
 
-    // Take care of duplicacy of client here
     public User createUser(User user) {
         if (exists(user)) {
-//            patchUser(user);
+            user = getUser(user.getEmails().get(0).getEmail(), user.getContactNumbers().get(0).getContactNumber());
         }
         else {
-            userDao.save(user);
+            user.setId(userDao.saveAndFlush(user).getId());
         }
-        
-        // TODO Auto-generated method stub
-        return null;
+        user = patchUser(user, user.getId(), 1);
+        return user;
     }
 
-    private boolean exists(User user) {
-        // TODO Auto-generated method stub
-        return false;
+    /**
+     * 
+     * @param user
+     *            checks weather a user is present in the system or not on the
+     *            basis of email or phone number
+     * @return boolean
+     */
+
+    public boolean exists(User user) {
+
+        String contactNumber = user.getContactNumbers().get(0).getContactNumber();
+        String email = user.getEmails().get(0).getEmail();
+
+        boolean duplicateOrNot = isUser(email, contactNumber);
+        if (duplicateOrNot == true) {
+            user = getUserFromEmailOrPhone(email, contactNumber);
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }
