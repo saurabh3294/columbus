@@ -111,8 +111,18 @@ public class ListingService {
                 throw new BadRequestException("Logical phase not found for project id " + property.getProjectId());
             }
         }
+        else{
+            //no validation for invalidation phase id
+        }
+        
+        if(listing.getTowerId() != null){
+          //check if tower id exists, else exception
+        }
 
-        validateListingCategory(listing.getListingCategory());
+        if(listing.getFloor() < 0){
+            throw new BadRequestException("Invalid floor");
+        }
+        validateListingCategory(listing);
         listing.setUpdatedBy(userId);
         listing.setSellerId(userId);
         listing.setBookingStatusId(null);
@@ -123,9 +133,13 @@ public class ListingService {
      * Primary listing creation not allowed
      * @param listingCategory
      */
-    private void validateListingCategory(ListingCategory listingCategory) {
-        if (listingCategory == ListingCategory.Primary) {
+    private void validateListingCategory(Listing listing) {
+        if (listing.getListingCategory() != null && listing.getListingCategory() == ListingCategory.Primary) {
             throw new BadRequestException("Primary listing category not allowed");
+        }
+        else{
+            //default listing category to be resale
+            listing.setListingCategory(ListingCategory.Resale);
         }
     }
 
@@ -160,7 +174,7 @@ public class ListingService {
     public Listing getListing(Integer userId, Integer listingId) {
         Listing listing = listingDao.findBySellerIdAndIdAndStatus(userId, listingId, Status.Active);
         if (listing == null) {
-            throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.DELETE);
+            throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
         if (listing.getCurrentPriceId() != null) {
             List<ListingPrice> listingPrices = listingPriceService.getListingPrices(Arrays.asList(listing
