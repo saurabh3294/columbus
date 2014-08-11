@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+
 import com.proptiger.data.model.Typeahead;
 
 @Component
 public class BuilderSuggestions {
+
+    private String templateId = "Typeahead-Suggestion-Builder";
 
     /* Assumptions */
     /* 1. projects-by-builder URL has the following format : /dlf-100002 */
@@ -28,6 +31,7 @@ public class BuilderSuggestions {
             obj = new Typeahead();
             obj.setDisplayText(String.format(template[0], name));
             obj.setRedirectUrl(String.format(template[1], redirectUrl));
+            obj.setId(templateId);
             suggestions.add(obj);
         }
         return suggestions;
@@ -41,6 +45,7 @@ public class BuilderSuggestions {
             obj.setDisplayText(String.format(template[0], name) + " in" + cityName);
             obj.setRedirectUrl(cityName.toLowerCase() + "/" + String.format(template[1], redirectUrl));
             suggestions.add(obj);
+            obj.setId(templateId);
         }
         return suggestions;
     }

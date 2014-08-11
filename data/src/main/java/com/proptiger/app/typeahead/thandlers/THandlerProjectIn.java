@@ -40,7 +40,7 @@ public class THandlerProjectIn extends RootTHandler {
         String redirectURL;
         for (Locality locality : topLocalities) {
             redirectURL = getRedirectUrl(this.getType().getText() + " ", city) + (String.format(localityFilter, locality.getLabel()));
-            results.add(getTypeaheadObjectByTextAndURL((this.getType().getText() + " " + locality.getLabel()), redirectURL));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), (this.getType().getText() + " " + locality.getLabel()), redirectURL));
             if (results.size() == rows) {
                 break;
             }
@@ -90,7 +90,7 @@ public class THandlerProjectIn extends RootTHandler {
     public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
         String displayText = (this.getType().getText() + " " + city);
         String redirectUrl = getRedirectUrl(this.getType().getText() + " ", city);
-        return (getTypeaheadObjectByTextAndURL(displayText, redirectUrl));
+        return (getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
     }
     
     private List<Locality> getTopLocalities(String cityName)

@@ -32,7 +32,7 @@ public class THandlerPropertyFor extends RootTHandler {
         for (Locality locality : topLocalities) {
             redirectURL = getRedirectUrl();
             redirectURL = String.format(redirectURL, city, ("-" + locality.getLabel() + "-" + locality.getLocalityId()));
-            results.add(getTypeaheadObjectByTextAndURL((this.getType().getText() + " " + locality.getLabel()), redirectURL));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), (this.getType().getText() + " " + locality.getLabel()), redirectURL));
             if (results.size() == rows) {
                 break;
             }
@@ -63,7 +63,7 @@ public class THandlerPropertyFor extends RootTHandler {
         String displayText = (this.getType().getText() + " " + city);
         String redirectUrl = getRedirectUrl();
         redirectUrl = String.format(redirectUrl, city.toLowerCase(), "");
-        return (getTypeaheadObjectByTextAndURL(displayText, redirectUrl));
+        return (getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
     }
 
     private List<Locality> getTopLocalities(String cityName) {

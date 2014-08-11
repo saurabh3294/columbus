@@ -73,12 +73,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForBudgetUnder(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int x : budgetPointsBelow) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericAboveBelowTextBudget, templateText, budgetUnit, x, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericBudgetFilter, minBudget, x));
-            results.add(typeahead);
+            displayText = (String.format(genericAboveBelowTextBudget, templateText, budgetUnit, x, city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericBudgetFilter, minBudget, x));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -86,12 +85,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForBudgetAbove(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int x : budgetPointsAbove) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericAboveBelowTextBudget, templateText, budgetUnit, x, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericBudgetFilter, x, maxBudget));
-            results.add(typeahead);
+            displayText = (String.format(genericAboveBelowTextBudget, templateText, budgetUnit, x, city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericBudgetFilter, x, maxBudget));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -99,12 +97,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForBudgetBetween(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int[] x : budgetRanges) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericBetweenTextBudget, templateText, budgetUnit, x[0], x[1], city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
-            results.add(typeahead);
+            displayText = (String.format(genericBetweenTextBudget, templateText, budgetUnit, x[0], x[1], city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -114,12 +111,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForAreaUnder(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int x : areaPointsBelow) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, minArea, x));
-            results.add(typeahead);
+            displayText = (String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, minArea, x));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -127,12 +123,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForAreaAbove(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int x : areaPointsAbove) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, x, maxArea));
-            results.add(typeahead);
+            displayText = (String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, x, maxArea));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -140,12 +135,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForAreaBetween(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int[] x : areaRanges) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericBetweenTextArea, templateText, x[0], x[1], areaUnit, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
-            results.add(typeahead);
+            displayText = (String.format(genericBetweenTextArea, templateText, x[0], x[1], areaUnit, city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }

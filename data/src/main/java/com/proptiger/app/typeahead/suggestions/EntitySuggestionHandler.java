@@ -90,7 +90,7 @@ public class EntitySuggestionHandler {
                 suggestions = localitySuggestions.getSuggestions(entityId, label, redirectUrl, cityName, localityName, count);
                 break;
             case "LANDMARK":
-                suggestions = landmarkSuggestions.getSuggestions(entityId, topResult, count);
+                //suggestions = landmarkSuggestions.getSuggestions(entityId, topResult, count);
                 break;
             default:
                 break;

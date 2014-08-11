@@ -10,6 +10,8 @@ import com.proptiger.data.model.Typeahead;
 @Component
 public class CitySuggestions {
     
+    private String templateId = "Typeahead-Suggestion-City";
+    
     private String[][] suggestionTemplates = {
             { "Affordable Flats in %s", "affordable-flats" },
             { "Resale property in %s", "resale-property" },
@@ -24,6 +26,7 @@ public class CitySuggestions {
             obj = new Typeahead();
             obj.setDisplayText(String.format(template[0], name));
             obj.setRedirectUrl(name.toLowerCase() + "/" + template[1]);
+            obj.setId(templateId);
             suggestions.add(obj);
         }
         return suggestions;

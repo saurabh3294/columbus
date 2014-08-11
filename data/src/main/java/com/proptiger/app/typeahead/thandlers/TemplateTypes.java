@@ -2,6 +2,8 @@ package com.proptiger.app.typeahead.thandlers;
 
 public enum TemplateTypes {
 
+    /* Caution : the enum types should not be renamed as they are used in CTR analysis */
+    
     ProjectsIn("Property In", THandlerProjectIn.class), 
     UpcomingProjectsIn("Upcoming Property In", THandlerProjectIn.class), 
     NewProjectsIn("New Property In", THandlerProjectIn.class),

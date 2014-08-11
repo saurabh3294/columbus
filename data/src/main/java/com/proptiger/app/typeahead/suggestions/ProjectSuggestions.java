@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +21,8 @@ public class ProjectSuggestions {
 
     @Autowired
     private PropertyDao  propertyDao;
+    
+    private String templateId = "Typeahead-Suggestion-Project";
 
     public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {
 
@@ -48,6 +51,7 @@ public class ProjectSuggestions {
             obj = new Typeahead();
             obj.setDisplayText(mapEntry.getKey() + " BHK in " + name);
             obj.setRedirectUrl(mapEntry.getValue());
+            obj.setId(templateId);
             suggestions.add(obj);
         }
 
