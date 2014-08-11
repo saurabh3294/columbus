@@ -44,7 +44,6 @@ public class LocalityRatingService {
     
     @Autowired
     protected PropertyReader    propertyReader;
-
     
     private Striped<Lock>       locks;
 
