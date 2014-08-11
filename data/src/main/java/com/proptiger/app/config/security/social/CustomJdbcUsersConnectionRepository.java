@@ -87,7 +87,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
             String password = user.getPassword() == null ? "" : user.getPassword();
             SocialUser socialUser = new ActiveUser(
                     user.getId(),
-                    user.getPrimaryEmail(),
+                    user.getEmail(),
                     password,
                     true,
                     true,

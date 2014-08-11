@@ -578,7 +578,7 @@ public class UserService {
     }
 
     private User getUserFromRegister(Register register) {
-        User user = userDao.findByPrimaryEmail(register.getEmail());
+        User user = userDao.findByEmail(register.getEmail());
         if (user == null) {
             user = createFreshUserFromRegister(register);
         }
@@ -692,6 +692,7 @@ public class UserService {
 
             if (user == null) {
                 user = new User();
+                user.setEmail(email);
                 user.setFullName(userProfile.getName());
                 user.setCreatedAt(new Date());
                 user.setUpdatedAt(new Date());
@@ -699,12 +700,6 @@ public class UserService {
 
                 int userId = user.getId();
                 createDefaultProjectDiscussionSubscriptionForUser(userId);
-
-                UserEmail userEmail = new UserEmail();
-                userEmail.setUserId(userId);
-                userEmail.setEmail(email);
-                userEmail.setCreatedBy(userId);
-                emailDao.save(userEmail);
             }
             authProviderDetail.setUserId(user.getId());
             authProviderDetail.setCreatedAt(new Date());
