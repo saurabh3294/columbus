@@ -88,6 +88,8 @@ public class ListingService {
      * @param userId
      */
     private void preCreateValidation(Listing listing, Integer userId) {
+        //only no phase supported as of now
+        listing.setPhaseId(null);
         if (listing.getPropertyId() == null) {
             // TODO create option with verified flag as false and set that id,
             // first find option based on data in other info

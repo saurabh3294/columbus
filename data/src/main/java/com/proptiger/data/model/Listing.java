@@ -22,6 +22,8 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.Status;
 
@@ -32,8 +34,9 @@ import com.proptiger.data.enums.Status;
  * 
  */
 @Entity
-@Table(name = "cms.listings")
+@Table(name = "cms.listings1")
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class Listing extends BaseModel {
     private static final long   serialVersionUID = 1L;
 

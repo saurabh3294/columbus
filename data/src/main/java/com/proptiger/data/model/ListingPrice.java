@@ -19,6 +19,8 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.Status;
 import com.proptiger.data.util.DateUtil;
@@ -32,6 +34,7 @@ import com.proptiger.exception.ProAPIException;
 @Entity
 @Table(name = "cms.listing_prices")
 @JsonFilter("fieldFilter")
+@JsonInclude(Include.NON_NULL)
 public class ListingPrice extends BaseModel {
     private static final long serialVersionUID = 878870501041637665L;
 
