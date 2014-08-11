@@ -111,6 +111,11 @@ public class Builder extends BaseModel {
     @Transient
     private List<Image>       images;
     
+    @Transient
+    @JsonIgnore
+    @Field("BUILDER_CITIES")
+    private List<String>      builderCities;
+    
     public int getId() {
         return id;
     }
@@ -254,5 +259,13 @@ public class Builder extends BaseModel {
 
     public void setImages(List<Image> images) {
         this.images = images;
+    }
+
+    public List<String> getBuilderCities() {
+        return builderCities;
+    }
+
+    public void setBuilderCities(List<String> builderCities) {
+        this.builderCities = builderCities;
     }
 }
