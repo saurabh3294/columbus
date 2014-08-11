@@ -28,6 +28,8 @@ public class LeadController {
     @RequestMapping(value = "data/v1/entity/lead", method = RequestMethod.POST)
     @ResponseBody
     public APIResponse create(@RequestBody Lead lead) {
+        
+        //return new APIResponse(lead.getClient().getEmails().get(0).getEmail());
         return new APIResponse(leadService.createLead(lead));
     }
     
@@ -36,4 +38,12 @@ public class LeadController {
     public APIResponse get(@RequestParam FIQLSelector fiqlSelector) {
         return new APIResponse(leadService.getLeads(fiqlSelector));
     }
+    
+    @RequestMapping(value = "data/v1/entity/lead/exists")
+    @ResponseBody
+    public APIResponse get(@RequestParam(required = false) String email, @RequestParam(required = false) String contactNumber, @RequestParam int cityId) {
+        
+        return new APIResponse(leadService.exists(email, contactNumber, cityId));
+    }
+
 }
