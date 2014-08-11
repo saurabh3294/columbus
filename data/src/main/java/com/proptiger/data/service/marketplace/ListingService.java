@@ -50,7 +50,7 @@ public class ListingService {
     private ProjectPhaseService projectPhaseService;
 
     /**
-     * Create a new listing
+     * Create a new listing, apply some validations before create.
      * 
      * @param listing
      * @param userId
@@ -117,12 +117,21 @@ public class ListingService {
         listing.setStatus(Status.Active);
     }
 
+    /**
+     * Primary listing creation not allowed
+     * @param listingCategory
+     */
     private void validateListingCategory(ListingCategory listingCategory) {
         if (listingCategory == ListingCategory.Primary) {
             throw new BadRequestException("Primary listing category not allowed");
         }
     }
 
+    /**
+     * Get all active listing of user
+     * @param userId
+     * @return
+     */
     public List<Listing> getListings(Integer userId) {
         List<Listing> listings = listingDao.findBySellerIdAndStatus(userId, Status.Active);
         List<Integer> listingPriceIds = new ArrayList<>();
@@ -140,6 +149,12 @@ public class ListingService {
         return listings;
     }
 
+    /**
+     * Get a listing of user by id 
+     * @param userId
+     * @param listingId
+     * @return
+     */
     public Listing getListing(Integer userId, Integer listingId) {
         Listing listing = listingDao.findBySellerIdAndIdAndStatus(userId, listingId, Status.Active);
         if (listing == null) {
@@ -155,6 +170,12 @@ public class ListingService {
         return listing;
     }
 
+    /**
+     * Delete a listing created by user 
+     * @param userId
+     * @param listingId
+     * @return
+     */
     public Listing deleteListing(Integer userId, Integer listingId) {
         Listing listing = listingDao.findBySellerIdAndIdAndStatus(userId, listingId, Status.Active);
         if (listing == null) {
