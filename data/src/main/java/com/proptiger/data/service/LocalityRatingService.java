@@ -4,6 +4,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
 import org.slf4j.Logger;
@@ -14,6 +17,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.util.concurrent.Striped;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.LocalityRatings;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
@@ -21,6 +25,7 @@ import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingUserCount;
 import com.proptiger.data.repo.LocalityRatingDao;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ConstraintViolationException;
 import com.proptiger.exception.ProAPIException;
 
@@ -36,6 +41,17 @@ public class LocalityRatingService {
     private static Logger     logger = LoggerFactory.getLogger(LocalityRatingService.class);
     @Autowired
     private LocalityRatingDao localityRatingDao;
+    
+    @Autowired
+    protected PropertyReader    propertyReader;
+
+    
+    private Striped<Lock>       locks;
+
+    @PostConstruct
+    private void init() {
+        locks = Striped.lock(propertyReader.getRequiredPropertyAsType("image.lock.stripes.count", Integer.class));
+    }
 
     /**
      * This method will return the distribution of rating by their total users,
@@ -128,9 +144,10 @@ public class LocalityRatingService {
             created = localityRatingDao.save(localityRatings);
         }
         else {
-            // TODO to make locks based on the userId and localityId. Not the
-            // global level locking.
-            synchronized (this) {
+            // Creating lock-key based on userId and LocalityId
+            Lock lock = locks.get(userId + "" + localityId);
+            try {
+                lock.lock();
                 // find if rating already exist for this user and locality then
                 // update that
                 LocalityRatings ratingPresent = localityRatingDao.findByUserIdAndLocalityId(userId, localityId);
@@ -151,9 +168,10 @@ public class LocalityRatingService {
                     created = localityRatingDao.save(localityRatings);
                 }
             }
-
+            finally {
+                lock.unlock();
+            }
         }
-
         return created;
     }
 
