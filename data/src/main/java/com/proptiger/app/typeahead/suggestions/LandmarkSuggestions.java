@@ -9,12 +9,15 @@ import com.proptiger.data.model.Typeahead;
 @Component
 public class LandmarkSuggestions {
 
-    private String[][] suggestionTemplates = {{ "Properties near %s", "/maps/%s/filters?geo=%s,%s" }};
+    private String dummyLocalityUrl = "/gurgaon/property-sale-sector-110a-51970";
+    
+    private double defaultMapRadius = 5;    // in km
+    
+    private String[][] suggestionTemplates = {{ "Properties near %s", "/maps/" + dummyLocalityUrl + "/filters?geo=%s,%s,%s"}};
 
     public List<Typeahead> getSuggestions(int id, Typeahead result, int count) {
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
         Typeahead obj;
-        String cityName = result.getCity();
         String label = result.getLabel();
         Double latitude = result.getLatitude();
         Double longitude = result.getLongitude();
@@ -22,7 +25,7 @@ public class LandmarkSuggestions {
         for (String[] template : suggestionTemplates) {
             obj = new Typeahead();
             obj.setDisplayText(String.format(template[0], label));
-            obj.setRedirectUrl(String.format(template[1], "", latitude, longitude));
+            obj.setRedirectUrl(String.format(template[1], defaultMapRadius, latitude, longitude));
             suggestions.add(obj);
         }
         return suggestions;
