@@ -2,12 +2,12 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.List;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadRequirement;
-import com.proptiger.data.model.marketplace.LeadSubmission;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.model.user.UserEmail;
@@ -15,10 +15,11 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
 import com.proptiger.data.repo.marketplace.LeadSubmissionsDao;
+import com.proptiger.data.repo.marketplace.leadOfferDao;
 import com.proptiger.data.service.user.UserService;
-
 /**
  * @author Anubhav
+ * @param
  * 
  */
 @Service
@@ -34,6 +35,9 @@ public class LeadService {
 
     @Autowired
     private LeadSubmissionsDao  leadSubmissionsDao;
+
+    @Autowired
+    private leadOfferDao        leadOfferDao;
 
     public List<Lead> getLeads(FIQLSelector fiqlSelector) {
         return null;
@@ -56,7 +60,9 @@ public class LeadService {
      */
 
     public Lead createLead(Lead lead) {
-
+        
+        Lead leadDump = (Lead) SerializationUtils.clone(lead);
+                
         UserEmail userEmail = lead.getClient().getEmails().get(0);
         UserContactNumber userContactNumber = lead.getClient().getContactNumbers().get(0);
 
@@ -71,20 +77,25 @@ public class LeadService {
             LeadRequirement leadRequirement = lead.getLeadRequirements().get(0);
             if (!exactReplica(leadRequirement)) {
                 leadRequirement.setLeadId(lead.getId());
-
-                leadRequirement.setMinSize(lead.getMinSize());
-                leadRequirement.setMaxSize(lead.getMaxSize());
-                leadRequirement.setMinBudget(lead.getMinBudget());
-                leadRequirement.setMaxBudget(lead.getMaxBudget());
-                leadRequirementsDao.saveAndFlush(leadRequirement);
+                leadRequirementsDao.save(leadRequirement);
             }
-
-            LeadSubmission leadSubmission = lead.getLeadSubmissions().get(0);
-            leadSubmission.setLeadRequirementId(leadRequirement.getId());
-            leadSubmission.setLeadId(lead.getId());
-            leadSubmissionsDao.saveAndFlush(leadSubmission);
         }
+        int leadId = lead.getId();
+        leadDump.setMergedLeadId(leadId);
+        Lead dump = createDump(leadDump);
+        return lead;
+    }
 
+    private Lead createDump(Lead lead) {
+                
+        lead.setClient(userService.createUser(lead.getClient()));
+        lead.setClientId(lead.getClient().getId());
+        lead.setId(leadDao.save(lead).getId());
+
+        LeadRequirement leadRequirement = lead.getLeadRequirements().get(0);
+
+        leadRequirement.setLeadId(lead.getId());
+        leadRequirementsDao.save(leadRequirement);
         return lead;
     }
 
@@ -100,11 +111,7 @@ public class LeadService {
         List<LeadRequirement> leadRequirementList = leadRequirementsDao.checkReplica(
                 leadRequirement.getBedroom(),
                 leadRequirement.getLocalityId(),
-                leadRequirement.getProjectId(),
-                leadRequirement.getMinSize(),
-                leadRequirement.getMaxSize(),
-                leadRequirement.getMinBudget(),
-                leadRequirement.getMaxBudget());
+                leadRequirement.getProjectId());
         if (leadRequirementList.size() > 0) {
             return true;
         }
@@ -120,9 +127,7 @@ public class LeadService {
      *            lead_requirements and then save lead_submissions and set range
      *            from min size to max size till now and min budget to max
      *            budget till now and update user email and phone number
-     *            according to duplicacy (see
-     *            setUserIdAndCreatedByOfClientForEmailsAndContactNumbersAndSave
-     *            () in user service)
+     *            according to duplicacy.
      * 
      * @return
      */
@@ -143,12 +148,6 @@ public class LeadService {
             leadRequirement.setLeadId(tmpLead.getId());
             leadRequirementsDao.saveAndFlush(leadRequirement);
         }
-
-        LeadSubmission leadSubmission = lead.getLeadSubmissions().get(0);
-
-        leadSubmission.setLeadRequirementId(lead.getLeadRequirements().get(0).getId());
-        leadSubmission.setLeadId(tmpLead.getId());
-        leadSubmissionsDao.saveAndFlush(leadSubmission);
 
         List<Lead> dataLeads = leadDao.findByClientId(lead.getClientId());
         Lead data = dataLeads.get(0);

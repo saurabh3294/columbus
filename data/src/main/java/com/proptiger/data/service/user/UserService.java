@@ -173,8 +173,8 @@ public class UserService {
      */
 
     public User patchUser(User user, int clientId, int priority) {
-
-        if (!user.getEmails().isEmpty() && user.getEmails().get(0).getEmail() != "") {
+                
+        if ((!user.getEmails().isEmpty()) && user.getEmails().get(0).getEmail() != "") {
             UserEmail userEmail = user.getEmails().get(0);
             userEmail.setUserId(clientId);
             userEmail.setPriority(priority);

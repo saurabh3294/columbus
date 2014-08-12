@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -35,7 +33,8 @@ public class Lead extends BaseModel {
 
     /**
      * 
-     */
+     */    
+    
     private static final long serialVersionUID = -6647164101899851831L;
 
     @Id
@@ -64,9 +63,15 @@ public class Lead extends BaseModel {
     @Column(name = "client_type")
     private String        clientType;
 
+    @Column(name = "source_id")
+    private int     sourceId;
+        
     @Column(name = "transaction_type")
     private String   transactionType;
 
+    @Column(name = "merged_lead_id")
+    private Integer mergedLeadId;    
+    
     @Column(name = "score")
     private int               score;
 
@@ -90,10 +95,23 @@ public class Lead extends BaseModel {
     
     @OneToMany(mappedBy = "leadId")
     private List<LeadRequirement> leadRequirements;
+    
+    
+    public int getSourceId() {
+        return sourceId;
+    }
 
-    @OneToMany(mappedBy = "leadId")
-    private List<LeadSubmission> leadSubmissions;
-        
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public Integer getMergedLeadId() {
+        return mergedLeadId;
+    }
+
+    public void setMergedLeadId(Integer mergedLeadId) {
+        this.mergedLeadId = mergedLeadId;
+    }
 
     public List<LeadRequirement> getLeadRequirements() {
         return leadRequirements;
@@ -101,14 +119,6 @@ public class Lead extends BaseModel {
 
     public void setLeadRequirements(List<LeadRequirement> leadRequirements) {
         this.leadRequirements = leadRequirements;
-    }
-
-    public List<LeadSubmission> getLeadSubmissions() {
-        return leadSubmissions;
-    }
-
-    public void setLeadSubmissions(List<LeadSubmission> leadSubmissions) {
-        this.leadSubmissions = leadSubmissions;
     }
 
     public String getClientType() {
