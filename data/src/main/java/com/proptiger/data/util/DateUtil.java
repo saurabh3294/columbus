@@ -133,11 +133,34 @@ public class DateUtil {
             throw new ProAPIException("Unable to parse date", e);
         }
     }
-    
+
     public static Date addDays(Date baseDate, int daysToAdd) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(baseDate);
         calendar.add(Calendar.DAY_OF_YEAR, daysToAdd);
         return calendar.getTime();
+    }
+
+    public static Date addHours(Date baseDate, int hoursToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.HOUR, hoursToAdd);
+        return calendar.getTime();
+    }
+
+    public static Date addMinutes(Date baseDate, int minutesToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.MINUTE, minutesToAdd);
+        return calendar.getTime();
+    }
+
+    public static Date getFirstDayOfCurrentMonth(Date currentDate) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+
+        return cal.getTime();
     }
 }

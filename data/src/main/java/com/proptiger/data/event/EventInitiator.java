@@ -35,7 +35,9 @@ public class EventInitiator {
     /**
      * Generates the DB events at regular intervals.
      */
+    @Scheduled(fixedDelay = 500000)
     public void dbEventGenerator() {
+        Thread.currentThread().setName("Raw Event Generator");
 
         if (!dbEventGenerator.isEventGenerationRequired()) {
             logger.info("DBEventGenerator: Skipping DB Event Generation.");

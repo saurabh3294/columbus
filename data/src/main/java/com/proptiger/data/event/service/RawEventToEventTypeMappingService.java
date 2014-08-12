@@ -8,9 +8,12 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.Gson;
 import com.proptiger.data.event.generator.model.DBRawEventAttributeConfig;
 import com.proptiger.data.event.generator.model.DBRawEventOperationConfig;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
@@ -20,6 +23,7 @@ import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
 
 @Service
 public class RawEventToEventTypeMappingService {
+    private static Logger           logger     = LoggerFactory.getLogger(RawEventToEventTypeMappingService.class);
 
     @Autowired
     private RawEventToEventTypeMappingDao     rawEventToEventTypeMappingDao;
@@ -28,11 +32,16 @@ public class RawEventToEventTypeMappingService {
     private EventTypeService                  eventTypeService;
 
     public static List<DBRawEventTableConfig> dbRawEventTableConfigs;
-
+    
+    private Gson gson = new Gson();
+    
     @PostConstruct
     public void constructDbConfig() {
-        Iterator<RawEventToEventTypeMapping> listEventTypeMapping = getAllMappingOfRawEventsToEventType();
-
+        logger.info("Construct config called.");
+        Iterable<RawEventToEventTypeMapping> listEventTypeMapping = getAllMappingOfRawEventsToEventType();
+        Iterator<RawEventToEventTypeMapping> itEvenIterator = listEventTypeMapping.iterator();
+        logger.info(" DB RETRIEVE LIST Details : "+ gson.toJson(listEventTypeMapping));
+        
         Map<Integer, DBRawEventTableConfig> dbRawEventMapping = new HashMap<Integer, DBRawEventTableConfig>();
         Map<String, DBRawEventOperationConfig> dbOperationMap = new HashMap<String, DBRawEventOperationConfig>();
         Map<String, DBRawEventAttributeConfig> dbAttributeMap = new HashMap<String, DBRawEventAttributeConfig>();
@@ -43,8 +52,12 @@ public class RawEventToEventTypeMappingService {
         List<DBRawEventAttributeConfig> attributeConfigslist;
 
         dbRawEventTableConfigs = new ArrayList<DBRawEventTableConfig>();
-        while (listEventTypeMapping.hasNext()) {
-            RawEventToEventTypeMapping eventTypeMapping = listEventTypeMapping.next();
+        
+        logger.info("STARTING ITERATING");
+        while (itEvenIterator.hasNext()) {
+            RawEventToEventTypeMapping eventTypeMapping = itEvenIterator.next();
+            logger.info(" DB CONFIG EACH EVENT: "+new Gson().toJson(eventTypeMapping));
+            
             Integer eventKey = eventTypeMapping.getDbRawEventTableLog().getId();
             String operationKey = eventKey + eventTypeMapping.getDbOperation().name();
             String attributeKey = operationKey;
@@ -90,7 +103,7 @@ public class RawEventToEventTypeMappingService {
                 dbRawEventTableConfigs.add(TableConfig);
 
             }
-            else if (dbOperationMap.get(attributeKey) == null) {
+            else if (dbOperationMap.get(operationKey) == null) {
                 // common code starts
                 DBRawEventTableConfig tableConfig = dbRawEventMapping.get(eventKey);
 
@@ -151,20 +164,27 @@ public class RawEventToEventTypeMappingService {
                 dbEventTypemap.put(eventTypeKey, eventTypeMapping.getEventType());
             }
         }
+        logger.info("ENDING ITERATING");
+        logger.info(" MAPPED "+new Gson().toJson(dbRawEventTableConfigs));
+
     }
 
     public List<DBRawEventTableConfig> getDBRawEventTableConfigs() {
         return null;
     }
 
-    public Iterator<RawEventToEventTypeMapping> getAllMappingOfRawEventsToEventType() {
-        Iterator<RawEventToEventTypeMapping> listEventTypeMapping = rawEventToEventTypeMappingDao.findAll().iterator();
+    public Iterable<RawEventToEventTypeMapping> getAllMappingOfRawEventsToEventType() {
+        Iterable<RawEventToEventTypeMapping> listEventTypeMapping = rawEventToEventTypeMappingDao.findAll();
+        Iterator<RawEventToEventTypeMapping> itEventTypeMapping = listEventTypeMapping.iterator();
 
-        while (listEventTypeMapping.hasNext()) {
-            RawEventToEventTypeMapping eventTypeMapping = listEventTypeMapping.next();
+        while (itEventTypeMapping.hasNext()) {
+            RawEventToEventTypeMapping eventTypeMapping = itEventTypeMapping.next();
+            logger.info(" ALL DB DETAILS "+new Gson().toJson(eventTypeMapping));
+
             setEventTypeObject(eventTypeMapping);
+            logger.info(" ALL DB DETAILS AFTER EVENT "+new Gson().toJson(eventTypeMapping));
         }
-
+        
         return listEventTypeMapping;
     }
 

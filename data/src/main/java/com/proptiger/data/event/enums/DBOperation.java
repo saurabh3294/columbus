@@ -6,15 +6,15 @@ import java.util.Map;
 public enum DBOperation {
     INSERT, UPDATE, DELETE;
     
-    private static Map<String, DBOperation> dbOperationMapping = new HashMap<>();
+    private static Map<Character, DBOperation> dbOperationMapping = new HashMap<>();
     
     static {
-        dbOperationMapping.put("I", DBOperation.INSERT);
-        dbOperationMapping.put("U", DBOperation.UPDATE);
-        dbOperationMapping.put("D", DBOperation.DELETE);
+        dbOperationMapping.put('I', DBOperation.INSERT);
+        dbOperationMapping.put('U', DBOperation.UPDATE);
+        dbOperationMapping.put('D', DBOperation.DELETE);
     }
     
-    public static DBOperation getDBOperationEnum (String v) {
+    public static DBOperation getDBOperationEnum (Character v) {
         return dbOperationMapping.get(v);
     }
 }

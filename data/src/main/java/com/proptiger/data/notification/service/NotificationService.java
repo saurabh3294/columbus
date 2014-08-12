@@ -3,7 +3,7 @@
  */
 package com.proptiger.data.notification.service;
 
-import com.proptiger.data.notification.model.NotificationMessage;
+import com.proptiger.data.notification.model.legacy.NotificationMessage;
 
 /**
  * @author mandeep

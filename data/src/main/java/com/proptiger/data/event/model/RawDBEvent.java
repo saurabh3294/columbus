@@ -15,8 +15,12 @@ import com.proptiger.data.model.BaseModel;
  * @author sahil
  * 
  */
-public class RawDBEvent extends BaseModel{
+public class RawDBEvent extends BaseModel {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2282380803429297198L;
     private DBRawEventTableLog        dbRawEventTableLog;
     private DBRawEventOperationConfig dbRawEventOperationConfig;
     private Map<String, Object>       oldDBValueMap = new HashMap<>();
@@ -25,6 +29,7 @@ public class RawDBEvent extends BaseModel{
     private Object                    transactionKeyValue;
     @Temporal(TemporalType.TIMESTAMP)
     private Date                      transactionDate;
+    private Map<String, Object>       uniqueKeyValuesMap;
 
     public DBRawEventTableLog getDbRawEventTableLog() {
         return dbRawEventTableLog;
@@ -80,6 +85,14 @@ public class RawDBEvent extends BaseModel{
 
     public void setTransactionDate(Date transactionDate) {
         this.transactionDate = transactionDate;
+    }
+
+    public Map<String, Object> getUniqueKeyValuesMap() {
+        return uniqueKeyValuesMap;
+    }
+
+    public void setUniqueKeyValuesMap(Map<String, Object> postFiltersMap) {
+        this.uniqueKeyValuesMap = postFiltersMap;
     }
 
 }

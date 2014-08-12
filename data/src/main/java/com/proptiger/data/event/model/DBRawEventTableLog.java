@@ -1,12 +1,16 @@
 package com.proptiger.data.event.model;
 
-import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
@@ -15,42 +19,60 @@ public class DBRawEventTableLog extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = -4192519971268898777L;
+    private static final long   serialVersionUID = -4192519971268898777L;
 
     @Id
     @Column(name = "id")
-    private int               id;
+    private int                 id;
 
     @Column(name = "host_name")
-    private String            hostName;
+    private String              hostName;
 
     @Column(name = "db_name")
-    private String            dbName;
+    private String              dbName;
 
     @Column(name = "table_name")
-    private String            tableName;
+    private String              tableName;
 
     @Column(name = "primary_column_name")
-    private String            primaryKeyName;
+    private String              primaryKeyName;
 
     @Column(name = "transaction_column_name")
-    private String            transactionKeyName;
+    private String              transactionKeyName;
 
     @Column(name = "transaction_date_column_name")
-    private String            dateAttributeName;
+    private String              dateAttributeName;
 
-    @Column(name = "transaction_date_column_value")
-    private Date              dateAttributeValue;                      // This
-                                                                        // is
-                                                                        // the
-                                                                        // last
-                                                                        // date
-                                                                        // till
-                                                                        // which
-                                                                        // events
-                                                                        // have
-                                                                        // been
-                                                                        // read
+    @Column(name = "transaction_column_value")
+    private Long                lastTransactionKeyValue;
+
+    @Column(name = "pre_filters")
+    private String              prefilters;
+
+    @Column(name = "unique_keys")
+    private String              uniqueKeys;
+
+    @Transient
+    private Map<String, Object> filterMap;
+
+    @Transient
+    private String[]            uniqueKeysArray;
+
+    @PostLoad
+    public void populateTransientFields() {
+        if (this.prefilters != null) {
+            try {
+                this.filterMap = new Gson().fromJson(this.prefilters, Map.class);
+            }
+            catch (JsonSyntaxException e) {
+
+            }
+        }
+
+        if(this.uniqueKeys != null){
+            this.uniqueKeysArray = this.uniqueKeys.split(",");
+        }
+    }
 
     public int getId() {
         return id;
@@ -108,11 +130,52 @@ public class DBRawEventTableLog extends BaseModel {
         this.dateAttributeName = dateAttributeName;
     }
 
-    public Date getDateAttributeValue() {
-        return dateAttributeValue;
+    public Long getLastTransactionKeyValue() {
+        return lastTransactionKeyValue;
     }
 
-    public void setDateAttributeValue(Date dateAttributeValue) {
-        this.dateAttributeValue = dateAttributeValue;
+    public void setLastTransactionKeyValue(Long lastTransactionKeyValue) {
+        this.lastTransactionKeyValue = lastTransactionKeyValue;
     }
+
+    public String getPreFilters() {
+        return prefilters;
+    }
+
+    public void setPreFilters(String preFilters) {
+        this.prefilters = preFilters;
+    }
+
+    public Map<String, Object> getFilterMap() {
+        return filterMap;
+    }
+
+    public void setFilterMap(Map<String, Object> filterMap) {
+        this.filterMap = filterMap;
+    }
+
+    public String getPrefilters() {
+        return prefilters;
+    }
+
+    public void setPrefilters(String prefilters) {
+        this.prefilters = prefilters;
+    }
+
+    public String[] getUniqueKeysArray() {
+        return uniqueKeysArray;
+    }
+
+    public void setUniqueKeysArray(String[] postFilterKeysArray) {
+        this.uniqueKeysArray = postFilterKeysArray;
+    }
+
+    public String getUniqueKeys() {
+        return uniqueKeys;
+    }
+
+    public void setUniqueKeys(String uniqueKeys) {
+        this.uniqueKeys = uniqueKeys;
+    }
+
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.proptiger.data.notification.model;
+package com.proptiger.data.notification.model.legacy;
 
 /**
  * @author mandeep

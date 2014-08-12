@@ -1,6 +1,7 @@
 package com.proptiger.data.event.processor;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,21 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.gson.Gson;
-import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.EventGenerated.EventStatus;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
-import com.proptiger.data.event.processor.handler.DBEventProcessorHandler;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.event.service.EventTypeProcessorService;
+import com.proptiger.data.util.DateUtil;
 
 @Component
 public class PriceChangeProcessor extends DBEventProcessor {
-    private static Logger         logger = LoggerFactory.getLogger(PriceChangeProcessor.class);
+    private static Logger             logger = LoggerFactory.getLogger(PriceChangeProcessor.class);
 
     @Autowired
-    private EventGeneratedService eventGeneratedService;
-    
+    private EventGeneratedService     eventGeneratedService;
+
     @Autowired
     private EventTypeProcessorService eventTypeProcessorService;
 
@@ -34,7 +34,7 @@ public class PriceChangeProcessor extends DBEventProcessor {
         List<EventGenerated> processedEvents = eventGeneratedService.getProcessedEventsToBeMerged();
 
         Map<String, List<EventGenerated>> groupEventMap = groupEventsByKey(events);
-        logger.info(" MAPPING "+new Gson().toJson(groupEventMap));
+        logger.info(" MAPPING " + new Gson().toJson(groupEventMap));
         Map<String, List<EventGenerated>> allCurrentProcessedEvents = groupEventsByKey(processedEvents);
 
         // Map for Updating the Events by their old status.
@@ -62,13 +62,13 @@ public class PriceChangeProcessor extends DBEventProcessor {
              * In Price Change, Only first latest event(by date) has to be
              * considered. Rest have to be discarded.
              */
-            size = entry.getValue().size()-1;
+            size = entry.getValue().size() - 1;
             EventGenerated lastEvent = entry.getValue().get(size);
             lastEvent.setEventStatus(EventStatus.Processed);
             updateEventHistories(lastEvent, EventStatus.Processed);
             updateEventExpiryTime(lastEvent);
             logger.info(new Gson().toJson(lastEvent.getEventTypePayload()));
-            
+
         }
 
         // Updating processed Raw Events.
@@ -125,13 +125,55 @@ public class PriceChangeProcessor extends DBEventProcessor {
 
     @Override
     public boolean populateEventSpecificData(EventGenerated event) {
-        Double oldValue = eventTypeProcessorService.getPriceChangeOldValue(event);
-        if(oldValue == null){
+        logger.info(" Populating the Event Type Old data.");
+
+        /**
+         * TODO for Now getting the transaction. Remove this query and getting
+         * the fields need from raw Event by using field selector in the
+         * database and get data from the payload.
+         **/
+        Map<String, Object> transactionRow = eventTypeProcessorService.getEventTransactionRow(event);
+        if (transactionRow == null) {
+            logger.error(" Transaction Row Not found " + event.getEventTypePayload().getTransactionId());
             return false;
         }
-        DefaultEventTypePayload defaultEventTypePayload = (DefaultEventTypePayload)event.getEventTypePayload();
+
+        Date effectiveDate = (Date) transactionRow.get("effective_date");
+        Date firstDayOfMonth = DateUtil.getFirstDayOfCurrentMonth(event.getEventTypePayload()
+                .getTransactionDateKeyValue());
+
+        /**
+         * PortfolioPriceChange, Only current month price changes are to be
+         * accepted. Rest are to be discarded.
+         */
+        logger.debug(" FIRST DAY OF MONTH " + firstDayOfMonth + " EFFECTIVE DATE " + effectiveDate);
+        /*
+         * if(!effectiveDate.equals(firstDayOfMonth)){ return false; }
+         */
+
+        Double oldValue = eventTypeProcessorService.getPriceChangeOldValue(event, effectiveDate);
+        if (oldValue == null) {
+            logger.debug(" OLD Value not found. ");
+            return false;
+        }
+
+        DefaultEventTypePayload defaultEventTypePayload = (DefaultEventTypePayload) event.getEventTypePayload();
+        /**
+         * checking the old value with new value. IF they both are equal then
+         * discard the event. TODO later persist these events but mark them
+         * discarded.
+         */
+        Number newValueNumber = (Number) defaultEventTypePayload.getNewValue();
+        Double newValue = newValueNumber.doubleValue();
+
+        logger.debug(" OLD PRICE " + oldValue + " NEW VALUE " + newValue);
+        // TODO to move the equality to common place.
+        // TODO to handle the null new value.
+        if (newValue.equals(oldValue)) {
+            return false;
+        }
         defaultEventTypePayload.setOldValue(oldValue);
-        
+
         return true;
     }
 

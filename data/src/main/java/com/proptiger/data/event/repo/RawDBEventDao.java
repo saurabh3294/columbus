@@ -1,12 +1,13 @@
 package com.proptiger.data.event.repo;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Repository;
+
+import com.proptiger.data.event.model.DBRawEventTableLog;
 
 /**
  * 
@@ -15,15 +16,11 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class RawDBEventDao extends DynamicTableDao {
+
     @Autowired
     private ConversionService conversionService;
 
-    public List<Map<String, Object>> getRawDBEventByTableNameAndDate(
-            String hostName,
-            String dbName,
-            String tableName,
-            String dateAttributeName,
-            Date dateAttributeValue) {
+    public List<Map<String, Object>> getRawDBEventByTableNameAndId(DBRawEventTableLog tableLog) {
 
         /* *
          * The rows will sorted in ascending order by their current time. As
@@ -31,54 +28,94 @@ public class RawDBEventDao extends DynamicTableDao {
          */
         String queryString = "";
         try {
-            queryString = "SELECT * FROM " + dbName
+
+            queryString = "SELECT * FROM " + tableLog.getDbName()
                     + "."
-                    + tableName
-                    + " WHERE "
-                    + dateAttributeName
-                    + " > "
-                    + conversionService.convert(dateAttributeValue, String.class)
+                    + tableLog.getTableName()
+                    + " WHERE _t_operation= 'U' AND "
+                    + tableLog.getTransactionKeyName()
+                    + " > '"
+                    + tableLog.getLastTransactionKeyValue()
+                    + "' "
+                    + convertMapToSql(tableLog.getFilterMap())
                     + " ORDER BY "
-                    + dateAttributeName
-                    + " ASC ";
+                    + tableLog.getTransactionKeyName()
+                    + " ASC limit 1";
         }
         catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error(" QUERY " + queryString + " FORMATION FAILED " + e.getMessage());
+            e.printStackTrace();
         }
 
         return runDynamicTableQuery(queryString);
     }
 
     public Map<String, Object> getOldRawDBEvent(
-            String hostname,
-            String dbName,
-            String tableName,
-            String transactionKeyName,
+            DBRawEventTableLog tableLog,
             Object transactionKeyValue,
-            String primaryKeyName,
-            Object primaryKeyValue) {
+            Object primaryKeyValue,
+            Map<String, Object> uniqueKeysValuesMap) {
 
         String queryString = "";
-        queryString = "SELECT * FROM " + dbName
+        queryString = "SELECT * FROM " + tableLog.getDbName()
                 + "."
-                + tableName
+                + tableLog.getTableName()
                 + " WHERE "
-                + transactionKeyName
+                + tableLog.getTransactionKeyName()
                 + " < "
                 + transactionKeyValue
                 + " AND "
-                + primaryKeyName
-                + " = "
+                + tableLog.getPrimaryKeyName()
+                + " = '"
                 + primaryKeyValue
+                + "' "
+                + convertMapToSql(tableLog.getFilterMap())
+                + convertMapToSql(uniqueKeysValuesMap)
                 + " ORDER BY "
-                + transactionKeyName
+                + tableLog.getTransactionKeyName()
                 + " DESC limit 1";
+
         List<Map<String, Object>> results = runDynamicTableQuery(queryString);
         if (results != null && results.size() > 0) {
             return results.get(0);
         }
 
         return null;
-
     }
+
+    public Map<String, Object> getLatestTransaction(DBRawEventTableLog tableLog) {
+        String queryString = "";
+        queryString = "SELECT * FROM " + tableLog.getDbName()
+                + "."
+                + tableLog.getTableName()
+                + " ORDER BY "
+                + tableLog.getTransactionKeyName()
+                + " DESC limit 1";
+        logger.info(queryString);
+
+        List<Map<String, Object>> results = runDynamicTableQuery(queryString);
+        if (results != null && results.size() > 0) {
+            return results.get(0);
+        }
+
+        return null;
+    }
+
+    public Map<String, Object> getRawEventDataOnTransactionId(DBRawEventTableLog tableLog, Object transactionKeyValue) {
+        String queryString = " SELECT * FROM " + tableLog.getDbName()
+                + "."
+                + tableLog.getTableName()
+                + " WHERE "
+                + tableLog.getTransactionKeyName()
+                + "="
+                + transactionKeyValue;
+        List<Map<String, Object>> results = runDynamicTableQuery(queryString);
+
+        if (results != null && results.size() > 0) {
+            return results.get(0);
+        }
+
+        return null;
+    }
+
 }

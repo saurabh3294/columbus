@@ -1,18 +1,16 @@
 package com.proptiger.data.event.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.event.EventTypeConfig;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.notification.model.NotificationType;
 
 @Entity
 @Table(name = "event_type")
@@ -23,40 +21,42 @@ import com.proptiger.data.model.BaseModel;
  * @author Mukand Agarwal
  *
  */
-public class EventType extends BaseModel{
+public class EventType extends BaseModel {
     public enum Operation {
         Replace, Merge;
     }
 
     @Id
     @Column(name = "id")
-    private int       id;
+    private int                       id;
 
     @Column(name = "name")
-    private String name;
-    
+    private String                    name;
+
     @Column(name = "is_mergeable")
-    private boolean   isMergeable;
+    private boolean                   isMergeable;
 
     @Column(name = "validation_cycle_in_hours")
-    private int       validationCycleHours;
+    private int                       validationCycleHours;
 
     @Column(name = "verification_required")
-    private int       verficationRequired;
+    private int                       verficationRequired;
 
     @Column(name = "queued_items_in_validation_cycle")
-    private int       queuedItemsValidationCycle;
+    private int                       queuedItemsValidationCycle;
 
     @Column(name = "operation")
-    private Operation operation;
-    
+    private Operation                 operation;
+
     @Column(name = "overwrite_config_name")
-    private String overwriteConfigName;
-    
+    private String                    overwriteConfigName;
+
     @Transient
     @JsonIgnore
-    private transient EventTypeConfig     eventTypeConfig;
-    
+    private transient EventTypeConfig eventTypeConfig;
+
+    private List<NotificationType>    notificationTypeList;
+
     public int getId() {
         return id;
     }
@@ -128,4 +128,13 @@ public class EventType extends BaseModel{
     public String getName() {
         return name;
     }
+
+    public List<NotificationType> getNotificationTypeList() {
+        return notificationTypeList;
+    }
+
+    public void setNotificationTypeList(List<NotificationType> notificationTypeList) {
+        this.notificationTypeList = notificationTypeList;
+    }
+
 }

@@ -541,7 +541,8 @@ public class UserService {
         }
         ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
         MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
-        MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail());
+        MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
+                propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
         mailSender.sendMailUsingAws(details);
         /*
          * after registration make user auto login

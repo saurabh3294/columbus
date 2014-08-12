@@ -6,12 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -19,13 +15,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
 @Entity
-@Table(name = "raw_event_generated")
+@Table(name = "event_generated")
 public class EventGenerated extends Event {
 
     /**
@@ -45,18 +38,11 @@ public class EventGenerated extends Event {
     @Column(name = "data")
     private String           data;
 
-    // @OneToOne(fetch = FetchType.EAGER)
-    // @JoinColumn(name = "event_type_id", insertable = false, updatable =
-    // false)
     @Transient
     private EventType        eventType;
 
     @Column(name = "event_type_id")
     private Integer          eventTypeId;
-
-    @Column(name = "event_created_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date             eventCreatedDate;
 
     @Column(name = "created_date", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -90,9 +76,6 @@ public class EventGenerated extends Event {
     @PrePersist
     public void autoPopulateFields() {
         this.createdDate = new Date();
-
-        this.eventTypeUniqueKey = this.eventTypePayload.getPrimaryKeyName() + "-"
-                + this.eventTypePayload.getPrimaryKeyValue();
         this.eventStatus = EventStatus.Raw;
 
         autoUpdateFields();
@@ -176,14 +159,6 @@ public class EventGenerated extends Event {
 
     public void setEventTypeUniqueKey(String eventTypeUniqueKey) {
         this.eventTypeUniqueKey = eventTypeUniqueKey;
-    }
-
-    public Date getEventCreatedDate() {
-        return eventCreatedDate;
-    }
-
-    public void setEventCreatedDate(Date eventCreatedDate) {
-        this.eventCreatedDate = eventCreatedDate;
     }
 
     public Integer getEventTypeId() {
