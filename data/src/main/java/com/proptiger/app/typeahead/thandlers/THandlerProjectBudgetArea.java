@@ -11,7 +11,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
     /* BUDGET related fields */
     int            minBudget                   = 1000000;
-    int            maxBudget                   = 30000000;
+    int            maxBudget                   = 300000000;
     int[][]        budgetRanges                = { { 2000000, 5000000 }, { 5000000, 10000000 }, { 10000000, maxBudget } };
 
     int[]          budgetPointsBelow           = { 3000000, 5000000 };

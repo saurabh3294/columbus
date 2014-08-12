@@ -42,16 +42,12 @@ public class TypeaheadController extends BaseController {
     public APIResponse getTypeaheads(@RequestParam String query,
             @RequestParam(defaultValue = "5") int rows,
             @RequestParam(required = false) String typeAheadType,
-            @RequestParam(required = false) String city) {
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String locality) {
 
         List<String> filterQueries = new ArrayList<String>();
-        if (typeAheadType != null && typeAheadType.trim() != "") {
-            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
-        }
-
-        if (city != null && city.trim() != "") {
-            filterQueries.add("TYPEAHEAD_CITY:" + city);
-        }
+        addReqParamBasedFilterToQuery(filterQueries, city, locality, typeAheadType);
+        
         filterQueries.add("DOCUMENT_TYPE:TYPEAHEAD");
         List<Typeahead> list = typeaheadService.getTypeaheads(query, rows, filterQueries);
 
@@ -63,15 +59,11 @@ public class TypeaheadController extends BaseController {
     public APIResponse getTypeaheadsV2(@RequestParam String query,
             @RequestParam(defaultValue = "5") int rows,
             @RequestParam(required = false) String typeAheadType,
-            @RequestParam(required = false) String city) {
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String locality) {
 
         List<String> filterQueries = new ArrayList<String>();
-        if (typeAheadType != null && typeAheadType.trim() != "") {
-            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
-        }
-        if (city != null && city.trim() != "") {
-            filterQueries.add("TYPEAHEAD_CITY:" + city);
-        }
+        addReqParamBasedFilterToQuery(filterQueries, city, locality, typeAheadType);
 
         List<Typeahead> list = typeaheadService.getTypeaheadsV2(query, rows, filterQueries);
         return new APIResponse(super.filterFields(list, null), list.size());
@@ -82,13 +74,12 @@ public class TypeaheadController extends BaseController {
     public APIResponse getTypeaheadsV3(HttpServletRequest request, @RequestParam String query,
             @RequestParam(defaultValue = "10") int rows,
             @RequestParam(required = false) String typeAheadType,
-            @RequestParam(required = false) String city) {
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String locality) {
 
         List<String> filterQueries = new ArrayList<String>();
-        if (typeAheadType != null && typeAheadType.trim() != "") {
-            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
-        }
-        
+        addReqParamBasedFilterToQuery(filterQueries, city, locality, typeAheadType);
+ 
         city = getCityContext(city, request);
         List<Typeahead> list = typeaheadService.getTypeaheadsV3(query, rows, filterQueries, city);
 
@@ -124,17 +115,26 @@ public class TypeaheadController extends BaseController {
     public APIResponse getExactTypeaheads(@RequestParam String query,
             @RequestParam(defaultValue = "5") int rows,
             @RequestParam(required = false) String typeAheadType,
-            @RequestParam(required = false) String city) {
+            @RequestParam(required = false) String city, 
+            @RequestParam(required = false) String locality) {
 
         List<String> filterQueries = new ArrayList<String>();
-        if (typeAheadType != null && typeAheadType.trim() != "") {
-            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
-        }
+        addReqParamBasedFilterToQuery(filterQueries, city, locality, typeAheadType);
+        
+        List<Typeahead> list = typeaheadService.getExactTypeaheads(query, rows, filterQueries);
+        return new APIResponse(super.filterFields(list, null), list.size());
+    }
+    
+    private void addReqParamBasedFilterToQuery( List<String> filterQueries, String city, String locality, String typeAheadType)
+    {
         if (city != null && city.trim() != "") {
             filterQueries.add("TYPEAHEAD_CITY:" + city);
         }
-
-        List<Typeahead> list = typeaheadService.getExactTypeaheads(query, rows, filterQueries);
-        return new APIResponse(super.filterFields(list, null), list.size());
+        if (locality != null && locality.trim() != "") {
+            filterQueries.add("TYPEAHEAD_LOCALITY:" + locality);
+        }
+        if (typeAheadType != null && typeAheadType.trim() != "") {
+            filterQueries.add("TYPEAHEAD_TYPE:" + typeAheadType.toUpperCase());
+        }
     }
 }

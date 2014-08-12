@@ -14,16 +14,10 @@ public enum TemplateTypes {
     LuxuryProjectsIn("Luxury Property In", THandlerProjectIn.class), 
     TopProjectsIn("Top Property In", THandlerProjectIn.class), 
     
-    ProjectBy("Property by", THandlerProjectsBy.class),
     PropertyBy("Property by", THandlerProjectsBy.class),
     PropertyForSaleIn("Property for sale in", THandlerPropertyFor.class),
     PropertyForResaleIn("Property for resale in", THandlerPropertyFor.class),
     
-    ProjectsUnder("Property Under", THandlerProjectBudgetArea.class),
-    ProjectsBelow("Property Below", THandlerProjectBudgetArea.class),
-    ProjectsAbove("Property Above", THandlerProjectBudgetArea.class),
-    ProjectsBetween("Property Between", THandlerProjectBudgetArea.class),
-
     PropertyUnder("Property Under", THandlerProjectBudgetArea.class),
     PropertyBelow("Property Below", THandlerProjectBudgetArea.class),
     PropertyAbove("Property Above", THandlerProjectBudgetArea.class),
@@ -34,7 +28,7 @@ public enum TemplateTypes {
 //    BHKAbove("BHK Above", THandlerBhkBudgetArea.class),
 //    BHKBetween("BHK Between", THandlerBhkBudgetArea.class);
     
-    private String                         text;
+    private String                text;
     Class<? extends RootTHandler> clazz;
 
     private TemplateTypes(String text, Class<? extends RootTHandler> clazz) {
