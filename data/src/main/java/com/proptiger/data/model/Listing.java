@@ -41,6 +41,7 @@ public class Listing extends BaseModel {
     private static final long   serialVersionUID = 1L;
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer             id;
 
@@ -94,6 +95,9 @@ public class Listing extends BaseModel {
 
     @OneToMany(mappedBy = "listingId", fetch = FetchType.LAZY)
     private List<ListingPrice>  listingPrices;
+    
+    @Transient
+    private List<ListingAmenity> listingAmenities;
     
     @Transient
     private OtherInfo otherInfo;
@@ -216,6 +220,22 @@ public class Listing extends BaseModel {
 
     public void setCurrentListingPrice(ListingPrice currentListingPrice) {
         this.currentListingPrice = currentListingPrice;
+    }
+
+    public List<ListingAmenity> getListingAmenities() {
+        return listingAmenities;
+    }
+
+    public void setListingAmenities(List<ListingAmenity> listingAmenities) {
+        this.listingAmenities = listingAmenities;
+    }
+
+    public OtherInfo getOtherInfo() {
+        return otherInfo;
+    }
+
+    public void setOtherInfo(OtherInfo otherInfo) {
+        this.otherInfo = otherInfo;
     }
 
     @PreUpdate

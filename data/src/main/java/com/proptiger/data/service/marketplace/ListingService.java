@@ -19,6 +19,7 @@ import com.proptiger.data.enums.Status;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.ListingAmenity;
 import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.Property;
@@ -48,7 +49,9 @@ public class ListingService {
 
     @Autowired
     private ProjectPhaseService projectPhaseService;
-
+    
+    @Autowired
+    private ListingAmenityService listingAmenityService;
     /**
      * Create a new listing, apply some validations before create.
      * 
@@ -78,6 +81,17 @@ public class ListingService {
             created.setCurrentListingPrice(listingPriceCreated);
         }
 
+        if(listing.getListingAmenities() != null && listing.getListingAmenities().size() > 0){
+            List<ListingAmenity> amenities = new ArrayList<ListingAmenity>(listing.getListingAmenities().size());
+            for(ListingAmenity la: listing.getListingAmenities()){
+                ListingAmenity listingAmenity = new ListingAmenity();
+                listingAmenity.setListingId(listing.getId());
+                listingAmenity.setProjectAmenityId(la.getProjectAmenityId());
+                amenities.add(listingAmenity);
+            }
+            List<ListingAmenity> createdAmenity = listingAmenityService.createListingAmenities(amenities);
+            listing.setListingAmenities(createdAmenity);
+        }
         return created;
     }
 
@@ -150,17 +164,20 @@ public class ListingService {
      */
     public List<Listing> getListings(Integer userId) {
         List<Listing> listings = listingDao.findBySellerIdAndStatus(userId, Status.Active);
-        List<Integer> listingPriceIds = new ArrayList<>();
-        for (Listing l : listings) {
-            listingPriceIds.add(l.getCurrentPriceId());
-        }
-        List<ListingPrice> listingPrices = listingPriceService.getListingPrices(listingPriceIds);
-        Map<Integer, ListingPrice> map = new HashMap<Integer, ListingPrice>();
-        for (ListingPrice lp : listingPrices) {
-            map.put(lp.getId(), lp);
-        }
-        for (Listing l : listings) {
-            l.setCurrentListingPrice(map.get(l.getCurrentPriceId()));
+        if(listings.size() > 0){
+            List<Integer> listingPriceIds = new ArrayList<>();
+            for (Listing l : listings) {
+                listingPriceIds.add(l.getCurrentPriceId());
+            }
+            List<ListingPrice> listingPrices = listingPriceService.getListingPrices(listingPriceIds);
+            Map<Integer, ListingPrice> map = new HashMap<Integer, ListingPrice>();
+            for (ListingPrice lp : listingPrices) {
+                map.put(lp.getId(), lp);
+            }
+            for (Listing l : listings) {
+                l.setCurrentListingPrice(map.get(l.getCurrentPriceId()));
+            }
+            populateListingAmenities(listings);
         }
         return listings;
     }
@@ -183,6 +200,7 @@ public class ListingService {
                 listing.setCurrentListingPrice(listingPrices.get(0));
             }
         }
+        populateListingAmenities(Arrays.asList(listing));
         return listing;
     }
 
@@ -200,5 +218,37 @@ public class ListingService {
         listing.setStatus(Status.Inactive);
         listing = listingDao.saveAndFlush(listing);
         return listing;
+    }
+    
+    /**
+     * Fetch all listing amenities and set that in corresponding listing object
+     * @param listings
+     */
+    public void populateListingAmenities(List<Listing> listings){
+        List<Integer> listingIds = new ArrayList<>();
+        for(Listing l: listings){
+            listingIds.add(l.getId());
+        }
+        List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(listingIds);
+        if(listingAmenities.size() > 0){
+            Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = createListingToAmenitiesMap(listingAmenities);
+            for(Listing l: listings){
+                l.setListingAmenities(listingIdToAmenitiesMap.get(l.getId()));
+            }
+        }
+        
+    }
+
+    private Map<Integer, List<ListingAmenity>> createListingToAmenitiesMap(List<ListingAmenity> listingAmenities) {
+        Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = new HashMap<>();
+        if(listingAmenities != null){
+            for(ListingAmenity la: listingAmenities){
+                if(listingIdToAmenitiesMap.get(la.getListingId()) == null){
+                    listingIdToAmenitiesMap.put(la.getListingId(), new ArrayList<ListingAmenity>());
+                }
+                listingIdToAmenitiesMap.get(la.getListingId()).add(la);
+            }
+        }
+        return listingIdToAmenitiesMap;
     }
 }
