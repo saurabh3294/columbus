@@ -667,12 +667,11 @@ public class UserService {
             user = createFreshUserFromRegister(register);
         }
         else {
-            if (user.isRegistered()) {
+            if (!register.getRegisterMe() || user.isRegistered()) {
                 throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
             }
             else {
                 user.copyFieldsFromRegisterToUser(register);
-                user.setRegistered(true);
             }
         }
         return user;
@@ -713,7 +712,7 @@ public class UserService {
      * @return
      */
     public String resetPassword(String email) {
-        ForumUser forumUser = forumUserDao.findByEmailAndProvider(email, "");
+        ForumUser forumUser = forumUserDao.findRegisteredUserByEmail(email);
         if (forumUser == null) {
             return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
         }
