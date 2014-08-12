@@ -35,9 +35,6 @@ public class LeadService {
     private LeadRequirementsDao leadRequirementsDao;
 
     @Autowired
-    private LeadSubmissionsDao  leadSubmissionsDao;
-
-    @Autowired
     private leadOfferDao        leadOfferDao;
 
     public List<Lead> getLeads(FIQLSelector fiqlSelector) {
@@ -67,16 +64,18 @@ public class LeadService {
         UserEmail userEmail = lead.getClient().getEmails().get(0);
         UserContactNumber userContactNumber = lead.getClient().getContactNumbers().get(0);
 
-        if (exists(userEmail.getEmail(), userContactNumber.getContactNumber(), lead.getCityId())) {
+        User user = userService.createUser(lead.getClient());
+        lead.setClient(user);
+
+        if (getExistingLead(user.getId(), lead.getCityId()) != null) {
             lead = patchLead(lead);
         }
         else {
-            lead.setClient(userService.createUser(lead.getClient()));
-            lead.setClientId(lead.getClient().getId());
+            lead.setClient(user);
             lead.setId(leadDao.save(lead).getId());
-
-            LeadRequirement leadRequirement = lead.getLeadRequirements().get(0);
-            if (!exactReplica(leadRequirement)) {
+            LeadRequirement leadRequirement = lead.getRequirements().get(0);
+            
+            if (!isExactReplica(leadRequirement)) {
                 leadRequirement.setLeadId(lead.getId());
                 leadRequirementsDao.save(leadRequirement);
             }
@@ -99,7 +98,7 @@ public class LeadService {
         lead.setClientId(lead.getClient().getId());
         lead.setId(leadDao.save(lead).getId());
 
-        LeadRequirement leadRequirement = lead.getLeadRequirements().get(0);
+        LeadRequirement leadRequirement = lead.getRequirements().get(0);
 
         leadRequirement.setLeadId(lead.getId());
         leadRequirementsDao.save(leadRequirement);
@@ -114,7 +113,7 @@ public class LeadService {
      * @return boolean
      */
 
-    public boolean exactReplica(LeadRequirement leadRequirement) {
+    public boolean isExactReplica(LeadRequirement leadRequirement) {
         List<LeadRequirement> leadRequirementList = leadRequirementsDao.checkReplica(
                 leadRequirement.getBedroom(),
                 leadRequirement.getLocalityId(),
@@ -138,42 +137,30 @@ public class LeadService {
      * 
      * @return
      */
-
     private Lead patchLead(Lead lead) {
 
         UserEmail userEmail = lead.getClient().getEmails().get(0);
         UserContactNumber userContactNumber = lead.getClient().getContactNumbers().get(0);
 
-        Lead tmpLead = getExistingLead(userEmail.getEmail(), userContactNumber.getContactNumber(), lead.getCityId());
-
-        lead.setClientId(tmpLead.getClientId());
+        Lead tmpLead = getExistingLead(lead.getClient().getId(), lead.getCityId());
         lead.setId(tmpLead.getId());
 
-        LeadRequirement leadRequirement = lead.getLeadRequirements().get(0);
+        LeadRequirement leadRequirement = lead.getRequirements().get(0);
 
-        if (!exactReplica(leadRequirement)) {
+        if (!isExactReplica(leadRequirement)) {
             leadRequirement.setLeadId(tmpLead.getId());
             leadRequirementsDao.saveAndFlush(leadRequirement);
         }
 
         List<Lead> dataLeads = leadDao.findByClientId(lead.getClientId());
         Lead data = dataLeads.get(0);
-
-        if (lead.getMinSize() > data.getMinSize()) {
-            lead.setMinSize(data.getMinSize());
-        }
-        if (lead.getMaxSize() < data.getMaxSize()) {
-            lead.setMaxSize(data.getMaxSize());
-        }
-        if (lead.getMinBudget() < data.getMinBudget()) {
-            lead.setMinBudget(data.getMinBudget());
-        }
-        if (lead.getMaxBudget() > data.getMaxBudget()) {
-            lead.setMaxBudget(data.getMaxBudget());
-        }
+         lead.setMinSize(Math.min(data.getMinSize(), lead.getMinSize()));
+         lead.setMaxSize(Math.max(data.getMaxSize(), lead.getMaxSize()));
+         lead.setMinBudget(Math.min(data.getMinBudget(), lead.getMinBudget()));
+         lead.setMaxBudget(Math.max(data.getMaxBudget(), lead.getMaxBudget()));
 
         leadDao.save(lead);
-        userService.patchUser(lead.getClient(), lead.getClientId(), 0);
+        userService.patchUser(lead.getClient());
         return lead;
     }
 
@@ -191,55 +178,19 @@ public class LeadService {
      * @return
      */
 
-    public boolean exists(String email, String contactNumber, int cityId) {
+    public Lead getExistingLead(int userId, int cityId) {
 
-        User user = userService.getUser(email, contactNumber);
-        if (user != null) {
-            if (leadDao.getDuplicateLead(cityId, user.getId()).size() > 0) {
-                return true;
+            List<Lead> existingLeadwithStatusNotInDealClosedOrClosedLostOrDead = leadDao.getOpenLeadOffers(cityId, userId);
+            List<Lead> existingLeadOverAll = leadDao.checkDuplicateLead(cityId, userId);
+            if (existingLeadwithStatusNotInDealClosedOrClosedLostOrDead.size() > 0) {
+                return existingLeadwithStatusNotInDealClosedOrClosedLostOrDead.get(0);
             }
-            else if (leadDao.checkDuplicateLead(cityId, user.getId()).size() > 0 && leadDao.checkLeadOfferEntry(
-                    cityId,
-                    user.getId()).size() == 0) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        else {
-            return false;
-        }
-    }
-
-    /**
-     * 
-     * @param email
-     * @param contactNumber
-     * @param cityId
-     *            get existing lead in the system
-     * @return user
-     */
-
-    public Lead getExistingLead(String email, String contactNumber, int cityId) {
-
-        User user = userService.getUser(email, contactNumber);
-        if (user != null) {
-            List<Lead> existingLeadwithStatusNotIn789 = leadDao.getDuplicateLead(cityId, user.getId());
-            List<Lead> existingLeadOverAll = leadDao.checkDuplicateLead(cityId, user.getId());
-            if (existingLeadwithStatusNotIn789.size() > 0) {
-                return existingLeadwithStatusNotIn789.get(0);
-            }
-            else if (existingLeadOverAll.size() > 0 && leadDao.checkLeadOfferEntry(cityId, user.getId()).size() == 0) {
+            else if (existingLeadOverAll.size() > 0 && leadDao.getLeadOffers(cityId, userId).size() == 0) {
                 return existingLeadOverAll.get(0);
             }
             else {
                 return null;
             }
-        }
-        else {
-            return null;
-        }
     }
 
 }

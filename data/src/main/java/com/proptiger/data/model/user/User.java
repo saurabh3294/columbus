@@ -61,6 +61,16 @@ public class User extends BaseModel {
     @Column(name = "updated_at")
     private Date                         updatedAt = new Date();
 
+    @Column(name = "email")
+    private String email;
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public int getId() {
         return id;

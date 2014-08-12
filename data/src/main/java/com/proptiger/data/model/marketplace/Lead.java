@@ -30,11 +30,6 @@ import com.proptiger.data.model.user.User;
 @Table(name = "marketplace.leads")
 @JsonFilter("fieldFilter")
 public class Lead extends BaseModel {
-
-    /**
-     * 
-     */    
-    
     private static final long serialVersionUID = -6647164101899851831L;
 
     @Id
@@ -76,7 +71,7 @@ public class Lead extends BaseModel {
     private int               score;
 
     @Column(name = "irritated_client")
-    private boolean           irritatedClient;
+    private boolean           irritatedClient = false;
 
     @Column(name = "updated_at")
     private Date              updatedAt        = new Date();
@@ -94,8 +89,7 @@ public class Lead extends BaseModel {
     private User client;
     
     @OneToMany(mappedBy = "leadId")
-    private List<LeadRequirement> leadRequirements;
-    
+    private List<LeadRequirement> requirements;
     
     public int getSourceId() {
         return sourceId;
@@ -111,14 +105,6 @@ public class Lead extends BaseModel {
 
     public void setMergedLeadId(Integer mergedLeadId) {
         this.mergedLeadId = mergedLeadId;
-    }
-
-    public List<LeadRequirement> getLeadRequirements() {
-        return leadRequirements;
-    }
-
-    public void setLeadRequirements(List<LeadRequirement> leadRequirements) {
-        this.leadRequirements = leadRequirements;
     }
 
     public String getClientType() {
@@ -248,4 +234,12 @@ public class Lead extends BaseModel {
     public void setClient(User client) {
         this.client = client;
     }
+    
+    public List<LeadRequirement> getRequirements() {
+        return requirements;
+    }
+
+    public void setRequirements(List<LeadRequirement> requirements) {
+        this.requirements = requirements;
+    }    
 }

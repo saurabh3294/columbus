@@ -26,7 +26,7 @@ public class LeadRequirement extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    private int               Id;
+    private int               id;
 
     @Column(name = "lead_id")
     private int               leadId;
@@ -41,11 +41,11 @@ public class LeadRequirement extends BaseModel {
     private Integer           localityId;
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public void setId(int id) {
-        Id = id;
+        this.id = id;
     }
 
     public int getLeadId() {
