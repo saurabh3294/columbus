@@ -15,6 +15,7 @@ import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.event.generator.model.DBRawEventTableConfig;
 import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
+import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 import com.proptiger.data.event.repo.RawDBEventDao;
 import com.proptiger.data.util.Serializer;
 
@@ -24,12 +25,22 @@ public class RawDBEventService {
 
     @Autowired
     private RawDBEventDao rawDBEventDao;
+    
+    @Autowired
+    private DBRawEventTableLogDao dbRawEventTableLogDao;
 
     public List<RawDBEvent> getRawDBEvents(DBRawEventTableConfig dbRawEventTableConfig) {
 
         List<RawDBEvent> rawDBEventList = new ArrayList<RawDBEvent>();
         DBRawEventTableLog tableLog = dbRawEventTableConfig.getDbRawEventTableLog();
 
+        if(tableLog.getLastTransactionKeyValue() == null) {
+            Map<String, Object> latestTransaction = rawDBEventDao.getLatestTransaction(tableLog);
+            Long transactionId = (Long)latestTransaction.get(tableLog.getTransactionKeyName());
+            dbRawEventTableLogDao.updateLastTransactionKeyValueById(tableLog.getId(), transactionId);
+            return rawDBEventList;
+        }
+        
         List<Map<String, Object>> rawDBEventDataList = rawDBEventDao.getRawDBEventByTableNameAndId(tableLog);
         
         logger.info(" Retrieved "+rawDBEventDataList.size() + " raw events from the table config ID: "+ tableLog.getId());

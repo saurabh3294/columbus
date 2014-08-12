@@ -81,7 +81,24 @@ public class RawDBEventDao extends DynamicTableDao {
         }
 
         return null;
+    }
 
+    public Map<String, Object> getLatestTransaction(DBRawEventTableLog tableLog) {
+        String queryString = "";
+        queryString = "SELECT * FROM " + tableLog.getDbName()
+                + "."
+                + tableLog.getTableName()
+                + " ORDER BY "
+                + tableLog.getTransactionKeyName()
+                + " DESC limit 1";
+        logger.info(queryString);
+
+        List<Map<String, Object>> results = runDynamicTableQuery(queryString);
+        if (results != null && results.size() > 0) {
+            return results.get(0);
+        }
+
+        return null;
     }
 
     public Map<String, Object> getRawEventDataOnTransactionId(DBRawEventTableLog tableLog, Object transactionKeyValue) {

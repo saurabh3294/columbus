@@ -1,5 +1,7 @@
 package com.proptiger.data.notification.generator;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -37,21 +39,27 @@ public class NotificationTypeGenerator {
     public Integer generateNotificationTypes() {
         Integer ntCount = 0;
         Date fromDate = subscriberConfigService.getLastEventDateReadByNotification();
+
         List<EventGenerated> eventGeneratedList = eventGeneratedService.getVerifiedEventsFromDate(fromDate);
-        
-        // TODO: sort items
-        Date lastEventDate = fromDate;
-        for (EventGenerated eventGenerated : eventGeneratedList) {
-            if (lastEventDate.before(eventGenerated.getUpdatedDate())) {
-                lastEventDate = eventGenerated.getUpdatedDate();
+
+        Collections.sort(eventGeneratedList, new Comparator<EventGenerated>() {
+            public int compare(EventGenerated event1, EventGenerated event2) {
+                if (event1.getUpdatedDate().after(event2.getUpdatedDate()))
+                    return 1;
+                else if (event1.getUpdatedDate().before(event2.getUpdatedDate()))
+                    return -1;
+                else
+                    return 0;
             }
+        });
+
+        for (EventGenerated eventGenerated : eventGeneratedList) {
             List<NotificationTypeGenerated> ntGeneratedList = ntGenerationService
                     .getNotificationTypesForEventGenerated(eventGenerated);
             ntCount += ntGeneratedList.size();
-            ntGenerationService.persistNotificationTypes(ntGeneratedList);
+            ntGenerationService.persistNotificationTypes(eventGenerated, ntGeneratedList);
         }
-        
-        subscriberConfigService.setLastEventDateReadByNotification(lastEventDate);
+
         return ntCount;
     }
 
