@@ -17,6 +17,7 @@ import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
 import com.proptiger.data.repo.marketplace.LeadSubmissionsDao;
 import com.proptiger.data.repo.marketplace.leadOfferDao;
 import com.proptiger.data.service.user.UserService;
+
 /**
  * @author Anubhav
  * @param
@@ -60,9 +61,9 @@ public class LeadService {
      */
 
     public Lead createLead(Lead lead) {
-        
+
         Lead leadDump = (Lead) SerializationUtils.clone(lead);
-                
+
         UserEmail userEmail = lead.getClient().getEmails().get(0);
         UserContactNumber userContactNumber = lead.getClient().getContactNumbers().get(0);
 
@@ -86,8 +87,14 @@ public class LeadService {
         return lead;
     }
 
+    /**
+     * 
+     * @param lead
+     * @return put the lead and lead requirements directly into db
+     */
+
     private Lead createDump(Lead lead) {
-                
+
         lead.setClient(userService.createUser(lead.getClient()));
         lead.setClientId(lead.getClient().getId());
         lead.setId(leadDao.save(lead).getId());
