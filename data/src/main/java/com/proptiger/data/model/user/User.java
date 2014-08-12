@@ -10,8 +10,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.util.UtilityClass;
 
@@ -53,10 +56,11 @@ public class User extends BaseModel {
     private List<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
-    private Date                         createdAt;
+    private Date                         createdAt = new Date();
 
     @Column(name = "updated_at")
-    private Date                         updatedAt;
+    private Date                         updatedAt = new Date();
+
 
     public int getId() {
         return id;
@@ -165,5 +169,22 @@ public class User extends BaseModel {
             }
         }
         return priority;
+    }
+    
+    @PrePersist
+    public void prePersist(){
+        this.createdAt = new Date();
+        this.updatedAt = this.createdAt;
+    }
+    @PreUpdate
+    public void preUpdate(){
+        this.updatedAt = new Date();
+    }
+    
+    public void copyFieldsFromRegisterToUser(Register register) {
+        this.setFullName(register.getUserName());
+        this.setPassword(register.getPassword());
+        this.setCountryId(register.getCountryId());
+        this.setRegistered(register.getRegisterMe());
     }
 }

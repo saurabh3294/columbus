@@ -41,7 +41,10 @@ public enum MailTemplateDetail {
             "mailtemplate/project/project-details-subject.vm"),
 
     RESET_PASSWORD("resetpassword", "mailtemplate/resetpassword/reset-password-mail.vm",
-            "mailtemplate/resetpassword/reset-password-mail-subject.vm");
+            "mailtemplate/resetpassword/reset-password-mail-subject.vm"),
+    
+    NEW_USER_REGISTRATION("newregistration", "mailtemplate/register/new-user-registration.vm",
+            "mailtemplate/register/new-user-registration-subject.vm");
 
     private MailTemplateDetail(String key, String body, String subject) {
         this.key = key;

@@ -29,19 +29,11 @@ public final class ConnectionSignUpImpl implements ConnectionSignUp {
     public String execute(Connection<?> connection) {
         ConnectionKey connectionKey = connection.getKey();
         UserProfile userProfile = connection.fetchUserProfile();
-
-        URL imageUrl = null;
-        try {
-            imageUrl = new URL(connection.getImageUrl());
-        }
-        catch (MalformedURLException e) {
-        }
-
         int userId = userService.createSocialAuthDetails(
                 userProfile,
                 AuthProvider.getAuthProviderIgnoreCase(connectionKey.getProviderId()),
                 connectionKey.getProviderUserId(),
-                imageUrl).getId();
+                connection.getImageUrl()).getId();
 
         return String.valueOf(userId);
     }

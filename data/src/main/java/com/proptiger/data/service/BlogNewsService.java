@@ -121,10 +121,14 @@ public class BlogNewsService {
 
         Pattern htmlTagPattern = Pattern.compile("(?s)<[^>]*>(\\s*<[^>]*>)*");
         for (WordpressPost post : list) {
-            Matcher matcher = htmlTagPattern.matcher(post.getPostContent());
-            String contentWithoutHtmlTag = matcher.replaceAll("").substring(0, contentLimit);
-            post.setPostContent(contentWithoutHtmlTag);
-
+            if (post.getPostExcerpt() != null && !post.getPostExcerpt().isEmpty()) {
+                post.setPostContent(post.getPostExcerpt());
+            }
+            else {
+                Matcher matcher = htmlTagPattern.matcher(post.getPostContent());
+                String contentWithoutHtmlTag = matcher.replaceAll("").substring(0, contentLimit);
+                post.setPostContent(contentWithoutHtmlTag);
+            }
         }
     }
 

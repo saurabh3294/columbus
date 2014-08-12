@@ -1,5 +1,7 @@
 package com.proptiger.data.enums;
 
 public enum EntityType {
-    Actual, Logical
+    Actual, Logical,
+    @Deprecated ACTUAL,
+    @Deprecated LOGICAL;
 }

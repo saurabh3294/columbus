@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.Email;
@@ -39,10 +40,10 @@ public class UserEmail extends BaseModel {
     private int               priority             = primaryEmailPriority;
 
     @Column(name = "created_by")
-    private int               createdBy;
+    private Integer               createdBy;
 
     @Column(name = "created_at")
-    private Date              createdAt            = new Date();
+    private Date              createdAt ;
 
     public UserEmail() {
 
@@ -86,11 +87,11 @@ public class UserEmail extends BaseModel {
         this.priority = priority;
     }
 
-    public int getCreatedBy() {
+    public Integer getCreatedBy() {
         return createdBy;
     }
 
-    public void setCreatedBy(int createdBy) {
+    public void setCreatedBy(Integer createdBy) {
         this.createdBy = createdBy;
     }
 
@@ -100,5 +101,9 @@ public class UserEmail extends BaseModel {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+    @PrePersist
+    public void prePersist(){
+        this.createdAt = new Date();
     }
 }
