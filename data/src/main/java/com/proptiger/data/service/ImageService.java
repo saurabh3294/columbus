@@ -67,7 +67,7 @@ public class ImageService extends MediaService {
 
     private TaskExecutor             taskExecutor;
 
-    private Striped<Lock>       locks;
+    private Striped<Lock>            locks;
 
     @PostConstruct
     private void init() {
@@ -134,7 +134,7 @@ public class ImageService extends MediaService {
      * @param waterMark
      * @param format
      * @param s3
-     */ 
+     */
     private void createAndUploadMoreResolutions(final Image image, final File waterMark, final String format) {
         taskExecutor.execute(new Runnable() {
             @Override

@@ -65,24 +65,10 @@ public class ImageController extends BaseController {
             @RequestParam String imageType,
             @ModelAttribute Image imageParams) throws Exception {
         DomainObject domainObject = DomainObject.valueOf(objectType);
-        Image img = imageService.uploadImage(
-                domainObject,
-                imageType,
-                objectId,
-                image,
-                addWaterMark,
-                imageParams);
+        Image img = imageService.uploadImage(domainObject, imageType, objectId, image, addWaterMark, imageParams);
         return new APIResponse(super.filterFields(img, null));
     }
-    
-    /*@DisableCaching
-    @RequestMapping(value ="data/v1/entity/test" ,method = RequestMethod.GET)
-    public @ResponseBody
-    void test(){
-            ArrayList<ImageQuality> qualities = imageService.getQuality(2);
-       // return new APIResponse(super.filterFields(img, null));
-    }
-*/
+
     @DisableCaching
     @RequestMapping(value = "{id}", method = RequestMethod.POST)
     public @ResponseBody
@@ -147,5 +133,5 @@ public class ImageController extends BaseController {
     Object getResolutionEnumerations() {
         return new APIResponse(ImageResolution.values());
     }
-    
+
 }
