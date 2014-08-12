@@ -60,7 +60,7 @@ public class InventoryPriceTrend extends BaseModel {
 
     @Column(name = "construction_status")
     private String            constructionStatus;
-   /*
+    
     @Column(name = "construction_status_quarter")
     private String            constructionStatusQuarter;
 
@@ -68,7 +68,7 @@ public class InventoryPriceTrend extends BaseModel {
     private String            constructionStatusYear;
 
     @Column(name = "construction_status_financial_year")
-    private String            constructionStatusFinancialYear;*/
+    private String            constructionStatusFinancialYear;
 
     @Column(name = "booking_status")
     private String            bookingStatus;
@@ -324,7 +324,7 @@ public class InventoryPriceTrend extends BaseModel {
         this.constructionStatus = constructionStatus;
     }
     
-   /*public String getConstructionStatusQuarter() {
+    public String getConstructionStatusQuarter() {
         return constructionStatusQuarter;
     }
 
@@ -347,7 +347,7 @@ public class InventoryPriceTrend extends BaseModel {
     public void setConstructionStatusFinancialYear(String constructionStatusFinancialYear) {
         this.constructionStatusFinancialYear = constructionStatusFinancialYear;
     }
-*/
+
     public Integer getLocalityId() {
         return localityId;
     }
