@@ -25,7 +25,7 @@ public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, 
     @Query("SELECT pd FROM ProjectDiscussion pd WHERE pd.parentId = ?1")
     public List<ProjectDiscussion> getChildrenProjectDiscussions(Integer commentId);
 
-    @Query("SELECT p.projectName FROM ProjectDB p WHERE p.projectId = ?1")
+    @Query("SELECT p.projectName FROM ProjectDB p WHERE p.version = 'Website' AND p.projectId = ?1")
     public String getProjectNameById(Integer projectId);
 
     @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd " + "WHERE pd.projectId=p.projectId AND p.version='Website' AND pd.createdDate >= ?1"
