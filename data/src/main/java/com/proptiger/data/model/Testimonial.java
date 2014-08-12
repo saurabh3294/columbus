@@ -84,7 +84,9 @@ public class Testimonial extends BaseModel {
         if (clientImage == null || clientImage.isEmpty()) {
             return clientImage;
         }
-        return TestimonialService.cdnImageUrl + clientImage;
+        return TestimonialService.cdnImageUrl + (clientImage.charAt(0) == '/'
+                ? clientImage.replaceFirst("/", "")
+                : clientImage);
     }
 
     public void setClientImage(String clientImage) {

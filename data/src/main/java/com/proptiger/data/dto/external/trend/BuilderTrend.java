@@ -25,13 +25,15 @@ public class BuilderTrend {
     public static final String                  LAUNCHED_KEY                          = "launchedUnit";
     @JsonIgnore
     public static final String                  AVG_SIZE                              = "wavgSizeOnLtdSupply";
+    @JsonIgnore
+    public static final String                  AREA_KEY                              = "totalArea";
 
     private int                                 builderId;
     private String                              builderName;
     private String                              builderHeadquarterCity;
     private int                                 projectCount;
-    private int                                 minPricePerUnitArea                   = 0;
-    private int                                 maxPricePerUnitArea                   = 0;
+    private Integer                             minPricePerUnitArea;
+    private Integer                             maxPricePerUnitArea;
     private int                                 supply                                = 0;
     private int                                 launchedUnit                          = 0;
     private int                                 inventory                             = 0;
@@ -41,6 +43,7 @@ public class BuilderTrend {
     private int                                 projectCountHavingPriceDepreciation   = 0;
     private int                                 projectCountHavingPriceMoreThanLocAvg = 0;
     private int                                 projectCountHavingPriceLessThanLocAvg = 0;
+    private int                                 projectCountOnHold                    = 0;
     private Map<String, Integer>                delayed                               = new HashMap<>();
 
     public BuilderTrend() {
@@ -52,6 +55,7 @@ public class BuilderTrend {
                     countMap.put(PROJECT_COUNT_KEY, 0);
                     countMap.put(SUPPLY_KEY, 0);
                     countMap.put(LAUNCHED_KEY, 0);
+                    countMap.put(AREA_KEY, 0);
 
                     this.unitTypesDetails.put(unitType, countMap);
                 }
@@ -99,19 +103,19 @@ public class BuilderTrend {
         this.projectCount = projectCount;
     }
 
-    public int getMinPricePerUnitArea() {
+    public Integer getMinPricePerUnitArea() {
         return minPricePerUnitArea;
     }
 
-    public void setMinPricePerUnitArea(int minPricePerUnitArea) {
+    public void setMinPricePerUnitArea(Integer minPricePerUnitArea) {
         this.minPricePerUnitArea = minPricePerUnitArea;
     }
 
-    public int getMaxPricePerUnitArea() {
+    public Integer getMaxPricePerUnitArea() {
         return maxPricePerUnitArea;
     }
 
-    public void setMaxPricePerUnitArea(int maxPricePerUnitArea) {
+    public void setMaxPricePerUnitArea(Integer maxPricePerUnitArea) {
         this.maxPricePerUnitArea = maxPricePerUnitArea;
     }
 
@@ -171,6 +175,14 @@ public class BuilderTrend {
         this.projectCountHavingPriceLessThanLocAvg = projectCountHavingPriceLessThanLocAvg;
     }
 
+    public int getProjectCountOnHold() {
+        return projectCountOnHold;
+    }
+
+    public void setProjectCountOnHold(int projectCountOnHold) {
+        this.projectCountOnHold = projectCountOnHold;
+    }
+
     public Map<UnitType, Map<String, Integer>> getUnitTypesDetails() {
         return unitTypesDetails;
     }
@@ -206,4 +218,5 @@ public class BuilderTrend {
         }
         return this;
     }
+
 }

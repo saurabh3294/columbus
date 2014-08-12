@@ -182,9 +182,12 @@ public class URLService {
                     }
                 }
                 else {
-                    domainUrl = urlDetail.getCityName() + urlDetail.getPropertyType()
+                    domainUrl = urlDetail.getPropertyType()
                             + builder.getUrl()
                             + urlDetail.getBedroomString();
+                    if (builder.getBuilderCities() != null && builder.getBuilderCities().size() > 1) {
+                        domainUrl = urlDetail.getCityName() + domainUrl;
+                    }
                     if (!domainUrl.equals(urlDetail.getUrl())) {
                         redirectUrl = domainUrl;
                     }
@@ -212,6 +215,7 @@ public class URLService {
 
                     if (!domainUrl.equals(urlDetail.getUrl())) {
                         redirectUrl = domainUrl;
+                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     }
                     else {
                         responseStatus = HttpStatus.SC_OK;
@@ -240,6 +244,7 @@ public class URLService {
 
                     if (!domainUrl.equals(urlDetail.getUrl())) {
                         redirectUrl = domainUrl;
+                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     }
                     else {
                         responseStatus = HttpStatus.SC_OK;
@@ -268,6 +273,21 @@ public class URLService {
                             .getPortfolioId());
                     if (portfolioListing == null) {
                         responseStatus = HttpStatus.SC_NOT_FOUND;
+                    }
+                }
+                break;
+            case NEWS_URLS:
+                if (urlDetail.getCityName() != null && !urlDetail.getCityName().isEmpty()) {
+                    city = null;
+                    try {
+                        city = cityService.getCityByName(urlDetail.getCityName());
+                    }
+                    catch (ResourceNotAvailableException e) {
+                        city = null;
+                    }
+                    if (city == null) {
+                        redirectUrl = EMPTY_URL;
+                        responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     }
                 }
                 break;

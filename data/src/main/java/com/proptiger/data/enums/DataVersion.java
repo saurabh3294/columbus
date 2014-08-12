@@ -1,7 +1,8 @@
 package com.proptiger.data.enums;
 
 public enum DataVersion {
-    Website, Cms, @Deprecated
+    Website, Cms, PreCms, @Deprecated
     WEBSITE, @Deprecated
-    CMS
+    CMS, @Deprecated
+    PRECMS
 }

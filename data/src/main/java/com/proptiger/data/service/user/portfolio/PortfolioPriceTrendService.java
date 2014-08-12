@@ -28,6 +28,8 @@ import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
+import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.ProjectDBDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.service.ProjectPriceTrendService;
@@ -109,9 +111,12 @@ public class PortfolioPriceTrendService {
      * 
      * @param userId
      * @param noOfMonths
+     * @param selector 
      * @return
      */
-    public PortfolioPriceTrend getPortfolioPriceTrend(Integer userId, Integer noOfMonths) {
+    public PortfolioPriceTrend getPortfolioPriceTrend(
+            Integer userId,
+            Integer noOfMonths, FIQLSelector selector) {
         PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
         logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
         List<PortfolioListing> listings = portfolioListingDao
@@ -119,7 +124,7 @@ public class PortfolioPriceTrendService {
                         userId,
                         false,
                         Constants.SOURCETYPE_LIST,
-                        Arrays.asList(ListingStatus.ACTIVE));
+                        Arrays.asList(ListingStatus.ACTIVE), LimitOffsetPageRequest.createPageableDefaultRowsAll(selector));
         if (listings == null || listings.size() == 0) {
             List<ProjectPriceTrend> list = new ArrayList<>();
             portfolioPriceTrend.setProjectPriceTrend(list);
@@ -155,6 +160,32 @@ public class PortfolioPriceTrendService {
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Changing price trend date to month precision as it would be easy to plot
+     * on UI.
+     * 
+     * @param projectPriceTrendTemp
+     */
+    private void makePriceTrendDateMonthPrecision(List<ProjectPriceTrend> projectPriceTrendTemp) {
+        Calendar cal = Calendar.getInstance();
+        for (ProjectPriceTrend priceTrend : projectPriceTrendTemp) {
+            for (PriceDetail priceDetail : priceTrend.getPrices()) {
+                Date d = priceDetail.getEffectiveDate();
+                cal.setTime(d);
+                cal.set(Calendar.DAY_OF_MONTH, 1);
+                cal.set(Calendar.HOUR_OF_DAY, 1);
+                cal.set(Calendar.MINUTE, 1);
+                cal.set(Calendar.SECOND, 1);
+                cal.set(Calendar.MILLISECOND, 1);
+                priceDetail.setEffectiveDate(cal.getTime());
+            }
+        }
+
+    }
+
+    /**
+>>>>>>> 6e01daf2709cf4a6f7214140f0a135ab6ec2847d
      * There may be cases when we do not get price trend for no of months
      * specified from Trend API. This method will make sure there are price
      * trend for specified no of months, so this method may add PriceTrend at

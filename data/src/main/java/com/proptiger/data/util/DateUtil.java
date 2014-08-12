@@ -8,7 +8,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.proptiger.data.repo.CMSDao;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -133,5 +132,12 @@ public class DateUtil {
         catch (ParseException e) {
             throw new ProAPIException("Unable to parse date", e);
         }
+    }
+    
+    public static Date addDays(Date baseDate, int daysToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.DAY_OF_YEAR, daysToAdd);
+        return calendar.getTime();
     }
 }

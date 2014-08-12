@@ -108,6 +108,16 @@ public class Builder extends BaseModel {
     @Field(value = "BUILDER_LOCALITY_COUNT")
     private Integer           builderLocalityCount;
     
+    @Transient
+    private List<Image>       images;
+    
+    @Transient
+    @JsonIgnore
+    @Field("BUILDER_CITIES")
+    private List<String>      builderCities;
+
+    @Transient
+    private Image             mainImage        = new Image();
     
     public int getId() {
         return id;
@@ -245,5 +255,43 @@ public class Builder extends BaseModel {
     public void setBuilderLocalityCount(Integer builderLocalityCount) {
         this.builderLocalityCount = builderLocalityCount;
     }
-    
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
+        
+    public List<String> getBuilderCities() {
+        return builderCities;
+    }
+
+    public void setBuilderCities(List<String> builderCities) {
+        this.builderCities = builderCities;
+    }
+
+    public Image getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(Image mainImage) {
+        this.mainImage = mainImage;
+    }
+
+    @Field("BUILDER_IMAGE_ALTTEXT")
+    public void setImageAltText(String altText) {
+        mainImage.setAltText(altText);
+    }
+
+    @Field("BUILDER_IMAGE_TITLE")
+    public void setImageTitle(String title) {
+        mainImage.setTitle(title);
+    }
+
+    @Field("BUILDER_LOGO_IMAGE")
+    public void setAbsolutePath(String absolutePath) {
+        mainImage.setAbsolutePath(absolutePath);
+    }
 }
