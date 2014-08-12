@@ -1,5 +1,7 @@
 package com.proptiger.data.notification.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,17 +10,16 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "notification_type")
-public class NotificationType extends BaseModel{
+public class NotificationType extends BaseModel {
 
     /**
      * 
      */
-    private static final long serialVersionUID = 549033224673052141L;
+    private static final long                serialVersionUID = 549033224673052141L;
 
     @Column(name = "id")
     @Id
@@ -34,9 +35,9 @@ public class NotificationType extends BaseModel{
     @Transient
     @JsonIgnore
     private transient NotificationTypeConfig notificationTypeConfig;
-    
+
     @Transient
-    private List<NotificationMedium> notificationMediumList;
+    private List<NotificationMedium>         notificationMediumList;
 
     public int getId() {
         return id;
