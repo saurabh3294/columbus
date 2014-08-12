@@ -14,10 +14,10 @@ public class CitySuggestions {
     private String templateId = "Typeahead-Suggestion-City";
     
     private String[][] suggestionTemplates = {
-            { "Affordable Flats in %s", "affordable-flats", "affordable-flats"},
+            { "Affordable apartments in %s", "affordable-flats", "affordable-flats"},
             { "Resale property in %s", "resale-property", "resale-property"},
             { "Luxury projects in %s", "luxury-projects", "luxury-projects"},
-            { "Ready to move flats in %s", "ready-to-move-flats", "ready-to-move-flats"},
+            { "Ready to move apartments in %s", "ready-to-move-flats", "ready-to-move-flats"},
             { "Under construction property in %s", "under-construction-property", "under-construction-property"}};
 
     public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {

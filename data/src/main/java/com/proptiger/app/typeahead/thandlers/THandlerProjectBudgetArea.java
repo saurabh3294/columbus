@@ -12,11 +12,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     /* BUDGET related fields */
     int            minBudget                   = 1000000;
     int            maxBudget                   = 300000000;
-    int[][]        budgetRanges                = { { 2000000, 5000000 }, { 5000000, 10000000 }, { 10000000, maxBudget } };
+    int[][]        budgetRanges                = { { 4000000, 5000000 }, { 6000000, 8000000 }, { 10000000, 20000000} };
 
-    int[]          budgetPointsBelow           = { 3000000, 5000000 };
-    int[]          budgetPointsAbove           = { 5000000, 10000000 };
-    String         budgetUnit                  = "Rs.";
+    int[]          budgetPointsBelow           = { 5000000, 7000000 };
+    int[]          budgetPointsAbove           = { 10000000, 20000000 };
+    String         budgetUnit                  = "";
     String         genericBudgetFilter         = "filters?budget=%s,%s";
 
     /* template for : <projects between> <Rs.> <5000000> to <6000000> in <noida> */
@@ -29,10 +29,10 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
     int            minArea                     = 100;
     int            maxArea                     = 10000;
-    int[][]        areaRanges                  = { { 1000, 2000 }, { 2000, 3000 }, { 3000, maxArea } };
-    int[]          areaPointsBelow             = { 1500, 2000 };
-    int[]          areaPointsAbove             = { 1200, 2000 };
-    String         areaUnit                    = "SqFt";
+    int[][]        areaRanges                  = { { 800, 1200 }, { 1400, 1600 }};
+    int[]          areaPointsBelow             = { 800, 1200 };
+    int[]          areaPointsAbove             = { 1400, 2000 };
+    String         areaUnit                    = "sq ft";
     String         genericAreaFilter           = "filters?size=%s,%s";
 
     /* template for : <projects between> <1000> to <2000> <SqFt> in <noida> */
@@ -185,10 +185,10 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         int crore = 10000000;
 
         if (number / crore > 0) {
-            return ((number / crore) + " Crores");
+            return ((number / crore) + " Cr");
         }
         else if (number / lakh > 0) {
-            return ((number / lakh) + " Lakhs");
+            return ((number / lakh) + " Lacs");
         }
         else {
             return String.valueOf(number);
