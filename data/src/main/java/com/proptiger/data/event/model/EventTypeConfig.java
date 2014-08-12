@@ -1,4 +1,4 @@
-package com.proptiger.data.event;
+package com.proptiger.data.event.model;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +13,7 @@ import com.proptiger.data.event.verification.PriceChangeVerification;
 import com.proptiger.data.model.BaseModel;
 
 // TODO remove the Types ENUM. make it dynamic.
-public class EventTypeConfig extends BaseModel{
+public class EventTypeConfig extends BaseModel {
 
     public static Map<String, EventTypeConfig>   eventTypeConfigMap;
     static {

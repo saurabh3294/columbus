@@ -26,12 +26,12 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.repo.DBRawEventTableLogDao;
 import com.proptiger.data.event.repo.EventGeneratedDao;
 import com.proptiger.data.event.repo.RawEventToEventTypeMappingDao;
-import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.util.Serializer;
 
 @Service
 public class EventGeneratedService {
-    private static Logger                     logger     = LoggerFactory.getLogger(LocalityService.class);
+    private static Logger                     logger     = LoggerFactory.getLogger(EventGeneratedService.class);
 
     @Autowired
     private EventGeneratedDao                 eventGeneratedDao;
@@ -58,13 +58,13 @@ public class EventGeneratedService {
         logger.info(eventGenerateds.size() + " Events Being Persisting ");
 
         applicationContext.getBean(this.getClass()).saveOrUpdateEvents(eventGenerateds);
-        
+
         logger.info(" Events Saved .");
-        
+
         dbRawEventTableLogDao.updateLastTransactionKeyValueById(
                 dbRawEventTableLog.getId(),
                 dbRawEventTableLog.getLastTransactionKeyValue());
-        
+
         logger.info(" Updated the Last Transaction Value " + dbRawEventTableLog.getLastTransactionKeyValue()
                 + " for table Config "
                 + dbRawEventTableLog.getId());
@@ -108,6 +108,13 @@ public class EventGeneratedService {
 
     public Long getRawEventCount() {
         return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw);
+    }
+
+    public EventGenerated getLatestEventGenerated() {
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByOrderByCreatedDateDesc(pageable);
+        populateEventsDataAfterLoad(listEventGenerateds);
+        return listEventGenerateds.get(0);
     }
 
     @Transactional(value = "transactionManager")

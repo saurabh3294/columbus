@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.event.EventTypeConfig;
 import com.proptiger.data.event.model.EventType;
+import com.proptiger.data.event.model.EventTypeConfig;
 import com.proptiger.data.event.repo.EventTypeDao;
 
 @Service

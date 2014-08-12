@@ -10,8 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.OnDelete;
-
 @Entity
 @Table(name = "subscriber_config")
 public class SubscriberConfig {
@@ -24,7 +22,7 @@ public class SubscriberConfig {
     @Id
     @GeneratedValue
     private int        id;
-    
+
     @OneToOne
     @JoinColumn(name = "subscriber_id")
     private Subscriber subscriber;
