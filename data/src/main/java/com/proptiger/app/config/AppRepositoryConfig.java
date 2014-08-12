@@ -7,9 +7,11 @@ import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
 import org.hibernate.ejb.HibernatePersistence;
+import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -170,8 +172,8 @@ public class AppRepositoryConfig {
         return new HibernateExceptionTranslator();
     }
 
-    @Bean
-    @Autowired
+    @Bean(autowire = Autowire.BY_TYPE)
+    @Primary
     public JpaTransactionManager transactionManager() throws Exception {
         JpaTransactionManager transactionManager = new JpaTransactionManager();
         transactionManager.setEntityManagerFactory(entityManagerFactory());
@@ -198,7 +200,7 @@ public class AppRepositoryConfig {
         return sessionFactoryBean;
     }
     
-    @Bean
+    @Bean(autowire = Autowire.BY_NAME, name="hibernateTransactionManager")
     public HibernateTransactionManager hibernateTransactionManager() throws Exception{
         HibernateTransactionManager hibernateTransactionManager = new HibernateTransactionManager();
         hibernateTransactionManager.setSessionFactory(sessionFactory().getObject());

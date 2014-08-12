@@ -53,7 +53,7 @@ public class EventGeneratedService {
 
     private Gson                              serializer = new Gson();
 
-    @Transactional(value = "transactionManager")
+    @Transactional
     public void persistEvents(List<EventGenerated> eventGenerateds, DBRawEventTableLog dbRawEventTableLog) {
         logger.info(eventGenerateds.size() + " Events Being Persisting ");
 
@@ -110,7 +110,7 @@ public class EventGeneratedService {
         return eventGeneratedDao.getEventCountByEventStatus(EventStatus.Raw);
     }
 
-    @Transactional(value = "transactionManager")
+    @Transactional
     // TODO to handle the status of update queries. Currently, reverting them
     // back to their old value.
     public void updateEventsOnOldEventStatus(Map<EventStatus, List<EventGenerated>> updateEventGeneratedByOldValue) {
@@ -137,7 +137,7 @@ public class EventGeneratedService {
         }
     }
 
-    @Transactional(value = "transactionManager")
+    @Transactional
     public Iterable<EventGenerated> saveOrUpdateEvents(Iterable<EventGenerated> events) {
         Iterator<EventGenerated> iterator = events.iterator();
         while (iterator.hasNext()) {
