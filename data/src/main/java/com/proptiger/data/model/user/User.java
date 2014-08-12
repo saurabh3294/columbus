@@ -186,5 +186,6 @@ public class User extends BaseModel {
         this.setPassword(register.getPassword());
         this.setCountryId(register.getCountryId());
         this.setRegistered(register.getRegisterMe());
+        this.setEmail(register.getEmail());
     }
 }
