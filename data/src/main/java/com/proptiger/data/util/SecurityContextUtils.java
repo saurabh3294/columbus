@@ -91,6 +91,15 @@ public class SecurityContextUtils {
         return auth;
     }
     
+    public static Authentication autoLogin(ActiveUser activeUser) {
+        UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
+                activeUser,
+                null,
+                activeUser.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+        return newAuthentication;
+    }
+    
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
