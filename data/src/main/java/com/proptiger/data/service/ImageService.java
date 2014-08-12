@@ -31,6 +31,7 @@ import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.enums.MediaType;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.image.ImageQuality;
 import com.proptiger.data.repo.ImageDao;
 import com.proptiger.data.util.Caching;
 import com.proptiger.data.util.Constants;
@@ -46,19 +47,25 @@ import com.proptiger.exception.ResourceAlreadyExistException;
  */
 @Service
 public class ImageService extends MediaService {
-    private static final String HYPHON = "-";
-    private static Logger       logger = LoggerFactory.getLogger(ImageService.class);
+    private static final String      HYPHON = "-";
+    private static Logger            logger = LoggerFactory.getLogger(ImageService.class);
 
     @Autowired
-    private ImageDao            imageDao;
+    private ImageDao                 imageDao;
 
     @Autowired
-    protected PropertyReader    propertyReader;
+    protected PropertyReader         propertyReader;
 
     @Autowired
-    private Caching             caching;
+    protected ImageResolutionService imageResolutionService;
 
-    private TaskExecutor        taskExecutor;
+    @Autowired
+    protected ImageQualityService    imageQualityService;
+
+    @Autowired
+    private Caching                  caching;
+
+    private TaskExecutor             taskExecutor;
 
     private Striped<Lock>       locks;
 
@@ -127,17 +134,23 @@ public class ImageService extends MediaService {
      * @param waterMark
      * @param format
      * @param s3
-     */
+     */ 
     private void createAndUploadMoreResolutions(final Image image, final File waterMark, final String format) {
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
+
+                // not for all resolutions only
                 for (ImageResolution imageResolution : ImageResolution.values()) {
+                    Integer resolutionId = getResolutionId(imageResolution.getLabel());
+
+                    ImageQuality qualityObject = null;
+
+                    if (resolutionId != null)
+                        qualityObject = getOptimalQuality((int) image.getImageTypeId(), resolutionId);
+
                     File resizedFile = null;
                     try {
-
-                        // get the value of quality for this imageType and
-                        // resolution
 
                         resizedFile = resize(waterMark, imageResolution, Image.BEST_QUALITY, format);
 
@@ -146,10 +159,17 @@ public class ImageService extends MediaService {
                                 image.getPath() + computeResizedImageName(image, imageResolution, null, format),
                                 resizedFile);
 
-                        resizedFile = resize(waterMark, imageResolution, Image.OPTIMAL_QUALITY, format);
-                        amazonS3Util.uploadFile(
-                                image.getPath() + computeResizedImageName(image, imageResolution, Image.OPTIMAL, format),
-                                resizedFile);
+                        // resize the image for optimal quality
+                        if (qualityObject != null) {
+                            resizedFile = resize(waterMark, imageResolution, qualityObject.getQuality(), format);
+                            amazonS3Util.uploadFile(
+                                    image.getPath() + computeResizedImageName(
+                                            image,
+                                            imageResolution,
+                                            Image.OPTIMAL_SUFFIX,
+                                            format),
+                                    resizedFile);
+                        }
 
                     }
                     catch (Exception e) {
@@ -165,10 +185,20 @@ public class ImageService extends MediaService {
         });
     }
 
+    protected ImageQuality getOptimalQuality(int imageTypeId, int resolutionId) {
+        return imageQualityService.getQuality(imageTypeId, resolutionId);
+    }
+
+    private Integer getResolutionId(String label) {
+        return imageResolutionService.getResolutionId(label);
+
+    }
+
     private File resize(File waterMark, ImageResolution imageResolution, double quality, String format)
             throws Exception {
         ConvertCmd convertCmd = new ConvertCmd();
         IMOperation imOperation = new IMOperation();
+        ;
         imOperation.addImage(waterMark.getAbsolutePath());
         imOperation.resize(imageResolution.getWidth(), imageResolution.getHeight(), ">");
         imOperation.strip();
@@ -189,7 +219,7 @@ public class ImageService extends MediaService {
             String optimalSuffix,
             String format) {
         String resizedImageName;
-        if (!optimalSuffix.equals(null)) {
+        if (optimalSuffix != null) {
 
             resizedImageName = image.getId() + HYPHON
                     + imageResolution.getWidth()
@@ -345,6 +375,7 @@ public class ImageService extends MediaService {
         keys[2] = "imageId:" + imageId;
 
         return keys;
+
     }
 
     public void update(Image image) {

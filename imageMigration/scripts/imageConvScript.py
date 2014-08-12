@@ -28,14 +28,14 @@ import time
 #
 
 # Configuration =========================================================
-env    = 'production' # To set develop environment or production environment
+env    = 'develop' # To set develop environment or production environment
 config = dict(	
 	url	 =	'http://www.proptiger.com/data/v1/entity/image/',
 	#url	 = 	'http://localhost:8080/data/v1/entity/image/',
 	idListFile = 	'IdsList.txt',
         develop   =	{
                          	'server'	:   'localhost',
-                        	'port'		:   '8080',
+                        	'port'		:   '9080',
                         	'mysql'		:   {
                                                            'host'      :   'localhost',
                                                            'user'      :   'root',
@@ -238,9 +238,9 @@ if __name__ == "__main__":
         	return params
 	
 	# Reading idList file
-	file = open(config['idListFile'], 'r')
-	ids = file.read()
-	file.close()	
+	#file = open(config['idListFile'], 'r')
+	#ids = file.read()
+	#file.close()	
 	
 	# Open database connection
 	db = MySQLdb.connect(**config[env]['mysql'] )
@@ -249,7 +249,7 @@ if __name__ == "__main__":
 	cursor = db.cursor()
 
 	# execute SQL query using execute() method.
-	cursor.execute("SELECT I.id, concat('http://im.proptiger.com/',I.path, I.original_name), I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) WHERE I.active = 1 AND I.id IN (" + ids + ") ORDER BY I.ID")	
+	cursor.execute("SELECT I.id, concat('http://im.proptiger.com/',I.path, I.original_name), I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) WHERE I.active = 1  ORDER BY I.ID")	
 
 	rows = cursor.fetchall()
 	cols = []

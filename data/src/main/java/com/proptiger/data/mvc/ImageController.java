@@ -1,6 +1,7 @@
 package com.proptiger.data.mvc;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
@@ -20,6 +21,7 @@ import com.proptiger.data.enums.ImageResolution;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.meta.DisableCaching;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.image.ImageQuality;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.ImageService;
@@ -72,7 +74,15 @@ public class ImageController extends BaseController {
                 imageParams);
         return new APIResponse(super.filterFields(img, null));
     }
-
+    
+    /*@DisableCaching
+    @RequestMapping(value ="data/v1/entity/test" ,method = RequestMethod.GET)
+    public @ResponseBody
+    void test(){
+            ArrayList<ImageQuality> qualities = imageService.getQuality(2);
+       // return new APIResponse(super.filterFields(img, null));
+    }
+*/
     @DisableCaching
     @RequestMapping(value = "{id}", method = RequestMethod.POST)
     public @ResponseBody
