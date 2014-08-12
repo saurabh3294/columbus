@@ -18,11 +18,11 @@ public class BuilderSuggestions {
     
     /* TODO :: Discuss picking these from DB table seo-footer directly. */
     String[][] suggestionTemplates = {
-            { "New launches by %s", "new-launch-project-by-%s" },
-            { "Upcoming projects by %s", "upcoming-project-by-%s" },
-            { "New projects by %s", "new-project-by-%s" },
-            { "Completed properties by %s", "completed-property-by-%s" },
-            { "Ongoing projects by %s", "ongoing-project-by-%s" } };
+            //{ "New launches by %s", "new-launch-project-by-%s", "new-launch-project" },
+            { "Upcoming projects by %s", "upcoming-project-by-%s", "upcoming-project" },
+            //{ "New projects by %s", "new-project-by-%s", "new-project" },
+            { "Completed properties by %s", "completed-property-by-%s", "completed-property" },
+            { "Ongoing projects by %s", "ongoing-project-by-%s", "ongoing-project" } };
 
     public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {
         List<Typeahead> suggestions = new ArrayList<Typeahead>();
@@ -31,7 +31,7 @@ public class BuilderSuggestions {
             obj = new Typeahead();
             obj.setDisplayText(String.format(template[0], name));
             obj.setRedirectUrl(String.format(template[1], redirectUrl));
-            obj.setId(templateId);
+            obj.setId(templateId + "-" + template[2]);
             suggestions.add(obj);
         }
         return suggestions;

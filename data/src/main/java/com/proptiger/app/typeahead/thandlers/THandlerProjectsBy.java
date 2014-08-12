@@ -15,6 +15,9 @@ public class THandlerProjectsBy extends RootTHandler {
     @Override
     public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
 
+        /* restrict results to top 2 builders for now */
+        rows = Math.min(rows, 2);
+
         List<Typeahead> results = new ArrayList<Typeahead>();
         List<Builder> topBuilders = getTopBuilders(city);
 

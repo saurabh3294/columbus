@@ -75,8 +75,16 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
         String displayText, redirectUrl;
         for (int x : budgetPointsBelow) {
-            displayText = (String.format(genericAboveBelowTextBudget, templateText, budgetUnit, x, city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericBudgetFilter, minBudget, x));
+            displayText = (String.format(
+                    genericAboveBelowTextBudget,
+                    templateText,
+                    budgetUnit,
+                    convertBudgetAmountInWords(x),
+                    city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(
+                    genericBudgetFilter,
+                    minBudget,
+                    convertBudgetAmountInWords(x)));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
@@ -87,8 +95,16 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
         String displayText, redirectUrl;
         for (int x : budgetPointsAbove) {
-            displayText = (String.format(genericAboveBelowTextBudget, templateText, budgetUnit, x, city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericBudgetFilter, x, maxBudget));
+            displayText = (String.format(
+                    genericAboveBelowTextBudget,
+                    templateText,
+                    budgetUnit,
+                    convertBudgetAmountInWords(x),
+                    city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(
+                    genericBudgetFilter,
+                    convertBudgetAmountInWords(x),
+                    maxBudget));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
@@ -99,8 +115,17 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
         String displayText, redirectUrl;
         for (int[] x : budgetRanges) {
-            displayText = (String.format(genericBetweenTextBudget, templateText, budgetUnit, x[0], x[1], city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
+            displayText = (String.format(
+                    genericBetweenTextBudget,
+                    templateText,
+                    budgetUnit,
+                    convertBudgetAmountInWords(x[0]),
+                    convertBudgetAmountInWords(x[1]),
+                    city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(
+                    genericAreaFilter,
+                    convertBudgetAmountInWords(x[0]),
+                    convertBudgetAmountInWords(x[1])));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
@@ -147,11 +172,26 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     @Override
     public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
         List<Typeahead> results = getResults(query, typeahead, city, 1);
-        if(results.isEmpty()){
+        if (results.isEmpty()) {
             return null;
         }
-        else{
+        else {
             return results.get(0);
+        }
+    }
+
+    private static String convertBudgetAmountInWords(int number) {
+        int lakh = 100000;
+        int crore = 10000000;
+
+        if (number / crore > 0) {
+            return ((number / crore) + " Crores");
+        }
+        else if (number / lakh > 0) {
+            return ((number / lakh) + " Lakhs");
+        }
+        else {
+            return String.valueOf(number);
         }
     }
 

@@ -72,7 +72,7 @@ public class TypeaheadController extends BaseController {
     @RequestMapping(value = "app/v3/typeahead")
     @ResponseBody
     public APIResponse getTypeaheadsV3(HttpServletRequest request, @RequestParam String query,
-            @RequestParam(defaultValue = "10") int rows,
+            @RequestParam(defaultValue = "5") int rows,
             @RequestParam(required = false) String typeAheadType,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String locality) {

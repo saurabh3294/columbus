@@ -23,6 +23,9 @@ public class THandlerPropertyFor extends RootTHandler {
     @Override
     public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
 
+        /* restrict results to top 2 localities for now */
+        rows = Math.min(rows, 3);
+
         List<Typeahead> results = new ArrayList<Typeahead>();
 
         results.add(getTopResult(query, typeahead, city));

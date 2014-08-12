@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.repo.PropertyDao;
@@ -41,7 +42,7 @@ public class ProjectSuggestions {
         for (Property property : propertyList) {
             bedrooms = property.getBedrooms();
             url = property.getURL();
-            if (bedrooms > 0 && url != null && !url.isEmpty()) {
+            if (bedrooms > 0 && property.getUnitType().equals(UnitType.Apartment.toString())  && url != null && !url.isEmpty()) {
                 bhkUrlMap.put(bedrooms, property.getURL());
             }
         }
