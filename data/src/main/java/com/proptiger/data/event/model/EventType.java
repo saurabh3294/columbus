@@ -1,7 +1,5 @@
 package com.proptiger.data.event.model;
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -10,7 +8,6 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.notification.model.NotificationType;
 
 @Entity
 @Table(name = "event_type")
@@ -54,8 +51,6 @@ public class EventType extends BaseModel {
     @Transient
     @JsonIgnore
     private transient EventTypeConfig eventTypeConfig;
-
-    private List<NotificationType>    notificationTypeList;
 
     public int getId() {
         return id;
@@ -127,14 +122,6 @@ public class EventType extends BaseModel {
 
     public String getName() {
         return name;
-    }
-
-    public List<NotificationType> getNotificationTypeList() {
-        return notificationTypeList;
-    }
-
-    public void setNotificationTypeList(List<NotificationType> notificationTypeList) {
-        this.notificationTypeList = notificationTypeList;
     }
 
 }

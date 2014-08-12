@@ -4,6 +4,11 @@ import com.proptiger.data.event.model.RawDBEvent;
 
 public class DefaultEventTypePayload extends EventTypePayload {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -8843513036785607117L;
+    
     private Object oldValue;
     private Object newValue;
 

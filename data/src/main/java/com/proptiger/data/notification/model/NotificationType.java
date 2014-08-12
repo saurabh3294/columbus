@@ -1,7 +1,5 @@
 package com.proptiger.data.notification.model;
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,8 +31,6 @@ public class NotificationType extends BaseModel{
     @Column(name = "overwrite_config_name")
     private String                           overwriteConfigName;
 
-    private List<EventType>                  eventTypeList;
-
     @Transient
     @JsonIgnore
     private transient NotificationTypeConfig notificationTypeConfig;
@@ -64,14 +60,6 @@ public class NotificationType extends BaseModel{
 
     public void setOverwriteConfigName(String overwriteConfigName) {
         this.overwriteConfigName = overwriteConfigName;
-    }
-
-    public List<EventType> getEventTypeList() {
-        return eventTypeList;
-    }
-
-    public void setEventTypeList(List<EventType> eventTypeList) {
-        this.eventTypeList = eventTypeList;
     }
 
     public NotificationTypeConfig getNotificationTypeConfig() {

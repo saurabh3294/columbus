@@ -19,12 +19,15 @@ import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 public class NotificationTypeGenerationService {
 
     @Autowired
-    private NotificationTypeGeneratedDao notificationTypeGeneratedDao;
+    private NotificationTypeGeneratedDao              notificationTypeGeneratedDao;
 
     @Autowired
-    private SubscriberConfigService      subscriberConfigService;
+    private SubscriberConfigService                   subscriberConfigService;
 
-    private Gson                         serializer = new Gson();
+    @Autowired
+    private EventTypeToNotificationTypeMappingService ntMappingService;
+
+    private Gson                                      serializer = new Gson();
 
     public Integer getActiveNotificationTypeCount() {
         return notificationTypeGeneratedDao
@@ -33,14 +36,16 @@ public class NotificationTypeGenerationService {
 
     public List<NotificationTypeGenerated> getNotificationTypesForEventGenerated(EventGenerated eventGenerated) {
         List<NotificationTypeGenerated> notificationTypeGeneratedList = new ArrayList<NotificationTypeGenerated>();
-        List<NotificationType> notificationTypeList = eventGenerated.getEventType().getNotificationTypeList();
+        List<NotificationType> notificationTypeList = ntMappingService.getNotificationTypesByEventType(eventGenerated
+                .getEventType());
         for (NotificationType notificationType : notificationTypeList) {
-            //NotificationTypePayload payload = notificationType.
-            
+            NotificationTypePayload payload = notificationType.getNotificationTypeConfig()
+                    .getNotificationTypePayloadObject();
+            // TODO: add data to payload
             NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
             ntGenerated.setEventGenerated(eventGenerated);
             ntGenerated.setNotificationType(notificationType);
-            //ntGenerated.setNotificationTypePayload(payload);
+            ntGenerated.setNotificationTypePayload(payload);
             notificationTypeGeneratedList.add(ntGenerated);
         }
         return notificationTypeGeneratedList;
