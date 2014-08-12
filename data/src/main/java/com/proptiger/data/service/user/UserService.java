@@ -1,6 +1,5 @@
 package com.proptiger.data.service.user;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -228,7 +227,7 @@ public class UserService {
     }
 
     public User getUserFromEmail(String email) {
-        User user = userDao.findByPrimaryEmail(email);
+        User user = userDao.findByEmail(email);
         return user;
     }
 
@@ -639,6 +638,7 @@ public class UserService {
         User user = getUserFromRegister(register);
 
         user = userDao.save(user);
+        createDefaultProjectDiscussionSubscriptionForUser(user.getId());
 
         manageEmailOnRegistration(user, register);
         manageContactNumberOnRegistration(user, register);
@@ -663,7 +663,7 @@ public class UserService {
     }
 
     private User getUserFromRegister(Register register) {
-        User user = userDao.findByPrimaryEmail(register.getEmail());
+        User user = userDao.findByEmail(register.getEmail());
         if (user == null) {
             user = createFreshUserFromRegister(register);
         }
@@ -697,9 +697,17 @@ public class UserService {
     // manages contact numbers for every registration
     // will be more relevant once we start supporting multiple contacts
     private void manageContactNumberOnRegistration(User user, Register register) {
-        if (user.getContactNumbers() == null) {
+        if (!user.isContactPresent(register.getContact().toString())) {
+            Integer priority = user.getMaxContactNumberPriority();
+            if (priority == null) {
+                priority = 0;
+            }
             String contactNumber = register.getContact().toString();
-            contactNumberDao.save(new UserContactNumber(contactNumber, user.getId()));
+
+            UserContactNumber userContactNumber = new UserContactNumber(contactNumber, user.getId());
+            userContactNumber.setPriority(priority + 1);
+
+            contactNumberDao.save(userContactNumber);
         }
     }
 
@@ -759,18 +767,12 @@ public class UserService {
 
             if (user == null) {
                 user = new User();
+                user.setEmail(email);
                 user.setFullName(userProfile.getName());
                 user = userDao.save(user);
 
                 int userId = user.getId();
-                // TODO uncomment once we create table
-                // createDefaultProjectDiscussionSubscriptionForUser(userId);
-
-                UserEmail userEmail = new UserEmail();
-                userEmail.setUserId(userId);
-                userEmail.setEmail(email);
-                userEmail.setCreatedBy(userId);
-                emailDao.save(userEmail);
+                createDefaultProjectDiscussionSubscriptionForUser(userId);
             }
             authProviderDetail.setUserId(user.getId());
             authProviderDetailDao.save(authProviderDetail);
@@ -779,8 +781,12 @@ public class UserService {
     }
 
     private ProjectDiscussionSubscription createDefaultProjectDiscussionSubscriptionForUser(int userId) {
-        ProjectDiscussionSubscription discussionSubscription = new ProjectDiscussionSubscription();
-        discussionSubscription.setUserId(userId);
+        ProjectDiscussionSubscription discussionSubscription = discussionSubscriptionDao.findOne(userId);
+        if (discussionSubscription == null) {
+            discussionSubscription = new ProjectDiscussionSubscription();
+            discussionSubscription.setUserId(userId);
+        }
+        discussionSubscription.setSubscribed(true);
         return discussionSubscriptionDao.save(discussionSubscription);
     }
 

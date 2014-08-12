@@ -16,6 +16,7 @@ import javax.persistence.Table;
 
 import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.util.UtilityClass;
 
 /**
  * 
@@ -32,6 +33,8 @@ public class User extends BaseModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int                          id;
 
+    private String                       email;
+
     @Column(name = "full_name")
     private String                       fullName;
 
@@ -43,7 +46,7 @@ public class User extends BaseModel {
     @Column(name = "is_registered")
     private boolean                      registered       = true;
 
-    @OneToMany(mappedBy = "userId", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<UserEmail>              emails;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
@@ -65,6 +68,14 @@ public class User extends BaseModel {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFullName() {
@@ -139,13 +150,25 @@ public class User extends BaseModel {
         this.updatedAt = updatedAt;
     }
 
-    public String getPrimaryEmail() {
-        for (UserEmail email : emails) {
-            if (email.getPriority() == UserEmail.primaryEmailPriority) {
-                return email.getEmail();
+    public boolean isContactPresent(String userContactNumber) {
+        if (contactNumbers != null) {
+            for (UserContactNumber contactNumber : contactNumbers) {
+                if (contactNumber.getContactNumber().equals(userContactNumber)) {
+                    return true;
+                }
             }
         }
-        return null;
+        return false;
+    }
+
+    public Integer getMaxContactNumberPriority() {
+        Integer priority = null;
+        if (contactNumbers != null) {
+            for (UserContactNumber contactNumber : contactNumbers) {
+                priority = UtilityClass.max(priority, contactNumber.getPriority());
+            }
+        }
+        return priority;
     }
     
     @PrePersist

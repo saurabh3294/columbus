@@ -35,12 +35,12 @@ public class UserDetailManagerService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDetails userDetails = null;
         if (username != null && !username.isEmpty()) {
-            User user = userDao.findByPrimaryEmail(username);
+            User user = userDao.findByEmail(username);
             if (user != null) {
                 String password = user.getPassword() == null ? "" : user.getPassword();
                 userDetails = new ActiveUser(
                         user.getId(),
-                        user.getPrimaryEmail(),
+                        user.getEmail(),
                         password,
                         true,
                         true,
