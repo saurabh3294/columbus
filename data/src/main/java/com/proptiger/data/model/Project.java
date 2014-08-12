@@ -115,7 +115,7 @@ public class Project extends BaseModel {
     
     @Column(name = "VERSION")
     @Enumerated(EnumType.STRING)
-    private   DataVersion            version;
+    private  DataVersion            version;
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
@@ -388,7 +388,7 @@ public class Project extends BaseModel {
     private Date                    preLaunchDate;
 
     @FieldMetaInfo(displayName = "YOUTUBE VEDIO", description = "YOUTUBE VEDIO")
-    @Column(name = "YOUTUBE_VEDIO")
+    @Column(name = "YOUTUBE_VIDEO")
     @JsonIgnore
     private String                  youtubeVideo;
 
