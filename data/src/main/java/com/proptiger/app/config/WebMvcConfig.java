@@ -16,6 +16,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.jmx.export.annotation.AnnotationMBeanExporter;
 import org.springframework.ui.velocity.VelocityEngineFactory;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -26,7 +27,6 @@ import com.proptiger.data.init.CustomObjectMapper;
 import com.proptiger.data.init.RequestResponseInterceptor;
 import com.proptiger.data.util.DateToStringConverter;
 import com.proptiger.data.util.LongToDateConverter;
-import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.StringToDateConverter;
 
@@ -47,8 +47,6 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     @Bean
     public RequestResponseInterceptor createRequestResponseInterceptor() {
         RequestResponseInterceptor interceptor = new RequestResponseInterceptor();
-        interceptor.setRedisHost(propertyReader.getRequiredProperty(PropertyKeys.REDIS_HOST));
-        interceptor.setRedisPort(propertyReader.getRequiredPropertyAsType(PropertyKeys.REDIS_PORT, Integer.class));
         return interceptor;
     }
 
@@ -102,4 +100,9 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         multipartResolver.setMaxUploadSize(104857600);
         return multipartResolver;
     }
+    @Bean(name = "exporter")
+    public AnnotationMBeanExporter createmBeanExporter(){
+        return new AnnotationMBeanExporter();
+    }
+    
 }

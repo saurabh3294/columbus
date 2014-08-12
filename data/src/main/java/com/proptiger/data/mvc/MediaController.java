@@ -102,7 +102,8 @@ public class MediaController {
 
     @RequestMapping(method = RequestMethod.PUT, value = "/audio/{id}")
     @ResponseBody
-    public APIResponse updateMediaAudio(@PathVariable Integer id, @RequestBody Media media) {
+
+    public APIResponse updateMediaAudio(@PathVariable Integer id, @ModelAttribute Media media) {
         return new APIResponse(audioService.updateMedia(media, id));
     }
 }

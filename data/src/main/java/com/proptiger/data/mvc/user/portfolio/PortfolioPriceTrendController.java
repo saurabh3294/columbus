@@ -13,6 +13,7 @@ import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.mvc.BaseController;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.portfolio.PortfolioPriceTrendService;
 import com.proptiger.data.util.Constants;
@@ -39,12 +40,14 @@ public class PortfolioPriceTrendController extends BaseController {
     @ResponseBody
     public APIResponse getPortfolioPriceTrend(@PathVariable Integer userId, @RequestParam(
             required = false,
-            defaultValue = "3") Integer months, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+            defaultValue = "3") Integer months, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo,
+            @ModelAttribute FIQLSelector selector) {
 
         PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(
                 userInfo.getUserIdentifier(),
-                months);
-        return new APIResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend().size());
+                months, selector);
+        return new APIResponse(priceTrend.getProjectPriceTrend(), priceTrend.getProjectPriceTrend()
+                .size());
     }
 
     /**

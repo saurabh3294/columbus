@@ -11,6 +11,7 @@ import org.apache.solr.client.solrj.beans.Field;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.model.image.Image;
 
 /**
  * @author mandeep
@@ -333,14 +334,30 @@ public class SolrResult extends BaseModel {
     private String            builderAddress;
     
     @Field("BUILDER_LOCALITY_COUNT")
-    private Integer           builderLocalityCount;   
-
+    private Integer           builderLocalityCount;
+    
+    @Field("BUILDER_CITIES")
+    private List<String>      builderCities;
+    
+    @Field("BUILDER_IMAGE_ALTTEXT")
+    private String            builderImgAltText;
+    
+    @Field("BUILDER_IMAGE_TITLE")
+    private String            builderImgTitle;
+    
+    @Field("PROJECT_IMAGE_ALTTEXT")
+    private String            projectImgAltText;
+    
+    @Field("PROJECT_IMAGE_TITLE")
+    private String            projectImgTitle;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
         project.setLocality(locality);
         locality.setSuburb(suburb);
         suburb.setCity(city);
+        project.setMainImage(new Image());
     }
 
     @Field("TYPE_ID")
@@ -855,11 +872,13 @@ public class SolrResult extends BaseModel {
     @Field("PROJECT_MAIN_IMAGE")
     public void setProjectMainImage(String projectMainImage) {
         project.setImageURL(projectMainImage);
+        project.getMainImage().setAbsolutePath(projectMainImage);
     }
 
     @Field("BUILDER_LOGO_IMAGE")
     public void setBuilderLogoImage(String builderLogoImage) {
         builder.setImageURL(builderLogoImage);
+        builder.setAbsolutePath(builderLogoImage);
     }
 
     @Field("PROJECT_LAST_UPDATED_TIME")
@@ -1071,5 +1090,29 @@ public class SolrResult extends BaseModel {
     public void setBuilderLocalityCount(Integer builderLocalityCount) {
         builder.setBuilderLocalityCount(builderLocalityCount);
     } 
+    
+    @Field("BUILDER_CITIES")
+    public void setBuilderCities(List<String> builderCities) {
+        builder.setBuilderCities(builderCities);
+    }
 
+    @Field("BUILDER_IMAGE_ALTTEXT")
+    public void setBuilderImgAltText(String builderImgAltText) {
+        builder.setImageAltText(builderImgAltText);
+    }
+
+    @Field("BUILDER_IMAGE_TITLE")
+    public void setBuilderImgTitle(String builderImgTitle) {
+       builder.setImageTitle(builderImgTitle);
+    }
+
+    @Field("PROJECT_IMAGE_ALTTEXT")
+    public void setProjectImgAltText(String projectImgAltText) {
+        project.getMainImage().setAltText(projectImgAltText);
+    }
+    
+    @Field("PROJECT_IMAGE_TITLE")
+    public void setProjectImgTitle(String projectImgTitle) {
+        project.getMainImage().setTitle(projectImgTitle);
+    }
 }

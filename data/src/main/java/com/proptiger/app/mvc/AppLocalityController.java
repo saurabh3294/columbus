@@ -62,8 +62,7 @@ public class AppLocalityController extends BaseController {
     @DisableCaching
     public APIResponse getLocalityDetails(@PathVariable int localityId, @RequestParam(
             required = false,
-            value = "selector") String selectorStr, @RequestParam(
-            required = false) Integer imageCount) {
+            value = "selector") String selectorStr, @RequestParam(required = false) Integer imageCount) {
         Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
         if (selector == null) {
             selector = new Selector();

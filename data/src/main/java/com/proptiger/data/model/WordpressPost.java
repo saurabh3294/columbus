@@ -70,6 +70,10 @@ public class WordpressPost extends BaseModel {
     
     @Column(name = "post_date", insertable = false, updatable = false)
     private java.util.Date    epochPostDate;
+    
+    @JsonIgnore
+    @Column(name = "post_excerpt")
+    private String            postExcerpt;
 
     public long getId() {
         return id;
@@ -135,4 +139,11 @@ public class WordpressPost extends BaseModel {
         this.postMimeType = postMimeType;
     }
 
+    public String getPostExcerpt() {
+        return postExcerpt;
+    }
+
+    public void setPostExcerpt(String postExcerpt) {
+        this.postExcerpt = postExcerpt;
+    }
 }

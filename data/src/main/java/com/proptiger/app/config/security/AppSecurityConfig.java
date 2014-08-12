@@ -25,9 +25,11 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
-import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.GenericFilterBean;
+
+import com.proptiger.app.config.security.social.CustomSpringSocialConfigurer;
+import com.proptiger.data.util.Constants;
 
 /**
  * Application security configurations. Define url regex and handlers to handle
@@ -36,25 +38,14 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Rajeev Pandey
  *
  */
-//@Configuration
-//@EnableWebSecurity
-//@ComponentScan(basePackages = { "com.proptiger" })
+@Configuration
+@EnableWebSecurity
+@ComponentScan(basePackages = { "com.proptiger" })
 public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private static final String     COOKIE_NAME_JSESSIONID  = "JSESSIONID";
-
-    private static final String     LOGOUT_URL              = "/app/v1/logout";
-
-    private static final String     PASSWORD_PARAMETER_NAME = "password";
-
-    private static final String     USERNAME_PARAMETER_NAME = "username";
-
-    private static final String     LOGIN_URL               = "/app/v1/login";
-
-    private static final String     APP_REMEMBER_ME_KEY     = "auth-key";
-
     @Autowired
-    private CustomUserDetailService userDetailService;
+    private UserDetailManagerService userService;
+
     @Autowired
     private DataSource              dataSource;
 
@@ -72,16 +63,26 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
          * to enable form login for testing purpose uncomment these end and
          * comment below code
          */
-
+        
+        
+//        http.requiresChannel().antMatchers(Constants.Security.USER_API_REGEX, Constants.Security.AUTH_API_REGEX).requiresSecure();
+        http.rememberMe().rememberMeServices(createPersistentTokenBasedRememberMeService())
+                .key(Constants.Security.REMEMBER_ME_COOKIE);
         http.csrf().disable();
-        http.authorizeRequests().regexMatchers(".*/user/.*").authenticated()/*.and().requiresChannel()
-                .antMatchers(LOGIN_URL).requiresSecure().anyRequest().requiresInsecure()*/;
+        http.authorizeRequests().regexMatchers(Constants.Security.USER_API_REGEX, Constants.Security.AUTH_API_REGEX).authenticated();
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
         http.addFilter(createUserNamePasswordLoginFilter());
         http.addFilter(createRememberMeAuthFilter());
+        http.logout().logoutSuccessHandler(createLogoutHanlder()).logoutUrl(Constants.Security.LOGOUT_URL)
+                .deleteCookies(Constants.Security.COOKIE_NAME_JSESSIONID, Constants.Security.REMEMBER_ME_COOKIE);
+        
+        http.apply(createSocialAuthConfigurer());
+        
+    }
 
-        http.logout().logoutSuccessHandler(createLogoutHanlder()).logoutUrl(LOGOUT_URL)
-                .deleteCookies(COOKIE_NAME_JSESSIONID);
+    @Bean
+    public CustomSpringSocialConfigurer createSocialAuthConfigurer() {
+        return new CustomSpringSocialConfigurer();
     }
 
     @Bean
@@ -91,8 +92,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public LoginUrlAuthenticationEntryPoint createAuthEntryPoint() {
-        AuthEntryPoint authEntryPoint = new AuthEntryPoint(LOGIN_URL);
-        //authEntryPoint.setForceHttps(true);
+        AuthEntryPoint authEntryPoint = new AuthEntryPoint(Constants.Security.LOGIN_URL);
         return authEntryPoint;
     }
 
@@ -107,58 +107,69 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         loginFilter.setAuthenticationManager(createAuthenticationManager());
         loginFilter.setAuthenticationFailureHandler(createAuthFailureHandler());
         loginFilter.setAuthenticationSuccessHandler(createAuthSuccessHandler());
-        loginFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(LOGIN_URL, "POST"));
-        loginFilter.setUsernameParameter(USERNAME_PARAMETER_NAME);
-        loginFilter.setPasswordParameter(PASSWORD_PARAMETER_NAME);
+        loginFilter.setRequiresAuthenticationRequestMatcher(new AntPathRequestMatcher(
+                Constants.Security.LOGIN_URL,
+                "POST"));
+        loginFilter.setUsernameParameter(Constants.Security.USERNAME_PARAMETER_NAME);
+        loginFilter.setPasswordParameter(Constants.Security.PASSWORD_PARAMETER_NAME);
         loginFilter.setPostOnly(true);
 
-        loginFilter.setRememberMeServices(createTokenBasedRememberMeService());
+        loginFilter.setRememberMeServices(createPersistentTokenBasedRememberMeService());
         return loginFilter;
     }
 
     @Bean
     public AuthenticationManager createAuthenticationManager() {
         List<AuthenticationProvider> authProvider = new ArrayList<>();
-        DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider();
-        daoAuthProvider.setUserDetailsService(userDetailService);
-        daoAuthProvider.setPasswordEncoder(new Md5PasswordEncoder());
+        DaoAuthenticationProvider daoAuthProvider = createDaoAuthProvider();
         authProvider.add(daoAuthProvider);
 
         authProvider.add(createRememberMeAuthProvider());
         return new ProviderManager(authProvider);
     }
+    @Bean
+    public DaoAuthenticationProvider createDaoAuthProvider() {
+        DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider();
+        daoAuthProvider.setUserDetailsService(userService);
+        daoAuthProvider.setPasswordEncoder(createPasswordEncoder());
+        return daoAuthProvider;
+    }
+
+    @Bean
+    public Md5PasswordEncoder createPasswordEncoder() {
+        return new Md5PasswordEncoder();
+    }
 
     @Bean
     public RememberMeAuthenticationProvider createRememberMeAuthProvider() {
-        return new RememberMeAuthenticationProvider(APP_REMEMBER_ME_KEY);
-    }
-
-    //@Bean
-    public PersistentTokenBasedRememberMeServices createPersistentTokenBasedRememberMeService() {
-        return new PersistentTokenBasedRememberMeServices(
-                APP_REMEMBER_ME_KEY,
-                userDetailService,
-                createPersistentLoginRepository());
-    }
-
-    //@Bean
-    public JdbcTokenRepositoryImpl createPersistentLoginRepository() {
-        JdbcTokenRepositoryImpl repo = new JdbcTokenRepositoryImpl();
-        repo.setDataSource(dataSource);
-        return repo;
-    }
-
-    @Bean
-    public TokenBasedRememberMeServices createTokenBasedRememberMeService() {
-        return new TokenBasedRememberMeServices(APP_REMEMBER_ME_KEY, userDetailService);
+        return new RememberMeAuthenticationProvider(Constants.Security.API_SECRET_KEY);
     }
 
     @Bean
     public GenericFilterBean createRememberMeAuthFilter() {
-        RememberMeAuthenticationFilter filterBean = new RememberMeAuthenticationFilter(
+        RememberMeAuthenticationFilter rememberMeFilter = new CustomRememberMeAuthFilter(
                 createAuthenticationManager(),
-                createTokenBasedRememberMeService());
-        return filterBean;
+                createPersistentTokenBasedRememberMeService());
+        return rememberMeFilter;
+    }
+
+    @Bean
+    public PersistentTokenBasedRememberMeServices createPersistentTokenBasedRememberMeService() {
+        PersistentTokenBasedRememberMeServices tokenBasedRememberMeService = new PersistentTokenBasedRememberMeServices(
+                Constants.Security.API_SECRET_KEY,
+                userService,
+                createPersistentLoginRepository());
+        tokenBasedRememberMeService.setParameter(Constants.Security.REMEMBER_ME_PARAMETER);
+        tokenBasedRememberMeService.setCookieName(Constants.Security.REMEMBER_ME_COOKIE);
+        tokenBasedRememberMeService.setTokenValiditySeconds(Constants.Security.REMEMBER_ME_COOKIE_VALIDITY);
+        return tokenBasedRememberMeService;
+    }
+
+    @Bean
+    public JdbcTokenRepositoryImpl createPersistentLoginRepository() {
+        JdbcTokenRepositoryImpl repo = new JdbcTokenRepositoryImpl();
+        repo.setDataSource(dataSource);
+        return repo;
     }
 
     @Bean

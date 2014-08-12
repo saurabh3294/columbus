@@ -17,6 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.model.Bank;
+import com.proptiger.data.model.Builder;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
@@ -80,6 +81,8 @@ public class ImageEnricher {
         images = checkAndInsertProjectMainImageRandom(images, project.getImageURL());
 
         project.setImages(images);
+        setProjectImagesByTypeCount(project, images);
+
     }
 
     @Deprecated
@@ -92,6 +95,7 @@ public class ImageEnricher {
         images = checkAndInsertProjectMainImageRandom(images, project.getImageURL());
 
         project.setImages(images);
+        setProjectDbImagesByTypeCount(project, images);
 
     }
 
@@ -103,30 +107,10 @@ public class ImageEnricher {
         for (Property property : properties) {
             propertyIds.add(new Long(property.getPropertyId()));
         }
-        List<Image> images = imageService.getImages(DomainObject.property, null, propertyIds);
-        if (images == null) {
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
-                    .getRequest();
-            logger.error("Images NULL AT URL: " + request.getRequestURI()
-                    + " FOR Property IDs: "
-                    + ToStringBuilder.reflectionToString(propertyIds));
+        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.property, propertyIds);
+        if (imagesMap == null) {
             return;
         }
-
-        Map<Long, List<Image>> imagesMap = new HashMap<>();
-        List<Image> domainImages;
-        for (Image image : images) {
-
-            domainImages = imagesMap.get(image.getObjectId());
-
-            if (domainImages == null) {
-                domainImages = new ArrayList<>();
-                imagesMap.put(image.getObjectId(), domainImages);
-            }
-
-            domainImages.add(image);
-        }
-
         for (Property property : properties) {
             property.setImages(imagesMap.get(new Long(property.getPropertyId())));
         }
@@ -174,6 +158,57 @@ public class ImageEnricher {
 
             locality.setImages(new ArrayList<Image>(images.subList(0, numberOfImages)));
         }
+    }
+
+    /**
+     * Returns the type of images and the count in a map for example {
+     * layoutPlan=1, floorPlan=3 }
+     * 
+     * @param project
+     * @param images
+     */
+    public void setProjectImagesByTypeCount(Project project, List<Image> images) {
+        Map<String, Integer> imagesByTypeCount = new HashMap<String, Integer>();
+        for (Image image : images) {
+            String imageType = image.getImageTypeObj().getType();
+
+            if (imagesByTypeCount.containsKey(imageType)) {
+                imagesByTypeCount.put(imageType, imagesByTypeCount.get(imageType) + 1);
+
+            }
+            else {
+                imagesByTypeCount.put(imageType, 1);
+            }
+
+        }
+        project.setImageCountByType(imagesByTypeCount);
+
+    }
+
+    /**
+     * Returns the type of images and the count in a map for example {
+     * layoutPlan=1, floorPlan=3 }
+     * 
+     * @param project
+     * @param images
+     */
+    public void setProjectDbImagesByTypeCount(ProjectDB project, List<Image> images) {
+        Map<String, Integer> imagesByTypeCount = new HashMap<String, Integer>();
+        for (Image image : images) {
+            // Long imageTypeId = image.getImageTypeId();
+            String imageType = image.getImageTypeObj().getType();
+
+            if (imagesByTypeCount.containsKey(imageType)) {
+                imagesByTypeCount.put(imageType, imagesByTypeCount.get(imageType) + 1);
+
+            }
+            else {
+                imagesByTypeCount.put(imageType, 1);
+            }
+
+        }
+        project.setImageCountByType(imagesByTypeCount);
+
     }
 
     /**
@@ -234,10 +269,9 @@ public class ImageEnricher {
 
         return images;
     }
-    
+
     /**
-     * Method returns default Project Image for 
-     * Project's Main Url
+     * Method returns default Project Image for Project's Main Url
      * 
      * @param mainImageUrl
      * @return
@@ -271,4 +305,63 @@ public class ImageEnricher {
         return imageService.getImage(imageId);
     }
 
+    public void setBuilderImages(Builder builder) {
+        if (builder == null) {
+            return;
+        }
+        List<Image> images = imageService.getImages(DomainObject.builder, null, builder.getId());
+        builder.setImages(images);
+    }
+
+    public void setImagesOfProjects(List<Project> projects) {
+        if (projects == null || projects.isEmpty()) {
+            return;
+        }
+        List<Long> projectIds = new ArrayList<>();
+        for (Project project : projects) {
+            projectIds.add(new Long(project.getProjectId()));
+        }
+        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.project, projectIds);
+        if (imagesMap == null) {
+            return;
+        }
+        for (Project project : projects) {
+            project.setImages(imagesMap.get(new Long(project.getProjectId())));
+        }
+    }
+
+    public void setImagesOfBuilders(List<Builder> builders) {
+        if (builders == null || builders.isEmpty()) {
+            return;
+        }
+        List<Long> builderIds = new ArrayList<>();
+        for (Builder builder : builders) {
+            builderIds.add(new Long(builder.getId()));
+        }
+        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.builder, builderIds);
+        if (imagesMap == null) {
+            return;
+        }
+        for (Builder builder : builders) {
+            builder.setImages(imagesMap.get(new Long(builder.getId())));
+        }
+    }
+
+    private Map<Long, List<Image>> getImagesMap(DomainObject domainObject, List<Long> objectIds) {
+        Map<Long, List<Image>> imagesMap = new HashMap<>();
+        List<Image> images = imageService.getImages(domainObject, null, objectIds);
+        if (images == null) {
+            return null;
+        }
+        List<Image> domainImages;
+        for (Image image : images) {
+            domainImages = imagesMap.get(image.getObjectId());
+            if (domainImages == null) {
+                domainImages = new ArrayList<>();
+                imagesMap.put(image.getObjectId(), domainImages);
+            }
+            domainImages.add(image);
+        }
+        return imagesMap;
+    }
 }

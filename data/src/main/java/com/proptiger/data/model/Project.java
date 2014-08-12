@@ -8,10 +8,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -33,6 +36,8 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
 import com.proptiger.data.enums.DataType;
+import com.proptiger.data.enums.DataVersion;
+import com.proptiger.data.enums.Status;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
@@ -43,7 +48,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  */
 @JsonInclude(Include.NON_NULL)
 @Entity
-@Table(name = "cms.resi_project_view")
+@Table(name = "cms.resi_project")
 @JsonFilter("fieldFilter")
 public class Project extends BaseModel {
     private static final long serialVersionUID = -6635164496425100051L;
@@ -57,7 +62,8 @@ public class Project extends BaseModel {
                 "locality",
                 "suburb",
                 "city",
-                "id" }), suburbId(new String[] { "locality", "suburb", "id" }), localityLabel(new String[] {
+                "cityId",
+                "id" }), suburbId(new String[] { "locality", "suburb", "suburbId", "id" }), localityLabel(new String[] {
                 "locality",
                 "label" }), builderImageURL(new String[] { "builder", "imageURL" }), bedrooms(new String[] {
                 "properties",
@@ -105,7 +111,11 @@ public class Project extends BaseModel {
     private int                     projectId;
 
     @Transient
-    private boolean                 authorized        = true;
+    private boolean                 authorized        = false;
+    
+    @Column(name = "VERSION")
+    @Enumerated(EnumType.STRING)
+    private  DataVersion            version;
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
@@ -335,6 +345,9 @@ public class Project extends BaseModel {
 
     @Transient
     private List<Image>             images;
+    
+    @Transient
+    private Image                   mainImage;
 
     @Transient
     @Field(value = "LOCALITY_LABEL_PRIORITY")
@@ -375,7 +388,7 @@ public class Project extends BaseModel {
     private Date                    preLaunchDate;
 
     @FieldMetaInfo(displayName = "YOUTUBE VEDIO", description = "YOUTUBE VEDIO")
-    @Column(name = "YOUTUBE_VEDIO")
+    @Column(name = "YOUTUBE_VIDEO")
     @JsonIgnore
     private String                  youtubeVideo;
 
@@ -432,6 +445,9 @@ public class Project extends BaseModel {
     private Integer                 imagesCount;
 
     @Transient
+    private Map<String, Integer>    imageCountByType;
+
+    @Transient
     @Field("PROJECT_VIDEOS_COUNT")
     private Integer                 videosCount;
 
@@ -459,11 +475,11 @@ public class Project extends BaseModel {
 
     @Transient
     @Field(value = "PROJECT_SAFETY_SCORE")
-    private Double                 safetyScore;
+    private Double                  safetyScore;
 
     @Transient
     @Field(value = "PROJECT_LIVABILITY_SCORE")
-    private Float                 livabilityScore;
+    private Float                   livabilityScore;
 
     public int getProjectId() {
         return projectId;
@@ -1117,4 +1133,27 @@ public class Project extends BaseModel {
         this.livabilityScore = livabilityScore;
     }
 
+    public Map<String, Integer> getImageCountByType() {
+        return imageCountByType;
+    }
+
+    public void setImageCountByType(Map<String, Integer> imageCountByType) {
+        this.imageCountByType = imageCountByType;
+    }
+
+    public Image getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(Image mainImage) {
+        this.mainImage = mainImage;
+    }
+
+    public DataVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(DataVersion version) {
+        this.version = version;
+    }
 }

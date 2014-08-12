@@ -7,10 +7,13 @@ package com.proptiger.data.model;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -21,6 +24,7 @@ import javax.persistence.Transient;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
@@ -30,7 +34,7 @@ import com.proptiger.data.model.image.Image;
  * @author mukand
  */
 @Entity
-@Table(name = "cms.resi_project_view")
+@Table(name = "cms.resi_project")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @Deprecated
@@ -42,6 +46,10 @@ public class ProjectDB extends BaseModel {
     @Column(name = "PROJECT_ID")
     @Id
     private int               projectId;
+    
+    @Column(name = "VERSION")
+    @Enumerated(EnumType.STRING)
+    private  DataVersion            version;
 
     @FieldMetaInfo(displayName = "BUILDER ID", description = "BUILDER ID")
     @Column(name = "BUILDER_ID")
@@ -191,6 +199,9 @@ public class ProjectDB extends BaseModel {
 
     @Transient
     private List<Image>       images;
+    
+    @Transient
+    private Map<String, Integer>      imageCountByType;   
 
     @Transient
     private Double            minPricePerUnitArea;
@@ -571,5 +582,29 @@ public class ProjectDB extends BaseModel {
 
     public void setImageURL(String imageUrl) {
         this.imageURL = imageUrl;
+    }
+    
+    public Map<String, Integer> getImageCountByType() {
+        return imageCountByType;
+    }
+
+    public void setImageCountByType(Map<String, Integer> imageCountByType) {
+        this.imageCountByType = imageCountByType;
+    }
+
+    public DataVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(DataVersion version) {
+        this.version = version;
+    }
+
+    public Builder getBuilder() {
+        return builder;
+    }
+
+    public void setBuilder(Builder builder) {
+        this.builder = builder;
     }
 }

@@ -29,7 +29,8 @@ import com.proptiger.data.util.UtilityClass;
 @JsonInclude(Include.NON_NULL)
 public class Property extends BaseModel {
 
-    private static final long serialVersionUID = -3350129763568409835L;
+
+	private static final long serialVersionUID = -3350129763568409835L;
 
     
     @FieldMetaInfo(displayName = "Property Id", description = "Property Id")

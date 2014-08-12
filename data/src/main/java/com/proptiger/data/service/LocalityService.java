@@ -124,6 +124,7 @@ public class LocalityService {
         return paginatedRes;
     }
 
+    @Cacheable(value = Constants.CacheName.CACHE)
     public PaginatedResponse<List<Locality>> getLocalities(Selector selector) {
         PaginatedResponse<List<Locality>> paginatedRes = new PaginatedResponse<List<Locality>>();
         paginatedRes = localityDao.getLocalities(selector);
@@ -176,6 +177,17 @@ public class LocalityService {
         return localities;
     }
 
+    /**
+     * This methods returns localities if locality id list is given.
+     * @param localityIdList
+     * @return
+     */
+    
+    public PaginatedResponse<List<Locality>> findByLocalityIdList(List<Integer> localityIdList)
+    {
+        return localityDao.findByLocalityIds(localityIdList, null);
+    }
+    
     /**
      * Sorts localities as per the logic that first X ones are either priority
      * based or project count based. Remaining ones are alphabetically sorted.
