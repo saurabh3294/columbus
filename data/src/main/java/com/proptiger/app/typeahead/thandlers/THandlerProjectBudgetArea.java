@@ -11,12 +11,12 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
     /* BUDGET related fields */
     int            minBudget                   = 1000000;
-    int            maxBudget                   = 30000000;
-    int[][]        budgetRanges                = { { 2000000, 5000000 }, { 5000000, 10000000 }, { 10000000, maxBudget } };
+    int            maxBudget                   = 300000000;
+    int[][]        budgetRanges                = { { 4000000, 5000000 }, { 6000000, 8000000 }, { 10000000, 20000000} };
 
-    int[]          budgetPointsBelow           = { 3000000, 5000000 };
-    int[]          budgetPointsAbove           = { 5000000, 10000000 };
-    String         budgetUnit                  = "Rs.";
+    int[]          budgetPointsBelow           = { 5000000, 7000000 };
+    int[]          budgetPointsAbove           = { 10000000, 20000000 };
+    String         budgetUnit                  = "";
     String         genericBudgetFilter         = "filters?budget=%s,%s";
 
     /* template for : <projects between> <Rs.> <5000000> to <6000000> in <noida> */
@@ -29,10 +29,10 @@ public class THandlerProjectBudgetArea extends RootTHandler {
 
     int            minArea                     = 100;
     int            maxArea                     = 10000;
-    int[][]        areaRanges                  = { { 1000, 2000 }, { 2000, 3000 }, { 3000, maxArea } };
-    int[]          areaPointsBelow             = { 1500, 2000 };
-    int[]          areaPointsAbove             = { 1200, 2000 };
-    String         areaUnit                    = "SqFt";
+    int[][]        areaRanges                  = { { 800, 1200 }, { 1400, 1600 }};
+    int[]          areaPointsBelow             = { 800, 1200 };
+    int[]          areaPointsAbove             = { 1400, 2000 };
+    String         areaUnit                    = "sq ft";
     String         genericAreaFilter           = "filters?size=%s,%s";
 
     /* template for : <projects between> <1000> to <2000> <SqFt> in <noida> */
@@ -73,12 +73,19 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForBudgetUnder(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int x : budgetPointsBelow) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericAboveBelowTextBudget, templateText, budgetUnit, x, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericBudgetFilter, minBudget, x));
-            results.add(typeahead);
+            displayText = (String.format(
+                    genericAboveBelowTextBudget,
+                    templateText,
+                    budgetUnit,
+                    convertBudgetAmountInWords(x),
+                    city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(
+                    genericBudgetFilter,
+                    minBudget,
+                    convertBudgetAmountInWords(x)));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -86,12 +93,19 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForBudgetAbove(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int x : budgetPointsAbove) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericAboveBelowTextBudget, templateText, budgetUnit, x, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericBudgetFilter, x, maxBudget));
-            results.add(typeahead);
+            displayText = (String.format(
+                    genericAboveBelowTextBudget,
+                    templateText,
+                    budgetUnit,
+                    convertBudgetAmountInWords(x),
+                    city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(
+                    genericBudgetFilter,
+                    convertBudgetAmountInWords(x),
+                    maxBudget));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -99,12 +113,20 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForBudgetBetween(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int[] x : budgetRanges) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericBetweenTextBudget, templateText, budgetUnit, x[0], x[1], city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
-            results.add(typeahead);
+            displayText = (String.format(
+                    genericBetweenTextBudget,
+                    templateText,
+                    budgetUnit,
+                    convertBudgetAmountInWords(x[0]),
+                    convertBudgetAmountInWords(x[1]),
+                    city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(
+                    genericAreaFilter,
+                    convertBudgetAmountInWords(x[0]),
+                    convertBudgetAmountInWords(x[1])));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -114,12 +136,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForAreaUnder(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int x : areaPointsBelow) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, minArea, x));
-            results.add(typeahead);
+            displayText = (String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, minArea, x));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -127,12 +148,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForAreaAbove(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int x : areaPointsAbove) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, x, maxArea));
-            results.add(typeahead);
+            displayText = (String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, x, maxArea));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -140,12 +160,11 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     private List<Typeahead> getResultsForAreaBetween(String templateText, String city) {
         List<Typeahead> results = new ArrayList<Typeahead>();
 
-        Typeahead typeahead;
+        String displayText, redirectUrl;
         for (int[] x : areaRanges) {
-            typeahead = new Typeahead();
-            typeahead.setDisplayText(String.format(genericBetweenTextArea, templateText, x[0], x[1], areaUnit, city));
-            typeahead.setRedirectUrl(String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
-            results.add(typeahead);
+            displayText = (String.format(genericBetweenTextArea, templateText, x[0], x[1], areaUnit, city));
+            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
+            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
     }
@@ -153,11 +172,26 @@ public class THandlerProjectBudgetArea extends RootTHandler {
     @Override
     public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
         List<Typeahead> results = getResults(query, typeahead, city, 1);
-        if(results.isEmpty()){
+        if (results.isEmpty()) {
             return null;
         }
-        else{
+        else {
             return results.get(0);
+        }
+    }
+
+    private static String convertBudgetAmountInWords(int number) {
+        int lakh = 100000;
+        int crore = 10000000;
+
+        if (number / crore > 0) {
+            return ((number / crore) + " Cr");
+        }
+        else if (number / lakh > 0) {
+            return ((number / lakh) + " Lacs");
+        }
+        else {
+            return String.valueOf(number);
         }
     }
 
