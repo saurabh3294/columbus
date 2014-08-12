@@ -429,7 +429,7 @@ public class SolrResult extends BaseModel {
         project.setName(projectName);
     }
 
-    @Field("UNIT_TYPES")
+    @Field("PROJECT_TYPES")
     public void setUnitTypes(String unitTypes) {
         project.setUnitTypes(unitTypes);
     }
@@ -575,6 +575,7 @@ public class SolrResult extends BaseModel {
         suburb.setCityId(cityId);
         city.setId(cityId);
         locality.setCityId(cityId);
+        
     }
 
     @Field("CITY")
