@@ -34,7 +34,7 @@ import com.proptiger.data.enums.Status;
  * 
  */
 @Entity
-@Table(name = "cms.listings1")
+@Table(name = "cms.listings")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Listing extends BaseModel {

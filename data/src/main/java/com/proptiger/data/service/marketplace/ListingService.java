@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +39,7 @@ import com.proptiger.exception.ResourceNotAvailableException;
  */
 @Service
 public class ListingService {
-
+    private static Logger             logger = LoggerFactory.getLogger(ListingService.class);
     @Autowired
     private PropertyService     propertyService;
 
@@ -67,6 +69,7 @@ public class ListingService {
             created = listingDao.saveAndFlush(listing);
         }
         catch (PersistenceException e) {
+            logger.error("error while creating listing {}",e);
             throw new ResourceAlreadyExistException("Listing already exists");
         }
         if (listing.getCurrentListingPrice() != null) {
@@ -137,6 +140,7 @@ public class ListingService {
             throw new BadRequestException("Invalid floor");
         }
         validateListingCategory(listing);
+        //TODO need to update agent id in updatedBy field
         listing.setUpdatedBy(userId);
         listing.setSellerId(userId);
         listing.setBookingStatusId(null);
@@ -148,12 +152,12 @@ public class ListingService {
      * @param listingCategory
      */
     private void validateListingCategory(Listing listing) {
-        if (listing.getListingCategory() != null && listing.getListingCategory() == ListingCategory.Primary) {
-            throw new BadRequestException("Primary listing category not allowed");
-        }
-        else{
-            //default listing category to be resale
+        if(listing.getListingCategory() != null){
+          //default listing category to be resale
             listing.setListingCategory(ListingCategory.Resale);
+        }
+        else if(listing.getListingCategory() == ListingCategory.Primary) {
+            throw new BadRequestException("Primary listing category not allowed");
         }
     }
 
