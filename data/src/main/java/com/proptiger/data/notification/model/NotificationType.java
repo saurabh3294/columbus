@@ -11,10 +11,16 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.event.model.EventType;
+import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "notification_type")
-public class NotificationType {
+public class NotificationType extends BaseModel{
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 549033224673052141L;
 
     @Column(name = "id")
     @Id
@@ -32,6 +38,9 @@ public class NotificationType {
     @Transient
     @JsonIgnore
     private transient NotificationTypeConfig notificationTypeConfig;
+    
+    @Transient
+    private List<NotificationMedium> notificationMediumList;
 
     public int getId() {
         return id;
@@ -71,6 +80,14 @@ public class NotificationType {
 
     public void setNotificationTypeConfig(NotificationTypeConfig notificationTypeConfig) {
         this.notificationTypeConfig = notificationTypeConfig;
+    }
+
+    public List<NotificationMedium> getNotificationMediumList() {
+        return notificationMediumList;
+    }
+
+    public void setNotificationMediumList(List<NotificationMedium> notificationMediumList) {
+        this.notificationMediumList = notificationMediumList;
     }
 
 }

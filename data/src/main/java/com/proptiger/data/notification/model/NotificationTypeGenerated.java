@@ -18,12 +18,18 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.proptiger.data.event.model.EventGenerated;
+import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 
 @Entity
 @Table(name = "notification_type_generated")
-public class NotificationTypeGenerated {
+public class NotificationTypeGenerated extends BaseModel {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7790921100550942961L;
 
     @Column(name = "id")
     @Id
@@ -45,23 +51,23 @@ public class NotificationTypeGenerated {
 
     @Column(name = "created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date                    createdDate;
+    private Date                    createdAt;
 
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date                    updatedDate;
+    private Date                    updatedAt;
 
     @Transient
     private NotificationTypePayload notificationTypePayload;
 
     @PreUpdate
     public void autoUpdateFields() {
-        this.updatedDate = new Date();
+        this.updatedAt = new Date();
     }
 
     @PrePersist
     public void autoPopulateFields() {
-        this.createdDate = new Date();
+        this.createdAt = new Date();
         this.notificationStatus = NotificationStatus.NotificationTypeGenerated;
         autoUpdateFields();
     }
@@ -98,20 +104,20 @@ public class NotificationTypeGenerated {
         this.notificationType = notificationType;
     }
 
-    public Date getCreatedDate() {
-        return createdDate;
+    public Date getCreatedAt() {
+        return createdAt;
     }
 
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
+    public void setCreatedAt(Date createdDate) {
+        this.createdAt = createdDate;
     }
 
     public Date getUpdatedDate() {
-        return updatedDate;
+        return updatedAt;
     }
 
     public void setUpdatedDate(Date updatedDate) {
-        this.updatedDate = updatedDate;
+        this.updatedAt = updatedDate;
     }
 
     public NotificationStatus getNotificationStatus() {
