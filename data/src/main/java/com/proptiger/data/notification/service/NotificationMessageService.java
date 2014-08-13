@@ -21,13 +21,35 @@ public class NotificationMessageService {
 
     public List<NotificationMessage> getRawNotificationMessages(Pageable pageable) {
         List<NotificationMessage> notificationMessages = notificationMessageDao.findByStatus(
-                NotificationStatus.NotificationMessageGenerated,
+                NotificationStatus.MessageGenerated,
                 pageable);
         if (notificationMessages == null) {
             return new ArrayList<NotificationMessage>();
         }
 
         return notificationMessages;
+    }
+    
+    public Map<Integer, List<NotificationMessage>> groupNotificationMessageByuser(List<NotificationMessage> notificationMessageList){
+        if (notificationMessageList == null) {
+            return new HashMap<Integer, List<NotificationMessage>>();
+        }
+
+        Map<Integer, List<NotificationMessage>> groupNotificationMessageMap = new HashMap<Integer, List<NotificationMessage>>();
+        Integer userId = null;
+        List<NotificationMessage> groupNotifcationMessage = null;
+        for (NotificationMessage notificationMessage : notificationMessageList) {
+            userId = notificationMessage.getForumUser().getUserId();
+            groupNotifcationMessage = groupNotificationMessageMap.get(userId);
+
+            if (groupNotificationMessageMap.get(userId) == null) {
+                groupNotifcationMessage = new ArrayList<NotificationMessage>();
+            }
+            groupNotifcationMessage.add(notificationMessage);
+            groupNotificationMessageMap.put(userId, groupNotifcationMessage);
+        }
+
+        return groupNotificationMessageMap;
     }
 
     public Map<String, List<NotificationMessage>> groupNotificationsByNotificationType(
