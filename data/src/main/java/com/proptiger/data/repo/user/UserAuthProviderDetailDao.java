@@ -12,4 +12,6 @@ import com.proptiger.data.model.user.UserAuthProviderDetail;
 
 public interface UserAuthProviderDetailDao extends PagingAndSortingRepository<UserAuthProviderDetail, Integer> {
     public UserAuthProviderDetail findByProviderIdAndProviderUserId(int providerId, String providerUserId);
+
+    public UserAuthProviderDetail findByUserIdAndProviderId(int userId, int providerId);
 }

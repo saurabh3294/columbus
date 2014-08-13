@@ -18,7 +18,8 @@ public interface ForumUserDao extends JpaRepository<ForumUser, Integer> {
 
     public ForumUser findByEmail(String email);
 
-    public ForumUser findByEmailAndProvider(String email, String provider);
+    @Query("SELECT F FROM ForumUser F WHERE F.email = ?1 and F.password is not null")
+    public ForumUser findRegisteredUserByEmail(String email);
 
     public ForumUser findByUserId(int userId);
 

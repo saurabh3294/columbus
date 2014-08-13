@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.mvc.BaseController;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.util.Constants;
@@ -40,7 +41,9 @@ public class ListingController extends BaseController {
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
-    public APIResponse getListings(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+    public APIResponse getListings(
+            @ModelAttribute FIQLSelector selector,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         List<Listing> listings = listingService.getListings(userInfo.getUserIdentifier());
         return new APIResponse(super.filterFields(listings, null));
     }
@@ -48,12 +51,13 @@ public class ListingController extends BaseController {
     @ResponseBody
     @RequestMapping(value = "{listingId}", method = RequestMethod.GET)
     public APIResponse getListing(
+            @ModelAttribute FIQLSelector selector,
             @PathVariable Integer listingId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         Listing listing = listingService.getListing(userInfo.getUserIdentifier(), listingId);
         return new APIResponse(super.filterFields(listing, null));
     }
-    
+
     @ResponseBody
     @RequestMapping(value = "{listingId}", method = RequestMethod.DELETE)
     public APIResponse deleteListing(

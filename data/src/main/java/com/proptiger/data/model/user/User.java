@@ -16,7 +16,6 @@ import javax.persistence.Table;
 
 import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.util.UtilityClass;
 
 /**
  * 
@@ -54,13 +53,14 @@ public class User extends BaseModel {
     private List<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
-    private Date                         createdAt = new Date();
+    private Date                         createdAt        = new Date();
 
     @Column(name = "updated_at")
     private Date                         updatedAt = new Date();
 
     @Column(name = "email")
     private String email;
+
 
     public int getId() {
         return id;
@@ -161,30 +161,34 @@ public class User extends BaseModel {
         return false;
     }
 
-    public Integer getMaxContactNumberPriority() {
-        Integer priority = null;
+    public UserContactNumber getContactByContactNumber(String contactNumber) {
+        UserContactNumber matchedContactNumber = null;
         if (contactNumbers != null) {
-            for (UserContactNumber contactNumber : contactNumbers) {
-                priority = UtilityClass.max(priority, contactNumber.getPriority());
+            for (UserContactNumber number : this.contactNumbers) {
+                if (number.getContactNumber().equals(contactNumber)) {
+                    matchedContactNumber = number;
+                }
             }
         }
-        return priority;
+        return matchedContactNumber;
     }
-    
+
     @PrePersist
-    public void prePersist(){
+    public void prePersist() {
         this.createdAt = new Date();
         this.updatedAt = this.createdAt;
     }
+
     @PreUpdate
-    public void preUpdate(){
+    public void preUpdate() {
         this.updatedAt = new Date();
     }
-    
+
     public void copyFieldsFromRegisterToUser(Register register) {
         this.setFullName(register.getUserName());
         this.setPassword(register.getPassword());
         this.setCountryId(register.getCountryId());
         this.setRegistered(register.getRegisterMe());
+        this.setEmail(register.getEmail());
     }
 }
