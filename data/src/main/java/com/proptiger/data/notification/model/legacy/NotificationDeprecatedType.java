@@ -13,16 +13,16 @@ import java.util.List;
  */
 @Deprecated
 public enum NotificationDeprecatedType {
-    GOAL_PRICE_MET(new NotificationMedium[]{NotificationMedium.EMAIL, NotificationMedium.MOBILE_PUSH}, DispatchPolicy.MONTHLY),
-    PRICE_APPRECIATED(new NotificationMedium[]{NotificationMedium.EMAIL, NotificationMedium.WEBSITE}, DispatchPolicy.MONTHLY),
-    CONSTRUCTION_IMAGES_UPLOADED(new NotificationMedium[]{NotificationMedium.EMAIL, NotificationMedium.MOBILE_PUSH}, DispatchPolicy.MONTHLY),
-    NEWS_ADDED(new NotificationMedium[]{NotificationMedium.EMAIL}, DispatchPolicy.REAL_TIME),
-    DEMAND_RAISED(new NotificationMedium[]{NotificationMedium.EMAIL}, DispatchPolicy.DAILY);
+    GOAL_PRICE_MET(new NotificationMediumOld[]{NotificationMediumOld.EMAIL, NotificationMediumOld.MOBILE_PUSH}, DispatchPolicyOld.MONTHLY),
+    PRICE_APPRECIATED(new NotificationMediumOld[]{NotificationMediumOld.EMAIL, NotificationMediumOld.WEBSITE}, DispatchPolicyOld.MONTHLY),
+    CONSTRUCTION_IMAGES_UPLOADED(new NotificationMediumOld[]{NotificationMediumOld.EMAIL, NotificationMediumOld.MOBILE_PUSH}, DispatchPolicyOld.MONTHLY),
+    NEWS_ADDED(new NotificationMediumOld[]{NotificationMediumOld.EMAIL}, DispatchPolicyOld.REAL_TIME),
+    DEMAND_RAISED(new NotificationMediumOld[]{NotificationMediumOld.EMAIL}, DispatchPolicyOld.DAILY);
 
-    private List<NotificationMedium> defaultNotificationMedia;
-    private DispatchPolicy defaultDispatchPolicy;
+    private List<NotificationMediumOld> defaultNotificationMedia;
+    private DispatchPolicyOld defaultDispatchPolicy;
 
-    private NotificationDeprecatedType(NotificationMedium[] notificationMedia, DispatchPolicy dispatchPolicy) {
+    private NotificationDeprecatedType(NotificationMediumOld[] notificationMedia, DispatchPolicyOld dispatchPolicy) {
         defaultNotificationMedia = Arrays.asList(notificationMedia);
         defaultDispatchPolicy = dispatchPolicy;
     }

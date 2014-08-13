@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.generator.NotificationTypeGenerator;
 
 /**
@@ -21,6 +22,9 @@ public class NotificationInitiator {
 
     @Autowired
     private NotificationTypeGenerator notificationTypeGenerator;
+    
+    @Autowired
+    private NotificationGenerator notificationGenerator;
 
     /**
      * Generates the Notification Types from events at regular intervals
@@ -35,6 +39,10 @@ public class NotificationInitiator {
         logger.info("NotificationTypeGenerator: Generating Notification Types.");
         Integer numberOfNotificationTypes = notificationTypeGenerator.generateNotificationTypes();
         logger.info("NotificationTypeGenerator: Generated " + numberOfNotificationTypes + " NotificationTypes.");
+    }
+    
+    public void notificationGenerator(){
+        Integer numberOfNotifications = notificationGenerator.generateNotifications();
     }
 
 }
