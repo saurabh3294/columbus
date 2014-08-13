@@ -17,12 +17,12 @@ public interface UserDao extends JpaRepository<User, Integer>, UserCustomDao {
     @Query("SELECT U FROM User U join U.userAuthProviderDetails APD WHERE " + " APD.providerId = ?1 AND APD.providerUserId = ?2")
     public User findByProviderIdAndProviderUserId(int providerId, String providerUserId);
 
-    @Query("SELECT U FROM User U join U.contactNumbers CN Left join U.emails E WHERE " + " CN.contactNumber = ?1 AND E.email is null")
+    @Query("SELECT U FROM User U join U.contactNumbers CN  WHERE " + " CN.contactNumber = ?1 AND U.email is null")
     public User findByContactNumberWithoutEmail(String contactNumber);
 
-    @Query("select U from User U join U.contactNumbers CN join U.emails E where (E.email = ?1 or CN.contactNumber = ?2)")
+    @Query("select U from User U join U.contactNumbers CN where (U.email = ?1 or CN.contactNumber = ?2)")
     public User findByPrimaryEmailOrPhone(String email,String contactNumber);
     
-    @Query("select U from User U join U.contactNumbers CN where (CN.contactNumber = ?1)")
-    public User findByPhone(String contactNumber);
+    @Query("select U from User U join U.contactNumbers CN where (CN.contactNumber = ?1 and U.id = ?2)")
+    public User findByPhone(String contactNumber, int userId);
 }
