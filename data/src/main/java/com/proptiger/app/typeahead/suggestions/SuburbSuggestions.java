@@ -30,6 +30,7 @@ public class SuburbSuggestions {
             obj.setDisplayText(String.format(template[0], name));
             obj.setRedirectUrl(cityName.toLowerCase() + "/" + String.format(template[1], makeSuburbRedirectUrl(redirectUrl)));
             obj.setId(templateId + "-" + template[2]);
+            obj.setType(obj.getId());
             suggestions.add(obj);
         }
         Collections.shuffle(suggestions);

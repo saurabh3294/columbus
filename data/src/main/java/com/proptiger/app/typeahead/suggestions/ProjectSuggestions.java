@@ -53,6 +53,7 @@ public class ProjectSuggestions {
             obj.setDisplayText(mapEntry.getKey() + " BHK in " + name);
             obj.setRedirectUrl(mapEntry.getValue());
             obj.setId(templateId);
+            obj.setType(obj.getId());
             suggestions.add(obj);
         }
 
