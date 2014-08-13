@@ -15,6 +15,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.proptiger.data.event.legacy.Event;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
 @Entity

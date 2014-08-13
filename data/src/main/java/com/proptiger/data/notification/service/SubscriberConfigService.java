@@ -63,6 +63,16 @@ public class SubscriberConfigService {
         }
         return Integer.valueOf(configValue);
     }
+    
+    public Integer getMaxActiveNotificationMessageCount() {
+        SubscriberName subscriberName = Subscriber.SubscriberName.Notification;
+        ConfigName configName = SubscriberConfig.ConfigName.MaxActiveNotificationMessageCount;
+        String configValue = subscriberConfigMap.get(generateKey(subscriberName, configName));
+        if (configValue == null) {
+            return Integer.MAX_VALUE;
+        }
+        return Integer.valueOf(configValue);
+    }
 
     public Date getLastEventDateReadByNotification() {
         Date lastEventDate = subscriberMap.get(Subscriber.SubscriberName.Notification).getLastEventDate();
