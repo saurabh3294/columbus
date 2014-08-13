@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +71,10 @@ public class ListingService {
         }
         catch (PersistenceException e) {
             logger.error("error while creating listing {}",e);
-            throw new ResourceAlreadyExistException("Listing already exists");
+            if(e.getCause() instanceof ConstraintViolationException){
+                throw new ResourceAlreadyExistException("Listing already exists");
+            }
+            throw new ResourceAlreadyExistException("Listing could not be created");
         }
         if (listing.getCurrentListingPrice() != null) {
             ListingPrice listingPriceCreated = listingPriceService.createListingPrice(
