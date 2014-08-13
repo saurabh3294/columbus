@@ -5,6 +5,8 @@ import java.util.Date;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import com.proptiger.data.event.model.payload.EventTypePayload;
+
 public class DefaultNotificationTypePayload extends NotificationTypePayload {
 
     /**
@@ -12,20 +14,20 @@ public class DefaultNotificationTypePayload extends NotificationTypePayload {
      */
     private static final long serialVersionUID = 8340555533239509545L;
 
-    private String            transactionKeyName;
+    private String            transactionIdName;
     private Object            transactionId;
-    
-    private String            transactionDateKeyName;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date              transactionDateKeyValue;
 
-    public String getTransactionKeyName() {
-        return transactionKeyName;
+    private String            transactionDateName;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date              transactionDate;
+
+    public String getTransactionIdName() {
+        return transactionIdName;
     }
 
-    public void setTransactionKeyName(String transactionKeyName) {
-        this.transactionKeyName = transactionKeyName;
+    public void setTransactionIdName(String transactionIdName) {
+        this.transactionIdName = transactionIdName;
     }
 
     public Object getTransactionId() {
@@ -36,25 +38,28 @@ public class DefaultNotificationTypePayload extends NotificationTypePayload {
         this.transactionId = transactionId;
     }
 
-    public String getTransactionDateKeyName() {
-        return transactionDateKeyName;
+    public String getTransactionDateName() {
+        return transactionDateName;
     }
 
-    public void setTransactionDateKeyName(String transactionDateKeyName) {
-        this.transactionDateKeyName = transactionDateKeyName;
+    public void setTransactionDateName(String transactionDateName) {
+        this.transactionDateName = transactionDateName;
     }
 
-    public Date getTransactionDateKeyValue() {
-        return transactionDateKeyValue;
+    public Date getTransactionDate() {
+        return transactionDate;
     }
 
-    public void setTransactionDateKeyValue(Date transactionDateKeyValue) {
-        this.transactionDateKeyValue = transactionDateKeyValue;
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
     }
 
     @Override
-    public void populatePayloadValues() {
-        // TODO Auto-generated method stub
+    public void populatePayloadValues(EventTypePayload eventTypePayload) {
+        this.transactionIdName = eventTypePayload.getTransactionKeyName();
+        this.transactionId = eventTypePayload.getTransactionId();
+        this.transactionDateName = eventTypePayload.getTransactionDateKeyName();
+        this.transactionDate = eventTypePayload.getTransactionDateKeyValue();
 
     }
 

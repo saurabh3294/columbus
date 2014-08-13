@@ -3,21 +3,21 @@ package com.proptiger.data.notification.model.payload;
 import java.io.Serializable;
 import java.util.List;
 
-import com.proptiger.data.event.model.payload.EventTypeUpdateHistory;
+import com.proptiger.data.event.model.payload.EventTypePayload;
 
 public abstract class NotificationTypePayload implements Serializable {
 
     /**
      * 
      */
-    private static final long            serialVersionUID = -8078901353675223123L;
+    private static final long                     serialVersionUID = -8078901353675223123L;
 
-    private String                       primaryKeyName;
-    private Object                       primaryKeyValue;
+    private String                                primaryKeyName;
+    private Object                                primaryKeyValue;
 
-    private List<EventTypeUpdateHistory> eventTypeUpdateHistories;
+    private List<NotificationTypeUpdateHistory> notificationTypeUpdateHistories;
 
-    public abstract void populatePayloadValues();
+    public abstract void populatePayloadValues(EventTypePayload eventTypePayload);
 
     public String getPrimaryKeyName() {
         return primaryKeyName;
@@ -35,12 +35,12 @@ public abstract class NotificationTypePayload implements Serializable {
         this.primaryKeyValue = primaryKeyValue;
     }
 
-    public List<EventTypeUpdateHistory> getEventTypeUpdateHistories() {
-        return eventTypeUpdateHistories;
+    public List<NotificationTypeUpdateHistory> getNotificationTypeUpdateHistories() {
+        return notificationTypeUpdateHistories;
     }
 
-    public void setEventTypeUpdateHistories(List<EventTypeUpdateHistory> eventTypeUpdateHistories) {
-        this.eventTypeUpdateHistories = eventTypeUpdateHistories;
+    public void setNotificationTypeUpdateHistories(List<NotificationTypeUpdateHistory> notificationTypeUpdateHistories) {
+        this.notificationTypeUpdateHistories = notificationTypeUpdateHistories;
     }
 
 }

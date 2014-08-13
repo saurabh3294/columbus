@@ -29,7 +29,7 @@ public class NotificationTypeGenerated extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = -7790921100550942961L;
+    private static final long       serialVersionUID = -7790921100550942961L;
 
     @Column(name = "id")
     @Id
