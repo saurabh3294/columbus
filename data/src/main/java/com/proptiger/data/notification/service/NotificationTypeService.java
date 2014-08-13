@@ -1,5 +1,7 @@
 package com.proptiger.data.notification.service;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeConfig;
+import com.proptiger.data.notification.repo.NotificationTypeDao;
 
 @Service
 public class NotificationTypeService {
@@ -15,6 +18,9 @@ public class NotificationTypeService {
 
     @Autowired
     private ApplicationContext applicationContext;
+    
+    @Autowired
+    private NotificationTypeDao notificationTypeDao;
 
     public NotificationType populateNotificationTypeConfig(NotificationType notificationType) {
 
@@ -50,5 +56,9 @@ public class NotificationTypeService {
         }
 
         return notificationTypeConfig;
+    }
+    
+    public Iterable<NotificationType> findAllNotificationTypes(){
+        return notificationTypeDao.findAll();
     }
 }
