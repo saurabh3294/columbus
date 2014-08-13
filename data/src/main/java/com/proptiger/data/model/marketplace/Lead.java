@@ -12,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -22,7 +24,7 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.user.User;
 
 /**
- * @author mandeep
+ * @author Anubhav
  * 
  */
 @JsonInclude(Include.NON_NULL)
@@ -74,10 +76,10 @@ public class Lead extends BaseModel {
     private boolean           irritatedClient = false;
 
     @Column(name = "updated_at")
-    private Date              updatedAt        = new Date();
+    private Date              updatedAt;
 
     @Column(name = "created_at")
-    private Date              createdAt        = new Date();
+    private Date              createdAt;
 
     @Column(name = "updated_by")
     private Integer           updatedBy;
@@ -199,6 +201,13 @@ public class Lead extends BaseModel {
         return updatedAt;
     }
 
+    
+    @PreUpdate
+    public void setUpdatedAtBeforeDBQuery()
+    {
+        this.updatedAt = new Date();   
+    }    
+    
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
@@ -207,6 +216,11 @@ public class Lead extends BaseModel {
         return createdAt;
     }
 
+    @PrePersist
+    public void setCreatedAt() {
+        this.createdAt = new Date();
+    }
+    
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }

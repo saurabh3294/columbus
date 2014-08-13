@@ -5,17 +5,16 @@ import java.util.List;
 import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.marketplace.Lead;
+import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.user.User;
-import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.model.user.UserEmail;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.marketplace.LeadDao;
+import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
-import com.proptiger.data.repo.marketplace.LeadSubmissionsDao;
-import com.proptiger.data.repo.marketplace.leadOfferDao;
 import com.proptiger.data.service.user.UserService;
 
 /**
@@ -35,8 +34,12 @@ public class LeadService {
     private LeadRequirementsDao leadRequirementsDao;
 
     @Autowired
-    private leadOfferDao        leadOfferDao;
+    private LeadOfferDao        leadOfferDao;
 
+    private int dead = 7;
+    private int closedLost = 8;
+    private int closedWon = 9;
+    
     public List<Lead> getLeads(FIQLSelector fiqlSelector) {
         return null;
     }
@@ -56,33 +59,28 @@ public class LeadService {
      * @return lead
      * 
      */
-
+    @Transactional
     public Lead createLead(Lead lead) {
-
-        Lead leadDump = (Lead) SerializationUtils.clone(lead);
-
-        UserEmail userEmail = lead.getClient().getEmails().get(0);
-        UserContactNumber userContactNumber = lead.getClient().getContactNumbers().get(0);
-
         User user = userService.createUser(lead.getClient());
         lead.setClient(user);
-
-        if (getExistingLead(user.getId(), lead.getCityId()) != null) {
-            lead = patchLead(lead);
+        lead.setClientId(user.getId());
+        Lead leadOriginal = (Lead) SerializationUtils.clone(lead);
+        Lead existingLead = getExistingLead(user.getId(), lead.getCityId());
+        if (existingLead != null) {
+            lead.setId(existingLead.getId());
+            patchLead(existingLead, lead);
         }
         else {
-            lead.setClient(user);
             lead.setId(leadDao.save(lead).getId());
             LeadRequirement leadRequirement = lead.getRequirements().get(0);
-            
             if (!isExactReplica(leadRequirement)) {
                 leadRequirement.setLeadId(lead.getId());
                 leadRequirementsDao.save(leadRequirement);
             }
         }
         int leadId = lead.getId();
-        leadDump.setMergedLeadId(leadId);
-        Lead dump = createDump(leadDump);
+        leadOriginal.setMergedLeadId(leadId);
+        createDump(leadOriginal);
         return lead;
     }
 
@@ -92,17 +90,11 @@ public class LeadService {
      * @return put the lead and lead requirements directly into db
      */
 
-    private Lead createDump(Lead lead) {
-
-        lead.setClient(userService.createUser(lead.getClient()));
-        lead.setClientId(lead.getClient().getId());
+    private void createDump(Lead lead) {
         lead.setId(leadDao.save(lead).getId());
-
         LeadRequirement leadRequirement = lead.getRequirements().get(0);
-
         leadRequirement.setLeadId(lead.getId());
         leadRequirementsDao.save(leadRequirement);
-        return lead;
     }
 
     /**
@@ -113,16 +105,13 @@ public class LeadService {
      * @return boolean
      */
 
-    public boolean isExactReplica(LeadRequirement leadRequirement) {
+    private boolean isExactReplica(LeadRequirement leadRequirement) {
         List<LeadRequirement> leadRequirementList = leadRequirementsDao.checkReplica(
                 leadRequirement.getBedroom(),
                 leadRequirement.getLocalityId(),
                 leadRequirement.getProjectId());
-        if (leadRequirementList.size() > 0) {
-            return true;
-        }
-        else
-            return false;
+
+        return !leadRequirementList.isEmpty();
     }
 
     /**
@@ -137,31 +126,19 @@ public class LeadService {
      * 
      * @return
      */
-    private Lead patchLead(Lead lead) {
-
-        UserEmail userEmail = lead.getClient().getEmails().get(0);
-        UserContactNumber userContactNumber = lead.getClient().getContactNumbers().get(0);
-
-        Lead tmpLead = getExistingLead(lead.getClient().getId(), lead.getCityId());
-        lead.setId(tmpLead.getId());
-
-        LeadRequirement leadRequirement = lead.getRequirements().get(0);
-
-        if (!isExactReplica(leadRequirement)) {
-            leadRequirement.setLeadId(tmpLead.getId());
-            leadRequirementsDao.saveAndFlush(leadRequirement);
+    private void patchLead(Lead existingLead, Lead lead) {
+        for (LeadRequirement leadRequirement : lead.getRequirements()) {
+            if (!isExactReplica(leadRequirement)) {
+                leadRequirement.setLeadId(existingLead.getId());
+                leadRequirementsDao.saveAndFlush(leadRequirement);
+            }
         }
 
-        List<Lead> dataLeads = leadDao.findByClientId(lead.getClientId());
-        Lead data = dataLeads.get(0);
-         lead.setMinSize(Math.min(data.getMinSize(), lead.getMinSize()));
-         lead.setMaxSize(Math.max(data.getMaxSize(), lead.getMaxSize()));
-         lead.setMinBudget(Math.min(data.getMinBudget(), lead.getMinBudget()));
-         lead.setMaxBudget(Math.max(data.getMaxBudget(), lead.getMaxBudget()));
-
-        leadDao.save(lead);
-        userService.patchUser(lead.getClient());
-        return lead;
+        existingLead.setMinSize(Math.min(existingLead.getMinSize(), lead.getMinSize()));
+        existingLead.setMaxSize(Math.max(existingLead.getMaxSize(), lead.getMaxSize()));
+        existingLead.setMinBudget(Math.min(existingLead.getMinBudget(), lead.getMinBudget()));
+        existingLead.setMaxBudget(Math.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
+        leadDao.save(existingLead);
     }
 
     /**
@@ -171,26 +148,49 @@ public class LeadService {
      * @param cityId
      *            gets user according to email or contact number and city id. it
      *            checks weather in that city there exists a lead for which
-     *            there exists entry in lead offers in which status_id is not
-     *            7,8,9 which is then mapped with master_source . after that it
-     *            checks weather there exists a lead which is not broadcasted is
-     *            present otherwise it returns false
+     *            there exists entry in lead offers in which status_id is not in
+     *            deal closed,closed lost,dead which is then mapped with
+     *            master_source . after that it checks weather there exists a
+     *            lead which is not broadcasted is present otherwise it returns
+     *            false
      * @return
      */
+    private Lead getExistingLead(int userId, int cityId) {
+        List<Lead> leads = leadDao.getLeads(cityId, userId);
+        Lead existingLead = null;
 
-    public Lead getExistingLead(int userId, int cityId) {
+        if (!leads.isEmpty()) {
+            Lead lead = leads.get(0);
+            List<LeadOffer> leadOffers = leadOfferDao.getLeadOffers(lead.getId());
 
-            List<Lead> existingLeadwithStatusNotInDealClosedOrClosedLostOrDead = leadDao.getOpenLeadOffers(cityId, userId);
-            List<Lead> existingLeadOverAll = leadDao.checkDuplicateLead(cityId, userId);
-            if (existingLeadwithStatusNotInDealClosedOrClosedLostOrDead.size() > 0) {
-                return existingLeadwithStatusNotInDealClosedOrClosedLostOrDead.get(0);
-            }
-            else if (existingLeadOverAll.size() > 0 && leadDao.getLeadOffers(cityId, userId).size() == 0) {
-                return existingLeadOverAll.get(0);
+            if (leadOffers.isEmpty()) {
+                existingLead = lead;
             }
             else {
-                return null;
+                for (LeadOffer leadOffer : leadOffers) {
+                    int statusId = leadOffer.getStatusId();
+                    if (statusId != dead && statusId != closedLost && statusId != closedWon) {
+                        existingLead = lead;
+                        break;
+                    }
+                }
             }
+        }
+
+        return existingLead;
+    }
+
+    /**
+     * 
+     * @param email
+     * @param contactNumber
+     *        checks weather there exist a lead for some specific user with email or contact number     *         
+     * @param cityId
+     * @return
+     */
+    public boolean exists(String email, String contactNumber, int cityId) {
+        User user = userService.getUser(email, contactNumber);
+        return (user != null) && (getExistingLead(user.getId(), cityId) != null);
     }
 
 }

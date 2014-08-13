@@ -161,30 +161,6 @@ public class UserService {
     @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
-//    /**
-//     * 
-//     * @param user
-//     * @param clientId
-//     * @param priority
-//     *            merges email and phone number in user_emails table and
-//     *            user_contact_numbers also set clientid and priority
-//     * @return
-//     */
-    private void patchUser(User user) {
-        
-    }
-
-    /**
-     * 
-     * @param email
-     * @param contactNumber
-     *            get user on the basis of email or contact_numbers
-     * @return
-     */
-    public User getUser(String email, String contactNumber) {
-        return userDao.findByPrimaryEmailOrPhone(email, contactNumber);
-    }
-
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
             return true;
@@ -192,7 +168,6 @@ public class UserService {
 
         return false;
     }
-
 
     /**
      * Returns details forum user object for a user including all his dashboards
@@ -742,17 +717,60 @@ public class UserService {
     }
 
     public User createUser(User user) {
-        String contactNumber = user.getContactNumbers().get(0).getContactNumber();
         String email = user.getEmail();
-
         User userInDB = userDao.findByEmail(email);
+
         if (userInDB != null) {
+            user.setId(userInDB.getId());
             patchUser(user);
         }
         else {
             userDao.saveAndFlush(user);
         }
+
         return user;
     }
+    /**
+    *
+    * @param user
+    * @param clientId
+    * @param priority
+    * merges email and phone number in user_emails table and
+    * user_contact_numbers also set clientid and priority
+    * @return
+    */
+   private void patchUser(User user) {
+       List<UserContactNumber> contactNumbers = user.getContactNumbers();
 
+       if (contactNumbers.isEmpty()) {
+           return;
+       }
+
+       UserContactNumber userContactNumber = contactNumbers.get(0);
+       String contactNumber = userContactNumber.getContactNumber();
+
+       if (contactNumber != null && !contactNumber.isEmpty()) {
+           userContactNumber.setUserId(user.getId());
+           userContactNumber.setCreatedBy(user.getId());
+
+           User userByPhone = userDao.findByPhone(contactNumber,user.getId());
+           if (userByPhone == null) {
+               contactNumberDao.saveAndFlush(userContactNumber);
+           }
+           else {
+               user.setId(userContactNumber.getUserId());
+           }
+       }
+   }
+
+   /**
+    * 
+    * @param email
+    * @param contactNumber
+    *            get user on the basis of email or contact_numbers
+    * @return
+    */
+   public User getUser(String email, String contactNumber) {
+       return userDao.findByPrimaryEmailOrPhone(email, contactNumber);
+   }
 }
