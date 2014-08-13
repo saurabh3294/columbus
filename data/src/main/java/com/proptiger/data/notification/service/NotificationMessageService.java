@@ -16,8 +16,14 @@ import com.proptiger.data.notification.repo.NotificationMessageDao;
 
 @Service
 public class NotificationMessageService {
+    
     @Autowired
     private NotificationMessageDao notificationMessageDao;
+
+    public Integer getActiveNotificationMessageCount() {
+        return notificationMessageDao
+                .getNotificationMessageCountByNotificationStatus(NotificationStatus.MessageGenerated);
+    }
 
     public List<NotificationMessage> getRawNotificationMessages(Pageable pageable) {
         List<NotificationMessage> notificationMessages = notificationMessageDao.findByStatus(
@@ -77,8 +83,8 @@ public class NotificationMessageService {
 
         return groupNotificationMessageMap;
     }
-    
-    public NotificationMessage createNotificationMessage(){
+
+    public NotificationMessage createNotificationMessage() {
         return new NotificationMessage();
     }
 }

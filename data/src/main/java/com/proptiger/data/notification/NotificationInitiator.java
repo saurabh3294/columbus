@@ -22,13 +22,13 @@ public class NotificationInitiator {
     private static Logger                logger = LoggerFactory.getLogger(NotificationInitiator.class);
 
     @Autowired
-    private NotificationTypeGenerator notificationTypeGenerator;
-    
-    @Autowired
-    private NotificationGenerator notificationGenerator;
+    private NotificationTypeGenerator    notificationTypeGenerator;
 
     @Autowired
     private NotificationMessageGenerator notificationMessageGenerator;
+
+    @Autowired
+    private NotificationGenerator        notificationGenerator;
 
     /**
      * Generates the Notification Types from events at regular intervals
@@ -43,10 +43,6 @@ public class NotificationInitiator {
         logger.info("NotificationTypeGenerator: Generating Notification Types.");
         Integer numberOfNotificationTypes = notificationTypeGenerator.generateNotificationTypes();
         logger.info("NotificationTypeGenerator: Generated " + numberOfNotificationTypes + " NotificationTypes.");
-    }
-    
-    public void notificationGenerator(){
-        Integer numberOfNotifications = notificationGenerator.generateNotifications();
     }
 
     /**
@@ -64,6 +60,14 @@ public class NotificationInitiator {
         Integer numberOfNotificationMessages = notificationMessageGenerator.generateNotificationMessages();
         logger.info("NotificationMessageGenerator: Generated " + numberOfNotificationMessages
                 + " NotificationMessages.");
+    }
+
+    /**
+     * Generates the NotificationGenerated from NotificationMessages at regular
+     * intervals
+     */
+    public void notificationGenerator() {
+        Integer numberOfNotifications = notificationGenerator.generateNotifications();
     }
 
 }

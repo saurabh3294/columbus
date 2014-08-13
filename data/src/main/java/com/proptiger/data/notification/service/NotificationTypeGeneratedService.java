@@ -17,7 +17,7 @@ import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 
 @Service
-public class NotificationTypeGenerationService {
+public class NotificationTypeGeneratedService {
 
     @Autowired
     private NotificationTypeGeneratedDao              notificationTypeGeneratedDao;
@@ -33,6 +33,11 @@ public class NotificationTypeGenerationService {
     public Integer getActiveNotificationTypeCount() {
         return notificationTypeGeneratedDao
                 .getNotificationTypeCountByNotificationStatus(NotificationStatus.TypeGenerated);
+    }
+
+    public List<NotificationTypeGenerated> getActiveNotificationTypeGenerated() {
+        return notificationTypeGeneratedDao
+                .findByNotificationStatusOrderByCreatedAtAsc(NotificationStatus.TypeGenerated);
     }
 
     public List<NotificationTypeGenerated> getNotificationTypesForEventGenerated(EventGenerated eventGenerated) {
