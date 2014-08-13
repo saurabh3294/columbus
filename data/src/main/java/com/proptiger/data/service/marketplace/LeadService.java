@@ -15,6 +15,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
+import com.proptiger.data.service.LeadOfferStatus;
 import com.proptiger.data.service.user.UserService;
 
 /**
@@ -36,9 +37,7 @@ public class LeadService {
     @Autowired
     private LeadOfferDao        leadOfferDao;
 
-    private int dead = 7;
-    private int closedLost = 8;
-    private int closedWon = 9;
+    private LeadOfferStatus status;
     
     public List<Lead> getLeads(FIQLSelector fiqlSelector) {
         return null;
@@ -169,7 +168,10 @@ public class LeadService {
             else {
                 for (LeadOffer leadOffer : leadOffers) {
                     int statusId = leadOffer.getStatusId();
-                    if (statusId != dead && statusId != closedLost && statusId != closedWon) {
+                    if (statusId != LeadOfferStatus.Dead.getId() && 
+                        statusId != LeadOfferStatus.ClosedLost.getId() && 
+                        statusId != LeadOfferStatus.ClosedWon.getId())
+                    {
                         existingLead = lead;
                         break;
                     }
