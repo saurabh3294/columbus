@@ -326,13 +326,7 @@ public class SolrResult extends BaseModel {
 
     @Field("BUILDER_URL")
     private String            builderUrl;
-    
-    @Field("BUILDER_WEBSITE")
-    private String            builderWebsite;
-    
-    @Field("BUILDER_ADDRESS")
-    private String            builderAddress;
-    
+       
     @Field("BUILDER_LOCALITY_COUNT")
     private Integer           builderLocalityCount;
     
@@ -527,11 +521,6 @@ public class SolrResult extends BaseModel {
     @Field("MAXSIZE")
     public void setMaxSize(Double maxSize) {
         project.setMaxSize(maxSize);
-    }
-
-    @Field("PROJECT_STATUS")
-    public void setStatus(String status) {
-        project.setProjectStatus(status);
     }
 
     @Field("IS_RESALE")
@@ -1074,16 +1063,6 @@ public class SolrResult extends BaseModel {
     @Field("BUILDER_URL")
     public void setBuilderUrl(String builderUrl) {
         builder.setUrl(builderUrl);
-    }
-    
-    @Field("BUILDER_WEBSITE")
-    public void setBuilderWebsite(String builderWebsite) {
-        builder.setBuilderWebsite(builderWebsite);
-    }
-    
-    @Field("BUILDER_ADDRESS")
-    public void setBuilderAddress(String builderAddress) {
-        builder.setBuilderAddress(builderAddress);
     }
     
     @Field("BUILDER_LOCALITY_COUNT")
