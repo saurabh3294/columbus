@@ -24,14 +24,16 @@ public class NLPSuggestionHandler {
 
     @Autowired
     private BuilderService  builderService;
-    
+
     @Autowired
     private TypeaheadDao    typeaheadDao;
-    
-    private TemplateMap     templateMap = new TemplateMap();
 
-    private Logger          logger      = LoggerFactory.getLogger(NLPSuggestionHandler.class);
-    
+    private TemplateMap     templateMap   = new TemplateMap();
+
+    private Logger          logger        = LoggerFactory.getLogger(NLPSuggestionHandler.class);
+
+    private float           scoreTheshold = 5.0f;
+
     public List<Typeahead> getNlpTemplateBasedResults(String query, String city, int rows) {
 
         List<String> queryFilters = new ArrayList<String>();
@@ -48,11 +50,15 @@ public class NLPSuggestionHandler {
 
         /* Get All results for first template. */
         RootTHandler thandler = templateMap.getTemplate(templateHits.get(0).getTemplateText().trim());
-        
+
         List<Typeahead> resultsFirstHandler = new ArrayList<Typeahead>();
         if (thandler != null) {
             setTemplateServices(thandler);
             resultsFirstHandler = thandler.getResults(query, templateHits.get(0), city, rows);
+        }
+
+        if (templateHits.get(0).getScore() > scoreTheshold) {
+            return resultsFirstHandler;
         }
 
         /*

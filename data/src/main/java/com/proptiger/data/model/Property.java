@@ -64,6 +64,7 @@ public class Property extends BaseModel {
     @Column(name = "OPTION_NAME")
     private String            unitName;
 
+    @Transient
     @FieldMetaInfo(
             dataType = DataType.CURRENCY,
             displayName = "Price per unit area",
