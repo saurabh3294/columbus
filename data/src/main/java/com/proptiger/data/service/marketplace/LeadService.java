@@ -37,9 +37,7 @@ public class LeadService {
     @Autowired
     private LeadOfferDao        leadOfferDao;
 
-    private LeadOfferStatus status;
-    
-    public List<Lead> getLeads(FIQLSelector fiqlSelector) {
+    public List<Lead> getLeads(FIQLSelector fiqlSelector, int integer) {
         return null;
     }
 
