@@ -12,7 +12,7 @@ import com.proptiger.data.event.repo.EventTypeDao;
 
 @Service
 public class EventTypeService {
-    private static Logger         logger = LoggerFactory.getLogger(EventTypeService.class);
+    private static Logger      logger = LoggerFactory.getLogger(EventTypeService.class);
 
     @Autowired
     private EventTypeDao       eventTypeDao;
@@ -33,12 +33,10 @@ public class EventTypeService {
             configName = eventType.getOverwriteConfigName();
         }
         EventTypeConfig savedEventTypeConfig = EventTypeConfig.eventTypeConfigMap.get(configName);
-        // TODO to handle the case when there is no mapping of name in the
-        // config.
-        // Code execution should not be stopped as a proper logging of error has
-        // to be done.
         if (savedEventTypeConfig == null) {
-            logger.error("Event ID "+eventType.getId()+" Having no mapping of Event Type Config");
+            logger.error("EventType ID " + eventType.getId()
+                    + " do not have mapping of Event Type Config. Using Defaults.");
+            savedEventTypeConfig = new EventTypeConfig();
         }
         setEventTypeConfigObjectAttributes(savedEventTypeConfig);
         eventType.setEventTypeConfig(savedEventTypeConfig);
@@ -50,7 +48,6 @@ public class EventTypeService {
             eventTypeConfig.setEventTypePayloadObject(eventTypeConfig.getDataClassName().newInstance());
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

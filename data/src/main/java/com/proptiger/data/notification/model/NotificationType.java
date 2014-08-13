@@ -26,7 +26,7 @@ public class NotificationType extends BaseModel {
     /**
      * 
      */
-    private static final long                serialVersionUID = 549033224673052141L;
+    private static final long serialVersionUID = 549033224673052141L;
 
     @Column(name = "id")
     @Id
@@ -44,7 +44,7 @@ public class NotificationType extends BaseModel {
     @Transient
     @JsonIgnore
     private transient NotificationTypeConfig notificationTypeConfig;
-
+    
     @Transient
     private List<NotificationMedium>         notificationMediumList;
 

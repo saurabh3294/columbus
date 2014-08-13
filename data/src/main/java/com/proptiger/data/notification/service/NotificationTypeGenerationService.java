@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.proptiger.data.event.model.EventGenerated;
+import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
@@ -19,12 +20,15 @@ import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 public class NotificationTypeGenerationService {
 
     @Autowired
-    private NotificationTypeGeneratedDao notificationTypeGeneratedDao;
+    private NotificationTypeGeneratedDao              notificationTypeGeneratedDao;
 
     @Autowired
-    private SubscriberConfigService      subscriberConfigService;
+    private SubscriberConfigService                   subscriberConfigService;
 
-    private Gson                         serializer = new Gson();
+    @Autowired
+    private EventTypeToNotificationTypeMappingService ntMappingService;
+
+    private Gson                                      serializer = new Gson();
 
     public Integer getActiveNotificationTypeCount() {
         return notificationTypeGeneratedDao
@@ -33,14 +37,21 @@ public class NotificationTypeGenerationService {
 
     public List<NotificationTypeGenerated> getNotificationTypesForEventGenerated(EventGenerated eventGenerated) {
         List<NotificationTypeGenerated> notificationTypeGeneratedList = new ArrayList<NotificationTypeGenerated>();
-        List<NotificationType> notificationTypeList = eventGenerated.getEventType().getNotificationTypeList();
+        List<NotificationType> notificationTypeList = ntMappingService.getNotificationTypesByEventType(eventGenerated
+                .getEventType());
         for (NotificationType notificationType : notificationTypeList) {
-            //NotificationTypePayload payload = notificationType.
-            
+            NotificationTypePayload payload = notificationType.getNotificationTypeConfig()
+                    .getNotificationTypePayloadObject();
+
+            EventTypePayload eventTypePayload = eventGenerated.getEventTypePayload();
+            payload.setPrimaryKeyName(eventTypePayload.getPrimaryKeyName());
+            payload.setPrimaryKeyValue(eventTypePayload.getPrimaryKeyValue());
+            payload.populatePayloadValues(eventTypePayload);
+
             NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
             ntGenerated.setEventGenerated(eventGenerated);
             ntGenerated.setNotificationType(notificationType);
-            //ntGenerated.setNotificationTypePayload(payload);
+            ntGenerated.setNotificationTypePayload(payload);
             notificationTypeGeneratedList.add(ntGenerated);
         }
         return notificationTypeGeneratedList;
@@ -64,8 +75,9 @@ public class NotificationTypeGenerationService {
         return notificationTypes;
     }
 
-    private void populateNotificationTypeDataBeforeSave(NotificationTypeGenerated notificationTypeGenerated) {
-        notificationTypeGenerated.setData(serializer.toJson(notificationTypeGenerated.getNotificationTypePayload()));
+    private void populateNotificationTypeDataBeforeSave(NotificationTypeGenerated ntGenerated) {
+        NotificationTypePayload payload = ntGenerated.getNotificationTypePayload();
+        ntGenerated.setData(serializer.toJson(payload));
     }
 
 }

@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -31,10 +32,14 @@ public class NotificationMessage extends BaseModel {
     @Id
     @Column(name = "id")
     private int id;
-    
-    @OneToOne
-    @JoinColumn(name = "notification_type_id")
+        
+    @OneToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name = "notification_generated_id", updatable = false)
     private NotificationTypeGenerated notificationTypeGenerated;
+    
+    @OneToOne(fetch=FetchType.EAGER)
+    @JoinColumn(name = "notification_type_id")
+    private NotificationType notificationType;
     
     @OneToOne
     @JoinColumn(name = "user_id")
@@ -54,5 +59,69 @@ public class NotificationMessage extends BaseModel {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public NotificationTypeGenerated getNotificationTypeGenerated() {
+        return notificationTypeGenerated;
+    }
+
+    public void setNotificationTypeGenerated(NotificationTypeGenerated notificationTypeGenerated) {
+        this.notificationTypeGenerated = notificationTypeGenerated;
+    }
+
+    public ForumUser getForumUser() {
+        return forumUser;
+    }
+
+    public void setForumUser(ForumUser forumUser) {
+        this.forumUser = forumUser;
+    }
+
+    public NotificationMessagePayload getNotificationMessagePayload() {
+        return notificationMessagePayload;
+    }
+
+    public void setNotificationMessagePayload(NotificationMessagePayload notificationMessagePayload) {
+        this.notificationMessagePayload = notificationMessagePayload;
+    }
+
+    public NotificationStatus getNotificationStatus() {
+        return notificationStatus;
+    }
+
+    public void setNotificationStatus(NotificationStatus notificationStatus) {
+        this.notificationStatus = notificationStatus;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
+    }
     
 }
