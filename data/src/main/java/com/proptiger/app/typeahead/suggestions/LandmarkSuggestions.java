@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Component;
+
 import com.proptiger.data.model.Typeahead;
 
 @Component
 public class LandmarkSuggestions {
+
+    private String templateId = "Typeahead-Suggestion-Landmark";
 
     private String dummyLocalityUrl = "/gurgaon/property-sale-sector-110a-51970";
     
@@ -26,6 +29,8 @@ public class LandmarkSuggestions {
             obj = new Typeahead();
             obj.setDisplayText(String.format(template[0], label));
             obj.setRedirectUrl(String.format(template[1], defaultMapRadius, latitude, longitude));
+            obj.setId(templateId);
+            obj.setType(obj.getId());
             suggestions.add(obj);
         }
         return suggestions;

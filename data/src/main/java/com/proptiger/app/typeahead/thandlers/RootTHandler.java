@@ -37,6 +37,7 @@ public abstract class RootTHandler {
         typeahead.setId("Typeahead-Template-" + id);
         typeahead.setDisplayText(displayText);
         typeahead.setRedirectUrl(redirectUrl);
+        typeahead.setType(typeahead.getId());
         return typeahead;
     }
     
