@@ -17,6 +17,6 @@ public class NotificationGeneratedService {
     private NotificationGeneratedDao notificationGeneratedDao;
     
     public List<NotificationGenerated> getScheduledAndNonExpiredNotifications(){
-        return notificationGeneratedDao.findByStatusAndExpiryTimeLessThan(NotificationStatus.NotificationScheduled, new Date());
+        return notificationGeneratedDao.findByStatusAndExpiryTimeLessThan(NotificationStatus.Scheduled, new Date());
     }
 }

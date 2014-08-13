@@ -1,4 +1,4 @@
-package com.proptiger.data.event.enums;
+package com.proptiger.data.event.legacy;
 
 public enum EventTypeIdConstants {
     PropertyId("propertyId");

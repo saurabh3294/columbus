@@ -17,7 +17,7 @@ import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 
 @Service
-public class NotificationTypeGenerationService {
+public class NotificationMessageGenerationService {
 
     @Autowired
     private NotificationTypeGeneratedDao              notificationTypeGeneratedDao;
@@ -30,7 +30,7 @@ public class NotificationTypeGenerationService {
 
     private Gson                                      serializer = new Gson();
 
-    public Integer getActiveNotificationTypeCount() {
+    public Integer getActiveNotificationMessageCount() {
         return notificationTypeGeneratedDao
                 .getNotificationTypeCountByNotificationStatus(NotificationStatus.TypeGenerated);
     }

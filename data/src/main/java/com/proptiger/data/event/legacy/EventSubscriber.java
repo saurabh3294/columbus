@@ -1,11 +1,10 @@
 /**
  * 
  */
-package com.proptiger.data.event.processor;
+package com.proptiger.data.event.legacy;
 
 import java.util.List;
 
-import com.proptiger.data.event.model.Event;
 
 /**
  * @author mandeep

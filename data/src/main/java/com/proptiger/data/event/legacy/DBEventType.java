@@ -1,4 +1,4 @@
-package com.proptiger.data.event.model;
+package com.proptiger.data.event.legacy;
 
 import com.proptiger.data.event.enums.DBOperation;
 

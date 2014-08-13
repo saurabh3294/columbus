@@ -68,7 +68,7 @@ public class NotificationTypeGenerated extends BaseModel {
     @PrePersist
     public void autoPopulateFields() {
         this.createdAt = new Date();
-        this.notificationStatus = NotificationStatus.NotificationTypeGenerated;
+        this.notificationStatus = NotificationStatus.TypeGenerated;
         autoUpdateFields();
     }
 

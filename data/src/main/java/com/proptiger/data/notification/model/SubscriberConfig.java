@@ -15,7 +15,8 @@ import javax.persistence.Table;
 public class SubscriberConfig {
 
     public enum ConfigName {
-        MaxActiveNotificationTypeCount;
+        MaxActiveNotificationTypeCount,
+        MaxActiveNotificationMessageCount;
     }
 
     @Column(name = "id")
