@@ -17,6 +17,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
@@ -40,197 +41,204 @@ import com.proptiger.data.model.image.Image;
 @Deprecated
 public class ProjectDB extends BaseModel {
 
-    private static final long serialVersionUID  = -1689938553944928175L;
+    private static final long    serialVersionUID  = -1689938553944928175L;
 
     @FieldMetaInfo(displayName = "PROJECT ID", description = "PROJECT ID")
     @Column(name = "PROJECT_ID")
     @Id
-    private int               projectId;
-    
+    private int                  projectId;
+
     @Column(name = "VERSION")
     @Enumerated(EnumType.STRING)
-    private  DataVersion            version;
+    private DataVersion          version;
 
     @FieldMetaInfo(displayName = "BUILDER ID", description = "BUILDER ID")
     @Column(name = "BUILDER_ID")
-    private int               builderId;
-    
+    private int                  builderId;
+
     @ManyToOne
     @JoinColumn(name = "BUILDER_ID", insertable = false, updatable = false)
-    private Builder                 builder;
+    private Builder              builder;
 
     @Transient
     @FieldMetaInfo(displayName = "CITY ID", description = "CITY ID")
     @Field(value = "CITY_ID")
-    private int               cityId;
-    
+    private int                  cityId;
+
     @Transient
     @FieldMetaInfo(displayName = "SUBURB ID", description = "SUBURB ID")
     @Field(value = "SUBURB_ID")
-    private int               suburbId;
+    private int                  suburbId;
 
     @FieldMetaInfo(displayName = "LOCALITY ID", description = "LOCALITY ID")
     @Column(name = "LOCALITY_ID")
-    private int               localityId;
+    private int                  localityId;
 
     @FieldMetaInfo(displayName = "PROJECT NAME", description = "PROJECT NAME")
     @Column(name = "PROJECT_NAME")
-    private String            projectName;
+    private String               projectName;
 
     @FieldMetaInfo(displayName = "PROJECT DESCRIPTION", description = "PROJECT DESCRIPTION")
     @Column(name = "PROJECT_DESCRIPTION")
-    private String            projectDescription;
+    private String               projectDescription;
 
     @FieldMetaInfo(displayName = "PROJECT ADDRESS", description = "PROJECT ADDRESS")
     @Column(name = "PROJECT_ADDRESS")
-    private String            projectAddress;
+    private String               projectAddress;
 
     @Transient
     @FieldMetaInfo(displayName = "PROJECT TYPES", description = "PROJECT TYPES")
     @Field(value = "PROJECT_TYPES")
-    private String            projectTypes;
+    private String               projectTypes;
 
     @Transient
     @FieldMetaInfo(displayName = "BUILDER NAME", description = "BUILDER NAME")
     @Field(value = "BUILDER_NAME")
-    private String            builderName;
+    private String               builderName;
 
     @FieldMetaInfo(displayName = "PROJECT SMALL IMAGE", description = "PROJECT SMALL IMAGE")
     @Column(name = "PROJECT_SMALL_IMAGE")
-    private String            projectSmallImage;
+    private String               projectSmallImage;
 
     @FieldMetaInfo(displayName = "LATITUDE", description = "LATITUDE")
     @Column(name = "LATITUDE")
-    private float             latitude;
+    private float                latitude;
 
     @FieldMetaInfo(displayName = "LONGITUDE", description = "LONGITUDE")
     @Column(name = "LONGITUDE")
-    private float             longitude;
+    private float                longitude;
 
     @FieldMetaInfo(displayName = "DISPLAY ORDER", description = "DISPLAY ORDER")
     @Column(name = "DISPLAY_ORDER")
-    private int               displayOrder;
+    private int                  displayOrder;
+
+    @Column(name = "PROJECT_STATUS_ID")
+    private int                  projectStatusId;
+
+    @ManyToOne
+    @JoinColumn(name = "PROJECT_STATUS_ID", insertable = false, updatable = false)
+    private ProjectStatusMaster  projectStatusMaster;
 
     @Transient
     @FieldMetaInfo(displayName = "PROJECT STATUS", description = "PROJECT STATUS")
     @Field(value = "PROJECT_STATUS")
-    private String            projectStatus;
+    private String               projectStatus;
 
     @FieldMetaInfo(displayName = "PROJECT URL", description = "PROJECT URL")
     @Column(name = "PROJECT_URL")
-    private String            projectUrl;
+    private String               projectUrl;
 
     @FieldMetaInfo(displayName = "PRICE DISCLAIMER", description = "PRICE DISCLAIMER")
     @Column(name = "PRICE_DISCLAIMER")
-    private String            priceDisclaimer;
+    private String               priceDisclaimer;
 
     @Transient
     @FieldMetaInfo(displayName = "OFFER HEADING", description = "OFFER HEADING")
     @Field(value = "OFFER_HEADING")
-    private String            offerHeading;
+    private String               offerHeading;
 
     @Transient
     @FieldMetaInfo(displayName = "OFFER DESC", description = "OFFER DESC")
     @Field(value = "OFFER_DESC")
-    private String            offerDesc;
+    private String               offerDesc;
 
     @Transient
     @FieldMetaInfo(displayName = "SUBMITTED Date", description = "SUBMITTED Date")
-    @Field(value =  "SUBMITTED_DATE")
+    @Field(value = "SUBMITTED_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date              submittedDate;
+    private Date                 submittedDate;
 
     @FieldMetaInfo(displayName = "NO OF TOWERS", description = "NO OF TOWERS")
     @Column(name = "NO_OF_TOWERS")
-    private int               noOfTowers;
+    private int                  noOfTowers;
 
     @Transient
     @FieldMetaInfo(displayName = "NO OF FLATS", description = "NO OF FLATS")
     @Field("PROJECT_SUPPLY")
-    private int               noOfFlates;
+    private int                  noOfFlates;
 
     @FieldMetaInfo(displayName = "LAUNCH Date", description = "LAUNCH Date")
     @Column(name = "LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date              launchDate;
+    private Date                 launchDate;
 
     @FieldMetaInfo(displayName = "DISPLAY ORDER LOCALITY", description = "DISPLAY ORDER LOCALITY")
     @Column(name = "DISPLAY_ORDER_LOCALITY")
-    private int               displayOrderLocality;
+    private int                  displayOrderLocality;
 
     @FieldMetaInfo(displayName = "DISPLAY ORDER SUBURB", description = "DISPLAY ORDER SUBURB")
     @Column(name = "DISPLAY_ORDER_SUBURB")
-    private int               displayOrderSuburb;
+    private int                  displayOrderSuburb;
 
     @FieldMetaInfo(displayName = "YOUTUBE VIDEO", description = "YOUTUBE VEDIO")
     @Column(name = "YOUTUBE_VIDEO")
-    private String            youtubeVedio;
+    private String               youtubeVedio;
 
     @FieldMetaInfo(displayName = "APPLICATION FORM", description = "APPLICATION FORM")
     @Column(name = "APPLICATION_FORM")
-    private String            applicationForm;
+    private String               applicationForm;
 
     @FieldMetaInfo(displayName = "PROMISED COMPLETION Date", description = "PROMISED COMPLETION Date")
     @Column(name = "PROMISED_COMPLETION_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date              promisedCompletionDate;
+    private Date                 promisedCompletionDate;
 
     @FieldMetaInfo(displayName = "AVAILABILITY", description = "AVAILABILITY")
     @Column(name = "D_AVAILABILITY")
-    private Integer           availability;
+    private Integer              availability;
 
     @FieldMetaInfo(displayName = "PROJECT TYPE ID", description = "PROJECT TYPE ID")
     @Column(name = "PROJECT_TYPE_ID")
-    private int               projectTypeId;
+    private int                  projectTypeId;
 
     @FieldMetaInfo(displayName = "PRE LAUNCH Date", description = "PRE LAUNCH Date")
     @Column(name = "PRE_LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date              preLaunchDate;
+    private Date                 preLaunchDate;
 
     @FieldMetaInfo(displayName = "PROJECT SIZE", description = "PROJECT SIZE")
     @Column(name = "PROJECT_SIZE")
-    private Double            projectSize;
+    private Double               projectSize;
 
     @FieldMetaInfo(displayName = "LAST MODIFIED Date", description = "LAST MODIFIED Date")
     @Column(name = "D_LAST_PRICE_UPDATION_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
-    private Date              lastModifiedDate;
+    private Date                 lastModifiedDate;
 
     @Transient
-    private List<Image>       images;
-    
-    @Transient
-    private Map<String, Integer>      imageCountByType;   
+    private List<Image>          images;
 
     @Transient
-    private Double            minPricePerUnitArea;
+    private Map<String, Integer> imageCountByType;
 
     @Transient
-    private Double            maxPricePerUnitArea;
+    private Double               minPricePerUnitArea;
+
+    @Transient
+    private Double               maxPricePerUnitArea;
 
     @Transient
     @FieldMetaInfo(displayName = "Min Resale Price", description = "Min Resale Price")
-    private Double            minResalePrice;
+    private Double               minResalePrice;
 
     @Transient
     @FieldMetaInfo(displayName = "Max Resale Price", description = "Max Resale Price")
-    private Double            maxResalePrice;
+    private Double               maxResalePrice;
 
     @Transient
-    private Double            avgPriceRisePercentage;
+    private Double               avgPriceRisePercentage;
 
     @Transient
-    private Integer           avgPriceRiseMonths;
+    private Integer              avgPriceRiseMonths;
 
     @Transient
-    private Set<String>       propertyUnitTypes = new HashSet<String>();
+    private Set<String>          propertyUnitTypes = new HashSet<String>();
 
     @Transient
-    private Set<Integer>      distinctBedrooms  = new HashSet<Integer>();
+    private Set<Integer>         distinctBedrooms  = new HashSet<Integer>();
 
     @Transient
-    private String            imageURL;
+    private String               imageURL;
 
     public int getProjectId() {
         return projectId;
@@ -332,8 +340,9 @@ public class ProjectDB extends BaseModel {
         return projectStatus;
     }
 
-    public void setProjectStatus(String projectStatus) {
-        this.projectStatus = projectStatus;
+    @PostLoad
+    public void postLoad() {
+        this.projectStatus = projectStatusMaster.getDisplay_name();
     }
 
     public String getProjectUrl() {
@@ -375,7 +384,7 @@ public class ProjectDB extends BaseModel {
     public void setSubmittedDate(Date submittedDate) {
         this.submittedDate = submittedDate;
     }
-    
+
     public int getNoOfTowers() {
         return noOfTowers;
     }
@@ -583,7 +592,7 @@ public class ProjectDB extends BaseModel {
     public void setImageURL(String imageUrl) {
         this.imageURL = imageUrl;
     }
-    
+
     public Map<String, Integer> getImageCountByType() {
         return imageCountByType;
     }
@@ -606,5 +615,21 @@ public class ProjectDB extends BaseModel {
 
     public void setBuilder(Builder builder) {
         this.builder = builder;
+    }
+
+    public int getProjectStatusId() {
+        return projectStatusId;
+    }
+
+    public void setProjectStatusId(int projectStatusId) {
+        this.projectStatusId = projectStatusId;
+    }
+
+    public ProjectStatusMaster getProjectStatusMaster() {
+        return projectStatusMaster;
+    }
+
+    public void setProjectStatusMaster(ProjectStatusMaster projectStatusMaster) {
+        this.projectStatusMaster = projectStatusMaster;
     }
 }

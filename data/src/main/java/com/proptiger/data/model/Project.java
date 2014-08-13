@@ -20,6 +20,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
@@ -37,7 +38,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.enums.DataVersion;
-import com.proptiger.data.enums.Status;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
@@ -111,11 +111,11 @@ public class Project extends BaseModel {
     private int                     projectId;
 
     @Transient
-    private boolean                 authorized        = false;
-    
+    private boolean                 authorized          = false;
+
     @Column(name = "VERSION")
     @Enumerated(EnumType.STRING)
-    private  DataVersion            version;
+    private DataVersion             version;
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
@@ -190,7 +190,7 @@ public class Project extends BaseModel {
     @Field(value = "PROMISED_COMPLETION_DATE")
     @Column(name = "PROMISED_COMPLETION_DATE")
     private Date                    possessionDate;
-    
+
     @Transient
     @FieldMetaInfo(displayName = "Submitted Date", description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
@@ -200,7 +200,7 @@ public class Project extends BaseModel {
     @FieldMetaInfo(displayName = "Image URL", description = "Image URL")
     @Transient
     @Field("PROJECT_SMALL_IMAGE")
-    private String                  imageURL          = "";
+    private String                  imageURL            = "";
 
     @Transient
     @FieldMetaInfo(displayName = "Offer", description = "Offer")
@@ -213,7 +213,7 @@ public class Project extends BaseModel {
     @Field(value = "OFFER_HEADING")
     @Deprecated
     private String                  offerHeading;
-    
+
     @Transient
     @FieldMetaInfo(displayName = "Offer Description", description = "Offer Description")
     @Field(value = "OFFER_DESC")
@@ -290,9 +290,16 @@ public class Project extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Max Bedroooms", description = "Max Bedroooms")
     private int                     maxBedrooms;
-    
+
+    @Column(name = "PROJECT_STATUS_ID")
+    private int                     projectStatusId;
+
+    @ManyToOne
+    @JoinColumn(name = "PROJECT_STATUS_ID", insertable = false, updatable = false)
+    private ProjectStatusMaster     projectStatusMaster;
+
     @Transient
-    @FieldMetaInfo(displayName = "Project Status", description = "Project Status")
+    @FieldMetaInfo(displayName = "PROJECT STATUS", description = "PROJECT STATUS")
     @Field(value = "PROJECT_STATUS")
     private String                  projectStatus;
 
@@ -334,18 +341,18 @@ public class Project extends BaseModel {
 
     @Transient
     @Field(value = "MEASURE")
-    private String                  propertySizeMeasure =  "sqft";
+    private String                  propertySizeMeasure = "sqft";
 
     @Transient
     @Field(value = "PROJECT_DOMINANT_UNIT_TYPE")
     private String                  dominantUnitType;
 
     @Transient
-    private Set<String>             propertyUnitTypes = new HashSet<>();
+    private Set<String>             propertyUnitTypes   = new HashSet<>();
 
     @Transient
     private List<Image>             images;
-    
+
     @Transient
     private Image                   mainImage;
 
@@ -362,7 +369,7 @@ public class Project extends BaseModel {
     private String                  builderLabelPriority;
 
     @Transient
-    private Set<Integer>            distinctBedrooms  = new HashSet<>();
+    private Set<Integer>            distinctBedrooms    = new HashSet<>();
 
     @Transient
     private Double                  minResalePrice;
@@ -711,12 +718,29 @@ public class Project extends BaseModel {
         this.maxSize = maxSize;
     }
 
+    public int getProjectStatusId() {
+        return projectStatusId;
+    }
+
+    public void setProjectStatusId(int projectStatusId) {
+        this.projectStatusId = projectStatusId;
+    }
+
+    public ProjectStatusMaster getProjectStatusMaster() {
+        return projectStatusMaster;
+    }
+
+    public void setProjectStatusMaster(ProjectStatusMaster projectStatusMaster) {
+        this.projectStatusMaster = projectStatusMaster;
+    }
+
     public String getProjectStatus() {
         return projectStatus;
     }
 
-    public void setProjectStatus(String projectStatus) {
-        this.projectStatus = projectStatus;
+    @PostLoad
+    public void postLoad() {
+        this.projectStatus = projectStatusMaster.getDisplay_name();
     }
 
     public boolean isIsResale() {
