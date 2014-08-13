@@ -1,5 +1,5 @@
 package com.proptiger.data.notification.enums;
 
 public enum NotificationStatus {
-    NotificationTypeGenerated;
+    NotificationTypeGenerated, NotificationGenerated, NotificationScheduled, NotificationMerged, NotificationSuppressed;
 }

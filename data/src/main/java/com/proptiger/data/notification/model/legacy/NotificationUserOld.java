@@ -9,7 +9,7 @@ import java.util.List;
  * @author mandeep
  *
  */
-public class NotificationUser {
+public class NotificationUserOld {
     private int userId;
     private List<String> emailIds;
     private List<Long> phoneNumbers;

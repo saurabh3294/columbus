@@ -7,9 +7,9 @@ package com.proptiger.data.notification.model.legacy;
  * @author mandeep
  *
  */
-public enum NotificationStatus {
-    MERGED,
-    SENT,
-    SCHEDULED,
-    UNSCHEDULED
+public enum DispatchPolicyOld {
+    REAL_TIME,
+    MONTHLY,
+    WEEKLY,
+    DAILY
 }

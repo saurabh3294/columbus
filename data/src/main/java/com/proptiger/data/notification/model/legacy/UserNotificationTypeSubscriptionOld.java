@@ -11,7 +11,7 @@ import java.util.Map;
  * @author mandeep
  * TODO - Check if we really need this
  */
-public class UserNotificationTypeSubscription {
+public class UserNotificationTypeSubscriptionOld {
     private int userId;
     Map<NotificationDeprecatedType, Date> notificationTypesMap;
 }

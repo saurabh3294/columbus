@@ -17,8 +17,8 @@ import javax.persistence.Transient;
 
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.model.legacy.NotificationMedium;
-import com.proptiger.data.notification.model.legacy.NotificationMessage;
+import com.proptiger.data.notification.model.legacy.NotificationMediumOld;
+import com.proptiger.data.notification.model.legacy.NotificationMessageOld;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
 @Entity
@@ -37,11 +37,11 @@ public class NotificationGenerated extends BaseModel {
 
     @OneToOne
     @JoinColumn(name = "notification_message_id")
-    private NotificationMessage        notificationMessage;
+    private NotificationMessageOld        notificationMessage;
 
     @OneToOne
     @JoinColumn(name = "notification_medium_id")
-    private NotificationMedium         notificationMedium;
+    private NotificationMediumOld         notificationMedium;
 
     @Column(name = "data")
     private String                     data;
@@ -73,19 +73,19 @@ public class NotificationGenerated extends BaseModel {
         this.id = id;
     }
 
-    public NotificationMessage getNotificationMessage() {
+    public NotificationMessageOld getNotificationMessage() {
         return notificationMessage;
     }
 
-    public void setNotificationMessage(NotificationMessage notificationMessage) {
+    public void setNotificationMessage(NotificationMessageOld notificationMessage) {
         this.notificationMessage = notificationMessage;
     }
 
-    public NotificationMedium getNotificationMedium() {
+    public NotificationMediumOld getNotificationMedium() {
         return notificationMedium;
     }
 
-    public void setNotificationMedium(NotificationMedium notificationMedium) {
+    public void setNotificationMedium(NotificationMediumOld notificationMedium) {
         this.notificationMedium = notificationMedium;
     }
 
