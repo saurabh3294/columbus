@@ -1,6 +1,7 @@
 package com.proptiger.data.service.mail;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -30,6 +31,12 @@ public class MailSender {
      */
     
     public boolean sendMailUsingAws(MailDetails mailDetails) {
-        return amazonMailSender.sendMail(mailDetails);
+        try {
+            amazonMailSender.sendMail(mailDetails);
+        }
+        catch (MailException e) {
+            return false;
+        }
+        return true;
     }
 }

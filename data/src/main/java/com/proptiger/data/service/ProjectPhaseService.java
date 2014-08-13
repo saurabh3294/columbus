@@ -75,7 +75,7 @@ public class ProjectPhaseService {
         return getPhaseDetailsFromFiql(selector, projectId, version);
     }
 
-    private List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version) {
+    public List<ProjectPhase> getPhaseDetailsFromFiql(FIQLSelector selector, Integer projectId, DataVersion version) {
         List<ProjectPhase> phases = populatePhaseMetaAttributes(populateSecondaryPrice(populatePrimaryPrice(populateProperties(populateAvailabilities(removeInvalidPhases(projectPhaseDao
                 .getFilteredPhases(selector.addAndConditionToFilter("status==" + Status.Active)
                         .addAndConditionToFilter("version==" + version)
@@ -163,9 +163,17 @@ public class ProjectPhaseService {
     }
 
     private void populatePropertyAttributesForPhase(Property property, CustomCurrentListingPrice listingPrice) {
-        property.setPricePerUnitArea(listingPrice.getPricePerUnitArea().doubleValue());
-        property.setPricePerUnitAreaCms(listingPrice.getPricePerUnitArea().doubleValue());
-        property.setBudget(property.getSize() * listingPrice.getPricePerUnitArea());
+        // Added NULL checks
+        // TODO: Azitabh to add test cases for the same
+        if (listingPrice != null && listingPrice.getPricePerUnitArea() != null) {
+            property.setPricePerUnitArea(listingPrice.getPricePerUnitArea().doubleValue());
+            property.setPricePerUnitAreaCms(listingPrice.getPricePerUnitArea().doubleValue());
+
+            if (property.getSize() != null) {
+                property.setBudget(property.getSize() * listingPrice.getPricePerUnitArea());
+            }
+        }
+
         property.populateMinResaleOrPrimaryPrice();
         property.populateMaxResaleOrPrimaryPrice();
     }

@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 
 /**
  * @author Rajeev Pandey
@@ -17,5 +18,11 @@ public interface ForumUserDao extends JpaRepository<ForumUser, Integer> {
 
     public ForumUser findByEmail(String email);
 
+    @Query("SELECT F FROM ForumUser F WHERE F.email = ?1 and F.password is not null")
+    public ForumUser findRegisteredUserByEmail(String email);
+
     public ForumUser findByUserId(int userId);
+
+    @Query(" SELECT NEW com.proptiger.data.model.ForumUser$WhoAmIDetail(FU.username, FU.fbImageUrl) " + " FROM ForumUser FU WHERE FU.userId = ?1")
+    public WhoAmIDetail getWhoAmIDetail(Integer userIdentifier);
 }
