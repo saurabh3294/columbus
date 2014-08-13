@@ -637,28 +637,27 @@ public class UserService {
         RegistrationUtils.validateRegistration(register);
         User user = getUserFromRegister(register);
 
-        user = userDao.save(user);
+        user = userDao.saveAndFlush(user);
+
         createDefaultProjectDiscussionSubscriptionForUser(user.getId());
 
-        manageEmailOnRegistration(user, register);
         manageContactNumberOnRegistration(user, register);
 
-        ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
         /*
          * send mail only if user registers
          */
         if (user.isRegistered()) {
+            ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
             MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
             MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
                     propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
             mailSender.sendMailUsingAws(details);
+            SecurityContextUtils.autoLogin(registeredUser);
         }
 
         /*
          * after registration make user auto login
          */
-        SecurityContextUtils.autoLogin(registeredUser);
-
         return getUserDetails(user.getId());
     }
 
@@ -668,7 +667,7 @@ public class UserService {
             user = createFreshUserFromRegister(register);
         }
         else {
-            if (user.isRegistered()) {
+            if (!register.getRegisterMe() || user.isRegistered()) {
                 throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
             }
             else {
@@ -680,34 +679,28 @@ public class UserService {
 
     private User createFreshUserFromRegister(Register register) {
         User user = new User();
+        user.setEmail(register.getEmail());
         user.copyFieldsFromRegisterToUser(register);
         return user;
-    }
-
-    // manages emails for every registration
-    // will be more relevant once we start supporting multiple emails
-    private void manageEmailOnRegistration(User user, Register register) {
-        if (user.getEmails() == null) {
-            String email = register.getEmail();
-            UserEmail userEmail = new UserEmail(email, user.getId());
-            emailDao.save(userEmail);
-        }
     }
 
     // manages contact numbers for every registration
     // will be more relevant once we start supporting multiple contacts
     private void manageContactNumberOnRegistration(User user, Register register) {
-        if (!user.isContactPresent(register.getContact().toString())) {
-            Integer priority = user.getMaxContactNumberPriority();
-            if (priority == null) {
-                priority = 0;
-            }
-            String contactNumber = register.getContact().toString();
+        String primaryContactNumber = register.getContact().toString();
+        UserContactNumber savedContactNumber = user.getContactByContactNumber(primaryContactNumber);
 
-            UserContactNumber userContactNumber = new UserContactNumber(contactNumber, user.getId());
-            userContactNumber.setPriority(priority + 1);
-
+        if (savedContactNumber == null) {
+            contactNumberDao.incrementPriorityForUser(user.getId());
+            UserContactNumber userContactNumber = new UserContactNumber(primaryContactNumber, user.getId());
             contactNumberDao.save(userContactNumber);
+        }
+        else {
+            if (savedContactNumber.getPriority() != UserContactNumber.primaryContactPriority) {
+                contactNumberDao.incrementPriorityForUser(user.getId());
+                savedContactNumber.setPriority(UserContactNumber.primaryContactPriority);
+                contactNumberDao.save(savedContactNumber);
+            }
         }
     }
 
@@ -719,7 +712,7 @@ public class UserService {
      * @return
      */
     public String resetPassword(String email) {
-        ForumUser forumUser = forumUserDao.findByEmailAndProvider(email, "");
+        ForumUser forumUser = forumUserDao.findRegisteredUserByEmail(email);
         if (forumUser == null) {
             return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
         }
@@ -743,41 +736,53 @@ public class UserService {
         return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
     }
 
+    /**
+     * 
+     * creates social auth details... creates login details if not already
+     * there... updates it otherwise
+     * 
+     * @param userProfile
+     * @param provider
+     * @param providerUserId
+     * @param imageUrl
+     * @return {@link User}
+     */
     @Transactional
     public User createSocialAuthDetails(
             UserProfile userProfile,
             AuthProvider provider,
             String providerUserId,
             String imageUrl) {
-        User user;
-        UserAuthProviderDetail authProviderDetail = authProviderDetailDao.findByProviderIdAndProviderUserId(
-                provider.getProviderId(),
-                providerUserId);
-        if (authProviderDetail != null) {
-            return userDao.findOne(authProviderDetail.getUserId());
+
+        String email = userProfile.getEmail();
+        User user = userDao.findByEmail(email);
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+            user.setFullName(userProfile.getName());
+            user = userDao.save(user);
         }
-        else {
+
+        int userId = user.getId();
+        createDefaultProjectDiscussionSubscriptionForUser(userId);
+
+        UserAuthProviderDetail authProviderDetail = authProviderDetailDao.findByUserIdAndProviderId(
+                userId,
+                provider.getProviderId());
+        if (authProviderDetail == null) {
             authProviderDetail = new UserAuthProviderDetail();
             authProviderDetail.setProviderId(provider.getProviderId());
             authProviderDetail.setProviderUserId(providerUserId);
             authProviderDetail.setImageUrl(imageUrl);
-
-            String email = userProfile.getEmail();
-            user = userDao.findByEmail(email);
-
-            if (user == null) {
-                user = new User();
-                user.setEmail(email);
-                user.setFullName(userProfile.getName());
-                user = userDao.save(user);
-
-                int userId = user.getId();
-                createDefaultProjectDiscussionSubscriptionForUser(userId);
-            }
-            authProviderDetail.setUserId(user.getId());
+            authProviderDetail.setUserId(userId);
+            authProviderDetail = authProviderDetailDao.save(authProviderDetail);
+        }
+        else {
+            authProviderDetail.setProviderUserId(providerUserId);
+            authProviderDetail.setImageUrl(imageUrl);
             authProviderDetailDao.save(authProviderDetail);
         }
-        return userDao.findOne(user.getId());
+        return user;
     }
 
     private ProjectDiscussionSubscription createDefaultProjectDiscussionSubscriptionForUser(int userId) {
