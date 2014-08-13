@@ -337,6 +337,9 @@ public class Project extends BaseModel {
 
     @Transient
     private List<Image>             images;
+    
+    @Transient
+    private Image                   mainImage;
 
     @Transient
     @Field(value = "LOCALITY_LABEL_PRIORITY")
@@ -1138,4 +1141,11 @@ public class Project extends BaseModel {
         this.imageCountByType = imageCountByType;
     }
 
+    public Image getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(Image mainImage) {
+        this.mainImage = mainImage;
+    }
 }

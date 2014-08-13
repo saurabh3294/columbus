@@ -44,8 +44,7 @@ public class CrawlPreventionService {
     /**
      * 1. First it will identify if request contains answer of previous captcha.
      * 2. Validates a request by identifying secret hash and server time sent by
-     * client. 
-     * 3. If valid then identify crawling based on access count bucket
+     * client. 3. If valid then identify crawling based on access count bucket
      * 
      * @param request
      * @param response
@@ -147,7 +146,9 @@ public class CrawlPreventionService {
             HttpServletRequest request,
             String requestIP,
             Integer count) {
-        logger.error("Crawing Identified!! Method:"+request.getMethod()+"  Type: " + maxAllowedRequestCount.getLabel()
+        logger.error("Crawing Identified!! Method:" + request.getMethod()
+                + "  Type: "
+                + maxAllowedRequestCount.getLabel()
                 + " IP: "
                 + requestIP
                 + "  Request Count in Time Slot: "
@@ -173,7 +174,7 @@ public class CrawlPreventionService {
     private boolean isValidRequestWithSecretHash(HttpServletRequest request, HttpServletResponse response) {
         APISecurityUtils.setTimeAndKeywordInHeader(response);
         boolean isValid = true;
-        if (!propertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_BOT_PREVENTAION, Boolean.class)) {
+        if (!propertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_CRAWL_PREVENTAION, Boolean.class)) {
             /*
              * even if disabled, we are validating the request to show warning
              * message if needed and let request complete normally.
@@ -181,7 +182,9 @@ public class CrawlPreventionService {
              * TODO should be removed once integrated by all clients.
              */
             if (!isHashAndTimeExistInHeader(request) || !isValidServerTimeAndSecretHashHeader(request)) {
-                APISecurityUtils.addWarningHeader(response);
+                APISecurityUtils.addWarningHeader(response, propertyReader.getRequiredPropertyAsType(
+                        PropertyKeys.ENABLE_CRAWL_PREVENTAION_WARNING,
+                        Boolean.class));
             }
             // should always return true, as bot prevention is disabled
             return true;
@@ -234,7 +237,7 @@ public class CrawlPreventionService {
          * discard the request being processed
          */
 
-        if (isHashAndTimeExistInHeader(request)) {
+        if (!isHashAndTimeExistInHeader(request)) {
             valid = handleIllegalAPIAccess(response, cache, redisKey, illegalAccessCount);
 
         }
@@ -260,7 +263,9 @@ public class CrawlPreventionService {
             String redisKey,
             Integer illegalAccessCount) {
         boolean valid = true;
-        APISecurityUtils.addWarningHeader(response);
+        APISecurityUtils.addWarningHeader(
+                response,
+                propertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_CRAWL_PREVENTAION_WARNING, Boolean.class));
         int illegalAPIAccessThresholdCount = getIllegalAPIAccessCountThreshold();
         if (illegalAccessCount >= illegalAPIAccessThresholdCount) {
             // illegal access count surpassed the threshold, block request
@@ -301,7 +306,10 @@ public class CrawlPreventionService {
          * request
          */
         if (currTimeSentByClient.before(cal.getTime()) || currTimeSentByClient.after(currDate)) {
-            logger.debug("Server time contract mismatch, client sent {}", currTimeSentByClient);
+            logger.debug(
+                    "Server time contract mismatch, user@{} sent {}",
+                    request.getRemoteAddr(),
+                    currTimeSentByClient);
             return false;
         }
 
@@ -309,6 +317,10 @@ public class CrawlPreventionService {
             return true;
         }
         else {
+            logger.error(
+                    "secret hash did not matched, user@{} sent {}",
+                    request.getRemoteAddr(),
+                    secretHashValHeader);
             return false;
         }
     }
