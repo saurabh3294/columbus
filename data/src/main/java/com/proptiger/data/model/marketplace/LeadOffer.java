@@ -7,7 +7,10 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.proptiger.data.model.BaseModel;
@@ -46,6 +49,18 @@ public class LeadOffer extends BaseModel {
     
     @Column(name = "updated_at")
     private Date updatedAt = new Date();
+
+    @JoinColumn(insertable = false, updatable = false, name = "lead_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Lead lead;
+        
+    public Lead getLead() {
+        return lead;
+    }
+
+    public void setLead(Lead lead) {
+        this.lead = lead;
+    }
 
     public int getId() {
         return id;

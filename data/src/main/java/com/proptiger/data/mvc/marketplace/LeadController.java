@@ -17,7 +17,7 @@ import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.marketplace.LeadService;
 
 /**
- * @author mandeep
+ * @author Anubhav
  *
  */
 @Controller
@@ -41,9 +41,8 @@ public class LeadController {
     
     @RequestMapping(value = "data/v1/entity/lead/exists")
     @ResponseBody
-    public APIResponse get(@RequestParam(required = false) String email, @RequestParam(required = false) String contactNumber, @RequestParam int cityId) {
-        
+    public APIResponse get(@RequestParam(required = false) String email, @RequestParam(required = false) String contactNumber, @RequestParam int cityId) {        
         return new APIResponse(leadService.exists(email, contactNumber, cityId));
     }
-
+    
 }

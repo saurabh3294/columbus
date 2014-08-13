@@ -39,6 +39,9 @@ public class RegistrationUtils {
                     register.getConfirmPassword());
             register.setPassword(encodedPass);
         }
+        else {
+            register.setPassword(null);
+        }
 
         if (register.getCountryId() == null) {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.INVALID_COUNTRY);

@@ -43,7 +43,7 @@ public class User extends BaseModel {
     @Column(name = "is_registered")
     private boolean                      registered       = true;
 
-    @OneToMany(mappedBy = "userId", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<UserEmail>              emails;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
@@ -53,10 +53,13 @@ public class User extends BaseModel {
     private List<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
-    private Date                         createdAt = new Date();
+    private Date                         createdAt        = new Date();
 
     @Column(name = "updated_at")
     private Date                         updatedAt = new Date();
+
+    @Column(name = "email")
+    private String email;
 
 
     public int getId() {
@@ -65,6 +68,14 @@ public class User extends BaseModel {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFullName() {
@@ -139,29 +150,45 @@ public class User extends BaseModel {
         this.updatedAt = updatedAt;
     }
 
-    public String getPrimaryEmail() {
-        for (UserEmail email : emails) {
-            if (email.getPriority() == UserEmail.primaryEmailPriority) {
-                return email.getEmail();
+    public boolean isContactPresent(String userContactNumber) {
+        if (contactNumbers != null) {
+            for (UserContactNumber contactNumber : contactNumbers) {
+                if (contactNumber.getContactNumber().equals(userContactNumber)) {
+                    return true;
+                }
             }
         }
-        return null;
+        return false;
     }
-    
+
+    public UserContactNumber getContactByContactNumber(String contactNumber) {
+        UserContactNumber matchedContactNumber = null;
+        if (contactNumbers != null) {
+            for (UserContactNumber number : this.contactNumbers) {
+                if (number.getContactNumber().equals(contactNumber)) {
+                    matchedContactNumber = number;
+                }
+            }
+        }
+        return matchedContactNumber;
+    }
+
     @PrePersist
-    public void prePersist(){
+    public void prePersist() {
         this.createdAt = new Date();
         this.updatedAt = this.createdAt;
     }
+
     @PreUpdate
-    public void preUpdate(){
+    public void preUpdate() {
         this.updatedAt = new Date();
     }
-    
+
     public void copyFieldsFromRegisterToUser(Register register) {
         this.setFullName(register.getUserName());
         this.setPassword(register.getPassword());
         this.setCountryId(register.getCountryId());
         this.setRegistered(register.getRegisterMe());
+        this.setEmail(register.getEmail());
     }
 }
