@@ -133,14 +133,14 @@ public class ListingService {
             }
         }
         else {
-            // no validation for invalidation phase id
+            // no validation for phase id
         }
 
         if (listing.getTowerId() != null) {
-            // check if tower id exists, else exception
+            //TODO check if tower id exists, else exception
         }
 
-        if (listing.getFloor() < 0) {
+        if (listing.getFloor() != null && listing.getFloor() < 0) {
             throw new BadRequestException("Invalid floor");
         }
         validateListingCategory(listing);
