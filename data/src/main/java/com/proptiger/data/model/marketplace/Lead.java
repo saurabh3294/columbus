@@ -8,8 +8,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -36,64 +34,57 @@ public class Lead extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = -6647164101899851831L;
+    private static final long     serialVersionUID = -6647164101899851831L;
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int               id;
+    private int                   id;
 
     @Column(name = "client_id")
-    private int               clientId;
+    private int                   clientId;
 
     @Column(name = "city_id")
-    private int               cityId;
+    private int                   cityId;
 
     @Column(name = "min_budget")
-    private Integer           minBudget;
+    private Integer               minBudget;
 
     @Column(name = "max_budget")
-    private Integer           maxBudget;
+    private Integer               maxBudget;
 
     @Column(name = "min_size")
-    private Integer           minSize;
+    private Integer               minSize;
 
     @Column(name = "max_size")
-    private Integer           maxSize;
+    private Integer               maxSize;
 
     @Column(name = "client_type")
-    private String        clientType;
+    private String                clientType;
 
     @Column(name = "transaction_type")
-    private String   transactionType;
+    private String                transactionType;
 
-    @Column(name = "score")
-    private int               score;
-
-    @Column(name = "irritated_client")
-    private boolean           irritatedClient;
+    @Column(name = "next_action_time")
+    private Date                  nextActionTime;
 
     @Column(name = "updated_at")
-    private Date              updatedAt        = new Date();
+    private Date                  updatedAt        = new Date();
 
     @Column(name = "created_at")
-    private Date              createdAt        = new Date();
+    private Date                  createdAt        = new Date();
 
     @Column(name = "updated_by")
-    private Integer           updatedBy;
+    private Integer               updatedBy;
 
     @OneToMany(mappedBy = "leadId")
-    private List<LeadOffer>   leadOffers;
-    
+    private List<LeadOffer>       leadOffers;
+
     @Transient
-    private User client;
-    
+    private User                  client;
+
     @OneToMany(mappedBy = "leadId")
     private List<LeadRequirement> leadRequirements;
-
-    @OneToMany(mappedBy = "leadId")
-    private List<LeadSubmission> leadSubmissions;
-        
 
     public List<LeadRequirement> getLeadRequirements() {
         return leadRequirements;
@@ -101,14 +92,6 @@ public class Lead extends BaseModel {
 
     public void setLeadRequirements(List<LeadRequirement> leadRequirements) {
         this.leadRequirements = leadRequirements;
-    }
-
-    public List<LeadSubmission> getLeadSubmissions() {
-        return leadSubmissions;
-    }
-
-    public void setLeadSubmissions(List<LeadSubmission> leadSubmissions) {
-        this.leadSubmissions = leadSubmissions;
     }
 
     public String getClientType() {
@@ -183,20 +166,12 @@ public class Lead extends BaseModel {
         this.maxSize = maxSize;
     }
 
-    public int getScore() {
-        return score;
+    public Date getNextActionTime() {
+        return nextActionTime;
     }
 
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public boolean isIrritatedClient() {
-        return irritatedClient;
-    }
-
-    public void setIrritatedClient(boolean irritatedClient) {
-        this.irritatedClient = irritatedClient;
+    public void setNextActionTime(Date nextActionTime) {
+        this.nextActionTime = nextActionTime;
     }
 
     public Date getUpdatedAt() {
