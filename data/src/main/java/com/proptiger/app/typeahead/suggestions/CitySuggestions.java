@@ -28,6 +28,7 @@ public class CitySuggestions {
             obj.setDisplayText(String.format(template[0], name));
             obj.setRedirectUrl(name.toLowerCase() + "/" + template[1]);
             obj.setId(templateId + "-" + template[2]);
+            obj.setType(obj.getId());
             suggestions.add(obj);
         }
         
