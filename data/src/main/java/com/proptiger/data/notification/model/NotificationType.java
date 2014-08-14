@@ -12,9 +12,9 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 
 @Entity
 @Table(name = "notification_type")
@@ -39,8 +39,6 @@ public class NotificationType extends BaseModel {
     @Column(name = "overwrite_config_name")
     private String                           overwriteConfigName;
 
-    private List<EventType>                  eventTypeList;
-
     @Transient
     @JsonIgnore
     private transient NotificationTypeConfig notificationTypeConfig;
@@ -54,22 +52,26 @@ public class NotificationType extends BaseModel {
     @Column(name = "intra_primary_key_operation")
     @Enumerated(EnumType.STRING)
     private NotificationOperation            intraPrimaryKeyOperation;
-    
+
     @Column(name = "intra_non_primary_key_operation")
     @Enumerated(EnumType.STRING)
     private NotificationOperation            intraNonPrimaryKeyOperation;
-    
+
     @Column(name = "inter_primary_key_merge_id")
     private Integer                          interPrimaryKeyMergeId;
-    
+
     @Column(name = "inter_primary_key_suppress_id")
     private Integer                          interPrimaryKeySuppressId;
-    
+
     @Column(name = "inter_non_primary_key_merge_id")
     private Integer                          interNonPrimaryKeyMergeId;
-    
+
     @Column(name = "inter_non_primary_key_suppress_id")
     private Integer                          interNonPrimaryKeySuppressId;
+
+    @Column(name = "user_strategy")
+    @Enumerated(EnumType.STRING)
+    private NotificationTypeUserStrategy     userStrategy;
 
     public int getId() {
         return id;
@@ -93,14 +95,6 @@ public class NotificationType extends BaseModel {
 
     public void setOverwriteConfigName(String overwriteConfigName) {
         this.overwriteConfigName = overwriteConfigName;
-    }
-
-    public List<EventType> getEventTypeList() {
-        return eventTypeList;
-    }
-
-    public void setEventTypeList(List<EventType> eventTypeList) {
-        this.eventTypeList = eventTypeList;
     }
 
     public NotificationTypeConfig getNotificationTypeConfig() {
@@ -173,6 +167,14 @@ public class NotificationType extends BaseModel {
 
     public void setInterNonPrimaryKeySuppressId(Integer interNonPrimaryKeySuppressId) {
         this.interNonPrimaryKeySuppressId = interNonPrimaryKeySuppressId;
+    }
+
+    public NotificationTypeUserStrategy getUserStrategy() {
+        return userStrategy;
+    }
+
+    public void setUserStrategy(NotificationTypeUserStrategy userStrategy) {
+        this.userStrategy = userStrategy;
     }
 
 }

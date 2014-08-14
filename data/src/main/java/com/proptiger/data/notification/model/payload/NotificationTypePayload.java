@@ -42,5 +42,9 @@ public abstract class NotificationTypePayload implements Serializable {
     public void setNotificationTypeUpdateHistories(List<NotificationTypeUpdateHistory> notificationTypeUpdateHistories) {
         this.notificationTypeUpdateHistories = notificationTypeUpdateHistories;
     }
+    
+    public void addNotificationTypeUpdateHistory(NotificationTypeUpdateHistory updateHistory) {
+        this.getNotificationTypeUpdateHistories().add(updateHistory);
+    }
 
 }

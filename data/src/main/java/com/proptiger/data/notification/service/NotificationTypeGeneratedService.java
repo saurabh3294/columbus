@@ -1,6 +1,7 @@
 package com.proptiger.data.notification.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
+import com.proptiger.data.notification.model.payload.NotificationTypeUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 
 @Service
@@ -62,12 +64,15 @@ public class NotificationTypeGeneratedService {
         return notificationTypeGeneratedList;
     }
 
+    /*
+     * TODO: Make it Transactional
+     */
     public void persistNotificationTypes(EventGenerated eventGenerated, List<NotificationTypeGenerated> ntGeneratedList) {
-        saveOrUpdateEvents(ntGeneratedList);
+        saveOrUpdateTypes(ntGeneratedList);
         subscriberConfigService.setLastEventDateReadByNotification(eventGenerated.getUpdatedDate());
     }
 
-    public Iterable<NotificationTypeGenerated> saveOrUpdateEvents(Iterable<NotificationTypeGenerated> notificationTypes) {
+    public Iterable<NotificationTypeGenerated> saveOrUpdateTypes(Iterable<NotificationTypeGenerated> notificationTypes) {
         Iterator<NotificationTypeGenerated> iterator = notificationTypes.iterator();
         while (iterator.hasNext()) {
             populateNotificationTypeDataBeforeSave(iterator.next());
@@ -80,9 +85,30 @@ public class NotificationTypeGeneratedService {
         return notificationTypes;
     }
 
+    public NotificationTypeGenerated saveOrUpdateType(NotificationTypeGenerated notificationType) {
+        populateNotificationTypeDataBeforeSave(notificationType);
+        /*
+         * Not returning the save object received from JPA as it will empty the
+         * transient fields.
+         */
+        notificationTypeGeneratedDao.save(notificationType);
+        return notificationType;
+    }
+
     private void populateNotificationTypeDataBeforeSave(NotificationTypeGenerated ntGenerated) {
         NotificationTypePayload payload = ntGenerated.getNotificationTypePayload();
         ntGenerated.setData(serializer.toJson(payload));
+    }
+
+    public void setMessageGeneratedStatusInTypeGenerated(NotificationTypeGenerated ntGenerated) {
+        NotificationTypePayload payload = ntGenerated.getNotificationTypePayload();
+        NotificationTypeUpdateHistory updateHistory = new NotificationTypeUpdateHistory(
+                NotificationStatus.MessageGenerated,
+                new Date());
+        payload.addNotificationTypeUpdateHistory(updateHistory);
+
+        ntGenerated.setNotificationStatus(NotificationStatus.MessageGenerated);
+        saveOrUpdateType(ntGenerated);
     }
 
 }

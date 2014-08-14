@@ -27,38 +27,41 @@ public class NotificationMessage extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = 4800603265035626921L;
-    
+    private static final long          serialVersionUID = 4800603265035626921L;
+
     @Id
     @Column(name = "id")
-    private int id;
-        
-    @OneToOne(fetch=FetchType.LAZY)
+    private int                        id;
+
+    @Column(name = "data")
+    private String                     data;
+
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notification_generated_id", updatable = false)
-    private NotificationTypeGenerated notificationTypeGenerated;
-    
-    @OneToOne(fetch=FetchType.EAGER)
+    private NotificationTypeGenerated  notificationTypeGenerated;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_type_id")
-    private NotificationType notificationType;
-    
+    private NotificationType           notificationType;
+
     @OneToOne
     @JoinColumn(name = "user_id")
-    private ForumUser forumUser;
-    
+    private ForumUser                  forumUser;
+
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
-    
+
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private NotificationStatus notificationStatus;
-    
+    private NotificationStatus         notificationStatus;
+
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
-    
+    private Date                       createdAt;
+
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date updatedAt;
+    private Date                       updatedAt;
 
     public int getId() {
         return id;
@@ -70,6 +73,14 @@ public class NotificationMessage extends BaseModel {
 
     public NotificationTypeGenerated getNotificationTypeGenerated() {
         return notificationTypeGenerated;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 
     public void setNotificationTypeGenerated(NotificationTypeGenerated notificationTypeGenerated) {
@@ -123,5 +134,5 @@ public class NotificationMessage extends BaseModel {
     public void setNotificationType(NotificationType notificationType) {
         this.notificationType = notificationType;
     }
-    
+
 }
