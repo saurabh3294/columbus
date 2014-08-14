@@ -176,7 +176,7 @@ public class PortfolioService {
                         false,
                         Constants.SOURCETYPE_LIST,
                         listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
-
+        setPropertyInListings(listings);
         updateOtherSpecificData(listings);
         updatePaymentSchedule(listings);
         return listings;
@@ -194,6 +194,7 @@ public class PortfolioService {
         List<Long> propertyIds = new ArrayList<Long>();
         List<Long> completeProjectIds = new ArrayList<>();
         Set<Integer> incompleteProjectIds = new HashSet<Integer>();
+        List<Property> properties = setPropertyInListings(listings);
 
         for (PortfolioListing listing : listings) {
             if (listing.getListingStatus() == ListingStatus.ACTIVE) { // add
@@ -224,14 +225,7 @@ public class PortfolioService {
         Map<Integer, Project> projectIdToProjectMap = new HashMap<Integer, Project>();
         Map<Integer, List<Image>> propertyIdToImageMap = new HashMap<Integer, List<Image>>();
         if (!propertyIds.isEmpty()) {
-            Selector propertySelector = new Gson().fromJson(
-                    "{\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyIds
-                            + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
-                    Selector.class);
-            List<Property> properties = propertyService.getProperties(propertySelector);
-
             projectIdToProjectMap = PortfolioUtil.createProjectIdMap(properties);
-
             List<Image> propertyImages = imageService.getImages(DomainObject.property, null, propertyIds);
             propertyIdToImageMap = PortfolioUtil.getPropertyIdToImageMap(propertyImages);
         }
@@ -287,6 +281,29 @@ public class PortfolioService {
             listing.setLocality(locality.getLabel());
             listing.setLocalityId(locality.getLocalityId());
         }
+    }
+
+    public List<Property> setPropertyInListings(List<PortfolioListing> listings) {
+
+        List<Long> propertyIds = new ArrayList<Long>();
+        Map<Integer, PortfolioListing> propertyIdToListingMap = new HashMap<Integer, PortfolioListing>();
+
+        for (PortfolioListing listing : listings) {
+            propertyIds.add(new Long(listing.getTypeId()));
+            propertyIdToListingMap.put(listing.getTypeId(), listing);
+        }
+
+        Selector propertySelector = new Gson().fromJson(
+                "{\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyIds
+                        + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
+                Selector.class);
+        List<Property> properties = propertyService.getProperties(propertySelector);
+
+        for (Property property : properties) {
+            propertyIdToListingMap.get(property.getPropertyId()).setProperty(property);
+
+        }
+        return properties;
     }
 
     /**
@@ -843,7 +860,8 @@ public class PortfolioService {
             mailCCAddress = propertyReader.getRequiredProperty("mail.property.sell.owner.cc.recipient");
         }
         if (mailToAddress.length() < 1) {
-            logger.error("Website Sell Your Property (" + (isBroker ? "Broker" : "Owner" )+ ") is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
+            logger.error("Website Sell Your Property (" + (isBroker ? "Broker" : "Owner")
+                    + ") is not able to send mail as 'to' mail recipients is empty. The application properties property (mail.report.error.to.recipient) is empty.");
             return false;
         }
         MailBody mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.SELL_YOUR_PROPERTY, portfolioListing);

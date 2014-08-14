@@ -17,6 +17,6 @@ import com.proptiger.data.model.Builder;
 @Repository
 public interface BuilderDao extends PagingAndSortingRepository<Builder, Integer>, BuilderCustomDao {   
     
-    @Query("SELECT ROUND(AVG(DATEDIFF(PROMISED_COMPLETION_DATE,LAUNCH_DATE)/30)) as avgCompletionTimeMonths FROM Project P WHERE P.builderId=?1")
+    @Query("SELECT ROUND(AVG(DATEDIFF(PROMISED_COMPLETION_DATE,LAUNCH_DATE)/30)) as avgCompletionTimeMonths FROM Project P WHERE P.version='Website' and P.builderId=?1")
     public Double getAvgCompletionTimeMonths(int builderId);
 }

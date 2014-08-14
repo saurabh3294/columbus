@@ -12,7 +12,11 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
@@ -20,6 +24,7 @@ import javax.persistence.Transient;
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
 import com.proptiger.data.model.image.Image;
@@ -29,7 +34,7 @@ import com.proptiger.data.model.image.Image;
  * @author mukand
  */
 @Entity
-@Table(name = "RESI_PROJECT")
+@Table(name = "cms.resi_project")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @Deprecated
@@ -41,17 +46,27 @@ public class ProjectDB extends BaseModel {
     @Column(name = "PROJECT_ID")
     @Id
     private int               projectId;
+    
+    @Column(name = "VERSION")
+    @Enumerated(EnumType.STRING)
+    private  DataVersion            version;
 
     @FieldMetaInfo(displayName = "BUILDER ID", description = "BUILDER ID")
     @Column(name = "BUILDER_ID")
     private int               builderId;
+    
+    @ManyToOne
+    @JoinColumn(name = "BUILDER_ID", insertable = false, updatable = false)
+    private Builder                 builder;
 
+    @Transient
     @FieldMetaInfo(displayName = "CITY ID", description = "CITY ID")
-    @Column(name = "CITY_ID")
+    @Field(value = "CITY_ID")
     private int               cityId;
-
+    
+    @Transient
     @FieldMetaInfo(displayName = "SUBURB ID", description = "SUBURB ID")
-    @Column(name = "SUBURB_ID")
+    @Field(value = "SUBURB_ID")
     private int               suburbId;
 
     @FieldMetaInfo(displayName = "LOCALITY ID", description = "LOCALITY ID")
@@ -70,21 +85,19 @@ public class ProjectDB extends BaseModel {
     @Column(name = "PROJECT_ADDRESS")
     private String            projectAddress;
 
+    @Transient
     @FieldMetaInfo(displayName = "PROJECT TYPES", description = "PROJECT TYPES")
-    @Column(name = "PROJECT_TYPES")
+    @Field(value = "PROJECT_TYPES")
     private String            projectTypes;
 
+    @Transient
     @FieldMetaInfo(displayName = "BUILDER NAME", description = "BUILDER NAME")
-    @Column(name = "BUILDER_NAME")
+    @Field(value = "BUILDER_NAME")
     private String            builderName;
 
     @FieldMetaInfo(displayName = "PROJECT SMALL IMAGE", description = "PROJECT SMALL IMAGE")
     @Column(name = "PROJECT_SMALL_IMAGE")
     private String            projectSmallImage;
-
-    @FieldMetaInfo(displayName = "LOCATION DESC", description = "LOCATION DESC")
-    @Column(name = "LOCATION_DESC")
-    private String            locationDesc;
 
     @FieldMetaInfo(displayName = "LATITUDE", description = "LATITUDE")
     @Column(name = "LATITUDE")
@@ -94,87 +107,52 @@ public class ProjectDB extends BaseModel {
     @Column(name = "LONGITUDE")
     private float             longitude;
 
-    @FieldMetaInfo(displayName = "META TITLE", description = "META TITLE")
-    @Column(name = "META_TITLE")
-    private String            metaTitle;
-
-    @FieldMetaInfo(displayName = "META KEYWORDS", description = "META KEYWORDS")
-    @Column(name = "META_KEYWORDS")
-    private String            metaKeywords;
-
-    @FieldMetaInfo(displayName = "META DESCRIPTION", description = "META DESCRIPTION")
-    @Column(name = "META_DESCRIPTION")
-    private String            metaDescription;
-
     @FieldMetaInfo(displayName = "DISPLAY ORDER", description = "DISPLAY ORDER")
     @Column(name = "DISPLAY_ORDER")
     private int               displayOrder;
 
-    @FieldMetaInfo(displayName = "ACTIVE", description = "ACTIVE")
-    @Column(name = "ACTIVE")
-    private int               active;
-
+    @Transient
     @FieldMetaInfo(displayName = "PROJECT STATUS", description = "PROJECT STATUS")
-    @Column(name = "PROJECT_STATUS")
+    @Field(value = "PROJECT_STATUS")
     private String            projectStatus;
 
     @FieldMetaInfo(displayName = "PROJECT URL", description = "PROJECT URL")
     @Column(name = "PROJECT_URL")
     private String            projectUrl;
 
-    @FieldMetaInfo(displayName = "FEATURED", description = "FEATURED")
-    @Column(name = "FEATURED")
-    private int               featured;
-
     @FieldMetaInfo(displayName = "PRICE DISCLAIMER", description = "PRICE DISCLAIMER")
     @Column(name = "PRICE_DISCLAIMER")
     private String            priceDisclaimer;
 
+    @Transient
     @FieldMetaInfo(displayName = "OFFER HEADING", description = "OFFER HEADING")
-    @Column(name = "OFFER_HEADING")
+    @Field(value = "OFFER_HEADING")
     private String            offerHeading;
 
+    @Transient
     @FieldMetaInfo(displayName = "OFFER DESC", description = "OFFER DESC")
-    @Column(name = "OFFER_DESC")
+    @Field(value = "OFFER_DESC")
     private String            offerDesc;
 
+    @Transient
     @FieldMetaInfo(displayName = "SUBMITTED Date", description = "SUBMITTED Date")
-    @Column(name = "SUBMITTED_DATE")
+    @Field(value =  "SUBMITTED_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date              submittedDate;
-
-    @FieldMetaInfo(displayName = "SUBMITTED BY", description = "SUBMITTED BY")
-    @Column(name = "SUBMITTED_BY")
-    private int               submittedBy;
-
-    @FieldMetaInfo(displayName = "MODIFIED BY", description = "MODIFIED BY")
-    @Column(name = "MODIFIED_BY")
-    private int               modifiedBy;
-
-    @FieldMetaInfo(displayName = "PAYMENT PLAN", description = "PAYMENT PLAN")
-    @Column(name = "PAYMENT_PLAN")
-    private String            paymentPlan;
 
     @FieldMetaInfo(displayName = "NO OF TOWERS", description = "NO OF TOWERS")
     @Column(name = "NO_OF_TOWERS")
     private int               noOfTowers;
 
-    @FieldMetaInfo(displayName = "NO OF FLATES", description = "NO OF FLATES")
-    @Column(name = "NO_OF_FLATES")
+    @Transient
+    @FieldMetaInfo(displayName = "NO OF FLATS", description = "NO OF FLATS")
+    @Field("PROJECT_SUPPLY")
     private int               noOfFlates;
 
     @FieldMetaInfo(displayName = "LAUNCH Date", description = "LAUNCH Date")
     @Column(name = "LAUNCH_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date              launchDate;
-
-    @FieldMetaInfo(displayName = "OFFLINE TYPE", description = "OFFLINE TYPE")
-    @Column(name = "OFFLINE_TYPE")
-    private int               offlineType;
-
-    @FieldMetaInfo(displayName = "DISPLAY FLAG", description = "DISPLAY FLAG")
-    @Column(name = "DISPLAY_FLAG")
-    private int               displayFlag;
 
     @FieldMetaInfo(displayName = "DISPLAY ORDER LOCALITY", description = "DISPLAY ORDER LOCALITY")
     @Column(name = "DISPLAY_ORDER_LOCALITY")
@@ -184,29 +162,13 @@ public class ProjectDB extends BaseModel {
     @Column(name = "DISPLAY_ORDER_SUBURB")
     private int               displayOrderSuburb;
 
-    @FieldMetaInfo(displayName = "BANK LIST", description = "BANK LIST")
-    @Column(name = "BANK_LIST")
-    private String            bankList;
-
-    @FieldMetaInfo(displayName = "YOUTUBE VEDIO", description = "YOUTUBE VEDIO")
-    @Column(name = "YOUTUBE_VEDIO")
+    @FieldMetaInfo(displayName = "YOUTUBE VIDEO", description = "YOUTUBE VEDIO")
+    @Column(name = "YOUTUBE_VIDEO")
     private String            youtubeVedio;
-
-    @FieldMetaInfo(displayName = "PRICE LIST", description = "PRICE LIST")
-    @Column(name = "PRICE_LIST")
-    private String            priceList;
 
     @FieldMetaInfo(displayName = "APPLICATION FORM", description = "APPLICATION FORM")
     @Column(name = "APPLICATION_FORM")
     private String            applicationForm;
-
-    @FieldMetaInfo(displayName = "IMPORTANCE", description = "IMPORTANCE")
-    @Column(name = "IMPORTANCE")
-    private int               importance;
-
-    @FieldMetaInfo(displayName = "SHOULD DISPLAY PRICE", description = "SHOULD DISPLAY PRICE")
-    @Column(name = "SHOULD_DISPLAY_PRICE")
-    private int               shouldDisplayPrice;
 
     @FieldMetaInfo(displayName = "PROMISED COMPLETION Date", description = "PROMISED COMPLETION Date")
     @Column(name = "PROMISED_COMPLETION_DATE")
@@ -214,22 +176,12 @@ public class ProjectDB extends BaseModel {
     private Date              promisedCompletionDate;
 
     @FieldMetaInfo(displayName = "AVAILABILITY", description = "AVAILABILITY")
-    @Column(name = "AVAILABILITY")
+    @Column(name = "D_AVAILABILITY")
     private Integer           availability;
 
     @FieldMetaInfo(displayName = "PROJECT TYPE ID", description = "PROJECT TYPE ID")
     @Column(name = "PROJECT_TYPE_ID")
     private int               projectTypeId;
-
-    @FieldMetaInfo(displayName = "TOWNSHIP", description = "TOWNSHIP")
-    @Column(name = "TOWNSHIP")
-    private String            township;
-
-    /*
-     * @FieldMetaInfo(displayName="RESIDENTIAL", description="RESIDENTIAL")
-     * 
-     * @Column(name="RESIDENTIAL") private enum('0','1') RESIDENTIAL ;
-     */
 
     @FieldMetaInfo(displayName = "PRE LAUNCH Date", description = "PRE LAUNCH Date")
     @Column(name = "PRE_LAUNCH_DATE")
@@ -241,13 +193,9 @@ public class ProjectDB extends BaseModel {
     private Double            projectSize;
 
     @FieldMetaInfo(displayName = "LAST MODIFIED Date", description = "LAST MODIFIED Date")
-    @Column(name = "LAST_MODIFIED_DATE")
+    @Column(name = "D_LAST_PRICE_UPDATION_DATE")
     @Temporal(javax.persistence.TemporalType.TIMESTAMP)
     private Date              lastModifiedDate;
-
-    @FieldMetaInfo(displayName = "FORCE RESALE", description = "FORCE RESALE")
-    @Column(name = "FORCE_RESALE")
-    private int               forceResale;
 
     @Transient
     private List<Image>       images;
@@ -372,38 +320,6 @@ public class ProjectDB extends BaseModel {
         this.projectSmallImage = projectSmallImage;
     }
 
-    public String getLocationDesc() {
-        return locationDesc;
-    }
-
-    public void setLocationDesc(String locationDesc) {
-        this.locationDesc = locationDesc;
-    }
-
-    public String getMetaTitle() {
-        return metaTitle;
-    }
-
-    public void setMetaTitle(String metaTitle) {
-        this.metaTitle = metaTitle;
-    }
-
-    public String getMetaKeywords() {
-        return metaKeywords;
-    }
-
-    public void setMetaKeywords(String metaKeywords) {
-        this.metaKeywords = metaKeywords;
-    }
-
-    public String getMetaDescription() {
-        return metaDescription;
-    }
-
-    public void setMetaDescription(String metaDescription) {
-        this.metaDescription = metaDescription;
-    }
-
     public int getDisplayOrder() {
         return displayOrder;
     }
@@ -459,31 +375,7 @@ public class ProjectDB extends BaseModel {
     public void setSubmittedDate(Date submittedDate) {
         this.submittedDate = submittedDate;
     }
-
-    public int getSubmittedBy() {
-        return submittedBy;
-    }
-
-    public void setSubmittedBy(int submittedBy) {
-        this.submittedBy = submittedBy;
-    }
-
-    public int getModifiedBy() {
-        return modifiedBy;
-    }
-
-    public void setModifiedBy(int modifiedBy) {
-        this.modifiedBy = modifiedBy;
-    }
-
-    public String getPaymentPlan() {
-        return paymentPlan;
-    }
-
-    public void setPaymentPlan(String paymentPlan) {
-        this.paymentPlan = paymentPlan;
-    }
-
+    
     public int getNoOfTowers() {
         return noOfTowers;
     }
@@ -508,22 +400,6 @@ public class ProjectDB extends BaseModel {
         this.launchDate = launchDate;
     }
 
-    public int getOfflineType() {
-        return offlineType;
-    }
-
-    public void setOfflineType(int offlineType) {
-        this.offlineType = offlineType;
-    }
-
-    public int getDisplayFlag() {
-        return displayFlag;
-    }
-
-    public void setDisplayFlag(int displayFlag) {
-        this.displayFlag = displayFlag;
-    }
-
     public int getDisplayOrderLocality() {
         return displayOrderLocality;
     }
@@ -540,14 +416,6 @@ public class ProjectDB extends BaseModel {
         this.displayOrderSuburb = displayOrderSuburb;
     }
 
-    public String getBankList() {
-        return bankList;
-    }
-
-    public void setBankList(String bankList) {
-        this.bankList = bankList;
-    }
-
     public String getYoutubeVedio() {
         return youtubeVedio;
     }
@@ -556,28 +424,12 @@ public class ProjectDB extends BaseModel {
         this.youtubeVedio = youtubeVedio;
     }
 
-    public String getPriceList() {
-        return priceList;
-    }
-
-    public void setPriceList(String priceList) {
-        this.priceList = priceList;
-    }
-
     public String getApplicationForm() {
         return applicationForm;
     }
 
     public void setApplicationForm(String applicationForm) {
         this.applicationForm = applicationForm;
-    }
-
-    public int getShouldDisplayPrice() {
-        return shouldDisplayPrice;
-    }
-
-    public void setShouldDisplayPrice(int shouldDisplayPrice) {
-        this.shouldDisplayPrice = shouldDisplayPrice;
     }
 
     public Date getPromisedCompletionDate() {
@@ -620,14 +472,6 @@ public class ProjectDB extends BaseModel {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public int getForceResale() {
-        return forceResale;
-    }
-
-    public void setForceResale(int forceResale) {
-        this.forceResale = forceResale;
-    }
-
     public float getLatitude() {
         return latitude;
     }
@@ -644,44 +488,12 @@ public class ProjectDB extends BaseModel {
         this.longitude = longitude;
     }
 
-    public int getActive() {
-        return active;
-    }
-
-    public void setActive(int active) {
-        this.active = active;
-    }
-
-    public int getFeatured() {
-        return featured;
-    }
-
-    public void setFeatured(int featured) {
-        this.featured = featured;
-    }
-
-    public int getImportance() {
-        return importance;
-    }
-
-    public void setImportance(int importance) {
-        this.importance = importance;
-    }
-
     public Integer getAvailability() {
         return availability;
     }
 
     public void setAvailability(Integer availability) {
         this.availability = availability;
-    }
-
-    public String getTownship() {
-        return township;
-    }
-
-    public void setTownship(String township) {
-        this.township = township;
     }
 
     public List<Image> getImages() {
@@ -778,5 +590,21 @@ public class ProjectDB extends BaseModel {
 
     public void setImageCountByType(Map<String, Integer> imageCountByType) {
         this.imageCountByType = imageCountByType;
+    }
+
+    public DataVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(DataVersion version) {
+        this.version = version;
+    }
+
+    public Builder getBuilder() {
+        return builder;
+    }
+
+    public void setBuilder(Builder builder) {
+        this.builder = builder;
     }
 }

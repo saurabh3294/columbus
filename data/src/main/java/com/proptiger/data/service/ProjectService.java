@@ -113,8 +113,7 @@ public class ProjectService {
      */
     public PaginatedResponse<List<Project>> getProjects(Selector projectFilter) {
         PaginatedResponse<List<Project>> projects = projectDao.getProjects(projectFilter);
-        imageEnricher.setProjectsImages(projects.getResults());
-
+        imageEnricher.setImagesOfProjects(projects.getResults());
         return projects;
     }
 
