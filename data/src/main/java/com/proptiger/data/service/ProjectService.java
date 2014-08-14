@@ -7,6 +7,7 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -102,7 +103,8 @@ public class ProjectService {
     private TemplateToHtmlGenerator mailBodyGenerator;
 
     @Value("${proptiger.url}")
-    private String websiteHost;
+    private String                  websiteHost;
+
     /**
      * This method will return the list of projects and total projects found
      * based on the selector.
@@ -136,7 +138,32 @@ public class ProjectService {
      * @return
      */
     public PaginatedResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
-        return projectDao.getUpcomingNewProjects(cityName, projectFilter);
+        Selector propertyListingSelector = new Selector();
+        propertyListingSelector.setPaging(projectFilter.getPaging());
+
+        Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
+
+        if (cityName == null || cityName.length() <= 0) {
+            List<Map<String, Map<String, Object>>> list = new ArrayList<>();
+            Map<String, Map<String, Object>> searchType = new HashMap<>();
+            Map<String, Object> filterCriteria = new HashMap<>();
+            filterCriteria.put("cityName", cityName);
+            searchType.put("equal", filterCriteria);
+            list.add(searchType);
+            filter.put("and", list);
+        }
+        List<Map<String, Map<String, Object>>> projectList = new ArrayList<>();
+        Map<String, Map<String, Object>> projectSearchType = new HashMap<>();
+        Map<String, Object> projectFilterCriteria = new HashMap<>();
+        List<String> projectStatusList = new ArrayList<>();
+        projectStatusList.add("pre launch");
+        projectStatusList.add("not launched");
+        projectFilterCriteria.put("projectStatus", projectStatusList);
+        projectSearchType.put("equal", projectFilterCriteria);
+        projectList.add(projectSearchType);
+        filter.put("and", projectList);
+        propertyListingSelector.setFilters(filter);
+        return propertyService.getPropertiesGroupedToProjects(propertyListingSelector);
     }
 
     /**
@@ -624,7 +651,7 @@ public class ProjectService {
     public Map<String, Integer> getProjectCountByCities(Integer builderId) {
         return projectSolrDao.getProjectCountByCities(builderId);
     }
-    
+
     @Cacheable(value = Constants.CacheName.PROPERTY_INACTIVE)
     public Integer getProjectIdForPropertyId(Integer propertyId) {
         return projectDao.getProjectIdForPropertyId(propertyId);
