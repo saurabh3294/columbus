@@ -8,12 +8,12 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -24,7 +24,7 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.user.User;
 
 /**
- * @author mandeep
+ * @author Anubhav
  * 
  */
 @JsonInclude(Include.NON_NULL)
@@ -32,10 +32,6 @@ import com.proptiger.data.model.user.User;
 @Table(name = "marketplace.leads")
 @JsonFilter("fieldFilter")
 public class Lead extends BaseModel {
-
-    /**
-     * 
-     */
     private static final long serialVersionUID = -6647164101899851831L;
 
     @Id
@@ -64,20 +60,26 @@ public class Lead extends BaseModel {
     @Column(name = "client_type")
     private String        clientType;
 
+    @Column(name = "source_id")
+    private int     sourceId;
+        
     @Column(name = "transaction_type")
     private String   transactionType;
 
+    @Column(name = "merged_lead_id")
+    private Integer mergedLeadId;    
+    
     @Column(name = "score")
     private int               score;
 
     @Column(name = "irritated_client")
-    private boolean           irritatedClient;
+    private boolean           irritatedClient = false;
 
     @Column(name = "updated_at")
-    private Date              updatedAt        = new Date();
+    private Date              updatedAt;
 
     @Column(name = "created_at")
-    private Date              createdAt        = new Date();
+    private Date              createdAt;
 
     @Column(name = "updated_by")
     private Integer           updatedBy;
@@ -89,26 +91,22 @@ public class Lead extends BaseModel {
     private User client;
     
     @OneToMany(mappedBy = "leadId")
-    private List<LeadRequirement> leadRequirements;
-
-    @OneToMany(mappedBy = "leadId")
-    private List<LeadSubmission> leadSubmissions;
-        
-
-    public List<LeadRequirement> getLeadRequirements() {
-        return leadRequirements;
+    private List<LeadRequirement> requirements;
+    
+    public int getSourceId() {
+        return sourceId;
     }
 
-    public void setLeadRequirements(List<LeadRequirement> leadRequirements) {
-        this.leadRequirements = leadRequirements;
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
     }
 
-    public List<LeadSubmission> getLeadSubmissions() {
-        return leadSubmissions;
+    public Integer getMergedLeadId() {
+        return mergedLeadId;
     }
 
-    public void setLeadSubmissions(List<LeadSubmission> leadSubmissions) {
-        this.leadSubmissions = leadSubmissions;
+    public void setMergedLeadId(Integer mergedLeadId) {
+        this.mergedLeadId = mergedLeadId;
     }
 
     public String getClientType() {
@@ -203,6 +201,13 @@ public class Lead extends BaseModel {
         return updatedAt;
     }
 
+    
+    @PreUpdate
+    public void setUpdatedAtBeforeDBQuery()
+    {
+        this.updatedAt = new Date();   
+    }    
+    
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
@@ -211,6 +216,11 @@ public class Lead extends BaseModel {
         return createdAt;
     }
 
+    @PrePersist
+    public void setCreatedAt() {
+        this.createdAt = new Date();
+    }
+    
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
@@ -238,4 +248,12 @@ public class Lead extends BaseModel {
     public void setClient(User client) {
         this.client = client;
     }
+    
+    public List<LeadRequirement> getRequirements() {
+        return requirements;
+    }
+
+    public void setRequirements(List<LeadRequirement> requirements) {
+        this.requirements = requirements;
+    }    
 }
