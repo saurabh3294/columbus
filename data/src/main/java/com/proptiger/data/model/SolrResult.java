@@ -345,6 +345,12 @@ public class SolrResult extends BaseModel {
     @Field("PROJECT_IMAGE_TITLE")
     private String            projectImgTitle;
     
+    @Field("PROJECT_LOCALITY_SCORE")
+    private Float             projectLocalityScore;
+    
+    @Field("PROJECT_SOCIETY_SCORE")
+    private Float             projectSocietyScore;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -1093,5 +1099,15 @@ public class SolrResult extends BaseModel {
     @Field("PROJECT_IMAGE_TITLE")
     public void setProjectImgTitle(String projectImgTitle) {
         project.getMainImage().setTitle(projectImgTitle);
+    }
+
+    @Field("PROJECT_LOCALITY_SCORE")
+    public void setProjectLocalityScore(Float projectLocalityScore) {
+        project.setProjectLocalityScore(projectLocalityScore);
+    }
+
+    @Field("PROJECT_SOCIETY_SCORE")
+    public void setProjectSocietyScore(Float projectSocietyScore) {
+        project.setProjectSocietyScore(projectSocietyScore);
     }
 }

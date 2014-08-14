@@ -487,6 +487,14 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_LIVABILITY_SCORE")
     private Float                   livabilityScore;
+    
+    @Transient
+    @Field(value = "PROJECT_LOCALITY_SCORE")
+    private Float                   projectLocalityScore;
+    
+    @Transient
+    @Field(value = "PROJECT_SOCIETY_SCORE")
+    private Float                   projectSocietyScore;
 
     public int getProjectId() {
         return projectId;
@@ -1179,5 +1187,21 @@ public class Project extends BaseModel {
 
     public void setVersion(DataVersion version) {
         this.version = version;
+    }
+
+    public Float getProjectLocalityScore() {
+        return projectLocalityScore;
+    }
+
+    public void setProjectLocalityScore(Float projectLocalityScore) {
+        this.projectLocalityScore = projectLocalityScore;
+    }
+
+    public Float getProjectSocietyScore() {
+        return projectSocietyScore;
+    }
+
+    public void setProjectSocietyScore(Float projectSocietyScore) {
+        this.projectSocietyScore = projectSocietyScore;
     }
 }
