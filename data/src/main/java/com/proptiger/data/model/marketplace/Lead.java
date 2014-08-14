@@ -32,67 +32,68 @@ import com.proptiger.data.model.user.User;
 @Table(name = "marketplace.leads")
 @JsonFilter("fieldFilter")
 public class Lead extends BaseModel {
-    private static final long serialVersionUID = -6647164101899851831L;
+
+    /**
+     * 
+     */
+    private static final long     serialVersionUID = -6647164101899851831L;
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int               id;
+    private int                   id;
 
     @Column(name = "client_id")
-    private int               clientId;
+    private int                   clientId;
 
     @Column(name = "city_id")
-    private int               cityId;
+    private int                   cityId;
 
     @Column(name = "min_budget")
-    private Integer           minBudget;
+    private Integer               minBudget;
 
     @Column(name = "max_budget")
-    private Integer           maxBudget;
+    private Integer               maxBudget;
 
     @Column(name = "min_size")
-    private Integer           minSize;
+    private Integer               minSize;
 
     @Column(name = "max_size")
-    private Integer           maxSize;
+    private Integer               maxSize;
 
     @Column(name = "client_type")
-    private String        clientType;
+    private String                clientType;
 
     @Column(name = "source_id")
-    private int     sourceId;
-        
-    @Column(name = "transaction_type")
-    private String   transactionType;
+    private int                   sourceId;
 
     @Column(name = "merged_lead_id")
-    private Integer mergedLeadId;    
-    
-    @Column(name = "score")
-    private int               score;
+    private Integer               mergedLeadId;
 
-    @Column(name = "irritated_client")
-    private boolean           irritatedClient = false;
+    @Column(name = "transaction_type")
+    private String                transactionType;
+
+    @Column(name = "next_action_time")
+    private Date                  nextActionTime;
 
     @Column(name = "updated_at")
-    private Date              updatedAt;
+    private Date                  updatedAt        = new Date();
 
     @Column(name = "created_at")
-    private Date              createdAt;
+    private Date                  createdAt        = new Date();
 
     @Column(name = "updated_by")
-    private Integer           updatedBy;
+    private Integer               updatedBy;
 
     @OneToMany(mappedBy = "leadId")
-    private List<LeadOffer>   leadOffers;
-    
+    private List<LeadOffer>       leadOffers;
+
     @Transient
-    private User client;
-    
+    private User                  client;
+
     @OneToMany(mappedBy = "leadId")
     private List<LeadRequirement> requirements;
-    
+
     public int getSourceId() {
         return sourceId;
     }
@@ -181,33 +182,23 @@ public class Lead extends BaseModel {
         this.maxSize = maxSize;
     }
 
-    public int getScore() {
-        return score;
+    public Date getNextActionTime() {
+        return nextActionTime;
     }
 
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public boolean isIrritatedClient() {
-        return irritatedClient;
-    }
-
-    public void setIrritatedClient(boolean irritatedClient) {
-        this.irritatedClient = irritatedClient;
+    public void setNextActionTime(Date nextActionTime) {
+        this.nextActionTime = nextActionTime;
     }
 
     public Date getUpdatedAt() {
         return updatedAt;
     }
 
-    
     @PreUpdate
-    public void setUpdatedAtBeforeDBQuery()
-    {
-        this.updatedAt = new Date();   
-    }    
-    
+    public void setUpdatedAtBeforeDBQuery() {
+        this.updatedAt = new Date();
+    }
+
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
@@ -220,7 +211,7 @@ public class Lead extends BaseModel {
     public void setCreatedAt() {
         this.createdAt = new Date();
     }
-    
+
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
@@ -248,12 +239,12 @@ public class Lead extends BaseModel {
     public void setClient(User client) {
         this.client = client;
     }
-    
+
     public List<LeadRequirement> getRequirements() {
         return requirements;
     }
 
     public void setRequirements(List<LeadRequirement> requirements) {
         this.requirements = requirements;
-    }    
+    }
 }
