@@ -184,18 +184,18 @@ public class LocalityDaoImpl {
         EntityManager em = emf.createEntityManager();
         Query query = em
                 .createNativeQuery(
-                        "select *, count(enquiry1_.ID) as ENQUIRY_COUNT from proptiger.LOCALITY locality0_ " + " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
+                        "select *, count(enquiry1_.ID) as ENQUIRY_COUNT from cms.locality locality0_ left outer join cms.suburb suburb0_ ON locality0_.SUBURB_ID = suburb0_.SUBURB_ID " + " left outer join  proptiger.ENQUIRY enquiry1_ ON (locality0_.LOCALITY_ID = enquiry1_.LOCALITY_ID AND "
                                 + " enquiry1_.CREATED_DATE >"
                                 + " \""
                                 + dateString
                                 + "\")"
-                                + " where (locality0_.CITY_ID = "
+                                + " where (suburb0_.CITY_ID = "
                                 + " "
                                 + cityId
                                 + " or locality0_.SUBURB_ID = "
                                 + " "
                                 + suburbId
-                                + ") AND locality0_.ACTIVE=1 "
+                                + ") AND locality0_.STATUS='Active' "
                                 + " group by locality0_.LOCALITY_ID order by ENQUIRY_COUNT DESC, locality0_.PRIORITY ASC"
                                 + " LIMIT "
                                 + paging.getRows()

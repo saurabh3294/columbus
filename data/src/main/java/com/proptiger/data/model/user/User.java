@@ -32,8 +32,6 @@ public class User extends BaseModel {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int                          id;
 
-    private String                       email;
-
     @Column(name = "full_name")
     private String                       fullName;
 
@@ -58,7 +56,11 @@ public class User extends BaseModel {
     private Date                         createdAt        = new Date();
 
     @Column(name = "updated_at")
-    private Date                         updatedAt        = new Date();
+    private Date                         updatedAt = new Date();
+
+    @Column(name = "email")
+    private String email;
+
 
     public int getId() {
         return id;

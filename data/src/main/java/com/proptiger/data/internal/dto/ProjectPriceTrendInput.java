@@ -12,6 +12,7 @@ public class ProjectPriceTrendInput {
     private Integer typeId;
     private String  listingName;
     private String  projectName;
+    private Integer bedrooms;
 
     public Integer getProjectId() {
         return projectId;
@@ -43,6 +44,14 @@ public class ProjectPriceTrendInput {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public Integer getBedrooms() {
+        return bedrooms;
+    }
+
+    public void setBedrooms(Integer bedrooms) {
+        this.bedrooms = bedrooms;
     }
 
 }

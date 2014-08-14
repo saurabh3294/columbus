@@ -26,7 +26,7 @@ public class LeadRequirement extends BaseModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
-    private int               Id;
+    private int               id;
 
     @Column(name = "lead_id")
     private int               leadId;
@@ -40,56 +40,12 @@ public class LeadRequirement extends BaseModel {
     @Column(name = "locality_id")
     private Integer           localityId;
 
-    @Column(name = "min_size")
-    private Integer           minSize;
-    
-    @Column(name = "max_size")
-    private Integer           maxSize;
-    
-    @Column(name = "min_budget")
-    private Integer           minBudget;
-    
-    @Column(name = "max_budget")
-    private Integer           maxBudget;
-    
-    public Integer getMinSize() {
-        return minSize;
-    }
-
-    public void setMinSize(Integer minSize) {
-        this.minSize = minSize;
-    }
-
-    public Integer getMaxSize() {
-        return maxSize;
-    }
-
-    public void setMaxSize(Integer maxSize) {
-        this.maxSize = maxSize;
-    }
-
-    public Integer getMinBudget() {
-        return minBudget;
-    }
-
-    public void setMinBudget(Integer minBudget) {
-        this.minBudget = minBudget;
-    }
-
-    public Integer getMaxBudget() {
-        return maxBudget;
-    }
-
-    public void setMaxBudget(Integer maxBudget) {
-        this.maxBudget = maxBudget;
-    }
-
     public int getId() {
-        return Id;
+        return id;
     }
 
     public void setId(int id) {
-        Id = id;
+        this.id = id;
     }
 
     public int getLeadId() {

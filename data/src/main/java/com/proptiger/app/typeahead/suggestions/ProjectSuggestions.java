@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.enums.UnitType;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.Typeahead;
 import com.proptiger.data.repo.PropertyDao;
@@ -20,6 +22,8 @@ public class ProjectSuggestions {
 
     @Autowired
     private PropertyDao  propertyDao;
+    
+    private String templateId = "Typeahead-Suggestion-Project";
 
     public List<Typeahead> getSuggestions(int id, String name, String redirectUrl, int count) {
 
@@ -38,7 +42,7 @@ public class ProjectSuggestions {
         for (Property property : propertyList) {
             bedrooms = property.getBedrooms();
             url = property.getURL();
-            if (bedrooms > 0 && url != null && !url.isEmpty()) {
+            if (bedrooms > 0 && property.getUnitType().equals(UnitType.Apartment.toString())  && url != null && !url.isEmpty()) {
                 bhkUrlMap.put(bedrooms, property.getURL());
             }
         }
@@ -48,6 +52,8 @@ public class ProjectSuggestions {
             obj = new Typeahead();
             obj.setDisplayText(mapEntry.getKey() + " BHK in " + name);
             obj.setRedirectUrl(mapEntry.getValue());
+            obj.setId(templateId);
+            obj.setType(obj.getId());
             suggestions.add(obj);
         }
 

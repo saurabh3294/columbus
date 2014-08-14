@@ -12,6 +12,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -95,6 +97,10 @@ public class Listing extends BaseModel {
 
     @OneToMany(mappedBy = "listingId", fetch = FetchType.LAZY)
     private List<ListingPrice>  listingPrices;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "option_id", nullable = false, insertable = false, updatable = false)
+    private Property property;
     
     @Transient
     private List<ListingAmenity> listingAmenities;
@@ -236,6 +242,14 @@ public class Listing extends BaseModel {
 
     public void setOtherInfo(OtherInfo otherInfo) {
         this.otherInfo = otherInfo;
+    }
+
+    public Property getProperty() {
+        return property;
+    }
+
+    public void setProperty(Property property) {
+        this.property = property;
     }
 
     @PreUpdate

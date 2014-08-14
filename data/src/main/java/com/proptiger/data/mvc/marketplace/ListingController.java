@@ -34,9 +34,10 @@ public class ListingController extends BaseController {
     @RequestMapping(method = RequestMethod.POST)
     public APIResponse createListing(
             @RequestBody Listing listing,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo, @ModelAttribute FIQLSelector selector) {
         Listing created = listingService.createListing(listing, userInfo.getUserIdentifier());
-        return new APIResponse(super.filterFields(created, null));
+        listing = listingService.getListing(userInfo.getUserIdentifier(), created.getId(), selector);
+        return new APIResponse(super.filterFieldsFromSelector(listing, selector));
     }
 
     @ResponseBody
@@ -44,8 +45,8 @@ public class ListingController extends BaseController {
     public APIResponse getListings(
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        List<Listing> listings = listingService.getListings(userInfo.getUserIdentifier());
-        return new APIResponse(super.filterFields(listings, null));
+        List<Listing> listings = listingService.getListings(userInfo.getUserIdentifier(), selector);
+        return new APIResponse(super.filterFieldsFromSelector(listings, selector));
     }
 
     @ResponseBody
@@ -54,8 +55,8 @@ public class ListingController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @PathVariable Integer listingId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        Listing listing = listingService.getListing(userInfo.getUserIdentifier(), listingId);
-        return new APIResponse(super.filterFields(listing, null));
+        Listing listing = listingService.getListing(userInfo.getUserIdentifier(), listingId, selector);
+        return new APIResponse(super.filterFieldsFromSelector(listing, selector), 1);
     }
 
     @ResponseBody

@@ -12,6 +12,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -22,7 +24,7 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.user.User;
 
 /**
- * @author mandeep
+ * @author Anubhav
  * 
  */
 @JsonInclude(Include.NON_NULL)
@@ -62,6 +64,12 @@ public class Lead extends BaseModel {
     @Column(name = "client_type")
     private String                clientType;
 
+    @Column(name = "source_id")
+    private int                   sourceId;
+
+    @Column(name = "merged_lead_id")
+    private Integer               mergedLeadId;
+
     @Column(name = "transaction_type")
     private String                transactionType;
 
@@ -84,14 +92,22 @@ public class Lead extends BaseModel {
     private User                  client;
 
     @OneToMany(mappedBy = "leadId")
-    private List<LeadRequirement> leadRequirements;
+    private List<LeadRequirement> requirements;
 
-    public List<LeadRequirement> getLeadRequirements() {
-        return leadRequirements;
+    public int getSourceId() {
+        return sourceId;
     }
 
-    public void setLeadRequirements(List<LeadRequirement> leadRequirements) {
-        this.leadRequirements = leadRequirements;
+    public void setSourceId(int sourceId) {
+        this.sourceId = sourceId;
+    }
+
+    public Integer getMergedLeadId() {
+        return mergedLeadId;
+    }
+
+    public void setMergedLeadId(Integer mergedLeadId) {
+        this.mergedLeadId = mergedLeadId;
     }
 
     public String getClientType() {
@@ -178,12 +194,22 @@ public class Lead extends BaseModel {
         return updatedAt;
     }
 
+    @PreUpdate
+    public void setUpdatedAtBeforeDBQuery() {
+        this.updatedAt = new Date();
+    }
+
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
     }
 
     public Date getCreatedAt() {
         return createdAt;
+    }
+
+    @PrePersist
+    public void setCreatedAt() {
+        this.createdAt = new Date();
     }
 
     public void setCreatedAt(Date createdAt) {
@@ -212,5 +238,13 @@ public class Lead extends BaseModel {
 
     public void setClient(User client) {
         this.client = client;
+    }
+
+    public List<LeadRequirement> getRequirements() {
+        return requirements;
+    }
+
+    public void setRequirements(List<LeadRequirement> requirements) {
+        this.requirements = requirements;
     }
 }
