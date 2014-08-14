@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
@@ -37,8 +39,43 @@ public class LeadService {
     @Autowired
     private LeadOfferDao        leadOfferDao;
 
-    public List<Lead> getLeads(FIQLSelector fiqlSelector, int integer) {
-        return null;
+    public PaginatedResponse<List<Lead>> getLeads(int agentId, FIQLSelector selector) {
+        Set<String> selectorFields = selector.getFieldSet();
+        int userFlag = 0;
+        int offersFlag = 0;
+        int requirementsFlag = 0;
+        if (selectorFields.contains("user")) {
+            userFlag = 1;
+            selectorFields.remove("user");
+        }
+        if (selectorFields.contains("offers")) {
+            offersFlag = 1;
+            selectorFields.remove("offers");
+        }
+        if (selectorFields.contains("requirements")) {
+            selectorFields.remove("requirements");
+            requirementsFlag = 1;
+        }
+        StringBuilder fieldString = new StringBuilder();
+        for (String s : selectorFields) {
+            fieldString.append(",");
+            fieldString.append(s);
+        }
+        selector.setFields(fieldString.toString());
+        PaginatedResponse<List<Lead>> paginatedResponse = leadDao.getLeadDetailsAfterFilter(selector, agentId);
+
+        for (Lead lead : paginatedResponse.getResults()) {
+            if (userFlag == 1) {
+                lead.setClient(userService.findUserById(lead.getClientId()));
+            }
+            if (offersFlag == 1) {
+                lead.setLeadOffers(leadOfferDao.getLeadOffers(lead.getId()));
+            }
+            if (requirementsFlag == 1) {
+                lead.setRequirements(leadRequirementsDao.findByLeadId(lead.getId()));
+            }
+        }
+        return paginatedResponse;
     }
 
     /**
@@ -166,10 +203,8 @@ public class LeadService {
             else {
                 for (LeadOffer leadOffer : leadOffers) {
                     int statusId = leadOffer.getStatusId();
-                    if (statusId != LeadOfferStatus.Dead.getId() && 
-                        statusId != LeadOfferStatus.ClosedLost.getId() && 
-                        statusId != LeadOfferStatus.ClosedWon.getId())
-                    {
+                    if (statusId != LeadOfferStatus.Dead.getId() && statusId != LeadOfferStatus.ClosedLost.getId()
+                            && statusId != LeadOfferStatus.ClosedWon.getId()) {
                         existingLead = lead;
                         break;
                     }
@@ -184,7 +219,8 @@ public class LeadService {
      * 
      * @param email
      * @param contactNumber
-     *        checks weather there exist a lead for some specific user with email or contact number     *         
+     *            checks weather there exist a lead for some specific user with
+     *            email or contact number *
      * @param cityId
      * @return
      */

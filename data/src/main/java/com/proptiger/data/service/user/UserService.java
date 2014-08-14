@@ -778,4 +778,8 @@ public class UserService {
    public User getUser(String email, String contactNumber) {
        return userDao.findByPrimaryEmailOrPhone(email, contactNumber);
    }
+
+public User findUserById(int clientId) {
+    return userDao.findById(clientId);    
+}
 }
