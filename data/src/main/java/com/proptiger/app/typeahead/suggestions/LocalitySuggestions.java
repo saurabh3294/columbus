@@ -31,6 +31,7 @@ public class LocalitySuggestions {
             obj.setRedirectUrl(cityName.toLowerCase() + "/"
                     + String.format(template[1], (localityName.replace(' ', '-') + "-" + id).toLowerCase()));
             obj.setId(templateId + "-" + template[2]);
+            obj.setType(obj.getId());
             suggestions.add(obj);
         }
         
