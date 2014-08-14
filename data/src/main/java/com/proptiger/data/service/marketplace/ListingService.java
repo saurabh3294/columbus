@@ -40,19 +40,19 @@ import com.proptiger.exception.ResourceNotAvailableException;
  */
 @Service
 public class ListingService {
-    private static Logger             logger = LoggerFactory.getLogger(ListingService.class);
+    private static Logger         logger = LoggerFactory.getLogger(ListingService.class);
     @Autowired
-    private PropertyService     propertyService;
+    private PropertyService       propertyService;
 
     @Autowired
-    private ListingPriceService listingPriceService;
+    private ListingPriceService   listingPriceService;
 
     @Autowired
-    private ListingDao          listingDao;
+    private ListingDao            listingDao;
 
     @Autowired
-    private ProjectPhaseService projectPhaseService;
-    
+    private ProjectPhaseService   projectPhaseService;
+
     @Autowired
     private ListingAmenityService listingAmenityService;
     /**
@@ -70,8 +70,8 @@ public class ListingService {
             created = listingDao.saveAndFlush(listing);
         }
         catch (PersistenceException e) {
-            logger.error("error while creating listing {}",e);
-            if(e.getCause() instanceof ConstraintViolationException){
+            logger.error("error while creating listing {}", e);
+            if (e.getCause() instanceof ConstraintViolationException) {
                 throw new ResourceAlreadyExistException("Listing already exists");
             }
             throw new ResourceAlreadyExistException("Listing could not be created");
@@ -88,9 +88,9 @@ public class ListingService {
             created.setCurrentListingPrice(listingPriceCreated);
         }
 
-        if(listing.getListingAmenities() != null && listing.getListingAmenities().size() > 0){
+        if (listing.getListingAmenities() != null && listing.getListingAmenities().size() > 0) {
             List<ListingAmenity> amenities = new ArrayList<ListingAmenity>(listing.getListingAmenities().size());
-            for(ListingAmenity la: listing.getListingAmenities()){
+            for (ListingAmenity la : listing.getListingAmenities()) {
                 ListingAmenity listingAmenity = new ListingAmenity();
                 listingAmenity.setListingId(listing.getId());
                 listingAmenity.setProjectAmenityId(la.getProjectAmenityId());
@@ -109,7 +109,7 @@ public class ListingService {
      * @param userId
      */
     private void preCreateValidation(Listing listing, Integer userId) {
-        //only no phase supported as of now
+        // only no phase supported as of now
         listing.setPhaseId(null);
         if (listing.getPropertyId() == null) {
             // TODO create option with verified flag as false and set that id,
@@ -132,19 +132,19 @@ public class ListingService {
                 throw new BadRequestException("Logical phase not found for project id " + property.getProjectId());
             }
         }
-        else{
-            //no validation for invalidation phase id
-        }
-        
-        if(listing.getTowerId() != null){
-          //check if tower id exists, else exception
+        else {
+            // no validation for invalidation phase id
         }
 
-        if(listing.getFloor() < 0){
+        if (listing.getTowerId() != null) {
+            // check if tower id exists, else exception
+        }
+
+        if (listing.getFloor() < 0) {
             throw new BadRequestException("Invalid floor");
         }
         validateListingCategory(listing);
-        //TODO need to update agent id in updatedBy field
+        // TODO need to update agent id in updatedBy field
         listing.setUpdatedBy(userId);
         listing.setSellerId(userId);
         listing.setBookingStatusId(null);
@@ -153,26 +153,28 @@ public class ListingService {
 
     /**
      * Primary listing creation not allowed
+     * 
      * @param listingCategory
      */
     private void validateListingCategory(Listing listing) {
-        if(listing.getListingCategory() != null){
-          //default listing category to be resale
+        if (listing.getListingCategory() == null) {
+            // default listing category to be resale
             listing.setListingCategory(ListingCategory.Resale);
         }
-        else if(listing.getListingCategory() == ListingCategory.Primary) {
+        else if (listing.getListingCategory() == ListingCategory.Primary) {
             throw new BadRequestException("Primary listing category not allowed");
         }
     }
 
     /**
      * Get all active listing of user
+     * 
      * @param userId
      * @return
      */
-    public List<Listing> getListings(Integer userId) {
-        List<Listing> listings = listingDao.findBySellerIdAndStatus(userId, Status.Active);
-        if(listings.size() > 0){
+    public List<Listing> getListings(Integer userId, FIQLSelector selector) {
+        List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active);
+        if (listings.size() > 0) {
             List<Integer> listingPriceIds = new ArrayList<>();
             for (Listing l : listings) {
                 listingPriceIds.add(l.getCurrentPriceId());
@@ -191,13 +193,14 @@ public class ListingService {
     }
 
     /**
-     * Get a listing of user by id 
+     * Get a listing of user by id
+     * 
      * @param userId
      * @param listingId
      * @return
      */
-    public Listing getListing(Integer userId, Integer listingId) {
-        Listing listing = listingDao.findBySellerIdAndIdAndStatus(userId, listingId, Status.Active);
+    public Listing getListing(Integer userId, Integer listingId, FIQLSelector selector) {
+        Listing listing = listingDao.findListing(listingId, userId, DataVersion.Website, Status.Active);
         if (listing == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
@@ -213,13 +216,14 @@ public class ListingService {
     }
 
     /**
-     * Delete a listing created by user 
+     * Delete a listing created by user
+     * 
      * @param userId
      * @param listingId
      * @return
      */
     public Listing deleteListing(Integer userId, Integer listingId) {
-        Listing listing = listingDao.findBySellerIdAndIdAndStatus(userId, listingId, Status.Active);
+        Listing listing = listingDao.findListing(listingId, userId,DataVersion.Website, Status.Active);
         if (listing == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.DELETE);
         }
@@ -227,31 +231,32 @@ public class ListingService {
         listing = listingDao.saveAndFlush(listing);
         return listing;
     }
-    
+
     /**
      * Fetch all listing amenities and set that in corresponding listing object
+     * 
      * @param listings
      */
-    public void populateListingAmenities(List<Listing> listings){
+    public void populateListingAmenities(List<Listing> listings) {
         List<Integer> listingIds = new ArrayList<>();
-        for(Listing l: listings){
+        for (Listing l : listings) {
             listingIds.add(l.getId());
         }
         List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(listingIds);
-        if(listingAmenities.size() > 0){
+        if (listingAmenities.size() > 0) {
             Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = createListingToAmenitiesMap(listingAmenities);
-            for(Listing l: listings){
+            for (Listing l : listings) {
                 l.setListingAmenities(listingIdToAmenitiesMap.get(l.getId()));
             }
         }
-        
+
     }
 
     private Map<Integer, List<ListingAmenity>> createListingToAmenitiesMap(List<ListingAmenity> listingAmenities) {
         Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = new HashMap<>();
-        if(listingAmenities != null){
-            for(ListingAmenity la: listingAmenities){
-                if(listingIdToAmenitiesMap.get(la.getListingId()) == null){
+        if (listingAmenities != null) {
+            for (ListingAmenity la : listingAmenities) {
+                if (listingIdToAmenitiesMap.get(la.getListingId()) == null) {
                     listingIdToAmenitiesMap.put(la.getListingId(), new ArrayList<ListingAmenity>());
                 }
                 listingIdToAmenitiesMap.get(la.getListingId()).add(la);

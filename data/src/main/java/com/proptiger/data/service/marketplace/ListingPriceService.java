@@ -23,39 +23,38 @@ public class ListingPriceService {
 
     @Autowired
     private ListingPriceDao listingPriceDao;
-    
-    public ListingPrice createListingPrice(ListingPrice listingPrice, Listing listing){
+
+    public ListingPrice createListingPrice(ListingPrice listingPrice, Listing listing) {
         preCreateValidation(listingPrice, listing);
         ListingPrice created = listingPriceDao.saveAndFlush(listingPrice);
         return created;
     }
 
+    /**
+     * Either price or price per unit area should not be null and other price is
+     * optional
+     * 
+     * @param listingPrice
+     * @param listing
+     */
     private void preCreateValidation(ListingPrice listingPrice, Listing listing) {
-        //TODO apply validation over four price related fields
-        if(listingPrice.getPricePerUnitArea() != null && listingPrice.getPricePerUnitArea() <= 0){
-            throw new BadRequestException("Invalid price per unit area");
+        //ignoring villa related prices
+        listingPrice.setConstructionCostPerUnitArea(0);
+        listingPrice.setPlotCostPerUnitArea(0);
+        boolean isValidPrice = false;
+        if (listingPrice.getPricePerUnitArea() != null && listingPrice.getPricePerUnitArea() > 0) {
+            isValidPrice = true;
+            listingPrice.setPrice(0);
         }
-        if(listingPrice.getOtherCharges() != null && listingPrice.getOtherCharges() < 0){
+        if (!isValidPrice && listingPrice.getPrice() != null && listingPrice.getPrice() > 0) {
+            isValidPrice = true;
+            listingPrice.setPricePerUnitArea(0);
+        }
+        if (listingPrice.getOtherCharges() != null && listingPrice.getOtherCharges() < 0) {
             throw new BadRequestException("Invalid other charges");
         }
-        if(listingPrice.getPlotCostPerUnitArea() != null){
-            if(listingPrice.getPlotCostPerUnitArea() < 0){
-            throw new BadRequestException("Invalid plot cost per unit area");
-            }
-        }
-        else{
-            listingPrice.setPlotCostPerUnitArea(0);
-        }
-        if(listingPrice.getConstructionCostPerUnitArea() != null){
-            if(listingPrice.getConstructionCostPerUnitArea() < 0){
-            throw new BadRequestException("Invalid construction cost per unit area");
-            }
-        }
-        else{
-            listingPrice.setConstructionCostPerUnitArea(0);
-        }
-        if(listingPrice.getPrice() != null && listingPrice.getPrice() < 0){
-            throw new BadRequestException("Invalid price");
+        if(!isValidPrice){
+            throw new BadRequestException("Invalid price or pricePerUnitArea");
         }
         listingPrice.setListingId(listing.getId());
         listingPrice.setVersion(DataVersion.Website);
@@ -65,7 +64,7 @@ public class ListingPriceService {
 
     public List<ListingPrice> getListingPrices(List<Integer> listingPriceIds) {
         List<ListingPrice> listingPrices = new ArrayList<>();
-        if(listingPriceIds != null && listingPriceIds.size() > 0){
+        if (listingPriceIds != null && listingPriceIds.size() > 0) {
             Iterable<ListingPrice> prices = listingPriceDao.findAll(listingPriceIds);
             listingPrices = Lists.newArrayList(prices);
         }
