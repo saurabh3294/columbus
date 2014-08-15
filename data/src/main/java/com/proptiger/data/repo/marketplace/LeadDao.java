@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.repo.marketplace;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,7 +17,6 @@ import com.proptiger.data.model.marketplace.Lead;
  */
 
 public interface LeadDao extends JpaRepository<Lead, Integer>, LeadCustomDao {
-
     @Query("select L from Lead L where L.clientId = ?1 and L.mergedLeadId is null order by L.id desc")
     public List<Lead> findByClientId(int Id);
 
@@ -25,6 +25,6 @@ public interface LeadDao extends JpaRepository<Lead, Integer>, LeadCustomDao {
 
     @Query("select L from Lead L join L.leadOffers LO where LO.agentId = ?1")
     public List<Lead> getLeadDetails(int agent_id);
-
         
+    public List<Lead> findByNextActionTimeLessThan(Date actionTime);
 }

@@ -1,10 +1,8 @@
 package com.proptiger.data.repo;
 
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -15,13 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import com.proptiger.data.enums.resource.ResourceType;
-import com.proptiger.data.enums.resource.ResourceTypeAction;
-import com.proptiger.data.external.dto.ProjectPriceHistoryDetail;
 import com.proptiger.data.util.HMAC_Client;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
-import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 
@@ -105,57 +99,5 @@ public class CMSDao {
         }
 
         return null;
-    }
-
-    public ProjectPriceHistoryDetail getProjectPriceHistory(Set<Integer> projectIdList, Integer noOfMonths) {
-        StringBuilder queryParam = new StringBuilder();
-        boolean afterFirst = false;
-        for (Integer projectId : projectIdList) {
-            if (afterFirst) {
-                queryParam.append("&");
-            }
-            queryParam.append("project_ids[]").append("=").append(projectId);
-            afterFirst = true;
-        }
-
-        if (noOfMonths != null && noOfMonths > 0) {
-            queryParam.append("&");
-            queryParam.append("duration").append("=").append(noOfMonths);
-        }
-        ProjectPriceHistoryDetail responce = getResponseFromCms(
-                APP_V1_PROJECT_PRICE_TREND,
-                queryParam.toString(),
-                ProjectPriceHistoryDetail.class);
-        if (responce.getStatus().equals(CMS_API_ERROR)) {
-            logger.error("Error in CMS API: " + responce.getMessage());
-            throw new ResourceNotAvailableException(ResourceType.PRICE_TREND, ResourceTypeAction.GET);
-        }
-        return responce;
-    }
-
-    /**
-     * This method calls cms API and return the result as specified java type
-     * 
-     * @param subUrl
-     * @param queryParams
-     * @param javaTypeResponse
-     * @return
-     */
-    public <T> T getResponseFromCms(String subUrl, String queryParams, Class<T> javaTypeResponse) {
-        Long timeStamp = new Timestamp(new Date().getTime() / 1000).getTime();
-
-        String token = HMAC_Client.calculateHMAC(
-                propertyReader.getRequiredProperty(PropertyKeys.CMS_PASSWORD),
-                timeStamp.toString());
-
-        StringBuilder url = new StringBuilder(propertyReader.getRequiredProperty(PropertyKeys.CMS_BASE_URL));
-        url.append(subUrl);
-        url.append(USERNAME).append("=").append(propertyReader.getRequiredProperty(PropertyKeys.CMS_USERNAME));
-        url.append("&").append(TOKEN).append("=").append(token);
-        url.append("&").append(TIMESTAMP).append("=").append(timeStamp);
-        url.append("&").append(queryParams);
-        logger.debug("CMS API url - " + url.toString());
-        T response = restTemplate.getForObject(url.toString(), javaTypeResponse);
-        return response;
-    }
+    }  
 }

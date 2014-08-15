@@ -19,9 +19,11 @@ public class APISecurityUtils {
      * 
      * @param response
      */
-    public static void addWarningHeader(HttpServletResponse response) {
-        response.addHeader("Warning", Constants.Security.WARN_ILLEGAL_API_ACCESS_MSG);
-        response.addHeader("Warning", "Send MD5 of (ip+sep+user-agent+sep+server-time+sep+api-secretword)");
+    public static void addWarningHeader(HttpServletResponse response, boolean warningEnabled) {
+        if(warningEnabled){
+            response.addHeader("Warning", Constants.Security.WARN_ILLEGAL_API_ACCESS_MSG);
+            response.addHeader("Warning", "Send MD5 of (ip+sep+user-agent+sep+server-time+sep+api-secretword)");
+        }
     }
 
     /**
@@ -31,7 +33,7 @@ public class APISecurityUtils {
      */
     public static void setTimeAndKeywordInHeader(HttpServletResponse response) {
         response.setHeader(Constants.Security.SERVER_CURR_TIME, String.valueOf(new Date().getTime()));
-        response.setHeader(Constants.Security.API_SECRET_WORD, Constants.Security.API_SECRET_WORD);
+        response.setHeader(Constants.Security.API_SECRET_KEYWORD, Constants.Security.API_SECRET_WORD_VALUE);
     }
 
     public static String createCrawlCacheKey(String requestIP, Integer timeFrame) {

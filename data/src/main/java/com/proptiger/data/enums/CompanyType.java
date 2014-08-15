@@ -6,5 +6,5 @@ package com.proptiger.data.enums;
  * 
  */
 public enum CompanyType {
-    Broker, PrivateEquity
+    Broker, PrivateEquity, Builder, Banker, Investor
 }

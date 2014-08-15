@@ -45,11 +45,7 @@ public class DataAPIAuthenticationFilter implements Filter {
      * To enable and disable the authentication, modify in shiro.ini
      */
     private boolean             enabled = true;
-    
-    private Pattern userIdPattern = Pattern.compile("USER_ID.+?\"(\\d+?)\"");
-    private Pattern userNamePattern = Pattern.compile("USERNAME.+?\"([a-z|A-Z|0-9].+?)\"");
-    private Pattern emailPattern = Pattern.compile("EMAIL.+?\"(.+?)\"");
-
+   
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
             ServletException {
@@ -140,7 +136,7 @@ public class DataAPIAuthenticationFilter implements Filter {
                 sessionId = jsessionIdPassed;
             }
             try {
-                userInfo = getUserInfoFromMemcache(sessionId);
+                userInfo = CacheClientUtil.getUserInfoFromMemcache(sessionId);
                 if (userInfo.getUserIdentifier().equals(Constants.ADMIN_USER_ID)) {
                     if (userIdOnBehalfOfAdmin != null) {
                         // If user id is present in request parameter then admin
@@ -238,56 +234,7 @@ public class DataAPIAuthenticationFilter implements Filter {
         out.println(mapper.writeValueAsString(res));
         return;
     }
-
-    /**
-     * Get user id from memcache based on key
-     * 
-     * @param sessionId
-     * @return
-     */
-    private ActiveUser getUserInfoFromMemcache(String sessionId) {
-        if (sessionId == null) {
-            throw new AuthenticationException("Session id null");
-        }
-        ActiveUser userInfo = null;//new ActiveUser();
-        Integer userId = null;
-        String userName = null;
-        String email = null;
-        if (sessionId != null) {
-            String value = (String) CacheClientUtil.getValue(sessionId);
-            if (value != null) {
-
-                Matcher userIdMatcher = userIdPattern.matcher(value);
-                Matcher userNameMatcher = userNamePattern.matcher(value);
-                Matcher emailMatcher = emailPattern.matcher(value);
-                while (userIdMatcher.find()) {
-                    try {
-                        userId = Integer.parseInt(userIdMatcher.group(1));
-                        break;
-                    }
-                    catch (NumberFormatException e) {
-                        logger.error("Number format exception {}", e.getMessage());
-                    }
-                }
-                while (userNameMatcher.find()) {
-                    userName = userNameMatcher.group(1);
-                    break;
-                }
-                while (emailMatcher.find()) {
-                    email = emailMatcher.group(1);
-                    break;
-                }
-            }
-        }
-        if (userId == null) {
-            throw new AuthenticationException("session data not found in memcache for sessionkey " + sessionId);
-        }
-        else {
-            userInfo.setUserIdentifier(userId);
-        }
-        return userInfo;
-    }
-
+    
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
