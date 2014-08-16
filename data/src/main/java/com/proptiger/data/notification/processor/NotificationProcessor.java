@@ -8,21 +8,17 @@ import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 
 public interface NotificationProcessor {
-    public void processIntraMerging(
+    public List<NotificationMessage> processIntraMerging(
             List<NotificationMessage> notificationMessages,
-            List<NotificationMessage> mergedNotifications,
-            Map<NotificationType, List<NotificationGenerated>> generatedNotifications);
+            List<NotificationGenerated> generatedNotifications);
     
-    public void processIntraSuppressing(List<NotificationMessage> notificationMessages,
-            List<NotificationMessage> suppressedNotifications,
+    public List<NotificationMessage> processIntraSuppressing(List<NotificationMessage> notificationMessages,
+            List<NotificationGenerated> generatedNotifications);
+
+    public List<NotificationMessage> processInterMerging(List<NotificationMessage> notificationMessages,
             Map<NotificationType, List<NotificationGenerated>> generatedNotifications);
 
-    public void processInterMerging(List<NotificationMessage> notificationMessages,
-            List<NotificationMessage> mergedNotifications,
-            Map<NotificationType, List<NotificationGenerated>> generatedNotifications);
-
-    public void processInterSuppressing(List<NotificationMessage> notificationMessages,
-            List<NotificationMessage> suppressedNotifications,
+    public List<NotificationMessage> processInterSuppressing(List<NotificationMessage> notificationMessages,
             Map<NotificationType, List<NotificationGenerated>> generatedNotifications);
 
 }

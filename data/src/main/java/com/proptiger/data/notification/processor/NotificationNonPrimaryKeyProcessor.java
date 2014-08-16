@@ -13,39 +13,36 @@ import com.proptiger.data.notification.model.NotificationType;
 public class NotificationNonPrimaryKeyProcessor implements NotificationProcessor{
 
     @Override
-    public void processIntraMerging(
+    public List<NotificationMessage> processInterMerging(
             List<NotificationMessage> notificationMessages,
-            List<NotificationMessage> mergedNotifications,
             Map<NotificationType, List<NotificationGenerated>> generatedNotifications) {
         // TODO Auto-generated method stub
-        
+        return null;
     }
 
     @Override
-    public void processIntraSuppressing(
+    public List<NotificationMessage> processInterSuppressing(
             List<NotificationMessage> notificationMessages,
-            List<NotificationMessage> suppressedNotifications,
             Map<NotificationType, List<NotificationGenerated>> generatedNotifications) {
         // TODO Auto-generated method stub
-        
+        return null;
     }
 
     @Override
-    public void processInterMerging(
+    public List<NotificationMessage> processIntraMerging(
             List<NotificationMessage> notificationMessages,
-            List<NotificationMessage> mergedNotifications,
-            Map<NotificationType, List<NotificationGenerated>> generatedNotifications) {
+            List<NotificationGenerated> generatedNotifications) {
         // TODO Auto-generated method stub
-        
+        return null;
     }
 
     @Override
-    public void processInterSuppressing(
+    public List<NotificationMessage> processIntraSuppressing(
             List<NotificationMessage> notificationMessages,
-            List<NotificationMessage> suppressedNotifications,
-            Map<NotificationType, List<NotificationGenerated>> generatedNotifications) {
+            List<NotificationGenerated> generatedNotifications) {
         // TODO Auto-generated method stub
-        
+        return null;
     }
 
+    
 }

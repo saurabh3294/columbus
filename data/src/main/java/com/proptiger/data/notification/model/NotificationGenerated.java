@@ -16,6 +16,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.legacy.NotificationMediumOld;
 import com.proptiger.data.notification.model.legacy.NotificationMessageOld;
@@ -37,11 +38,19 @@ public class NotificationGenerated extends BaseModel {
 
     @OneToOne
     @JoinColumn(name = "notification_message_id")
-    private NotificationMessageOld        notificationMessage;
+    private NotificationMessageOld     notificationMessage;
 
     @OneToOne
     @JoinColumn(name = "notification_medium_id")
-    private NotificationMediumOld         notificationMedium;
+    private NotificationMediumOld      notificationMedium;
+
+    @OneToOne
+    @JoinColumn(name = "notification_type_id")
+    private NotificationType           notificationType;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private ForumUser                  forumUser;
 
     @Column(name = "data")
     private String                     data;
@@ -135,5 +144,21 @@ public class NotificationGenerated extends BaseModel {
 
     public void setNotificationMessagePayload(NotificationMessagePayload notificationMessagePayload) {
         this.notificationMessagePayload = notificationMessagePayload;
+    }
+
+    public ForumUser getForumUser() {
+        return forumUser;
+    }
+
+    public void setForumUser(ForumUser forumUser) {
+        this.forumUser = forumUser;
+    }
+
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
     }
 }
