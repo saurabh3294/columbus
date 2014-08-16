@@ -11,23 +11,23 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
-import com.proptiger.data.notification.service.NotificationTypeGenerationService;
+import com.proptiger.data.notification.service.NotificationTypeGeneratedService;
 import com.proptiger.data.notification.service.SubscriberConfigService;
 
 @Service
 public class NotificationTypeGenerator {
 
     @Autowired
-    private NotificationTypeGenerationService ntGenerationService;
+    private NotificationTypeGeneratedService ntGeneratedService;
 
     @Autowired
-    private SubscriberConfigService           subscriberConfigService;
+    private SubscriberConfigService          subscriberConfigService;
 
     @Autowired
-    private EventGeneratedService             eventGeneratedService;
+    private EventGeneratedService            eventGeneratedService;
 
     public boolean isNotificationGenerationRequired() {
-        Integer activeNTCount = ntGenerationService.getActiveNotificationTypeCount();
+        Integer activeNTCount = ntGeneratedService.getActiveNotificationTypeCount();
         Integer maxActiveNTCount = subscriberConfigService.getMaxActiveNotificationTypeCount();
 
         if (activeNTCount < maxActiveNTCount) {
@@ -54,10 +54,10 @@ public class NotificationTypeGenerator {
         });
 
         for (EventGenerated eventGenerated : eventGeneratedList) {
-            List<NotificationTypeGenerated> ntGeneratedList = ntGenerationService
+            List<NotificationTypeGenerated> ntGeneratedList = ntGeneratedService
                     .getNotificationTypesForEventGenerated(eventGenerated);
             ntCount += ntGeneratedList.size();
-            ntGenerationService.persistNotificationTypes(eventGenerated, ntGeneratedList);
+            ntGeneratedService.persistNotificationTypes(eventGenerated, ntGeneratedList);
         }
 
         return ntCount;

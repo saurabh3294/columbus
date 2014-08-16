@@ -1,15 +1,14 @@
 /**
  * 
  */
-package com.proptiger.data.notification.service;
+package com.proptiger.data.notification.model.legacy;
 
-import com.proptiger.data.notification.model.legacy.NotificationMessageOld;
 
 /**
  * @author mandeep
  *
  */
-public interface NotificationService {
+public interface NotificationServiceOld {
     public void createNotificationMessage(NotificationMessageOld notificationMessage);
     public void processNotificationMessages(); // handles merging of notifications
     public void scheduleNotifications();
