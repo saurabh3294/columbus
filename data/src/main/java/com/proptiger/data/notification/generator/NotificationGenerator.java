@@ -1,29 +1,18 @@
 package com.proptiger.data.notification.generator;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.io.filefilter.NotFileFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.generator.handler.NotificationProcessorHandler;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
-import com.proptiger.data.notification.model.NotificationType;
-import com.proptiger.data.notification.model.legacy.NotificationPayloadOld;
-import com.proptiger.data.notification.model.payload.NotificationTypePayload;
-import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;
-import com.proptiger.data.notification.processor.dto.NotificationByKey;
-import com.proptiger.data.notification.processor.dto.NotificationByTypeDto;
 import com.proptiger.data.notification.processor.dto.NotificationIntraProcessorDto;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
+import com.proptiger.data.notification.service.NotificationIntraProcessorDtoService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.sun.tools.javac.util.Pair;
 
 @Service
 public class NotificationGenerator {
@@ -35,6 +24,9 @@ public class NotificationGenerator {
 
     @Autowired
     private NotificationGeneratedService notificationGeneratedService;
+    
+    @Autowired
+    private NotificationIntraProcessorDtoService nDtoService;
 
     public Integer generateNotifications() {
         // TODO to handle the pageable condition.
@@ -44,20 +36,11 @@ public class NotificationGenerator {
         List<NotificationGenerated> scheduledNotificationGeneratedList = notificationGeneratedService
                 .getScheduledAndNonExpiredNotifications();
 
-        Map<Integer, List<NotificationMessage>> groupNotificationMessagesByuser = notificationMessageService
-                .groupNotificationMessageByuser(notificationMessages);
+        List<NotificationIntraProcessorDto> nDtos = nDtoService.buildDto(notificationMessages, scheduledNotificationGeneratedList);       
 
-        Map<Integer, List<NotificationGenerated>> groupNotificationGeneratedByuser = notificationGeneratedService
-                .groupNotificationGeneratedByuser(scheduledNotificationGeneratedList);
-
-        // List<NotificationMessage> finalProcessedNotificationMessages = new
-        // ArrayList<NotificationMessage>();
-        List<NotificationMessage> processedNotificationMessages = null;
-
-        for (Map.Entry<Integer, List<NotificationMessage>> entry : groupNotificationMessagesByuser.entrySet()) {
-            processedNotificationMessages = notificationProcessorHandler.handleNotificationMessage(
-                    entry.getValue(),
-                    groupNotificationGeneratedByuser.get(entry.getKey()));
+        for(NotificationIntraProcessorDto intraProcessorDto:nDtos){
+            notificationProcessorHandler.handleNotificationMessage(
+                    intraProcessorDto.getNotificationByTypeDtos());
             // finalProcessedNotificationMessages.addAll(processedNotificationMessages);
         }
         // List<NotificationMessage> finalNotificationMessages =

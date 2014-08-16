@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
 

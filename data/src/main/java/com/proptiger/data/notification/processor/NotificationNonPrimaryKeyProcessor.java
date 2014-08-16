@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
+import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
 
 @Service
 public class NotificationNonPrimaryKeyProcessor implements NotificationProcessor{
@@ -29,19 +30,15 @@ public class NotificationNonPrimaryKeyProcessor implements NotificationProcessor
     }
 
     @Override
-    public List<NotificationMessage> processIntraMerging(
-            List<NotificationMessage> notificationMessages,
-            List<NotificationGenerated> generatedNotifications) {
+    public void processIntraMerging(NotificationByKeyDto notificationByKey) {
         // TODO Auto-generated method stub
-        return null;
+        
     }
 
     @Override
-    public List<NotificationMessage> processIntraSuppressing(
-            List<NotificationMessage> notificationMessages,
-            List<NotificationGenerated> generatedNotifications) {
+    public void processIntraSuppressing(NotificationByKeyDto notificationByKey) {
         // TODO Auto-generated method stub
-        return null;
+        
     }
 
     

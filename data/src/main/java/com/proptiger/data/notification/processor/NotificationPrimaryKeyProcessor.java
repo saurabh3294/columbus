@@ -7,12 +7,13 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationType.NotificationOperation;
-import com.proptiger.data.notification.model.legacy.NotificationPayloadOld;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
+import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
 
 @Service
 public class NotificationPrimaryKeyProcessor implements NotificationProcessor{
@@ -59,37 +60,20 @@ public class NotificationPrimaryKeyProcessor implements NotificationProcessor{
         return groupMap;
     }
     
-    public List<NotificationMessage> intraProcessorHandler(List<NotificationMessage> nMessages, List<NotificationGenerated> nGenerateds, NotificationOperation nOperation){
-        Map<Object, List<NotificationMessage>> keyGroupMessages = groupingIntraNotificationByPrimaryKey(nMessages);
-        Map<Object, List<NotificationGenerated>> keyGroupGenerated = groupingIntraNotificationGeneratedByPrimaryKey(nGenerateds);
-        
+    public List<NotificationMessage> intraProcessorHandler(Map<Object, NotificationByKeyDto> mapByObject, NotificationOperation nOperation){
+                
         List<NotificationMessage> discardNMessage = new ArrayList<NotificationMessage>();
-        for(Map.Entry<Object, List<NotificationMessage>> entry:keyGroupMessages.entrySet())
+        for(Map.Entry<Object, NotificationByKeyDto> entry:mapByObject.entrySet())
         {
             if( nOperation.equals(NotificationOperation.Merge) ){
-                processIntraMerging( entry.getValue(), keyGroupGenerated.get(entry.getKey()));
+                processIntraMerging(entry.getValue());
             }
             else{
-                processIntraSuppressing( entry.getValue(), keyGroupGenerated.get(entry.getKey()));
+                processIntraSuppressing(entry.getValue());
+                        
             }    
         }
         
-        return null;
-    }
-
-    @Override
-    public List<NotificationMessage> processIntraMerging(
-            List<NotificationMessage> notificationMessages,
-            List<NotificationGenerated> generatedNotifications) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<NotificationMessage> processIntraSuppressing(
-            List<NotificationMessage> notificationMessages,
-            List<NotificationGenerated> generatedNotifications) {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -107,6 +91,74 @@ public class NotificationPrimaryKeyProcessor implements NotificationProcessor{
             Map<NotificationType, List<NotificationGenerated>> generatedNotifications) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void processIntraMerging(NotificationByKeyDto notificationByKey) {
+        List<NotificationMessage> nMessages = notificationByKey.getNotificationMessages();
+        List<NotificationGenerated> nGenerateds = notificationByKey.getNotificationGenerateds();
+        
+        NotificationMessage  lastMessage = nMessages.get(nMessages.size() -1 );
+        nMessages.remove(lastMessage);
+        List<NotificationMessagePayload> mergePayload = lastMessage.getNotificationMessagePayload().getNotificationMessagePayloads();
+        
+        // removing all notification Messages to be processed. Discarding them
+        List<NotificationMessage> discardMessages = notificationByKey.getDiscardedMessage();
+        for(NotificationMessage nMessage:nMessages){
+            nMessage.setNotificationStatus(NotificationStatus.Merged);
+            discardMessages.add(nMessage);
+            mergePayload.add(nMessage.getNotificationMessagePayload());
+        }
+        
+        // discarding all the current Notification Generated .
+        Map<NotificationStatus, List<NotificationGenerated>> discardMap = notificationByKey.getDiscardGeneratedMap();
+        NotificationStatus currentStatus = null;
+        List<NotificationGenerated> discardGenerated = null;
+        for(NotificationGenerated nGenerated: nGenerateds){
+            currentStatus = nGenerated.getNotificationStatus();
+            discardGenerated = discardMap.get(currentStatus);
+            if(discardGenerated == null){
+                discardGenerated = new ArrayList<NotificationGenerated>();
+            }
+            nGenerated.setNotificationStatus(NotificationStatus.Merged);
+            discardGenerated.add(nGenerated);
+            mergePayload.add(nGenerated.getNotificationMessagePayload());
+            discardMap.put(currentStatus, discardGenerated);
+        }
+        
+    }
+
+    @Override
+    public void processIntraSuppressing(NotificationByKeyDto notificationByKey) {
+        List<NotificationMessage> nMessages = notificationByKey.getNotificationMessages();
+        List<NotificationGenerated> nGenerateds = notificationByKey.getNotificationGenerateds();
+        
+        NotificationMessage  lastMessage = nMessages.get(nMessages.size() -1 );
+        nMessages.remove(lastMessage);
+        
+        // removing all notification Messages to be processed. Discarding them
+        List<NotificationMessage> discardMessages = notificationByKey.getDiscardedMessage();
+        for(NotificationMessage nMessage:nMessages){
+            nMessage.setNotificationStatus(NotificationStatus.Suppressed);
+            discardMessages.add(nMessage);
+        }
+                
+        // discarding all the current Notification Generated .
+        Map<NotificationStatus, List<NotificationGenerated>> discardMap = notificationByKey.getDiscardGeneratedMap();
+        NotificationStatus currentStatus = null;
+        List<NotificationGenerated> discardGenerated = null;
+        for(NotificationGenerated nGenerated: nGenerateds){
+            currentStatus = nGenerated.getNotificationStatus();
+            discardGenerated = discardMap.get(currentStatus);
+            if(discardGenerated == null){
+                discardGenerated = new ArrayList<NotificationGenerated>();
+            }
+            nGenerated.setNotificationStatus(NotificationStatus.Suppressed);
+            discardGenerated.add(nGenerated);
+            
+            discardMap.put(currentStatus, discardGenerated);
+        }
+        
     }
     
 

@@ -6,14 +6,13 @@ import java.util.Map;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
+import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
 
 public interface NotificationProcessor {
-    public List<NotificationMessage> processIntraMerging(
-            List<NotificationMessage> notificationMessages,
-            List<NotificationGenerated> generatedNotifications);
+    public void processIntraMerging(
+            NotificationByKeyDto notificationByKey);
     
-    public List<NotificationMessage> processIntraSuppressing(List<NotificationMessage> notificationMessages,
-            List<NotificationGenerated> generatedNotifications);
+    public void processIntraSuppressing(NotificationByKeyDto notificationByKey);
 
     public List<NotificationMessage> processInterMerging(List<NotificationMessage> notificationMessages,
             Map<NotificationType, List<NotificationGenerated>> generatedNotifications);

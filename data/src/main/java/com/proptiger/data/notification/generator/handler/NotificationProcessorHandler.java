@@ -1,16 +1,14 @@
 package com.proptiger.data.notification.generator.handler;
 
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationType.NotificationOperation;
 import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;
+import com.proptiger.data.notification.processor.dto.NotificationByTypeDto;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 
@@ -28,24 +26,23 @@ public class NotificationProcessorHandler {
      * @param notificationMessages
      * @return
      */
-    public List<NotificationMessage> handleNotificationMessage(List<NotificationMessage> notificationMessages, List<NotificationGenerated> notificationGenerateds){
+    public void handleNotificationMessage(Map<Integer, NotificationByTypeDto> nMap){
         /**
          * - intra primary key merging or suppressing
          *   -- grouping by primary key seperate for each Notification Type.
          *   -- merging and suppressing seperate for each Notification Type.
          **/
-        Map<String, List<NotificationMessage>> groupMessageByNotificationTypeMap = nMessageService.groupNotificationsByNotificationType(notificationMessages);
-        Map<String, List<NotificationGenerated>> groupGeneratedByNotificationMap = nGeneratedService.groupNotificationsByNotificationType(notificationGenerateds);
-                
+                        
         NotificationPrimaryKeyProcessor nPrimaryKeyProcessor = null;
         NotificationOperation nOperation = null;
         NotificationType nType = null;
-        for(Map.Entry<String, List<NotificationMessage>> entry: groupMessageByNotificationTypeMap.entrySet()){
-            nType = entry.getValue().get(0).getNotificationType();
+        for(Map.Entry<Integer, NotificationByTypeDto> entry: nMap.entrySet()){
+            nType = entry.getValue().getNotificationType();
             nOperation = nType.getIntraPrimaryKeyOperation();
             if(nOperation != null){
-                nPrimaryKeyProcessor = entry.getValue().get(0).getNotificationType().getNotificationTypeConfig().getPrimaryKeyProcessorObject();
-                nPrimaryKeyProcessor.intraProcessorHandler(entry.getValue(), groupGeneratedByNotificationMap.get(entry.getKey()), nOperation);
+                nPrimaryKeyProcessor = nType.getNotificationTypeConfig().getPrimaryKeyProcessorObject();
+                nPrimaryKeyProcessor.intraProcessorHandler(entry.getValue().getNotificationMessageByKeys()
+                        , nOperation);
             }
             
         }
@@ -77,10 +74,9 @@ public class NotificationProcessorHandler {
          *   -- merging
          *      --- group by merge group.
          *      --- then process them and merge them.
-         *   
+         *   \||||||||||||||||||||||||
          */
         
         
-        return null;
     }
 }

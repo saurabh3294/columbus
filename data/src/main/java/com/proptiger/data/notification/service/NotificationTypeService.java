@@ -1,13 +1,11 @@
 package com.proptiger.data.notification.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.mapping.Array;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +62,7 @@ public class NotificationTypeService {
         return notificationTypeConfig;
     }
     
-    public Map<Integer, Integer> NotificationInterSupressGroupingMap(Iterable<NotificationType> notiIterable){
+    public Map<Integer, Integer> NotificationInterPrimaryKeySupressGroupingMap(Iterable<NotificationType> notiIterable){
         Map<Integer, Integer> mapping = new LinkedHashMap<Integer, Integer>();
         
         Iterator<NotificationType> it = notiIterable.iterator();
@@ -74,9 +72,9 @@ public class NotificationTypeService {
         while(it.hasNext()){
             notificationType = it.next();
             
-            if(notificationType.getInterPrimaryKeyMergeId() != null){
+            if(notificationType.getInterPrimaryKeySuppressId() != null){
                 
-                parentNotificationTypeId = notificationType.getInterPrimaryKeyMergeId();
+                parentNotificationTypeId = notificationType.getInterPrimaryKeySuppressId();
                 mapping.put(parentNotificationTypeId, notificationType.getId());
             }
         }

@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class NotificationIntraProcessorDto {
     private int userId;
-    private Map<String, NotificationByTypeDto>  notificationByTypeDtos = new LinkedHashMap<String, NotificationByTypeDto>();
+    private Map<Integer, NotificationByTypeDto>  notificationByTypeDtos = new LinkedHashMap<Integer, NotificationByTypeDto>();
     
     public int getUserId() {
         return userId;
@@ -13,10 +13,10 @@ public class NotificationIntraProcessorDto {
     public void setUserId(int userId) {
         this.userId = userId;
     }
-    public Map<String, NotificationByTypeDto> getNotificationByTypeDtos() {
+    public Map<Integer, NotificationByTypeDto> getNotificationByTypeDtos() {
         return notificationByTypeDtos;
     }
-    public void setNotificationByTypeDtos(Map<String, NotificationByTypeDto> notificationByTypeDtos) {
+    public void setNotificationByTypeDtos(Map<Integer, NotificationByTypeDto> notificationByTypeDtos) {
         this.notificationByTypeDtos = notificationByTypeDtos;
     }
     
