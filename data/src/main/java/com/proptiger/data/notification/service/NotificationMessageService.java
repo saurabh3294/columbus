@@ -1,6 +1,7 @@
 package com.proptiger.data.notification.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,6 +17,7 @@ import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
+import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
 
 @Service
@@ -132,5 +134,13 @@ public class NotificationMessageService {
     private void populateNotificationMessageDataBeforeSave(NotificationMessage notificationMessage) {
         NotificationMessagePayload payload = notificationMessage.getNotificationMessagePayload();
         notificationMessage.setData(serializer.toJson(payload));
+    }
+
+    public void addNotificationMessageUpdateHistory(
+            NotificationMessage notificationMessage,
+            NotificationStatus notificationStatus) {
+        NotificationMessageUpdateHistory nHistory = new NotificationMessageUpdateHistory(notificationStatus, new Date());
+
+        notificationMessage.getNotificationMessagePayload().getNotificationMessageUpdateHistories().add(nHistory);
     }
 }

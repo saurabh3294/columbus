@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationType;
+import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
 
 @Service
@@ -46,7 +47,7 @@ public class NotificationGeneratedService {
 
         return groupNotificationMessageMap;
     }
-    
+
     public Map<String, List<NotificationGenerated>> groupNotificationsByNotificationType(
             List<NotificationGenerated> notificationGeneratedList) {
         if (notificationGeneratedList == null) {
@@ -71,5 +72,13 @@ public class NotificationGeneratedService {
         }
 
         return groupNotificationMessageMap;
+    }
+
+    public void addNotificationGeneratedUpdateHistory(
+            NotificationGenerated notificationGenerated,
+            NotificationStatus notificationStatus) {
+        NotificationMessageUpdateHistory nHistory = new NotificationMessageUpdateHistory(notificationStatus, new Date());
+
+        notificationGenerated.getNotificationMessagePayload().getNotificationMessageUpdateHistories().add(nHistory);
     }
 }

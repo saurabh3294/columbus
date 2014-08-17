@@ -62,7 +62,9 @@ public class NotificationTypeService {
         return notificationTypeConfig;
     }
     
-    public Map<Integer, Integer> NotificationInterPrimaryKeySupressGroupingMap(Iterable<NotificationType> notiIterable){
+    public Map<Integer, Integer> NotificationInterPrimaryKeySupressGroupingMap(){
+        Iterable<NotificationType> notiIterable = findAllNotificationTypes();
+        
         Map<Integer, Integer> mapping = new LinkedHashMap<Integer, Integer>();
         
         Iterator<NotificationType> it = notiIterable.iterator();
@@ -82,7 +84,9 @@ public class NotificationTypeService {
         return mapping;
     }
     
-    public Map<Integer, List<Integer>> NotificationInterMergeGroupingMap(Iterable<NotificationType> notiIterable){
+    public Map<Integer, List<Integer>> notificationInterMergeGroupingMap(){
+        
+        Iterable<NotificationType> notiIterable = findAllNotificationTypes();
         Map<Integer, List<Integer>> mapping = new LinkedHashMap<Integer, List<Integer>>();
         
         Iterator<NotificationType> it = notiIterable.iterator();

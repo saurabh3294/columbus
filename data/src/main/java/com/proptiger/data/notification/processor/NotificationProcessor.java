@@ -17,7 +17,6 @@ public interface NotificationProcessor {
     public List<NotificationMessage> processInterMerging(List<NotificationMessage> notificationMessages,
             Map<NotificationType, List<NotificationGenerated>> generatedNotifications);
 
-    public List<NotificationMessage> processInterSuppressing(List<NotificationMessage> notificationMessages,
-            Map<NotificationType, List<NotificationGenerated>> generatedNotifications);
+    public void processInterSuppressing(NotificationByKeyDto parent, NotificationByKeyDto child);
 
 }

@@ -15,6 +15,8 @@ public class NotificationMessagePayload extends BaseModel{
     private NotificationTypePayload notificationTypePayload;
     
     private List<NotificationMessagePayload> notificationMessagePayloads = new ArrayList<NotificationMessagePayload>();
+    
+    private List<NotificationMessageUpdateHistory> notificationMessageUpdateHistories = new ArrayList<NotificationMessageUpdateHistory>();
 
     public NotificationTypePayload getNotificationTypePayload() {
         return notificationTypePayload;
@@ -30,5 +32,14 @@ public class NotificationMessagePayload extends BaseModel{
 
     public void setNotificationMessagePayloads(List<NotificationMessagePayload> notificationMessagePayloads) {
         this.notificationMessagePayloads = notificationMessagePayloads;
+    }
+
+    public List<NotificationMessageUpdateHistory> getNotificationMessageUpdateHistories() {
+        return notificationMessageUpdateHistories;
+    }
+
+    public void setNotificationMessageUpdateHistories(
+            List<NotificationMessageUpdateHistory> notificationMessageUpdateHistories) {
+        this.notificationMessageUpdateHistories = notificationMessageUpdateHistories;
     }
 }

@@ -7,6 +7,7 @@ public class NotificationIntraProcessorDto {
     private int userId;
     private Map<Integer, NotificationByTypeDto>  notificationByTypeDtos = new LinkedHashMap<Integer, NotificationByTypeDto>();
     
+    
     public int getUserId() {
         return userId;
     }
