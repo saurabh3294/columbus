@@ -10,6 +10,8 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -37,7 +39,7 @@ public class NotificationMessage extends BaseModel {
     private String                     data;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notification_generated_id", updatable = false)
+    @JoinColumn(name = "notification_generated_id", updatable = false, insertable = false)
     private NotificationTypeGenerated  notificationTypeGenerated;
 
     @OneToOne(fetch = FetchType.EAGER)
@@ -62,6 +64,18 @@ public class NotificationMessage extends BaseModel {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date                       updatedAt;
+    
+    @PreUpdate
+    public void populateFieldsBeforeUpdate(){
+        this.updatedAt = new Date();
+    }
+    
+    @PrePersist
+    public void populateFieldsBeforePersist(){
+        this.createdAt = new Date();
+        this.notificationStatus = NotificationStatus.MessageGenerated;
+        populateFieldsBeforeUpdate();
+    }
 
     public int getId() {
         return id;

@@ -40,7 +40,7 @@ public class NotificationGenerator {
 
         for(NotificationIntraProcessorDto intraProcessorDto:nDtos){
             notificationProcessorHandler.handleNotificationMessage(
-                    intraProcessorDto.getNotificationByTypeDtos());
+                    intraProcessorDto.getNotificationByTypeDtos(), intraProcessorDto.getUserId());
             // finalProcessedNotificationMessages.addAll(processedNotificationMessages);
         }
         // List<NotificationMessage> finalNotificationMessages =

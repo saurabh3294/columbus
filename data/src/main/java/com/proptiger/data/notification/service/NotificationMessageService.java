@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
+import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
@@ -19,6 +20,7 @@ import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
+import com.proptiger.data.service.ForumUserService;
 
 @Service
 public class NotificationMessageService {
@@ -28,6 +30,12 @@ public class NotificationMessageService {
 
     @Autowired
     private NotificationTypeGeneratedService ntGeneratedService;
+    
+    @Autowired
+    private NotificationTypeService notiTypeService;
+    
+    @Autowired
+    private ForumUserService forumUserService;
 
     private Gson                             serializer = new Gson();
 
@@ -96,8 +104,14 @@ public class NotificationMessageService {
         return groupNotificationMessageMap;
     }
 
-    public NotificationMessage createNotificationMessage() {
-        return new NotificationMessage();
+    public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId) {
+        NotificationType notiType = notiTypeService.findOne(notificationTypeId);
+        ForumUser forumUser = forumUserService.findOne(userId);
+        NotificationMessage notificationMessage = new NotificationMessage();
+        notificationMessage.setForumUser(forumUser);
+        notificationMessage.setNotificationType(notiType);
+        
+        return notificationMessage;
     }
 
     public List<NotificationMessage> getNotificationMessagesForNotificationType(NotificationType notificationType) {

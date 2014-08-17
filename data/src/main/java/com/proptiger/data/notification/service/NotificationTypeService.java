@@ -117,4 +117,8 @@ public class NotificationTypeService {
     public Iterable<NotificationType> findAllNotificationTypes(){
         return notificationTypeDao.findAll();
     }
+    
+    public NotificationType findOne(Integer notificationTypeId){
+        return notificationTypeDao.findOne(notificationTypeId);
+    }
 }
