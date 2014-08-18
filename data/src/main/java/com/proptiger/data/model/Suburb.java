@@ -33,7 +33,7 @@ import com.proptiger.data.model.image.Image;
  * 
  */
 @Entity
-@Table(name = "SUBURB")
+@Table(name = "cms.suburb")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)

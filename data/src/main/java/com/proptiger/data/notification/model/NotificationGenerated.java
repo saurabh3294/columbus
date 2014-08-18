@@ -10,15 +10,18 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.model.legacy.NotificationMedium;
-import com.proptiger.data.notification.model.legacy.NotificationMessage;
+import com.proptiger.data.notification.model.legacy.NotificationMediumOld;
+import com.proptiger.data.notification.model.legacy.NotificationMessageOld;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
 @Entity
@@ -37,11 +40,19 @@ public class NotificationGenerated extends BaseModel {
 
     @OneToOne
     @JoinColumn(name = "notification_message_id")
-    private NotificationMessage        notificationMessage;
+    private NotificationMessage     notificationMessage;
 
     @OneToOne
     @JoinColumn(name = "notification_medium_id")
-    private NotificationMedium         notificationMedium;
+    private NotificationMedium      notificationMedium;
+
+    @OneToOne
+    @JoinColumn(name = "notification_type_id")
+    private NotificationType           notificationType;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private ForumUser                  forumUser;
 
     @Column(name = "data")
     private String                     data;
@@ -64,6 +75,17 @@ public class NotificationGenerated extends BaseModel {
 
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
+    
+    @PreUpdate
+    public void populatePreUpdateFields(){
+        this.updatedAt = new Date();
+    }
+    
+    @PrePersist
+    public void populatePrePersistFields(){
+        this.createdAt = new Date();
+        this.notificationStatus = NotificationStatus.NotificationGenerated;
+    }
 
     public int getId() {
         return id;
@@ -135,5 +157,21 @@ public class NotificationGenerated extends BaseModel {
 
     public void setNotificationMessagePayload(NotificationMessagePayload notificationMessagePayload) {
         this.notificationMessagePayload = notificationMessagePayload;
+    }
+
+    public ForumUser getForumUser() {
+        return forumUser;
+    }
+
+    public void setForumUser(ForumUser forumUser) {
+        this.forumUser = forumUser;
+    }
+
+    public NotificationType getNotificationType() {
+        return notificationType;
+    }
+
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
     }
 }

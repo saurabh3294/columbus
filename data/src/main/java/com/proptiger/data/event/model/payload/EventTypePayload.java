@@ -10,6 +10,11 @@ import javax.persistence.TemporalType;
 import com.proptiger.data.event.model.RawDBEvent;
 
 public abstract class EventTypePayload implements Serializable {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 6402700328521298042L;
+    
     private String                       transactionKeyName;
     private Object                       transactionId;
     private String                       primaryKeyName;

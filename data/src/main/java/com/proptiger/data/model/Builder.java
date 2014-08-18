@@ -28,94 +28,97 @@ import com.proptiger.data.model.image.Image;
  * 
  */
 @Entity
-@Table(name = "RESI_BUILDER")
+@Table(name = "cms.resi_builder")
 @ResourceMetaInfo
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Builder extends BaseModel {
-    private static final long serialVersionUID = 1369026324841504903L;
+    private static final long    serialVersionUID = 1369026324841504903L;
 
     @FieldMetaInfo(displayName = "Builder Id", description = "Builder Id")
     @Column(name = "BUILDER_ID")
     @Id
     @Field("BUILDER_ID")
-    private int               id;
+    private int                  id;
 
     @FieldMetaInfo(displayName = "Name", description = "Builder Name")
     @Column(name = "BUILDER_NAME")
     @Field("BUILDER_NAME")
-    private String            name;
+    private String               name;
 
     @FieldMetaInfo(displayName = "Image", description = "Builder Image URL")
     @Transient
     @Field("BUILDER_LOGO_IMAGE")
-    private String            imageURL;
+    private String               imageURL;
 
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
     @Field("BUILDER_DESCRIPTION")
-    private String            description;
+    private String               description;
 
-    @Transient
+    @Column(name = "ESTABLISHED_DATE")
     @Field("BUILDER_ESTABLISHED_DATE")
-    private Date              establishedDate;
+    private Date                 establishedDate;
 
     @Transient
-    private List<Project>     projects;
+    private List<Project>        projects;
 
     @Column(name = "DISPLAY_ORDER")
     @Field("BUILDER_PRIORITY")
-    private Integer           priority;
+    private Integer              priority;
 
     @Field("BUILDER_URL")
     @Column(name = "URL")
-    private String            url;
+    private String               url;
 
     @Transient
-    private Map<String, Long> projectStatusCount;
+    private Map<String, Long>    projectStatusCount;
 
     @Transient
     @Field("BUILDER_PROJECT_COUNT")
-    private Integer           projectCount;
+    private Integer              projectCount;
 
     @Transient
     @JsonIgnore
     @FieldMetaInfo(displayName = "Builder enquiry count", description = "Builder enquiry count")
     @Field(value = "BUIULDER_ENQUIRY_COUNT")
-    private Integer           builderEnquiryCount;
+    private Integer              builderEnquiryCount;
 
     @Transient
     @JsonIgnore
     @FieldMetaInfo(displayName = "Builder view count", description = "Builder view count")
     @Field(value = "BUILDER_VIEW_COUNT")
-    private Integer           builderViewCount;
-    
+    private Integer              builderViewCount;
+
     @Transient
-    private Integer           avgCompletionTimeMonths;
+    private Integer              avgCompletionTimeMonths;
 
     @Transient
     private Map<String, Integer> projectCountByCity;
- 
-    @Transient
+
     @Field(value = "BUILDER_WEBSITE")
-    private String            builderWebsite;
-    
-    @Transient
+    @Column(name = "WEBSITE")
+    private String               builderWebsite;
+
     @Field(value = "BUILDER_ADDRESS")
-    private String            builderAddress;
-    
+    @Column(name = "ADDRESS")
+    private String               builderAddress;
+
     @Transient
     @Field(value = "BUILDER_LOCALITY_COUNT")
-    private Integer           builderLocalityCount;
-    
+    private Integer              builderLocalityCount;
+
     @Transient
-    private List<Image>       images;
-    
+    private List<Image>          images;
+
     @Transient
     @JsonIgnore
     @Field("BUILDER_CITIES")
-    private List<String>      builderCities;
-    
+    private List<String>         builderCities;
+
+    @Transient
+    private Image                mainImage        = new Image();
+
     public int getId() {
         return id;
     }
@@ -149,12 +152,12 @@ public class Builder extends BaseModel {
         this.description = description;
     }
 
-    public Date getEstabilishedDate() {
+    public Date getEstablishedDate() {
         return establishedDate;
     }
 
-    public void setEstabilishedDate(Date estabilishedDate) {
-        this.establishedDate = estabilishedDate;
+    public void setEstablishedDate(Date establishedDate) {
+        this.establishedDate = establishedDate;
     }
 
     public List<Project> getProjects() {
@@ -267,5 +270,28 @@ public class Builder extends BaseModel {
 
     public void setBuilderCities(List<String> builderCities) {
         this.builderCities = builderCities;
+    }
+
+    public Image getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(Image mainImage) {
+        this.mainImage = mainImage;
+    }
+
+    @Field("BUILDER_IMAGE_ALTTEXT")
+    public void setImageAltText(String altText) {
+        mainImage.setAltText(altText);
+    }
+
+    @Field("BUILDER_IMAGE_TITLE")
+    public void setImageTitle(String title) {
+        mainImage.setTitle(title);
+    }
+
+    @Field("BUILDER_LOGO_IMAGE")
+    public void setAbsolutePath(String absolutePath) {
+        mainImage.setAbsolutePath(absolutePath);
     }
 }

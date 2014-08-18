@@ -206,6 +206,6 @@ public class RawEventToEventTypeMappingService {
     }
 
     public void setDbRawEventTableConfigs(List<DBRawEventTableConfig> dbRawEventTableConfigs) {
-        this.dbRawEventTableConfigs = dbRawEventTableConfigs;
+        RawEventToEventTypeMappingService.dbRawEventTableConfigs = dbRawEventTableConfigs;
     }
 }

@@ -15,6 +15,7 @@ import com.proptiger.data.model.BaseModel;
 // TODO remove the Types ENUM. make it dynamic.
 public class EventTypeConfig extends BaseModel {
 
+        
     public static Map<String, EventTypeConfig>   eventTypeConfigMap;
     static {
 

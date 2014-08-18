@@ -6,6 +6,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -20,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.proptiger.data.enums.Status;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.image.Image;
@@ -31,7 +34,7 @@ import com.proptiger.data.model.image.Image;
  * 
  */
 @Entity
-@Table(name = "LOCALITY")
+@Table(name = "cms.locality")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Locality extends BaseModel {
@@ -52,6 +55,7 @@ public class Locality extends BaseModel {
     @FieldMetaInfo(displayName = "Suburb Id", description = "Suburb Id")
     @Column(name = "SUBURB_ID")
     @Field("SUBURB_ID")
+    @Deprecated
     private int                             suburbId;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -59,8 +63,8 @@ public class Locality extends BaseModel {
     private Suburb                          suburb;
 
     // XXX TODO - This is to be removed
+    @Transient
     @Deprecated
-    @Column(name = "CITY_ID")
     @Field("CITY_ID")
     private int                             cityId;
 
@@ -69,14 +73,17 @@ public class Locality extends BaseModel {
     @Field("LOCALITY")
     private String                          label;
 
+    @Transient
     @FieldMetaInfo(displayName = "Title", description = "Title")
     @Column(name = "META_TITLE")
     private String                          title;
 
+    @Transient
     @FieldMetaInfo(displayName = "Keywords", description = "Keywords")
     @Column(name = "META_KEYWORDS")
     private String                          keywords;
 
+    @Transient
     @FieldMetaInfo(displayName = "Meta Description", description = "Meta Description")
     @Column(name = "META_DESCRIPTION")
     private String                          metaDescription;
@@ -85,11 +92,10 @@ public class Locality extends BaseModel {
     @Column(name = "URL")
     @Field("LOCALITY_URL")
     private String                          url;
-
-    @FieldMetaInfo(displayName = "Active", description = "Active")
-    @Column(name = "ACTIVE")
-    @JsonIgnore
-    private boolean                         isActive;
+    
+    @Column(name = "STATUS")
+    @Enumerated(EnumType.STRING)
+    private   Status                        status;
 
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
@@ -314,14 +320,6 @@ public class Locality extends BaseModel {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean isActive) {
-        this.isActive = isActive;
     }
 
     public String getDescription() {
@@ -626,5 +624,13 @@ public class Locality extends BaseModel {
 
     public void setLivabilityScore(Float livabilityScore) {
         this.livabilityScore = livabilityScore;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

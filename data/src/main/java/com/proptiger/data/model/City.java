@@ -23,7 +23,7 @@ import com.proptiger.data.model.image.Image;
  * 
  */
 @Entity
-@Table(name = "CITY")
+@Table(name = "cms.city")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class City extends BaseModel {

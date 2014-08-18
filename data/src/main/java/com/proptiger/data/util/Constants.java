@@ -198,7 +198,8 @@ public class Constants {
         public static final int    ACCESS_TOKEN_VALIDITY_DAYS   = 7;
         public static final String REGISTER_URL                 = "app/v1/register";
         public static final String ACCESS_TOKEN                 = "access_token";
-        public static final String API_SECRET_WORD              = "proptiger-api";
+        public static final String API_SECRET_WORD_VALUE             = "prop-api";
+        
         /*
          * As of now this is static for all users, could be auto generated in
          * future for each user

@@ -27,7 +27,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonFilter("fieldFilter")
 public class Typeahead extends BaseModel {
 
-	private static final long serialVersionUID = 2096261268711516512L;
+    private static final long serialVersionUID = 2096261268711516512L;
 
     @Field(value = "id")
     private String            id;
@@ -92,13 +92,19 @@ public class Typeahead extends BaseModel {
 
     @Field(value = "TEMPLATE_TEXT")
     private String            templateText;
-    
+
     @Field(value = "TEMPLATE_TYPE")
     private String            templateType;
-    
+
     @Field(value = "score")
-    private Float            score;
-    
+    private Float             score;
+
+    @Field(value = "LATITUDE")
+    private Double            latitude;
+
+    @Field(value = "LONGITUDE")
+    private Double            longitude;
+
     public String getId() {
         return id;
     }
@@ -258,7 +264,7 @@ public class Typeahead extends BaseModel {
     public void setCityId(Integer cityId) {
         this.cityId = cityId;
     }
-    
+
     public Float getScore() {
         return score;
     }
@@ -274,13 +280,29 @@ public class Typeahead extends BaseModel {
     public void setTemplateText(String templateText) {
         this.templateText = templateText;
     }
-    
+
     public String getTemplateType() {
         return templateType;
     }
 
     public void setTemplateType(String templateType) {
         this.templateType = templateType;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
 }
