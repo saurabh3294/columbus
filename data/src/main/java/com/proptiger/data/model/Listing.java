@@ -272,41 +272,41 @@ public class Listing extends BaseModel {
      * @author Rajeev Pandey
      *
      */
-    private static class OtherInfo {
-        private Integer size;
-        private Integer bedrooms;
-        private Integer bathrooms;
-        private Integer projectId;
+    public static class OtherInfo {
+        private Double size;
+        private int bedrooms;
+        private int bathrooms;
+        private int projectId;
 
-        public Integer getSize() {
+        public Double getSize() {
             return size;
         }
 
-        public void setSize(Integer size) {
+        public void setSize(Double size) {
             this.size = size;
         }
 
-        public Integer getBedrooms() {
+        public int getBedrooms() {
             return bedrooms;
         }
 
-        public void setBedrooms(Integer bedrooms) {
+        public void setBedrooms(int bedrooms) {
             this.bedrooms = bedrooms;
         }
 
-        public Integer getBathrooms() {
+        public int getBathrooms() {
             return bathrooms;
         }
 
-        public void setBathrooms(Integer bathrooms) {
+        public void setBathrooms(int bathrooms) {
             this.bathrooms = bathrooms;
         }
 
-        public Integer getProjectId() {
+        public int getProjectId() {
             return projectId;
         }
 
-        public void setProjectId(Integer projectId) {
+        public void setProjectId(int projectId) {
             this.projectId = projectId;
         }
 

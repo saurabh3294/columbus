@@ -14,14 +14,18 @@ import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.filter.FieldsMapLoader;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
@@ -30,6 +34,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.util.Constants;
+import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -39,18 +44,18 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PropertyService {
     @Autowired
-    private PropertyDao         propertyDao;
+    private PropertyDao    propertyDao;
 
     @Autowired
-    private ProjectService      projectService;
+    private ProjectService projectService;
 
     @Autowired
-    private ImageEnricher       imageEnricher;
+    private ImageEnricher  imageEnricher;
 
     @Autowired
-    private SolrDao             solrDao;
+    private SolrDao        solrDao;
 
-    private static int ROWS_THRESHOLD = 200;
+    private static int     ROWS_THRESHOLD = 200;
 
     /**
      * Returns properties given a selector
@@ -74,26 +79,25 @@ public class PropertyService {
      * @param propertyListingSelector
      * @return
      */
-    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector)
-    {
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         PaginatedResponse<List<Project>> projects = null;
 
-        if (propertyListingSelector != null && propertyListingSelector.getPaging() != null &&
-            propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD)
-        {
+        if (propertyListingSelector != null && propertyListingSelector.getPaging() != null
+                && propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD) {
             projects = new PaginatedResponse<>();
             projects.setResults(new ArrayList<Project>());
             int startOriginal = propertyListingSelector.getPaging().getStart();
-            int rowsOriginal  = propertyListingSelector.getPaging().getRows();
-            
+            int rowsOriginal = propertyListingSelector.getPaging().getRows();
+
             int remainingRowsToBeFetched = rowsOriginal;
             int rowsFetchedLast = ROWS_THRESHOLD;
             for (int start = startOriginal; remainingRowsToBeFetched > 0 && rowsFetchedLast == ROWS_THRESHOLD; start += ROWS_THRESHOLD) {
                 propertyListingSelector.getPaging().setStart(start);
                 propertyListingSelector.getPaging().setRows(Math.min(ROWS_THRESHOLD, remainingRowsToBeFetched));
-                PaginatedResponse<List<Project>> projectsLocal = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+                PaginatedResponse<List<Project>> projectsLocal = propertyDao
+                        .getPropertiesGroupedToProjects(propertyListingSelector);
                 projects.getResults().addAll(projectsLocal.getResults());
-                projects.setTotalCount(projectsLocal.getTotalCount());                
+                projects.setTotalCount(projectsLocal.getTotalCount());
                 rowsFetchedLast = projectsLocal.getResults().size();
                 remainingRowsToBeFetched -= ROWS_THRESHOLD;
             }
@@ -258,5 +262,56 @@ public class PropertyService {
 
         return properties.get(0);
     }
-    
+
+    public PaginatedResponse<List<Property>> getPropertiesFromDB(FIQLSelector selector) {
+        return propertyDao.getPropertiesFromDB(selector);
+    }
+
+    /**
+     * Tries to find a matching property from database based on other info
+     * provided from database, if found used in listing otherwise create a
+     * unverified property and used that while creating listing
+     * 
+     * @param listing
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public Property createUnverifiedPropertyOrGetExisting(Listing listing, Integer userId) {
+        Property property = null;
+        OtherInfo otherInfo = listing.getOtherInfo();
+        if (otherInfo != null && otherInfo.getSize() > 0 && otherInfo.getBedrooms() > 0 && otherInfo.getProjectId() > 0) {
+            FIQLSelector selector = new FIQLSelector()
+                    .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
+                    .addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms())
+                    .addAndConditionToFilter("size==" + otherInfo.getSize())
+                    .addAndConditionToFilter("project.version==" + DataVersion.Website);
+
+            if (otherInfo.getBathrooms() > 0) {
+                selector.addAndConditionToFilter("bathrooms==" + otherInfo.getBathrooms());
+            }
+            PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+            if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
+                    && propertyWithMatchingCriteria.getResults().size() > 0) {
+                // matching property object found for the given other
+                // information
+                property = propertyWithMatchingCriteria.getResults().get(0);
+            }
+            else {
+                selector = new FIQLSelector().setGroup("unitType")
+                        .addAndConditionToFilter("projectId==" + otherInfo.getProjectId()).setRows(1)
+                        .addSortDESC("countPropertyId");
+
+                propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+                Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, propertyWithMatchingCriteria
+                        .getResults().get(0).getUnitType());
+                property = propertyDao.saveAndFlush(toCreate);
+            }
+        }
+        else {
+            throw new BadRequestException("Other info is invalid");
+        }
+        return property;
+    }
+
 }
