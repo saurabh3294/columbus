@@ -292,9 +292,11 @@ public class Project extends BaseModel {
     private int                     maxBedrooms;
 
     @Column(name = "PROJECT_STATUS_ID")
+    @JsonIgnore
     private int                     projectStatusId;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "PROJECT_STATUS_ID", insertable = false, updatable = false)
     private ProjectStatusMaster     projectStatusMaster;
 
@@ -740,15 +742,11 @@ public class Project extends BaseModel {
 
     public void setProjectStatusMaster(ProjectStatusMaster projectStatusMaster) {
         this.projectStatusMaster = projectStatusMaster;
+        this.projectStatus = projectStatusMaster.getDisplay_name();       
     }
 
     public String getProjectStatus() {
         return projectStatus;
-    }
-
-    @PostLoad
-    public void postLoad() {
-        this.projectStatus = projectStatusMaster.getDisplay_name();
     }
 
     public boolean isIsResale() {
@@ -1203,5 +1201,9 @@ public class Project extends BaseModel {
 
     public void setProjectSocietyScore(Float projectSocietyScore) {
         this.projectSocietyScore = projectSocietyScore;
+    }
+
+    public void setProjectStatus(String projectStatus) {
+        this.projectStatus = projectStatus;
     }
 }
