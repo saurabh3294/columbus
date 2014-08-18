@@ -1,5 +1,6 @@
 package com.proptiger.data.notification.generator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,16 +37,17 @@ public class NotificationGenerator {
         List<NotificationGenerated> scheduledNotificationGeneratedList = notificationGeneratedService
                 .getScheduledAndNonExpiredNotifications();
 
-        List<NotificationProcessorDto> nDtos = nDtoService.buildPrimaryKeyDto(notificationMessages, scheduledNotificationGeneratedList);       
+        List<NotificationProcessorDto> nDtos = nDtoService.buildPrimaryKeyDto(notificationMessages, scheduledNotificationGeneratedList);
+        
+        List<NotificationGenerated> generatedNotifications = new ArrayList<NotificationGenerated>();
 
         for(NotificationProcessorDto intraProcessorDto:nDtos){
             notificationProcessorHandler.handleNotificationMessage(intraProcessorDto);
-            
+            generatedNotifications.addAll(nDtoService.PersistProcessesNotifications(intraProcessorDto));
         }
-        // List<NotificationMessage> finalNotificationMessages =
-        // userNotificationHandler.
 
-        return null;
+
+        return generatedNotifications.size();
     }
 
     

@@ -144,7 +144,18 @@ public class NotificationMessageService {
          */
         return notificationMessages;
     }
-
+    
+    /**
+     * Call this method for saving only when the auto increment id is need after saving.
+     * @param notificationMessages
+     * @return
+     */
+    public NotificationMessage saveOrFlush(NotificationMessage notificationMessage){
+        populateNotificationMessageDataBeforeSave(notificationMessage);
+        
+        return notificationMessageDao.saveAndFlush(notificationMessage);
+    }
+    
     private void populateNotificationMessageDataBeforeSave(NotificationMessage notificationMessage) {
         NotificationMessagePayload payload = notificationMessage.getNotificationMessagePayload();
         notificationMessage.setData(serializer.toJson(payload));
@@ -156,5 +167,22 @@ public class NotificationMessageService {
         NotificationMessageUpdateHistory nHistory = new NotificationMessageUpdateHistory(notificationStatus, new Date());
 
         notificationMessage.getNotificationMessagePayload().getNotificationMessageUpdateHistories().add(nHistory);
+    }
+    
+    /**
+     * inserting the new Notification Messages if it was generated previously.
+     * @param nMessages
+     */
+    public void checkAndGenerateNewMessages(List<NotificationMessage> nMessages){
+        Iterator<NotificationMessage> it = nMessages.iterator();
+        NotificationMessage notificationMessage, savedNMessage;
+        
+        for(int i=0; i<nMessages.size(); i++){
+           notificationMessage = nMessages.get(i);
+           if(notificationMessage.getId() < 1){
+               savedNMessage = saveOrFlush(notificationMessage);
+               nMessages.set(i, savedNMessage);
+           }
+        }
     }
 }

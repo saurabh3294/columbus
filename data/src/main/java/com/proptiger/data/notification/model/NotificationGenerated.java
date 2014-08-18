@@ -10,6 +10,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -38,11 +40,11 @@ public class NotificationGenerated extends BaseModel {
 
     @OneToOne
     @JoinColumn(name = "notification_message_id")
-    private NotificationMessageOld     notificationMessage;
+    private NotificationMessage     notificationMessage;
 
     @OneToOne
     @JoinColumn(name = "notification_medium_id")
-    private NotificationMediumOld      notificationMedium;
+    private NotificationMedium      notificationMedium;
 
     @OneToOne
     @JoinColumn(name = "notification_type_id")
@@ -73,6 +75,17 @@ public class NotificationGenerated extends BaseModel {
 
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
+    
+    @PreUpdate
+    public void populatePreUpdateFields(){
+        this.updatedAt = new Date();
+    }
+    
+    @PrePersist
+    public void populatePrePersistFields(){
+        this.createdAt = new Date();
+        this.notificationStatus = NotificationStatus.NotificationGenerated;
+    }
 
     public int getId() {
         return id;
@@ -82,19 +95,19 @@ public class NotificationGenerated extends BaseModel {
         this.id = id;
     }
 
-    public NotificationMessageOld getNotificationMessage() {
+    public NotificationMessage getNotificationMessage() {
         return notificationMessage;
     }
 
-    public void setNotificationMessage(NotificationMessageOld notificationMessage) {
+    public void setNotificationMessage(NotificationMessage notificationMessage) {
         this.notificationMessage = notificationMessage;
     }
 
-    public NotificationMediumOld getNotificationMedium() {
+    public NotificationMedium getNotificationMedium() {
         return notificationMedium;
     }
 
-    public void setNotificationMedium(NotificationMediumOld notificationMedium) {
+    public void setNotificationMedium(NotificationMedium notificationMedium) {
         this.notificationMedium = notificationMedium;
     }
 

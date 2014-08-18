@@ -8,9 +8,12 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.notification.model.NotificationMedium;
+import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
@@ -20,6 +23,8 @@ public class NotificationGeneratedService {
 
     @Autowired
     private NotificationGeneratedDao notificationGeneratedDao;
+    
+    private NotificationTypeNotificationMediumMappingService nMappingService;
 
     public List<NotificationGenerated> getScheduledAndNonExpiredNotifications() {
         return notificationGeneratedDao.findByStatusAndExpiryTimeLessThan(NotificationStatus.Scheduled, new Date());
@@ -80,5 +85,62 @@ public class NotificationGeneratedService {
         NotificationMessageUpdateHistory nHistory = new NotificationMessageUpdateHistory(notificationStatus, new Date());
 
         notificationGenerated.getNotificationMessagePayload().getNotificationMessageUpdateHistories().add(nHistory);
+    }
+    
+    @Transactional
+    public Iterable<NotificationGenerated> save(List<NotificationGenerated> nGenerateds){
+        return notificationGeneratedDao.save(nGenerateds);
+        
+    }
+    
+    @Transactional
+    public NotificationGenerated save(NotificationGenerated notificationGenerated){
+        return notificationGeneratedDao.save(notificationGenerated);
+    }
+    
+    public void updateNotificationGeneratedStatusOnOldStatus(Map<NotificationStatus, List<NotificationGenerated>> map){
+        if(map == null){
+            return;
+        }
+        
+        for(Map.Entry<NotificationStatus, List<NotificationGenerated>> entry:map.entrySet()){
+             for(NotificationGenerated nGenerated:entry.getValue()){
+                 notificationGeneratedDao.updateByStatusOnOldStatus(nGenerated.getId(), nGenerated.getNotificationStatus(), entry.getKey());
+             }
+        }
+    }
+    
+    public NotificationGenerated createNotificationGenerated(NotificationMessage notificationMessage, NotificationMedium notificationMedium){
+        NotificationGenerated nGenerated = new NotificationGenerated();
+        nGenerated.setForumUser(notificationMessage.getForumUser());
+        nGenerated.setNotificationMedium(notificationMedium);
+        nGenerated.setNotificationMessage(notificationMessage);
+        nGenerated.setNotificationMessagePayload(notificationMessage.getNotificationMessagePayload());
+                
+        return nGenerated;
+    }
+    
+    public List<NotificationGenerated> generateNotficationGenerated(List<NotificationMessage> nMessages ){
+        Map<Integer, List<NotificationMedium>> typeMediumMapping = nMappingService.getTypeMediumMapping();
+                
+        NotificationType nType = null;
+        List<NotificationMedium> nMediums = null;
+        List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
+        NotificationGenerated nGenerated = null;
+        for(NotificationMessage nMessage:nMessages){
+            nType = nMessage.getNotificationType();
+            nMediums = typeMediumMapping.get(nType.getId());
+            // TODO handle the scenario when no mapping of notification medium with type.
+            if(nMediums == null || nMediums.size() < 1){
+                continue;
+            }
+            for(NotificationMedium nMedium:nMediums){
+                nGenerated = createNotificationGenerated(nMessage, nMedium);
+                nGenerated = save(nGenerated);
+                generatedList.add(nGenerated);
+            }
+        }
+        
+        return generatedList;
     }
 }

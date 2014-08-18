@@ -5,7 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
@@ -18,6 +20,12 @@ import com.proptiger.data.notification.processor.dto.NotificationProcessorDto;
 
 @Service
 public class NotificationProcessorDtoService {
+
+    @Autowired
+    private NotificationGeneratedService nGeneratedService;
+
+    @Autowired
+    private NotificationMessageService   nMessageService;
 
     public List<NotificationProcessorDto> buildPrimaryKeyDto(
             List<NotificationMessage> nMessages,
@@ -144,6 +152,42 @@ public class NotificationProcessorDtoService {
         }
 
         return map;
+    }
+
+    @Transactional
+    public List<NotificationGenerated> PersistProcessesNotifications(NotificationProcessorDto notificationProcessorDto) {
+        
+        List<NotificationGenerated> savedNotifications = new ArrayList<NotificationGenerated>();
+        
+        NotificationByTypeDto notificationByTypeDto;
+        for (Map.Entry<Integer, NotificationByTypeDto> entry : notificationProcessorDto.getNotificationByTypeDtos()
+                .entrySet()) {
+
+            notificationByTypeDto = entry.getValue();
+            // Notification will be generated for these messages.
+            List<NotificationMessage> nMessages = notificationByTypeDto.getNotificationMessages();
+            // Nothing will be happened to them as they are generated which
+            // remain unprocessed.
+            List<NotificationGenerated> nGenerateds = notificationByTypeDto.getNotificationGenerateds();
+            // These messages will not be used for notification generation.
+            List<NotificationMessage> discardedMessages = notificationByTypeDto.getDiscardedMessage();
+            // These notification generated will be marked for discarded.
+            Map<NotificationStatus, List<NotificationGenerated>> discardGeneratedMap = notificationByTypeDto
+                    .getDiscardGeneratedMap();
+
+            // updating Notification Generated
+            nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(discardGeneratedMap);
+            // updating the discard Notification Message
+            nMessageService.saveOrUpdateMessages(discardedMessages);
+
+            // check New Notification Messages and Generated them if they did
+            // not exists in the database.
+            nMessageService.checkAndGenerateNewMessages(nMessages);
+
+            savedNotifications.addAll( nGeneratedService.generateNotficationGenerated(nMessages));
+        }
+        
+        return savedNotifications;
     }
 
 }
