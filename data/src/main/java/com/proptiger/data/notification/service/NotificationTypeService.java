@@ -112,6 +112,29 @@ public class NotificationTypeService {
 
         return mapping;
     }
+    
+    public Map<Integer, Integer> getNotificationInterNonPrimaryKeySupressGroupingMap() {
+        Iterable<NotificationType> notiIterable = findAllNotificationTypes();
+
+        Map<Integer, Integer> mapping = new LinkedHashMap<Integer, Integer>();
+
+        Iterator<NotificationType> it = notiIterable.iterator();
+        NotificationType notificationType = null;
+        Integer parentNotificationTypeId = null;
+
+        while (it.hasNext()) {
+            notificationType = it.next();
+
+            if (notificationType.getInterNonPrimaryKeySuppressId() != null) {
+
+                parentNotificationTypeId = notificationType.getInterPrimaryKeySuppressId();
+                mapping.put(parentNotificationTypeId, notificationType.getId());
+            }
+        }
+
+        return mapping;
+    }
+
 
     public Map<Integer, List<Integer>> notificationInterKeyMergeGroupingMap() {
 
