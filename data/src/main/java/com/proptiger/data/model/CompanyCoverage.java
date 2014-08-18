@@ -11,7 +11,7 @@ import javax.persistence.Table;
  * 
  */
 @Entity
-@Table(name = "company_coverage")
+@Table(name = "cms.company_coverage")
 public class CompanyCoverage extends BaseModel {
 
     /**

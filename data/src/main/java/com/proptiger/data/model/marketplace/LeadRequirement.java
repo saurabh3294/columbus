@@ -32,7 +32,7 @@ public class LeadRequirement extends BaseModel {
     private int               leadId;
 
     @Column(name = "bedroom")
-    private int               bedroom;
+    private Integer           bedroom;
 
     @Column(name = "project_id")
     private Integer           projectId;
@@ -56,11 +56,11 @@ public class LeadRequirement extends BaseModel {
         this.leadId = leadId;
     }
 
-    public int getBedroom() {
+    public Integer getBedroom() {
         return bedroom;
     }
 
-    public void setBedroom(int bedroom) {
+    public void setBedroom(Integer bedroom) {
         this.bedroom = bedroom;
     }
 

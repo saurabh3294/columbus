@@ -14,6 +14,6 @@ import com.proptiger.data.model.Company;
  */
 
 public interface CompanyDao extends JpaRepository<Company, Integer> {
-    @Query("SELECT C from Company C inner join CompanyCoverage CC where CC.localityId IN ?1")
+    @Query("SELECT C from Company C join C.coverages CC WHERE CC.localityId IN ?1")
     public List<Company> findBrokersForLocality(List<Integer> localityIds);
 }

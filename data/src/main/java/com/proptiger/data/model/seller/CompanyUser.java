@@ -56,7 +56,7 @@ public class CompanyUser extends BaseModel {
     @Column(name = "active_since")
     private Date                  activeSince;
 
-    @Column(name = "brokerId")
+    @Column(name = "broker_id")
     private int                   companyId;
 
     @ManyToOne(fetch = FetchType.EAGER)

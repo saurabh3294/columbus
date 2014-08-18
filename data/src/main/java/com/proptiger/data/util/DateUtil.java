@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,11 +134,63 @@ public class DateUtil {
             throw new ProAPIException("Unable to parse date", e);
         }
     }
-    
+
     public static Date addDays(Date baseDate, int daysToAdd) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(baseDate);
         calendar.add(Calendar.DAY_OF_YEAR, daysToAdd);
         return calendar.getTime();
+    }
+
+    /**
+     * 
+     * @param date
+     * @param timeToAddInSecond
+     * @return a new date with timeToAddInSecond seconds of working time added
+     *         in input date
+     */
+    public static Date getWorkingTimeAddedIntoDate(Date date, int timeToAddInSecond) {
+        DateTime finalTime = new DateTime(date.getTime());
+
+        DateTime workingHourStartTime = finalTime.withTimeAtStartOfDay()
+                .plus(
+                        PropertyReader.getRequiredPropertyAsType(
+                                PropertyKeys.CALENDAR_WORKING_HOUR_START,
+                                Integer.class) * 1000);
+        if (workingHourStartTime.isAfter(finalTime)) {
+            finalTime = workingHourStartTime;
+        }
+
+        int workingSecondsInADay = getWorkingSecondsInADay();
+        int days = timeToAddInSecond / getWorkingSecondsInADay();
+        finalTime = finalTime.plusDays(days);
+
+        int secsInIncompleteDay = timeToAddInSecond % workingSecondsInADay;
+        finalTime = finalTime.plusSeconds(secsInIncompleteDay);
+
+        DateTime workingHourEndTime = finalTime.withTimeAtStartOfDay().plus(
+                PropertyReader.getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_END, Integer.class) * 1000);
+        if (finalTime.isAfter(workingHourEndTime)) {
+            finalTime = finalTime.plusSeconds(getNonWorkingSecondsInADay());
+        }
+
+        return new Date(finalTime.getMillis());
+    }
+
+    /**
+     * 
+     * @return {@link Integer} no of working seconds in a day
+     */
+    private static int getWorkingSecondsInADay() {
+        return PropertyReader.getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_END, Integer.class) - PropertyReader
+                .getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_START, Integer.class);
+    }
+
+    /**
+     * 
+     * @return {@link Integer} no of non-working seconds in a day
+     */
+    private static int getNonWorkingSecondsInADay() {
+        return secondsInADay - getWorkingSecondsInADay();
     }
 }
