@@ -10,4 +10,6 @@ import com.proptiger.data.notification.model.NotificationGenerated;
 
 public interface NotificationGeneratedDao extends PagingAndSortingRepository<NotificationGenerated, Integer> {
     public List<NotificationGenerated> findByStatusAndExpiryTimeLessThan(NotificationStatus notificationStatus, Date date);
+
+    public List<NotificationGenerated> findByStatusAndExpiryTimeGreaterThanEqual(NotificationStatus scheduled, Date date);
 }

@@ -17,14 +17,22 @@ import com.proptiger.data.notification.repo.NotificationGeneratedDao;
 
 @Service
 public class NotificationGeneratedService {
-
+    
     @Autowired
     private NotificationGeneratedDao notificationGeneratedDao;
-
-    public List<NotificationGenerated> getScheduledAndNonExpiredNotifications() {
+    
+    @Autowired
+    private MediumTypeService mediumTypeService;
+    
+    public List<NotificationGenerated> getScheduledAndNonExpiredNotifications(){
         return notificationGeneratedDao.findByStatusAndExpiryTimeLessThan(NotificationStatus.Scheduled, new Date());
     }
-
+    
+    public List<NotificationGenerated> getScheduledAndReadyNotifications(){
+        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByStatusAndExpiryTimeGreaterThanEqual(NotificationStatus.Scheduled, new Date());
+        mediumTypeService.setNotificationMediumSender(ntGeneratedList);
+        return ntGeneratedList;
+    }
     public Map<Integer, List<NotificationGenerated>> groupNotificationGeneratedByuser(
             List<NotificationGenerated> notificationGeneratedList) {
         if (notificationGeneratedList == null) {

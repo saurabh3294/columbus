@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
@@ -38,6 +39,9 @@ public class NotificationType extends BaseModel {
 
     @Column(name = "overwrite_config_name")
     private String                           overwriteConfigName;
+
+    @Transient
+    private List<EventType>                  eventTypeList;
 
     @Transient
     @JsonIgnore
@@ -95,6 +99,14 @@ public class NotificationType extends BaseModel {
 
     public void setOverwriteConfigName(String overwriteConfigName) {
         this.overwriteConfigName = overwriteConfigName;
+    }
+
+    public List<EventType> getEventTypeList() {
+        return eventTypeList;
+    }
+
+    public void setEventTypeList(List<EventType> eventTypeList) {
+        this.eventTypeList = eventTypeList;
     }
 
     public NotificationTypeConfig getNotificationTypeConfig() {

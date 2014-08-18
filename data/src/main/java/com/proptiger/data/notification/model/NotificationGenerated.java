@@ -38,12 +38,8 @@ public class NotificationGenerated extends BaseModel {
 
     @OneToOne
     @JoinColumn(name = "notification_message_id")
-    private NotificationMessageOld     notificationMessage;
-
-    @OneToOne
-    @JoinColumn(name = "notification_medium_id")
-    private NotificationMediumOld      notificationMedium;
-
+    private NotificationMessage        notificationMessage;
+    
     @OneToOne
     @JoinColumn(name = "notification_type_id")
     private NotificationType           notificationType;
@@ -51,6 +47,10 @@ public class NotificationGenerated extends BaseModel {
     @OneToOne
     @JoinColumn(name = "user_id")
     private ForumUser                  forumUser;
+
+    @OneToOne
+    @JoinColumn(name = "notification_medium_id")
+    private NotificationMedium         notificationMedium;
 
     @Column(name = "data")
     private String                     data;
@@ -82,19 +82,19 @@ public class NotificationGenerated extends BaseModel {
         this.id = id;
     }
 
-    public NotificationMessageOld getNotificationMessage() {
+    public NotificationMessage getNotificationMessage() {
         return notificationMessage;
     }
 
-    public void setNotificationMessage(NotificationMessageOld notificationMessage) {
+    public void setNotificationMessage(NotificationMessage notificationMessage) {
         this.notificationMessage = notificationMessage;
     }
 
-    public NotificationMediumOld getNotificationMedium() {
+    public NotificationMedium getNotificationMedium() {
         return notificationMedium;
     }
 
-    public void setNotificationMedium(NotificationMediumOld notificationMedium) {
+    public void setNotificationMedium(NotificationMedium notificationMedium) {
         this.notificationMedium = notificationMedium;
     }
 
