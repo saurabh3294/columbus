@@ -1,5 +1,6 @@
 package com.proptiger.data.notification.service;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,8 +16,10 @@ import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
+import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
+import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationGeneratedService {
@@ -24,12 +27,32 @@ public class NotificationGeneratedService {
     @Autowired
     private NotificationGeneratedDao notificationGeneratedDao;
     
+    @Autowired
     private NotificationTypeNotificationMediumMappingService nMappingService;
+    
+    @Autowired
+    private NotificationTypeService notificationTypeService;
 
     public List<NotificationGenerated> getScheduledAndNonExpiredNotifications() {
-        return notificationGeneratedDao.findByStatusAndExpiryTimeLessThan(NotificationStatus.Scheduled, new Date());
+        List<NotificationGenerated> notificationGenerateds = notificationGeneratedDao.findByStatusAndExpiryTimeLessThan(NotificationStatus.Scheduled, new Date());
+        if(notificationGenerateds == null){
+            return new ArrayList<NotificationGenerated>();
+        }
+        
+        for(NotificationGenerated nGenerated: notificationGenerateds){
+           populateDataOnLoad(nGenerated);
+        }
+        
+        return notificationGenerateds;
     }
-
+    
+    public void populateDataOnLoad(NotificationGenerated nGenerated){
+        String data = nGenerated.getData();
+        nGenerated.setNotificationMessagePayload(Serializer.fromJson(data, NotificationMessagePayload.class));
+        NotificationType notificationType = nGenerated.getNotificationType();
+        notificationTypeService.populateNotificationTypeConfig(notificationType);
+    }
+    
     public Map<Integer, List<NotificationGenerated>> groupNotificationGeneratedByuser(
             List<NotificationGenerated> notificationGeneratedList) {
         if (notificationGeneratedList == null) {
@@ -89,13 +112,21 @@ public class NotificationGeneratedService {
     
     @Transactional
     public Iterable<NotificationGenerated> save(List<NotificationGenerated> nGenerateds){
+        for(NotificationGenerated notificationGenerated:nGenerateds){
+            populateDataBeforeSave(notificationGenerated);
+        }
         return notificationGeneratedDao.save(nGenerateds);
         
     }
     
     @Transactional
     public NotificationGenerated save(NotificationGenerated notificationGenerated){
+        populateDataBeforeSave(notificationGenerated);
         return notificationGeneratedDao.save(notificationGenerated);
+    }
+    
+    public void populateDataBeforeSave(NotificationGenerated notificationGenerated){
+        notificationGenerated.setData(Serializer.toJson(notificationGenerated.getNotificationMessagePayload()));
     }
     
     public void updateNotificationGeneratedStatusOnOldStatus(Map<NotificationStatus, List<NotificationGenerated>> map){

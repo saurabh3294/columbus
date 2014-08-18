@@ -10,8 +10,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationMessage;
@@ -21,6 +21,7 @@ import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.service.ForumUserService;
+import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationMessageService {
@@ -37,8 +38,6 @@ public class NotificationMessageService {
     @Autowired
     private ForumUserService forumUserService;
 
-    private Gson                             serializer = new Gson();
-
     public Integer getActiveNotificationMessageCount() {
         return notificationMessageDao
                 .getNotificationMessageCountByNotificationStatus(NotificationStatus.MessageGenerated);
@@ -48,13 +47,24 @@ public class NotificationMessageService {
         List<NotificationMessage> notificationMessages = notificationMessageDao.findByStatus(
                 NotificationStatus.MessageGenerated,
                 pageable);
+        
         if (notificationMessages == null) {
             return new ArrayList<NotificationMessage>();
         }
-
+        
+        for(NotificationMessage notificationMessage: notificationMessages){
+            populateDataOnPostLoad(notificationMessage);
+        }
+        
         return notificationMessages;
     }
 
+    public void populateDataOnPostLoad(NotificationMessage nMessage){
+        nMessage.setNotificationMessagePayload(Serializer.fromJson(nMessage.getData(), NotificationMessagePayload.class));
+        NotificationType notificationType = nMessage.getNotificationType();
+        notiTypeService.populateNotificationTypeConfig(notificationType);
+    }
+    
     public Map<Integer, List<NotificationMessage>> groupNotificationMessageByuser(
             List<NotificationMessage> notificationMessageList) {
         if (notificationMessageList == null) {
@@ -125,6 +135,7 @@ public class NotificationMessageService {
     /*
      * TODO: Make it Transactional
      */
+    @Transactional
     public void persistNotificationMessages(
             List<NotificationMessage> notificationMessages,
             NotificationTypeGenerated ntGenerated) {
@@ -158,7 +169,7 @@ public class NotificationMessageService {
     
     private void populateNotificationMessageDataBeforeSave(NotificationMessage notificationMessage) {
         NotificationMessagePayload payload = notificationMessage.getNotificationMessagePayload();
-        notificationMessage.setData(serializer.toJson(payload));
+        notificationMessage.setData(Serializer.toJson(payload));
     }
 
     public void addNotificationMessageUpdateHistory(
@@ -174,7 +185,6 @@ public class NotificationMessageService {
      * @param nMessages
      */
     public void checkAndGenerateNewMessages(List<NotificationMessage> nMessages){
-        Iterator<NotificationMessage> it = nMessages.iterator();
         NotificationMessage notificationMessage, savedNMessage;
         
         for(int i=0; i<nMessages.size(); i++){
