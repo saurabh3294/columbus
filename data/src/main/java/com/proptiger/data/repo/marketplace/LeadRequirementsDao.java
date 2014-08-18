@@ -14,4 +14,6 @@ public interface LeadRequirementsDao extends JpaRepository<LeadRequirement, Inte
             Integer localityId,
             Integer projectId
             );
+    
+    public List<LeadRequirement> findByLeadId(int leadId);    
 }

@@ -3,6 +3,8 @@
  */
 package com.proptiger.data.mvc.marketplace;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -17,6 +19,7 @@ import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.marketplace.LeadService;
 import com.proptiger.data.util.Constants;
 
@@ -39,8 +42,9 @@ public class LeadController extends BaseController {
     
     @RequestMapping(value = "data/v1/entity/user/lead")
     @ResponseBody
-    public APIResponse get(@RequestParam FIQLSelector fiqlSelector, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        return new APIResponse(leadService.getLeads(fiqlSelector, activeUser.getUserIdentifier()));
+    public APIResponse get(@ModelAttribute FIQLSelector selector, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {        
+        PaginatedResponse<List<Lead>> leads = leadService.getLeads(activeUser.getUserIdentifier(),selector);
+        return new APIResponse(super.filterFieldsFromSelector(leads, selector));
     }
     
     @RequestMapping(value = "data/v1/entity/lead/exists")
