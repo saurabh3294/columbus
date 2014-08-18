@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType.NotificationOperation;
-import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
 import com.proptiger.data.notification.processor.dto.NotificationByTypeDto;
 
 @Service
