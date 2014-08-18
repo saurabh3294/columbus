@@ -13,12 +13,12 @@ import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.seller.Agent;
+import com.proptiger.data.model.seller.CompanyUser;
 import com.proptiger.data.model.seller.ProjectAssignmentRule;
 import com.proptiger.data.model.seller.RuleAgentMapping;
 import com.proptiger.data.model.seller.RuleLocalityMapping;
 import com.proptiger.data.model.seller.RuleProjectMapping;
-import com.proptiger.data.repo.seller.AgentDao;
+import com.proptiger.data.repo.seller.CompanyUserDao;
 import com.proptiger.data.repo.seller.ProjectAssignmentRuleDao;
 import com.proptiger.data.repo.seller.RuleAgentMappingDao;
 import com.proptiger.data.repo.seller.RuleLocalityMappingDao;
@@ -38,7 +38,7 @@ public class BrokerAgentService {
     private static final int         DEFAULT_LOCALITY_IMAGE_COUNT = 3;
 
     @Autowired
-    private AgentDao                 agentDao;
+    private CompanyUserDao                 agentDao;
 
     @Autowired
     private RuleAgentMappingDao      ruleAgentMappingDao;
@@ -65,8 +65,8 @@ public class BrokerAgentService {
      * @return
      */
     @Cacheable(value = Constants.CacheName.AGENT, key = "#agentId", unless = "#result != null")
-    public Agent getAgent(Integer agentId) {
-        Agent agent = agentDao.findOne(agentId);
+    public CompanyUser getAgent(Integer agentId) {
+        CompanyUser agent = agentDao.findOne(agentId);
         if (agent == null) {
             throw new ResourceNotAvailableException(ResourceType.AGENT, ResourceTypeAction.GET);
         }
@@ -79,7 +79,7 @@ public class BrokerAgentService {
      * 
      * @param agent
      */
-    private void populateOtherDetails(Agent agent) {
+    private void populateOtherDetails(CompanyUser agent) {
         List<Integer> ruleIdList = new ArrayList<Integer>();
         /*
          * Getting all rules for agent
@@ -89,7 +89,7 @@ public class BrokerAgentService {
         if (agentRules == null || agentRules.size() == 0) {
             // no rule for agent, so find rules of broker
             List<ProjectAssignmentRule> brokerRules = projectAssignmentRuleDao
-                    .findByBrokerId(agent.getBroker().getId());
+                    .findByBrokerId(agent.getCompany().getId());
             if (brokerRules != null) {
                 for (ProjectAssignmentRule rule : brokerRules) {
                     ruleIdList.add(rule.getId());
@@ -155,7 +155,7 @@ public class BrokerAgentService {
      * @return
      */
     @Cacheable(value = Constants.CacheName.AGENTS_FOR_PROJECT, key = "#projectId", unless = "#result.size() > 0")
-    public List<Agent> getAgentsForProject(Integer projectId) {
+    public List<CompanyUser> getAgentsForProject(Integer projectId) {
         /*
          * Find rule mapping with project id
          */
@@ -173,11 +173,11 @@ public class BrokerAgentService {
         /*
          * Now get rule id and agent mapping to get all agent details
          */
-        List<Agent> agentList = new ArrayList<Agent>();
+        List<CompanyUser> agentList = new ArrayList<CompanyUser>();
         if (!ruleIds.isEmpty()) {
             List<Integer> agentIds = ruleAgentMappingDao.findAgentsIdsWhereRuleIdsIn(ruleIds);
             for (Integer agentId : agentIds) {
-                Agent agent = getAgent(agentId);
+                CompanyUser agent = getAgent(agentId);
                 agentList.add(agent);
             }
         }

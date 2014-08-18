@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.marketplace.Lead;
+import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -40,11 +41,11 @@ public class LeadController extends BaseController {
         return new APIResponse(leadService.createLead(lead));
     }
     
-    @RequestMapping(value = "data/v1/entity/user/lead")
+    @RequestMapping(value = "data/v1/entity/user/lead-offer")
     @ResponseBody
     public APIResponse get(@ModelAttribute FIQLSelector selector, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {        
-        PaginatedResponse<List<Lead>> leads = leadService.getLeads(activeUser.getUserIdentifier(),selector);
-        return new APIResponse(super.filterFieldsFromSelector(leads, selector), leads.getTotalCount());
+        PaginatedResponse<List<LeadOffer>> leadOffers = leadService.getLeadOffers(activeUser.getUserIdentifier(),selector);
+        return new APIResponse(super.filterFieldsFromSelector(leadOffers, selector), leadOffers.getTotalCount());
     }
     
     @RequestMapping(value = "data/v1/entity/lead/exists")

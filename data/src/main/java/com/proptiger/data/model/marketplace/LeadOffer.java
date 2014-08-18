@@ -8,6 +8,8 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,10 +19,10 @@ import com.proptiger.data.model.BaseModel;
 
 /**
  * @author mandeep
- *
+ * 
  */
 @Entity
-@Table(name="marketplace.lead_offers")
+@Table(name = "marketplace.lead_offers")
 public class LeadOffer extends BaseModel {
 
     /**
@@ -29,31 +31,31 @@ public class LeadOffer extends BaseModel {
     private static final long serialVersionUID = -4428374943776702328L;
 
     @Id
-    @Column(name = "id")
-    private int id;
-    
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int               id;
+
     @Column(name = "lead_id")
-    private int leadId;
-    
+    private int               leadId;
+
     @Column(name = "agent_id")
-    private int agentId;
-    
+    private int               agentId;
+
     @Column(name = "status_id")
-    private int statusId;
-    
+    private int               statusId;
+
     @Column(name = "cycle_id")
-    private int cycleId;
-    
+    private int               cycleId;
+
     @Column(name = "created_at")
-    private Date createdAt = new Date();
-    
+    private Date              createdAt        = new Date();
+
     @Column(name = "updated_at")
-    private Date updatedAt = new Date();
+    private Date              updatedAt        = new Date();
 
     @JoinColumn(insertable = false, updatable = false, name = "lead_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Lead lead;
-        
+    private Lead              lead;
+
     public Lead getLead() {
         return lead;
     }

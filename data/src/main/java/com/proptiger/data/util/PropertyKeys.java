@@ -57,4 +57,11 @@ public final class PropertyKeys {
     public static final String ENABLE_CRAWL_PREVENTAION                   = "enable.crawl.prevention";
     public static final String ENABLE_CRAWL_PREVENTAION_WARNING           = "enable.crawl.prevention.warning";
     public static final String MAIL_FROM_SUPPORT                          = "mail.from.support";
+
+    public static final String MARKETPLACE_MAX_BIDDING_CYCLE_COUNT        = "marketplace.max.bidding.cycle.count";
+    public static final String MARKETPLACE_BIDDING_CYCLE_DURATION         = "marketplace.bidding.cycle.duration";
+    public static final String MARKETPLACE_POST_BIDDING_OFFER_DURATION    = "marketplace.post.bidding.offer.duration";
+
+    public static final String CALENDAR_WORKING_HOUR_START                = "calendar.working.hour.start";
+    public static final String CALENDAR_WORKING_HOUR_END                  = "calendar.working.hour.end";
 }
