@@ -170,8 +170,8 @@ public class DateUtil {
         int secsInIncompleteDay = timeToAddInSecond % workingSecondsInADay;
         finalTime = finalTime.plusSeconds(secsInIncompleteDay);
 
-        DateTime workingHourEndTime = finalTime.withTimeAtStartOfDay().plus(
-                PropertyReader.getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_END, Integer.class) * 1000);
+        DateTime workingHourEndTime = finalTime.withTimeAtStartOfDay().plusSeconds(
+                PropertyReader.getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_END, Integer.class));
         if (finalTime.isAfter(workingHourEndTime)) {
             finalTime = finalTime.plusSeconds(getNonWorkingSecondsInADay());
         }
