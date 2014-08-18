@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,6 +65,8 @@ public class LeadService {
 
     @Autowired
     private PropertyReader      propertyReader;
+
+    private static Logger       logger = LoggerFactory.getLogger(LeadService.class);
 
     /**
      * 
@@ -178,8 +182,7 @@ public class LeadService {
             brokers = companyService.getBrokersForLocalities(localityIds);
         }
 
-        System.out.println("BROKERS FOR LEAD-ID: " + lead.getId() + " ARE: " + new Gson().toJson(brokers));
-
+        logger.debug("BROKERS FOR LEAD-ID: " + lead.getId() + " ARE: " + new Gson().toJson(brokers));
         return brokers;
     }
 
@@ -204,7 +207,8 @@ public class LeadService {
                 // Some error case
             }
         }
-        System.out.println("LOCALITIES IN LEAD " + leadId + " ARE " + new Gson().toJson(localityIds));
+
+        logger.debug("LOCALITIES IN LEAD " + leadId + " ARE " + new Gson().toJson(localityIds));
         return localityIds;
     }
 
