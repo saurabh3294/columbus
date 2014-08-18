@@ -27,7 +27,7 @@ import com.proptiger.data.model.Locality;
  * 
  */
 @Entity
-@Table(name = "cms.agents")
+@Table(name = "cms.company_users")
 @JsonFilter("fieldFilter")
 public class CompanyUser extends BaseModel {
 
@@ -56,11 +56,11 @@ public class CompanyUser extends BaseModel {
     @Column(name = "active_since")
     private Date                  activeSince;
 
-    @Column(name = "broker_id")
+    @Column(name = "company_id")
     private int                   companyId;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "broker_id", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "company_id", nullable = false, insertable = false, updatable = false)
     private Company               company;
 
     @OneToOne(fetch = FetchType.EAGER)
@@ -138,8 +138,8 @@ public class CompanyUser extends BaseModel {
         return company;
     }
 
-    public void setCompany(Company broker) {
-        this.company = broker;
+    public void setCompany(Company company) {
+        this.company = company;
     }
 
     public AcademicQualification getAcademicQualification() {
