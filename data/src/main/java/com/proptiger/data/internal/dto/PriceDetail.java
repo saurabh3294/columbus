@@ -10,6 +10,7 @@ import java.util.Date;
  */
 public class PriceDetail {
     private double price;
+    private double pricePerUnitArea;
     private Date   effectiveDate;
     private String date;
 
@@ -32,6 +33,14 @@ public class PriceDetail {
 
     public String getDate() {
         return date;
+    }
+
+    public double getPricePerUnitArea() {
+        return pricePerUnitArea;
+    }
+
+    public void setPricePerUnitArea(double pricePerUnitArea) {
+        this.pricePerUnitArea = pricePerUnitArea;
     }
 
 }

@@ -32,10 +32,12 @@ public abstract class RootTHandler {
         this.builderService = builderService;
     }
 
-    protected Typeahead getTypeaheadObjectByTextAndURL(String displayText, String redirectUrl) {
+    protected Typeahead getTypeaheadObjectByIdTextAndURL(String id, String displayText, String redirectUrl) {
         Typeahead typeahead = new Typeahead();
+        typeahead.setId("Typeahead-Template-" + id);
         typeahead.setDisplayText(displayText);
         typeahead.setRedirectUrl(redirectUrl);
+        typeahead.setType(typeahead.getId());
         return typeahead;
     }
     
