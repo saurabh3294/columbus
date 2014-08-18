@@ -1,6 +1,9 @@
 package com.proptiger.data.service.marketplace;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
@@ -39,43 +42,71 @@ public class LeadService {
     @Autowired
     private LeadOfferDao        leadOfferDao;
 
+    /**
+     * 
+     * @param agentId
+     * @param selector
+     * @return
+     */
     public PaginatedResponse<List<Lead>> getLeads(int agentId, FIQLSelector selector) {
-        Set<String> selectorFields = selector.getFieldSet();
-        int userFlag = 0;
-        int offersFlag = 0;
-        int requirementsFlag = 0;
-        if (selectorFields.contains("user")) {
-            userFlag = 1;
-            selectorFields.remove("user");
+        if (selector == null) {
+            selector = new FIQLSelector();
         }
-        if (selectorFields.contains("offers")) {
-            offersFlag = 1;
-            selectorFields.remove("offers");
-        }
-        if (selectorFields.contains("requirements")) {
-            selectorFields.remove("requirements");
-            requirementsFlag = 1;
-        }
-        StringBuilder fieldString = new StringBuilder();
-        for (String s : selectorFields) {
-            fieldString.append(",");
-            fieldString.append(s);
-        }
-        selector.setFields(fieldString.toString());
-        PaginatedResponse<List<Lead>> paginatedResponse = leadDao.getLeadDetailsAfterFilter(selector, agentId);
 
-        for (Lead lead : paginatedResponse.getResults()) {
-            if (userFlag == 1) {
-                lead.setClient(userService.findUserById(lead.getClientId()));
+        PaginatedResponse<List<Lead>> paginatedResponse = leadDao.getLeads(selector.addAndConditionToFilter("agentId==" + agentId));
+
+        Set<String> fields = selector.getFieldSet();
+        if (fields != null) {
+            if (fields.contains("client")) {
+                List<Integer> clientIds = extractClientIds(paginatedResponse.getResults());
+                Map<Integer, User> users = userService.getUsers(clientIds);
+                for (Lead lead: paginatedResponse.getResults()) {
+                    lead.setClient(users.get(lead.getClientId()));
+                }
             }
-            if (offersFlag == 1) {
-                lead.setLeadOffers(leadOfferDao.getLeadOffers(lead.getId()));
-            }
-            if (requirementsFlag == 1) {
-                lead.setRequirements(leadRequirementsDao.findByLeadId(lead.getId()));
+
+            if (fields.contains("requirements")) {
+                List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
+                Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
+                for (Lead lead: paginatedResponse.getResults()) {
+                    lead.setRequirements(requirements.get(lead.getId()));
+                }
             }
         }
+
         return paginatedResponse;
+    }
+
+    private Map<Integer, List<LeadRequirement>> getLeadRequirements(List<Integer> leadIds) {
+        Map<Integer, List<LeadRequirement>> requirementsMap = new HashMap<>();
+        for (LeadRequirement leadRequirement: leadRequirementsDao.findByLeadIdIn(leadIds)) {
+            int leadId = leadRequirement.getLeadId();
+            if (!requirementsMap.containsKey(leadId)) {
+                requirementsMap.put(leadId, new ArrayList<LeadRequirement>());
+            }
+
+            requirementsMap.get(leadId).add(leadRequirement);
+        }
+
+        return requirementsMap;
+    }
+    
+    private List<Integer> extractLeadIds(List<Lead> leads) {
+        List<Integer> leadIds = new ArrayList<>();
+        for (Lead lead: leads) {
+            leadIds.add(lead.getId());
+        }
+        
+        return leadIds;
+    }
+
+    private List<Integer> extractClientIds(List<Lead> leads) {
+        List<Integer> clientIds = new ArrayList<>();
+        for (Lead lead: leads) {
+            clientIds.add(lead.getClientId());
+        }
+
+        return clientIds;
     }
 
     /**

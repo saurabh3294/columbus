@@ -8,7 +8,5 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 
 
 public interface LeadCustomDao {
-
-    public PaginatedResponse<List<Lead>> getLeadDetailsAfterFilter(FIQLSelector selector, int agentId);
-    
+    public PaginatedResponse<List<Lead>> getLeads(FIQLSelector selector);
 }

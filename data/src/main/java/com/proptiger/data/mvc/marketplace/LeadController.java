@@ -44,7 +44,7 @@ public class LeadController extends BaseController {
     @ResponseBody
     public APIResponse get(@ModelAttribute FIQLSelector selector, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {        
         PaginatedResponse<List<Lead>> leads = leadService.getLeads(activeUser.getUserIdentifier(),selector);
-        return new APIResponse(super.filterFieldsFromSelector(leads, selector));
+        return new APIResponse(super.filterFieldsFromSelector(leads, selector), leads.getTotalCount());
     }
     
     @RequestMapping(value = "data/v1/entity/lead/exists")

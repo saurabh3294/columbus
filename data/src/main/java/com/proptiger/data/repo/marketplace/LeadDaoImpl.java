@@ -21,12 +21,11 @@ public class LeadDaoImpl {
     private EntityManagerFactory emf;
    
     
-    public PaginatedResponse<List<Lead>> getLeadDetailsAfterFilter(FIQLSelector selector,int agentId) {
+    public PaginatedResponse<List<Lead>> getLeads(FIQLSelector selector) {
         if (selector == null) {
             selector = new FIQLSelector();
         }
         AbstractQueryBuilder<Lead> lead = new JPAQueryBuilder<>(emf.createEntityManager(), Lead.class);
-        selector.addAndConditionToFilter("leadOffers.agentId=="+agentId);
         lead.buildQuery(selector);
         PaginatedResponse<List<Lead>> paginatedResponse = new PaginatedResponse<>();
         paginatedResponse.setResults(lead.retrieveResults());
