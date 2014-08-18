@@ -19,10 +19,12 @@ import com.proptiger.exception.ProAPIException;
  */
 
 public class DateUtil {
-    private static Logger logger              = LoggerFactory.getLogger(DateUtil.class);
+    private static Logger   logger              = LoggerFactory.getLogger(DateUtil.class);
 
-    public static int     MonthCountInQuarter = 3;
-    public static int     MonthStartDate      = 1;
+    public static int       MonthCountInQuarter = 3;
+    public static int       MonthStartDate      = 1;
+
+    public static final int secondsInADay       = 86400;
 
     /**
      * @return {@link Date} date in YYYY-dd-mm format

@@ -1,5 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.SerializationUtils;
@@ -7,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
+import com.proptiger.data.model.Company;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
@@ -15,8 +19,15 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
+import com.proptiger.data.service.CompanyService;
+import com.proptiger.data.service.LeadOfferService;
 import com.proptiger.data.service.LeadOfferStatus;
+import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * @author Anubhav
@@ -37,8 +48,96 @@ public class LeadService {
     @Autowired
     private LeadOfferDao        leadOfferDao;
 
+    @Autowired
+    private LeadOfferService    leadOfferService;
+
+    @Autowired
+    private ProjectService      projectService;
+
+    @Autowired
+    private CompanyService      companyService;
+
+    @Autowired
+    private PropertyReader      propertyReader;
+
     public List<Lead> getLeads(FIQLSelector fiqlSelector, int integer) {
         return null;
+    }
+
+    @Transactional
+    public void manageLeadAuction(int leadId) {
+        Lead lead = leadDao.findOne(leadId);
+        boolean biddingCycleOver = (lead.getLeadOffers().size() != 0);
+
+        if (biddingCycleOver) {
+            // communication to channel manager
+            lead.setNextActionTime(null);
+            leadDao.save(lead);
+        }
+        else {
+            List<Company> brokerCompanies = getBrokersForLead(lead.getId());
+            if (brokerCompanies.size() == 0) {
+                // error case of no broker found
+            }
+            else {
+                for (Company company : brokerCompanies) {
+                    leadOfferService.offerLeadToBroker(lead, company, 1);
+                }
+                lead.setNextActionTime(DateUtil.getWorkingTimeAddedIntoDate(new Date(), propertyReader
+                        .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION, Integer.class)));
+                leadDao.save(lead);
+            }
+        }
+    }
+
+    public List<Lead> getLeadsPendingAction() {
+        return leadDao.findByNextActionTimeLessThan(new Date());
+    }
+
+    /**
+     * gets all broker companies eligible to fulfil a lead
+     * 
+     * @param lead
+     * @return {@link Company} {@link List}
+     */
+    private List<Company> getBrokersForLead(int leadId) {
+        List<Company> brokers = new ArrayList<>();
+        Lead lead = leadDao.findOne(leadId);
+        List<Integer> localityIds = getLocalitiesForLead(lead.getId());
+        if (localityIds.size() == 0) {
+            throw new ProAPIException("No locality found in lead");
+        }
+        else {
+            brokers = companyService.getBrokersForLocalities(localityIds);
+        }
+
+        System.out.println("BROKERS FOR LEAD-ID: " + lead.getId() + " ARE: " + new Gson().toJson(brokers));
+
+        return brokers;
+    }
+
+    /**
+     * gets all localities for a particular lead
+     * 
+     * @param lead
+     * @return {@link Integer} {@link List}
+     */
+    @Transactional
+    private List<Integer> getLocalitiesForLead(int leadId) {
+        List<Integer> localityIds = new ArrayList<>();
+        Lead lead = leadDao.findOne(leadId);
+        for (LeadRequirement requirement : lead.getRequirements()) {
+            if (requirement.getLocalityId() != null) {
+                localityIds.add(requirement.getLocalityId());
+            }
+            else if (requirement.getProjectId() != null) {
+                localityIds.add(projectService.getProjectDetail(requirement.getProjectId()).getLocalityId());
+            }
+            else {
+                // Some error case
+            }
+        }
+        return localityIds;
     }
 
     /**
@@ -166,10 +265,8 @@ public class LeadService {
             else {
                 for (LeadOffer leadOffer : leadOffers) {
                     int statusId = leadOffer.getStatusId();
-                    if (statusId != LeadOfferStatus.Dead.getId() && 
-                        statusId != LeadOfferStatus.ClosedLost.getId() && 
-                        statusId != LeadOfferStatus.ClosedWon.getId())
-                    {
+                    if (statusId != LeadOfferStatus.Dead.getId() && statusId != LeadOfferStatus.ClosedLost.getId()
+                            && statusId != LeadOfferStatus.ClosedWon.getId()) {
                         existingLead = lead;
                         break;
                     }
@@ -184,7 +281,8 @@ public class LeadService {
      * 
      * @param email
      * @param contactNumber
-     *        checks weather there exist a lead for some specific user with email or contact number     *         
+     *            checks weather there exist a lead for some specific user with
+     *            email or contact number *
      * @param cityId
      * @return
      */
