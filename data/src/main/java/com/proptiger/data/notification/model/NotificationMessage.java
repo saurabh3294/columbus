@@ -66,17 +66,17 @@ public class NotificationMessage extends BaseModel {
     private Date                       updatedAt;
     
     @PreUpdate
-    public void populateFieldsBeforeUpdate(){
+    public void autoUpdateFields() {
         this.updatedAt = new Date();
     }
-    
+
     @PrePersist
-    public void populateFieldsBeforePersist(){
+    public void autoPopulateFields() {
         this.createdAt = new Date();
         this.notificationStatus = NotificationStatus.MessageGenerated;
-        populateFieldsBeforeUpdate();
+        autoUpdateFields();
     }
-
+    
     public int getId() {
         return id;
     }

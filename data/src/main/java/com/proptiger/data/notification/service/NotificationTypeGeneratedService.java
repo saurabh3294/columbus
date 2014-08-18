@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.data.event.model.EventGenerated;
@@ -29,6 +30,9 @@ public class NotificationTypeGeneratedService {
 
     @Autowired
     private EventTypeToNotificationTypeMappingService ntMappingService;
+    
+    @Autowired
+    private NotificationTypeService notificationTypeService;
 
     private Gson                                      serializer = new Gson();
 
@@ -38,8 +42,14 @@ public class NotificationTypeGeneratedService {
     }
 
     public List<NotificationTypeGenerated> getActiveNotificationTypeGenerated() {
-        return notificationTypeGeneratedDao
+        List<NotificationTypeGenerated> ntGeneratedList =  notificationTypeGeneratedDao
                 .findByNotificationStatusOrderByCreatedAtAsc(NotificationStatus.TypeGenerated);
+        for(NotificationTypeGenerated ntGenerated: ntGeneratedList) {
+            NotificationType notificationType = ntGenerated.getNotificationType();
+            notificationType = notificationTypeService.populateNotificationTypeConfig(notificationType);
+            ntGenerated.setNotificationType(notificationType);
+        }
+        return ntGeneratedList;    
     }
 
     public List<NotificationTypeGenerated> getNotificationTypesForEventGenerated(EventGenerated eventGenerated) {
@@ -64,9 +74,7 @@ public class NotificationTypeGeneratedService {
         return notificationTypeGeneratedList;
     }
 
-    /*
-     * TODO: Make it Transactional
-     */
+    @Transactional
     public void persistNotificationTypes(EventGenerated eventGenerated, List<NotificationTypeGenerated> ntGeneratedList) {
         saveOrUpdateTypes(ntGeneratedList);
         subscriberConfigService.setLastEventDateReadByNotification(eventGenerated.getUpdatedDate());

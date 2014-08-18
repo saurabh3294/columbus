@@ -40,7 +40,7 @@ public class NotificationMessageGenerator {
 
         for (NotificationTypeGenerated ntGenerated : ntGeneratedList) {
             List<NotificationMessage> notificationMessages = notificationMessageService
-                    .getNotificationMessagesForNotificationType(ntGenerated.getNotificationType());
+                    .getNotificationMessagesForNotificationTypeGenerated(ntGenerated);
             messageCount += notificationMessages.size();
             notificationMessageService.persistNotificationMessages(notificationMessages, ntGenerated);
         }
