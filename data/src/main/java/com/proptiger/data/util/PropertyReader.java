@@ -32,9 +32,9 @@ import org.springframework.stereotype.Component;
 @ManagedResource(objectName = "com.proptiger.data.init:name=propertyReaderMBean", description = "Property Reader")
 public class PropertyReader {
 
-    private TypeConverter       typeConverter;
-    private Logger              logger = LoggerFactory.getLogger(getClass());
-    private Map<String, String> propertyDataMap;
+    private static TypeConverter       typeConverter;
+    private Logger                     logger = LoggerFactory.getLogger(getClass());
+    private static Map<String, String> propertyDataMap;
 
     /**
      * Initializing the property key value map. Using Map as key value store so
@@ -78,7 +78,7 @@ public class PropertyReader {
      * @param requiredType
      * @return
      */
-    public <T> T getRequiredPropertyAsType(String key, Class<T> requiredType) {
+    public static <T> T getRequiredPropertyAsType(String key, Class<T> requiredType) {
         if (key != null) {
             String value = propertyDataMap.get(key);
             if (value != null) {

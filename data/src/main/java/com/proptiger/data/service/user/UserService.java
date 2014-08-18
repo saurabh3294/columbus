@@ -735,47 +735,57 @@ public class UserService {
 
         return user;
     }
+
     /**
-    *
-    * @param user
-    * @param clientId
-    * @param priority
-    * merges email and phone number in user_emails table and
-    * user_contact_numbers also set clientid and priority
-    * @return
-    */
-   private void patchUser(User user) {
-       List<UserContactNumber> contactNumbers = user.getContactNumbers();
+     * 
+     * @param user
+     * @param clientId
+     * @param priority
+     *            merges email and phone number in user_emails table and
+     *            user_contact_numbers also set clientid and priority
+     * @return
+     */
+    private void patchUser(User user) {
+        List<UserContactNumber> contactNumbers = user.getContactNumbers();
 
-       if (contactNumbers.isEmpty()) {
-           return;
-       }
+        if (contactNumbers.isEmpty()) {
+            return;
+        }
 
-       UserContactNumber userContactNumber = contactNumbers.get(0);
-       String contactNumber = userContactNumber.getContactNumber();
+        UserContactNumber userContactNumber = contactNumbers.get(0);
+        String contactNumber = userContactNumber.getContactNumber();
 
-       if (contactNumber != null && !contactNumber.isEmpty()) {
-           userContactNumber.setUserId(user.getId());
-           userContactNumber.setCreatedBy(user.getId());
+        if (contactNumber != null && !contactNumber.isEmpty()) {
+            userContactNumber.setUserId(user.getId());
+            userContactNumber.setCreatedBy(user.getId());
 
-           User userByPhone = userDao.findByPhone(contactNumber,user.getId());
-           if (userByPhone == null) {
-               contactNumberDao.saveAndFlush(userContactNumber);
-           }
-           else {
-               user.setId(userContactNumber.getUserId());
-           }
-       }
-   }
+            User userByPhone = userDao.findByPhone(contactNumber, user.getId());
+            if (userByPhone == null) {
+                contactNumberDao.saveAndFlush(userContactNumber);
+            }
+            else {
+                user.setId(userContactNumber.getUserId());
+            }
+        }
+    }
 
-   /**
-    * 
-    * @param email
-    * @param contactNumber
-    *            get user on the basis of email or contact_numbers
-    * @return
-    */
-   public User getUser(String email, String contactNumber) {
-       return userDao.findByPrimaryEmailOrPhone(email, contactNumber);
-   }
+    /**
+     * 
+     * @param email
+     * @param contactNumber
+     *            get user on the basis of email or contact_numbers
+     * @return
+     */
+    public User getUser(String email) {
+        return userDao.findByEmail(email);
+    }
+
+    public Map<Integer, User> getUsers(List<Integer> clientIds) {
+        Map<Integer, User> users = new HashMap<>();
+        for (User user: userDao.findAll(clientIds)) {
+            users.put(user.getId(), user);
+        }
+        
+        return users;
+    }
 }

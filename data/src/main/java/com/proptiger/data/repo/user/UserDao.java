@@ -13,7 +13,7 @@ import com.proptiger.data.model.user.User;
 
 public interface UserDao extends JpaRepository<User, Integer>, UserCustomDao {
     public User findByEmail(String email);
-
+    
     @Query("SELECT U FROM User U join U.userAuthProviderDetails APD WHERE " + " APD.providerId = ?1 AND APD.providerUserId = ?2")
     public User findByProviderIdAndProviderUserId(int providerId, String providerUserId);
 
