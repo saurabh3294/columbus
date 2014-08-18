@@ -2,6 +2,7 @@ package com.proptiger.data.repo.marketplace;
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -23,5 +24,5 @@ public interface ListingDao extends JpaRepository<Listing, Integer> {
     Listing findListing(Integer listingId, Integer userId, DataVersion dataVersion, Status status);
 
     @Query("select l from Listing l join fetch l.property prop join fetch prop.project as p where l.sellerId=?1 and p.version=?2  and l.status=?3")
-    List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status);
+    List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status, Pageable pageable);
 }

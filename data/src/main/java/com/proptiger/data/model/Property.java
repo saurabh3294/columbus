@@ -1,12 +1,20 @@
 package com.proptiger.data.model;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -18,7 +26,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.proptiger.data.enums.DataType;
+import com.proptiger.data.enums.EntityType;
 import com.proptiger.data.meta.FieldMetaInfo;
+import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
 import com.proptiger.data.util.UtilityClass;
@@ -37,6 +47,7 @@ public class Property extends BaseModel {
     @Field(value = "TYPE_ID")
     @Column(name = "OPTIONS_ID")
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int               propertyId;
 
     @FieldMetaInfo(displayName = "Project Id", description = "Project Id")
@@ -114,7 +125,7 @@ public class Property extends BaseModel {
     @Transient
     private String            projectIdBedroom;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROJECT_ID", nullable = false, insertable = false, updatable = false)
     private Project           project;
 
@@ -131,14 +142,14 @@ public class Property extends BaseModel {
     @Field(value = "RESALE_PRICE")
     private Double            resalePrice;
 
-    @Transient
     @FieldMetaInfo(displayName = "Servant Room", description = "Servant Room")
     @Field("SERVANT_ROOM")
+    @Column(name = "SERVANT_ROOM")
     private Integer           servantRoom;
 
-    @Transient
     @FieldMetaInfo(displayName = "Pooja Room", description = "Pooja Room")
     @Field("POOJA_ROOM")
+    @Column(name = "POOJA_ROOM")
     private Integer           poojaRoom;
 
     @Transient
@@ -152,6 +163,30 @@ public class Property extends BaseModel {
     @Transient
     @Field("PROJECT_NAME")
     private String 			  projectName;
+    
+
+    @Column(name = "OPTION_CATEGORY")
+    @Enumerated(EnumType.STRING)
+    private EntityType optionCategory;
+    
+    @Column(name = "STUDY_ROOM")
+    private int studyRoom;
+    
+    @Column(name = "BALCONY")
+    private int balcony;
+    
+    @Column(name = "DISPLAY_CARPET_AREA")
+    private int displayCarpetArea;
+    
+    @Column(name = "updated_by")
+    private Integer              updatedBy;
+
+    @Column(name = "created_at")
+    private Date                 createdAt;
+
+    @Column(name = "updated_at")
+    private Date                 updatedAt;
+    
     
     public String getProjectName() {
 		return projectName;
@@ -362,4 +397,75 @@ public class Property extends BaseModel {
     public void populateMaxResaleOrPrimaryPrice() {
         this.maxResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
     }
+
+    public EntityType getOptionCategory() {
+        return optionCategory;
+    }
+
+    public void setOptionCategory(EntityType optionCategory) {
+        this.optionCategory = optionCategory;
+    }
+
+    public int getStudyRoom() {
+        return studyRoom;
+    }
+
+    public void setStudyRoom(int studyRoom) {
+        this.studyRoom = studyRoom;
+    }
+
+    public int getBalcony() {
+        return balcony;
+    }
+
+    public void setBalcony(int balcony) {
+        this.balcony = balcony;
+    }
+    
+    public int getDisplayCarpetArea() {
+        return displayCarpetArea;
+    }
+
+    public void setDisplayCarpetArea(int displayCarpetArea) {
+        this.displayCarpetArea = displayCarpetArea;
+    }
+
+    public Integer getUpdatedBy() {
+        return updatedBy;
+    }
+
+    public void setUpdatedBy(Integer updatedBy) {
+        this.updatedBy = updatedBy;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = new Date();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = new Date();
+        updatedAt = createdAt;
+    }
+    
+    public static Property createUnverifiedProperty(Integer createdBy, OtherInfo otherInfo, String unitType){
+        Property toCreate = new Property();
+        toCreate.setOptionCategory(EntityType.Unverified);
+        toCreate.setSize(Double.valueOf(otherInfo.getSize()));
+        toCreate.setProjectId(otherInfo.getProjectId());
+        toCreate.setBathrooms(otherInfo.getBathrooms());
+        toCreate.setBedrooms(otherInfo.getBedrooms());
+        toCreate.setUnitName(otherInfo.getBedrooms() + "BHK"
+                + (otherInfo.getBathrooms() > 0 ? "+" + otherInfo.getBathrooms() + "T" : ""));
+        toCreate.setUnitType(unitType);
+        toCreate.setStudyRoom(0);
+        toCreate.setServantRoom(0);
+        toCreate.setBalcony(0);
+        toCreate.setPoojaRoom(0);
+        toCreate.setDisplayCarpetArea(0);
+        toCreate.setUpdatedBy(createdBy);
+        return toCreate;
+    }
+
 }
