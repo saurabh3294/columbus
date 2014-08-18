@@ -49,8 +49,7 @@ public class LeadController extends BaseController {
     
     @RequestMapping(value = "data/v1/entity/lead/exists")
     @ResponseBody
-    public APIResponse get(@RequestParam(required = false) String email, @RequestParam(required = false) String contactNumber, @RequestParam int cityId) {        
-        return new APIResponse(leadService.exists(email, contactNumber, cityId));
+    public APIResponse get(@RequestParam String email, @RequestParam int cityId) {        
+        return new APIResponse(leadService.exists(email, cityId));
     }
-    
 }

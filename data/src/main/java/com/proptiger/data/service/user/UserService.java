@@ -776,8 +776,8 @@ public class UserService {
      *            get user on the basis of email or contact_numbers
      * @return
      */
-    public User getUser(String email, String contactNumber) {
-        return userDao.findByPrimaryEmailOrPhone(email, contactNumber);
+    public User getUser(String email) {
+        return userDao.findByEmail(email);
     }
 
     public Map<Integer, User> getUsers(List<Integer> clientIds) {
