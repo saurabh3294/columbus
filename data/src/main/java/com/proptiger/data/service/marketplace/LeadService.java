@@ -48,28 +48,28 @@ public class LeadService {
      * @param selector
      * @return
      */
-    public PaginatedResponse<List<Lead>> getLeads(int agentId, FIQLSelector selector) {
+    public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector) {
         if (selector == null) {
             selector = new FIQLSelector();
         }
 
-        PaginatedResponse<List<Lead>> paginatedResponse = leadDao.getLeads(selector.addAndConditionToFilter("agentId==" + agentId));
+        PaginatedResponse<List<LeadOffer>> paginatedResponse = leadDao.getLeadOffers(selector.addAndConditionToFilter("agentId==" + agentId));
 
         Set<String> fields = selector.getFieldSet();
         if (fields != null) {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(paginatedResponse.getResults());
                 Map<Integer, User> users = userService.getUsers(clientIds);
-                for (Lead lead: paginatedResponse.getResults()) {
-                    lead.setClient(users.get(lead.getClientId()));
+                for (LeadOffer leadOffer: paginatedResponse.getResults()) {
+                    leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
                 }
             }
 
             if (fields.contains("requirements")) {
                 List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
-                for (Lead lead: paginatedResponse.getResults()) {
-                    lead.setRequirements(requirements.get(lead.getId()));
+                for (LeadOffer leadOffer: paginatedResponse.getResults()) {
+                    leadOffer.getLead().setRequirements(requirements.get(leadOffer.getId()));
                 }
             }
         }
@@ -91,19 +91,19 @@ public class LeadService {
         return requirementsMap;
     }
     
-    private List<Integer> extractLeadIds(List<Lead> leads) {
+    private List<Integer> extractLeadIds(List<LeadOffer> leadOffers) {
         List<Integer> leadIds = new ArrayList<>();
-        for (Lead lead: leads) {
-            leadIds.add(lead.getId());
+        for (LeadOffer leadOffer: leadOffers) {
+            leadIds.add(leadOffer.getLeadId());
         }
         
         return leadIds;
     }
 
-    private List<Integer> extractClientIds(List<Lead> leads) {
+    private List<Integer> extractClientIds(List<LeadOffer> leadOffers) {
         List<Integer> clientIds = new ArrayList<>();
-        for (Lead lead: leads) {
-            clientIds.add(lead.getClientId());
+        for (LeadOffer leadOffer: leadOffers) {
+            clientIds.add(leadOffer.getLead().getClientId());
         }
 
         return clientIds;
