@@ -18,6 +18,5 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOf
 
     @Query("select LO from LeadOffer LO where LO.leadId = ?1 order by LO.statusId")
     public List<LeadOffer> getLeadOffers(int leadId);
-    
-    
+        
 }

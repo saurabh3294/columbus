@@ -40,74 +40,74 @@ import com.proptiger.data.enums.Status;
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
 public class Listing extends BaseModel {
-    private static final long   serialVersionUID = 1L;
+    private static final long    serialVersionUID = 1L;
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer             id;
+    private Integer              id;
 
     @Column(name = "option_id")
-    private Integer             propertyId;
+    private Integer              propertyId;
 
     @Column(name = "phase_id")
-    private Integer             phaseId;
-    
+    private Integer              phaseId;
+
     @Column(name = "tower_id")
-    private Integer towerId;
-    
+    private Integer              towerId;
+
     @Column(name = "floor")
-    private Integer floor;
-    
+    private Integer              floor;
+
     @Column(name = "additional_features")
-    private String additionalFeatures;
-    
+    private String               additionalFeatures;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "listing_category")
-    private ListingCategory listingCategory;
+    private ListingCategory      listingCategory;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private Status              status;
-    
+    private Status               status;
+
     @Column(name = "booking_status_id")
-    private Integer bookingStatusId;
-    
+    private Integer              bookingStatusId;
+
     @Column(name = "seller_id")
-    private Integer sellerId;
-    
+    private Integer              sellerId;
+
     @Column(name = "current_price_id")
-    private Integer currentPriceId;
+    private Integer              currentPriceId;
 
     @Column(name = "updated_by")
-    private Integer updatedBy;
-    
+    private Integer              updatedBy;
+
     @Column(name = "created_at")
-    private Date createdAt;
-    
+    private Date                 createdAt;
+
     @Column(name = "updated_at")
-    private Date updatedAt;
-    
+    private Date                 updatedAt;
+
     @Transient
-    private ListingPrice currentListingPrice;
-    
+    private ListingPrice         currentListingPrice;
+
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "listingId", cascade = CascadeType.ALL)
-    private List<ProjectSupply> projectSupply;
+    private List<ProjectSupply>  projectSupply;
 
     @OneToMany(mappedBy = "listingId", fetch = FetchType.LAZY)
-    private List<ListingPrice>  listingPrices;
-    
+    private List<ListingPrice>   listingPrices;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "option_id", nullable = false, insertable = false, updatable = false)
-    private Property property;
-    
+    private Property             property;
+
     @Transient
     private List<ListingAmenity> listingAmenities;
-    
+
     @Transient
-    private OtherInfo otherInfo;
-    
+    private OtherInfo            otherInfo;
+
     public Integer getId() {
         return id;
     }
@@ -219,7 +219,7 @@ public class Listing extends BaseModel {
     public void setUpdatedBy(Integer updatedBy) {
         this.updatedBy = updatedBy;
     }
-    
+
     public ListingPrice getCurrentListingPrice() {
         return currentListingPrice;
     }
@@ -262,29 +262,53 @@ public class Listing extends BaseModel {
         createdAt = new Date();
         updatedAt = createdAt;
     }
-    
-    private static class OtherInfo{
+
+    /**
+     * This object will serve purpose when option id not present while creating
+     * listing. So these information will be used to find matching property
+     * object and will be used and if not found then a new property object will
+     * be created in database with Logical option category.
+     * 
+     * @author Rajeev Pandey
+     *
+     */
+    private static class OtherInfo {
         private Integer size;
         private Integer bedrooms;
         private Integer bathrooms;
+        private Integer projectId;
+
         public Integer getSize() {
             return size;
         }
+
         public void setSize(Integer size) {
             this.size = size;
         }
+
         public Integer getBedrooms() {
             return bedrooms;
         }
+
         public void setBedrooms(Integer bedrooms) {
             this.bedrooms = bedrooms;
         }
+
         public Integer getBathrooms() {
             return bathrooms;
         }
+
         public void setBathrooms(Integer bathrooms) {
             this.bathrooms = bathrooms;
         }
-        
+
+        public Integer getProjectId() {
+            return projectId;
+        }
+
+        public void setProjectId(Integer projectId) {
+            this.projectId = projectId;
+        }
+
     }
 }

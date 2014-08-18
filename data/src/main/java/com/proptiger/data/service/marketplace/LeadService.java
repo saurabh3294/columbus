@@ -2,7 +2,10 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
@@ -60,8 +64,71 @@ public class LeadService {
     @Autowired
     private PropertyReader      propertyReader;
 
-    public List<Lead> getLeads(FIQLSelector fiqlSelector, int integer) {
-        return null;
+    /**
+     * 
+     * @param agentId
+     * @param selector
+     * @return
+     */
+    public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector) {
+        if (selector == null) {
+            selector = new FIQLSelector();
+        }
+
+        PaginatedResponse<List<LeadOffer>> paginatedResponse = leadDao.getLeadOffers(selector
+                .addAndConditionToFilter("agentId==" + agentId));
+
+        Set<String> fields = selector.getFieldSet();
+        if (fields != null) {
+            if (fields.contains("client")) {
+                List<Integer> clientIds = extractClientIds(paginatedResponse.getResults());
+                Map<Integer, User> users = userService.getUsers(clientIds);
+                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
+                    leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                }
+            }
+
+            if (fields.contains("requirements")) {
+                List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
+                Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
+                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
+                    leadOffer.getLead().setRequirements(requirements.get(leadOffer.getId()));
+                }
+            }
+        }
+
+        return paginatedResponse;
+    }
+
+    private Map<Integer, List<LeadRequirement>> getLeadRequirements(List<Integer> leadIds) {
+        Map<Integer, List<LeadRequirement>> requirementsMap = new HashMap<>();
+        for (LeadRequirement leadRequirement : leadRequirementsDao.findByLeadIdIn(leadIds)) {
+            int leadId = leadRequirement.getLeadId();
+            if (!requirementsMap.containsKey(leadId)) {
+                requirementsMap.put(leadId, new ArrayList<LeadRequirement>());
+            }
+
+            requirementsMap.get(leadId).add(leadRequirement);
+        }
+
+        return requirementsMap;
+    }
+
+    private List<Integer> extractLeadIds(List<LeadOffer> leadOffers) {
+        List<Integer> leadIds = new ArrayList<>();
+        for (LeadOffer leadOffer : leadOffers) {
+            leadIds.add(leadOffer.getLeadId());
+        }
+
+        return leadIds;
+    }
+
+    private List<Integer> extractClientIds(List<LeadOffer> leadOffers) {
+        List<Integer> clientIds = new ArrayList<>();
+        for (LeadOffer leadOffer : leadOffers) {
+            clientIds.add(leadOffer.getLead().getClientId());
+        }
+        return clientIds;
     }
 
     @Transactional
@@ -137,6 +204,7 @@ public class LeadService {
                 // Some error case
             }
         }
+        System.out.println("LOCALITIES IN LEAD " + leadId + " ARE " + new Gson().toJson(localityIds));
         return localityIds;
     }
 

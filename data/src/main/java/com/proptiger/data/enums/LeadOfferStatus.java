@@ -1,5 +1,6 @@
 package com.proptiger.data.enums;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -12,7 +13,7 @@ public enum LeadOfferStatus {
     Offered(1), Expired(2), Waitlisted(3), New(4);
 
     private int                                  leadOfferStatusId;
-    private static Map<Integer, LeadOfferStatus> idToEnumLookUpMap;
+    private static Map<Integer, LeadOfferStatus> idToEnumLookUpMap = new HashMap<>();
 
     static {
         for (LeadOfferStatus offerStatus : LeadOfferStatus.values()) {

@@ -22,6 +22,6 @@ public interface LeadDao extends JpaRepository<Lead, Integer>, LeadCustomDao {
 
     @Query("select L from Lead L  where L.cityId = ?1 and L.clientId = ?2 and L.mergedLeadId is null order by L.id desc")
     public List<Lead> getLeads(int cityId, int id);
-
+        
     public List<Lead> findByNextActionTimeLessThan(Date actionTime);
 }
