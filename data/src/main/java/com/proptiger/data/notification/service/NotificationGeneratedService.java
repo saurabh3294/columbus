@@ -1,6 +1,5 @@
 package com.proptiger.data.notification.service;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,6 +27,9 @@ public class NotificationGeneratedService {
     private NotificationGeneratedDao notificationGeneratedDao;
     
     @Autowired
+    private MediumTypeService mediumTypeService;
+
+    @Autowired
     private NotificationTypeNotificationMediumMappingService nMappingService;
     
     @Autowired
@@ -45,14 +47,19 @@ public class NotificationGeneratedService {
         
         return notificationGenerateds;
     }
-    
-    public void populateDataOnLoad(NotificationGenerated nGenerated){
+
+	public void populateDataOnLoad(NotificationGenerated nGenerated){
         String data = nGenerated.getData();
         nGenerated.setNotificationMessagePayload(Serializer.fromJson(data, NotificationMessagePayload.class));
         NotificationType notificationType = nGenerated.getNotificationType();
         notificationTypeService.populateNotificationTypeConfig(notificationType);
     }
-    
+
+ 	public List<NotificationGenerated> getScheduledAndReadyNotifications(){
+        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByStatusAndExpiryTimeGreaterThanEqual(NotificationStatus.Scheduled, new Date());
+        mediumTypeService.setNotificationMediumSender(ntGeneratedList);
+        return ntGeneratedList;
+    }
     public Map<Integer, List<NotificationGenerated>> groupNotificationGeneratedByuser(
             List<NotificationGenerated> notificationGeneratedList) {
         if (notificationGeneratedList == null) {

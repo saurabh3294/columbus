@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
-@Table(name = "notification_Type_notification_medium_mapping")
+@Table(name = "notification_type_notification_medium_mapping")
 public class NotificationTypeNotificationMediumMapping extends BaseModel {
 
     /**
@@ -26,8 +26,12 @@ public class NotificationTypeNotificationMediumMapping extends BaseModel {
     @JoinColumn(name = "notification_medium_id")
     private NotificationMedium notificationMedium;
 
-    @Column(name = "notification_type_id")
-    private int                notification_type_id;
+    @OneToOne
+    @JoinColumn(name = "notification_type_id")
+    private NotificationType   notificationType;
+    
+    @Column(name = "send_template")
+    private String             sendTemplate;
 
     public int getId() {
         return id;
@@ -45,11 +49,19 @@ public class NotificationTypeNotificationMediumMapping extends BaseModel {
         this.notificationMedium = notificationMedium;
     }
 
-    public int getNotification_type_id() {
-        return notification_type_id;
+    public NotificationType getNotificationType() {
+        return notificationType;
     }
 
-    public void setNotification_type_id(int notification_type_id) {
-        this.notification_type_id = notification_type_id;
+    public void setNotificationType(NotificationType notificationType) {
+        this.notificationType = notificationType;
+    }
+
+    public String getSendTemplate() {
+        return sendTemplate;
+    }
+
+    public void setSendTemplate(String sendTemplate) {
+        this.sendTemplate = sendTemplate;
     }
 }

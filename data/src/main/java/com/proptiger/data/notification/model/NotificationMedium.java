@@ -8,7 +8,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
@@ -39,6 +41,10 @@ public class NotificationMedium extends BaseModel {
     
     @Column(name = "number_of_messages_per_user")
     private int numberOfMessagesPerUser;
+    
+    @Transient
+    @JsonIgnore
+    private transient MediumTypeConfig  mediumTypeConfig;
 
     public int getId() {
         return id;
@@ -86,5 +92,13 @@ public class NotificationMedium extends BaseModel {
 
     public void setFrequencyCycleInSeconds(long frequencyCycleInSeconds) {
         this.frequencyCycleInSeconds = frequencyCycleInSeconds;
+    }
+
+    public MediumTypeConfig getMediumTypeConfig() {
+        return mediumTypeConfig;
+    }
+
+    public void setMediumTypeConfig(MediumTypeConfig mediumTypeConfig) {
+        this.mediumTypeConfig = mediumTypeConfig;
     }
 }
