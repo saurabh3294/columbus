@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationTypeNotificationMediumMapping;
 import com.proptiger.data.notification.repo.NotificationTypeNotificationMediumMappingDao;
 
@@ -36,12 +37,24 @@ public class NotificationTypeNotificationMediumMappingService {
         List<NotificationMedium> notificationMediums = null;
         while(it.hasNext()){
             mapping = it.next();
-            notificationMediums = typeMediumMapping.get(mapping.getNotification_type_id());
+            notificationMediums = typeMediumMapping.get(mapping.getNotificationType().getId());
             if(notificationMediums == null){
                 notificationMediums = new ArrayList<NotificationMedium>();
             }
             notificationMediums.add(mapping.getNotificationMedium());
-            typeMediumMapping.put(mapping.getNotification_type_id(), notificationMediums);
+            typeMediumMapping.put(mapping.getNotificationType().getId(), notificationMediums);
+        }
+    }
+    
+    @PostConstruct
+    private void populateTemplatesMap() {
+        templatesMap = new HashMap<String, String>();
+        Iterable<NotificationTypeNotificationMediumMapping> ntNmMappings = nMappingDao.findAll();
+        Iterator<NotificationTypeNotificationMediumMapping> itNtNmMappings = ntNmMappings.iterator();
+        while (itNtNmMappings.hasNext()) {
+            NotificationTypeNotificationMediumMapping ntNmMapping = itNtNmMappings.next();
+            templatesMap.put(ntNmMapping.getNotificationType().getId() + "." + ntNmMapping.getNotificationMedium()
+                    .getId(), ntNmMapping.getSendTemplate());
         }
     }
     
@@ -57,17 +70,7 @@ public class NotificationTypeNotificationMediumMappingService {
         this.typeMediumMapping = typeMediumMapping;
     }
 
-    @PostConstruct
-    private void populateTemplatesMap() {
-        templatesMap = new HashMap<String, String>();
-        Iterable<NotificationTypeNotificationMediumMapping> ntNmMappings = ntNmMappingDao.findAll();
-        Iterator<NotificationTypeNotificationMediumMapping> itNtNmMappings = ntNmMappings.iterator();
-        while (itNtNmMappings.hasNext()) {
-            NotificationTypeNotificationMediumMapping ntNmMapping = itNtNmMappings.next();
-            templatesMap.put(ntNmMapping.getNotificationType().getId() + "." + ntNmMapping.getNotificationMedium()
-                    .getId(), ntNmMapping.getSendTemplate());
-        }
-    }
+    
     
     public String getTemplate(String ntType, String ntMediumType) {
         if (ntType == null || ntMediumType == null) {
