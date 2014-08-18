@@ -3,7 +3,7 @@ package com.proptiger.data.notification.processor.dto;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class NotificationIntraProcessorDto {
+public class NotificationProcessorDto {
     private int userId;
     private Map<Integer, NotificationByTypeDto>  notificationByTypeDtos = new LinkedHashMap<Integer, NotificationByTypeDto>();
     

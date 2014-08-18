@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.notification.generator.handler.NotificationProcessorHandler;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
-import com.proptiger.data.notification.processor.dto.NotificationIntraProcessorDto;
+import com.proptiger.data.notification.processor.dto.NotificationProcessorDto;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
-import com.proptiger.data.notification.service.NotificationIntraProcessorDtoService;
+import com.proptiger.data.notification.service.NotificationProcessorDtoService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 
@@ -26,7 +26,7 @@ public class NotificationGenerator {
     private NotificationGeneratedService notificationGeneratedService;
     
     @Autowired
-    private NotificationIntraProcessorDtoService nDtoService;
+    private NotificationProcessorDtoService nDtoService;
 
     public Integer generateNotifications() {
         // TODO to handle the pageable condition.
@@ -36,12 +36,11 @@ public class NotificationGenerator {
         List<NotificationGenerated> scheduledNotificationGeneratedList = notificationGeneratedService
                 .getScheduledAndNonExpiredNotifications();
 
-        List<NotificationIntraProcessorDto> nDtos = nDtoService.buildDto(notificationMessages, scheduledNotificationGeneratedList);       
+        List<NotificationProcessorDto> nDtos = nDtoService.buildPrimaryKeyDto(notificationMessages, scheduledNotificationGeneratedList);       
 
-        for(NotificationIntraProcessorDto intraProcessorDto:nDtos){
-            notificationProcessorHandler.handleNotificationMessage(
-                    intraProcessorDto.getNotificationByTypeDtos(), intraProcessorDto.getUserId());
-            // finalProcessedNotificationMessages.addAll(processedNotificationMessages);
+        for(NotificationProcessorDto intraProcessorDto:nDtos){
+            notificationProcessorHandler.handleNotificationMessage(intraProcessorDto);
+            
         }
         // List<NotificationMessage> finalNotificationMessages =
         // userNotificationHandler.

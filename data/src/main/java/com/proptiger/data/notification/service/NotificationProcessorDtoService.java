@@ -7,30 +7,71 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;
 import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
 import com.proptiger.data.notification.processor.dto.NotificationByTypeDto;
-import com.proptiger.data.notification.processor.dto.NotificationIntraProcessorDto;
+import com.proptiger.data.notification.processor.dto.NotificationProcessorDto;
 
 @Service
-public class NotificationIntraProcessorDtoService {
+public class NotificationProcessorDtoService {
 
-    public List<NotificationIntraProcessorDto> buildDto(List<NotificationMessage> nMessages, List<NotificationGenerated> nGenerateds) {
-        List<NotificationIntraProcessorDto> nIntraProcessorDtos = new ArrayList<NotificationIntraProcessorDto>();
-        Map<Integer, NotificationIntraProcessorDto> map = buildDtoWithNMessage(nMessages, nIntraProcessorDtos);
-        
+    public List<NotificationProcessorDto> buildPrimaryKeyDto(
+            List<NotificationMessage> nMessages,
+            List<NotificationGenerated> nGenerateds) {
+        List<NotificationProcessorDto> nIntraProcessorDtos = new ArrayList<NotificationProcessorDto>();
+        Map<Integer, NotificationProcessorDto> map = buildDtoWithNMessage(nMessages, nIntraProcessorDtos);
+
         buildDtoWithNGenerated(map, nGenerateds);
-        
+
         return nIntraProcessorDtos;
     }
 
+    public void buildNonPrimaryKeyDto(NotificationProcessorDto processorDto) {
+        List<NotificationMessage> typeMessages, keyMessages;
+        List<NotificationGenerated> typeGenerateds, keyGenerateds;
+        List<NotificationMessage> typeDiscardMessages, keyDiscardMessages;
+        Map<NotificationStatus, List<NotificationGenerated>> typeDiscardGeneratedMap, keyDiscardGeneratedMap;
+
+        NotificationByTypeDto byTypeDto;
+        NotificationByKeyDto byKeyDto;
+
+        for (Map.Entry<Integer, NotificationByTypeDto> entry : processorDto.getNotificationByTypeDtos().entrySet()) {
+            byTypeDto = entry.getValue();
+            typeMessages = byTypeDto.getNotificationMessages();
+            typeGenerateds = byTypeDto.getNotificationGenerateds();
+            typeDiscardMessages = byTypeDto.getDiscardedMessage();
+            typeDiscardGeneratedMap = byTypeDto.getDiscardGeneratedMap();
+
+            for (Map.Entry<Object, NotificationByKeyDto> keyEntry : entry.getValue().getNotificationMessageByKeys()
+                    .entrySet()) {
+                byKeyDto = keyEntry.getValue();
+                keyMessages = byKeyDto.getNotificationMessages();
+                keyGenerateds = byKeyDto.getNotificationGenerateds();
+                keyDiscardMessages = byKeyDto.getDiscardedMessage();
+                keyDiscardGeneratedMap = byKeyDto.getDiscardGeneratedMap();
+
+                typeMessages.addAll(keyMessages);
+                typeGenerateds.addAll(keyGenerateds);
+                typeDiscardMessages.addAll(keyDiscardMessages);
+                typeDiscardGeneratedMap.putAll(keyDiscardGeneratedMap);
+
+                keyMessages.clear();
+                keyMessages.clear();
+                keyDiscardMessages.clear();
+                keyDiscardGeneratedMap.clear();
+            }
+        }
+
+    }
+
     private void buildDtoWithNGenerated(
-            Map<Integer, NotificationIntraProcessorDto> map,
+            Map<Integer, NotificationProcessorDto> map,
             List<NotificationGenerated> nGeneratedList) {
-        
+
         NotificationType nType = null;
         NotificationPrimaryKeyProcessor nKeyProcessor = null;
         Object primaryKeyValue = null;
@@ -53,14 +94,14 @@ public class NotificationIntraProcessorDtoService {
         }
     }
 
-    private Map<Integer, NotificationIntraProcessorDto> buildDtoWithNMessage(
+    private Map<Integer, NotificationProcessorDto> buildDtoWithNMessage(
             List<NotificationMessage> nMessages,
-            List<NotificationIntraProcessorDto> nIntraProcessorDtoList) {
-        Map<Integer, NotificationIntraProcessorDto> map = new LinkedHashMap<Integer, NotificationIntraProcessorDto>();
+            List<NotificationProcessorDto> nIntraProcessorDtoList) {
+        Map<Integer, NotificationProcessorDto> map = new LinkedHashMap<Integer, NotificationProcessorDto>();
 
         Map<Integer, NotificationByTypeDto> typeMap = null;
         Map<Object, NotificationByKeyDto> keyMap = null;
-        NotificationIntraProcessorDto notificationIntraProcessorDto = null;
+        NotificationProcessorDto notificationIntraProcessorDto = null;
 
         NotificationByTypeDto nByTypeDto = null;
         NotificationByKeyDto nByKey = null;
@@ -76,7 +117,7 @@ public class NotificationIntraProcessorDtoService {
 
             notificationIntraProcessorDto = map.get(nMessage.getForumUser().getUserId());
             if (notificationIntraProcessorDto == null) {
-                notificationIntraProcessorDto = new NotificationIntraProcessorDto();
+                notificationIntraProcessorDto = new NotificationProcessorDto();
                 notificationIntraProcessorDto.setUserId(nMessage.getForumUser().getUserId());
                 nIntraProcessorDtoList.add(notificationIntraProcessorDto);
                 map.put(nMessage.getForumUser().getUserId(), notificationIntraProcessorDto);
@@ -86,7 +127,8 @@ public class NotificationIntraProcessorDtoService {
             nByTypeDto = typeMap.get(nType.getName());
             if (nByTypeDto == null) {
                 nByTypeDto = new NotificationByTypeDto();
-                nByTypeDto.setNotificationType(nType);;
+                nByTypeDto.setNotificationType(nType);
+                ;
                 typeMap.put(nType.getId(), nByTypeDto);
             }
 
@@ -103,5 +145,5 @@ public class NotificationIntraProcessorDtoService {
 
         return map;
     }
-    
+
 }
