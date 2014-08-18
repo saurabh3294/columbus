@@ -18,16 +18,18 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.enums.ActivationStatus;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.Company;
 import com.proptiger.data.model.Locality;
 
 /**
  * @author Rajeev Pandey
+ * @author azi
  * 
  */
 @Entity
 @Table(name = "cms.agents")
 @JsonFilter("fieldFilter")
-public class Agent extends BaseModel {
+public class CompanyUser extends BaseModel {
 
     private static final long     serialVersionUID = 4381648073253664949L;
 
@@ -54,9 +56,12 @@ public class Agent extends BaseModel {
     @Column(name = "active_since")
     private Date                  activeSince;
 
+    @Column(name = "broker_id")
+    private int                   companyId;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "broker_id", nullable = false, insertable = false, updatable = false)
-    private Broker                broker;
+    private Company               company;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "academic_qualification_id", nullable = false, insertable = false, updatable = false)
@@ -121,12 +126,20 @@ public class Agent extends BaseModel {
         this.activeSince = activeSince;
     }
 
-    public Broker getBroker() {
-        return broker;
+    public int getCompanyId() {
+        return companyId;
     }
 
-    public void setBroker(Broker broker) {
-        this.broker = broker;
+    public void setCompanyId(int companyId) {
+        this.companyId = companyId;
+    }
+
+    public Company getCompany() {
+        return company;
+    }
+
+    public void setCompany(Company broker) {
+        this.company = broker;
     }
 
     public AcademicQualification getAcademicQualification() {
@@ -144,5 +157,4 @@ public class Agent extends BaseModel {
     public void setLocalitiesServiced(List<Locality> localitiesServiced) {
         this.localitiesServiced = localitiesServiced;
     }
-
 }

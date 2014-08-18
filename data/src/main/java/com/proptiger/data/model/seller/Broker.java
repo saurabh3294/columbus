@@ -21,7 +21,7 @@ import com.proptiger.data.model.BaseModel;
  * 
  */
 @Entity
-@Table(name = "cms.brokers")
+@Table(name = "cms.company")
 @JsonFilter("fieldFilter")
 public class Broker extends BaseModel {
 

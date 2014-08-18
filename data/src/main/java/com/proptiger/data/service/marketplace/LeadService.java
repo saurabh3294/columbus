@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
+import com.proptiger.data.model.Company;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadRequirement;
@@ -20,8 +23,15 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
+import com.proptiger.data.service.CompanyService;
+import com.proptiger.data.service.LeadOfferService;
 import com.proptiger.data.service.LeadOfferStatus;
+import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * @author Anubhav
@@ -42,6 +52,18 @@ public class LeadService {
     @Autowired
     private LeadOfferDao        leadOfferDao;
 
+    @Autowired
+    private LeadOfferService    leadOfferService;
+
+    @Autowired
+    private ProjectService      projectService;
+
+    @Autowired
+    private CompanyService      companyService;
+
+    @Autowired
+    private PropertyReader      propertyReader;
+
     /**
      * 
      * @param agentId
@@ -53,14 +75,15 @@ public class LeadService {
             selector = new FIQLSelector();
         }
 
-        PaginatedResponse<List<LeadOffer>> paginatedResponse = leadDao.getLeadOffers(selector.addAndConditionToFilter("agentId==" + agentId));
+        PaginatedResponse<List<LeadOffer>> paginatedResponse = leadDao.getLeadOffers(selector
+                .addAndConditionToFilter("agentId==" + agentId));
 
         Set<String> fields = selector.getFieldSet();
         if (fields != null) {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(paginatedResponse.getResults());
                 Map<Integer, User> users = userService.getUsers(clientIds);
-                for (LeadOffer leadOffer: paginatedResponse.getResults()) {
+                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
                     leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
                 }
             }
@@ -68,7 +91,7 @@ public class LeadService {
             if (fields.contains("requirements")) {
                 List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
-                for (LeadOffer leadOffer: paginatedResponse.getResults()) {
+                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
                     leadOffer.getLead().setRequirements(requirements.get(leadOffer.getId()));
                 }
             }
@@ -79,7 +102,7 @@ public class LeadService {
 
     private Map<Integer, List<LeadRequirement>> getLeadRequirements(List<Integer> leadIds) {
         Map<Integer, List<LeadRequirement>> requirementsMap = new HashMap<>();
-        for (LeadRequirement leadRequirement: leadRequirementsDao.findByLeadIdIn(leadIds)) {
+        for (LeadRequirement leadRequirement : leadRequirementsDao.findByLeadIdIn(leadIds)) {
             int leadId = leadRequirement.getLeadId();
             if (!requirementsMap.containsKey(leadId)) {
                 requirementsMap.put(leadId, new ArrayList<LeadRequirement>());
@@ -90,23 +113,99 @@ public class LeadService {
 
         return requirementsMap;
     }
-    
+
     private List<Integer> extractLeadIds(List<LeadOffer> leadOffers) {
         List<Integer> leadIds = new ArrayList<>();
-        for (LeadOffer leadOffer: leadOffers) {
+        for (LeadOffer leadOffer : leadOffers) {
             leadIds.add(leadOffer.getLeadId());
         }
-        
+
         return leadIds;
     }
 
     private List<Integer> extractClientIds(List<LeadOffer> leadOffers) {
         List<Integer> clientIds = new ArrayList<>();
-        for (LeadOffer leadOffer: leadOffers) {
+        for (LeadOffer leadOffer : leadOffers) {
             clientIds.add(leadOffer.getLead().getClientId());
         }
-
         return clientIds;
+    }
+
+    @Transactional
+    public void manageLeadAuction(int leadId) {
+        Lead lead = leadDao.findOne(leadId);
+        boolean biddingCycleOver = (lead.getLeadOffers().size() != 0);
+
+        if (biddingCycleOver) {
+            // communication to channel manager
+            lead.setNextActionTime(null);
+            leadDao.save(lead);
+        }
+        else {
+            List<Company> brokerCompanies = getBrokersForLead(lead.getId());
+            if (brokerCompanies.size() == 0) {
+                // error case of no broker found
+            }
+            else {
+                for (Company company : brokerCompanies) {
+                    leadOfferService.offerLeadToBroker(lead, company, 1);
+                }
+                lead.setNextActionTime(DateUtil.getWorkingTimeAddedIntoDate(new Date(), propertyReader
+                        .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION, Integer.class)));
+                leadDao.save(lead);
+            }
+        }
+    }
+
+    public List<Lead> getLeadsPendingAction() {
+        return leadDao.findByNextActionTimeLessThan(new Date());
+    }
+
+    /**
+     * gets all broker companies eligible to fulfil a lead
+     * 
+     * @param lead
+     * @return {@link Company} {@link List}
+     */
+    private List<Company> getBrokersForLead(int leadId) {
+        List<Company> brokers = new ArrayList<>();
+        Lead lead = leadDao.findOne(leadId);
+        List<Integer> localityIds = getLocalitiesForLead(lead.getId());
+        if (localityIds.size() == 0) {
+            throw new ProAPIException("No locality found in lead");
+        }
+        else {
+            brokers = companyService.getBrokersForLocalities(localityIds);
+        }
+
+        System.out.println("BROKERS FOR LEAD-ID: " + lead.getId() + " ARE: " + new Gson().toJson(brokers));
+
+        return brokers;
+    }
+
+    /**
+     * gets all localities for a particular lead
+     * 
+     * @param lead
+     * @return {@link Integer} {@link List}
+     */
+    @Transactional
+    private List<Integer> getLocalitiesForLead(int leadId) {
+        List<Integer> localityIds = new ArrayList<>();
+        Lead lead = leadDao.findOne(leadId);
+        for (LeadRequirement requirement : lead.getRequirements()) {
+            if (requirement.getLocalityId() != null) {
+                localityIds.add(requirement.getLocalityId());
+            }
+            else if (requirement.getProjectId() != null) {
+                localityIds.add(projectService.getProjectDetail(requirement.getProjectId()).getLocalityId());
+            }
+            else {
+                // Some error case
+            }
+        }
+        System.out.println("LOCALITIES IN LEAD " + leadId + " ARE " + new Gson().toJson(localityIds));
+        return localityIds;
     }
 
     /**
