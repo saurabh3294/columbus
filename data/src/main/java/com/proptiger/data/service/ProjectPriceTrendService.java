@@ -1,6 +1,7 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -13,12 +14,17 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.external.dto.ProjectPriceHistoryDetail;
-import com.proptiger.data.external.dto.ProjectPriceHistoryDetail.ProjectPriceDetail;
+import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.internal.dto.ProjectPriceTrendInput;
-import com.proptiger.data.repo.CMSDao;
+import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.data.service.trend.TrendService;
+import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.UtilityClass;
+import com.sun.tools.classfile.ConstantPool.CONSTANT_String_info;
 
 /**
  * This class is responsible to get price trend for project
@@ -30,10 +36,10 @@ import com.proptiger.data.repo.CMSDao;
 public class ProjectPriceTrendService {
 
     @Autowired
-    private CMSDao cmsDao;
+    private TrendService trendService;
 
     /**
-     * Getting price trend using cms api, and converting that to internal DTO
+     * Getting price trend using Trend api, and converting that to internal DTO
      * representation
      * 
      * @param inputs
@@ -49,56 +55,80 @@ public class ProjectPriceTrendService {
         for (ProjectPriceTrendInput input : inputs) {
             projectIdSet.add(input.getProjectId());
         }
-        ProjectPriceHistoryDetail response = cmsDao.getProjectPriceHistory(projectIdSet, noOfMonths);
-        return convertToInternalPriceTrend(response, inputs);
+        FIQLSelector fiqlSelector = new FIQLSelector();
+        fiqlSelector.setGroup("projectId,month,bedrooms");
+        fiqlSelector.setFields("wavgPricePerUnitAreaOnLtdSupply,projectName");
+        for (Integer projectId : projectIdSet) {
+            fiqlSelector.addOrConditionToFilter("projectId==" + projectId);
+        }
+        HithertoDurationSelector hithertoSelector = new HithertoDurationSelector();
+        hithertoSelector.setMonthDuration(noOfMonths);
+        PaginatedResponse<List<InventoryPriceTrend>> projectPriceTrends = trendService.getHithertoPaginatedTrend(
+                fiqlSelector,
+                null,
+                null,
+                hithertoSelector);
+        return getMappedResults(projectPriceTrends, fiqlSelector, inputs);
+    }
+
+    private List<ProjectPriceTrend> getMappedResults(
+            PaginatedResponse<List<InventoryPriceTrend>> inventoryPriceTrends,
+            FIQLSelector fiqlSelector,
+            List<ProjectPriceTrendInput> inputs) {
+
+        PaginatedResponse<Map<Integer, Map<Long, Map<Integer, List<InventoryPriceTrend>>>>> result = new PaginatedResponse<>();
+        List<String> groupKeys = Arrays.asList(fiqlSelector.getGroup().split(","));
+        result.setTotalCount(inventoryPriceTrends.getTotalCount());
+
+        if (!groupKeys.isEmpty()) {
+            Map<Integer, Map<Long, Map<Integer, List<InventoryPriceTrend>>>> serviceResponse = (Map<Integer, Map<Long, Map<Integer, List<InventoryPriceTrend>>>>) UtilityClass
+                    .groupFieldsAsPerKeys(inventoryPriceTrends.getResults(), groupKeys);
+            result.setResults(serviceResponse);
+        }
+        return convertToInternalPriceTrend(result, inputs);
+
     }
 
     /**
-     * Converting external price trend object to internal price trend object
+     * Converting Trend API object to internal ProjectPriceTrend object
      * 
      * @param response
-     * @param projectIdTypeIdMap
-     * @param typeId
+     * @param inputs
      * @return
      */
     private List<ProjectPriceTrend> convertToInternalPriceTrend(
-            ProjectPriceHistoryDetail response,
+            PaginatedResponse<Map<Integer, Map<Long, Map<Integer, List<InventoryPriceTrend>>>>> response,
             List<ProjectPriceTrendInput> inputs) {
         List<ProjectPriceTrend> projectPriceTrends = new ArrayList<>();
-        if (response != null) {
-            Map<String, Map<String, Map<String, ProjectPriceDetail>>> prices = response.getPrices();
-            if (prices != null) {
+        for (ProjectPriceTrendInput priceTrendInput : inputs) {
+            ProjectPriceTrend projectPriceTrend = new ProjectPriceTrend();
+            projectPriceTrend.setProjectId(priceTrendInput.getProjectId());
+            projectPriceTrend.setTypeId(priceTrendInput.getTypeId());
+            projectPriceTrend.setListingName(priceTrendInput.getListingName());
+            projectPriceTrend.setProjectName(priceTrendInput.getProjectName());
+            Map<Long, Map<Integer, List<InventoryPriceTrend>>> projectPrices = response.getResults().get(
+                    projectPriceTrend.getProjectId());
+            List<PriceDetail> priceDetails = new ArrayList<PriceDetail>();
 
-                for (ProjectPriceTrendInput priceTrendInput : inputs) {
-                    Iterator<String> priceDateItr = prices.keySet().iterator();
-                    ProjectPriceTrend projectPriceTrend = new ProjectPriceTrend();
-                    projectPriceTrend.setProjectId(priceTrendInput.getProjectId());
-                    projectPriceTrend.setTypeId(priceTrendInput.getTypeId());
-                    projectPriceTrend.setListingName(priceTrendInput.getListingName());
-                    projectPriceTrend.setProjectName(priceTrendInput.getProjectName());
+            Iterator<Long> priceDateItr = projectPrices.keySet().iterator();
+            while (priceDateItr.hasNext()) {
+                Long dateKey = priceDateItr.next();
+                Date effectiveDate = new Date(dateKey);
 
-                    while (priceDateItr.hasNext()) {
-                        String dateKey = priceDateItr.next();
-                        // exclude current and latest time stamp
-                        if (!dateKey.equals("current") && !dateKey.equals("latest")) {
-                            Map<String, Map<String, ProjectPriceDetail>> projectsPriceMap = prices.get(dateKey);
-                            if (projectsPriceMap != null && !projectsPriceMap.isEmpty()) {
-                                Map<String, ProjectPriceDetail> priceDetailsForTypeIdIdMap = projectsPriceMap
-                                        .get(priceTrendInput.getProjectId().toString());
-                                PriceDetail priceDetail = getPriceDetailObj(
-                                        priceTrendInput.getTypeId(),
-                                        priceDetailsForTypeIdIdMap);
-                                if (priceDetail != null) {
-                                    projectPriceTrend.addPrice(priceDetail);
-                                }
-
-                            }
-                        }
-                    }
-                    projectPriceTrends.add(projectPriceTrend);
+                Object price = projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()).get(0).getExtraAttributes()
+                        .get("wavgPricePerUnitAreaOnLtdSupply");
+                // Set price if price is not null, otherwise left null and populated in PortfolioPriceTrendService
+                if (price != null) {
+                    PriceDetail priceDetail = new PriceDetail();
+                    priceDetail.setPrice((double) price);
+                    priceDetail.setEffectiveDate(effectiveDate);
+                    priceDetails.add(priceDetail);
                 }
             }
-
+            if (priceDetails.size() > 0) {
+                projectPriceTrend.setPrices(priceDetails);
+            }
+            projectPriceTrends.add(projectPriceTrend);
         }
         sortPricesByDateAsc(projectPriceTrends);
         return projectPriceTrends;
@@ -119,79 +149,6 @@ public class ProjectPriceTrendService {
                     }
                 });
             }
-
         }
-
     }
-
-    /**
-     * Creating PriceDetail object, if type id present then actual value will be
-     * used otherwise average of all will be used
-     * 
-     * @param typeId
-     * @param priceDetailsForTypeIdIdMap
-     * @return
-     */
-    private PriceDetail getPriceDetailObj(Integer typeId, Map<String, ProjectPriceDetail> priceDetailsForTypeIdIdMap) {
-
-        boolean found = false;
-        if (priceDetailsForTypeIdIdMap != null) {
-            List<ProjectPriceDetail> projectPriceDetailsForTypeId = new ArrayList<>();
-            PriceDetail priceDetail = new PriceDetail();
-            double price = 0.0D;
-            Date date = null;
-            if (typeId != null) {
-                String phaseIdTypeIdKey = typeId.toString();
-                Iterator<String> keyItr = priceDetailsForTypeIdIdMap.keySet().iterator();
-                while (keyItr.hasNext()) {
-                    String key = keyItr.next();
-                    if (key.endsWith(phaseIdTypeIdKey)) {
-                        ProjectPriceDetail priceObj = priceDetailsForTypeIdIdMap.get(key);
-                        projectPriceDetailsForTypeId.add(priceObj);
-                        // price = priceObj.getPrice();
-                        // date = priceObj.getEffective_date();
-                        found = true;
-                        // break;
-                    }
-                }
-
-            }
-            /*
-             * If type id is null then found will be false and this block of
-             * code will take max of price from all phase id and type id
-             * combination
-             */
-            if (!found) {
-                double maxVal = 0.0D;
-                for (ProjectPriceDetail priceDetailObj : priceDetailsForTypeIdIdMap.values()) {
-                    if (priceDetailObj.getPrice() > maxVal) {
-                        date = priceDetailObj.getEffective_date();
-                        price = priceDetailObj.getPrice();
-                        maxVal = priceDetailObj.getPrice();
-                    }
-                }
-                priceDetail.setEffectiveDate(date);
-                priceDetail.setPrice((int) price);
-            }
-            else {
-                /*
-                 * take the max value from list of prices returned from cms API
-                 * for phaseId_typeId combination, for required type id
-                 */
-                ProjectPriceDetail prideDetailWithMaxVal = null;
-                double maxVal = 0.0D;
-                for (ProjectPriceDetail projectPriceDetail : projectPriceDetailsForTypeId) {
-                    if (projectPriceDetail.getPrice() > maxVal) {
-                        prideDetailWithMaxVal = projectPriceDetail;
-                    }
-                }
-                priceDetail.setEffectiveDate(prideDetailWithMaxVal.getEffective_date());
-                priceDetail.setPrice((int) prideDetailWithMaxVal.getPrice());
-            }
-
-            return priceDetail;
-        }
-
-        return null;
-    }
-}
+ }

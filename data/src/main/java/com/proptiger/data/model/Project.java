@@ -13,11 +13,14 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.Transient;
@@ -34,6 +37,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
 import com.proptiger.data.enums.DataType;
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
@@ -44,7 +48,7 @@ import com.proptiger.data.util.DoubletoIntegerConverter;
  */
 @JsonInclude(Include.NON_NULL)
 @Entity
-@Table(name = "RESI_PROJECT")
+@Table(name = "cms.resi_project")
 @JsonFilter("fieldFilter")
 public class Project extends BaseModel {
     private static final long serialVersionUID = -6635164496425100051L;
@@ -107,7 +111,11 @@ public class Project extends BaseModel {
     private int                     projectId;
 
     @Transient
-    private boolean                 authorized        = false;
+    private boolean                 authorized          = false;
+
+    @Column(name = "VERSION")
+    @Enumerated(EnumType.STRING)
+    private DataVersion             version;
 
     @Deprecated
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
@@ -183,16 +191,16 @@ public class Project extends BaseModel {
     @Column(name = "PROMISED_COMPLETION_DATE")
     private Date                    possessionDate;
 
+    @Transient
     @FieldMetaInfo(displayName = "Submitted Date", description = "Submitted Date")
     @Field(value = "SUBMITTED_DATE")
-    @Column(name = "SUBMITTED_DATE")
     private Date                    submittedDate;
 
     // XXX - In order to make itnot null and avoid App crash
     @FieldMetaInfo(displayName = "Image URL", description = "Image URL")
     @Transient
     @Field("PROJECT_SMALL_IMAGE")
-    private String                  imageURL          = "";
+    private String                  imageURL            = "";
 
     @Transient
     @FieldMetaInfo(displayName = "Offer", description = "Offer")
@@ -200,15 +208,15 @@ public class Project extends BaseModel {
     @Deprecated
     private String                  offer;
 
+    @Transient
     @FieldMetaInfo(displayName = "Offer Heading", description = "Offer Heading")
     @Field(value = "OFFER_HEADING")
-    @Column(name = "OFFER_HEADING")
     @Deprecated
     private String                  offerHeading;
 
+    @Transient
     @FieldMetaInfo(displayName = "Offer Description", description = "Offer Description")
     @Field(value = "OFFER_DESC")
-    @Column(name = "OFFER_DESC")
     @Deprecated
     private String                  offerDesc;
 
@@ -283,13 +291,20 @@ public class Project extends BaseModel {
     @FieldMetaInfo(displayName = "Max Bedroooms", description = "Max Bedroooms")
     private int                     maxBedrooms;
 
-    @FieldMetaInfo(displayName = "Project Status", description = "Project Status")
+    @Column(name = "PROJECT_STATUS_ID")
+    private int                     projectStatusId;
+
+    @ManyToOne
+    @JoinColumn(name = "PROJECT_STATUS_ID", insertable = false, updatable = false)
+    private ProjectStatusMaster     projectStatusMaster;
+
+    @Transient
+    @FieldMetaInfo(displayName = "PROJECT STATUS", description = "PROJECT STATUS")
     @Field(value = "PROJECT_STATUS")
-    @Column(name = "PROJECT_STATUS")
     private String                  projectStatus;
 
+    @Transient
     @Field(value = "IS_RESALE")
-    @Column(name = "FORCE_RESALE")
     private boolean                 isResale;
 
     @Transient
@@ -326,17 +341,20 @@ public class Project extends BaseModel {
 
     @Transient
     @Field(value = "MEASURE")
-    private String                  propertySizeMeasure;
+    private String                  propertySizeMeasure = "sqft";
 
     @Transient
     @Field(value = "PROJECT_DOMINANT_UNIT_TYPE")
     private String                  dominantUnitType;
 
     @Transient
-    private Set<String>             propertyUnitTypes = new HashSet<>();
+    private Set<String>             propertyUnitTypes   = new HashSet<>();
 
     @Transient
     private List<Image>             images;
+
+    @Transient
+    private Image                   mainImage;
 
     @Transient
     @Field(value = "LOCALITY_LABEL_PRIORITY")
@@ -351,7 +369,7 @@ public class Project extends BaseModel {
     private String                  builderLabelPriority;
 
     @Transient
-    private Set<Integer>            distinctBedrooms  = new HashSet<>();
+    private Set<Integer>            distinctBedrooms    = new HashSet<>();
 
     @Transient
     private Double                  minResalePrice;
@@ -366,7 +384,7 @@ public class Project extends BaseModel {
     private Integer                 avgPriceRiseMonths;
 
     @FieldMetaInfo(displayName = "AVAILABILITY", description = "AVAILABILITY")
-    @Column(name = "AVAILABILITY")
+    @Column(name = "D_AVAILABILITY")
     @Field("AVAILABILITY")
     private Integer                 derivedAvailability;
 
@@ -377,12 +395,12 @@ public class Project extends BaseModel {
     private Date                    preLaunchDate;
 
     @FieldMetaInfo(displayName = "YOUTUBE VEDIO", description = "YOUTUBE VEDIO")
-    @Column(name = "YOUTUBE_VEDIO")
+    @Column(name = "YOUTUBE_VIDEO")
     @JsonIgnore
     private String                  youtubeVideo;
 
+    @Transient
     @FieldMetaInfo(displayName = "NO OF FLATS", description = "NO OF FLATS")
-    @Column(name = "NO_OF_FLATES")
     @Field("PROJECT_SUPPLY")
     private Integer                 supply;
 
@@ -422,7 +440,7 @@ public class Project extends BaseModel {
     private List<Offer>             offers;
 
     @Transient
-    @Field("PROJECT_LAST_UPDATED_DATE")
+    @Field("PROJECT_LAST_UPDATED_TIME")
     private Date                    lastUpdatedDate;
 
     @Transient
@@ -469,6 +487,14 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_LIVABILITY_SCORE")
     private Float                   livabilityScore;
+    
+    @Transient
+    @Field(value = "PROJECT_LOCALITY_SCORE")
+    private Float                   projectLocalityScore;
+    
+    @Transient
+    @Field(value = "PROJECT_SOCIETY_SCORE")
+    private Float                   projectSocietyScore;
 
     public int getProjectId() {
         return projectId;
@@ -700,12 +726,29 @@ public class Project extends BaseModel {
         this.maxSize = maxSize;
     }
 
+    public int getProjectStatusId() {
+        return projectStatusId;
+    }
+
+    public void setProjectStatusId(int projectStatusId) {
+        this.projectStatusId = projectStatusId;
+    }
+
+    public ProjectStatusMaster getProjectStatusMaster() {
+        return projectStatusMaster;
+    }
+
+    public void setProjectStatusMaster(ProjectStatusMaster projectStatusMaster) {
+        this.projectStatusMaster = projectStatusMaster;
+    }
+
     public String getProjectStatus() {
         return projectStatus;
     }
 
-    public void setProjectStatus(String projectStatus) {
-        this.projectStatus = projectStatus;
+    @PostLoad
+    public void postLoad() {
+        this.projectStatus = projectStatusMaster.getDisplay_name();
     }
 
     public boolean isIsResale() {
@@ -886,14 +929,6 @@ public class Project extends BaseModel {
 
     public boolean isResale() {
         return isResale;
-    }
-
-    public Integer getAvailability() {
-        return derivedAvailability;
-    }
-
-    public void setAvailability(Integer availability) {
-        this.derivedAvailability = availability;
     }
 
     public Date getPreLaunchDate() {
@@ -1138,4 +1173,35 @@ public class Project extends BaseModel {
         this.imageCountByType = imageCountByType;
     }
 
+    public Image getMainImage() {
+        return mainImage;
+    }
+
+    public void setMainImage(Image mainImage) {
+        this.mainImage = mainImage;
+    }
+
+    public DataVersion getVersion() {
+        return version;
+    }
+
+    public void setVersion(DataVersion version) {
+        this.version = version;
+    }
+
+    public Float getProjectLocalityScore() {
+        return projectLocalityScore;
+    }
+
+    public void setProjectLocalityScore(Float projectLocalityScore) {
+        this.projectLocalityScore = projectLocalityScore;
+    }
+
+    public Float getProjectSocietyScore() {
+        return projectSocietyScore;
+    }
+
+    public void setProjectSocietyScore(Float projectSocietyScore) {
+        this.projectSocietyScore = projectSocietyScore;
+    }
 }

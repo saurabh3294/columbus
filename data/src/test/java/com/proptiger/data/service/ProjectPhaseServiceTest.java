@@ -53,10 +53,6 @@ public class ProjectPhaseServiceTest extends AbstractTest {
             if (property.getPropertyId() == 5010148) {
                 assertEquals("PricePerUnitArea Failed", Double.valueOf(4500.0), property.getPricePerUnitArea());
                 assertEquals(
-                        "PricePerUnitAreaCms Failed",
-                        Double.valueOf(4500),
-                        property.getPricePerUnitAreaCms());
-                assertEquals(
                         "ResalePricePerUnitArea Failed",
                         Double.valueOf(5000),
                         property.getResalePricePerUnitArea());
