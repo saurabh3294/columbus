@@ -10,26 +10,36 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
+import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
 
 @Service
 public class NotificationMessageService {
 
     @Autowired
-    private NotificationMessageDao           notificationMessageDao;
+    private NotificationMessageDao                  notificationMessageDao;
 
     @Autowired
-    private NotificationTypeGeneratedService ntGeneratedService;
+    private NotificationTypeGeneratedService        ntGeneratedService;
 
-    private Gson                             serializer = new Gson();
+    @Autowired
+    private NotificationTypeService                 notificationTypeService;
+
+    @Autowired
+    private UserNotificationTypeSubscriptionService userNTSubscriptionService;
+
+    private Gson                                    serializer = new Gson();
 
     public Integer getActiveNotificationMessageCount() {
         return notificationMessageDao
@@ -97,20 +107,67 @@ public class NotificationMessageService {
     }
 
     public NotificationMessage createNotificationMessage() {
+        // TODO:
         return new NotificationMessage();
     }
 
-    public List<NotificationMessage> getNotificationMessagesForNotificationType(NotificationType notificationType) {
+    public List<NotificationMessage> getNotificationMessagesForNotificationTypeGenerated(
+            NotificationTypeGenerated ntGenerated) {
         // TODO:
         // get user list based on notification type
         // get msg by type gen from msgService
         // add data to msg by notification type
-        return null;
+
+        List<ForumUser> userList = getUserListByNotificationTypeGenerated(ntGenerated);
+
+        List<NotificationMessage> notificationMessages = new ArrayList<NotificationMessage>();
+        for (ForumUser forumUser : userList) {
+            NotificationMessagePayload payload = new NotificationMessagePayload();
+            // TODO:
+
+            NotificationMessage nMessage = new NotificationMessage();
+            nMessage.setNotificationTypeGenerated(ntGenerated);
+            nMessage.setNotificationType(ntGenerated.getNotificationType());
+            nMessage.setForumUser(forumUser);
+            nMessage.setNotificationMessagePayload(payload);
+            notificationMessages.add(nMessage);
+        }
+
+        return notificationMessages;
     }
 
-    /*
-     * TODO: Make it Transactional
-     */
+    public List<ForumUser> getUserListByNotificationTypeGenerated(NotificationTypeGenerated ntGenerated) {
+        NotificationType notificationType = ntGenerated.getNotificationType();
+        List<ForumUser> userList = new ArrayList<ForumUser>();
+        if (NotificationTypeUserStrategy.OnlySubscribed.equals(notificationType.getUserStrategy())) {
+            userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
+        }
+        else if (NotificationTypeUserStrategy.DefaultMinusUnsubscribed.equals(notificationType.getUserStrategy())) {
+            NotificationMessageProcessor nmProcessor = notificationType.getNotificationTypeConfig()
+                    .getNotificationMessageProcessorObject();
+            List<ForumUser> defaultUserList = nmProcessor.getDefaultUserList(ntGenerated.getNotificationTypePayload());
+
+            Map<Integer, ForumUser> defaultUserMap = new HashMap<Integer, ForumUser>();
+            for (ForumUser user : defaultUserList) {
+                defaultUserMap.put(user.getUserId(), user);
+            }
+
+            List<ForumUser> unsubscribedUserList = userNTSubscriptionService
+                    .getUnsubscribedUsersByNotificationType(notificationType);
+
+            // Removing unsubscribed users from default user map
+            for (ForumUser user : unsubscribedUserList) {
+                if (defaultUserMap.get(user.getUserId()) != null) {
+                    defaultUserMap.remove(user.getUserId());
+                }
+            }
+
+            userList = (List<ForumUser>) defaultUserMap.values();
+        }
+        return userList;
+    }
+
+    @Transactional
     public void persistNotificationMessages(
             List<NotificationMessage> notificationMessages,
             NotificationTypeGenerated ntGenerated) {

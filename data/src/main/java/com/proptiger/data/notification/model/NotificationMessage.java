@@ -10,6 +10,8 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -62,7 +64,19 @@ public class NotificationMessage extends BaseModel {
     @Column(name = "updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date                       updatedAt;
+    
+    @PreUpdate
+    public void autoUpdateFields() {
+        this.updatedAt = new Date();
+    }
 
+    @PrePersist
+    public void autoPopulateFields() {
+        this.createdAt = new Date();
+        this.notificationStatus = NotificationStatus.MessageGenerated;
+        autoUpdateFields();
+    }
+    
     public int getId() {
         return id;
     }
