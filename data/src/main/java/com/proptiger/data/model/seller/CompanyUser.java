@@ -59,6 +59,9 @@ public class CompanyUser extends BaseModel {
     @Column(name = "company_id")
     private int                   companyId;
 
+    @Column(name = "user_id")
+    private int                   userId;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "company_id", nullable = false, insertable = false, updatable = false)
     private Company               company;
@@ -132,6 +135,14 @@ public class CompanyUser extends BaseModel {
 
     public void setCompanyId(int companyId) {
         this.companyId = companyId;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public Company getCompany() {
