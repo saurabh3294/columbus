@@ -154,6 +154,15 @@ public class ProjectDiscussionsService {
     @Cacheable(
             value = Constants.CacheName.PROJECT_DISCUSSION,
             key = "':'+#projectId+':'+#paging.getStart()+'-'+#paging.getRows()")
+    /**
+     * This method will take all project comments and then make a hierarichal structure of the 
+     * comments based on the parent comment Id. Hence, a root comment can have infinite level
+     * of tree structure in the worst case. The paging is applied on the number of
+     * root comments.
+     * @param projectId
+     * @param paging
+     * @return
+     */
     public PaginatedResponse<List<ProjectDiscussion>> getProjectComments(int projectId, Paging paging) {
 
         List<ProjectDiscussion> allComments = projectDiscussionDao
@@ -185,6 +194,9 @@ public class ProjectDiscussionsService {
                 it.remove();
             }
         }
+        /**
+         * Paging on the number of root comments.
+         */
         int totalRootComments = allComments.size();
         allComments = setPagingOnProjectDiscussion(allComments, paging);
 
@@ -205,6 +217,13 @@ public class ProjectDiscussionsService {
         return response;
     }
 
+    /**
+     * Paging is being applied on the number of root comments to return in the response. Each root comments
+     * can have infinite hierarchal structure of comments.
+     * @param comments
+     * @param paging
+     * @return
+     */
     private List<ProjectDiscussion> setPagingOnProjectDiscussion(List<ProjectDiscussion> comments, Paging paging) {
         int totalRootComments = comments.size();
         // setting paging of the root comments
@@ -214,7 +233,8 @@ public class ProjectDiscussionsService {
         if (paging.getStart() > totalRootComments) {
             return new ArrayList<ProjectDiscussion>();
         }
-
+        
+        // End Index of the subList.
         int pagingRows = paging.getRows() + paging.getStart();
         pagingRows = pagingRows > totalRootComments ? totalRootComments : pagingRows;
 
