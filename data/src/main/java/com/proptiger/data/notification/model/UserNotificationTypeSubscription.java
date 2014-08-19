@@ -36,6 +36,10 @@ public class UserNotificationTypeSubscription extends BaseModel {
     @Column(name = "subscription_type")
     @Enumerated(EnumType.STRING)
     private SubscriptionType  subscriptionType;
+    
+    @Column(name = "is_deleted")
+    @Enumerated(EnumType.ORDINAL)
+    private Integer isDeleted;
 
     public int getId() {
         return id;
@@ -67,6 +71,14 @@ public class UserNotificationTypeSubscription extends BaseModel {
 
     public void setSubscriptionType(SubscriptionType subscriptionType) {
         this.subscriptionType = subscriptionType;
+    }
+
+    public Integer getIsDeleted() {
+        return isDeleted;
+    }
+
+    public void setIsDeleted(Integer isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
 }

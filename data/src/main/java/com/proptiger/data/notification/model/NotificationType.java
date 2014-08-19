@@ -48,9 +48,11 @@ public class NotificationType extends BaseModel {
     private transient NotificationTypeConfig notificationTypeConfig;
 
     @Transient
+    @Deprecated
     private List<NotificationMedium>         notificationMediumList;
 
     @Transient
+    @Deprecated
     private List<ForumUser>                  forumUserList;
 
     @Column(name = "intra_primary_key_operation")
@@ -117,18 +119,22 @@ public class NotificationType extends BaseModel {
         this.notificationTypeConfig = notificationTypeConfig;
     }
 
+    @Deprecated
     public List<NotificationMedium> getNotificationMediumList() {
         return notificationMediumList;
     }
 
+    @Deprecated
     public void setNotificationMediumList(List<NotificationMedium> notificationMediumList) {
         this.notificationMediumList = notificationMediumList;
     }
 
+    @Deprecated
     public List<ForumUser> getForumUserList() {
         return forumUserList;
     }
 
+    @Deprecated
     public void setForumUserList(List<ForumUser> forumUserList) {
         this.forumUserList = forumUserList;
     }

@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -38,7 +39,9 @@ public class NotificationTypeGenerated extends BaseModel {
 
     @Column(name = "data")
     private String                  data;
-
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_generated_id")
     private EventGenerated          eventGenerated;
 
     @OneToOne

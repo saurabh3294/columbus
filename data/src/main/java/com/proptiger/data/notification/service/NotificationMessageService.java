@@ -159,7 +159,7 @@ public class NotificationMessageService {
         if (NotificationTypeUserStrategy.OnlySubscribed.equals(notificationType.getUserStrategy())) {
             userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
         }
-        else if (NotificationTypeUserStrategy.DefaultMinusUnsubscribed.equals(notificationType.getUserStrategy())) {
+        else if (NotificationTypeUserStrategy.MinusUnsubscribed.equals(notificationType.getUserStrategy())) {
             NotificationMessageProcessor nmProcessor = notificationType.getNotificationTypeConfig()
                     .getNotificationMessageProcessorObject();
             List<ForumUser> defaultUserList = nmProcessor.getDefaultUserList(ntGenerated.getNotificationTypePayload());
