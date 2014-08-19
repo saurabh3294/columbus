@@ -115,8 +115,8 @@ public class Property extends BaseModel {
     private String            projectIdBedroom;
 
     @ManyToOne
-    @JoinColumn(name = "PROJECT_ID")
-    @Transient
+    @JoinColumn(name = "PROJECT_ID", insertable = false, updatable = false)
+    //@Transient
     private Project           project;
 
     @Transient

@@ -49,7 +49,7 @@ public class NotificationMessageService {
     }
 
     public List<NotificationMessage> getRawNotificationMessages(Pageable pageable) {
-        List<NotificationMessage> notificationMessages = notificationMessageDao.findByStatus(
+        List<NotificationMessage> notificationMessages = notificationMessageDao.findByNotificationStatus(
                 NotificationStatus.MessageGenerated,
                 pageable);
         if (notificationMessages == null) {

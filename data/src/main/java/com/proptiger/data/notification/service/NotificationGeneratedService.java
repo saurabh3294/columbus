@@ -36,7 +36,7 @@ public class NotificationGeneratedService {
     private NotificationTypeService notificationTypeService;
 
     public List<NotificationGenerated> getScheduledAndNonExpiredNotifications() {
-        List<NotificationGenerated> notificationGenerateds = notificationGeneratedDao.findByStatusAndExpiryTimeLessThan(NotificationStatus.Scheduled, new Date());
+        List<NotificationGenerated> notificationGenerateds = notificationGeneratedDao.findByNotificationStatusAndScheduleTimeLessThan(NotificationStatus.Scheduled, new Date());
         if(notificationGenerateds == null){
             return new ArrayList<NotificationGenerated>();
         }
@@ -56,7 +56,7 @@ public class NotificationGeneratedService {
     }
 
  	public List<NotificationGenerated> getScheduledAndReadyNotifications(){
-        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByStatusAndExpiryTimeGreaterThanEqual(NotificationStatus.Scheduled, new Date());
+        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByNotificationStatusAndScheduleTimeGreaterThanEqual(NotificationStatus.Scheduled, new Date());
         mediumTypeService.setNotificationMediumSender(ntGeneratedList);
         return ntGeneratedList;
     }
@@ -143,7 +143,7 @@ public class NotificationGeneratedService {
         
         for(Map.Entry<NotificationStatus, List<NotificationGenerated>> entry:map.entrySet()){
              for(NotificationGenerated nGenerated:entry.getValue()){
-                 notificationGeneratedDao.updateByStatusOnOldStatus(nGenerated.getId(), nGenerated.getNotificationStatus(), entry.getKey());
+                 notificationGeneratedDao.updateByNotificationStatusOnOldNotificationStatus(nGenerated.getId(), nGenerated.getNotificationStatus(), entry.getKey());
              }
         }
     }

@@ -38,7 +38,6 @@ public class UserNotificationTypeSubscription extends BaseModel {
     private SubscriptionType  subscriptionType;
     
     @Column(name = "is_deleted")
-    @Enumerated(EnumType.ORDINAL)
     private Integer isDeleted;
 
     public int getId() {
