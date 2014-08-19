@@ -113,18 +113,13 @@ public class NotificationMessageService {
 
     public List<NotificationMessage> getNotificationMessagesForNotificationTypeGenerated(
             NotificationTypeGenerated ntGenerated) {
-        // TODO:
-        // get user list based on notification type
-        // get msg by type gen from msgService
-        // add data to msg by notification type
 
-        List<ForumUser> userList = getUserListByNotificationTypeGenerated(ntGenerated);
+        // Map of User and relevant user data
+        Map<ForumUser, NotificationMessagePayload> userDataList = getUserDataMapByNotificationTypeGenerated(ntGenerated);
 
         List<NotificationMessage> notificationMessages = new ArrayList<NotificationMessage>();
-        for (ForumUser forumUser : userList) {
-            NotificationMessagePayload payload = new NotificationMessagePayload();
-            // TODO:
-
+        for (ForumUser forumUser : userDataList.keySet()) {
+            NotificationMessagePayload payload = userDataList.get(forumUser);
             NotificationMessage nMessage = new NotificationMessage();
             nMessage.setNotificationTypeGenerated(ntGenerated);
             nMessage.setNotificationType(ntGenerated.getNotificationType());
@@ -136,35 +131,27 @@ public class NotificationMessageService {
         return notificationMessages;
     }
 
-    public List<ForumUser> getUserListByNotificationTypeGenerated(NotificationTypeGenerated ntGenerated) {
+    public Map<ForumUser, NotificationMessagePayload> getUserDataMapByNotificationTypeGenerated(
+            NotificationTypeGenerated ntGenerated) {
+
         NotificationType notificationType = ntGenerated.getNotificationType();
-        List<ForumUser> userList = new ArrayList<ForumUser>();
+        Map<ForumUser, NotificationMessagePayload> nmPayloadMap = new HashMap<ForumUser, NotificationMessagePayload>();
+
+        NotificationMessageProcessor nmProcessor = notificationType.getNotificationTypeConfig()
+                .getNotificationMessageProcessorObject();
+
         if (NotificationTypeUserStrategy.OnlySubscribed.equals(notificationType.getUserStrategy())) {
-            userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
+            List<ForumUser> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
+            nmPayloadMap = nmProcessor.getNotificationMessagePayloadBySubscribedUserList(userList, ntGenerated);
         }
         else if (NotificationTypeUserStrategy.DefaultMinusUnsubscribed.equals(notificationType.getUserStrategy())) {
-            NotificationMessageProcessor nmProcessor = notificationType.getNotificationTypeConfig()
-                    .getNotificationMessageProcessorObject();
-            List<ForumUser> defaultUserList = nmProcessor.getDefaultUserList(ntGenerated.getNotificationTypePayload());
-
-            Map<Integer, ForumUser> defaultUserMap = new HashMap<Integer, ForumUser>();
-            for (ForumUser user : defaultUserList) {
-                defaultUserMap.put(user.getUserId(), user);
-            }
-
             List<ForumUser> unsubscribedUserList = userNTSubscriptionService
                     .getUnsubscribedUsersByNotificationType(notificationType);
-
-            // Removing unsubscribed users from default user map
-            for (ForumUser user : unsubscribedUserList) {
-                if (defaultUserMap.get(user.getUserId()) != null) {
-                    defaultUserMap.remove(user.getUserId());
-                }
-            }
-
-            userList = (List<ForumUser>) defaultUserMap.values();
+            nmPayloadMap = nmProcessor.getNotificationMessagePayloadByUnsubscribedUserList(
+                    unsubscribedUserList,
+                    ntGenerated);
         }
-        return userList;
+        return nmPayloadMap;
     }
 
     @Transactional
