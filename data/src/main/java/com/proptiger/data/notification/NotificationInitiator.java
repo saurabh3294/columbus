@@ -23,6 +23,8 @@ import com.proptiger.data.notification.sender.NotificationSender;
 public class NotificationInitiator {
 
     private static Logger                logger = LoggerFactory.getLogger(NotificationInitiator.class);
+    
+    private static int                   EMAIL_NOTIFICATION_MEDIUM_ID = 1;
 
     @Autowired
     private NotificationTypeGenerator    notificationTypeGenerator;
@@ -101,10 +103,10 @@ public class NotificationInitiator {
      * the respective medium
      */
     @Scheduled(cron = "* 10 8-22 * * *")
-    public void notificationSender() {
-        logger.info("NotificationSender : Sending Scheduled Generated Notification.");
-        Integer numberOfSendNtGenerated = notificationSender.sendNotification();
-        logger.info("Notification Sender: Send " + numberOfSendNtGenerated + " Generated Notifications");
+    public void emailNotificationSender() {
+        logger.info("NotificationSender : Sending Scheduled Generated Notification via Email.");
+        Integer numberOfSentNtGenerated = notificationSender.sendNotification(EMAIL_NOTIFICATION_MEDIUM_ID);
+        logger.info("NotificationSender: Sent " + numberOfSentNtGenerated + " Generated Notifications via Email");
     }
 
 }

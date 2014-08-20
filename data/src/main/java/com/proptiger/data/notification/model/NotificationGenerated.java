@@ -80,6 +80,9 @@ public class NotificationGenerated extends BaseModel {
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
     
+    @Column (name = "object_id")
+    private Integer                     objectId;
+    
     @PreUpdate
     public void populatePreUpdateFields(){
         this.updatedAt = new Date();
@@ -177,5 +180,13 @@ public class NotificationGenerated extends BaseModel {
 
     public void setNotificationType(NotificationType notificationType) {
         this.notificationType = notificationType;
+    }
+
+    public Integer getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(Integer objectId) {
+        this.objectId = objectId;
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.SentNotificationLog;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
@@ -27,9 +28,9 @@ public class NotificationSender {
     @Autowired
     private SentNotificationLogService   sentNotificationLogService;
 
-    public Integer sendNotification() {
+    public Integer sendNotification(int mediumId) {
         Integer numberOfSendNtGen = 0;
-        List<NotificationGenerated> ntGeneratedList = ntGeneratedService.getScheduledAndReadyNotifications();
+        List<NotificationGenerated> ntGeneratedList = ntGeneratedService.getScheduledAndReadyNotifications(mediumId);
         logger.info("NotificationSender : Number of Scheduled and Ready Notifications " + ntGeneratedList.size());
         for (NotificationGenerated ntGenerated : ntGeneratedList) {
             try {
@@ -41,9 +42,12 @@ public class NotificationSender {
                     ForumUser forumUser = ntGenerated.getNotificationMessage().getForumUser();
                     ntGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
                             .send(mailBody, forumUser);
-                    sentNotificationLogService.save(new SentNotificationLog(ntGenerated.getId(), ntGenerated
+                    //Sent NotificationGenerated logging handling will be done later.
+                    //currently notification status of sent NG is marked as sent in DB.
+                    /*sentNotificationLogService.save(new SentNotificationLog(ntGenerated.getId(), ntGenerated
                             .getNotificationMedium().getId(), ntGenerated.getNotificationMessage().getForumUser()
-                            .getUserId(), new Date()));
+                            .getUserId(), new Date()));*/
+                    ntGeneratedService.updateNotificationGeneratedStatusOnOldStatus(ntGenerated.getId(), NotificationStatus.Sent, ntGenerated.getNotificationStatus());
                     numberOfSendNtGen++;
                 }
             }
