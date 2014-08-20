@@ -78,6 +78,9 @@ public class NotificationType extends BaseModel {
     @Column(name = "user_strategy")
     @Enumerated(EnumType.STRING)
     private NotificationTypeUserStrategy     userStrategy;
+    
+    @Column(name="priority")
+    private Integer                          priority;
 
     public int getId() {
         return id;
@@ -195,4 +198,11 @@ public class NotificationType extends BaseModel {
         this.userStrategy = userStrategy;
     }
 
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
 }
