@@ -54,7 +54,7 @@ public class Image extends BaseModel {
     public static final String DOT             = ".";
     public static final String HYPHEN          = "-";
     public static final String PATTERN         = "[^a-zA-Z0-9]+";
-    public static final String OPTIMAL_SUFFIX  = "O";
+    public static final String OPTIMAL_SUFFIX  = "o";
     public static final double BEST_QUALITY    = 95.0;
 
     @Id

@@ -61,7 +61,7 @@ public class BuilderTrendServiceTest extends AbstractTest {
     @Test
     public void getBuilderTrendTest() {
         FIQLSelector selector = new FIQLSelector();
-        selector.setFilters("builderId==100002");
+        selector.setFilters("builderId==100111");
         BuilderTrend builderTrend = builderTrendService.getBuilderTrend(selector, null).get(0);
         Assert.assertEquals(builderTrend.getSupply() >= builderTrend.getLaunchedUnit(), true);
     }
