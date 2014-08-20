@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.SentNotificationLog;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
@@ -44,6 +45,7 @@ public class NotificationSender {
                     sentNotificationLogService.save(new SentNotificationLog(ntGenerated.getId(), ntGenerated
                             .getNotificationMedium().getId(), ntGenerated.getNotificationMessage().getForumUser()
                             .getUserId(), new Date()));
+                    ntGeneratedService.updateNotificationGeneratedStatusOnOldStatus(ntGenerated.getId(), NotificationStatus.Sent, ntGenerated.getNotificationStatus());
                     numberOfSendNtGen++;
                 }
             }

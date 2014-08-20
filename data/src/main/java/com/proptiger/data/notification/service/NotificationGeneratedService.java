@@ -18,6 +18,7 @@ import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -56,7 +57,7 @@ public class NotificationGeneratedService {
     }
 
  	public List<NotificationGenerated> getScheduledAndReadyNotifications(int mediumId){
- 	    List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByStatusAndExpiryTimeGreaterThanEqualAndNotificationMediumId(NotificationStatus.Scheduled, new Date(), mediumId);
+ 	    List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByStatusAndExpiryTimeGreaterThanEqualAndMediumId(NotificationStatus.Scheduled, new Date(), mediumId);
         mediumTypeService.setNotificationMediumSender(ntGeneratedList);
         return ntGeneratedList;
     }
@@ -180,5 +181,39 @@ public class NotificationGeneratedService {
         }
         
         return generatedList;
+    }
+    
+    public NotificationGenerated getLastScheduledOrSendNotificationGeneratedSameAs(NotificationGenerated ntGenerated) {
+        List<NotificationStatus> notificationStatusList = new ArrayList<NotificationStatus>();
+        notificationStatusList.add(NotificationStatus.Scheduled);
+        notificationStatusList.add(NotificationStatus.Sent);
+        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.getLastNotificationGenerated(
+                notificationStatusList,
+                ntGenerated.getNotificationMedium().getId(),
+                ntGenerated.getForumUser().getUserId(),
+                ntGenerated.getNotificationType().getId(),
+                ntGenerated.getObjectId());
+        if (ntGeneratedList !=null && !ntGeneratedList.isEmpty()) {
+            return ntGeneratedList.get(0);
+        }
+        return null;
+    }
+    
+    public NotificationGenerated getLastScheduledOrSentNotificationGeneratedInMediumSameAs(NotificationGenerated ntGenerated) {
+        List<NotificationStatus> notificationStatusList = new ArrayList<NotificationStatus>();
+        notificationStatusList.add(NotificationStatus.Scheduled);
+        notificationStatusList.add(NotificationStatus.Sent);
+        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.getLastSentNotificationGeneratedInMedium(
+                notificationStatusList,
+                ntGenerated.getForumUser().getUserId(),
+                ntGenerated.getNotificationMedium().getId());
+        if (ntGeneratedList !=null && !ntGeneratedList.isEmpty()) {
+            return ntGeneratedList.get(0);
+        }
+        return null;
+    }
+
+    public void updateNotificationGeneratedStatusOnOldStatus(Integer id, NotificationStatus newStatus, NotificationStatus oldStatus) {
+        notificationGeneratedDao.updateByNotificationStatusOnOldNotificationStatus(id, newStatus, oldStatus);
     }
 }
