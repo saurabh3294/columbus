@@ -19,7 +19,8 @@ public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Int
             Integer userId,
             Boolean deletedFlag,
             List<Source> sourceType,
-            List<ListingStatus> listingStatus, Pageable limitOffsetPageRequest);
+            List<ListingStatus> listingStatus,
+            Pageable limitOffsetPageRequest);
 
     public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId, Boolean deletedFlag);
 
@@ -28,6 +29,11 @@ public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Int
             String name,
             Integer projectId,
             Boolean deletedFlag,
+            List<Source> sourceType);
+
+    public List<PortfolioListing> findByTypeIdAndListingStatusAndSourceTypeIn(
+            Integer typeId,
+            ListingStatus listingStatus,
             List<Source> sourceType);
 
 }

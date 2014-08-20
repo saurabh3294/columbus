@@ -10,6 +10,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.notification.model.Subscriber;
 import com.proptiger.data.notification.model.Subscriber.SubscriberName;
@@ -63,7 +64,7 @@ public class SubscriberConfigService {
         }
         return Integer.valueOf(configValue);
     }
-    
+
     public Integer getMaxActiveNotificationMessageCount() {
         SubscriberName subscriberName = Subscriber.SubscriberName.Notification;
         ConfigName configName = SubscriberConfig.ConfigName.MaxActiveNotificationMessageCount;
@@ -77,7 +78,13 @@ public class SubscriberConfigService {
     public Date getLastEventDateReadByNotification() {
         Date lastEventDate = subscriberMap.get(Subscriber.SubscriberName.Notification).getLastEventDate();
         if (lastEventDate == null) {
-            lastEventDate = eventGeneratedService.getLatestEventGenerated().getCreatedDate();
+            EventGenerated eventGenerated = eventGeneratedService.getLatestEventGenerated();
+            if (eventGenerated != null) {
+                lastEventDate = eventGenerated.getCreatedDate();
+            }
+            else {
+                lastEventDate = new Date();
+            }
             setLastEventDateReadByNotification(lastEventDate);
         }
         return lastEventDate;

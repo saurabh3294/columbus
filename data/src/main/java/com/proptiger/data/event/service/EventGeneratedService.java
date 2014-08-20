@@ -113,6 +113,9 @@ public class EventGeneratedService {
     public EventGenerated getLatestEventGenerated() {
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
         List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByOrderByCreatedDateDesc(pageable);
+        if (listEventGenerateds == null || listEventGenerateds.isEmpty()) {
+            return null;
+        }
         populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds.get(0);
     }

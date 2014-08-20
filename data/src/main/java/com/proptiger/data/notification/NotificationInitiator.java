@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.generator.NotificationMessageGenerator;
 import com.proptiger.data.notification.generator.NotificationTypeGenerator;
+import com.proptiger.data.notification.schedular.NotificationSchedular;
 import com.proptiger.data.notification.sender.NotificationSender;
 
 /**
@@ -22,6 +23,8 @@ import com.proptiger.data.notification.sender.NotificationSender;
 public class NotificationInitiator {
 
     private static Logger                logger = LoggerFactory.getLogger(NotificationInitiator.class);
+    
+    private static int                   EMAIL_NOTIFICATION_MEDIUM_ID = 1;
 
     @Autowired
     private NotificationTypeGenerator    notificationTypeGenerator;
@@ -32,12 +35,16 @@ public class NotificationInitiator {
     @Autowired
     private NotificationGenerator        notificationGenerator;
 
-	@Autowired
+    @Autowired
+    private NotificationSchedular        notificationSchedular;
+
+    @Autowired
     private NotificationSender           notificationSender;
 
     /**
      * Generates the Notification Types from events at regular intervals
      */
+    //@Scheduled(fixedDelay = 600000)
     public void notificationTypeGenerator() {
 
         if (!notificationTypeGenerator.isNotificationGenerationRequired()) {
@@ -54,6 +61,7 @@ public class NotificationInitiator {
      * Generates the Notification Messages from NotificationTypes at regular
      * intervals
      */
+    //@Scheduled(fixedDelay = 600000)
     public void notificationMessageGenerator() {
 
         if (!notificationMessageGenerator.isNotificationMessageGenerationRequired()) {
@@ -80,13 +88,25 @@ public class NotificationInitiator {
     }
     
     /**
-     * Send Notification Generated which are scheduled and Ready
-     * to be send in the respective medium
+     * Get all the Notifications with NotificationGenerated status and mark them
+     * as Scheduled with appropriate Schedule time
      */
-    public void sendNotification () {
-        logger.info("NotificationSender : Sending Generated Notification.");
-        Integer numberOfSendNtGenerated = notificationSender.sendNotification();
-        logger.info("Notification Sender: Send " + numberOfSendNtGenerated + " Generated Notifications");
+    //@Scheduled(fixedDelay = 600000)
+    public void notificationSchedular() {
+        logger.info("NotificationSchedular: Scheduling Generated Notification.");
+        Integer numberOfScheduledNtGenerated = notificationSchedular.scheduleNotifications();
+        logger.info("NotificationSchedular: Scheduled " + numberOfScheduledNtGenerated + " Generated Notifications");
+    }
+
+    /**
+     * Send Notification Generated which are scheduled and Ready to be send in
+     * the respective medium
+     */
+    @Scheduled(cron = "* 10 8-22 * * *")
+    public void emailNotificationSender() {
+        logger.info("NotificationSender : Sending Scheduled Generated Notification via Email.");
+        Integer numberOfSentNtGenerated = notificationSender.sendNotification(EMAIL_NOTIFICATION_MEDIUM_ID);
+        logger.info("NotificationSender: Sent " + numberOfSentNtGenerated + " Generated Notifications via Email");
     }
 
 }
