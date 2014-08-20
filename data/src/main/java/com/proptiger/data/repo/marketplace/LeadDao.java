@@ -16,7 +16,7 @@ import com.proptiger.data.model.marketplace.Lead;
  * 
  */
 
-public interface LeadDao extends JpaRepository<Lead, Integer>, LeadCustomDao {
+public interface LeadDao extends JpaRepository<Lead, Integer> {
     @Query("select L from Lead L where L.clientId = ?1 and L.mergedLeadId is null order by L.id desc")
     public List<Lead> findByClientId(int Id);
 

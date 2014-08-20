@@ -160,7 +160,8 @@ public abstract class BaseController {
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-        // true passed to CustomDateEditor constructor means convert empty String to null
+        // true passed to CustomDateEditor constructor means convert empty
+        // String to null
         binder.registerCustomEditor(Date.class, new CustomDateEditor(new ISO8601DateFormat(), true));
     }
 }
