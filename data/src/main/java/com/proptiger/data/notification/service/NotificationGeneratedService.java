@@ -187,12 +187,13 @@ public class NotificationGeneratedService {
         List<NotificationStatus> notificationStatusList = new ArrayList<NotificationStatus>();
         notificationStatusList.add(NotificationStatus.Scheduled);
         notificationStatusList.add(NotificationStatus.Sent);
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.getLastNotificationGenerated(
                 notificationStatusList,
                 ntGenerated.getNotificationMedium().getId(),
                 ntGenerated.getForumUser().getUserId(),
                 ntGenerated.getNotificationType().getId(),
-                ntGenerated.getObjectId());
+                ntGenerated.getObjectId(), pageable);
         if (ntGeneratedList !=null && !ntGeneratedList.isEmpty()) {
             return ntGeneratedList.get(0);
         }
@@ -203,10 +204,11 @@ public class NotificationGeneratedService {
         List<NotificationStatus> notificationStatusList = new ArrayList<NotificationStatus>();
         notificationStatusList.add(NotificationStatus.Scheduled);
         notificationStatusList.add(NotificationStatus.Sent);
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.getLastSentNotificationGeneratedInMedium(
                 notificationStatusList,
                 ntGenerated.getForumUser().getUserId(),
-                ntGenerated.getNotificationMedium().getId());
+                ntGenerated.getNotificationMedium().getId(), pageable);
         if (ntGeneratedList !=null && !ntGeneratedList.isEmpty()) {
             return ntGeneratedList.get(0);
         }
