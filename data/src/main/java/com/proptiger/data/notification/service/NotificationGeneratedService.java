@@ -220,4 +220,12 @@ public class NotificationGeneratedService {
     public List<NotificationGenerated> getRawNotificationGeneratedList() {
         return notificationGeneratedDao.findByNotificationStatus(NotificationStatus.Generated);
     }
+    
+    public void markNotificationGeneratedScheduled(NotificationGenerated ntGenerated, Date scheduledTime) {
+        notificationGeneratedDao.updatedByNotificationStatusAndScheduleTime(ntGenerated.getId(), NotificationStatus.Scheduled, scheduledTime);
+    }
+    
+    public void markNotificationGeneratedSuppressed(NotificationGenerated ntGenerated) {
+        notificationGeneratedDao.updateByNotificationStatus(ntGenerated.getId(), NotificationStatus.SchedulerSuppressed);
+    }
 }
