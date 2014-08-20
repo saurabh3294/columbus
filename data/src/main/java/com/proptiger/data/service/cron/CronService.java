@@ -25,7 +25,7 @@ public class CronService {
     private static Logger logger = LoggerFactory.getLogger(CronService.class);
 
     @Scheduled(cron = "0 * * * * *")
-    private void manageLeadAssignment() {
+    public void manageLeadAssignment() {
         List<Lead> leads = leadService.getLeadsPendingAction();
         for (Lead lead : leads) {
             try {
