@@ -123,7 +123,6 @@ public class LeadService {
         for (LeadOffer leadOffer : leadOffers) {
             leadIds.add(leadOffer.getLeadId());
         }
-
         return leadIds;
     }
 
@@ -277,7 +276,8 @@ public class LeadService {
         List<LeadRequirement> leadRequirementList = leadRequirementsDao.checkReplica(
                 leadRequirement.getBedroom(),
                 leadRequirement.getLocalityId(),
-                leadRequirement.getProjectId());
+                leadRequirement.getProjectId(),
+                leadRequirement.getLeadId());
 
         return !leadRequirementList.isEmpty();
     }
