@@ -3,6 +3,7 @@ package com.proptiger.data.notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.notification.generator.NotificationGenerator;
@@ -70,8 +71,12 @@ public class NotificationInitiator {
      * Generates the NotificationGenerated from NotificationMessages at regular
      * intervals
      */
+    @Scheduled(fixedDelay=50000)
     public void notificationGenerator() {
+        Thread.currentThread().setName("Notification Generator");
+        logger.info("NotificationGenerator : Initiating Notification Generation.");
         Integer numberOfNotifications = notificationGenerator.generateNotifications();
+        logger.info(" Number of Notification Generated are : " +  numberOfNotifications);
     }
     
     /**

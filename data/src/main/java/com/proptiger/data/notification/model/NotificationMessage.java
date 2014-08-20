@@ -39,8 +39,8 @@ public class NotificationMessage extends BaseModel {
     private String                     data;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notification_generated_id", updatable = false, insertable = false)
-    private NotificationTypeGenerated  notificationTypeGenerated;
+    @JoinColumn(name = "notification_type_generated_id", updatable = false, insertable = false)
+    private transient NotificationTypeGenerated  notificationTypeGenerated;
 
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_type_id")
@@ -48,7 +48,7 @@ public class NotificationMessage extends BaseModel {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    private ForumUser                  forumUser;
+    private transient ForumUser                  forumUser;
 
     @Transient
     private NotificationMessagePayload notificationMessagePayload;

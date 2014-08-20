@@ -2,6 +2,7 @@ package com.proptiger.data.notification.processor;
 
 import java.util.List;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -10,6 +11,7 @@ import com.proptiger.data.notification.model.NotificationType.NotificationOperat
 import com.proptiger.data.notification.processor.dto.NotificationByTypeDto;
 
 @Service
+@Primary
 public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
 
     public void intraKeyProcessorHandler(NotificationByTypeDto notificationByTypeDto, NotificationOperation nOperation) {
