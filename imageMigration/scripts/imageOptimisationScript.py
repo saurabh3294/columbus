@@ -183,7 +183,8 @@ if __name__ == "__main__":
         length=string.find(data[1],".")
         imageName = data[1][0:length]
         extension = data[1][length:]
-        
+        width = data[10]
+        height = data[11]
         #a hack because we know that quality can be only one of these
         quality=95
 
@@ -193,7 +194,9 @@ if __name__ == "__main__":
                     quality=str(70)+"%"
             
         newImgName = imageName+'-o'+extension
-        tmp = ['convert', data[1], '-strip', '-interlace', 'plane', '-quality', quality,newImgName ] 
+        resolutionStr = str(width)+'X'+str(height)
+        tmp = ['convert', data[1], '-resize', resolutionStr ,'-strip', '-interlace', 'plane', '-quality', quality,newImgName ]
+        logging(json.dumps(tmp))
         subprocess.Popen(tmp, stdout=subprocess.PIPE ).communicate()[0]
         logging("\n** new imagename is **\n")
         logging(newImgName)
@@ -262,7 +265,7 @@ if __name__ == "__main__":
         #cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path, I.original_name),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt ,I.width AS width,I.height as height FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) WHERE ((I.active = 1) AND (I.object_id IN (1,2) OR I.id IN (301647,301889,494492742,422386,375840,338627,301647))) ORDER BY I.ID")
         
 
-    cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) JOIN RESI_PROJECT RP ON (RP.city_id = 64 AND RP.ACTIVE = 1) JOIN RESI_PROJECT_TYPES RPT ON (RP.PROJECT_ID=RPT.PROJECT_ID  AND (I.object_id=RP.PROJECT_ID OR I.object_id=RPT.TYPE_ID)) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID")
+    cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name) FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) JOIN RESI_PROJECT RP ON (RP.city_id = 64 AND RP.ACTIVE = 1) JOIN RESI_PROJECT_TYPES RPT ON (RP.PROJECT_ID=RPT.PROJECT_ID  AND (I.object_id=RP.PROJECT_ID OR I.object_id=RPT.TYPE_ID)) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID ")
 
     #cursor.execute(" SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path, I.original_name),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) WHERE I.active = 1 AND (I.object_id IN (1,2 ) OR (I.id IN ((301647,301889,495342,422386,375840,338627,301647)) )) AND NOT(I.migration_status='Done')  ORDER BY I.ID")
 
@@ -292,30 +295,32 @@ if __name__ == "__main__":
         title = cols.pop(0)
         takenAt = cols.pop(0)
         path = cols.pop(0)
+        oldImageUrl = cols.pop(0)
         logging("path == "+path)
-        resolutions = ['-130-100','-360-270','-520-400','-1336-768']
-        resolutions= [130,100,360,270,520,400,1336,768]
+        resolutions = ['130-100','360-270','520-400','1336-768','220-120','280-200','320-220','360-240','420-280','480-320','520-340','1040-780','380-280','940-720','680-580','800-620','940-720','520-400'] 
+        #['-130-100','-360-270','-520-400','-1336-768']
+        resolutions= [130,100,360,270,520,400,1336,768,220,120,280,200,320,220,360,240,420,280,480,320,520,340,1040,780,380,280,940,720,680,580,800,620,940,720,520,400]#[130,100,360,270,520,400,1336,768]
         hyphon='-'
         count = count + 1
         logging(" TOTAL  DOMAINS "+str(count))
         i=0;
         
         try:
-            while(i<4):
+            while(i<18):
                 totalImages = totalImages + 1
                 width=resolutions[2*i]
                 height=resolutions[2*i+1]
                 logging("**printing resolutions url ** ")
                 newUrl=str(url)+hyphon+str(width)+hyphon+str(height)+extension
                 logging(str(newUrl))
-                data = requests.get(str(newUrl))
+                data = requests.get(str(oldImageUrl))
                 imgId=str(imId)+hyphon+str(width)+hyphon+str(height)+extension
-                logging(" DOWNLOAD IMAGE URL"+imgId)
+                logging(" DOWNLOAD IMAGE URL"+oldImageUrl)
                 with open(imgId, 'wb') as f:
                     for chunk in data.iter_content(1024):
                          f.write(chunk)
                 #imgId=imgId+hyphon+str(width)+hyphon+str(height)+extension
-                returnVal= pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType,                           title, takenAt,width,height,db,cursor,path), None)
+                returnVal= pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType, title, takenAt,width,height,db,cursor,path,width,height), None)
                 logging(" \nprinting return value \n")
                 #logging(returnVal)
                 if(returnVal==-1):
