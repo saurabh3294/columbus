@@ -730,7 +730,7 @@ public class UserService {
             patchUser(user);
         }
         else {
-            userDao.saveAndFlush(user);
+            user.setId(userDao.save(user).getId());
         }
 
         return user;

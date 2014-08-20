@@ -16,7 +16,7 @@ import com.proptiger.exception.ProAPIException;
 /**
  * 
  * @author azi
- *
+ * 
  */
 
 @Service
@@ -40,7 +40,7 @@ public class LeadOfferService {
     public LeadOffer createLeadOffer(Lead lead, CompanyUser agent) {
         LeadOffer offer = new LeadOffer();
         offer.setLeadId(lead.getId());
-        offer.setAgentId(agent.getId());
+        offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getLeadOfferStatusId());
         offer.setCycleId(1);
         return leadOfferDao.save(offer);
