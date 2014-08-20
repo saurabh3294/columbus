@@ -34,4 +34,6 @@ public interface NotificationGeneratedDao extends JpaRepository<NotificationGene
             List<NotificationStatus> notificationStatusList,
             Integer userId,
             int mediumId);
+
+    public List<NotificationGenerated> findByNotificationStatus(NotificationStatus generated); 
 }

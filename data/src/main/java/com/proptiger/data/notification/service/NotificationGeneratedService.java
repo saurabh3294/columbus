@@ -216,4 +216,8 @@ public class NotificationGeneratedService {
     public void updateNotificationGeneratedStatusOnOldStatus(Integer id, NotificationStatus newStatus, NotificationStatus oldStatus) {
         notificationGeneratedDao.updateByNotificationStatusOnOldNotificationStatus(id, newStatus, oldStatus);
     }
+    
+    public List<NotificationGenerated> getRawNotificationGeneratedList() {
+        return notificationGeneratedDao.findByNotificationStatus(NotificationStatus.Generated);
+    }
 }

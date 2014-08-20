@@ -42,9 +42,11 @@ public class NotificationSender {
                     ForumUser forumUser = ntGenerated.getNotificationMessage().getForumUser();
                     ntGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
                             .send(mailBody, forumUser);
-                    sentNotificationLogService.save(new SentNotificationLog(ntGenerated.getId(), ntGenerated
+                    //Sent NotificationGenerated logging handling will be done later.
+                    //currently notification status of sent NG is marked as sent in DB.
+                    /*sentNotificationLogService.save(new SentNotificationLog(ntGenerated.getId(), ntGenerated
                             .getNotificationMedium().getId(), ntGenerated.getNotificationMessage().getForumUser()
-                            .getUserId(), new Date()));
+                            .getUserId(), new Date()));*/
                     ntGeneratedService.updateNotificationGeneratedStatusOnOldStatus(ntGenerated.getId(), NotificationStatus.Sent, ntGenerated.getNotificationStatus());
                     numberOfSendNtGen++;
                 }
