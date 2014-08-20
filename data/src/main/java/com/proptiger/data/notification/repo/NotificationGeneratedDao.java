@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -13,6 +14,7 @@ import com.proptiger.data.notification.model.NotificationGenerated;
 public interface NotificationGeneratedDao extends PagingAndSortingRepository<NotificationGenerated, Integer> {
     public List<NotificationGenerated> findByNotificationStatusAndScheduleTimeLessThan(NotificationStatus notificationStatus, Date date);
     
+    @Modifying
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2 WHERE notificationStatus = ?3 AND id = ?1 ")
     public Integer updateByNotificationStatusOnOldNotificationStatus(Integer id, NotificationStatus newStatus, NotificationStatus oldStatus);
 

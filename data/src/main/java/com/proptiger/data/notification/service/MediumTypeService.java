@@ -17,7 +17,7 @@ public class MediumTypeService {
     }
 
     private void populateMediumSenderConfig(NotificationGenerated ntGenerated) {
-        String mediumName = ntGenerated.getNotificationMedium().getName();
+        String mediumName = ntGenerated.getNotificationMedium().getName().name();
         MediumTypeConfig mediumTypeConfig = MediumTypeConfig.mediumTypeConfig.get(mediumName);
         
         if (mediumTypeConfig == null) {
