@@ -1,11 +1,9 @@
 package com.proptiger.data.service.marketplace;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 
 import org.hibernate.exception.ConstraintViolationException;
@@ -35,6 +33,7 @@ import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
 import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.util.JsonUtil;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ResourceAlreadyExistException;
 import com.proptiger.exception.ResourceNotAvailableException;
@@ -60,9 +59,9 @@ public class ListingService {
 
     @Autowired
     private ListingAmenityService listingAmenityService;
-    
+
     @Autowired
-    private PropertyDao propertyDao;
+    private PropertyDao           propertyDao;
 
     /**
      * Create a new listing, apply some validations before create.
@@ -74,6 +73,9 @@ public class ListingService {
     @Transactional
     public Listing createListing(Listing listing, Integer userId) {
         preCreateValidation(listing, userId);
+        Property property = listing.getProperty();
+        //got Property object so set this as null
+        listing.setProperty(null);
         Listing created = null;
         try {
             created = listingDao.saveAndFlush(listing);
@@ -97,7 +99,7 @@ public class ListingService {
             created.setCurrentListingPrice(listingPriceCreated);
         }
 
-        List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(listing);
+        List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(property.getProjectId(), created);
         created.setListingAmenities(amenities);
         return created;
     }
@@ -109,17 +111,18 @@ public class ListingService {
      * @param userId
      */
     private void preCreateValidation(Listing listing, Integer userId) {
-        Property property  = null;
+        Property property = null;
         // only no phase supported as of now
         listing.setPhaseId(null);
         if (listing.getPropertyId() == null) {
             property = propertyService.createUnverifiedPropertyOrGetExisting(listing, userId);
             listing.setPropertyId(property.getPropertyId());
         }
-        else{
+        else {
             property = propertyService.getProperty(listing.getPropertyId());
         }
-        
+        //need project id to fetch amenities, will make this null in createListing method
+        listing.setProperty(property);
         if (listing.getPhaseId() == null) {
             // add Logical phase id
             List<ProjectPhase> projectPhase = projectPhaseService.getPhaseDetailsFromFiql(
@@ -138,7 +141,7 @@ public class ListingService {
         }
 
         if (listing.getTowerId() != null) {
-            //TODO check if tower id exists, else exception
+            // TODO check if tower id exists, else exception
         }
 
         if (listing.getFloor() != null && listing.getFloor() < 0) {
@@ -150,6 +153,11 @@ public class ListingService {
         listing.setSellerId(userId);
         listing.setBookingStatusId(null);
         listing.setStatus(Status.Active);
+        if (listing.getJsonDump() != null && !listing.getJsonDump().isEmpty()) {
+            if (!JsonUtil.isValidJsonString(listing.getJsonDump())) {
+                throw new BadRequestException("Invalid json in jsonDump");
+            }
+        }
     }
 
     /**
@@ -174,25 +182,14 @@ public class ListingService {
      * @return
      */
     public List<Listing> getListings(Integer userId, FIQLSelector selector) {
-        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), new Sort(Direction.DESC, "id"));
+        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), new Sort(
+                Direction.DESC,
+                "id"));
+        
+        
         List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
-        if (listings.size() > 0) {
-            List<Integer> listingPriceIds = new ArrayList<>(listings.size());
-            for (Listing l : listings) {
-                if(l.getCurrentPriceId() != null){
-                    listingPriceIds.add(l.getCurrentPriceId());
-                }
-            }
-            List<ListingPrice> listingPrices = listingPriceService.getListingPrices(listingPriceIds);
-            Map<Integer, ListingPrice> map = new HashMap<Integer, ListingPrice>();
-            for (ListingPrice lp : listingPrices) {
-                map.put(lp.getId(), lp);
-            }
-            for (Listing l : listings) {
-                l.setCurrentListingPrice(map.get(l.getCurrentPriceId()));
-            }
-            populateListingAmenities(listings);
-        }
+        listingPriceService.populateListingPrices(listings, selector);
+        listingAmenityService.populateListingAmenities(listings, selector);
         return listings;
     }
 
@@ -208,14 +205,8 @@ public class ListingService {
         if (listing == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
-        if (listing.getCurrentPriceId() != null) {
-            List<ListingPrice> listingPrices = listingPriceService.getListingPrices(Arrays.asList(listing
-                    .getCurrentPriceId()));
-            if (listingPrices.size() > 0) {
-                listing.setCurrentListingPrice(listingPrices.get(0));
-            }
-        }
-        populateListingAmenities(Arrays.asList(listing));
+        listingPriceService.populateListingPrices(Arrays.asList(listing), selector);
+        listingAmenityService.populateListingAmenities(Arrays.asList(listing), selector);
         return listing;
     }
 
@@ -234,38 +225,5 @@ public class ListingService {
         listing.setStatus(Status.Inactive);
         listing = listingDao.saveAndFlush(listing);
         return listing;
-    }
-
-    /**
-     * Fetch all listing amenities and set that in corresponding listing object
-     * 
-     * @param listings
-     */
-    public void populateListingAmenities(List<Listing> listings) {
-        List<Integer> listingIds = new ArrayList<>();
-        for (Listing l : listings) {
-            listingIds.add(l.getId());
-        }
-        List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(listingIds);
-        if (listingAmenities.size() > 0) {
-            Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = createListingToAmenitiesMap(listingAmenities);
-            for (Listing l : listings) {
-                l.setListingAmenities(listingIdToAmenitiesMap.get(l.getId()));
-            }
-        }
-
-    }
-
-    private Map<Integer, List<ListingAmenity>> createListingToAmenitiesMap(List<ListingAmenity> listingAmenities) {
-        Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = new HashMap<>();
-        if (listingAmenities != null) {
-            for (ListingAmenity la : listingAmenities) {
-                if (listingIdToAmenitiesMap.get(la.getListingId()) == null) {
-                    listingIdToAmenitiesMap.put(la.getListingId(), new ArrayList<ListingAmenity>());
-                }
-                listingIdToAmenitiesMap.get(la.getListingId()).add(la);
-            }
-        }
-        return listingIdToAmenitiesMap;
     }
 }

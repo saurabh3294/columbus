@@ -1,7 +1,9 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +13,7 @@ import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.Status;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.ListingPrice;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.ListingPriceDao;
 import com.proptiger.exception.BadRequestException;
 
@@ -69,5 +72,27 @@ public class ListingPriceService {
             listingPrices = Lists.newArrayList(prices);
         }
         return listingPrices;
+    }
+
+    public void populateListingPrices(List<Listing> listings, FIQLSelector selector) {
+        // price will be populated only if asked for
+        if (selector.getFields() != null && selector.getFields().contains("currentListingPrice")
+                && listings != null
+                && listings.size() > 0) {
+            List<Integer> listingPriceIds = new ArrayList<>(listings.size());
+            for (Listing l : listings) {
+                if (l.getCurrentPriceId() != null) {
+                    listingPriceIds.add(l.getCurrentPriceId());
+                }
+            }
+            List<ListingPrice> listingPrices = getListingPrices(listingPriceIds);
+            Map<Integer, ListingPrice> map = new HashMap<Integer, ListingPrice>();
+            for (ListingPrice lp : listingPrices) {
+                map.put(lp.getId(), lp);
+            }
+            for (Listing l : listings) {
+                l.setCurrentListingPrice(map.get(l.getCurrentPriceId()));
+            }
+        }
     }
 }

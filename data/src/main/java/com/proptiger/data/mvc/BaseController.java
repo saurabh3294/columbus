@@ -73,7 +73,18 @@ public abstract class BaseController {
         }
 
         if (fieldsString != null && !fieldsString.isEmpty()) {
-            return filterFields(object, new HashSet<>(Arrays.asList(fieldsString.split(","))));
+            Set<String> actualFieldNames = new HashSet<>();
+            for(String f: Arrays.asList(fieldsString.split(","))){
+                if(f.contains(".")){
+                    String[] splittedField = f.split("\\.");
+                    actualFieldNames.add(splittedField[splittedField.length - 1]);
+                }
+                else{
+                    actualFieldNames.add(f);
+                }
+                
+            }
+            return filterFields(object, actualFieldNames);
         }
 
         return filterFields(object, null);
