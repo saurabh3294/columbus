@@ -63,15 +63,10 @@ public class PortfolioUtil {
         }
         Double pricePerUnitArea = null;
         if (listing.getProperty() != null) {
-            pricePerUnitArea = listing.getProperty().getPricePerUnitAreaCms();
-
-            if (pricePerUnitArea == null) {
-                pricePerUnitArea = listing.getProperty().getPricePerUnitArea();
-            }
-
+            pricePerUnitArea = listing.getProperty().getPricePerUnitArea();
             currentValue = size * pricePerUnitArea;
         }
-        if (currentValue == 0.0D && listing.getTotalPrice() != null) {    ///
+        if (currentValue == 0.0D && listing.getTotalPrice() != null) {   
             currentValue = listing.getTotalPrice();
         }
         else {

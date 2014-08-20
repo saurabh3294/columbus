@@ -3,11 +3,13 @@ package com.proptiger.data.notification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.generator.NotificationMessageGenerator;
 import com.proptiger.data.notification.generator.NotificationTypeGenerator;
+import com.proptiger.data.notification.sender.NotificationSender;
 
 /**
  * It is responsible for generating Notifications. Functions of this class are
@@ -29,6 +31,9 @@ public class NotificationInitiator {
 
     @Autowired
     private NotificationGenerator        notificationGenerator;
+
+	@Autowired
+    private NotificationSender           notificationSender;
 
     /**
      * Generates the Notification Types from events at regular intervals
@@ -66,8 +71,22 @@ public class NotificationInitiator {
      * Generates the NotificationGenerated from NotificationMessages at regular
      * intervals
      */
+    @Scheduled(fixedDelay=50000)
     public void notificationGenerator() {
+        Thread.currentThread().setName("Notification Generator");
+        logger.info("NotificationGenerator : Initiating Notification Generation.");
         Integer numberOfNotifications = notificationGenerator.generateNotifications();
+        logger.info(" Number of Notification Generated are : " +  numberOfNotifications);
+    }
+    
+    /**
+     * Send Notification Generated which are scheduled and Ready
+     * to be send in the respective medium
+     */
+    public void sendNotification () {
+        logger.info("NotificationSender : Sending Generated Notification.");
+        Integer numberOfSendNtGenerated = notificationSender.sendNotification();
+        logger.info("Notification Sender: Send " + numberOfSendNtGenerated + " Generated Notifications");
     }
 
 }

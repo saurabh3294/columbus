@@ -1,53 +1,64 @@
 package com.proptiger.data.notification.generator;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.notification.NotificationInitiator;
 import com.proptiger.data.notification.generator.handler.NotificationProcessorHandler;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
-import com.proptiger.data.notification.processor.dto.NotificationIntraProcessorDto;
+import com.proptiger.data.notification.processor.dto.NotificationProcessorDto;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
-import com.proptiger.data.notification.service.NotificationIntraProcessorDtoService;
+import com.proptiger.data.notification.service.NotificationProcessorDtoService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
+import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationGenerator {
-    @Autowired
-    private NotificationMessageService   notificationMessageService;
+    private static Logger                   logger = LoggerFactory.getLogger(NotificationGenerator.class);
 
     @Autowired
-    private NotificationProcessorHandler notificationProcessorHandler;
+    private NotificationMessageService      notificationMessageService;
 
     @Autowired
-    private NotificationGeneratedService notificationGeneratedService;
-    
+    private NotificationProcessorHandler    notificationProcessorHandler;
+
     @Autowired
-    private NotificationIntraProcessorDtoService nDtoService;
+    private NotificationGeneratedService    notificationGeneratedService;
+
+    @Autowired
+    private NotificationProcessorDtoService nDtoService;
 
     public Integer generateNotifications() {
+        logger.info("Retrieving the notification messages from database.");
         // TODO to handle the pageable condition.
         List<NotificationMessage> notificationMessages = notificationMessageService
                 .getRawNotificationMessages(new LimitOffsetPageRequest(0, 1));
-
+        
+        logger.info("Fetch "+notificationMessages.size()+" messages from the database.");
+        logger.debug("Notification Messages Retrieved "+Serializer.toJson(notificationMessages));
+        
         List<NotificationGenerated> scheduledNotificationGeneratedList = notificationGeneratedService
                 .getScheduledAndNonExpiredNotifications();
+        
+        List<NotificationProcessorDto> nDtos = nDtoService.buildPrimaryKeyDto(
+                notificationMessages,
+                scheduledNotificationGeneratedList);
 
-        List<NotificationIntraProcessorDto> nDtos = nDtoService.buildDto(notificationMessages, scheduledNotificationGeneratedList);       
+        List<NotificationGenerated> generatedNotifications = new ArrayList<NotificationGenerated>();
 
-        for(NotificationIntraProcessorDto intraProcessorDto:nDtos){
-            notificationProcessorHandler.handleNotificationMessage(
-                    intraProcessorDto.getNotificationByTypeDtos());
-            // finalProcessedNotificationMessages.addAll(processedNotificationMessages);
+        for (NotificationProcessorDto intraProcessorDto : nDtos) {
+            notificationProcessorHandler.handleNotificationMessage(intraProcessorDto);
+            generatedNotifications.addAll(nDtoService.PersistProcessesNotifications(intraProcessorDto));
         }
-        // List<NotificationMessage> finalNotificationMessages =
-        // userNotificationHandler.
 
-        return null;
+        return generatedNotifications.size();
     }
 
-    
 }

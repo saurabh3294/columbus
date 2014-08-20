@@ -8,23 +8,58 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.notification.model.NotificationMedium;
+import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
+import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
+import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationGeneratedService {
 
     @Autowired
     private NotificationGeneratedDao notificationGeneratedDao;
+    
+    @Autowired
+    private MediumTypeService mediumTypeService;
+
+    @Autowired
+    private NotificationTypeNotificationMediumMappingService nMappingService;
+    
+    @Autowired
+    private NotificationTypeService notificationTypeService;
 
     public List<NotificationGenerated> getScheduledAndNonExpiredNotifications() {
-        return notificationGeneratedDao.findByStatusAndExpiryTimeLessThan(NotificationStatus.Scheduled, new Date());
+        List<NotificationGenerated> notificationGenerateds = notificationGeneratedDao.findByNotificationStatusAndScheduleTimeLessThan(NotificationStatus.Scheduled, new Date());
+        if(notificationGenerateds == null){
+            return new ArrayList<NotificationGenerated>();
+        }
+        
+        for(NotificationGenerated nGenerated: notificationGenerateds){
+           populateDataOnLoad(nGenerated);
+        }
+        
+        return notificationGenerateds;
     }
 
+	public void populateDataOnLoad(NotificationGenerated nGenerated){
+        String data = nGenerated.getData();
+        nGenerated.setNotificationMessagePayload(Serializer.fromJson(data, NotificationMessagePayload.class));
+        NotificationType notificationType = nGenerated.getNotificationType();
+        notificationTypeService.populateNotificationTypeConfig(notificationType);
+    }
+
+ 	public List<NotificationGenerated> getScheduledAndReadyNotifications(){
+        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByNotificationStatusAndScheduleTimeGreaterThanEqual(NotificationStatus.Scheduled, new Date());
+        mediumTypeService.setNotificationMediumSender(ntGeneratedList);
+        return ntGeneratedList;
+    }
     public Map<Integer, List<NotificationGenerated>> groupNotificationGeneratedByuser(
             List<NotificationGenerated> notificationGeneratedList) {
         if (notificationGeneratedList == null) {
@@ -80,5 +115,70 @@ public class NotificationGeneratedService {
         NotificationMessageUpdateHistory nHistory = new NotificationMessageUpdateHistory(notificationStatus, new Date());
 
         notificationGenerated.getNotificationMessagePayload().getNotificationMessageUpdateHistories().add(nHistory);
+    }
+    
+    @Transactional
+    public Iterable<NotificationGenerated> save(List<NotificationGenerated> nGenerateds){
+        for(NotificationGenerated notificationGenerated:nGenerateds){
+            populateDataBeforeSave(notificationGenerated);
+        }
+        return notificationGeneratedDao.save(nGenerateds);
+        
+    }
+    
+    @Transactional
+    public NotificationGenerated save(NotificationGenerated notificationGenerated){
+        populateDataBeforeSave(notificationGenerated);
+        return notificationGeneratedDao.save(notificationGenerated);
+    }
+    
+    public void populateDataBeforeSave(NotificationGenerated notificationGenerated){
+        notificationGenerated.setData(Serializer.toJson(notificationGenerated.getNotificationMessagePayload()));
+    }
+    
+    public void updateNotificationGeneratedStatusOnOldStatus(Map<NotificationStatus, List<NotificationGenerated>> map){
+        if(map == null){
+            return;
+        }
+        
+        for(Map.Entry<NotificationStatus, List<NotificationGenerated>> entry:map.entrySet()){
+             for(NotificationGenerated nGenerated:entry.getValue()){
+                 notificationGeneratedDao.updateByNotificationStatusOnOldNotificationStatus(nGenerated.getId(), nGenerated.getNotificationStatus(), entry.getKey());
+             }
+        }
+    }
+    
+    public NotificationGenerated createNotificationGenerated(NotificationMessage notificationMessage, NotificationMedium notificationMedium){
+        NotificationGenerated nGenerated = new NotificationGenerated();
+        nGenerated.setForumUser(notificationMessage.getForumUser());
+        nGenerated.setNotificationMedium(notificationMedium);
+        nGenerated.setNotificationMessage(notificationMessage);
+        nGenerated.setNotificationMessagePayload(notificationMessage.getNotificationMessagePayload());
+                
+        return nGenerated;
+    }
+    
+    public List<NotificationGenerated> generateNotficationGenerated(List<NotificationMessage> nMessages ){
+        Map<Integer, List<NotificationMedium>> typeMediumMapping = nMappingService.getTypeMediumMapping();
+                
+        NotificationType nType = null;
+        List<NotificationMedium> nMediums = null;
+        List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
+        NotificationGenerated nGenerated = null;
+        for(NotificationMessage nMessage:nMessages){
+            nType = nMessage.getNotificationType();
+            nMediums = typeMediumMapping.get(nType.getId());
+            // TODO handle the scenario when no mapping of notification medium with type.
+            if(nMediums == null || nMediums.size() < 1){
+                continue;
+            }
+            for(NotificationMedium nMedium:nMediums){
+                nGenerated = createNotificationGenerated(nMessage, nMedium);
+                nGenerated = save(nGenerated);
+                generatedList.add(nGenerated);
+            }
+        }
+        
+        return generatedList;
     }
 }

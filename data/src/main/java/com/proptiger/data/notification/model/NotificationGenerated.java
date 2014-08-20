@@ -6,10 +6,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -36,19 +39,19 @@ public class NotificationGenerated extends BaseModel {
     @Column(name = "id")
     private int                        id;
 
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "notification_message_id")
-    private NotificationMessageOld     notificationMessage;
+    private NotificationMessage     notificationMessage;
 
-    @OneToOne
+    @OneToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "notification_medium_id")
-    private NotificationMediumOld      notificationMedium;
+    private NotificationMedium      notificationMedium;
 
-    @OneToOne
+    @OneToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "notification_type_id")
     private NotificationType           notificationType;
 
-    @OneToOne
+    @OneToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private ForumUser                  forumUser;
 
@@ -63,16 +66,30 @@ public class NotificationGenerated extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date                       updatedAt;
 
-    @Column(name = "expiry_time")
+    @Column(name = "schedule_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date                       expiry_time;
+    private Date                       scheduleTime;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private NotificationStatus         notificationStatus;
+    
+    @Column(name = "merge_notification_message_id")
+    private Integer mergeNotificationMessageId;
 
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
+    
+    @PreUpdate
+    public void populatePreUpdateFields(){
+        this.updatedAt = new Date();
+    }
+    
+    @PrePersist
+    public void populatePrePersistFields(){
+        this.createdAt = new Date();
+        this.notificationStatus = NotificationStatus.Generated;
+    }
 
     public int getId() {
         return id;
@@ -82,19 +99,19 @@ public class NotificationGenerated extends BaseModel {
         this.id = id;
     }
 
-    public NotificationMessageOld getNotificationMessage() {
+    public NotificationMessage getNotificationMessage() {
         return notificationMessage;
     }
 
-    public void setNotificationMessage(NotificationMessageOld notificationMessage) {
+    public void setNotificationMessage(NotificationMessage notificationMessage) {
         this.notificationMessage = notificationMessage;
     }
 
-    public NotificationMediumOld getNotificationMedium() {
+    public NotificationMedium getNotificationMedium() {
         return notificationMedium;
     }
 
-    public void setNotificationMedium(NotificationMediumOld notificationMedium) {
+    public void setNotificationMedium(NotificationMedium notificationMedium) {
         this.notificationMedium = notificationMedium;
     }
 
@@ -122,12 +139,12 @@ public class NotificationGenerated extends BaseModel {
         this.updatedAt = updatedAt;
     }
 
-    public Date getExpiry_time() {
-        return expiry_time;
+    public Date getScheduleTime() {
+        return scheduleTime;
     }
 
-    public void setExpiry_time(Date expiry_time) {
-        this.expiry_time = expiry_time;
+    public void setScheduleTime(Date scheduleTime) {
+        this.scheduleTime = scheduleTime;
     }
 
     public NotificationStatus getNotificationStatus() {

@@ -1,43 +1,88 @@
 package com.proptiger.data.notification.processor;
 
 import java.util.List;
-import java.util.Map;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationMessage;
-import com.proptiger.data.notification.model.NotificationType;
-import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
+import com.proptiger.data.notification.model.NotificationType.NotificationOperation;
+import com.proptiger.data.notification.processor.dto.NotificationByTypeDto;
 
 @Service
-public class NotificationNonPrimaryKeyProcessor implements NotificationProcessor{
+@Primary
+public class NotificationNonPrimaryKeyProcessor extends NotificationProcessor {
 
-    @Override
-    public void processIntraMerging(NotificationByKeyDto notificationByKey) {
-        // TODO Auto-generated method stub
+    public void intraKeyProcessorHandler(NotificationByTypeDto notificationByTypeDto, NotificationOperation nOperation) {
+
+        if (nOperation.equals(NotificationOperation.Merge)) {
+            processIntraMerging(notificationByTypeDto);
+        }
+        else {
+            processIntraSuppressing(notificationByTypeDto);
+        }
+
+    }
+
+    public void processIntraMerging(NotificationByTypeDto notificationByType) {
+        List<NotificationMessage> nMessages = notificationByType.getNotificationMessages();
+
+        if (nMessages.size() < 1) {
+            return;
+        }
+        NotificationMessage lastMessage = nMessages.get(nMessages.size() - 1);
+        nMessages.remove(nMessages.size() - 1);
+
+        merging(
+                nMessages,
+                notificationByType.getNotificationGenerateds(),
+                notificationByType.getDiscardedMessage(),
+                notificationByType.getDiscardGeneratedMap(),
+                NotificationStatus.IntraNonKeyMerged,
+                lastMessage);
         
+        nMessages.add(lastMessage);
     }
 
-    @Override
-    public void processIntraSuppressing(NotificationByKeyDto notificationByKey) {
-        // TODO Auto-generated method stub
-        
+    public void processIntraSuppressing(NotificationByTypeDto notificationByType) {
+        List<NotificationMessage> nMessages = notificationByType.getNotificationMessages();
+
+        if (nMessages.size() < 1) {
+            return;
+        }
+        NotificationMessage lastMessage = nMessages.get(nMessages.size() - 1);
+        nMessages.remove(nMessages.size() - 1);
+
+        suppressing(
+                nMessages,
+                notificationByType.getNotificationGenerateds(),
+                notificationByType.getDiscardedMessage(),
+                notificationByType.getDiscardGeneratedMap(),
+                NotificationStatus.IntraNonKeySuppressed);
+        nMessages.add(lastMessage);
     }
 
-    @Override
-    public List<NotificationMessage> processInterMerging(
-            List<NotificationMessage> notificationMessages,
-            Map<NotificationType, List<NotificationGenerated>> generatedNotifications) {
-        // TODO Auto-generated method stub
-        return null;
+    public void processInterSuppressing(NotificationByTypeDto parent, NotificationByTypeDto child) {
+        suppressing(child.getNotificationMessages(), child.getNotificationGenerateds(), child.getDiscardedMessage(), child.getDiscardGeneratedMap(), NotificationStatus.InterNonKeySuppressed);
+
     }
 
-    @Override
-    public void processInterSuppressing(NotificationByKeyDto parent, NotificationByKeyDto child) {
-        // TODO Auto-generated method stub
-        
+    public void processInterMerging(
+            NotificationByTypeDto parentNotification,
+            List<NotificationByTypeDto> childNotification) {
+        NotificationMessage notificationMessage = parentNotification.getNotificationMessages().get(0);
+
+        for (NotificationByTypeDto notificationByKeyDto : childNotification) {
+            merging(
+                    notificationByKeyDto.getNotificationMessages(),
+                    notificationByKeyDto.getNotificationGenerateds(),
+                    notificationByKeyDto.getDiscardedMessage(),
+                    notificationByKeyDto.getDiscardGeneratedMap(),
+                    NotificationStatus.InterNonKeyMerged,
+                    notificationMessage);
+        }
+
     }
 
-    
 }

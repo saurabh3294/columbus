@@ -197,6 +197,7 @@ public class PortfolioService {
         List<Long> propertyIds = new ArrayList<Long>();
         List<Long> completeProjectIds = new ArrayList<>();
         Set<Integer> incompleteProjectIds = new HashSet<Integer>();
+        List<Property> properties = setPropertyInListings(listings);
 
         for (PortfolioListing listing : listings) {
             if (listing.getListingStatus() == ListingStatus.ACTIVE) { // add
@@ -227,11 +228,6 @@ public class PortfolioService {
         Map<Integer, Project> projectIdToProjectMap = new HashMap<Integer, Project>();
         Map<Integer, List<Image>> propertyIdToImageMap = new HashMap<Integer, List<Image>>();
         if (!propertyIds.isEmpty()) {
-            Selector propertySelector = new Gson().fromJson(
-                    "{\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyIds
-                            + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
-                    Selector.class);
-            List<Property> properties = propertyService.getProperties(propertySelector);
 
             projectIdToProjectMap = PortfolioUtil.createProjectIdMap(properties);
 
@@ -290,6 +286,29 @@ public class PortfolioService {
             listing.setLocality(locality.getLabel());
             listing.setLocalityId(locality.getLocalityId());
         }
+    }
+
+    public List<Property> setPropertyInListings(List<PortfolioListing> listings) {
+
+        List<Long> propertyIds = new ArrayList<Long>();
+        Map<Integer, PortfolioListing> propertyIdToListingMap = new HashMap<Integer, PortfolioListing>();
+
+        for (PortfolioListing listing : listings) {
+            propertyIds.add(new Long(listing.getTypeId()));
+            propertyIdToListingMap.put(listing.getTypeId(), listing);
+        }
+
+        Selector propertySelector = new Gson().fromJson(
+                "{\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyIds
+                        + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
+                Selector.class);
+        List<Property> properties = propertyService.getProperties(propertySelector);
+
+        for (Property property : properties) {
+            propertyIdToListingMap.get(property.getPropertyId()).setProperty(property);
+
+        }
+        return properties;
     }
 
     /**

@@ -61,7 +61,7 @@ public class ProjectSolrDao {
         SolrQueryBuilder<SolrResult> queryBuilder = new SolrQueryBuilder<SolrResult>(solrQuery, SolrResult.class);
 
         queryBuilder.buildQuery(selector, null);
-        
+
         logger.debug("Solr query for get projects {}", solrQuery.toString());
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
         List<SolrResult> solrResults = queryResponse.getBeans(SolrResult.class);
@@ -158,41 +158,6 @@ public class ProjectSolrDao {
         return queryResponse.getBeans(SolrResult.class);
     }
 
-    public PaginatedResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector selector) {
-        SolrQuery solrQuery = new SolrQuery();
-
-        if (cityName == null || cityName.length() <= 0)
-            solrQuery.setQuery("*:*");
-        else
-            solrQuery.setQuery("CITY:" + cityName);
-
-        String fq = "DOCUMENT_TYPE:PROJECT AND (PROJECT_STATUS:\"pre launch\" OR PROJECT_STATUS:\"not launched\")";
-        solrQuery.setFilterQueries(fq);
-
-        solrQuery.setRows(selector.getPaging().getRows());
-        solrQuery.addSort("DISPLAY_ORDER", SolrQuery.ORDER.asc);
-        solrQuery.addSort("PROJECT_PRIORITY", SolrQuery.ORDER.asc);
-        solrQuery.addSort("PROJECT_ID", SolrQuery.ORDER.asc);
-        solrQuery.addSort("BEDROOMS", SolrQuery.ORDER.asc);
-        solrQuery.addSort("SIZE", SolrQuery.ORDER.asc);
-        logger.debug("Solr query for get upcomming new projects {}", solrQuery.toString());
-        SolrQueryBuilder<Project> queryBuilder = new SolrQueryBuilder<Project>(solrQuery, Project.class);
-        queryBuilder.buildQuery(selector, null);
-
-        QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-        List<SolrResult> totalSolrResults = queryResponse.getBeans(SolrResult.class);
-
-        List<Project> solrResults = new ArrayList<>();
-        for (SolrResult solr : totalSolrResults)
-            solrResults.add(solr.getProject());
-
-        PaginatedResponse<List<Project>> solrRes = new PaginatedResponse<List<Project>>();
-        solrRes.setTotalCount(queryResponse.getResults().getNumFound());
-        solrRes.setResults(solrResults);
-
-        return solrRes;
-    }
-
     public List<SolrResult> getProjectsByGEODistanceByLocality(
             int localityId,
             double latitude,
@@ -267,10 +232,11 @@ public class ProjectSolrDao {
         }
         return projectStatusCount;
     }
-    
+
     /**
      * This method get project count by project status for provided filter.
-     * @param builderId 
+     * 
+     * @param builderId
      * 
      * @param selector
      * @return
@@ -286,7 +252,7 @@ public class ProjectSolrDao {
         SolrQueryBuilder<SolrResult> solrQueryBuilder = new SolrQueryBuilder<>(solrQuery, SolrResult.class);
         solrQueryBuilder.buildQuery(null, null);
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
-        for (Group response : queryResponse.getGroupResponse().getValues().get(0).getValues()){
+        for (Group response : queryResponse.getGroupResponse().getValues().get(0).getValues()) {
             projectCountByCityMap.put(response.getGroupValue(), (int) response.getResult().getNumFound());
         }
         return projectCountByCityMap;

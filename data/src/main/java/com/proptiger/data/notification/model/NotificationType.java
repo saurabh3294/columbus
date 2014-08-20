@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
@@ -40,13 +41,18 @@ public class NotificationType extends BaseModel {
     private String                           overwriteConfigName;
 
     @Transient
+    private List<EventType>                  eventTypeList;
+
+    @Transient
     @JsonIgnore
     private transient NotificationTypeConfig notificationTypeConfig;
 
     @Transient
+    @Deprecated
     private List<NotificationMedium>         notificationMediumList;
 
     @Transient
+    @Deprecated
     private List<ForumUser>                  forumUserList;
 
     @Column(name = "intra_primary_key_operation")
@@ -97,6 +103,14 @@ public class NotificationType extends BaseModel {
         this.overwriteConfigName = overwriteConfigName;
     }
 
+    public List<EventType> getEventTypeList() {
+        return eventTypeList;
+    }
+
+    public void setEventTypeList(List<EventType> eventTypeList) {
+        this.eventTypeList = eventTypeList;
+    }
+
     public NotificationTypeConfig getNotificationTypeConfig() {
         return notificationTypeConfig;
     }
@@ -105,18 +119,22 @@ public class NotificationType extends BaseModel {
         this.notificationTypeConfig = notificationTypeConfig;
     }
 
+    @Deprecated
     public List<NotificationMedium> getNotificationMediumList() {
         return notificationMediumList;
     }
 
+    @Deprecated
     public void setNotificationMediumList(List<NotificationMedium> notificationMediumList) {
         this.notificationMediumList = notificationMediumList;
     }
 
+    @Deprecated
     public List<ForumUser> getForumUserList() {
         return forumUserList;
     }
 
+    @Deprecated
     public void setForumUserList(List<ForumUser> forumUserList) {
         this.forumUserList = forumUserList;
     }

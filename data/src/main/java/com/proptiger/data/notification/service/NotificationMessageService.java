@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
@@ -23,6 +22,8 @@ import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
+import com.proptiger.data.service.ForumUserService;
+import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationMessageService {
@@ -34,12 +35,13 @@ public class NotificationMessageService {
     private NotificationTypeGeneratedService        ntGeneratedService;
 
     @Autowired
-    private NotificationTypeService                 notificationTypeService;
+    private NotificationTypeService notiTypeService;
+    
+    @Autowired
+    private ForumUserService forumUserService;
 
     @Autowired
     private UserNotificationTypeSubscriptionService userNTSubscriptionService;
-
-    private Gson                                    serializer = new Gson();
 
     public Integer getActiveNotificationMessageCount() {
         return notificationMessageDao
@@ -47,16 +49,26 @@ public class NotificationMessageService {
     }
 
     public List<NotificationMessage> getRawNotificationMessages(Pageable pageable) {
-        List<NotificationMessage> notificationMessages = notificationMessageDao.findByStatus(
+        List<NotificationMessage> notificationMessages = notificationMessageDao.findByNotificationStatus(
                 NotificationStatus.MessageGenerated,
                 pageable);
         if (notificationMessages == null) {
             return new ArrayList<NotificationMessage>();
         }
-
+        
+        for(NotificationMessage notificationMessage: notificationMessages){
+            populateDataOnPostLoad(notificationMessage);
+        }
+        
         return notificationMessages;
     }
 
+    public void populateDataOnPostLoad(NotificationMessage nMessage){
+        nMessage.setNotificationMessagePayload(Serializer.fromJson(nMessage.getData(), NotificationMessagePayload.class));
+        NotificationType notificationType = nMessage.getNotificationType();
+        notiTypeService.populateNotificationTypeConfig(notificationType);
+    }
+    
     public Map<Integer, List<NotificationMessage>> groupNotificationMessageByuser(
             List<NotificationMessage> notificationMessageList) {
         if (notificationMessageList == null) {
@@ -106,13 +118,18 @@ public class NotificationMessageService {
         return groupNotificationMessageMap;
     }
 
-    public NotificationMessage createNotificationMessage() {
-        // TODO:
-        return new NotificationMessage();
+    public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId) {
+        NotificationType notiType = notiTypeService.findOne(notificationTypeId);
+        ForumUser forumUser = forumUserService.findOne(userId);
+        NotificationMessage notificationMessage = new NotificationMessage();
+        notificationMessage.setForumUser(forumUser);
+        notificationMessage.setNotificationType(notiType);
+        
+        return notificationMessage;
     }
 
     public List<NotificationMessage> getNotificationMessagesForNotificationTypeGenerated(
-            NotificationTypeGenerated ntGenerated) {
+            NotificationTypeGenerated ntGenerated) {     
 
         // Map of User and relevant user data
         Map<ForumUser, NotificationMessagePayload> userDataList = getUserDataMapByNotificationTypeGenerated(ntGenerated);
@@ -174,10 +191,21 @@ public class NotificationMessageService {
          */
         return notificationMessages;
     }
-
+    
+    /**
+     * Call this method for saving only when the auto increment id is need after saving.
+     * @param notificationMessages
+     * @return
+     */
+    public NotificationMessage saveOrFlush(NotificationMessage notificationMessage){
+        populateNotificationMessageDataBeforeSave(notificationMessage);
+        
+        return notificationMessageDao.saveAndFlush(notificationMessage);
+    }
+    
     private void populateNotificationMessageDataBeforeSave(NotificationMessage notificationMessage) {
         NotificationMessagePayload payload = notificationMessage.getNotificationMessagePayload();
-        notificationMessage.setData(serializer.toJson(payload));
+        notificationMessage.setData(Serializer.toJson(payload));
     }
 
     public void addNotificationMessageUpdateHistory(
@@ -186,5 +214,21 @@ public class NotificationMessageService {
         NotificationMessageUpdateHistory nHistory = new NotificationMessageUpdateHistory(notificationStatus, new Date());
 
         notificationMessage.getNotificationMessagePayload().getNotificationMessageUpdateHistories().add(nHistory);
+    }
+    
+    /**
+     * inserting the new Notification Messages if it was generated previously.
+     * @param nMessages
+     */
+    public void checkAndGenerateNewMessages(List<NotificationMessage> nMessages){
+        NotificationMessage notificationMessage, savedNMessage;
+        
+        for(int i=0; i<nMessages.size(); i++){
+           notificationMessage = nMessages.get(i);
+           if(notificationMessage.getId() < 1){
+               savedNMessage = saveOrFlush(notificationMessage);
+               nMessages.set(i, savedNMessage);
+           }
+        }
     }
 }

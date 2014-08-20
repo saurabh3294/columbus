@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Listing;
@@ -17,6 +18,7 @@ import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.user.portfolio.PortfolioService;
 
+@Service
 public class DefaultNotificationMessageProcessor implements NotificationMessageProcessor {
 
     @Autowired
