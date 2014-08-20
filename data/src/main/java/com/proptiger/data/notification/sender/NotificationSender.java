@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.SentNotificationLog;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
