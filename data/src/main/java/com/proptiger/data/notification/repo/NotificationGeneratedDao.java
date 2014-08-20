@@ -21,7 +21,7 @@ public interface NotificationGeneratedDao extends JpaRepository<NotificationGene
             Date date,
             int mediumId);
 
-    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationType NT JOIN NG.forumUser FU JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND NM.id = ?2 AND FU.userId = ?3 AND NT.id = ?4 AND NG.objectId = ?5 ORDER BY NG.updatedAt DESC LIMIT 1")
+    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationType NT JOIN NG.forumUser FU JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND NM.id = ?2 AND FU.userId = ?3 AND NT.id = ?4 AND NG.objectId = ?5 ORDER BY NG.updatedAt DESC")
     public List<NotificationGenerated> getLastNotificationGenerated(
             List<NotificationStatus> notificationStatusList,
             int mediumTypeId,
@@ -29,7 +29,7 @@ public interface NotificationGeneratedDao extends JpaRepository<NotificationGene
             int notificationTypeId,
             Integer objectId);
 
-    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.forumUser FU JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND FU.userId = ?2 AND NM.id = ?3 ORDER BY NG.updatedAt DESC LIMIT 1")
+    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.forumUser FU JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND FU.userId = ?2 AND NM.id = ?3 ORDER BY NG.updatedAt DESC")
     public List<NotificationGenerated> getLastSentNotificationGeneratedInMedium(
             List<NotificationStatus> notificationStatusList,
             Integer userId,

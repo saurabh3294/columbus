@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.generator.NotificationMessageGenerator;
 import com.proptiger.data.notification.generator.NotificationTypeGenerator;
-import com.proptiger.data.notification.schedular.NotificationSchedular;
+import com.proptiger.data.notification.schedular.NotificationScheduler;
 import com.proptiger.data.notification.sender.NotificationSender;
 
 /**
@@ -36,7 +36,7 @@ public class NotificationInitiator {
     private NotificationGenerator        notificationGenerator;
 
     @Autowired
-    private NotificationSchedular        notificationSchedular;
+    private NotificationScheduler        notificationSchedular;
 
     @Autowired
     private NotificationSender           notificationSender;
