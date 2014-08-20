@@ -109,7 +109,7 @@ public class Listing extends BaseModel {
     private OtherInfo            otherInfo;
     
     @Transient
-    private List<Integer> masterAmenitiesId;
+    private List<Integer> masterAmenityIds;
 
     public Integer getId() {
         return id;
@@ -255,13 +255,12 @@ public class Listing extends BaseModel {
         this.property = property;
     }
 
-    
-    public List<Integer> getMasterAmenitiesId() {
-        return masterAmenitiesId;
+    public List<Integer> getMasterAmenityIds() {
+        return masterAmenityIds;
     }
 
-    public void setMasterAmenitiesId(List<Integer> masterAmenitiesId) {
-        this.masterAmenitiesId = masterAmenitiesId;
+    public void setMasterAmenityIds(List<Integer> masterAmenityIds) {
+        this.masterAmenityIds = masterAmenityIds;
     }
 
     @PreUpdate

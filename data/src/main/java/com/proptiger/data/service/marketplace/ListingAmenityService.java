@@ -36,13 +36,13 @@ public class ListingAmenityService {
     @Transactional
     public List<ListingAmenity> createListingAmenities(Integer projectId, Listing listing) {
         List<ListingAmenity> createdAmenity = new ArrayList<>();
-        if (listing.getMasterAmenitiesId() != null && listing.getMasterAmenitiesId().size() > 0) {
+        if (listing.getMasterAmenityIds() != null && listing.getMasterAmenityIds().size() > 0) {
 
             List<ProjectCMSAmenity> projectAmenities = projectAmenityService.getCMSAmenitiesByProjectIdAndAmenityIds(
                     projectId,
-                    listing.getMasterAmenitiesId());
+                    listing.getMasterAmenityIds());
 
-            List<ListingAmenity> amenitiesToCreate = new ArrayList<ListingAmenity>(listing.getMasterAmenitiesId()
+            List<ListingAmenity> amenitiesToCreate = new ArrayList<ListingAmenity>(listing.getMasterAmenityIds()
                     .size());
             for (ProjectCMSAmenity projectAmenity : projectAmenities) {
                 ListingAmenity listingAmenity = new ListingAmenity();
