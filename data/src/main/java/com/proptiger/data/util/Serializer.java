@@ -1,23 +1,39 @@
 package com.proptiger.data.util;
 
+import java.lang.reflect.Modifier;
+
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class Serializer {
-    private static Gson serializer = new Gson();
-
+    private static Serializer serializer;
+    private static Gson gson;
+    private static GsonBuilder gsonBuilder;
+    
+    static {
+        getInstance();
+    }
     private Serializer() {
-
+        gsonBuilder = new GsonBuilder();
+        gsonBuilder.excludeFieldsWithModifiers(Modifier.STATIC);
+        gsonBuilder.excludeFieldsWithModifiers(Modifier.TRANSIENT);
+        
+        gson = gsonBuilder.create();
+        
     }
 
-    public static Gson getInstance() {
+    public static Serializer getInstance() {
+        if(serializer == null){
+            serializer = new Serializer();
+        }
         return serializer;
     }
 
     public static String toJson(Object data) {
-        return serializer.toJson(data);
+        return gson.toJson(data);
     }
 
     public static <T> T fromJson(String json, Class<T> T) {
-        return serializer.fromJson(json, T);
+        return gson.fromJson(json, T);
     }
 }

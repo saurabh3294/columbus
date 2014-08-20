@@ -150,7 +150,7 @@ public class NotificationGeneratedService {
     
     public NotificationGenerated createNotificationGenerated(NotificationMessage notificationMessage, NotificationMedium notificationMedium){
         NotificationGenerated nGenerated = new NotificationGenerated();
-        nGenerated.setForumUser(notificationMessage.getForumUser());
+        nGenerated.setUserId(notificationMessage.getUserId());
         nGenerated.setNotificationMedium(notificationMedium);
         nGenerated.setNotificationMessage(notificationMessage);
         nGenerated.setNotificationMessagePayload(notificationMessage.getNotificationMessagePayload());

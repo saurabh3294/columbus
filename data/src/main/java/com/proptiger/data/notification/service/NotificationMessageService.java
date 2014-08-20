@@ -7,14 +7,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
+import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
@@ -27,6 +32,7 @@ import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationMessageService {
+    private static Logger                   logger = LoggerFactory.getLogger(NotificationMessageService.class);
 
     @Autowired
     private NotificationMessageDao           notificationMessageDao;
@@ -52,6 +58,9 @@ public class NotificationMessageService {
         List<NotificationMessage> notificationMessages = notificationMessageDao.findByNotificationStatus(
                 NotificationStatus.MessageGenerated,
                 pageable);
+        
+        logger.debug(Serializer.toJson(notificationMessages));
+        
         if (notificationMessages == null) {
             return new ArrayList<NotificationMessage>();
         }
@@ -79,7 +88,7 @@ public class NotificationMessageService {
         Integer userId = null;
         List<NotificationMessage> groupNotifcationMessage = null;
         for (NotificationMessage notificationMessage : notificationMessageList) {
-            userId = notificationMessage.getForumUser().getUserId();
+            userId = notificationMessage.getUserId();
             groupNotifcationMessage = groupNotificationMessageMap.get(userId);
 
             if (groupNotificationMessageMap.get(userId) == null) {
@@ -122,7 +131,7 @@ public class NotificationMessageService {
         NotificationType notiType = notiTypeService.findOne(notificationTypeId);
         ForumUser forumUser = forumUserService.findOne(userId);
         NotificationMessage notificationMessage = new NotificationMessage();
-        notificationMessage.setForumUser(forumUser);
+        notificationMessage.setUserId(forumUser.getUserId());
         notificationMessage.setNotificationType(notiType);
         
         return notificationMessage;
@@ -143,9 +152,9 @@ public class NotificationMessageService {
             // TODO:
 
             NotificationMessage nMessage = new NotificationMessage();
-            nMessage.setNotificationTypeGenerated(ntGenerated);
+            nMessage.setNotificationTypeGeneratedId(ntGenerated.getId());
             nMessage.setNotificationType(ntGenerated.getNotificationType());
-            nMessage.setForumUser(forumUser);
+            nMessage.setUserId(forumUser.getUserId());
             nMessage.setNotificationMessagePayload(payload);
             notificationMessages.add(nMessage);
         }

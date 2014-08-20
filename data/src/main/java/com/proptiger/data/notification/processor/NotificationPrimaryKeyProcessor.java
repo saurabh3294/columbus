@@ -3,6 +3,7 @@ package com.proptiger.data.notification.processor;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -13,6 +14,7 @@ import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
 
 @Service
+@Primary
 public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
 
     public Object getPrimaryKeyOfNotificationMessage(NotificationMessagePayload notificationMessagePayload) {

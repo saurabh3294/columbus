@@ -16,11 +16,12 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "notification_medium")
 public class NotificationMedium extends BaseModel {
+    
     /**
      * 
      */
-    private static final long serialVersionUID = -465471732121440482L;
-    
+    private static final long serialVersionUID = -6819270910932451553L;
+
     @Id
     @Column(name = "id")
     private int id;

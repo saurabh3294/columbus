@@ -66,7 +66,7 @@ public class NotificationTypeGeneratedService {
             payload.populatePayloadValues(eventTypePayload);
 
             NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
-            ntGenerated.setEventGenerated(eventGenerated);
+            ntGenerated.setEventGeneratedId(eventGenerated.getId());
             ntGenerated.setNotificationType(notificationType);
             ntGenerated.setNotificationTypePayload(payload);
             notificationTypeGeneratedList.add(ntGenerated);

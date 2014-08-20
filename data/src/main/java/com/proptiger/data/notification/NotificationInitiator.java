@@ -71,7 +71,7 @@ public class NotificationInitiator {
      * Generates the NotificationGenerated from NotificationMessages at regular
      * intervals
      */
-    @Scheduled(fixedDelay=50000)
+    @Scheduled(fixedDelay=30000)
     public void notificationGenerator() {
         Thread.currentThread().setName("Notification Generator");
         logger.info("NotificationGenerator : Initiating Notification Generation.");

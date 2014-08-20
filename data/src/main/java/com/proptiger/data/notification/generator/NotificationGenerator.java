@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.notification.NotificationInitiator;
 import com.proptiger.data.notification.generator.handler.NotificationProcessorHandler;
 import com.proptiger.data.notification.model.NotificationGenerated;
@@ -42,15 +44,32 @@ public class NotificationGenerator {
                 .getRawNotificationMessages(new LimitOffsetPageRequest(0, 1));
         
         logger.info("Fetch "+notificationMessages.size()+" messages from the database.");
-        logger.debug("Notification Messages Retrieved "+Serializer.toJson(notificationMessages));
+        try {
+            logger.debug("Notification Messages Retrieved "+new ObjectMapper().writeValueAsString(notificationMessages));
+        }
+        catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
         List<NotificationGenerated> scheduledNotificationGeneratedList = notificationGeneratedService
                 .getScheduledAndNonExpiredNotifications();
         
+        logger.info("Fetch "+scheduledNotificationGeneratedList.size()+" scheduled Notification Generated from database.");
+        try {
+            logger.debug("Notification Generated Retrieved "+new ObjectMapper().writeValueAsString(scheduledNotificationGeneratedList));
+        }
+        catch (JsonProcessingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
         List<NotificationProcessorDto> nDtos = nDtoService.buildPrimaryKeyDto(
                 notificationMessages,
                 scheduledNotificationGeneratedList);
-
+        
+        logger.debug(" BUILD PROCESSOR DTO "+Serializer.toJson(nDtos));
+        
         List<NotificationGenerated> generatedNotifications = new ArrayList<NotificationGenerated>();
 
         for (NotificationProcessorDto intraProcessorDto : nDtos) {

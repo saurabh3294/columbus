@@ -38,11 +38,11 @@ public class NotificationSender {
                     logger.info("Mail body is null so discarding it to send -" + ntGenerated.getId());
                 }
                 else {
-                    ForumUser forumUser = ntGenerated.getNotificationMessage().getForumUser();
+                    ForumUser forumUser = ntGenerated.getForumUser();
                     ntGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
                             .send(mailBody, forumUser);
                     sentNotificationLogService.save(new SentNotificationLog(ntGenerated.getId(), ntGenerated
-                            .getNotificationMedium().getId(), ntGenerated.getNotificationMessage().getForumUser()
+                            .getNotificationMedium().getId(), ntGenerated.getForumUser()
                             .getUserId(), new Date()));
                     numberOfSendNtGen++;
                 }

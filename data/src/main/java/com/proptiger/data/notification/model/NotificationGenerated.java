@@ -51,8 +51,11 @@ public class NotificationGenerated extends BaseModel {
     @JoinColumn(name = "notification_type_id")
     private NotificationType           notificationType;
 
+    @Column(name = "user_id")
+    private Integer userId;
+    
     @OneToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private ForumUser                  forumUser;
 
     @Column(name = "data")
@@ -177,5 +180,21 @@ public class NotificationGenerated extends BaseModel {
 
     public void setNotificationType(NotificationType notificationType) {
         this.notificationType = notificationType;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getMergeNotificationMessageId() {
+        return mergeNotificationMessageId;
+    }
+
+    public void setMergeNotificationMessageId(Integer mergeNotificationMessageId) {
+        this.mergeNotificationMessageId = mergeNotificationMessageId;
     }
 }

@@ -12,6 +12,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.annotations.Expose;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
@@ -23,11 +24,6 @@ public class NotificationType extends BaseModel {
     public enum NotificationOperation {
         Merge, Suppress
     }
-
-    /**
-     * 
-     */
-    private static final long                serialVersionUID = 549033224673052141L;
 
     @Column(name = "id")
     @Id
@@ -45,15 +41,16 @@ public class NotificationType extends BaseModel {
 
     @Transient
     @JsonIgnore
+    @Expose(serialize = false, deserialize = false)
     private transient NotificationTypeConfig notificationTypeConfig;
 
     @Transient
     @Deprecated
-    private List<NotificationMedium>         notificationMediumList;
+    private transient List<NotificationMedium>         notificationMediumList;
 
     @Transient
     @Deprecated
-    private List<ForumUser>                  forumUserList;
+    private transient List<ForumUser>                  forumUserList;
 
     @Column(name = "intra_primary_key_operation")
     @Enumerated(EnumType.STRING)

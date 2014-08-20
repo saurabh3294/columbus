@@ -123,12 +123,12 @@ public class NotificationProcessorDtoService {
             primaryKeyValue = nKeyProcessor
                     .getPrimaryKeyOfNotificationMessage(nMessage.getNotificationMessagePayload());
 
-            notificationIntraProcessorDto = map.get(nMessage.getForumUser().getUserId());
+            notificationIntraProcessorDto = map.get(nMessage.getUserId());
             if (notificationIntraProcessorDto == null) {
                 notificationIntraProcessorDto = new NotificationProcessorDto();
-                notificationIntraProcessorDto.setUserId(nMessage.getForumUser().getUserId());
+                notificationIntraProcessorDto.setUserId(nMessage.getUserId());
                 nIntraProcessorDtoList.add(notificationIntraProcessorDto);
-                map.put(nMessage.getForumUser().getUserId(), notificationIntraProcessorDto);
+                map.put(nMessage.getUserId(), notificationIntraProcessorDto);
             }
             typeMap = notificationIntraProcessorDto.getNotificationByTypeDtos();
 
