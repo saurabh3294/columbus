@@ -22,6 +22,8 @@ import com.proptiger.data.notification.sender.NotificationSender;
 public class NotificationInitiator {
 
     private static Logger                logger = LoggerFactory.getLogger(NotificationInitiator.class);
+    
+    private static int                   EMAIL_NOTIFICATION_MEDIUM_ID = 1;
 
     @Autowired
     private NotificationTypeGenerator    notificationTypeGenerator;
@@ -85,7 +87,7 @@ public class NotificationInitiator {
      */
     public void sendNotification () {
         logger.info("NotificationSender : Sending Generated Notification.");
-        Integer numberOfSendNtGenerated = notificationSender.sendNotification();
+        Integer numberOfSendNtGenerated = notificationSender.sendNotification(EMAIL_NOTIFICATION_MEDIUM_ID);
         logger.info("Notification Sender: Send " + numberOfSendNtGenerated + " Generated Notifications");
     }
 

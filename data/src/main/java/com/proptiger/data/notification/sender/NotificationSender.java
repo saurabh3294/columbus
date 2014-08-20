@@ -27,9 +27,9 @@ public class NotificationSender {
     @Autowired
     private SentNotificationLogService   sentNotificationLogService;
 
-    public Integer sendNotification() {
+    public Integer sendNotification(int mediumId) {
         Integer numberOfSendNtGen = 0;
-        List<NotificationGenerated> ntGeneratedList = ntGeneratedService.getScheduledAndReadyNotifications();
+        List<NotificationGenerated> ntGeneratedList = ntGeneratedService.getScheduledAndReadyNotifications(mediumId);
         logger.info("NotificationSender : Number of Scheduled and Ready Notifications " + ntGeneratedList.size());
         for (NotificationGenerated ntGenerated : ntGeneratedList) {
             try {

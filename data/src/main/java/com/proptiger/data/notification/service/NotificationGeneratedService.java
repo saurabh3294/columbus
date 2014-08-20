@@ -55,8 +55,8 @@ public class NotificationGeneratedService {
         notificationTypeService.populateNotificationTypeConfig(notificationType);
     }
 
- 	public List<NotificationGenerated> getScheduledAndReadyNotifications(){
-        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByNotificationStatusAndScheduleTimeGreaterThanEqual(NotificationStatus.Scheduled, new Date());
+ 	public List<NotificationGenerated> getScheduledAndReadyNotifications(int mediumId){
+ 	    List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.findByStatusAndExpiryTimeGreaterThanEqualAndNotificationMediumId(NotificationStatus.Scheduled, new Date(), mediumId);
         mediumTypeService.setNotificationMediumSender(ntGeneratedList);
         return ntGeneratedList;
     }

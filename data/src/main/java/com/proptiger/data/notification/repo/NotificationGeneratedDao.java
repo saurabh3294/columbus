@@ -15,5 +15,5 @@ public interface NotificationGeneratedDao extends JpaRepository<NotificationGene
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2 WHERE notificationStatus = ?3 AND id = ?1 ")
     public Integer updateByNotificationStatusOnOldNotificationStatus(Integer id, NotificationStatus newStatus, NotificationStatus oldStatus);
 
-    public List<NotificationGenerated> findByNotificationStatusAndScheduleTimeGreaterThanEqual(NotificationStatus scheduled, Date date);
+    public List<NotificationGenerated> findByStatusAndExpiryTimeGreaterThanEqualAndNotificationMediumId(NotificationStatus scheduled, Date date, int mediumId);
 }
