@@ -16,6 +16,11 @@ import com.proptiger.data.model.BaseModel;
 public class EventTypeConfig extends BaseModel {
 
         
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 5353549466505297871L;
+    
     public static Map<String, EventTypeConfig>   eventTypeConfigMap;
     static {
 

@@ -42,9 +42,11 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
 
     public List<NotificationGenerated> findByNotificationStatus(NotificationStatus generated);
 
+    @Modifying
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2, scheduleTime = ?3 WHERE id = ?1 ")
     public void updatedByNotificationStatusAndScheduleTime(Integer id, NotificationStatus scheduled, Date scheduledTime);
     
-    @Query("UPDATE NotificationGenerated set notificationStatus = ?2, WHERE id = ?1 ")
+    @Modifying
+    @Query("UPDATE NotificationGenerated set notificationStatus = ?2 WHERE id = ?1 ")
     public void updateByNotificationStatus(int id, NotificationStatus schedulersuppressed);
 }

@@ -8,6 +8,11 @@ import com.proptiger.data.model.BaseModel;
 
 public class NotificationMessagePayload extends BaseModel{
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 6693378653337352914L;
+
     private NotificationTypePayload notificationTypePayload;
     
     private Map<String, Object>     payloadDataMap;

@@ -46,7 +46,7 @@ public class NotificationMedium extends BaseModel {
      * particular user in a particular medium
      */
     @Column(name = "frequency_cycle_in_seconds")
-    private long                       frequencyCycleInSeconds;
+    private Long                       frequencyCycleInSeconds;
 
     /**
      * Maximum number of messages that needs to be sent to a user in a day for a
@@ -99,11 +99,11 @@ public class NotificationMedium extends BaseModel {
         this.numberOfMessagesPerUser = numberOfMessagesPerUser;
     }
 
-    public long getFrequencyCycleInSeconds() {
+    public Long getFrequencyCycleInSeconds() {
         return frequencyCycleInSeconds;
     }
 
-    public void setFrequencyCycleInSeconds(long frequencyCycleInSeconds) {
+    public void setFrequencyCycleInSeconds(Long frequencyCycleInSeconds) {
         this.frequencyCycleInSeconds = frequencyCycleInSeconds;
     }
 

@@ -15,7 +15,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.annotations.Expose;
 import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 
 @Entity

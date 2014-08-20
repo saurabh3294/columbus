@@ -25,6 +25,11 @@ import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 @Table(name = "notification_message")
 public class NotificationMessage extends BaseModel {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 5129143086430525445L;
+
     @Id
     @Column(name = "id")
     private int                        id;
