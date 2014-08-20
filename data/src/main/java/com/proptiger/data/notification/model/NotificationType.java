@@ -21,6 +21,11 @@ import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 @Entity
 @Table(name = "notification_type")
 public class NotificationType extends BaseModel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -1899826990526820074L;
+
     public enum NotificationOperation {
         Merge, Suppress
     }

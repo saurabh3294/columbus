@@ -155,6 +155,7 @@ public class NotificationGeneratedService {
         nGenerated.setNotificationMedium(notificationMedium);
         nGenerated.setNotificationMessage(notificationMessage);
         nGenerated.setNotificationMessagePayload(notificationMessage.getNotificationMessagePayload());
+        nGenerated.setNotificationType(notificationMessage.getNotificationType());
                 
         return nGenerated;
     }

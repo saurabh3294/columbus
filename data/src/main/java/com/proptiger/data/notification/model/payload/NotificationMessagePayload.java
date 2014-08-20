@@ -1,14 +1,14 @@
 package com.proptiger.data.notification.model.payload;
 
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.proptiger.data.model.BaseModel;
 
 public class NotificationMessagePayload extends BaseModel{
 
-    private NotificationTypePayload notificationTypePayload;
+    private DefaultNotificationTypePayload notificationTypePayload ;
     
     private Map<String, Object>     payloadDataMap;
 	private List<NotificationMessagePayload> notificationMessagePayloads = new ArrayList<NotificationMessagePayload>();
@@ -21,14 +21,6 @@ public class NotificationMessagePayload extends BaseModel{
 
     public void setPayloadDataMap(Map<String, Object> payloadDataMap) {
         this.payloadDataMap = payloadDataMap;
-    }
-
-    public NotificationTypePayload getNotificationTypePayload() {
-        return notificationTypePayload;
-    }
-
-    public void setNotificationTypePayload(NotificationTypePayload notificationTypePayload) {
-        this.notificationTypePayload = notificationTypePayload;
     }
 
     public List<NotificationMessagePayload> getNotificationMessagePayloads() {
@@ -46,5 +38,13 @@ public class NotificationMessagePayload extends BaseModel{
     public void setNotificationMessageUpdateHistories(
             List<NotificationMessageUpdateHistory> notificationMessageUpdateHistories) {
         this.notificationMessageUpdateHistories = notificationMessageUpdateHistories;
+    }
+
+    public DefaultNotificationTypePayload getNotificationTypePayload() {
+        return notificationTypePayload;
+    }
+
+    public void setNotificationTypePayload(DefaultNotificationTypePayload notificationTypePayload) {
+        this.notificationTypePayload = notificationTypePayload;
     }
 }

@@ -77,7 +77,7 @@ public class DefaultNotificationMessageProcessor implements NotificationMessageP
 
             NotificationMessagePayload nmPayload = new NotificationMessagePayload();
             nmPayload.setExtraAttributes(userDataMap);
-            nmPayload.setNotificationTypePayload(notificationTypePayload);
+            nmPayload.setNotificationTypePayload((DefaultNotificationTypePayload)notificationTypePayload);
         }
 
         return payloadMap;

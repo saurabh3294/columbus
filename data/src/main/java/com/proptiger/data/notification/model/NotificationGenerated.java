@@ -21,8 +21,6 @@ import javax.persistence.Transient;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.model.legacy.NotificationMediumOld;
-import com.proptiger.data.notification.model.legacy.NotificationMessageOld;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
 @Entity
@@ -32,7 +30,7 @@ public class NotificationGenerated extends BaseModel {
     /**
      * 
      */
-    private static final long          serialVersionUID = -779686848270519833L;
+    private static final long serialVersionUID = 7884487780495109288L;
 
     @Id
     @GeneratedValue
@@ -77,7 +75,7 @@ public class NotificationGenerated extends BaseModel {
     @Enumerated(EnumType.STRING)
     private NotificationStatus         notificationStatus;
     
-    @Column(name = "merge_notification_message_id")
+    @Column(name = "merged_notification_message_id")
     private Integer mergeNotificationMessageId;
 
     @Transient
@@ -95,6 +93,7 @@ public class NotificationGenerated extends BaseModel {
     public void populatePrePersistFields(){
         this.createdAt = new Date();
         this.notificationStatus = NotificationStatus.Generated;
+        populatePreUpdateFields();
     }
 
     public int getId() {

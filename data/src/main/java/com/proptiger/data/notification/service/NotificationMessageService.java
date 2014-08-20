@@ -73,6 +73,7 @@ public class NotificationMessageService {
     }
 
     public void populateDataOnPostLoad(NotificationMessage nMessage){
+                
         nMessage.setNotificationMessagePayload(Serializer.fromJson(nMessage.getData(), NotificationMessagePayload.class));
         NotificationType notificationType = nMessage.getNotificationType();
         notiTypeService.populateNotificationTypeConfig(notificationType);
