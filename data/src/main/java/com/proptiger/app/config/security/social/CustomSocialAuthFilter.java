@@ -8,6 +8,8 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -38,8 +40,8 @@ import com.proptiger.data.util.SecurityContextUtils;
  *
  */
 public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
-
-    private static final String                 SCOPE                    = "scope";
+    private static Logger                       logger = LoggerFactory.getLogger(CustomSocialAuthFilter.class);
+    private static final String                 SCOPE  = "scope";
     private PropertyReader                      propertyReader;
 
     private UsersConnectionRepository           connectionRepository;
@@ -89,6 +91,7 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
 
     /**
      * Attempt authentication using access_token passed in request
+     * 
      * @param request
      * @param accessToken
      * @return
@@ -129,14 +132,25 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
         // these string constants are as per defined in checkuser.php
         String provider = request.getParameter("provider");
         String providerUserId = request.getParameter("providerUserId");
-        if (provider != null && providerUserId != null && !provider.isEmpty() && !providerUserId.isEmpty()) {
+        logger.debug("login attempt using provider and provideruserid {},{}", provider, providerUserId);
+        String userName = request.getParameter("userName");
+        String email = request.getParameter("email");
+        String profileImageUrl = request.getParameter("profileImageUrl");
+        if (provider != null && providerUserId != null && !provider.isEmpty() && !providerUserId.isEmpty() && email != null && !email.isEmpty()) {
             if (customJdbcUsersConnectionRepository != null) {
                 return customJdbcUsersConnectionRepository.createAuthenicationByProviderAndProviderUserId(
                         provider,
-                        providerUserId);
+                        providerUserId, userName, email, profileImageUrl);
             }
 
         }
+        logger.error(
+                "invlid data for login using provider and provider id {},{},{},{},{}",
+                provider,
+                providerUserId,
+                userName,
+                email,
+                profileImageUrl);
         return null;
     }
 

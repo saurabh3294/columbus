@@ -78,12 +78,44 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
      * 
      * @param provider
      * @param providerUserId
+     * @param profileImageUrl
+     * @param email
+     * @param userName
      * @return
      */
-    public Authentication createAuthenicationByProviderAndProviderUserId(String provider, String providerUserId) {
+    public Authentication createAuthenicationByProviderAndProviderUserId(
+            String provider,
+            String providerUserId,
+            String userName,
+            String email,
+            String profileImageUrl) {
         List<ForumUser> forumUserList = forumUserDao.findByProviderAndProviderid(provider, providerUserId);
+        ForumUser forumUser = null;
         if (forumUserList != null && forumUserList.size() == 1) {
-            ForumUser forumUser = forumUserList.get(0);
+            forumUser = forumUserList.get(0);
+        }
+        else {
+            // first time user, need to create entry in database
+            forumUser = new ForumUser();
+            forumUser.setProvider(provider);
+            forumUser.setProviderid(providerUserId);
+            forumUser.setUsername(userName);
+            forumUser.setEmail(email);
+            forumUser.setCity("");
+            forumUser.setPassword("");
+            forumUser.setUniqueUserId("");
+            forumUser.setStatus(ForumUser.USER_STATUS_ACTIVE);
+            if(provider.equalsIgnoreCase("facebook")){
+                forumUser.setFbImageUrl(profileImageUrl);
+                forumUser.setImage(providerUserId + ConnectionSignUpImpl.PROFILE_IMAGE_FORMAT);
+            }
+            else{
+                forumUser.setFbImageUrl("");
+                forumUser.setImage("");
+            }
+            forumUser = forumUserDao.save(forumUser);
+        }
+        if(forumUser != null){
             SocialUser socialUser = new ActiveUser(
                     forumUser.getUserId(),
                     forumUser.getEmail(),
@@ -96,6 +128,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
 
             return new UsernamePasswordAuthenticationToken(socialUser, null, socialUser.getAuthorities());
         }
+        
         return null;
     }
 }
