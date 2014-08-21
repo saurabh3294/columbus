@@ -17,8 +17,8 @@ public class MediumTypeConfig extends BaseModel {
         mediumTypeConfig.put(MediumType.EMAIL.name(), new MediumTypeConfig(EmailSender.class));
     }
 
-    private Class<EmailSender>   senderClassName = EmailSender.class;
-    private MediumSender        mediumSenderObject;
+    private transient Class<EmailSender>   senderClassName = EmailSender.class;
+    private transient MediumSender        mediumSenderObject;
     
     public MediumTypeConfig(Class<EmailSender> senderClassName) {
         if (senderClassName != null) {

@@ -1,12 +1,18 @@
 package com.proptiger.data.notification.model.payload;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.proptiger.data.model.BaseModel;
 
 public class NotificationMessagePayload extends BaseModel{
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -2452873800997415163L;
 
     private DefaultNotificationTypePayload notificationTypePayload ;
     
@@ -21,14 +27,6 @@ public class NotificationMessagePayload extends BaseModel{
 
     public void setPayloadDataMap(Map<String, Object> payloadDataMap) {
         this.payloadDataMap = payloadDataMap;
-    }
-
-    public List<NotificationMessagePayload> getNotificationMessagePayloads() {
-        return notificationMessagePayloads;
-    }
-
-    public void setNotificationMessagePayloads(List<NotificationMessagePayload> notificationMessagePayloads) {
-        this.notificationMessagePayloads = notificationMessagePayloads;
     }
 
     public List<NotificationMessageUpdateHistory> getNotificationMessageUpdateHistories() {
@@ -47,4 +45,13 @@ public class NotificationMessagePayload extends BaseModel{
     public void setNotificationTypePayload(DefaultNotificationTypePayload notificationTypePayload) {
         this.notificationTypePayload = notificationTypePayload;
     }
+
+    public List<NotificationMessagePayload> getNotificationMessagePayloads() {
+        return notificationMessagePayloads;
+    }
+
+    public void setNotificationMessagePayloads(List<NotificationMessagePayload> notificationMessagePayloads) {
+        this.notificationMessagePayloads = notificationMessagePayloads;
+    }
+    
 }

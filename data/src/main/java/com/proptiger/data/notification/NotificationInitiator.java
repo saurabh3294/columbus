@@ -102,7 +102,7 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(cron = "* 10 8-22 * * *")
+    //@Scheduled(cron = "* 10 8-22 * * *")
     public void emailNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via Email.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(EMAIL_NOTIFICATION_MEDIUM_ID);

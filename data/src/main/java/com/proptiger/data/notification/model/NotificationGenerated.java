@@ -18,6 +18,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
+import com.google.gson.annotations.Expose;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -37,7 +38,7 @@ public class NotificationGenerated extends BaseModel {
     @Column(name = "id")
     private int                        id;
 
-    @OneToOne(fetch=FetchType.LAZY)
+    @OneToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "notification_message_id")
     private NotificationMessage     notificationMessage;
 
@@ -198,5 +199,13 @@ public class NotificationGenerated extends BaseModel {
 
     public void setMergeNotificationMessageId(Integer mergeNotificationMessageId) {
         this.mergeNotificationMessageId = mergeNotificationMessageId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setObjectId(Integer objectId) {
+        this.objectId = objectId;
     }
 }

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -12,6 +13,7 @@ import com.proptiger.data.notification.model.NotificationGenerated;
 public interface NotificationGeneratedDao extends JpaRepository<NotificationGenerated, Integer> {
     public List<NotificationGenerated> findByNotificationStatusAndScheduleTimeLessThanOrNotificationStatusAndScheduleTimeIsNull(NotificationStatus notificationStatus, Date date, NotificationStatus generatedNotificationStatus);
     
+    @Modifying
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2 WHERE notificationStatus = ?3 AND id = ?1 ")
     public Integer updateByNotificationStatusOnOldNotificationStatus(Integer id, NotificationStatus newStatus, NotificationStatus oldStatus);
 

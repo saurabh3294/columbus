@@ -5,9 +5,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationType.NotificationOperation;
@@ -20,9 +23,11 @@ import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.notification.service.NotificationProcessorDtoService;
 import com.proptiger.data.notification.service.NotificationTypeService;
+import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationProcessorHandler {
+    private static Logger                   logger = LoggerFactory.getLogger(NotificationProcessorHandler.class);
 
     @Autowired
     private NotificationMessageService      nMessageService;
@@ -47,25 +52,44 @@ public class NotificationProcessorHandler {
 
         // Intra Primary Key Processing
         handleIntraPrimaryKeyProcessing(nMap);
-
+        
+        logger.info(" AFTER INTRA KEY PROCESSING");
+        logger.debug(Serializer.toJson(nMap));
         // Inter Primary Key Suppressing
         handleInterPrimaryKeySuppressing(nMap);
-
+        
+        logger.info(" AFTER INTER KEY SUPPRESSING");
+        logger.debug(Serializer.toJson(nMap));
+        
         // Inter Primary Key Merging
         handleInterPrimaryKeyMerging(nMap, userId);
+        
+        logger.info(" AFTER INTER KEY MERGING");
+        logger.debug(Serializer.toJson(nMap));
 
         // converting Processor DTO from Primary Key related data to non Primary
         // key related data.
         processorDtoService.buildNonPrimaryKeyDto(processorDto);
+        logger.info(" BUILDING NEW DTO ");
+        logger.debug(Serializer.toJson(nMap));
 
         // Intra Non Primary Key Processing
         handleIntraNonPrimaryKeyProcessing(nMap);
 
+        logger.info(" AFTER INTRA NONKEY PROCESSING");
+        logger.debug(Serializer.toJson(nMap));
+        
         // Inter Non Primary Key Suppressing
         handleInterNonPrimaryKeySuppressing(nMap);
         
+        logger.info(" AFTER INTER NONKEY SUPPRESSING");
+        logger.debug(Serializer.toJson(nMap));
+
         // Inter Non Primary Key Merging
         handleInterNonPrimaryKeyMerging(nMap, userId);
+        
+        logger.info(" AFTER INTER NONKEY MERGING");
+        logger.debug(Serializer.toJson(nMap));
 
         /**
          * 
@@ -86,7 +110,7 @@ public class NotificationProcessorHandler {
 
     }
 
-    public void handleInterNonPrimaryKeyMerging(Map<Integer, NotificationByTypeDto> nMap, Integer userId){
+    public void handleInterNonPrimaryKeyMerging(Map<Integer, NotificationByTypeDto> nMap, Integer userId) {
         Map<Integer, List<Integer>> mergeGroup = notificationTypeService.notificationInterNonKeyMergeGroupingMap();
 
         NotificationByTypeDto parentNotificationByTypeDto;
@@ -107,7 +131,7 @@ public class NotificationProcessorHandler {
             if (foundNTypeDtos.size() < 1) {
                 continue;
             }
-            
+
             if (parentNotificationByTypeDto == null) {
                 parentNotificationByTypeDto = new NotificationByTypeDto();
                 parentNotificationByTypeDto.setNotificationType(notificationTypeService.findOne(parentChildentry
@@ -120,10 +144,10 @@ public class NotificationProcessorHandler {
             nNonPrimaryKeyProcessor = parentNotificationByTypeDto.getNotificationType().getNotificationTypeConfig()
                     .getNonPrimaryKeyProcessorObject();
             nNonPrimaryKeyProcessor.processInterMerging(parentNotificationByTypeDto, foundNTypeDtos);
-            
+
         }
     }
-    
+
     public void handleInterNonPrimaryKeySuppressing(Map<Integer, NotificationByTypeDto> nMap) {
 
         /**

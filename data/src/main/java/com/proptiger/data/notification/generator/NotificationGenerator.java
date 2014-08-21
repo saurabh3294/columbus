@@ -2,6 +2,7 @@ package com.proptiger.data.notification.generator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,23 +39,25 @@ public class NotificationGenerator {
         logger.info("Retrieving the notification messages from database.");
         // TODO to handle the pageable condition.
         List<NotificationMessage> notificationMessages = notificationMessageService
-                .getRawNotificationMessages(new LimitOffsetPageRequest(0, 1));
-        
-        logger.info("Fetch "+notificationMessages.size()+" messages from the database.");
-        logger.debug("Notification Messages Retrieved "+Serializer.toJson(notificationMessages));
-        
+                .getRawNotificationMessages(new LimitOffsetPageRequest(0, 5));
+
+        logger.info("Fetch " + notificationMessages.size() + " messages from the database.");
+        logger.debug("Notification Messages Retrieved " + Serializer.toJson(notificationMessages));
+
         List<NotificationGenerated> scheduledNotificationGeneratedList = notificationGeneratedService
                 .getScheduledAndNonExpiredNotifications();
         
-        logger.info("Fetch "+scheduledNotificationGeneratedList.size()+" scheduled Notification Generated from database.");
-        logger.debug("Notification Generated Retrieved "+Serializer.toJson(scheduledNotificationGeneratedList));
-                
+        
+        logger.info("Fetch " + scheduledNotificationGeneratedList.size()
+                + " scheduled Notification Generated from database.");
+        logger.debug("Notification Generated Retrieved " + Serializer.toJson(scheduledNotificationGeneratedList));
+
         List<NotificationProcessorDto> nDtos = nDtoService.buildPrimaryKeyDto(
                 notificationMessages,
                 scheduledNotificationGeneratedList);
-        
-        logger.debug(" BUILD PROCESSOR DTO "+Serializer.toJson(nDtos));
-        
+
+        logger.debug(" BUILD PROCESSOR DTO " + Serializer.toJson(nDtos));
+
         List<NotificationGenerated> generatedNotifications = new ArrayList<NotificationGenerated>();
 
         for (NotificationProcessorDto intraProcessorDto : nDtos) {
