@@ -30,7 +30,7 @@ public class NotificationGenerated extends BaseModel {
     /**
      * 
      */
-    private static final long          serialVersionUID = -779686848270519833L;
+    private static final long          serialVersionUID = 7884487780495109288L;
 
     @Id
     @GeneratedValue
@@ -50,8 +50,8 @@ public class NotificationGenerated extends BaseModel {
     private NotificationType           notificationType;
 
     @Column(name = "user_id")
-    private Integer userId;
-    
+    private Integer                    userId;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private ForumUser                  forumUser;
@@ -75,7 +75,7 @@ public class NotificationGenerated extends BaseModel {
     @Enumerated(EnumType.STRING)
     private NotificationStatus         notificationStatus;
 
-    @Column(name = "merge_notification_message_id")
+    @Column(name = "merged_notification_message_id")
     private Integer                    mergeNotificationMessageId;
 
     @Transient
@@ -93,6 +93,7 @@ public class NotificationGenerated extends BaseModel {
     public void populatePrePersistFields() {
         this.createdAt = new Date();
         this.notificationStatus = NotificationStatus.Generated;
+        populatePreUpdateFields();
     }
 
     public int getId() {

@@ -10,11 +10,6 @@ import com.proptiger.data.event.model.payload.EventTypePayload;
 
 public class DefaultNotificationTypePayload extends NotificationTypePayload {
 
-    /**
-     * 
-     */
-    private static final long serialVersionUID = 8340555533239509545L;
-
     private String            transactionIdName;
     private Object            transactionId;
 

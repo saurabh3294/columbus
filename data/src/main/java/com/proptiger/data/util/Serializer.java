@@ -17,7 +17,10 @@ public class Serializer {
         gsonBuilder = new GsonBuilder();
         gsonBuilder.excludeFieldsWithModifiers(Modifier.STATIC);
         gsonBuilder.excludeFieldsWithModifiers(Modifier.TRANSIENT);
-        
+        JsonExclusionStrategy jsonExclusionStrategy = new JsonExclusionStrategy();
+        gsonBuilder.addSerializationExclusionStrategy(jsonExclusionStrategy);
+        gsonBuilder.addDeserializationExclusionStrategy(jsonExclusionStrategy);
+                
         gson = gsonBuilder.create();
         
     }
@@ -36,4 +39,6 @@ public class Serializer {
     public static <T> T fromJson(String json, Class<T> T) {
         return gson.fromJson(json, T);
     }
+    
+    
 }

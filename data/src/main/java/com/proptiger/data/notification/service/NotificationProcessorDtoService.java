@@ -185,6 +185,11 @@ public class NotificationProcessorDtoService {
             nMessageService.checkAndGenerateNewMessages(nMessages);
 
             savedNotifications.addAll( nGeneratedService.generateNotficationGenerated(nMessages));
+            
+            for(NotificationMessage nMessage:nMessages){
+                nMessage.setNotificationStatus(NotificationStatus.Generated);
+            }
+            nMessageService.saveOrUpdateMessages(nMessages);
         }
         
         return savedNotifications;

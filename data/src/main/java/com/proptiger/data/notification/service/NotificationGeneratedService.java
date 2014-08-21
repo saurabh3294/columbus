@@ -38,7 +38,10 @@ public class NotificationGeneratedService {
 
     public List<NotificationGenerated> getScheduledAndNonExpiredNotifications() {
         List<NotificationGenerated> notificationGenerateds = notificationGeneratedDao
-                .findByNotificationStatusAndScheduleTimeLessThan(NotificationStatus.Scheduled, new Date());
+                .findByNotificationStatusAndScheduleTimeLessThanOrNotificationStatusAndScheduleTimeIsNull(
+                        NotificationStatus.Scheduled,
+                        new Date(),
+                        NotificationStatus.Generated);
         if (notificationGenerateds == null) {
             return new ArrayList<NotificationGenerated>();
         }
@@ -166,34 +169,36 @@ public class NotificationGeneratedService {
         nGenerated.setNotificationMedium(notificationMedium);
         nGenerated.setNotificationMessage(notificationMessage);
         nGenerated.setNotificationMessagePayload(notificationMessage.getNotificationMessagePayload());
-                
+        nGenerated.setNotificationType(notificationMessage.getNotificationType());
+
         return nGenerated;
     }
-    
-    public List<NotificationGenerated> generateNotficationGenerated(List<NotificationMessage> nMessages ){
+
+    public List<NotificationGenerated> generateNotficationGenerated(List<NotificationMessage> nMessages) {
         Map<Integer, List<NotificationMedium>> typeMediumMapping = nMappingService.getTypeMediumMapping();
-                
+
         NotificationType nType = null;
         List<NotificationMedium> nMediums = null;
         List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
         NotificationGenerated nGenerated = null;
-        for(NotificationMessage nMessage:nMessages){
+        for (NotificationMessage nMessage : nMessages) {
             nType = nMessage.getNotificationType();
             nMediums = typeMediumMapping.get(nType.getId());
-            // TODO handle the scenario when no mapping of notification medium with type.
-            if(nMediums == null || nMediums.size() < 1){
+            // TODO handle the scenario when no mapping of notification medium
+            // with type.
+            if (nMediums == null || nMediums.size() < 1) {
                 continue;
             }
-            for(NotificationMedium nMedium:nMediums){
+            for (NotificationMedium nMedium : nMediums) {
                 nGenerated = createNotificationGenerated(nMessage, nMedium);
                 nGenerated = save(nGenerated);
                 generatedList.add(nGenerated);
             }
         }
-        
+
         return generatedList;
     }
-    
+
     public NotificationGenerated getLastScheduledOrSendNotificationGeneratedSameAs(NotificationGenerated ntGenerated) {
         List<NotificationStatus> notificationStatusList = new ArrayList<NotificationStatus>();
         notificationStatusList.add(NotificationStatus.Scheduled);
@@ -204,8 +209,9 @@ public class NotificationGeneratedService {
                 ntGenerated.getNotificationMedium().getId(),
                 ntGenerated.getForumUser().getUserId(),
                 ntGenerated.getNotificationType().getId(),
-                ntGenerated.getObjectId(), pageable);
-        if (ntGeneratedList !=null && !ntGeneratedList.isEmpty()) {
+                ntGenerated.getObjectId(),
+                pageable);
+        if (ntGeneratedList != null && !ntGeneratedList.isEmpty()) {
             return ntGeneratedList.get(0);
         }
         return null;
@@ -217,11 +223,10 @@ public class NotificationGeneratedService {
         notificationStatusList.add(NotificationStatus.Scheduled);
         notificationStatusList.add(NotificationStatus.Sent);
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
-        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.getLastSentNotificationGeneratedInMedium(
-                notificationStatusList,
-                ntGenerated.getForumUser().getUserId(),
-                ntGenerated.getNotificationMedium().getId(), pageable);
-        if (ntGeneratedList !=null && !ntGeneratedList.isEmpty()) {
+        List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao
+                .getLastSentNotificationGeneratedInMedium(notificationStatusList, ntGenerated.getForumUser()
+                        .getUserId(), ntGenerated.getNotificationMedium().getId(), pageable);
+        if (ntGeneratedList != null && !ntGeneratedList.isEmpty()) {
             return ntGeneratedList.get(0);
         }
         return null;
@@ -233,16 +238,20 @@ public class NotificationGeneratedService {
             NotificationStatus oldStatus) {
         notificationGeneratedDao.updateByNotificationStatusOnOldNotificationStatus(id, newStatus, oldStatus);
     }
-    
+
     public List<NotificationGenerated> getRawNotificationGeneratedList() {
         return notificationGeneratedDao.findByNotificationStatus(NotificationStatus.Generated);
     }
-    
+
     public void markNotificationGeneratedScheduled(NotificationGenerated ntGenerated, Date scheduledTime) {
-        notificationGeneratedDao.updatedByNotificationStatusAndScheduleTime(ntGenerated.getId(), NotificationStatus.Scheduled, scheduledTime);
+        notificationGeneratedDao.updatedByNotificationStatusAndScheduleTime(
+                ntGenerated.getId(),
+                NotificationStatus.Scheduled,
+                scheduledTime);
     }
-    
+
     public void markNotificationGeneratedSuppressed(NotificationGenerated ntGenerated) {
-        notificationGeneratedDao.updateByNotificationStatus(ntGenerated.getId(), NotificationStatus.SchedulerSuppressed);
+        notificationGeneratedDao
+                .updateByNotificationStatus(ntGenerated.getId(), NotificationStatus.SchedulerSuppressed);
     }
 }
