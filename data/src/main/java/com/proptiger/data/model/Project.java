@@ -343,7 +343,7 @@ public class Project extends BaseModel {
 
     @Transient
     @Field(value = "MEASURE")
-    private String                  propertySizeMeasure = "sqft";
+    private String                  propertySizeMeasure = "sq ft";
 
     @Transient
     @Field(value = "PROJECT_DOMINANT_UNIT_TYPE")
