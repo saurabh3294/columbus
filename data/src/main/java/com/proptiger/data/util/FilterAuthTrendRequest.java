@@ -44,13 +44,11 @@ public class FilterAuthTrendRequest {
                         ((FIQLSelector) arg).addAndConditionToFilter(filters);
                     }
                     /* TODO :: Hack here : 
-                     * => implement using application name context
                      * => implement using fiqlSelector.setRows(0);
                      */
-                    else {
+                    else if(applicationNameService.isB2BApplicationRequest()){
                         ((FIQLSelector) arg).addAndConditionToFilter("cityId==500000");
                     }
-                    
                     
                 }
 
