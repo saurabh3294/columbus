@@ -59,8 +59,8 @@ public class Listing extends BaseModel {
     @Column(name = "floor")
     private Integer              floor;
 
-    @Column(name = "additional_features")
-    private String               additionalFeatures;
+    @Column(name = "json_dump")
+    private String               jsonDump;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "listing_category")
@@ -107,6 +107,9 @@ public class Listing extends BaseModel {
 
     @Transient
     private OtherInfo            otherInfo;
+    
+    @Transient
+    private List<Integer> masterAmenityIds;
 
     public Integer getId() {
         return id;
@@ -172,12 +175,12 @@ public class Listing extends BaseModel {
         this.floor = floor;
     }
 
-    public String getAdditionalFeatures() {
-        return additionalFeatures;
+    public String getJsonDump() {
+        return jsonDump;
     }
 
-    public void setAdditionalFeatures(String additionalFeatures) {
-        this.additionalFeatures = additionalFeatures;
+    public void setJsonDump(String jsonDump) {
+        this.jsonDump = jsonDump;
     }
 
     public ListingCategory getListingCategory() {
@@ -250,6 +253,14 @@ public class Listing extends BaseModel {
 
     public void setProperty(Property property) {
         this.property = property;
+    }
+
+    public List<Integer> getMasterAmenityIds() {
+        return masterAmenityIds;
+    }
+
+    public void setMasterAmenityIds(List<Integer> masterAmenityIds) {
+        this.masterAmenityIds = masterAmenityIds;
     }
 
     @PreUpdate

@@ -8,11 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 
 public interface LeadRequirementsDao extends JpaRepository<LeadRequirement, Integer>, LeadRequirementsCustomDao{    
-    @Query("select LR from LeadRequirement LR where LR.bedroom = ?1 and LR.localityId = ?2 and LR.projectId = ?3")
+    @Query("select LR from LeadRequirement LR where LR.bedroom = ?1 and LR.localityId = ?2 and LR.projectId = ?3 and LR.leadId = ?4")
     public List<LeadRequirement> checkReplica(
             Integer bedroom,
             Integer localityId,
-            Integer projectId
+            Integer projectId,
+            Integer leadId
             );
 
     public List<LeadRequirement> findByLeadIdIn(List<Integer> leadIds);    
