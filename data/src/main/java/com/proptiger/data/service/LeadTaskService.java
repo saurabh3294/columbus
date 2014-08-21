@@ -12,13 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadTask;
+import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.MasterLeadTaskDao;
+import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.BadRequestException;
+import com.proptiger.exception.UnauthorizedException;
 
 /**
  * 
@@ -47,8 +51,13 @@ public class LeadTaskService {
      */
     @Transactional
     public LeadTask updateTask(LeadTaskDto taskDto) {
+        ActiveUser user = SecurityContextUtils.getLoggedInUser();
+        LeadTask savedTask = leadTaskDao.findOne(taskDto.getId());
+        if (savedTask.getLeadOffer().getAgentId() != Integer.parseInt(user.getUserId())) {
+            throw new UnauthorizedException();
+        }
+
         LeadTask leadTask = getLeadTaskFromLeadTaskDto(taskDto);
-        LeadTask savedTask = leadTaskDao.findOne(leadTask.getId());
         if (isValidUpdate(leadTask)) {
             ExclusionAwareBeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
             try {
@@ -192,5 +201,9 @@ public class LeadTaskService {
             result = true;
         }
         return result;
+    }
+
+    private LeadTask createDefaultLeadTaskForLeadOffer(LeadOffer leadOffer) {
+        return null;
     }
 }
