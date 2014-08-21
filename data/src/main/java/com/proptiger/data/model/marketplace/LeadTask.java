@@ -2,64 +2,87 @@ package com.proptiger.data.model.marketplace;
 
 import java.util.Date;
 
+import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.validation.constraints.Future;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.proptiger.data.enums.LeadTaskStatus;
+import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.LeadTaskStatus;
 
 /**
  * @author Rajeev Pandey
- *
+ * @author azi
  */
 @Entity
 @Table(name = "marketplace.lead_tasks")
-@JsonFilter("fieldFilter")
-public class LeadTask extends BaseModel{
+public class LeadTask extends BaseModel {
     private static final long serialVersionUID = -5139446103498473442L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id")
-    private Integer id;
-    
+    private Integer           id;
+
+    @ExcludeFromBeanCopy
     @Column(name = "lead_offer_id")
-    private Integer leadOfferId;
-    
-    @Column(name = "task_id")
-    private Integer taskId;
-    
-    @Column(name = "lead_status_id")
-    private Integer leadStatusId;
-    
-    @Column(name = "scheduled_at")
-    private Date scheduledAt;
-    
+    private int               leadOfferId;
+
+    @Column(name = "lead_task_status_id")
+    private int               taskStatusId;
+
+    @Nonnull
+    @Column(name = "scheduled_for")
+    @Future
+    private Date              scheduledFor;
+
     @Column(name = "call_time_seconds")
-    private Integer callTimeSeconds;
-    
+    private Integer           callDuration;
+
     @Column(name = "performed_at")
-    private Date performedAt;
-    
-    @Column(name = "status")
-    private LeadTaskStatus status;
-    
+    private Date              performedAt;
+
     @Column(name = "notes")
-    private String notes;
-    
+    private String            notes;
+
+    @ExcludeFromBeanCopy
     @Column(name = "created_at")
-    private Date createdAt;
-    
+    private Date              createdAt;
+
+    @ExcludeFromBeanCopy
     @Column(name = "updated_at")
-    private Date updatedAt;
-    
-    
+    private Date              updatedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "lead_offer_id", insertable = false, updatable = false)
+    private LeadOffer         leadOffer;
+
+    @ManyToOne
+    @JoinColumn(name = "lead_task_status_id", insertable = false, updatable = false)
+    private LeadTaskStatus    taskStatus;
+
+    @Transient
+    private LeadTask          nextTask;
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = new Date();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = new Date();
+        updatedAt = createdAt;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -68,44 +91,36 @@ public class LeadTask extends BaseModel{
         this.id = id;
     }
 
-    public Integer getLeadOfferId() {
+    public int getLeadOfferId() {
         return leadOfferId;
     }
 
-    public void setLeadOfferId(Integer leadOfferId) {
+    public void setLeadOfferId(int leadOfferId) {
         this.leadOfferId = leadOfferId;
     }
 
-    public Integer getTaskId() {
-        return taskId;
+    public Integer getTaskStatusId() {
+        return taskStatusId;
     }
 
-    public void setTaskId(Integer taskId) {
-        this.taskId = taskId;
+    public void setTaskStatusId(Integer taskStatusId) {
+        this.taskStatusId = taskStatusId;
     }
 
-    public Integer getLeadStatusId() {
-        return leadStatusId;
+    public Date getScheduledFor() {
+        return scheduledFor;
     }
 
-    public void setLeadStatusId(Integer leadStatusId) {
-        this.leadStatusId = leadStatusId;
+    public void setScheduledFor(Date scheduledFor) {
+        this.scheduledFor = scheduledFor;
     }
 
-    public Date getScheduledAt() {
-        return scheduledAt;
+    public Integer getCallDuration() {
+        return callDuration;
     }
 
-    public void setScheduledAt(Date scheduledAt) {
-        this.scheduledAt = scheduledAt;
-    }
-
-    public Integer getCallTimeSeconds() {
-        return callTimeSeconds;
-    }
-
-    public void setCallTimeSeconds(Integer callTimeSeconds) {
-        this.callTimeSeconds = callTimeSeconds;
+    public void setCallDuration(Integer callDuration) {
+        this.callDuration = callDuration;
     }
 
     public Date getPerformedAt() {
@@ -114,14 +129,6 @@ public class LeadTask extends BaseModel{
 
     public void setPerformedAt(Date performedAt) {
         this.performedAt = performedAt;
-    }
-
-    public LeadTaskStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(LeadTaskStatus status) {
-        this.status = status;
     }
 
     public String getNotes() {
@@ -148,15 +155,31 @@ public class LeadTask extends BaseModel{
         this.updatedAt = updatedAt;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = new Date();
+    public LeadOffer getLeadOffer() {
+        return leadOffer;
     }
 
-    @PrePersist
-    public void prePersist() {
-        createdAt = new Date();
-        updatedAt = createdAt;
+    public void setLeadOffer(LeadOffer leadOffer) {
+        this.leadOffer = leadOffer;
     }
 
+    public LeadTask getNextTask() {
+        return nextTask;
+    }
+
+    public void setNextTask(LeadTask nextTask) {
+        this.nextTask = nextTask;
+    }
+
+    public void setTaskStatusId(int taskStatusId) {
+        this.taskStatusId = taskStatusId;
+    }
+
+    public LeadTaskStatus getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(LeadTaskStatus taskStatus) {
+        this.taskStatus = taskStatus;
+    }
 }
