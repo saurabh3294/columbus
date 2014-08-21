@@ -1,9 +1,11 @@
 package com.proptiger.data.service.marketplace;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;
 
 import org.hibernate.exception.ConstraintViolationException;
@@ -74,7 +76,7 @@ public class ListingService {
     public Listing createListing(Listing listing, Integer userId) {
         preCreateValidation(listing, userId);
         Property property = listing.getProperty();
-        //got Property object so set this as null
+        // got Property object so set this as null
         listing.setProperty(null);
         Listing created = null;
         try {
@@ -121,7 +123,8 @@ public class ListingService {
         else {
             property = propertyService.getProperty(listing.getPropertyId());
         }
-        //need project id to fetch amenities, will make this null in createListing method
+        // need project id to fetch amenities, will make this null in
+        // createListing method
         listing.setProperty(property);
         if (listing.getPhaseId() == null) {
             // add Logical phase id
@@ -185,12 +188,40 @@ public class ListingService {
         Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), new Sort(
                 Direction.DESC,
                 "id"));
-        
-        
         List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
-        listingPriceService.populateListingPrices(listings, selector);
-        listingAmenityService.populateListingAmenities(listings, selector);
+        String fields = selector.getFields();
+        if(fields != null){
+            if (fields.contains("currentListingPrice")){
+                List<ListingPrice> listingPrices = listingPriceService.getListingPricesOfListings(listings);
+                populateListingPricesInListings(listings, listingPrices);
+            }
+            if (fields.contains("listingAmenities")) {
+                List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(listings);
+                if (listingAmenities.size() > 0) {
+                    Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = createListingToAmenitiesMap(listingAmenities);
+                    for (Listing l : listings) {
+                        l.setListingAmenities(listingIdToAmenitiesMap.get(l.getId()));
+                    }
+                }
+            }
+       }
+        if(fields == null || !fields.contains("property")){
+            //due to explicit join in query it would be fetched so if not asked then set this to null
+            for(Listing l: listings){
+                l.setProperty(null);    
+            }
+        }
         return listings;
+    }
+
+    private void populateListingPricesInListings(List<Listing> listings, List<ListingPrice> listingPrices) {
+        Map<Integer, ListingPrice> map = new HashMap<>();
+        for (ListingPrice lp : listingPrices) {
+            map.put(lp.getId(), lp);
+        }
+        for (Listing l : listings) {
+            l.setCurrentListingPrice(map.get(l.getCurrentPriceId()));
+        }
     }
 
     /**
@@ -205,8 +236,25 @@ public class ListingService {
         if (listing == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
-        listingPriceService.populateListingPrices(Arrays.asList(listing), selector);
-        listingAmenityService.populateListingAmenities(Arrays.asList(listing), selector);
+        String fields = selector.getFields();
+        if(fields != null){
+            if (fields.contains("currentListingPrice")
+                    && listing.getCurrentPriceId() != null) {
+                List<ListingPrice> listingPrices = listingPriceService.getListingPrices(Arrays.asList(listing
+                        .getCurrentPriceId()));
+                if (listingPrices.size() > 0) {
+                    listing.setCurrentListingPrice(listingPrices.get(0));
+                }
+            }
+            if(fields.contains("listingAmenities")){
+                List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(Arrays.asList(listing));
+                listing.setListingAmenities(listingAmenities);
+            }
+        }
+        if(fields == null || !fields.contains("property")){
+            //due to explicit join in query it would be fetched so if not asked then set this to null
+            listing.setProperty(null);
+        }
         return listing;
     }
 
@@ -226,4 +274,18 @@ public class ListingService {
         listing = listingDao.saveAndFlush(listing);
         return listing;
     }
+
+    private Map<Integer, List<ListingAmenity>> createListingToAmenitiesMap(List<ListingAmenity> listingAmenities) {
+        Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = new HashMap<>();
+        if (listingAmenities != null) {
+            for (ListingAmenity la : listingAmenities) {
+                if (listingIdToAmenitiesMap.get(la.getListingId()) == null) {
+                    listingIdToAmenitiesMap.put(la.getListingId(), new ArrayList<ListingAmenity>());
+                }
+                listingIdToAmenitiesMap.get(la.getListingId()).add(la);
+            }
+        }
+        return listingIdToAmenitiesMap;
+    }
+
 }

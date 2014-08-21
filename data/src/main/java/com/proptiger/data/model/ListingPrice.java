@@ -40,10 +40,10 @@ public class ListingPrice extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int               id;
+    private Integer               id;
 
     @Column(name = "listing_id")
-    private int               listingId;
+    private Integer               listingId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "listing_id", insertable = false, updatable = false)
@@ -85,19 +85,19 @@ public class ListingPrice extends BaseModel {
     @Column(name = "updated_at")
     private Date              updatedAt;
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getListingId() {
+    public Integer getListingId() {
         return listingId;
     }
 
-    public void setListingId(int listingId) {
+    public void setListingId(Integer listingId) {
         this.listingId = listingId;
     }
 
