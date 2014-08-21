@@ -13,8 +13,8 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.proptiger.data.event.constants.MediumType;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.notification.enums.MediumType;
 
 @Entity
 @Table(name = "notification_medium")
