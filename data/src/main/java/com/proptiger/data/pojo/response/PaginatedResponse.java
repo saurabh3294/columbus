@@ -20,7 +20,14 @@ public class PaginatedResponse<T> implements Serializable {
      * Actual result from the data source
      */
     private T    results;
+ 
+    public PaginatedResponse() {}
 
+    public PaginatedResponse(T results, long totalCount) {
+        this.results = results;
+        this.totalCount = totalCount;
+    }
+    
     public long getTotalCount() {
         return totalCount;
     }

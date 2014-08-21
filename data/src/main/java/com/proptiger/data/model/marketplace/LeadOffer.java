@@ -16,7 +16,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,7 +28,7 @@ import com.proptiger.data.model.Listing;
  * 
  */
 @Entity
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 @Table(name = "marketplace.lead_offers")
 public class LeadOffer extends BaseModel {
 
@@ -63,7 +62,7 @@ public class LeadOffer extends BaseModel {
     private Lead              lead;
     
     @ManyToMany
-    @JoinTable(name="lead_offered_listings",
+    @JoinTable(name="marketplace.lead_offered_listings",
         joinColumns=
             @JoinColumn(name = "lead_offer_id", referencedColumnName = "id"),
         inverseJoinColumns=

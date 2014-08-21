@@ -290,4 +290,8 @@ public class LeadService {
         return (user != null) && (getExistingLead(user.getId(), cityId) != null);
     }
 
+    public List<Lead> getLeads(List<Integer> leadIds) {
+        return leadDao.getLeads(leadIds);
+    }
+
 }

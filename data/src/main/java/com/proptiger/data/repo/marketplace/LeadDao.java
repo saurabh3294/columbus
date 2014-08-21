@@ -24,4 +24,7 @@ public interface LeadDao extends JpaRepository<Lead, Integer> {
     public List<Lead> getLeads(int cityId, int id);
         
     public List<Lead> findByNextActionTimeLessThan(Date actionTime);
+
+    @Query("select L from Lead L where L.id in (?1)")
+    public List<Lead> getLeads(List<Integer> leadIds);
 }

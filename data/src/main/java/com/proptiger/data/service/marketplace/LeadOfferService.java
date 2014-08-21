@@ -1,7 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +50,9 @@ public class LeadOfferService {
     @Autowired
     private LeadOfferedListingsDao leadOfferedListingDao;
 
+    @Autowired
+    private LeadService leadService;
+    
     /**
      * 
      * @param leadOfferedListing
@@ -67,53 +70,18 @@ public class LeadOfferService {
         return leadOfferedListings;
     }
 
-    public List<LeadOffer> getLeadOffers(int agentId,FIQLSelector selector)
-    {
-        List<LeadOffer> leadOffers = leadOfferDao.getAllLeadOffers(agentId);
-        Set<String> fields = selector.getFieldSet();
-        
-        if (fields != null) {
-            if (fields.contains("client")) {
-                List<Integer> clientIds = extractClientIds(leadOffers);
-                Map<Integer, User> users = userService.getUsers(clientIds);
-                for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
-                }
-            }
-
-            if (fields.contains("requirements")) {
-                List<Integer> leadIds = extractLeadIds(leadOffers);
-                Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
-                for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.getLead().setRequirements(requirements.get(leadOffer.getId()));
-                }
-            }
-
-            if (fields.contains("listings")) {
-                List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
-                Map<Integer, List<Listing>> listings = getLeadOfferedListing(leadOfferIds);
-                for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.setListings(listings.get(leadOffer.getId()));
-                }
-            }
-        }
-
-        return leadOffers;        
-    }
-    
-
     /**
      * @param agentId
      * @param selector
      * @return
      */
-    /*public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector) {
+    public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector) {
         if (selector == null) {
             selector = new FIQLSelector();
         }
 
-        PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferDao.getLeadOffers(selector
-                .addAndConditionToFilter("agentId==" + agentId));
+        List<LeadOffer> leadOffers = leadOfferDao.getLeadOffersForAgent(agentId);
+        PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
 
         Set<String> fields = selector.getFieldSet();
         if (fields != null) {
@@ -134,16 +102,23 @@ public class LeadOfferService {
             }
 
             if (fields.contains("listings")) {
-                List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
-                Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
-                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
-                    leadOffer.getLead().setRequirements(requirements.get(leadOffer.getId()));
+                List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
+                Map<Integer, List<Listing>> listings = getLeadOfferedListing(leadOfferIds);
+                for (LeadOffer leadOffer : leadOffers) {
+                    leadOffer.setListings(listings.get(leadOffer.getId()));
                 }
             }
+
+            // XXX - Setting lead to null if not passed in fields
+            if (!fields.contains("lead")) {
+                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
+                    leadOffer.setLead(null);
+                }
+            }            
         }
 
         return paginatedResponse;
-    }*/
+    }
 
     private Map<Integer, List<LeadRequirement>> getLeadRequirements(List<Integer> leadIds) {
         Map<Integer, List<LeadRequirement>> requirementsMap = new HashMap<>();
@@ -160,7 +135,7 @@ public class LeadOfferService {
     }
 
     private List<Integer> extractLeadIds(List<LeadOffer> leadOffers) {
-        List<Integer> leadIds = new ArrayList<>();
+        List<Integer> leadIds = new ArrayList<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
             leadIds.add(leadOffer.getLeadId());
         }
@@ -168,7 +143,7 @@ public class LeadOfferService {
     }
 
     private List<Integer> extractClientIds(List<LeadOffer> leadOffers) {
-        List<Integer> clientIds = new ArrayList<>();
+        List<Integer> clientIds = new ArrayList<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
             clientIds.add(leadOffer.getLead().getClientId());
         }
@@ -217,4 +192,10 @@ public class LeadOfferService {
         offer.setCycleId(1);
         return leadOfferDao.save(offer);
     }
+
+    public PaginatedResponse<List<Listing>> getListings(int leadOfferId) {
+        List<Listing> listings = leadOfferDao.getListings(Collections.singletonList(leadOfferId));
+        return new PaginatedResponse<List<Listing>>(listings, listings.size());
+    }
 }
+
