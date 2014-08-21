@@ -1,9 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -62,35 +60,11 @@ public class ListingAmenityService {
      * 
      * @param listings
      */
-    public void populateListingAmenities(List<Listing> listings, FIQLSelector selector) {
-        // if asked for listingAmenities
-        if (selector.getFields() != null && selector.getFields().contains("listingAmenities")
-                && listings != null
-                && listings.size() > 0) {
-            List<Integer> listingIds = new ArrayList<>();
-            for (Listing l : listings) {
-                listingIds.add(l.getId());
-            }
-            List<ListingAmenity> listingAmenities = getListingAmenities(listingIds);
-            if (listingAmenities.size() > 0) {
-                Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = createListingToAmenitiesMap(listingAmenities);
-                for (Listing l : listings) {
-                    l.setListingAmenities(listingIdToAmenitiesMap.get(l.getId()));
-                }
-            }
+    public List<ListingAmenity> getListingAmenitiesOfListings(List<Listing> listings) {
+        List<Integer> listingIds = new ArrayList<>();
+        for (Listing l : listings) {
+            listingIds.add(l.getId());
         }
-    }
-
-    private Map<Integer, List<ListingAmenity>> createListingToAmenitiesMap(List<ListingAmenity> listingAmenities) {
-        Map<Integer, List<ListingAmenity>> listingIdToAmenitiesMap = new HashMap<>();
-        if (listingAmenities != null) {
-            for (ListingAmenity la : listingAmenities) {
-                if (listingIdToAmenitiesMap.get(la.getListingId()) == null) {
-                    listingIdToAmenitiesMap.put(la.getListingId(), new ArrayList<ListingAmenity>());
-                }
-                listingIdToAmenitiesMap.get(la.getListingId()).add(la);
-            }
-        }
-        return listingIdToAmenitiesMap;
+        return getListingAmenities(listingIds);
     }
 }
