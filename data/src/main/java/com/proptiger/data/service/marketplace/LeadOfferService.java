@@ -183,6 +183,14 @@ public class LeadOfferService {
         return listingMap;
     }
 
+    /**
+     * extract 
+     * 
+     * @param leadOffers
+     * @return
+     */
+    
+    
     private List<Integer> extractLeadOfferIds(List<LeadOffer> leadOffers) {
         List<Integer> leadOfferIds = new ArrayList<>();
         for (LeadOffer leadOffer : leadOffers) {
@@ -210,15 +218,18 @@ public class LeadOfferService {
         return leadOfferDao.save(offer);
     }
 
+    /**
+     * 
+     * @param leadOfferId
+     * @return listings for that lead offer id
+     */
     public PaginatedResponse<List<Listing>> getListings(int leadOfferId) {                
-        Map<Integer, List<Listing>> listingMap = new HashMap<>();
+        List<Listing> listings = new ArrayList<>();
         for (LeadOffer.LeadOfferIdListing leadOfferIdListing  : leadOfferDao.getListings(Collections.singletonList(leadOfferId))) {
-            if (!listingMap.containsKey(leadOfferId)) {
-                listingMap.put(leadOfferId, new ArrayList<Listing>());
-            }            
-            listingMap.get(leadOfferId).add(leadOfferIdListing.getListing());
-        }        
-        return new PaginatedResponse<List<Listing>>(listingMap.get(leadOfferId), listingMap.size());
+            listings.add(leadOfferIdListing.getListing());
+        }
+
+        return new PaginatedResponse<List<Listing>>(listings, listings.size());
     }
 }
 
