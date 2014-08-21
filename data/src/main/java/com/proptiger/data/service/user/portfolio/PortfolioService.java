@@ -151,6 +151,7 @@ public class PortfolioService {
                         false,
                         Constants.SOURCETYPE_LIST,
                         listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+        setPropertyInListings(listings);
         PortfolioUtil.updatePriceInfoInPortfolio(portfolio, listings);
         if (listings != null) {
             for (PortfolioListing l : listings) {
