@@ -14,7 +14,7 @@ public class MediumTypeConfig extends BaseModel {
     public static Map<String, MediumTypeConfig> mediumTypeConfig;
     static {
         mediumTypeConfig = new HashMap<String, MediumTypeConfig>();
-        mediumTypeConfig.put(MediumType.EMAIL.name(), new MediumTypeConfig(EmailSender.class));
+        mediumTypeConfig.put(MediumType.Email.name(), new MediumTypeConfig(EmailSender.class));
     }
 
     private Class<EmailSender>   senderClassName = EmailSender.class;
