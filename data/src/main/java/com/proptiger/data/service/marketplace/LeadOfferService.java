@@ -210,10 +210,16 @@ public class LeadOfferService {
         return leadOfferDao.save(offer);
     }
 
-    /*public PaginatedResponse<List<Listing>> getListings(int leadOfferId) {
-        List<LeadOffer> leadOffers = leadOfferDao.getListings(Collections.singletonList(leadOfferId));
-        return new PaginatedResponse<List<Listing>>(leadOffers.get(0).getListings(), leadOffers.get(0).getListings().size());
-    }*/
+    public PaginatedResponse<List<Listing>> getListings(int leadOfferId) {                
+        Map<Integer, List<Listing>> listingMap = new HashMap<>();
+        for (LeadOffer.LeadOfferIdListing leadOfferIdListing  : leadOfferDao.getListings(Collections.singletonList(leadOfferId))) {
+            if (!listingMap.containsKey(leadOfferId)) {
+                listingMap.put(leadOfferId, new ArrayList<Listing>());
+            }            
+            listingMap.get(leadOfferId).add(leadOfferIdListing.getListing());
+        }        
+        return new PaginatedResponse<List<Listing>>(listingMap.get(leadOfferId), listingMap.size());
+    }
 }
 
 
