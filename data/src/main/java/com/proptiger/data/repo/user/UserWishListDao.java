@@ -13,6 +13,9 @@ import com.proptiger.data.model.UserWishlist;
  */
 public interface UserWishListDao extends JpaRepository<UserWishlist, Integer> {
 
+    @Query("SELECT U FROM UserWishlist U JOIN FETCH U.project as P WHERE P.version = 'Website' AND U.id= ?1")
+    public UserWishlist findOne(int userWishListId);
+
     @Query("SELECT U FROM UserWishlist U JOIN FETCH U.project as P WHERE P.version = 'Website' AND U.userId= ?1")
     public List<UserWishlist> findByUserId(Integer userId);
 
