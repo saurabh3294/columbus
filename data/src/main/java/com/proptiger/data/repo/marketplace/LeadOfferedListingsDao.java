@@ -9,5 +9,5 @@ import com.proptiger.data.model.marketplace.LeadOfferedListing;
 public interface LeadOfferedListingsDao extends JpaRepository<LeadOfferedListing, Integer> {
     public List<LeadOfferedListing> findByLeadOfferIdIn(List<Integer> leadOfferIds);
 
-    public List<LeadOfferedListing> findByLeadOfferIdAndListingIdNotIn(int leadOfferId, List<Integer> listingIds);
+    public List<LeadOfferedListing> findByLeadOfferIdAndListingIdIn(int leadOfferId, List<Integer> listingIds);
 }
