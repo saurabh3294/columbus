@@ -32,7 +32,7 @@ public class RepoInterceptor {
         hTreeMap = db.getHashMap("hashMap");
     }
 
-    @Around("execution(* com.proptiger.data.repo.*.*(..))")
+    @Around("execution(* com.proptiger.data.repo..*(..))")
     private Object interceptRepo(ProceedingJoinPoint pjp) throws IOException, Throwable {
         String key = pjp.getSignature() + ToStringBuilder.reflectionToString(
                 pjp.getArgs(),
