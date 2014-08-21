@@ -51,6 +51,9 @@ public class CrawlPreventionService {
      * @return boolean
      */
     public boolean isValidRequest(HttpServletRequest request, HttpServletResponse response) {
+        if (!propertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_CRAWL_PREVENTION_TEST_SERVER, Boolean.class)) {
+            return true;
+        }
         if (captchaService.isCaptchaRequest(request)) {
             if (captchaService.isValidCaptcha(request)) {
                 resetAccessCountInCache(request);
