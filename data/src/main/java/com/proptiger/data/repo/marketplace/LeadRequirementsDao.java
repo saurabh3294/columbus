@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.model.marketplace.LeadRequirement;
 
-public interface LeadRequirementsDao extends JpaRepository<LeadRequirement, Integer>, LeadRequirementsCustomDao{    
+public interface LeadRequirementsDao extends JpaRepository<LeadRequirement, Integer>{    
     @Query("select LR from LeadRequirement LR where LR.bedroom = ?1 and LR.localityId = ?2 and LR.projectId = ?3 and LR.leadId = ?4")
-    public List<LeadRequirement> checkReplica(
+    public List<LeadRequirement> getRequirements(
             Integer bedroom,
             Integer localityId,
             Integer projectId,

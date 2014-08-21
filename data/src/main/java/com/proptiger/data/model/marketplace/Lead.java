@@ -13,17 +13,19 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.user.User;
 
 /**
@@ -36,9 +38,6 @@ import com.proptiger.data.model.user.User;
 @JsonFilter("fieldFilter")
 public class Lead extends BaseModel {
 
-    /**
-     * 
-     */
     private static final long     serialVersionUID = -6647164101899851831L;
 
     @Id
