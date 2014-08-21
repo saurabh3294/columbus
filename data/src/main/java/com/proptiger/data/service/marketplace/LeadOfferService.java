@@ -3,6 +3,7 @@ package com.proptiger.data.service.marketplace;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,38 +37,54 @@ import com.proptiger.exception.ProAPIException;
 @Service
 public class LeadOfferService {
     @Autowired
-    private CompanyService      companyService;
+    private CompanyService          companyService;
 
     @Autowired
-    private LeadOfferDao        leadOfferDao;
+    private LeadOfferDao            leadOfferDao;
 
     @Autowired
     private LeadRequirementsService leadRequirementsService;
 
     @Autowired
-    private UserService         userService;
+    private UserService             userService;
 
     @Autowired
-    private LeadOfferedListingsDao leadOfferedListingDao;
+    private LeadOfferedListingsDao  leadOfferedListingDao;
 
     @Autowired
-    private LeadService leadService;
-    
+    private LeadService             leadService;
+
     /**
      * 
      * @param leadOfferedListing
      * @return
      */
     public List<LeadOfferedListing> offerListings(List<Integer> listingIds, int leadOfferId) {
-        List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdNotIn(leadOfferId, listingIds);
+        List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdIn(
+                leadOfferId,
+                listingIds);
         
-        if (leadOfferedListings != null) {
-            for (LeadOfferedListing leadOfferedListing : leadOfferedListings) {
-                leadOfferedListingDao.saveAndFlush(leadOfferedListing);
+        Set<Integer> existingListingIds = extractListingIds(leadOfferedListings);
+        
+        for (Integer listingId : listingIds) {
+            if (!existingListingIds.contains(listingId)) {
+                leadOfferedListingDao.saveAndFlush(new LeadOfferedListing(leadOfferId, listingId));
             }
         }
 
         return leadOfferedListings;
+    }
+
+    private Set<Integer> extractListingIds(List<LeadOfferedListing> leadOfferedListings) {
+        Set<Integer> listingIds = new HashSet<>();
+        
+        if (leadOfferedListings != null) {
+            for (LeadOfferedListing leadOfferedListing : leadOfferedListings) {
+                listingIds.add(leadOfferedListing.getListingId());
+            }
+        }
+
+        return listingIds;
     }
 
     /**
@@ -114,7 +131,7 @@ public class LeadOfferService {
                 for (LeadOffer leadOffer : paginatedResponse.getResults()) {
                     leadOffer.setLead(null);
                 }
-            }            
+            }
         }
 
         return paginatedResponse;
@@ -150,20 +167,28 @@ public class LeadOfferService {
         return clientIds;
     }
 
-    private Map<Integer, List<Listing>> getLeadOfferedListing(List<Integer> leadOfferIds) {        
-        
-        Map<Integer, List<Listing>> listingMap = new HashMap<>();
-        for (Listing listing : leadOfferDao.getListings(leadOfferIds)) {
-            int listingId = listing.getId();
-            if (!listingMap.containsKey(listingId)) {
-                listingMap.put(listingId, new ArrayList<Listing>());
-            }
 
-            listingMap.get(listingId).add(listing);
+    
+    
+      
+    private Map<Integer, List<Listing>> getLeadOfferedListing(List<Integer> leadOfferIds) {
+        Map<Integer, List<Listing>> listingMap = new HashMap<>();
+        for (LeadOffer.LeadOfferIdListing leadOfferIdListing  : leadOfferDao.getListings(leadOfferIds)) {
+            int leadOfferId = leadOfferIdListing.getLeadOfferId();
+            if (!listingMap.containsKey(leadOfferId)) {
+                listingMap.put(leadOfferId, new ArrayList<Listing>());
+            }            
+            listingMap.get(leadOfferId).add(leadOfferIdListing.getListing());
         }
-        
         return listingMap;
     }
+
+    /**
+     * extract 
+     * 
+     * @param leadOffers
+     * @return
+     */
     
     
     private List<Integer> extractLeadOfferIds(List<LeadOffer> leadOffers) {
@@ -173,7 +198,7 @@ public class LeadOfferService {
         }
         return leadOfferIds;
     }
-        
+
     public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId) {
         List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
         if (agents.size() == 0) {
@@ -193,9 +218,21 @@ public class LeadOfferService {
         return leadOfferDao.save(offer);
     }
 
-    public PaginatedResponse<List<Listing>> getListings(int leadOfferId) {
-        List<Listing> listings = leadOfferDao.getListings(Collections.singletonList(leadOfferId));
+    /**
+     * 
+     * @param leadOfferId
+     * @return listings for that lead offer id
+     */
+    public PaginatedResponse<List<Listing>> getListings(int leadOfferId) {                
+        List<Listing> listings = new ArrayList<>();
+        for (LeadOffer.LeadOfferIdListing leadOfferIdListing  : leadOfferDao.getListings(Collections.singletonList(leadOfferId))) {
+            listings.add(leadOfferIdListing.getListing());
+        }
+
         return new PaginatedResponse<List<Listing>>(listings, listings.size());
     }
 }
+
+
+
 
