@@ -1106,6 +1106,11 @@ public class SolrResult extends BaseModel {
         project.setProjectLocalityScore(projectLocalityScore);
     }
 
+    @Field("PROJECT_STATUS")
+    public void setProjectStatus(String projectStatus) {
+        project.setProjectStatus(projectStatus);
+    }
+    
     @Field("PROJECT_SOCIETY_SCORE")
     public void setProjectSocietyScore(Float projectSocietyScore) {
         project.setProjectSocietyScore(projectSocietyScore);

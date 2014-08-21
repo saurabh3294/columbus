@@ -62,7 +62,7 @@ public class PortfolioUtil {
             size = 0.0D;
         }
         Double pricePerUnitArea = null;
-        if (listing.getProperty() != null) {
+        if (listing.getProperty() != null && listing.getProperty().getPricePerUnitArea() != null) {
             pricePerUnitArea = listing.getProperty().getPricePerUnitArea();
             currentValue = size * pricePerUnitArea;
         }

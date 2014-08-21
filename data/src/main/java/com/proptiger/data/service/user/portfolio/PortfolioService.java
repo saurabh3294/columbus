@@ -151,6 +151,7 @@ public class PortfolioService {
                         false,
                         Constants.SOURCETYPE_LIST,
                         listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+        setPropertyInListings(listings);
         PortfolioUtil.updatePriceInfoInPortfolio(portfolio, listings);
         if (listings != null) {
             for (PortfolioListing l : listings) {
@@ -176,6 +177,11 @@ public class PortfolioService {
                         false,
                         Constants.SOURCETYPE_LIST,
                         listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+
+        if (listings == null || listings.isEmpty()) {
+            return listings;
+        }
+
         setPropertyInListings(listings);
         updateOtherSpecificData(listings);
         updatePaymentSchedule(listings);
@@ -284,6 +290,9 @@ public class PortfolioService {
     }
 
     public List<Property> setPropertyInListings(List<PortfolioListing> listings) {
+        if (listings == null || listings.isEmpty()) {
+            return new ArrayList<Property>();
+        }
 
         List<Long> propertyIds = new ArrayList<Long>();
         Map<Integer, PortfolioListing> propertyIdToListingMap = new HashMap<Integer, PortfolioListing>();
@@ -301,8 +310,8 @@ public class PortfolioService {
 
         for (Property property : properties) {
             propertyIdToListingMap.get(property.getPropertyId()).setProperty(property);
-
         }
+
         return properties;
     }
 
