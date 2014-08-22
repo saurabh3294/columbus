@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class EventTypeProcessorDao extends DynamicTableDao {
-    
 
     // TODO Using FIQL selector
     public Object getOldValueOfEventTypeOnLastMonth(
@@ -81,10 +80,15 @@ public class EventTypeProcessorDao extends DynamicTableDao {
                     + " ASC LIMIT 1";
 
             List<Map<String, Object>> results = runDynamicTableQuery(queryString);
-            return results.get(0).get(attributeName);
+            if (!results.isEmpty()) {
+                return results.get(0).get(attributeName);
+            }
+            else {
+                return null;
+            }
         }
         catch (Exception e) {
-            logger.error(" ERROR IN QUERY "+queryString+" \n ERROR QUERY FORMATION : " + e.getMessage()+"\n ");
+            logger.error(" ERROR IN QUERY " + queryString + " \n ERROR QUERY FORMATION : " + e.getMessage() + "\n ");
             e.printStackTrace();
             return null;
         }

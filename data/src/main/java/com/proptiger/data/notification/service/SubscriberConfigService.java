@@ -20,6 +20,7 @@ import com.proptiger.data.notification.model.SubscriberConfig;
 import com.proptiger.data.notification.model.SubscriberConfig.ConfigName;
 import com.proptiger.data.notification.repo.SubscriberConfigDao;
 import com.proptiger.data.notification.repo.SubscriberDao;
+import com.proptiger.data.util.DateUtil;
 
 @Service
 public class SubscriberConfigService {
@@ -93,7 +94,8 @@ public class SubscriberConfigService {
             logger.debug("Latest event generated: " + eventGenerated);
             
             if (eventGenerated != null) {
-                lastEventDate = eventGenerated.getCreatedDate();
+                // Subtracting 1 second to include current events.
+                lastEventDate = DateUtil.addSeconds(eventGenerated.getCreatedDate(), -1);
             }
             else {
                 lastEventDate = new Date();
