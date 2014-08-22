@@ -1,6 +1,8 @@
 package com.proptiger.data.external.dto;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * DTO for convenient update of lead tasks
@@ -9,16 +11,17 @@ import java.util.Date;
  * 
  */
 public class LeadTaskDto {
-    private int         id;
-    private int         leadOfferId;
-    private String      taskStatus;
-    private String      taskName;
-    private Date        scheduledFor;
-    private Integer     callDuration;
-    private Date        performedAt;
-    private String      notes;
+    private int          id;
+    private int          leadOfferId;
+    private String       taskStatus;
+    private String       taskName;
+    private Set<Integer> listingIds = new HashSet<>();
+    private Date         scheduledFor;
+    private Integer      callDuration;
+    private Date         performedAt;
+    private String       notes;
 
-    private LeadTaskDto nextTask;
+    private LeadTaskDto  nextTask;
 
     public int getId() {
         return id;
@@ -90,5 +93,13 @@ public class LeadTaskDto {
 
     public void setNextTask(LeadTaskDto nextTask) {
         this.nextTask = nextTask;
+    }
+
+    public Set<Integer> getListingIds() {
+        return listingIds;
+    }
+
+    public void setListingIds(Set<Integer> listingIds) {
+        this.listingIds = listingIds;
     }
 }

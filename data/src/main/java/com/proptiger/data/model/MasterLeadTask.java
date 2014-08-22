@@ -23,6 +23,12 @@ public class MasterLeadTask extends BaseModel {
     @Column(name = "is_optional")
     private boolean           optional;
 
+    @Column(name = "min_listing_count")
+    private int               minListingCount;
+
+    @Column(name = "max_listing_count")
+    private int               maxListingCount;
+
     @Column(name = "execution_order")
     private int               priority;
 
@@ -48,6 +54,22 @@ public class MasterLeadTask extends BaseModel {
 
     public void setOptional(boolean optional) {
         this.optional = optional;
+    }
+
+    public int getMinListingCount() {
+        return minListingCount;
+    }
+
+    public void setMinListingCount(int minListingCount) {
+        this.minListingCount = minListingCount;
+    }
+
+    public int getMaxListingCount() {
+        return maxListingCount;
+    }
+
+    public void setMaxListingCount(int maxListingCount) {
+        this.maxListingCount = maxListingCount;
     }
 
     public int getPriority() {

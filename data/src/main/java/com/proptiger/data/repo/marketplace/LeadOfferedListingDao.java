@@ -12,5 +12,5 @@ import com.proptiger.data.model.marketplace.LeadOfferedListing;
  * 
  */
 public interface LeadOfferedListingDao extends JpaRepository<LeadOfferedListing, Integer> {
-    public List<LeadOfferedListing> findByLeadOfferId();
+    public List<LeadOfferedListing> findByLeadOfferId(int leadOfferId);
 }

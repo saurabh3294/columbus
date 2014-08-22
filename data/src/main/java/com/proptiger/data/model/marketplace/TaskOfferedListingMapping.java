@@ -5,6 +5,8 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -25,7 +27,8 @@ public class TaskOfferedListingMapping extends BaseModel {
     private static final long  serialVersionUID = 1L;
 
     @Id
-    private int                id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer            id;
 
     @Column(name = "task_id")
     private int                taskId;
@@ -45,11 +48,19 @@ public class TaskOfferedListingMapping extends BaseModel {
         createdAt = new Date();
     }
 
-    public int getId() {
+    public TaskOfferedListingMapping(int taskId, int listingOfferId) {
+        this.taskId = taskId;
+        this.listingOfferId = listingOfferId;
+    }
+
+    public TaskOfferedListingMapping() {
+    }
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
