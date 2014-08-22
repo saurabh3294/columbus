@@ -98,14 +98,14 @@ public class PriceChangeProcessor extends DBEventProcessor {
             EventGenerated firstEvent = entry.getValue().get(0);
             // removing the first Event from discarded list.
             discardedEvents.remove(firstEvent);
-            firstEvent.setEventStatus(EventStatus.PendingVerification);
-            updateEventHistories(firstEvent, EventStatus.PendingVerification);
+            firstEvent.setEventStatus(EventStatus.Verified);
+            updateEventHistories(firstEvent, EventStatus.Verified);
             updateEventExpiryTime(firstEvent);
             // Updating the Event in the database.
             EventGenerated newEventGenerated = eventGeneratedService.saveOrUpdateOneEvent(firstEvent);
             // Event has been marked Successfully for pending verification.
             // Hence, sending it to verfication.
-            if (newEventGenerated.getEventStatus().name().equals(EventStatus.PendingVerification.name())) {
+            if (newEventGenerated.getEventStatus().name().equals(EventStatus.Verified.name())) {
                 newEventGenerated.getEventType().getEventTypeConfig().getEventVerificationObject()
                         .verifyEvents(newEventGenerated);
             }
