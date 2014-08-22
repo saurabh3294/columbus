@@ -33,7 +33,7 @@ public class NotificationTypePayload implements Serializable {
 
     private List<NotificationTypeUpdateHistory> notificationTypeUpdateHistories;
 
-    public void populatePayloadValues(EventTypePayload eventTypePayload){
+    public void populatePayloadValues(EventTypePayload eventTypePayload) {
         DefaultEventTypePayload defaultEventTypePayload = (DefaultEventTypePayload) eventTypePayload;
         this.transactionIdName = defaultEventTypePayload.getTransactionKeyName();
         this.transactionId = defaultEventTypePayload.getTransactionId();

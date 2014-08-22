@@ -2,6 +2,8 @@ package com.proptiger.data.notification.generator;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ import com.proptiger.data.notification.service.SubscriberConfigService;
 @Service
 public class NotificationMessageGenerator {
 
+    private static Logger                    logger = LoggerFactory.getLogger(NotificationMessageGenerator.class);
+
     @Autowired
     private NotificationTypeGeneratedService ntGeneratedService;
 
@@ -24,12 +28,18 @@ public class NotificationMessageGenerator {
     private NotificationMessageService       notificationMessageService;
 
     public boolean isNotificationMessageGenerationRequired() {
-        Integer activeNMCount = notificationMessageService.getActiveNotificationMessageCount();
+        Long activeNMCount = notificationMessageService.getActiveNotificationMessageCount();
         Integer maxActiveNMCount = subscriberConfigService.getMaxActiveNotificationMessageCount();
 
         if (activeNMCount < maxActiveNMCount) {
+            logger.debug("NotificationMessage Generation required as activeNMCount " + activeNMCount
+                    + " is less than maxActiveNMCount "
+                    + maxActiveNMCount);
             return true;
         }
+        logger.debug("NotificationMessage Generation not required as activeNMCount " + activeNMCount
+                + " is greater then or equal to maxActiveNMCount "
+                + maxActiveNMCount);
         return false;
     }
 
@@ -37,10 +47,12 @@ public class NotificationMessageGenerator {
         Integer messageCount = 0;
 
         List<NotificationTypeGenerated> ntGeneratedList = ntGeneratedService.getActiveNotificationTypeGenerated();
-
+        logger.debug("Found " + ntGeneratedList.size() + " NotificationTypeGenerated in DB.");
+        
         for (NotificationTypeGenerated ntGenerated : ntGeneratedList) {
             List<NotificationMessage> notificationMessages = notificationMessageService
                     .getNotificationMessagesForNotificationTypeGenerated(ntGenerated);
+            logger.debug("Generated " + notificationMessages.size() + " NotificationMessages for NotificationTypeGenerated ID " + ntGenerated.getId());
             messageCount += notificationMessages.size();
             notificationMessageService.persistNotificationMessages(notificationMessages, ntGenerated);
         }

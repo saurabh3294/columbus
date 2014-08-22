@@ -50,10 +50,20 @@ public class NotificationTypeGeneratedService {
     public List<NotificationTypeGenerated> getActiveNotificationTypeGenerated() {
         List<NotificationTypeGenerated> ntGeneratedList = notificationTypeGeneratedDao
                 .findByNotificationStatusOrderByCreatedAtAsc(NotificationStatus.TypeGenerated);
+        ntGeneratedList = populateNotificationTypeDataAfterLoad(ntGeneratedList);
+        return ntGeneratedList;
+    }
+
+    private List<NotificationTypeGenerated> populateNotificationTypeDataAfterLoad(
+            List<NotificationTypeGenerated> ntGeneratedList) {
         for (NotificationTypeGenerated ntGenerated : ntGeneratedList) {
             NotificationType notificationType = ntGenerated.getNotificationType();
             notificationType = notificationTypeService.populateNotificationTypeConfig(notificationType);
             ntGenerated.setNotificationType(notificationType);
+            ntGenerated.setNotificationTypePayload((NotificationTypePayload) new Gson().fromJson(
+                    ntGenerated.getData(),
+                    ntGenerated.getNotificationType().getNotificationTypeConfig().getDataClassName()));
+            logger.debug("Created payload object " + ntGenerated.getNotificationTypePayload() + "for notificationTypeGenerated ID " + ntGenerated.getId());
         }
         return ntGeneratedList;
     }

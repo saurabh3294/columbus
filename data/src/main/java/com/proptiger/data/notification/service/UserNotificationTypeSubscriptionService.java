@@ -1,12 +1,15 @@
 package com.proptiger.data.notification.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +22,17 @@ import com.proptiger.data.notification.repo.UserNotificationTypeSubscriptionDao;
 @Service
 public class UserNotificationTypeSubscriptionService {
 
+    private static Logger                        logger              = LoggerFactory
+                                                                             .getLogger(UserNotificationTypeSubscriptionService.class);
+
     @Autowired
     private UserNotificationTypeSubscriptionDao  userNTSubscriptionDao;
 
     // Map of NotificationTypeId to subscribed users
-    private static Map<Integer, List<ForumUser>> subscribedUserMap;
+    private static Map<Integer, List<ForumUser>> subscribedUserMap   = new HashMap<Integer, List<ForumUser>>();
 
     // Map of NotificationTypeId to unsubscribed users
-    private static Map<Integer, List<ForumUser>> unsubscribedUserMap;
+    private static Map<Integer, List<ForumUser>> unsubscribedUserMap = new HashMap<Integer, List<ForumUser>>();
 
     @PostConstruct
     private void constuctMappingFromDB() {
@@ -68,6 +74,7 @@ public class UserNotificationTypeSubscriptionService {
     }
 
     public List<ForumUser> getSubscribedUsersByNotificationType(NotificationType notificationType) {
+        logger.debug(subscribedUserMap.toString());
         List<ForumUser> userList = subscribedUserMap.get(notificationType.getId());
         if (userList == null) {
             return new ArrayList<ForumUser>();
