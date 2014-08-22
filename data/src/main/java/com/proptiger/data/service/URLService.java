@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.beanutils.BeanUtilsBean;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -72,9 +73,17 @@ public class URLService {
          * Removing the URL request params and saving them in variable.
          */
         String[] URLSplit = url.split("\\?");
+
+        String filterString = "/filters";
         String URLRequestParamString = "";
         if (URLSplit.length > 1) {
-            URLRequestParamString = "?" + URLSplit[1];
+            if (StringUtils.endsWith(URLSplit[0], filterString)) {
+                URLSplit[0] = StringUtils.replace(URLSplit[0], filterString, "");
+                URLRequestParamString = filterString + "?" + URLSplit[1];
+            }
+            else {
+                URLRequestParamString = "?" + URLSplit[1];
+            }
         }
         url = URLSplit[0];
 
