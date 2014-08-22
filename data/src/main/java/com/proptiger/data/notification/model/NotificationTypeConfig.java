@@ -3,7 +3,6 @@ package com.proptiger.data.notification.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.proptiger.data.notification.model.payload.DefaultNotificationTypePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
@@ -29,7 +28,7 @@ public class NotificationTypeConfig {
     public transient static Map<String, NotificationTypeConfig>           notificationTypeConfigMap;
 
     public NotificationTypeConfig(
-            Class<? extends DefaultNotificationTypePayload> dataClassName,
+            Class<? extends NotificationTypePayload> dataClassName,
             Class<? extends NotificationPrimaryKeyProcessor> primaryKeyProcessorClassName,
             Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName,
             Class<? extends NotificationMessageProcessor> notificationMessageProcessorClassName) {
@@ -56,7 +55,7 @@ public class NotificationTypeConfig {
         return dataClassName;
     }
 
-    public void setDataClassName(Class<? extends DefaultNotificationTypePayload> dataClassName) {
+    public void setDataClassName(Class<? extends NotificationTypePayload> dataClassName) {
         this.dataClassName = dataClassName;
     }
 

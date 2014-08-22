@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -32,6 +33,7 @@ public class NotificationMessage extends BaseModel {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue
     private int                        id;
 
     @Column(name = "data")

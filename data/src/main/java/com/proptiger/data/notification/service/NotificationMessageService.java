@@ -14,12 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
-import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
@@ -46,6 +43,9 @@ public class NotificationMessageService {
     
     @Autowired
     private ForumUserService forumUserService;
+    
+    @Autowired
+    private NotificationTypeGeneratedService nTypeGeneratedService;
 
     @Autowired
     private UserNotificationTypeSubscriptionService userNTSubscriptionService;
@@ -221,10 +221,14 @@ public class NotificationMessageService {
      * @param notificationMessages
      * @return
      */
+    @Transactional
     public NotificationMessage saveOrFlush(NotificationMessage notificationMessage){
         populateNotificationMessageDataBeforeSave(notificationMessage);
         
-        return notificationMessageDao.saveAndFlush(notificationMessage);
+        NotificationMessage saveMessage = notificationMessageDao.saveAndFlush(notificationMessage);
+        populateDataOnPostLoad(saveMessage);
+        notificationMessageDao.flush();
+        return saveMessage;
     }
     
     private void populateNotificationMessageDataBeforeSave(NotificationMessage notificationMessage) {
@@ -244,13 +248,21 @@ public class NotificationMessageService {
      * inserting the new Notification Messages if it was generated previously.
      * @param nMessages
      */
+    @Transactional
     public void checkAndGenerateNewMessages(List<NotificationMessage> nMessages){
         NotificationMessage notificationMessage, savedNMessage;
+        NotificationTypeGenerated nTypeGenerated = null;
+        
         
         for(int i=0; i<nMessages.size(); i++){
            notificationMessage = nMessages.get(i);
            if(notificationMessage.getId() < 1){
+               nTypeGenerated = nTypeGeneratedService.createNotificationTypeGenerated(notificationMessage);
+               logger.debug(" NEW TYPE GENERATED "+Serializer.toJson(nTypeGenerated));
+               notificationMessage.setNotificationTypeGeneratedId(nTypeGenerated.getId());
                savedNMessage = saveOrFlush(notificationMessage);
+               logger.debug(" NEW Message GENERATED "+Serializer.toJson(savedNMessage));
+               logger.debug(" NEW Message GENERATED "+Serializer.toJson(savedNMessage));
                nMessages.set(i, savedNMessage);
            }
         }
