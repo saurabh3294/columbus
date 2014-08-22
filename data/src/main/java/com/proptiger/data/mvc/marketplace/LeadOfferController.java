@@ -45,10 +45,10 @@ public class LeadOfferController extends BaseController {
         return new APIResponse(leadOfferService.getListings(leadOfferId));
     }
     
-    @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadId}/update", method = RequestMethod.PUT)
+    @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}", method = RequestMethod.PUT)
     @ResponseBody
-    public APIResponse offerListing(@RequestBody LeadOffer leadOffer, @PathVariable int leadId,@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        return new APIResponse(leadOfferService.updateLeadOffer(leadOffer, leadId, activeUser.getUserIdentifier()));
+    public APIResponse update(@RequestBody LeadOffer leadOffer, @PathVariable int leadOfferId, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        return new APIResponse(leadOfferService.updateLeadOffer(leadOffer, leadOfferId, activeUser.getUserIdentifier()));
     }
     
     

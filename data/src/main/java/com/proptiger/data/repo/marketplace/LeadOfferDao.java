@@ -25,5 +25,5 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOf
     @Query("select NEW com.proptiger.data.model.marketplace.LeadOffer$LeadOfferIdListing(LO.id, LI) from LeadOffer LO join LO.listings LI where LO.id in (?1)")
     public List<LeadOffer.LeadOfferIdListing> getListings(List<Integer> leadOfferIds);
 
-    LeadOffer findByLeadIdAndAgentId(int leadId, Integer userIdentifier);
+    public LeadOffer findByIdAndAgentId(int leadOfferId, Integer userIdentifier);
 }
