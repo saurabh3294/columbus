@@ -1,11 +1,13 @@
 package com.proptiger.data.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,11 +19,18 @@ import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadTask;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.MasterLeadTaskDao;
+import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.BadRequestException;
+import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.UnauthorizedException;
 
 /**
@@ -32,15 +41,21 @@ import com.proptiger.exception.UnauthorizedException;
 @Service
 public class LeadTaskService {
     @Autowired
-    private LeadTaskDao       leadTaskDao;
+    private LeadTaskDao         leadTaskDao;
 
     @Autowired
-    private LeadTaskStatusDao leadTaskStatusDao;
+    private LeadTaskStatusDao   leadTaskStatusDao;
 
     @Autowired
-    private MasterLeadTaskDao masterLeadTaskDao;
+    private MasterLeadTaskDao   masterLeadTaskDao;
 
-    private static Logger     logger = LoggerFactory.getLogger(LeadTaskService.class);
+    private static final int    defaultLeadTaskStatus = 1;
+
+    private static final String defaultTaskSelection  = "";
+
+    private static final String defaultTaskSorting    = "taskStatus.masterLeadTaskStatus.complete,-updatedAt";
+
+    private static Logger       logger                = LoggerFactory.getLogger(LeadTaskService.class);
 
     /**
      * function to update leadtask for a user
@@ -203,7 +218,64 @@ public class LeadTaskService {
         return result;
     }
 
+    /**
+     * 
+     * 
+     * @param leadOffer
+     * @return
+     */
+    @Transactional
     private LeadTask createDefaultLeadTaskForLeadOffer(LeadOffer leadOffer) {
-        return null;
+        LeadTask leadTask = new LeadTask();
+        int leadOfferId = leadOffer.getId();
+        List<LeadTask> leadTasks = leadTaskDao.findByLeadOfferId(leadOfferId);
+        if (leadTasks.isEmpty()) {
+            leadTask.setTaskStatusId(defaultLeadTaskStatus);
+            leadTask.setScheduledFor(DateUtil.getWorkingTimeAddedIntoDate(new Date(), PropertyReader
+                    .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_DEFAULT_TASK_DURATION, Integer.class)));
+            leadTask.setLeadOfferId(leadOfferId);
+            leadTask = leadTaskDao.save(leadTask);
+        }
+        else {
+            throw new ProAPIException("Lead Task Already Exists");
+        }
+        return leadTask;
+    }
+
+    /**
+     * 
+     * @param selector
+     * @param userId
+     * @return
+     */
+    public PaginatedResponse<List<LeadTask>> getLeadTasksForUser(FIQLSelector selector, int userId) {
+        applyDefaultsInFIQL(selector);
+
+        Pageable pageable = new LimitOffsetPageRequest(
+                selector.getStart(),
+                selector.getRows(),
+                selector.getDataDomainSort());
+
+        PaginatedResponse<List<LeadTask>> response = new PaginatedResponse<>();
+        response.setTotalCount(leadTaskDao.getLeadTaskCountForUser(userId));
+        response.setResults(leadTaskDao.getLeadTasksForUser(userId, pageable));
+
+        return response;
+    }
+
+    /**
+     * applies defaults in {@link FIQLSelector} for get task apis
+     * 
+     * @param selector
+     * @return
+     */
+    private FIQLSelector applyDefaultsInFIQL(FIQLSelector selector) {
+        if (selector.getFields() == null) {
+            selector.setFields(defaultTaskSelection);
+        }
+        if (selector.getSort() == null) {
+            selector.setSort(defaultTaskSorting);
+        }
+        return selector;
     }
 }
