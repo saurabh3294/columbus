@@ -1,15 +1,19 @@
 package com.proptiger.data.model.marketplace;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.annotation.Nonnull;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -27,50 +31,53 @@ import com.proptiger.data.model.LeadTaskStatus;
 @Entity
 @Table(name = "marketplace.lead_tasks")
 public class LeadTask extends BaseModel {
-    private static final long serialVersionUID = -5139446103498473442L;
+    private static final long               serialVersionUID = -5139446103498473442L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer           id;
+    private Integer                         id;
 
     @ExcludeFromBeanCopy
     @Column(name = "lead_offer_id")
-    private int               leadOfferId;
+    private int                             leadOfferId;
 
     @Column(name = "lead_task_status_id")
-    private int               taskStatusId;
+    private int                             taskStatusId;
 
     @Nonnull
     @Column(name = "scheduled_for")
     @Future
-    private Date              scheduledFor;
+    private Date                            scheduledFor;
 
     @Column(name = "call_time_seconds")
-    private Integer           callDuration;
+    private Integer                         callDuration;
 
     @Column(name = "performed_at")
-    private Date              performedAt;
+    private Date                            performedAt;
 
     @Column(name = "notes")
-    private String            notes;
+    private String                          notes;
 
     @ExcludeFromBeanCopy
     @Column(name = "created_at")
-    private Date              createdAt;
+    private Date                            createdAt;
 
     @ExcludeFromBeanCopy
     @Column(name = "updated_at")
-    private Date              updatedAt;
+    private Date                            updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "lead_offer_id", insertable = false, updatable = false)
-    private LeadOffer         leadOffer;
+    private LeadOffer                       leadOffer;
 
     @ManyToOne
     @JoinColumn(name = "lead_task_status_id", insertable = false, updatable = false)
-    private LeadTaskStatus    taskStatus;
+    private LeadTaskStatus                  taskStatus;
+
+    @OneToMany(mappedBy = "taskId")
+    private List<TaskOfferedListingMapping> offeredListingMappings;
 
     @Transient
-    private LeadTask          nextTask;
+    private LeadTask                        nextTask;
 
     @PreUpdate
     public void preUpdate() {
