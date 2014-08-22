@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeConfig;
+import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.repo.NotificationTypeDao;
 
 @Service
@@ -197,10 +198,19 @@ public class NotificationTypeService {
     }
 
     public Iterable<NotificationType> findAllNotificationTypes() {
-        return notificationTypeDao.findAll();
+        Iterable<NotificationType> nIterable = notificationTypeDao.findAll();
+        Iterator<NotificationType> it = nIterable.iterator();
+        
+        while(it.hasNext()){
+            populateNotificationTypeConfig(it.next());
+        }
+        
+        return nIterable;
     }
 
     public NotificationType findOne(Integer notificationTypeId) {
-        return notificationTypeDao.findOne(notificationTypeId);
+        NotificationType nType =  notificationTypeDao.findOne(notificationTypeId);
+        populateNotificationTypeConfig(nType);
+        return nType;
     }
 }

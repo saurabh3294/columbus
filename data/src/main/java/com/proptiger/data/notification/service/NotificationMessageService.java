@@ -22,6 +22,7 @@ import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
+import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.service.ForumUserService;
@@ -29,7 +30,7 @@ import com.proptiger.data.util.Serializer;
 
 @Service
 public class NotificationMessageService {
-    private static Logger                           logger = LoggerFactory.getLogger(NotificationMessageService.class);
+    private static Logger                   logger = LoggerFactory.getLogger(NotificationMessageService.class);
 
     @Autowired
     private NotificationMessageDao                  notificationMessageDao;
@@ -38,10 +39,13 @@ public class NotificationMessageService {
     private NotificationTypeGeneratedService        ntGeneratedService;
 
     @Autowired
-    private NotificationTypeService                 notiTypeService;
-
+    private NotificationTypeService notiTypeService;
+    
     @Autowired
-    private ForumUserService                        forumUserService;
+    private ForumUserService forumUserService;
+    
+    @Autowired
+    private NotificationTypeGeneratedService nTypeGeneratedService;
 
     @Autowired
     private UserNotificationTypeSubscriptionService userNTSubscriptionService;
@@ -55,26 +59,27 @@ public class NotificationMessageService {
         List<NotificationMessage> notificationMessages = notificationMessageDao.findByNotificationStatus(
                 NotificationStatus.MessageGenerated,
                 pageable);
-
+        
         logger.debug(Serializer.toJson(notificationMessages));
-
+        
         if (notificationMessages == null) {
             return new ArrayList<NotificationMessage>();
         }
-
-        for (NotificationMessage notificationMessage : notificationMessages) {
+        
+        for(NotificationMessage notificationMessage: notificationMessages){
             populateDataOnPostLoad(notificationMessage);
         }
-
+        
         return notificationMessages;
     }
 
-    public void populateDataOnPostLoad(NotificationMessage nMessage) {
+    public void populateDataOnPostLoad(NotificationMessage nMessage){
+                
         nMessage.setNotificationMessagePayload(Serializer.fromJson(nMessage.getData(), NotificationMessagePayload.class));
         NotificationType notificationType = nMessage.getNotificationType();
         notiTypeService.populateNotificationTypeConfig(notificationType);
     }
-
+    
     public Map<Integer, List<NotificationMessage>> groupNotificationMessageByuser(
             List<NotificationMessage> notificationMessageList) {
         if (notificationMessageList == null) {
@@ -124,21 +129,31 @@ public class NotificationMessageService {
         return groupNotificationMessageMap;
     }
 
-    public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId) {
+    public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId, Object primaryKeyId) {
+        
         NotificationType notiType = notiTypeService.findOne(notificationTypeId);
         ForumUser forumUser = forumUserService.findOne(userId);
-        return createNewNotificationMessageObject(notiType, forumUser);
+        
+        NotificationMessage nMessage = createNewNotificationMessageObject(notiType, forumUser);
+        NotificationMessagePayload nMessagePayload = new NotificationMessagePayload();
+        NotificationTypePayload nTypePayload = notiType.getNotificationTypeConfig().getNotificationTypePayloadObject();
+        nMessagePayload.setNotificationTypePayload(nTypePayload);
+        nTypePayload.setPrimaryKeyValue(primaryKeyId);
+        nMessage.setNotificationMessagePayload(nMessagePayload);
+        
+        return nMessage;
     }
 
     public NotificationMessage createNewNotificationMessageObject(NotificationType notiType, ForumUser forumUser) {
         NotificationMessage notificationMessage = new NotificationMessage();
         notificationMessage.setUserId(forumUser.getUserId());
         notificationMessage.setNotificationType(notiType);
+        
         return notificationMessage;
     }
 
     public List<NotificationMessage> getNotificationMessagesForNotificationTypeGenerated(
-            NotificationTypeGenerated ntGenerated) {
+            NotificationTypeGenerated ntGenerated) {     
 
         // Map of User and relevant user data
         Map<ForumUser, NotificationMessagePayload> userDataList = getUserDataMapByNotificationTypeGenerated(ntGenerated);
@@ -200,20 +215,22 @@ public class NotificationMessageService {
          */
         return notificationMessages;
     }
-
+    
     /**
-     * Call this method for saving only when the auto increment id is need after
-     * saving.
-     * 
+     * Call this method for saving only when the auto increment id is need after saving.
      * @param notificationMessages
      * @return
      */
-    public NotificationMessage saveOrFlush(NotificationMessage notificationMessage) {
+    @Transactional
+    public NotificationMessage saveOrFlush(NotificationMessage notificationMessage){
         populateNotificationMessageDataBeforeSave(notificationMessage);
-
-        return notificationMessageDao.saveAndFlush(notificationMessage);
+        
+        NotificationMessage saveMessage = notificationMessageDao.saveAndFlush(notificationMessage);
+        populateDataOnPostLoad(saveMessage);
+        notificationMessageDao.flush();
+        return saveMessage;
     }
-
+    
     private void populateNotificationMessageDataBeforeSave(NotificationMessage notificationMessage) {
         NotificationMessagePayload payload = notificationMessage.getNotificationMessagePayload();
         notificationMessage.setData(Serializer.toJson(payload));
@@ -226,21 +243,28 @@ public class NotificationMessageService {
 
         notificationMessage.getNotificationMessagePayload().getNotificationMessageUpdateHistories().add(nHistory);
     }
-
+    
     /**
      * inserting the new Notification Messages if it was generated previously.
-     * 
      * @param nMessages
      */
-    public void checkAndGenerateNewMessages(List<NotificationMessage> nMessages) {
+    @Transactional
+    public void checkAndGenerateNewMessages(List<NotificationMessage> nMessages){
         NotificationMessage notificationMessage, savedNMessage;
-
-        for (int i = 0; i < nMessages.size(); i++) {
-            notificationMessage = nMessages.get(i);
-            if (notificationMessage.getId() < 1) {
-                savedNMessage = saveOrFlush(notificationMessage);
-                nMessages.set(i, savedNMessage);
-            }
+        NotificationTypeGenerated nTypeGenerated = null;
+        
+        
+        for(int i=0; i<nMessages.size(); i++){
+           notificationMessage = nMessages.get(i);
+           if(notificationMessage.getId() < 1){
+               nTypeGenerated = nTypeGeneratedService.createNotificationTypeGenerated(notificationMessage);
+               logger.debug(" NEW TYPE GENERATED "+Serializer.toJson(nTypeGenerated));
+               notificationMessage.setNotificationTypeGeneratedId(nTypeGenerated.getId());
+               savedNMessage = saveOrFlush(notificationMessage);
+               logger.debug(" NEW Message GENERATED "+Serializer.toJson(savedNMessage));
+               logger.debug(" NEW Message GENERATED "+Serializer.toJson(savedNMessage));
+               nMessages.set(i, savedNMessage);
+           }
         }
     }
 }

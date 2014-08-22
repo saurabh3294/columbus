@@ -15,6 +15,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
@@ -70,7 +71,8 @@ public class NotificationTypeGeneratedService {
             payload.setPrimaryKeyName(eventTypePayload.getPrimaryKeyName());
             payload.setPrimaryKeyValue(eventTypePayload.getPrimaryKeyValue());
             payload.populatePayloadValues(eventTypePayload);
-
+            
+            // TODO to move the code to create NotificationTypeGenerated function.
             NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
             ntGenerated.setEventGeneratedId(eventGenerated.getId());
             ntGenerated.setNotificationType(notificationType);
@@ -78,6 +80,16 @@ public class NotificationTypeGeneratedService {
             notificationTypeGeneratedList.add(ntGenerated);
         }
         return notificationTypeGeneratedList;
+    }
+    
+    public NotificationTypeGenerated createNotificationTypeGenerated(NotificationMessage nMessage){
+        NotificationTypeGenerated ntGenerated = new NotificationTypeGenerated();
+        ntGenerated.setNotificationType(nMessage.getNotificationType());
+        ntGenerated.setNotificationTypePayload(nMessage.getNotificationMessagePayload().getNotificationTypePayload());
+        /*
+         * This saved one object is needed as new Type Generated Id is needed.
+         */
+        return saveOrFlushType(ntGenerated);
     }
 
     @Transactional
@@ -108,7 +120,16 @@ public class NotificationTypeGeneratedService {
         notificationTypeGeneratedDao.save(notificationType);
         return notificationType;
     }
-
+    
+    public NotificationTypeGenerated saveOrFlushType(NotificationTypeGenerated notificationType) {
+        populateNotificationTypeDataBeforeSave(notificationType);
+        /*
+         * Not returning the save object received from JPA as it will empty the
+         * transient fields.
+         */
+        return notificationTypeGeneratedDao.saveAndFlush(notificationType);
+    }
+    
     private void populateNotificationTypeDataBeforeSave(NotificationTypeGenerated ntGenerated) {
         NotificationTypePayload payload = ntGenerated.getNotificationTypePayload();
         ntGenerated.setData(serializer.toJson(payload));
