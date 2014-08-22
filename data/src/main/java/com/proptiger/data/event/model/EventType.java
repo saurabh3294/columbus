@@ -19,6 +19,11 @@ import com.proptiger.data.model.BaseModel;
  *
  */
 public class EventType extends BaseModel {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7894812665751049177L;
+
     public enum Operation {
         Replace, Merge;
     }

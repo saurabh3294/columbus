@@ -3,7 +3,6 @@ package com.proptiger.data.event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.event.generator.DBEventGenerator;
@@ -35,7 +34,7 @@ public class EventInitiator {
     /**
      * Generates the DB events at regular intervals.
      */
-    //@Scheduled(fixedDelay = 500000)
+    // @Scheduled(fixedDelay = 500000)
     public void dbEventGenerator() {
         Thread.currentThread().setName("Raw Event Generator");
 
@@ -49,15 +48,15 @@ public class EventInitiator {
         logger.info("DBEventGenerator: Generated " + numberOfEvents + " DB Events.");
     }
 
-    //@Scheduled(fixedDelay = 50000)
+    // @Scheduled(fixedDelay = 50000)
     public void dbRawEventProcessor() {
         Thread.currentThread().setName("Raw Event Scheduler");
         logger.info("DBRawEventProcessor: Process Raw Events started");
         dbRawEventHandler.handleEvents();
         logger.info("DBRawEventProcessor: Process Raw Events ended.");
     }
-    
-    //@Scheduled(fixedDelay = 50000)
+
+    // @Scheduled(fixedDelay = 50000)
     public void dbProcessedEventProcessor() {
         Thread.currentThread().setName("Processed Event Scheduler");
         logger.info("DBProcessedEventProcessor: Process Processed Events started");

@@ -3,8 +3,8 @@ package com.proptiger.data.notification.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.proptiger.data.event.constants.MediumType;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.sender.EmailSender;
 import com.proptiger.data.notification.sender.MediumSender;
 
@@ -14,7 +14,7 @@ public class MediumTypeConfig extends BaseModel {
     public static Map<String, MediumTypeConfig> mediumTypeConfig;
     static {
         mediumTypeConfig = new HashMap<String, MediumTypeConfig>();
-        mediumTypeConfig.put(MediumType.EMAIL.name(), new MediumTypeConfig(EmailSender.class));
+        mediumTypeConfig.put(MediumType.Email.name(), new MediumTypeConfig(EmailSender.class));
     }
 
     private transient Class<EmailSender>   senderClassName = EmailSender.class;

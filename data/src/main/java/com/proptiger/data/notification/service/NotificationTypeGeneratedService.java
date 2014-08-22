@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,9 @@ import com.proptiger.data.notification.repo.NotificationTypeGeneratedDao;
 @Service
 public class NotificationTypeGeneratedService {
 
+    private static Logger                             logger     = LoggerFactory
+                                                                         .getLogger(NotificationTypeGeneratedService.class);
+
     @Autowired
     private NotificationTypeGeneratedDao              notificationTypeGeneratedDao;
 
@@ -30,29 +35,30 @@ public class NotificationTypeGeneratedService {
 
     @Autowired
     private EventTypeToNotificationTypeMappingService ntMappingService;
-    
+
     @Autowired
-    private NotificationTypeService notificationTypeService;
+    private NotificationTypeService                   notificationTypeService;
 
     private Gson                                      serializer = new Gson();
 
-    public Integer getActiveNotificationTypeCount() {
+    public Long getActiveNotificationTypeCount() {
         return notificationTypeGeneratedDao
                 .getNotificationTypeCountByNotificationStatus(NotificationStatus.TypeGenerated);
     }
 
     public List<NotificationTypeGenerated> getActiveNotificationTypeGenerated() {
-        List<NotificationTypeGenerated> ntGeneratedList =  notificationTypeGeneratedDao
+        List<NotificationTypeGenerated> ntGeneratedList = notificationTypeGeneratedDao
                 .findByNotificationStatusOrderByCreatedAtAsc(NotificationStatus.TypeGenerated);
-        for(NotificationTypeGenerated ntGenerated: ntGeneratedList) {
+        for (NotificationTypeGenerated ntGenerated : ntGeneratedList) {
             NotificationType notificationType = ntGenerated.getNotificationType();
             notificationType = notificationTypeService.populateNotificationTypeConfig(notificationType);
             ntGenerated.setNotificationType(notificationType);
         }
-        return ntGeneratedList;    
+        return ntGeneratedList;
     }
 
     public List<NotificationTypeGenerated> getNotificationTypesForEventGenerated(EventGenerated eventGenerated) {
+        logger.debug("Generating NotificationTypes for eventGeneratedId " + eventGenerated.getId());
         List<NotificationTypeGenerated> notificationTypeGeneratedList = new ArrayList<NotificationTypeGenerated>();
         List<NotificationType> notificationTypeList = ntMappingService.getNotificationTypesByEventType(eventGenerated
                 .getEventType());

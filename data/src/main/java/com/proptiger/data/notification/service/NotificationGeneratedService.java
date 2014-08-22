@@ -19,6 +19,7 @@ import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
 import com.proptiger.data.notification.repo.NotificationGeneratedDao;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -231,12 +232,14 @@ public class NotificationGeneratedService {
         List<NotificationStatus> notificationStatusList = new ArrayList<NotificationStatus>();
         notificationStatusList.add(NotificationStatus.Scheduled);
         notificationStatusList.add(NotificationStatus.Sent);
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao.getLastNotificationGenerated(
                 notificationStatusList,
                 ntGenerated.getNotificationMedium().getId(),
                 ntGenerated.getForumUser().getUserId(),
                 ntGenerated.getNotificationType().getId(),
-                ntGenerated.getObjectId());
+                ntGenerated.getObjectId(),
+                pageable);
         if (ntGeneratedList != null && !ntGeneratedList.isEmpty()) {
             return ntGeneratedList.get(0);
         }
@@ -248,9 +251,10 @@ public class NotificationGeneratedService {
         List<NotificationStatus> notificationStatusList = new ArrayList<NotificationStatus>();
         notificationStatusList.add(NotificationStatus.Scheduled);
         notificationStatusList.add(NotificationStatus.Sent);
+        LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao
                 .getLastSentNotificationGeneratedInMedium(notificationStatusList, ntGenerated.getForumUser()
-                        .getUserId(), ntGenerated.getNotificationMedium().getId());
+                        .getUserId(), ntGenerated.getNotificationMedium().getId(), pageable);
         if (ntGeneratedList != null && !ntGeneratedList.isEmpty()) {
             return ntGeneratedList.get(0);
         }
@@ -290,5 +294,17 @@ public class NotificationGeneratedService {
 
     public List<NotificationGenerated> getRawNotificationGeneratedList() {
         return notificationGeneratedDao.findByNotificationStatus(NotificationStatus.Generated);
+    }
+
+    public void markNotificationGeneratedScheduled(NotificationGenerated ntGenerated, Date scheduledTime) {
+        notificationGeneratedDao.updatedByNotificationStatusAndScheduleTime(
+                ntGenerated.getId(),
+                NotificationStatus.Scheduled,
+                scheduledTime);
+    }
+
+    public void markNotificationGeneratedSuppressed(NotificationGenerated ntGenerated) {
+        notificationGeneratedDao
+                .updateByNotificationStatus(ntGenerated.getId(), NotificationStatus.SchedulerSuppressed);
     }
 }

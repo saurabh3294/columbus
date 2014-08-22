@@ -32,9 +32,17 @@ public class EventTypeService {
         if (eventType.getOverwriteConfigName() != null) {
             configName = eventType.getOverwriteConfigName();
         }
+        logger.debug(EventTypeConfig.eventTypeConfigMap.toString());
         EventTypeConfig savedEventTypeConfig = EventTypeConfig.eventTypeConfigMap.get(configName);
+        logger.debug("Found eventTypeConfig " + savedEventTypeConfig
+                + " for configName "
+                + configName
+                + " and eventName "
+                + eventType.getName()
+                + " in eventTypeConfig mapping");
+
         if (savedEventTypeConfig == null) {
-            logger.error("EventType ID " + eventType.getId()
+            logger.error("EventType " + eventType.getName()
                     + " do not have mapping of Event Type Config. Using Defaults.");
             savedEventTypeConfig = new EventTypeConfig();
         }

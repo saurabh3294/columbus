@@ -32,7 +32,8 @@ public interface EventGeneratedDao extends PagingAndSortingRepository<EventGener
             EventStatus status,
             Date updatedDate);
 
-    public List<EventGenerated> findByOrderByCreatedDateDesc(Pageable pageable);
+    @Query("Select E from EventGenerated E ORDER BY E.createdDate Desc")
+    public List<EventGenerated> getLatestEventGenerated(Pageable pageable);
 
     @Modifying
     @Query("Update EventGenerated E set E.eventStatus = ?1 where E.eventStatus = ?2 and E.id=?3 ")

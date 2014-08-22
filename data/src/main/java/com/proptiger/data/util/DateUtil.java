@@ -3,7 +3,10 @@ package com.proptiger.data.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,6 +157,13 @@ public class DateUtil {
         calendar.add(Calendar.MINUTE, minutesToAdd);
         return calendar.getTime();
     }
+    
+    public static Date addSeconds(Date baseDate, int secondsToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.SECOND, secondsToAdd);
+        return calendar.getTime();
+    }
 
     public static Date getFirstDayOfCurrentMonth(Date currentDate) {
         Calendar cal = Calendar.getInstance();
@@ -162,5 +172,18 @@ public class DateUtil {
         cal.set(Calendar.HOUR_OF_DAY, 0);
 
         return cal.getTime();
+    }
+    
+    public static Date getMaxDate(List<Date> dates) {
+        if (dates == null || dates.isEmpty()) {
+            return null;
+        }
+        Collections.sort(dates, new Comparator<Date>(){          
+            @Override
+            public int compare(Date o1, Date o2) {
+                return o2.compareTo(o1);
+            }
+        });
+        return dates.get(0);
     }
 }

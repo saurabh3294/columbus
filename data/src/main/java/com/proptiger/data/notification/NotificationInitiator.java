@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.generator.NotificationMessageGenerator;
 import com.proptiger.data.notification.generator.NotificationTypeGenerator;
-import com.proptiger.data.notification.schedular.NotificationScheduler;
+import com.proptiger.data.notification.scheduler.NotificationScheduler;
 import com.proptiger.data.notification.sender.NotificationSender;
 
 /**
@@ -22,8 +22,9 @@ import com.proptiger.data.notification.sender.NotificationSender;
 @Component
 public class NotificationInitiator {
 
-    private static Logger                logger = LoggerFactory.getLogger(NotificationInitiator.class);
-    
+    private static Logger                logger                       = LoggerFactory
+                                                                              .getLogger(NotificationInitiator.class);
+
     private static int                   EMAIL_NOTIFICATION_MEDIUM_ID = 1;
 
     @Autowired
@@ -44,9 +45,10 @@ public class NotificationInitiator {
     /**
      * Generates the Notification Types from events at regular intervals
      */
-    //@Scheduled(fixedDelay = 600000)
+    // @Scheduled(fixedDelay = 60000000)
     public void notificationTypeGenerator() {
 
+        logger.debug("NotificationInitiator started generating notificationType.");
         if (!notificationTypeGenerator.isNotificationGenerationRequired()) {
             logger.info("NotificationTypeGenerator: Skipping NotificationType Generation.");
             return;
@@ -61,7 +63,7 @@ public class NotificationInitiator {
      * Generates the Notification Messages from NotificationTypes at regular
      * intervals
      */
-    //@Scheduled(fixedDelay = 600000)
+    // @Scheduled(fixedDelay = 600000)
     public void notificationMessageGenerator() {
 
         if (!notificationMessageGenerator.isNotificationMessageGenerationRequired()) {
@@ -79,19 +81,19 @@ public class NotificationInitiator {
      * Generates the NotificationGenerated from NotificationMessages at regular
      * intervals
      */
-    @Scheduled(fixedDelay=30000)
+    //@Scheduled(fixedDelay = 30000)
     public void notificationGenerator() {
         Thread.currentThread().setName("Notification Generator");
         logger.info("NotificationGenerator : Initiating Notification Generation.");
         Integer numberOfNotifications = notificationGenerator.generateNotifications();
-        logger.info(" Number of Notification Generated are : " +  numberOfNotifications);
+        logger.info(" Number of Notification Generated are : " + numberOfNotifications);
     }
-    
+
     /**
      * Get all the Notifications with NotificationGenerated status and mark them
      * as Scheduled with appropriate Schedule time
      */
-    //@Scheduled(fixedDelay = 600000)
+    // @Scheduled(fixedDelay = 600000)
     public void notificationSchedular() {
         logger.info("NotificationSchedular: Scheduling Generated Notification.");
         Integer numberOfScheduledNtGenerated = notificationSchedular.scheduleNotifications();

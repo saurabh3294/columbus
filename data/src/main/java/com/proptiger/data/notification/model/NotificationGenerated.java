@@ -18,7 +18,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.google.gson.annotations.Expose;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -31,29 +30,29 @@ public class NotificationGenerated extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = 7884487780495109288L;
+    private static final long          serialVersionUID = 7884487780495109288L;
 
     @Id
     @GeneratedValue
     @Column(name = "id")
     private int                        id;
 
-    @OneToOne(fetch=FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_message_id")
-    private NotificationMessage     notificationMessage;
+    private NotificationMessage        notificationMessage;
 
-    @OneToOne(fetch=FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_medium_id")
-    private NotificationMedium      notificationMedium;
+    private NotificationMedium         notificationMedium;
 
-    @OneToOne(fetch=FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_type_id")
     private NotificationType           notificationType;
 
     @Column(name = "user_id")
-    private Integer userId;
-    
-    @OneToOne(fetch=FetchType.EAGER)
+    private Integer                    userId;
+
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private ForumUser                  forumUser;
 
@@ -75,23 +74,23 @@ public class NotificationGenerated extends BaseModel {
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private NotificationStatus         notificationStatus;
-    
+
     @Column(name = "merged_notification_message_id")
-    private Integer mergeNotificationMessageId;
+    private Integer                    mergeNotificationMessageId;
 
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
-    
-    @Column (name = "object_id")
-    private Integer                     objectId;
-    
+
+    @Column(name = "object_id")
+    private Integer                    objectId;
+
     @PreUpdate
-    public void populatePreUpdateFields(){
+    public void populatePreUpdateFields() {
         this.updatedAt = new Date();
     }
-    
+
     @PrePersist
-    public void populatePrePersistFields(){
+    public void populatePrePersistFields() {
         this.createdAt = new Date();
         this.notificationStatus = NotificationStatus.Generated;
         populatePreUpdateFields();

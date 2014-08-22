@@ -2,7 +2,6 @@ package com.proptiger.data.notification.generator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +45,7 @@ public class NotificationGenerator {
 
         List<NotificationGenerated> scheduledNotificationGeneratedList = notificationGeneratedService
                 .getScheduledAndNonExpiredNotifications();
-        
-        
+
         logger.info("Fetch " + scheduledNotificationGeneratedList.size()
                 + " scheduled Notification Generated from database.");
         logger.debug("Notification Generated Retrieved " + Serializer.toJson(scheduledNotificationGeneratedList));

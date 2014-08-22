@@ -133,6 +133,10 @@ public class NotificationMessageService {
         
         NotificationType notiType = notiTypeService.findOne(notificationTypeId);
         ForumUser forumUser = forumUserService.findOne(userId);
+        return createNewNotificationMessageObject(notiType, forumUser);
+    }
+
+    public NotificationMessage createNewNotificationMessageObject(NotificationType notiType, ForumUser forumUser) {
         NotificationMessage notificationMessage = new NotificationMessage();
         notificationMessage.setUserId(forumUser.getUserId());
         notificationMessage.setNotificationType(notiType);
@@ -155,10 +159,10 @@ public class NotificationMessageService {
         List<NotificationMessage> notificationMessages = new ArrayList<NotificationMessage>();
         for (ForumUser forumUser : userDataList.keySet()) {
             NotificationMessagePayload payload = userDataList.get(forumUser);
-            NotificationMessage nMessage = new NotificationMessage();
+            NotificationMessage nMessage = createNewNotificationMessageObject(
+                    ntGenerated.getNotificationType(),
+                    forumUser);
             nMessage.setNotificationTypeGeneratedId(ntGenerated.getId());
-            nMessage.setNotificationType(ntGenerated.getNotificationType());
-            nMessage.setUserId(forumUser.getUserId());
             nMessage.setNotificationMessagePayload(payload);
             notificationMessages.add(nMessage);
         }
@@ -179,7 +183,7 @@ public class NotificationMessageService {
             List<ForumUser> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
             nmPayloadMap = nmProcessor.getNotificationMessagePayloadBySubscribedUserList(userList, ntGenerated);
         }
-        else if (NotificationTypeUserStrategy.DefaultMinusUnsubscribed.equals(notificationType.getUserStrategy())) {
+        else if (NotificationTypeUserStrategy.MinusUnsubscribed.equals(notificationType.getUserStrategy())) {
             List<ForumUser> unsubscribedUserList = userNTSubscriptionService
                     .getUnsubscribedUsersByNotificationType(notificationType);
             nmPayloadMap = nmProcessor.getNotificationMessagePayloadByUnsubscribedUserList(
