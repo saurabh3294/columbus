@@ -3,6 +3,7 @@ package com.proptiger.data.service.marketplace;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,7 +25,9 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingsDao;
 import com.proptiger.data.service.CompanyService;
+import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -53,19 +56,24 @@ public class LeadOfferService {
     @Autowired
     private LeadService             leadService;
 
+    @Autowired
+    private LeadTaskService         leadTaskService;
+
     /**
      * 
      * @param leadOfferedListing
      * @return
      */
     public List<LeadOfferedListing> offerListings(List<Integer> listingIds, int leadOfferId) {
-        List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdNotIn(
+        List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdIn(
                 leadOfferId,
                 listingIds);
 
-        if (leadOfferedListings != null) {
-            for (LeadOfferedListing leadOfferedListing : leadOfferedListings) {
-                leadOfferedListingDao.saveAndFlush(leadOfferedListing);
+        Set<Integer> existingListingIds = extractListingIds(leadOfferedListings);
+
+        for (Integer listingId : listingIds) {
+            if (!existingListingIds.contains(listingId)) {
+                leadOfferedListingDao.saveAndFlush(new LeadOfferedListing(leadOfferId, listingId));
             }
         }
 
@@ -73,6 +81,29 @@ public class LeadOfferService {
     }
 
     /**
+     * extracts listing ids from leadoffered listing object
+     * 
+     * @param leadOfferedListings
+     * @return
+     */
+
+    private Set<Integer> extractListingIds(List<LeadOfferedListing> leadOfferedListings) {
+        Set<Integer> listingIds = new HashSet<>();
+
+        if (leadOfferedListings != null) {
+            for (LeadOfferedListing leadOfferedListing : leadOfferedListings) {
+                listingIds.add(leadOfferedListing.getListingId());
+            }
+        }
+
+        return listingIds;
+    }
+
+    /**
+     * 
+     * get lead function which gets leadoffer data, lead data,lead requirement
+     * data, client data according to the fields field in selector
+     * 
      * @param agentId
      * @param selector
      * @return
@@ -99,7 +130,7 @@ public class LeadOfferService {
                 List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
                 for (LeadOffer leadOffer : paginatedResponse.getResults()) {
-                    leadOffer.getLead().setRequirements(requirements.get(leadOffer.getId()));
+                    leadOffer.getLead().setRequirements(requirements.get(leadOffer.getLeadId()));
                 }
             }
 
@@ -122,6 +153,14 @@ public class LeadOfferService {
         return paginatedResponse;
     }
 
+    /**
+     * 
+     * gets lead requirements in hashmap with key leadids
+     * 
+     * @param leadOfferIds
+     * @return
+     */
+
     private Map<Integer, List<LeadRequirement>> getLeadRequirements(List<Integer> leadIds) {
         Map<Integer, List<LeadRequirement>> requirementsMap = new HashMap<>();
         for (LeadRequirement leadRequirement : leadRequirementsService.getRequirements(leadIds)) {
@@ -129,12 +168,18 @@ public class LeadOfferService {
             if (!requirementsMap.containsKey(leadId)) {
                 requirementsMap.put(leadId, new ArrayList<LeadRequirement>());
             }
-
             requirementsMap.get(leadId).add(leadRequirement);
         }
-
         return requirementsMap;
     }
+
+    /**
+     * 
+     * extracts lead ids from leadoffer objects
+     * 
+     * @param leadOffers
+     * @return
+     */
 
     private List<Integer> extractLeadIds(List<LeadOffer> leadOffers) {
         List<Integer> leadIds = new ArrayList<Integer>();
@@ -144,6 +189,13 @@ public class LeadOfferService {
         return leadIds;
     }
 
+    /**
+     * extracts clientIds from list of leadoffer objects
+     * 
+     * @param leadOffers
+     * @return
+     */
+
     private List<Integer> extractClientIds(List<LeadOffer> leadOffers) {
         List<Integer> clientIds = new ArrayList<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
@@ -152,20 +204,32 @@ public class LeadOfferService {
         return clientIds;
     }
 
+    /**
+     * 
+     * gets lead offer listings in hashmap with key leadofferids
+     * 
+     * @param leadOfferIds
+     * @return
+     */
+
     private Map<Integer, List<Listing>> getLeadOfferedListing(List<Integer> leadOfferIds) {
-
         Map<Integer, List<Listing>> listingMap = new HashMap<>();
-        for (Listing listing : leadOfferDao.getListings(leadOfferIds)) {
-            int listingId = listing.getId();
-            if (!listingMap.containsKey(listingId)) {
-                listingMap.put(listingId, new ArrayList<Listing>());
+        for (LeadOffer.LeadOfferIdListing leadOfferIdListing : leadOfferDao.getListings(leadOfferIds)) {
+            int leadOfferId = leadOfferIdListing.getLeadOfferId();
+            if (!listingMap.containsKey(leadOfferId)) {
+                listingMap.put(leadOfferId, new ArrayList<Listing>());
             }
-
-            listingMap.get(listingId).add(listing);
+            listingMap.get(leadOfferId).add(leadOfferIdListing.getListing());
         }
-
         return listingMap;
     }
+
+    /**
+     * extract list of leadOfferIds from List of leadOffer Objects
+     * 
+     * @param leadOffers
+     * @return
+     */
 
     private List<Integer> extractLeadOfferIds(List<LeadOffer> leadOffers) {
         List<Integer> leadOfferIds = new ArrayList<>();
@@ -194,13 +258,56 @@ public class LeadOfferService {
         return leadOfferDao.save(offer);
     }
 
+    /**
+     * 
+     * @param leadOfferId
+     * @return listings for that lead offer id
+     */
     public PaginatedResponse<List<Listing>> getListings(int leadOfferId) {
-        List<Listing> listings = leadOfferDao.getListings(Collections.singletonList(leadOfferId));
+        List<Listing> listings = new ArrayList<>();
+        for (LeadOffer.LeadOfferIdListing leadOfferIdListing : leadOfferDao.getListings(Collections
+                .singletonList(leadOfferId))) {
+            listings.add(leadOfferIdListing.getListing());
+        }
+
         return new PaginatedResponse<List<Listing>>(listings, listings.size());
     }
 
     /**
+     * Finds entry for logged in agent for that lead offer id and updates only
+     * status field in marketplace.lead_offer only when previous status is
+     * offered and changing it to new or decline.
+     * 
+     * @param leadOffer
+     * @param leadOfferId
+     * @param userId
+     * @return
+     */
+
+    public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
+        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
+        if (leadOfferInDB == null) {
+            throw new BadRequestException("Invalid lead offer");
+        }
+
+        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
+            if (leadOffer.getStatusId() == LeadOfferStatus.New.getLeadOfferStatusId()) {
+                leadTaskService.createDefaultLeadTaskForLeadOffer(leadOfferInDB);
+                leadOfferInDB.setStatusId(leadOffer.getStatusId());
+            }
+
+            if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getLeadOfferStatusId()) {
+                leadOfferInDB.setStatusId(leadOffer.getStatusId());
+            }
+        }
+
+        leadOfferDao.save(leadOfferInDB);
+        return leadOfferInDB;
+    }
+
+    /**
      * utility method for updating lead offer status
+     * 
      * @param leadOfferId
      * @param statusId
      * @return

@@ -20,6 +20,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
 
@@ -142,4 +143,33 @@ public class LeadOffer extends BaseModel {
         this.listings = listings;
     }
     
+    public static class LeadOfferIdListing
+    {
+        private Integer leadOfferId;
+        private Listing listing;
+
+        public LeadOfferIdListing() {}
+
+        public LeadOfferIdListing(Integer leadOfferId, Listing listings)
+        {
+            this.leadOfferId = leadOfferId;
+            this.listing = listings;
+        }
+
+        public Integer getLeadOfferId() {
+            return leadOfferId;
+        }
+
+        public void setLeadOfferId(Integer leadOfferId) {
+            this.leadOfferId = leadOfferId;
+        }
+
+        public Listing getListing() {
+            return listing;
+        }
+
+        public void setListing(Listing listing) {
+            this.listing = listing;
+        }
+    }
 }

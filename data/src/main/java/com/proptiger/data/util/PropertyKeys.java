@@ -56,6 +56,7 @@ public final class PropertyKeys {
     public static final String ILLEGAL_API_ACCESS_THRESHOLD_COUNT         = "illegal.api.access.threshold.count";
     public static final String ENABLE_CRAWL_PREVENTAION                   = "enable.crawl.prevention";
     public static final String ENABLE_CRAWL_PREVENTAION_WARNING           = "enable.crawl.prevention.warning";
+    public static final String ENABLE_CRAWL_PREVENTION_TEST_SERVER        = "enable.crawl.prevention.test.server";
     public static final String MAIL_FROM_SUPPORT                          = "mail.from.support";
 
     public static final String MARKETPLACE_MAX_BIDDING_CYCLE_COUNT        = "marketplace.max.bidding.cycle.count";
