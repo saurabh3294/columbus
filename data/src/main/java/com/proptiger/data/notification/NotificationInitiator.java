@@ -63,9 +63,10 @@ public class NotificationInitiator {
      * Generates the Notification Messages from NotificationTypes at regular
      * intervals
      */
-    // @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 60000000)
     public void notificationMessageGenerator() {
-
+        
+        logger.debug("NotificationInitiator started generating notificationMessage.");
         if (!notificationMessageGenerator.isNotificationMessageGenerationRequired()) {
             logger.info("NotificationMessageGenerator: Skipping NotificationMessage Generation.");
             return;

@@ -14,5 +14,5 @@ public interface NotificationMessageDao extends JpaRepository<NotificationMessag
     List<NotificationMessage> findByNotificationStatus(NotificationStatus notificationStatus, Pageable pageable);
 
     @Query("Select count(id) from NotificationMessage N where N.notificationStatus = ?1 ")
-    public Integer getNotificationMessageCountByNotificationStatus(NotificationStatus status);
+    public Long getNotificationMessageCountByNotificationStatus(NotificationStatus status);
 }

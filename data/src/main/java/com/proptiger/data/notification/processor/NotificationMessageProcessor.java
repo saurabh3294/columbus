@@ -9,11 +9,11 @@ import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
 public interface NotificationMessageProcessor {
 
-    public Map<ForumUser, NotificationMessagePayload> getNotificationMessagePayloadBySubscribedUserList(
+    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadBySubscribedUserList(
             List<ForumUser> userList,
             NotificationTypeGenerated ntGenerated);
 
-    public Map<ForumUser, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
+    public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
             List<ForumUser> unsubscribedUserList,
             NotificationTypeGenerated ntGenerated);
 
