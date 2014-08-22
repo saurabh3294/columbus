@@ -2,6 +2,7 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -75,6 +76,14 @@ public class LeadOfferService {
         return leadOfferedListings;
     }
 
+    /**
+     * extracts listing ids from leadoffered listing object
+     * 
+     * @param leadOfferedListings
+     * @return
+     */
+    
+    
     private Set<Integer> extractListingIds(List<LeadOfferedListing> leadOfferedListings) {
         Set<Integer> listingIds = new HashSet<>();
         
@@ -88,6 +97,10 @@ public class LeadOfferService {
     }
 
     /**
+     * 
+     * get lead function which gets leadoffer data, lead data,lead requirement data, client data 
+     * according to the fields field in selector
+     * 
      * @param agentId
      * @param selector
      * @return
@@ -113,8 +126,8 @@ public class LeadOfferService {
             if (fields.contains("requirements")) {
                 List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
-                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
-                    leadOffer.getLead().setRequirements(requirements.get(leadOffer.getId()));
+                for (LeadOffer leadOffer : paginatedResponse.getResults()) {                    
+                    leadOffer.getLead().setRequirements(requirements.get(leadOffer.getLeadId()));
                 }
             }
 
@@ -137,20 +150,36 @@ public class LeadOfferService {
         return paginatedResponse;
     }
 
+    
+    /**
+     * 
+     * gets lead requirements in hashmap with key leadids
+     * 
+     * @param leadOfferIds
+     * @return
+     */
+    
     private Map<Integer, List<LeadRequirement>> getLeadRequirements(List<Integer> leadIds) {
-        Map<Integer, List<LeadRequirement>> requirementsMap = new HashMap<>();
-        for (LeadRequirement leadRequirement : leadRequirementsService.getRequirements(leadIds)) {
+        Map<Integer, List<LeadRequirement>> requirementsMap = new HashMap<>();                        
+        for (LeadRequirement leadRequirement : leadRequirementsService.getRequirements(leadIds)) {                        
             int leadId = leadRequirement.getLeadId();
             if (!requirementsMap.containsKey(leadId)) {
                 requirementsMap.put(leadId, new ArrayList<LeadRequirement>());
             }
-
-            requirementsMap.get(leadId).add(leadRequirement);
-        }
-
+            requirementsMap.get(leadId).add(leadRequirement);            
+        }                
         return requirementsMap;
     }
 
+    
+    /**
+     * 
+     * extracts lead ids from leadoffer objects
+     * 
+     * @param leadOffers
+     * @return
+     */
+    
     private List<Integer> extractLeadIds(List<LeadOffer> leadOffers) {
         List<Integer> leadIds = new ArrayList<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
@@ -159,6 +188,13 @@ public class LeadOfferService {
         return leadIds;
     }
 
+    /**
+     * extracts clientIds from list of leadoffer objects
+     * 
+     * @param leadOffers
+     * @return
+     */
+    
     private List<Integer> extractClientIds(List<LeadOffer> leadOffers) {
         List<Integer> clientIds = new ArrayList<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
@@ -169,7 +205,13 @@ public class LeadOfferService {
 
 
     
-    
+    /**
+     * 
+     * gets lead offer listings in hashmap with key leadofferids
+     * 
+     * @param leadOfferIds
+     * @return
+     */
       
     private Map<Integer, List<Listing>> getLeadOfferedListing(List<Integer> leadOfferIds) {
         Map<Integer, List<Listing>> listingMap = new HashMap<>();
@@ -184,7 +226,7 @@ public class LeadOfferService {
     }
 
     /**
-     * extract 
+     * extract list of leadOfferIds from List of leadOffer Objects
      * 
      * @param leadOffers
      * @return
@@ -230,6 +272,17 @@ public class LeadOfferService {
         }
 
         return new PaginatedResponse<List<Listing>>(listings, listings.size());
+    }
+
+    public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadId, Integer userIdentifier) {        
+        leadOffer.setLeadId(leadId);
+        leadOffer.setUpdatedAt(new Date());        
+        LeadOffer leadOfferInDB = leadOfferDao.findByLeadIdAndAgentId(leadId,userIdentifier);        
+        leadOffer.setId(leadOfferInDB.getId());
+        leadOffer.setAgentId(leadOfferInDB.getAgentId());
+        leadOfferDao.save(leadOffer);
+        
+        return leadOffer;
     }
 }
 
