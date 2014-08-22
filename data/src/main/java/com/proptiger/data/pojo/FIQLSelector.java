@@ -6,32 +6,38 @@ package com.proptiger.data.pojo;
  */
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 
 import com.proptiger.exception.ProAPIException;
 
 public class FIQLSelector implements Cloneable, Serializable {
-    private static final long serialVersionUID         = 1L;
-    private String            fields;
-    private String            filters;
-    private String            group;
-    private String            sort;
-    private int               start                    = 0;
+    private static final long  serialVersionUID         = 1L;
+    private String             fields;
+    private String             filters;
+    private String             group;
+    private String             sort;
+    private int                start                    = 0;
 
-    private int               rows                     = 1000;
+    private int                rows                     = 1000;
 
-    private static final int  maxAllowedRows           = 500000;
+    private static final int   maxAllowedRows           = 500000;
 
-    private static String     monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
-    private static String     monthAlwaysTrueStatement = "month!=1970-01-01";
+    private static String      monthFilterRegex         = "month(!=|=gt=|=ge=|=lt=|=le=|==)20[0-9]{2}-[0-9]{2}-[0-9]{2}";
+    private static String      monthAlwaysTrueStatement = "month!=1970-01-01";
 
-    public static String FIQLSortDescSymbol = "-";
-    
+    public static final String fieldSeperator           = ",";
+    public static final String FIQLSortDescSymbol       = "-";
+
     public String getFields() {
         return fields;
     }
@@ -201,6 +207,22 @@ public class FIQLSelector implements Cloneable, Serializable {
         public String getValue() {
             return value;
         }
+    }
+
+    public Sort getDataDomainSort() {
+        List<Order> orders = new ArrayList<>();
+        List<String> fields = Arrays.asList(sort.split(fieldSeperator));
+        for (String field : fields) {
+            Order order;
+            if (field.startsWith(FIQLSortDescSymbol)) {
+                order = new Order(Direction.DESC, field.substring(1));
+            }
+            else {
+                order = new Order(Direction.ASC, field);
+            }
+            orders.add(order);
+        }
+        return new Sort(orders);
     }
 
     @Override
