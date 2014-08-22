@@ -170,7 +170,7 @@ public class NotificationMessageService {
             List<ForumUser> userList = userNTSubscriptionService.getSubscribedUsersByNotificationType(notificationType);
             nmPayloadMap = nmProcessor.getNotificationMessagePayloadBySubscribedUserList(userList, ntGenerated);
         }
-        else if (NotificationTypeUserStrategy.DefaultMinusUnsubscribed.equals(notificationType.getUserStrategy())) {
+        else if (NotificationTypeUserStrategy.MinusUnsubscribed.equals(notificationType.getUserStrategy())) {
             List<ForumUser> unsubscribedUserList = userNTSubscriptionService
                     .getUnsubscribedUsersByNotificationType(notificationType);
             nmPayloadMap = nmProcessor.getNotificationMessagePayloadByUnsubscribedUserList(

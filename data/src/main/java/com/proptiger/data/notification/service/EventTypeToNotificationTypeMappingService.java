@@ -1,12 +1,15 @@
 package com.proptiger.data.notification.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +21,16 @@ import com.proptiger.data.notification.repo.EventTypeToNotificationTypeMappingDa
 @Service
 public class EventTypeToNotificationTypeMappingService {
 
+    private static Logger                               logger                         = LoggerFactory
+                                                                                               .getLogger(EventTypeToNotificationTypeMappingService.class);
+
     @Autowired
     private EventTypeToNotificationTypeMappingDao       ntMappingDao;
 
     @Autowired
     private NotificationTypeService                     notificationTypeService;
 
-    private static Map<Integer, List<NotificationType>> eventTypeToNotificationTypeMap;
+    private static Map<Integer, List<NotificationType>> eventTypeToNotificationTypeMap = new HashMap<Integer, List<NotificationType>>();
 
     @PostConstruct
     private void constuctMappingFromDB() {
@@ -53,8 +59,10 @@ public class EventTypeToNotificationTypeMappingService {
     public List<NotificationType> getNotificationTypesByEventType(EventType eventType) {
         List<NotificationType> notificationTypes = eventTypeToNotificationTypeMap.get(eventType.getId());
         if (notificationTypes == null) {
+            logger.debug("Cannot find NotificationTypes for eventType " + eventType.getName());
             return new ArrayList<NotificationType>();
         }
+        logger.debug("Found " + notificationTypes.size() + " NotificationTypes for eventType " + eventType.getName());
         return notificationTypes;
     }
 

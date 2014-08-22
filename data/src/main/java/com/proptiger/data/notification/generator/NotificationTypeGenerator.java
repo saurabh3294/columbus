@@ -51,6 +51,7 @@ public class NotificationTypeGenerator {
         Date fromDate = subscriberConfigService.getLastEventDateReadByNotification();
 
         List<EventGenerated> eventGeneratedList = eventGeneratedService.getVerifiedEventsFromDate(fromDate);
+        logger.debug("Found " + eventGeneratedList.size() + " EventGenerateds from Date " + fromDate);
 
         Collections.sort(eventGeneratedList, new Comparator<EventGenerated>() {
             public int compare(EventGenerated event1, EventGenerated event2) {
@@ -66,6 +67,10 @@ public class NotificationTypeGenerator {
         for (EventGenerated eventGenerated : eventGeneratedList) {
             List<NotificationTypeGenerated> ntGeneratedList = ntGeneratedService
                     .getNotificationTypesForEventGenerated(eventGenerated);
+            logger.debug("Generated " + ntGeneratedList.size()
+                    + " NotificationTypeGenerateds from eventGeneratedId "
+                    + eventGenerated.getId());
+
             ntCount += ntGeneratedList.size();
             ntGeneratedService.persistNotificationTypes(eventGenerated, ntGeneratedList);
         }

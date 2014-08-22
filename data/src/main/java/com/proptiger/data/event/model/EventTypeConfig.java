@@ -40,7 +40,7 @@ public class EventTypeConfig extends BaseModel {
 
     private Class<? extends EventTypePayload>    dataClassName         = DefaultEventTypePayload.class;
     private Class<? extends DBEventProcessor>    processorClassName    = PriceChangeProcessor.class;
-    private Class<? extends DBEventVerification> verificationClassName = DBEventVerification.class;
+    private Class<? extends DBEventVerification> verificationClassName = PriceChangeVerification.class;
     private DBEventProcessor                     processorObject;
     private EventTypePayload                     eventTypePayloadObject;
     private DBEventVerification                  eventVerificationObject;

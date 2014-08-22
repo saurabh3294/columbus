@@ -45,7 +45,7 @@ public class NotificationInitiator {
     /**
      * Generates the Notification Types from events at regular intervals
      */
-    //@Scheduled(fixedDelay = 60000000)
+    // @Scheduled(fixedDelay = 60000000)
     public void notificationTypeGenerator() {
 
         logger.debug("NotificationInitiator started generating notificationType.");
