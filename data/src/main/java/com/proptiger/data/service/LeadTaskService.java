@@ -225,7 +225,7 @@ public class LeadTaskService {
      * @return
      */
     @Transactional
-    private LeadTask createDefaultLeadTaskForLeadOffer(LeadOffer leadOffer) {
+    public LeadTask createDefaultLeadTaskForLeadOffer(LeadOffer leadOffer) {
         LeadTask leadTask = new LeadTask();
         int leadOfferId = leadOffer.getId();
         List<LeadTask> leadTasks = leadTaskDao.findByLeadOfferId(leadOfferId);
