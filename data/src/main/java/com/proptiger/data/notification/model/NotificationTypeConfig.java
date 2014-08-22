@@ -29,7 +29,7 @@ public class NotificationTypeConfig {
     public transient static Map<String, NotificationTypeConfig>           notificationTypeConfigMap;
 
     public NotificationTypeConfig(
-            Class<? extends NotificationTypePayload> dataClassName,
+            Class<? extends DefaultNotificationTypePayload> dataClassName,
             Class<? extends NotificationPrimaryKeyProcessor> primaryKeyProcessorClassName,
             Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName,
             Class<? extends NotificationMessageProcessor> notificationMessageProcessorClassName) {
@@ -56,7 +56,7 @@ public class NotificationTypeConfig {
         return dataClassName;
     }
 
-    public void setDataClassName(Class<? extends NotificationTypePayload> dataClassName) {
+    public void setDataClassName(Class<? extends DefaultNotificationTypePayload> dataClassName) {
         this.dataClassName = dataClassName;
     }
 

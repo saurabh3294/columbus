@@ -25,6 +25,7 @@ import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHistory;
+import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
 import com.proptiger.data.service.ForumUserService;
@@ -128,12 +129,19 @@ public class NotificationMessageService {
         return groupNotificationMessageMap;
     }
 
-    public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId) {
+    public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId, Object primaryKeyId) {
+        
         NotificationType notiType = notiTypeService.findOne(notificationTypeId);
         ForumUser forumUser = forumUserService.findOne(userId);
         NotificationMessage notificationMessage = new NotificationMessage();
         notificationMessage.setUserId(forumUser.getUserId());
         notificationMessage.setNotificationType(notiType);
+        
+        NotificationMessagePayload nMessagePayload = new NotificationMessagePayload();
+        NotificationTypePayload nTypePayload = notiType.getNotificationTypeConfig().getNotificationTypePayloadObject();
+        nMessagePayload.setNotificationTypePayload(nTypePayload);
+        nTypePayload.setPrimaryKeyValue(primaryKeyId);
+        notificationMessage.setNotificationMessagePayload(nMessagePayload);
         
         return notificationMessage;
     }

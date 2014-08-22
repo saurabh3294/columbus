@@ -136,7 +136,7 @@ public class NotificationProcessorHandler {
                 parentNotificationByTypeDto = new NotificationByTypeDto();
                 parentNotificationByTypeDto.setNotificationType(notificationTypeService.findOne(parentChildentry
                         .getKey()));
-                notificationMessage = nMessageService.createNotificationMessage(parentChildentry.getKey(), userId);
+                notificationMessage = nMessageService.createNotificationMessage(parentChildentry.getKey(), userId, null);
                 parentNotificationByTypeDto.getNotificationMessages().add(notificationMessage);
                 nMap.put(parentChildentry.getKey(), parentNotificationByTypeDto);
             }
@@ -286,8 +286,10 @@ public class NotificationProcessorHandler {
     }
 
     public void handleInterPrimaryKeyMerging(Map<Integer, NotificationByTypeDto> nMap, Integer userId) {
+        logger.info(" Handling Inter Primary Key Merging");
         Map<Integer, List<Integer>> mergeGroup = notificationTypeService.notificationInterKeyMergeGroupingMap();
-
+        logger.debug(" INTER PRIMARY KEY GROUP "+Serializer.toJson(mergeGroup));
+        
         NotificationByTypeDto parentNotificationByTypeDto;
         Map<Object, NotificationByKeyDto> parentNotificationByKeyMap;
         NotificationByKeyDto parentNotificationByKeyDto;
@@ -306,10 +308,12 @@ public class NotificationProcessorHandler {
                     foundNTypeDtos.add(nMap.get(notificationTypeId));
                 }
             }
+            logger.debug(" FOUND PARENT "+parentChildentry.getKey()+" GROUP "+ Serializer.toJson(foundNTypeDtos));
             if (foundNTypeDtos.size() < 1) {
                 continue;
             }
             groupNotificationsByKey(foundNTypeDtos, groupNotificationByKey);
+            logger.debug(" GROPED NOTIFICATION BY KEY "+Serializer.toJson(groupNotificationByKey));
             if (parentNotificationByTypeDto == null) {
                 parentNotificationByTypeDto = new NotificationByTypeDto();
                 parentNotificationByTypeDto
@@ -327,7 +331,7 @@ public class NotificationProcessorHandler {
                 if (parentNotificationByKeyDto == null) {
                     parentNotificationByKeyDto = new NotificationByKeyDto();
 
-                    notificationMessage = nMessageService.createNotificationMessage(parentChildentry.getKey(), userId);
+                    notificationMessage = nMessageService.createNotificationMessage(parentChildentry.getKey(), userId, entry.getKey());
                     parentNotificationByKeyDto.getNotificationMessages().add(notificationMessage);
                     parentNotificationByKeyMap.put(entry.getKey(), parentNotificationByKeyDto);
                 }

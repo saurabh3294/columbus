@@ -14,7 +14,7 @@ public class NotificationMessagePayload extends BaseModel{
      */
     private static final long serialVersionUID = -2452873800997415163L;
 
-    private DefaultNotificationTypePayload notificationTypePayload ;
+    private NotificationTypePayload notificationTypePayload ;
     
     private Map<String, Object>     payloadDataMap;
 	private List<NotificationMessagePayload> notificationMessagePayloads = new ArrayList<NotificationMessagePayload>();
@@ -38,11 +38,11 @@ public class NotificationMessagePayload extends BaseModel{
         this.notificationMessageUpdateHistories = notificationMessageUpdateHistories;
     }
 
-    public DefaultNotificationTypePayload getNotificationTypePayload() {
+    public NotificationTypePayload getNotificationTypePayload() {
         return notificationTypePayload;
     }
 
-    public void setNotificationTypePayload(DefaultNotificationTypePayload notificationTypePayload) {
+    public void setNotificationTypePayload(NotificationTypePayload notificationTypePayload) {
         this.notificationTypePayload = notificationTypePayload;
     }
 

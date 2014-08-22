@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeConfig;
+import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.repo.NotificationTypeDao;
 
 @Service

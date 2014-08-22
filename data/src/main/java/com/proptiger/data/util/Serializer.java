@@ -23,7 +23,6 @@ public class Serializer {
                 .addDeserializationExclusionStrategy(jsonExclusionStrategy);
 
         gson = gsonBuilder.create();
-
     }
 
     public static Serializer getInstance() {
