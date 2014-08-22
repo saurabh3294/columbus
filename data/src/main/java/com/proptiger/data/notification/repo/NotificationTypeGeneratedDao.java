@@ -13,5 +13,5 @@ public interface NotificationTypeGeneratedDao extends PagingAndSortingRepository
     public List<NotificationTypeGenerated> findByNotificationStatusOrderByCreatedAtAsc(NotificationStatus status);
 
     @Query("Select count(id) from NotificationTypeGenerated N where N.notificationStatus = ?1 ")
-    public Integer getNotificationTypeCountByNotificationStatus(NotificationStatus status);
+    public Long getNotificationTypeCountByNotificationStatus(NotificationStatus status);
 }

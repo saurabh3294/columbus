@@ -45,9 +45,10 @@ public class NotificationInitiator {
     /**
      * Generates the Notification Types from events at regular intervals
      */
-    // @Scheduled(fixedDelay = 600000)
+    //@Scheduled(fixedDelay = 60000000)
     public void notificationTypeGenerator() {
 
+        logger.debug("NotificationInitiator started generating notificationType.");
         if (!notificationTypeGenerator.isNotificationGenerationRequired()) {
             logger.info("NotificationTypeGenerator: Skipping NotificationType Generation.");
             return;
@@ -80,7 +81,7 @@ public class NotificationInitiator {
      * Generates the NotificationGenerated from NotificationMessages at regular
      * intervals
      */
-    @Scheduled(fixedDelay = 30000)
+    //@Scheduled(fixedDelay = 30000)
     public void notificationGenerator() {
         Thread.currentThread().setName("Notification Generator");
         logger.info("NotificationGenerator : Initiating Notification Generation.");

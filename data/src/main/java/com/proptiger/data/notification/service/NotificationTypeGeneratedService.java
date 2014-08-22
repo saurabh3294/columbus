@@ -36,7 +36,7 @@ public class NotificationTypeGeneratedService {
 
     private Gson                                      serializer = new Gson();
 
-    public Integer getActiveNotificationTypeCount() {
+    public Long getActiveNotificationTypeCount() {
         return notificationTypeGeneratedDao
                 .getNotificationTypeCountByNotificationStatus(NotificationStatus.TypeGenerated);
     }

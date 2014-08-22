@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,9 @@ import com.proptiger.data.notification.repo.SubscriberDao;
 
 @Service
 public class SubscriberConfigService {
+
+    private static Logger                          logger              = LoggerFactory
+                                                                               .getLogger(SubscriberConfigService.class);
 
     @Autowired
     private SubscriberConfigDao                    subscriberConfigDao;
@@ -76,20 +81,29 @@ public class SubscriberConfigService {
     }
 
     public Date getLastEventDateReadByNotification() {
-        Date lastEventDate = subscriberMap.get(Subscriber.SubscriberName.Notification).getLastEventDate();
-        if (lastEventDate == null) {
+        Subscriber subscriber = subscriberMap.get(Subscriber.SubscriberName.Notification);
+        if (subscriber == null) {
+            logger.info("Notification Subscriber not found in DB");
+        }
+        Date lastEventDate = subscriber.getLastEventDate();
+        logger.debug("Date of last consumend event by Notification Subscriber is " + lastEventDate);
+        
+        if (lastEventDate == null) {          
             EventGenerated eventGenerated = eventGeneratedService.getLatestEventGenerated();
+            logger.debug("Latest event generated: " + eventGenerated);
+            
             if (eventGenerated != null) {
                 lastEventDate = eventGenerated.getCreatedDate();
             }
             else {
                 lastEventDate = new Date();
             }
+            logger.debug("Setting last event date as " + lastEventDate);
             setLastEventDateReadByNotification(lastEventDate);
         }
         return lastEventDate;
     }
-
+    
     public void setLastEventDateReadByNotification(Date lastEventDate) {
         Subscriber subscriber = subscriberMap.get(Subscriber.SubscriberName.Notification);
         subscriber.setLastEventDate(lastEventDate);
