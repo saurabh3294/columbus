@@ -8,6 +8,7 @@ import javax.persistence.TemporalType;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
+@Deprecated
 public class DefaultNotificationTypePayload extends NotificationTypePayload {
 
     private String            transactionIdName;

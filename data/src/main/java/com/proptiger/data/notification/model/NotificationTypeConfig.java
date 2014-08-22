@@ -16,7 +16,7 @@ public class NotificationTypeConfig {
         notificationTypeConfigMap = new HashMap<String, NotificationTypeConfig>();
     }
 
-    private transient Class<? extends NotificationTypePayload>            dataClassName                         = DefaultNotificationTypePayload.class;
+    private transient Class<? extends NotificationTypePayload>            dataClassName                         = NotificationTypePayload.class;
     private transient Class<? extends NotificationPrimaryKeyProcessor>    primaryKeyProcessorClassName          = NotificationPrimaryKeyProcessor.class;
     private transient Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName       = NotificationNonPrimaryKeyProcessor.class;
     private transient Class<? extends NotificationMessageProcessor>       notificationMessageProcessorClassName = DefaultNotificationMessageProcessor.class;

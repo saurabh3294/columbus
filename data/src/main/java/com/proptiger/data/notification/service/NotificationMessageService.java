@@ -133,19 +133,21 @@ public class NotificationMessageService {
         
         NotificationType notiType = notiTypeService.findOne(notificationTypeId);
         ForumUser forumUser = forumUserService.findOne(userId);
-        return createNewNotificationMessageObject(notiType, forumUser);
+        
+        NotificationMessage nMessage = createNewNotificationMessageObject(notiType, forumUser);
+        NotificationMessagePayload nMessagePayload = new NotificationMessagePayload();
+        NotificationTypePayload nTypePayload = notiType.getNotificationTypeConfig().getNotificationTypePayloadObject();
+        nMessagePayload.setNotificationTypePayload(nTypePayload);
+        nTypePayload.setPrimaryKeyValue(primaryKeyId);
+        nMessage.setNotificationMessagePayload(nMessagePayload);
+        
+        return nMessage;
     }
 
     public NotificationMessage createNewNotificationMessageObject(NotificationType notiType, ForumUser forumUser) {
         NotificationMessage notificationMessage = new NotificationMessage();
         notificationMessage.setUserId(forumUser.getUserId());
         notificationMessage.setNotificationType(notiType);
-        
-        NotificationMessagePayload nMessagePayload = new NotificationMessagePayload();
-        NotificationTypePayload nTypePayload = notiType.getNotificationTypeConfig().getNotificationTypePayloadObject();
-        nMessagePayload.setNotificationTypePayload(nTypePayload);
-        nTypePayload.setPrimaryKeyValue(primaryKeyId);
-        notificationMessage.setNotificationMessagePayload(nMessagePayload);
         
         return notificationMessage;
     }
