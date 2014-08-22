@@ -45,7 +45,7 @@ public class NotificationInitiator {
     /**
      * Generates the Notification Types from events at regular intervals
      */
-    // @Scheduled(fixedDelay = 60000000)
+    @Scheduled(fixedDelay = 20000)
     public void notificationTypeGenerator() {
 
         logger.debug("NotificationInitiator started generating notificationType.");
@@ -63,7 +63,7 @@ public class NotificationInitiator {
      * Generates the Notification Messages from NotificationTypes at regular
      * intervals
      */
-    @Scheduled(fixedDelay = 60000000)
+    @Scheduled(fixedDelay = 25000)
     public void notificationMessageGenerator() {
         
         logger.debug("NotificationInitiator started generating notificationMessage.");
@@ -94,7 +94,7 @@ public class NotificationInitiator {
      * Get all the Notifications with NotificationGenerated status and mark them
      * as Scheduled with appropriate Schedule time
      */
-    // @Scheduled(fixedDelay = 600000)
+    @Scheduled(fixedDelay = 35000)
     public void notificationSchedular() {
         logger.info("NotificationSchedular: Scheduling Generated Notification.");
         Integer numberOfScheduledNtGenerated = notificationSchedular.scheduleNotifications();
@@ -105,7 +105,8 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    //@Scheduled(cron = "* 10 8-22 * * *")
+    //@Scheduled(cron = "* 1 * * * *")
+    @Scheduled(fixedDelay = 40000)
     public void emailNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via Email.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(EMAIL_NOTIFICATION_MEDIUM_ID);

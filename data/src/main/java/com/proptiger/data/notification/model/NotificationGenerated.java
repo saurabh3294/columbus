@@ -27,6 +27,11 @@ import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 @Table(name = "notification_generated")
 public class NotificationGenerated extends BaseModel {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 7829394463604901590L;
+
     @Id
     @GeneratedValue
     @Column(name = "id")

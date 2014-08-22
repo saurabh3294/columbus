@@ -25,8 +25,8 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
             NotificationStatus newStatus,
             NotificationStatus oldStatus);
 
-    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationMedium NM WHERE NG.notificationStatus = ?1 AND NG.scheduleTime >= ?2 AND NM.id = ?3")
-    public List<NotificationGenerated> findByStatusAndExpiryTimeGreaterThanEqualAndMediumId(
+    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationMedium NM WHERE NG.notificationStatus = ?1 AND NG.scheduleTime <= ?2 AND NM.id = ?3")
+    public List<NotificationGenerated> findByStatusAndExpiryTimeLessThanEqualAndMediumId(
             NotificationStatus scheduled,
             Date date,
             int mediumId);

@@ -5,7 +5,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class NotificationSender {
 
     @Autowired
     private SentNotificationLogService   sentNotificationLogService;
-    
+
     @Transactional
     public Integer sendNotification(int mediumId) {
         Integer numberOfSendNtGen = 0;
@@ -41,7 +40,8 @@ public class NotificationSender {
                 }
                 else {
                     ForumUser forumUser = ntGenerated.getForumUser();
-                    ntGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject().send(mailBody, forumUser);
+                    ntGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
+                            .send(mailBody, forumUser);
                     // Sent NotificationGenerated logging handling will be done
                     // later.
                     // currently notification status of sent NG is marked as
@@ -61,7 +61,7 @@ public class NotificationSender {
                 }
             }
             catch (Exception e) {
-                logger.info("Send Notification failed for Notification -" + ntGenerated.getId());
+                logger.info("Send Notification failed for Notification ID " + ntGenerated.getId());
                 e.printStackTrace();
             }
         }

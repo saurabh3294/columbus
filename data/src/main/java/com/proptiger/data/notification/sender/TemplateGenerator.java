@@ -14,23 +14,23 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.internal.dto.mail.MailBody;
-import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
-import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.service.NotificationTypeNotificationMediumMappingService;
 
 @Service
 public class TemplateGenerator {
-    private static Logger      logger = LoggerFactory.getLogger(TemplateGenerator.class);
-    
-    private static Pattern PATTERN = Pattern.compile("(<.+?>)");
+    private static Logger                                    logger  = LoggerFactory.getLogger(TemplateGenerator.class);
+
+    private static Pattern                                   PATTERN = Pattern.compile("(<.+?>)");
 
     @Autowired
     private NotificationTypeNotificationMediumMappingService ntNmMappingService;
 
     public MailBody generateMailBodyFromTemplate(NotificationGenerated ntGenerated) {
         String template = ntNmMappingService.getTemplate(ntGenerated);
+        logger.debug("Template: " + template);
         Map<String, Object> payloadDataMap = ntGenerated.getNotificationMessagePayload().getExtraAttributes();
+        logger.debug("PayloadDataMap: " + payloadDataMap.toString());
         return getMailBody(ntGenerated, template, payloadDataMap);
     }
 
@@ -39,62 +39,70 @@ public class TemplateGenerator {
             logger.info("Mail Template is null or empty");
             return null;
         }
-        
+
         if (payloadDataMap == null || payloadDataMap.isEmpty()) {
             logger.info("payLoad Data Map is null or empty");
             return null;
         }
+
+//        HashMap<String, String> mailContentMap = getMailContentFromJsonTemplate(template);
+//        if (mailContentMap == null || mailContentMap.isEmpty()) {
+//            return null;
+//        }
+
+//        String subject = replaceTokensWithValue(mailContentMap.get("subject"), payloadDataMap);
+//        String body = replaceTokensWithValue(mailContentMap.get("body"), payloadDataMap);
         
-        HashMap<String, String> mailContentMap = getMailContentFromJsonTemplate(template);
-        if (mailContentMap == null || mailContentMap.isEmpty()) {
-            return null;
-        }
-        
-        String subject = replaceTokensWithValue(mailContentMap.get("subject"), payloadDataMap);
-        String body = replaceTokensWithValue(mailContentMap.get("body"), payloadDataMap);
-        
+        // Using same template for subject and body
+        String subject = replaceTokensWithValue(template, payloadDataMap);
+        String body = replaceTokensWithValue(template, payloadDataMap);
+
         if (subject == null || subject.isEmpty() || body == null || body.isEmpty()) {
             logger.info("Mail Subject or Body is null or empty");
-            //TO DO 
-            //if payloadDataMap does not contain any of the token value in the template
-            // then by default the respective information will be retrieved from DB and it's
+            // TO DO
+            // if payloadDataMap does not contain any of the token value in the
+            // template
+            // then by default the respective information will be retrieved from
+            // DB and it's
             // implementation will be added in phase 2.
             return null;
         }
-        
-        //creating mail body and setting mail subject and mail body.
+
+        // creating mail body and setting mail subject and mail body.
         MailBody mailBody = new MailBody();
         mailBody.setSubject(subject);
         mailBody.setBody(body);
         return mailBody;
     }
 
-    private HashMap<String, String> getMailContentFromJsonTemplate(String template) {
-        HashMap<String,String> map = new HashMap<String,String>();
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            map = mapper.readValue(template, HashMap.class);
-            return map;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    private HashMap<String, String> getMailContentFromJsonTemplate(String template) {
+//        HashMap<String, String> map = new HashMap<String, String>();
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            map = mapper.readValue(template, HashMap.class);
+//            logger.debug("MailContentMap: " + map.toString());
+//            return map;
+//        }
+//        catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     private String replaceTokensWithValue(String template, Map<String, Object> payloadDataMap) {
         List<String> tokens = getTokenList(template);
         if (tokens == null || tokens.isEmpty()) {
             return template;
         }
-        for(String token : tokens) {
-            Object tokenValueObj = payloadDataMap.get(token.substring(1, token.length()-1));
-            if (tokenValueObj == null ) {
+        for (String token : tokens) {
+            Object tokenValueObj = payloadDataMap.get(token.substring(1, token.length() - 1));
+            if (tokenValueObj == null) {
                 logger.info("Token value NOT present in payload Data Map for token -" + token);
                 return null;
             }
             String tokenValue = "";
             if (!(tokenValueObj instanceof String)) {
-                tokenValue = tokenValueObj +"";
+                tokenValue = tokenValueObj + "";
             }
             else {
                 tokenValue = (String) tokenValueObj;

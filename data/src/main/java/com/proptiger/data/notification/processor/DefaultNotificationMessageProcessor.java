@@ -14,7 +14,6 @@ import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
-import com.proptiger.data.notification.model.payload.DefaultNotificationTypePayload;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.service.marketplace.ListingService;
@@ -43,18 +42,18 @@ public class DefaultNotificationMessageProcessor implements NotificationMessageP
     public Map<Integer, NotificationMessagePayload> getNotificationMessagePayloadByUnsubscribedUserList(
             List<ForumUser> unsubscribedUserList,
             NotificationTypeGenerated ntGenerated) {
-        
+
         Map<Integer, NotificationMessagePayload> payloadMap = new HashMap<Integer, NotificationMessagePayload>();
 
         Map<Integer, ForumUser> unsubscribedUserMap = new HashMap<Integer, ForumUser>();
         for (ForumUser user : unsubscribedUserList) {
             unsubscribedUserMap.put(user.getUserId(), user);
         }
-        
+
         logger.debug(unsubscribedUserMap.toString());
         NotificationTypePayload notificationTypePayload = ntGenerated.getNotificationTypePayload();
         Integer listingId = ((Number) notificationTypePayload.getPrimaryKeyValue()).intValue();
-        
+
         logger.debug("Getting listing for listing id: " + listingId);
         Listing listing = listingService.getListingByListingId(listingId);
 
@@ -64,18 +63,21 @@ public class DefaultNotificationMessageProcessor implements NotificationMessageP
 
         logger.debug("Getting portfolioListings for property id: " + propertyId);
         List<PortfolioListing> portfolioListings = portfolioService.getActivePortfolioListingsByPropertyId(propertyId);
-        logger.debug("Found " +  portfolioListings.size() + " portfolioListings for listing id " + listingId + " and property id " + propertyId);
+        logger.debug("Found " + portfolioListings.size()
+                + " portfolioListings for listing id "
+                + listingId
+                + " and property id "
+                + propertyId);
         for (PortfolioListing portfolioListing : portfolioListings) {
             if (unsubscribedUserMap.get(portfolioListing.getUserId()) != null) {
                 logger.debug("Ignoring unsubscribed user : " + portfolioListing.getUserId());
                 continue;
             }
 
-            DefaultNotificationTypePayload defaultNTPayload = (DefaultNotificationTypePayload) notificationTypePayload;
             Double percentageDifference = getPercentageDifference(
                     portfolioListing.getBasePrice(),
                     portfolioListing.getListingSize(),
-                    (Double) defaultNTPayload.getNewValue());
+                    (Double) notificationTypePayload.getNewValue());
 
             Map<String, Object> userDataMap = new HashMap<String, Object>();
             userDataMap.put(Tokens.ProjectName.name(), portfolioListing.getProjectName());
@@ -85,8 +87,8 @@ public class DefaultNotificationMessageProcessor implements NotificationMessageP
 
             NotificationMessagePayload nmPayload = new NotificationMessagePayload();
             nmPayload.setExtraAttributes(userDataMap);
-            nmPayload.setNotificationTypePayload((DefaultNotificationTypePayload) notificationTypePayload);
-            
+            nmPayload.setNotificationTypePayload(notificationTypePayload);
+
             payloadMap.put(portfolioListing.getUserId(), nmPayload);
         }
 
@@ -103,8 +105,8 @@ public class DefaultNotificationMessageProcessor implements NotificationMessageP
 
     private String getPercentageChangeString(Double percentageDifference) {
         if (percentageDifference < 0) {
-            return " decreased";
+            return "decreased";
         }
-        return " increased";
+        return "increased";
     }
 }

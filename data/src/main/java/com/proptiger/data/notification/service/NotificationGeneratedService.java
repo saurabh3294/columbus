@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.generator.NotificationGenerator;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;
@@ -53,27 +52,28 @@ public class NotificationGeneratedService {
             return new ArrayList<NotificationGenerated>();
         }
 
-        for (NotificationGenerated nGenerated : notificationGenerateds) {
-            populateDataOnLoad(nGenerated);
-        }
+        populateDataOnLoad(notificationGenerateds);
 
         return notificationGenerateds;
     }
 
-    public void populateDataOnLoad(NotificationGenerated nGenerated) {
-        String data = nGenerated.getData();
-        nGenerated.setNotificationMessagePayload(Serializer.fromJson(data, NotificationMessagePayload.class));
-        NotificationType notificationType = nGenerated.getNotificationType();
-        notificationTypeService.populateNotificationTypeConfig(notificationType);
+    public void populateDataOnLoad(List<NotificationGenerated> notificationGenerateds) {
+        for (NotificationGenerated nGenerated : notificationGenerateds) {
+            String data = nGenerated.getData();
+            nGenerated.setNotificationMessagePayload(Serializer.fromJson(data, NotificationMessagePayload.class));
+            NotificationType notificationType = nGenerated.getNotificationType();
+            notificationTypeService.populateNotificationTypeConfig(notificationType);
+        }
     }
 
     public List<NotificationGenerated> getScheduledAndReadyNotifications(int mediumId) {
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao
-                .findByStatusAndExpiryTimeGreaterThanEqualAndMediumId(
-                        NotificationStatus.Scheduled,
-                        new Date(),
-                        mediumId);
+                .findByStatusAndExpiryTimeLessThanEqualAndMediumId(NotificationStatus.Scheduled, new Date(), mediumId);
+        if (ntGeneratedList == null) {
+            return new ArrayList<NotificationGenerated>();
+        }
         mediumTypeService.setNotificationMediumSender(ntGeneratedList);
+        populateDataOnLoad(ntGeneratedList);
         return ntGeneratedList;
     }
 
@@ -211,7 +211,7 @@ public class NotificationGeneratedService {
         nGenerated.setNotificationMessage(notificationMessage);
         nGenerated.setNotificationMessagePayload(notificationMessage.getNotificationMessagePayload());
         nGenerated.setNotificationType(notificationMessage.getNotificationType());
-        
+
         logger.debug(Serializer.toJson(notificationMessage));
         NotificationTypePayload payload = notificationMessage.getNotificationMessagePayload()
                 .getNotificationTypePayload();

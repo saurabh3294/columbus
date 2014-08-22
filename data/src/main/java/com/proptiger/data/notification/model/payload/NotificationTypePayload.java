@@ -1,6 +1,7 @@
 package com.proptiger.data.notification.model.payload;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class NotificationTypePayload implements Serializable {
     private Object                              oldValue;
     private Object                              newValue;
 
-    private List<NotificationTypeUpdateHistory> notificationTypeUpdateHistories;
+    private List<NotificationTypeUpdateHistory> notificationTypeUpdateHistories = new ArrayList<NotificationTypeUpdateHistory>();
 
     public void populatePayloadValues(EventTypePayload eventTypePayload) {
         DefaultEventTypePayload defaultEventTypePayload = (DefaultEventTypePayload) eventTypePayload;
