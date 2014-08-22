@@ -56,7 +56,7 @@ public class ProjectCMSAmenity extends BaseModel {
     
     @Column(name = "VERIFIED")
     @JsonIgnore
-    private Boolean verified;
+    private boolean verified;
 
     public long getId() {
         return id;
@@ -98,11 +98,11 @@ public class ProjectCMSAmenity extends BaseModel {
         this.amenityId = amenityId;
     }
 
-    public Boolean getVerified() {
+    public boolean getVerified() {
         return verified;
     }
 
-    public void setVerified(Boolean verified) {
+    public void setVerified(boolean verified) {
         this.verified = verified;
     }
 
