@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.NotificationGenerated;
@@ -30,9 +31,11 @@ public class NotificationScheduler {
     // Map of userId and medium to priority of Notifications Scheduled
     Map<String, Integer>                 priorityMap = new HashMap<String, Integer>();
 
+    @Transactional
     public Integer scheduleNotifications() {
         Integer scheduledNtGeneratedCount = 0;
         List<NotificationGenerated> notificationGeneratedList = nGeneratedService.getRawNotificationGeneratedList();
+
         notificationGeneratedList = sortNotificationGeneratedByPriority(notificationGeneratedList);
 
         for (NotificationGenerated nGenerated : notificationGeneratedList) {
@@ -41,25 +44,37 @@ public class NotificationScheduler {
             MediumType mediumType = nGenerated.getNotificationMedium().getName();
             Integer lastPriority = priorityMap.get(generatePriorityMapKey(userId, mediumType));
             Integer currentPriority = nGenerated.getNotificationType().getPriority();
-
+            
+            //lesser the priority numeric value higher the priority ie 1 corresponds to higher priority than 2.
             if (lastPriority != null && lastPriority < currentPriority) {
                 logger.info("Suppressing notificationGeneratedId: " + nGenerated.getId()
                         + " because a higher priority notification was already scheduled/sent.");
                 nGeneratedService.markNotificationGeneratedSuppressed(nGenerated);
+                continue;
             }
 
             NotificationType notificationType = nGenerated.getNotificationType();
 
-            Date lastScheduledNT = nGeneratedService.getLastScheduledOrSendNotificationGeneratedSameAs(nGenerated)
-                    .getUpdatedAt();
-            Date lastScheduledInMedium = nGeneratedService.getLastScheduledOrSentNotificationGeneratedInMediumSameAs(
-                    nGenerated).getUpdatedAt();
+            Date lastScheduledNTDate = new Date();
+            NotificationGenerated lastScheduledOrSentNtGenerated = nGeneratedService
+                    .getLastScheduledOrSendNotificationGeneratedSameAs(nGenerated);
+            if (lastScheduledOrSentNtGenerated != null) {
+                lastScheduledNTDate = lastScheduledOrSentNtGenerated.getUpdatedAt();
+            }
+
+            Date lastScheduledInMediumDate = new Date();
+            NotificationGenerated lastScheduledOrSentNtGeneratedInMedium = nGeneratedService
+                    .getLastScheduledOrSentNotificationGeneratedInMediumSameAs(nGenerated);
+            if (lastScheduledOrSentNtGeneratedInMedium != null) {
+                lastScheduledInMediumDate = lastScheduledOrSentNtGeneratedInMedium.getUpdatedAt();
+            }
 
             List<Date> dateList = new ArrayList<Date>();
-            dateList.add(DateUtil.addSeconds(lastScheduledNT, notificationType.getFrequencyCycleInSeconds().intValue()));
-            dateList.add(DateUtil.addSeconds(lastScheduledInMedium, nGenerated.getNotificationMedium()
+            dateList.add(DateUtil.addSeconds(lastScheduledNTDate, notificationType.getFrequencyCycleInSeconds()
+                    .intValue()));
+            dateList.add(DateUtil.addSeconds(lastScheduledInMediumDate, nGenerated.getNotificationMedium()
                     .getFrequencyCycleInSeconds().intValue()));
-
+            
             Date nextScheduleDate = DateUtil.getMaxDate(dateList);
             if (nextScheduleDate.after(new Date()) && !notificationType.getCanReschedule()) {
                 logger.info("Suppressing notificationGeneratedId: " + nGenerated.getId()
@@ -77,6 +92,7 @@ public class NotificationScheduler {
                 Date newScheduleDate = DateUtil.getMaxDate(dateList);
                 logger.info("Scheduling notificationGeneratedId: " + nGenerated.getId() + " at " + newScheduleDate);
                 nGeneratedService.markNotificationGeneratedScheduled(nGenerated, newScheduleDate);
+                priorityMap.put(generatePriorityMapKey(userId, mediumType), nGenerated.getNotificationType().getPriority());
                 scheduledNtGeneratedCount++;
             }
         }
