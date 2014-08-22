@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.service.NotificationTypeNotificationMediumMappingService;
 
 @Service
@@ -28,7 +30,7 @@ public class TemplateGenerator {
 
     public MailBody generateMailBodyFromTemplate(NotificationGenerated ntGenerated) {
         String template = ntNmMappingService.getTemplate(ntGenerated);
-        Map<String, Object> payloadDataMap = ntGenerated.getNotificationMessagePayload().getPayloadDataMap();
+        Map<String, Object> payloadDataMap = ntGenerated.getNotificationMessagePayload().getExtraAttributes();
         return getMailBody(ntGenerated, template, payloadDataMap);
     }
 
@@ -85,10 +87,17 @@ public class TemplateGenerator {
             return template;
         }
         for(String token : tokens) {
-            String tokenValue = (String) payloadDataMap.get(token.substring(1, token.length()-1));
-            if (tokenValue == null ) {
+            Object tokenValueObj = payloadDataMap.get(token.substring(1, token.length()-1));
+            if (tokenValueObj == null ) {
                 logger.info("Token value NOT present in payload Data Map for token -" + token);
                 return null;
+            }
+            String tokenValue = "";
+            if (!(tokenValueObj instanceof String)) {
+                tokenValue = tokenValueObj +"";
+            }
+            else {
+                tokenValue = (String) tokenValueObj;
             }
             template = template.replaceAll(token, tokenValue);
         }
