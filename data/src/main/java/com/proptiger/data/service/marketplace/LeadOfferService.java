@@ -2,7 +2,6 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -275,8 +274,8 @@ public class LeadOfferService {
     }
 
     /**
-     * Finds entry for logged in agent for that lead offer id and
-     * updates only status field in marketplace.lead_offer only when previous status is 
+     * Finds entry for logged in agent for that lead offer id and updates only
+     * status field in marketplace.lead_offer only when previous status is
      * offered and changing it to new or decline.
      * 
      * @param leadOffer
@@ -284,15 +283,14 @@ public class LeadOfferService {
      * @param userId
      * @return
      */
-    
-    public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {                
+
+    public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
         LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
         if (leadOfferInDB == null) {
             throw new BadRequestException("Invalid lead offer");
         }
 
-        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId())
-        {
+        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getLeadOfferStatusId()) {
                 leadTaskService.createDefaultLeadTaskForLeadOffer(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
@@ -305,5 +303,19 @@ public class LeadOfferService {
 
         leadOfferDao.save(leadOfferInDB);
         return leadOfferInDB;
+    }
+
+    /**
+     * utility method for updating lead offer status
+     * 
+     * @param leadOfferId
+     * @param statusId
+     * @return
+     */
+    public LeadOffer updateLeadOfferStatus(int leadOfferId, int statusId) {
+        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+        leadOffer.setStatusId(statusId);
+        leadOffer = leadOfferDao.save(leadOffer);
+        return leadOffer;
     }
 }
