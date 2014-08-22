@@ -12,7 +12,7 @@ import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 
 public interface NotificationGeneratedDao extends PagingAndSortingRepository<NotificationGenerated, Integer> {
-    
+
     public List<NotificationGenerated> findByNotificationStatusAndScheduleTimeLessThanOrNotificationStatusAndScheduleTimeIsNull(
             NotificationStatus notificationStatus,
             Date date,

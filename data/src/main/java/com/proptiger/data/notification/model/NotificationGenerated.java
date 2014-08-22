@@ -37,7 +37,7 @@ public class NotificationGenerated extends BaseModel {
     @Column(name = "id")
     private int                        id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_message_id")
     private NotificationMessage        notificationMessage;
 
@@ -198,5 +198,13 @@ public class NotificationGenerated extends BaseModel {
 
     public void setMergeNotificationMessageId(Integer mergeNotificationMessageId) {
         this.mergeNotificationMessageId = mergeNotificationMessageId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setObjectId(Integer objectId) {
+        this.objectId = objectId;
     }
 }

@@ -38,7 +38,7 @@ public class NotificationGenerator {
         logger.info("Retrieving the notification messages from database.");
         // TODO to handle the pageable condition.
         List<NotificationMessage> notificationMessages = notificationMessageService
-                .getRawNotificationMessages(new LimitOffsetPageRequest(0, 1));
+                .getRawNotificationMessages(new LimitOffsetPageRequest(0, 5));
 
         logger.info("Fetch " + notificationMessages.size() + " messages from the database.");
         logger.debug("Notification Messages Retrieved " + Serializer.toJson(notificationMessages));
