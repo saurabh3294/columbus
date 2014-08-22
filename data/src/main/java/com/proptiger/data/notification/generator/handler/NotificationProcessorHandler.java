@@ -118,7 +118,8 @@ public class NotificationProcessorHandler {
         NotificationMessage notificationMessage = null;
         List<Integer> childNotificationTypeIds = null;
         List<NotificationByTypeDto> foundNTypeDtos = new ArrayList<NotificationByTypeDto>();
-
+        
+        logger.debug(Serializer.toJson(mergeGroup));
         for (Map.Entry<Integer, List<Integer>> parentChildentry : mergeGroup.entrySet()) {
             parentNotificationByTypeDto = nMap.get(parentChildentry.getKey());
             childNotificationTypeIds = parentChildentry.getValue();
@@ -161,7 +162,8 @@ public class NotificationProcessorHandler {
         NotificationByTypeDto parentNotificationByTypeDto, childNotificationByTypeDto;
         NotificationType parentNotificationType;
         NotificationNonPrimaryKeyProcessor nNonPrimaryKeyProcessor = null;
-
+        
+        logger.debug(" NON PRIMARY KEY "+Serializer.toJson(suppressGroup));
         /**
          * Iterating over all possible suppress groups.
          */

@@ -128,7 +128,7 @@ public class NotificationTypeService {
 
             if (notificationType.getInterNonPrimaryKeySuppressId() != null) {
 
-                parentNotificationTypeId = notificationType.getInterPrimaryKeySuppressId();
+                parentNotificationTypeId = notificationType.getInterNonPrimaryKeySuppressId();
                 mapping.put(parentNotificationTypeId, notificationType.getId());
             }
         }
@@ -182,7 +182,7 @@ public class NotificationTypeService {
 
             if (notificationType.getInterNonPrimaryKeyMergeId() != null) {
 
-                parentNotificationTypeId = notificationType.getInterPrimaryKeyMergeId();
+                parentNotificationTypeId = notificationType.getInterNonPrimaryKeyMergeId();
                 childNotificationTypeList = mapping.get(parentNotificationTypeId);
 
                 if (childNotificationTypeList == null) {
