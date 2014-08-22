@@ -1,14 +1,17 @@
 package com.proptiger.data.service;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +21,19 @@ import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadTask;
 import com.proptiger.data.model.marketplace.LeadOffer;
+import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.TaskOfferedListingMapping;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.MasterLeadTaskDao;
+import com.proptiger.data.repo.marketplace.LeadOfferDao;
+import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
+import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
+import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -41,21 +50,35 @@ import com.proptiger.exception.UnauthorizedException;
 @Service
 public class LeadTaskService {
     @Autowired
-    private LeadTaskDao         leadTaskDao;
+    private LeadTaskDao                  leadTaskDao;
 
     @Autowired
-    private LeadTaskStatusDao   leadTaskStatusDao;
+    private LeadTaskStatusDao            leadTaskStatusDao;
 
     @Autowired
-    private MasterLeadTaskDao   masterLeadTaskDao;
+    private MasterLeadTaskDao            masterLeadTaskDao;
 
-    private static final int    defaultLeadTaskStatus = 1;
+    @Autowired
+    private LeadOfferService             leadOfferService;
 
-    private static final String defaultTaskSelection  = "";
+    private LeadOfferDao                 leadOfferDao;
 
-    private static final String defaultTaskSorting    = "taskStatus.masterLeadTaskStatus.complete,-updatedAt";
+    private static final int             offerDefaultLeadTaskStatusMappingId = 1;
 
-    private static Logger       logger                = LoggerFactory.getLogger(LeadTaskService.class);
+    private static final String          newTaskDefaultStatus                = "Scheduled";
+
+    private static final String          defaultTaskSelection                = "id";
+
+    private static final String          defaultTaskSorting                  = "taskStatus.masterLeadTaskStatus.complete,-updatedAt";
+
+    private static Logger                logger                              = LoggerFactory
+                                                                                     .getLogger(LeadTaskService.class);
+
+    @Autowired
+    private LeadOfferedListingDao        offeredListingDao;
+
+    @Autowired
+    private TaskOfferedListingMappingDao taskOfferedListingMappingDao;
 
     /**
      * function to update leadtask for a user
@@ -67,21 +90,31 @@ public class LeadTaskService {
     @Transactional
     public LeadTask updateTask(LeadTaskDto taskDto) {
         ActiveUser user = SecurityContextUtils.getLoggedInUser();
-        LeadTask savedTask = leadTaskDao.findOne(taskDto.getId());
+        int currentTaskId = taskDto.getId();
+        int nextTaskId = 0;
+        LeadTask savedTask = leadTaskDao.findOne(currentTaskId);
         if (savedTask.getLeadOffer().getAgentId() != Integer.parseInt(user.getUserId())) {
             throw new UnauthorizedException();
         }
 
         LeadTask leadTask = getLeadTaskFromLeadTaskDto(taskDto);
+        LeadTaskStatus taskStatus = leadTaskStatusDao.findOne(leadTask.getTaskStatusId());
+
         if (isValidUpdate(leadTask)) {
             ExclusionAwareBeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
             try {
                 beanUtilsBean.copyProperties(savedTask, leadTask);
-                leadTaskDao.save(savedTask);
-                if (savedTask.getNextTask() != null) {
-                    leadTaskDao.save(savedTask.getNextTask());
+                leadTaskDao.saveAndFlush(savedTask);
+                manageLeadTaskListingsOnUpdate(currentTaskId, taskDto.getListingIds());
+                if(taskStatus.getResultingStatusId() != null){
+                    leadOfferService.updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
                 }
-                return savedTask;
+
+                if (savedTask.getNextTask() != null) {
+                    LeadTask nextTask = leadTaskDao.saveAndFlush(savedTask.getNextTask());
+                    nextTaskId = nextTask.getId();
+                    manageLeadTaskListingsOnUpdate(nextTaskId, taskDto.getNextTask().getListingIds());
+                }
             }
             catch (IllegalAccessException | InvocationTargetException e) {
                 logger.debug("Error in bean copy");
@@ -90,7 +123,12 @@ public class LeadTaskService {
         else {
             throw new BadRequestException();
         }
-        return savedTask;
+
+        LeadTask finalTask = leadTaskDao.getLeadTaskDetails(currentTaskId);
+        finalTask.setNextTask(leadTaskDao.getLeadTaskDetails(nextTaskId));
+        finalTask.setNextTask(leadTaskDao.findOne(nextTaskId));
+
+        return finalTask;
     }
 
     /**
@@ -119,9 +157,75 @@ public class LeadTaskService {
         }
         catch (Exception e) {
             logger.debug("Error in getLeadTaskFromLeadTaskDto: " + e);
-            throw new BadRequestException(HttpStatus.BAD_REQUEST.toString(), HttpStatus.BAD_REQUEST.name());
+            throw new BadRequestException();
         }
         return leadTask;
+    }
+
+    @Transactional
+    private void manageLeadTaskListingsOnUpdate(int taskId, Set<Integer> listingIds) {
+        LeadTask task = leadTaskDao.findOne(taskId);
+
+        LeadTaskStatus taskStatus = leadTaskStatusDao.findOne(task.getTaskStatusId());
+
+        // System.out.println("AAAAAAAAAAAAAA " + new Gson().toJson(task));
+
+        // checking id listingIds size is of allowed count
+        int minListingCount = taskStatus.getMasterLeadTask().getMinListingCount();
+        int maxListingCount = taskStatus.getMasterLeadTask().getMaxListingCount();
+        if (listingIds.size() < minListingCount || listingIds.size() > maxListingCount) {
+            throw new BadRequestException("Listing Id Count Should Lie Between " + minListingCount
+                    + " and "
+                    + maxListingCount);
+        }
+
+        List<LeadOfferedListing> offeredListings = offeredListingDao.findByLeadOfferId(task.getLeadOfferId());
+        Map<Integer, LeadOfferedListing> listingToOfferedListingMap = new HashMap<>();
+        for (LeadOfferedListing offeredListing : offeredListings) {
+            listingToOfferedListingMap.put(offeredListing.getListingId(), offeredListing);
+        }
+
+        for (Integer listingId : listingIds) {
+            if (!listingToOfferedListingMap.containsKey(listingId)) {
+                throw new BadRequestException("ListingId " + listingId + " Not Yet Offered");
+            }
+        }
+
+        List<TaskOfferedListingMapping> listingMappings = leadTaskDao.getMappedListingMappingsForTask(taskId);
+        Map<Integer, TaskOfferedListingMapping> listingToListingMappingMap = new HashMap<>();
+        for (TaskOfferedListingMapping taskOfferedListingMapping : listingMappings) {
+            listingToListingMappingMap.put(
+                    taskOfferedListingMapping.getOfferedListing().getListingId(),
+                    taskOfferedListingMapping);
+        }
+
+        Map<Integer, Integer> listingToListingIdMap = new HashMap<>();
+        for (Integer listingId : listingIds) {
+            listingToListingIdMap.put(listingId, listingId);
+        }
+
+        List<Integer> toBeRemoved = new ArrayList<>();
+        for (Integer taskMappedListingId : listingToListingMappingMap.keySet()) {
+            if (listingToListingIdMap.get(taskMappedListingId) == null) {
+                toBeRemoved.add(listingToListingMappingMap.get(taskMappedListingId).getId());
+            }
+        }
+
+        List<Integer> toBeAdded = new ArrayList<>();
+        for (Integer listingId : listingIds) {
+            if (listingToListingMappingMap.get(listingId) == null) {
+                toBeAdded.add(listingToOfferedListingMap.get(listingId).getId());
+            }
+        }
+
+        for (Integer listingId : toBeRemoved) {
+            taskOfferedListingMappingDao.delete(listingId);
+        }
+
+        for (Integer listingOfferId : toBeAdded) {
+            TaskOfferedListingMapping offeredListingMapping = new TaskOfferedListingMapping(taskId, listingOfferId);
+            taskOfferedListingMappingDao.save(offeredListingMapping);
+        }
     }
 
     /**
@@ -137,19 +241,29 @@ public class LeadTaskService {
         LeadTaskStatus oldStatus = leadTaskStatusDao.findOne(savedLeadTask.getTaskStatusId());
         LeadTaskStatus newStatus = leadTaskStatusDao.findOne(leadTask.getTaskStatusId());
 
+        // offer id should be same
         if (leadTask.getLeadOfferId() != leadTask.getLeadOfferId()) {
             result = false;
         }
+        // complete tasks should not be editable
         else if (oldStatus.getMasterLeadTaskStatus().isComplete()) {
             result = false;
         }
+        // task status shoud not be the one for the nex tasks
+        else if (newStatus.getMasterLeadTaskStatus().getStatus().equals(newTaskDefaultStatus)) {
+            result = false;
+        }
+
         else if (oldStatus.getId() != newStatus.getId()) {
+            // task type is not editable
             if (oldStatus.getMasterTaskId() != newStatus.getMasterTaskId()) {
                 result = false;
             }
+            // cases where performed at is mandatory
             if (newStatus.getMasterLeadTaskStatus().isComplete() && leadTask.getPerformedAt() == null) {
                 result = false;
             }
+            // cases where next task is mandatory
             else if (newStatus.getMasterLeadTaskStatus().isNextTaskRequired()) {
                 if (leadTask.getNextTask() == null) {
                     result = false;
@@ -158,6 +272,7 @@ public class LeadTaskService {
                     result = false;
                 }
             }
+            // next task is not required but is provided
             else if (!newStatus.getMasterLeadTaskStatus().isNextTaskRequired() && leadTask.getNextTask() != null) {
                 result = false;
             }
@@ -178,15 +293,20 @@ public class LeadTaskService {
         LeadTask nextTask = leadTask.getNextTask();
         if (nextTask != null) {
             LeadTaskStatus nextTaskStatus = leadTaskStatusDao.findOne(nextTask.getTaskStatusId());
+
+            // offer id of the next task should be same as the prev one
             if (leadTask.getLeadOfferId() != nextTask.getLeadOfferId()) {
                 isValid = false;
             }
+            // checking that the next task must be in default status
+            else if (!nextTaskStatus.getMasterLeadTaskStatus().getStatus().equals(newTaskDefaultStatus)) {
+                isValid = false;
+            }
+            // checking is next task is of valid type
             else if (!isValidNextTaskType(leadTask)) {
                 isValid = false;
             }
-            else if (nextTaskStatus.getMasterLeadTaskStatus().isComplete()) {
-                isValid = false;
-            }
+            // next task should not have performed at
             else if (nextTask.getPerformedAt() != null) {
                 isValid = false;
             }
@@ -230,7 +350,7 @@ public class LeadTaskService {
         int leadOfferId = leadOffer.getId();
         List<LeadTask> leadTasks = leadTaskDao.findByLeadOfferId(leadOfferId);
         if (leadTasks.isEmpty()) {
-            leadTask.setTaskStatusId(defaultLeadTaskStatus);
+            leadTask.setTaskStatusId(offerDefaultLeadTaskStatusMappingId);
             leadTask.setScheduledFor(DateUtil.getWorkingTimeAddedIntoDate(new Date(), PropertyReader
                     .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_DEFAULT_TASK_DURATION, Integer.class)));
             leadTask.setLeadOfferId(leadOfferId);
@@ -259,6 +379,8 @@ public class LeadTaskService {
         PaginatedResponse<List<LeadTask>> response = new PaginatedResponse<>();
         response.setTotalCount(leadTaskDao.getLeadTaskCountForUser(userId));
         response.setResults(leadTaskDao.getLeadTasksForUser(userId, pageable));
+
+        // leadTaskDao.deleteListingsForTask(1, Arrays.asList(1, 2));
 
         return response;
     }
