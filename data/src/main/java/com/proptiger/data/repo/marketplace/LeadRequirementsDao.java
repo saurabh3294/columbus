@@ -18,6 +18,6 @@ public interface LeadRequirementsDao extends JpaRepository<LeadRequirement, Inte
 
     public List<LeadRequirement> findByLeadIdIn(List<Integer> leadIds);
 
-    @Query("select LR from LeadRequirement LR join LR.lead LRL join LRL.leadOffers LRLO where LRLO.agentId = ?1 order by LR.projectId desc")
+    @Query("select LR from LeadRequirement LR join LR.lead LRL join LRL.leadOffers LRLO where LRLO.id = ?1 order by LR.projectId desc")
     public List<LeadRequirement> getRequirementsByLeadOfferId(int leadOfferId);    
 }

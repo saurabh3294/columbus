@@ -9,7 +9,7 @@ import com.proptiger.data.model.marketplace.LeadOffer;
 
 public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOfferCustomDao {
     @Query("select count(LO) from LeadOffer LO where LO.leadId = ?1")
-    int getCountClaimed(int lead_id);    
+    int getCountClaimed(int lead_id);
 
     @Query("select LO from LeadOffer LO join LO.lead L where L.cityId = ?1 and LO.statusId not in (7,8,9) and L.clientId = ?2 and L.mergedLeadId is null order by LO.id desc")
     public List<LeadOffer> getOpenLeadOffers(int cityId , int clientId);
@@ -28,7 +28,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOf
 
     public LeadOffer findByIdAndAgentId(int leadOfferId, Integer userIdentifier);
 
-    @Query("select LI from LeadOffer LO join LO.matchingListings LI join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.locality where LO.id = ?1 and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active'")
+    @Query("select LI from LeadOffer LO join LO.matchingListings LI join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.locality where LO.id = ?1 and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' group by LI")
     public List<Listing> getMatchingListings(int leadOfferId);
 
 }

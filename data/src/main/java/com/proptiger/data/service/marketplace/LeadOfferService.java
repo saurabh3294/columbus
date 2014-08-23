@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -201,7 +203,7 @@ public class LeadOfferService {
                     taskStatus.setResultingStatus(resultingStatus);
                     lastTask.setTaskStatus(taskStatus);
                     lastTask.setPerformedAt(DateUtil.shiftMonths(new Date(), 1));
-                    leadOffer.setLastTask(lastTask);
+                    leadOffer.setNextTask(lastTask);
                 }
             }
 
@@ -408,7 +410,7 @@ public class LeadOfferService {
 
         for (Listing listing : listings) {
             int projectId = listing.getProperty().getProjectId();
-            if (listingsByProjectId.containsKey(projectId)) {
+            if (!listingsByProjectId.containsKey(projectId)) {
                 listingsByProjectId.put(projectId, new ArrayList<Listing>());
             }
 
@@ -417,9 +419,14 @@ public class LeadOfferService {
 
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer projectId = leadRequirement.getProjectId();
+            System.out.println("HereHereHere" + projectId);
             if (listingsByProjectId.containsKey(projectId)) {
+                System.out.println("THereHereHere" + projectId);
                 sortedList.addAll(listingsByProjectId.get(projectId));
                 listingsByProjectId.remove(projectId);
+                ToStringBuilder.reflectionToString(sortedList, ToStringStyle.SHORT_PREFIX_STYLE);
+                ToStringBuilder.reflectionToString(listingsByProjectId, ToStringStyle.SHORT_PREFIX_STYLE);
+
             }
         }
 
@@ -427,6 +434,7 @@ public class LeadOfferService {
             sortedList.addAll(remainingListings);
         }
 
+        ToStringBuilder.reflectionToString(sortedList, ToStringStyle.SHORT_PREFIX_STYLE);
         return sortedList;
     }
 

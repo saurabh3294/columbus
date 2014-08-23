@@ -66,7 +66,7 @@ public class LeadOffer extends BaseModel {
     private List<LeadTask> tasks;
 
     @Transient
-    private int countMatchingProperties = 99999999;
+    private int countMatchingListings = 99999999;
 
     @Column(name = "created_at")
     private Date              createdAt        = new Date();
@@ -185,14 +185,6 @@ public class LeadOffer extends BaseModel {
         }
     }
 
-    public int getCountMatchingProperties() {
-        return countMatchingProperties;
-    }
-
-    public void setCountMatchingProperties(int countMatchingProperties) {
-        this.countMatchingProperties = countMatchingProperties;
-    }
-
     public List<Listing> getOfferedListings() {
         return offeredListings;
     }
@@ -231,5 +223,13 @@ public class LeadOffer extends BaseModel {
 
     public void setTasks(List<LeadTask> tasks) {
         this.tasks = tasks;
+    }
+
+    public int getCountMatchingListings() {
+        return countMatchingListings;
+    }
+
+    public void setCountMatchingListings(int countMatchingListings) {
+        this.countMatchingListings = countMatchingListings;
     }
 }
