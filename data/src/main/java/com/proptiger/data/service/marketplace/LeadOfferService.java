@@ -2,7 +2,6 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -60,18 +59,25 @@ public class LeadOfferService {
     @Autowired
     private LeadTaskService         leadTaskService;
 
+    @Autowired 
+    private ListingService  listingService;
+    
+    
     /**
      * 
      * @param leadOfferedListing
      * @return
      */
-    public List<LeadOfferedListing> offerListings(List<Integer> listingIds, int leadOfferId) {
-        List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdIn(
-                leadOfferId,
-                listingIds);
+    public List<LeadOfferedListing> offerListings(List<Integer> listingIds, int leadOfferId , int userId) {        
+        List<Listing> leadValidListings = listingService.getListings(listingIds,userId);
 
+        if(leadValidListings.size() != listingIds.size())
+        {
+            throw new BadRequestException("Some of the listings are not yours or listing id is invalid");
+        }
+        
+        List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdIn(leadOfferId,listingIds);
         Set<Integer> existingListingIds = extractListingIds(leadOfferedListings);
-
         for (Integer listingId : listingIds) {
             if (!existingListingIds.contains(listingId)) {
                 leadOfferedListingDao.saveAndFlush(new LeadOfferedListing(leadOfferId, listingId));
@@ -90,13 +96,11 @@ public class LeadOfferService {
 
     private Set<Integer> extractListingIds(List<LeadOfferedListing> leadOfferedListings) {
         Set<Integer> listingIds = new HashSet<>();
-
         if (leadOfferedListings != null) {
             for (LeadOfferedListing leadOfferedListing : leadOfferedListings) {
                 listingIds.add(leadOfferedListing.getListingId());
             }
         }
-
         return listingIds;
     }
 
