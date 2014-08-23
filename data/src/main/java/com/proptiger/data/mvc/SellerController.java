@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.seller.CompanyUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.BrokerAgentService;
@@ -17,7 +18,7 @@ import com.proptiger.data.service.BrokerAgentService;
  * 
  */
 @Controller
-public class BrokerAgentController extends BaseController {
+public class SellerController extends BaseController {
 
     @Autowired
     private BrokerAgentService brokerAgentService;
@@ -27,6 +28,13 @@ public class BrokerAgentController extends BaseController {
     public APIResponse getAgent(@PathVariable Integer agentId) {
         CompanyUser agent = brokerAgentService.getAgent(agentId);
         return new APIResponse(super.filterFields(agent, null), 1);
+    }
+    
+    @RequestMapping(value = "data/v1/entity/broker-agent/{agentId}/getLocalities")
+    @ResponseBody
+    public APIResponse getLocalitiesOfAgent(@PathVariable Integer agentId) {
+        List<Locality> localities = brokerAgentService.getLocalitiesOfAgent(agentId);
+        return new APIResponse(localities, localities.size());
     }
 
     @RequestMapping(value = "data/v1/entity/project/{projectId}/agent")

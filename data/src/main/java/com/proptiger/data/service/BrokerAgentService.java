@@ -184,4 +184,9 @@ public class BrokerAgentService {
 
         return agentList;
     }
+
+    public List<Locality> getLocalitiesOfAgent(Integer agentId) {
+       List<Locality> localities = agentDao.findLocalitiesByUserId(agentId);
+       return localities;         
+    }
 }

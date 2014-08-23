@@ -10,6 +10,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -70,7 +72,13 @@ public class CompanyUser extends BaseModel {
     @JoinColumn(name = "academic_qualification_id", nullable = false, insertable = false, updatable = false)
     private AcademicQualification academicQualification;
 
-    @Transient
+    @ManyToMany
+    @JoinTable(name="cms.company_coverage",
+        joinColumns=
+            @JoinColumn(name = "company_id", referencedColumnName = "company_id"),
+        inverseJoinColumns=
+            @JoinColumn(name="locality_id", referencedColumnName="LOCALITY_ID")
+        )
     private List<Locality>        localitiesServiced;
 
     public Integer getId() {
