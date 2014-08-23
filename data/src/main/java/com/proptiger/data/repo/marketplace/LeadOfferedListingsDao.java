@@ -10,4 +10,5 @@ public interface LeadOfferedListingsDao extends JpaRepository<LeadOfferedListing
     public List<LeadOfferedListing> findByLeadOfferIdIn(List<Integer> leadOfferIds);
 
     public List<LeadOfferedListing> findByLeadOfferIdAndListingIdIn(int leadOfferId, List<Integer> listingIds);
+
 }

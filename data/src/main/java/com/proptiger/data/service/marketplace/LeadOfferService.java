@@ -21,6 +21,7 @@ import com.proptiger.data.model.MasterLeadTask;
 import com.proptiger.data.model.MasterLeadTaskStatus;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
+import com.proptiger.data.model.marketplace.LeadOffer.LeadOfferIdListing;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
@@ -66,20 +67,23 @@ public class LeadOfferService {
     @Autowired
     private LeadTaskService         leadTaskService;
 
+    @Autowired
+    private ListingService          listingService;
+
     /**
      * 
-     * @param integer 
+     * @param integer
      * @param leadOfferedListing
      * @return
      */
-    public List<Integer> offerListings(List<Integer> listingIds, int leadOfferId) {
+    public List<Integer> offerListings(List<Integer> listingIds, int leadOfferId, int userId) {
         List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdIn(
                 leadOfferId,
                 listingIds);
 
         Set<Integer> existingListingIds = extractListingIds(leadOfferedListings);
         List<Integer> newOfferedListingIds = new ArrayList<>();
-        
+
         Set<Integer> matchingListingIds = new HashSet<>();
         for (Listing listing : getMatchingListings(leadOfferId).getResults()) {
             matchingListingIds.add(listing.getId());
@@ -108,13 +112,11 @@ public class LeadOfferService {
      */
     private Set<Integer> extractListingIds(List<LeadOfferedListing> leadOfferedListings) {
         Set<Integer> listingIds = new HashSet<>();
-
         if (leadOfferedListings != null) {
             for (LeadOfferedListing leadOfferedListing : leadOfferedListings) {
                 listingIds.add(leadOfferedListing.getListingId());
             }
         }
-
         return listingIds;
     }
 
@@ -202,7 +204,7 @@ public class LeadOfferService {
                     leadOffer.setLastTask(lastTask);
                 }
             }
-            
+
             // XXX - Setting lead to null if not passed in fields
             if (!fields.contains("lead")) {
                 for (LeadOffer leadOffer : paginatedResponse.getResults()) {
@@ -322,7 +324,7 @@ public class LeadOfferService {
     /**
      * 
      * @param leadOfferId
-     * @param integer 
+     * @param integer
      * @return listings for that lead offer id
      */
     public PaginatedResponse<List<Listing>> getOfferedListings(int leadOfferId) {
@@ -385,7 +387,7 @@ public class LeadOfferService {
         List<Listing> listings = leadOfferDao.getMatchingListings(leadOfferId);
         return new PaginatedResponse<List<Listing>>(listings, listings.size());
     }
-    
+
     public PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId) {
         PaginatedResponse<List<Listing>> listings = getMatchingListings(leadOfferId);
         List<LeadRequirement> leadRequirements = leadRequirementsService.getRequirements(leadOfferId);
@@ -395,7 +397,7 @@ public class LeadOfferService {
 
     /**
      * Returns all matching listings for a lead offer ordered by relevance
-     *
+     * 
      * @param listings
      * @param leadRequirements
      * @return
@@ -403,13 +405,13 @@ public class LeadOfferService {
     private List<Listing> sortMatchingListings(List<Listing> listings, List<LeadRequirement> leadRequirements) {
         List<Listing> sortedList = new ArrayList<>();
         Map<Integer, List<Listing>> listingsByProjectId = new HashMap<>();
-        
-        for (Listing listing: listings) {
+
+        for (Listing listing : listings) {
             int projectId = listing.getProperty().getProjectId();
             if (listingsByProjectId.containsKey(projectId)) {
                 listingsByProjectId.put(projectId, new ArrayList<Listing>());
             }
-            
+
             listingsByProjectId.get(projectId).add(listing);
         }
 
@@ -433,7 +435,9 @@ public class LeadOfferService {
 
         Set<String> fields = selector.getFieldSet();
         if (fields.contains("tasks")) {
-            leadOffer.setTasks(leadTaskService.getLeadTasksForUser(new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOfferId), userId).getResults());
+            leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
+                    new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOfferId),
+                    userId).getResults());
         }
 
         return leadOffer;
