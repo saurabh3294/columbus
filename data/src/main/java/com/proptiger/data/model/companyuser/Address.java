@@ -1,4 +1,4 @@
-package com.proptiger.data.model.seller;
+package com.proptiger.data.model.companyuser;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

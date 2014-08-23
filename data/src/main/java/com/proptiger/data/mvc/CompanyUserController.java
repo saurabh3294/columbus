@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.proptiger.data.model.seller.CompanyUser;
+import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.CompanyUserService;
+import com.proptiger.data.service.companyuser.CompanyUserService;
 
 /**
  * @author Rajeev Pandey

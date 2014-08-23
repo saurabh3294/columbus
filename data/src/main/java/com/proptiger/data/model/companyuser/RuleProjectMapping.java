@@ -1,4 +1,4 @@
-package com.proptiger.data.model.seller;
+package com.proptiger.data.model.companyuser;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,21 +8,21 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFilter;
 
 /**
- * Mapping of a locality with rule id of ProjectAssignmentRule
+ * Mapping of a project id with rule id of ProjectAssignmentRule
  * 
  * @author Rajeev Pandey
- * 
  */
 @Entity
-@Table(name = "cms.rule_locality_mappings")
+@Table(name = "cms.rule_project_mappings")
 @JsonFilter("fieldFilter")
-public class RuleLocalityMapping {
+public class RuleProjectMapping {
+
     @Id
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "locality_id")
-    private Integer localityId;
+    @Column(name = "project_id")
+    private Integer projectId;
 
     @Column(name = "rule_id")
     private Integer ruleId;
@@ -35,12 +35,12 @@ public class RuleLocalityMapping {
         this.id = id;
     }
 
-    public Integer getLocalityId() {
-        return localityId;
+    public Integer getProjectId() {
+        return projectId;
     }
 
-    public void setLocalityId(Integer localityId) {
-        this.localityId = localityId;
+    public void setProjectId(Integer projectId) {
+        this.projectId = projectId;
     }
 
     public Integer getRuleId() {

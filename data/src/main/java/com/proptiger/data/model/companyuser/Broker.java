@@ -1,4 +1,4 @@
-package com.proptiger.data.model.seller;
+package com.proptiger.data.model.companyuser;
 
 import java.util.Date;
 
