@@ -224,4 +224,12 @@ public class LeadOffer extends BaseModel {
     public void setMatchingListings(List<Listing> matchingListings) {
         this.matchingListings = matchingListings;
     }
+
+    public List<LeadTask> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<LeadTask> tasks) {
+        this.tasks = tasks;
+    }
 }
