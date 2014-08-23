@@ -68,6 +68,9 @@ public class LeadOffer extends BaseModel {
     @Transient
     private int countMatchingListings = 99999999;
 
+    @Transient
+    private int countOfferedListings = 99999999;
+
     @Column(name = "created_at")
     private Date              createdAt        = new Date();
 
@@ -231,5 +234,13 @@ public class LeadOffer extends BaseModel {
 
     public void setCountMatchingListings(int countMatchingListings) {
         this.countMatchingListings = countMatchingListings;
+    }
+
+    public int getCountOfferedListings() {
+        return countOfferedListings;
+    }
+
+    public void setCountOfferedListings(int countOfferedListings) {
+        this.countOfferedListings = countOfferedListings;
     }
 }

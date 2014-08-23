@@ -149,7 +149,7 @@ public class LeadOfferService {
                 }
             }
 
-            if (fields.contains("requirements")) {
+            if (fields.contains("lead.requirements")) {
                 List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
                 for (LeadOffer leadOffer : paginatedResponse.getResults()) {
@@ -157,7 +157,7 @@ public class LeadOfferService {
                 }
             }
 
-            if (fields.contains("listings")) {
+            if (fields.contains("offeredListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, List<Listing>> listings = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
@@ -225,7 +225,6 @@ public class LeadOfferService {
      * @param leadOfferIds
      * @return
      */
-
     private Map<Integer, List<LeadRequirement>> getLeadRequirements(List<Integer> leadIds) {
         Map<Integer, List<LeadRequirement>> requirementsMap = new HashMap<>();
         for (LeadRequirement leadRequirement : leadRequirementsService.getRequirements(leadIds)) {
