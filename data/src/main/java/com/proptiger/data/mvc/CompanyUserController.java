@@ -22,10 +22,10 @@ public class CompanyUserController extends BaseController {
     @Autowired
     private CompanyUserService companyUserService;
 
-    @RequestMapping(value = "data/v1/entity/broker-agent/{agentId}")
+    @RequestMapping(value = "data/v1/entity/company-user/{companyUserId}")
     @ResponseBody
-    public APIResponse get(@PathVariable int agentId, @ModelAttribute FIQLSelector selector) {
-        CompanyUser agent = companyUserService.getAgent(agentId, selector);
+    public APIResponse get(@PathVariable int companyUserId, @ModelAttribute FIQLSelector selector) {
+        CompanyUser agent = companyUserService.getAgent(companyUserId, selector);
         return new APIResponse(super.filterFieldsFromSelector(agent, selector));
     }
 }
