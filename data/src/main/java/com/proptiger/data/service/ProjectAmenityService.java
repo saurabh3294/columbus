@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.Transient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -56,5 +58,10 @@ public class ProjectAmenityService {
             return projectCMSAmenityDao.findByProjectIdAndMasterAmenityIds(projectId, ids);
         }
         return new ArrayList<>();
+    }
+    
+    @Transient
+    public List<ProjectCMSAmenity> createProjectAmenities(List<ProjectCMSAmenity> toCreate){
+        return projectCMSAmenityDao.save(toCreate);
     }
 }

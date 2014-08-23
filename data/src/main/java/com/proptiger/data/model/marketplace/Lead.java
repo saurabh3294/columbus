@@ -20,6 +20,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.util.DateUtil;
 
 /**
  * @author Anubhav
@@ -77,6 +79,18 @@ public class Lead extends BaseModel {
 
     @Column(name = "next_action_time")
     private Date                  nextActionTime;
+
+    @Transient
+    private String specialRequirements = "Huuuuuuuuuuuuuuuuge kitchen and bathroom";
+
+    @Transient
+    private String derivedBedroomsString = "2,3,4,5,6,7BHK";
+
+    @Transient
+    private int countAgentsClaimed = 99999999;
+
+    @Transient
+    private Date expireTimestamp = DateUtil.shiftMonths(new Date(), 1);
 
     @Column(name = "updated_at")
     private Date                  updatedAt        = new Date();
@@ -249,5 +263,29 @@ public class Lead extends BaseModel {
 
     public void setRequirements(List<LeadRequirement> requirements) {
         this.requirements = requirements;
+    }
+
+    public String getSpecialRequirements() {
+        return specialRequirements;
+    }
+
+    public void setSpecialRequirements(String specialRequirements) {
+        this.specialRequirements = specialRequirements;
+    }
+
+    public String getDerivedBedroomsString() {
+        return derivedBedroomsString;
+    }
+
+    public void setDerivedBedroomsString(String derivedBedroomsString) {
+        this.derivedBedroomsString = derivedBedroomsString;
+    }
+
+    public Date getExpireTimestamp() {
+        return expireTimestamp;
+    }
+
+    public void setExpireTimestamp(Date expireTimestamp) {
+        this.expireTimestamp = expireTimestamp;
     }
 }

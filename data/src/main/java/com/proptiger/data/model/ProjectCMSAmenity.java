@@ -3,6 +3,8 @@ package com.proptiger.data.model;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -28,6 +30,7 @@ public class ProjectCMSAmenity extends BaseModel {
     private static final long serialVersionUID = 4648605865302565176L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @FieldMetaInfo(displayName = "Id", description = "Id")
     @Column(name = "ID")
     private long              id;
@@ -50,6 +53,10 @@ public class ProjectCMSAmenity extends BaseModel {
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "AMENITY_ID", insertable = false, updatable = false)
     private AmenityMaster     amenityMaster;
+    
+    @Column(name = "VERIFIED")
+    @JsonIgnore
+    private boolean verified;
 
     public long getId() {
         return id;
@@ -83,4 +90,30 @@ public class ProjectCMSAmenity extends BaseModel {
         this.amenityMaster = amenityMaster;
     }
 
+    public int getAmenityId() {
+        return amenityId;
+    }
+
+    public void setAmenityId(int amenityId) {
+        this.amenityId = amenityId;
+    }
+
+    public boolean getVerified() {
+        return verified;
+    }
+
+    public void setVerified(boolean verified) {
+        this.verified = verified;
+    }
+
+    public static ProjectCMSAmenity createUnverifiedProjectCMSAmenity(AmenityMaster amenityMaster, Integer projectId) {
+        ProjectCMSAmenity amenity = new ProjectCMSAmenity();
+        amenity.setAmenityDisplayName(amenityMaster.getAmenityName());
+        amenity.setAmenityId(amenityMaster.getAmenityId());
+        amenity.setProjectId(projectId);
+        amenity.setVerified(Boolean.FALSE);
+        return amenity;
+    }
+
+    
 }

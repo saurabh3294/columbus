@@ -2,15 +2,21 @@ package com.proptiger.data.model.marketplace;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Project;
 
 @JsonInclude(Include.NON_NULL)
 @Entity
@@ -28,7 +34,7 @@ public class LeadRequirement extends BaseModel {
     @Column(name = "id")
     private int               id;
 
-    @Column(name = "lead_id")
+    @Column(name = "lead_id", insertable=false, updatable=false)
     private int               leadId;
 
     @Column(name = "bedroom")
@@ -39,6 +45,18 @@ public class LeadRequirement extends BaseModel {
 
     @Column(name = "locality_id")
     private Integer           localityId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "locality_id", nullable = true, insertable = false, updatable = false)    
+    private Locality locality;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = true, insertable = false, updatable = false)    
+    private Project project;
+    
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="lead_id")
+    private Lead lead;
 
     public int getId() {
         return id;
@@ -78,5 +96,21 @@ public class LeadRequirement extends BaseModel {
 
     public void setLocalityId(Integer localityId) {
         this.localityId = localityId;
+    }
+
+    public Locality getLocality() {
+        return locality;
+    }
+
+    public void setLocality(Locality locality) {
+        this.locality = locality;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 }

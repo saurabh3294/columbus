@@ -66,12 +66,14 @@ public class LeadOfferService {
     
     /**
      * 
+     * @param integer 
      * @param leadOfferedListing
      * @return
      */
-    public List<LeadOfferedListing> offerListings(List<Integer> listingIds, int leadOfferId , int userId) {        
-        List<Listing> leadValidListings = listingService.getListings(listingIds,userId);
 
+    public List<Integer> offerListings(List<Integer> listingIds, int leadOfferId , int userId) {        
+        List<Listing> leadValidListings = listingService.getListings(listingIds,userId);
+        
         if(leadValidListings.size() != listingIds.size())
         {
             throw new BadRequestException("Some of the listings are not yours or listing id is invalid");
@@ -79,13 +81,16 @@ public class LeadOfferService {
         
         List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdIn(leadOfferId,listingIds);
         Set<Integer> existingListingIds = extractListingIds(leadOfferedListings);
+        List<Integer> newOfferedListingIds = new ArrayList<>();
+
         for (Integer listingId : listingIds) {
             if (!existingListingIds.contains(listingId)) {
                 leadOfferedListingDao.saveAndFlush(new LeadOfferedListing(leadOfferId, listingId));
+                newOfferedListingIds.add(listingId);
             }
         }
 
-        return leadOfferedListings;
+        return newOfferedListingIds;
     }
 
     /**
@@ -144,7 +149,7 @@ public class LeadOfferService {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, List<Listing>> listings = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.setListings(listings.get(leadOffer.getId()));
+                    leadOffer.setOfferedListings(listings.get(leadOffer.getId()));
                 }
             }
 
@@ -267,9 +272,10 @@ public class LeadOfferService {
     /**
      * 
      * @param leadOfferId
+     * @param integer 
      * @return listings for that lead offer id
      */
-    public PaginatedResponse<List<Listing>> getListings(int leadOfferId) {
+    public PaginatedResponse<List<Listing>> getOfferedListings(int leadOfferId) {
         List<Listing> listings = new ArrayList<>();
         for (LeadOffer.LeadOfferIdListing leadOfferIdListing : leadOfferDao.getListings(Collections
                 .singletonList(leadOfferId))) {
@@ -280,8 +286,8 @@ public class LeadOfferService {
     }
 
     /**
-     * Finds entry for logged in agent for that lead offer id and
-     * updates only status field in marketplace.lead_offer only when previous status is 
+     * Finds entry for logged in agent for that lead offer id and updates only
+     * status field in marketplace.lead_offer only when previous status is
      * offered and changing it to new or decline.
      * 
      * @param leadOffer
@@ -289,15 +295,14 @@ public class LeadOfferService {
      * @param userId
      * @return
      */
-    
-    public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {                
+
+    public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
         LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
         if (leadOfferInDB == null) {
             throw new BadRequestException("Invalid lead offer");
         }
 
-        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId())
-        {
+        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getLeadOfferStatusId()) {
                 leadTaskService.createDefaultLeadTaskForLeadOffer(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
@@ -318,6 +323,63 @@ public class LeadOfferService {
         
         return new PaginatedResponse<List<Listing>>(leadValidListings, leadValidListings.size());
     }
+   /**
+     * utility method for updating lead offer status
+     * 
+     * @param leadOfferId
+     * @param statusId
+     * @return
+     */
+    public LeadOffer updateLeadOfferStatus(int leadOfferId, int statusId) {
+        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+        leadOffer.setStatusId(statusId);
+        leadOffer = leadOfferDao.save(leadOffer);
+        return leadOffer;
+    }
 
-    
+    public PaginatedResponse<List<Listing>> getMatchingListings(int leadOfferId) {
+        List<Listing> listings = leadOfferDao.getMatchingListings(leadOfferId);
+        List<LeadRequirement> leadRequirements = leadRequirementsService.getRequirements(leadOfferId);
+        listings = sortMatchingListings(listings, leadRequirements);
+        return new PaginatedResponse<List<Listing>>(listings, listings.size());
+    }
+
+    /**
+     * Returns all matching listings for a lead offer ordered by relevance
+     *
+     * @param listings
+     * @param leadRequirements
+     * @return
+     */
+    private List<Listing> sortMatchingListings(List<Listing> listings, List<LeadRequirement> leadRequirements) {
+        List<Listing> sortedList = new ArrayList<>();
+        Map<Integer, List<Listing>> listingsByProjectId = new HashMap<>();
+        
+        for (Listing listing: listings) {
+            int projectId = listing.getProperty().getProjectId();
+            if (listingsByProjectId.containsKey(projectId)) {
+                listingsByProjectId.put(projectId, new ArrayList<Listing>());
+            }
+            
+            listingsByProjectId.get(projectId).add(listing);
+        }
+
+        for (LeadRequirement leadRequirement : leadRequirements) {
+            Integer projectId = leadRequirement.getProjectId();
+            if (listingsByProjectId.containsKey(projectId)) {
+                sortedList.addAll(listingsByProjectId.get(projectId));
+                listingsByProjectId.remove(projectId);
+            }
+        }
+
+        for (List<Listing> remainingListings : listingsByProjectId.values()) {
+            sortedList.addAll(remainingListings);
+        }
+
+        return sortedList;
+    }
+
+    public LeadOffer get(int leadOfferId, Integer userIdentifier) {
+        return leadOfferDao.findOne(leadOfferId);
+    }
 }
