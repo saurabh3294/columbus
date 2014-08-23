@@ -756,17 +756,17 @@ public class UserService {
         String contactNumber = userContactNumber.getContactNumber();
 
         if (contactNumber != null && !contactNumber.isEmpty()) {
-            userContactNumber.setUserId(user.getId());
-            userContactNumber.setCreatedBy(user.getId());
+            int userId = user.getId();
+            userContactNumber.setUserId(userId);
+            userContactNumber.setCreatedBy(userId);
 
-            User userByPhone = userDao.findByPhone(contactNumber, user.getId());
-            if (userByPhone == null) {                
-                int maxPriority = contactNumberDao.findMaxPriorityByUserId(user.getId());
-                userContactNumber.setPriority(maxPriority + 1);
+            User userByPhone = userDao.findByPhone(contactNumber, userId);
+            if (userByPhone == null) {
+                contactNumberDao.incrementPriorityForUser(userId);
+                userContactNumber.setPriority(UserContactNumber.primaryContactPriority);
                 contactNumberDao.saveAndFlush(userContactNumber);
             }
             else {
-                
                 user.setId(userContactNumber.getUserId());
             }
         }

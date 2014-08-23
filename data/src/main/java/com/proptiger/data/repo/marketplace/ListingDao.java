@@ -25,7 +25,4 @@ public interface ListingDao extends JpaRepository<Listing, Integer> {
 
     @Query("select l from Listing l join fetch l.property prop join fetch prop.project as p where l.sellerId=?1 and p.version=?2  and l.status=?3")
     List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status, Pageable pageable);
-
-    List<Listing> findByIdInAndSellerId(List<Integer> listingIds, int userId);
-
 }

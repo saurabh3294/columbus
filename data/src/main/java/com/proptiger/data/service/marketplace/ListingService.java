@@ -287,9 +287,4 @@ public class ListingService {
         }
         return listingIdToAmenitiesMap;
     }
-
-    public List<Listing> getListings(List<Integer> listingIds,int userId) {        
-        return listingDao.findByIdInAndSellerId(listingIds,userId);
-    }
-
 }

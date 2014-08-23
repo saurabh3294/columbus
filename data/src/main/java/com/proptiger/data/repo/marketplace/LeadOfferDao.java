@@ -28,9 +28,6 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOf
 
     public LeadOffer findByIdAndAgentId(int leadOfferId, Integer userIdentifier);
 
-    @Query("select LI from LeadOffer LO join LO.offeredListings LI where LO.id = ?1 and LO.agentId = ?2 and LI.sellerId = ?2")
-    public List<Listing> getListingByUserId(int leadOfferId, Integer userId);
-
     @Query("select LI from LeadOffer LO join LO.matchingListings LI join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.locality where LO.id = ?1 and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active'")
     public List<Listing> getMatchingListings(int leadOfferId);
 

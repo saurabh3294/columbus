@@ -15,6 +15,7 @@ import com.proptiger.data.model.seller.CompanyUser;
  */
 public interface CompanyUserDao extends JpaRepository<CompanyUser, Integer> {
     public List<CompanyUser> findByCompanyId(Integer companyId);
-    @Query("select CU.localitiesServiced from CompanyUser CU join CU.localitiesServiced where CU.userId = ?1")
+
+    @Query("select CU.localities from CompanyUser CU join CU.localities where CU.userId = ?1")
     public List<Locality> findLocalitiesByUserId(int agentId);
 }

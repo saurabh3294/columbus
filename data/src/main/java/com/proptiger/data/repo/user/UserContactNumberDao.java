@@ -21,7 +21,4 @@ public interface UserContactNumberDao extends JpaRepository<UserContactNumber, I
     @Modifying
     @Query("UPDATE UserContactNumber SET priority=priority+1 WHERE userId = ?1")
     public int incrementPriorityForUser(int userId);
-
-    @Query("select max(UCN.priority) from UserContactNumber UCN where UCN.userId = ?1")
-    public int findMaxPriorityByUserId(int id);
 }
