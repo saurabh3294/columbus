@@ -167,10 +167,8 @@ public class LeadService {
         else {
             lead.setId(leadDao.save(lead).getId());
             LeadRequirement leadRequirement = lead.getRequirements().get(0);
-            if (!isExactReplica(leadRequirement)) {
                 leadRequirement.setLeadId(lead.getId());
                 leadRequirementsService.save(leadRequirement);
-            }
         }
         int leadId = lead.getId();
         leadOriginal.setMergedLeadId(leadId);
@@ -223,6 +221,7 @@ public class LeadService {
      */
     private void patchLead(Lead existingLead, Lead lead) {
         for (LeadRequirement leadRequirement : lead.getRequirements()) {
+            leadRequirement.setLeadId(lead.getId());
             if (!isExactReplica(leadRequirement)) {
                 leadRequirement.setLeadId(existingLead.getId());
                 leadRequirementsService.saveAndFlush(leadRequirement);
