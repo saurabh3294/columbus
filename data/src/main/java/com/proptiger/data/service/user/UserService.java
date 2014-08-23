@@ -748,7 +748,7 @@ public class UserService {
     private void patchUser(User user) {
         List<UserContactNumber> contactNumbers = user.getContactNumbers();
 
-        if (contactNumbers.isEmpty()) {
+        if (contactNumbers == null ||  contactNumbers.isEmpty()) {
             return;
         }
 
