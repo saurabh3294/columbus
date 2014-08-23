@@ -760,10 +760,13 @@ public class UserService {
             userContactNumber.setCreatedBy(user.getId());
 
             User userByPhone = userDao.findByPhone(contactNumber, user.getId());
-            if (userByPhone == null) {
+            if (userByPhone == null) {                
+                int maxPriority = contactNumberDao.findMaxPriorityByUserId(user.getId());
+                userContactNumber.setPriority(maxPriority + 1);
                 contactNumberDao.saveAndFlush(userContactNumber);
             }
             else {
+                
                 user.setId(userContactNumber.getUserId());
             }
         }
