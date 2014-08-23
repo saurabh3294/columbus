@@ -48,14 +48,14 @@ public class LeadOfferController extends BaseController {
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/matching-listings")
     @ResponseBody
     public APIResponse getMatchingListings(@PathVariable int leadOfferId, @ModelAttribute FIQLSelector selector, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        PaginatedResponse<List<Listing>> matchingListings = leadOfferService.getMatchingListings(leadOfferId);
+        PaginatedResponse<List<Listing>> matchingListings = leadOfferService.getSortedMatchingListings(leadOfferId);
         return new APIResponse(super.filterFieldsFromSelector(matchingListings.getResults(), selector), matchingListings.getTotalCount());
     }
 
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}")
     @ResponseBody
-    public APIResponse get(@PathVariable int leadOfferId, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        return new APIResponse(leadOfferService.get(leadOfferId, activeUser.getUserIdentifier()));
+    public APIResponse get(@PathVariable int leadOfferId, @ModelAttribute FIQLSelector selector, @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        return new APIResponse(leadOfferService.get(leadOfferId, activeUser.getUserIdentifier(), selector));
     }
     
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/put", method = RequestMethod.PUT)
