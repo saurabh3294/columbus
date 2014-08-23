@@ -187,7 +187,6 @@ public class Property extends BaseModel {
     @Column(name = "updated_at")
     private Date                 updatedAt;
     
-    
     public String getProjectName() {
 		return projectName;
 	}
