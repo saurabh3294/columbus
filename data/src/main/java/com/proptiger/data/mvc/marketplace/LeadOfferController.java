@@ -41,8 +41,8 @@ public class LeadOfferController extends BaseController {
 
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/listings")
     @ResponseBody
-    public APIResponse getListings(@PathVariable int leadOfferId) {
-        return new APIResponse(leadOfferService.getListings(leadOfferId));
+    public APIResponse getListings(@PathVariable int leadOfferId,@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        return new APIResponse(leadOfferService.getListingsOfUser(leadOfferId,activeUser.getUserIdentifier()));
     }
     
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}", method = RequestMethod.PUT)

@@ -16,6 +16,7 @@ import com.proptiger.data.model.Company;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
+import com.proptiger.data.model.marketplace.LeadOffer.LeadOfferIdListing;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.seller.CompanyUser;
@@ -309,5 +310,24 @@ public class LeadOfferService {
 
         leadOfferDao.save(leadOfferInDB);
         return leadOfferInDB;
+    }
+
+    public PaginatedResponse<?> getListingsOfUser(int leadOfferId, Integer userId) {        
+        //List<Listing> allListings =  getListings(leadOfferId).getResults();        
+        //List<Integer> listingIds = extractListingIdsFromListingObjects(allListings);                 
+        //List<Listing> leadValidListings = listingService.getListings(listingIds,userId);
+        
+        List<Listing> leadValidListings = leadOfferDao.getListingByUserId(leadOfferId,userId);
+        
+        return new PaginatedResponse<List<Listing>>(leadValidListings, leadValidListings.size());
+    }
+
+    private List<Integer> extractListingIdsFromListingObjects(List<Listing> allListings) {        
+        List<Integer> listingIds = new ArrayList<>();
+        for(Listing listing : allListings)
+        {
+            listingIds.add(listing.getId());
+        }
+        return listingIds;
     }
 }

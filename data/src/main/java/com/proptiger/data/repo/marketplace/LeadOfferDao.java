@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.marketplace.LeadOffer;
 
 public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOfferCustomDao {
@@ -26,4 +27,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOf
     public List<LeadOffer.LeadOfferIdListing> getListings(List<Integer> leadOfferIds);
 
     public LeadOffer findByIdAndAgentId(int leadOfferId, Integer userIdentifier);
+
+    @Query("select LI from LeadOffer LO join LO.listings LI where LO.id = ?1 and LO.agentId = ?2 and LI.sellerId = ?2")
+    public List<Listing> getListingByUserId(int leadOfferId, Integer userId);
 }
