@@ -23,6 +23,7 @@ import com.proptiger.data.model.MasterLeadTask;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
 import com.proptiger.data.model.marketplace.TaskOfferedListingMapping;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
@@ -30,8 +31,8 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.MasterLeadTaskDao;
-import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
+import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.util.DateUtil;
@@ -61,7 +62,8 @@ public class LeadTaskService {
     @Autowired
     private LeadOfferService             leadOfferService;
 
-    private LeadOfferDao                 leadOfferDao;
+    @Autowired
+    private LeadTaskStatusReasonDao      taskStatusReasonDao;
 
     private static final int             offerDefaultLeadTaskStatusMappingId = 1;
 
@@ -106,8 +108,9 @@ public class LeadTaskService {
                 beanUtilsBean.copyProperties(savedTask, leadTask);
                 leadTaskDao.saveAndFlush(savedTask);
                 manageLeadTaskListingsOnUpdate(currentTaskId, taskDto.getListingIds());
-                if(taskStatus.getResultingStatusId() != null){
-                    leadOfferService.updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
+                if (taskStatus.getResultingStatusId() != null) {
+                    leadOfferService
+                            .updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
                 }
 
                 if (savedTask.getNextTask() != null) {
@@ -153,6 +156,12 @@ public class LeadTaskService {
             leadTask.setNotes(leadTaskDto.getNotes());
             if (leadTaskDto.getNextTask() != null) {
                 leadTask.setNextTask(getLeadTaskFromLeadTaskDto(leadTaskDto.getNextTask()));
+            }
+            LeadTaskStatusReason reason = taskStatusReasonDao.findByReasonAndTaskStatusMappingId(
+                    leadTaskDto.getStatusReason(),
+                    leadTask.getTaskStatusId());
+            if (reason != null) {
+                leadTask.setStatusReasonId(reason.getId());
             }
         }
         catch (Exception e) {
@@ -253,7 +262,10 @@ public class LeadTaskService {
         else if (newStatus.getMasterLeadTaskStatus().getStatus().equals(newTaskDefaultStatus)) {
             result = false;
         }
-
+        // validating status reason
+        else if (!isValidStatusReason(leadTask)) {
+            result = false;
+        }
         else if (oldStatus.getId() != newStatus.getId()) {
             // task type is not editable
             if (oldStatus.getMasterTaskId() != newStatus.getMasterTaskId()) {
@@ -278,6 +290,22 @@ public class LeadTaskService {
             }
         }
         return result;
+    }
+
+    /**
+     * validates if the reason provided for a particulat status is correct
+     * 
+     * @param leadTask
+     * @return
+     */
+    private boolean isValidStatusReason(LeadTask leadTask) {
+        if (leadTask.getStatusReasonId() == null) {
+            return taskStatusReasonDao.findByTaskStatusMappingId(leadTask.getTaskStatusId()).size() == 0;
+        }
+        else {
+            return taskStatusReasonDao.findOne(leadTask.getStatusReasonId()).getTaskStatusMappingId() == leadTask
+                    .getTaskStatusId();
+        }
     }
 
     /**

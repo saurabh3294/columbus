@@ -14,6 +14,7 @@ public class LeadTaskDto {
     private int          id;
     private int          leadOfferId;
     private String       taskStatus;
+    private String       statusReason;
     private String       taskName;
     private Set<Integer> listingIds = new HashSet<>();
     private Date         scheduledFor;
@@ -101,5 +102,13 @@ public class LeadTaskDto {
 
     public void setListingIds(Set<Integer> listingIds) {
         this.listingIds = listingIds;
+    }
+
+    public String getStatusReason() {
+        return statusReason;
+    }
+
+    public void setStatusReason(String statusReason) {
+        this.statusReason = statusReason;
     }
 }
