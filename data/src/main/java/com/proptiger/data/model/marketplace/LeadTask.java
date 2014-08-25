@@ -18,9 +18,12 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Future;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.LeadTaskStatus;
+import com.proptiger.data.model.MasterLeadTask;
+import com.proptiger.data.model.MasterLeadTaskStatus;
 
 /**
  * @author Rajeev Pandey
@@ -36,12 +39,15 @@ public class LeadTask extends BaseModel {
 
     @ExcludeFromBeanCopy
     @Column(name = "lead_offer_id")
+    @JsonIgnore
     private int                             leadOfferId;
 
     @Column(name = "lead_task_status_id")
+    @JsonIgnore
     private int                             taskStatusId;
 
     @Column(name = "task_status_reason_id")
+    @JsonIgnore
     private Integer                         statusReasonId;
 
     @Nonnull
@@ -72,10 +78,21 @@ public class LeadTask extends BaseModel {
 
     @ManyToOne
     @JoinColumn(name = "lead_task_status_id", insertable = false, updatable = false)
+    @JsonIgnore
     private LeadTaskStatus                  taskStatus;
 
     @OneToMany(mappedBy = "taskId")
     private List<TaskOfferedListingMapping> offeredListingMappings;
+
+    @Transient
+    private MasterLeadTask                  masterLeadTask;
+
+    @Transient
+    private MasterLeadTaskStatus            masterLeadTaskStatus;
+
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "task_status_reason_id", insertable = false, updatable = false)
+    private LeadTaskStatusReason            statusReason;
 
     @Transient
     private LeadTask                        nextTask;
@@ -201,5 +218,51 @@ public class LeadTask extends BaseModel {
 
     public int getTaskStatusId() {
         return taskStatusId;
+    }
+
+    public MasterLeadTask getMasterLeadTask() {
+        return masterLeadTask;
+    }
+
+    public void setMasterLeadTask(MasterLeadTask masterLeadTask) {
+        this.masterLeadTask = masterLeadTask;
+    }
+
+    public MasterLeadTaskStatus getMasterLeadTaskStatus() {
+        return masterLeadTaskStatus;
+    }
+
+    public void setMasterLeadTaskStatus(MasterLeadTaskStatus masterLeadTaskStatus) {
+        this.masterLeadTaskStatus = masterLeadTaskStatus;
+    }
+
+    public LeadTaskStatusReason getStatusReason() {
+        return statusReason;
+    }
+
+    public void setStatusReason(LeadTaskStatusReason statusReason) {
+        this.statusReason = statusReason;
+    }
+
+    public LeadTask populateTransientAttributes() {
+        if (taskStatus != null) {
+            if (taskStatus.getMasterLeadTask() != null) {
+                masterLeadTask = taskStatus.getMasterLeadTask();
+            }
+            if (taskStatus.getMasterLeadTaskStatus() != null) {
+                masterLeadTaskStatus = taskStatus.getMasterLeadTaskStatus();
+            }
+        }
+        if (nextTask != null) {
+            nextTask.populateTransientAttributes();
+        }
+        return this;
+    }
+
+    public static List<LeadTask> populateTransientAttributes(List<LeadTask> leadTasks) {
+        for (LeadTask leadTask : leadTasks) {
+            leadTask.populateTransientAttributes();
+        }
+        return leadTasks;
     }
 }
