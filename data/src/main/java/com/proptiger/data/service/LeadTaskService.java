@@ -408,9 +408,34 @@ public class LeadTaskService {
         response.setTotalCount(leadTaskDao.getLeadTaskCountForUser(userId));
         response.setResults(leadTaskDao.getLeadTasksForUser(userId, pageable));
 
-        // leadTaskDao.deleteListingsForTask(1, Arrays.asList(1, 2));
+        populateTaskOfferedListings(response.getResults());
 
         return response;
+    }
+
+    /**
+     * populated offered listings in task list
+     * 
+     * @param leadTasks
+     */
+    private void populateTaskOfferedListings(List<LeadTask> leadTasks) {
+        List<Integer> taskIds = new ArrayList<>();
+        for (LeadTask leadTask : leadTasks) {
+            taskIds.add(leadTask.getId());
+        }
+
+        List<LeadTask> listingMappLeadTasks = leadTaskDao.getListingMappedTasksByTaskIds(taskIds);
+        Map<Integer, LeadTask> idMappedTasks = new HashMap<>();
+        for (LeadTask leadTask : listingMappLeadTasks) {
+            idMappedTasks.put(leadTask.getId(), leadTask);
+        }
+
+        for (LeadTask leadTask : leadTasks) {
+            LeadTask taskWithListing = idMappedTasks.get(leadTask.getId());
+            if (taskWithListing != null) {
+                leadTask.setOfferedListingMappings(taskWithListing.getOfferedListingMappings());
+            }
+        }
     }
 
     /**
