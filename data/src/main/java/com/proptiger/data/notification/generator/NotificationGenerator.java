@@ -44,7 +44,7 @@ public class NotificationGenerator {
         logger.debug("Notification Messages Retrieved " + Serializer.toJson(notificationMessages));
 
         List<NotificationGenerated> scheduledNotificationGeneratedList = notificationGeneratedService
-                .getScheduledAndNonExpiredNotifications();
+                .getScheduledAndNonReadyNotifications();
 
         logger.info("Fetch " + scheduledNotificationGeneratedList.size()
                 + " scheduled Notification Generated from database.");

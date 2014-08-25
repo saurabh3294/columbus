@@ -42,9 +42,9 @@ public class NotificationGeneratedService {
     @Autowired
     private NotificationTypeService                          notificationTypeService;
 
-    public List<NotificationGenerated> getScheduledAndNonExpiredNotifications() {
+    public List<NotificationGenerated> getScheduledAndNonReadyNotifications() {
         List<NotificationGenerated> notificationGenerateds = notificationGeneratedDao
-                .findByNotificationStatusAndScheduleTimeLessThanOrNotificationStatusAndScheduleTimeIsNull(
+                .findByNotificationStatusAndScheduleTimeGreaterThanOrNotificationStatusAndScheduleTimeIsNull(
                         NotificationStatus.Scheduled,
                         new Date(),
                         NotificationStatus.Generated);
@@ -68,7 +68,7 @@ public class NotificationGeneratedService {
 
     public List<NotificationGenerated> getScheduledAndReadyNotifications(int mediumId) {
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao
-                .findByStatusAndExpiryTimeLessThanEqualAndMediumId(NotificationStatus.Scheduled, new Date(), mediumId);
+                .findByStatusAndScheduleTimeLessThanEqualAndMediumId(NotificationStatus.Scheduled, new Date(), mediumId);
         if (ntGeneratedList == null) {
             return new ArrayList<NotificationGenerated>();
         }
@@ -319,7 +319,7 @@ public class NotificationGeneratedService {
     }
 
     public void markNotificationGeneratedScheduled(NotificationGenerated ntGenerated, Date scheduledTime) {
-        notificationGeneratedDao.updatedByNotificationStatusAndScheduleTime(
+        notificationGeneratedDao.updatedNotificationStatusAndScheduleTimeById(
                 ntGenerated.getId(),
                 NotificationStatus.Scheduled,
                 scheduledTime);
@@ -327,6 +327,6 @@ public class NotificationGeneratedService {
 
     public void markNotificationGeneratedSuppressed(NotificationGenerated ntGenerated) {
         notificationGeneratedDao
-                .updateByNotificationStatus(ntGenerated.getId(), NotificationStatus.SchedulerSuppressed);
+                .updateNotificationStatusById(ntGenerated.getId(), NotificationStatus.SchedulerSuppressed);
     }
 }

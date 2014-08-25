@@ -20,7 +20,14 @@ public class EmailSender implements MediumSender {
 
     @Override
     public void send(MailBody mailBody, ForumUser forumUser) {
-        String emailId = "sahil.garg@proptiger.com";
+        String emailId = forumUser.getEmail();
+        
+        /*
+         * For testing, please add a test email id below to avoid sending
+         * unnecessary emails to actual users
+         */
+        // emailId = "test-email-id@proptiger.com";
+        
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(emailId);
         logger.debug("Sending email " + mailBody.getBody() + " to : " + emailId);
         amazonMailSender.sendMail(mailDetails);

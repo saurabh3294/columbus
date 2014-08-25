@@ -13,7 +13,7 @@ import com.proptiger.data.notification.model.NotificationGenerated;
 
 public interface NotificationGeneratedDao extends PagingAndSortingRepository<NotificationGenerated, Integer> {
 
-    public List<NotificationGenerated> findByNotificationStatusAndScheduleTimeLessThanOrNotificationStatusAndScheduleTimeIsNull(
+    public List<NotificationGenerated> findByNotificationStatusAndScheduleTimeGreaterThanOrNotificationStatusAndScheduleTimeIsNull(
             NotificationStatus notificationStatus,
             Date date,
             NotificationStatus generatedNotificationStatus);
@@ -26,7 +26,7 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
             NotificationStatus oldStatus);
 
     @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationMedium NM WHERE NG.notificationStatus = ?1 AND NG.scheduleTime <= ?2 AND NM.id = ?3")
-    public List<NotificationGenerated> findByStatusAndExpiryTimeLessThanEqualAndMediumId(
+    public List<NotificationGenerated> findByStatusAndScheduleTimeLessThanEqualAndMediumId(
             NotificationStatus scheduled,
             Date date,
             int mediumId);
@@ -51,9 +51,9 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
 
     @Modifying
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2, scheduleTime = ?3 WHERE id = ?1 ")
-    public void updatedByNotificationStatusAndScheduleTime(Integer id, NotificationStatus scheduled, Date scheduledTime);
+    public void updatedNotificationStatusAndScheduleTimeById(Integer id, NotificationStatus scheduled, Date scheduledTime);
 
     @Modifying
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2 WHERE id = ?1 ")
-    public void updateByNotificationStatus(int id, NotificationStatus schedulersuppressed);
+    public void updateNotificationStatusById(int id, NotificationStatus schedulersuppressed);
 }
