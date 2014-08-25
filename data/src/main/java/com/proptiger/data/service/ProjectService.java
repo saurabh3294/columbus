@@ -137,33 +137,16 @@ public class ProjectService {
      * @param projectFilter
      * @return
      */
+    @SuppressWarnings("unchecked")
     public PaginatedResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
-        Selector propertyListingSelector = new Selector();
-        propertyListingSelector.setPaging(projectFilter.getPaging());
+        String cityClause = "";
 
-        Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
-
-        if (cityName == null || cityName.length() <= 0) {
-            List<Map<String, Map<String, Object>>> list = new ArrayList<>();
-            Map<String, Map<String, Object>> searchType = new HashMap<>();
-            Map<String, Object> filterCriteria = new HashMap<>();
-            filterCriteria.put("cityName", cityName);
-            searchType.put("equal", filterCriteria);
-            list.add(searchType);
-            filter.put("and", list);
+        if (cityName != null && !cityName.isEmpty()) {
+            cityClause = "{\"equal\":{\"cityLabel\":\"" + cityName + "\"}},";
         }
-        List<Map<String, Map<String, Object>>> projectList = new ArrayList<>();
-        Map<String, Map<String, Object>> projectSearchType = new HashMap<>();
-        Map<String, Object> projectFilterCriteria = new HashMap<>();
-        List<String> projectStatusList = new ArrayList<>();
-        projectStatusList.add("pre launch");
-        projectStatusList.add("not launched");
-        projectFilterCriteria.put("projectStatus", projectStatusList);
-        projectSearchType.put("equal", projectFilterCriteria);
-        projectList.add(projectSearchType);
-        filter.put("and", projectList);
-        propertyListingSelector.setFilters(filter);
-        return propertyService.getPropertiesGroupedToProjects(propertyListingSelector);
+
+        projectFilter.setFilters(new Gson().fromJson("{\"and\":[" + cityClause + "{\"equal\":{\"projectStatus\":[\"pre launch\",\"not launched\"]}}]}", Map.class));
+        return propertyService.getPropertiesGroupedToProjects(projectFilter);
     }
 
     /**

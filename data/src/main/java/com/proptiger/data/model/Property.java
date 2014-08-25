@@ -84,7 +84,7 @@ public class Property extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Measure", description = "Measure")
     @Field(value = "MEASURE")
-    private String            measure = "sqft";
+    private String            measure = "sq ft";
 
     @FieldMetaInfo(displayName = "URL", description = "URL")
     @Field(value = "PROPERTY_URL")

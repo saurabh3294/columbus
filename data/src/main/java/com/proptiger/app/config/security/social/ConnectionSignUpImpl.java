@@ -15,7 +15,7 @@ import com.proptiger.data.repo.ForumUserDao;
  */
 public final class ConnectionSignUpImpl implements ConnectionSignUp {
 
-    private static final String PROFILE_IMAGE_FORMAT = ".jpg";
+    public static final String PROFILE_IMAGE_FORMAT = ".jpg";
 
     @Autowired
     private ForumUserDao        forumUserDao;
