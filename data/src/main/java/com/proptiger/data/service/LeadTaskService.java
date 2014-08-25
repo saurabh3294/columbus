@@ -300,7 +300,7 @@ public class LeadTaskService {
      */
     private boolean isValidStatusReason(LeadTask leadTask) {
         if (leadTask.getStatusReasonId() == null) {
-            return taskStatusReasonDao.findByTaskStatusMappingId(leadTask.getTaskStatusId()).size() == 0;
+            return taskStatusReasonDao.findByTaskStatusMappingId(leadTask.getTaskStatusId()).isEmpty();
         }
         else {
             return taskStatusReasonDao.findOne(leadTask.getStatusReasonId()).getTaskStatusMappingId() == leadTask
@@ -424,16 +424,18 @@ public class LeadTaskService {
             taskIds.add(leadTask.getId());
         }
 
-        List<LeadTask> listingMappLeadTasks = leadTaskDao.getListingMappedTasksByTaskIds(taskIds);
-        Map<Integer, LeadTask> idMappedTasks = new HashMap<>();
-        for (LeadTask leadTask : listingMappLeadTasks) {
-            idMappedTasks.put(leadTask.getId(), leadTask);
-        }
+        if (!taskIds.isEmpty()) {
+            List<LeadTask> listingMappLeadTasks = leadTaskDao.getListingMappedTasksByTaskIds(taskIds);
+            Map<Integer, LeadTask> idMappedTasks = new HashMap<>();
+            for (LeadTask leadTask : listingMappLeadTasks) {
+                idMappedTasks.put(leadTask.getId(), leadTask);
+            }
 
-        for (LeadTask leadTask : leadTasks) {
-            LeadTask taskWithListing = idMappedTasks.get(leadTask.getId());
-            if (taskWithListing != null) {
-                leadTask.setOfferedListingMappings(taskWithListing.getOfferedListingMappings());
+            for (LeadTask leadTask : leadTasks) {
+                LeadTask taskWithListing = idMappedTasks.get(leadTask.getId());
+                if (taskWithListing != null) {
+                    leadTask.setOfferedListingMappings(taskWithListing.getOfferedListingMappings());
+                }
             }
         }
     }
