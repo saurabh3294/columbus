@@ -128,10 +128,11 @@ public class LeadTaskService {
         }
 
         LeadTask finalTask = leadTaskDao.getLeadTaskDetails(currentTaskId);
-        finalTask.setNextTask(leadTaskDao.getLeadTaskDetails(nextTaskId));
-        finalTask.setNextTask(leadTaskDao.findOne(nextTaskId));
+        if(nextTaskId != 0){
+            finalTask.setNextTask(leadTaskDao.getLeadTaskDetails(nextTaskId));
+        }
 
-        return finalTask;
+        return finalTask.populateTransientAttributes();
     }
 
     /**
@@ -351,17 +352,25 @@ public class LeadTaskService {
      */
     @Transactional
     private boolean isValidNextTaskType(LeadTask leadTask) {
-        boolean result = false;
+        boolean result = true;
         LeadTaskStatus taskStatus = leadTaskStatusDao.findOne(leadTask.getTaskStatusId());
         LeadTaskStatus nextTaskStatus = leadTaskStatusDao.findOne(leadTask.getNextTask().getTaskStatusId());
-        List<MasterLeadTask> incompleTasks = masterLeadTaskDao.getIncompleteMandatoryTasksWithLesserPriority(
-                leadTask.getLeadOfferId(),
-                nextTaskStatus.getMasterLeadTask().getPriority());
-        if (incompleTasks.size() == 0) {
-            result = true;
+        List<MasterLeadTask> completedTasks = masterLeadTaskDao.getcompleteMandatoryTasks(leadTask.getLeadOfferId());
+        Map<Integer, MasterLeadTask> indexedCompletedTasks = new HashMap<>();
+        for (MasterLeadTask masterLeadTask : completedTasks) {
+            indexedCompletedTasks.put(masterLeadTask.getId(), masterLeadTask);
         }
-        else if (incompleTasks.size() == 1 && incompleTasks.get(0).getId() == taskStatus.getMasterTaskId()) {
-            result = true;
+
+        List<MasterLeadTask> mustDoTasks = masterLeadTaskDao.findByPriorityLessThanAndOptional(nextTaskStatus
+                .getMasterLeadTask().getPriority(), true);
+
+        for (MasterLeadTask masterLeadTask : mustDoTasks) {
+            int notDoneTaskId = masterLeadTask.getId();
+            if (!indexedCompletedTasks.containsKey(notDoneTaskId)) {
+                if (taskStatus.getMasterLeadTask().getId() != notDoneTaskId) {
+                    result = false;
+                }
+            }
         }
         return result;
     }
@@ -408,37 +417,39 @@ public class LeadTaskService {
         response.setTotalCount(leadTaskDao.getLeadTaskCountForUser(userId));
         response.setResults(leadTaskDao.getLeadTasksForUser(userId, pageable));
 
-        populateTaskOfferedListings(response.getResults());
+        LeadTask.populateTransientAttributes(response.getResults());
 
         return response;
     }
 
-    /**
-     * populated offered listings in task list
-     * 
-     * @param leadTasks
-     */
-    private void populateTaskOfferedListings(List<LeadTask> leadTasks) {
-        List<Integer> taskIds = new ArrayList<>();
-        for (LeadTask leadTask : leadTasks) {
-            taskIds.add(leadTask.getId());
-        }
-
-        if (!taskIds.isEmpty()) {
-            List<LeadTask> listingMappLeadTasks = leadTaskDao.getListingMappedTasksByTaskIds(taskIds);
-            Map<Integer, LeadTask> idMappedTasks = new HashMap<>();
-            for (LeadTask leadTask : listingMappLeadTasks) {
-                idMappedTasks.put(leadTask.getId(), leadTask);
-            }
-
-            for (LeadTask leadTask : leadTasks) {
-                LeadTask taskWithListing = idMappedTasks.get(leadTask.getId());
-                if (taskWithListing != null) {
-                    leadTask.setOfferedListingMappings(taskWithListing.getOfferedListingMappings());
-                }
-            }
-        }
-    }
+    // Lets see if we need this ever again
+    // /**
+    // * populated offered listings in task list
+    // *
+    // * @param leadTasks
+    // */
+    // private void populateTaskOfferedListings(List<LeadTask> leadTasks) {
+    // List<Integer> taskIds = new ArrayList<>();
+    // for (LeadTask leadTask : leadTasks) {
+    // taskIds.add(leadTask.getId());
+    // }
+    //
+    // if (!taskIds.isEmpty()) {
+    // List<LeadTask> listingMappLeadTasks =
+    // leadTaskDao.getListingMappedTasksByTaskIds(taskIds);
+    // Map<Integer, LeadTask> idMappedTasks = new HashMap<>();
+    // for (LeadTask leadTask : listingMappLeadTasks) {
+    // idMappedTasks.put(leadTask.getId(), leadTask);
+    // }
+    //
+    // for (LeadTask leadTask : leadTasks) {
+    // LeadTask taskWithListing = idMappedTasks.get(leadTask.getId());
+    // if (taskWithListing != null) {
+    // leadTask.setOfferedListingMappings(taskWithListing.getOfferedListingMappings());
+    // }
+    // }
+    // }
+    // }
 
     /**
      * applies defaults in {@link FIQLSelector} for get task apis
