@@ -32,7 +32,8 @@ public class CaptchaService {
     @Autowired
     private PropertyReader propertyReader;
 
-    private Logger              logger                       = LoggerFactory.getLogger(CaptchaService.class);
+    private Logger         logger = LoggerFactory.getLogger(CaptchaService.class);
+
     public APIResponse getCaptcha() {
         ReCaptcha captcha = ReCaptchaFactory.newReCaptcha(
                 propertyReader.getRequiredProperty("recaptcha.pub.key"),
@@ -58,11 +59,18 @@ public class CaptchaService {
         if (reCaptchaResponse.isValid()) {
             return true;
         }
+        logger.error(
+                "Invalid captcha, error-{}, challenge: {}, response: {}, remoteip {}",
+                reCaptchaResponse.getErrorMessage(),
+                challengeField,
+                responseField,
+                remoteAddr);
         return false;
     }
 
     /**
      * Find if user called API with capctcha response
+     * 
      * @param request
      * @return
      */
@@ -74,8 +82,8 @@ public class CaptchaService {
         }
         return false;
     }
-    
-    public void writeCaptchaInResponse(HttpServletResponse response){
+
+    public void writeCaptchaInResponse(HttpServletResponse response) {
         try {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             PrintWriter out = response.getWriter();
