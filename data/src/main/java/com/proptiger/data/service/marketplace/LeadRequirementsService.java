@@ -35,4 +35,8 @@ public class LeadRequirementsService {
     public void saveAndFlush(LeadRequirement leadRequirement) {
         leadRequirementsDao.saveAndFlush(leadRequirement);
     }
+
+    public List<LeadRequirement> getRequirements(int leadOfferId) {
+        return leadRequirementsDao.getRequirementsByLeadOfferId(leadOfferId);
+    }
 }

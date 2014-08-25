@@ -1,4 +1,4 @@
-package com.proptiger.data.model.seller;
+package com.proptiger.data.model.companyuser;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +10,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -35,7 +37,7 @@ public class CompanyUser extends BaseModel {
 
     @Id
     @Column(name = "id")
-    private Integer               id;
+    private int                   id;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
@@ -70,14 +72,19 @@ public class CompanyUser extends BaseModel {
     @JoinColumn(name = "academic_qualification_id", nullable = false, insertable = false, updatable = false)
     private AcademicQualification academicQualification;
 
-    @Transient
-    private List<Locality>        localitiesServiced;
+    @ManyToMany
+    @JoinTable(name = "cms.company_coverage", joinColumns = @JoinColumn(
+            name = "company_id",
+            referencedColumnName = "company_id"), inverseJoinColumns = @JoinColumn(
+            name = "locality_id",
+            referencedColumnName = "LOCALITY_ID"))
+    private List<Locality>        localities;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -161,11 +168,11 @@ public class CompanyUser extends BaseModel {
         this.academicQualification = academicQualification;
     }
 
-    public List<Locality> getLocalitiesServiced() {
-        return localitiesServiced;
+    public List<Locality> getLocalities() {
+        return localities;
     }
 
-    public void setLocalitiesServiced(List<Locality> localitiesServiced) {
-        this.localitiesServiced = localitiesServiced;
+    public void setLocalities(List<Locality> localities) {
+        this.localities = localities;
     }
 }

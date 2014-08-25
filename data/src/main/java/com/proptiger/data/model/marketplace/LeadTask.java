@@ -107,14 +107,6 @@ public class LeadTask extends BaseModel {
         this.leadOfferId = leadOfferId;
     }
 
-    public Integer getTaskStatusId() {
-        return taskStatusId;
-    }
-
-    public void setTaskStatusId(Integer taskStatusId) {
-        this.taskStatusId = taskStatusId;
-    }
-
     public Date getScheduledFor() {
         return scheduledFor;
     }
@@ -205,5 +197,9 @@ public class LeadTask extends BaseModel {
 
     public void setOfferedListingMappings(List<TaskOfferedListingMapping> offeredListingMappings) {
         this.offeredListingMappings = offeredListingMappings;
+    }
+
+    public int getTaskStatusId() {
+        return taskStatusId;
     }
 }

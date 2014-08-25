@@ -748,7 +748,7 @@ public class UserService {
     private void patchUser(User user) {
         List<UserContactNumber> contactNumbers = user.getContactNumbers();
 
-        if (contactNumbers.isEmpty()) {
+        if (contactNumbers == null ||  contactNumbers.isEmpty()) {
             return;
         }
 
@@ -756,11 +756,14 @@ public class UserService {
         String contactNumber = userContactNumber.getContactNumber();
 
         if (contactNumber != null && !contactNumber.isEmpty()) {
-            userContactNumber.setUserId(user.getId());
-            userContactNumber.setCreatedBy(user.getId());
+            int userId = user.getId();
+            userContactNumber.setUserId(userId);
+            userContactNumber.setCreatedBy(userId);
 
-            User userByPhone = userDao.findByPhone(contactNumber, user.getId());
+            User userByPhone = userDao.findByPhone(contactNumber, userId);
             if (userByPhone == null) {
+                contactNumberDao.incrementPriorityForUser(userId);
+                userContactNumber.setPriority(UserContactNumber.primaryContactPriority);
                 contactNumberDao.saveAndFlush(userContactNumber);
             }
             else {

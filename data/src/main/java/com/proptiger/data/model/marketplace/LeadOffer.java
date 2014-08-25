@@ -16,11 +16,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
 
@@ -41,6 +43,7 @@ public class LeadOffer extends BaseModel {
     private int               id;
 
     @Column(name = "lead_id")
+    @JsonIgnore
     private int               leadId;
 
     @Column(name = "agent_id")
@@ -50,7 +53,23 @@ public class LeadOffer extends BaseModel {
     private int               statusId;
 
     @Column(name = "cycle_id")
+    @JsonIgnore
     private int               cycleId;
+
+    @Transient
+    private LeadTask lastTask;
+
+    @Transient
+    private LeadTask nextTask;
+
+    @OneToMany(mappedBy="leadOfferId", fetch=FetchType.LAZY)
+    private List<LeadTask> tasks;
+
+    @Transient
+    private int countMatchingListings = 99999999;
+
+    @Transient
+    private int countOfferedListings = 99999999;
 
     @Column(name = "created_at")
     private Date              createdAt        = new Date();
@@ -69,7 +88,11 @@ public class LeadOffer extends BaseModel {
         inverseJoinColumns=
             @JoinColumn(name="listing_id", referencedColumnName="id")
         )
-    private List<Listing> listings;   
+    private List<Listing> offeredListings;
+
+    @OneToMany(fetch=FetchType.LAZY)
+    @JoinColumn(name="seller_id", referencedColumnName="agent_id", insertable=false, updatable=false)
+    private List<Listing> matchingListings;
 
     public Lead getLead() {
         return lead;
@@ -134,14 +157,6 @@ public class LeadOffer extends BaseModel {
     public void setCycleId(int cycleId) {
         this.cycleId = cycleId;
     }
-
-    public List<Listing> getListings() {
-        return listings;
-    }
-
-    public void setListings(List<Listing> listings) {
-        this.listings = listings;
-    }
     
     public static class LeadOfferIdListing
     {
@@ -171,5 +186,61 @@ public class LeadOffer extends BaseModel {
         public void setListing(Listing listing) {
             this.listing = listing;
         }
+    }
+
+    public List<Listing> getOfferedListings() {
+        return offeredListings;
+    }
+
+    public void setOfferedListings(List<Listing> offeredListings) {
+        this.offeredListings = offeredListings;
+    }
+
+    public LeadTask getLastTask() {
+        return lastTask;
+    }
+
+    public void setLastTask(LeadTask lastTask) {
+        this.lastTask = lastTask;
+    }
+
+    public LeadTask getNextTask() {
+        return nextTask;
+    }
+
+    public void setNextTask(LeadTask nextTask) {
+        this.nextTask = nextTask;
+    }
+
+    public List<Listing> getMatchingListings() {
+        return matchingListings;
+    }
+
+    public void setMatchingListings(List<Listing> matchingListings) {
+        this.matchingListings = matchingListings;
+    }
+
+    public List<LeadTask> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<LeadTask> tasks) {
+        this.tasks = tasks;
+    }
+
+    public int getCountMatchingListings() {
+        return countMatchingListings;
+    }
+
+    public void setCountMatchingListings(int countMatchingListings) {
+        this.countMatchingListings = countMatchingListings;
+    }
+
+    public int getCountOfferedListings() {
+        return countOfferedListings;
+    }
+
+    public void setCountOfferedListings(int countOfferedListings) {
+        this.countOfferedListings = countOfferedListings;
     }
 }

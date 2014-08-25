@@ -287,5 +287,4 @@ public class ListingService {
         }
         return listingIdToAmenitiesMap;
     }
-
 }

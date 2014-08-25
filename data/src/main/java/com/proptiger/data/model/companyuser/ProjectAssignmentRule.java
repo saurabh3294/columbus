@@ -1,4 +1,4 @@
-package com.proptiger.data.model.seller;
+package com.proptiger.data.model.companyuser;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,18 +13,21 @@ import com.proptiger.data.model.BaseModel;
  * 
  */
 @Entity
-@Table(name = "cms.academic_qualifications")
+@Table(name = "cms.project_assignment_rules")
 @JsonFilter("fieldFilter")
-public class AcademicQualification extends BaseModel {
+public class ProjectAssignmentRule extends BaseModel {
 
-    private static final long serialVersionUID = 38036779720160982L;
+    private static final long serialVersionUID = 2137392504773576918L;
 
     @Id
     @Column(name = "id")
     private Integer           id;
 
-    @Column(name = "qualification")
-    private String            qualification;
+    @Column(name = "rule_name")
+    private String            ruleName;
+
+    @Column(name = "broker_id")
+    private Integer           brokerId;
 
     public Integer getId() {
         return id;
@@ -34,12 +37,12 @@ public class AcademicQualification extends BaseModel {
         this.id = id;
     }
 
-    public String getQualification() {
-        return qualification;
+    public String getRuleName() {
+        return ruleName;
     }
 
-    public void setQualification(String qualification) {
-        this.qualification = qualification;
+    public void setRuleName(String ruleName) {
+        this.ruleName = ruleName;
     }
 
 }

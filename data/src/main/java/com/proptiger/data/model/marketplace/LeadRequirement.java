@@ -2,22 +2,29 @@ package com.proptiger.data.model.marketplace;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.Builder;
+import com.proptiger.data.model.City;
+import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Project;
+import com.proptiger.data.model.Suburb;
 
 @JsonInclude(Include.NON_NULL)
 @Entity
 @Table(name = "marketplace.lead_requirements")
 @JsonFilter("fieldFilter")
 public class LeadRequirement extends BaseModel {
-
     /**
      * 
      */
@@ -28,7 +35,7 @@ public class LeadRequirement extends BaseModel {
     @Column(name = "id")
     private int               id;
 
-    @Column(name = "lead_id")
+    @Column(name = "lead_id", insertable=false, updatable=false)
     private int               leadId;
 
     @Column(name = "bedroom")
@@ -39,6 +46,32 @@ public class LeadRequirement extends BaseModel {
 
     @Column(name = "locality_id")
     private Integer           localityId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "locality_id", nullable = true, insertable = false, updatable = false)    
+    private Locality locality;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = true, insertable = false, updatable = false)    
+    private Project project;
+    
+    @ManyToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="lead_id")
+    private Lead lead;
+
+    public LeadRequirement() {
+        locality = new Locality();
+        locality.setLabel("Dummy");
+        locality.setSuburb(new Suburb());
+        locality.getSuburb().setCity(new City());
+        locality.getSuburb().getCity().setLabel("Dummy");
+
+        project = new Project();
+        project.setName("Dummy");
+        project.setBuilder(new Builder());
+        project.getBuilder().setName("Dummy");
+        project.setLocality(locality);
+    }
 
     public int getId() {
         return id;
@@ -78,5 +111,21 @@ public class LeadRequirement extends BaseModel {
 
     public void setLocalityId(Integer localityId) {
         this.localityId = localityId;
+    }
+
+    public Locality getLocality() {
+        return locality;
+    }
+
+    public void setLocality(Locality locality) {
+        this.locality = locality;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 }

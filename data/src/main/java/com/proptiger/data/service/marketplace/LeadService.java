@@ -19,9 +19,9 @@ import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
-import com.proptiger.data.service.CompanyService;
 import com.proptiger.data.service.LeadOfferStatus;
 import com.proptiger.data.service.ProjectService;
+import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
@@ -167,10 +167,8 @@ public class LeadService {
         else {
             lead.setId(leadDao.save(lead).getId());
             LeadRequirement leadRequirement = lead.getRequirements().get(0);
-            if (!isExactReplica(leadRequirement)) {
                 leadRequirement.setLeadId(lead.getId());
                 leadRequirementsService.save(leadRequirement);
-            }
         }
         int leadId = lead.getId();
         leadOriginal.setMergedLeadId(leadId);
@@ -223,6 +221,7 @@ public class LeadService {
      */
     private void patchLead(Lead existingLead, Lead lead) {
         for (LeadRequirement leadRequirement : lead.getRequirements()) {
+            leadRequirement.setLeadId(lead.getId());
             if (!isExactReplica(leadRequirement)) {
                 leadRequirement.setLeadId(existingLead.getId());
                 leadRequirementsService.saveAndFlush(leadRequirement);
