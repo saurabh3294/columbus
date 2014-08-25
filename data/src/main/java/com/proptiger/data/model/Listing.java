@@ -28,25 +28,26 @@ import com.proptiger.data.enums.Status;
 @Table(name = "cms.listings")
 @JsonFilter("fieldFilter")
 public class Listing extends BaseModel {
+    
     private static final long   serialVersionUID = 1L;
-
+    
     @Id
     private Integer             id;
-
+    
     @Column(name = "option_id")
     private Integer             propertyId;
-
+    
     @Column(name = "phase_id")
     private Integer             phaseId;
-
+    
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status              status;
-
+    
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "listingId", cascade = CascadeType.ALL)
     private List<ProjectSupply> projectSupply;
-
+    
     @OneToMany(mappedBy = "listingId", fetch = FetchType.LAZY)
     private List<ListingPrice>  listingPrices;
 

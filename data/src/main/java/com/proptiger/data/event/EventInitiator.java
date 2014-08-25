@@ -35,7 +35,7 @@ public class EventInitiator {
     /**
      * Generates the DB events at regular intervals.
      */
-    @Scheduled(fixedDelay = 500000)
+    @Scheduled(fixedDelay = 5000)
     public void dbEventGenerator() {
         Thread.currentThread().setName("Raw Event Generator");
 
@@ -49,15 +49,15 @@ public class EventInitiator {
         logger.info("DBEventGenerator: Generated " + numberOfEvents + " DB Events.");
     }
 
-    @Scheduled(fixedDelay = 50000)
+    @Scheduled(fixedDelay = 10000)
     public void dbRawEventProcessor() {
         Thread.currentThread().setName("Raw Event Scheduler");
         logger.info("DBRawEventProcessor: Process Raw Events started");
         dbRawEventHandler.handleEvents();
         logger.info("DBRawEventProcessor: Process Raw Events ended.");
     }
-    
-    @Scheduled(fixedDelay = 50000)
+
+    @Scheduled(fixedDelay = 15000)
     public void dbProcessedEventProcessor() {
         Thread.currentThread().setName("Processed Event Scheduler");
         logger.info("DBProcessedEventProcessor: Process Processed Events started");

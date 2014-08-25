@@ -6,6 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -20,8 +21,6 @@ import javax.persistence.Transient;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
-import com.proptiger.data.notification.model.legacy.NotificationMediumOld;
-import com.proptiger.data.notification.model.legacy.NotificationMessageOld;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
 @Entity
@@ -31,27 +30,30 @@ public class NotificationGenerated extends BaseModel {
     /**
      * 
      */
-    private static final long          serialVersionUID = -779686848270519833L;
+    private static final long serialVersionUID = 7829394463604901590L;
 
     @Id
     @GeneratedValue
     @Column(name = "id")
     private int                        id;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_message_id")
-    private NotificationMessage     notificationMessage;
+    private NotificationMessage        notificationMessage;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_medium_id")
-    private NotificationMedium      notificationMedium;
+    private NotificationMedium         notificationMedium;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_type_id")
     private NotificationType           notificationType;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @Column(name = "user_id")
+    private Integer                    userId;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private ForumUser                  forumUser;
 
     @Column(name = "data")
@@ -65,26 +67,33 @@ public class NotificationGenerated extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date                       updatedAt;
 
-    @Column(name = "expiry_time")
+    @Column(name = "schedule_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date                       expiry_time;
+    private Date                       scheduleTime;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private NotificationStatus         notificationStatus;
 
+    @Column(name = "merged_notification_message_id")
+    private Integer                    mergeNotificationMessageId;
+
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
-    
+
+    @Column(name = "object_id")
+    private Integer                    objectId = 0;
+
     @PreUpdate
-    public void populatePreUpdateFields(){
+    public void populatePreUpdateFields() {
         this.updatedAt = new Date();
     }
-    
+
     @PrePersist
-    public void populatePrePersistFields(){
+    public void populatePrePersistFields() {
         this.createdAt = new Date();
-        this.notificationStatus = NotificationStatus.NotificationGenerated;
+        this.notificationStatus = NotificationStatus.Generated;
+        populatePreUpdateFields();
     }
 
     public int getId() {
@@ -135,12 +144,12 @@ public class NotificationGenerated extends BaseModel {
         this.updatedAt = updatedAt;
     }
 
-    public Date getExpiry_time() {
-        return expiry_time;
+    public Date getScheduleTime() {
+        return scheduleTime;
     }
 
-    public void setExpiry_time(Date expiry_time) {
-        this.expiry_time = expiry_time;
+    public void setScheduleTime(Date scheduleTime) {
+        this.scheduleTime = scheduleTime;
     }
 
     public NotificationStatus getNotificationStatus() {
@@ -173,5 +182,29 @@ public class NotificationGenerated extends BaseModel {
 
     public void setNotificationType(NotificationType notificationType) {
         this.notificationType = notificationType;
+    }
+
+    public Integer getObjectId() {
+        return objectId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getMergeNotificationMessageId() {
+        return mergeNotificationMessageId;
+    }
+
+    public void setMergeNotificationMessageId(Integer mergeNotificationMessageId) {
+        this.mergeNotificationMessageId = mergeNotificationMessageId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setObjectId(Integer objectId) {
+        this.objectId = objectId;
     }
 }

@@ -3,37 +3,35 @@ package com.proptiger.data.notification.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.notification.model.payload.DefaultNotificationTypePayload;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
+import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.processor.NotificationNonPrimaryKeyProcessor;
 import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;
 
-public class NotificationTypeConfig extends BaseModel {
-
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -7768587141414148668L;
+public class NotificationTypeConfig {
 
     static {
         notificationTypeConfigMap = new HashMap<String, NotificationTypeConfig>();
     }
 
-    private Class<? extends NotificationTypePayload>            dataClassName                   = DefaultNotificationTypePayload.class;
-    private Class<? extends NotificationPrimaryKeyProcessor>    primaryKeyProcessorClassName    = NotificationPrimaryKeyProcessor.class;
-    private Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName = NotificationNonPrimaryKeyProcessor.class;
+    private transient Class<? extends NotificationTypePayload>            dataClassName                         = NotificationTypePayload.class;
+    private transient Class<? extends NotificationPrimaryKeyProcessor>    primaryKeyProcessorClassName          = NotificationPrimaryKeyProcessor.class;
+    private transient Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName       = NotificationNonPrimaryKeyProcessor.class;
+    private transient Class<? extends NotificationMessageProcessor>       notificationMessageProcessorClassName = DefaultNotificationMessageProcessor.class;
 
-    private NotificationPrimaryKeyProcessor                     primaryKeyProcessorObject;
-    private NotificationNonPrimaryKeyProcessor                  nonPrimaryKeyProcessorObject;
-    private NotificationTypePayload                             notificationTypePayloadObject;
+    private transient NotificationPrimaryKeyProcessor                     primaryKeyProcessorObject;
+    private transient NotificationNonPrimaryKeyProcessor                  nonPrimaryKeyProcessorObject;
+    private transient NotificationTypePayload                             notificationTypePayloadObject;
+    private transient NotificationMessageProcessor                        notificationMessageProcessorObject;
 
-    public static Map<String, NotificationTypeConfig>           notificationTypeConfigMap;
+    public transient static Map<String, NotificationTypeConfig>           notificationTypeConfigMap;
 
     public NotificationTypeConfig(
             Class<? extends NotificationTypePayload> dataClassName,
             Class<? extends NotificationPrimaryKeyProcessor> primaryKeyProcessorClassName,
-            Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName) {
+            Class<? extends NotificationNonPrimaryKeyProcessor> nonPrimaryKeyProcessorClassName,
+            Class<? extends NotificationMessageProcessor> notificationMessageProcessorClassName) {
         super();
         if (dataClassName != null) {
             this.dataClassName = dataClassName;
@@ -43,6 +41,9 @@ public class NotificationTypeConfig extends BaseModel {
         }
         if (nonPrimaryKeyProcessorClassName != null) {
             this.nonPrimaryKeyProcessorClassName = nonPrimaryKeyProcessorClassName;
+        }
+        if (notificationMessageProcessorClassName != null) {
+            this.notificationMessageProcessorClassName = notificationMessageProcessorClassName;
         }
     }
 
@@ -106,6 +107,23 @@ public class NotificationTypeConfig extends BaseModel {
 
     public void setNonPrimaryKeyProcessorObject(NotificationNonPrimaryKeyProcessor nonPrimaryKeyProcessorObject) {
         this.nonPrimaryKeyProcessorObject = nonPrimaryKeyProcessorObject;
+    }
+
+    public Class<? extends NotificationMessageProcessor> getNotificationMessageProcessorClassName() {
+        return notificationMessageProcessorClassName;
+    }
+
+    public void setNotificationMessageProcessorClassName(
+            Class<? extends NotificationMessageProcessor> notificationMessageProcessorClassName) {
+        this.notificationMessageProcessorClassName = notificationMessageProcessorClassName;
+    }
+
+    public NotificationMessageProcessor getNotificationMessageProcessorObject() {
+        return notificationMessageProcessorObject;
+    }
+
+    public void setNotificationMessageProcessorObject(NotificationMessageProcessor notificationMessageProcessorObject) {
+        this.notificationMessageProcessorObject = notificationMessageProcessorObject;
     }
 
 }

@@ -28,7 +28,7 @@ public class EventGenerated extends Event {
     private static final long serialVersionUID = 778194433417706629L;
 
     public enum EventStatus {
-        Raw, Merged, Discarded, Verfied, PendingVerification, Sent, Processed;
+        Raw, Merged, Discarded, Verified, PendingVerification, Sent, Processed;
     }
 
     @Column(name = "id")

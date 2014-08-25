@@ -56,7 +56,10 @@ public class EventTypeProcessorService {
                 firstDayOfMonth,
                 dbRawEventTableLog.getFilterMap());
 
-        return OldPrice.doubleValue();
+        if(OldPrice != null)
+            return OldPrice.doubleValue();
+        else
+            return null;
     }
 
     public Map<String, Object> getEventTransactionRow(EventGenerated eventGenerated) {

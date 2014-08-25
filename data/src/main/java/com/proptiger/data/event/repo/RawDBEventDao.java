@@ -40,7 +40,7 @@ public class RawDBEventDao extends DynamicTableDao {
                     + convertMapToSql(tableLog.getFilterMap())
                     + " ORDER BY "
                     + tableLog.getTransactionKeyName()
-                    + " ASC limit 1";
+                    + " ASC ";
         }
         catch (Exception e) {
             logger.error(" QUERY " + queryString + " FORMATION FAILED " + e.getMessage());

@@ -17,7 +17,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
-import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
@@ -25,11 +24,6 @@ import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 @Entity
 @Table(name = "notification_type_generated")
 public class NotificationTypeGenerated extends BaseModel {
-
-    /**
-     * 
-     */
-    private static final long       serialVersionUID = -7790921100550942961L;
 
     @Column(name = "id")
     @Id
@@ -39,7 +33,11 @@ public class NotificationTypeGenerated extends BaseModel {
     @Column(name = "data")
     private String                  data;
 
-    private EventGenerated          eventGenerated;
+    @Column(name = "event_generated_id")
+    private Integer                 eventGeneratedId;
+    // @OneToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "event_generated_id")
+    // private EventGenerated eventGenerated;
 
     @OneToOne
     @JoinColumn(name = "notification_type_id")
@@ -88,14 +86,6 @@ public class NotificationTypeGenerated extends BaseModel {
         this.data = data;
     }
 
-    public EventGenerated getEventGenerated() {
-        return eventGenerated;
-    }
-
-    public void setEventGenerated(EventGenerated eventGenerated) {
-        this.eventGenerated = eventGenerated;
-    }
-
     public NotificationType getNotificationType() {
         return notificationType;
     }
@@ -134,6 +124,22 @@ public class NotificationTypeGenerated extends BaseModel {
 
     public void setNotificationTypePayload(NotificationTypePayload notificationTypePayload) {
         this.notificationTypePayload = notificationTypePayload;
+    }
+
+    public Integer getEventGeneratedId() {
+        return eventGeneratedId;
+    }
+
+    public void setEventGeneratedId(Integer eventGeneratedId) {
+        this.eventGeneratedId = eventGeneratedId;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
 }

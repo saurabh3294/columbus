@@ -89,7 +89,7 @@ public class EventGeneratedService {
     public List<EventGenerated> getVerifiedEventsFromDate(Date fromDate) {
         List<EventGenerated> listEventGenerateds = eventGeneratedDao
                 .findByEventStatusAndUpdatedDateGreaterThanOrderByUpdatedDateAsc(
-                        EventGenerated.EventStatus.Verfied,
+                        EventGenerated.EventStatus.Verified,
                         fromDate);
         populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds;
@@ -111,8 +111,14 @@ public class EventGeneratedService {
     }
 
     public EventGenerated getLatestEventGenerated() {
+        logger.debug("Finding latest event generated");
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, 1);
-        List<EventGenerated> listEventGenerateds = eventGeneratedDao.findByOrderByCreatedDateDesc(pageable);
+        List<EventGenerated> listEventGenerateds = eventGeneratedDao.getLatestEventGenerated(pageable);
+        logger.debug("Latest Event generated: " + listEventGenerateds);
+        
+        if (listEventGenerateds == null || listEventGenerateds.isEmpty()) {
+            return null;
+        }
         populateEventsDataAfterLoad(listEventGenerateds);
         return listEventGenerateds.get(0);
     }
@@ -239,6 +245,7 @@ public class EventGeneratedService {
 
     private void populateEventsDataAfterLoad(List<EventGenerated> listEventGenerated) {
         for (EventGenerated eventGenerated : listEventGenerated) {
+            logger.debug("Populating events data after load for eventGeneratedId " + eventGenerated.getId());
             setEventTypeOnEventGenerated(eventGenerated);
 
             eventGenerated.setEventTypePayload((EventTypePayload) new Gson().fromJson(
@@ -249,6 +256,7 @@ public class EventGeneratedService {
 
     private void setEventTypeOnEventGenerated(EventGenerated eventGenerated) {
         EventType eventType = eventTypeService.getEventTypeByEventTypeId(eventGenerated.getEventTypeId());
+        logger.debug("Found eventType " + eventType.getName() + " for eventGeneratedId " + eventGenerated.getId());
         eventGenerated.setEventType(eventType);
     }
 

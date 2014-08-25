@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -18,7 +19,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
@@ -29,27 +29,26 @@ public class NotificationMessage extends BaseModel {
     /**
      * 
      */
-    private static final long          serialVersionUID = 4800603265035626921L;
+    private static final long serialVersionUID = 5129143086430525445L;
 
     @Id
     @Column(name = "id")
+    @GeneratedValue
     private int                        id;
 
     @Column(name = "data")
     private String                     data;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notification_generated_id", updatable = false, insertable = false)
-    private NotificationTypeGenerated  notificationTypeGenerated;
-
+    @Column(name = "notification_type_generated_id")
+    private Integer notificationTypeGeneratedId;
+    
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "notification_type_id")
     private NotificationType           notificationType;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private ForumUser                  forumUser;
-
+    @Column(name = "user_id")
+    private Integer userId;
+    
     @Transient
     private NotificationMessagePayload notificationMessagePayload;
 
@@ -66,27 +65,23 @@ public class NotificationMessage extends BaseModel {
     private Date                       updatedAt;
     
     @PreUpdate
-    public void populateFieldsBeforeUpdate(){
+    public void autoUpdateFields() {
         this.updatedAt = new Date();
     }
-    
+
     @PrePersist
-    public void populateFieldsBeforePersist(){
+    public void autoPopulateFields() {
         this.createdAt = new Date();
         this.notificationStatus = NotificationStatus.MessageGenerated;
-        populateFieldsBeforeUpdate();
+        autoUpdateFields();
     }
-
+    
     public int getId() {
         return id;
     }
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public NotificationTypeGenerated getNotificationTypeGenerated() {
-        return notificationTypeGenerated;
     }
 
     public String getData() {
@@ -96,19 +91,7 @@ public class NotificationMessage extends BaseModel {
     public void setData(String data) {
         this.data = data;
     }
-
-    public void setNotificationTypeGenerated(NotificationTypeGenerated notificationTypeGenerated) {
-        this.notificationTypeGenerated = notificationTypeGenerated;
-    }
-
-    public ForumUser getForumUser() {
-        return forumUser;
-    }
-
-    public void setForumUser(ForumUser forumUser) {
-        this.forumUser = forumUser;
-    }
-
+    
     public NotificationMessagePayload getNotificationMessagePayload() {
         return notificationMessagePayload;
     }
@@ -147,6 +130,22 @@ public class NotificationMessage extends BaseModel {
 
     public void setNotificationType(NotificationType notificationType) {
         this.notificationType = notificationType;
+    }
+
+    public Integer getNotificationTypeGeneratedId() {
+        return notificationTypeGeneratedId;
+    }
+
+    public void setNotificationTypeGeneratedId(Integer notificationTypeGeneratedId) {
+        this.notificationTypeGeneratedId = notificationTypeGeneratedId;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
 }

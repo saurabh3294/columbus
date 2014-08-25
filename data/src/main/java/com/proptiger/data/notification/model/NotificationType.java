@@ -12,21 +12,23 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.annotations.Expose;
+import com.proptiger.data.event.model.EventType;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 
 @Entity
 @Table(name = "notification_type")
 public class NotificationType extends BaseModel {
-    public enum NotificationOperation {
-        Merge, Suppress
-    }
-
+    
     /**
      * 
      */
-    private static final long                serialVersionUID = 549033224673052141L;
+    private static final long serialVersionUID = -1899826990526820074L;
+
+    public enum NotificationOperation {
+        Merge, Suppress
+    }
 
     @Column(name = "id")
     @Id
@@ -36,18 +38,47 @@ public class NotificationType extends BaseModel {
     @Column(name = "name")
     private String                           name;
 
+    /**
+     * Minimum fixed delay required after notification generation before sending
+     * it
+     */
+    @Column(name = "fixed_delay_in_seconds")
+    private Long                             fixedDelay;
+
+    /**
+     * This flag denotes if a notification type can be rescheduled or it will be
+     * suppressed if it cannot be sent in the current time frame
+     */
+    @Column(name = "can_reschedule")
+    private Boolean                          canReschedule;
+
+    @Column(name = "no_of_reschedule")
+    private Integer                          numberOfReschedule;
+
+    /**
+     * Minimum time gap in seconds required between two Notifications of same
+     * Notification Type with same primary key for a particular user in a
+     * particular medium
+     */
+    @Column(name = "frequency_cycle_in_seconds")
+    private Long                             frequencyCycleInSeconds;
+
+    /**
+     * Priority of a Notification type over another type
+     */
+    @Column(name = "priority")
+    private Integer                          priority;
+
     @Column(name = "overwrite_config_name")
     private String                           overwriteConfigName;
 
     @Transient
+    private List<EventType>                  eventTypeList;
+
+    @Transient
     @JsonIgnore
+    @Expose(serialize = false, deserialize = false)
     private transient NotificationTypeConfig notificationTypeConfig;
-
-    @Transient
-    private List<NotificationMedium>         notificationMediumList;
-
-    @Transient
-    private List<ForumUser>                  forumUserList;
 
     @Column(name = "intra_primary_key_operation")
     @Enumerated(EnumType.STRING)
@@ -69,6 +100,9 @@ public class NotificationType extends BaseModel {
     @Column(name = "inter_non_primary_key_suppress_id")
     private Integer                          interNonPrimaryKeySuppressId;
 
+    /**
+     * Strategy for getting the list of users for a particular notification type
+     */
     @Column(name = "user_strategy")
     @Enumerated(EnumType.STRING)
     private NotificationTypeUserStrategy     userStrategy;
@@ -89,6 +123,46 @@ public class NotificationType extends BaseModel {
         this.name = name;
     }
 
+    public Long getFixedDelay() {
+        return fixedDelay;
+    }
+
+    public void setFixedDelay(Long fixedDelay) {
+        this.fixedDelay = fixedDelay;
+    }
+
+    public Boolean getCanReschedule() {
+        return canReschedule;
+    }
+
+    public void setCanReschedule(Boolean canReschedule) {
+        this.canReschedule = canReschedule;
+    }
+
+    public Integer getNumberOfReschedule() {
+        return numberOfReschedule;
+    }
+
+    public void setNumberOfReschedule(Integer numberOfReschedule) {
+        this.numberOfReschedule = numberOfReschedule;
+    }
+
+    public Long getFrequencyCycleInSeconds() {
+        return frequencyCycleInSeconds;
+    }
+
+    public void setFrequencyCycleInSeconds(Long frequencyCycleInSeconds) {
+        this.frequencyCycleInSeconds = frequencyCycleInSeconds;
+    }
+
+    public Integer getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+
     public String getOverwriteConfigName() {
         return overwriteConfigName;
     }
@@ -97,28 +171,20 @@ public class NotificationType extends BaseModel {
         this.overwriteConfigName = overwriteConfigName;
     }
 
+    public List<EventType> getEventTypeList() {
+        return eventTypeList;
+    }
+
+    public void setEventTypeList(List<EventType> eventTypeList) {
+        this.eventTypeList = eventTypeList;
+    }
+
     public NotificationTypeConfig getNotificationTypeConfig() {
         return notificationTypeConfig;
     }
 
     public void setNotificationTypeConfig(NotificationTypeConfig notificationTypeConfig) {
         this.notificationTypeConfig = notificationTypeConfig;
-    }
-
-    public List<NotificationMedium> getNotificationMediumList() {
-        return notificationMediumList;
-    }
-
-    public void setNotificationMediumList(List<NotificationMedium> notificationMediumList) {
-        this.notificationMediumList = notificationMediumList;
-    }
-
-    public List<ForumUser> getForumUserList() {
-        return forumUserList;
-    }
-
-    public void setForumUserList(List<ForumUser> forumUserList) {
-        this.forumUserList = forumUserList;
     }
 
     public NotificationOperation getIntraPrimaryKeyOperation() {

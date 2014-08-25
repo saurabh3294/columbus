@@ -16,6 +16,11 @@ import com.proptiger.data.model.BaseModel;
 public class EventTypeConfig extends BaseModel {
 
         
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 5353549466505297871L;
+    
     public static Map<String, EventTypeConfig>   eventTypeConfigMap;
     static {
 
@@ -35,7 +40,7 @@ public class EventTypeConfig extends BaseModel {
 
     private Class<? extends EventTypePayload>    dataClassName         = DefaultEventTypePayload.class;
     private Class<? extends DBEventProcessor>    processorClassName    = PriceChangeProcessor.class;
-    private Class<? extends DBEventVerification> verificationClassName = DBEventVerification.class;
+    private Class<? extends DBEventVerification> verificationClassName = PriceChangeVerification.class;
     private DBEventProcessor                     processorObject;
     private EventTypePayload                     eventTypePayloadObject;
     private DBEventVerification                  eventVerificationObject;

@@ -14,15 +14,16 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeConfig;
+import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.repo.NotificationTypeDao;
 
 @Service
 public class NotificationTypeService {
-    private static Logger      logger = LoggerFactory.getLogger(NotificationTypeService.class);
+    private static Logger       logger = LoggerFactory.getLogger(NotificationTypeService.class);
 
     @Autowired
-    private ApplicationContext applicationContext;
-    
+    private ApplicationContext  applicationContext;
+
     @Autowired
     private NotificationTypeDao notificationTypeDao;
 
@@ -54,37 +55,22 @@ public class NotificationTypeService {
         try {
             notificationTypeConfig.setNotificationTypePayloadObject(notificationTypeConfig.getDataClassName()
                     .newInstance());
+            notificationTypeConfig.setNonPrimaryKeyProcessorObject(applicationContext.getBean(notificationTypeConfig
+                    .getNonPrimaryKeyProcessorClassName()));
+            notificationTypeConfig.setPrimaryKeyProcessorObject(applicationContext.getBean(notificationTypeConfig
+                    .getPrimaryKeyProcessorClassName()));
         }
         catch (Exception e) {
             e.printStackTrace();
         }
 
+        notificationTypeConfig.setNotificationMessageProcessorObject(applicationContext.getBean(notificationTypeConfig
+                .getNotificationMessageProcessorClassName()));
+
         return notificationTypeConfig;
     }
     
-    public Map<Integer, Integer> getNotificationInterNonPrimaryKeySupressGroupingMap(){
-        Iterable<NotificationType> notiIterable = findAllNotificationTypes();
-        
-        Map<Integer, Integer> mapping = new LinkedHashMap<Integer, Integer>();
-        
-        Iterator<NotificationType> it = notiIterable.iterator();
-        NotificationType notificationType = null;
-        Integer parentNotificationTypeId = null;
-        
-        while(it.hasNext()){
-            notificationType = it.next();
-            
-            if(notificationType.getInterNonPrimaryKeySuppressId() != null){
-                
-                parentNotificationTypeId = notificationType.getInterPrimaryKeySuppressId();
-                mapping.put(parentNotificationTypeId, notificationType.getId());
-            }
-        }
-        
-        return mapping;
-    }
-    
-    public Map<Integer, Integer> getNotificationInterPrimaryKeySupressGroupingMap(){
+    public Map<Integer, Integer> NotificationInterPrimaryKeySupressGroupingMap(){
         Iterable<NotificationType> notiIterable = findAllNotificationTypes();
         
         Map<Integer, Integer> mapping = new LinkedHashMap<Integer, Integer>();
@@ -105,9 +91,54 @@ public class NotificationTypeService {
         
         return mapping;
     }
+
+    public Map<Integer, Integer> getNotificationInterPrimaryKeySupressGroupingMap() {
+        Iterable<NotificationType> notiIterable = findAllNotificationTypes();
+
+        Map<Integer, Integer> mapping = new LinkedHashMap<Integer, Integer>();
+
+        Iterator<NotificationType> it = notiIterable.iterator();
+        NotificationType notificationType = null;
+        Integer parentNotificationTypeId = null;
+
+        while (it.hasNext()) {
+            notificationType = it.next();
+
+            if (notificationType.getInterPrimaryKeySuppressId() != null) {
+
+                parentNotificationTypeId = notificationType.getInterPrimaryKeySuppressId();
+                mapping.put(parentNotificationTypeId, notificationType.getId());
+            }
+        }
+
+        return mapping;
+    }
     
-    public Map<Integer, List<Integer>> notificationInterKeyMergeGroupingMap(){
-        
+    public Map<Integer, Integer> getNotificationInterNonPrimaryKeySupressGroupingMap() {
+        Iterable<NotificationType> notiIterable = findAllNotificationTypes();
+
+        Map<Integer, Integer> mapping = new LinkedHashMap<Integer, Integer>();
+
+        Iterator<NotificationType> it = notiIterable.iterator();
+        NotificationType notificationType = null;
+        Integer parentNotificationTypeId = null;
+
+        while (it.hasNext()) {
+            notificationType = it.next();
+
+            if (notificationType.getInterNonPrimaryKeySuppressId() != null) {
+
+                parentNotificationTypeId = notificationType.getInterNonPrimaryKeySuppressId();
+                mapping.put(parentNotificationTypeId, notificationType.getId());
+            }
+        }
+
+        return mapping;
+    }
+
+
+    public Map<Integer, List<Integer>> notificationInterKeyMergeGroupingMap() {
+
         Iterable<NotificationType> notiIterable = findAllNotificationTypes();
         Map<Integer, List<Integer>> mapping = new LinkedHashMap<Integer, List<Integer>>();
         
@@ -135,42 +166,51 @@ public class NotificationTypeService {
         
         return mapping;
     }
-    
-    public Map<Integer, List<Integer>> notificationInterNonKeyMergeGroupingMap(){
-        
+
+    public Map<Integer, List<Integer>> notificationInterNonKeyMergeGroupingMap() {
+
         Iterable<NotificationType> notiIterable = findAllNotificationTypes();
         Map<Integer, List<Integer>> mapping = new LinkedHashMap<Integer, List<Integer>>();
-        
+
         Iterator<NotificationType> it = notiIterable.iterator();
         NotificationType notificationType = null;
         Integer parentNotificationTypeId = null;
         List<Integer> childNotificationTypeList = null;
-        
-        while(it.hasNext()){
+
+        while (it.hasNext()) {
             notificationType = it.next();
-            
-            if(notificationType.getInterNonPrimaryKeyMergeId() != null){
-                
-                parentNotificationTypeId = notificationType.getInterPrimaryKeyMergeId();
+
+            if (notificationType.getInterNonPrimaryKeyMergeId() != null) {
+
+                parentNotificationTypeId = notificationType.getInterNonPrimaryKeyMergeId();
                 childNotificationTypeList = mapping.get(parentNotificationTypeId);
-                
-                if(childNotificationTypeList == null){
+
+                if (childNotificationTypeList == null) {
                     childNotificationTypeList = new ArrayList<Integer>();
                 }
-                
+
                 childNotificationTypeList.add(notificationType.getId());
                 mapping.put(parentNotificationTypeId, childNotificationTypeList);
             }
         }
-        
+
         return mapping;
     }
-    
-    public Iterable<NotificationType> findAllNotificationTypes(){
-        return notificationTypeDao.findAll();
+
+    public Iterable<NotificationType> findAllNotificationTypes() {
+        Iterable<NotificationType> nIterable = notificationTypeDao.findAll();
+        Iterator<NotificationType> it = nIterable.iterator();
+        
+        while(it.hasNext()){
+            populateNotificationTypeConfig(it.next());
+        }
+        
+        return nIterable;
     }
-    
-    public NotificationType findOne(Integer notificationTypeId){
-        return notificationTypeDao.findOne(notificationTypeId);
+
+    public NotificationType findOne(Integer notificationTypeId) {
+        NotificationType nType =  notificationTypeDao.findOne(notificationTypeId);
+        populateNotificationTypeConfig(nType);
+        return nType;
     }
 }

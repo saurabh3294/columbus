@@ -7,9 +7,12 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.event.model.EventGenerated;
 import com.proptiger.data.event.service.EventGeneratedService;
 import com.proptiger.data.notification.model.Subscriber;
 import com.proptiger.data.notification.model.Subscriber.SubscriberName;
@@ -17,9 +20,13 @@ import com.proptiger.data.notification.model.SubscriberConfig;
 import com.proptiger.data.notification.model.SubscriberConfig.ConfigName;
 import com.proptiger.data.notification.repo.SubscriberConfigDao;
 import com.proptiger.data.notification.repo.SubscriberDao;
+import com.proptiger.data.util.DateUtil;
 
 @Service
 public class SubscriberConfigService {
+
+    private static Logger                          logger              = LoggerFactory
+                                                                               .getLogger(SubscriberConfigService.class);
 
     @Autowired
     private SubscriberConfigDao                    subscriberConfigDao;
@@ -63,7 +70,7 @@ public class SubscriberConfigService {
         }
         return Integer.valueOf(configValue);
     }
-    
+
     public Integer getMaxActiveNotificationMessageCount() {
         SubscriberName subscriberName = Subscriber.SubscriberName.Notification;
         ConfigName configName = SubscriberConfig.ConfigName.MaxActiveNotificationMessageCount;
@@ -75,14 +82,30 @@ public class SubscriberConfigService {
     }
 
     public Date getLastEventDateReadByNotification() {
-        Date lastEventDate = subscriberMap.get(Subscriber.SubscriberName.Notification).getLastEventDate();
-        if (lastEventDate == null) {
-            lastEventDate = eventGeneratedService.getLatestEventGenerated().getCreatedDate();
+        Subscriber subscriber = subscriberMap.get(Subscriber.SubscriberName.Notification);
+        if (subscriber == null) {
+            logger.info("Notification Subscriber not found in DB");
+        }
+        Date lastEventDate = subscriber.getLastEventDate();
+        logger.debug("Date of last consumend event by Notification Subscriber is " + lastEventDate);
+        
+        if (lastEventDate == null) {          
+            EventGenerated eventGenerated = eventGeneratedService.getLatestEventGenerated();
+            logger.debug("Latest event generated: " + eventGenerated);
+            
+            if (eventGenerated != null) {
+                // Subtracting 1 second to include current events.
+                lastEventDate = DateUtil.addSeconds(eventGenerated.getCreatedDate(), -1);
+            }
+            else {
+                lastEventDate = new Date();
+            }
+            logger.debug("Setting last event date as " + lastEventDate);
             setLastEventDateReadByNotification(lastEventDate);
         }
         return lastEventDate;
     }
-
+    
     public void setLastEventDateReadByNotification(Date lastEventDate) {
         Subscriber subscriber = subscriberMap.get(Subscriber.SubscriberName.Notification);
         subscriber.setLastEventDate(lastEventDate);

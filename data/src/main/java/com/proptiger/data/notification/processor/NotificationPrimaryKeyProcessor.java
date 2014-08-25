@@ -3,17 +3,24 @@ package com.proptiger.data.notification.processor;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.generator.handler.NotificationProcessorHandler;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType.NotificationOperation;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 import com.proptiger.data.notification.processor.dto.NotificationByKeyDto;
+import com.proptiger.data.util.Serializer;
 
 @Service
+@Primary
 public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
+    private static Logger                   logger = LoggerFactory.getLogger(NotificationPrimaryKeyProcessor.class);
 
     public Object getPrimaryKeyOfNotificationMessage(NotificationMessagePayload notificationMessagePayload) {
         return notificationMessagePayload.getNotificationTypePayload().getPrimaryKeyValue();
@@ -40,7 +47,8 @@ public class NotificationPrimaryKeyProcessor extends NotificationProcessor {
             NotificationByKeyDto parentNotification,
             List<NotificationByKeyDto> childNotification) {
         NotificationMessage notificationMessage = parentNotification.getNotificationMessages().get(0);
-
+        logger.debug("PARENT "+Serializer.toJson(parentNotification));
+        logger.debug("CHILD "+Serializer.toJson(childNotification));
         for (NotificationByKeyDto notificationByKeyDto : childNotification) {
             merging(
                     notificationByKeyDto.getNotificationMessages(),
