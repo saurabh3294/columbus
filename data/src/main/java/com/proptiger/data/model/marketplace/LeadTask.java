@@ -41,6 +41,9 @@ public class LeadTask extends BaseModel {
     @Column(name = "lead_task_status_id")
     private int                             taskStatusId;
 
+    @Column(name = "task_status_reason_id")
+    private Integer                         statusReasonId;
+
     @Nonnull
     @Column(name = "scheduled_for")
     @Future
@@ -178,6 +181,22 @@ public class LeadTask extends BaseModel {
 
     public void setTaskStatus(LeadTaskStatus taskStatus) {
         this.taskStatus = taskStatus;
+    }
+
+    public Integer getStatusReasonId() {
+        return statusReasonId;
+    }
+
+    public void setStatusReasonId(Integer statusReasonId) {
+        this.statusReasonId = statusReasonId;
+    }
+
+    public List<TaskOfferedListingMapping> getOfferedListingMappings() {
+        return offeredListingMappings;
+    }
+
+    public void setOfferedListingMappings(List<TaskOfferedListingMapping> offeredListingMappings) {
+        this.offeredListingMappings = offeredListingMappings;
     }
 
     public int getTaskStatusId() {

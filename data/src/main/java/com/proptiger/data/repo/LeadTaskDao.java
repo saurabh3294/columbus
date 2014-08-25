@@ -18,11 +18,11 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
     public List<LeadTask> findByLeadOfferId(int leadOfferId);
 
     @Query(
-            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS WHERE LO.agentId = ?1")
+            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LTS.statusReasons LTSR WHERE LO.agentId = ?1")
     public List<LeadTask> getLeadTasksForUser(int userId, Pageable pageable);
 
     @Query(
-            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS WHERE LT.id = ?1")
+            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LTS.statusReasons LTSR WHERE LT.id = ?1")
     public LeadTask getLeadTaskDetails(int taskId);
 
     @Query(value = "SELECT COUNT(LT) FROM LeadTask LT INNER JOIN LT.leadOffer LO WHERE LO.agentId = ?1")
@@ -31,4 +31,8 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
     @Query(
             value = "SELECT TOLM FROM LeadTask LT INNER JOIN LT.offeredListingMappings TOLM INNER JOIN FETCH TOLM.offeredListing LOL WHERE LT.id = ?1")
     public List<TaskOfferedListingMapping> getMappedListingMappingsForTask(int taskId);
+
+    @Query(
+            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.offeredListingMappings TOLM INNER JOIN FETCH TOLM.offeredListing where LT.id IN (?1)")
+    public List<LeadTask> getListingMappedTasksByTaskIds(List<Integer> taskIds);
 }
