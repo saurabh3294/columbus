@@ -35,7 +35,7 @@ public class LeadRequirement extends BaseModel {
     @Column(name = "id")
     private int               id;
 
-    @Column(name = "lead_id", insertable=false, updatable=false)
+    @Column(name = "lead_id")
     private int               leadId;
 
     @Column(name = "bedroom")
@@ -56,7 +56,7 @@ public class LeadRequirement extends BaseModel {
     private Project project;
     
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="lead_id")
+    @JoinColumn(name="lead_id" ,insertable=false, updatable=false)
     private Lead lead;
 
     public LeadRequirement() {
