@@ -151,8 +151,8 @@ public class PortfolioService {
                         userId,
                         false,
                         Constants.SOURCETYPE_LIST,
-                        listingStatus,
-                        LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+                        listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+        setPropertyInListings(listings);
         PortfolioUtil.updatePriceInfoInPortfolio(portfolio, listings);
         if (listings != null) {
             for (PortfolioListing l : listings) {
@@ -177,9 +177,13 @@ public class PortfolioService {
                         userId,
                         false,
                         Constants.SOURCETYPE_LIST,
-                        listingStatus,
-                        LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+                        listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
 
+        if (listings == null || listings.isEmpty()) {
+            return listings;
+        }
+
+        setPropertyInListings(listings);
         updateOtherSpecificData(listings);
         updatePaymentSchedule(listings);
         return listings;
@@ -228,9 +232,7 @@ public class PortfolioService {
         Map<Integer, Project> projectIdToProjectMap = new HashMap<Integer, Project>();
         Map<Integer, List<Image>> propertyIdToImageMap = new HashMap<Integer, List<Image>>();
         if (!propertyIds.isEmpty()) {
-
             projectIdToProjectMap = PortfolioUtil.createProjectIdMap(properties);
-
             List<Image> propertyImages = imageService.getImages(DomainObject.property, null, propertyIds);
             propertyIdToImageMap = PortfolioUtil.getPropertyIdToImageMap(propertyImages);
         }
@@ -289,6 +291,9 @@ public class PortfolioService {
     }
 
     public List<Property> setPropertyInListings(List<PortfolioListing> listings) {
+        if (listings == null || listings.isEmpty()) {
+            return new ArrayList<Property>();
+        }
 
         List<Long> propertyIds = new ArrayList<Long>();
         Map<Integer, PortfolioListing> propertyIdToListingMap = new HashMap<Integer, PortfolioListing>();
@@ -306,8 +311,8 @@ public class PortfolioService {
 
         for (Property property : properties) {
             propertyIdToListingMap.get(property.getPropertyId()).setProperty(property);
-
         }
+
         return properties;
     }
 

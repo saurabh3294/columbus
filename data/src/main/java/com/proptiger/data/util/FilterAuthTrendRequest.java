@@ -33,6 +33,9 @@ public class FilterAuthTrendRequest {
 
     @Before(value = "addSubscriptionPermissionsToSelectorPointCut()")
     public void beforeAddSubscriptionPermissionsToSelectorPointCut(JoinPoint jointPoint) throws Throwable {
+        if (!applicationNameService.isB2BApplicationRequest()) {
+            return;
+        }
         ActiveUser user = SecurityContextUtils.getLoggedInUser();
         if (user != null) {
             Object[] methodArgs = jointPoint.getArgs();
@@ -43,21 +46,13 @@ public class FilterAuthTrendRequest {
                     if (filters != null) {
                         ((FIQLSelector) arg).addAndConditionToFilter(filters);
                     }
-                    /* TODO :: Hack here : 
-                     * => implement using application name context
-                     * => implement using fiqlSelector.setRows(0);
-                     */
+                    /* TODO :: implement using fiqlSelector.setRows(0); */
                     else {
                         ((FIQLSelector) arg).addAndConditionToFilter("cityId==500000");
                     }
-                    
-                    
                 }
-
             }
-
         }
-
     }
 
 }
