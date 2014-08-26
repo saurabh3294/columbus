@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.ActiveUser;
@@ -31,6 +32,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.MasterLeadTaskDao;
+import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
@@ -64,6 +66,9 @@ public class LeadTaskService {
 
     @Autowired
     private LeadTaskStatusReasonDao      taskStatusReasonDao;
+
+    @Autowired
+    private LeadOfferDao                 leadOfferDao;
 
     private static final int             offerDefaultLeadTaskStatusMappingId = 1;
 
@@ -127,12 +132,25 @@ public class LeadTaskService {
             throw new BadRequestException();
         }
 
-        LeadTask finalTask = leadTaskDao.getLeadTaskDetails(currentTaskId);
-        if(nextTaskId != 0){
-            finalTask.setNextTask(leadTaskDao.getLeadTaskDetails(nextTaskId));
+        LeadTask finalTask = getLeadTaskWithAllDetails(currentTaskId);
+        if (nextTaskId != 0) {
+            LeadTask nextTask = getLeadTaskWithAllDetails(nextTaskId);
+            finalTask.setNextTask(nextTask);
         }
-
         return finalTask.populateTransientAttributes();
+    }
+
+    // XXX -- introduced only because we have not yet found a solution to load
+    // all depending objects in one single query ignoring hibernate cache
+    private LeadTask getLeadTaskWithAllDetails(int taskId) {
+        LeadTask leadTask = leadTaskDao.findOne(taskId);
+        leadTask.setLeadOffer(leadOfferDao.findOne(leadTask.getLeadOfferId()));
+        leadTask.setTaskStatus(leadTaskStatusDao.getLeadTaskStatusDetail(leadTask.getTaskStatusId()));
+        leadTask.setOfferedListingMappings(taskOfferedListingMappingDao.findByTaskId(taskId));
+        if (leadTask.getStatusReasonId() != null) {
+            leadTask.setStatusReason(taskStatusReasonDao.findOne(leadTask.getStatusReasonId()));
+        }
+        return leadTask;
     }
 
     /**
@@ -362,7 +380,10 @@ public class LeadTaskService {
         }
 
         List<MasterLeadTask> mustDoTasks = masterLeadTaskDao.findByPriorityLessThanAndOptional(nextTaskStatus
-                .getMasterLeadTask().getPriority(), true);
+                .getMasterLeadTask().getPriority(), false);
+
+        logger.debug("DONE === " + new Gson().toJson(completedTasks));
+        logger.debug("MUST DO == " + new Gson().toJson(mustDoTasks));
 
         for (MasterLeadTask masterLeadTask : mustDoTasks) {
             int notDoneTaskId = masterLeadTask.getId();
@@ -421,35 +442,6 @@ public class LeadTaskService {
 
         return response;
     }
-
-    // Lets see if we need this ever again
-    // /**
-    // * populated offered listings in task list
-    // *
-    // * @param leadTasks
-    // */
-    // private void populateTaskOfferedListings(List<LeadTask> leadTasks) {
-    // List<Integer> taskIds = new ArrayList<>();
-    // for (LeadTask leadTask : leadTasks) {
-    // taskIds.add(leadTask.getId());
-    // }
-    //
-    // if (!taskIds.isEmpty()) {
-    // List<LeadTask> listingMappLeadTasks =
-    // leadTaskDao.getListingMappedTasksByTaskIds(taskIds);
-    // Map<Integer, LeadTask> idMappedTasks = new HashMap<>();
-    // for (LeadTask leadTask : listingMappLeadTasks) {
-    // idMappedTasks.put(leadTask.getId(), leadTask);
-    // }
-    //
-    // for (LeadTask leadTask : leadTasks) {
-    // LeadTask taskWithListing = idMappedTasks.get(leadTask.getId());
-    // if (taskWithListing != null) {
-    // leadTask.setOfferedListingMappings(taskWithListing.getOfferedListingMappings());
-    // }
-    // }
-    // }
-    // }
 
     /**
      * applies defaults in {@link FIQLSelector} for get task apis

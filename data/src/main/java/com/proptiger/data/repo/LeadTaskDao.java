@@ -18,11 +18,11 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
     public List<LeadTask> findByLeadOfferId(int leadOfferId);
 
     @Query(
-            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason LTSR LEFT JOIN FETCH LT.offeredListingMappings TOLM LEFT JOIN FETCH TOLM.offeredListing WHERE LO.agentId = ?1")
+            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason LTSR LEFT JOIN FETCH LT.offeredListingMappings TOLM LEFT JOIN FETCH TOLM.offeredListing WHERE LO.agentId = ?1")
     public List<LeadTask> getLeadTasksForUser(int userId, Pageable pageable);
 
     @Query(
-            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.leadOffer LO INNER JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason LTSR LEFT JOIN FETCH LT.offeredListingMappings TOLM LEFT JOIN FETCH TOLM.offeredListing WHERE LT.id = ?1")
+            value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.leadOffer LO JOIN FETCH LT.taskStatus LTS INNER JOIN FETCH LTS.masterLeadTask MLT INNER JOIN FETCH LTS.masterLeadTaskStatus MLTS LEFT JOIN FETCH LT.statusReason LTSR LEFT JOIN FETCH LT.offeredListingMappings TOLM LEFT JOIN FETCH TOLM.offeredListing WHERE LT.id = ?1")
     public LeadTask getLeadTaskDetails(int taskId);
 
     @Query(value = "SELECT COUNT(LT) FROM LeadTask LT INNER JOIN LT.leadOffer LO WHERE LO.agentId = ?1")
