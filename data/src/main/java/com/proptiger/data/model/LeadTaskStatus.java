@@ -4,12 +4,14 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
 
 /**
@@ -25,12 +27,15 @@ public class LeadTaskStatus extends BaseModel {
     @Id
     private int                        id;
 
+    @JsonIgnore
     @Column(name = "master_task_id")
     private int                        masterTaskId;
 
+    @JsonIgnore
     @Column(name = "master_task_status_id")
     private int                        masterTaskStatusId;
 
+    @JsonIgnore
     @Column(name = "master_status_id")
     private Integer                    resultingStatusId;
 
@@ -43,6 +48,7 @@ public class LeadTaskStatus extends BaseModel {
     private MasterLeadTaskStatus       masterLeadTaskStatus;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "master_status_id", insertable = false, updatable = false)
     private MasterLeadOfferStatus      resultingStatus;
 

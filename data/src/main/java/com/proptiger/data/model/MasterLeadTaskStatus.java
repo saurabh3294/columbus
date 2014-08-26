@@ -26,6 +26,9 @@ public class MasterLeadTaskStatus extends BaseModel {
     @Column(name = "is_next_task_required")
     private boolean           nextTaskRequired;
 
+    @Column(name = "is_beginning")
+    private boolean           beginning;
+
     @Column(name = "is_complete")
     private boolean           complete;
 
@@ -67,5 +70,13 @@ public class MasterLeadTaskStatus extends BaseModel {
 
     public void setComplete(boolean complete) {
         this.complete = complete;
+    }
+
+    public boolean isBeginning() {
+        return beginning;
+    }
+
+    public void setBeginning(boolean beginning) {
+        this.beginning = beginning;
     }
 }
