@@ -36,6 +36,7 @@ import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 
@@ -77,7 +78,7 @@ public class LeadOfferService {
      * @param leadOfferedListing
      * @return
      */
-    public List<Integer> offerListings(List<Integer> listingIds, int leadOfferId, int userId) {
+    private List<Integer> offerListings(List<Integer> listingIds, int leadOfferId, int userId) {
         List<LeadOfferedListing> leadOfferedListings = leadOfferedListingDao.findByLeadOfferIdAndListingIdIn(
                 leadOfferId,
                 listingIds);
@@ -280,15 +281,13 @@ public class LeadOfferService {
         Map<Integer, List<LeadOfferedListing>> listingMap = new HashMap<>();
         List<LeadOfferedListing> leadOfferListings = leadOfferDao.getLeadOfferedListings(leadOfferIds);
 
-        for(LeadOfferedListing leadOfferedListing:leadOfferListings)
-        {
-            if(!listingMap.containsKey(leadOfferedListing.getLeadOfferId()))
-            {
+        for (LeadOfferedListing leadOfferedListing : leadOfferListings) {
+            if (!listingMap.containsKey(leadOfferedListing.getLeadOfferId())) {
                 listingMap.put(leadOfferedListing.getLeadOfferId(), new ArrayList<LeadOfferedListing>());
             }
             listingMap.get(leadOfferedListing.getLeadOfferId()).add(leadOfferedListing);
         }
-        
+
         return listingMap;
     }
 
@@ -358,13 +357,31 @@ public class LeadOfferService {
         if (leadOfferInDB == null) {
             throw new BadRequestException("Invalid lead offer");
         }
+        List<Integer> listingIds = new ArrayList<>();
+        List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getLeadOfferedListings();
+        if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
+            for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
+                listingIds.add(leadOfferedListing.getListingId());
+            }
+            offerListings(listingIds, leadOfferId, userId);
+        }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getLeadOfferStatusId()) {
+                List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
+                        .singletonList(leadOfferId));
+                if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
+                    throw new BadRequestException("To claim add at least one listing");
+                }
                 leadTaskService.createDefaultLeadTaskForLeadOffer(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
+                leadOfferDao.save(leadOfferInDB);
+                leadOfferInDB.setLeadOfferedListings(leadOfferedListingList);
+                
+                restrictOtherBrokersFromClaiming(leadOfferId);
+                
+                return leadOfferInDB;
             }
-
             if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getLeadOfferStatusId()) {
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
             }
@@ -372,6 +389,18 @@ public class LeadOfferService {
 
         leadOfferDao.save(leadOfferInDB);
         return leadOfferInDB;
+    }
+
+    private void restrictOtherBrokersFromClaiming(int leadOfferId) {
+        LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
+        List<Integer> Statuses = new ArrayList<>();
+        Statuses.add(LeadOfferStatus.Offered.getLeadOfferStatusId());
+        Statuses.add(LeadOfferStatus.Declined.getLeadOfferStatusId());        
+        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId(),Statuses);       
+        if(leadOfferCount+"" == PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM)
+        {
+            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId(),LeadOfferStatus.Expired.getLeadOfferStatusId(),LeadOfferStatus.Offered.getLeadOfferStatusId());
+        }
     }
 
     /**
