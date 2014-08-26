@@ -42,4 +42,5 @@ public interface ResponseErrorMessages {
 
     static String EMAIL_NOT_REGISTERED                = "Sorry, that email id is not registered with us.";
     static String PASSWORD_RECOVERY_MAIL_SENT         = "Password recovery mail sent";
+    static String CAPTCHA_REQUIRED                    = "Captcha Required";
 }

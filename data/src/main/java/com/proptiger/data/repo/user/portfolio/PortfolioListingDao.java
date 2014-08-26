@@ -18,7 +18,8 @@ public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Int
     public List<PortfolioListing> findByUserIdAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
             Integer userId,
             List<Source> sourceType,
-            List<ListingStatus> listingStatus, Pageable limitOffsetPageRequest);
+            List<ListingStatus> listingStatus,
+            Pageable limitOffsetPageRequest);
 
     public PortfolioListing findByListingIdAndListingStatusIn(Integer listingId, List<ListingStatus> listingStatus);
 
@@ -27,6 +28,11 @@ public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Int
             String name,
             Integer projectId,
             List<ListingStatus> listingStatus,
+            List<Source> sourceType);
+
+    public List<PortfolioListing> findByTypeIdAndListingStatusAndSourceTypeIn(
+            Integer typeId,
+            ListingStatus listingStatus,
             List<Source> sourceType);
 
 }
