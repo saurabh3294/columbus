@@ -13,4 +13,8 @@ public interface MasterLeadTaskDao extends JpaRepository<MasterLeadTask, Integer
     public List<MasterLeadTask> getcompleteMandatoryTasks(int leadOfferId);
 
     public List<MasterLeadTask> findByPriorityLessThanAndOptional(int priority, boolean optional);
+
+    @Query(
+            value = "SELECT DISTINCT MLT FROM MasterLeadTask MLT LEFT JOIN FETCH MLT.leadTaskStatuses LTS LEFT JOIN FETCH LTS.masterLeadTaskStatus MLTS")
+    public List<MasterLeadTask> getMasterTaskDetails();
 }

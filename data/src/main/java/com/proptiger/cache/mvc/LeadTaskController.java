@@ -29,19 +29,19 @@ import com.proptiger.data.util.Constants;
  */
 @DisableCaching
 @Controller
-@RequestMapping(value = "data/v1/entity/user/lead-offer-task")
+@RequestMapping
 public class LeadTaskController extends BaseController {
     @Autowired
     private LeadTaskService taskService;
 
-    @RequestMapping(value = "{taskId}", method = RequestMethod.PUT)
+    @RequestMapping(value = "data/v1/entity/user/lead-offer-task/{taskId}", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateLeadTask(@RequestBody LeadTaskDto leadTask, @PathVariable int taskId) {
         leadTask.setId(taskId);
         return new APIResponse(taskService.updateTask(leadTask));
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET, value = "data/v1/entity/user/lead-offer-task")
     @ResponseBody
     public APIResponse getLeadTask(
             @ModelAttribute FIQLSelector selector,
@@ -52,5 +52,11 @@ public class LeadTaskController extends BaseController {
         return new APIResponse(
                 super.filterFieldsFromSelector(leadTasksForUser, selector),
                 leadTasksForUser.getTotalCount());
+    }
+
+    @RequestMapping(value = "/data/v1/user/config/marketplace/tasks", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getMasterTaskDetails() {
+        return new APIResponse(taskService.getMasterTaskDetails());
     }
 }

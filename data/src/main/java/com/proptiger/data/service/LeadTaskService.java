@@ -458,4 +458,31 @@ public class LeadTaskService {
         }
         return selector;
     }
+
+    /**
+     * fetches list of master tasks including all possible actions
+     * 
+     * @return
+     */
+    public List<MasterLeadTask> getMasterTaskDetails() {
+        List<MasterLeadTask> leadTasks = masterLeadTaskDao.getMasterTaskDetails();
+
+        List<LeadTaskStatusReason> statusReasons = taskStatusReasonDao.findAll();
+        Map<Integer, List<LeadTaskStatusReason>> mappedStatusReasons = new HashMap<>();
+        for (LeadTaskStatusReason leadTaskStatusReason : statusReasons) {
+            int statusId = leadTaskStatusReason.getTaskStatusMappingId();
+            if (!mappedStatusReasons.containsKey(statusId)) {
+                mappedStatusReasons.put(statusId, new ArrayList<LeadTaskStatusReason>());
+            }
+            mappedStatusReasons.get(statusId).add(leadTaskStatusReason);
+        }
+
+        for (MasterLeadTask masterLeadTask : leadTasks) {
+            for (LeadTaskStatus status : masterLeadTask.getLeadTaskStatuses()) {
+                status.setMasterLeadTask(null);
+                status.setStatusReasons(mappedStatusReasons.get(status.getId()));
+            }
+        }
+        return leadTasks;
+    }
 }
