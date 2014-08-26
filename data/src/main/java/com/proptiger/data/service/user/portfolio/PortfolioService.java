@@ -47,6 +47,7 @@ import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.user.portfolio.OverallReturn;
 import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
+import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
@@ -888,6 +889,16 @@ public class PortfolioService {
     @Cacheable(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#portfolioId")
     public PortfolioListing getActivePortfolioOnId(int portfolioId) {
         return portfolioListingDao.findByListingIdAndDeletedFlag(portfolioId, false);
+    }
+
+    public List<PortfolioListing> getActivePortfolioListingsByPropertyId(Integer propertyId) {
+        List<Source> sourceTypes = new ArrayList<Source>();
+        sourceTypes.add(Source.backend);
+        sourceTypes.add(Source.portfolio);
+        return portfolioListingDao.findByTypeIdAndListingStatusAndSourceTypeIn(
+                propertyId,
+                ListingStatus.ACTIVE,
+                sourceTypes);
     }
 
 }
