@@ -13,8 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -81,14 +79,9 @@ public class LeadOffer extends BaseModel {
     @ManyToOne(fetch = FetchType.LAZY)
     private Lead              lead;
     
-    @ManyToMany
-    @JoinTable(name="marketplace.lead_offered_listings",
-        joinColumns=
-            @JoinColumn(name = "lead_offer_id", referencedColumnName = "id"),
-        inverseJoinColumns=
-            @JoinColumn(name="listing_id", referencedColumnName="id")
-        )
-    private List<Listing> offeredListings;
+    @OneToMany
+    @JoinColumn(name = "lead_offer_id", referencedColumnName="id")
+    private List<LeadOfferedListing> offeredListings;
 
     @OneToMany(fetch=FetchType.LAZY)
     @JoinColumn(name="seller_id", referencedColumnName="agent_id", insertable=false, updatable=false)
@@ -160,22 +153,32 @@ public class LeadOffer extends BaseModel {
     
     public static class LeadOfferIdListing
     {
-        private Integer leadOfferId;
+        private int leadOfferId;
+        private LeadOfferedListing leadOfferedListing;
         private Listing listing;
-
+                
         public LeadOfferIdListing() {}
 
-        public LeadOfferIdListing(Integer leadOfferId, Listing listings)
+        public LeadOfferIdListing(int leadOfferId,LeadOfferedListing leadOfferedListing, Listing listing)
         {
             this.leadOfferId = leadOfferId;
-            this.listing = listings;
+            this.listing = listing;
+            this.leadOfferedListing = leadOfferedListing;
         }
 
-        public Integer getLeadOfferId() {
+        public LeadOfferedListing getLeadOfferedListing() {
+            return leadOfferedListing;
+        }
+
+        public void setLeadOfferedListing(LeadOfferedListing leadOfferedListing) {
+            this.leadOfferedListing = leadOfferedListing;
+        }
+
+        public int getLeadOfferId() {
             return leadOfferId;
         }
 
-        public void setLeadOfferId(Integer leadOfferId) {
+        public void setLeadOfferId(int leadOfferId) {
             this.leadOfferId = leadOfferId;
         }
 
@@ -187,12 +190,23 @@ public class LeadOffer extends BaseModel {
             this.listing = listing;
         }
     }
+    
+    @Transient
+    private ListingObjectTotal listingObjectTotal;
 
-    public List<Listing> getOfferedListings() {
+    public ListingObjectTotal getListingObjectTotal() {
+        return listingObjectTotal;
+    }
+
+    public void setListingObjectTotal(ListingObjectTotal listingObjectTotal) {
+        this.listingObjectTotal = listingObjectTotal;
+    }
+
+    public List<LeadOfferedListing> getOfferedListings() {
         return offeredListings;
     }
 
-    public void setOfferedListings(List<Listing> offeredListings) {
+    public void setOfferedListings(List<LeadOfferedListing> offeredListings) {
         this.offeredListings = offeredListings;
     }
 

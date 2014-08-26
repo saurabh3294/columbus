@@ -24,10 +24,10 @@ import com.proptiger.data.model.MasterLeadTaskStatus;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
-import com.proptiger.data.model.marketplace.LeadOffer.LeadOfferIdListing;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.ListingObjectTotal;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
@@ -159,9 +159,9 @@ public class LeadOfferService {
 
             if (fields.contains("offeredListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
-                Map<Integer, List<Listing>> listings = getLeadOfferedListing(leadOfferIds);
+                Map<Integer, ListingObjectTotal> listingObjectTotals = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.setOfferedListings(listings.get(leadOffer.getId()));
+                    leadOffer.setListingObjectTotal(listingObjectTotals.get(leadOffer.getId()));
                 }
             }
 
@@ -276,16 +276,39 @@ public class LeadOfferService {
      * @return
      */
 
-    private Map<Integer, List<Listing>> getLeadOfferedListing(List<Integer> leadOfferIds) {
+    private Map<Integer, ListingObjectTotal> getLeadOfferedListing(List<Integer> leadOfferIds) {
+        Map<Integer, List<Integer>> listingMapMap = new HashMap<>();
         Map<Integer, List<Listing>> listingMap = new HashMap<>();
-        for (LeadOffer.LeadOfferIdListing leadOfferIdListing : leadOfferDao.getListings(leadOfferIds)) {
-            int leadOfferId = leadOfferIdListing.getLeadOfferId();
-            if (!listingMap.containsKey(leadOfferId)) {
-                listingMap.put(leadOfferId, new ArrayList<Listing>());
+        List<LeadOffer.LeadOfferIdListing> leadOfferIdListings = leadOfferDao.getListings(leadOfferIds);
+
+        for (LeadOffer.LeadOfferIdListing leadOfferIdListing : leadOfferIdListings) {
+            if (!listingMap.containsKey(leadOfferIdListing.getLeadOfferedListing().getId())) {
+                listingMap.put(leadOfferIdListing.getLeadOfferedListing().getId(), new ArrayList<Listing>());
             }
-            listingMap.get(leadOfferId).add(leadOfferIdListing.getListing());
+            listingMap.get(leadOfferIdListing.getLeadOfferedListing().getId()).add(leadOfferIdListing.getListing());
+
+            int leadOfferId = leadOfferIdListing.getLeadOfferId();
+            if (!listingMapMap.containsKey(leadOfferId)) {
+                listingMapMap.put(leadOfferId, new ArrayList<Integer>());
+            }
+            listingMapMap.get(leadOfferId).add(leadOfferIdListing.getLeadOfferedListing().getId());
         }
-        return listingMap;
+
+        Map<Integer, ListingObjectTotal> ListOfObject = new HashMap<>();
+        for (Map.Entry<Integer, List<Integer>> leadOfferlistingEntry : listingMapMap.entrySet()) {
+            int leadOfferId = leadOfferlistingEntry.getKey();
+            List<List<Listing>> listOfListOfListing = new ArrayList<List<Listing>>();
+            for (int leadOfferListingId : leadOfferlistingEntry.getValue()) {
+                List<Listing> listing = listingMap.get(leadOfferListingId);
+                listOfListOfListing.add(listing);
+            }
+
+            ListOfObject.put(leadOfferId, new ListingObjectTotal(
+                    leadOfferId,
+                    leadOfferlistingEntry.getValue(),
+                    listOfListOfListing));
+        }
+        return ListOfObject;
     }
 
     /**

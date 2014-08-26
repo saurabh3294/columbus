@@ -23,7 +23,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOf
     @Query("select LO from LeadOffer LO join fetch LO.lead L where LO.agentId = ?1")
     public List<LeadOffer> getLeadOffersForAgent(int agentId);
 
-    @Query("select NEW com.proptiger.data.model.marketplace.LeadOffer$LeadOfferIdListing(LO.id, LI) from LeadOffer LO join LO.offeredListings LI where LO.id in (?1)")
+    @Query("select NEW com.proptiger.data.model.marketplace.LeadOffer$LeadOfferIdListing(LO.id,LOL,LI) from LeadOffer LO join LO.offeredListings LOL join LOL.listings LI where LO.id in (?1)")
     public List<LeadOffer.LeadOfferIdListing> getListings(List<Integer> leadOfferIds);
 
     public LeadOffer findByIdAndAgentId(int leadOfferId, Integer userIdentifier);
