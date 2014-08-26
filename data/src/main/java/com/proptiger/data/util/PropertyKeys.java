@@ -63,6 +63,7 @@ public final class PropertyKeys {
     public static final String MARKETPLACE_BIDDING_CYCLE_DURATION         = "marketplace.bidding.cycle.duration";
     public static final String MARKETPLACE_POST_BIDDING_OFFER_DURATION    = "marketplace.post.bidding.offer.duration";
     public static final String MARKETPLACE_DEFAULT_TASK_DURATION          = "marketplace.default.task.duration";
+    public static final String MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM     = "marketplace.max.broker.count.for.claim";
 
     public static final String CALENDAR_WORKING_HOUR_START                = "calendar.working.hour.start";
     public static final String CALENDAR_WORKING_HOUR_END                  = "calendar.working.hour.end";
