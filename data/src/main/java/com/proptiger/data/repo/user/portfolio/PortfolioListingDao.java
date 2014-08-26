@@ -15,19 +15,18 @@ import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
  */
 public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Integer> {
 
-    public List<PortfolioListing> findByUserIdAndDeletedFlagAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
+    public List<PortfolioListing> findByUserIdAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
             Integer userId,
-            Boolean deletedFlag,
             List<Source> sourceType,
             List<ListingStatus> listingStatus, Pageable limitOffsetPageRequest);
 
-    public PortfolioListing findByListingIdAndDeletedFlag(Integer listingId, Boolean deletedFlag);
+    public PortfolioListing findByListingIdAndListingStatusIn(Integer listingId, List<ListingStatus> listingStatus);
 
-    public PortfolioListing findByUserIdAndNameAndProjectIdAndDeletedFlagAndSourceTypeIn(
+    public PortfolioListing findByUserIdAndNameAndProjectIdAndListingStatusInAndSourceTypeIn(
             Integer userId,
             String name,
             Integer projectId,
-            Boolean deletedFlag,
+            List<ListingStatus> listingStatus,
             List<Source> sourceType);
 
 }
