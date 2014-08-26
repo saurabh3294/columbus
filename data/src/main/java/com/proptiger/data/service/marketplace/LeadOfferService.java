@@ -140,19 +140,25 @@ public class LeadOfferService {
         PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
 
         Set<String> fields = selector.getFieldSet();
+        enrichLeadOffers(leadOffers, fields);
+
+        return paginatedResponse;
+    }
+
+    private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields) {
         if (fields != null) {
             if (fields.contains("client")) {
-                List<Integer> clientIds = extractClientIds(paginatedResponse.getResults());
+                List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
-                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
+                for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
                 }
             }
 
             if (fields.contains("lead.requirements")) {
-                List<Integer> leadIds = extractLeadIds(paginatedResponse.getResults());
+                List<Integer> leadIds = extractLeadIds(leadOffers);
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
-                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
+                for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.getLead().setRequirements(requirements.get(leadOffer.getLeadId()));
                 }
             }
@@ -207,15 +213,22 @@ public class LeadOfferService {
                 }
             }
 
+            // TODO - optimize and try fetching in bulk
+            if (fields.contains("tasks")) {
+                for (LeadOffer leadOffer : leadOffers) {
+                    leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
+                            new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
+                            leadOffer.getAgentId()).getResults());
+                }
+            }
+            
             // XXX - Setting lead to null if not passed in fields
             if (!fields.contains("lead")) {
-                for (LeadOffer leadOffer : paginatedResponse.getResults()) {
+                for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.setLead(null);
                 }
             }
         }
-
-        return paginatedResponse;
     }
 
     /**
@@ -357,31 +370,33 @@ public class LeadOfferService {
         if (leadOfferInDB == null) {
             throw new BadRequestException("Invalid lead offer");
         }
+
         List<Integer> listingIds = new ArrayList<>();
         List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getLeadOfferedListings();
         if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
             for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
                 listingIds.add(leadOfferedListing.getListingId());
             }
+
             offerListings(listingIds, leadOfferId, userId);
         }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getLeadOfferStatusId()) {
-                List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
-                        .singletonList(leadOfferId));
+                List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections.singletonList(leadOfferId));
+
                 if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
                     throw new BadRequestException("To claim add at least one listing");
                 }
+
                 leadTaskService.createDefaultLeadTaskForLeadOffer(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
                 leadOfferDao.save(leadOfferInDB);
                 leadOfferInDB.setLeadOfferedListings(leadOfferedListingList);
-                
                 restrictOtherBrokersFromClaiming(leadOfferId);
-                
                 return leadOfferInDB;
             }
+
             if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getLeadOfferStatusId()) {
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
             }
@@ -393,13 +408,13 @@ public class LeadOfferService {
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
         LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
-        List<Integer> Statuses = new ArrayList<>();
-        Statuses.add(LeadOfferStatus.Offered.getLeadOfferStatusId());
-        Statuses.add(LeadOfferStatus.Declined.getLeadOfferStatusId());        
-        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId(),Statuses);       
+        List<Integer> statuses = new ArrayList<>();
+        statuses.add(LeadOfferStatus.Offered.getLeadOfferStatusId());
+        statuses.add(LeadOfferStatus.Declined.getLeadOfferStatusId());        
+        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId(), statuses);       
         if(leadOfferCount+"" == PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM)
         {
-            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId(),LeadOfferStatus.Expired.getLeadOfferStatusId(),LeadOfferStatus.Offered.getLeadOfferStatusId());
+            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId(), LeadOfferStatus.Expired.getLeadOfferStatusId(), LeadOfferStatus.Offered.getLeadOfferStatusId());
         }
     }
 
@@ -451,14 +466,9 @@ public class LeadOfferService {
 
         for (LeadRequirement leadRequirement : leadRequirements) {
             Integer projectId = leadRequirement.getProjectId();
-            System.out.println("HereHereHere" + projectId);
             if (listingsByProjectId.containsKey(projectId)) {
-                System.out.println("THereHereHere" + projectId);
                 sortedList.addAll(listingsByProjectId.get(projectId));
                 listingsByProjectId.remove(projectId);
-                ToStringBuilder.reflectionToString(sortedList, ToStringStyle.SHORT_PREFIX_STYLE);
-                ToStringBuilder.reflectionToString(listingsByProjectId, ToStringStyle.SHORT_PREFIX_STYLE);
-
             }
         }
 
@@ -466,19 +476,13 @@ public class LeadOfferService {
             sortedList.addAll(remainingListings);
         }
 
-        ToStringBuilder.reflectionToString(sortedList, ToStringStyle.SHORT_PREFIX_STYLE);
         return sortedList;
     }
 
     public LeadOffer get(int leadOfferId, Integer userId, FIQLSelector selector) {
         LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
-
         Set<String> fields = selector.getFieldSet();
-        if (fields.contains("tasks")) {
-            leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
-                    new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOfferId),
-                    userId).getResults());
-        }
+        enrichLeadOffers(Collections.singletonList(leadOffer), fields);
 
         return leadOffer;
     }
