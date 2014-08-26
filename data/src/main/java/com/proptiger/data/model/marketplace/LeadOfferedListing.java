@@ -4,7 +4,6 @@
 package com.proptiger.data.model.marketplace;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,7 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -58,9 +57,9 @@ public class LeadOfferedListing extends BaseModel {
     @Column(name = "updated_at")
     private Date updatedAt;
     
-    @OneToMany
-    @JoinColumn(name = "id" , referencedColumnName="listing_id")
-    private List<Listing> listings;
+    @ManyToOne
+    @JoinColumn(name = "listing_id", insertable=false, updatable=false)
+    private Listing listing;
     
     public int getId() {
         return id;
@@ -112,12 +111,11 @@ public class LeadOfferedListing extends BaseModel {
         this.createdAt = new Date();
     }
 
-    public List<Listing> getListings() {
-        return listings;
+    public Listing getListing() {
+        return listing;
     }
 
-    public void setListings(List<Listing> listings) {
-        this.listings = listings;
+    public void setListing(Listing listing) {
+        this.listing = listing;
     }
-    
 }
