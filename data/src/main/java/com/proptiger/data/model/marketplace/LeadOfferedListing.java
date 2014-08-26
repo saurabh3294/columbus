@@ -7,7 +7,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -58,6 +57,10 @@ public class LeadOfferedListing extends BaseModel {
     @Column(name = "updated_at")
     private Date updatedAt;
     
+    @ManyToOne
+    @JoinColumn(name = "listing_id", insertable=false, updatable=false)
+    private Listing listing;
+    
     public int getId() {
         return id;
     }
@@ -106,5 +109,13 @@ public class LeadOfferedListing extends BaseModel {
     @PrePersist
     public void setCreatedAt() {
         this.createdAt = new Date();
-    }    
+    }
+
+    public Listing getListing() {
+        return listing;
+    }
+
+    public void setListing(Listing listing) {
+        this.listing = listing;
+    }
 }

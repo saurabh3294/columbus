@@ -13,8 +13,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -34,7 +32,6 @@ import com.proptiger.data.model.Listing;
 @JsonInclude(Include.NON_EMPTY)
 @Table(name = "marketplace.lead_offers")
 public class LeadOffer extends BaseModel {
-
     private static final long serialVersionUID = -4428374943776702328L;
 
     @Id
@@ -81,14 +78,9 @@ public class LeadOffer extends BaseModel {
     @ManyToOne(fetch = FetchType.LAZY)
     private Lead              lead;
     
-    @ManyToMany
-    @JoinTable(name="marketplace.lead_offered_listings",
-        joinColumns=
-            @JoinColumn(name = "lead_offer_id", referencedColumnName = "id"),
-        inverseJoinColumns=
-            @JoinColumn(name="listing_id", referencedColumnName="id")
-        )
-    private List<Listing> offeredListings;
+    @OneToMany
+    @JoinColumn(name = "lead_offer_id", referencedColumnName="id")
+    private List<LeadOfferedListing> leadOfferedListings;
 
     @OneToMany(fetch=FetchType.LAZY)
     @JoinColumn(name="seller_id", referencedColumnName="agent_id", insertable=false, updatable=false)
@@ -157,44 +149,6 @@ public class LeadOffer extends BaseModel {
     public void setCycleId(int cycleId) {
         this.cycleId = cycleId;
     }
-    
-    public static class LeadOfferIdListing
-    {
-        private Integer leadOfferId;
-        private Listing listing;
-
-        public LeadOfferIdListing() {}
-
-        public LeadOfferIdListing(Integer leadOfferId, Listing listings)
-        {
-            this.leadOfferId = leadOfferId;
-            this.listing = listings;
-        }
-
-        public Integer getLeadOfferId() {
-            return leadOfferId;
-        }
-
-        public void setLeadOfferId(Integer leadOfferId) {
-            this.leadOfferId = leadOfferId;
-        }
-
-        public Listing getListing() {
-            return listing;
-        }
-
-        public void setListing(Listing listing) {
-            this.listing = listing;
-        }
-    }
-
-    public List<Listing> getOfferedListings() {
-        return offeredListings;
-    }
-
-    public void setOfferedListings(List<Listing> offeredListings) {
-        this.offeredListings = offeredListings;
-    }
 
     public LeadTask getLastTask() {
         return lastTask;
@@ -243,4 +197,13 @@ public class LeadOffer extends BaseModel {
     public void setCountOfferedListings(int countOfferedListings) {
         this.countOfferedListings = countOfferedListings;
     }
+
+    public List<LeadOfferedListing> getLeadOfferedListings() {
+        return leadOfferedListings;
+    }
+
+    public void setLeadOfferedListings(List<LeadOfferedListing> leadOfferedListings) {
+        this.leadOfferedListings = leadOfferedListings;
+    }
+    
 }
