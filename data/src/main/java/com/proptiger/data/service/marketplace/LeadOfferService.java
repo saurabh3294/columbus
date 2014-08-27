@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -367,6 +365,7 @@ public class LeadOfferService {
 
     public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
         LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
+
         if (leadOfferInDB == null) {
             throw new BadRequestException("Invalid lead offer");
         }
@@ -480,7 +479,7 @@ public class LeadOfferService {
     }
 
     public LeadOffer get(int leadOfferId, Integer userId, FIQLSelector selector) {
-        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+        LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
         Set<String> fields = selector.getFieldSet();
         enrichLeadOffers(Collections.singletonList(leadOffer), fields);
 
