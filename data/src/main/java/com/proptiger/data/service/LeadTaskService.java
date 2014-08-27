@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.ActiveUser;
@@ -71,8 +70,6 @@ public class LeadTaskService {
     private LeadOfferDao                 leadOfferDao;
 
     private static final int             offerDefaultLeadTaskStatusMappingId = 1;
-
-    private static final String          newTaskDefaultStatus                = "Scheduled";
 
     private static final String          defaultTaskSelection                = "id";
 
@@ -166,9 +163,7 @@ public class LeadTaskService {
         try {
             leadTask.setId(leadTaskDto.getId());
             leadTask.setLeadOfferId(leadTaskDto.getLeadOfferId());
-            leadTask.setTaskStatusId(leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
-                    leadTaskDto.getTaskName(),
-                    leadTaskDto.getTaskStatus()).getId());
+            leadTask.setTaskStatusId(leadTaskDto.getTaskStatusMappingId());
             leadTask.setScheduledFor(leadTaskDto.getScheduledFor());
             leadTask.setCallDuration(leadTaskDto.getCallDuration());
             leadTask.setPerformedAt(leadTaskDto.getPerformedAt());
@@ -176,12 +171,7 @@ public class LeadTaskService {
             if (leadTaskDto.getNextTask() != null) {
                 leadTask.setNextTask(getLeadTaskFromLeadTaskDto(leadTaskDto.getNextTask()));
             }
-            LeadTaskStatusReason reason = taskStatusReasonDao.findByReasonAndTaskStatusMappingId(
-                    leadTaskDto.getStatusReason(),
-                    leadTask.getTaskStatusId());
-            if (reason != null) {
-                leadTask.setStatusReasonId(reason.getId());
-            }
+            leadTask.setStatusReasonId(leadTaskDto.getStatusReasonId());
         }
         catch (Exception e) {
             logger.debug("Error in getLeadTaskFromLeadTaskDto: " + e);
@@ -277,8 +267,8 @@ public class LeadTaskService {
         else if (oldStatus.getMasterLeadTaskStatus().isComplete()) {
             result = false;
         }
-        // task status shoud not be the one for the nex tasks
-        else if (newStatus.getMasterLeadTaskStatus().getStatus().equals(newTaskDefaultStatus)) {
+        // task status should not be the one for the new tasks
+        else if (newStatus.getMasterLeadTaskStatus().isBeginning()) {
             result = false;
         }
         // validating status reason
@@ -346,7 +336,7 @@ public class LeadTaskService {
                 isValid = false;
             }
             // checking that the next task must be in default status
-            else if (!nextTaskStatus.getMasterLeadTaskStatus().getStatus().equals(newTaskDefaultStatus)) {
+            else if (!nextTaskStatus.getMasterLeadTaskStatus().isBeginning()) {
                 isValid = false;
             }
             // checking is next task is of valid type
@@ -381,9 +371,6 @@ public class LeadTaskService {
 
         List<MasterLeadTask> mustDoTasks = masterLeadTaskDao.findByPriorityLessThanAndOptional(nextTaskStatus
                 .getMasterLeadTask().getPriority(), false);
-
-        logger.debug("DONE === " + new Gson().toJson(completedTasks));
-        logger.debug("MUST DO == " + new Gson().toJson(mustDoTasks));
 
         for (MasterLeadTask masterLeadTask : mustDoTasks) {
             int notDoneTaskId = masterLeadTask.getId();
