@@ -1,4 +1,5 @@
 package com.proptiger.data.repo.marketplace;
+
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,15 +11,15 @@ import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 
-public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOfferCustomDao {
+public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOfferCustomDao {
     @Query("select count(LO) from LeadOffer LO join LO.masterLeadOfferStatus MLOS where LO.leadId = ?1 and MLOS.unclaimedStatus = 0")
     long getCountClaimed(Integer leadId);
 
     @Query("select LO from LeadOffer LO join LO.masterLeadOfferStatus MLOS join LO.lead L where L.cityId = ?1 and MLOS.duplicateFlag = 0 and L.clientId = ?2 and L.mergedLeadId is null order by LO.id desc")
-    public List<LeadOffer> getOpenLeadOffers(int cityId , int clientId);
+    public List<LeadOffer> getOpenLeadOffers(int cityId, int clientId);
 
     @Query("select LO from LeadOffer LO join LO.lead L where L.cityId = ?1 and L.clientId = ?2 order by LO.id desc")
-    public List<LeadOffer> getLeadOffers(int cityId , int clientId);
+    public List<LeadOffer> getLeadOffers(int cityId, int clientId);
 
     @Query("select LO from LeadOffer LO where LO.leadId = ?1 order by LO.statusId")
     public List<LeadOffer> getLeadOffers(int leadId);
@@ -42,6 +43,6 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOf
     @Modifying
     @Transactional
     @Query("update LeadOffer LO set LO.statusId= ?2  where LO.statusId = ?3 and LO.leadId = ?1")
-    void expireRestOfTheLeadOffers(int leadId, Integer expired,Integer offered);
+    void expireRestOfTheLeadOffers(int leadId, Integer expired, Integer offered);
 
 }
