@@ -11,10 +11,10 @@ import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 
 public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOfferCustomDao {
-    @Query("select count(LO) from LeadOffer LO where LO.leadId = ?1 and LO.statusId not in (?2)")
-    long getCountClaimed(Integer leadId, List<Integer> Statuses);
+    @Query("select count(LO) from LeadOffer LO join LO.masterLeadOfferStatus MLOS where LO.leadId = ?1 and MLOS.unclaimedStatus = 0")
+    long getCountClaimed(Integer leadId);
 
-    @Query("select LO from LeadOffer LO join LO.lead L where L.cityId = ?1 and LO.statusId not in (7,8,9) and L.clientId = ?2 and L.mergedLeadId is null order by LO.id desc")
+    @Query("select LO from LeadOffer LO join LO.masterLeadOfferStatus MLOS join LO.lead L where L.cityId = ?1 and MLOS.duplicateFlag = 0 and L.clientId = ?2 and L.mergedLeadId is null order by LO.id desc")
     public List<LeadOffer> getOpenLeadOffers(int cityId , int clientId);
 
     @Query("select LO from LeadOffer LO join LO.lead L where L.cityId = ?1 and L.clientId = ?2 order by LO.id desc")

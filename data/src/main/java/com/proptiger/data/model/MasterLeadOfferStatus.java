@@ -1,5 +1,6 @@
 package com.proptiger.data.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -17,8 +18,15 @@ public class MasterLeadOfferStatus extends BaseModel {
     @Id
     private int               id;
 
+    @Column(name = "status")
     private String            status;
 
+    @Column(name = "unclaimed_flag")
+    private int unclaimedStatus;
+    
+    @Column(name = "duplicate_flag")
+    private int duplicateFlag;
+    
     public int getId() {
         return id;
     }

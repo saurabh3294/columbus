@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -23,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.MasterLeadOfferStatus;
 
 /**
  * @author mandeep
@@ -86,6 +88,11 @@ public class LeadOffer extends BaseModel {
     @JoinColumn(name="seller_id", referencedColumnName="agent_id", insertable=false, updatable=false)
     private List<Listing> matchingListings;
 
+    @OneToOne
+    @JoinColumn(name = "status_id" , referencedColumnName="id",insertable = false, updatable = false)
+    private MasterLeadOfferStatus masterLeadOfferStatus;
+    
+    
     public Lead getLead() {
         return lead;
     }

@@ -411,12 +411,12 @@ public class LeadOfferService {
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
         LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
-        List<Integer> statuses = new ArrayList<>();
+        /*List<Integer> statuses = new ArrayList<>();
         statuses.add(LeadOfferStatus.Offered.getLeadOfferStatusId());
         statuses.add(LeadOfferStatus.Declined.getLeadOfferStatusId());
         statuses.add(LeadOfferStatus.Waitlisted.getLeadOfferStatusId());
-        statuses.add(LeadOfferStatus.Expired.getLeadOfferStatusId());
-        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId(),statuses);       
+        statuses.add(LeadOfferStatus.Expired.getLeadOfferStatusId());*/
+        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());       
         
         if(Long.toString(leadOfferCount).equals(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM).toString()))
         {
