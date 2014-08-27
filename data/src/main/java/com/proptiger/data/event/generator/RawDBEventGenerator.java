@@ -3,7 +3,8 @@ package com.proptiger.data.event.generator;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ import com.proptiger.data.util.Serializer;
 
 @Service
 public class RawDBEventGenerator {
-    private static Logger                     logger = Logger.getLogger(RawDBEventGenerator.class);
+    private static Logger                     logger = LoggerFactory.getLogger(RawDBEventGenerator.class);
     @Autowired
     private RawEventToEventTypeMappingService eventTypeMappingService;
 
@@ -37,7 +38,7 @@ public class RawDBEventGenerator {
         logger.info("Iterating " + dbRawEventTableConfigs.size() + " table configurations.");
 
         for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
-            logger.debug(" Iterate " + Serializer.toJson(dbRawEventTableConfig));
+            //logger.debug(" Iterate " + Serializer.toJson(dbRawEventTableConfig));
 
             List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
             finalRawDBEventList.addAll(rawDBEvents);
@@ -55,7 +56,6 @@ public class RawDBEventGenerator {
             }
         }
 
-        logger.info(" Iterated the table configurations.");
         return finalRawDBEventList;
     }
 

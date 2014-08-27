@@ -45,7 +45,7 @@ public class NotificationInitiator {
     /**
      * Generates the Notification Types from events at regular intervals
      */
-    @Scheduled(fixedDelay = 20000)
+    //@Scheduled(fixedDelay = 20000)
     public void notificationTypeGenerator() {
 
         logger.debug("NotificationInitiator started generating notificationType.");
@@ -63,7 +63,7 @@ public class NotificationInitiator {
      * Generates the Notification Messages from NotificationTypes at regular
      * intervals
      */
-    @Scheduled(fixedDelay = 25000)
+    //@Scheduled(fixedDelay = 25000)
     public void notificationMessageGenerator() {
         
         logger.debug("NotificationInitiator started generating notificationMessage.");
@@ -82,7 +82,7 @@ public class NotificationInitiator {
      * Generates the NotificationGenerated from NotificationMessages at regular
      * intervals
      */
-    @Scheduled(fixedDelay = 30000)
+    //@Scheduled(fixedDelay = 30000)
     public void notificationGenerator() {
         Thread.currentThread().setName("Notification Generator");
         logger.info("NotificationGenerator : Initiating Notification Generation.");
@@ -94,7 +94,7 @@ public class NotificationInitiator {
      * Get all the Notifications with NotificationGenerated status and mark them
      * as Scheduled with appropriate Schedule time
      */
-    @Scheduled(fixedDelay = 35000)
+    //@Scheduled(fixedDelay = 35000)
     public void notificationSchedular() {
         logger.info("NotificationSchedular: Scheduling Generated Notification.");
         Integer numberOfScheduledNtGenerated = notificationSchedular.scheduleNotifications();
@@ -106,7 +106,7 @@ public class NotificationInitiator {
      * the respective medium
      */
     //@Scheduled(cron = "* 1 * * * *")
-    @Scheduled(fixedDelay = 40000)
+    //@Scheduled(fixedDelay = 40000)
     public void emailNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via Email.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(EMAIL_NOTIFICATION_MEDIUM_ID);

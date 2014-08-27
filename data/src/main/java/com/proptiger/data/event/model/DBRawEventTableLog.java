@@ -1,5 +1,6 @@
 package com.proptiger.data.event.model;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Column;
@@ -19,45 +20,50 @@ public class DBRawEventTableLog extends BaseModel {
     /**
      * 
      */
-    private static final long   serialVersionUID = -4192519971268898777L;
+    private static final long         serialVersionUID = -4192519971268898777L;
 
     @Id
     @Column(name = "id")
-    private int                 id;
+    private int                       id;
 
     @Column(name = "host_name")
-    private String              hostName;
+    private String                    hostName;
 
     @Column(name = "db_name")
-    private String              dbName;
+    private String                    dbName;
 
     @Column(name = "table_name")
-    private String              tableName;
+    private String                    tableName;
 
     @Column(name = "primary_column_name")
-    private String              primaryKeyName;
+    private String                    primaryKeyName;
 
     @Column(name = "transaction_column_name")
-    private String              transactionKeyName;
+    private String                    transactionKeyName;
 
     @Column(name = "transaction_date_column_name")
-    private String              dateAttributeName;
+    private String                    dateAttributeName;
 
     @Column(name = "transaction_column_value")
-    private Long                lastTransactionKeyValue;
+    private Long                      lastTransactionKeyValue;
 
+    /*
+     * List of filters that needs to be applied while reading an entry from the
+     * trigger table.
+     */
     @Column(name = "pre_filters")
-    private String              prefilters;
+    private String                    prefilters;
 
     @Column(name = "unique_keys")
-    private String              uniqueKeys;
+    private String                    uniqueKeys;
 
     @Transient
-    private Map<String, Object> filterMap;
+    private Map<String, List<Object>> filterMap;
 
     @Transient
-    private String[]            uniqueKeysArray;
+    private String[]                  uniqueKeysArray;
 
+    @SuppressWarnings("unchecked")
     @PostLoad
     public void populateTransientFields() {
         if (this.prefilters != null) {
@@ -69,7 +75,7 @@ public class DBRawEventTableLog extends BaseModel {
             }
         }
 
-        if(this.uniqueKeys != null){
+        if (this.uniqueKeys != null) {
             this.uniqueKeysArray = this.uniqueKeys.split(",");
         }
     }
@@ -146,11 +152,11 @@ public class DBRawEventTableLog extends BaseModel {
         this.prefilters = preFilters;
     }
 
-    public Map<String, Object> getFilterMap() {
+    public Map<String, List<Object>> getFilterMap() {
         return filterMap;
     }
 
-    public void setFilterMap(Map<String, Object> filterMap) {
+    public void setFilterMap(Map<String, List<Object>> filterMap) {
         this.filterMap = filterMap;
     }
 

@@ -32,12 +32,12 @@ public class RawDBEventDao extends DynamicTableDao {
             queryString = "SELECT * FROM " + tableLog.getDbName()
                     + "."
                     + tableLog.getTableName()
-                    + " WHERE _t_operation= 'U' AND "
+                    + " WHERE "
                     + tableLog.getTransactionKeyName()
                     + " > '"
                     + tableLog.getLastTransactionKeyValue()
                     + "' "
-                    + convertMapToSql(tableLog.getFilterMap())
+                    + convertMapOfListToSql(tableLog.getFilterMap())
                     + " ORDER BY "
                     + tableLog.getTransactionKeyName()
                     + " ASC ";
@@ -69,7 +69,7 @@ public class RawDBEventDao extends DynamicTableDao {
                 + " = '"
                 + primaryKeyValue
                 + "' "
-                + convertMapToSql(tableLog.getFilterMap())
+                + convertMapOfListToSql(tableLog.getFilterMap())
                 + convertMapToSql(uniqueKeysValuesMap)
                 + " ORDER BY "
                 + tableLog.getTransactionKeyName()
