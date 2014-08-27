@@ -22,10 +22,10 @@ public class MasterLeadOfferStatus extends BaseModel {
     private String            status;
 
     @Column(name = "claimed_flag")
-    private int claimedFlag;
+    private boolean claimedFlag;
     
     @Column(name = "open_flag")
-    private int openFlag;
+    private boolean openFlag;
     
     public int getId() {
         return id;

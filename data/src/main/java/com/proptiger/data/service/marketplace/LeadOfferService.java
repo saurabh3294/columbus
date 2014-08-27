@@ -70,9 +70,6 @@ public class LeadOfferService {
 
     @Autowired
     private ListingService          listingService;
-    
-    @Autowired
-    protected PropertyReader propertyReader;
 
     /**
      * 
