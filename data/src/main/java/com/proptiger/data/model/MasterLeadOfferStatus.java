@@ -21,11 +21,11 @@ public class MasterLeadOfferStatus extends BaseModel {
     @Column(name = "status")
     private String            status;
 
-    @Column(name = "unclaimed_flag")
-    private int unclaimedStatus;
+    @Column(name = "claimed_flag")
+    private int claimedFlag;
     
-    @Column(name = "duplicate_flag")
-    private int duplicateFlag;
+    @Column(name = "open_flag")
+    private int openFlag;
     
     public int getId() {
         return id;
