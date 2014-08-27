@@ -1,11 +1,18 @@
 package com.proptiger.data.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
 
 /**
  * 
@@ -15,31 +22,38 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "marketplace.master_lead_task_status_mappings")
 public class LeadTaskStatus extends BaseModel {
-    private static final long     serialVersionUID = 1L;
+    private static final long          serialVersionUID = 1L;
 
     @Id
-    private int                   id;
+    private int                        id;
 
+    @JsonIgnore
     @Column(name = "master_task_id")
-    private int                   masterTaskId;
+    private int                        masterTaskId;
 
+    @JsonIgnore
     @Column(name = "master_task_status_id")
-    private int                   masterTaskStatusId;
+    private int                        masterTaskStatusId;
 
+    @JsonIgnore
     @Column(name = "master_status_id")
-    private Integer               resultingStatusId;
+    private Integer                    resultingStatusId;
 
     @ManyToOne
     @JoinColumn(name = "master_task_id", insertable = false, updatable = false)
-    private MasterLeadTask        masterLeadTask;
+    private MasterLeadTask             masterLeadTask;
 
     @ManyToOne
     @JoinColumn(name = "master_task_status_id", insertable = false, updatable = false)
-    private MasterLeadTaskStatus  masterLeadTaskStatus;
+    private MasterLeadTaskStatus       masterLeadTaskStatus;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "master_status_id", insertable = false, updatable = false)
-    private MasterLeadOfferStatus resultingStatus;
+    private MasterLeadOfferStatus      resultingStatus;
+
+    @OneToMany(mappedBy = "taskStatusMappingId")
+    private List<LeadTaskStatusReason> statusReasons;
 
     public int getId() {
         return id;
@@ -95,5 +109,13 @@ public class LeadTaskStatus extends BaseModel {
 
     public void setResultingStatus(MasterLeadOfferStatus resultingStatus) {
         this.resultingStatus = resultingStatus;
+    }
+
+    public List<LeadTaskStatusReason> getStatusReasons() {
+        return statusReasons;
+    }
+
+    public void setStatusReasons(List<LeadTaskStatusReason> statusReasons) {
+        this.statusReasons = statusReasons;
     }
 }

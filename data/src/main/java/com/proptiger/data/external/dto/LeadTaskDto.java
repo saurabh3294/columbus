@@ -13,8 +13,8 @@ import java.util.Set;
 public class LeadTaskDto {
     private int          id;
     private int          leadOfferId;
-    private String       taskStatus;
-    private String       taskName;
+    private int          taskStatusMappingId;
+    private Integer      statusReasonId;
     private Set<Integer> listingIds = new HashSet<>();
     private Date         scheduledFor;
     private Integer      callDuration;
@@ -37,22 +37,6 @@ public class LeadTaskDto {
 
     public void setLeadOfferId(int leadOfferId) {
         this.leadOfferId = leadOfferId;
-    }
-
-    public String getTaskStatus() {
-        return taskStatus;
-    }
-
-    public void setTaskStatus(String taskStatus) {
-        this.taskStatus = taskStatus;
-    }
-
-    public String getTaskName() {
-        return taskName;
-    }
-
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
     }
 
     public Date getScheduledFor() {
@@ -101,5 +85,21 @@ public class LeadTaskDto {
 
     public void setListingIds(Set<Integer> listingIds) {
         this.listingIds = listingIds;
+    }
+
+    public int getTaskStatusMappingId() {
+        return taskStatusMappingId;
+    }
+
+    public void setTaskStatusMappingId(int taskStatusMappingId) {
+        this.taskStatusMappingId = taskStatusMappingId;
+    }
+
+    public Integer getStatusReasonId() {
+        return statusReasonId;
+    }
+
+    public void setStatusReasonId(Integer statusReasonId) {
+        this.statusReasonId = statusReasonId;
     }
 }

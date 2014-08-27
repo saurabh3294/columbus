@@ -23,6 +23,7 @@ import com.proptiger.data.model.MasterLeadTask;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadTask;
+import com.proptiger.data.model.marketplace.LeadTaskStatusReason;
 import com.proptiger.data.model.marketplace.TaskOfferedListingMapping;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
@@ -32,6 +33,7 @@ import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.MasterLeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
+import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.util.DateUtil;
@@ -61,11 +63,13 @@ public class LeadTaskService {
     @Autowired
     private LeadOfferService             leadOfferService;
 
+    @Autowired
+    private LeadTaskStatusReasonDao      taskStatusReasonDao;
+
+    @Autowired
     private LeadOfferDao                 leadOfferDao;
 
     private static final int             offerDefaultLeadTaskStatusMappingId = 1;
-
-    private static final String          newTaskDefaultStatus                = "Scheduled";
 
     private static final String          defaultTaskSelection                = "id";
 
@@ -106,8 +110,9 @@ public class LeadTaskService {
                 beanUtilsBean.copyProperties(savedTask, leadTask);
                 leadTaskDao.saveAndFlush(savedTask);
                 manageLeadTaskListingsOnUpdate(currentTaskId, taskDto.getListingIds());
-                if(taskStatus.getResultingStatusId() != null){
-                    leadOfferService.updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
+                if (taskStatus.getResultingStatusId() != null) {
+                    leadOfferService
+                            .updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
                 }
 
                 if (savedTask.getNextTask() != null) {
@@ -124,11 +129,25 @@ public class LeadTaskService {
             throw new BadRequestException();
         }
 
-        LeadTask finalTask = leadTaskDao.getLeadTaskDetails(currentTaskId);
-        finalTask.setNextTask(leadTaskDao.getLeadTaskDetails(nextTaskId));
-        finalTask.setNextTask(leadTaskDao.findOne(nextTaskId));
+        LeadTask finalTask = getLeadTaskWithAllDetails(currentTaskId);
+        if (nextTaskId != 0) {
+            LeadTask nextTask = getLeadTaskWithAllDetails(nextTaskId);
+            finalTask.setNextTask(nextTask);
+        }
+        return finalTask.populateTransientAttributes();
+    }
 
-        return finalTask;
+    // XXX -- introduced only because we have not yet found a solution to load
+    // all depending objects in one single query ignoring hibernate cache
+    private LeadTask getLeadTaskWithAllDetails(int taskId) {
+        LeadTask leadTask = leadTaskDao.findOne(taskId);
+        leadTask.setLeadOffer(leadOfferDao.findOne(leadTask.getLeadOfferId()));
+        leadTask.setTaskStatus(leadTaskStatusDao.getLeadTaskStatusDetail(leadTask.getTaskStatusId()));
+        leadTask.setOfferedListingMappings(taskOfferedListingMappingDao.findByTaskId(taskId));
+        if (leadTask.getStatusReasonId() != null) {
+            leadTask.setStatusReason(taskStatusReasonDao.findOne(leadTask.getStatusReasonId()));
+        }
+        return leadTask;
     }
 
     /**
@@ -144,9 +163,7 @@ public class LeadTaskService {
         try {
             leadTask.setId(leadTaskDto.getId());
             leadTask.setLeadOfferId(leadTaskDto.getLeadOfferId());
-            leadTask.setTaskStatusId(leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
-                    leadTaskDto.getTaskName(),
-                    leadTaskDto.getTaskStatus()).getId());
+            leadTask.setTaskStatusId(leadTaskDto.getTaskStatusMappingId());
             leadTask.setScheduledFor(leadTaskDto.getScheduledFor());
             leadTask.setCallDuration(leadTaskDto.getCallDuration());
             leadTask.setPerformedAt(leadTaskDto.getPerformedAt());
@@ -154,6 +171,7 @@ public class LeadTaskService {
             if (leadTaskDto.getNextTask() != null) {
                 leadTask.setNextTask(getLeadTaskFromLeadTaskDto(leadTaskDto.getNextTask()));
             }
+            leadTask.setStatusReasonId(leadTaskDto.getStatusReasonId());
         }
         catch (Exception e) {
             logger.debug("Error in getLeadTaskFromLeadTaskDto: " + e);
@@ -249,11 +267,14 @@ public class LeadTaskService {
         else if (oldStatus.getMasterLeadTaskStatus().isComplete()) {
             result = false;
         }
-        // task status shoud not be the one for the nex tasks
-        else if (newStatus.getMasterLeadTaskStatus().getStatus().equals(newTaskDefaultStatus)) {
+        // task status should not be the one for the new tasks
+        else if (newStatus.getMasterLeadTaskStatus().isBeginning()) {
             result = false;
         }
-
+        // validating status reason
+        else if (!isValidStatusReason(leadTask)) {
+            result = false;
+        }
         else if (oldStatus.getId() != newStatus.getId()) {
             // task type is not editable
             if (oldStatus.getMasterTaskId() != newStatus.getMasterTaskId()) {
@@ -281,6 +302,22 @@ public class LeadTaskService {
     }
 
     /**
+     * validates if the reason provided for a particulat status is correct
+     * 
+     * @param leadTask
+     * @return
+     */
+    private boolean isValidStatusReason(LeadTask leadTask) {
+        if (leadTask.getStatusReasonId() == null) {
+            return taskStatusReasonDao.findByTaskStatusMappingId(leadTask.getTaskStatusId()).isEmpty();
+        }
+        else {
+            return taskStatusReasonDao.findOne(leadTask.getStatusReasonId()).getTaskStatusMappingId() == leadTask
+                    .getTaskStatusId();
+        }
+    }
+
+    /**
      * verifies whether next task is valid for the current task
      * 
      * @param LeadTask
@@ -299,7 +336,7 @@ public class LeadTaskService {
                 isValid = false;
             }
             // checking that the next task must be in default status
-            else if (!nextTaskStatus.getMasterLeadTaskStatus().getStatus().equals(newTaskDefaultStatus)) {
+            else if (!nextTaskStatus.getMasterLeadTaskStatus().isBeginning()) {
                 isValid = false;
             }
             // checking is next task is of valid type
@@ -323,17 +360,25 @@ public class LeadTaskService {
      */
     @Transactional
     private boolean isValidNextTaskType(LeadTask leadTask) {
-        boolean result = false;
+        boolean result = true;
         LeadTaskStatus taskStatus = leadTaskStatusDao.findOne(leadTask.getTaskStatusId());
         LeadTaskStatus nextTaskStatus = leadTaskStatusDao.findOne(leadTask.getNextTask().getTaskStatusId());
-        List<MasterLeadTask> incompleTasks = masterLeadTaskDao.getIncompleteMandatoryTasksWithLesserPriority(
-                leadTask.getLeadOfferId(),
-                nextTaskStatus.getMasterLeadTask().getPriority());
-        if (incompleTasks.size() == 0) {
-            result = true;
+        List<MasterLeadTask> completedTasks = masterLeadTaskDao.getcompleteMandatoryTasks(leadTask.getLeadOfferId());
+        Map<Integer, MasterLeadTask> indexedCompletedTasks = new HashMap<>();
+        for (MasterLeadTask masterLeadTask : completedTasks) {
+            indexedCompletedTasks.put(masterLeadTask.getId(), masterLeadTask);
         }
-        else if (incompleTasks.size() == 1 && incompleTasks.get(0).getId() == taskStatus.getMasterTaskId()) {
-            result = true;
+
+        List<MasterLeadTask> mustDoTasks = masterLeadTaskDao.findByPriorityLessThanAndOptional(nextTaskStatus
+                .getMasterLeadTask().getPriority(), false);
+
+        for (MasterLeadTask masterLeadTask : mustDoTasks) {
+            int notDoneTaskId = masterLeadTask.getId();
+            if (!indexedCompletedTasks.containsKey(notDoneTaskId)) {
+                if (taskStatus.getMasterLeadTask().getId() != notDoneTaskId) {
+                    result = false;
+                }
+            }
         }
         return result;
     }
@@ -380,7 +425,7 @@ public class LeadTaskService {
         response.setTotalCount(leadTaskDao.getLeadTaskCountForUser(userId));
         response.setResults(leadTaskDao.getLeadTasksForUser(userId, pageable));
 
-        // leadTaskDao.deleteListingsForTask(1, Arrays.asList(1, 2));
+        LeadTask.populateTransientAttributes(response.getResults());
 
         return response;
     }
@@ -399,5 +444,32 @@ public class LeadTaskService {
             selector.setSort(defaultTaskSorting);
         }
         return selector;
+    }
+
+    /**
+     * fetches list of master tasks including all possible actions
+     * 
+     * @return
+     */
+    public List<MasterLeadTask> getMasterTaskDetails() {
+        List<MasterLeadTask> leadTasks = masterLeadTaskDao.getMasterTaskDetails();
+
+        List<LeadTaskStatusReason> statusReasons = taskStatusReasonDao.findAll();
+        Map<Integer, List<LeadTaskStatusReason>> mappedStatusReasons = new HashMap<>();
+        for (LeadTaskStatusReason leadTaskStatusReason : statusReasons) {
+            int statusId = leadTaskStatusReason.getTaskStatusMappingId();
+            if (!mappedStatusReasons.containsKey(statusId)) {
+                mappedStatusReasons.put(statusId, new ArrayList<LeadTaskStatusReason>());
+            }
+            mappedStatusReasons.get(statusId).add(leadTaskStatusReason);
+        }
+
+        for (MasterLeadTask masterLeadTask : leadTasks) {
+            for (LeadTaskStatus status : masterLeadTask.getLeadTaskStatuses()) {
+                status.setMasterLeadTask(null);
+                status.setStatusReasons(mappedStatusReasons.get(status.getId()));
+            }
+        }
+        return leadTasks;
     }
 }
