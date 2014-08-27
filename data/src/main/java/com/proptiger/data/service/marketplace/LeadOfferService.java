@@ -413,9 +413,9 @@ public class LeadOfferService {
         LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
         long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());       
         
-        if(Long.toString(leadOfferCount).equals(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM).toString()))
+        if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class).equals(leadOfferCount))
         {
-            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId(), LeadOfferStatus.Expired.getLeadOfferStatusId(), LeadOfferStatus.Offered.getLeadOfferStatusId());
+            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId());
         }
     }
 

@@ -39,7 +39,6 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
 
     @Modifying
     @Transactional
-    @Query("update LeadOffer LO set LO.statusId= ?2  where LO.statusId = ?3 and LO.leadId = ?1")
-    void expireRestOfTheLeadOffers(int leadId, Integer expired, Integer offered);
-
+    @Query("update LeadOffer LO set LO.statusId = 2 where LO.statusId = 1 and LO.leadId = ?1")
+    void expireRestOfTheLeadOffers(int leadId);
 }
