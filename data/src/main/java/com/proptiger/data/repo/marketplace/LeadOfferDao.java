@@ -4,9 +4,9 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.Listing;
-import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 
@@ -38,7 +38,8 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer , Integer>, LeadOf
     public List<LeadOffer> findByLeadId(int leadId);
 
     @Modifying
-    @Query("update LeadOffer LO set LO.statusId= ?2"+" where LO.statusId = ?3 and LO.leadId = ?1")
+    @Transactional
+    @Query("update LeadOffer LO set LO.statusId= ?2  where LO.statusId = ?3 and LO.leadId = ?1")
     void expireRestOfTheLeadOffers(int leadId, Integer expired,Integer offered);
 
 }

@@ -37,6 +37,7 @@ import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 
@@ -71,6 +72,9 @@ public class LeadOfferService {
 
     @Autowired
     private ListingService          listingService;
+    
+    @Autowired
+    protected PropertyReader propertyReader;
 
     /**
      * 
@@ -397,7 +401,8 @@ public class LeadOfferService {
         Statuses.add(LeadOfferStatus.Offered.getLeadOfferStatusId());
         Statuses.add(LeadOfferStatus.Declined.getLeadOfferStatusId());        
         long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId(),Statuses);       
-        if(leadOfferCount+"" == PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM)
+        
+        if(Long.toString(leadOfferCount).equals(propertyReader.getRequiredProperty(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM).toString()))
         {
             leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId(),LeadOfferStatus.Expired.getLeadOfferStatusId(),LeadOfferStatus.Offered.getLeadOfferStatusId());
         }
