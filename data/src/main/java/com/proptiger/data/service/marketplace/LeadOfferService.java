@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +35,7 @@ import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 
@@ -367,6 +366,7 @@ public class LeadOfferService {
 
     public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
         LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
+
         if (leadOfferInDB == null) {
             throw new BadRequestException("Invalid lead offer");
         }
@@ -408,13 +408,11 @@ public class LeadOfferService {
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
         LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
-        List<Integer> statuses = new ArrayList<>();
-        statuses.add(LeadOfferStatus.Offered.getLeadOfferStatusId());
-        statuses.add(LeadOfferStatus.Declined.getLeadOfferStatusId());        
-        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId(), statuses);       
-        if(leadOfferCount+"" == PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM)
+        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());       
+        
+        if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class).equals(leadOfferCount))
         {
-            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId(), LeadOfferStatus.Expired.getLeadOfferStatusId(), LeadOfferStatus.Offered.getLeadOfferStatusId());
+            leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId());
         }
     }
 
@@ -480,7 +478,7 @@ public class LeadOfferService {
     }
 
     public LeadOffer get(int leadOfferId, Integer userId, FIQLSelector selector) {
-        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+        LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
         Set<String> fields = selector.getFieldSet();
         enrichLeadOffers(Collections.singletonList(leadOffer), fields);
 
