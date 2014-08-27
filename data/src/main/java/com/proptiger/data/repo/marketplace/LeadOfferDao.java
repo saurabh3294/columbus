@@ -1,6 +1,7 @@
 package com.proptiger.data.repo.marketplace;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -41,4 +42,10 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Transactional
     @Query("update LeadOffer LO set LO.statusId = 2 where LO.statusId = 1 and LO.leadId = ?1")
     void expireRestOfTheLeadOffers(int leadId);
+
+    @Query("select MAX(LOL.id) from LeadOfferedListing LOL where LOL.leadOfferId in (?1) group by LOL.leadOfferId")
+    public List<Integer> findMaxListingByLeadOfferIdGroupbyLeadOfferId(List<Integer> leadOfferIds);
+
+    @Query("select LOL from LeadOfferedListing LOL join fetch LOL.listing LI where LOL.id in (?1)")
+    public List<LeadOfferedListing> getListingsById(List<Integer> maxleadOfferedListingIds);
 }

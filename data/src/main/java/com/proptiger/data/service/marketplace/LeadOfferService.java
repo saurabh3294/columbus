@@ -166,7 +166,16 @@ public class LeadOfferService {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, List<LeadOfferedListing>> leadOfferedListings = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.setLeadOfferedListings(leadOfferedListings.get(leadOffer.getId()));
+                    leadOffer.setOfferedListings(leadOfferedListings.get(leadOffer.getId()));
+                }
+            }
+
+            // please fix
+            if (fields.contains("latestOfferedListings")) {
+                List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
+                Map<Integer, LeadOfferedListing> leadOfferedListings = getLatestLeadOfferedListing(leadOfferIds);
+                for (LeadOffer leadOffer : leadOffers) {
+                    leadOffer.setLatestOfferedListing(leadOfferedListings.get(leadOffer.getId()));
                 }
             }
 
@@ -220,7 +229,7 @@ public class LeadOfferService {
                             leadOffer.getAgentId()).getResults());
                 }
             }
-            
+
             // XXX - Setting lead to null if not passed in fields
             if (!fields.contains("lead")) {
                 for (LeadOffer leadOffer : leadOffers) {
@@ -228,6 +237,21 @@ public class LeadOfferService {
                 }
             }
         }
+    }
+
+    private Map<Integer, LeadOfferedListing> getLatestLeadOfferedListing(List<Integer> leadOfferIds) {
+
+        List<Integer> maxleadOfferedListingIds = leadOfferDao
+                .findMaxListingByLeadOfferIdGroupbyLeadOfferId(leadOfferIds);
+        List<LeadOfferedListing> maxLeadOfferedListings = leadOfferDao.getListingsById(maxleadOfferedListingIds);
+
+        Map<Integer, LeadOfferedListing> listingMap = new HashMap<>();
+
+        for (LeadOfferedListing maxLeadOfferedListing : maxLeadOfferedListings) {
+            listingMap.put(maxLeadOfferedListing.getLeadOfferId(), maxLeadOfferedListing);
+        }
+
+        return listingMap;
     }
 
     /**
@@ -372,7 +396,7 @@ public class LeadOfferService {
         }
 
         List<Integer> listingIds = new ArrayList<>();
-        List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getLeadOfferedListings();
+        List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
         if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
             for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
                 listingIds.add(leadOfferedListing.getListingId());
@@ -383,7 +407,8 @@ public class LeadOfferService {
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getLeadOfferStatusId()) {
-                List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections.singletonList(leadOfferId));
+                List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
+                        .singletonList(leadOfferId));
 
                 if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
                     throw new BadRequestException("To claim add at least one listing");
@@ -392,7 +417,7 @@ public class LeadOfferService {
                 leadTaskService.createDefaultLeadTaskForLeadOffer(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
                 leadOfferDao.save(leadOfferInDB);
-                leadOfferInDB.setLeadOfferedListings(leadOfferedListingList);
+                leadOfferInDB.setOfferedListings(leadOfferedListingList);
                 restrictOtherBrokersFromClaiming(leadOfferId);
                 return leadOfferInDB;
             }
@@ -408,10 +433,10 @@ public class LeadOfferService {
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
         LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
-        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());       
-        
-        if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class).equals(leadOfferCount))
-        {
+        long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());
+
+        if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class)
+                .equals(leadOfferCount)) {
             leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId());
         }
     }
