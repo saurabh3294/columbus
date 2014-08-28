@@ -238,8 +238,6 @@ public class PortfolioListing extends BaseModel{
     @Column(name = "lead_country_id")
     private Integer                          leadCountryId;
 
-//   ManyToOne(fetch = FetchType.EAGER)
-//   @JoinColumn(name = "type_id", nullable = false, insertable = false, updatable = false)
     @Transient
     @JsonUnwrapped
     private Property                         property;
