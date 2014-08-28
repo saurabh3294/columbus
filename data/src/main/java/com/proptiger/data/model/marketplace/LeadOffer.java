@@ -55,10 +55,19 @@ public class LeadOffer extends BaseModel {
     @JsonIgnore
     private int                      cycleId;
 
-    @Transient
+    @Column(name = "previous_task_id")
+    private Integer lastTaskId;
+    
+    @Column(name = "next_task_id")
+    private Integer nextTaskId;
+    
+    
+    @OneToOne
+    @JoinColumn(name = "previous_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 lastTask;
 
-    @Transient
+    @OneToOne
+    @JoinColumn(name = "next_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 nextTask;
 
     @OneToMany(mappedBy = "leadOfferId", fetch = FetchType.LAZY)
@@ -229,6 +238,22 @@ public class LeadOffer extends BaseModel {
 
     public void setMasterLeadOfferStatus(MasterLeadOfferStatus masterLeadOfferStatus) {
         this.masterLeadOfferStatus = masterLeadOfferStatus;
+    }
+
+    public Integer getLastTaskId() {
+        return lastTaskId;
+    }
+
+    public void setLastTaskId(Integer lastTaskId) {
+        this.lastTaskId = lastTaskId;
+    }
+
+    public Integer getNextTaskId() {
+        return nextTaskId;
+    }
+
+    public void setNextTaskId(Integer nextTaskId) {
+        this.nextTaskId = nextTaskId;
     }
 
 }
