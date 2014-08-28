@@ -93,6 +93,15 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
         ForumUser forumUser = null;
         if (forumUserList != null && forumUserList.size() == 1) {
             forumUser = forumUserList.get(0);
+            /*
+             * due to bug in website's social login feature few user have empty
+             * email, so as a hack set passed email in forum user table and
+             * update user so that SocialUser object creation will not fail
+             */
+            if (forumUser.getEmail() == null || forumUser.getEmail().isEmpty()) {
+                forumUser.setEmail(email);
+                forumUser = forumUserDao.saveAndFlush(forumUser);
+            }
         }
         else {
             // first time user, need to create entry in database
