@@ -46,6 +46,4 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select MAX(LOL.id) from LeadOfferedListing LOL where LOL.leadOfferId in (?1) group by LOL.leadOfferId")
     public List<Integer> findMaxListingByLeadOfferIdGroupbyLeadOfferId(List<Integer> leadOfferIds);
 
-    @Query("select LOL from LeadOfferedListing LOL join fetch LOL.listing LI where LOL.id in (?1)")
-    public List<LeadOfferedListing> getListingsById(List<Integer> maxleadOfferedListingIds);
 }

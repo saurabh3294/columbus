@@ -29,7 +29,7 @@ import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
-import com.proptiger.data.repo.marketplace.LeadOfferedListingsDao;
+import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
@@ -60,7 +60,7 @@ public class LeadOfferService {
     private UserService             userService;
 
     @Autowired
-    private LeadOfferedListingsDao  leadOfferedListingDao;
+    private LeadOfferedListingDao  leadOfferedListingDao;
 
     @Autowired
     private LeadService             leadService;
@@ -162,7 +162,7 @@ public class LeadOfferService {
                 }
             }
 
-            if (fields.contains("offeredListings")) {
+            if (fields.contains("offeredListing")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, List<LeadOfferedListing>> leadOfferedListings = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
@@ -241,13 +241,13 @@ public class LeadOfferService {
 
     private Map<Integer, LeadOfferedListing> getLatestLeadOfferedListing(List<Integer> leadOfferIds) {
 
-        List<Integer> maxleadOfferedListingIds = leadOfferDao
+        List<Integer> latestOfferedListingIds = leadOfferDao
                 .findMaxListingByLeadOfferIdGroupbyLeadOfferId(leadOfferIds);
-        List<LeadOfferedListing> maxLeadOfferedListings = leadOfferDao.getListingsById(maxleadOfferedListingIds);
+        List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao.getListingsById(latestOfferedListingIds);
 
         Map<Integer, LeadOfferedListing> listingMap = new HashMap<>();
 
-        for (LeadOfferedListing maxLeadOfferedListing : maxLeadOfferedListings) {
+        for (LeadOfferedListing maxLeadOfferedListing : latestOfferedListings) {
             listingMap.put(maxLeadOfferedListing.getLeadOfferId(), maxLeadOfferedListing);
         }
 
