@@ -56,13 +56,18 @@ public class LeadOffer extends BaseModel {
     private int                      cycleId;
 
     @Column(name = "previous_task_id")
-    @JsonIgnore
-    private Integer                  previousTaskId;
-
-    @Transient
+    private Integer lastTaskId;
+    
+    @Column(name = "next_task_id")
+    private Integer nextTaskId;
+    
+    
+    @OneToOne
+    @JoinColumn(name = "previous_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 lastTask;
 
-    @Transient
+    @OneToOne
+    @JoinColumn(name = "next_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 nextTask;
 
     @OneToMany(mappedBy = "leadOfferId", fetch = FetchType.LAZY)
@@ -131,11 +136,11 @@ public class LeadOffer extends BaseModel {
         this.agentId = agentId;
     }
 
-    public Integer getStatusId() {
+    public int getStatusId() {
         return statusId;
     }
 
-    public void setStatusId(Integer statusId) {
+    public void setStatusId(int statusId) {
         this.statusId = statusId;
     }
 
@@ -235,12 +240,20 @@ public class LeadOffer extends BaseModel {
         this.masterLeadOfferStatus = masterLeadOfferStatus;
     }
 
-    public Integer getPreviousTaskId() {
-        return previousTaskId;
+    public Integer getLastTaskId() {
+        return lastTaskId;
     }
 
-    public void setPreviousTaskId(Integer previousTaskId) {
-        this.previousTaskId = previousTaskId;
+    public void setLastTaskId(Integer lastTaskId) {
+        this.lastTaskId = lastTaskId;
+    }
+
+    public Integer getNextTaskId() {
+        return nextTaskId;
+    }
+
+    public void setNextTaskId(Integer nextTaskId) {
+        this.nextTaskId = nextTaskId;
     }
 
 }

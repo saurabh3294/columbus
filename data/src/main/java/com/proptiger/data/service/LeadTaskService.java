@@ -472,6 +472,16 @@ public class LeadTaskService {
         }
         return leadTasks;
     }
+
+    public Map<Integer, LeadTask> getTaskById(List<Integer> leadTaskIds) {
+        List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
+        Map<Integer, LeadTask> taskMap = new HashMap<>(); 
+        for(LeadTask leadTask : leadTasks)
+        {
+            taskMap.put(leadTask.getId(), leadTask);
+        }        
+        return taskMap;
+    }
     
     @Transactional
     public LeadTask createLeadTask(LeadTask leadTask){
