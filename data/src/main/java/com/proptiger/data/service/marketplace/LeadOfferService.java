@@ -247,8 +247,8 @@ public class LeadOfferService {
 
         Map<Integer, LeadOfferedListing> listingMap = new HashMap<>();
 
-        for (LeadOfferedListing maxLeadOfferedListing : latestOfferedListings) {
-            listingMap.put(maxLeadOfferedListing.getLeadOfferId(), maxLeadOfferedListing);
+        for (LeadOfferedListing latestOfferedListing : latestOfferedListings) {
+            listingMap.put(latestOfferedListing.getLeadOfferId(), latestOfferedListing);
         }
 
         return listingMap;
