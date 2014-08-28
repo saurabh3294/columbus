@@ -186,6 +186,8 @@ public class TestAPIs {
              * listOfApi stores list of APIs
              */
             Map<String, String> listofAPIs = getListOfAPis(apilist);
+            Assert.assertTrue(listofAPIs.size() > 0, "Empty API list was returned by server.");
+            
             ExecutorService executors = Executors.newFixedThreadPool(listofAPIs.size());
             List<Future<Object>> futures = new ArrayList<Future<Object>>();
 
