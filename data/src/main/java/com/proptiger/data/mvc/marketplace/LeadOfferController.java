@@ -39,15 +39,6 @@ public class LeadOfferController extends BaseController {
                 paginatedResponse.getTotalCount());
     }
 
-    @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/listing", method = RequestMethod.POST)
-    @ResponseBody
-    public APIResponse offerListing(
-            @RequestBody List<Integer> listingIds,
-            @PathVariable int leadOfferId,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        return new APIResponse(leadOfferService.offerListings(listingIds, leadOfferId, activeUser.getUserIdentifier()));
-    }
-
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/offered-listings")
     @ResponseBody
     public APIResponse getOfferedListings(

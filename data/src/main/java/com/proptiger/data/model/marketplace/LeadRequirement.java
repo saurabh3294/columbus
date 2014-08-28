@@ -14,11 +14,8 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.Builder;
-import com.proptiger.data.model.City;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
-import com.proptiger.data.model.Suburb;
 
 @JsonInclude(Include.NON_NULL)
 @Entity
@@ -58,20 +55,6 @@ public class LeadRequirement extends BaseModel {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="lead_id" ,insertable=false, updatable=false)
     private Lead lead;
-
-    public LeadRequirement() {
-        locality = new Locality();
-        locality.setLabel("Dummy");
-        locality.setSuburb(new Suburb());
-        locality.getSuburb().setCity(new City());
-        locality.getSuburb().getCity().setLabel("Dummy");
-
-        project = new Project();
-        project.setName("Dummy");
-        project.setBuilder(new Builder());
-        project.getBuilder().setName("Dummy");
-        project.setLocality(locality);
-    }
 
     public int getId() {
         return id;

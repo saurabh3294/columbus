@@ -13,10 +13,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -25,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.MasterLeadOfferStatus;
 
 /**
  * @author mandeep
@@ -34,65 +34,66 @@ import com.proptiger.data.model.Listing;
 @JsonInclude(Include.NON_EMPTY)
 @Table(name = "marketplace.lead_offers")
 public class LeadOffer extends BaseModel {
-
-    private static final long serialVersionUID = -4428374943776702328L;
+    private static final long        serialVersionUID      = -4428374943776702328L;
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int               id;
+    private int                      id;
 
     @Column(name = "lead_id")
     @JsonIgnore
-    private int               leadId;
+    private int                      leadId;
 
     @Column(name = "agent_id")
-    private int               agentId;
+    private int                      agentId;
 
     @Column(name = "status_id")
-    private int               statusId;
+    private int                      statusId;
 
     @Column(name = "cycle_id")
     @JsonIgnore
-    private int               cycleId;
+    private int                      cycleId;
 
     @Transient
-    private LeadTask lastTask;
+    private LeadTask                 lastTask;
 
     @Transient
-    private LeadTask nextTask;
+    private LeadTask                 nextTask;
 
-    @OneToMany(mappedBy="leadOfferId", fetch=FetchType.LAZY)
-    private List<LeadTask> tasks;
-
-    @Transient
-    private int countMatchingListings = 99999999;
+    @OneToMany(mappedBy = "leadOfferId", fetch = FetchType.LAZY)
+    private List<LeadTask>           tasks;
 
     @Transient
-    private int countOfferedListings = 99999999;
+    private int                      countMatchingListings = 99999999;
+
+    @Transient
+    private int                      countOfferedListings  = 99999999;
 
     @Column(name = "created_at")
-    private Date              createdAt        = new Date();
+    private Date                     createdAt             = new Date();
 
     @Column(name = "updated_at")
-    private Date              updatedAt        = new Date();
+    private Date                     updatedAt             = new Date();
 
     @JoinColumn(insertable = false, updatable = false, name = "lead_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Lead              lead;
-    
-    @ManyToMany
-    @JoinTable(name="marketplace.lead_offered_listings",
-        joinColumns=
-            @JoinColumn(name = "lead_offer_id", referencedColumnName = "id"),
-        inverseJoinColumns=
-            @JoinColumn(name="listing_id", referencedColumnName="id")
-        )
-    private List<Listing> offeredListings;
+    private Lead                     lead;
 
-    @OneToMany(fetch=FetchType.LAZY)
-    @JoinColumn(name="seller_id", referencedColumnName="agent_id", insertable=false, updatable=false)
-    private List<Listing> matchingListings;
+    @OneToMany
+    @JoinColumn(name = "lead_offer_id", referencedColumnName = "id")
+    private List<LeadOfferedListing> offeredListings;
+
+    @Transient
+    private LeadOfferedListing       latestOfferedListing;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id", referencedColumnName = "agent_id", insertable = false, updatable = false)
+    private List<Listing>            matchingListings;
+
+    @OneToOne
+    @JoinColumn(name = "status_id", referencedColumnName = "id", insertable = false, updatable = false)
+    private MasterLeadOfferStatus    masterLeadOfferStatus;
 
     public Lead getLead() {
         return lead;
@@ -157,44 +158,6 @@ public class LeadOffer extends BaseModel {
     public void setCycleId(int cycleId) {
         this.cycleId = cycleId;
     }
-    
-    public static class LeadOfferIdListing
-    {
-        private Integer leadOfferId;
-        private Listing listing;
-
-        public LeadOfferIdListing() {}
-
-        public LeadOfferIdListing(Integer leadOfferId, Listing listings)
-        {
-            this.leadOfferId = leadOfferId;
-            this.listing = listings;
-        }
-
-        public Integer getLeadOfferId() {
-            return leadOfferId;
-        }
-
-        public void setLeadOfferId(Integer leadOfferId) {
-            this.leadOfferId = leadOfferId;
-        }
-
-        public Listing getListing() {
-            return listing;
-        }
-
-        public void setListing(Listing listing) {
-            this.listing = listing;
-        }
-    }
-
-    public List<Listing> getOfferedListings() {
-        return offeredListings;
-    }
-
-    public void setOfferedListings(List<Listing> offeredListings) {
-        this.offeredListings = offeredListings;
-    }
 
     public LeadTask getLastTask() {
         return lastTask;
@@ -243,4 +206,29 @@ public class LeadOffer extends BaseModel {
     public void setCountOfferedListings(int countOfferedListings) {
         this.countOfferedListings = countOfferedListings;
     }
+
+    public List<LeadOfferedListing> getOfferedListings() {
+        return offeredListings;
+    }
+
+    public void setOfferedListings(List<LeadOfferedListing> offeredListings) {
+        this.offeredListings = offeredListings;
+    }
+
+    public LeadOfferedListing getLatestOfferedListing() {
+        return latestOfferedListing;
+    }
+
+    public void setLatestOfferedListing(LeadOfferedListing latestOfferedListing) {
+        this.latestOfferedListing = latestOfferedListing;
+    }
+
+    public MasterLeadOfferStatus getMasterLeadOfferStatus() {
+        return masterLeadOfferStatus;
+    }
+
+    public void setMasterLeadOfferStatus(MasterLeadOfferStatus masterLeadOfferStatus) {
+        this.masterLeadOfferStatus = masterLeadOfferStatus;
+    }
+
 }
