@@ -94,6 +94,10 @@ public class LeadTask extends BaseModel {
     @JoinColumn(name = "task_status_reason_id", insertable = false, updatable = false)
     private LeadTaskStatusReason            statusReason;
 
+    // XXX will also return notification for other objects with the same id
+    @OneToMany(mappedBy = "objectId")
+    private List<Notification>              notifications;
+
     @Transient
     private LeadTask                        nextTask;
 
@@ -264,5 +268,16 @@ public class LeadTask extends BaseModel {
             leadTask.populateTransientAttributes();
         }
         return leadTasks;
+    }
+
+    // XXX deprecated because also returns notification for other objects with
+    // the same id
+    @Deprecated
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
     }
 }
