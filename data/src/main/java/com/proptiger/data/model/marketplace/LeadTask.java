@@ -78,7 +78,6 @@ public class LeadTask extends BaseModel {
 
     @ManyToOne
     @JoinColumn(name = "lead_task_status_id", insertable = false, updatable = false)
-    @JsonIgnore
     private LeadTaskStatus                  taskStatus;
 
     @OneToMany(mappedBy = "taskId")
