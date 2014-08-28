@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,6 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.LeadOfferStatus;
+import com.proptiger.data.enums.LeadTaskName;
+import com.proptiger.data.enums.LeadTaskStatusName;
+import com.proptiger.data.enums.resource.ResourceType;
+import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.internal.dto.SenderDetail;
+import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.Company;
 import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.Listing;
@@ -28,16 +36,19 @@ import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
+import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 
@@ -60,7 +71,7 @@ public class LeadOfferService {
     private UserService             userService;
 
     @Autowired
-    private LeadOfferedListingDao  leadOfferedListingDao;
+    private LeadOfferedListingDao   leadOfferedListingDao;
 
     @Autowired
     private LeadService             leadService;
@@ -70,6 +81,12 @@ public class LeadOfferService {
 
     @Autowired
     private ListingService          listingService;
+
+    @Autowired
+    private LeadTaskStatusDao       leadTaskStatusDao;
+
+    @Autowired
+    private MailSender              mailSender;
 
     /**
      * 
@@ -508,5 +525,58 @@ public class LeadOfferService {
         enrichLeadOffers(Collections.singletonList(leadOffer), fields);
 
         return leadOffer;
+    }
+
+    /**
+     * This method creates a lead task for email done status and set that task
+     * id as previous task id in this lead offer
+     * 
+     * @param leadOfferId
+     * @param userId
+     * @param mailDetails2
+     * @return
+     */
+    public LeadOffer updateLeadOfferForEmailTask(int leadOfferId, Integer userId, SenderDetail senderDetails) {
+        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
+        if (leadOfferInDB == null) {
+            throw new ResourceNotAvailableException(ResourceType.LEAD_OFFER, ResourceTypeAction.UPDATE);
+        }
+        LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
+                LeadTaskName.Email.name(),
+                LeadTaskStatusName.Done.name());
+        if (leadTaskStatus == null) {
+            throw new BadRequestException("Email task done status not mapped");
+        }
+
+        LeadTask leadTask = new LeadTask();
+        leadTask.setLeadOfferId(leadOfferId);
+        leadTask.setPerformedAt(new Date());
+        leadTask.setTaskStatusId(leadTaskStatus.getId());
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.HOUR, 1);
+        leadTask.setScheduledFor(cal.getTime());
+        /*
+         * creating task for email status done
+         */
+        LeadTask createdTask = leadTaskService.createLeadTask(leadTask);
+        /*
+         * update last task id in lead offer
+         */
+        leadOfferInDB.setPreviousTaskId(createdTask.getId());
+        leadOfferInDB = leadOfferDao.saveAndFlush(leadOfferInDB);
+        /*
+         * Send email
+         */
+        if (senderDetails.getSubject() == null || senderDetails.getSubject().isEmpty()
+                || senderDetails.getMessage() == null
+                || senderDetails.getMessage().isEmpty()
+                || senderDetails.getMailTo() == null
+                || senderDetails.getMailTo().isEmpty()) {
+            throw new BadRequestException("Invalid mail details");
+        }
+        MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo());
+        mailSender.sendMailUsingAws(mailDetails);
+        return leadOfferInDB;
     }
 }

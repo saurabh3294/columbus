@@ -49,11 +49,15 @@ public class LeadOffer extends BaseModel {
     private int                      agentId;
 
     @Column(name = "status_id")
-    private int                      statusId;
+    private Integer                      statusId;
 
     @Column(name = "cycle_id")
     @JsonIgnore
     private int                      cycleId;
+
+    @Column(name = "previous_task_id")
+    @JsonIgnore
+    private Integer                  previousTaskId;
 
     @Transient
     private LeadTask                 lastTask;
@@ -127,11 +131,11 @@ public class LeadOffer extends BaseModel {
         this.agentId = agentId;
     }
 
-    public int getStatusId() {
+    public Integer getStatusId() {
         return statusId;
     }
 
-    public void setStatusId(int statusId) {
+    public void setStatusId(Integer statusId) {
         this.statusId = statusId;
     }
 
@@ -229,6 +233,14 @@ public class LeadOffer extends BaseModel {
 
     public void setMasterLeadOfferStatus(MasterLeadOfferStatus masterLeadOfferStatus) {
         this.masterLeadOfferStatus = masterLeadOfferStatus;
+    }
+
+    public Integer getPreviousTaskId() {
+        return previousTaskId;
+    }
+
+    public void setPreviousTaskId(Integer previousTaskId) {
+        this.previousTaskId = previousTaskId;
     }
 
 }
