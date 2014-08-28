@@ -13,14 +13,13 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.gson.annotations.Expose;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.notification.enums.MediumType;
 
 @Entity
 @Table(name = "notification_medium")
 public class NotificationMedium extends BaseModel {
-    
+
     /**
      * 
      */

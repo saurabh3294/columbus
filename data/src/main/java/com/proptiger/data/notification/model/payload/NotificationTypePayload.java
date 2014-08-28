@@ -16,7 +16,7 @@ public class NotificationTypePayload implements Serializable {
     /**
      * 
      */
-    private static final long                   serialVersionUID = -8078901353675223123L;
+    private static final long                   serialVersionUID                = -8078901353675223123L;
 
     private String                              primaryKeyName;
     private Object                              primaryKeyValue;
@@ -33,6 +33,20 @@ public class NotificationTypePayload implements Serializable {
     private Object                              newValue;
 
     private List<NotificationTypeUpdateHistory> notificationTypeUpdateHistories = new ArrayList<NotificationTypeUpdateHistory>();
+
+    public static NotificationTypePayload newInstance(NotificationTypePayload payload) {
+        NotificationTypePayload newPayload = new NotificationTypePayload();
+        newPayload.setPrimaryKeyName(payload.getPrimaryKeyName());
+        newPayload.setPrimaryKeyValue(payload.getPrimaryKeyValue());
+        newPayload.setTransactionIdName(payload.getTransactionIdName());
+        newPayload.setTransactionId(payload.getTransactionId());
+        newPayload.setTransactionDateName(payload.getTransactionDateName());
+        newPayload.setTransactionDate(payload.getTransactionDate());
+        newPayload.setOldValue(payload.getOldValue());
+        newPayload.setNewValue(payload.getNewValue());
+        newPayload.setNotificationTypeUpdateHistories(payload.getNotificationTypeUpdateHistories());
+        return newPayload;
+    }
 
     public void populatePayloadValues(EventTypePayload eventTypePayload) {
         DefaultEventTypePayload defaultEventTypePayload = (DefaultEventTypePayload) eventTypePayload;

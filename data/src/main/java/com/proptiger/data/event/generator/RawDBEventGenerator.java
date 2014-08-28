@@ -13,7 +13,6 @@ import com.proptiger.data.event.model.DBRawEventTableLog;
 import com.proptiger.data.event.model.RawDBEvent;
 import com.proptiger.data.event.service.RawDBEventService;
 import com.proptiger.data.event.service.RawEventToEventTypeMappingService;
-import com.proptiger.data.util.Serializer;
 
 /**
  * Generates the Raw Events from DB
@@ -38,7 +37,6 @@ public class RawDBEventGenerator {
         logger.info("Iterating " + dbRawEventTableConfigs.size() + " table configurations.");
 
         for (DBRawEventTableConfig dbRawEventTableConfig : dbRawEventTableConfigs) {
-            //logger.debug(" Iterate " + Serializer.toJson(dbRawEventTableConfig));
 
             List<RawDBEvent> rawDBEvents = rawDBEventService.getRawDBEvents(dbRawEventTableConfig);
             finalRawDBEventList.addAll(rawDBEvents);

@@ -5,14 +5,37 @@ import java.util.Map;
 
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.DefaultNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.GoalPriceNotificationMessageProcessor;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.processor.NotificationNonPrimaryKeyProcessor;
 import com.proptiger.data.notification.processor.NotificationPrimaryKeyProcessor;
+import com.proptiger.data.notification.processor.PhotoAddNotificationMessageProcessor;
+import com.proptiger.data.notification.processor.PriceChangeNotificationMessageProcessor;
 
 public class NotificationTypeConfig {
 
+    public transient static Map<String, NotificationTypeConfig>           notificationTypeConfigMap;
+
     static {
         notificationTypeConfigMap = new HashMap<String, NotificationTypeConfig>();
+
+        notificationTypeConfigMap.put("portfolio_price_change", new NotificationTypeConfig(
+                NotificationTypePayload.class,
+                NotificationPrimaryKeyProcessor.class,
+                NotificationNonPrimaryKeyProcessor.class,
+                PriceChangeNotificationMessageProcessor.class));
+
+        notificationTypeConfigMap.put("portfolio_goal_price", new NotificationTypeConfig(
+                NotificationTypePayload.class,
+                NotificationPrimaryKeyProcessor.class,
+                NotificationNonPrimaryKeyProcessor.class,
+                GoalPriceNotificationMessageProcessor.class));
+        
+        notificationTypeConfigMap.put("portfolio_photo_add", new NotificationTypeConfig(
+                NotificationTypePayload.class,
+                NotificationPrimaryKeyProcessor.class,
+                NotificationNonPrimaryKeyProcessor.class,
+                PhotoAddNotificationMessageProcessor.class));
     }
 
     private transient Class<? extends NotificationTypePayload>            dataClassName                         = NotificationTypePayload.class;
@@ -24,8 +47,6 @@ public class NotificationTypeConfig {
     private transient NotificationNonPrimaryKeyProcessor                  nonPrimaryKeyProcessorObject;
     private transient NotificationTypePayload                             notificationTypePayloadObject;
     private transient NotificationMessageProcessor                        notificationMessageProcessorObject;
-
-    public transient static Map<String, NotificationTypeConfig>           notificationTypeConfigMap;
 
     public NotificationTypeConfig(
             Class<? extends NotificationTypePayload> dataClassName,

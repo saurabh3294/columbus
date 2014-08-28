@@ -10,12 +10,12 @@ public class NotificationTest extends AbstractTest {
     @Autowired
     private NotificationInitiator notificationInitiator;
 
-    @Test
+    //@Test
     public void testNotificationTypeGenerator() {
         notificationInitiator.notificationTypeGenerator();
     }
 
-    @Test
+    //@Test
     public void testNotificationGenerator() {
         notificationInitiator.notificationGenerator();
     }
