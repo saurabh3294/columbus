@@ -86,7 +86,7 @@ public class LeadOfferService {
         List<Integer> newOfferedListingIds = new ArrayList<>();
 
         Set<Integer> matchingListingIds = new HashSet<>();
-        for (Listing listing : getMatchingListings(leadOfferId).getResults()) {
+        for (Listing listing : getUnsortedMatchingListings(leadOfferId).getResults()) {
             matchingListingIds.add(listing.getId());
         }
 
@@ -455,13 +455,27 @@ public class LeadOfferService {
         return leadOffer;
     }
 
-    private PaginatedResponse<List<Listing>> getMatchingListings(int leadOfferId) {
-        List<Listing> listings = leadOfferDao.getMatchingListings(leadOfferId);
-        return new PaginatedResponse<List<Listing>>(listings, listings.size());
+    private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId) {
+        List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
+        populateOfferedFlag(leadOfferId, matchingListings);
+        return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
+    }
+
+    private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings) {
+        Set<Integer> offeredListingIds = new HashSet<>();
+        for (LeadOfferedListing leadOfferListing: leadOfferDao.getLeadOfferedListings(Collections.singletonList(leadOfferId))) {
+            offeredListingIds.add(leadOfferListing.getListingId());
+        }
+
+        for (Listing matchingListing: matchingListings) {
+            if (offeredListingIds.contains(matchingListing.getId())) {
+                matchingListing.setOffered(true);
+            }
+        }
     }
 
     public PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId) {
-        PaginatedResponse<List<Listing>> listings = getMatchingListings(leadOfferId);
+        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId);
         List<LeadRequirement> leadRequirements = leadRequirementsService.getRequirements(leadOfferId);
         listings.setResults(sortMatchingListings(listings.getResults(), leadRequirements));
         return listings;
