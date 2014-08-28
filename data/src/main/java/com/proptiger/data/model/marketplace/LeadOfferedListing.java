@@ -7,6 +7,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -31,36 +32,37 @@ import com.proptiger.data.model.Listing;
 @Table(name = "marketplace.lead_offered_listings")
 @JsonFilter("fieldFilter")
 public class LeadOfferedListing extends BaseModel {
-    private static final long     serialVersionUID = -6647164101899851831L;
+    private static final long serialVersionUID = -6647164101899851831L;
 
-    public LeadOfferedListing() {}
+    public LeadOfferedListing() {
+    }
 
     public LeadOfferedListing(int leadOfferId, int listingId) {
         this.leadOfferId = leadOfferId;
-        this.listingId   = listingId;
+        this.listingId = listingId;
     }
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int                   id;
-        
+    private int     id;
+
     @Column(name = "lead_offer_id")
-    private int leadOfferId;
+    private int     leadOfferId;
 
     @Column(name = "listing_id")
-    private int listingId;
+    private int     listingId;
 
     @Column(name = "created_at")
-    private Date createdAt;
-    
+    private Date    createdAt;
+
     @Column(name = "updated_at")
-    private Date updatedAt;
-    
-    @ManyToOne
-    @JoinColumn(name = "listing_id", insertable=false, updatable=false)
+    private Date    updatedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "listing_id", insertable = false, updatable = false)
     private Listing listing;
-    
+
     public int getId() {
         return id;
     }
@@ -99,13 +101,13 @@ public class LeadOfferedListing extends BaseModel {
 
     public void setUpdatedAt(Date updatedAt) {
         this.updatedAt = updatedAt;
-    }    
+    }
 
     @PreUpdate
     public void setUpdatedAtBeforeDBQuery() {
         this.updatedAt = new Date();
     }
-    
+
     @PrePersist
     public void setCreatedAt() {
         this.createdAt = new Date();

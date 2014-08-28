@@ -82,7 +82,10 @@ public class LeadOffer extends BaseModel {
 
     @OneToMany
     @JoinColumn(name = "lead_offer_id", referencedColumnName = "id")
-    private List<LeadOfferedListing> leadOfferedListings;
+    private List<LeadOfferedListing> offeredListings;
+
+    @Transient
+    private LeadOfferedListing       latestOfferedListing;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "seller_id", referencedColumnName = "agent_id", insertable = false, updatable = false)
@@ -204,12 +207,28 @@ public class LeadOffer extends BaseModel {
         this.countOfferedListings = countOfferedListings;
     }
 
-    public List<LeadOfferedListing> getLeadOfferedListings() {
-        return leadOfferedListings;
+    public List<LeadOfferedListing> getOfferedListings() {
+        return offeredListings;
     }
 
-    public void setLeadOfferedListings(List<LeadOfferedListing> leadOfferedListings) {
-        this.leadOfferedListings = leadOfferedListings;
+    public void setOfferedListings(List<LeadOfferedListing> offeredListings) {
+        this.offeredListings = offeredListings;
+    }
+
+    public LeadOfferedListing getLatestOfferedListing() {
+        return latestOfferedListing;
+    }
+
+    public void setLatestOfferedListing(LeadOfferedListing latestOfferedListing) {
+        this.latestOfferedListing = latestOfferedListing;
+    }
+
+    public MasterLeadOfferStatus getMasterLeadOfferStatus() {
+        return masterLeadOfferStatus;
+    }
+
+    public void setMasterLeadOfferStatus(MasterLeadOfferStatus masterLeadOfferStatus) {
+        this.masterLeadOfferStatus = masterLeadOfferStatus;
     }
 
 }
