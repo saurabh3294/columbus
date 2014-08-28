@@ -195,4 +195,54 @@ public class DateUtil {
     private static int getNonWorkingSecondsInADay() {
         return secondsInADay - getWorkingSecondsInADay();
     }
+
+    /**
+     * gives min of two dates... null if both are null.. other date if one is
+     * null
+     * 
+     * @param date1
+     * @param date2
+     * @return
+     */
+    public static Date min(Date date1, Date date2) {
+        Date minDate;
+        if (date1 == null) {
+            minDate = date2;
+        }
+        else if (date2 == null) {
+            minDate = date1;
+        }
+        else if (date1.after(date2)) {
+            minDate = date2;
+        }
+        else {
+            minDate = date1;
+        }
+        return minDate;
+    }
+
+    /**
+     * gives max of two dates... null if both are null.. other date if one is
+     * null
+     * 
+     * @param date1
+     * @param date2
+     * @return
+     */
+    public static Date max(Date date1, Date date2) {
+        Date maxDate;
+        if (date1 == null) {
+            maxDate = date2;
+        }
+        else if (date2 == null) {
+            maxDate = date1;
+        }
+        else if (min(date1, date2).equals(date1)) {
+            maxDate = date2;
+        }
+        else {
+            maxDate = date1;
+        }
+        return maxDate;
+    }
 }
