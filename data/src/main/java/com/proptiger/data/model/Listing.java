@@ -90,6 +90,9 @@ public class Listing extends BaseModel {
 
     @Transient
     private ListingPrice         currentListingPrice;
+    
+    @Transient
+    private boolean isOffered;
 
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "listingId", cascade = CascadeType.ALL)
@@ -321,5 +324,13 @@ public class Listing extends BaseModel {
             this.projectId = projectId;
         }
 
+    }
+
+    public boolean isOffered() {
+        return isOffered;
+    }
+
+    public void setOffered(boolean isOffered) {
+        this.isOffered = isOffered;
     }
 }

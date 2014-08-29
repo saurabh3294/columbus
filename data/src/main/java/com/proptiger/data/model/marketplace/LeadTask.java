@@ -16,7 +16,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.Future;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
@@ -52,7 +51,6 @@ public class LeadTask extends BaseModel {
 
     @Nonnull
     @Column(name = "scheduled_for")
-    @Future
     private Date                            scheduledFor;
 
     @Column(name = "call_time_seconds")
@@ -77,6 +75,7 @@ public class LeadTask extends BaseModel {
     private LeadOffer                       leadOffer;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "lead_task_status_id", insertable = false, updatable = false)
     private LeadTaskStatus                  taskStatus;
 
@@ -92,6 +91,10 @@ public class LeadTask extends BaseModel {
     @ManyToOne(optional = true)
     @JoinColumn(name = "task_status_reason_id", insertable = false, updatable = false)
     private LeadTaskStatusReason            statusReason;
+
+    // XXX will also return notification for other objects with the same id
+    @OneToMany(mappedBy = "objectId")
+    private List<Notification>              notifications;
 
     @Transient
     private LeadTask                        nextTask;
@@ -263,5 +266,16 @@ public class LeadTask extends BaseModel {
             leadTask.populateTransientAttributes();
         }
         return leadTasks;
+    }
+
+    // XXX deprecated because also returns notification for other objects with
+    // the same id
+    @Deprecated
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
     }
 }

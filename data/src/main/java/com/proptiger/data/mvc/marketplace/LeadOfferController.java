@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.mvc.BaseController;
@@ -80,5 +81,15 @@ public class LeadOfferController extends BaseController {
             @PathVariable int leadOfferId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         return new APIResponse(leadOfferService.updateLeadOffer(leadOffer, leadOfferId, activeUser.getUserIdentifier()));
+    }
+    
+    @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/email", method = RequestMethod.PUT)
+    @ResponseBody
+    public APIResponse updateLeadOfferForEmailTask(
+            @RequestBody SenderDetail senderDetails,
+            @PathVariable int leadOfferId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        LeadOffer leadOffer = leadOfferService.updateLeadOfferForEmailTask(leadOfferId, activeUser.getUserIdentifier(), senderDetails);
+        return new APIResponse(leadOffer);
     }
 }

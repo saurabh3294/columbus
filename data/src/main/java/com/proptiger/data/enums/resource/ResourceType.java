@@ -7,7 +7,7 @@ package com.proptiger.data.enums.resource;
 public enum ResourceType {
     LISTING("property listing"), DASHBOARD("dashboard"), WIDGET("widget"), PRICE_TREND("price trend"), BANK("bank"), RESOURCE(
             "resource"), PROJECT_PAYMENT_SCHEDULE("project payment schedule"), PROJECT("project"), LOCALITY("locality"), BUILDER(
-            "builder"), COMPANY_USER("Company user"), CITY("city"), PROPERTY("property"), USER("user"), SUBURB("suburb");
+            "builder"), COMPANY_USER("Company user"), CITY("city"), PROPERTY("property"), USER("user"), SUBURB("suburb"), LEAD_OFFER("Lead offer");
 
     private String type;
 
