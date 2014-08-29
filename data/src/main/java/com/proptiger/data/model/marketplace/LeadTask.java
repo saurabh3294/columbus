@@ -16,7 +16,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.Future;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
@@ -52,7 +51,6 @@ public class LeadTask extends BaseModel {
 
     @Nonnull
     @Column(name = "scheduled_for")
-    @Future
     private Date                            scheduledFor;
 
     @Column(name = "call_time_seconds")

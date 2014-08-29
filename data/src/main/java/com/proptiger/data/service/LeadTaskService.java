@@ -482,4 +482,9 @@ public class LeadTaskService {
         }
         return taskMap;
     }
+    
+    @Transactional
+    public LeadTask createLeadTask(LeadTask leadTask){
+        return leadTaskDao.saveAndFlush(leadTask);
+    }
 }

@@ -4,6 +4,6 @@ package com.proptiger.data.enums;
  * @author Rajeev Pandey
  *
  */
-public enum LeadTaskStatus {
+public enum LeadTaskStatusNames {
     Scheduled,Completed,Revised;
 }

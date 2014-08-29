@@ -7,6 +7,7 @@ public class SenderDetail {
 	private String senderName;
 	private String senderEmail;
 	private String message;
+	private String subject;
 
 	public String getMessage() {
 		return message;
@@ -48,4 +49,13 @@ public class SenderDetail {
 		this.mailCC = mailCC;
 	}
 
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+	
 }
