@@ -478,6 +478,8 @@ public class LeadTaskService {
         LeadTask.populateTransientAttributes(leadTasks);
         Map<Integer, LeadTask> taskMap = new HashMap<>();
         for (LeadTask leadTask : leadTasks) {
+            leadTask.setLeadOffer(null);
+            leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
             taskMap.put(leadTask.getId(), leadTask);
         }
         return taskMap;

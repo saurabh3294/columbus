@@ -30,6 +30,7 @@ import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
@@ -77,12 +78,12 @@ public class LeadOfferService {
     @Autowired
     private ListingService          listingService;
 
+
     @Autowired
     private LeadTaskStatusDao       leadTaskStatusDao;
 
     @Autowired
     private MailSender              mailSender;
-
     /**
      * 
      * @param integer
@@ -161,9 +162,19 @@ public class LeadOfferService {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
-                for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                
+                Map<Integer, List<UserContactNumber>> contactNumbers = null;
+                if (fields.contains("client.contactNumbers"))
+                {                   
+                    contactNumbers  = userService.getUserContactNumbers(clientIds);
                 }
+                    for (LeadOffer leadOffer : leadOffers) {
+                        leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                        if (fields.contains("client.contactNumbers"))
+                        {
+                            leadOffer.getLead().getClient().setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
+                        }
+                    }
             }
 
             if (fields.contains("lead.requirements")) {
@@ -216,6 +227,13 @@ public class LeadOfferService {
                     leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
                             new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
                             leadOffer.getAgentId()).getResults());
+                    
+                    for(LeadTask leadTask: leadOffer.getTasks())
+                    {
+                        leadTask.setLeadOffer(null);
+                    }
+                    
+                    
                 }
             }
 
@@ -409,12 +427,18 @@ public class LeadOfferService {
 
         List<Integer> listingIds = new ArrayList<>();
         List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
-        if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
-            for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
-                listingIds.add(leadOfferedListing.getListingId());
-            }
-
-            offerListings(listingIds, leadOfferId, userId);
+ 
+        leadOfferInDB.setLastTask(null);
+        leadOfferInDB.setNextTask(null);
+        
+        if(leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId())
+        {
+                if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
+                    for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
+                        listingIds.add(leadOfferedListing.getListingId());
+                    }
+                    offerListings(listingIds, leadOfferId, userId);
+                }
         }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
