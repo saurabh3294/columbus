@@ -77,6 +77,7 @@ public class LeadTask extends BaseModel {
     private LeadOffer                       leadOffer;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "lead_task_status_id", insertable = false, updatable = false)
     private LeadTaskStatus                  taskStatus;
 
