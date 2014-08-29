@@ -475,11 +475,11 @@ public class LeadTaskService {
 
     public Map<Integer, LeadTask> getTaskById(List<Integer> leadTaskIds) {
         List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
-        Map<Integer, LeadTask> taskMap = new HashMap<>(); 
-        for(LeadTask leadTask : leadTasks)
-        {
+        LeadTask.populateTransientAttributes(leadTasks);
+        Map<Integer, LeadTask> taskMap = new HashMap<>();
+        for (LeadTask leadTask : leadTasks) {
             taskMap.put(leadTask.getId(), leadTask);
-        }        
+        }
         return taskMap;
     }
 }
