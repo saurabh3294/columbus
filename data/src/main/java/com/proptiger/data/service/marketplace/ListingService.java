@@ -156,6 +156,7 @@ public class ListingService {
         listing.setSellerId(userId);
         listing.setBookingStatusId(null);
         listing.setStatus(Status.Active);
+        listing.setDeleted(false);
         if (listing.getJsonDump() != null && !listing.getJsonDump().isEmpty()) {
             if (!JsonUtil.isValidJsonString(listing.getJsonDump())) {
                 throw new BadRequestException("Invalid json in jsonDump");
@@ -270,7 +271,7 @@ public class ListingService {
         if (listing == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.DELETE);
         }
-        listing.setStatus(Status.Inactive);
+        listing.setDeleted(true);
         listing = listingDao.saveAndFlush(listing);
         return listing;
     }
