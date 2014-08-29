@@ -227,6 +227,13 @@ public class LeadOfferService {
                     leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
                             new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
                             leadOffer.getAgentId()).getResults());
+                    
+                    for(LeadTask leadTask: leadOffer.getTasks())
+                    {
+                        leadTask.setLeadOffer(null);
+                    }
+                    
+                    
                 }
             }
 
