@@ -1,7 +1,6 @@
 package com.proptiger.data.notification.sender;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -12,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.service.NotificationTypeNotificationMediumMappingService;
@@ -45,14 +43,18 @@ public class TemplateGenerator {
             return null;
         }
 
-//        HashMap<String, String> mailContentMap = getMailContentFromJsonTemplate(template);
-//        if (mailContentMap == null || mailContentMap.isEmpty()) {
-//            return null;
-//        }
+        // HashMap<String, String> mailContentMap =
+        // getMailContentFromJsonTemplate(template);
+        // if (mailContentMap == null || mailContentMap.isEmpty()) {
+        // return null;
+        // }
 
-//        String subject = replaceTokensWithValue(mailContentMap.get("subject"), payloadDataMap);
-//        String body = replaceTokensWithValue(mailContentMap.get("body"), payloadDataMap);
-        
+        // String subject =
+        // replaceTokensWithValue(mailContentMap.get("subject"),
+        // payloadDataMap);
+        // String body = replaceTokensWithValue(mailContentMap.get("body"),
+        // payloadDataMap);
+
         // Using same template for subject and body
         String subject = replaceTokensWithValue(template, payloadDataMap);
         String body = replaceTokensWithValue(template, payloadDataMap);
@@ -75,19 +77,20 @@ public class TemplateGenerator {
         return mailBody;
     }
 
-//    private HashMap<String, String> getMailContentFromJsonTemplate(String template) {
-//        HashMap<String, String> map = new HashMap<String, String>();
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            map = mapper.readValue(template, HashMap.class);
-//            logger.debug("MailContentMap: " + map.toString());
-//            return map;
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+    // private HashMap<String, String> getMailContentFromJsonTemplate(String
+    // template) {
+    // HashMap<String, String> map = new HashMap<String, String>();
+    // ObjectMapper mapper = new ObjectMapper();
+    // try {
+    // map = mapper.readValue(template, HashMap.class);
+    // logger.debug("MailContentMap: " + map.toString());
+    // return map;
+    // }
+    // catch (Exception e) {
+    // e.printStackTrace();
+    // }
+    // return null;
+    // }
 
     private String replaceTokensWithValue(String template, Map<String, Object> payloadDataMap) {
         List<String> tokens = getTokenList(template);

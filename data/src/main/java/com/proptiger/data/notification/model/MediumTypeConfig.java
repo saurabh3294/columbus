@@ -5,22 +5,25 @@ import java.util.Map;
 
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.notification.enums.MediumType;
+import com.proptiger.data.notification.sender.AndroidSender;
 import com.proptiger.data.notification.sender.EmailSender;
 import com.proptiger.data.notification.sender.MediumSender;
 
 public class MediumTypeConfig extends BaseModel {
+    
     private static final long serialVersionUID = 5217123915811730145L;
     
-    public static Map<String, MediumTypeConfig> mediumTypeConfig;
+    public static Map<MediumType, MediumTypeConfig> mediumTypeConfigMap;
     static {
-        mediumTypeConfig = new HashMap<String, MediumTypeConfig>();
-        mediumTypeConfig.put(MediumType.Email.name(), new MediumTypeConfig(EmailSender.class));
+        mediumTypeConfigMap = new HashMap<MediumType, MediumTypeConfig>();
+        mediumTypeConfigMap.put(MediumType.Email, new MediumTypeConfig(EmailSender.class));
+        mediumTypeConfigMap.put(MediumType.Android, new MediumTypeConfig(AndroidSender.class));
     }
 
-    private transient Class<EmailSender>   senderClassName = EmailSender.class;
+    private transient Class<? extends MediumSender>   senderClassName = EmailSender.class;
     private transient MediumSender        mediumSenderObject;
     
-    public MediumTypeConfig(Class<EmailSender> senderClassName) {
+    public MediumTypeConfig(Class<? extends MediumSender> senderClassName) {
         if (senderClassName != null) {
             this.senderClassName = senderClassName;
         }
@@ -29,11 +32,11 @@ public class MediumTypeConfig extends BaseModel {
     public MediumTypeConfig () {
     }
     
-    public Class<EmailSender> getSenderClassName() {
+    public Class<? extends MediumSender> getSenderClassName() {
         return senderClassName;
     }
 
-    public void setSenderClassName(Class<EmailSender> senderClassName) {
+    public void setSenderClassName(Class<? extends MediumSender> senderClassName) {
         this.senderClassName = senderClassName;
     }
 

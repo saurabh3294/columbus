@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.MediumTypeConfig;
 import com.proptiger.data.notification.model.NotificationGenerated;
 
@@ -21,8 +22,8 @@ public class MediumTypeService {
     }
 
     private void populateMediumSenderConfig(NotificationGenerated ntGenerated) {
-        String mediumName = ntGenerated.getNotificationMedium().getName().name();
-        MediumTypeConfig mediumTypeConfig = MediumTypeConfig.mediumTypeConfig.get(mediumName);
+        MediumType mediumName = ntGenerated.getNotificationMedium().getName();
+        MediumTypeConfig mediumTypeConfig = MediumTypeConfig.mediumTypeConfigMap.get(mediumName);
         
         if (mediumTypeConfig == null) {
             mediumTypeConfig = new MediumTypeConfig();
