@@ -25,6 +25,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
+import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
@@ -64,7 +65,8 @@ public class LeadOfferService {
 
     @Autowired
     private ListingService          listingService;
-
+    
+    
     /**
      * 
      * @param integer
@@ -391,12 +393,18 @@ public class LeadOfferService {
 
         List<Integer> listingIds = new ArrayList<>();
         List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
-        if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
-            for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
-                listingIds.add(leadOfferedListing.getListingId());
-            }
-
-            offerListings(listingIds, leadOfferId, userId);
+ 
+        leadOfferInDB.setLastTask(null);
+        leadOfferInDB.setNextTask(null);
+        
+        if(leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId())
+        {
+                if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
+                    for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
+                        listingIds.add(leadOfferedListing.getListingId());
+                    }
+                    offerListings(listingIds, leadOfferId, userId);
+                }
         }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
