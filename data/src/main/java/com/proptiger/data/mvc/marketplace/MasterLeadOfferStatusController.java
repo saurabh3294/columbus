@@ -16,16 +16,17 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.marketplace.MasterLeadOfferStatusService;
 
 @Controller
-public class MasterLeadOfferStatusController  extends BaseController{
+public class MasterLeadOfferStatusController extends BaseController {
 
     @Autowired
     private MasterLeadOfferStatusService masterLeadOfferStatusService;
-    
-    @RequestMapping(value = "data/v1/entity/statuses")
+
+    @RequestMapping(value = "data/v1/entity/lead-offer-statuses")
     @ResponseBody
-    public APIResponse get(@ModelAttribute FIQLSelector selector){
+    public APIResponse get(@ModelAttribute FIQLSelector selector) {
         PaginatedResponse<List<MasterLeadOfferStatus>> paginatedStatuses = masterLeadOfferStatusService.get(selector);
-        return new APIResponse(super.filterFieldsFromSelector(paginatedStatuses.getResults(), selector),
+        return new APIResponse(
+                super.filterFieldsFromSelector(paginatedStatuses.getResults(), selector),
                 paginatedStatuses.getTotalCount());
     }
 }

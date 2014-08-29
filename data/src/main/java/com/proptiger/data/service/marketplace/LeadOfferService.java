@@ -30,12 +30,12 @@ import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
-import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.mail.MailSender;
@@ -162,9 +162,19 @@ public class LeadOfferService {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
-                for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                
+                Map<Integer, List<UserContactNumber>> contactNumbers = null;
+                if (fields.contains("client.contactNumbers"))
+                {                   
+                    contactNumbers  = userService.getUserContactNumbers(clientIds);
                 }
+                    for (LeadOffer leadOffer : leadOffers) {
+                        leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                        if (fields.contains("client.contactNumbers"))
+                        {
+                            leadOffer.getLead().getClient().setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
+                        }
+                    }
             }
 
             if (fields.contains("lead.requirements")) {
@@ -217,6 +227,13 @@ public class LeadOfferService {
                     leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
                             new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
                             leadOffer.getAgentId()).getResults());
+                    
+                    for(LeadTask leadTask: leadOffer.getTasks())
+                    {
+                        leadTask.setLeadOffer(null);
+                    }
+                    
+                    
                 }
             }
 
