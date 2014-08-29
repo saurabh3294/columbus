@@ -1,7 +1,6 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -562,9 +561,7 @@ public class LeadOfferService {
         leadTask.setLeadOfferId(leadOfferId);
         leadTask.setPerformedAt(new Date());
         leadTask.setTaskStatusId(leadTaskStatus.getId());
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.HOUR, 1);
-        leadTask.setScheduledFor(cal.getTime());
+        leadTask.setScheduledFor(new Date());
         /*
          * creating task for email status done
          */
