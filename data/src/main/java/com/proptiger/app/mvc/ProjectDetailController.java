@@ -3,6 +3,7 @@
  */
 package com.proptiger.app.mvc;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +129,9 @@ public class ProjectDetailController extends BaseController {
         // getting Locality, Suburb, City Details and getting project price
         // ranges from properties data.
         Locality locality = localityService.getLocality(projectInfo.getLocalityId());
+        List<Locality> localities = new ArrayList<Locality>();
+        localities.add(locality);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(localities);
         /*
          * Setting locality Ratings And Reviews
          */
@@ -166,7 +170,10 @@ public class ProjectDetailController extends BaseController {
             projectSelector = new Selector();
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-
+        
+        List<Project> result = new ArrayList<Project>();
+        result.add(project);
+        projectService.updateLifestyleScoresByHalf(result);
         /*
          * Setting project Specification if needed.
          */
@@ -181,6 +188,22 @@ public class ProjectDetailController extends BaseController {
     @RequestMapping(value = { "app/v3/project-detail/{projectId}" })
     @ResponseBody
     public APIResponse getProjectDetailsV3(
+            @PathVariable Integer projectId,
+            @RequestParam(required = false) String selector) throws Exception {
+        Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if (projectSelector == null) {
+            projectSelector = new Selector();
+        }
+        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
+        List<Project> result = new ArrayList<Project>();
+        result.add(project);
+        projectService.updateLifestyleScoresByHalf(result);
+        return new APIResponse(super.filterFields(project, projectSelector.getFields()));
+    }
+    
+    @RequestMapping(value = { "app/v4/project-detail/{projectId}" })
+    @ResponseBody
+    public APIResponse getProjectDetailsV4(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
         Selector projectSelector = super.parseJsonToObject(selector, Selector.class);

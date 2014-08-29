@@ -324,5 +324,8 @@ public class LocalityReviewComments extends BaseModel {
             return totalRatings;
         }
 
+        public void setAverageRatings(Double averageRatings) {
+            this.averageRatings = averageRatings;
+        }
     }
 }

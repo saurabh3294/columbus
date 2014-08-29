@@ -32,7 +32,6 @@ import com.proptiger.data.service.PropertyService;
  * 
  */
 @Controller
-@RequestMapping(value = "app/v1/project-listing")
 public class ProjectListingController extends BaseController {
     @Autowired
     private PropertyService propertyService;
@@ -43,12 +42,25 @@ public class ProjectListingController extends BaseController {
     @Autowired
     private ProjectService  projectService;
 
-    @RequestMapping
+    @RequestMapping(value = "app/v1/project-listing")
     public @ResponseBody
     Object getProjectListings(
             @RequestParam(required = false) String selector,
             @RequestParam(required = false) String facets,
             @RequestParam(required = false) String stats) {
+        return getProjectListingsUtil(selector, facets, stats, true);
+    }
+    
+    @RequestMapping(value = "app/v2/project-listing")
+    public @ResponseBody
+    Object getProjectListingsV2(
+            @RequestParam(required = false) String selector,
+            @RequestParam(required = false) String facets,
+            @RequestParam(required = false) String stats) {
+        return getProjectListingsUtil(selector, facets, stats, false);
+    }
+    
+    private Object getProjectListingsUtil(String selector, String facets, String stats, boolean isHalf) {
         Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
         if (projectListingSelector == null) {
             projectListingSelector = new Selector();
@@ -56,7 +68,9 @@ public class ProjectListingController extends BaseController {
 
         PaginatedResponse<List<Project>> projects = propertyService
                 .getPropertiesGroupedToProjects(projectListingSelector);
-
+        if (isHalf) {
+            projectService.updateLifestyleScoresByHalf(projects.getResults());
+        }
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
         Map<String, Object> response = new HashMap<String, Object>();

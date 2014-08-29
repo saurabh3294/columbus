@@ -351,6 +351,18 @@ public class SolrResult extends BaseModel {
     @Field("PROJECT_SOCIETY_SCORE")
     private Float             projectSocietyScore;
     
+    @Field(value = "PROJECT_SAFETY_RANK")
+    private Integer                 projectSafetyRank;
+    
+    @Field(value = "PROJECT_LIVABILITY_RANK")
+    private Integer                 projectLivabilityRank;
+    
+    @Field(value = "LOCALITY_SAFETY_RANK")
+    private Integer                 localitySafetyRank;
+    
+    @Field(value = "LOCALITY_LIVABILITY_RANK")
+    private Integer                 localityLivabilityRank;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -1114,5 +1126,25 @@ public class SolrResult extends BaseModel {
     @Field("PROJECT_SOCIETY_SCORE")
     public void setProjectSocietyScore(Float projectSocietyScore) {
         project.setProjectSocietyScore(projectSocietyScore);
+    }
+
+    @Field("PROJECT_SAFETY_RANK")
+    public void setProjectSafetyRank(Integer projectSafetyRank) {
+        project.setProjectSafetyRank(projectSafetyRank);
+    }
+
+    @Field("PROJECT_LIVABILITY_RANK")
+    public void setProjectLivabilityRank(Integer projectLivabilityRank) {
+        project.setProjectLivabilityRank(projectLivabilityRank);
+    }
+
+    @Field("LOCALITY_SAFETY_RANK")
+    public void setLocalitySafetyRank(Integer localitySafetyRank) {
+       locality.setLocalitySafetyRank(localitySafetyRank);
+    }
+
+    @Field("LOCALITY_LIVABILITY_RANK")
+    public void setLocalityLivabilityRank(Integer localityLivabilityRank) {
+        locality.setLocalityLivabilityRank(localityLivabilityRank);
     }
 }

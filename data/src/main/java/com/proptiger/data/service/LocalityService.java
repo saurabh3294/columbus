@@ -35,6 +35,7 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.LandMarkTypes;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.LocalityRatings;
 import com.proptiger.data.model.LocalityRatings.LocalityAverageRatingByCategory;
 import com.proptiger.data.model.LocalityRatings.LocalityRatingDetails;
 import com.proptiger.data.model.LocalityReviewComments;
@@ -1103,5 +1104,62 @@ public class LocalityService {
     @Cacheable(value = Constants.CacheName.LOCALITY_INACTIVE)
     public Locality getActiveOrInactiveLocalityById(Integer id) {
         return localityDao.findOne(id);
+    }
+
+    // This method will divide the Safety and Livability scores by 2 for backward compatibility
+    // of API's, as all these scores now will be based on 10 and earlier it was based on 5.
+    public void updateLocalitiesLifestyleScoresAndRatings(List<Locality> localities) {
+        if (localities == null || localities.isEmpty()) {
+            return;
+        }
+        
+        for(Locality locality : localities ) {
+            if (locality.getSafetyScore() != null) {
+                locality.setSafetyScore(locality.getSafetyScore()/2);
+            }
+            
+            if (locality.getLivabilityScore() != null) {
+                locality.setLivabilityScore(locality.getLivabilityScore()/2);
+            }
+            
+            if (locality.getAverageRating() != null) {
+                locality.setAverageRating(locality.getAverageRating()/2);
+            }
+            
+            if (locality.getAvgRatingsByCategory() != null) {
+                LocalityAverageRatingByCategory locAvgRatingsByCat = locality.getAvgRatingsByCategory();
+                if (locAvgRatingsByCat.getOverallRating() != null) {
+                    locAvgRatingsByCat.setOverallRating(locAvgRatingsByCat.getOverallRating()/2);
+                }
+                if (locAvgRatingsByCat.getLocation() != null) {
+                    locAvgRatingsByCat.setLocation(locAvgRatingsByCat.getLocation()/2);
+                }
+                if (locAvgRatingsByCat.getSafety() != null){
+                    locAvgRatingsByCat.setSafety(locAvgRatingsByCat.getSafety()/2);
+                }
+                if (locAvgRatingsByCat.getPubTrans() != null){
+                    locAvgRatingsByCat.setPubTrans(locAvgRatingsByCat.getPubTrans()/2);
+                }
+                if (locAvgRatingsByCat.getRestShop() != null){
+                    locAvgRatingsByCat.setRestShop(locAvgRatingsByCat.getRestShop()/2);
+                }
+                if (locAvgRatingsByCat.getSchools() != null){
+                    locAvgRatingsByCat.setSchools(locAvgRatingsByCat.getSchools()/2);
+                }
+                if (locAvgRatingsByCat.getParks() != null){
+                    locAvgRatingsByCat.setParks(locAvgRatingsByCat.getParks()/2);
+                }
+                if (locAvgRatingsByCat.getTraffic() != null) {
+                    locAvgRatingsByCat.setTraffic(locAvgRatingsByCat.getTraffic()/2);
+                }
+                if (locAvgRatingsByCat.getHospitals() != null){
+                    locAvgRatingsByCat.setHospitals(locAvgRatingsByCat.getHospitals()/2);
+                }
+                if (locAvgRatingsByCat.getCivic() != null){
+                    locAvgRatingsByCat.setCivic(locAvgRatingsByCat.getCivic()/2);
+                }
+                locality.setAvgRatingsByCategory(locAvgRatingsByCat);
+            }
+        }
     }
 }

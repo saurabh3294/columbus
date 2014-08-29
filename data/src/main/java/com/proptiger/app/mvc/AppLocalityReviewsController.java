@@ -34,6 +34,18 @@ public class AppLocalityReviewsController {
         LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
                 localityId,
                 numberOfReviews);
+        reviewRatingDetails.setAverageRatings(reviewRatingDetails.getAverageRatings()/2);
+        return new APIResponse(reviewRatingDetails);
+    }
+    
+    @RequestMapping("app/v2/locality-reviews")
+    @ResponseBody
+    @DisableCaching
+    public APIResponse getLocalityReviewByLocalityIdV2(@RequestParam Integer localityId, @RequestParam(
+            required = false) Integer numberOfReviews) {
+        LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
+                localityId,
+                numberOfReviews);
         return new APIResponse(reviewRatingDetails);
     }
 }
