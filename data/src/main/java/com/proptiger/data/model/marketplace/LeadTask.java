@@ -279,4 +279,47 @@ public class LeadTask extends BaseModel {
     public void setNotifications(List<Notification> notifications) {
         this.notifications = notifications;
     }
+
+    /**
+     * unlinks the circular loop present b/w masterLeadTasks and leadTaskStatus
+     * 
+     * @param leadTasks
+     * @return
+     */
+    public static List<LeadTask> unlinkCircularLoop(List<LeadTask> leadTasks) {
+        for (LeadTask leadTask : leadTasks) {
+            leadTask.unlinkCircularLoop();
+        }
+        return leadTasks;
+    }
+
+    /**
+     * unlinks the circular loop present b/w masterLeadTasks and leadTaskStatus
+     * 
+     * @return
+     */
+    public LeadTask unlinkCircularLoop() {
+        // putting in try-catch since getter can't be called in case
+        // connection is not available.. but circular loop will not be there
+        // in that case
+        try {
+            if (taskStatus != null) {
+                if (taskStatus.getMasterLeadTask() != null) {
+                    taskStatus.getMasterLeadTask().setLeadTaskStatuses(null);
+                }
+            }
+
+            if (leadOffer != null) {
+                leadOffer.setNextTask(null);
+                leadOffer.setLastTask(null);
+            }
+        }
+        catch (Exception e) {
+        }
+        if (nextTask != null) {
+            nextTask.unlinkCircularLoop();
+        }
+
+        return this;
+    }
 }
