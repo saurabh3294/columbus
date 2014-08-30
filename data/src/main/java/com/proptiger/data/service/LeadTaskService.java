@@ -143,6 +143,7 @@ public class LeadTaskService {
             LeadTask nextTask = getLeadTaskWithAllDetails(nextTaskId);
             finalTask.setNextTask(nextTask);
         }
+        finalTask.unlinkCircularLoop();
         return finalTask.populateTransientAttributes();
     }
 
@@ -435,7 +436,7 @@ public class LeadTaskService {
         response.setResults(leadTaskDao.getLeadTasksForUser(userId, pageable));
 
         LeadTask.populateTransientAttributes(response.getResults());
-
+        LeadTask.unlinkCircularLoop(response.getResults());
         return response;
     }
 
