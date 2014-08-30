@@ -1,8 +1,12 @@
 package com.proptiger.data.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -218,5 +222,22 @@ public class LocalityReviewService {
             response = localityReviewDao.getLocalityReview(selector);
         }
         return response;
+    }
+
+    public void updateReviewAndRatingsByHalf(LocalityReviewRatingDetails reviewRatingDetails) {
+        if (reviewRatingDetails != null) {
+            if (reviewRatingDetails.getAverageRatings() != null) {
+                reviewRatingDetails.setAverageRatings(reviewRatingDetails.getAverageRatings()/2);
+            }
+            if (reviewRatingDetails.getTotalUsersByRating() != null) {
+                Map<Double, Long> totalUsersByRatings = reviewRatingDetails.getTotalUsersByRating();
+                Map<Double, Long> newTotalUsersByRatings = new HashMap<Double, Long>();
+                Set<Entry<Double, Long>> entrySet = totalUsersByRatings.entrySet();
+                for(Entry<Double, Long> entry : entrySet) {
+                    newTotalUsersByRatings.put(entry.getKey()/2, entry.getValue());
+                }
+                reviewRatingDetails.setTotalUsersByRating(newTotalUsersByRatings);
+            }
+        }
     }
 }

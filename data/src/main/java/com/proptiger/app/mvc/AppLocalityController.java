@@ -1,5 +1,6 @@
 package com.proptiger.app.mvc;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import com.proptiger.data.service.LocalityService;
  * 
  */
 @Controller
-@RequestMapping(value = "app/v1/locality")
 public class AppLocalityController extends BaseController {
 
     @Autowired
@@ -37,7 +37,7 @@ public class AppLocalityController extends BaseController {
      * @param selector
      * @return
      */
-    @RequestMapping
+    @RequestMapping(value = "app/v1/locality")
     @ResponseBody
     public APIResponse getLocalityListingData(@RequestParam(required = false) String selector) {
         Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
@@ -46,18 +46,36 @@ public class AppLocalityController extends BaseController {
         }
 
         PaginatedResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
-
+        localityService.updateLocalitiesLifestyleScoresAndRatings(solrRes.getResults());
         return new APIResponse(
                 super.filterFields(solrRes.getResults(), propRequestParam.getFields()),
                 solrRes.getTotalCount());
     }
 
     /**
+     * @param selector
+     * @return
+     */
+    @RequestMapping(value = "app/v2/locality")
+    @ResponseBody
+    public APIResponse getLocalityListingDataV2(@RequestParam(required = false) String selector) {
+        Selector propRequestParam = super.parseJsonToObject(selector, Selector.class);
+        if (propRequestParam == null) {
+            propRequestParam = new Selector();
+        }
+
+        PaginatedResponse<List<Locality>> solrRes = localityService.getLocalityListing(propRequestParam);
+        return new APIResponse(
+                super.filterFields(solrRes.getResults(), propRequestParam.getFields()),
+                solrRes.getTotalCount());
+    }
+    
+    /**
      * @param localityId
      * @param selectorStr
      * @return
      */
-    @RequestMapping(value = "/{localityId}", method = RequestMethod.GET)
+    @RequestMapping(value = "app/v1/locality/{localityId}", method = RequestMethod.GET)
     @ResponseBody
     @DisableCaching
     public APIResponse getLocalityDetails(@PathVariable int localityId, @RequestParam(
@@ -68,7 +86,26 @@ public class AppLocalityController extends BaseController {
             selector = new Selector();
         }
         Locality locality = localityService.getLocalityInfo(localityId, imageCount);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
         return new APIResponse(super.filterFields(locality, selector.getFields()));
     }
 
+    /**
+     * @param localityId
+     * @param selectorStr
+     * @return
+     */
+    @RequestMapping(value = "app/v2/locality/{localityId}", method = RequestMethod.GET)
+    @ResponseBody
+    @DisableCaching
+    public APIResponse getLocalityDetailsV2(@PathVariable int localityId, @RequestParam(
+            required = false,
+            value = "selector") String selectorStr, @RequestParam(required = false) Integer imageCount) {
+        Selector selector = super.parseJsonToObject(selectorStr, Selector.class);
+        if (selector == null) {
+            selector = new Selector();
+        }
+        Locality locality = localityService.getLocalityInfo(localityId, imageCount);
+        return new APIResponse(super.filterFields(locality, selector.getFields()));
+    }
 }
