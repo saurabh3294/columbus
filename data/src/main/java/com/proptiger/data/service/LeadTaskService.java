@@ -36,6 +36,7 @@ import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.service.marketplace.LeadOfferService;
+import com.proptiger.data.service.marketplace.NotificationService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -68,6 +69,9 @@ public class LeadTaskService {
 
     @Autowired
     private LeadOfferDao                 leadOfferDao;
+
+    @Autowired
+    private NotificationService          notificationService;
 
     private static final int             offerDefaultLeadTaskStatusMappingId = 1;
 
@@ -114,11 +118,14 @@ public class LeadTaskService {
                     leadOfferService
                             .updateLeadOfferStatus(leadTask.getLeadOfferId(), taskStatus.getResultingStatusId());
                 }
-
-                if (savedTask.getNextTask() != null) {
-                    LeadTask nextTask = leadTaskDao.saveAndFlush(savedTask.getNextTask());
-                    nextTaskId = nextTask.getId();
-                    manageLeadTaskListingsOnUpdate(nextTaskId, taskDto.getNextTask().getListingIds());
+                if (taskStatus.getMasterLeadTaskStatus().isComplete()) {
+                    if (savedTask.getNextTask() != null) {
+                        LeadTask nextTask = leadTaskDao.saveAndFlush(savedTask.getNextTask());
+                        nextTaskId = nextTask.getId();
+                        manageLeadTaskListingsOnUpdate(nextTaskId, taskDto.getNextTask().getListingIds());
+                    }
+                    Integer offerNextTaskId = nextTaskId == 0 ? null : nextTaskId;
+                    leadOfferService.updateLeadOfferTasks(leadTask.getLeadOfferId(), currentTaskId, offerNextTaskId);
                 }
             }
             catch (IllegalAccessException | InvocationTargetException e) {
@@ -128,6 +135,8 @@ public class LeadTaskService {
         else {
             throw new BadRequestException();
         }
+
+        notificationService.manageTaskDueNotificationForLeadOffer(savedTask.getLeadOfferId());
 
         LeadTask finalTask = getLeadTaskWithAllDetails(currentTaskId);
         if (nextTaskId != 0) {
@@ -185,8 +194,6 @@ public class LeadTaskService {
         LeadTask task = leadTaskDao.findOne(taskId);
 
         LeadTaskStatus taskStatus = leadTaskStatusDao.findOne(task.getTaskStatusId());
-
-        // System.out.println("AAAAAAAAAAAAAA " + new Gson().toJson(task));
 
         // checking id listingIds size is of allowed count
         int minListingCount = taskStatus.getMasterLeadTask().getMinListingCount();
@@ -400,6 +407,8 @@ public class LeadTaskService {
                     .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_DEFAULT_TASK_DURATION, Integer.class)));
             leadTask.setLeadOfferId(leadOfferId);
             leadTask = leadTaskDao.save(leadTask);
+
+            leadOfferService.updateLeadOfferTasks(leadOfferId, null, leadTask.getId());
         }
         else {
             throw new ProAPIException("Lead Task Already Exists");
@@ -476,10 +485,19 @@ public class LeadTaskService {
     public Map<Integer, LeadTask> getTaskById(List<Integer> leadTaskIds) {
         List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
         LeadTask.populateTransientAttributes(leadTasks);
+
         Map<Integer, LeadTask> taskMap = new HashMap<>();
         for (LeadTask leadTask : leadTasks) {
             taskMap.put(leadTask.getId(), leadTask);
         }
         return taskMap;
+    }
+
+    public static int getOfferdefaultleadtaskstatusmappingid() {
+        return offerDefaultLeadTaskStatusMappingId;
+    }
+
+    public LeadTask getLeadTask(int taskId) {
+        return leadTaskDao.findOne(taskId);
     }
 }

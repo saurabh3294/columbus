@@ -54,7 +54,7 @@ public class LeadOfferService {
     private UserService             userService;
 
     @Autowired
-    private LeadOfferedListingDao  leadOfferedListingDao;
+    private LeadOfferedListingDao   leadOfferedListingDao;
 
     @Autowired
     private LeadService             leadService;
@@ -164,7 +164,6 @@ public class LeadOfferService {
                 }
             }
 
-            
             if (fields.contains("latestOfferedListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, LeadOfferedListing> leadOfferedListings = getLatestLeadOfferedListing(leadOfferIds);
@@ -174,24 +173,23 @@ public class LeadOfferService {
             }
 
             if (fields.contains("lastTask")) {
-                List<Integer> leadTaskIds = extractLeadLastTaskIds(leadOffers);                
-                                 
+                List<Integer> leadTaskIds = extractLeadLastTaskIds(leadOffers);
+
                 Map<Integer, LeadTask> leadTasks = leadTaskService.getTaskById(leadTaskIds);
                 for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.setLastTask(leadTasks.get(leadOffer.getLastTaskId()));                       
+                    leadOffer.setLastTask(leadTasks.get(leadOffer.getLastTaskId()));
                 }
             }
 
             if (fields.contains("nextTask")) {
-                List<Integer> leadTaskIds = extractLeadNextTaskIds(leadOffers);                
+                List<Integer> leadTaskIds = extractLeadNextTaskIds(leadOffers);
                 Map<Integer, LeadTask> leadTasks = leadTaskService.getTaskById(leadTaskIds);
-                
+
                 for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.setNextTask(leadTasks.get(leadOffer.getNextTaskId()));                       
+                    leadOffer.setNextTask(leadTasks.get(leadOffer.getNextTaskId()));
                 }
             }
-            
-            
+
             // TODO - optimize and try fetching in bulk
             if (fields.contains("tasks")) {
                 for (LeadOffer leadOffer : leadOffers) {
@@ -263,26 +261,23 @@ public class LeadOfferService {
     private List<Integer> extractLeadLastTaskIds(List<LeadOffer> leadOffers) {
         List<Integer> leadTaskIds = new ArrayList<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
-            if(leadOffer.getLastTaskId() != null)
-            {
+            if (leadOffer.getLastTaskId() != null) {
                 leadTaskIds.add(leadOffer.getLastTaskId());
             }
         }
         return leadTaskIds;
     }
-    
+
     private List<Integer> extractLeadNextTaskIds(List<LeadOffer> leadOffers) {
         List<Integer> leadTaskIds = new ArrayList<Integer>();
         for (LeadOffer leadOffer : leadOffers) {
-            if(leadOffer.getNextTaskId() != null)
-            {
+            if (leadOffer.getNextTaskId() != null) {
                 leadTaskIds.add(leadOffer.getNextTaskId());
             }
         }
         return leadTaskIds;
     }
-    
-    
+
     /**
      * extracts clientIds from list of leadoffer objects
      * 
@@ -349,7 +344,7 @@ public class LeadOfferService {
     public LeadOffer createLeadOffer(Lead lead, CompanyUser agent) {
         LeadOffer offer = new LeadOffer();
         offer.setLeadId(lead.getId());
-        offer.setAgentId(agent.getId());
+        offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getLeadOfferStatusId());
         offer.setCycleId(1);
         return leadOfferDao.save(offer);
@@ -428,7 +423,7 @@ public class LeadOfferService {
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
         LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
         long leadOfferCount = (long) leadOfferDao.getCountClaimed(leadOffer.getLeadId());
-       
+
         if (PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_BROKER_COUNT_FOR_CLAIM, Long.class)
                 .equals(leadOfferCount)) {
             leadOfferDao.expireRestOfTheLeadOffers(leadOffer.getLeadId());
@@ -449,6 +444,22 @@ public class LeadOfferService {
         return leadOffer;
     }
 
+    /**
+     * utility method for updating lead offer status
+     * 
+     * @param leadOfferId
+     * @param lastTaskId
+     * @param nextTaskId
+     * @return
+     */
+    public LeadOffer updateLeadOfferTasks(int leadOfferId, Integer lastTaskId, Integer nextTaskId) {
+        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+        leadOffer.setLastTaskId(lastTaskId);
+        leadOffer.setNextTaskId(nextTaskId);
+        leadOffer = leadOfferDao.save(leadOffer);
+        return leadOffer;
+    }
+
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId) {
         List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
         populateOfferedFlag(leadOfferId, matchingListings);
@@ -457,11 +468,12 @@ public class LeadOfferService {
 
     private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings) {
         Set<Integer> offeredListingIds = new HashSet<>();
-        for (LeadOfferedListing leadOfferListing: leadOfferDao.getLeadOfferedListings(Collections.singletonList(leadOfferId))) {
+        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(Collections
+                .singletonList(leadOfferId))) {
             offeredListingIds.add(leadOfferListing.getListingId());
         }
 
-        for (Listing matchingListing: matchingListings) {
+        for (Listing matchingListing : matchingListings) {
             if (offeredListingIds.contains(matchingListing.getId())) {
                 matchingListing.setOffered(true);
             }
