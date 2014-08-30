@@ -87,6 +87,10 @@ public class Listing extends BaseModel {
 
     @Column(name = "updated_at")
     private Date                 updatedAt;
+    
+    //TODO should be removed from v2 as we start handling deleted listing properly
+    @Column(name = "is_deleted")
+    private boolean isDeleted;
 
     @Transient
     private ListingPrice         currentListingPrice;
@@ -264,6 +268,15 @@ public class Listing extends BaseModel {
 
     public void setMasterAmenityIds(List<Integer> masterAmenityIds) {
         this.masterAmenityIds = masterAmenityIds;
+    }
+
+    
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
     @PreUpdate

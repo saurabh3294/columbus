@@ -31,7 +31,7 @@ public class CompanyUserService {
      * @param companyUserId
      * @return
      */
-    @Cacheable(value = Constants.CacheName.AGENT, key = "#agentId", unless = "#result != null")
+    //@Cacheable(value = Constants.CacheName.AGENT, key = "#agentId", unless = "#result != null")
     public CompanyUser getAgent(Integer companyUserId, FIQLSelector selector) {
         CompanyUser companyUser = companyUserDao.findOne(companyUserId);
 
