@@ -748,7 +748,7 @@ public class UserService {
     private void patchUser(User user) {
         List<UserContactNumber> contactNumbers = user.getContactNumbers();
 
-        if (contactNumbers == null ||  contactNumbers.isEmpty()) {
+        if (contactNumbers == null || contactNumbers.isEmpty()) {
             return;
         }
 
@@ -785,10 +785,23 @@ public class UserService {
 
     public Map<Integer, User> getUsers(List<Integer> clientIds) {
         Map<Integer, User> users = new HashMap<>();
-        for (User user: userDao.findAll(clientIds)) {
+        for (User user : userDao.findAll(clientIds)) {
             users.put(user.getId(), user);
         }
-        
+
         return users;
+    }
+
+    public Map<Integer, List<UserContactNumber>> getUserContactNumbers(List<Integer> clientIds) {
+        List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
+        Map<Integer, List<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
+
+        for (UserContactNumber userContactNumber : userContactNumbers) {
+            if (!contactNumbersOfUser.containsValue(userContactNumber.getUserId())) {
+                contactNumbersOfUser.put(userContactNumber.getUserId(), new ArrayList<UserContactNumber>());
+            }
+            contactNumbersOfUser.get(userContactNumber.getUserId()).add(userContactNumber);
+        }
+        return contactNumbersOfUser;
     }
 }

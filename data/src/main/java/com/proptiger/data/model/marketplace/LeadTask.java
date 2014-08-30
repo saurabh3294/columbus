@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -16,7 +17,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import javax.validation.constraints.Future;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
@@ -52,7 +52,6 @@ public class LeadTask extends BaseModel {
 
     @Nonnull
     @Column(name = "scheduled_for")
-    @Future
     private Date                            scheduledFor;
 
     @Column(name = "call_time_seconds")
@@ -72,7 +71,7 @@ public class LeadTask extends BaseModel {
     @Column(name = "updated_at")
     private Date                            updatedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lead_offer_id", insertable = false, updatable = false)
     private LeadOffer                       leadOffer;
 

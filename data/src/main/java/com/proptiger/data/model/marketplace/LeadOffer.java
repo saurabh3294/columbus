@@ -49,7 +49,7 @@ public class LeadOffer extends BaseModel {
     private int                      agentId;
 
     @Column(name = "status_id")
-    private int                      statusId;
+    private Integer                      statusId;
 
     @Column(name = "cycle_id")
     @JsonIgnore

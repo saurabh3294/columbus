@@ -489,6 +489,8 @@ public class LeadTaskService {
 
         Map<Integer, LeadTask> taskMap = new HashMap<>();
         for (LeadTask leadTask : leadTasks) {
+            leadTask.setLeadOffer(null);
+            leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
             taskMap.put(leadTask.getId(), leadTask);
         }
         return taskMap;
@@ -500,5 +502,10 @@ public class LeadTaskService {
 
     public LeadTask getLeadTask(int taskId) {
         return leadTaskDao.findOne(taskId);
+    }
+
+    @Transactional
+    public LeadTask createLeadTask(LeadTask leadTask) {
+        return leadTaskDao.saveAndFlush(leadTask);
     }
 }

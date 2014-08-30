@@ -2,6 +2,7 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.LeadOfferStatus;
+import com.proptiger.data.enums.LeadTaskName;
+import com.proptiger.data.enums.LeadTaskStatusName;
+import com.proptiger.data.enums.resource.ResourceType;
+import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.internal.dto.SenderDetail;
+import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.Company;
+import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.marketplace.Lead;
@@ -21,17 +30,21 @@ import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
+import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
  * 
@@ -65,6 +78,12 @@ public class LeadOfferService {
     @Autowired
     private ListingService          listingService;
 
+
+    @Autowired
+    private LeadTaskStatusDao       leadTaskStatusDao;
+
+    @Autowired
+    private MailSender              mailSender;
     /**
      * 
      * @param integer
@@ -143,9 +162,19 @@ public class LeadOfferService {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
-                for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                
+                Map<Integer, List<UserContactNumber>> contactNumbers = null;
+                if (fields.contains("client.contactNumbers"))
+                {                   
+                    contactNumbers  = userService.getUserContactNumbers(clientIds);
                 }
+                    for (LeadOffer leadOffer : leadOffers) {
+                        leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                        if (fields.contains("client.contactNumbers"))
+                        {
+                            leadOffer.getLead().getClient().setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
+                        }
+                    }
             }
 
             if (fields.contains("lead.requirements")) {
@@ -196,6 +225,13 @@ public class LeadOfferService {
                     leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
                             new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
                             leadOffer.getAgentId()).getResults());
+                    
+                    for(LeadTask leadTask: leadOffer.getTasks())
+                    {
+                        leadTask.setLeadOffer(null);
+                    }
+                    
+                    
                 }
             }
 
@@ -386,12 +422,18 @@ public class LeadOfferService {
 
         List<Integer> listingIds = new ArrayList<>();
         List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
-        if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
-            for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
-                listingIds.add(leadOfferedListing.getListingId());
-            }
-
-            offerListings(listingIds, leadOfferId, userId);
+ 
+        leadOfferInDB.setLastTask(null);
+        leadOfferInDB.setNextTask(null);
+        
+        if(leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId())
+        {
+                if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
+                    for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
+                        listingIds.add(leadOfferedListing.getListingId());
+                    }
+                    offerListings(listingIds, leadOfferId, userId);
+                }
         }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
@@ -528,5 +570,56 @@ public class LeadOfferService {
         enrichLeadOffers(Collections.singletonList(leadOffer), fields);
 
         return leadOffer;
+    }
+
+    /**
+     * This method creates a lead task for email done status and set that task
+     * id as previous task id in this lead offer
+     * 
+     * @param leadOfferId
+     * @param userId
+     * @param mailDetails2
+     * @return
+     */
+    public LeadOffer updateLeadOfferForEmailTask(int leadOfferId, Integer userId, SenderDetail senderDetails) {
+        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
+        if (leadOfferInDB == null) {
+            throw new ResourceNotAvailableException(ResourceType.LEAD_OFFER, ResourceTypeAction.UPDATE);
+        }
+        LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
+                LeadTaskName.Email.name(),
+                LeadTaskStatusName.Done.name());
+        if (leadTaskStatus == null) {
+            throw new BadRequestException("Email task done status not mapped");
+        }
+
+        LeadTask leadTask = new LeadTask();
+        leadTask.setLeadOfferId(leadOfferId);
+        leadTask.setPerformedAt(new Date());
+        leadTask.setTaskStatusId(leadTaskStatus.getId());
+        leadTask.setScheduledFor(new Date());
+        /*
+         * creating task for email status done
+         */
+        LeadTask createdTask = leadTaskService.createLeadTask(leadTask);
+        /*
+         * update last task id in lead offer
+         */
+        leadOfferInDB.setLastTaskId(createdTask.getId());
+        leadOfferInDB = leadOfferDao.saveAndFlush(leadOfferInDB);
+        /*
+         * Send email
+         */
+        if (senderDetails.getSubject() == null || senderDetails.getSubject().isEmpty()
+                || senderDetails.getMessage() == null
+                || senderDetails.getMessage().isEmpty()
+                || senderDetails.getMailTo() == null
+                || senderDetails.getMailTo().isEmpty()) {
+            throw new BadRequestException("Invalid mail details");
+        }
+        MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo());
+        mailSender.sendMailUsingAws(mailDetails);
+        return leadOfferInDB;
     }
 }
