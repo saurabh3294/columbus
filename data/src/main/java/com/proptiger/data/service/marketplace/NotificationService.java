@@ -110,10 +110,10 @@ public class NotificationService {
             Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
                     nextTask.getId(),
                     com.proptiger.data.enums.NotificationType.TaskDue.getId());
-            if (notification != null) {
+            if (notification == null) {
                 Date scheduledTime = nextTask.getScheduledFor();
                 if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
-                        && !(leadOffer.getLastTask() == null & nextTask.getTaskStatusId() == LeadTaskService
+                        && !(leadOffer.getLastTask() == null && nextTask.getTaskStatusId() == LeadTaskService
                                 .getOfferdefaultleadtaskstatusmappingid())) {
                     createTaskDueNotification(nextTask);
 
