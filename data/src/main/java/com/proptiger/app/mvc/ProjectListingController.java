@@ -48,7 +48,28 @@ public class ProjectListingController extends BaseController {
             @RequestParam(required = false) String selector,
             @RequestParam(required = false) String facets,
             @RequestParam(required = false) String stats) {
-        return getProjectListingsUtil(selector, facets, stats, true);
+        Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
+        if (projectListingSelector == null) {
+            projectListingSelector = new Selector();
+        }
+
+        PaginatedResponse<List<Project>> projects = propertyService
+                .getPropertiesGroupedToProjects(projectListingSelector);
+        
+        projectService.updateLifestyleScoresByHalf(projects.getResults());
+        Set<String> fields = projectListingSelector.getFields();
+        processFields(fields);
+        Map<String, Object> response = new HashMap<String, Object>();
+        response.put("items", super.filterFields(projects.getResults(), fields));
+
+        if (facets != null) {
+            response.put("facets", propertyService.getFacets(Arrays.asList(facets.split(",")), projectListingSelector));
+        }
+
+        if (stats != null) {
+            response.put("stats", propertyService.getStats(Arrays.asList(stats.split(",")), projectListingSelector));
+        }
+        return new APIResponse(response, projects.getTotalCount());
     }
     
     @RequestMapping(value = "app/v2/project-listing")
@@ -57,10 +78,6 @@ public class ProjectListingController extends BaseController {
             @RequestParam(required = false) String selector,
             @RequestParam(required = false) String facets,
             @RequestParam(required = false) String stats) {
-        return getProjectListingsUtil(selector, facets, stats, false);
-    }
-    
-    private Object getProjectListingsUtil(String selector, String facets, String stats, boolean isHalf) {
         Selector projectListingSelector = super.parseJsonToObject(selector, Selector.class);
         if (projectListingSelector == null) {
             projectListingSelector = new Selector();
@@ -68,9 +85,7 @@ public class ProjectListingController extends BaseController {
 
         PaginatedResponse<List<Project>> projects = propertyService
                 .getPropertiesGroupedToProjects(projectListingSelector);
-        if (isHalf) {
-            projectService.updateLifestyleScoresByHalf(projects.getResults());
-        }
+        
         Set<String> fields = projectListingSelector.getFields();
         processFields(fields);
         Map<String, Object> response = new HashMap<String, Object>();

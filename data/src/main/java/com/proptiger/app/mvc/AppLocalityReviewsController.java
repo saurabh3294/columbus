@@ -21,12 +21,11 @@ import com.proptiger.data.service.LocalityReviewService;
  * @author mukand
  */
 @Controller
-@RequestMapping(value = "app/v1/locality-reviews")
 public class AppLocalityReviewsController {
     @Autowired
     private LocalityReviewService localityReviewService;
 
-    @RequestMapping(method = RequestMethod.GET)
+    @RequestMapping("app/v1/locality-reviews")
     @ResponseBody
     @DisableCaching
     public APIResponse getLocalityReviewByLocalityId(@RequestParam Integer localityId, @RequestParam(
@@ -34,7 +33,7 @@ public class AppLocalityReviewsController {
         LocalityReviewRatingDetails reviewRatingDetails = localityReviewService.getLocalityReviewRatingDetails(
                 localityId,
                 numberOfReviews);
-        reviewRatingDetails.setAverageRatings(reviewRatingDetails.getAverageRatings()/2);
+        localityReviewService.updateReviewAndRatingsByHalf(reviewRatingDetails);
         return new APIResponse(reviewRatingDetails);
     }
     

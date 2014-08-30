@@ -327,5 +327,9 @@ public class LocalityReviewComments extends BaseModel {
         public void setAverageRatings(Double averageRatings) {
             this.averageRatings = averageRatings;
         }
+
+        public void setTotalUsersByRating(Map<Double, Long> totalUsersByRating) {
+            this.totalUsersByRating = totalUsersByRating;
+        }
     }
 }

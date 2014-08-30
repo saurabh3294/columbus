@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
@@ -1159,6 +1161,15 @@ public class LocalityService {
                     locAvgRatingsByCat.setCivic(locAvgRatingsByCat.getCivic()/2);
                 }
                 locality.setAvgRatingsByCategory(locAvgRatingsByCat);
+            }
+            if (locality.getNumberOfUsersByRating() != null) {
+                Map<Double, Long> numberOfUsersByRating = locality.getNumberOfUsersByRating();
+                Set<Entry<Double, Long>> entrySet = numberOfUsersByRating.entrySet();
+                Map<Double, Long> newNumberOfUsersByRating = new HashMap<Double, Long>();
+                for(Entry<Double, Long> entry : entrySet) {
+                    newNumberOfUsersByRating.put(entry.getKey()/2, entry.getValue());
+                }
+                locality.setNumberOfUsersByRating(newNumberOfUsersByRating);
             }
         }
     }

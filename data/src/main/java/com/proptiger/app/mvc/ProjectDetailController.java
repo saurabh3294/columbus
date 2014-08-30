@@ -3,7 +3,7 @@
  */
 package com.proptiger.app.mvc;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +79,7 @@ public class ProjectDetailController extends BaseController {
         }
 
         List<Property> properties = propertyService.getPropertiesForProject(projectId);
+        propertyService.updateProjectsLifestyleScores(properties);
         ProjectSpecification projectSpecification = projectService.getProjectSpecificationsV2(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);
@@ -129,14 +130,11 @@ public class ProjectDetailController extends BaseController {
         // getting Locality, Suburb, City Details and getting project price
         // ranges from properties data.
         Locality locality = localityService.getLocality(projectInfo.getLocalityId());
-        List<Locality> localities = new ArrayList<Locality>();
-        localities.add(locality);
-        localityService.updateLocalitiesLifestyleScoresAndRatings(localities);
         /*
          * Setting locality Ratings And Reviews
          */
         localityService.updateLocalityRatingAndReviewDetails(locality);
-
+        localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -171,9 +169,7 @@ public class ProjectDetailController extends BaseController {
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
         
-        List<Project> result = new ArrayList<Project>();
-        result.add(project);
-        projectService.updateLifestyleScoresByHalf(result);
+        projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
         /*
          * Setting project Specification if needed.
          */
@@ -195,9 +191,7 @@ public class ProjectDetailController extends BaseController {
             projectSelector = new Selector();
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-        List<Project> result = new ArrayList<Project>();
-        result.add(project);
-        projectService.updateLifestyleScoresByHalf(result);
+        projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
         return new APIResponse(super.filterFields(project, projectSelector.getFields()));
     }
     

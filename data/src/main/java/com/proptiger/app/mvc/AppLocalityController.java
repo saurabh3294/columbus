@@ -1,6 +1,6 @@
 package com.proptiger.app.mvc;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,9 +86,7 @@ public class AppLocalityController extends BaseController {
             selector = new Selector();
         }
         Locality locality = localityService.getLocalityInfo(localityId, imageCount);
-        List<Locality> localities = new ArrayList<Locality>();
-        localities.add(locality);
-        localityService.updateLocalitiesLifestyleScoresAndRatings(localities);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
         return new APIResponse(super.filterFields(locality, selector.getFields()));
     }
 

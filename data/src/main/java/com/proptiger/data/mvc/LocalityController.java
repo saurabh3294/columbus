@@ -241,12 +241,57 @@ public class LocalityController extends BaseController {
                 locationId,
                 minReviewCount,
                 numberOfLocalities);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(localities.getResults());
         return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
 
+    @RequestMapping(value = "data/v2/entity/locality/top-reviewed")
+    @ResponseBody
+    public APIResponse getTopReviewedLocalityV2(
+            @RequestParam String locationType,
+            @RequestParam int locationId,
+            @RequestParam(required = false, defaultValue = "2") int minReviewCount,
+            @RequestParam(required = false, defaultValue = "5") int numberOfLocalities,
+            @RequestParam(required = false) String selector) {
+
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+
+        PaginatedResponse<List<Locality>> localities = localityService.getTopReviewedLocalities(
+                locationType,
+                locationId,
+                minReviewCount,
+                numberOfLocalities);
+        return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
+    }
+    
     @RequestMapping(value = "data/v1/entity/locality/highest-return")
     @ResponseBody
     public APIResponse getHighestReturnLocalities(
+            @RequestParam String locationType,
+            @RequestParam int locationId,
+            @RequestParam(required = false, defaultValue = "5") int numberOfLocalities,
+            @RequestParam(required = false, defaultValue = "5") double minimumPriceRise,
+            @RequestParam(required = false) String selector) {
+
+        Selector localitySelector = new Selector();
+        if (selector != null) {
+            localitySelector = super.parseJsonToObject(selector, Selector.class);
+        }
+
+        PaginatedResponse<List<Locality>> localities = localityService.getHighestReturnLocalities(
+                locationType,
+                locationId,
+                numberOfLocalities, minimumPriceRise);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(localities.getResults());
+        return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
+    }
+    
+    @RequestMapping(value = "data/v2/entity/locality/highest-return")
+    @ResponseBody
+    public APIResponse getHighestReturnLocalitiesV2(
             @RequestParam String locationType,
             @RequestParam int locationId,
             @RequestParam(required = false, defaultValue = "5") int numberOfLocalities,
