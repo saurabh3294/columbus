@@ -49,4 +49,9 @@ public class CronService {
     public void manageTaskDueNotification() {
         notificationService.manageTaskDueNotification();
     }
+
+    @Scheduled(initialDelay = 30000, fixedDelay = 10000)
+    public void manageTaskOverDueNotification() {
+        notificationService.manageTaskOverDueNotification();
+    }
 }

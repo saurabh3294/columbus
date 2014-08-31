@@ -50,7 +50,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query(
             nativeQuery = true,
             value = "select lo.* from marketplace.lead_offers lo inner join marketplace.lead_tasks lt on lo.next_task_id = lt.id left join marketplace.notifications n on lt.id = n.object_id and n.notification_type_id = ?3 where n.id is null and lt.scheduled_for between ?1 and ?2")
-    public List<LeadOffer> getOffersWithDueLeadTasks(Date startTime, Date endTime, int notificationTypeId);
+    public List<LeadOffer> getOffersWithTaskScheduledBetweenAndWithoutNotification(Date startTime, Date endTime, int notificationTypeId);
 
     @Query(nativeQuery = true, value = "select * from marketplace.lead_offers where id = ?1 for update")
     public LeadOffer getLock(int ledOfferId);

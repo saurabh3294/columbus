@@ -28,4 +28,12 @@ public class CronController {
         cronService.manageLeadAssignment();
         return new APIResponse();
     }
+
+    @RequestMapping("/v1/send-notifications")
+    public @ResponseBody
+    APIResponse sendNotifications() throws Exception {
+        cronService.manageTaskDueNotification();
+        cronService.manageTaskOverDueNotification();
+        return new APIResponse();
+    }
 }

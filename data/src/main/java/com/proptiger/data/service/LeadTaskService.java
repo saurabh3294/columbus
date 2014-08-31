@@ -136,7 +136,7 @@ public class LeadTaskService {
             throw new BadRequestException();
         }
 
-        notificationService.manageTaskDueNotificationForLeadOffer(savedTask.getLeadOfferId());
+        notificationService.manageTaskNotificationForLeadOffer(savedTask.getLeadOfferId());
 
         LeadTask finalTask = getLeadTaskWithAllDetails(currentTaskId);
         if (nextTaskId != 0) {
