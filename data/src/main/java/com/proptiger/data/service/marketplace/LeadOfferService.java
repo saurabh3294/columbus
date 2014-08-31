@@ -185,7 +185,7 @@ public class LeadOfferService {
                 }
             }
 
-            if (fields.contains("offeredListing")) {
+            if (fields.contains("offeredListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, List<LeadOfferedListing>> leadOfferedListings = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
