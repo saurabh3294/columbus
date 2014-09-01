@@ -77,7 +77,7 @@ public abstract class BaseController {
             for(String f: Arrays.asList(fieldsString.split(","))){
                 if(f.contains(".")){
                     String[] splittedField = f.split("\\.");
-                    actualFieldNames.add(splittedField[splittedField.length - 1]);
+                    actualFieldNames.addAll(Arrays.asList(splittedField));
                 }
                 else{
                     actualFieldNames.add(f);
