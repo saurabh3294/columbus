@@ -1,15 +1,21 @@
 package com.proptiger.data.service.marketplace;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proptiger.data.init.CustomObjectMapper;
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.Notification;
@@ -20,6 +26,8 @@ import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.UnauthorizedException;
 import com.rits.cloning.Cloner;
 
 /**
@@ -70,7 +78,33 @@ public class NotificationService {
             }
         }
 
+        finalNotificationTypes = filterReadNotifications(finalNotificationTypes);
         Collections.sort(finalNotificationTypes, NotificationType.getNotificationtypereversecomparator());
+        return finalNotificationTypes;
+    }
+
+    /**
+     * filters out read notifications
+     * 
+     * @param notificationTypes
+     * @return
+     */
+    private List<NotificationType> filterReadNotifications(List<NotificationType> notificationTypes) {
+        List<NotificationType> finalNotificationTypes = new ArrayList<>();
+        for (NotificationType notificationType : notificationTypes) {
+            if (notificationType.isIgnorable()) {
+                boolean read = true;
+                for (Notification notification : notificationType.getNotifications()) {
+                    read = read && notification.isRead();
+                }
+                if (!read) {
+                    finalNotificationTypes.add(notificationType);
+                }
+            }
+            else {
+                finalNotificationTypes.add(notificationType);
+            }
+        }
         return finalNotificationTypes;
     }
 
@@ -185,11 +219,22 @@ public class NotificationService {
      * @param notificationTypeId
      * @return
      */
+    @Transactional
     private Notification createTaskNotification(LeadTask leadTask, int notificationTypeId) {
         Notification notification = new Notification();
         notification.setNotificationTypeId(notificationTypeId);
         notification.setObjectId(leadTask.getId());
         notification.setUserId(leadTask.getLeadOffer().getAgentId());
+
+        try {
+            leadTask = leadTaskService.getTaskDetails(leadTask.getId());
+            leadTask.unlinkCircularLoop();
+            ObjectMapper mapper = new CustomObjectMapper();
+            notification.setDetails(mapper.valueToTree(leadTask));
+        }
+        catch (Exception e) {
+            throw new ProAPIException("Error converting lead task to json", e);
+        }
 
         notification = notificationDao.save(notification);
         return notification;
@@ -229,5 +274,52 @@ public class NotificationService {
                 validTaskIdForNotification,
                 notificationTypeId);
         notificationDao.delete(notifications);
+    }
+
+    /**
+     * updates notification for a user
+     * 
+     * @param userId
+     * @param notifications
+     * @return
+     */
+    @Transactional
+    public List<Notification> updateNotificationsForUser(int userId, List<Notification> notifications) {
+        List<Notification> savedNotifications = notificationDao
+                .findByIdIn(getNotificationIdsFromNotifications(notifications));
+        Map<Integer, Notification> mappedNotification = getMappedNotifications(notifications);
+
+        for (Notification notification : savedNotifications) {
+            if (notification.getUserId() != userId) {
+                throw new UnauthorizedException();
+            }
+            else {
+                ExclusionAwareBeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+                try {
+                    beanUtilsBean.copyProperties(notification, mappedNotification.get(notification.getId()));
+                }
+                catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new ProAPIException("Error in copying notification", e);
+                }
+                notification = notificationDao.save(notification);
+            }
+        }
+        return savedNotifications;
+    }
+
+    private List<Integer> getNotificationIdsFromNotifications(List<Notification> notifications) {
+        List<Integer> notificationIds = new ArrayList<>();
+        for (Notification notification : notifications) {
+            notificationIds.add(notification.getId());
+        }
+        return notificationIds;
+    }
+
+    private Map<Integer, Notification> getMappedNotifications(List<Notification> notifications) {
+        Map<Integer, Notification> map = new HashMap<>();
+        for (Notification notification : notifications) {
+            map.put(notification.getId(), notification);
+        }
+        return map;
     }
 }
