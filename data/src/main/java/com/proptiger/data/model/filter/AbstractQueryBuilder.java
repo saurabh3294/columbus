@@ -45,6 +45,7 @@ public abstract class AbstractQueryBuilder<T> {
 
     // XXX - Invocation order should not be changed here
     public void buildQuery(FIQLSelector selector) {
+        enrichSelector(selector);
         // XXX - filter remains first since FIQL parser auto creates
         // criteriaquery for JPA here
         buildFilterClause(selector);
@@ -52,6 +53,10 @@ public abstract class AbstractQueryBuilder<T> {
         buildSelectClause(selector);
         buildOrderByClause(selector);
         buildLimitClause(selector);
+    }
+
+    protected void enrichSelector(FIQLSelector selector) {
+        //override in child class to enrich selector if needed
     }
 
     protected abstract void buildGroupByClause(FIQLSelector selector);
