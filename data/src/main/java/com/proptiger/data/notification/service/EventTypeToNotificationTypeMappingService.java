@@ -58,6 +58,7 @@ public class EventTypeToNotificationTypeMappingService {
 
     public List<NotificationType> getNotificationTypesByEventType(EventType eventType) {
         List<NotificationType> notificationTypes = eventTypeToNotificationTypeMap.get(eventType.getId());
+        logger.debug(eventTypeToNotificationTypeMap.toString());
         if (notificationTypes == null) {
             logger.debug("Cannot find NotificationTypes for eventType " + eventType.getName());
             return new ArrayList<NotificationType>();

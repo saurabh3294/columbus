@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
@@ -66,9 +67,9 @@ public class NotificationGeneratedService {
         }
     }
 
-    public List<NotificationGenerated> getScheduledAndReadyNotifications(int mediumId) {
+    public List<NotificationGenerated> getScheduledAndReadyNotifications(MediumType medium) {
         List<NotificationGenerated> ntGeneratedList = notificationGeneratedDao
-                .findByStatusAndScheduleTimeLessThanEqualAndMediumId(NotificationStatus.Scheduled, new Date(), mediumId);
+                .findByStatusAndScheduleTimeLessThanEqualAndMediumName(NotificationStatus.Scheduled, new Date(), medium);
         if (ntGeneratedList == null) {
             return new ArrayList<NotificationGenerated>();
         }

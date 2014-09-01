@@ -6,21 +6,21 @@ import java.util.Map;
 import com.proptiger.data.event.model.payload.DefaultEventTypePayload;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 import com.proptiger.data.event.processor.DBEventProcessor;
-import com.proptiger.data.event.processor.PhotoChangeProcessor;
+import com.proptiger.data.event.processor.DefaultDBEventProcessor;
 import com.proptiger.data.event.processor.PriceChangeProcessor;
 import com.proptiger.data.event.verification.DBEventVerification;
+import com.proptiger.data.event.verification.DefaultDBEventVerification;
 import com.proptiger.data.event.verification.PriceChangeVerification;
 import com.proptiger.data.model.BaseModel;
 
 // TODO remove the Types ENUM. make it dynamic.
 public class EventTypeConfig extends BaseModel {
 
-        
     /**
      * 
      */
-    private static final long serialVersionUID = 5353549466505297871L;
-    
+    private static final long                    serialVersionUID      = 5353549466505297871L;
+
     public static Map<String, EventTypeConfig>   eventTypeConfigMap;
     static {
 
@@ -30,17 +30,11 @@ public class EventTypeConfig extends BaseModel {
                 DefaultEventTypePayload.class,
                 PriceChangeProcessor.class,
                 PriceChangeVerification.class));
-
-        eventTypeConfigMap.put("portfolio_photo_added", new EventTypeConfig(
-                DefaultEventTypePayload.class,
-                PhotoChangeProcessor.class,
-                DBEventVerification.class));
-
     }
 
     private Class<? extends EventTypePayload>    dataClassName         = DefaultEventTypePayload.class;
-    private Class<? extends DBEventProcessor>    processorClassName    = PriceChangeProcessor.class;
-    private Class<? extends DBEventVerification> verificationClassName = PriceChangeVerification.class;
+    private Class<? extends DBEventProcessor>    processorClassName    = DefaultDBEventProcessor.class;
+    private Class<? extends DBEventVerification> verificationClassName = DefaultDBEventVerification.class;
     private DBEventProcessor                     processorObject;
     private EventTypePayload                     eventTypePayloadObject;
     private DBEventVerification                  eventVerificationObject;

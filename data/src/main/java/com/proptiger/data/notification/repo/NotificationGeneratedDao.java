@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 
@@ -24,12 +25,12 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
             Integer id,
             NotificationStatus newStatus,
             NotificationStatus oldStatus);
-
-    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationMedium NM WHERE NG.notificationStatus = ?1 AND NG.scheduleTime <= ?2 AND NM.id = ?3")
-    public List<NotificationGenerated> findByStatusAndScheduleTimeLessThanEqualAndMediumId(
+    
+    @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationMedium NM WHERE NG.notificationStatus = ?1 AND NG.scheduleTime <= ?2 AND NM.name = ?3")
+    public List<NotificationGenerated> findByStatusAndScheduleTimeLessThanEqualAndMediumName(
             NotificationStatus scheduled,
             Date date,
-            int mediumId);
+            MediumType medium);
 
     @Query("SELECT NG FROM NotificationGenerated NG JOIN NG.notificationType NT JOIN NG.forumUser FU JOIN NG.notificationMedium NM WHERE NG.notificationStatus in ?1 AND NM.id = ?2 AND FU.userId = ?3 AND NT.id = ?4 AND NG.objectId = ?5 ORDER BY NG.updatedAt DESC")
     public List<NotificationGenerated> getLastNotificationGenerated(

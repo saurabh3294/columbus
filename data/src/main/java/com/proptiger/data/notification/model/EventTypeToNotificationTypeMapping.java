@@ -19,11 +19,11 @@ public class EventTypeToNotificationTypeMapping {
     private int              id;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "event_type_id")
     private EventType        eventType;
 
     @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "notification_type_id")
     private NotificationType notificationType;
 
     public int getId() {
