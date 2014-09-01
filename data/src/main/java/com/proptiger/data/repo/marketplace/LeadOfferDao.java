@@ -2,6 +2,7 @@ package com.proptiger.data.repo.marketplace;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -54,4 +55,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
 
     @Query(nativeQuery = true, value = "select * from marketplace.lead_offers where id = ?1 for update")
     public LeadOffer getLock(int ledOfferId);
+
+    @Query("select LO.id,count(LI) from LeadOffer LO join LO.matchingListings LI join LI.property LIP join LIP.project LIPP join LIPP.builder join LIPP.locality where LO.id in (?1) and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' group by LO")
+    Map<Integer, Integer> getMatchingListingCount(List<Integer> leadOfferIds);
 }
