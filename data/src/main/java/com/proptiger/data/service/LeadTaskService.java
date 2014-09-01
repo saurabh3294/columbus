@@ -125,7 +125,7 @@ public class LeadTaskService {
                         manageLeadTaskListingsOnUpdate(nextTaskId, taskDto.getNextTask().getListingIds());
                     }
                     Integer offerNextTaskId = nextTaskId == 0 ? null : nextTaskId;
-                    leadOfferService.updateLeadOfferTasks(leadTask.getLeadOfferId(), currentTaskId, offerNextTaskId);
+                    leadOfferService.updateLeadOfferTasks(savedTask.getLeadOffer(), currentTaskId, offerNextTaskId);
                 }
             }
             catch (IllegalAccessException | InvocationTargetException e) {
@@ -409,7 +409,7 @@ public class LeadTaskService {
             leadTask.setLeadOfferId(leadOfferId);
             leadTask = leadTaskDao.save(leadTask);
 
-            leadOfferService.updateLeadOfferTasks(leadOfferId, null, leadTask.getId());
+            leadOfferService.updateLeadOfferTasks(leadOffer, null, leadTask.getId());
         }
         else {
             throw new ProAPIException("Lead Task Already Exists");
