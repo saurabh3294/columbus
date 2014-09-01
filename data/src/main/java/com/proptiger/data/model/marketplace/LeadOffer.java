@@ -19,9 +19,11 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.MasterLeadOfferStatus;
@@ -33,6 +35,7 @@ import com.proptiger.data.model.MasterLeadOfferStatus;
 @Entity
 @JsonInclude(Include.NON_EMPTY)
 @Table(name = "marketplace.lead_offers")
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@cycleId")
 public class LeadOffer extends BaseModel {
     private static final long        serialVersionUID      = -4428374943776702328L;
 
