@@ -489,15 +489,23 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_LIVABILITY_SCORE")
     private Float                   livabilityScore;
-    
+
     @Transient
     @Field(value = "PROJECT_LOCALITY_SCORE")
     private Float                   projectLocalityScore;
-    
+
     @Transient
     @Field(value = "PROJECT_SOCIETY_SCORE")
     private Float                   projectSocietyScore;
-
+    
+    @Transient
+    @Field(value = "PROJECT_SAFETY_RANK")
+    private Integer                 projectSafetyRank;
+    
+    @Transient
+    @Field(value = "PROJECT_LIVABILITY_RANK")
+    private Integer                 projectLivabilityRank;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -742,11 +750,19 @@ public class Project extends BaseModel {
 
     public void setProjectStatusMaster(ProjectStatusMaster projectStatusMaster) {
         this.projectStatusMaster = projectStatusMaster;
-        this.projectStatus = projectStatusMaster.getDisplay_name();       
     }
 
     public String getProjectStatus() {
         return projectStatus;
+    }
+    
+    public void setProjectStatus(String projectStatus) {
+        this.projectStatus = projectStatus;
+    }
+
+    @PostLoad
+    public void postLoad() {
+        this.projectStatus = projectStatusMaster.getDisplay_name();
     }
 
     public boolean isIsResale() {
@@ -1203,7 +1219,19 @@ public class Project extends BaseModel {
         this.projectSocietyScore = projectSocietyScore;
     }
 
-    public void setProjectStatus(String projectStatus) {
-        this.projectStatus = projectStatus;
+    public Integer getProjectSafetyRank() {
+        return projectSafetyRank;
+    }
+
+    public void setProjectSafetyRank(Integer projectSafetyRank) {
+        this.projectSafetyRank = projectSafetyRank;
+    }
+
+    public Integer getProjectLivabilityRank() {
+        return projectLivabilityRank;
+    }
+
+    public void setProjectLivabilityRank(Integer projectLivabilityRank) {
+        this.projectLivabilityRank = projectLivabilityRank;
     }
 }

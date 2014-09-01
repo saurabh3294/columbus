@@ -3,6 +3,7 @@
  */
 package com.proptiger.app.mvc;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +79,7 @@ public class ProjectDetailController extends BaseController {
         }
 
         List<Property> properties = propertyService.getPropertiesForProject(projectId);
+        propertyService.updateProjectsLifestyleScores(properties);
         ProjectSpecification projectSpecification = projectService.getProjectSpecificationsV2(projectId);
         ProjectDB projectInfo = projectService.getProjectDetails(projectId);
         Builder builderDetails = builderService.getBuilderInfo(projectInfo.getBuilderId(), null);
@@ -132,7 +134,7 @@ public class ProjectDetailController extends BaseController {
          * Setting locality Ratings And Reviews
          */
         localityService.updateLocalityRatingAndReviewDetails(locality);
-
+        localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -166,7 +168,8 @@ public class ProjectDetailController extends BaseController {
             projectSelector = new Selector();
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-
+        
+        projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
         /*
          * Setting project Specification if needed.
          */
@@ -181,6 +184,20 @@ public class ProjectDetailController extends BaseController {
     @RequestMapping(value = { "app/v3/project-detail/{projectId}" })
     @ResponseBody
     public APIResponse getProjectDetailsV3(
+            @PathVariable Integer projectId,
+            @RequestParam(required = false) String selector) throws Exception {
+        Selector projectSelector = super.parseJsonToObject(selector, Selector.class);
+        if (projectSelector == null) {
+            projectSelector = new Selector();
+        }
+        Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
+        projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
+        return new APIResponse(super.filterFields(project, projectSelector.getFields()));
+    }
+    
+    @RequestMapping(value = { "app/v4/project-detail/{projectId}" })
+    @ResponseBody
+    public APIResponse getProjectDetailsV4(
             @PathVariable Integer projectId,
             @RequestParam(required = false) String selector) throws Exception {
         Selector projectSelector = super.parseJsonToObject(selector, Selector.class);

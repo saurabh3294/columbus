@@ -44,7 +44,7 @@ public class BlogNewsService {
             throw new IllegalArgumentException("Invalid content limit");
         }
         Paging paging = createPaging(selector);
-        List<String> cityNameList = Collections.singletonList(cityName);
+        List<String> cityNameList = Collections.singletonList(cityName + " Property");
         List<WordpressPost> list = blogNewsDao.findPublishedBlogByCity(cityNameList, paging);
         List<Long> postIdList = new ArrayList<Long>();
         for (WordpressPost post : list) {

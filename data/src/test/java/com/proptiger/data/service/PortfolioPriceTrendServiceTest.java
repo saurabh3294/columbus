@@ -28,7 +28,7 @@ public class PortfolioPriceTrendServiceTest extends AbstractTest{
             IllegalArgumentException, IllegalAccessException {
         Date trendCurDate = DateUtil.parseYYYYmmddStringToDate(portfolioPriceTrendService.trendCurrentMonth);
         int specifiedMonth = getMonthFromDate(trendCurDate);
-        Integer userId = 38003;
+        Integer userId = 154993;
         Integer noOfMonths = 9;
         PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths, null);
         List<ProjectPriceTrend> projectPriceTrends = priceTrend.getProjectPriceTrend();
@@ -52,7 +52,7 @@ public class PortfolioPriceTrendServiceTest extends AbstractTest{
         aField.set(portfolioPriceTrendService, "2013-10-01");
         Date trendCurDate = DateUtil.parseYYYYmmddStringToDate(portfolioPriceTrendService.trendCurrentMonth);
         int specifiedMonth = getMonthFromDate(trendCurDate);
-        Integer userId = 38003;
+        Integer userId = 154993;
         Integer noOfMonths = 9;
         PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths, null);
         List<ProjectPriceTrend> projectPriceTrends = priceTrend.getProjectPriceTrend();
@@ -73,7 +73,7 @@ public class PortfolioPriceTrendServiceTest extends AbstractTest{
         aField.set(portfolioPriceTrendService, "2014-04-01");
         Date trendCurDate = DateUtil.parseYYYYmmddStringToDate(portfolioPriceTrendService.trendCurrentMonth);
         int specifiedMonth = getMonthFromDate(trendCurDate);
-        Integer userId = 38003;
+        Integer userId = 154993;
         Integer noOfMonths = 9;
         PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths, null);
         List<ProjectPriceTrend> projectPriceTrends = priceTrend.getProjectPriceTrend();
