@@ -9,7 +9,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.model.marketplace.Lead;
+import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.marketplace.LeadService;
+import com.proptiger.data.service.marketplace.NotificationService;
 
 /**
  * 
@@ -20,11 +22,17 @@ import com.proptiger.data.service.marketplace.LeadService;
 @Component
 public class CronService {
     @Autowired
-    private LeadService   leadService;
+    private LeadService         leadService;
 
-    private static Logger logger = LoggerFactory.getLogger(CronService.class);
+    @Autowired
+    private NotificationService notificationService;
 
-    @Scheduled(cron = "0 * * * * *")
+    @Autowired
+    private LeadOfferDao        leadOfferDao;
+
+    private static Logger       logger = LoggerFactory.getLogger(CronService.class);
+
+    @Scheduled(initialDelay = 10000, fixedDelay = 10000)
     public void manageLeadAssignment() {
         List<Lead> leads = leadService.getLeadsPendingAction();
         for (Lead lead : leads) {
@@ -35,5 +43,15 @@ public class CronService {
                 logger.debug("Error in lead assignment: " + e);
             }
         }
+    }
+
+    @Scheduled(initialDelay = 20000, fixedDelay = 10000)
+    public void manageTaskDueNotification() {
+        notificationService.manageTaskDueNotification();
+    }
+
+    @Scheduled(initialDelay = 30000, fixedDelay = 10000)
+    public void manageTaskOverDueNotification() {
+        notificationService.manageTaskOverDueNotification();
     }
 }
