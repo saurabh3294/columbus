@@ -78,12 +78,12 @@ public class LeadOfferService {
     @Autowired
     private ListingService          listingService;
 
-
     @Autowired
     private LeadTaskStatusDao       leadTaskStatusDao;
 
     @Autowired
     private MailSender              mailSender;
+
     /**
      * 
      * @param integer
@@ -162,19 +162,18 @@ public class LeadOfferService {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
-                
+
                 Map<Integer, List<UserContactNumber>> contactNumbers = null;
-                if (fields.contains("client.contactNumbers"))
-                {                   
-                    contactNumbers  = userService.getUserContactNumbers(clientIds);
+                if (fields.contains("client.contactNumbers")) {
+                    contactNumbers = userService.getUserContactNumbers(clientIds);
                 }
-                    for (LeadOffer leadOffer : leadOffers) {
-                        leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
-                        if (fields.contains("client.contactNumbers"))
-                        {
-                            leadOffer.getLead().getClient().setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
-                        }
+                for (LeadOffer leadOffer : leadOffers) {
+                    leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                    if (fields.contains("client.contactNumbers")) {
+                        leadOffer.getLead().getClient()
+                                .setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
                     }
+                }
             }
 
             if (fields.contains("lead.requirements")) {
@@ -225,13 +224,11 @@ public class LeadOfferService {
                     leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
                             new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
                             leadOffer.getAgentId()).getResults());
-                    
-                    for(LeadTask leadTask: leadOffer.getTasks())
-                    {
+
+                    for (LeadTask leadTask : leadOffer.getTasks()) {
                         leadTask.setLeadOffer(null);
                     }
-                    
-                    
+
                 }
             }
 
@@ -422,18 +419,18 @@ public class LeadOfferService {
 
         List<Integer> listingIds = new ArrayList<>();
         List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
- 
+
         leadOfferInDB.setLastTask(null);
         leadOfferInDB.setNextTask(null);
-        
-        if(leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId())
-        {
-                if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
-                    for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
-                        listingIds.add(leadOfferedListing.getListingId());
-                    }
-                    offerListings(listingIds, leadOfferId, userId);
+
+        if (leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered
+                .getLeadOfferStatusId()) {
+            if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
+                for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
+                    listingIds.add(leadOfferedListing.getListingId());
                 }
+                offerListings(listingIds, leadOfferId, userId);
+            }
         }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
@@ -494,8 +491,7 @@ public class LeadOfferService {
      * @param nextTaskId
      * @return
      */
-    public LeadOffer updateLeadOfferTasks(int leadOfferId, Integer lastTaskId, Integer nextTaskId) {
-        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+    public LeadOffer updateLeadOfferTasks(LeadOffer leadOffer, Integer lastTaskId, Integer nextTaskId) {
         leadOffer.setLastTaskId(lastTaskId);
         leadOffer.setNextTaskId(nextTaskId);
         leadOffer = leadOfferDao.save(leadOffer);
