@@ -33,7 +33,7 @@ public class CompanyUserService {
      */
     //@Cacheable(value = Constants.CacheName.AGENT, key = "#agentId", unless = "#result != null")
     public CompanyUser getAgent(Integer companyUserId, FIQLSelector selector) {
-        CompanyUser companyUser = companyUserDao.findOne(companyUserId);
+        CompanyUser companyUser = companyUserDao.findByUserId(companyUserId);
 
         if (companyUser == null) {
             throw new ResourceNotAvailableException(ResourceType.COMPANY_USER, ResourceTypeAction.GET);
