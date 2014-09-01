@@ -1,7 +1,7 @@
 package com.proptiger.data.enums.security;
 
 public enum MaxAllowedRequestCount {
-    LIMIT_PER_MINUTE(60, 200, 500), LIMIT_PER_DAY(86400, 5000, 10000);
+    LIMIT_PER_MINUTE(60, 200, 25), LIMIT_PER_DAY(86400, 5000, 500);
 
     private String  label;
     private Integer timeFrame;
