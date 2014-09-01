@@ -17,6 +17,7 @@ import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.LeadTaskStatusName;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -577,10 +578,16 @@ public class LeadOfferService {
      * @param mailDetails2
      * @return
      */
-    public LeadOffer updateLeadOfferForEmailTask(int leadOfferId, Integer userId, SenderDetail senderDetails) {
-        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
+    public LeadOffer updateLeadOfferForEmailTask(int leadOfferId,ActiveUser activeUser, SenderDetail senderDetails) {
+        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, activeUser.getUserIdentifier());
         if (leadOfferInDB == null) {
             throw new ResourceNotAvailableException(ResourceType.LEAD_OFFER, ResourceTypeAction.UPDATE);
+        }
+        /*
+         * for email task done status, it should be in claimed status
+         */
+        if(!leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag()){
+            throw new BadRequestException("Lead offer "+leadOfferId+" is not in opened status");
         }
         LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
                 LeadTaskName.Email.name(),
@@ -614,7 +621,7 @@ public class LeadOfferService {
             throw new BadRequestException("Invalid mail details");
         }
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
-                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo());
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername());
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }
