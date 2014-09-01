@@ -1,6 +1,8 @@
 package com.proptiger.data.event.service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -30,7 +32,7 @@ public class EventTypeProcessorService {
     public Double getPriceChangeOldValue(EventGenerated eventGenerated, Date effeDate) {
         logger.info(" Getting the Old Price Value for Price Change Event. " + eventGenerated.getEventTypePayload()
                 .getTransactionId());
-        
+
         // Getting the First Day of the Month.
         Date eventCreatedDate = eventGenerated.getEventTypePayload().getTransactionDateKeyValue();
         Date firstDayOfMonth = DateUtil.getFirstDayOfCurrentMonth(eventCreatedDate);
@@ -39,9 +41,13 @@ public class EventTypeProcessorService {
                 .getEventType().getId());
         DBRawEventTableLog dbRawEventTableLog = eventTypeMapping.getDbRawEventTableLog();
 
-        Map<String, Object> filtersMap = dbRawEventTableLog.getFilterMap();
+        Map<String, List<Object>> filtersMap = dbRawEventTableLog.getFilterMap();
+
         // getting the old value of the 1 month before latest value.
-        filtersMap.put("effective_date", DateUtil.shiftMonths(effeDate, -1));
+        List<Object> list = new ArrayList<Object>();
+        logger.debug("effectiveDate: " + effeDate);
+        list.add(DateUtil.shiftMonths(effeDate, -1));
+        filtersMap.put("effective_date", list);
 
         Number OldPrice = (Number) eventTypeProcessorDao.getOldValueOfEventTypeOnLastMonth(
                 dbRawEventTableLog.getHostName(),
@@ -56,7 +62,7 @@ public class EventTypeProcessorService {
                 firstDayOfMonth,
                 dbRawEventTableLog.getFilterMap());
 
-        if(OldPrice != null)
+        if (OldPrice != null)
             return OldPrice.doubleValue();
         else
             return null;

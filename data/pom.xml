@@ -401,6 +401,11 @@
 			<artifactId>recaptcha4j</artifactId>
 			<version>0.0.8</version>
 		</dependency>
+		<dependency>
+			<groupId>com.ganyo</groupId>
+			<artifactId>gcm-server</artifactId>
+			<version>1.0.2</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -411,5 +416,6 @@
 			<id>spring-maven-snapshot</id>
 			<url>http://repo.springsource.org/libs-snapshot</url>
 		</repository>
+		
 	</repositories>
 </project>

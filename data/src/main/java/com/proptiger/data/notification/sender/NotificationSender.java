@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
@@ -28,9 +29,9 @@ public class NotificationSender {
     private SentNotificationLogService   sentNotificationLogService;
 
     @Transactional
-    public Integer sendNotification(int mediumId) {
+    public Integer sendNotification(MediumType medium) {
         Integer numberOfSendNtGen = 0;
-        List<NotificationGenerated> ntGeneratedList = ntGeneratedService.getScheduledAndReadyNotifications(mediumId);
+        List<NotificationGenerated> ntGeneratedList = ntGeneratedService.getScheduledAndReadyNotifications(medium);
         logger.info("NotificationSender : Number of Scheduled and Ready Notifications " + ntGeneratedList.size());
         for (NotificationGenerated ntGenerated : ntGeneratedList) {
             try {

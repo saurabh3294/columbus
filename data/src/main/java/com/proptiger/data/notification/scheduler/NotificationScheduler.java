@@ -83,8 +83,6 @@ public class NotificationScheduler {
                 nGeneratedService.markNotificationGeneratedSuppressed(nGenerated);
             }
             else {
-                // max(nextScheduleDate, currentDate, ngCreatedDate +
-                // fixedDelay)
                 dateList.clear();
                 dateList.add(nextScheduleDate);
                 dateList.add(new Date());

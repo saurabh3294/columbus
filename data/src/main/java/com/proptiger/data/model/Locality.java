@@ -247,6 +247,14 @@ public class Locality extends BaseModel {
     @Transient
     @Field(value = "LOCALITY_LIVABILITY_SCORE")
     private Float                         livabilityScore;
+    
+    @Transient
+    @Field(value = "LOCALITY_SAFETY_RANK")
+    private Integer                 localitySafetyRank;
+   
+    @Transient
+    @Field(value = "LOCALITY_LIVABILITY_RANK")
+    private Integer                 localityLivabilityRank;
 
     public int getLocalityId() {
         return localityId;
@@ -632,5 +640,21 @@ public class Locality extends BaseModel {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Integer getLocalitySafetyRank() {
+        return localitySafetyRank;
+    }
+
+    public void setLocalitySafetyRank(Integer localitySafetyRank) {
+        this.localitySafetyRank = localitySafetyRank;
+    }
+
+    public Integer getLocalityLivabilityRank() {
+        return localityLivabilityRank;
+    }
+
+    public void setLocalityLivabilityRank(Integer localityLivabilityRank) {
+        this.localityLivabilityRank = localityLivabilityRank;
     }
 }

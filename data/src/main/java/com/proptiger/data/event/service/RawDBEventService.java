@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +22,14 @@ import com.proptiger.data.util.Serializer;
 
 @Service
 public class RawDBEventService {
-    private static Logger logger = Logger.getLogger(RawDBEventService.class);
+    private static Logger logger = LoggerFactory.getLogger(RawDBEventService.class);
 
     @Autowired
     private RawDBEventDao rawDBEventDao;
     
     @Autowired
     private DBRawEventTableLogDao dbRawEventTableLogDao;
-
+    
     public List<RawDBEvent> getRawDBEvents(DBRawEventTableConfig dbRawEventTableConfig) {
 
         List<RawDBEvent> rawDBEventList = new ArrayList<RawDBEvent>();
@@ -36,7 +37,7 @@ public class RawDBEventService {
 
         if(tableLog.getLastTransactionKeyValue() == null) {
             Map<String, Object> latestTransaction = rawDBEventDao.getLatestTransaction(tableLog);
-            Long transactionId = (Long)latestTransaction.get(tableLog.getTransactionKeyName());
+            Long transactionId = Long.parseLong(latestTransaction.get(tableLog.getTransactionKeyName()).toString());
             dbRawEventTableLogDao.updateLastTransactionKeyValueById(tableLog.getId(), transactionId);
             return rawDBEventList;
         }
@@ -46,11 +47,17 @@ public class RawDBEventService {
         logger.info(" Retrieved "+rawDBEventDataList.size() + " raw events from the table config ID: "+ tableLog.getId());
         
         for (Map<String, Object> rawDBEventMap : rawDBEventDataList) {
-            logger.debug(rawDBEventMap);
+            //logger.debug(rawDBEventMap.toString());
             // TODO to handle the null value of the dbOperation if it is not
             // found.
             DBOperation dbOperation = DBOperation.getDBOperationEnum((Character) rawDBEventMap
                     .get(DBRawEventTableConfig.getDbOperationAttributeName()));
+            
+            if (dbRawEventTableConfig.getDbRawEventOperationConfig(dbOperation) == null) {
+                logger.debug("Skipping raw event creation as DbRawEventOperationConfig not found for " + rawDBEventMap.toString());
+                continue;
+            }
+            
             RawDBEvent rawDBEvent = new RawDBEvent();
             rawDBEvent.setDbRawEventTableLog(tableLog);
             rawDBEvent.setDbRawEventOperationConfig(dbRawEventTableConfig.getDbRawEventOperationConfig(dbOperation));
@@ -61,7 +68,7 @@ public class RawDBEventService {
             rawDBEvent.setUniqueKeyValuesMap(getUniqueKeyValuesMap(rawDBEventMap, tableLog));
             rawDBEventList.add(rawDBEvent);
             
-            logger.debug(" RAW DB EVENT Generated "+Serializer.toJson(rawDBEvent));
+            //logger.debug(" RAW DB EVENT Generated "+Serializer.toJson(rawDBEvent));
         }
 
         return rawDBEventList;
