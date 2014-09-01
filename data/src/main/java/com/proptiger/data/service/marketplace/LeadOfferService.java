@@ -185,14 +185,25 @@ public class LeadOfferService {
                 }
             }
 
-            if (fields.contains("offeredListings")) {
+            if (fields.contains("offeredListings") || fields.contains("countOfferedListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, List<LeadOfferedListing>> leadOfferedListings = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.setOfferedListings(leadOfferedListings.get(leadOffer.getId()));
+                    if(leadOfferedListings.get(leadOffer.getId()) != null)
+                    {
+                        leadOffer.setCountOfferedListings(leadOffer.getOfferedListings().size());
+                    }
                 }
             }
-
+            
+            if (fields.contains("countMatchingListings")) {                                      
+                    for (LeadOffer leadOffer : leadOffers) {
+                        leadOffer.setCountMatchingListings(getUnsortedMatchingListings(leadOffer.getId()).getResults().size());
+                    }
+            }
+            
+            
             if (fields.contains("latestOfferedListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, LeadOfferedListing> leadOfferedListings = getLatestLeadOfferedListing(leadOfferIds);
