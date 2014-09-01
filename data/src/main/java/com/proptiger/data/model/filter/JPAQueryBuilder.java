@@ -4,17 +4,16 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.StringTokenizer;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.persistence.Column;
 import javax.persistence.EntityManager;
-import javax.persistence.Transient;
 import javax.persistence.Tuple;
 import javax.persistence.TupleElement;
 import javax.persistence.TypedQuery;
@@ -36,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.filter.FieldsMapLoader.FieldMetaInfo;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -233,28 +233,8 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
             }
         }
         else {
-            /*
-             * Identify if a field is marked as Transient in model class
-             */
-            boolean isTransientField = false;
-            boolean isDirectFieldInModel = false;
-            boolean isFieldInModel = false;
-            try {
-                T result = domainClazz.newInstance();
-                Field field = result.getClass().getDeclaredField(fieldName.split("\\.")[0]);
-                isFieldInModel = true;
-                // if transient field then create a null literal
-                if (field != null && field.getAnnotation(Transient.class) != null) {
-                    isTransientField = true;
-                }
-                if(field != null && field.getAnnotation(Column.class) != null){
-                    isDirectFieldInModel = true;
-                }
-            }
-            catch (InstantiationException | IllegalAccessException | NoSuchFieldException | SecurityException e1) {
-                logger.error("Field {} may not be direct attribyte of class {}", fieldName, domainClazz.getName());
-            }
-            if (!isTransientField) {
+            FieldMetaInfo fieldMetaIfo = FieldsMapLoader.getFieldMeta(domainClazz, fieldName);
+            if (!fieldMetaIfo.isTransientField()) {
                 /*
                  * field is not transient and if that is a composite filed, so
                  * will contain dot.
@@ -282,7 +262,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                      * if direct field in model then create expression otherwise
                      * expression will be null
                      */
-                    if (isFieldInModel && !isDirectFieldInModel) {
+                    if (fieldMetaIfo.isFieldInModel() && !fieldMetaIfo.isDirectFieldInModel()) {
                         expression = root.get(fieldName);
                     }
                 }
@@ -675,5 +655,53 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     @Override
     protected void validateSelector(Selector selector) {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    protected void enrichSelector(FIQLSelector selector) {
+        String fields = selector.getFields();
+        if (fields != null && !fields.isEmpty()) {
+            Set<String> fieldSet = new HashSet<>();
+            String[] fieldArray = fields.split(",");
+            for (String fieldWithDot : fieldArray) {
+                String[] splittedFields = fieldWithDot.split("\\.");
+                fieldSet.addAll(getCompositeFieldPaths(splittedFields));
+            }
+            StringBuilder enrichedFields = new StringBuilder();
+            for(String f: fieldSet){
+                if(enrichedFields.length() > 0){
+                    enrichedFields.append(",");
+                }
+                enrichedFields.append(f);
+            }
+            if(enrichedFields.length() > 0){
+                selector.setFields(enrichedFields.toString());
+            }
+        }
+    }
+
+    /**
+     * Creates paths of composite fields, like foe field a.b.c it should create
+     * three fields as a, a.b, a.b.c
+     * 
+     * @param splittedFields
+     * @return
+     */
+    private List<String> getCompositeFieldPaths(String[] splittedFields) {
+        List<String> fieldPaths = new ArrayList<>();
+        if (splittedFields.length == 1) {
+            fieldPaths.add(splittedFields[0]);
+        }
+        else {
+            StringBuilder fPath = new StringBuilder();
+            for (String f : splittedFields) {
+                if (fPath.length() > 0) {
+                    fPath.append(".");
+                }
+                fPath.append(f);
+                fieldPaths.add(fPath.toString());
+            }
+        }
+        return fieldPaths;
     }
 }
