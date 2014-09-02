@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.marketplace.LeadOffer;
+import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 
 public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOfferCustomDao {
@@ -32,8 +33,9 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select LO from LeadOffer LO join fetch LO.masterLeadOfferStatus MLOS where LO.id = ?1 and LO.agentId = ?2")
     public LeadOffer findByIdAndAgentId(int leadOfferId, Integer userIdentifier);
 
-    @Query("select LI from LeadOffer LO join LO.matchingListings LI join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.builder join fetch LIPP.locality where LO.id = ?1 and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' group by LI")
+    @Query("select LI from LeadOffer LO join LO.matchingListings LI join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.builder join fetch LIPP.locality where LO.id = ?1 and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' and LIPP.version='Website' group by LI")
     public List<Listing> getMatchingListings(int leadOfferId);
+    
 
     @Query("select LO from LeadOffer LO join fetch LO.lead L where LO.id = ?1")
     public LeadOffer findById(int leadOfferId);
@@ -56,6 +58,6 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query(nativeQuery = true, value = "select * from marketplace.lead_offers where id = ?1 for update")
     public LeadOffer getLock(int ledOfferId);
 
-    @Query("select LO.id,count(LI) from LeadOffer LO join LO.matchingListings LI join LI.property LIP join LIP.project LIPP join LIPP.builder join LIPP.locality where LO.id in (?1) and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' group by LO")
-    Map<Integer, Integer> getMatchingListingCount(List<Integer> leadOfferIds);
+    @Query("SELECT NEW com.proptiger.data.model.marketplace.LeadOffer$CountListingObject(LO.id,countDistinct(LI)) from LeadOffer LO join LO.matchingListings LI join  LI.property LIP  join  LIP.project LIPP  join LIPP.builder  join  LIPP.locality where LO.id in (?1) and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' and LIPP.version='Website' group by LO")
+    List<CountListingObject> getMatchingListingCount(List<Integer> leadOfferIds);
 }
