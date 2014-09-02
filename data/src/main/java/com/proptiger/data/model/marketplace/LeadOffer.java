@@ -65,15 +65,15 @@ public class LeadOffer extends BaseModel {
     private Integer nextTaskId;
     
     
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "previous_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 lastTask;
 
-    @OneToOne
+    @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "next_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 nextTask;
 
-    @OneToMany(mappedBy = "leadOfferId", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "leadOfferId")
     private List<LeadTask>           tasks;
 
     @Transient

@@ -484,15 +484,19 @@ public class LeadTaskService {
     }
 
     public Map<Integer, LeadTask> getTaskById(List<Integer> leadTaskIds) {
-        List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
-        LeadTask.populateTransientAttributes(leadTasks);
-
         Map<Integer, LeadTask> taskMap = new HashMap<>();
-        for (LeadTask leadTask : leadTasks) {
-            leadTask.setLeadOffer(null);
-            leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
-            taskMap.put(leadTask.getId(), leadTask);
+
+        if (leadTaskIds != null && !leadTaskIds.isEmpty()) {
+            List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
+            LeadTask.populateTransientAttributes(leadTasks);
+
+            for (LeadTask leadTask : leadTasks) {
+                leadTask.setLeadOffer(null);
+                leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
+                taskMap.put(leadTask.getId(), leadTask);
+            }
         }
+
         return taskMap;
     }
 

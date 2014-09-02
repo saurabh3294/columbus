@@ -294,7 +294,7 @@ public class Project extends BaseModel {
     @Column(name = "PROJECT_STATUS_ID")
     private int                     projectStatusId;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name = "PROJECT_STATUS_ID", insertable = false, updatable = false)
     private ProjectStatusMaster     projectStatusMaster;
 
