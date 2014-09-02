@@ -242,10 +242,6 @@ public class PortfolioListing extends BaseModel{
     @JsonUnwrapped
     private Property                         property;
 
-    @FieldMetaInfo(displayName = "Deleted Flag", description = "Whether a listing has been soft deleted")
-    @Column(name = "deleted_flag")
-    public Boolean                           deletedFlag  =  false;
-
     @FieldMetaInfo(displayName = "Reason", description = "Reason for deleting a listing")
     @Column(name = "reason")
     @JsonIgnore
@@ -699,14 +695,6 @@ public class PortfolioListing extends BaseModel{
 
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
-    }
-
-    public Boolean getDeleted_flag() {
-        return deletedFlag;
-    }
-
-    public void setDeleted_flag(Boolean deletedFlag) {
-        this.deletedFlag = deletedFlag;
     }
 
     public String getReason() {
