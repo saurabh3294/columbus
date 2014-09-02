@@ -46,6 +46,9 @@ public class NotificationGeneratedService {
     @Autowired
     private NotificationMediumService                        notificationMediumService;
 
+    @Autowired
+    private NotificationMessageService                       notificationMessageService;
+
     public List<NotificationGenerated> getScheduledAndNonReadyNotifications() {
         List<NotificationGenerated> notificationGenerateds = notificationGeneratedDao
                 .findByNotificationStatusAndScheduleTimeGreaterThanOrNotificationStatusAndScheduleTimeIsNull(
@@ -142,6 +145,9 @@ public class NotificationGeneratedService {
     public Iterable<NotificationGenerated> save(List<NotificationGenerated> nGenerateds) {
         for (NotificationGenerated notificationGenerated : nGenerateds) {
             populateDataBeforeSave(notificationGenerated);
+            if (notificationGenerated.getNotificationMessage() != null) {
+                notificationGenerated.getNotificationMessage().setNotificationStatus(NotificationStatus.Generated);
+            }                
         }
         return notificationGeneratedDao.save(nGenerateds);
 
@@ -149,6 +155,9 @@ public class NotificationGeneratedService {
 
     @Transactional
     public NotificationGenerated save(NotificationGenerated notificationGenerated) {
+        if (notificationGenerated.getNotificationMessage() != null) {
+            notificationGenerated.getNotificationMessage().setNotificationStatus(NotificationStatus.Generated);
+        }
         populateDataBeforeSave(notificationGenerated);
         return notificationGeneratedDao.save(notificationGenerated);
     }
@@ -219,25 +228,28 @@ public class NotificationGeneratedService {
         logger.debug(Serializer.toJson(notificationMessage));
         NotificationTypePayload payload = notificationMessage.getNotificationMessagePayload()
                 .getNotificationTypePayload();
-        Number objectId = (Number) payload.getPrimaryKeyValue();
-        if (objectId != null) {
-            nGenerated.setObjectId(objectId.intValue());
+        if (payload != null) {
+            Number objectId = (Number) payload.getPrimaryKeyValue();
+            if (objectId != null) {
+                nGenerated.setObjectId(objectId.intValue());
+            }
         }
-
         return nGenerated;
     }
 
-    public List<NotificationGenerated> createNotificationGenerated(List<NotificationMessage> nMessages, List<MediumType> mediumTypes) {
+    public List<NotificationGenerated> createNotificationGenerated(
+            List<NotificationMessage> nMessages,
+            List<MediumType> mediumTypes) {
         if (mediumTypes == null) {
             return generateNotficationGenerated(nMessages);
         }
         List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
-        NotificationType notificationType = notificationTypeService.findDefaultNotificationType();
+        NotificationType defaultNotificationType = notificationTypeService.findDefaultNotificationType();
         for (MediumType medium : mediumTypes) {
             NotificationMedium nMedium = notificationMediumService.findNotificationMediumByMediumType(medium);
             for (NotificationMessage nMessage : nMessages) {
                 if (nMessage.getNotificationType() == null) {
-                    nMessage.setNotificationType(notificationType);
+                    nMessage.setNotificationType(defaultNotificationType);
                 }
                 NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);
                 nGenerated = save(nGenerated);
@@ -254,7 +266,12 @@ public class NotificationGeneratedService {
         List<NotificationMedium> nMediums = null;
         List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
         NotificationGenerated nGenerated = null;
+        NotificationType defaultNotificationType = notificationTypeService.findDefaultNotificationType();
         for (NotificationMessage nMessage : nMessages) {
+
+            if (nMessage.getNotificationType() == null) {
+                nMessage.setNotificationType(defaultNotificationType);
+            }
             nType = nMessage.getNotificationType();
             nMediums = typeMediumMapping.get(nType.getId());
             // TODO handle the scenario when no mapping of notification medium

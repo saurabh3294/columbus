@@ -27,6 +27,7 @@ public class EmailSender implements MediumSender {
          * unnecessary emails to actual users
          */
         emailId = "midl-team+test@proptiger.com";
+        // emailId = "sahil.garg@proptiger.com";
         
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(emailId);
         logger.debug("Sending email " + mailBody.getBody() + " to : " + emailId);
