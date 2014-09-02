@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,6 +18,7 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
+import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.exception.ProAPIException;
 
@@ -31,23 +33,29 @@ public class Notification extends BaseModel {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @ExcludeFromBeanCopy
     private int               id;
 
     @JsonIgnore
     @Column(name = "user_id")
+    @ExcludeFromBeanCopy
     private int               userId;
 
     @JsonIgnore
     @Column(name = "notification_type_id")
+    @ExcludeFromBeanCopy
     private int               notificationTypeId;
 
+    @ExcludeFromBeanCopy
     @Column(name = "object_id")
     private int               objectId;
 
     @Transient
+    @ExcludeFromBeanCopy
     private JsonNode          details;
 
     @JsonIgnore
+    @ExcludeFromBeanCopy
     @Column(name = "details")
     private String            stringDetails;
 
@@ -55,12 +63,14 @@ public class Notification extends BaseModel {
     private boolean           read;
 
     @Column(name = "created_at")
+    @ExcludeFromBeanCopy
     private Date              createdAt;
 
     @Column(name = "updated_at")
+    @ExcludeFromBeanCopy
     private Date              updatedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notification_type_id", insertable = false, updatable = false)
     private NotificationType  notificationType;
 

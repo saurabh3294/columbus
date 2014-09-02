@@ -95,6 +95,7 @@ public class LeadTask extends BaseModel {
 
     // XXX will also return notification for other objects with the same id
     @OneToMany(mappedBy = "objectId")
+    @JsonIgnore
     private List<Notification>              notifications;
 
     @Transient

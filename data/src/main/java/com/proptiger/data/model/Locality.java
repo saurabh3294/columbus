@@ -66,6 +66,7 @@ public class Locality extends BaseModel {
     @Transient
     @Deprecated
     @Field("CITY_ID")
+    @JsonIgnore
     private int                             cityId;
 
     @FieldMetaInfo(displayName = "Label", description = "Label")

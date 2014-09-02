@@ -125,7 +125,7 @@ public class LeadTaskService {
                         manageLeadTaskListingsOnUpdate(nextTaskId, taskDto.getNextTask().getListingIds());
                     }
                     Integer offerNextTaskId = nextTaskId == 0 ? null : nextTaskId;
-                    leadOfferService.updateLeadOfferTasks(leadTask.getLeadOfferId(), currentTaskId, offerNextTaskId);
+                    leadOfferService.updateLeadOfferTasks(savedTask.getLeadOffer(), currentTaskId, offerNextTaskId);
                 }
             }
             catch (IllegalAccessException | InvocationTargetException e) {
@@ -409,7 +409,7 @@ public class LeadTaskService {
             leadTask.setLeadOfferId(leadOfferId);
             leadTask = leadTaskDao.save(leadTask);
 
-            leadOfferService.updateLeadOfferTasks(leadOfferId, null, leadTask.getId());
+            leadOfferService.updateLeadOfferTasks(leadOffer, null, leadTask.getId());
         }
         else {
             throw new ProAPIException("Lead Task Already Exists");
@@ -484,16 +484,30 @@ public class LeadTaskService {
     }
 
     public Map<Integer, LeadTask> getTaskById(List<Integer> leadTaskIds) {
-        List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
-        LeadTask.populateTransientAttributes(leadTasks);
-
         Map<Integer, LeadTask> taskMap = new HashMap<>();
-        for (LeadTask leadTask : leadTasks) {
-            leadTask.setLeadOffer(null);
-            leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
-            taskMap.put(leadTask.getId(), leadTask);
+
+        if (leadTaskIds != null && !leadTaskIds.isEmpty()) {
+            List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
+            LeadTask.populateTransientAttributes(leadTasks);
+
+            for (LeadTask leadTask : leadTasks) {
+                leadTask.setLeadOffer(null);
+                leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
+                taskMap.put(leadTask.getId(), leadTask);
+            }
         }
+
         return taskMap;
+    }
+
+    /**
+     * method to get task object along with all associated objects
+     * 
+     * @param taskId
+     * @return
+     */
+    public LeadTask getTaskDetails(int taskId) {
+        return leadTaskDao.getLeadTaskDetails(taskId);
     }
 
     public static int getOfferdefaultleadtaskstatusmappingid() {

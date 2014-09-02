@@ -51,7 +51,12 @@ public class CronService {
     }
 
     @Scheduled(initialDelay = 30000, fixedDelay = 10000)
-    public void manageTaskOverDueNotification() {
-        notificationService.manageTaskOverDueNotification();
+    public void populateTaskOverDueNotification() {
+        notificationService.populateTaskOverDueNotification();
+    }
+
+    @Scheduled(cron = "0 0 9 * * ?")
+    public void sendTaskOverDueNotification() {
+        notificationService.sendTaskOverDueNotification();
     }
 }

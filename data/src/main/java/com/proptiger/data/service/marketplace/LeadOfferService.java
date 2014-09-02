@@ -27,6 +27,7 @@ import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
+import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
@@ -79,12 +80,12 @@ public class LeadOfferService {
     @Autowired
     private ListingService          listingService;
 
-
     @Autowired
     private LeadTaskStatusDao       leadTaskStatusDao;
 
     @Autowired
     private MailSender              mailSender;
+
     /**
      * 
      * @param integer
@@ -159,7 +160,7 @@ public class LeadOfferService {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
-                
+
                 Map<Integer, List<UserContactNumber>> contactNumbers = null;
                 if (fields.contains("client.contactNumbers")) {
                     contactNumbers = userService.getUserContactNumbers(clientIds);
@@ -181,11 +182,35 @@ public class LeadOfferService {
                 }
             }
 
-            if (fields.contains("offeredListings")) {
+            if (fields.contains("offeredListings") || fields.contains("countOfferedListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, List<LeadOfferedListing>> leadOfferedListings = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.setOfferedListings(leadOfferedListings.get(leadOffer.getId()));
+                    if (leadOfferedListings.get(leadOffer.getId()) != null) {
+                        leadOffer.setCountOfferedListings(leadOffer.getOfferedListings().size());
+                    }
+                    else {
+                        leadOffer.setCountOfferedListings(0);
+                    }
+                }
+            }
+
+            if (fields.contains("countMatchingListings")) {
+                List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
+                List<CountListingObject> leadMatchingListingsCount = leadOfferDao.getMatchingListingCount(leadOfferIds);
+
+                Map<Integer, Long> countMap = new HashMap<>();
+                for (CountListingObject countListingObject : leadMatchingListingsCount) {
+                    countMap.put(countListingObject.getLeadOfferId(), countListingObject.getCountListings());
+                }
+                for (LeadOffer leadOffer : leadOffers) {
+                    if (countMap.get(leadOffer.getId()) != null) {
+                        leadOffer.setCountMatchingListings((int) (long) countMap.get(leadOffer.getId()));
+                    }
+                    else {
+                        leadOffer.setCountMatchingListings(0);
+                    }
                 }
             }
 
@@ -225,8 +250,7 @@ public class LeadOfferService {
                     for (LeadTask leadTask : leadOffer.getTasks()) {
                         leadTask.setLeadOffer(null);
                     }
-                    
-                    
+
                 }
             }
 
@@ -417,7 +441,7 @@ public class LeadOfferService {
 
         List<Integer> listingIds = new ArrayList<>();
         List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
- 
+
         leadOfferInDB.setLastTask(null);
         leadOfferInDB.setNextTask(null);
 
@@ -489,8 +513,7 @@ public class LeadOfferService {
      * @param nextTaskId
      * @return
      */
-    public LeadOffer updateLeadOfferTasks(int leadOfferId, Integer lastTaskId, Integer nextTaskId) {
-        LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
+    public LeadOffer updateLeadOfferTasks(LeadOffer leadOffer, Integer lastTaskId, Integer nextTaskId) {
         leadOffer.setLastTaskId(lastTaskId);
         leadOffer.setNextTaskId(nextTaskId);
         leadOffer = leadOfferDao.save(leadOffer);
@@ -584,8 +607,8 @@ public class LeadOfferService {
         /*
          * for email task done status, it should be in claimed status
          */
-        if(!leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag()){
-            throw new BadRequestException("Lead offer "+leadOfferId+" is not in opened status");
+        if (!leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag()) {
+            throw new BadRequestException("Lead offer " + leadOfferId + " is not in opened status");
         }
         LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
                 LeadTaskName.Email.name(),
