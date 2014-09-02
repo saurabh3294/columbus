@@ -43,6 +43,9 @@ public class NotificationGeneratedService {
     @Autowired
     private NotificationTypeService                          notificationTypeService;
 
+    @Autowired
+    private NotificationMediumService                        notificationMediumService;
+
     public List<NotificationGenerated> getScheduledAndNonReadyNotifications() {
         List<NotificationGenerated> notificationGenerateds = notificationGeneratedDao
                 .findByNotificationStatusAndScheduleTimeGreaterThanOrNotificationStatusAndScheduleTimeIsNull(
@@ -224,6 +227,26 @@ public class NotificationGeneratedService {
         return nGenerated;
     }
 
+    public List<NotificationGenerated> createNotificationGenerated(List<NotificationMessage> nMessages, List<MediumType> mediumTypes) {
+        if (mediumTypes == null) {
+            return generateNotficationGenerated(nMessages);
+        }
+        List<NotificationGenerated> generatedList = new ArrayList<NotificationGenerated>();
+        NotificationType notificationType = notificationTypeService.findDefaultNotificationType();
+        for (MediumType medium : mediumTypes) {
+            NotificationMedium nMedium = notificationMediumService.findNotificationMediumByMediumType(medium);
+            for (NotificationMessage nMessage : nMessages) {
+                if (nMessage.getNotificationType() == null) {
+                    nMessage.setNotificationType(notificationType);
+                }
+                NotificationGenerated nGenerated = createNotificationGenerated(nMessage, nMedium);
+                nGenerated = save(nGenerated);
+                generatedList.add(nGenerated);
+            }
+        }
+        return generatedList;
+    }
+
     public List<NotificationGenerated> generateNotficationGenerated(List<NotificationMessage> nMessages) {
         Map<Integer, List<NotificationMedium>> typeMediumMapping = nMappingService.getTypeMediumMapping();
 
@@ -327,7 +350,8 @@ public class NotificationGeneratedService {
     }
 
     public void markNotificationGeneratedSuppressed(NotificationGenerated ntGenerated) {
-        notificationGeneratedDao
-                .updateNotificationStatusById(ntGenerated.getId(), NotificationStatus.SchedulerSuppressed);
+        notificationGeneratedDao.updateNotificationStatusById(
+                ntGenerated.getId(),
+                NotificationStatus.SchedulerSuppressed);
     }
 }
