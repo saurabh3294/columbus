@@ -18,7 +18,7 @@ import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.Notification;
-import com.proptiger.data.model.marketplace.NotificationType;
+import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
@@ -58,13 +58,13 @@ public class NotificationService {
      * 
      * @param userId
      * @return {@link List} of {@link Notification} grouped on the basis of
-     *         {@link NotificationType} in default order
+     *         {@link MarketplaceNotificationType} in default order
      */
-    public List<NotificationType> getNotificationsForUser(int userId) {
-        List<NotificationType> notificationTypes = notificationDao.getNotificationTypesForUser(userId);
+    public List<MarketplaceNotificationType> getNotificationsForUser(int userId) {
+        List<MarketplaceNotificationType> notificationTypes = notificationDao.getNotificationTypesForUser(userId);
 
-        List<NotificationType> finalNotificationTypes = new ArrayList<>();
-        for (NotificationType notificationType : notificationTypes) {
+        List<MarketplaceNotificationType> finalNotificationTypes = new ArrayList<>();
+        for (MarketplaceNotificationType notificationType : notificationTypes) {
             for (Notification notification : notificationType.getNotifications()) {
                 notification.setNotificationType(null);
             }
@@ -75,7 +75,7 @@ public class NotificationService {
             else {
                 for (Notification notification : notificationType.getNotifications()) {
                     Cloner cloner = new Cloner();
-                    NotificationType newNotificationType = cloner.deepClone(notificationType);
+                    MarketplaceNotificationType newNotificationType = cloner.deepClone(notificationType);
 
                     newNotificationType.setNotifications(Arrays.asList(notification));
                     finalNotificationTypes.add(newNotificationType);
@@ -84,7 +84,7 @@ public class NotificationService {
         }
 
         finalNotificationTypes = filterReadNotifications(finalNotificationTypes);
-        Collections.sort(finalNotificationTypes, NotificationType.getNotificationtypereversecomparator());
+        Collections.sort(finalNotificationTypes, MarketplaceNotificationType.getNotificationtypereversecomparator());
         return finalNotificationTypes;
     }
 
@@ -94,9 +94,9 @@ public class NotificationService {
      * @param notificationTypes
      * @return
      */
-    private List<NotificationType> filterReadNotifications(List<NotificationType> notificationTypes) {
-        List<NotificationType> finalNotificationTypes = new ArrayList<>();
-        for (NotificationType notificationType : notificationTypes) {
+    private List<MarketplaceNotificationType> filterReadNotifications(List<MarketplaceNotificationType> notificationTypes) {
+        List<MarketplaceNotificationType> finalNotificationTypes = new ArrayList<>();
+        for (MarketplaceNotificationType notificationType : notificationTypes) {
             if (notificationType.isIgnorable()) {
                 boolean read = true;
                 for (Notification notification : notificationType.getNotifications()) {
@@ -347,7 +347,7 @@ public class NotificationService {
         int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
         List<Notification> notifications = notificationDao.findByNotificationTypeId(notificationTypeId);
         Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
-        NotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
+        MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
         for (Integer userId : map.keySet()) {
             notificationType.setNotifications(map.get(userId));
             JsonNode message = SerializationUtils.objectToJson(notificationType);

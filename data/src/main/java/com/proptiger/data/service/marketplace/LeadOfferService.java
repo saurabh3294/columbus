@@ -166,19 +166,19 @@ public class LeadOfferService {
                 Map<Integer, User> users = userService.getUsers(clientIds);
 
                 Map<Integer, List<UserContactNumber>> contactNumbers = null;
-                if (fields.contains("client.contactNumbers")) {
+                if (fields.contains("contactNumbers")) {
                     contactNumbers = userService.getUserContactNumbers(clientIds);
                 }
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
-                    if (fields.contains("client.contactNumbers")) {
+                    if (fields.contains("contactNumbers")) {
                         leadOffer.getLead().getClient()
                                 .setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
                     }
                 }
             }
 
-            if (fields.contains("lead.requirements")) {
+            if (fields.contains("requirements")) {
                 List<Integer> leadIds = extractLeadIds(leadOffers);
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
                 for (LeadOffer leadOffer : leadOffers) {
