@@ -47,7 +47,7 @@ public class ListingController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         PaginatedResponse<List<Listing>> listings = listingService.getListings(userInfo.getUserIdentifier(), selector);
-        return new APIResponse(super.filterFieldsFromSelector(listings, selector), listings.getTotalCount());
+        return new APIResponse(super.filterFieldsFromSelector(listings.getResults(), selector), listings.getTotalCount());
     }
 
     @ResponseBody
