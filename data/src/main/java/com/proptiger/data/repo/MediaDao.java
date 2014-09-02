@@ -27,4 +27,13 @@ public interface MediaDao extends PagingAndSortingRepository<Media, Integer>, Me
             String objectType,
             MediaType MediaType,
             String objectMediaType);
+
+    @Query("SELECT M FROM Media AS M JOIN FETCH M.objectMediaType OMT JOIN FETCH OMT.objectType OT JOIN FETCH OMT.mediaType MT WHERE OT.type =?1 AND M.objectId IN ?2 AND M.active = 1 ORDER BY M.priority, M.id DESC")
+    public List<Media> getMediaForObjectIds(String objectType, List<Integer> objectIds);
+
+    @Query("SELECT M FROM Media AS M JOIN FETCH M.objectMediaType OMT JOIN FETCH OMT.objectType OT JOIN FETCH OMT.mediaType MT WHERE OT.type =?1 AND OMT.type = ?2 AND M.objectId IN ?3 AND M.active = 1 ORDER BY M.priority, M.id DESC")
+    public List<Media> getMediaForObjectIdsWithMediaType(
+            String objectType,
+            String objectMediaType,
+            List<Integer> objectIds);
 }

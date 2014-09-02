@@ -7,7 +7,6 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -118,6 +117,9 @@ public class ProjectService {
         }
     }
 
+    @Autowired
+    private MediaEnricher           mediaEnricher;
+    
     /**
      * This method will return the list of projects and total projects found
      * based on the selector.
@@ -150,33 +152,16 @@ public class ProjectService {
      * @param projectFilter
      * @return
      */
+    @SuppressWarnings("unchecked")
     public PaginatedResponse<List<Project>> getUpcomingNewProjects(String cityName, Selector projectFilter) {
-        Selector propertyListingSelector = new Selector();
-        propertyListingSelector.setPaging(projectFilter.getPaging());
+        String cityClause = "";
 
-        Map<String, List<Map<String, Map<String, Object>>>> filter = new HashMap<String, List<Map<String, Map<String, Object>>>>();
-
-        if (cityName == null || cityName.length() <= 0) {
-            List<Map<String, Map<String, Object>>> list = new ArrayList<>();
-            Map<String, Map<String, Object>> searchType = new HashMap<>();
-            Map<String, Object> filterCriteria = new HashMap<>();
-            filterCriteria.put("cityName", cityName);
-            searchType.put("equal", filterCriteria);
-            list.add(searchType);
-            filter.put("and", list);
+        if (cityName != null && !cityName.isEmpty()) {
+            cityClause = "{\"equal\":{\"cityLabel\":\"" + cityName + "\"}},";
         }
-        List<Map<String, Map<String, Object>>> projectList = new ArrayList<>();
-        Map<String, Map<String, Object>> projectSearchType = new HashMap<>();
-        Map<String, Object> projectFilterCriteria = new HashMap<>();
-        List<String> projectStatusList = new ArrayList<>();
-        projectStatusList.add("pre launch");
-        projectStatusList.add("not launched");
-        projectFilterCriteria.put("projectStatus", projectStatusList);
-        projectSearchType.put("equal", projectFilterCriteria);
-        projectList.add(projectSearchType);
-        filter.put("and", projectList);
-        propertyListingSelector.setFilters(filter);
-        return propertyService.getPropertiesGroupedToProjects(propertyListingSelector);
+
+        projectFilter.setFilters(new Gson().fromJson("{\"and\":[" + cityClause + "{\"equal\":{\"projectStatus\":[\"pre launch\",\"not launched\"]}}]}", Map.class));
+        return propertyService.getPropertiesGroupedToProjects(projectFilter);
     }
 
     /**
@@ -253,6 +238,10 @@ public class ProjectService {
          * Setting properites if needed.
          */
         if (fields == null || fields.contains("properties")) {
+            //Setting media (3D Images), if needed.
+            if (fields == null || fields.contains("media")) {
+                mediaEnricher.setPropertiesMedia(properties);
+            }
             project.setProperties(properties);
         }
 
@@ -673,5 +662,41 @@ public class ProjectService {
     @Cacheable(value = Constants.CacheName.PROJECT_INACTIVE)
     public Project getActiveOrInactiveProjectById(Integer projectId) {
         return projectDao.findActiveOrInactiveProjectById(projectId);
+    }
+
+    // This method will divide the Safety and Livability scores by 2 for backward compatibility
+    // of API's, as all these scores now will be based on 10 and earlier it was based on 5.
+    public void updateLifestyleScoresByHalf(List<Project> results) {
+        if (results == null || results.isEmpty()) {
+            return;
+        }
+        
+        for(Project project : results) {
+            if (project.getSafetyScore() != null) {
+                project.setSafetyScore(project.getSafetyScore()/2);
+            }
+            
+            if (project.getLivabilityScore() != null) {
+                project.setLivabilityScore(project.getLivabilityScore()/2);
+            }
+            
+            if (project.getProjectLocalityScore() != null) {
+                project.setProjectLocalityScore(project.getProjectLocalityScore()/2);
+            }
+            
+            if (project.getProjectSocietyScore() != null) {
+                project.setProjectSocietyScore(project.getProjectSocietyScore()/2);
+            }
+            
+            if (project.getLocality() != null) {
+                if (project.getLocality().getLivabilityScore() != null) {
+                    project.getLocality().setLivabilityScore(project.getLocality().getLivabilityScore()/2);
+                }
+                
+                if (project.getLocality().getSafetyScore() != null) {
+                    project.getLocality().setSafetyScore(project.getLocality().getSafetyScore()/2);
+                }
+            }
+        }
     }
 }

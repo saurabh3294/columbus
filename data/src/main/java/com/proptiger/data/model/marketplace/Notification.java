@@ -72,7 +72,7 @@ public class Notification extends BaseModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notification_type_id", insertable = false, updatable = false)
-    private NotificationType  notificationType;
+    private MarketplaceNotificationType  notificationType;
 
     @PrePersist
     private void prePersist() {
@@ -171,11 +171,11 @@ public class Notification extends BaseModel {
         this.updatedAt = updatedAt;
     }
 
-    public NotificationType getNotificationType() {
+    public MarketplaceNotificationType getNotificationType() {
         return notificationType;
     }
 
-    public void setNotificationType(NotificationType notificationType) {
+    public void setNotificationType(MarketplaceNotificationType notificationType) {
         this.notificationType = notificationType;
     }
 }

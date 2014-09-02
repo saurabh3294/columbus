@@ -17,6 +17,7 @@ import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.LeadTaskStatusName;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -26,6 +27,7 @@ import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
+import com.proptiger.data.model.marketplace.LeadOffer.CountListingObject;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
@@ -164,19 +166,19 @@ public class LeadOfferService {
                 Map<Integer, User> users = userService.getUsers(clientIds);
 
                 Map<Integer, List<UserContactNumber>> contactNumbers = null;
-                if (fields.contains("client.contactNumbers")) {
+                if (fields.contains("contactNumbers")) {
                     contactNumbers = userService.getUserContactNumbers(clientIds);
                 }
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
-                    if (fields.contains("client.contactNumbers")) {
+                    if (fields.contains("contactNumbers")) {
                         leadOffer.getLead().getClient()
                                 .setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
                     }
                 }
             }
 
-            if (fields.contains("lead.requirements")) {
+            if (fields.contains("requirements")) {
                 List<Integer> leadIds = extractLeadIds(leadOffers);
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
                 for (LeadOffer leadOffer : leadOffers) {
@@ -184,11 +186,35 @@ public class LeadOfferService {
                 }
             }
 
-            if (fields.contains("offeredListings")) {
+            if (fields.contains("offeredListings") || fields.contains("countOfferedListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
                 Map<Integer, List<LeadOfferedListing>> leadOfferedListings = getLeadOfferedListing(leadOfferIds);
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.setOfferedListings(leadOfferedListings.get(leadOffer.getId()));
+                    if (leadOfferedListings.get(leadOffer.getId()) != null) {
+                        leadOffer.setCountOfferedListings(leadOffer.getOfferedListings().size());
+                    }
+                    else {
+                        leadOffer.setCountOfferedListings(0);
+                    }
+                }
+            }
+
+            if (fields.contains("countMatchingListings")) {
+                List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
+                List<CountListingObject> leadMatchingListingsCount = leadOfferDao.getMatchingListingCount(leadOfferIds);
+
+                Map<Integer, Long> countMap = new HashMap<>();
+                for (CountListingObject countListingObject : leadMatchingListingsCount) {
+                    countMap.put(countListingObject.getLeadOfferId(), countListingObject.getCountListings());
+                }
+                for (LeadOffer leadOffer : leadOffers) {
+                    if (countMap.get(leadOffer.getId()) != null) {
+                        leadOffer.setCountMatchingListings((int) (long) countMap.get(leadOffer.getId()));
+                    }
+                    else {
+                        leadOffer.setCountMatchingListings(0);
+                    }
                 }
             }
 
@@ -577,10 +603,16 @@ public class LeadOfferService {
      * @param mailDetails2
      * @return
      */
-    public LeadOffer updateLeadOfferForEmailTask(int leadOfferId, Integer userId, SenderDetail senderDetails) {
-        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
+    public LeadOffer updateLeadOfferForEmailTask(int leadOfferId, ActiveUser activeUser, SenderDetail senderDetails) {
+        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, activeUser.getUserIdentifier());
         if (leadOfferInDB == null) {
             throw new ResourceNotAvailableException(ResourceType.LEAD_OFFER, ResourceTypeAction.UPDATE);
+        }
+        /*
+         * for email task done status, it should be in claimed status
+         */
+        if (!leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag()) {
+            throw new BadRequestException("Lead offer " + leadOfferId + " is not in opened status");
         }
         LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
                 LeadTaskName.Email.name(),
@@ -614,7 +646,7 @@ public class LeadOfferService {
             throw new BadRequestException("Invalid mail details");
         }
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
-                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo());
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername());
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }

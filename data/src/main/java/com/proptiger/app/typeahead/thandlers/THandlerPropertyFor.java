@@ -10,8 +10,8 @@ import com.proptiger.data.pojo.Selector;
 
 public class THandlerPropertyFor extends RootTHandler {
 
-    private String genericURLPropForSale    = "%s/property-sale&s";
-    private String genericURLPropForResale    = "%s/property-sale&s/filters?listingType=true";
+    private String genericURLPropForSale    = "%s/property-sale";
+    private String genericURLPropForResale    = "%s/property-sale/filters?listingType=true";
 
 //    private String genericURLApttForSale    = "%s/apartments-flats-sale";
 //    private String genericURLVillForSale    = "%s/villas-sale";

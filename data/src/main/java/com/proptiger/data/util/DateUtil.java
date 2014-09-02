@@ -3,7 +3,10 @@ package com.proptiger.data.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -26,6 +29,49 @@ public class DateUtil {
 
     public static final int secondsInADay       = 86400;
 
+    public static Date addHours(Date baseDate, int hoursToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.HOUR, hoursToAdd);
+        return calendar.getTime();
+    }
+
+    public static Date addMinutes(Date baseDate, int minutesToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.MINUTE, minutesToAdd);
+        return calendar.getTime();
+    }
+    
+    public static Date addSeconds(Date baseDate, int secondsToAdd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(baseDate);
+        calendar.add(Calendar.SECOND, secondsToAdd);
+        return calendar.getTime();
+    }
+
+    public static Date getFirstDayOfCurrentMonth(Date currentDate) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+
+        return cal.getTime();
+    }
+    
+    public static Date getMaxDate(List<Date> dates) {
+        if (dates == null || dates.isEmpty()) {
+            return null;
+        }
+        Collections.sort(dates, new Comparator<Date>(){          
+            @Override
+            public int compare(Date o1, Date o2) {
+                return o2.compareTo(o1);
+            }
+        });
+        return dates.get(0);
+    }
+    
     /**
      * @return {@link Date} date in YYYY-dd-mm format
      * 

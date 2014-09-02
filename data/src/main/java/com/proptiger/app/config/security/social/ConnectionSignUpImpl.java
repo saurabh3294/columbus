@@ -1,8 +1,5 @@
 package com.proptiger.app.config.security.social;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionKey;
@@ -19,6 +16,8 @@ import com.proptiger.data.service.user.UserService;
  * 
  */
 public final class ConnectionSignUpImpl implements ConnectionSignUp {
+    public static final String PROFILE_IMAGE_FORMAT = ".jpg";
+
     @Autowired
     private UserService userService;
 

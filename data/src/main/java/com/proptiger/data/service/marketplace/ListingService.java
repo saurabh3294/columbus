@@ -12,9 +12,6 @@ import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +27,7 @@ import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
@@ -64,6 +61,10 @@ public class ListingService {
 
     @Autowired
     private PropertyDao           propertyDao;
+   
+    public Listing getListingByListingId(Integer listingId) {
+        return listingDao.findOne(listingId);
+    }
 
     /**
      * Create a new listing, apply some validations before create.
@@ -185,11 +186,12 @@ public class ListingService {
      * @param userId
      * @return
      */
-    public List<Listing> getListings(Integer userId, FIQLSelector selector) {
-        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), new Sort(
-                Direction.DESC,
-                "id"));
-        List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
+    public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector) {
+        selector.addAndConditionToFilter("sellerId==" + userId).addAndConditionToFilter("status==" + Status.Active)
+                .addAndConditionToFilter("property.project.version==" + DataVersion.Website);
+        PaginatedResponse<List<Listing>> listingsPaginated = listingDao.getListings(selector);
+
+        List<Listing> listings = listingsPaginated.getResults();
         String fields = selector.getFields();
         if(fields != null){
             if (fields.contains("currentListingPrice")){
@@ -205,14 +207,8 @@ public class ListingService {
                     }
                 }
             }
-       }
-        if(fields == null || !fields.contains("property")){
-            //due to explicit join in query it would be fetched so if not asked then set this to null
-            for(Listing l: listings){
-                l.setProperty(null);    
-            }
         }
-        return listings;
+        return listingsPaginated;
     }
 
     private void populateListingPricesInListings(List<Listing> listings, List<ListingPrice> listingPrices) {
@@ -287,5 +283,9 @@ public class ListingService {
             }
         }
         return listingIdToAmenitiesMap;
+    }
+
+    public ListingPrice getLatestListingPrice(Integer propertyId) {
+        return listingDao.getListingPrice(propertyId);
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.marketplace.Notification;
-import com.proptiger.data.model.marketplace.NotificationType;
+import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 
 /**
  * 
@@ -18,8 +18,8 @@ import com.proptiger.data.model.marketplace.NotificationType;
  */
 public interface NotificationDao extends JpaRepository<Notification, Integer> {
     @Query(
-            value = "SELECT DISTINCT NT FROM NotificationType NT INNER JOIN FETCH NT.notifications N WHERE N.userId = ?1")
-    public List<NotificationType> getNotificationTypesForUser(int userId);
+            value = "SELECT DISTINCT NT FROM MarketplaceNotificationType NT INNER JOIN FETCH NT.notifications N WHERE N.userId = ?1")
+    public List<MarketplaceNotificationType> getNotificationTypesForUser(int userId);
 
     @Modifying
     @Transactional

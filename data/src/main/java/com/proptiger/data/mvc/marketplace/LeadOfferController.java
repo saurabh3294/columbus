@@ -89,7 +89,7 @@ public class LeadOfferController extends BaseController {
             @RequestBody SenderDetail senderDetails,
             @PathVariable int leadOfferId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        LeadOffer leadOffer = leadOfferService.updateLeadOfferForEmailTask(leadOfferId, activeUser.getUserIdentifier(), senderDetails);
+        LeadOffer leadOffer = leadOfferService.updateLeadOfferForEmailTask(leadOfferId, activeUser, senderDetails);
         return new APIResponse(leadOffer);
     }
 }

@@ -140,7 +140,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 groupByList.add(root.get(fieldName));
                 criteriaQuery.groupBy(groupByList);
                 addToFields(selector, fieldName);
-                Expression<?> expression = createExpression(fieldName);
+                Expression<?> expression = createExpression(fieldName, false);
                 // expression might be null for a field of composite classes
                 if (expression != null) {
                     if (criteriaQuery.getSelection() != null) {
@@ -160,7 +160,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     protected void buildSelectClause(FIQLSelector selector) {
         if (selector != null && selector.getFields() != null && !selector.getFields().isEmpty()) {
             for (String fieldName : selector.getFields().split(",")) {
-                Expression<?> exp = createExpression(fieldName);
+                Expression<?> exp = createExpression(fieldName, true);
                 if (exp != null) {
                     addSelection(exp);
                 }
@@ -170,7 +170,7 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
         }
     }
 
-    private Expression<?> createExpression(String fieldName) {
+    private Expression<?> createExpression(String fieldName, boolean isSelectExp) {
         String prefix = parseAggregateFunctionFromField(fieldName);
         String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         Expression<?> expression = null;
@@ -258,11 +258,13 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                     expression = path;
                 }
                 else {
-                    /*
-                     * if direct field in model then create expression otherwise
-                     * expression will be null
-                     */
-                    if (fieldMetaIfo.isFieldInModel() && !fieldMetaIfo.isDirectFieldInModel()) {
+                    if (!isSelectExp) {
+                        expression = root.get(fieldName);
+                    }
+                    else if (fieldMetaIfo.isFieldInModel() && !fieldMetaIfo.isDirectFieldInModel()) {
+                        /*
+                         * if field in model and not direct field then create expression
+                         */
                         expression = root.get(fieldName);
                     }
                 }
@@ -330,13 +332,13 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 Order order = null;
                 Expression<?> exp = null;
                 if (fieldName.startsWith("-")) {
-                    exp = createExpression(fieldName.substring(1));
+                    exp = createExpression(fieldName.substring(1), false);
                     if (exp != null) {
                         order = criteriaBuilder.desc(exp);
                     }
                 }
                 else {
-                    exp = createExpression(fieldName);
+                    exp = createExpression(fieldName, false);
                     if (exp != null) {
                         order = criteriaBuilder.asc(exp);
                     }
