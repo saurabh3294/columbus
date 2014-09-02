@@ -9,11 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
@@ -40,19 +42,29 @@ import com.rits.cloning.Cloner;
 @Service
 public class NotificationService {
     @Autowired
-    private NotificationDao     notificationDao;
+    private NotificationDao            notificationDao;
 
     @Autowired
-    private NotificationTypeDao notificationTypeDao;
+    private NotificationTypeDao        notificationTypeDao;
 
     @Autowired
-    private LeadTaskDao         taskDao;
+    private LeadTaskDao                taskDao;
 
     @Autowired
-    private LeadOfferDao        leadOfferDao;
+    private LeadOfferDao               leadOfferDao;
 
     @Autowired
-    private LeadTaskService     leadTaskService;
+    private LeadTaskService            leadTaskService;
+
+    private static final List<Integer> allMasterTaskIdsButCall = new ArrayList<>();
+
+    static {
+        for (LeadTaskName leadTask : LeadTaskName.values()) {
+            if (!leadTask.equals(LeadTaskName.Call)) {
+                allMasterTaskIdsButCall.add(leadTask.getId());
+            }
+        }
+    }
 
     /**
      * 
@@ -150,12 +162,7 @@ public class NotificationService {
         if (nextTask != null) {
             Date scheduledTime = nextTask.getScheduledFor();
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)) {
-                Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
-                        nextTask.getId(),
-                        notificationTypeId);
-                if (notification == null) {
-                    createTaskNotification(nextTask, notificationTypeId);
-                }
+                createNotificationForTask(notificationTypeId, nextTask, false);
                 validTaskIdForNotification = nextTask.getId();
             }
         }
@@ -165,19 +172,24 @@ public class NotificationService {
     /**
      * manages task due notifications
      */
-    public void manageTaskDueNotification() {
+    public void manageCallDueNotification() {
         Date validStartTime = new Date();
-        Date validEndTime = getTaskDueEndScheduledTime();
+        Date validEndTime = getCallDueEndScheduledTime();
         int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
 
         List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
                 validStartTime,
                 validEndTime,
-                notificationTypeId);
+                notificationTypeId,
+                Arrays.asList(LeadTaskName.Call.getId()));
         for (LeadOffer leadOffer : leadOffers) {
-            manageTaskDueNotificationForLeadOffer(leadOffer.getId());
+            manageCallDueNotificationForLeadOffer(leadOffer.getId());
         }
-        notificationDao.deleteTaskNotificationNotScheduledBetween(validStartTime, validEndTime, notificationTypeId);
+        notificationDao.deleteTaskNotificationNotScheduledBetween(
+                validStartTime,
+                validEndTime,
+                notificationTypeId,
+                Arrays.asList(LeadTaskName.Call.getId()));
     }
 
     /**
@@ -187,7 +199,87 @@ public class NotificationService {
      * @param leadOfferId
      */
     @Transactional
-    private void manageTaskDueNotificationForLeadOffer(int leadOfferId) {
+    private void manageCallDueNotificationForLeadOffer(int leadOfferId) {
+        LeadOffer leadOffer = leadOfferDao.getLock(leadOfferId);
+
+        Date validStartTime = new Date();
+        Date validEndTime = getCallDueEndScheduledTime();
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+
+        int validTaskIdForNotification = 0;
+
+        LeadTask nextTask = leadOffer.getNextTask();
+        if (nextTask != null) {
+            Date scheduledTime = nextTask.getScheduledFor();
+            if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
+                    && !(leadOffer.getLastTask() == null && nextTask.getTaskStatusId() == LeadTaskService
+                            .getOfferdefaultleadtaskstatusmappingid())) {
+                createNotificationForTask(notificationTypeId, nextTask, true);
+                validTaskIdForNotification = nextTask.getId();
+            }
+        }
+        deleteInvalidNotificationForLeadOffer(leadOfferId, validTaskIdForNotification, notificationTypeId);
+    }
+
+    /**
+     * 
+     * 
+     * @param notificationTypeId
+     * @param nextTask
+     * @param sendNotification
+     * @return
+     */
+    private Notification createNotificationForTask(int notificationTypeId, LeadTask nextTask, boolean sendNotification) {
+        Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
+                nextTask.getId(),
+                notificationTypeId);
+        if (notification == null) {
+            createTaskNotification(nextTask, notificationTypeId);
+            if (sendNotification) {
+                // XXX NOTIFICATION TO BE SENT HERE
+            }
+        }
+
+        LeadTask toBePersisted = leadTaskService.getTaskDetails(nextTask.getId());
+        toBePersisted.unlinkCircularLoop();
+        return createNotification(
+                toBePersisted.getLeadOffer().getAgentId(),
+                notificationTypeId,
+                toBePersisted.getId(),
+                SerializationUtils.objectToJson(toBePersisted));
+    }
+
+    /**
+     * manages task overdue notifications
+     */
+    public void populateTaskDueNotification() {
+        Date validStartTime = new Date();
+        Date validEndTime = getTaskDueEndScheduledTime();
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+
+        List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
+                validStartTime,
+                validEndTime,
+                notificationTypeId,
+                allMasterTaskIdsButCall);
+        for (LeadOffer leadOffer : leadOffers) {
+            populateTaskDueNotificationForLeadOffer(leadOffer.getId());
+        }
+        notificationDao.deleteTaskNotificationNotScheduledBetween(
+                validStartTime,
+                validEndTime,
+                notificationTypeId,
+                allMasterTaskIdsButCall);
+    }
+
+    /**
+     * manages task due notification for one single lead offer... gets lock on
+     * lead offer to avoid race conditions
+     * 
+     * @param leadOfferId
+     */
+    @Transactional
+    private void populateTaskDueNotificationForLeadOffer(int leadOfferId) {
         LeadOffer leadOffer = leadOfferDao.getLock(leadOfferId);
 
         Date validStartTime = new Date();
@@ -199,20 +291,11 @@ public class NotificationService {
         LeadTask nextTask = leadOffer.getNextTask();
         if (nextTask != null) {
             Date scheduledTime = nextTask.getScheduledFor();
-            if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
-                    && !(leadOffer.getLastTask() == null && nextTask.getTaskStatusId() == LeadTaskService
-                            .getOfferdefaultleadtaskstatusmappingid())) {
-                Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
-                        nextTask.getId(),
-                        notificationTypeId);
-                if (notification == null) {
-                    createTaskNotification(nextTask, notificationTypeId);
-                    // XXX NOTIFICATION TO BE SENT HERE
-                }
+            if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)) {
+                createNotificationForTask(notificationTypeId, nextTask, false);
                 validTaskIdForNotification = nextTask.getId();
             }
         }
-
         deleteInvalidNotificationForLeadOffer(leadOfferId, validTaskIdForNotification, notificationTypeId);
     }
 
@@ -260,15 +343,54 @@ public class NotificationService {
      * 
      * @return
      */
-    private Date getTaskDueEndScheduledTime() {
+    private Date getCallDueEndScheduledTime() {
         return new Date(new Date().getTime() + 1000
                 * (PropertyReader.getRequiredPropertyAsType(
-                        PropertyKeys.MARKETPLACE_DUE_TASK_NOTIFICATION_DURATION,
+                        PropertyKeys.MARKETPLACE_CALL_DUE_NOTIFICATION_DURATION,
                         Integer.class)));
     }
 
+    /**
+     * gets the time upto which task must be scheduled in order for the client
+     * to get notified
+     * 
+     * @return
+     */
+    private Date getTaskDueEndScheduledTime() {
+        DateTime finalDateTime;
+        DateTime dateTime = new DateTime();
+
+        DateTime beginningOfDay = dateTime.withTimeAtStartOfDay();
+        DateTime mark1 = beginningOfDay.plusSeconds(PropertyReader.getRequiredPropertyAsType(
+                PropertyKeys.MARKETPLACE_TASK_DUE_NOTIFICATION_TIME1,
+                Integer.class));
+        DateTime mark2 = beginningOfDay.plusSeconds(PropertyReader.getRequiredPropertyAsType(
+                PropertyKeys.MARKETPLACE_TASK_DUE_NOTIFICATION_TIME2,
+                Integer.class));
+
+        if (dateTime.isBefore(mark1)) {
+            finalDateTime = mark2.minusDays(1).plusSeconds(
+                    PropertyReader.getRequiredPropertyAsType(
+                            PropertyKeys.MARKETPLACE_TASK_DUE_NOTIFICATION_DURATION2,
+                            Integer.class));
+        }
+        else if (dateTime.isBefore(mark2)) {
+            finalDateTime = mark1.plusSeconds(PropertyReader.getRequiredPropertyAsType(
+                    PropertyKeys.MARKETPLACE_TASK_DUE_NOTIFICATION_DURATION1,
+                    Integer.class));
+        }
+        else {
+            finalDateTime = mark2.plusSeconds(PropertyReader.getRequiredPropertyAsType(
+                    PropertyKeys.MARKETPLACE_TASK_DUE_NOTIFICATION_DURATION2,
+                    Integer.class));
+        }
+
+        return new Date(finalDateTime.getMillis());
+    }
+
     public void manageTaskNotificationForLeadOffer(int leadOfferId) {
-        manageTaskDueNotificationForLeadOffer(leadOfferId);
+        manageCallDueNotificationForLeadOffer(leadOfferId);
+        populateTaskDueNotificationForLeadOffer(leadOfferId);
         populateTaskOverDueNotificationForLeadOffer(leadOfferId);
     }
 
@@ -346,6 +468,21 @@ public class NotificationService {
     public void sendTaskOverDueNotification() {
         int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
         List<Notification> notifications = notificationDao.findByNotificationTypeId(notificationTypeId);
+        sendTaskNotificationToUsers(notificationTypeId, notifications);
+    }
+
+    /**
+     * method to send task overdue notification to user
+     */
+    public void sendTaskDueNotification() {
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+        List<Notification> notifications = notificationDao.findByNotificationTypeIdAndMasterTaskIdIn(
+                notificationTypeId,
+                allMasterTaskIdsButCall);
+        sendTaskNotificationToUsers(notificationTypeId, notifications);
+    }
+
+    private void sendTaskNotificationToUsers(int notificationTypeId, List<Notification> notifications) {
         Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
         NotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
         for (Integer userId : map.keySet()) {
