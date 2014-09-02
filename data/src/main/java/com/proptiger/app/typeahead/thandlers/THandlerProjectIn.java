@@ -2,9 +2,8 @@ package com.proptiger.app.typeahead.thandlers;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
-
 import com.google.gson.Gson;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Typeahead;
@@ -27,8 +26,8 @@ public class THandlerProjectIn extends RootTHandler {
     
     /* TODO :: ask to use filter usl or footer url if both are there */
     
-    private String localityFilter = "?locality=%s";
-    
+    private String localityFilter = "locality=%s";
+   
     @Override
     public List<Typeahead> getResults(String query, Typeahead typeahead, String city, int rows) {
         
@@ -40,19 +39,22 @@ public class THandlerProjectIn extends RootTHandler {
         results.add(getTopResult(query, typeahead, city));
 
         List<Locality> topLocalities = getTopLocalities(city);
-        String redirectURL;
+        String redirectURL, taLabel, taID;
         for (Locality locality : topLocalities) {
-            redirectURL = getRedirectUrl(this.getType().getText() + " ", city) + (String.format(localityFilter, locality.getLabel()));
-            results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), (this.getType().getText() + " " + locality.getLabel()), redirectURL));
+            redirectURL = getRedirectUrl(city);
+            redirectURL = addLocalityFilterToRedirectURL(redirectURL, locality.getLabel());
+            taID = this.getType().toString();
+            taLabel = (this.getType().getText() + " " + locality.getLabel());
+            results.add(getTypeaheadObjectByIdTextAndURL(taID, taLabel, redirectURL));
             if (results.size() == rows) {
                 break;
             }
         }
-
+        
         return results;
     }
 
-    private String getRedirectUrl(String templateText, String city) {
+    private String getRedirectUrl(String city) {
         String redirectUrl = "";
         TemplateTypes templateType = this.getType();
         switch (templateType) {
@@ -92,7 +94,7 @@ public class THandlerProjectIn extends RootTHandler {
 
     public Typeahead getTopResult(String query, Typeahead typeahead, String city) {
         String displayText = (this.getType().getText() + " " + city);
-        String redirectUrl = getRedirectUrl(this.getType().getText() + " ", city);
+        String redirectUrl = getRedirectUrl(city);
         return (getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
     }
     
@@ -102,5 +104,15 @@ public class THandlerProjectIn extends RootTHandler {
         List<Locality> topLocalities = localityService.getLocalities(selector).getResults();
         return topLocalities;
     }
-
+    
+    private String addLocalityFilterToRedirectURL(String redirectUrl, String localityLabel)
+    {
+        if(StringUtils.contains(redirectUrl, "?")){
+            redirectUrl += ("&" + String.format(localityFilter, localityLabel));
+        }
+        else{
+            redirectUrl += ("?" + String.format(localityFilter, localityLabel));
+        }
+        return redirectUrl;
+    }
 }
