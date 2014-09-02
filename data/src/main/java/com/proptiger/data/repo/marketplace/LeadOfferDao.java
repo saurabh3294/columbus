@@ -58,6 +58,6 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query(nativeQuery = true, value = "select * from marketplace.lead_offers where id = ?1 for update")
     public LeadOffer getLock(int ledOfferId);
 
-    @Query("SELECT NEW com.proptiger.data.model.marketplace.LeadOffer$CountListingObject(LO.id,countDistinct(LI)) from LeadOffer LO join LO.matchingListings LI join  LI.property LIP  join  LIP.project LIPP  join LIPP.builder  join  LIPP.locality where LO.id in (?1) and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' and LIPP.version='Website' group by LO")
+    @Query("SELECT NEW com.proptiger.data.model.marketplace.LeadOffer$CountListingObject(LO.id,count(LI)) from LeadOffer LO join LO.matchingListings LI join  LI.property LIP  join  LIP.project LIPP  join LIPP.builder  join  LIPP.locality where LO.id in (?1) and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' and LIPP.version='Website' group by LO")
     List<CountListingObject> getMatchingListingCount(List<Integer> leadOfferIds);
 }
