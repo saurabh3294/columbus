@@ -496,6 +496,16 @@ public class LeadTaskService {
         return taskMap;
     }
 
+    /**
+     * method to get task object along with all associated objects
+     * 
+     * @param taskId
+     * @return
+     */
+    public LeadTask getTaskDetails(int taskId) {
+        return leadTaskDao.getLeadTaskDetails(taskId);
+    }
+
     public static int getOfferdefaultleadtaskstatusmappingid() {
         return offerDefaultLeadTaskStatusMappingId;
     }
