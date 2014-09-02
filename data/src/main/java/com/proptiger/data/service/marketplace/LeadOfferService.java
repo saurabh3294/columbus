@@ -146,17 +146,13 @@ public class LeadOfferService {
      * @return
      */
     public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector) {
-        if (selector == null) {
-            selector = new FIQLSelector();
-        }
-
-        List<LeadOffer> leadOffers = leadOfferDao.getLeadOffersForAgent(agentId);
-        PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
+        selector.addAndConditionToFilter("agentId==" + agentId);
+        PaginatedResponse<List<LeadOffer>> leadOffersPaginated = leadOfferDao.getLeadOffers(selector);
 
         Set<String> fields = selector.getFieldSet();
-        enrichLeadOffers(leadOffers, fields);
+        enrichLeadOffers(leadOffersPaginated.getResults(), fields);
 
-        return paginatedResponse;
+        return leadOffersPaginated;
     }
 
     private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields) {
