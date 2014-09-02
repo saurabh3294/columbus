@@ -154,6 +154,9 @@ public class Property extends BaseModel {
     @Field("PROJECT_NAME")
     private String 			  projectName;
     
+    @Transient
+    private List<Media>       media;
+    
     public String getProjectName() {
 		return projectName;
 	}
@@ -362,5 +365,13 @@ public class Property extends BaseModel {
 
     public void populateMaxResaleOrPrimaryPrice() {
         this.maxResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
+    }
+
+    public List<Media> getMedia() {
+        return media;
+    }
+
+    public void setMedia(List<Media> media) {
+        this.media = media;
     }
 }
