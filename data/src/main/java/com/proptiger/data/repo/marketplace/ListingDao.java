@@ -14,7 +14,7 @@ import com.proptiger.data.model.Listing;
  * @author Rajeev Pandey
  *
  */
-public interface ListingDao extends JpaRepository<Listing, Integer> {
+public interface ListingDao extends JpaRepository<Listing, Integer>, ListingCustomDao {
 
     List<Listing> findBySellerIdAndStatus(Integer sellerId, Status status);
 

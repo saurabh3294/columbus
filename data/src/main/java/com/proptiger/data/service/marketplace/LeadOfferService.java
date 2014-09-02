@@ -145,17 +145,13 @@ public class LeadOfferService {
      * @return
      */
     public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector) {
-        if (selector == null) {
-            selector = new FIQLSelector();
-        }
-
-        List<LeadOffer> leadOffers = leadOfferDao.getLeadOffersForAgent(agentId);
-        PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
+        selector.addAndConditionToFilter("agentId==" + agentId);
+        PaginatedResponse<List<LeadOffer>> leadOffersPaginated = leadOfferDao.getLeadOffers(selector);
 
         Set<String> fields = selector.getFieldSet();
-        enrichLeadOffers(leadOffers, fields);
+        enrichLeadOffers(leadOffersPaginated.getResults(), fields);
 
-        return paginatedResponse;
+        return leadOffersPaginated;
     }
 
     private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields) {
@@ -165,17 +161,16 @@ public class LeadOfferService {
                 Map<Integer, User> users = userService.getUsers(clientIds);
                 
                 Map<Integer, List<UserContactNumber>> contactNumbers = null;
-                if (fields.contains("client.contactNumbers"))
-                {                   
-                    contactNumbers  = userService.getUserContactNumbers(clientIds);
+                if (fields.contains("client.contactNumbers")) {
+                    contactNumbers = userService.getUserContactNumbers(clientIds);
                 }
-                    for (LeadOffer leadOffer : leadOffers) {
-                        leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
-                        if (fields.contains("client.contactNumbers"))
-                        {
-                            leadOffer.getLead().getClient().setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
-                        }
+                for (LeadOffer leadOffer : leadOffers) {
+                    leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
+                    if (fields.contains("client.contactNumbers")) {
+                        leadOffer.getLead().getClient()
+                                .setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
                     }
+                }
             }
 
             if (fields.contains("lead.requirements")) {
@@ -226,9 +221,8 @@ public class LeadOfferService {
                     leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
                             new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
                             leadOffer.getAgentId()).getResults());
-                    
-                    for(LeadTask leadTask: leadOffer.getTasks())
-                    {
+
+                    for (LeadTask leadTask : leadOffer.getTasks()) {
                         leadTask.setLeadOffer(null);
                     }
                     
@@ -426,15 +420,15 @@ public class LeadOfferService {
  
         leadOfferInDB.setLastTask(null);
         leadOfferInDB.setNextTask(null);
-        
-        if(leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId())
-        {
-                if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
-                    for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
-                        listingIds.add(leadOfferedListing.getListingId());
-                    }
-                    offerListings(listingIds, leadOfferId, userId);
+
+        if (leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered
+                .getLeadOfferStatusId()) {
+            if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
+                for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
+                    listingIds.add(leadOfferedListing.getListingId());
                 }
+                offerListings(listingIds, leadOfferId, userId);
+            }
         }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
@@ -582,7 +576,7 @@ public class LeadOfferService {
      * @param mailDetails2
      * @return
      */
-    public LeadOffer updateLeadOfferForEmailTask(int leadOfferId,ActiveUser activeUser, SenderDetail senderDetails) {
+    public LeadOffer updateLeadOfferForEmailTask(int leadOfferId, ActiveUser activeUser, SenderDetail senderDetails) {
         LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, activeUser.getUserIdentifier());
         if (leadOfferInDB == null) {
             throw new ResourceNotAvailableException(ResourceType.LEAD_OFFER, ResourceTypeAction.UPDATE);
