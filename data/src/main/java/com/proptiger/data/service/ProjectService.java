@@ -7,7 +7,6 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -118,6 +117,9 @@ public class ProjectService {
         }
     }
 
+    @Autowired
+    private MediaEnricher           mediaEnricher;
+    
     /**
      * This method will return the list of projects and total projects found
      * based on the selector.
@@ -236,6 +238,10 @@ public class ProjectService {
          * Setting properites if needed.
          */
         if (fields == null || fields.contains("properties")) {
+            //Setting media (3D Images), if needed.
+            if (fields == null || fields.contains("media")) {
+                mediaEnricher.setPropertiesMedia(properties);
+            }
             project.setProperties(properties);
         }
 

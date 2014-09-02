@@ -7,7 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -164,7 +163,6 @@ public class Property extends BaseModel {
     @Field("PROJECT_NAME")
     private String 			  projectName;
     
-
     @Column(name = "OPTION_CATEGORY")
     @Enumerated(EnumType.STRING)
     private EntityType optionCategory;
@@ -186,6 +184,9 @@ public class Property extends BaseModel {
 
     @Column(name = "updated_at")
     private Date                 updatedAt;
+
+    @Transient
+    private List<Media>       media;
     
     public String getProjectName() {
 		return projectName;
@@ -467,4 +468,11 @@ public class Property extends BaseModel {
         return toCreate;
     }
 
+    public List<Media> getMedia() {
+        return media;
+    }
+
+    public void setMedia(List<Media> media) {
+        this.media = media;
+    }
 }

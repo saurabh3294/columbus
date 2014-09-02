@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +29,9 @@ import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.FieldsMapLoader;
+import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -44,18 +49,21 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PropertyService {
     @Autowired
-    private PropertyDao    propertyDao;
+    private PropertyDao          propertyDao;
 
     @Autowired
-    private ProjectService projectService;
+    private ProjectService       projectService;
 
     @Autowired
-    private ImageEnricher  imageEnricher;
+    private ImageEnricher        imageEnricher;
 
     @Autowired
-    private SolrDao        solrDao;
+    private SolrDao              solrDao;
 
-    private static int     ROWS_THRESHOLD = 200;
+    @Autowired
+    private EntityManagerFactory emf;
+
+    private static int           ROWS_THRESHOLD = 200;
 
     /**
      * Returns properties given a selector
@@ -263,10 +271,6 @@ public class PropertyService {
         return properties.get(0);
     }
 
-    public PaginatedResponse<List<Property>> getPropertiesFromDB(FIQLSelector selector) {
-        return propertyDao.getPropertiesFromDB(selector);
-    }
-
     /**
      * Tries to find a matching property from database based on other info
      * provided from database, if found used in listing otherwise create a
@@ -319,9 +323,27 @@ public class PropertyService {
             return;
         }
         List<Project> projects = new ArrayList<Project>();
-        for(Property property : properties) {
+        for (Property property : properties) {
             projects.add(property.getProject());
         }
         projectService.updateLifestyleScoresByHalf(projects);
     }
+
+    /**
+     * Get property objects from database using filters provided in fiql
+     * selector
+     * 
+     * @param selector
+     * @return
+     */
+    public PaginatedResponse<List<Property>> getPropertiesFromDB(FIQLSelector selector) {
+        PaginatedResponse<List<Property>> paginatedResponse = new PaginatedResponse<List<Property>>();
+        EntityManager entityManager = emf.createEntityManager();
+        AbstractQueryBuilder<Property> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Property.class);
+        builder.buildQuery(selector);
+        paginatedResponse.setResults(builder.retrieveResults());
+        entityManager.close();
+        return paginatedResponse;
+    }
+
 }

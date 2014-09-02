@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+<<<<<<< HEAD
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.enums.DataVersion;
@@ -29,6 +30,10 @@ import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
+=======
+import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.ListingPrice;
+>>>>>>> develop
 import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
 import com.proptiger.data.service.PropertyService;
@@ -61,8 +66,7 @@ public class ListingService {
 
     @Autowired
     private PropertyDao           propertyDao;
-
-
+   
     public Listing getListingByListingId(Integer listingId) {
         return listingDao.findOne(listingId);
     }
@@ -284,5 +288,9 @@ public class ListingService {
             }
         }
         return listingIdToAmenitiesMap;
+    }
+
+    public ListingPrice getLatestListingPrice(Integer propertyId) {
+        return listingDao.getListingPrice(propertyId);
     }
 }

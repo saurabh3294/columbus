@@ -28,8 +28,8 @@ public class SentNotificationLog extends BaseModel {
     @Column(name = "notification_type_id")
     private int               notificationTypeId;
 
-    @Column(name = "medium_type_id")
-    private int               mediumTypeId;
+    @Column(name = "notification_medium_id")
+    private int               notificationMediumId;
 
     @Column(name = "user_id")
     private Integer               userId;
@@ -38,9 +38,9 @@ public class SentNotificationLog extends BaseModel {
     @Temporal(TemporalType.TIMESTAMP)
     private Date              createdAt;
 
-    public SentNotificationLog(int ntTypeId, int mediumTypeId, Integer userId, Date date) {
+    public SentNotificationLog(int ntTypeId, int notificationMediumId, Integer userId, Date date) {
         this.notificationTypeId = ntTypeId;
-        this.mediumTypeId = mediumTypeId;
+        this.notificationMediumId = notificationMediumId;
         this.userId = userId;
         this.createdAt = date;
     }
@@ -53,12 +53,12 @@ public class SentNotificationLog extends BaseModel {
         this.notificationTypeId = notificationTypeId;
     }
 
-    public int getMediumTypeId() {
-        return mediumTypeId;
+    public int getNotificationMediumId() {
+        return notificationMediumId;
     }
 
-    public void setMediumTypeId(int mediumTypeId) {
-        this.mediumTypeId = mediumTypeId;
+    public void setNotificationMediumId(int notificationMediumId) {
+        this.notificationMediumId = notificationMediumId;
     }
 
     public int getUserId() {

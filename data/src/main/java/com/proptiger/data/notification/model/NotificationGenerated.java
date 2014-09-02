@@ -2,6 +2,7 @@ package com.proptiger.data.notification.model;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -30,14 +31,14 @@ public class NotificationGenerated extends BaseModel {
     /**
      * 
      */
-    private static final long serialVersionUID = 7829394463604901590L;
+    private static final long          serialVersionUID = 7829394463604901590L;
 
     @Id
     @GeneratedValue
     @Column(name = "id")
     private int                        id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "notification_message_id")
     private NotificationMessage        notificationMessage;
 
@@ -82,7 +83,7 @@ public class NotificationGenerated extends BaseModel {
     private NotificationMessagePayload notificationMessagePayload;
 
     @Column(name = "object_id")
-    private Integer                    objectId = 0;
+    private Integer                    objectId         = 0;
 
     @PreUpdate
     public void populatePreUpdateFields() {
