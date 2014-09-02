@@ -226,9 +226,9 @@ public class ProjectService {
          * Setting properites if needed.
          */
         if (fields == null || fields.contains("properties")) {
-            //Setting swf media (3D Images), if needed.
-            if (fields == null || fields.contains("SWFMedia")) {
-                mediaEnricher.setPropertiesSWFMedia(properties);
+            //Setting media (3D Images), if needed.
+            if (fields == null || fields.contains("media")) {
+                mediaEnricher.setPropertiesMedia(properties);
             }
             project.setProperties(properties);
         }

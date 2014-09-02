@@ -17,7 +17,7 @@ public class MediaEnricher {
     @Autowired
     private DocumentService documentService;
 
-    public void setPropertiesSWFMedia(List<Property> properties) {
+    public void setPropertiesMedia(List<Property> properties) {
         if (properties == null || properties.isEmpty()) {
             return;
         }
@@ -32,7 +32,7 @@ public class MediaEnricher {
             return;
         }
         for (Property property : properties) {
-            property.setSwfMedia(mediaMap.get(property.getPropertyId()));
+            property.setMedia(mediaMap.get(property.getPropertyId()));
         }
     }
 

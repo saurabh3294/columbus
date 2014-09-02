@@ -155,7 +155,7 @@ public class Property extends BaseModel {
     private String 			  projectName;
     
     @Transient
-    private List<Media>       swfMedia;
+    private List<Media>       media;
     
     public String getProjectName() {
 		return projectName;
@@ -367,11 +367,11 @@ public class Property extends BaseModel {
         this.maxResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
     }
 
-    public List<Media> getSwfMedia() {
-        return swfMedia;
+    public List<Media> getMedia() {
+        return media;
     }
 
-    public void setSwfMedia(List<Media> swfMedia) {
-        this.swfMedia = swfMedia;
+    public void setMedia(List<Media> media) {
+        this.media = media;
     }
 }
