@@ -22,10 +22,10 @@ import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
-import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.filter.FieldsMapLoader;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
@@ -314,4 +314,14 @@ public class PropertyService {
         return property;
     }
 
+    public void updateProjectsLifestyleScores(List<Property> properties) {
+        if (properties == null || properties.isEmpty()) {
+            return;
+        }
+        List<Project> projects = new ArrayList<Project>();
+        for(Property property : properties) {
+            projects.add(property.getProject());
+        }
+        projectService.updateLifestyleScoresByHalf(projects);
+    }
 }

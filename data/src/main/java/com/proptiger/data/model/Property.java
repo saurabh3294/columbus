@@ -95,7 +95,7 @@ public class Property extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Measure", description = "Measure")
     @Field(value = "MEASURE")
-    private String            measure = "sqft";
+    private String            measure = "sq ft";
 
     @FieldMetaInfo(displayName = "URL", description = "URL")
     @Field(value = "PROPERTY_URL")
@@ -125,8 +125,8 @@ public class Property extends BaseModel {
     @Transient
     private String            projectIdBedroom;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PROJECT_ID", nullable = false, insertable = false, updatable = false)
+    @ManyToOne
+    @JoinColumn(name = "PROJECT_ID", insertable = false, updatable = false)
     private Project           project;
 
     @Transient

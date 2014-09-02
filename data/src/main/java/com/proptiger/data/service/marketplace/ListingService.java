@@ -62,6 +62,11 @@ public class ListingService {
     @Autowired
     private PropertyDao           propertyDao;
 
+
+    public Listing getListingByListingId(Integer listingId) {
+        return listingDao.findOne(listingId);
+    }
+
     /**
      * Create a new listing, apply some validations before create.
      * 

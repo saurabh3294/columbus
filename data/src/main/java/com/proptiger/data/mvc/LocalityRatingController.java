@@ -41,9 +41,19 @@ public class LocalityRatingController extends BaseController {
             @PathVariable Integer localityId,
             @RequestBody LocalityRatings localityReview) {
         LocalityRatings createdRating = localityRatingService.createLocalityRating(null, localityId, localityReview);
+        localityRatingService.updateRatingsByHalf(createdRating);
         return new APIResponse(createdRating);
     }
 
+    @RequestMapping(value = { "data/v2/entity/locality/{localityId}/rating" }, method = RequestMethod.POST)
+    @ResponseBody
+    @DisableCaching
+    public APIResponse createLocalityRatingV2(
+            @PathVariable Integer localityId,
+            @RequestBody LocalityRatings localityReview) {
+        LocalityRatings createdRating = localityRatingService.createLocalityRating(null, localityId, localityReview);
+        return new APIResponse(createdRating);
+    }
     /**
      * Get locality rating for locality id done by user
      * 
@@ -59,9 +69,20 @@ public class LocalityRatingController extends BaseController {
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
         LocalityRatings rating = localityRatingService
                 .getLocalityRatingOfUser(userInfo.getUserIdentifier(), localityId);
+        localityRatingService.updateRatingsByHalf(rating);
         return new APIResponse(rating);
     }
 
+    @RequestMapping(value = { "data/v2/entity/user/locality/{localityId}/rating" }, method = RequestMethod.GET)
+    @ResponseBody
+    @DisableCaching
+    public APIResponse getLocalityRatingByUserV2(
+            @PathVariable Integer localityId,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        LocalityRatings rating = localityRatingService
+                .getLocalityRatingOfUser(userInfo.getUserIdentifier(), localityId);
+        return new APIResponse(rating);
+    }
     /**
      * This method will create locality rating for logged in user
      * 
@@ -74,6 +95,21 @@ public class LocalityRatingController extends BaseController {
     @ResponseBody
     @DisableCaching
     public APIResponse createLocalityRating(
+            @PathVariable Integer localityId,
+            @RequestBody LocalityRatings localityRating,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        LocalityRatings createdRating = localityRatingService.createLocalityRating(
+                userInfo.getUserIdentifier(),
+                localityId,
+                localityRating);
+        localityRatingService.updateRatingsByHalf(createdRating);
+        return new APIResponse(createdRating);
+    }
+    
+    @RequestMapping(value = { "data/v2/entity/user/locality/{localityId}/rating" }, method = RequestMethod.POST)
+    @ResponseBody
+    @DisableCaching
+    public APIResponse createLocalityRatingV2(
             @PathVariable Integer localityId,
             @RequestBody LocalityRatings localityRating,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {

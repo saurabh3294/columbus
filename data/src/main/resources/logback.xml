@@ -42,7 +42,7 @@
 		<level value="DEBUG" />
 	</logger>
 	
-	<root level="DEBUG">
+	<root level="INFO">
 		<appender-ref ref="dal" />
 		<appender-ref ref="STDOUT" />
 	</root>

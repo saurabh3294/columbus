@@ -71,6 +71,7 @@ public class GraphService {
         projectStatusMapping.put("not launched", "launch and upcoming");
         projectStatusMapping.put("launch", "launch and upcoming");
         projectStatusMapping.put("ready for possession", "ready for possession");
+        projectStatusMapping.put("completed", "ready for possession");
         projectStatusMapping.put("occupied", "ready for possession");
 
         Map<String, Map<Integer, Integer>> response = new HashMap<String, Map<Integer, Integer>>();
@@ -123,9 +124,12 @@ public class GraphService {
             key = projectStatusMapping.get(hashKey);
             if (key != null) {
                 data = response.get(key);
-                value = data.get(bed);
-                data.put(bed, value + it.get(hashKey));
-                response.put(key, data);
+                if(data != null){
+                    value = data.get(bed);
+                    data.put(bed, value + it.get(hashKey));
+                    response.put(key, data);
+                }
+
             }
         }
 

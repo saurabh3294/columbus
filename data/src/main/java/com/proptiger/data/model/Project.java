@@ -292,9 +292,11 @@ public class Project extends BaseModel {
     private int                     maxBedrooms;
 
     @Column(name = "PROJECT_STATUS_ID")
+    @JsonIgnore
     private int                     projectStatusId;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "PROJECT_STATUS_ID", insertable = false, updatable = false)
     private ProjectStatusMaster     projectStatusMaster;
 
@@ -341,7 +343,7 @@ public class Project extends BaseModel {
 
     @Transient
     @Field(value = "MEASURE")
-    private String                  propertySizeMeasure = "sqft";
+    private String                  propertySizeMeasure = "sq ft";
 
     @Transient
     @Field(value = "PROJECT_DOMINANT_UNIT_TYPE")
@@ -488,6 +490,22 @@ public class Project extends BaseModel {
     @Field(value = "PROJECT_LIVABILITY_SCORE")
     private Float                   livabilityScore;
 
+    @Transient
+    @Field(value = "PROJECT_LOCALITY_SCORE")
+    private Float                   projectLocalityScore;
+
+    @Transient
+    @Field(value = "PROJECT_SOCIETY_SCORE")
+    private Float                   projectSocietyScore;
+    
+    @Transient
+    @Field(value = "PROJECT_SAFETY_RANK")
+    private Integer                 projectSafetyRank;
+    
+    @Transient
+    @Field(value = "PROJECT_LIVABILITY_RANK")
+    private Integer                 projectLivabilityRank;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -736,6 +754,10 @@ public class Project extends BaseModel {
 
     public String getProjectStatus() {
         return projectStatus;
+    }
+    
+    public void setProjectStatus(String projectStatus) {
+        this.projectStatus = projectStatus;
     }
 
     @PostLoad
@@ -1179,5 +1201,37 @@ public class Project extends BaseModel {
 
     public void setVersion(DataVersion version) {
         this.version = version;
+    }
+
+    public Float getProjectLocalityScore() {
+        return projectLocalityScore;
+    }
+
+    public void setProjectLocalityScore(Float projectLocalityScore) {
+        this.projectLocalityScore = projectLocalityScore;
+    }
+
+    public Float getProjectSocietyScore() {
+        return projectSocietyScore;
+    }
+
+    public void setProjectSocietyScore(Float projectSocietyScore) {
+        this.projectSocietyScore = projectSocietyScore;
+    }
+
+    public Integer getProjectSafetyRank() {
+        return projectSafetyRank;
+    }
+
+    public void setProjectSafetyRank(Integer projectSafetyRank) {
+        this.projectSafetyRank = projectSafetyRank;
+    }
+
+    public Integer getProjectLivabilityRank() {
+        return projectLivabilityRank;
+    }
+
+    public void setProjectLivabilityRank(Integer projectLivabilityRank) {
+        this.projectLivabilityRank = projectLivabilityRank;
     }
 }
