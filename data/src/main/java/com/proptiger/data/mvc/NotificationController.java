@@ -30,8 +30,7 @@ public class NotificationController extends BaseController {
     @RequestMapping
     @ResponseBody
     public APIResponse getNotificationForUser() {
-        return new APIResponse(notificationService.getNotificationsForUser(Integer.parseInt(SecurityContextUtils
-                .getLoggedInUser().getUserId())));
+        return new APIResponse(notificationService.getNotificationsForUser(SecurityContextUtils.getLoggedInUserId()));
     }
 
     @RequestMapping(method = RequestMethod.PUT)

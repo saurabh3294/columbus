@@ -26,6 +26,7 @@ import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.UnauthorizedException;
 import com.rits.cloning.Cloner;
@@ -292,6 +293,9 @@ public class NotificationService {
         for (Notification notification : savedNotifications) {
             if (notification.getUserId() != userId) {
                 throw new UnauthorizedException();
+            }
+            else if (!notification.getNotificationType().isIgnorable()) {
+                throw new BadRequestException("Notification id " + notification.getId() + " can't be dismissed.");
             }
             else {
                 ExclusionAwareBeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
