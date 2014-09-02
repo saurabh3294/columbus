@@ -35,9 +35,31 @@ import com.proptiger.data.model.MasterLeadOfferStatus;
 @Entity
 @JsonInclude(Include.NON_EMPTY)
 @Table(name = "marketplace.lead_offers")
-@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@cycleId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@cycleId")
 public class LeadOffer extends BaseModel {
-    private static final long        serialVersionUID      = -4428374943776702328L;
+    private static final long serialVersionUID = -4428374943776702328L;
+
+    public static class CountListingObject {
+        private Integer leadOfferId;
+        private long countListings;
+        public Integer getLeadOfferId() {
+            return leadOfferId;
+        }
+        public void setLeadOfferId(Integer leadOfferId) {
+            this.leadOfferId = leadOfferId;
+        }
+        public long getCountListings() {
+            return countListings;
+        }
+        public void setCountListings(long countListings) {
+            this.countListings = countListings;
+        }
+        public CountListingObject(Integer leadOfferId, long countListings) {
+            super();
+            this.leadOfferId = leadOfferId;
+            this.countListings = countListings;
+        }                
+    }
 
     @Id
     @Column(name = "id")
@@ -52,19 +74,18 @@ public class LeadOffer extends BaseModel {
     private int                      agentId;
 
     @Column(name = "status_id")
-    private Integer                      statusId;
+    private Integer                  statusId;
 
     @Column(name = "cycle_id")
     @JsonIgnore
     private int                      cycleId;
 
     @Column(name = "previous_task_id")
-    private Integer lastTaskId;
-    
+    private Integer                  lastTaskId;
+
     @Column(name = "next_task_id")
     private Integer nextTaskId;
-    
-    
+
     @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "previous_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 lastTask;

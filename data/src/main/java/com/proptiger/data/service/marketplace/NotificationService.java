@@ -1,15 +1,20 @@
 package com.proptiger.data.service.marketplace;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.Notification;
@@ -17,9 +22,14 @@ import com.proptiger.data.model.marketplace.NotificationType;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
+import com.proptiger.data.repo.marketplace.NotificationTypeDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.SerializationUtils;
+import com.proptiger.exception.BadRequestException;
+import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.UnauthorizedException;
 import com.rits.cloning.Cloner;
 
 /**
@@ -30,16 +40,19 @@ import com.rits.cloning.Cloner;
 @Service
 public class NotificationService {
     @Autowired
-    private NotificationDao notificationDao;
+    private NotificationDao     notificationDao;
 
     @Autowired
-    private LeadTaskDao     taskDao;
+    private NotificationTypeDao notificationTypeDao;
 
     @Autowired
-    private LeadOfferDao    leadOfferDao;
+    private LeadTaskDao         taskDao;
 
     @Autowired
-    private LeadTaskService leadTaskService;
+    private LeadOfferDao        leadOfferDao;
+
+    @Autowired
+    private LeadTaskService     leadTaskService;
 
     /**
      * 
@@ -70,14 +83,40 @@ public class NotificationService {
             }
         }
 
+        finalNotificationTypes = filterReadNotifications(finalNotificationTypes);
         Collections.sort(finalNotificationTypes, NotificationType.getNotificationtypereversecomparator());
+        return finalNotificationTypes;
+    }
+
+    /**
+     * filters out read notifications
+     * 
+     * @param notificationTypes
+     * @return
+     */
+    private List<NotificationType> filterReadNotifications(List<NotificationType> notificationTypes) {
+        List<NotificationType> finalNotificationTypes = new ArrayList<>();
+        for (NotificationType notificationType : notificationTypes) {
+            if (notificationType.isIgnorable()) {
+                boolean read = true;
+                for (Notification notification : notificationType.getNotifications()) {
+                    read = read && notification.isRead();
+                }
+                if (!read) {
+                    finalNotificationTypes.add(notificationType);
+                }
+            }
+            else {
+                finalNotificationTypes.add(notificationType);
+            }
+        }
         return finalNotificationTypes;
     }
 
     /**
      * manages task overdue notifications
      */
-    public void manageTaskOverDueNotification() {
+    public void populateTaskOverDueNotification() {
         Date validStartTime = new Date(0);
         Date validEndTime = new Date();
         int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
@@ -87,7 +126,7 @@ public class NotificationService {
                 validEndTime,
                 notificationTypeId);
         for (LeadOffer leadOffer : leadOffers) {
-            manageTaskOverDueNotificationForLeadOffer(leadOffer.getId());
+            populateTaskOverDueNotificationForLeadOffer(leadOffer.getId());
         }
     }
 
@@ -98,7 +137,7 @@ public class NotificationService {
      * @param leadOfferId
      */
     @Transactional
-    private void manageTaskOverDueNotificationForLeadOffer(int leadOfferId) {
+    private void populateTaskOverDueNotificationForLeadOffer(int leadOfferId) {
         LeadOffer leadOffer = leadOfferDao.getLock(leadOfferId);
 
         Date validStartTime = new Date(0);
@@ -116,7 +155,6 @@ public class NotificationService {
                         notificationTypeId);
                 if (notification == null) {
                     createTaskNotification(nextTask, notificationTypeId);
-                    // XXX NOTIFICATION TO BE SENT HERE
                 }
                 validTaskIdForNotification = nextTask.getId();
             }
@@ -185,11 +223,32 @@ public class NotificationService {
      * @param notificationTypeId
      * @return
      */
+    @Transactional
     private Notification createTaskNotification(LeadTask leadTask, int notificationTypeId) {
+        leadTask = leadTaskService.getTaskDetails(leadTask.getId());
+        leadTask.unlinkCircularLoop();
+        return createNotification(
+                leadTask.getLeadOffer().getAgentId(),
+                notificationTypeId,
+                leadTask.getId(),
+                SerializationUtils.objectToJson(leadTask));
+    }
+
+    /**
+     * creates notification object in database
+     * 
+     * @param userId
+     * @param notificationTypeId
+     * @param objectId
+     * @param details
+     * @return
+     */
+    private Notification createNotification(int userId, int notificationTypeId, int objectId, JsonNode details) {
         Notification notification = new Notification();
         notification.setNotificationTypeId(notificationTypeId);
-        notification.setObjectId(leadTask.getId());
-        notification.setUserId(leadTask.getLeadOffer().getAgentId());
+        notification.setObjectId(objectId);
+        notification.setUserId(userId);
+        notification.setDetails(details);
 
         notification = notificationDao.save(notification);
         return notification;
@@ -210,7 +269,7 @@ public class NotificationService {
 
     public void manageTaskNotificationForLeadOffer(int leadOfferId) {
         manageTaskDueNotificationForLeadOffer(leadOfferId);
-        manageTaskOverDueNotificationForLeadOffer(leadOfferId);
+        populateTaskOverDueNotificationForLeadOffer(leadOfferId);
     }
 
     /**
@@ -229,5 +288,89 @@ public class NotificationService {
                 validTaskIdForNotification,
                 notificationTypeId);
         notificationDao.delete(notifications);
+    }
+
+    /**
+     * updates notification for a user
+     * 
+     * @param userId
+     * @param notifications
+     * @return
+     */
+    @Transactional
+    public List<Notification> updateNotificationsForUser(int userId, List<Notification> notifications) {
+        List<Notification> savedNotifications = notificationDao
+                .findByIdIn(getNotificationIdsFromNotifications(notifications));
+        Map<Integer, Notification> mappedNotification = getMappedNotifications(notifications);
+
+        for (Notification notification : savedNotifications) {
+            if (notification.getUserId() != userId) {
+                throw new UnauthorizedException();
+            }
+            else if (!notification.getNotificationType().isIgnorable()) {
+                throw new BadRequestException("Notification id " + notification.getId() + " can't be dismissed.");
+            }
+            else {
+                ExclusionAwareBeanUtilsBean beanUtilsBean = new ExclusionAwareBeanUtilsBean();
+                try {
+                    beanUtilsBean.copyProperties(notification, mappedNotification.get(notification.getId()));
+                }
+                catch (IllegalAccessException | InvocationTargetException e) {
+                    throw new ProAPIException("Error in copying notification", e);
+                }
+                notification = notificationDao.save(notification);
+            }
+        }
+        return savedNotifications;
+    }
+
+    private List<Integer> getNotificationIdsFromNotifications(List<Notification> notifications) {
+        List<Integer> notificationIds = new ArrayList<>();
+        for (Notification notification : notifications) {
+            notificationIds.add(notification.getId());
+        }
+        return notificationIds;
+    }
+
+    private Map<Integer, Notification> getMappedNotifications(List<Notification> notifications) {
+        Map<Integer, Notification> map = new HashMap<>();
+        for (Notification notification : notifications) {
+            map.put(notification.getId(), notification);
+        }
+        return map;
+    }
+
+    /**
+     * method to send task overdue notification to user
+     */
+    public void sendTaskOverDueNotification() {
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+        List<Notification> notifications = notificationDao.findByNotificationTypeId(notificationTypeId);
+        Map<Integer, List<Notification>> map = groupNotificationsByUser(notifications);
+        NotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
+        for (Integer userId : map.keySet()) {
+            notificationType.setNotifications(map.get(userId));
+            JsonNode message = SerializationUtils.objectToJson(notificationType);
+
+            System.out.println("SENDING NOTIFICATION TO USERID: " + userId + " MESSAGE: " + message);
+            // Send Notification To User
+        }
+    }
+
+    /**
+     * 
+     * @param notifications
+     * @return
+     */
+    private Map<Integer, List<Notification>> groupNotificationsByUser(List<Notification> notifications) {
+        Map<Integer, List<Notification>> map = new HashMap<>();
+        for (Notification notification : notifications) {
+            int userId = notification.getUserId();
+            if (!map.containsKey(userId)) {
+                map.put(userId, new ArrayList<Notification>());
+            }
+            map.get(userId).add(notification);
+        }
+        return map;
     }
 }

@@ -37,4 +37,8 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
             int notificationTypeId);
 
     public Notification findByObjectIdAndNotificationTypeId(int objectId, int notificationTypeId);
+
+    public List<Notification> findByNotificationTypeId(int notificationTypeId);
+
+    public List<Notification> findByIdIn(List<Integer> ids);
 }
