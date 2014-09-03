@@ -36,6 +36,6 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
             value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.offeredListingMappings TOLM INNER JOIN FETCH TOLM.offeredListing where LT.id IN (?1)")
     public List<LeadTask> getListingMappedTasksByTaskIds(List<Integer> taskIds);
 
-    @Query("select LT from LeadTask LT left join fetch LT.offeredListingMappings TOLM left join fetch TOLM.offeredListing LOL left join fetch LOL.listing LI join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.locality where LIPP.version = 'Website' and LI.status = 'Active' and LT.id in (?1)")
+    @Query("select LT from LeadTask LT left join fetch LT.offeredListingMappings TOLM left join fetch TOLM.offeredListing LOL left join fetch LOL.listing LI left join fetch LI.property LIP left join fetch LIP.project LIPP left join fetch LIPP.locality where LIPP.version = 'Website' and LI.status = 'Active' and LT.id in (?1)")
     public List<LeadTask> findById(List<Integer> leadTaskIds);
 }
