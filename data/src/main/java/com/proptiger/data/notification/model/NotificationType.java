@@ -18,7 +18,7 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
 
 @Entity
-@Table(name = "notification_type")
+@Table(name = "notification.notification_type")
 public class NotificationType extends BaseModel {
     
     /**

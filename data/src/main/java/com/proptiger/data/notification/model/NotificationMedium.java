@@ -17,7 +17,7 @@ import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.notification.enums.MediumType;
 
 @Entity
-@Table(name = "notification_medium")
+@Table(name = "notification.notification_medium")
 public class NotificationMedium extends BaseModel {
 
     /**

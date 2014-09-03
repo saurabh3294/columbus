@@ -11,7 +11,7 @@ import javax.persistence.Table;
 import com.proptiger.data.event.model.EventType;
 
 @Entity
-@Table(name = "event_type_to_notification_type_mapping")
+@Table(name = "notification.event_type_to_notification_type_mapping")
 public class EventTypeToNotificationTypeMapping {
 
     @Column(name = "id")

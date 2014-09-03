@@ -14,7 +14,7 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.SubscriptionType;
 
 @Entity
-@Table(name = "user_notification_type_subscription")
+@Table(name = "notification.user_notification_type_subscription")
 public class UserNotificationTypeSubscription extends BaseModel {
 
     /**

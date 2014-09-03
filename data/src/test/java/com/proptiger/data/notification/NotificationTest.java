@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.proptiger.data.notification.enums.MediumType;
+import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
@@ -53,7 +54,7 @@ public class NotificationTest extends AbstractTest {
         nMessage.setUserId(userId);
         NotificationMessagePayload payload = new NotificationMessagePayload();
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put("Template", template);
+        extraAttributes.put(Tokens.Template.name(), template);
         payload.setExtraAttributes(extraAttributes);
         nMessage.setNotificationMessagePayload(payload);
         return nMessage;

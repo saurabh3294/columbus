@@ -19,7 +19,7 @@ import com.proptiger.data.event.legacy.Event;
 import com.proptiger.data.event.model.payload.EventTypePayload;
 
 @Entity
-@Table(name = "event_generated")
+@Table(name = "notification.event_generated")
 public class EventGenerated extends Event {
 
     /**
