@@ -19,12 +19,12 @@ import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
-import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
+import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
+import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
-import com.proptiger.data.repo.marketplace.NotificationTypeDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -42,21 +42,21 @@ import com.rits.cloning.Cloner;
 @Service
 public class NotificationService {
     @Autowired
-    private NotificationDao            notificationDao;
+    private NotificationDao                notificationDao;
 
     @Autowired
-    private NotificationTypeDao        notificationTypeDao;
+    private MarketplaceNotificationTypeDao notificationTypeDao;
 
     @Autowired
-    private LeadTaskDao                taskDao;
+    private LeadTaskDao                    taskDao;
 
     @Autowired
-    private LeadOfferDao               leadOfferDao;
+    private LeadOfferDao                   leadOfferDao;
 
     @Autowired
-    private LeadTaskService            leadTaskService;
+    private LeadTaskService                leadTaskService;
 
-    private static final List<Integer> allMasterTaskIdsButCall = new ArrayList<>();
+    private static final List<Integer>     allMasterTaskIdsButCall = new ArrayList<>();
 
     static {
         for (LeadTaskName leadTask : LeadTaskName.values()) {
@@ -106,7 +106,8 @@ public class NotificationService {
      * @param notificationTypes
      * @return
      */
-    private List<MarketplaceNotificationType> filterReadNotifications(List<MarketplaceNotificationType> notificationTypes) {
+    private List<MarketplaceNotificationType> filterReadNotifications(
+            List<MarketplaceNotificationType> notificationTypes) {
         List<MarketplaceNotificationType> finalNotificationTypes = new ArrayList<>();
         for (MarketplaceNotificationType notificationType : notificationTypes) {
             if (notificationType.isIgnorable()) {

@@ -9,5 +9,5 @@ import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
  * @author azi
  * 
  */
-public interface NotificationTypeDao extends JpaRepository<MarketplaceNotificationType, Integer> {
+public interface MarketplaceNotificationTypeDao extends JpaRepository<MarketplaceNotificationType, Integer> {
 }
