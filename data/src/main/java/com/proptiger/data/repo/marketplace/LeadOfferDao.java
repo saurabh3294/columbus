@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -24,8 +25,11 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select LO from LeadOffer LO where LO.leadId = ?1 order by LO.statusId")
     public List<LeadOffer> getLeadOffers(int leadId);
 
-    @Query("select LO from LeadOffer LO join fetch LO.lead L join fetch LO.masterLeadOfferStatus MLOS where LO.agentId = ?1")
-    public List<LeadOffer> getLeadOffersForAgent(int agentId);
+    @Query("select LO from LeadOffer LO join fetch LO.lead L join fetch LO.masterLeadOfferStatus MLOS left join fetch LO.nextTask NT where LO.agentId = ?1 and NT.scheduledFor > ?2 ")
+    public List<LeadOffer> getLeadOffersForAgentDueDateGreatherThan(int agentId, Date dueDate, Pageable pageable);
+    
+    @Query("select LO from LeadOffer LO join fetch LO.lead L join fetch LO.masterLeadOfferStatus MLOS where LO.agentId = ?1 and LO.statusId in ?2 and LO.nextTask.scheduledFor > ?3 ")
+    public List<LeadOffer> getLeadOffersForAgentWhereStatusIdsIn(int agentId,List<Integer> statusIds, Date dueDate, Pageable pageable);
 
     @Query("select LOL from LeadOfferedListing LOL join fetch LOL.listing LI left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LIPP.version='Website' and LOL.leadOfferId in (?1)")
     public List<LeadOfferedListing> getLeadOfferedListings(List<Integer> leadOfferIds);
