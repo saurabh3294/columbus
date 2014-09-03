@@ -96,7 +96,7 @@ public class Lead extends BaseModel {
     private Date                  createdAt        = new Date();
 
     @Transient
-    private Date expireTimestamp = DateUtil.shiftMonths(createdAt, 1);
+    private Date expireTimestamp = DateUtil.shiftMonths(new Date(), 1);
 
     @Column(name = "updated_at")
     private Date                  updatedAt        = new Date();
@@ -279,7 +279,9 @@ public class Lead extends BaseModel {
         }
 
         Collections.sort(bedrooms);
-        derivedBedroomsString = StringUtils.join(bedrooms, ',') + "BHK";
+        if (!bedrooms.isEmpty()) {
+            derivedBedroomsString = StringUtils.join(bedrooms, ',') + "BHK";
+        }
     }
 
     public String getSpecialRequirements() {
