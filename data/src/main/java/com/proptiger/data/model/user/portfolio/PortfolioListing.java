@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -238,15 +237,9 @@ public class PortfolioListing extends BaseModel{
     @Column(name = "lead_country_id")
     private Integer                          leadCountryId;
 
-//   ManyToOne(fetch = FetchType.EAGER)
-//   @JoinColumn(name = "type_id", nullable = false, insertable = false, updatable = false)
     @Transient
     @JsonUnwrapped
     private Property                         property;
-
-    @FieldMetaInfo(displayName = "Deleted Flag", description = "Whether a listing has been soft deleted")
-    @Column(name = "deleted_flag")
-    public Boolean                           deletedFlag  =  false;
 
     @FieldMetaInfo(displayName = "Reason", description = "Reason for deleting a listing")
     @Column(name = "reason")
@@ -701,14 +694,6 @@ public class PortfolioListing extends BaseModel{
 
     public void setProjectId(Integer projectId) {
         this.projectId = projectId;
-    }
-
-    public Boolean getDeleted_flag() {
-        return deletedFlag;
-    }
-
-    public void setDeleted_flag(Boolean deletedFlag) {
-        this.deletedFlag = deletedFlag;
     }
 
     public String getReason() {

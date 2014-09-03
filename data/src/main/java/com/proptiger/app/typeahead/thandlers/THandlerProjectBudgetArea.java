@@ -81,10 +81,10 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     budgetUnit,
                     convertBudgetAmountInWords(x),
                     city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(
+            redirectUrl = (String.format(genericUrlCity, city.toLowerCase()) + String.format(
                     genericBudgetFilter,
                     minBudget,
-                    convertBudgetAmountInWords(x)));
+                    x));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
@@ -101,9 +101,9 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     budgetUnit,
                     convertBudgetAmountInWords(x),
                     city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(
+            redirectUrl = (String.format(genericUrlCity, city.toLowerCase()) + String.format(
                     genericBudgetFilter,
-                    convertBudgetAmountInWords(x),
+                    x,
                     maxBudget));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
@@ -122,10 +122,10 @@ public class THandlerProjectBudgetArea extends RootTHandler {
                     convertBudgetAmountInWords(x[0]),
                     convertBudgetAmountInWords(x[1]),
                     city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(
-                    genericAreaFilter,
-                    convertBudgetAmountInWords(x[0]),
-                    convertBudgetAmountInWords(x[1])));
+            redirectUrl = (String.format(genericUrlCity, city.toLowerCase()) + String.format(
+                    genericBudgetFilter,
+                    x[0],
+                    x[1]));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
@@ -139,7 +139,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         String displayText, redirectUrl;
         for (int x : areaPointsBelow) {
             displayText = (String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, minArea, x));
+            redirectUrl = (String.format(genericUrlCity, city.toLowerCase()) + String.format(genericAreaFilter, minArea, x));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
@@ -151,7 +151,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         String displayText, redirectUrl;
         for (int x : areaPointsAbove) {
             displayText = (String.format(genericAboveBelowTextArea, templateText, x, areaUnit, city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, x, maxArea));
+            redirectUrl = (String.format(genericUrlCity, city.toLowerCase()) + String.format(genericAreaFilter, x, maxArea));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;
@@ -163,7 +163,7 @@ public class THandlerProjectBudgetArea extends RootTHandler {
         String displayText, redirectUrl;
         for (int[] x : areaRanges) {
             displayText = (String.format(genericBetweenTextArea, templateText, x[0], x[1], areaUnit, city));
-            redirectUrl = (String.format(genericUrlCity, city) + String.format(genericAreaFilter, x[0], x[1]));
+            redirectUrl = (String.format(genericUrlCity, city.toLowerCase()) + String.format(genericAreaFilter, x[0], x[1]));
             results.add(getTypeaheadObjectByIdTextAndURL(this.getType().toString(), displayText, redirectUrl));
         }
         return results;

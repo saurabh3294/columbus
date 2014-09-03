@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -26,6 +27,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.Status;
 
@@ -46,7 +48,7 @@ public class Listing extends BaseModel {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer              id;
-
+    
     @Column(name = "option_id")
     private Integer              propertyId;
 
@@ -92,7 +94,9 @@ public class Listing extends BaseModel {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    @Transient
+    @JsonManagedReference
+    @OneToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="current_price_id", insertable=false, updatable=false)
     private ListingPrice         currentListingPrice;
     
     @Transient

@@ -424,12 +424,12 @@ public class LeadTaskService {
      * @return
      */
     public PaginatedResponse<List<LeadTask>> getLeadTasksForUser(FIQLSelector selector, int userId) {
-        applyDefaultsInFIQL(selector);
+        selector.applyDefSort(defaultTaskSorting).applyDefFields(defaultTaskSelection);
 
         Pageable pageable = new LimitOffsetPageRequest(
                 selector.getStart(),
                 selector.getRows(),
-                selector.getDataDomainSort());
+                selector.getSpringDataSort());
 
         PaginatedResponse<List<LeadTask>> response = new PaginatedResponse<>();
         response.setTotalCount(leadTaskDao.getLeadTaskCountForUser(userId));
@@ -438,22 +438,6 @@ public class LeadTaskService {
         LeadTask.populateTransientAttributes(response.getResults());
         LeadTask.unlinkCircularLoop(response.getResults());
         return response;
-    }
-
-    /**
-     * applies defaults in {@link FIQLSelector} for get task apis
-     * 
-     * @param selector
-     * @return
-     */
-    private FIQLSelector applyDefaultsInFIQL(FIQLSelector selector) {
-        if (selector.getFields() == null) {
-            selector.setFields(defaultTaskSelection);
-        }
-        if (selector.getSort() == null) {
-            selector.setSort(defaultTaskSorting);
-        }
-        return selector;
     }
 
     /**
@@ -484,16 +468,30 @@ public class LeadTaskService {
     }
 
     public Map<Integer, LeadTask> getTaskById(List<Integer> leadTaskIds) {
-        List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
-        LeadTask.populateTransientAttributes(leadTasks);
-
         Map<Integer, LeadTask> taskMap = new HashMap<>();
-        for (LeadTask leadTask : leadTasks) {
-            leadTask.setLeadOffer(null);
-            leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
-            taskMap.put(leadTask.getId(), leadTask);
+
+        if (leadTaskIds != null && !leadTaskIds.isEmpty()) {
+            List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
+            LeadTask.populateTransientAttributes(leadTasks);
+
+            for (LeadTask leadTask : leadTasks) {
+                leadTask.setLeadOffer(null);
+                leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
+                taskMap.put(leadTask.getId(), leadTask);
+            }
         }
+
         return taskMap;
+    }
+
+    /**
+     * method to get task object along with all associated objects
+     * 
+     * @param taskId
+     * @return
+     */
+    public LeadTask getTaskDetails(int taskId) {
+        return leadTaskDao.getLeadTaskDetails(taskId);
     }
 
     public static int getOfferdefaultleadtaskstatusmappingid() {

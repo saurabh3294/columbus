@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.ForumUser;
@@ -17,7 +19,7 @@ import com.proptiger.data.model.ForumUser;
  * Security utils to get current logged in user and session related work.
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public class SecurityContextUtils {
 
@@ -82,25 +84,47 @@ public class SecurityContextUtils {
      * This method create new Authentication object from ForumUser object and
      * set that in SecurityContextHolder, so it would work like auto login.
      * 
+     * This method will put active user in request session too, to enable
+     * controllers to get active user object
+     * 
      * @param forumUser
      * @return
      */
     public static Authentication autoLogin(ForumUser forumUser) {
         Authentication auth = createNewAuthentication(forumUser);
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        putAuthInContext(auth);
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest();
+        putActiveUserInSession(request, auth);
         return auth;
     }
-    
+
+    /**
+     * Util metod to create and set Authentication object in security context,
+     * this method is not responsible to put Authentication object in session,
+     * caller must explicitly put the same in request session
+     * 
+     * @param activeUser
+     * @return
+     */
     public static Authentication autoLogin(ActiveUser activeUser) {
         UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
                 activeUser,
                 null,
                 activeUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(newAuthentication);
+        putAuthInContext(newAuthentication);
         return newAuthentication;
     }
-    
+
+    private static void putAuthInContext(Authentication auth) {
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public static int getLoggedInUserId() {
+        return Integer.parseInt(getLoggedInUser().getUserId());
     }
 }

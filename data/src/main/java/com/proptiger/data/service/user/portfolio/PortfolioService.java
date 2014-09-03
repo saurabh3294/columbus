@@ -39,6 +39,7 @@ import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectPaymentSchedule;
@@ -47,8 +48,10 @@ import com.proptiger.data.model.image.Image;
 import com.proptiger.data.model.user.portfolio.OverallReturn;
 import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
+import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
@@ -63,6 +66,7 @@ import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.user.LeadGenerationService;
 import com.proptiger.data.service.user.SubscriptionService;
 import com.proptiger.data.util.Constants;
@@ -128,6 +132,9 @@ public class PortfolioService {
     @Autowired
     private SubscriptionService       subscriptionService;
 
+    @Autowired
+    private ListingService            listingService;
+
     @Value("${proptiger.url}")
     private String                    websiteHost;
 
@@ -146,11 +153,12 @@ public class PortfolioService {
         logger.debug("Getting portfolio details for user id {}", userId);
         Portfolio portfolio = new Portfolio();
         List<PortfolioListing> listings = portfolioListingDao
-                .findByUserIdAndDeletedFlagAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
+                .findByUserIdAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
                         userId,
-                        false,
                         Constants.SOURCETYPE_LIST,
-                        listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+                        listingStatus,
+                        LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+        setPropertyInListings(listings);
         PortfolioUtil.updatePriceInfoInPortfolio(portfolio, listings);
         if (listings != null) {
             for (PortfolioListing l : listings) {
@@ -171,12 +179,16 @@ public class PortfolioService {
     public List<PortfolioListing> getAllPortfolioListings(Integer userId, List<ListingStatus> listingStatus) {
         logger.debug("Getting all portfolio listings for user id {}", userId);
         List<PortfolioListing> listings = portfolioListingDao
-                .findByUserIdAndDeletedFlagAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
+                .findByUserIdAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
                         userId,
-                        false,
                         Constants.SOURCETYPE_LIST,
-                        listingStatus, LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
-        setPropertyInListings(listings);
+                        listingStatus,
+                        LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
+
+        if (listings == null || listings.isEmpty()) {
+            return listings;
+        }
+
         updateOtherSpecificData(listings);
         updatePaymentSchedule(listings);
         return listings;
@@ -196,29 +208,30 @@ public class PortfolioService {
         Set<Integer> incompleteProjectIds = new HashSet<Integer>();
         List<Property> properties = setPropertyInListings(listings);
 
-        for (PortfolioListing listing : listings) {
-            if (listing.getListingStatus() == ListingStatus.ACTIVE) { // add
-                                                                      // both
-                                                                      // ProjectIds
-                                                                      // and
-                                                                      // PropertyIds
-                                                                      // for
-                                                                      // ACTIVE
-                                                                      // listings
+        Iterator<PortfolioListing> itr = listings.iterator();
+        while (itr.hasNext()) {
+            PortfolioListing listing = itr.next();
+
+            // Add both PropertyId and ProjectId in case of Complete Listing
+            if (listing.getListingStatus() == ListingStatus.ACTIVE) {
                 propertyIds.add(new Long(listing.getTypeId()));
                 if (listing.getProjectId() == null) {
+                    if (listing.getProperty() == null) {
+                        logger.error(
+                                "Portfolio Listing {} for userid {} doesn't contain ProjectId and Property",
+                                listing.getListingId(),
+                                listing.getUserId());
+                        itr.remove();
+                        continue;
+                    }
                     completeProjectIds.add(new Long(listing.getProperty().getProjectId()));
                 }
                 else if (listing.getTypeId() != null) {
                     completeProjectIds.add(new Long(listing.getProjectId()));
                 }
             }
-            else if (listing.getListingStatus() == ListingStatus.INCOMPLETE) { // add
-                                                                               // only
-                                                                               // ProjectIds
-                                                                               // for
-                                                                               // INCOMPLETE
-                                                                               // listings
+            // Add only ProjectId in case of Incomplete Listing
+            else if (listing.getListingStatus() == ListingStatus.INCOMPLETE) {
                 incompleteProjectIds.add(listing.getProjectId());
             }
         }
@@ -284,13 +297,14 @@ public class PortfolioService {
     }
 
     public List<Property> setPropertyInListings(List<PortfolioListing> listings) {
+        if (listings == null || listings.isEmpty()) {
+            return new ArrayList<Property>();
+        }
 
         List<Long> propertyIds = new ArrayList<Long>();
-        Map<Integer, PortfolioListing> propertyIdToListingMap = new HashMap<Integer, PortfolioListing>();
 
         for (PortfolioListing listing : listings) {
             propertyIds.add(new Long(listing.getTypeId()));
-            propertyIdToListingMap.put(listing.getTypeId(), listing);
         }
 
         Selector propertySelector = new Gson().fromJson(
@@ -299,9 +313,29 @@ public class PortfolioService {
                 Selector.class);
         List<Property> properties = propertyService.getProperties(propertySelector);
 
-        for (Property property : properties) {
-            propertyIdToListingMap.get(property.getPropertyId()).setProperty(property);
+        Map<Integer, Property> propertyMap = new HashMap<Integer, Property>();
 
+        for (Property property : properties) {
+            propertyMap.put(property.getPropertyId(), property);
+        }
+
+        for (PortfolioListing listing : listings) {
+            FIQLSelector fiqlSelector = new FIQLSelector()
+                    .addAndConditionToFilter("propertyId==" + listing.getTypeId());
+
+            if (listing.getTypeId() != null) {
+                listing.setProperty(propertyMap.get(listing.getTypeId()));
+
+                if (listing.getProperty() == null) {
+                    listing.setProperty(propertyService.getPropertiesFromDB(fiqlSelector).getResults().get(0));
+                    ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
+
+                    if (latestListingPrice.getPricePerUnitArea() != null) {
+                        listing.getProperty().setPricePerUnitArea(
+                                latestListingPrice.getPricePerUnitArea().doubleValue());
+                    }
+                }
+            }
         }
         return properties;
     }
@@ -317,7 +351,9 @@ public class PortfolioService {
     public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId) {
         logger.debug("Getting portfolio listing {} for user id {}", listingId, userId);
 
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
+        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+                listingId,
+                Constants.LISTINGSTATUS_LIST);
 
         if (listing == null) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
@@ -334,11 +370,11 @@ public class PortfolioService {
     private void preCreateValidations(PortfolioListing toCreate) {
         toCreate.setId(null);
         PortfolioListing propertyPresent = portfolioListingDao
-                .findByUserIdAndNameAndProjectIdAndDeletedFlagAndSourceTypeIn(
+                .findByUserIdAndNameAndProjectIdAndListingStatusInAndSourceTypeIn(
                         toCreate.getUserId(),
                         toCreate.getName(),
                         toCreate.getProjectId(),
-                        false,
+                        Constants.LISTINGSTATUS_LIST,
                         Constants.SOURCETYPE_LIST);
         if (propertyPresent != null) {
             logger.error("Duplicate resource id {} and name {}", propertyPresent.getId(), propertyPresent.getName());
@@ -365,16 +401,8 @@ public class PortfolioService {
     public PortfolioListing createPortfolioListing(Integer userId, PortfolioListing listing) {
         logger.debug("Create portfolio listing for user id {}", userId);
         listing.setUserId(userId);
-        /*
-         * Explicitly setting it to null due to use of @JsonUnwrapped, this
-         * annotation automatically set value as non null, and that create
-         * problem while creating resource.
-         * 
-         * TODO need to find better solution
-         */
-        listing.setProperty(null);
+
         PortfolioListing created = create(listing);
-        created = portfolioListingDao.findByListingIdAndDeletedFlag(created.getId(), false);
         if (created.getListingStatus() == ListingStatus.ACTIVE) {
             subscriptionService.enableOrAddUserSubscription(
                     userId,
@@ -383,6 +411,7 @@ public class PortfolioService {
                     Constants.SubscriptionType.PROJECT_UPDATES,
                     Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
         }
+        setPropertyInListings(Arrays.asList(created));
         return created;
     }
 
@@ -400,17 +429,10 @@ public class PortfolioService {
         logger.debug("Update portfolio listing {} for user id {}", listingId, userId);
         listing.setUserId(userId);
         listing.setId(listingId);
-        /*
-         * as FetchType.Eager of Property is creating new object expecting null
-         * aware bean to update property as well
-         */
-        listing.setProperty(null);
         PortfolioListing updated = update(listing);
-        // updateOtherSpecificData(Arrays.asList(listing));
         return updated;
     }
 
-    @Transactional(rollbackFor = { ConstraintViolationException.class, DuplicateNameResourceException.class })
     private PortfolioListing create(PortfolioListing toCreate) {
         logger.debug("Creating PortfolioProperty for userid {}", toCreate.getUserId());
         preCreateValidations(toCreate);
@@ -434,7 +456,7 @@ public class PortfolioService {
         }
         PortfolioListing created = null;
         try {
-            created = portfolioListingDao.save(toCreate);
+            created = portfolioListingDao.saveAndFlush(toCreate);
         }
         catch (Exception exception) {
             throw new ConstraintViolationException(exception.getMessage(), exception);
@@ -446,11 +468,11 @@ public class PortfolioService {
     private PortfolioListing update(PortfolioListing toUpdate) {
         PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
         PortfolioListing resourceWithSameName = portfolioListingDao
-                .findByUserIdAndNameAndProjectIdAndDeletedFlagAndSourceTypeIn(
+                .findByUserIdAndNameAndProjectIdAndListingStatusInAndSourceTypeIn(
                         toUpdate.getUserId(),
                         toUpdate.getName(),
                         toUpdate.getProjectId(),
-                        false,
+                        Constants.LISTINGSTATUS_LIST,
                         Constants.SOURCETYPE_LIST);
         if (resourceWithSameName != null && !resourcePresent.getId().equals(resourceWithSameName.getId())) {
             logger.error(
@@ -498,7 +520,6 @@ public class PortfolioService {
      * @param present
      * @param toUpdate
      */
-    @Transactional
     private void createOrUpdateOtherPrices(PortfolioListing present, PortfolioListing toUpdate) {
         if (toUpdate.getOtherPrices() == null || toUpdate.getOtherPrices().isEmpty()) {
             return;
@@ -531,7 +552,9 @@ public class PortfolioService {
     }
 
     private PortfolioListing preProcessUpdate(PortfolioListing toUpdate) {
-        PortfolioListing resourcePresent = portfolioListingDao.findByListingIdAndDeletedFlag(toUpdate.getId(), false);
+        PortfolioListing resourcePresent = portfolioListingDao.findByListingIdAndListingStatusIn(
+                toUpdate.getId(),
+                Constants.LISTINGSTATUS_LIST);
         if (resourcePresent == null) {
             logger.error("PortfolioProperty id {} not found", toUpdate.getId());
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.UPDATE);
@@ -555,12 +578,12 @@ public class PortfolioService {
     @CacheEvict(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#listingId")
     public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId, String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
-        PortfolioListing propertyPresent = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
+        PortfolioListing propertyPresent = portfolioListingDao.findByListingIdAndListingStatusIn(
+                listingId,
+                Constants.LISTINGSTATUS_LIST);
         if (propertyPresent == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.DELETE);
         }
-        propertyPresent.setDeleted_flag(true);
-        propertyPresent.setReason(reason);
         if (propertyPresent.getListingStatus() == ListingStatus.ACTIVE) {
             subscriptionService.disableSubscription(
                     userId,
@@ -569,6 +592,9 @@ public class PortfolioService {
                     Constants.SubscriptionType.PROJECT_UPDATES,
                     Constants.SubscriptionType.DISCUSSIONS_REVIEWS_NEWS);
         }
+        propertyPresent.setListingStatus(ListingStatus.INACTIVE);
+        propertyPresent.setReason(reason);
+
         return propertyPresent;
     }
 
@@ -666,7 +692,9 @@ public class PortfolioService {
                 userId,
                 listingId,
                 interestedToLoan);
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndDeletedFlag(listingId, false);
+        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+                listingId,
+                Constants.LISTINGSTATUS_LIST);
         if (listing == null) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
@@ -878,7 +906,17 @@ public class PortfolioService {
      */
     @Cacheable(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#portfolioId")
     public PortfolioListing getActivePortfolioOnId(int portfolioId) {
-        return portfolioListingDao.findByListingIdAndDeletedFlag(portfolioId, false);
+        return portfolioListingDao.findByListingIdAndListingStatusIn(portfolioId, Constants.LISTINGSTATUS_LIST);
+    }
+
+    public List<PortfolioListing> getActivePortfolioListingsByPropertyId(Integer propertyId) {
+        List<Source> sourceTypes = new ArrayList<Source>();
+        sourceTypes.add(Source.backend);
+        sourceTypes.add(Source.portfolio);
+        return portfolioListingDao.findByTypeIdAndListingStatusAndSourceTypeIn(
+                propertyId,
+                ListingStatus.ACTIVE,
+                sourceTypes);
     }
 
 }

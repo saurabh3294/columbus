@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +29,7 @@ import com.proptiger.data.model.ProjectPhase;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.marketplace.ListingDao;
 import com.proptiger.data.service.ProjectPhaseService;
@@ -64,6 +63,10 @@ public class ListingService {
 
     @Autowired
     private PropertyDao           propertyDao;
+   
+    public Listing getListingByListingId(Integer listingId) {
+        return listingDao.findOne(listingId);
+    }
 
     /**
      * Create a new listing, apply some validations before create.
@@ -185,17 +188,13 @@ public class ListingService {
      * @param userId
      * @return
      */
-    public List<Listing> getListings(Integer userId, FIQLSelector selector) {
-        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), new Sort(
-                Direction.DESC,
-                "id"));
+    public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector) {
+        selector.applyDefSort("-id");
+        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), selector.getSpringDataSort());
         List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
+
         String fields = selector.getFields();
         if(fields != null){
-            if (fields.contains("currentListingPrice")){
-                List<ListingPrice> listingPrices = listingPriceService.getListingPricesOfListings(listings);
-                populateListingPricesInListings(listings, listingPrices);
-            }
             if (fields.contains("listingAmenities")) {
                 List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(listings);
                 if (listingAmenities.size() > 0) {
@@ -205,24 +204,14 @@ public class ListingService {
                     }
                 }
             }
-       }
+        }
+      //TODO due to explicit join would be fetched so if not asked then set this to null, handle using FIQL
         if(fields == null || !fields.contains("property")){
-            //due to explicit join in query it would be fetched so if not asked then set this to null
             for(Listing l: listings){
                 l.setProperty(null);    
             }
         }
-        return listings;
-    }
-
-    private void populateListingPricesInListings(List<Listing> listings, List<ListingPrice> listingPrices) {
-        Map<Integer, ListingPrice> map = new HashMap<>();
-        for (ListingPrice lp : listingPrices) {
-            map.put(lp.getId(), lp);
-        }
-        for (Listing l : listings) {
-            l.setCurrentListingPrice(map.get(l.getCurrentPriceId()));
-        }
+        return new PaginatedResponse<>(listings, listings.size());
     }
 
     /**
@@ -239,14 +228,6 @@ public class ListingService {
         }
         String fields = selector.getFields();
         if(fields != null){
-            if (fields.contains("currentListingPrice")
-                    && listing.getCurrentPriceId() != null) {
-                List<ListingPrice> listingPrices = listingPriceService.getListingPrices(Arrays.asList(listing
-                        .getCurrentPriceId()));
-                if (listingPrices.size() > 0) {
-                    listing.setCurrentListingPrice(listingPrices.get(0));
-                }
-            }
             if(fields.contains("listingAmenities")){
                 List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(Arrays.asList(listing));
                 listing.setListingAmenities(listingAmenities);
@@ -287,5 +268,9 @@ public class ListingService {
             }
         }
         return listingIdToAmenitiesMap;
+    }
+
+    public ListingPrice getLatestListingPrice(Integer propertyId) {
+        return listingDao.getListingPrice(propertyId);
     }
 }

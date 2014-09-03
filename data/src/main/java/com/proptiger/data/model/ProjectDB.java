@@ -102,11 +102,11 @@ public class ProjectDB extends BaseModel {
 
     @FieldMetaInfo(displayName = "LATITUDE", description = "LATITUDE")
     @Column(name = "LATITUDE")
-    private float                latitude;
+    private Float                latitude;
 
     @FieldMetaInfo(displayName = "LONGITUDE", description = "LONGITUDE")
     @Column(name = "LONGITUDE")
-    private float                longitude;
+    private Float                longitude;
 
     @FieldMetaInfo(displayName = "DISPLAY ORDER", description = "DISPLAY ORDER")
     @Column(name = "DISPLAY_ORDER")
@@ -481,19 +481,19 @@ public class ProjectDB extends BaseModel {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public float getLatitude() {
+    public Float getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(float latitude) {
+    public void setLatitude(Float latitude) {
         this.latitude = latitude;
     }
 
-    public float getLongitude() {
+    public Float getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(float longitude) {
+    public void setLongitude(Float longitude) {
         this.longitude = longitude;
     }
 

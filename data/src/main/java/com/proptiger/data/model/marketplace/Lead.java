@@ -3,8 +3,12 @@
  */
 package com.proptiger.data.model.marketplace;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -19,6 +23,8 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -88,14 +94,15 @@ public class Lead extends BaseModel {
     @Transient
     private int countAgentsClaimed = 99999999;
 
+    @Column(name = "created_at")
+    private Date                  createdAt        = new Date();
+
     @Transient
     private Date expireTimestamp = DateUtil.shiftMonths(new Date(), 1);
 
     @Column(name = "updated_at")
     private Date                  updatedAt        = new Date();
 
-    @Column(name = "created_at")
-    private Date                  createdAt        = new Date();
 
     @Column(name = "updated_by")
     private Integer               updatedBy;
@@ -262,6 +269,21 @@ public class Lead extends BaseModel {
 
     public void setRequirements(List<LeadRequirement> requirements) {
         this.requirements = requirements;
+        populateDerivedBedroomsString();
+    }
+
+    private void populateDerivedBedroomsString() {
+        Set<Integer> bedrooms = new HashSet<>();
+        for (LeadRequirement leadRequirement : requirements) {
+            if (leadRequirement.getBedroom() != null) {
+                bedrooms.add(leadRequirement.getBedroom());
+            }
+        }
+
+        if (!bedrooms.isEmpty()) {
+            Collections.sort(new ArrayList<>(bedrooms));
+            derivedBedroomsString = StringUtils.join(bedrooms, ',') + "BHK";
+        }
     }
 
     public String getSpecialRequirements() {

@@ -166,19 +166,19 @@ public class LeadOfferService {
                 Map<Integer, User> users = userService.getUsers(clientIds);
 
                 Map<Integer, List<UserContactNumber>> contactNumbers = null;
-                if (fields.contains("client.contactNumbers")) {
+                if (fields.contains("contactNumbers")) {
                     contactNumbers = userService.getUserContactNumbers(clientIds);
                 }
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.getLead().setClient(users.get(leadOffer.getLead().getClientId()));
-                    if (fields.contains("client.contactNumbers")) {
+                    if (fields.contains("contactNumbers")) {
                         leadOffer.getLead().getClient()
                                 .setContactNumbers(contactNumbers.get(leadOffer.getLead().getClientId()));
                     }
                 }
             }
 
-            if (fields.contains("lead.requirements")) {
+            if (fields.contains("requirements")) {
                 List<Integer> leadIds = extractLeadIds(leadOffers);
                 Map<Integer, List<LeadRequirement>> requirements = getLeadRequirements(leadIds);
                 for (LeadOffer leadOffer : leadOffers) {
@@ -244,17 +244,19 @@ public class LeadOfferService {
                 }
             }
 
-            // TODO - optimize and try fetching in bulk
             if (fields.contains("tasks")) {
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
                             new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
                             leadOffer.getAgentId()).getResults());
 
+                    List<Integer> leadTaskIds = new ArrayList<>();
                     for (LeadTask leadTask : leadOffer.getTasks()) {
                         leadTask.setLeadOffer(null);
+                        leadTaskIds.add(leadTask.getId());
                     }
 
+                    leadOffer.setTasks(new ArrayList<>(leadTaskService.getTaskById(leadTaskIds).values()));
                 }
             }
 

@@ -29,11 +29,21 @@ public class CronController {
         return new APIResponse();
     }
 
+    @RequestMapping("/v1/populate-notifications")
+    public @ResponseBody
+    APIResponse populateNotifications() throws Exception {
+        cronService.manageCallDueNotification();
+        cronService.populateTaskDueNotification();
+        cronService.populateTaskOverDueNotification();
+        return new APIResponse();
+    }
+
     @RequestMapping("/v1/send-notifications")
     public @ResponseBody
     APIResponse sendNotifications() throws Exception {
-        cronService.manageTaskDueNotification();
-        cronService.manageTaskOverDueNotification();
+        cronService.manageCallDueNotification();
+        cronService.sendTaskDueNotification();
+        cronService.sendTaskOverDueNotification();
         return new APIResponse();
     }
 }

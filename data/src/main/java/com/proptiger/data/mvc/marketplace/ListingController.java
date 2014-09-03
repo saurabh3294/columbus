@@ -16,6 +16,7 @@ import com.proptiger.data.model.Listing;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
+import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.util.Constants;
 
@@ -45,8 +46,8 @@ public class ListingController extends BaseController {
     public APIResponse getListings(
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        List<Listing> listings = listingService.getListings(userInfo.getUserIdentifier(), selector);
-        return new APIResponse(super.filterFieldsFromSelector(listings, selector));
+        PaginatedResponse<List<Listing>> listings = listingService.getListings(userInfo.getUserIdentifier(), selector);
+        return new APIResponse(super.filterFieldsFromSelector(listings.getResults(), selector), listings.getTotalCount());
     }
 
     @ResponseBody

@@ -1,5 +1,6 @@
 data/target
 data/data.iml
+data/bin
 .classpath
 .project
 .settings

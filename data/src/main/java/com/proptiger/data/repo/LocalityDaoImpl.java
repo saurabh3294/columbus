@@ -17,6 +17,7 @@ import javax.persistence.Query;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrQuery.ORDER;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -43,6 +44,8 @@ public class LocalityDaoImpl {
     private SolrDao              solrDao;
     @Autowired
     private EntityManagerFactory emf;
+    @Autowired
+    private SessionFactory sessionFactory;
 
     public PaginatedResponse<List<Locality>> getLocalities(Selector selector) {
         SolrQuery solrQuery = createSolrQuery(selector);
