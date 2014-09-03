@@ -35,7 +35,7 @@ import com.proptiger.data.model.MasterLeadOfferStatus;
 @Entity
 @JsonInclude(Include.NON_EMPTY)
 @Table(name = "marketplace.lead_offers")
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@cycleId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.None.class, property = "@cycleId")
 public class LeadOffer extends BaseModel {
     private static final long serialVersionUID = -4428374943776702328L;
 

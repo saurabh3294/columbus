@@ -43,7 +43,7 @@ import com.proptiger.data.enums.Status;
 @Table(name = "cms.listings")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@cycleId")
+@JsonIdentityInfo(generator = ObjectIdGenerators.None.class)
 public class Listing extends BaseModel {
     private static final long    serialVersionUID = 1L;
 
