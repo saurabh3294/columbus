@@ -25,7 +25,10 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.Status;
@@ -40,6 +43,7 @@ import com.proptiger.data.enums.Status;
 @Table(name = "cms.listings")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@cycleId")
 public class Listing extends BaseModel {
     private static final long    serialVersionUID = 1L;
 
@@ -47,7 +51,7 @@ public class Listing extends BaseModel {
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer              id;
-
+    
     @Column(name = "option_id")
     private Integer              propertyId;
 
