@@ -21,7 +21,7 @@ public interface ListingDao extends JpaRepository<Listing, Integer>, ListingCust
 
     Listing findBySellerIdAndIdAndStatus(Integer sellerId, Integer listingId, Status status);
 
-    @Query("select l from Listing l join fetch l.currentListingPrice join fetch l.property prop join fetch prop.project as p where l.id=?1 and l.sellerId=?2 and p.version=?3 and l.status=?4")
+    @Query("select l from Listing l left join fetch l.currentListingPrice join fetch l.property prop join fetch prop.project as p where l.id=?1 and l.sellerId=?2 and p.version=?3 and l.status=?4")
     Listing findListing(Integer listingId, Integer userId, DataVersion dataVersion, Status status);
     
     @Query("SELECT LP FROM ListingPrice LP where LP.id IN (SELECT MAX(LP.id) FROM Listing L JOIN L.listingPrices AS LP WHERE L.propertyId = ?1) ")
