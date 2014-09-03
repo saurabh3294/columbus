@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -31,6 +33,8 @@ public class Notification extends BaseModel {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int               id;
 
     @JsonIgnore
@@ -76,7 +80,7 @@ public class Notification extends BaseModel {
     }
 
     @PostLoad
-    private void changeStringDetailsToJsonDetails() {
+    public void changeStringDetailsToJsonDetails() {
         if (stringDetails != null) {
             try {
                 details = JsonLoader.fromString(stringDetails);
@@ -134,7 +138,6 @@ public class Notification extends BaseModel {
 
     public void setStringDetails(String stringDetails) {
         this.stringDetails = stringDetails;
-        changeStringDetailsToJsonDetails();
     }
 
     public boolean isRead() {

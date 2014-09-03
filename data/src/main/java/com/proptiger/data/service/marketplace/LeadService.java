@@ -61,6 +61,10 @@ public class LeadService {
 
     private static Logger       logger = LoggerFactory.getLogger(LeadService.class);
 
+    @Autowired
+    private NotificationService notificationService;
+    
+    
     @Transactional
     public void manageLeadAuction(int leadId) {
         Lead lead = leadDao.findOne(leadId);
@@ -163,6 +167,7 @@ public class LeadService {
         if (existingLead != null) {
             lead.setId(existingLead.getId());
             patchLead(existingLead, lead);
+            notificationService.createLeadNotification(lead, 3);
         }
         else {
             lead.setId(leadDao.save(lead).getId());
@@ -232,6 +237,7 @@ public class LeadService {
         existingLead.setMaxSize(Math.max(existingLead.getMaxSize(), lead.getMaxSize()));
         existingLead.setMinBudget(Math.min(existingLead.getMinBudget(), lead.getMinBudget()));
         existingLead.setMaxBudget(Math.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
+                                
         leadDao.save(existingLead);
     }
 

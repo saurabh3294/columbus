@@ -6,10 +6,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.gson.Gson;
+import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.Notification;
@@ -192,6 +195,51 @@ public class NotificationService {
         notification.setUserId(leadTask.getLeadOffer().getAgentId());
 
         notification = notificationDao.save(notification);
+        return notification;
+    }
+
+    /**
+     * 
+     * @param lead
+     * @param notificationTypeId
+     * @return
+     */
+
+    public Notification createLeadNotification(Lead lead, int notificationTypeId) {
+        Notification notification = new Notification();
+        notification.setNotificationTypeId(notificationTypeId);
+        notification.setObjectId(lead.getId());
+        
+        Gson gson = new Gson();        
+        notification.setStringDetails(gson.toJson(lead).toString());
+        
+        /*ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.writeValue(new File("E:\\test.json"), lead);
+            System.out.println("anubhav");
+            System.out.println(mapper.writeValueAsString(lead));
+            System.out.println("anubhav");
+            
+            notification.setStringDetails(mapper.writeValueAsString(lead));
+            notification.changeStringDetailsToJsonDetails();
+        }
+        catch (JsonGenerationException e) {
+            e.printStackTrace();
+        }
+        catch (JsonMappingException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }*/
+        Notification notificationPreMature = notification;
+        List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
+        
+        for (LeadOffer leadOffer : leadOffers) {
+            Notification notificationOriginal = (Notification) SerializationUtils.clone(notificationPreMature);
+            notificationOriginal.setUserId(leadOffer.getAgentId());
+            notificationDao.save(notificationOriginal);
+        }
         return notification;
     }
 
