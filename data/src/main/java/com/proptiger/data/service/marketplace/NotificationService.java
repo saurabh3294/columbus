@@ -209,18 +209,18 @@ public class NotificationService {
         Notification notification = new Notification();
         notification.setNotificationTypeId(notificationTypeId);
         notification.setObjectId(lead.getId());
-        
-        Gson gson = new Gson();        
+
+        Gson gson = new Gson();
         notification.setStringDetails(gson.toJson(lead).toString());
-        
-        
         Notification notificationPreMature = notification;
         List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
-        
+
         for (LeadOffer leadOffer : leadOffers) {
-            Notification notificationOriginal = (Notification) SerializationUtils.clone(notificationPreMature);
+            Cloner cloner = new Cloner();
+            Notification notificationOriginal = cloner.deepClone(notificationPreMature);
             notificationOriginal.setUserId(leadOffer.getAgentId());
             notificationDao.save(notificationOriginal);
+
         }
         return notification;
     }

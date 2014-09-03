@@ -167,7 +167,7 @@ public class LeadService {
         if (existingLead != null) {
             lead.setId(existingLead.getId());
             patchLead(existingLead, lead);
-            notificationService.createLeadNotification(lead, 3);
+            notificationService.createLeadNotification(lead, 3);            
         }
         else {
             lead.setId(leadDao.save(lead).getId());

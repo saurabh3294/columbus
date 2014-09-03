@@ -138,6 +138,7 @@ public class Notification extends BaseModel {
 
     public void setStringDetails(String stringDetails) {
         this.stringDetails = stringDetails;
+        changeStringDetailsToJsonDetails();
     }
 
     public boolean isRead() {
