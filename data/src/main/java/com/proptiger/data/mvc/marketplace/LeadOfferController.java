@@ -35,9 +35,7 @@ public class LeadOfferController extends BaseController {
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferService.getLeadOffers(
                 activeUser.getUserIdentifier(),
                 selector);
-        return new APIResponse(
-                super.filterFieldsFromSelector(paginatedResponse.getResults(), selector),
-                paginatedResponse.getTotalCount());
+        return new APIResponse(paginatedResponse.getResults(), paginatedResponse.getTotalCount());
     }
 
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/offered-listings")
