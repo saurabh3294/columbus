@@ -209,7 +209,7 @@ public class FIQLSelector implements Cloneable, Serializable {
         }
     }
 
-    public Sort getDataDomainSort() {
+    public Sort getSpringDataSort() {
         List<Order> orders = new ArrayList<>();
         List<String> fields = Arrays.asList(sort.split(fieldSeperator));
         for (String field : fields) {
@@ -242,5 +242,25 @@ public class FIQLSelector implements Cloneable, Serializable {
     public boolean equals(Object obj) {
         return ToStringBuilder.reflectionToString(obj, ToStringStyle.SHORT_PREFIX_STYLE).equals(
                 ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE));
+    }
+    
+    /**
+     * applies defaults in {@link FIQLSelector} for get task apis
+     * 
+     * @param selector
+     * @return
+     */
+    public FIQLSelector applyDefSort(String defaultSort){
+        
+        if (this.getSort() == null) {
+            this.setSort(defaultSort);
+        }
+        return this;
+    }
+    public FIQLSelector applyDefFields(String fields){
+        if (this.getFields() == null) {
+            this.setFields(fields);
+        }
+        return this;
     }
 }
