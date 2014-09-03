@@ -472,16 +472,56 @@ public class LeadTaskService {
 
         if (leadTaskIds != null && !leadTaskIds.isEmpty()) {
             List<LeadTask> leadTasks = leadTaskDao.findById(leadTaskIds);
+            Map<Integer, List<TaskOfferedListingMapping>> taskOfferedListingMappings = extractListings(leadTaskDao.getTaskOfferedListingMappings(leadTaskIds));
             LeadTask.populateTransientAttributes(leadTasks);
 
             for (LeadTask leadTask : leadTasks) {
                 leadTask.setLeadOffer(null);
+                leadTask.setOfferedListingMappings(taskOfferedListingMappings.get(leadTask.getId()));
                 leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
                 taskMap.put(leadTask.getId(), leadTask);
             }
         }
 
         return taskMap;
+    }
+
+    public List<LeadTask> getTasksByLeadOfferId(int leadOfferId) {
+        List<LeadTask> leadTasks = leadTaskDao.findTasksByLeadOfferId(leadOfferId);
+        
+        List<Integer> leadTaskIds = new ArrayList<>();
+        for (LeadTask leadTask : leadTasks) {
+            leadTaskIds.add(leadTask.getId());
+        }
+
+        if (!leadTaskIds.isEmpty()) {
+            Map<Integer, List<TaskOfferedListingMapping>> taskOfferedListingMappings = extractListings(leadTaskDao.getTaskOfferedListingMappings(leadTaskIds));
+            LeadTask.populateTransientAttributes(leadTasks);
+
+            for (LeadTask leadTask : leadTasks) {
+                leadTask.setLeadOffer(null);
+                leadTask.setOfferedListingMappings(taskOfferedListingMappings.get(leadTask.getId()));
+                leadTask.getMasterLeadTask().setLeadTaskStatuses(null);
+            }
+        }
+
+        return leadTasks;
+    }
+    
+    private Map<Integer, List<TaskOfferedListingMapping>> extractListings(
+            List<TaskOfferedListingMapping> taskOfferedListingMappings) {
+        Map<Integer, List<TaskOfferedListingMapping>> listings = new HashMap<>();
+        
+        for (TaskOfferedListingMapping taskOfferedListingMapping: taskOfferedListingMappings) {
+            int taskId = taskOfferedListingMapping.getTaskId();
+            if (!listings.containsKey(taskId)) {
+                listings.put(taskId, new ArrayList<TaskOfferedListingMapping>());
+            }
+            
+            listings.get(taskId).add(taskOfferedListingMapping);
+        }
+        
+        return listings;
     }
 
     /**
@@ -505,5 +545,9 @@ public class LeadTaskService {
     @Transactional
     public LeadTask createLeadTask(LeadTask leadTask) {
         return leadTaskDao.saveAndFlush(leadTask);
+    }
+
+    public List<LeadTask> getLeadTaskIdsByLeadOfferId(int leadOfferId) {
+        return leadTaskDao.findByLeadOfferId(leadOfferId);
     }
 }
