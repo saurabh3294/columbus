@@ -71,7 +71,7 @@ public class LeadOfferController extends BaseController {
             @PathVariable int leadOfferId,
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        return new APIResponse(super.filterFieldsFromSelector(leadOfferService.get(leadOfferId, activeUser.getUserIdentifier(), selector), selector));
+        return new APIResponse(leadOfferService.get(leadOfferId, activeUser.getUserIdentifier(), selector));
     }
 
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}", method = RequestMethod.PUT)
