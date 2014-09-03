@@ -13,8 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -191,18 +189,12 @@ public class ListingService {
      * @return
      */
     public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector) {
-        
-        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), new Sort(
-                Direction.DESC,
-                "id"));
+        selector.applyDefSort("-id");
+        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), selector.getSpringDataSort());
         List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
 
         String fields = selector.getFields();
         if(fields != null){
-            if (fields.contains("currentListingPrice")){
-                List<ListingPrice> listingPrices = listingPriceService.getListingPricesOfListings(listings);
-                populateListingPricesInListings(listings, listingPrices);
-            }
             if (fields.contains("listingAmenities")) {
                 List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(listings);
                 if (listingAmenities.size() > 0) {
@@ -213,17 +205,13 @@ public class ListingService {
                 }
             }
         }
+      //TODO due to explicit join would be fetched so if not asked then set this to null, handle using FIQL
+        if(fields == null || !fields.contains("property")){
+            for(Listing l: listings){
+                l.setProperty(null);    
+            }
+        }
         return new PaginatedResponse<>(listings, listings.size());
-    }
-
-    private void populateListingPricesInListings(List<Listing> listings, List<ListingPrice> listingPrices) {
-        Map<Integer, ListingPrice> map = new HashMap<>();
-        for (ListingPrice lp : listingPrices) {
-            map.put(lp.getId(), lp);
-        }
-        for (Listing l : listings) {
-            l.setCurrentListingPrice(map.get(l.getCurrentPriceId()));
-        }
     }
 
     /**
@@ -240,14 +228,6 @@ public class ListingService {
         }
         String fields = selector.getFields();
         if(fields != null){
-            if (fields.contains("currentListingPrice")
-                    && listing.getCurrentPriceId() != null) {
-                List<ListingPrice> listingPrices = listingPriceService.getListingPrices(Arrays.asList(listing
-                        .getCurrentPriceId()));
-                if (listingPrices.size() > 0) {
-                    listing.setCurrentListingPrice(listingPrices.get(0));
-                }
-            }
             if(fields.contains("listingAmenities")){
                 List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenitiesOfListings(Arrays.asList(listing));
                 listing.setListingAmenities(listingAmenities);
