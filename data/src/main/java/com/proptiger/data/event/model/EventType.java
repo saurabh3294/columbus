@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
-@Table(name = "event_type")
+@Table(name = "notification.event_type")
 /**
  * TODO to make the configuration required for the event type in json format and then load it
  * into the  coressponding model for each event type. The model mapping will be present in the

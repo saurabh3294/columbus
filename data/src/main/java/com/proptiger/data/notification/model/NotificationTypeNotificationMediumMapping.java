@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
-@Table(name = "notification_type_notification_medium_mapping")
+@Table(name = "notification.notification_type_notification_medium_mapping")
 public class NotificationTypeNotificationMediumMapping extends BaseModel {
 
     /**
