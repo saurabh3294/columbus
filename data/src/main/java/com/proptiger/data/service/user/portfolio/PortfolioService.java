@@ -23,8 +23,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
 import com.google.gson.Gson;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
@@ -41,6 +39,7 @@ import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectPaymentSchedule;
@@ -52,6 +51,7 @@ import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
@@ -66,6 +66,7 @@ import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
+import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.user.LeadGenerationService;
 import com.proptiger.data.service.user.SubscriptionService;
 import com.proptiger.data.util.Constants;
@@ -130,6 +131,9 @@ public class PortfolioService {
 
     @Autowired
     private SubscriptionService       subscriptionService;
+
+    @Autowired
+    private ListingService            listingService;
 
     @Value("${proptiger.url}")
     private String                    websiteHost;
@@ -298,11 +302,9 @@ public class PortfolioService {
         }
 
         List<Long> propertyIds = new ArrayList<Long>();
-        ListMultimap<Integer, PortfolioListing> propertyIdToListingMap = ArrayListMultimap.create();
 
         for (PortfolioListing listing : listings) {
             propertyIds.add(new Long(listing.getTypeId()));
-            propertyIdToListingMap.put(listing.getTypeId(), listing);
         }
 
         Selector propertySelector = new Gson().fromJson(
@@ -311,10 +313,28 @@ public class PortfolioService {
                 Selector.class);
         List<Property> properties = propertyService.getProperties(propertySelector);
 
+        Map<Integer, Property> propertyMap = new HashMap<Integer, Property>();
+
         for (Property property : properties) {
-            List<PortfolioListing> portfolioListings = propertyIdToListingMap.get(property.getPropertyId());
-            for (PortfolioListing listing : portfolioListings) {
-                listing.setProperty(property);
+            propertyMap.put(property.getPropertyId(), property);
+        }
+
+        for (PortfolioListing listing : listings) {
+            FIQLSelector fiqlSelector = new FIQLSelector()
+                    .addAndConditionToFilter("propertyId==" + listing.getTypeId());
+
+            if (listing.getTypeId() != null) {
+                listing.setProperty(propertyMap.get(listing.getTypeId()));
+
+                if (listing.getProperty() == null) {
+                    listing.setProperty(propertyService.getPropertiesFromDB(fiqlSelector).getResults().get(0));
+                    ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
+
+                    if (latestListingPrice.getPricePerUnitArea() != null) {
+                        listing.getProperty().setPricePerUnitArea(
+                                latestListingPrice.getPricePerUnitArea().doubleValue());
+                    }
+                }
             }
         }
         return properties;
@@ -888,7 +908,6 @@ public class PortfolioService {
     public PortfolioListing getActivePortfolioOnId(int portfolioId) {
         return portfolioListingDao.findByListingIdAndListingStatusIn(portfolioId, Constants.LISTINGSTATUS_LIST);
     }
-
 
     public List<PortfolioListing> getActivePortfolioListingsByPropertyId(Integer propertyId) {
         List<Source> sourceTypes = new ArrayList<Source>();

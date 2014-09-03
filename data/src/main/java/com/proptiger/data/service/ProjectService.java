@@ -105,6 +105,9 @@ public class ProjectService {
     @Value("${proptiger.url}")
     private String                  websiteHost;
 
+    @Autowired
+    private MediaEnricher           mediaEnricher;
+    
     /**
      * This method will return the list of projects and total projects found
      * based on the selector.
@@ -223,6 +226,10 @@ public class ProjectService {
          * Setting properites if needed.
          */
         if (fields == null || fields.contains("properties")) {
+            //Setting media (3D Images), if needed.
+            if (fields == null || fields.contains("media")) {
+                mediaEnricher.setPropertiesMedia(properties);
+            }
             project.setProperties(properties);
         }
 
