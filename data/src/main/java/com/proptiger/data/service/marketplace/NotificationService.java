@@ -22,7 +22,7 @@ import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
-import com.proptiger.data.repo.marketplace.NotificationTypeDao;
+import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -43,7 +43,7 @@ public class NotificationService {
     private NotificationDao     notificationDao;
 
     @Autowired
-    private NotificationTypeDao notificationTypeDao;
+    private MarketplaceNotificationTypeDao notificationTypeDao;
 
     @Autowired
     private LeadTaskDao         taskDao;
