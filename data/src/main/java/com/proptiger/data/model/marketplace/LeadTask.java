@@ -18,6 +18,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.BaseModel;
@@ -71,6 +72,7 @@ public class LeadTask extends BaseModel {
     @Column(name = "updated_at")
     private Date                            updatedAt;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lead_offer_id", insertable = false, updatable = false)
     private LeadOffer                       leadOffer;

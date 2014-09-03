@@ -25,11 +25,9 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.Status;
 
@@ -43,7 +41,6 @@ import com.proptiger.data.enums.Status;
 @Table(name = "cms.listings")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@cycleId")
 public class Listing extends BaseModel {
     private static final long    serialVersionUID = 1L;
 
@@ -97,6 +94,7 @@ public class Listing extends BaseModel {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
+    @JsonManagedReference
     @OneToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="current_price_id", insertable=false, updatable=false)
     private ListingPrice         currentListingPrice;

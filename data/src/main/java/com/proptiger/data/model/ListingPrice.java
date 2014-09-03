@@ -18,12 +18,12 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.Status;
 import com.proptiger.data.util.DateUtil;
@@ -38,7 +38,6 @@ import com.proptiger.exception.ProAPIException;
 @Table(name = "cms.listing_prices")
 @JsonFilter("fieldFilter")
 @JsonInclude(Include.NON_NULL)
-@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "@cycleId")
 public class ListingPrice extends BaseModel {
     private static final long serialVersionUID = 878870501041637665L;
 
@@ -49,6 +48,7 @@ public class ListingPrice extends BaseModel {
     @Column(name = "listing_id")
     private Integer               listingId;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "listing_id", insertable = false, updatable = false)
     private Listing           listing;
