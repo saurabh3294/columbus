@@ -1,5 +1,6 @@
 package com.proptiger.data.mvc.marketplace;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.internal.dto.ActiveUser;
@@ -31,10 +33,11 @@ public class LeadOfferController extends BaseController {
     @ResponseBody
     public APIResponse get(
             @ModelAttribute FIQLSelector selector,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
+            @RequestParam(required = false) List<Integer> statusIds,@RequestParam(required = false) Date dueDate) {
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferService.getLeadOffers(
                 activeUser.getUserIdentifier(),
-                selector);
+                selector, statusIds, dueDate);
         return new APIResponse(
                 super.filterFieldsFromSelector(paginatedResponse.getResults(), selector),
                 paginatedResponse.getTotalCount());

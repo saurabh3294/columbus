@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.LeadOfferStatus;
@@ -34,6 +36,7 @@ import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
@@ -85,6 +88,8 @@ public class LeadOfferService {
 
     @Autowired
     private MailSender              mailSender;
+    
+    private String defaultSort = "nextTask.scheduledFor";
 
     /**
      * 
@@ -143,14 +148,27 @@ public class LeadOfferService {
      * 
      * @param agentId
      * @param selector
+     * @param dueDate 
+     * @param statusIds 
      * @return
      */
-    public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector) {
-        if (selector == null) {
-            selector = new FIQLSelector();
+    public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector, List<Integer> statusIds, Date dueDate) {
+        selector.applyDefSort(defaultSort);
+        if(dueDate == null){
+            //TODO remove this once done from fiql
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.YEAR, -20);
+            dueDate = cal.getTime();
         }
-
-        List<LeadOffer> leadOffers = leadOfferDao.getLeadOffersForAgent(agentId);
+        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), selector.getSpringDataSort());
+        List<LeadOffer> leadOffers = null;
+        if(statusIds == null || statusIds.size() == 0){
+            leadOffers = leadOfferDao.getLeadOffersForAgentDueDateGreatherThan(agentId, dueDate, pageable);
+        }
+        else{
+            leadOffers = leadOfferDao.getLeadOffersForAgentWhereStatusIdsIn(agentId, statusIds, dueDate, pageable);
+        }
+       
         PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
 
         Set<String> fields = selector.getFieldSet();
