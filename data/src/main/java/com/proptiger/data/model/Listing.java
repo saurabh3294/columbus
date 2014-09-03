@@ -94,7 +94,7 @@ public class Listing extends BaseModel {
     private boolean isDeleted;
 
     @OneToOne(fetch=FetchType.LAZY)
-    @JoinColumn(referencedColumnName="current_price_id")
+    @JoinColumn(name="current_price_id", insertable=false, updatable=false)
     private ListingPrice         currentListingPrice;
     
     @Transient

@@ -32,7 +32,7 @@ public class CronService {
 
     private static Logger       logger = LoggerFactory.getLogger(CronService.class);
 
-//    @Scheduled(initialDelay = 10000, fixedDelay = 10000)
+    @Scheduled(initialDelay = 10000, fixedDelay = 10000)
     public void manageLeadAssignment() {
         List<Lead> leads = leadService.getLeadsPendingAction();
         for (Lead lead : leads) {
@@ -45,17 +45,17 @@ public class CronService {
         }
     }
 
-//    @Scheduled(initialDelay = 20000, fixedDelay = 10000)
+    @Scheduled(initialDelay = 20000, fixedDelay = 10000)
     public void manageTaskDueNotification() {
         notificationService.manageTaskDueNotification();
     }
 
-//    @Scheduled(initialDelay = 30000, fixedDelay = 10000)
+    @Scheduled(initialDelay = 30000, fixedDelay = 10000)
     public void populateTaskOverDueNotification() {
         notificationService.populateTaskOverDueNotification();
     }
 
-//    @Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(cron = "0 0 9 * * ?")
     public void sendTaskOverDueNotification() {
         notificationService.sendTaskOverDueNotification();
     }
