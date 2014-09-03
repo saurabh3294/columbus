@@ -5,6 +5,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -33,6 +35,8 @@ public class Notification extends BaseModel {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @ExcludeFromBeanCopy
     private int               id;
 
@@ -86,7 +90,7 @@ public class Notification extends BaseModel {
     }
 
     @PostLoad
-    private void changeStringDetailsToJsonDetails() {
+    public void changeStringDetailsToJsonDetails() {
         if (stringDetails != null) {
             try {
                 details = JsonLoader.fromString(stringDetails);

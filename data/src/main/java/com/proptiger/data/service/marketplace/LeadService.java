@@ -26,6 +26,7 @@ import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -61,6 +62,10 @@ public class LeadService {
 
     private static Logger       logger = LoggerFactory.getLogger(LeadService.class);
 
+    @Autowired
+    private NotificationService notificationService;
+    
+    
     @Transactional
     public void manageLeadAuction(int leadId) {
         Lead lead = leadDao.findOne(leadId);
@@ -163,12 +168,14 @@ public class LeadService {
         if (existingLead != null) {
             lead.setId(existingLead.getId());
             patchLead(existingLead, lead);
+            notificationService.createLeadNotification(lead, 3);            
         }
         else {
-            lead.setId(leadDao.save(lead).getId());
-            LeadRequirement leadRequirement = lead.getRequirements().get(0);
-                leadRequirement.setLeadId(lead.getId());
-                leadRequirementsService.save(leadRequirement);
+            lead.setId(leadDao.save(lead).getId());            
+                for (LeadRequirement leadRequirement : lead.getRequirements()) {
+                        leadRequirement.setLeadId(lead.getId());
+                        leadRequirementsService.save(leadRequirement);
+                }
         }
         int leadId = lead.getId();
         leadOriginal.setMergedLeadId(leadId);
@@ -183,10 +190,11 @@ public class LeadService {
      */
 
     private void createDump(Lead lead) {
-        lead.setId(leadDao.save(lead).getId());
-        LeadRequirement leadRequirement = lead.getRequirements().get(0);
-        leadRequirement.setLeadId(lead.getId());
-        leadRequirementsService.save(leadRequirement);
+        lead.setId(leadDao.save(lead).getId());        
+        for (LeadRequirement leadRequirement : lead.getRequirements()) {
+            leadRequirement.setLeadId(lead.getId());
+            leadRequirementsService.save(leadRequirement);
+        }
     }
 
     /**
@@ -228,10 +236,11 @@ public class LeadService {
             }
         }
 
-        existingLead.setMinSize(Math.min(existingLead.getMinSize(), lead.getMinSize()));
-        existingLead.setMaxSize(Math.max(existingLead.getMaxSize(), lead.getMaxSize()));
-        existingLead.setMinBudget(Math.min(existingLead.getMinBudget(), lead.getMinBudget()));
-        existingLead.setMaxBudget(Math.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
+        existingLead.setMinSize(UtilityClass.min(existingLead.getMinSize(), lead.getMinSize()));
+        existingLead.setMaxSize(UtilityClass.max(existingLead.getMaxSize(), lead.getMaxSize()));
+        existingLead.setMinBudget(UtilityClass.min(existingLead.getMinBudget(), lead.getMinBudget()));
+        existingLead.setMaxBudget(UtilityClass.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
+                                
         leadDao.save(existingLead);
     }
 
