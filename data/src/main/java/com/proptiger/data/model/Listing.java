@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -92,7 +93,8 @@ public class Listing extends BaseModel {
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    @Transient
+    @OneToOne(fetch=FetchType.LAZY)
+    @JoinColumn(name="current_price_id", insertable=false, updatable=false)
     private ListingPrice         currentListingPrice;
     
     @Transient

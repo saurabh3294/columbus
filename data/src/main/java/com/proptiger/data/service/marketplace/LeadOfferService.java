@@ -244,17 +244,19 @@ public class LeadOfferService {
                 }
             }
 
-            // TODO - optimize and try fetching in bulk
             if (fields.contains("tasks")) {
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
                             new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
                             leadOffer.getAgentId()).getResults());
 
+                    List<Integer> leadTaskIds = new ArrayList<>();
                     for (LeadTask leadTask : leadOffer.getTasks()) {
                         leadTask.setLeadOffer(null);
+                        leadTaskIds.add(leadTask.getId());
                     }
 
+                    leadOffer.setTasks(new ArrayList<>(leadTaskService.getTaskById(leadTaskIds).values()));
                 }
             }
 
