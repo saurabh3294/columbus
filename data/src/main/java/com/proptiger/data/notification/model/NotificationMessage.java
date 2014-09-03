@@ -1,6 +1,8 @@
 package com.proptiger.data.notification.model;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -20,10 +22,11 @@ import javax.persistence.Transient;
 
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
 @Entity
-@Table(name = "notification_message")
+@Table(name = "notification.notification_message")
 public class NotificationMessage extends BaseModel {
 
     /**
@@ -76,6 +79,19 @@ public class NotificationMessage extends BaseModel {
             this.notificationStatus = NotificationStatus.MessageGenerated;
         }
         autoUpdateFields();
+    }
+    
+    public NotificationMessage() {
+        // TODO Auto-generated constructor stub
+    }
+    
+    public NotificationMessage(Integer userId, String template) {
+        this.userId = userId;
+        NotificationMessagePayload payload = new NotificationMessagePayload();
+        Map<String, Object> extraAttributes = new HashMap<String, Object>();
+        extraAttributes.put(Tokens.Template.name(), template);
+        payload.setExtraAttributes(extraAttributes);
+        this.notificationMessagePayload = payload;     
     }
     
     public int getId() {

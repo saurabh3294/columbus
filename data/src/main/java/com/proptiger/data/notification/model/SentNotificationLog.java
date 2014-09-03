@@ -13,7 +13,7 @@ import javax.persistence.TemporalType;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
-@Table(name = "sent_notification_log")
+@Table(name = "notification.sent_notification_log")
 public class SentNotificationLog extends BaseModel {
 
     /**

@@ -19,7 +19,7 @@ import com.proptiger.data.event.enums.DBOperation;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
-@Table(name = "raw_event_to_event_type_mapping")
+@Table(name = "notification.raw_event_to_event_type_mapping")
 public class RawEventToEventTypeMapping extends BaseModel{
 
     /**

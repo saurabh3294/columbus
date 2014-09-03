@@ -25,7 +25,7 @@ import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
 @Entity
-@Table(name = "notification_generated")
+@Table(name = "notification.notification_generated")
 public class NotificationGenerated extends BaseModel {
 
     /**
