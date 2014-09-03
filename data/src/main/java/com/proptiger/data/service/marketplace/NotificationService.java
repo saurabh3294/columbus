@@ -213,25 +213,7 @@ public class NotificationService {
         Gson gson = new Gson();        
         notification.setStringDetails(gson.toJson(lead).toString());
         
-        /*ObjectMapper mapper = new ObjectMapper();
-        try {
-            mapper.writeValue(new File("E:\\test.json"), lead);
-            System.out.println("anubhav");
-            System.out.println(mapper.writeValueAsString(lead));
-            System.out.println("anubhav");
-            
-            notification.setStringDetails(mapper.writeValueAsString(lead));
-            notification.changeStringDetailsToJsonDetails();
-        }
-        catch (JsonGenerationException e) {
-            e.printStackTrace();
-        }
-        catch (JsonMappingException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }*/
+        
         Notification notificationPreMature = notification;
         List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
         
