@@ -274,15 +274,18 @@ public class Lead extends BaseModel {
 
     private void populateDerivedBedroomsString() {
         Set<Integer> bedrooms = new HashSet<>();
-        for (LeadRequirement leadRequirement : requirements) {
-            if (leadRequirement.getBedroom() != null) {
-                bedrooms.add(leadRequirement.getBedroom());
+        
+        if (requirements != null) {
+            for (LeadRequirement leadRequirement : requirements) {
+                if (leadRequirement.getBedroom() != null) {
+                    bedrooms.add(leadRequirement.getBedroom());
+                }
             }
-        }
 
-        if (!bedrooms.isEmpty()) {
-            Collections.sort(new ArrayList<>(bedrooms));
-            derivedBedroomsString = StringUtils.join(bedrooms, ',') + "BHK";
+            if (!bedrooms.isEmpty()) {
+                Collections.sort(new ArrayList<>(bedrooms));
+                derivedBedroomsString = StringUtils.join(bedrooms, ',') + "BHK";
+            }
         }
     }
 
