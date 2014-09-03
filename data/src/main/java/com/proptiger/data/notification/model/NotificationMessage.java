@@ -85,7 +85,7 @@ public class NotificationMessage extends BaseModel {
         // TODO Auto-generated constructor stub
     }
     
-    public NotificationMessage(Integer userId, String template) {
+    public NotificationMessage(Integer userId, String heading, String template) {
         this.userId = userId;
         NotificationMessagePayload payload = new NotificationMessagePayload();
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
