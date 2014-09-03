@@ -26,6 +26,7 @@ import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -235,10 +236,10 @@ public class LeadService {
             }
         }
 
-        existingLead.setMinSize(Math.min(existingLead.getMinSize(), lead.getMinSize()));
-        existingLead.setMaxSize(Math.max(existingLead.getMaxSize(), lead.getMaxSize()));
-        existingLead.setMinBudget(Math.min(existingLead.getMinBudget(), lead.getMinBudget()));
-        existingLead.setMaxBudget(Math.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
+        existingLead.setMinSize(UtilityClass.min(existingLead.getMinSize(), lead.getMinSize()));
+        existingLead.setMaxSize(UtilityClass.max(existingLead.getMaxSize(), lead.getMaxSize()));
+        existingLead.setMinBudget(UtilityClass.min(existingLead.getMinBudget(), lead.getMinBudget()));
+        existingLead.setMaxBudget(UtilityClass.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
                                 
         leadDao.save(existingLead);
     }
