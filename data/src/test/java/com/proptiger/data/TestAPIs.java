@@ -89,6 +89,7 @@ public class TestAPIs {
 
         exclusionList.add("data/apilist");
         exclusionList.add("app/v1/locality?");
+        exclusionList.add("app/v2/locality?");
         exclusionList.add("data/v1/entity/broker-agent");
         exclusionList.add("sell-property");
         exclusionList.add(".csv");
