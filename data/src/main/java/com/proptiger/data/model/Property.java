@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -124,7 +125,9 @@ public class Property extends BaseModel {
     @Transient
     private String            projectIdBedroom;
 
-    @ManyToOne
+    //TODO making it as lazy, since there would be two entry for a project id with version Website and cms.
+    //TODO should be handled properly rather than making LAZY 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PROJECT_ID", insertable = false, updatable = false)
     private Project           project;
 
