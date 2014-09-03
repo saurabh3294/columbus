@@ -10,9 +10,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -21,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.enums.ActivationStatus;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Company;
+import com.proptiger.data.model.CompanyCoverage;
 import com.proptiger.data.model.Locality;
 
 /**
@@ -72,13 +72,13 @@ public class CompanyUser extends BaseModel {
     @JoinColumn(name = "academic_qualification_id", nullable = false, insertable = false, updatable = false)
     private AcademicQualification academicQualification;
 
-    @ManyToMany
-    @JoinTable(name = "cms.company_coverage", joinColumns = @JoinColumn(
-            name = "company_id",
-            referencedColumnName = "company_id"), inverseJoinColumns = @JoinColumn(
-            name = "locality_id",
-            referencedColumnName = "LOCALITY_ID"))
+    @OneToMany
+    @JoinColumn(name = "company_id", referencedColumnName = "company_id", insertable = false, updatable = false)
+    private List<CompanyCoverage> companyCoverages;
+    
+    @Transient
     private List<Locality>        localities;
+
 
     public int getId() {
         return id;
@@ -175,4 +175,14 @@ public class CompanyUser extends BaseModel {
     public void setLocalities(List<Locality> localities) {
         this.localities = localities;
     }
+
+    public List<CompanyCoverage> getCompanyCoverages() {
+        return companyCoverages;
+    }
+
+    public void setCompanyCoverages(List<CompanyCoverage> companyCoverages) {
+        this.companyCoverages = companyCoverages;
+    }
+    
+    
 }
