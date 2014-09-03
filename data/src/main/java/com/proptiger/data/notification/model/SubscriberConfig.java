@@ -11,7 +11,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "subscriber_config")
+@Table(name = "notification.subscriber_config")
 public class SubscriberConfig {
 
     public enum ConfigName {

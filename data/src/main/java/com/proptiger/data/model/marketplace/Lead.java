@@ -6,7 +6,9 @@ package com.proptiger.data.model.marketplace;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -96,7 +98,7 @@ public class Lead extends BaseModel {
     private Date                  createdAt        = new Date();
 
     @Transient
-    private Date expireTimestamp = DateUtil.shiftMonths(createdAt, 1);
+    private Date expireTimestamp = DateUtil.shiftMonths(new Date(), 1);
 
     @Column(name = "updated_at")
     private Date                  updatedAt        = new Date();
@@ -271,15 +273,17 @@ public class Lead extends BaseModel {
     }
 
     private void populateDerivedBedroomsString() {
-        List<Integer> bedrooms = new ArrayList<>();
+        Set<Integer> bedrooms = new HashSet<>();
         for (LeadRequirement leadRequirement : requirements) {
             if (leadRequirement.getBedroom() != null) {
                 bedrooms.add(leadRequirement.getBedroom());
             }
         }
 
-        Collections.sort(bedrooms);
-        derivedBedroomsString = StringUtils.join(bedrooms, ',') + "BHK";
+        if (!bedrooms.isEmpty()) {
+            Collections.sort(new ArrayList<>(bedrooms));
+            derivedBedroomsString = StringUtils.join(bedrooms, ',') + "BHK";
+        }
     }
 
     public String getSpecialRequirements() {

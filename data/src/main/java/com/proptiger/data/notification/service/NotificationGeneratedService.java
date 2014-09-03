@@ -215,7 +215,7 @@ public class NotificationGeneratedService {
         }
     }
 
-    public NotificationGenerated createNotificationGenerated(
+    private NotificationGenerated createNotificationGenerated(
             NotificationMessage notificationMessage,
             NotificationMedium notificationMedium) {
         NotificationGenerated nGenerated = new NotificationGenerated();

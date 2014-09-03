@@ -15,7 +15,7 @@ import com.google.gson.JsonSyntaxException;
 import com.proptiger.data.model.BaseModel;
 
 @Entity
-@Table(name = "raw_event_table_details")
+@Table(name = "notification.raw_event_table_details")
 public class DBRawEventTableLog extends BaseModel {
     /**
      * 

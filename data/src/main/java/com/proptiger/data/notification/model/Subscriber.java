@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "subscriber")
+@Table(name = "notification.subscriber")
 public class Subscriber {
 
     public enum SubscriberName {
