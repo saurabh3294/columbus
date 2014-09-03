@@ -170,10 +170,11 @@ public class LeadService {
             notificationService.createLeadNotification(lead, 3);            
         }
         else {
-            lead.setId(leadDao.save(lead).getId());
-            LeadRequirement leadRequirement = lead.getRequirements().get(0);
-                leadRequirement.setLeadId(lead.getId());
-                leadRequirementsService.save(leadRequirement);
+            lead.setId(leadDao.save(lead).getId());            
+                for (LeadRequirement leadRequirement : lead.getRequirements()) {
+                        leadRequirement.setLeadId(lead.getId());
+                        leadRequirementsService.save(leadRequirement);
+                }
         }
         int leadId = lead.getId();
         leadOriginal.setMergedLeadId(leadId);
@@ -188,10 +189,11 @@ public class LeadService {
      */
 
     private void createDump(Lead lead) {
-        lead.setId(leadDao.save(lead).getId());
-        LeadRequirement leadRequirement = lead.getRequirements().get(0);
-        leadRequirement.setLeadId(lead.getId());
-        leadRequirementsService.save(leadRequirement);
+        lead.setId(leadDao.save(lead).getId());        
+        for (LeadRequirement leadRequirement : lead.getRequirements()) {
+            leadRequirement.setLeadId(lead.getId());
+            leadRequirementsService.save(leadRequirement);
+        }
     }
 
     /**
