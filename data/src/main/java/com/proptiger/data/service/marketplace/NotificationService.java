@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.Gson;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
@@ -335,6 +337,33 @@ public class NotificationService {
         notification.setDetails(details);
 
         notification = notificationDao.save(notification);
+        return notification;
+    }
+
+    /**
+     * 
+     * @param lead
+     * @param notificationTypeId
+     * @return
+     */
+
+    public Notification createLeadNotification(Lead lead, int notificationTypeId) {
+        Notification notification = new Notification();
+        notification.setNotificationTypeId(notificationTypeId);
+        notification.setObjectId(lead.getId());
+
+        Gson gson = new Gson();
+        notification.setStringDetails(gson.toJson(lead).toString());
+        Notification notificationPreMature = notification;
+        List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
+
+        for (LeadOffer leadOffer : leadOffers) {
+            Cloner cloner = new Cloner();
+            Notification notificationOriginal = cloner.deepClone(notificationPreMature);
+            notificationOriginal.setUserId(leadOffer.getAgentId());
+            notificationDao.save(notificationOriginal);
+
+        }
         return notification;
     }
 

@@ -1,8 +1,12 @@
 package com.proptiger.data.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 /**
@@ -28,6 +32,10 @@ public class CompanyCoverage extends BaseModel {
     @Column(name = "locality_id")
     private int               localityId;
 
+    @OneToOne
+    @JoinColumn(name = "locality_id" , referencedColumnName = "LOCALITY_ID", insertable = false, updatable = false)
+    private Locality locality;
+    
     public int getId() {
         return id;
     }
@@ -51,4 +59,14 @@ public class CompanyCoverage extends BaseModel {
     public void setLocalityId(int localityId) {
         this.localityId = localityId;
     }
+
+    public Locality getLocality() {
+        return locality;
+    }
+
+    public void setLocality(Locality locality) {
+        this.locality = locality;
+    }
+
+    
 }

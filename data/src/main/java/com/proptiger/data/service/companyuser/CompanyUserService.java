@@ -1,17 +1,19 @@
 package com.proptiger.data.service.companyuser;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.model.CompanyCoverage;
+import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.companyuser.CompanyUserDao;
-import com.proptiger.data.util.Constants;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -31,7 +33,6 @@ public class CompanyUserService {
      * @param companyUserId
      * @return
      */
-    //@Cacheable(value = Constants.CacheName.AGENT, key = "#agentId", unless = "#result != null")
     public CompanyUser getAgent(Integer companyUserId, FIQLSelector selector) {
         CompanyUser companyUser = companyUserDao.findByUserId(companyUserId);
 
@@ -41,9 +42,13 @@ public class CompanyUserService {
 
         Set<String> fields = selector.getFieldSet();
         if (fields.contains("localities")) {
-            companyUser.setLocalities(companyUserDao.findLocalitiesByUserId(companyUserId));
+            CompanyUser companyUserFull = companyUserDao.findLocalitiesByUserId(companyUserId);
+            List<Locality> localities = new ArrayList<Locality>();
+            for (CompanyCoverage companyCoverage : companyUserFull.getCompanyCoverages()) {
+                localities.add(companyCoverage.getLocality());
+            }
+            companyUser.setLocalities(localities);
         }
-
         return companyUser;
     }
 }
