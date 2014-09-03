@@ -56,7 +56,7 @@ public class TemplateGenerator {
         // payloadDataMap);
 
         // Using same template for subject and body
-        String subject = replaceTokensWithValue(template, payloadDataMap);
+        String subject = "Temp Subject"; //replaceTokensWithValue(template, payloadDataMap);
         String body = replaceTokensWithValue(template, payloadDataMap);
 
         if (subject == null || subject.isEmpty() || body == null || body.isEmpty()) {
