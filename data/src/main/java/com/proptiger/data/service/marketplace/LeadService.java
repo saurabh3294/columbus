@@ -160,7 +160,9 @@ public class LeadService {
             lead.setId(leadDao.save(lead).getId());
             for (LeadRequirement leadRequirement : lead.getRequirements()) {
                 leadRequirement.setLeadId(lead.getId());
-                leadRequirementsService.save(leadRequirement);
+                if (!isExactReplica(leadRequirement)) {                     
+                    leadRequirementsService.save(leadRequirement);
+                }
             }
         }
         int leadId = lead.getId();
@@ -179,7 +181,9 @@ public class LeadService {
         lead.setId(leadDao.save(lead).getId());
         for (LeadRequirement leadRequirement : lead.getRequirements()) {
             leadRequirement.setLeadId(lead.getId());
-            leadRequirementsService.save(leadRequirement);
+            if (!isExactReplica(leadRequirement)) { 
+                leadRequirementsService.save(leadRequirement);
+            }
         }
     }
 
