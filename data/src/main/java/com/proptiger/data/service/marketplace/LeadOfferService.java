@@ -264,17 +264,7 @@ public class LeadOfferService {
 
             if (fields.contains("tasks")) {
                 for (LeadOffer leadOffer : leadOffers) {
-                    leadOffer.setTasks(leadTaskService.getLeadTasksForUser(
-                            new FIQLSelector().addAndConditionToFilter("leadOfferId==" + leadOffer.getId()),
-                            leadOffer.getAgentId()).getResults());
-
-                    List<Integer> leadTaskIds = new ArrayList<>();
-                    for (LeadTask leadTask : leadOffer.getTasks()) {
-                        leadTask.setLeadOffer(null);
-                        leadTaskIds.add(leadTask.getId());
-                    }
-
-                    leadOffer.setTasks(new ArrayList<>(leadTaskService.getTaskById(leadTaskIds).values()));
+                    leadOffer.setTasks(leadTaskService.getTasksByLeadOfferId(leadOffer.getId()));
                 }
             }
 
@@ -426,7 +416,8 @@ public class LeadOfferService {
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getLeadOfferStatusId());
         offer.setCycleId(1);
-        return leadOfferDao.save(offer);
+        offer = leadOfferDao.save(offer);
+        return offer;
     }
 
     /**

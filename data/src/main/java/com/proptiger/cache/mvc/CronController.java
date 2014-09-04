@@ -29,6 +29,13 @@ public class CronController {
         return new APIResponse();
     }
 
+    @RequestMapping("/v1/no-broker-claimed")
+    public @ResponseBody
+    APIResponse leadNotClaimed() throws Exception {
+        cronService.manageNoBrokerClaimedNotification();
+        return new APIResponse();
+    }
+
     @RequestMapping("/v1/populate-notifications")
     public @ResponseBody
     APIResponse populateNotifications() throws Exception {

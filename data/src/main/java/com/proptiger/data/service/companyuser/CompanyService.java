@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.proptiger.data.enums.ActivationStatus;
 import com.proptiger.data.model.Company;
 import com.proptiger.data.model.companyuser.CompanyUser;
 import com.proptiger.data.repo.CompanyDao;
@@ -35,6 +36,6 @@ public class CompanyService {
      * @return {@link CompanyUser} {@link List}
      */
     public List<CompanyUser> getCompanyUsersForCompanies(Company company) {
-        return companyUserDao.findByCompanyId(company.getId());
+        return companyUserDao.findByCompanyIdAndStatus(company.getId(), ActivationStatus.Active);
     }
 }

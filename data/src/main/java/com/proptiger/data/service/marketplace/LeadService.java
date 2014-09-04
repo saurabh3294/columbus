@@ -1,17 +1,16 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.proptiger.data.model.Company;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
@@ -23,8 +22,6 @@ import com.proptiger.data.service.LeadOfferStatus;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
@@ -37,63 +34,56 @@ import com.proptiger.exception.ProAPIException;
 @Service
 public class LeadService {
     @Autowired
-    private UserService         userService;
+    private UserService             userService;
 
     @Autowired
-    private LeadDao             leadDao;
+    private LeadDao                 leadDao;
 
     @Autowired
     private LeadRequirementsService leadRequirementsService;
 
     @Autowired
-    private LeadOfferDao        leadOfferDao;
+    private LeadOfferDao            leadOfferDao;
 
     @Autowired
-    private LeadOfferService    leadOfferService;
+    private LeadOfferService        leadOfferService;
 
     @Autowired
-    private ProjectService      projectService;
+    private ProjectService          projectService;
 
     @Autowired
-    private CompanyService      companyService;
+    private CompanyService          companyService;
 
     @Autowired
-    private PropertyReader      propertyReader;
+    private PropertyReader          propertyReader;
 
-    private static Logger       logger = LoggerFactory.getLogger(LeadService.class);
+    private static Logger           logger = LoggerFactory.getLogger(LeadService.class);
 
     @Autowired
-    private NotificationService notificationService;
-    
-    
+    private NotificationService     notificationService;
+
     @Transactional
     public void manageLeadAuction(int leadId) {
-        Lead lead = leadDao.findOne(leadId);
-        boolean biddingCycleOver = (lead.getLeadOffers().size() != 0);
+        Lead lead = leadDao.getLock(leadId);
 
-        if (biddingCycleOver) {
-            // communication to channel manager
-            lead.setNextActionTime(null);
-            leadDao.save(lead);
-        }
-        else {
+        if (lead.getLeadOffers().size() == 0) {
             List<Company> brokerCompanies = getBrokersForLead(lead.getId());
+
             if (brokerCompanies.size() == 0) {
-                // error case of no broker found
+                // XXX No broker found alert in future
             }
             else {
                 for (Company company : brokerCompanies) {
-                    leadOfferService.offerLeadToBroker(lead, company, 1);
+                    LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, 1);
+                    notificationService.sendLeadOfferNotification(offer.getId());
                 }
-                lead.setNextActionTime(DateUtil.getWorkingTimeAddedIntoDate(new Date(), propertyReader
-                        .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION, Integer.class)));
-                leadDao.save(lead);
             }
         }
     }
 
-    public List<Lead> getLeadsPendingAction() {
-        return leadDao.findByNextActionTimeLessThan(new Date());
+    @Async
+    public void manageLeadAuctionAsync(int leadId) {
+        manageLeadAuction(leadId);
     }
 
     /**
@@ -112,8 +102,6 @@ public class LeadService {
         else {
             brokers = companyService.getBrokersForLocalities(localityIds);
         }
-
-        logger.debug("BROKERS FOR LEAD-ID: " + lead.getId() + " ARE: " + new Gson().toJson(brokers));
         return brokers;
     }
 
@@ -135,11 +123,9 @@ public class LeadService {
                 localityIds.add(projectService.getProjectDetail(requirement.getProjectId()).getLocalityId());
             }
             else {
-                // Some error case
+                logger.error("No locality found in marketplace lead id : " + leadId);
             }
         }
-
-        logger.debug("LOCALITIES IN LEAD " + leadId + " ARE " + new Gson().toJson(localityIds));
         return localityIds;
     }
 
@@ -168,14 +154,14 @@ public class LeadService {
         if (existingLead != null) {
             lead.setId(existingLead.getId());
             patchLead(existingLead, lead);
-            notificationService.createLeadNotification(lead, 3);            
+            notificationService.createLeadNotification(lead, 3);
         }
         else {
-            lead.setId(leadDao.save(lead).getId());            
-                for (LeadRequirement leadRequirement : lead.getRequirements()) {
-                        leadRequirement.setLeadId(lead.getId());
-                        leadRequirementsService.save(leadRequirement);
-                }
+            lead.setId(leadDao.save(lead).getId());
+            for (LeadRequirement leadRequirement : lead.getRequirements()) {
+                leadRequirement.setLeadId(lead.getId());
+                leadRequirementsService.save(leadRequirement);
+            }
         }
         int leadId = lead.getId();
         leadOriginal.setMergedLeadId(leadId);
@@ -190,7 +176,7 @@ public class LeadService {
      */
 
     private void createDump(Lead lead) {
-        lead.setId(leadDao.save(lead).getId());        
+        lead.setId(leadDao.save(lead).getId());
         for (LeadRequirement leadRequirement : lead.getRequirements()) {
             leadRequirement.setLeadId(lead.getId());
             leadRequirementsService.save(leadRequirement);
@@ -240,7 +226,7 @@ public class LeadService {
         existingLead.setMaxSize(UtilityClass.max(existingLead.getMaxSize(), lead.getMaxSize()));
         existingLead.setMinBudget(UtilityClass.min(existingLead.getMinBudget(), lead.getMinBudget()));
         existingLead.setMaxBudget(UtilityClass.max(existingLead.getMaxBudget(), lead.getMaxBudget()));
-                                
+
         leadDao.save(existingLead);
     }
 
@@ -301,5 +287,4 @@ public class LeadService {
     public List<Lead> getLeads(List<Integer> leadIds) {
         return leadDao.getLeads(leadIds);
     }
-
 }

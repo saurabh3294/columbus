@@ -1,5 +1,6 @@
 package com.proptiger.data.service.cron;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,6 +10,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.proptiger.data.model.marketplace.Lead;
+import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.marketplace.LeadService;
 import com.proptiger.data.service.marketplace.NotificationService;
@@ -30,17 +32,21 @@ public class CronService {
     @Autowired
     private LeadOfferDao        leadOfferDao;
 
+    @Autowired
+    private LeadDao             leadDao;
+
     private static Logger       logger = LoggerFactory.getLogger(CronService.class);
 
-    @Scheduled(initialDelay = 10000, fixedDelay = 10000000)
+    @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
     public void manageLeadAssignment() {
-        List<Lead> leads = leadService.getLeadsPendingAction();
+        Date createdSince = new Date(new Date().getTime() - 7200 * 1000);
+        List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
         for (Lead lead : leads) {
             try {
                 leadService.manageLeadAuction(lead.getId());
             }
             catch (Exception e) {
-                logger.debug("Error in lead assignment: " + e);
+                logger.error("Error in lead assignment: " + e);
             }
         }
     }
@@ -70,5 +76,10 @@ public class CronService {
     public void sendTaskDueNotification() {
         notificationService.populateTaskDueNotification();
         notificationService.sendTaskDueNotification();
+    }
+
+    @Scheduled(initialDelay = 40000, fixedDelay = 1800000)
+    public void manageNoBrokerClaimedNotification() {
+        notificationService.manageNoBrokerClaimedNotification();
     }
 }

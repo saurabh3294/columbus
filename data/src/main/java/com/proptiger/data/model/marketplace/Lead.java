@@ -89,7 +89,7 @@ public class Lead extends BaseModel {
     private String specialRequirements = "Huuuuuuuuuuuuuuuuge kitchen and bathroom";
 
     @Transient
-    private String derivedBedroomsString = "2,3,4,5,6,7BHK";
+    private String derivedBedroomsString = "";
 
     @Transient
     private int countAgentsClaimed = 99999999;
