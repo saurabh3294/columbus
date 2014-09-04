@@ -10,12 +10,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
+import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -28,10 +30,12 @@ import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.repo.LeadTaskDao;
+import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.LeadTaskService;
+import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SerializationUtils;
@@ -60,12 +64,21 @@ public class NotificationService {
     private LeadOfferDao                   leadOfferDao;
 
     @Autowired
+    private LeadOfferService               leadOfferService;
+
+    @Autowired
+    private LeadDao                        leadDao;
+
+    @Autowired
     private LeadTaskService                leadTaskService;
 
     @Autowired
     NotificationGeneratedService           generatedService;
 
     private static final List<Integer>     allMasterTaskIdsButCall = new ArrayList<>();
+
+    @Autowired
+    private static Logger                  logger;
 
     static {
         for (LeadTaskName leadTask : LeadTaskName.values()) {
@@ -566,34 +579,77 @@ public class NotificationService {
         return notification;
     }
 
-    /**
-     * deleted all lead offered notifications for a lead
-     * 
-     * @param leadId
-     */
-    public void deleteLeadOfferNotificationForLead(int leadId) {
-        List<LeadOffer> offers = leadOfferDao.findByLeadId(leadId);
-        List<Integer> offerIds = new ArrayList<>();
+    @Transactional
+    public void manageLeadOfferedNotificationDeletionForLead(int leadId) {
+        Lead lead = leadDao.getLock(leadId);
+        List<LeadOffer> offers = lead.getLeadOffers();
+
+        Date endDate = getNoBrokerClaimedCutoffTime();
+        Date startDate = new Date(
+                endDate.getTime() - PropertyReader
+                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
+
+        int offeredStatusId = LeadOfferStatus.Offered.getLeadOfferStatusId();
+        Date maxOfferDate = new Date(0);
+        boolean claimed = false;
         for (LeadOffer offer : offers) {
-            offerIds.add(offer.getId());
+            if (offer.getStatusId() != offeredStatusId) {
+                claimed = true;
+            }
+            maxOfferDate = DateUtil.max(maxOfferDate, offer.getCreatedAt());
         }
-        if (!offerIds.isEmpty()) {
-            List<Notification> notifications = notificationDao.findByObjectIdInAndNotificationTypeId(
-                    offerIds,
+
+        if (claimed || (maxOfferDate.after(startDate) && maxOfferDate.before(endDate))) {
+            if (!claimed) {
+                leadOfferService.expireLeadOffers(offers);
+                generatedService
+                        .createNotificationGenerated(
+                                Arrays.asList(new NotificationMessage(
+                                        getRelationshipManagerUserId(),
+                                        NotificationType.NoBrokerClaimed.getEmailSubject(),
+                                        "Lead ID: " + leadId
+                                                + " of resale marketplace was not claimed by any broker. Marking all offers as expired.")),
+                                Arrays.asList(MediumType.Email));
+                createNotification(
+                        getRelationshipManagerUserId(),
+                        NotificationType.NoBrokerClaimed.getId(),
+                        leadId,
+                        null);
+            }
+            deleteLeadOfferNotificationForLead(offers);
+        }
+    }
+
+    /**
+     * deletes offerred notification for a list of offers
+     * 
+     * @param offers
+     */
+    private void deleteLeadOfferNotificationForLead(List<LeadOffer> offers) {
+        for (LeadOffer offer : offers) {
+            Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
+                    offer.getId(),
                     NotificationType.LeadOffered.getId());
-            if (!notifications.isEmpty()) {
-                notificationDao.delete(notifications);
+            if (notification != null) {
+                notificationDao.delete(notification);
             }
         }
     }
 
-    public void manageNoBrokerClaimedNotification() {
-        manageNoBrokerClaimedNotificationForLead(1);
+    private int getRelationshipManagerUserId() {
+        return PropertyReader.getRequiredPropertyAsType(
+                PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID,
+                Integer.class);
     }
 
-    private void manageNoBrokerClaimedNotificationForLead(int leadId) {
-        generatedService.createNotificationGenerated(
-                Arrays.asList(new NotificationMessage(1, "FFFFFFF", "AAAAAAAAAAAAAAA")),
-                Arrays.asList(MediumType.Email));
+    public Date getNoBrokerClaimedCutoffTime() {
+        return DateUtil
+                .getWorkingTimeSubtractedFromDate(
+                        new Date(),
+                        PropertyReader.getRequiredPropertyAsType(
+                                PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION,
+                                Integer.class) + PropertyReader.getRequiredPropertyAsType(
+                                PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION,
+                                Integer.class));
     }
 }
