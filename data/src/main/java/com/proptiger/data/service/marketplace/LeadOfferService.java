@@ -2,7 +2,6 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.LeadOfferStatus;
@@ -40,7 +38,6 @@ import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
@@ -95,6 +92,7 @@ public class LeadOfferService {
     
     private String defaultSort = "nextTask.scheduledFor";
 
+    @Autowired
     private NotificationGeneratedService generatedService;
     
     /**
