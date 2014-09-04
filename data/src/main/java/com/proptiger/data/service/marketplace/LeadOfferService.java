@@ -494,12 +494,12 @@ public class LeadOfferService {
                 leadOfferInDB.setOfferedListings(leadOfferedListingList);
                 restrictOtherBrokersFromClaiming(leadOfferId);
 
-                String heading = "FFFFFFFFF";
-                String template  = "UUUUUU";
-                
-                generatedService.createNotificationGenerated(
-                        Arrays.asList(new NotificationMessage(userId, heading, template)),
-                        Arrays.asList(MediumType.Email));
+//                String heading = "FFFFFFFFF";
+//                String template  = "UUUUUU";
+//                
+//                generatedService.createNotificationGenerated(
+//                        Arrays.asList(new NotificationMessage(userId, heading, template)),
+//                        Arrays.asList(MediumType.Email));
                 
                 return leadOfferInDB;
             }
