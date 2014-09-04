@@ -55,6 +55,9 @@ config = dict(
                     }
 )
 logFile = "logImageError.txt" 
+f = open(logFile, 'w')
+f.close()
+
 #==========================================configuration=============
 
 def logErr(text, logFile, imgData, imgId) :
@@ -174,7 +177,7 @@ if __name__ == "__main__":
     
 
     # Create a pool with three worker threads
-    pool = ThreadPool(29) 
+    pool = ThreadPool(30) 
     
     def task(data):
         cmd = ['identify', data[1]]
@@ -185,6 +188,9 @@ if __name__ == "__main__":
         extension = data[1][length:]
         width = data[10]
         height = data[11]
+        hyphon = data[15]
+        currentIndex = data[16]
+        total_resolutions_count = data[17]
         #a hack because we know that quality can be only one of these
         quality=95
 
@@ -193,22 +199,31 @@ if __name__ == "__main__":
         else: 
                     quality=str(70)+"%"
             
-        newImgName = imageName+'-o'+extension
+        newImgName = imageName+hyphon+str(width)+hyphon+str(height)+'-o'+extension
         resolutionStr = str(width)+'X'+str(height)
         tmp = ['convert', data[1], '-resize', resolutionStr ,'-strip', '-interlace', 'plane', '-quality', quality,newImgName ]
         logging(json.dumps(tmp))
-        subprocess.Popen(tmp, stdout=subprocess.PIPE ).communicate()[0]
+        convertPoll = subprocess.Popen(tmp, stdout=subprocess.PIPE )
+        output = convertPoll.communicate()[0]
+        status = convertPoll.poll()
+        logging("CONVERT DONE "+newImgName+" "+json.dumps(output))
+        if(status < 0):
+            logging("\n CONVERT COMMAND FAILED "+json.dumps(tmp))
+            return 0
+
         logging("\n** new imagename is **\n")
         logging(newImgName)
-        #os.remove(data[1])
         #change it to upload 
-        uploadImg(data, newImgName) 
-
+        status = uploadImg(data, newImgName) 
+        if(currentIndex == total_resolutions_count -1):
+            os.remove(data[1])
+        os.remove(newImgName)
+        return status
 
     def uploadImg(data, newImgName):      
         try:
             logging("\ninside upload imag\n")
-            s3url = "s3://im.proptiger.com/"
+            s3url = "s3://im.proptiger-ws.com/"
             path = data[14]
             s3bucket = s3url+path
             s3command = ["s3cmd", "put", newImgName, s3bucket]
@@ -218,21 +233,9 @@ if __name__ == "__main__":
             if(status < 0):
                 logging("\n ERROR "+s3bucket+","+newImgName)
             logging(json.dumps(s3command))
-
-            #if isinstance(t, int ) :
-            #   logging("inside if"                 )
-            #   k.make_public()
-            #                    
-            #   logUploadSucc("Upload Success", 'UploadSuccess.txt', data[1])
-            #   logging("uploaded sucessfully")
-            #   return 1
-            #else :
-            #   logErr("Upload Failed", 'UploadFailed.txt',data[1])
-            #   logging("upload failed")
-            #   return -1
-
+            return 1
         except Exception: 
-                return -1
+                return 0
 
     def get_param(data) :
         params = {}
@@ -262,12 +265,8 @@ if __name__ == "__main__":
     # prepare a cursor object using cursor() method
     cursor = db.cursor()
 
-        #cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path, I.original_name),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt ,I.width AS width,I.height as height FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) WHERE ((I.active = 1) AND (I.object_id IN (1,2) OR I.id IN (301647,301889,494492742,422386,375840,338627,301647))) ORDER BY I.ID")
     
-    cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name) FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) JOIN RESI_PROJECT RP ON (RP.city_id in (" + sys.argv[1] + ") AND RP.ACTIVE = 1) JOIN RESI_PROJECT_TYPES RPT ON (RP.PROJECT_ID=RPT.PROJECT_ID  AND (I.object_id=RP.PROJECT_ID OR I.object_id=RPT.TYPE_ID)) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID")
-
-    #cursor.execute(" SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path, I.original_name),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) WHERE I.active = 1 AND (I.object_id IN (1,2 ) OR (I.id IN ((301647,301889,495342,422386,375840,338627,301647)) )) AND NOT(I.migration_status='Done')  ORDER BY I.ID")
-
+    cursor.execute("SELECT I.id, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.id),I.original_name, I.object_id, I.alt_text AS altText, I.priority, IT.type AS imageType, OT.type AS objectType, I.title, I.taken_at AS takenAt, I.path, concat('http://im.proptiger.com.s3.amazonaws.com/',I.path,I.watermark_name), I.watermark_name FROM Image I JOIN ImageType IT ON (I.ImageType_id = IT.id) JOIN ObjectType OT ON (IT.ObjectType_id = OT.id) JOIN RESI_PROJECT RP ON (RP.city_id in (" + sys.argv[1] + ") AND RP.ACTIVE = 1) JOIN RESI_PROJECT_TYPES RPT ON (RP.PROJECT_ID=RPT.PROJECT_ID  AND (I.object_id=RP.PROJECT_ID OR I.object_id=RPT.TYPE_ID)) WHERE (I.active = 1 AND I.migration_status!='Done') GROUP BY I.id ORDER BY I.ID ")
 
     rows = cursor.fetchall()
     cols = []
@@ -275,6 +274,7 @@ if __name__ == "__main__":
     totalImages = 0
     logging("****************Start***************")
     logging(" FOUND "+str(len(rows)))
+    imageArray = []
     for row in rows:
         for col in row:
             cols.append(col)
@@ -283,8 +283,6 @@ if __name__ == "__main__":
         url = cols.pop(0)
         img = cols.pop(0)
         logging(img)
-        length = string.find(img,".")
-        extension = img[length:]
         objectId = cols.pop(0)
         altText = cols.pop(0)
         priority = cols.pop(0)
@@ -294,36 +292,45 @@ if __name__ == "__main__":
         takenAt = cols.pop(0)
         path = cols.pop(0)
         oldImageUrl = cols.pop(0)
+        watermark_name = cols.pop(0)
+        length = string.find(watermark_name,".")
+        extension = watermark_name[length:]
         logging("path == "+path)
-        resolutions = ['130-100','360-270','520-400','1336-768','220-120','280-200','320-220','360-240','420-280','480-320','520-340','1040-780','380-280','940-720','680-580','800-620','940-720','520-400'] 
-        #['-130-100','-360-270','-520-400','-1336-768']
-        resolutions= [130,100,360,270,520,400,1336,768,220,120,280,200,320,220,360,240,420,280,480,320,520,340,1040,780,380,280,940,720,680,580,800,620,940,720,520,400]#[130,100,360,270,520,400,1336,768]
+        resolutions = ['130-100','360-270','520-400','1336-768','220-120','280-200','320-220','360-240','420-280','480-320','520-340','1040-780','380-280','940-720','680-580','800-620'] 
+        resolutions= [130,100,360,270,520,400,1336,768,220,120,280,200,320,220,360,240,420,280,480,320,520,340,1040,780,380,280,940,720,680,580,800,620,940]
+
         hyphon='-'
         count = count + 1
         logging(" TOTAL  DOMAINS "+str(count))
         i=0;
-        
+        total_resolutions = len(resolutions)/2
+
         try:
-            while(i<18):
+            imgId=str(imId)+extension
+            logging(" DOWNLOAD IMAGE URL"+oldImageUrl)
+            data = requests.get(str(oldImageUrl))
+            with open(imgId, 'wb') as f:
+                for chunk in data.iter_content(1024):
+                    f.write(chunk)
+            logging(" IMAGE URL DOWNLOADED "+imgId)
+            uploadStatus = 1
+            imageArray.append(imgId)
+            while(i<total_resolutions):
                 totalImages = totalImages + 1
                 width=resolutions[2*i]
                 height=resolutions[2*i+1]
                 logging("**printing resolutions url ** ")
                 newUrl=str(url)+hyphon+str(width)+hyphon+str(height)+extension
                 logging(str(newUrl))
-                data = requests.get(str(oldImageUrl))
-                imgId=str(imId)+hyphon+str(width)+hyphon+str(height)+extension
-                logging(" DOWNLOAD IMAGE URL"+oldImageUrl)
-                with open(imgId, 'wb') as f:
-                    for chunk in data.iter_content(1024):
-                         f.write(chunk)
-                #imgId=imgId+hyphon+str(width)+hyphon+str(height)+extension
-                returnVal= pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType, title, takenAt,width,height,db,cursor,path,width,height), None)
-                logging(" \nprinting return value \n")
-                #logging(returnVal)
-                if(returnVal==-1):
+                returnVal= pool.queueTask(task, (img, imgId, newUrl, objectId, altText, priority, imageType, objectType, title, takenAt,width,height,db,cursor,path, hyphon, i, total_resolutions), None)
+                uploadStatus = uploadStatus&returnVal
+                logging(" \n WIDTH HEIGTH "+str(width)+"-"+str(height)+" printing return value "+ str(returnVal) +" ALL STATUS "+ str(uploadStatus) +" \n")
+
+                if(returnVal==0):
                     break
-                if(i==3):
+
+                if((i==total_resolutions-1) & uploadStatus):
+
                     query = "UPDATE proptiger.Image SET migration_status='Done' WHERE Image.id="+str(imId)
                     logging(query)
                     cursor.execute("UPDATE proptiger.Image SET migration_status='Done' WHERE Image.id=%s",imId)
@@ -331,6 +338,7 @@ if __name__ == "__main__":
                 logging(" TOTAL IMAGES "+str(totalImages))
                 i=i+1
         except IOError as e:
+            os.remove(imgId)
             logging("I/O error({0}): {1}".format(e.errno, e.strerror))
 
         logging("done")
