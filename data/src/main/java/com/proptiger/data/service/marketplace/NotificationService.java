@@ -610,6 +610,11 @@ public class NotificationService {
                                         "Lead ID: " + leadId
                                                 + " of resale marketplace was not claimed by any broker. Marking all offers as expired.")),
                                 Arrays.asList(MediumType.Email));
+                createNotification(
+                        getRelationshipManagerUserId(),
+                        NotificationType.NoBrokerClaimed.getId(),
+                        leadId,
+                        null);
             }
             deleteLeadOfferNotificationForLead(offers);
         }
