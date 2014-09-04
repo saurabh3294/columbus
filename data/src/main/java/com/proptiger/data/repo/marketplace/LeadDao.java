@@ -26,6 +26,9 @@ public interface LeadDao extends JpaRepository<Lead, Integer> {
     @Query("SELECT L FROM Lead L LEFT JOIN L.leadOffers LO WHERE LO.id IS NULL AND L.mergedLeadId IS NULL AND L.createdAt > ?1")
     public List<Lead> getMergedLeadsWithoutOfferCreatedSince(Date createdSince);
 
+    @Query("SELECT DISTINCT L FROM Lead L INNER JOIN L.leadOffers LO WHERE L.mergedLeadId IS NULL AND LO.createdAt BETWEEN ?1 AND ?2 AND LO.statusId = ?3")
+    public List<Lead> getMergedLeadsByOfferredAtBetweenAndOfferStatusId(Date startDate, Date endDate, int offerStatusId);
+
     @Query("select L from Lead L where L.id in (?1)")
     public List<Lead> getLeads(List<Integer> leadIds);
 

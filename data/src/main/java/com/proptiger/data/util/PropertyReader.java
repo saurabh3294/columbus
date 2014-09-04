@@ -89,6 +89,15 @@ public class PropertyReader {
     }
 
     /**
+     * 
+     * @param key
+     * @return
+     */
+    public static int getRequiredPropertyAsInt(String key) {
+        return getRequiredPropertyAsType(key, Integer.class);
+    }
+
+    /**
      * Updating value of a key in map through JMX
      * 
      * @param key

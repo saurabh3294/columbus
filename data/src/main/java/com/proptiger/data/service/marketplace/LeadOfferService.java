@@ -2,7 +2,6 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +12,6 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.LeadOfferStatus;
@@ -41,7 +39,6 @@ import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.pojo.FIQLSelector;
-import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
@@ -97,6 +94,7 @@ public class LeadOfferService {
     
     private String defaultSort = "nextTask.scheduledFor";
 
+    @Autowired
     private NotificationGeneratedService generatedService;
 
     @Value("${marketplace.template.base.path}")
@@ -169,23 +167,28 @@ public class LeadOfferService {
      * @param statusIds 
      * @return
      */
-    public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector, List<Integer> statusIds, Date dueDate) {
+    public PaginatedResponse<List<LeadOffer>> getLeadOffers(
+            int agentId,
+            FIQLSelector selector,
+            List<Integer> statusIds,
+            Date dueDate) {
         selector.applyDefSort(defaultSort);
-        if(dueDate == null){
-            //TODO remove this once done from fiql
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.YEAR, -20);
-            dueDate = cal.getTime();
-        }
-        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), selector.getSpringDataSort());
+
         List<LeadOffer> leadOffers = null;
-        if(statusIds == null || statusIds.size() == 0){
-            leadOffers = leadOfferDao.getLeadOffersForAgentDueDateGreatherThan(agentId, dueDate, pageable);
+        
+        if(statusIds != null && statusIds.size() > 0 && dueDate != null){
+            leadOffers = leadOfferDao.getLeadOffersForAgentWhereStatusIdsInAndDueDateGreatherThan(agentId, statusIds, dueDate);
+        }
+        else if(dueDate != null){
+            leadOffers = leadOfferDao.getLeadOffersForAgentDueDateGreatherThan(agentId, dueDate);
+        }
+        else if(statusIds != null && statusIds.size() > 0){
+            leadOffers = leadOfferDao.getLeadOffersForAgentStatusIdsIn(agentId, statusIds);
         }
         else{
-            leadOffers = leadOfferDao.getLeadOffersForAgentWhereStatusIdsIn(agentId, statusIds, dueDate, pageable);
+            leadOffers = leadOfferDao.getLeadOffersForAgent(agentId);
         }
-       
+        
         PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
 
         Set<String> fields = selector.getFieldSet();
@@ -195,7 +198,7 @@ public class LeadOfferService {
     }
 
     private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields) {
-        if (fields != null) {
+        if (fields != null && leadOffers != null && !leadOffers.isEmpty()) {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
@@ -516,7 +519,7 @@ public class LeadOfferService {
                 generatedService.createNotificationGenerated(
                         Arrays.asList(new NotificationMessage(userId, heading, template)),
                         Arrays.asList(MediumType.Email));
-                
+
                 return leadOfferInDB;
             }
 
@@ -693,5 +696,13 @@ public class LeadOfferService {
                 senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername());
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
+    }
+
+    public List<LeadOffer> expireLeadOffers(List<LeadOffer> leadOffers) {
+        for (LeadOffer leadOffer : leadOffers) {
+            leadOffer.setStatusId(LeadOfferStatus.Expired.getLeadOfferStatusId());
+            leadOfferDao.save(leadOffer);
+        }
+        return leadOffers;
     }
 }
