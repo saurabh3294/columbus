@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,7 @@ import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -96,6 +98,15 @@ public class LeadOfferService {
     private String defaultSort = "nextTask.scheduledFor";
 
     private NotificationGeneratedService generatedService;
+
+    @Value("${marketplace.template.base.path}")
+    private String                  marketplaceTemplateBasePath;
+
+    @Value("#{'${marketplace.template.files}'.split(',')}")
+    private List<String>            templateFiles;    
+    
+    @Autowired
+    private TemplateToHtmlGenerator templateToHtmlGenerator;
     
     /**
      * 
@@ -490,10 +501,18 @@ public class LeadOfferService {
                 leadOfferDao.save(leadOfferInDB);
                 leadOfferInDB.setOfferedListings(leadOfferedListingList);
                 restrictOtherBrokersFromClaiming(leadOfferId);
-
-                String heading = "FFFFFFFFF";
-                String template  = "UUUUUU";
-                
+                String templatePath = marketplaceTemplateBasePath + templateFiles.get(0);                 
+                Set<String> fields = new HashSet<>();                
+                fields.add("lead");
+                fields.add("offeredListings");
+                fields.add("client");
+                fields.add("contactNumbers");                
+                enrichLeadOffers(Collections.singletonList(leadOffer),fields);
+                Map<String , Object> map = new HashMap<>();
+                map.put("leadOffer", leadOffer);
+                map.put("agent", userService.getUserById(leadOffer.getAgentId()));
+                String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
+                String heading = "We got your lead";
                 generatedService.createNotificationGenerated(
                         Arrays.asList(new NotificationMessage(userId, heading, template)),
                         Arrays.asList(MediumType.Email));

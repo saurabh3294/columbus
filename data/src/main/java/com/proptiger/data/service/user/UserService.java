@@ -804,4 +804,9 @@ public class UserService {
         }
         return contactNumbersOfUser;
     }
+
+    public User getUserById(int Id) {
+        return userDao.findById(Id);
+    }
+
 }
