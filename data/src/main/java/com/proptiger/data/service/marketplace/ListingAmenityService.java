@@ -35,6 +35,9 @@ public class ListingAmenityService {
     private AmenityMasterService  amenityMasterService;
 
     public List<ListingAmenity> getListingAmenities(List<Integer> listingIds) {
+        if(listingIds == null || listingIds.size() == 0){
+            return new ArrayList<>();
+        }
         return listingAmenitiesDao.findByListingIdIn(listingIds);
     }
 
