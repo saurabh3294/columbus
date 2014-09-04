@@ -1,6 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -35,6 +36,9 @@ import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.data.notification.enums.MediumType;
+import com.proptiger.data.notification.model.NotificationMessage;
+import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.response.PaginatedResponse;
@@ -91,6 +95,8 @@ public class LeadOfferService {
     
     private String defaultSort = "nextTask.scheduledFor";
 
+    private NotificationGeneratedService generatedService;
+    
     /**
      * 
      * @param integer
@@ -484,6 +490,14 @@ public class LeadOfferService {
                 leadOfferDao.save(leadOfferInDB);
                 leadOfferInDB.setOfferedListings(leadOfferedListingList);
                 restrictOtherBrokersFromClaiming(leadOfferId);
+
+                String heading = "FFFFFFFFF";
+                String template  = "UUUUUU";
+                
+                generatedService.createNotificationGenerated(
+                        Arrays.asList(new NotificationMessage(userId, heading, template)),
+                        Arrays.asList(MediumType.Email));
+                
                 return leadOfferInDB;
             }
 
