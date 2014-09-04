@@ -223,7 +223,7 @@ if __name__ == "__main__":
     def uploadImg(data, newImgName):      
         try:
             logging("\ninside upload imag\n")
-            s3url = "s3://im.proptiger-ws.com/"
+            s3url = "s3://im.proptiger.com/"
             path = data[14]
             s3bucket = s3url+path
             s3command = ["s3cmd", "put", newImgName, s3bucket]
