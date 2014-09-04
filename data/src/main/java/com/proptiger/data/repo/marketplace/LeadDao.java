@@ -22,9 +22,13 @@ public interface LeadDao extends JpaRepository<Lead, Integer> {
 
     @Query("select L from Lead L  where L.cityId = ?1 and L.clientId = ?2 and L.mergedLeadId is null order by L.id desc")
     public List<Lead> getLeads(int cityId, int id);
-        
-    public List<Lead> findByNextActionTimeLessThan(Date actionTime);
+
+    @Query("SELECT L FROM Lead L LEFT JOIN L.leadOffers LO WHERE LO.id IS NULL AND L.mergedLeadId IS NULL AND L.createdAt > ?1")
+    public List<Lead> getMergedLeadsWithoutOfferCreatedSince(Date createdSince);
 
     @Query("select L from Lead L where L.id in (?1)")
     public List<Lead> getLeads(List<Integer> leadIds);
+
+    @Query(nativeQuery = true, value = "select * from marketplace.leads where id = ?1 for update")
+    public Lead getLock(int id);
 }

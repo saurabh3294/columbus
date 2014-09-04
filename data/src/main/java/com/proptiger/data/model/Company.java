@@ -10,6 +10,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.proptiger.data.enums.CompanyType;
+import com.proptiger.data.enums.Status;
 
 /**
  * 
@@ -28,6 +29,9 @@ public class Company extends BaseModel {
     private CompanyType           type;
 
     private String                name;
+
+    @Enumerated(EnumType.STRING)
+    private Status                status;
 
     @OneToMany(mappedBy = "companyId")
     private List<CompanyCoverage> coverages;
@@ -62,5 +66,13 @@ public class Company extends BaseModel {
 
     public void setCoverages(List<CompanyCoverage> coverages) {
         this.coverages = coverages;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

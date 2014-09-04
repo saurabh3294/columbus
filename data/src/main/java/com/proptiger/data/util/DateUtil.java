@@ -42,7 +42,7 @@ public class DateUtil {
         calendar.add(Calendar.MINUTE, minutesToAdd);
         return calendar.getTime();
     }
-    
+
     public static Date addSeconds(Date baseDate, int secondsToAdd) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(baseDate);
@@ -58,12 +58,12 @@ public class DateUtil {
 
         return cal.getTime();
     }
-    
+
     public static Date getMaxDate(List<Date> dates) {
         if (dates == null || dates.isEmpty()) {
             return null;
         }
-        Collections.sort(dates, new Comparator<Date>(){          
+        Collections.sort(dates, new Comparator<Date>() {
             @Override
             public int compare(Date o1, Date o2) {
                 return o2.compareTo(o1);
@@ -71,7 +71,7 @@ public class DateUtil {
         });
         return dates.get(0);
     }
-    
+
     /**
      * @return {@link Date} date in YYYY-dd-mm format
      * 
@@ -198,8 +198,13 @@ public class DateUtil {
      *         in input date
      */
     public static Date getWorkingTimeAddedIntoDate(Date date, int timeToAddInSecond) {
-        DateTime finalTime = new DateTime(date.getTime());
+        int add = 1;
+        if (timeToAddInSecond < 0) {
+            add = -1;
+            timeToAddInSecond = add * timeToAddInSecond;
+        }
 
+        DateTime finalTime = new DateTime(date.getTime());
         DateTime workingHourStartTime = finalTime.withTimeAtStartOfDay()
                 .plus(
                         PropertyReader.getRequiredPropertyAsType(
@@ -211,18 +216,29 @@ public class DateUtil {
 
         int workingSecondsInADay = getWorkingSecondsInADay();
         int days = timeToAddInSecond / getWorkingSecondsInADay();
-        finalTime = finalTime.plusDays(days);
+        finalTime = finalTime.plusDays(add * days);
 
         int secsInIncompleteDay = timeToAddInSecond % workingSecondsInADay;
-        finalTime = finalTime.plusSeconds(secsInIncompleteDay);
+        finalTime = finalTime.plusSeconds(add * secsInIncompleteDay);
 
         DateTime workingHourEndTime = finalTime.withTimeAtStartOfDay().plusSeconds(
                 PropertyReader.getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_END, Integer.class));
         if (finalTime.isAfter(workingHourEndTime)) {
-            finalTime = finalTime.plusSeconds(getNonWorkingSecondsInADay());
+            finalTime = finalTime.plusSeconds(add * getNonWorkingSecondsInADay());
         }
 
         return new Date(finalTime.getMillis());
+    }
+
+    /**
+     * 
+     * @param date
+     * @param timeToAddInSecond
+     * @return a new date with timeToAddInSecond seconds of working time
+     *         subtracted in input date
+     */
+    public static Date getWorkingTimeSubtractedIntoDate(Date date, int timeToAddInSecond) {
+        return getWorkingTimeAddedIntoDate(date, -1 * timeToAddInSecond);
     }
 
     /**
