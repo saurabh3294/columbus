@@ -81,9 +81,15 @@ public class ListingService {
         Property property = listing.getProperty();
         // got Property object so set this as null
         listing.setProperty(null);
-        Listing created = null;
+        ListingPrice currentListingPrice = listing.getCurrentListingPrice();
+        /*
+         * Since we made currentListingPrice non transactional due to join
+         * needed in custom query. so currentListingPrice will be saved manually
+         * using listingPriceService.
+         */
+        listing.setCurrentListingPrice(null);
         try {
-            created = listingDao.saveAndFlush(listing);
+            listing = listingDao.saveAndFlush(listing);
         }
         catch (PersistenceException e) {
             logger.error("error while creating listing {}", e);
@@ -92,21 +98,21 @@ public class ListingService {
             }
             throw new ResourceAlreadyExistException("Listing could not be created");
         }
-        if (listing.getCurrentListingPrice() != null) {
+        if (currentListingPrice != null) {
             ListingPrice listingPriceCreated = listingPriceService.createListingPrice(
-                    listing.getCurrentListingPrice(),
+                    currentListingPrice,
                     listing);
 
             // save listing again with current listing price id
-            created.setCurrentPriceId(listingPriceCreated.getId());
-            created = listingDao.saveAndFlush(created);
+            listing.setCurrentPriceId(listingPriceCreated.getId());
+            listing = listingDao.saveAndFlush(listing);
 
-            created.setCurrentListingPrice(listingPriceCreated);
+            listing.setCurrentListingPrice(listingPriceCreated);
         }
 
-        List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(property.getProjectId(), created);
-        created.setListingAmenities(amenities);
-        return created;
+        List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(property.getProjectId(), listing);
+        listing.setListingAmenities(amenities);
+        return listing;
     }
 
     /**
@@ -190,7 +196,10 @@ public class ListingService {
      */
     public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector) {
         selector.applyDefSort("-id");
-        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), selector.getSpringDataSort());
+        Pageable pageable = new LimitOffsetPageRequest(
+                selector.getStart(),
+                selector.getRows(),
+                selector.getSpringDataSort());
         List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
 
         String fields = selector.getFields();
