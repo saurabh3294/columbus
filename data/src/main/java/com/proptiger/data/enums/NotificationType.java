@@ -30,7 +30,7 @@ public enum NotificationType {
         return id;
     }
 
-    private String getEmailSubject() {
+    public String getEmailSubject() {
         return this.emailSubject;
     }
 }

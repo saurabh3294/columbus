@@ -237,7 +237,7 @@ public class DateUtil {
      * @return a new date with timeToAddInSecond seconds of working time
      *         subtracted in input date
      */
-    public static Date getWorkingTimeSubtractedIntoDate(Date date, int timeToAddInSecond) {
+    public static Date getWorkingTimeSubtractedFromDate(Date date, int timeToAddInSecond) {
         return getWorkingTimeAddedIntoDate(date, -1 * timeToAddInSecond);
     }
 

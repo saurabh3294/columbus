@@ -680,4 +680,12 @@ public class LeadOfferService {
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }
+
+    public List<LeadOffer> expireLeadOffers(List<LeadOffer> leadOffers) {
+        for (LeadOffer leadOffer : leadOffers) {
+            leadOffer.setStatusId(LeadOfferStatus.Expired.getLeadOfferStatusId());
+            leadOfferDao.save(leadOffer);
+        }
+        return leadOffers;
+    }
 }
