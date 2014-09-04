@@ -19,31 +19,31 @@ public class NotificationTest extends AbstractTest {
     @Autowired
     private NotificationGeneratedService nGeneratedService;
 
-    // @Test
-    public void testNotificationTypeGenerator() {
-        notificationInitiator.notificationTypeGenerator();
-    }
-
-    // @Test
-    public void testNotificationGenerator() {
-        notificationInitiator.notificationGenerator();
-    }
-
-    // @Test
-    public void createNotification() {
-        logger.info("createNotification started");
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Email);
-        mediumTypes.add(MediumType.Android);
-        List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
-        nMessages
-                .add(new NotificationMessage(1211884, "This is a subject for ABC", "This is a sample template for ABC"));
-        nMessages
-                .add(new NotificationMessage(1211883, "This is a subject for XYZ", "This is a sample template for XYZ"));
-
-        List<NotificationGenerated> notificationGenerateds = nGeneratedService.createNotificationGenerated(
-                nMessages,
-                mediumTypes);
-        logger.info("createNotification ended count: " + notificationGenerateds.size());
-    }
+//    // @Test
+//    public void testNotificationTypeGenerator() {
+//        notificationInitiator.notificationTypeGenerator();
+//    }
+//
+//    // @Test
+//    public void testNotificationGenerator() {
+//        notificationInitiator.notificationGenerator();
+//    }
+//
+//    // @Test
+//    public void createNotification() {
+//        logger.info("createNotification started");
+//        List<MediumType> mediumTypes = new ArrayList<MediumType>();
+//        mediumTypes.add(MediumType.Email);
+//        mediumTypes.add(MediumType.Android);
+//        List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
+//        nMessages
+//                .add(new NotificationMessage(1211884, "This is a subject for ABC", "This is a sample template for ABC"));
+//        nMessages
+//                .add(new NotificationMessage(1211883, "This is a subject for XYZ", "This is a sample template for XYZ"));
+//
+//        List<NotificationGenerated> notificationGenerateds = nGeneratedService.createNotificationGenerated(
+//                nMessages,
+//                mediumTypes);
+//        logger.info("createNotification ended count: " + notificationGenerateds.size());
+//    }
 }
