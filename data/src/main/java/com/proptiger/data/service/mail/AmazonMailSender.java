@@ -74,7 +74,7 @@ public class AmazonMailSender {
 
         // Assemble the email.
         SendEmailRequest request = new SendEmailRequest()
-                .withSource(mailDetails.getFrom() != null ? mailDetails.getFrom() : from).withDestination(destination)
+                .withSource((mailDetails.getFrom() != null && !mailDetails.getFrom().isEmpty())  ? mailDetails.getFrom() : from).withDestination(destination)
                 .withMessage(message);
         if(mailDetails.getReplyTo() != null && !mailDetails.getReplyTo().isEmpty()){
             request.withReplyToAddresses(mailDetails.getReplyTo());
