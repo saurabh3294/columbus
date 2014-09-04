@@ -37,7 +37,7 @@ public class LeadOfferController extends BaseController {
             @RequestParam(required = false) List<Integer> statusIds,@RequestParam(required = false) Long dueDate) {
         Date date = null;
         if(dueDate != null){
-            date  = new Date(dueDate * 1000);
+            date  = new Date(dueDate);
         }
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferService.getLeadOffers(
                 activeUser.getUserIdentifier(),
