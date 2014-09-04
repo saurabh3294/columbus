@@ -178,7 +178,7 @@ public class LeadOfferService {
     }
 
     private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields) {
-        if (fields != null) {
+        if (fields != null && leadOffers != null && !leadOffers.isEmpty()) {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(leadOffers);
                 Map<Integer, User> users = userService.getUsers(clientIds);
