@@ -70,6 +70,8 @@ public final class PropertyKeys {
     public static final String MARKETPLACE_TASK_DUE_NOTIFICATION_DURATION1 = "marketplace.task.due.notification.duration1";
     public static final String MARKETPLACE_TASK_DUE_NOTIFICATION_TIME2     = "marketplace.task.due.notification.time2";
     public static final String MARKETPLACE_TASK_DUE_NOTIFICATION_DURATION2 = "marketplace.task.due.notification.duration2";
+    public static final String MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID    = "marketplace.relationship.manager.user.id";
+    public static final String MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER   = "marketplace.no.broker.claimed.cron.buffer";
 
     public static final String CALENDAR_WORKING_HOUR_START                 = "calendar.working.hour.start";
     public static final String CALENDAR_WORKING_HOUR_END                   = "calendar.working.hour.end";
