@@ -14,6 +14,7 @@ import javax.persistence.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -94,6 +95,6 @@ public class ProjectDao extends ProjectSolrDao {
     }
 
     public Project findActiveOrInactiveProjectById(Integer id) {
-        return projectDatabaseDao.findOne(id);
+        return projectDatabaseDao.findByProjectIdAndVersion(id, DataVersion.Website);
     }
 }
