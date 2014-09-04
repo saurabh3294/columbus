@@ -652,4 +652,17 @@ public class NotificationService {
                                 PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION,
                                 Integer.class));
     }
+
+    public Notification manageDealClosedNotification(int leadOfferId) {
+        generatedService.createNotificationGenerated(Arrays.asList(new NotificationMessage(
+                getRelationshipManagerUserId(),
+                NotificationType.SaleSuccessful.getEmailSubject(),
+                "Lead OfferID: " + leadOfferId + " of resale marketplace is marked as closed won.")), Arrays
+                .asList(MediumType.Email));
+        return createNotification(
+                getRelationshipManagerUserId(),
+                NotificationType.SaleSuccessful.getId(),
+                leadOfferId,
+                null);
+    }
 }
