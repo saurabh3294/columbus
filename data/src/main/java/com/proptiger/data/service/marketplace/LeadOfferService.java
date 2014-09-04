@@ -158,23 +158,28 @@ public class LeadOfferService {
      * @param statusIds 
      * @return
      */
-    public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, FIQLSelector selector, List<Integer> statusIds, Date dueDate) {
+    public PaginatedResponse<List<LeadOffer>> getLeadOffers(
+            int agentId,
+            FIQLSelector selector,
+            List<Integer> statusIds,
+            Date dueDate) {
         selector.applyDefSort(defaultSort);
-        if(dueDate == null){
-            //TODO remove this once done from fiql
-            Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.YEAR, -20);
-            dueDate = cal.getTime();
-        }
-        Pageable pageable = new LimitOffsetPageRequest(selector.getStart(), selector.getRows(), selector.getSpringDataSort());
+
         List<LeadOffer> leadOffers = null;
-        if(statusIds == null || statusIds.size() == 0){
-            leadOffers = leadOfferDao.getLeadOffersForAgentDueDateGreatherThan(agentId, dueDate, pageable);
+        
+        if(statusIds != null && statusIds.size() > 0 && dueDate != null){
+            leadOffers = leadOfferDao.getLeadOffersForAgentWhereStatusIdsInAndDueDateGreatherThan(agentId, statusIds, dueDate);
+        }
+        else if(dueDate != null){
+            leadOffers = leadOfferDao.getLeadOffersForAgentDueDateGreatherThan(agentId, dueDate);
+        }
+        else if(statusIds != null && statusIds.size() > 0){
+            leadOffers = leadOfferDao.getLeadOffersForAgentStatusIdsIn(agentId, statusIds);
         }
         else{
-            leadOffers = leadOfferDao.getLeadOffersForAgentWhereStatusIdsIn(agentId, statusIds, dueDate, pageable);
+            leadOffers = leadOfferDao.getLeadOffersForAgent(agentId);
         }
-       
+        
         PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
 
         Set<String> fields = selector.getFieldSet();

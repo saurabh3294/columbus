@@ -34,10 +34,14 @@ public class LeadOfferController extends BaseController {
     public APIResponse get(
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
-            @RequestParam(required = false) List<Integer> statusIds,@RequestParam(required = false) Date dueDate) {
+            @RequestParam(required = false) List<Integer> statusIds,@RequestParam(required = false) Long dueDate) {
+        Date date = null;
+        if(dueDate != null){
+            date  = new Date(dueDate * 1000);
+        }
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferService.getLeadOffers(
                 activeUser.getUserIdentifier(),
-                selector, statusIds, dueDate);
+                selector, statusIds, date);
         return new APIResponse(paginatedResponse.getResults(), paginatedResponse.getTotalCount());
     }
 
