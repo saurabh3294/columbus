@@ -17,12 +17,16 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
 import com.proptiger.data.enums.LeadTaskName;
+import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.model.marketplace.Notification;
+import com.proptiger.data.notification.enums.MediumType;
+import com.proptiger.data.notification.model.NotificationMessage;
+import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
@@ -57,6 +61,9 @@ public class NotificationService {
 
     @Autowired
     private LeadTaskService                leadTaskService;
+
+    @Autowired
+    NotificationGeneratedService           generatedService;
 
     private static final List<Integer>     allMasterTaskIdsButCall = new ArrayList<>();
 
@@ -161,8 +168,9 @@ public class NotificationService {
 
         int validTaskIdForNotification = 0;
 
-        LeadTask nextTask = leadOffer.getNextTask();
-        if (nextTask != null) {
+        Integer nextTaskId = leadOffer.getNextTaskId();
+        if (nextTaskId != null) {
+            LeadTask nextTask = leadTaskService.getLeadTask(nextTaskId);
             Date scheduledTime = nextTask.getScheduledFor();
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)) {
                 createNotificationForTask(notificationTypeId, nextTask, false);
@@ -539,5 +547,53 @@ public class NotificationService {
             map.get(userId).add(notification);
         }
         return map;
+    }
+
+    /**
+     * creates and sends lead offer notification to brokers
+     * 
+     * @param offer
+     * @return
+     */
+    public Notification sendLeadOfferNotification(int offerId) {
+        LeadOffer offer = leadOfferDao.getLeadOfferWithRequirements(offerId);
+        Notification notification = createNotification(
+                offer.getAgentId(),
+                NotificationType.LeadOffered.getId(),
+                offer.getId(),
+                SerializationUtils.objectToJson(offer));
+        // XXX send notification to broker
+        return notification;
+    }
+
+    /**
+     * deleted all lead offered notifications for a lead
+     * 
+     * @param leadId
+     */
+    public void deleteLeadOfferNotificationForLead(int leadId) {
+        List<LeadOffer> offers = leadOfferDao.findByLeadId(leadId);
+        List<Integer> offerIds = new ArrayList<>();
+        for (LeadOffer offer : offers) {
+            offerIds.add(offer.getId());
+        }
+        if (!offerIds.isEmpty()) {
+            List<Notification> notifications = notificationDao.findByObjectIdInAndNotificationTypeId(
+                    offerIds,
+                    NotificationType.LeadOffered.getId());
+            if (!notifications.isEmpty()) {
+                notificationDao.delete(notifications);
+            }
+        }
+    }
+
+    public void manageNoBrokerClaimedNotification() {
+        manageNoBrokerClaimedNotificationForLead(1);
+    }
+
+    private void manageNoBrokerClaimedNotificationForLead(int leadId) {
+        generatedService.createNotificationGenerated(
+                Arrays.asList(new NotificationMessage(1, "FFFFFFF", "AAAAAAAAAAAAAAA")),
+                Arrays.asList(MediumType.Email));
     }
 }

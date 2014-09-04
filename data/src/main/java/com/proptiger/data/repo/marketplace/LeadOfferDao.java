@@ -38,7 +38,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
 
     @Query("select LI from LeadOffer LO join LO.matchingListings LI left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LO.id = ?1 and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' and LIPP.version='Website' group by LI")
     public List<Listing> getMatchingListings(int leadOfferId);
-    
+
     @Query("select LO from LeadOffer LO join fetch LO.lead L where LO.id = ?1")
     public LeadOffer findById(int leadOfferId);
 
@@ -74,4 +74,8 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
 
     @Query("SELECT NEW com.proptiger.data.model.marketplace.LeadOffer$CountListingObject(LO.id,count(LI)) from LeadOffer LO join LO.matchingListings LI join  LI.property LIP  join  LIP.project LIPP  join LIPP.builder  join  LIPP.locality where LO.id in (?1) and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' and LIPP.version='Website' group by LO")
     List<CountListingObject> getMatchingListingCount(List<Integer> leadOfferIds);
+
+    @Query(
+            value = "SELECT DISTINCT LO FROM LeadOffer LO JOIN FETCH LO.lead L JOIN FETCH L.requirements LR WHERE LO.id = ?1")
+    LeadOffer getLeadOfferWithRequirements(int leadOfferId);
 }

@@ -416,7 +416,8 @@ public class LeadOfferService {
         offer.setAgentId(agent.getUserId());
         offer.setStatusId(LeadOfferStatus.Offered.getLeadOfferStatusId());
         offer.setCycleId(1);
-        return leadOfferDao.save(offer);
+        offer = leadOfferDao.save(offer);
+        return offer;
     }
 
     /**
