@@ -123,6 +123,25 @@ public class NotificationService {
     }
 
     /**
+     * returns notification count for a user
+     * 
+     * @param userId
+     * @return
+     */
+    public int getNotificationsCountForUser(int userId) {
+        List<Notification> notificationTypes = notificationDao.getNotificationWithTypeForUser(userId);
+
+        int count = 0;
+        for (Notification notification : notificationTypes) {
+
+            if (!(notification.getNotificationType().isIgnorable() && notification.isRead())) {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
+
+    /**
      * filters out read notifications
      * 
      * @param notificationTypes
@@ -330,9 +349,11 @@ public class NotificationService {
      * @param notificationTypeId
      * @return
      */
-    @Transactional
     private Notification createTaskNotification(LeadTask leadTask, int notificationTypeId) {
-        leadTask = leadTaskService.getTaskDetails(leadTask.getId());
+        // XXX should be removed from here... need to figure out why offer
+        // object is not being set automatically
+        leadTask.setLeadOffer(leadOfferDao.findOne(leadTask.getLeadOfferId()));
+
         leadTask.unlinkCircularLoop();
         return createNotification(
                 leadTask.getLeadOffer().getAgentId(),
@@ -651,5 +672,18 @@ public class NotificationService {
                                 Integer.class) + PropertyReader.getRequiredPropertyAsType(
                                 PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION,
                                 Integer.class));
+    }
+
+    public Notification manageDealClosedNotification(int leadOfferId) {
+        generatedService.createNotificationGenerated(Arrays.asList(new NotificationMessage(
+                getRelationshipManagerUserId(),
+                NotificationType.SaleSuccessful.getEmailSubject(),
+                "Lead OfferID: " + leadOfferId + " of resale marketplace is marked as closed won.")), Arrays
+                .asList(MediumType.Email));
+        return createNotification(
+                getRelationshipManagerUserId(),
+                NotificationType.SaleSuccessful.getId(),
+                leadOfferId,
+                null);
     }
 }

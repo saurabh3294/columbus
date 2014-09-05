@@ -304,15 +304,18 @@ public class LeadOfferService {
     }
 
     private Map<Integer, LeadOfferedListing> getLatestLeadOfferedListing(List<Integer> leadOfferIds) {
+        Map<Integer, LeadOfferedListing> listingMap = new HashMap<>();
 
         List<Integer> latestOfferedListingIds = leadOfferDao
                 .findMaxListingByLeadOfferIdGroupbyLeadOfferId(leadOfferIds);
-        List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao.getListingsById(latestOfferedListingIds);
+        
+        if (latestOfferedListingIds != null && !latestOfferedListingIds.isEmpty()) {
+            List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao.getListingsById(latestOfferedListingIds);
 
-        Map<Integer, LeadOfferedListing> listingMap = new HashMap<>();
 
-        for (LeadOfferedListing latestOfferedListing : latestOfferedListings) {
-            listingMap.put(latestOfferedListing.getLeadOfferId(), latestOfferedListing);
+            for (LeadOfferedListing latestOfferedListing : latestOfferedListings) {
+                listingMap.put(latestOfferedListing.getLeadOfferId(), latestOfferedListing);
+            }
         }
 
         return listingMap;

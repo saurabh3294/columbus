@@ -2,8 +2,12 @@ package com.proptiger.data.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
+
+import com.proptiger.data.enums.TaskStatus;
 
 /**
  * 
@@ -18,7 +22,8 @@ public class MasterLeadTaskStatus extends BaseModel {
     @Id
     private int               id;
 
-    private String            status;
+    @Enumerated(EnumType.STRING)
+    private TaskStatus        status;
 
     @Column(name = "display_status")
     private String            displayStatus;
@@ -40,11 +45,11 @@ public class MasterLeadTaskStatus extends BaseModel {
         this.id = id;
     }
 
-    public String getStatus() {
+    public TaskStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 

@@ -5,9 +5,9 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -139,7 +139,12 @@ public class Notification extends BaseModel {
 
     public void setDetails(JsonNode details) {
         this.details = details;
-        this.stringDetails = details.toString();
+        if(details == null){
+            stringDetails = null;
+        }
+        else{
+            this.stringDetails = details.toString();
+        }
     }
 
     public String getStringDetails() {
