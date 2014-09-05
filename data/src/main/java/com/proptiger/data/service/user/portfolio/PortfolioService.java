@@ -327,16 +327,19 @@ public class PortfolioService {
                 listing.setProperty(propertyMap.get(listing.getTypeId()));
 
                 if (listing.getProperty() == null) {
-                    listing.setProperty(propertyService.getPropertiesFromDB(fiqlSelector).getResults().get(0));
-                    ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
+                    List<Property> results = propertyService.getPropertiesFromDB(fiqlSelector).getResults();
+                    if (results != null && !results.isEmpty()) {
+                        listing.setProperty(results.get(0));
+                        ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
 
-                    if (latestListingPrice.getPricePerUnitArea() != null) {
-                        listing.getProperty().setPricePerUnitArea(
-                                latestListingPrice.getPricePerUnitArea().doubleValue());
+                        if (latestListingPrice.getPricePerUnitArea() != null) {
+                            listing.getProperty().setPricePerUnitArea(latestListingPrice.getPricePerUnitArea().doubleValue());
+                        }
                     }
                 }
             }
         }
+
         return properties;
     }
 
