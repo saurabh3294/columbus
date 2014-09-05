@@ -200,7 +200,7 @@ public class LeadTaskService {
             boolean primaryLead = false;
             for (LeadOffer offer : offers) {
                 MasterLeadOfferStatus status = offer.getMasterLeadOfferStatus();
-                if (status.isOpenFlag() || LeadOfferStatus.ClosedWon
+                if (status.isOpen() || LeadOfferStatus.ClosedWon
                         .equals(LeadOfferStatus.valueOf(status.getStatus()))) {
                     lost = false;
                 }

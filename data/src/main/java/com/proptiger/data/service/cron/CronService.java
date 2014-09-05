@@ -87,17 +87,36 @@ public class CronService {
         Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(
                 endDate.getTime() - PropertyReader
-                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER))*1000);
+                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
         List<Lead> leads = leadDao.getMergedLeadsByOfferredAtBetweenAndOfferStatusId(
                 startDate,
                 endDate,
-                LeadOfferStatus.Offered.getLeadOfferStatusId());
+                LeadOfferStatus.Offered.getId());
         for (Lead lead : leads) {
             try {
                 notificationService.manageLeadOfferedNotificationDeletionForLead(lead.getId());
             }
             catch (ConstraintViolationException e) {
                 logger.error("Error while deleting lead offer notification for lead id: " + lead.getId() + e);
+            }
+        }
+    }
+
+    public void manageLeadOfferedReminder() {
+        Date endDate = notificationService.getAuctionOverCutoffTime();
+        Date startDate = new Date(
+                endDate.getTime() - PropertyReader
+                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
+        List<Lead> leads = leadDao.getMergedLeadsByOfferredAtBetweenAndOfferStatusId(
+                startDate,
+                endDate,
+                LeadOfferStatus.Offered.getId());
+        for (Lead lead : leads) {
+            try {
+                notificationService.manageLeadOfferedReminderForLead(lead.getId());
+            }
+            catch (ConstraintViolationException e) {
+                logger.error("Error while sending lead offer reminder to rm for lead id: " + lead.getId() + e);
             }
         }
     }

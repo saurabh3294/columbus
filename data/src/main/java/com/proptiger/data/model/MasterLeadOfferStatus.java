@@ -43,19 +43,19 @@ public class MasterLeadOfferStatus extends BaseModel {
         this.status = status;
     }
 
-    public boolean isClaimedFlag() {
+    public boolean isClaimed() {
         return claimedFlag;
     }
 
-    public void setClaimedFlag(boolean claimedFlag) {
+    public void setClaimed(boolean claimedFlag) {
         this.claimedFlag = claimedFlag;
     }
 
-    public boolean isOpenFlag() {
+    public boolean isOpen() {
         return openFlag;
     }
 
-    public void setOpenFlag(boolean openFlag) {
+    public void setOpen(boolean openFlag) {
         this.openFlag = openFlag;
     }
     

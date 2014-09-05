@@ -36,6 +36,13 @@ public class CronController {
         return new APIResponse();
     }
 
+    @RequestMapping("/v1/intimate-brokers")
+    public @ResponseBody
+    APIResponse intimateBrokersForClaim() throws Exception {
+        cronService.manageLeadOfferedReminder();
+        return new APIResponse();
+    }
+
     @RequestMapping("/v1/populate-notifications")
     public @ResponseBody
     APIResponse populateNotifications() throws Exception {
