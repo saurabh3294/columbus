@@ -330,9 +330,11 @@ public class NotificationService {
      * @param notificationTypeId
      * @return
      */
-    @Transactional
     private Notification createTaskNotification(LeadTask leadTask, int notificationTypeId) {
-        leadTask = leadTaskService.getTaskDetails(leadTask.getId());
+        // XXX should be removed from here... need to figure out why offer
+        // object is not being set automatically
+        leadTask.setLeadOffer(leadOfferDao.findOne(leadTask.getLeadOfferId()));
+
         leadTask.unlinkCircularLoop();
         return createNotification(
                 leadTask.getLeadOffer().getAgentId(),
