@@ -1,7 +1,6 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,8 +33,6 @@ import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
@@ -74,9 +71,6 @@ public class LeadOfferService {
 
     @Autowired
     private LeadOfferedListingDao   leadOfferedListingDao;
-
-    @Autowired
-    private LeadService             leadService;
 
     @Autowired
     private LeadTaskService         leadTaskService;
