@@ -170,7 +170,7 @@ public class LeadTaskService {
     private void managePostUpdateActivities(LeadTask task) {
         notificationService.manageTaskNotificationForLeadOffer(task.getLeadOfferId());
         manageDealClosed(task);
-        manageMoveToPrimary(task.getLeadOffer().getLeadId());
+        // manageMoveToPrimary(task.getLeadOffer().getLeadId());
     }
 
     /**
