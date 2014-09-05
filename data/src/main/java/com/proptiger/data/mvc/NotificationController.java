@@ -33,6 +33,13 @@ public class NotificationController extends BaseController {
         return new APIResponse(notificationService.getNotificationsForUser(SecurityContextUtils.getLoggedInUserId()));
     }
 
+    @RequestMapping("count")
+    @ResponseBody
+    public APIResponse getNotificationCountForUser() {
+        return new APIResponse(null, notificationService.getNotificationsCountForUser(SecurityContextUtils
+                .getLoggedInUserId()));
+    }
+
     @RequestMapping(method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateNotificationForUser(@RequestBody List<Notification> notifications) {

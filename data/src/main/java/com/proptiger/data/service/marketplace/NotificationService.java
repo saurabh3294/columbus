@@ -123,6 +123,25 @@ public class NotificationService {
     }
 
     /**
+     * returns notification count for a user
+     * 
+     * @param userId
+     * @return
+     */
+    public int getNotificationsCountForUser(int userId) {
+        List<Notification> notificationTypes = notificationDao.getNotificationWithTypeForUser(userId);
+
+        int count = 0;
+        for (Notification notification : notificationTypes) {
+
+            if (!(notification.getNotificationType().isIgnorable() && notification.isRead())) {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
+
+    /**
      * filters out read notifications
      * 
      * @param notificationTypes

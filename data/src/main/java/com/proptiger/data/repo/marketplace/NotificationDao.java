@@ -59,4 +59,7 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
             List<Integer> masterTaskIds);
 
     public List<Notification> findByIdIn(List<Integer> ids);
+
+    @Query(value = "SELECT N FROM Notification N JOIN FETCH N.notificationType NT WHERE N.userId = ?1")
+    public List<Notification> getNotificationWithTypeForUser(int userId);
 }
