@@ -5,8 +5,6 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.tanesha.recaptcha.ReCaptcha;
-import net.tanesha.recaptcha.ReCaptchaFactory;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
 
@@ -17,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.constants.ResponseCodes;
+import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.util.PropertyReader;
 
@@ -34,18 +33,9 @@ public class CaptchaService {
 
     private Logger         logger = LoggerFactory.getLogger(CaptchaService.class);
 
-    public APIResponse getCaptcha() {
-        ReCaptcha captcha = ReCaptchaFactory.newReCaptcha(
-                propertyReader.getRequiredProperty("recaptcha.pub.key"),
-                propertyReader.getRequiredProperty("recaptcha.private.key"),
-                false);
-        APIResponse res = new APIResponse(captcha.createRecaptchaHtml(null, null));
-        res.setStatusCode(ResponseCodes.CAPTCHA_REQUIRED);
-        return res;
-    }
-
     /**
      * Validates captcha
+     * 
      * @param request
      * @return
      */
@@ -88,7 +78,9 @@ public class CaptchaService {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             PrintWriter out = response.getWriter();
             ObjectMapper mapper = new ObjectMapper();
-            out.println(mapper.writeValueAsString(getCaptcha()));
+            out.println(mapper.writeValueAsString(new APIResponse(
+                    ResponseCodes.CAPTCHA_REQUIRED,
+                    ResponseErrorMessages.CAPTCHA_REQUIRED)));
         }
         catch (Exception e) {
             logger.error("Error generating captcha {}", e);

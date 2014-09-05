@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +25,9 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
+import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.FieldsMapLoader;
+import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.Selector;
@@ -39,18 +44,21 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PropertyService {
     @Autowired
-    private PropertyDao         propertyDao;
+    private PropertyDao          propertyDao;
 
     @Autowired
-    private ProjectService      projectService;
+    private ProjectService       projectService;
 
     @Autowired
-    private ImageEnricher       imageEnricher;
+    private ImageEnricher        imageEnricher;
 
     @Autowired
-    private SolrDao             solrDao;
+    private SolrDao              solrDao;
 
-    private static int ROWS_THRESHOLD = 200;
+    @Autowired
+    private EntityManagerFactory emf;
+
+    private static int           ROWS_THRESHOLD = 200;
 
     /**
      * Returns properties given a selector
@@ -74,26 +82,25 @@ public class PropertyService {
      * @param propertyListingSelector
      * @return
      */
-    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector)
-    {
+    public PaginatedResponse<List<Project>> getPropertiesGroupedToProjects(Selector propertyListingSelector) {
         PaginatedResponse<List<Project>> projects = null;
 
-        if (propertyListingSelector != null && propertyListingSelector.getPaging() != null &&
-            propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD)
-        {
+        if (propertyListingSelector != null && propertyListingSelector.getPaging() != null
+                && propertyListingSelector.getPaging().getRows() > ROWS_THRESHOLD) {
             projects = new PaginatedResponse<>();
             projects.setResults(new ArrayList<Project>());
             int startOriginal = propertyListingSelector.getPaging().getStart();
-            int rowsOriginal  = propertyListingSelector.getPaging().getRows();
-            
+            int rowsOriginal = propertyListingSelector.getPaging().getRows();
+
             int remainingRowsToBeFetched = rowsOriginal;
             int rowsFetchedLast = ROWS_THRESHOLD;
             for (int start = startOriginal; remainingRowsToBeFetched > 0 && rowsFetchedLast == ROWS_THRESHOLD; start += ROWS_THRESHOLD) {
                 propertyListingSelector.getPaging().setStart(start);
                 propertyListingSelector.getPaging().setRows(Math.min(ROWS_THRESHOLD, remainingRowsToBeFetched));
-                PaginatedResponse<List<Project>> projectsLocal = propertyDao.getPropertiesGroupedToProjects(propertyListingSelector);
+                PaginatedResponse<List<Project>> projectsLocal = propertyDao
+                        .getPropertiesGroupedToProjects(propertyListingSelector);
                 projects.getResults().addAll(projectsLocal.getResults());
-                projects.setTotalCount(projectsLocal.getTotalCount());                
+                projects.setTotalCount(projectsLocal.getTotalCount());
                 rowsFetchedLast = projectsLocal.getResults().size();
                 remainingRowsToBeFetched -= ROWS_THRESHOLD;
             }
@@ -258,5 +265,33 @@ public class PropertyService {
 
         return properties.get(0);
     }
-    
+
+    public void updateProjectsLifestyleScores(List<Property> properties) {
+        if (properties == null || properties.isEmpty()) {
+            return;
+        }
+        List<Project> projects = new ArrayList<Project>();
+        for (Property property : properties) {
+            projects.add(property.getProject());
+        }
+        projectService.updateLifestyleScoresByHalf(projects);
+    }
+
+    /**
+     * Get property objects from database using filters provided in fiql
+     * selector
+     * 
+     * @param selector
+     * @return
+     */
+    public PaginatedResponse<List<Property>> getPropertiesFromDB(FIQLSelector selector) {
+        PaginatedResponse<List<Property>> paginatedResponse = new PaginatedResponse<List<Property>>();
+        EntityManager entityManager = emf.createEntityManager();
+        AbstractQueryBuilder<Property> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Property.class);
+        builder.buildQuery(selector);
+        paginatedResponse.setResults(builder.retrieveResults());
+        entityManager.close();
+        return paginatedResponse;
+    }
+
 }

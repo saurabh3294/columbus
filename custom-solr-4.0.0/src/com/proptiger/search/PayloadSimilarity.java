@@ -20,10 +20,10 @@ public class PayloadSimilarity extends DefaultSimilarity{
 		return 1.0f;
 	}
 	
-	@Override
-	  public void computeNorm(FieldInvertState state, Norm norm) {
-	    norm.setByte(encodeNormValue(state.getBoost() * ((float) (1.0))));
-	}
+//	@Override
+//	  public void computeNorm(FieldInvertState state, Norm norm) {
+//	    norm.setByte(encodeNormValue(state.getBoost() * ((float) (1.0))));
+//	}
 	
    @Override 
 	 public float scorePayload(int doc, int start, int end, BytesRef payload)

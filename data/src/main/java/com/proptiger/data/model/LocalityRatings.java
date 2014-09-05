@@ -287,6 +287,46 @@ public class LocalityRatings extends BaseModel {
         public Double getCivic() {
             return civic;
         }
+
+        public void setOverallRating(Double overallRating) {
+            this.overallRating = overallRating;
+        }
+
+        public void setLocation(Double location) {
+            this.location = location;
+        }
+
+        public void setSafety(Double safety) {
+            this.safety = safety;
+        }
+
+        public void setPubTrans(Double pubTrans) {
+            this.pubTrans = pubTrans;
+        }
+
+        public void setRestShop(Double restShop) {
+            this.restShop = restShop;
+        }
+
+        public void setSchools(Double schools) {
+            this.schools = schools;
+        }
+
+        public void setParks(Double parks) {
+            this.parks = parks;
+        }
+
+        public void setTraffic(Double traffic) {
+            this.traffic = traffic;
+        }
+
+        public void setHospitals(Double hospitals) {
+            this.hospitals = hospitals;
+        }
+
+        public void setCivic(Double civic) {
+            this.civic = civic;
+        }
     }
 
     /**

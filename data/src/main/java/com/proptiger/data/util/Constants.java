@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.proptiger.data.enums.ConstructionStatus;
+import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 
 /**
@@ -27,6 +28,7 @@ public class Constants {
     public static final int                  DEFAULT_NO_OF_ALL_ROWS    = 9999;
     public static final String               USERNAME                  = "username";
     public static final List<Source>         SOURCETYPE_LIST           = Arrays.asList(Source.portfolio, Source.backend);
+    public static final List<ListingStatus>  LISTINGSTATUS_LIST        = Arrays.asList(ListingStatus.ACTIVE, ListingStatus.INCOMPLETE);
     public static final int                  LIMIT_OF_COMPOSITE_APIs   = 15;
 
     public static final String               APPLICATION_NAME_HEADER   = "applicationType";

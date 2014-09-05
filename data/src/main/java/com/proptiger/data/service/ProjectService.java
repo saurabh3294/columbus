@@ -105,6 +105,9 @@ public class ProjectService {
     @Value("${proptiger.url}")
     private String                  websiteHost;
 
+    @Autowired
+    private MediaEnricher           mediaEnricher;
+    
     /**
      * This method will return the list of projects and total projects found
      * based on the selector.
@@ -223,6 +226,10 @@ public class ProjectService {
          * Setting properites if needed.
          */
         if (fields == null || fields.contains("properties")) {
+            //Setting media (3D Images), if needed.
+            if (fields == null || fields.contains("media")) {
+                mediaEnricher.setPropertiesMedia(properties);
+            }
             project.setProperties(properties);
         }
 
@@ -643,5 +650,41 @@ public class ProjectService {
     @Cacheable(value = Constants.CacheName.PROJECT_INACTIVE)
     public Project getActiveOrInactiveProjectById(Integer projectId) {
         return projectDao.findActiveOrInactiveProjectById(projectId);
+    }
+
+    // This method will divide the Safety and Livability scores by 2 for backward compatibility
+    // of API's, as all these scores now will be based on 10 and earlier it was based on 5.
+    public void updateLifestyleScoresByHalf(List<Project> results) {
+        if (results == null || results.isEmpty()) {
+            return;
+        }
+        
+        for(Project project : results) {
+            if (project.getSafetyScore() != null) {
+                project.setSafetyScore(project.getSafetyScore()/2);
+            }
+            
+            if (project.getLivabilityScore() != null) {
+                project.setLivabilityScore(project.getLivabilityScore()/2);
+            }
+            
+            if (project.getProjectLocalityScore() != null) {
+                project.setProjectLocalityScore(project.getProjectLocalityScore()/2);
+            }
+            
+            if (project.getProjectSocietyScore() != null) {
+                project.setProjectSocietyScore(project.getProjectSocietyScore()/2);
+            }
+            
+            if (project.getLocality() != null) {
+                if (project.getLocality().getLivabilityScore() != null) {
+                    project.getLocality().setLivabilityScore(project.getLocality().getLivabilityScore()/2);
+                }
+                
+                if (project.getLocality().getSafetyScore() != null) {
+                    project.getLocality().setSafetyScore(project.getLocality().getSafetyScore()/2);
+                }
+            }
+        }
     }
 }

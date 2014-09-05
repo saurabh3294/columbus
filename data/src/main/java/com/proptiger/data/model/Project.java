@@ -497,7 +497,18 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_SOCIETY_SCORE")
     private Float                   projectSocietyScore;
-
+    
+    @Transient
+    @Field(value = "PROJECT_SAFETY_RANK")
+    private Integer                 projectSafetyRank;
+    
+    @Transient
+    @Field(value = "PROJECT_LIVABILITY_RANK")
+    private Integer                 projectLivabilityRank;
+    
+    @Transient
+    private boolean                 has3DImages;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -1209,5 +1220,29 @@ public class Project extends BaseModel {
 
     public void setProjectSocietyScore(Float projectSocietyScore) {
         this.projectSocietyScore = projectSocietyScore;
+    }
+
+    public Integer getProjectSafetyRank() {
+        return projectSafetyRank;
+    }
+
+    public void setProjectSafetyRank(Integer projectSafetyRank) {
+        this.projectSafetyRank = projectSafetyRank;
+    }
+
+    public Integer getProjectLivabilityRank() {
+        return projectLivabilityRank;
+    }
+
+    public void setProjectLivabilityRank(Integer projectLivabilityRank) {
+        this.projectLivabilityRank = projectLivabilityRank;
+    }
+
+    public boolean isHas3DImages() {
+        return has3DImages;
+    }
+
+    public void setHas3DImages(boolean has3dImages) {
+        has3DImages = has3dImages;
     }
 }

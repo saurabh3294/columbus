@@ -89,6 +89,7 @@ public class TestAPIs {
 
         exclusionList.add("data/apilist");
         exclusionList.add("app/v1/locality?");
+        exclusionList.add("app/v2/locality?");
         exclusionList.add("data/v1/entity/broker-agent");
         exclusionList.add("sell-property");
         exclusionList.add(".csv");
@@ -186,6 +187,8 @@ public class TestAPIs {
              * listOfApi stores list of APIs
              */
             Map<String, String> listofAPIs = getListOfAPis(apilist);
+            Assert.assertTrue(listofAPIs.size() > 0, "Empty API list was returned by server.");
+            
             ExecutorService executors = Executors.newFixedThreadPool(listofAPIs.size());
             List<Future<Object>> futures = new ArrayList<Future<Object>>();
 

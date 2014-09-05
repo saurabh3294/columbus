@@ -207,4 +207,15 @@ public abstract class MediaService {
             return savedMedia;
         }
     }
+
+    public List<Media> getMediaList(DomainObject domainObject, String objectMediaType, List<Integer> objectIds) {
+        if (objectIds == null || objectIds.isEmpty()) {
+            return new ArrayList<Media>();
+        }
+        
+        if (objectMediaType == null ) {
+            return mediaDao.getMediaForObjectIds(domainObject.getText(), objectIds);
+        }
+        return mediaDao.getMediaForObjectIdsWithMediaType(domainObject.getText(), objectMediaType, objectIds);
+    }
 }

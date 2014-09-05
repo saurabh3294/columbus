@@ -108,25 +108,30 @@ public class ProjectPriceTrendService {
             projectPriceTrend.setProjectName(priceTrendInput.getProjectName());
             Map<Long, Map<Integer, List<InventoryPriceTrend>>> projectPrices = response.getResults().get(
                     projectPriceTrend.getProjectId());
-            List<PriceDetail> priceDetails = new ArrayList<PriceDetail>();
 
-            Iterator<Long> priceDateItr = projectPrices.keySet().iterator();
-            while (priceDateItr.hasNext()) {
-                Long dateKey = priceDateItr.next();
-                Date effectiveDate = new Date(dateKey);
+            // Set prices if not null, otherwise left null and
+            // get populated in PortfolioPriceTrendService
+            if (projectPrices != null) {
+                List<PriceDetail> priceDetails = new ArrayList<PriceDetail>();
+                Iterator<Long> priceDateItr = projectPrices.keySet().iterator();
+                while (priceDateItr.hasNext()) {
+                    Long dateKey = priceDateItr.next();
+                    Date effectiveDate = new Date(dateKey);
 
-                Object price = projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()).get(0).getExtraAttributes()
-                        .get("wavgPricePerUnitAreaOnLtdSupply");
-                // Set price if price is not null, otherwise left null and populated in PortfolioPriceTrendService
-                if (price != null) {
-                    PriceDetail priceDetail = new PriceDetail();
-                    priceDetail.setPrice((double) price);
-                    priceDetail.setEffectiveDate(effectiveDate);
-                    priceDetails.add(priceDetail);
+                    Object price = projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()).get(0)
+                            .getExtraAttributes().get("wavgPricePerUnitAreaOnLtdSupply");
+                    
+                    // populated in PortfolioPriceTrendService
+                    if (price != null) {
+                        PriceDetail priceDetail = new PriceDetail();
+                        priceDetail.setPrice((double) price);
+                        priceDetail.setEffectiveDate(effectiveDate);
+                        priceDetails.add(priceDetail);
+                    }
                 }
-            }
-            if (priceDetails.size() > 0) {
-                projectPriceTrend.setPrices(priceDetails);
+                if (priceDetails.size() > 0) {
+                    projectPriceTrend.setPrices(priceDetails);
+                }
             }
             projectPriceTrends.add(projectPriceTrend);
         }
@@ -151,4 +156,4 @@ public class ProjectPriceTrendService {
             }
         }
     }
- }
+}
