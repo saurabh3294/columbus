@@ -468,8 +468,8 @@ public class LeadOfferService {
      */
 
     public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
-        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, userId);
-
+        LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentIdAndFetchLead(leadOfferId, userId);
+        
         if (leadOfferInDB == null) {
             throw new BadRequestException("Invalid lead offer");
         }
@@ -487,6 +487,23 @@ public class LeadOfferService {
                     listingIds.add(leadOfferedListing.getListingId());
                 }
                 offerListings(listingIds, leadOfferId, userId);
+                
+                String templatePath = marketplaceTemplateBasePath + templateFiles.get(1);                 
+                Set<String> fields = new HashSet<>();                
+                fields.add("lead");
+                fields.add("offeredListings");
+                fields.add("client");
+                fields.add("contactNumbers");                
+                fields.add("requirements");
+                enrichLeadOffers(Collections.singletonList(leadOfferInDB),fields);
+                Map<String , Object> map = new HashMap<>();
+                map.put("leadOffer", leadOfferInDB);
+                map.put("agent", userService.getUserById(leadOffer.getAgentId()));
+                String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
+                String heading = "More properties matching your requirement";
+                generatedService.createNotificationGenerated(
+                        Arrays.asList(new NotificationMessage(userId, heading, template)),
+                        Arrays.asList(MediumType.Email));
             }
         }
 
@@ -504,23 +521,25 @@ public class LeadOfferService {
                 leadOfferDao.save(leadOfferInDB);
                 leadOfferInDB.setOfferedListings(leadOfferedListingList);
                 restrictOtherBrokersFromClaiming(leadOfferId);
+                
                 String templatePath = marketplaceTemplateBasePath + templateFiles.get(0);                 
                 Set<String> fields = new HashSet<>();                
                 fields.add("lead");
                 fields.add("offeredListings");
                 fields.add("client");
                 fields.add("contactNumbers");                
-                enrichLeadOffers(Collections.singletonList(leadOffer),fields);
+                fields.add("requirements");
+                enrichLeadOffers(Collections.singletonList(leadOfferInDB),fields);
                 Map<String , Object> map = new HashMap<>();
-                map.put("leadOffer", leadOffer);
-                map.put("agent", userService.getUserById(leadOffer.getAgentId()));
+                map.put("leadOffer", leadOfferInDB);
+                map.put("agent", userService.getUserById(leadOfferInDB.getAgentId()));
                 String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
-                String heading = "We got your lead";
+                String heading = "Matching Property suggested by our trusted broker";
+                
                 generatedService.createNotificationGenerated(
                         Arrays.asList(new NotificationMessage(userId, heading, template)),
                         Arrays.asList(MediumType.Email));
-
-                return leadOfferInDB;
+                 return leadOfferInDB;
             }
 
             if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getLeadOfferStatusId()) {
@@ -528,6 +547,7 @@ public class LeadOfferService {
             }
         }
 
+        leadOfferInDB.setLead(null);
         leadOfferDao.save(leadOfferInDB);
         return leadOfferInDB;
     }
