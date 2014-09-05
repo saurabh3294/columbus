@@ -63,49 +63,49 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class LeadOfferService {
     @Autowired
-    private CompanyService          companyService;
+    private CompanyService               companyService;
 
     @Autowired
-    private LeadOfferDao            leadOfferDao;
+    private LeadOfferDao                 leadOfferDao;
 
     @Autowired
-    private LeadRequirementsService leadRequirementsService;
+    private LeadRequirementsService      leadRequirementsService;
 
     @Autowired
-    private UserService             userService;
+    private UserService                  userService;
 
     @Autowired
-    private LeadOfferedListingDao   leadOfferedListingDao;
+    private LeadOfferedListingDao        leadOfferedListingDao;
 
     @Autowired
-    private LeadService             leadService;
+    private LeadService                  leadService;
 
     @Autowired
-    private LeadTaskService         leadTaskService;
+    private LeadTaskService              leadTaskService;
 
     @Autowired
-    private ListingService          listingService;
+    private ListingService               listingService;
 
     @Autowired
-    private LeadTaskStatusDao       leadTaskStatusDao;
+    private LeadTaskStatusDao            leadTaskStatusDao;
 
     @Autowired
-    private MailSender              mailSender;
-    
-    private String defaultSort = "nextTask.scheduledFor";
+    private MailSender                   mailSender;
+
+    private String                       defaultSort = "nextTask.scheduledFor";
 
     @Autowired
     private NotificationGeneratedService generatedService;
 
     @Value("${marketplace.template.base.path}")
-    private String                  marketplaceTemplateBasePath;
+    private String                       marketplaceTemplateBasePath;
 
     @Value("#{'${marketplace.template.files}'.split(',')}")
-    private List<String>            templateFiles;    
-    
+    private List<String>                 templateFiles;
+
     @Autowired
-    private TemplateToHtmlGenerator templateToHtmlGenerator;
-    
+    private TemplateToHtmlGenerator      templateToHtmlGenerator;
+
     /**
      * 
      * @param integer
@@ -163,8 +163,8 @@ public class LeadOfferService {
      * 
      * @param agentId
      * @param selector
-     * @param dueDate 
-     * @param statusIds 
+     * @param dueDate
+     * @param statusIds
      * @return
      */
     public PaginatedResponse<List<LeadOffer>> getLeadOffers(
@@ -175,20 +175,23 @@ public class LeadOfferService {
         selector.applyDefSort(defaultSort);
 
         List<LeadOffer> leadOffers = null;
-        
-        if(statusIds != null && statusIds.size() > 0 && dueDate != null){
-            leadOffers = leadOfferDao.getLeadOffersForAgentWhereStatusIdsInAndDueDateGreatherThan(agentId, statusIds, dueDate);
+
+        if (statusIds != null && statusIds.size() > 0 && dueDate != null) {
+            leadOffers = leadOfferDao.getLeadOffersForAgentWhereStatusIdsInAndDueDateGreatherThan(
+                    agentId,
+                    statusIds,
+                    dueDate);
         }
-        else if(dueDate != null){
+        else if (dueDate != null) {
             leadOffers = leadOfferDao.getLeadOffersForAgentDueDateGreatherThan(agentId, dueDate);
         }
-        else if(statusIds != null && statusIds.size() > 0){
+        else if (statusIds != null && statusIds.size() > 0) {
             leadOffers = leadOfferDao.getLeadOffersForAgentStatusIdsIn(agentId, statusIds);
         }
-        else{
+        else {
             leadOffers = leadOfferDao.getLeadOffersForAgent(agentId);
         }
-        
+
         PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
 
         Set<String> fields = selector.getFieldSet();
@@ -469,7 +472,7 @@ public class LeadOfferService {
 
     public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
         LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentIdAndFetchLead(leadOfferId, userId);
-        
+
         if (leadOfferInDB == null) {
             throw new BadRequestException("Invalid lead offer");
         }
@@ -487,16 +490,16 @@ public class LeadOfferService {
                     listingIds.add(leadOfferedListing.getListingId());
                 }
                 offerListings(listingIds, leadOfferId, userId);
-                
-                String templatePath = marketplaceTemplateBasePath + templateFiles.get(1);                 
-                Set<String> fields = new HashSet<>();                
+
+                String templatePath = marketplaceTemplateBasePath + templateFiles.get(1);
+                Set<String> fields = new HashSet<>();
                 fields.add("lead");
                 fields.add("offeredListings");
                 fields.add("client");
-                fields.add("contactNumbers");                
+                fields.add("contactNumbers");
                 fields.add("requirements");
-                enrichLeadOffers(Collections.singletonList(leadOfferInDB),fields);
-                Map<String , Object> map = new HashMap<>();
+                enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
+                Map<String, Object> map = new HashMap<>();
                 map.put("leadOffer", leadOfferInDB);
                 map.put("agent", userService.getUserById(leadOffer.getAgentId()));
                 String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
@@ -505,6 +508,10 @@ public class LeadOfferService {
                         Arrays.asList(new NotificationMessage(userId, heading, template)),
                         Arrays.asList(MediumType.Email));
             }
+        }
+        else
+        {
+            throw new BadRequestException("Sorry! The lead has already been claimed by another agent.");             
         }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
@@ -521,25 +528,25 @@ public class LeadOfferService {
                 leadOfferDao.save(leadOfferInDB);
                 leadOfferInDB.setOfferedListings(leadOfferedListingList);
                 restrictOtherBrokersFromClaiming(leadOfferId);
-                
-                String templatePath = marketplaceTemplateBasePath + templateFiles.get(0);                 
-                Set<String> fields = new HashSet<>();                
+
+                String templatePath = marketplaceTemplateBasePath + templateFiles.get(0);
+                Set<String> fields = new HashSet<>();
                 fields.add("lead");
                 fields.add("offeredListings");
                 fields.add("client");
-                fields.add("contactNumbers");                
+                fields.add("contactNumbers");
                 fields.add("requirements");
-                enrichLeadOffers(Collections.singletonList(leadOfferInDB),fields);
-                Map<String , Object> map = new HashMap<>();
+                enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
+                Map<String, Object> map = new HashMap<>();
                 map.put("leadOffer", leadOfferInDB);
                 map.put("agent", userService.getUserById(leadOfferInDB.getAgentId()));
                 String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
                 String heading = "Matching Property suggested by our trusted broker";
-                
+
                 generatedService.createNotificationGenerated(
                         Arrays.asList(new NotificationMessage(userId, heading, template)),
                         Arrays.asList(MediumType.Email));
-                 return leadOfferInDB;
+                return leadOfferInDB;
             }
 
             if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getLeadOfferStatusId()) {
