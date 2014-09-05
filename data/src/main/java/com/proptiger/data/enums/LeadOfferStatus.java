@@ -10,7 +10,8 @@ import java.util.Map;
  */
 
 public enum LeadOfferStatus {
-    Offered(1), Expired(2), Waitlisted(3), New(4), Declined(12);
+    Offered(1), Expired(2), Waitlisted(3), New(4), InProgress(6), SiteVisit(8), Negotiation(9), ClosedWon(10), ClosedLost(
+            11), Declined(12);
 
     private int                                  leadOfferStatusId;
     private static Map<Integer, LeadOfferStatus> idToEnumLookUpMap = new HashMap<>();
@@ -29,7 +30,7 @@ public enum LeadOfferStatus {
         return this.leadOfferStatusId;
     }
 
-    public LeadOfferStatus fromLeadOfferStatusId(int id) {
+    public static LeadOfferStatus fromLeadOfferStatusId(int id) {
         return idToEnumLookUpMap.get(id);
     }
 }
