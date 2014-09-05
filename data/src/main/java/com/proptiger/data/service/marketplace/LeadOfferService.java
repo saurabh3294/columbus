@@ -100,8 +100,11 @@ public class LeadOfferService {
     @Value("${marketplace.template.base.path}")
     private String                       marketplaceTemplateBasePath;
 
-    @Value("#{'${marketplace.template.files}'.split(',')}")
-    private List<String>                 templateFiles;
+    @Value("${marketplace.template.claim}")
+    private String                       claimTemplate;
+
+    @Value("${marketplace.template.offer}")
+    private String                       offerTemplate;
 
     @Autowired
     private TemplateToHtmlGenerator      templateToHtmlGenerator;
@@ -490,28 +493,13 @@ public class LeadOfferService {
                     listingIds.add(leadOfferedListing.getListingId());
                 }
                 offerListings(listingIds, leadOfferId, userId);
-
-                String templatePath = marketplaceTemplateBasePath + templateFiles.get(1);
-                Set<String> fields = new HashSet<>();
-                fields.add("lead");
-                fields.add("offeredListings");
-                fields.add("client");
-                fields.add("contactNumbers");
-                fields.add("requirements");
-                enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
-                Map<String, Object> map = new HashMap<>();
-                map.put("leadOffer", leadOfferInDB);
-                map.put("agent", userService.getUserById(leadOffer.getAgentId()));
-                String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
                 String heading = "More properties matching your requirement";
-                generatedService.createNotificationGenerated(
-                        Arrays.asList(new NotificationMessage(userId, heading, template)),
-                        Arrays.asList(MediumType.Email));
+                String templatePath = marketplaceTemplateBasePath + offerTemplate;
+                sendMailToClient(leadOfferInDB, templatePath, heading);
             }
         }
-        else
-        {
-            throw new BadRequestException("Sorry! The lead has already been claimed by another agent.");             
+        else {
+            throw new BadRequestException("Sorry! The lead has already been claimed by another agent.");
         }
 
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
@@ -528,24 +516,9 @@ public class LeadOfferService {
                 leadOfferDao.save(leadOfferInDB);
                 leadOfferInDB.setOfferedListings(leadOfferedListingList);
                 restrictOtherBrokersFromClaiming(leadOfferId);
-
-                String templatePath = marketplaceTemplateBasePath + templateFiles.get(0);
-                Set<String> fields = new HashSet<>();
-                fields.add("lead");
-                fields.add("offeredListings");
-                fields.add("client");
-                fields.add("contactNumbers");
-                fields.add("requirements");
-                enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
-                Map<String, Object> map = new HashMap<>();
-                map.put("leadOffer", leadOfferInDB);
-                map.put("agent", userService.getUserById(leadOfferInDB.getAgentId()));
-                String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
                 String heading = "Matching Property suggested by our trusted broker";
-
-                generatedService.createNotificationGenerated(
-                        Arrays.asList(new NotificationMessage(userId, heading, template)),
-                        Arrays.asList(MediumType.Email));
+                String templatePath = marketplaceTemplateBasePath + claimTemplate;
+                sendMailToClient(leadOfferInDB, templatePath, heading);
                 return leadOfferInDB;
             }
 
@@ -557,6 +530,25 @@ public class LeadOfferService {
         leadOfferInDB.setLead(null);
         leadOfferDao.save(leadOfferInDB);
         return leadOfferInDB;
+    }
+
+    private void sendMailToClient(LeadOffer leadOfferInDB, String templatePath, String heading) {
+
+        Set<String> fields = new HashSet<>();
+        fields.add("lead");
+        fields.add("offeredListings");
+        fields.add("client");
+        fields.add("contactNumbers");
+        fields.add("requirements");
+        enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
+        Map<String, Object> map = new HashMap<>();
+        map.put("leadOffer", leadOfferInDB);
+        map.put("agent", userService.getUserById(leadOfferInDB.getAgentId()));
+        String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
+
+        generatedService.createNotificationGenerated(
+                Arrays.asList(new NotificationMessage(leadOfferInDB.getAgentId(), heading, template)),
+                Arrays.asList(MediumType.Email));
     }
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
