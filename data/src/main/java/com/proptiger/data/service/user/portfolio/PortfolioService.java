@@ -56,6 +56,7 @@ import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
+import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.CityService;
@@ -135,6 +136,8 @@ public class PortfolioService {
     @Autowired
     private ListingService            listingService;
 
+    @Autowired
+    private PropertyDao               propertyDao;
     @Value("${proptiger.url}")
     private String                    websiteHost;
 
@@ -284,15 +287,17 @@ public class PortfolioService {
                 Image defaultProjectImage = imageEnricher.getDefaultProjectImage(project.getImageURL());
                 listing.setPropertyImages(Arrays.asList(defaultProjectImage));
             }
-            listing.setProjectName(project.getName());
-            listing.setBuilderName(project.getBuilder().getName());
-            listing.setCompletionDate(project.getPossessionDate());
-            listing.setProjectStatus(project.getProjectStatus());
-            City city = project.getLocality().getSuburb().getCity();
-            listing.setCityName(city.getLabel());
-            Locality locality = project.getLocality();
-            listing.setLocality(locality.getLabel());
-            listing.setLocalityId(locality.getLocalityId());
+            if (project != null) {
+                listing.setProjectName(project.getName());
+                listing.setBuilderName(project.getBuilder().getName());
+                listing.setCompletionDate(project.getPossessionDate());
+                listing.setProjectStatus(project.getProjectStatus());
+                City city = project.getLocality().getSuburb().getCity();
+                listing.setCityName(city.getLabel());
+                Locality locality = project.getLocality();
+                listing.setLocality(locality.getLabel());
+                listing.setLocalityId(locality.getLocalityId());
+            }
         }
     }
 
@@ -320,23 +325,26 @@ public class PortfolioService {
         }
 
         for (PortfolioListing listing : listings) {
-            FIQLSelector fiqlSelector = new FIQLSelector()
-                    .addAndConditionToFilter("propertyId==" + listing.getTypeId());
-
             if (listing.getTypeId() != null) {
                 listing.setProperty(propertyMap.get(listing.getTypeId()));
 
                 if (listing.getProperty() == null) {
-                    listing.setProperty(propertyService.getPropertiesFromDB(fiqlSelector).getResults().get(0));
+                    Property result = propertyDao.findByPropertyId(listing.getTypeId());
+                    listing.setProperty(result);
+                }
+
+                if (listing.getProperty().getPricePerUnitArea() == null) {
                     ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
 
-                    if (latestListingPrice.getPricePerUnitArea() != null) {
+                    if (latestListingPrice != null && latestListingPrice.getPricePerUnitArea() != null) {
                         listing.getProperty().setPricePerUnitArea(
                                 latestListingPrice.getPricePerUnitArea().doubleValue());
                     }
                 }
+                properties.add(listing.getProperty());
             }
         }
+
         return properties;
     }
 

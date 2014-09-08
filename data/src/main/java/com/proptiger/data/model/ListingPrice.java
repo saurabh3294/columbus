@@ -64,12 +64,6 @@ public class ListingPrice extends BaseModel {
     @Column(name = "construction_cost_per_unit_area")
     private Integer           constructionCostPerUnitArea;
 
-    @Column(name = "price")
-    private Integer           price;
-
-    @Column(name = "other_charges")
-    private Integer           otherCharges;
-
     @Enumerated(EnumType.STRING)
     private Status            status;
 
@@ -171,22 +165,6 @@ public class ListingPrice extends BaseModel {
 
     public void setConstructionCostPerUnitArea(Integer constructionCostPerUnitArea) {
         this.constructionCostPerUnitArea = constructionCostPerUnitArea;
-    }
-
-    public Integer getPrice() {
-        return price;
-    }
-
-    public void setPrice(Integer price) {
-        this.price = price;
-    }
-
-    public Integer getOtherCharges() {
-        return otherCharges;
-    }
-
-    public void setOtherCharges(Integer otherCharges) {
-        this.otherCharges = otherCharges;
     }
 
     @PreUpdate

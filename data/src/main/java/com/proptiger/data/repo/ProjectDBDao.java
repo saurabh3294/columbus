@@ -20,6 +20,7 @@ import com.proptiger.data.model.ProjectDiscussion;
  */
 @Repository
 public interface ProjectDBDao extends PagingAndSortingRepository<ProjectDB, Serializable> {
+    @Query("SELECT p FROM ProjectDB p WHERE p.version = 'Website' AND p.projectId = ?1")
     public ProjectDB findByProjectId(int projectId);
 
     @Query("SELECT pd " + "FROM ProjectDiscussion pd JOIN Fetch pd.user "

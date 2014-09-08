@@ -124,6 +124,7 @@ public class LocalityService {
                 updateLocalityRatingAndReviewDetails(locality);
             }
         }
+        imageEnricher.setLocalityAmenitiesImages(localities);
         return paginatedRes;
     }
 
@@ -177,6 +178,7 @@ public class LocalityService {
                 priceStats);
 
         sortLocalities(localities.getResults());
+        imageEnricher.setLocalityAmenitiesImages(localities.getResults());
         return localities;
     }
 
@@ -365,6 +367,8 @@ public class LocalityService {
 
         locality.setAmenityTypeCount(localityAmenityCountMap);
         imageEnricher.setLocalityImages(locality, imageCount);
+        imageEnricher.setAmenitiesImages(amenities);
+        locality.setLandmarks(amenities);
 
         /*
          * Setting Rating and Review Details.
@@ -437,6 +441,7 @@ public class LocalityService {
         for (Locality locality : result) {
             updateLocalityRatingAndReviewDetails(locality);
         }
+        imageEnricher.setLocalityAmenitiesImages(result);
         return result;
     }
 
@@ -522,7 +527,7 @@ public class LocalityService {
         }
 
         imageEnricher.setLocalitiesImages(result, imageCount);
-
+        imageEnricher.setLocalityAmenitiesImages(result);
         return result;
     }
 
@@ -685,6 +690,7 @@ public class LocalityService {
             }
 
         }
+        imageEnricher.setLocalityAmenitiesImages(localitiesAroundMainLocality);
         return localitiesAroundMainLocality;
     }
 
@@ -998,8 +1004,9 @@ public class LocalityService {
 
         if (localities == null || localities.size() < 1)
             return null;
-
-        return localityDao.findByLocalityIds(localities, null);
+        PaginatedResponse<List<Locality>> response = localityDao.findByLocalityIds(localities, null);
+        imageEnricher.setLocalityAmenitiesImages(response.getResults());
+        return response;
     }
 
     /**
@@ -1065,7 +1072,7 @@ public class LocalityService {
         if (localities == null) {
             return new PaginatedResponse<List<Locality>>();
         }
-
+        imageEnricher.setLocalityAmenitiesImages(localities.getResults());
         return localities;
     }
 

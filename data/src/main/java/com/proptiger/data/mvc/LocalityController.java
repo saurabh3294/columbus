@@ -193,6 +193,7 @@ public class LocalityController extends BaseController {
                 localitySelector,
                 imageCount,
                 null);
+        localityService.updateLocalitiesLifestyleScoresAndRatings(result);
         return new APIResponse(super.filterFields(result, localitySelector.getFields()), result.size());
     }
 
@@ -211,7 +212,6 @@ public class LocalityController extends BaseController {
                 localitySelector,
                 imageCount,
                 null);
-        localityService.updateLocalitiesLifestyleScoresAndRatings(result);
         return new APIResponse(super.filterFields(result, localitySelector.getFields()), result.size());
     }
 

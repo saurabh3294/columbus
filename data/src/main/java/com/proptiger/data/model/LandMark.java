@@ -4,6 +4,8 @@
  */
 package com.proptiger.data.model;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 import org.hibernate.annotations.Fetch;
@@ -22,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.meta.ResourceMetaInfo;
+import com.proptiger.data.model.image.Image;
 
 /**
  * 
@@ -133,6 +137,9 @@ public class LandMark extends BaseModel {
     @JoinColumn(name = "locality_id", referencedColumnName = "LOCALITY_ID")
     @Deprecated
     private Locality          locality;
+    
+    @Transient
+    private List<Image>       images;
 
     public Locality getLocality() {
         return locality;
@@ -286,4 +293,11 @@ public class LandMark extends BaseModel {
         this.priority = priority;
     }
 
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
+    }
 }

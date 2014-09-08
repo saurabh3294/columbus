@@ -100,9 +100,10 @@ public class PortfolioPriceTrendService {
      */
     private void updateProjectName(List<PortfolioListing> listings) {
         for (PortfolioListing listing : listings) {
-            listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
+            if (listing.getProperty() != null) {
+                listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
+            }
         }
-
     }
 
     /**

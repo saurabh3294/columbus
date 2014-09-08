@@ -12,7 +12,7 @@ import com.proptiger.data.model.ListingPrice;
  */
 public interface ListingDao extends JpaRepository<Listing, Integer> {
     
-    @Query("SELECT LP FROM ListingPrice LP where LP.id IN (SELECT MAX(LP.id) FROM Listing L JOIN L.listingPrices AS LP WHERE L.propertyId = ?1) ")
+    @Query("SELECT LP FROM ListingPrice LP where LP.id IN (SELECT MAX(LP.id) FROM Listing L JOIN L.listingPrices AS LP WHERE L.propertyId = ?1 AND LP.version='Website') ")
     public ListingPrice getListingPrice(Integer propertyId);    
 
 }
