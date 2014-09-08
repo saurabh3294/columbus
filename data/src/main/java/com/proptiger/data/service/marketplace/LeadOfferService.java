@@ -443,7 +443,7 @@ public class LeadOfferService {
         LeadOffer offer = new LeadOffer();
         offer.setLeadId(lead.getId());
         offer.setAgentId(agent.getUserId());
-        offer.setStatusId(LeadOfferStatus.Offered.getLeadOfferStatusId());
+        offer.setStatusId(LeadOfferStatus.Offered.getId());
         offer.setCycleId(1);
         offer = leadOfferDao.save(offer);
         return offer;
@@ -489,8 +489,8 @@ public class LeadOfferService {
         leadOfferInDB.setLastTask(null);
         leadOfferInDB.setNextTask(null);
 
-        if (leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered
-                .getLeadOfferStatusId()) {
+        if (leadOfferInDB.getMasterLeadOfferStatus().isClaimed() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered
+                .getId()) {
             if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
                 for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
                     listingIds.add(leadOfferedListing.getListingId());
@@ -505,8 +505,8 @@ public class LeadOfferService {
             throw new BadRequestException("Sorry! The lead has already been claimed by another agent.");
         }
 
-        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getLeadOfferStatusId()) {
-            if (leadOffer.getStatusId() == LeadOfferStatus.New.getLeadOfferStatusId()) {
+        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
+            if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
                 List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
                         .singletonList(leadOfferId));
 
@@ -525,7 +525,7 @@ public class LeadOfferService {
                 return leadOfferInDB;
             }
 
-            if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getLeadOfferStatusId()) {
+            if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId()) {
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
             }
         }
@@ -680,7 +680,7 @@ public class LeadOfferService {
         /*
          * for email task done status, it should be in claimed status
          */
-        if (!leadOfferInDB.getMasterLeadOfferStatus().isClaimedFlag()) {
+        if (!leadOfferInDB.getMasterLeadOfferStatus().isClaimed()) {
             throw new BadRequestException("Lead offer " + leadOfferId + " is not in opened status");
         }
         LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
@@ -722,7 +722,7 @@ public class LeadOfferService {
 
     public List<LeadOffer> expireLeadOffers(List<LeadOffer> leadOffers) {
         for (LeadOffer leadOffer : leadOffers) {
-            leadOffer.setStatusId(LeadOfferStatus.Expired.getLeadOfferStatusId());
+            leadOffer.setStatusId(LeadOfferStatus.Expired.getId());
             leadOfferDao.save(leadOffer);
         }
         return leadOffers;
