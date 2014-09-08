@@ -53,9 +53,13 @@ public class LocalityReviewComments extends BaseModel {
     @Column(name = "PROJECT_ID")
     private int               projectId;
 
+    /**
+     * Changing the type from int to Integer as Criteria query is adding cast in
+     * the sql query when it is int.
+     */
     @FieldMetaInfo(displayName = "Locality Id", description = "Locality Id")
     @Column(name = "LOCALITY_ID")
-    private int               localityId;
+    private Integer           localityId;
 
     @FieldMetaInfo(displayName = "Likes Count", description = "Likes Count")
     @Column(name = "LIKES_COUNT")
@@ -94,14 +98,19 @@ public class LocalityReviewComments extends BaseModel {
     @JoinColumn(name = "USER_ID", insertable = false, updatable = false)
     private ForumUser         forumUser;
 
-    @OneToOne(fetch = FetchType.EAGER, optional=true)
+    @OneToOne(fetch = FetchType.EAGER, optional = true)
     @JoinColumns({
             @JoinColumn(
                     name = "LOCALITY_ID",
                     referencedColumnName = "LOCALITY_ID",
                     insertable = false,
                     updatable = false),
-            @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID", insertable = false, updatable = false, nullable = true)})
+            @JoinColumn(
+                    name = "USER_ID",
+                    referencedColumnName = "USER_ID",
+                    insertable = false,
+                    updatable = false,
+                    nullable = true) })
     private LocalityRatings   localityRatings;
 
     @ManyToOne
@@ -133,11 +142,11 @@ public class LocalityReviewComments extends BaseModel {
         this.projectId = projectId;
     }
 
-    public int getLocalityId() {
+    public Integer getLocalityId() {
         return localityId;
     }
 
-    public void setLocalityId(int localityId) {
+    public void setLocalityId(Integer localityId) {
         this.localityId = localityId;
     }
 
