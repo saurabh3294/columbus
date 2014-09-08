@@ -491,6 +491,13 @@ public class LeadOfferService {
 
         if (leadOfferInDB.getMasterLeadOfferStatus().isClaimed() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered
                 .getId()) {
+            
+            if(leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && leadOfferedListingsGiven.size() > PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_PROPERTY_COUNT_WHILE_CLAIMING, Long.class).intValue())
+            {
+                throw new BadRequestException("Currently you can offer only 3 properties to the client. You may offer more later");
+            }
+            
+            
             if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
                 for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
                     listingIds.add(leadOfferedListing.getListingId());
