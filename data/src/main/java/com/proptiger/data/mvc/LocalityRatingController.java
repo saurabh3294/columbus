@@ -40,8 +40,9 @@ public class LocalityRatingController extends BaseController {
     public APIResponse createLocalityRating(
             @PathVariable Integer localityId,
             @RequestBody LocalityRatings localityReview) {
+        localityRatingService.updateRatingsByTwice(localityReview);
         LocalityRatings createdRating = localityRatingService.createLocalityRating(null, localityId, localityReview);
-        localityRatingService.updateRatingsByTwice(createdRating);
+        localityRatingService.updateRatingsByHalf(createdRating);
         return new APIResponse(createdRating);
     }
 
@@ -98,11 +99,12 @@ public class LocalityRatingController extends BaseController {
             @PathVariable Integer localityId,
             @RequestBody LocalityRatings localityRating,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        localityRatingService.updateRatingsByTwice(localityRating);
         LocalityRatings createdRating = localityRatingService.createLocalityRating(
                 userInfo.getUserIdentifier(),
                 localityId,
                 localityRating);
-        localityRatingService.updateRatingsByTwice(createdRating);
+        localityRatingService.updateRatingsByHalf(createdRating);
         return new APIResponse(createdRating);
     }
     
