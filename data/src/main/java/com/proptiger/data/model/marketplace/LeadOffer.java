@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.MasterLeadOfferStatus;
+import com.proptiger.data.model.user.User;
 
 /**
  * @author mandeep
@@ -127,6 +128,18 @@ public class LeadOffer extends BaseModel {
     @OneToOne
     @JoinColumn(name = "status_id", referencedColumnName = "id", insertable = false, updatable = false)
     private MasterLeadOfferStatus    masterLeadOfferStatus;
+
+    @Transient
+    private User agent;
+    
+    
+    public User getAgent() {
+        return agent;
+    }
+
+    public void setAgent(User agent) {
+        this.agent = agent;
+    }
 
     public Lead getLead() {
         return lead;

@@ -73,7 +73,7 @@
     
     Hi ${leadOffer.lead.client.fullName},<br /><br />
     Greetings from Proptiger.com and thank you for using Proptiger services.<br />
-    ${agent.fullName}, our trusted brokers has suggested properties as per your property requirements of 
+    ${leadOffer.agent.fullName}, our trusted brokers has suggested properties as per your property requirements of 
 
 #foreach (${requirement} in ${leadOffer.lead.requirements})
 	#if (${requirement.project})    
@@ -94,7 +94,7 @@ details below.
     <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
     <tr><td height="5"></td></tr>
              <tr>
-    <td style="font-size:12px;">Suggested by Broker:  ${agent.fullName}</td>
+    <td style="font-size:12px;">Suggested by Broker:  ${leadOffer.agent.fullName}</td>
   </tr>         
         
             </table>
@@ -103,7 +103,7 @@ details below.
               
              
                   <tr>
-                    <td style="text-align:center;" class="responsive-image"	><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${agent.contactNumbers.get(0).contactNumber}</strong></div>
+                    <td style="text-align:center;" class="responsive-image"	><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}</strong></div>
                       
                       
                     </td></tr></table>

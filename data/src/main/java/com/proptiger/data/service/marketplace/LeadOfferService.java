@@ -552,10 +552,11 @@ public class LeadOfferService {
         fields.add("requirements");
         enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
         Map<String, Object> map = new HashMap<>();
+        
+        leadOfferInDB.setAgent(userService.getUserById(leadOfferInDB.getAgentId()));        
         map.put("leadOffer", leadOfferInDB);
-        map.put("agent", userService.getUserById(leadOfferInDB.getAgentId()));
+        
         String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
-
         generatedService.createNotificationGenerated(
                 Arrays.asList(new NotificationMessage(leadOfferInDB.getAgentId(), heading, template)),
                 Arrays.asList(MediumType.Email));
