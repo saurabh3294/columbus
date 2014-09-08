@@ -506,6 +506,9 @@ public class Project extends BaseModel {
     @Field(value = "PROJECT_LIVABILITY_RANK")
     private Integer                 projectLivabilityRank;
     
+    @Transient
+    private boolean                 has3DImages;
+    
     public int getProjectId() {
         return projectId;
     }
@@ -1233,5 +1236,13 @@ public class Project extends BaseModel {
 
     public void setProjectLivabilityRank(Integer projectLivabilityRank) {
         this.projectLivabilityRank = projectLivabilityRank;
+    }
+
+    public boolean isHas3DImages() {
+        return has3DImages;
+    }
+
+    public void setHas3DImages(boolean has3dImages) {
+        has3DImages = has3dImages;
     }
 }
