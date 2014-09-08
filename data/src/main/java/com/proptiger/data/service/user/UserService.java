@@ -60,7 +60,6 @@ import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.model.user.UserEmail;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
@@ -731,6 +730,7 @@ public class UserService {
         }
         else {
             user.setId(userDao.save(user).getId());
+            patchUser(user);
         }
 
         return user;
