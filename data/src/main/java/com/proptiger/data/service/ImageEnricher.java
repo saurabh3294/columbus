@@ -18,6 +18,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.model.Bank;
 import com.proptiger.data.model.Builder;
+import com.proptiger.data.model.LandMark;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
@@ -34,6 +35,9 @@ public class ImageEnricher {
 
     @Autowired
     private ImageDao      imageDao;
+    
+    @Autowired
+    private LandMarkService            localityAmenityService;
 
     private static Logger logger = LoggerFactory.getLogger(ImageEnricher.class);
 
@@ -363,5 +367,37 @@ public class ImageEnricher {
             domainImages.add(image);
         }
         return imagesMap;
+    }
+    
+    public void setAmenitiesImages(List<LandMark> amenities) {
+        if (amenities == null || amenities.isEmpty()) {
+            return;
+        }
+        
+        List<Long> amenityIds = new ArrayList<Long>();
+        for(LandMark amenity: amenities) {
+            amenityIds.add(new Long(amenity.getId()));
+        }
+        
+        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.landmark, amenityIds);
+        if (imagesMap == null) {
+            return;
+        }
+        for (LandMark amenity: amenities) {
+            amenity.setImages(imagesMap.get(new Long(amenity.getId())));
+        }
+    }
+
+    public void setLocalityAmenitiesImages(List<Locality> localities) {
+        if (localities == null || localities.isEmpty()) {
+            return;
+        }
+        for(Locality locality : localities) {
+            List<LandMark> amenities = localityAmenityService.getLocalityAmenities(locality.getLocalityId(), null);
+            if (amenities != null && !amenities.isEmpty()) {
+                setAmenitiesImages(amenities);
+                locality.setLandmarks(amenities);
+            }
+        }
     }
 }
