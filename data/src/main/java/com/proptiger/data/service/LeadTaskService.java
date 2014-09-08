@@ -200,8 +200,7 @@ public class LeadTaskService {
             boolean primaryLead = false;
             for (LeadOffer offer : offers) {
                 MasterLeadOfferStatus status = offer.getMasterLeadOfferStatus();
-                if (status.isOpen() || LeadOfferStatus.ClosedWon
-                        .equals(LeadOfferStatus.valueOf(status.getStatus()))) {
+                if (status.isOpen() || LeadOfferStatus.ClosedWon.equals(LeadOfferStatus.valueOf(status.getStatus()))) {
                     lost = false;
                 }
                 if (!(leadTaskDao.findByofferIdAndStatusReason(offer.getId(), interestedInPrimary) == null)) {
@@ -462,7 +461,7 @@ public class LeadTaskService {
         for (MasterLeadTask masterLeadTask : mustDoTasks) {
             int notDoneTaskId = masterLeadTask.getId();
             if (!indexedCompletedTasks.containsKey(notDoneTaskId)) {
-                if (taskStatus.getMasterLeadTask().getId() != notDoneTaskId) {
+                if (!taskStatus.getMasterLeadTaskStatus().isComplete() || taskStatus.getMasterLeadTask().getId() != notDoneTaskId) {
                     result = false;
                 }
             }
