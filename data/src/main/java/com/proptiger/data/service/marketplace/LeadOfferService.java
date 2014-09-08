@@ -174,31 +174,16 @@ public class LeadOfferService {
             int agentId,
             FIQLSelector selector,
             List<Integer> statusIds,
-            Date dueDate) {
+            String dueDate) {
         selector.applyDefSort(defaultSort);
-
-        List<LeadOffer> leadOffers = null;
-
-        if (statusIds != null && statusIds.size() > 0 && dueDate != null) {
-            leadOffers = leadOfferDao.getLeadOffersForAgentWhereStatusIdsInAndDueDateGreatherThan(
-                    agentId,
-                    statusIds,
-                    dueDate);
-        }
-        else if (dueDate != null) {
-            leadOffers = leadOfferDao.getLeadOffersForAgentDueDateGreatherThan(agentId, dueDate);
-        }
-        else if (statusIds != null && statusIds.size() > 0) {
-            leadOffers = leadOfferDao.getLeadOffersForAgentStatusIdsIn(agentId, statusIds);
-        }
-        else {
-            leadOffers = leadOfferDao.getLeadOffersForAgent(agentId);
-        }
-
-        PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>(leadOffers, leadOffers.size());
+        PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferDao.getLeadOffers(
+                agentId,
+                statusIds,
+                dueDate,
+                selector);
 
         Set<String> fields = selector.getFieldSet();
-        enrichLeadOffers(leadOffers, fields);
+        enrichLeadOffers(paginatedResponse.getResults(), fields);
 
         return paginatedResponse;
     }
