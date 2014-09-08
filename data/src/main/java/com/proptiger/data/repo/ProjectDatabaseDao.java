@@ -14,8 +14,6 @@ import com.proptiger.data.model.ProjectDiscussion;
 
 @Repository
 public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, Integer> {
-    public Project findByProjectId(int projectId);
-
     public Project findByProjectIdAndVersion(int projectId, DataVersion dataVersion);
 
     @Query("SELECT pd " + "FROM ProjectDiscussion pd "

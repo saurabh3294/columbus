@@ -37,13 +37,14 @@ public class ProjectDao extends ProjectSolrDao {
 
     @Autowired
     private EntityManagerFactory emf;
-
+    
+    @Deprecated
     public ProjectDB findByProjectId(int projectId) {
-        return projectDBDao.findByProjectId(projectId);
+        return projectDBDao.findByProjectIdAndVersion(projectId, DataVersion.Website);
     }
 
     public Project findProjectByProjectId(int projectId) {
-        return projectDatabaseDao.findByProjectId(projectId);
+        return findActiveOrInactiveProjectById(projectId);
     }
 
     public List<ProjectDiscussion> getDiscussions(int projectId, Long commentId) {
