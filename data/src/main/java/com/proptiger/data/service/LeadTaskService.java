@@ -360,7 +360,8 @@ public class LeadTaskService {
                 result = false;
             }
             // cases where performed at is mandatory
-            if (newStatus.getMasterLeadTaskStatus().isComplete() && leadTask.getPerformedAt() == null) {
+            if ((newStatus.getMasterLeadTaskStatus().isComplete() && !newStatus.getMasterLeadTaskStatus().getStatus()
+                    .equals(TaskStatus.Cancelled)) && leadTask.getPerformedAt() == null) {
                 logger.info("COMPLETE TASKS SHOULD HAVE PERFORMED AT");
                 result = false;
             }
@@ -461,7 +462,8 @@ public class LeadTaskService {
         for (MasterLeadTask masterLeadTask : mustDoTasks) {
             int notDoneTaskId = masterLeadTask.getId();
             if (!indexedCompletedTasks.containsKey(notDoneTaskId)) {
-                if (!taskStatus.getMasterLeadTaskStatus().isComplete() || taskStatus.getMasterLeadTask().getId() != notDoneTaskId) {
+                if (taskStatus.getMasterLeadTaskStatus().getStatus().equals(TaskStatus.Cancelled) || taskStatus
+                        .getMasterLeadTask().getId() != notDoneTaskId) {
                     result = false;
                 }
             }
