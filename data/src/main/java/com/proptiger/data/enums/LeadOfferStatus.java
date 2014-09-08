@@ -18,7 +18,7 @@ public enum LeadOfferStatus {
 
     static {
         for (LeadOfferStatus offerStatus : LeadOfferStatus.values()) {
-            idToEnumLookUpMap.put(offerStatus.getLeadOfferStatusId(), offerStatus);
+            idToEnumLookUpMap.put(offerStatus.getId(), offerStatus);
         }
     }
 
@@ -26,11 +26,11 @@ public enum LeadOfferStatus {
         this.leadOfferStatusId = leadOfferStatusId;
     }
 
-    public int getLeadOfferStatusId() {
+    public int getId() {
         return this.leadOfferStatusId;
     }
 
-    public static LeadOfferStatus fromLeadOfferStatusId(int id) {
+    public static LeadOfferStatus fromId(int id) {
         return idToEnumLookUpMap.get(id);
     }
 }

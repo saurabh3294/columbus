@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
-import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -610,13 +609,10 @@ public class NotificationService {
                 endDate.getTime() - PropertyReader
                         .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
 
-        int offeredStatusId = LeadOfferStatus.Offered.getLeadOfferStatusId();
         Date maxOfferDate = new Date(0);
         boolean claimed = false;
         for (LeadOffer offer : offers) {
-            if (offer.getStatusId() != offeredStatusId) {
-                claimed = true;
-            }
+            claimed = claimed || offer.getMasterLeadOfferStatus().isClaimed();
             maxOfferDate = DateUtil.max(maxOfferDate, offer.getCreatedAt());
         }
 
@@ -685,5 +681,55 @@ public class NotificationService {
                 NotificationType.SaleSuccessful.getId(),
                 leadOfferId,
                 null);
+    }
+
+    public Date getAuctionOverCutoffTime() {
+        return DateUtil.getWorkingTimeSubtractedFromDate(
+                new Date(),
+                PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION));
+    }
+
+    /**
+     * send offer not yet claimed notification to rm
+     * 
+     * @param leadId
+     */
+    @Transactional
+    public void manageLeadOfferedReminderForLead(int leadId) {
+        Date endDate = getAuctionOverCutoffTime();
+        Date startDate = new Date(
+                endDate.getTime() - PropertyReader
+                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
+
+        Lead lead = leadDao.getLock(leadId);
+        List<LeadOffer> offers = lead.getLeadOffers();
+
+        Date maxOfferDate = new Date(0);
+        boolean claimed = false;
+        for (LeadOffer offer : offers) {
+            claimed = claimed || offer.getMasterLeadOfferStatus().isClaimed();
+            maxOfferDate = DateUtil.max(maxOfferDate, offer.getCreatedAt());
+        }
+
+        if (!claimed && maxOfferDate.after(startDate) && maxOfferDate.before(endDate)) {
+            int notificationTypeId = NotificationType.AuctionOverWithoutClaim.getId();
+            Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
+                    lead.getId(),
+                    notificationTypeId);
+            if (notification == null) {
+                generatedService
+                        .createNotificationGenerated(
+                                Arrays.asList(new NotificationMessage(
+                                        getRelationshipManagerUserId(),
+                                        NotificationType.AuctionOverWithoutClaim.getEmailSubject(),
+                                        "Lead ID: " + lead.getId()
+                                                + " of resale marketplace is not yet claimed. Please intimate the brokers. Offer will get expired after "
+                                                + PropertyReader
+                                                        .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION)
+                                                + " working seconds.")),
+                                Arrays.asList(MediumType.Email));
+                createNotification(getRelationshipManagerUserId(), notificationTypeId, lead.getId(), null);
+            }
+        }
     }
 }

@@ -21,7 +21,7 @@ public class MasterLeadOfferStatusService {
     @Cacheable(Constants.CacheName.CACHE)
     public boolean getClaimedFlag(int statusId) {
         MasterLeadOfferStatus masterLeadOfferStatus = masterLeadOfferStatusDao.findById(statusId);
-        return masterLeadOfferStatus.isClaimedFlag();
+        return masterLeadOfferStatus.isClaimed();
     }
 
     @Cacheable(Constants.CacheName.CACHE)
