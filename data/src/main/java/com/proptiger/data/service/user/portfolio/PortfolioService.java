@@ -287,16 +287,16 @@ public class PortfolioService {
                 Image defaultProjectImage = imageEnricher.getDefaultProjectImage(project.getImageURL());
                 listing.setPropertyImages(Arrays.asList(defaultProjectImage));
             }
-            if(project != null) {
-            listing.setProjectName(project.getName());
-            listing.setBuilderName(project.getBuilder().getName());
-            listing.setCompletionDate(project.getPossessionDate());
-            listing.setProjectStatus(project.getProjectStatus());
-            City city = project.getLocality().getSuburb().getCity();
-            listing.setCityName(city.getLabel());
-            Locality locality = project.getLocality();
-            listing.setLocality(locality.getLabel());
-            listing.setLocalityId(locality.getLocalityId());
+            if (project != null) {
+                listing.setProjectName(project.getName());
+                listing.setBuilderName(project.getBuilder().getName());
+                listing.setCompletionDate(project.getPossessionDate());
+                listing.setProjectStatus(project.getProjectStatus());
+                City city = project.getLocality().getSuburb().getCity();
+                listing.setCityName(city.getLabel());
+                Locality locality = project.getLocality();
+                listing.setLocality(locality.getLabel());
+                listing.setLocalityId(locality.getLocalityId());
             }
         }
     }
@@ -330,21 +330,18 @@ public class PortfolioService {
 
                 if (listing.getProperty() == null) {
                     Property result = propertyDao.findByPropertyId(listing.getTypeId());
-                    if (result != null ) {
-                        listing.setProperty(result);
-                        properties.add(result);
-                        ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
+                    listing.setProperty(result);
+                }
 
-                        if (latestListingPrice.getPricePerUnitArea() != null) {
-                            listing.getProperty().setPricePerUnitArea(
-                                    latestListingPrice.getPricePerUnitArea().doubleValue());
-                        }
+                if (listing.getProperty().getPricePerUnitArea() == null) {
+                    ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
+
+                    if (latestListingPrice != null && latestListingPrice.getPricePerUnitArea() != null) {
+                        listing.getProperty().setPricePerUnitArea(
+                                latestListingPrice.getPricePerUnitArea().doubleValue());
                     }
                 }
-                
-                else {
-                    properties.add(listing.getProperty());
-                }
+                properties.add(listing.getProperty());
             }
         }
 
