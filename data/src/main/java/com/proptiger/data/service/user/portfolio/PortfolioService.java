@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.ResidentialFlag;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.enums.mail.MailType;
 import com.proptiger.data.enums.portfolio.ListingStatus;
@@ -219,14 +220,6 @@ public class PortfolioService {
             if (listing.getListingStatus() == ListingStatus.ACTIVE) {
                 propertyIds.add(new Long(listing.getTypeId()));
                 if (listing.getProjectId() == null) {
-                    if (listing.getProperty() == null) {
-                        logger.error(
-                                "Portfolio Listing {} for userid {} doesn't contain ProjectId and Property",
-                                listing.getListingId(),
-                                listing.getUserId());
-                        itr.remove();
-                        continue;
-                    }
                     completeProjectIds.add(new Long(listing.getProperty().getProjectId()));
                 }
                 else if (listing.getTypeId() != null) {
@@ -238,6 +231,7 @@ public class PortfolioService {
                 incompleteProjectIds.add(listing.getProjectId());
             }
         }
+
         Map<Integer, Project> projectIdToProjectMap = new HashMap<Integer, Project>();
         Map<Integer, List<Image>> propertyIdToImageMap = new HashMap<Integer, List<Image>>();
         if (!propertyIds.isEmpty()) {
@@ -324,7 +318,9 @@ public class PortfolioService {
             propertyMap.put(property.getPropertyId(), property);
         }
 
-        for (PortfolioListing listing : listings) {
+        Iterator<PortfolioListing> itr = listings.iterator();
+        while (itr.hasNext()) {
+            PortfolioListing listing = itr.next();
             if (listing.getTypeId() != null) {
                 listing.setProperty(propertyMap.get(listing.getTypeId()));
 
@@ -333,6 +329,10 @@ public class PortfolioService {
                     listing.setProperty(result);
                 }
 
+                if (listing.getProperty().getProject().getResidentialFlag() == ResidentialFlag.NonResidential) {
+                    itr.remove();
+                    continue;
+                }
                 if (listing.getProperty().getPricePerUnitArea() == null) {
                     ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
 
