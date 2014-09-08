@@ -101,6 +101,7 @@ public class LeadOfferDaoImpl {
         
         List<LeadOffer> leadOffers = query.getResultList();
         paginatedResponse.setResults(leadOffers);
+        paginatedResponse.setTotalCount(leadOffers.size());
         return paginatedResponse;
     }
     
