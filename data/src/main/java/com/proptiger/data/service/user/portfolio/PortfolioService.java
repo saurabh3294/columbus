@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.ResidentialFlag;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.enums.mail.MailType;
 import com.proptiger.data.enums.portfolio.ListingStatus;
@@ -56,6 +57,7 @@ import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
+import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.CityService;
@@ -135,6 +137,8 @@ public class PortfolioService {
     @Autowired
     private ListingService            listingService;
 
+    @Autowired
+    private PropertyDao               propertyDao;
     @Value("${proptiger.url}")
     private String                    websiteHost;
 
@@ -216,14 +220,6 @@ public class PortfolioService {
             if (listing.getListingStatus() == ListingStatus.ACTIVE) {
                 propertyIds.add(new Long(listing.getTypeId()));
                 if (listing.getProjectId() == null) {
-                    if (listing.getProperty() == null) {
-                        logger.error(
-                                "Portfolio Listing {} for userid {} doesn't contain ProjectId and Property",
-                                listing.getListingId(),
-                                listing.getUserId());
-                        itr.remove();
-                        continue;
-                    }
                     completeProjectIds.add(new Long(listing.getProperty().getProjectId()));
                 }
                 else if (listing.getTypeId() != null) {
@@ -235,6 +231,7 @@ public class PortfolioService {
                 incompleteProjectIds.add(listing.getProjectId());
             }
         }
+
         Map<Integer, Project> projectIdToProjectMap = new HashMap<Integer, Project>();
         Map<Integer, List<Image>> propertyIdToImageMap = new HashMap<Integer, List<Image>>();
         if (!propertyIds.isEmpty()) {
@@ -284,15 +281,17 @@ public class PortfolioService {
                 Image defaultProjectImage = imageEnricher.getDefaultProjectImage(project.getImageURL());
                 listing.setPropertyImages(Arrays.asList(defaultProjectImage));
             }
-            listing.setProjectName(project.getName());
-            listing.setBuilderName(project.getBuilder().getName());
-            listing.setCompletionDate(project.getPossessionDate());
-            listing.setProjectStatus(project.getProjectStatus());
-            City city = project.getLocality().getSuburb().getCity();
-            listing.setCityName(city.getLabel());
-            Locality locality = project.getLocality();
-            listing.setLocality(locality.getLabel());
-            listing.setLocalityId(locality.getLocalityId());
+            if (project != null) {
+                listing.setProjectName(project.getName());
+                listing.setBuilderName(project.getBuilder().getName());
+                listing.setCompletionDate(project.getPossessionDate());
+                listing.setProjectStatus(project.getProjectStatus());
+                City city = project.getLocality().getSuburb().getCity();
+                listing.setCityName(city.getLabel());
+                Locality locality = project.getLocality();
+                listing.setLocality(locality.getLabel());
+                listing.setLocalityId(locality.getLocalityId());
+            }
         }
     }
 
@@ -319,24 +318,33 @@ public class PortfolioService {
             propertyMap.put(property.getPropertyId(), property);
         }
 
-        for (PortfolioListing listing : listings) {
-            FIQLSelector fiqlSelector = new FIQLSelector()
-                    .addAndConditionToFilter("propertyId==" + listing.getTypeId());
-
+        Iterator<PortfolioListing> itr = listings.iterator();
+        while (itr.hasNext()) {
+            PortfolioListing listing = itr.next();
             if (listing.getTypeId() != null) {
                 listing.setProperty(propertyMap.get(listing.getTypeId()));
 
                 if (listing.getProperty() == null) {
-                    listing.setProperty(propertyService.getPropertiesFromDB(fiqlSelector).getResults().get(0));
+                    Property result = propertyDao.findByPropertyId(listing.getTypeId());
+                    listing.setProperty(result);
+                }
+
+                if (listing.getProperty().getProject().getResidentialFlag() == ResidentialFlag.NonResidential) {
+                    itr.remove();
+                    continue;
+                }
+                if (listing.getProperty().getPricePerUnitArea() == null) {
                     ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
 
-                    if (latestListingPrice.getPricePerUnitArea() != null) {
+                    if (latestListingPrice != null && latestListingPrice.getPricePerUnitArea() != null) {
                         listing.getProperty().setPricePerUnitArea(
                                 latestListingPrice.getPricePerUnitArea().doubleValue());
                     }
                 }
+                properties.add(listing.getProperty());
             }
         }
+
         return properties;
     }
 

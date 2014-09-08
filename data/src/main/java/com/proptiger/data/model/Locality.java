@@ -255,6 +255,9 @@ public class Locality extends BaseModel {
     @Transient
     @Field(value = "LOCALITY_LIVABILITY_RANK")
     private Integer                 localityLivabilityRank;
+    
+    @Transient
+    private List<LandMark>          landmarks;
 
     public int getLocalityId() {
         return localityId;
@@ -656,5 +659,13 @@ public class Locality extends BaseModel {
 
     public void setLocalityLivabilityRank(Integer localityLivabilityRank) {
         this.localityLivabilityRank = localityLivabilityRank;
+    }
+
+    public List<LandMark> getLandmarks() {
+        return landmarks;
+    }
+
+    public void setLandmarks(List<LandMark> landmarks) {
+        this.landmarks = landmarks;
     }
 }

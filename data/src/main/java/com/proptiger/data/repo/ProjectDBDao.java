@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
 
@@ -20,7 +21,7 @@ import com.proptiger.data.model.ProjectDiscussion;
  */
 @Repository
 public interface ProjectDBDao extends PagingAndSortingRepository<ProjectDB, Serializable> {
-    public ProjectDB findByProjectId(int projectId);
+    public ProjectDB findByProjectIdAndVersion(int projectId, DataVersion dataVersion);
 
     @Query("SELECT pd " + "FROM ProjectDiscussion pd JOIN Fetch pd.user "
             + "WHERE pd.projectId = ?1 "

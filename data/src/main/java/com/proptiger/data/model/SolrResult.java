@@ -366,6 +366,9 @@ public class SolrResult extends BaseModel {
     @Field(value = "LOCALITY_LIVABILITY_RANK")
     private Integer                 localityLivabilityRank;
     
+    @Field(value = "HAS_3D_IMAGES")
+    private boolean                 hasProject3DImages;
+    
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -1162,5 +1165,10 @@ public class SolrResult extends BaseModel {
         }
         project.setImageTypeCount(imageTypeCount);
         property.setImageTypeCount(imageTypeCount);
+    }
+
+    @Field("HAS_3D_IMAGES")
+    public void setHasProject3DImages(boolean hasProject3DImages) {
+        project.setHas3DImages(hasProject3DImages);
     }
 }

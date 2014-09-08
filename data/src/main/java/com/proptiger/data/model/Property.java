@@ -5,11 +5,13 @@ import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.ws.rs.ext.ParamConverter.Lazy;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -30,10 +32,8 @@ import com.proptiger.data.util.UtilityClass;
 @JsonInclude(Include.NON_NULL)
 public class Property extends BaseModel {
 
+    private static final long serialVersionUID = -3350129763568409835L;
 
-	private static final long serialVersionUID = -3350129763568409835L;
-
-    
     @FieldMetaInfo(displayName = "Property Id", description = "Property Id")
     @Field(value = "TYPE_ID")
     @Column(name = "OPTIONS_ID")
@@ -85,7 +85,7 @@ public class Property extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Measure", description = "Measure")
     @Field(value = "MEASURE")
-    private String            measure = "sq ft";
+    private String            measure          = "sq ft";
 
     @FieldMetaInfo(displayName = "URL", description = "URL")
     @Field(value = "PROPERTY_URL")
@@ -117,7 +117,6 @@ public class Property extends BaseModel {
 
     @ManyToOne
     @JoinColumn(name = "PROJECT_ID", insertable = false, updatable = false)
-    //@Transient
     private Project           project;
 
     @Transient
@@ -163,13 +162,13 @@ public class Property extends BaseModel {
     private List<Media>       media;
     
     public String getProjectName() {
-		return projectName;
-	}
+        return projectName;
+    }
 
-	public void setProjectName(String projectName) {
-		this.projectName = projectName;
-	}
-    
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
     public int getProjectId() {
         return projectId;
     }
@@ -232,6 +231,14 @@ public class Property extends BaseModel {
 
     public void setMeasure(String measure) {
         this.measure = measure;
+    }
+
+    public List<Media> getMedia() {
+        return media;
+    }
+
+    public void setMedia(List<Media> media) {
+        this.media = media;
     }
 
     public String getURL() {
@@ -370,14 +377,6 @@ public class Property extends BaseModel {
 
     public void populateMaxResaleOrPrimaryPrice() {
         this.maxResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
-    }
-
-    public List<Media> getMedia() {
-        return media;
-    }
-
-    public void setMedia(List<Media> media) {
-        this.media = media;
     }
 
     public void setImageTypeCount(Map<String, Integer> imageTypeCount) {

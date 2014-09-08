@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.amazonaws.services.sqs.model.EmptyBatchRequestException;
 import com.proptiger.data.enums.ConstructionStatus;
 import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.enums.resource.ResourceType;
@@ -78,7 +79,9 @@ public class PortfolioPriceTrendService {
      */
     public ProjectPriceTrend getListingPriceTrend(Integer userId, Integer listingId, Integer noOfMonths) {
         logger.debug("Price trend for user id {} and listing id {} for months {}", userId, listingId, noOfMonths);
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(listingId, Constants.LISTINGSTATUS_LIST);
+        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+                listingId,
+                Constants.LISTINGSTATUS_LIST);
         if (listing == null) {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
@@ -100,9 +103,10 @@ public class PortfolioPriceTrendService {
      */
     private void updateProjectName(List<PortfolioListing> listings) {
         for (PortfolioListing listing : listings) {
-            listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
+            if (listing.getProperty() != null) {
+                listing.setProjectName(projectDBDao.getProjectNameById(listing.getProperty().getProjectId()));
+            }
         }
-
     }
 
     /**
@@ -111,19 +115,18 @@ public class PortfolioPriceTrendService {
      * 
      * @param userId
      * @param noOfMonths
-     * @param selector 
+     * @param selector
      * @return
      */
-    public PortfolioPriceTrend getPortfolioPriceTrend(
-            Integer userId,
-            Integer noOfMonths, FIQLSelector selector) {
+    public PortfolioPriceTrend getPortfolioPriceTrend(Integer userId, Integer noOfMonths, FIQLSelector selector) {
         PortfolioPriceTrend portfolioPriceTrend = new PortfolioPriceTrend();
         logger.debug("Price trend for user id {} for months {}", userId, noOfMonths);
         List<PortfolioListing> listings = portfolioListingDao
                 .findByUserIdAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
                         userId,
                         Constants.SOURCETYPE_LIST,
-                        Arrays.asList(ListingStatus.ACTIVE), LimitOffsetPageRequest.createPageableDefaultRowsAll(selector));
+                        Arrays.asList(ListingStatus.ACTIVE),
+                        LimitOffsetPageRequest.createPageableDefaultRowsAll(selector));
         if (listings == null || listings.size() == 0) {
             List<ProjectPriceTrend> list = new ArrayList<>();
             portfolioPriceTrend.setProjectPriceTrend(list);
@@ -141,28 +144,27 @@ public class PortfolioPriceTrendService {
      */
     private List<ProjectPriceTrend> getProjectPriceTrends(Integer noOfMonths, List<PortfolioListing> listings) {
         portfolioService.setPropertyInListings(listings);
-        updateProjectName(listings);
-        List<ProjectPriceTrendInput> inputs = createProjectPriceTrendInputs(listings);
-        List<ProjectPriceTrend> projectPriceTrendTemp = projectPriceTrendService.getProjectPriceHistory(
-                inputs,
-                noOfMonths);
-        /*
-         * Now add price trend from current month and make price trend number
-         * equal to noOfMonths
-         */
-        addPriceDetailsFromCurrentMonth(projectPriceTrendTemp, noOfMonths, listings);
-        /*
-         * Update Price with total price of Listing
-         */
-        updatePriceAsTotalListingPriceInTrend(projectPriceTrendTemp, listings);
+        List<ProjectPriceTrend> projectPriceTrendTemp = new ArrayList<ProjectPriceTrend>();
+        if (!listings.isEmpty()) {
+            updateProjectName(listings);
+            List<ProjectPriceTrendInput> inputs = createProjectPriceTrendInputs(listings);
+            projectPriceTrendTemp = projectPriceTrendService.getProjectPriceHistory(inputs, noOfMonths);
+            /*
+             * Now add price trend from current month and make price trend
+             * number equal to noOfMonths
+             */
+            addPriceDetailsFromCurrentMonth(projectPriceTrendTemp, noOfMonths, listings);
+            /*
+             * Update Price with total price of Listing
+             */
+            updatePriceAsTotalListingPriceInTrend(projectPriceTrendTemp, listings);
+        }
         return projectPriceTrendTemp;
     }
 
     /**
-<<<<<<< HEAD
-=======
-     * Changing price trend date to month precision as it would be easy to plot
-     * on UI.
+     * <<<<<<< HEAD ======= Changing price trend date to month precision as it
+     * would be easy to plot on UI.
      * 
      * @param projectPriceTrendTemp
      */
@@ -184,15 +186,15 @@ public class PortfolioPriceTrendService {
     }
 
     /**
->>>>>>> 6e01daf2709cf4a6f7214140f0a135ab6ec2847d
-     * There may be cases when we do not get price trend for no of months
-     * specified from Trend API. This method will make sure there are price
-     * trend for specified no of months, so this method may add PriceTrend at
-     * last and at first if not present, and after adding make sure that there
-     * are {noOfMonths} price trend object only. To add at last it will take
-     * last price trend object and clone to add till current month, And to add
-     * at first it will take first price trend object and clone to add at first
-     * till specified number of months condition met
+     * >>>>>>> 6e01daf2709cf4a6f7214140f0a135ab6ec2847d There may be cases when
+     * we do not get price trend for no of months specified from Trend API. This
+     * method will make sure there are price trend for specified no of months,
+     * so this method may add PriceTrend at last and at first if not present,
+     * and after adding make sure that there are {noOfMonths} price trend object
+     * only. To add at last it will take last price trend object and clone to
+     * add till current month, And to add at first it will take first price
+     * trend object and clone to add at first till specified number of months
+     * condition met
      * 
      * @param projectPriceTrends
      * @param noOfMonths
@@ -399,16 +401,17 @@ public class PortfolioPriceTrendService {
                 if (projectPriceTrend.getPrices() != null) {
                     for (PriceDetail priceDetail : projectPriceTrend.getPrices()) {
                         if (priceDetail.getPrice() == 0.0D) {
-                            priceDetail.setPricePerUnitArea(Math.rint(listing.getTotalPrice() / listing.getListingSize()));
+                            priceDetail.setPricePerUnitArea(Math.rint(listing.getTotalPrice() / listing
+                                    .getListingSize()));
                             priceDetail.setPrice(listing.getTotalPrice());
-                            
+
                         }
                         else {
                             double totPrice = priceDetail.getPrice();
                             priceDetail.setPricePerUnitArea(priceDetail.getPrice());
                             totPrice = totPrice * size + totalOtherPrice;
                             priceDetail.setPrice((int) totPrice);
-                            
+
                         }
 
                     }

@@ -68,7 +68,15 @@ public class URLService {
 
     public ValidURLResponse getURLStatus(String url) {
         URLDetail urlDetail = null;
-
+        
+        //Removing trailing slace if any and maitaining a boolean flag
+        // to update the HttpStatus for 301.
+        boolean hasTrailingSlace = false;
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length()-1);
+            hasTrailingSlace = true;
+        }
+        
         /*
          * Removing the URL request params and saving them in variable.
          */
@@ -127,7 +135,7 @@ public class URLService {
                 if (property == null) {
                     redirectUrl = getHigherHierarchyUrl(urlDetail.getPropertyId(), DomainObject.property.getText());
                 }
-                else if (!property.getURL().equals(urlDetail.getUrl())) {
+                else if (!property.getURL().equals(urlDetail.getUrl()) || hasTrailingSlace) {
                     redirectUrl = property.getURL();
                 }
                 else {
@@ -147,7 +155,7 @@ public class URLService {
                 if (project == null) {
                     redirectUrl = getHigherHierarchyUrl(urlDetail.getProjectId(), DomainObject.project.getText());
                 }
-                else if (!project.getURL().equals(urlDetail.getUrl())) {
+                else if (!project.getURL().equals(urlDetail.getUrl()) || hasTrailingSlace) {
                     redirectUrl = project.getURL();
                 }
                 else {
@@ -197,7 +205,7 @@ public class URLService {
                     if (builder.getBuilderCities() != null && builder.getBuilderCities().size() > 1) {
                         domainUrl = urlDetail.getCityName() + domainUrl;
                     }
-                    if (!domainUrl.equals(urlDetail.getUrl())) {
+                    if (!domainUrl.equals(urlDetail.getUrl()) || hasTrailingSlace) {
                         redirectUrl = domainUrl;
                     }
                     else {
@@ -222,7 +230,7 @@ public class URLService {
                     domainUrl = domainUrl.replaceFirst("property-sale", urlDetail.getPropertyType()) + urlDetail
                             .getBedroomString() + urlDetail.getPriceString();
 
-                    if (!domainUrl.equals(urlDetail.getUrl())) {
+                    if (!domainUrl.equals(urlDetail.getUrl()) || hasTrailingSlace) {
                         redirectUrl = domainUrl;
                         responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     }
@@ -251,7 +259,7 @@ public class URLService {
                     domainUrl = domainUrl.replaceFirst("property-sale-", "");
                     domainUrl = domainUrl.replaceFirst(cityName, cityName + "-real-estate") + "/overview";
 
-                    if (!domainUrl.equals(urlDetail.getUrl())) {
+                    if (!domainUrl.equals(urlDetail.getUrl()) || hasTrailingSlace) {
                         redirectUrl = domainUrl;
                         responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                     }
@@ -268,7 +276,7 @@ public class URLService {
                 catch (ResourceNotAvailableException e) {
                     city = null;
                 }
-                if (city == null) {
+                if (city == null || hasTrailingSlace) {
                     redirectUrl = EMPTY_URL;
                     responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 }
