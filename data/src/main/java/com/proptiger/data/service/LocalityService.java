@@ -184,15 +184,15 @@ public class LocalityService {
 
     /**
      * This methods returns localities if locality id list is given.
+     * 
      * @param localityIdList
      * @return
      */
-    
-    public PaginatedResponse<List<Locality>> findByLocalityIdList(List<Integer> localityIdList)
-    {
+
+    public PaginatedResponse<List<Locality>> findByLocalityIdList(List<Integer> localityIdList) {
         return localityDao.findByLocalityIds(localityIdList, null);
     }
-    
+
     /**
      * Sorts localities as per the logic that first X ones are either priority
      * based or project count based. Remaining ones are alphabetically sorted.
@@ -263,13 +263,13 @@ public class LocalityService {
             // setting Project Count
             projectCount = projectCountOnLocality.get(localityIdStr);
             locality.setProjectCount(null);
-            if(projectCount != null){
+            if (projectCount != null) {
                 locality.setProjectCount(projectCount.intValue());
             }
-            
+
             // setting Project Status Count
             locality.setProjectStatusCount(localityProjectStatusCount.get(localityId));
-            
+
             FieldStatsInfo fieldStatsInfo;
             // setting Resale Prices
             if (resalePriceStats != null) {
@@ -1115,57 +1115,59 @@ public class LocalityService {
         return localityDao.findOne(id);
     }
 
-    // This method will divide the Safety and Livability scores by 2 for backward compatibility
-    // of API's, as all these scores now will be based on 10 and earlier it was based on 5.
+    // This method will divide the Safety and Livability scores by 2 for
+    // backward compatibility
+    // of API's, as all these scores now will be based on 10 and earlier it was
+    // based on 5.
     public void updateLocalitiesLifestyleScoresAndRatings(List<Locality> localities) {
         if (localities == null || localities.isEmpty()) {
             return;
         }
-        
-        for(Locality locality : localities ) {
+
+        for (Locality locality : localities) {
             if (locality.getSafetyScore() != null) {
-                locality.setSafetyScore(locality.getSafetyScore()/2);
+                locality.setSafetyScore(locality.getSafetyScore() / 2);
             }
-            
+
             if (locality.getLivabilityScore() != null) {
-                locality.setLivabilityScore(locality.getLivabilityScore()/2);
+                locality.setLivabilityScore(locality.getLivabilityScore() / 2);
             }
-            
+
             if (locality.getAverageRating() != null) {
-                locality.setAverageRating(locality.getAverageRating()/2);
+                locality.setAverageRating(locality.getAverageRating() / 2);
             }
-            
+
             if (locality.getAvgRatingsByCategory() != null) {
                 LocalityAverageRatingByCategory locAvgRatingsByCat = locality.getAvgRatingsByCategory();
                 if (locAvgRatingsByCat.getOverallRating() != null) {
-                    locAvgRatingsByCat.setOverallRating(locAvgRatingsByCat.getOverallRating()/2);
+                    locAvgRatingsByCat.setOverallRating(locAvgRatingsByCat.getOverallRating() / 2);
                 }
                 if (locAvgRatingsByCat.getLocation() != null) {
-                    locAvgRatingsByCat.setLocation(locAvgRatingsByCat.getLocation()/2);
+                    locAvgRatingsByCat.setLocation(locAvgRatingsByCat.getLocation() / 2);
                 }
-                if (locAvgRatingsByCat.getSafety() != null){
-                    locAvgRatingsByCat.setSafety(locAvgRatingsByCat.getSafety()/2);
+                if (locAvgRatingsByCat.getSafety() != null) {
+                    locAvgRatingsByCat.setSafety(locAvgRatingsByCat.getSafety() / 2);
                 }
-                if (locAvgRatingsByCat.getPubTrans() != null){
-                    locAvgRatingsByCat.setPubTrans(locAvgRatingsByCat.getPubTrans()/2);
+                if (locAvgRatingsByCat.getPubTrans() != null) {
+                    locAvgRatingsByCat.setPubTrans(locAvgRatingsByCat.getPubTrans() / 2);
                 }
-                if (locAvgRatingsByCat.getRestShop() != null){
-                    locAvgRatingsByCat.setRestShop(locAvgRatingsByCat.getRestShop()/2);
+                if (locAvgRatingsByCat.getRestShop() != null) {
+                    locAvgRatingsByCat.setRestShop(locAvgRatingsByCat.getRestShop() / 2);
                 }
-                if (locAvgRatingsByCat.getSchools() != null){
-                    locAvgRatingsByCat.setSchools(locAvgRatingsByCat.getSchools()/2);
+                if (locAvgRatingsByCat.getSchools() != null) {
+                    locAvgRatingsByCat.setSchools(locAvgRatingsByCat.getSchools() / 2);
                 }
-                if (locAvgRatingsByCat.getParks() != null){
-                    locAvgRatingsByCat.setParks(locAvgRatingsByCat.getParks()/2);
+                if (locAvgRatingsByCat.getParks() != null) {
+                    locAvgRatingsByCat.setParks(locAvgRatingsByCat.getParks() / 2);
                 }
                 if (locAvgRatingsByCat.getTraffic() != null) {
-                    locAvgRatingsByCat.setTraffic(locAvgRatingsByCat.getTraffic()/2);
+                    locAvgRatingsByCat.setTraffic(locAvgRatingsByCat.getTraffic() / 2);
                 }
-                if (locAvgRatingsByCat.getHospitals() != null){
-                    locAvgRatingsByCat.setHospitals(locAvgRatingsByCat.getHospitals()/2);
+                if (locAvgRatingsByCat.getHospitals() != null) {
+                    locAvgRatingsByCat.setHospitals(locAvgRatingsByCat.getHospitals() / 2);
                 }
-                if (locAvgRatingsByCat.getCivic() != null){
-                    locAvgRatingsByCat.setCivic(locAvgRatingsByCat.getCivic()/2);
+                if (locAvgRatingsByCat.getCivic() != null) {
+                    locAvgRatingsByCat.setCivic(locAvgRatingsByCat.getCivic() / 2);
                 }
                 locality.setAvgRatingsByCategory(locAvgRatingsByCat);
             }
@@ -1173,8 +1175,8 @@ public class LocalityService {
                 Map<Double, Long> numberOfUsersByRating = locality.getNumberOfUsersByRating();
                 Set<Entry<Double, Long>> entrySet = numberOfUsersByRating.entrySet();
                 Map<Double, Long> newNumberOfUsersByRating = new HashMap<Double, Long>();
-                for(Entry<Double, Long> entry : entrySet) {
-                    newNumberOfUsersByRating.put(entry.getKey()/2, entry.getValue());
+                for (Entry<Double, Long> entry : entrySet) {
+                    newNumberOfUsersByRating.put(entry.getKey() / 2, entry.getValue());
                 }
                 locality.setNumberOfUsersByRating(newNumberOfUsersByRating);
             }
