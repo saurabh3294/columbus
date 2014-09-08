@@ -94,6 +94,6 @@ public class ProjectDao extends ProjectSolrDao {
     }
 
     public Project findActiveOrInactiveProjectById(Integer id) {
-        return projectDatabaseDao.findByProjectId(id);
+        return projectDatabaseDao.findOne(id);
     }
 }
