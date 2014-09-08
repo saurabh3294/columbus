@@ -506,6 +506,10 @@ public class Project extends BaseModel {
     @Field(value = "PROJECT_LIVABILITY_RANK")
     private Integer                 projectLivabilityRank;
     
+    @Transient
+    @Field("IMAGE_TYPE_COUNT")
+    private Map<String, Integer>	 imageTypeCount;
+
     public int getProjectId() {
         return projectId;
     }
@@ -1233,5 +1237,9 @@ public class Project extends BaseModel {
 
     public void setProjectLivabilityRank(Integer projectLivabilityRank) {
         this.projectLivabilityRank = projectLivabilityRank;
+    }
+
+    public void setImageTypeCount(Map<String, Integer> imageTypeCount) {
+        this.imageTypeCount = imageTypeCount;
     }
 }

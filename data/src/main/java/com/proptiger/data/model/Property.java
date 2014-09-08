@@ -1,6 +1,7 @@
 package com.proptiger.data.model;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -153,7 +154,11 @@ public class Property extends BaseModel {
     @Transient
     @Field("PROJECT_NAME")
     private String 			  projectName;
-    
+
+    @Transient
+    @Field("IMAGE_TYPE_COUNT")
+    private Map<String, Integer>	 imageTypeCount;
+
     @Transient
     private List<Media>       media;
     
@@ -373,5 +378,9 @@ public class Property extends BaseModel {
 
     public void setMedia(List<Media> media) {
         this.media = media;
+    }
+
+    public void setImageTypeCount(Map<String, Integer> imageTypeCount) {
+        this.imageTypeCount = imageTypeCount;
     }
 }
