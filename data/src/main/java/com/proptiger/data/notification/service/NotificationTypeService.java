@@ -24,7 +24,7 @@ public class NotificationTypeService {
     @Autowired
     private ApplicationContext  applicationContext;
 
-//    @Autowired
+    @Autowired
     private NotificationTypeDao notificationTypeDao;
 
     public NotificationType populateNotificationTypeConfig(NotificationType notificationType) {

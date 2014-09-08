@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+
+<style type="text/css">
+      body {margin: 10px 0; padding: 0 10px; background: #ffffff; font-size: 13px;}
+      table {border-collapse: collapse;}
+      td {font-family: arial, sans-serif; color: #333333;}
+
+      @media only screen and (max-width: 480px) {
+        body,table,td,p,a,li,blockquote {
+          -webkit-text-size-adjust:none !important;
+        }
+        table {width: 100% !important;}
+		table tr td{width:100% !important;}
+
+        .responsive-image img {
+          height: auto !important;
+          max-width: 100% !important;
+          width: 100% !important;
+        }
+		
+	.responsive-icon img{ height: auto !important;
+          max-width: 50% !important;
+          width: 100% !important;}	
+		
+      }
+    </style>
+
+
+</head>
+
+<body>
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" >
+  <tr>
+    <td><table width="600" border="0" cellspacing="0" align="center" cellpadding="0" style="border:1px solid #333333;">
+            <tr>
+            <td bgcolor="#f5f5f5" style="padding:5px 5px 5px 10px;">  
+            <table width="25%" border="0" cellpadding="0" cellspacing="0" align="left">
+            <tr><td>&nbsp;</td></tr>
+             <tr>    
+   
+            
+
+    <td  style="font-size: 0; line-height: 0;" height="auto" align="center" class="responsive-icon"><a href="http://www.proptiger.com/google_page_4.php?projectName=Supertech CapeTown - Noida&amp;utm_source=internal&amp;utm_medium=mailerInternal&amp;utm_campaign=Mailer Campaign Noida&amp;localityId=50082" target="_blank"><img src="images/proptiger_logo.gif" width="130" height="43" border="0" /></a></td>
+   </tr>         
+        
+            </table>
+            
+            <table border="0" cellpadding="0" cellspacing="0" align="right" width="40%">
+              
+              <tr><td>&nbsp;</td></tr>
+                  <tr>
+                    <td style="text-align:center;"><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <img src="images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" />&nbsp; <img src="images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></div>
+                      
+                      
+                    </td></tr></table>
+                      
+                      
+                      
+                  
+           
+       
+       </td></tr>
+    
+      
+   
+  <tr>
+    <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
+    
+    Hi ${leadOffer.lead.client.fullName},<br /><br />
+    Greetings from Proptiger.com and thank you for using Proptiger services.<br />
+    ${agent.fullName}, our trusted brokers has suggested properties as per your property requirements of 
+
+#foreach (${requirement} in ${leadOffer.lead.requirements})
+	#if (${requirement.project})    
+		${requirement.project.name}, ${requirement.project.address}, ${requirement.bedroom} BHK, 
+	#end
+#end
+${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq.ft., ${leadOffer.lead.minBudget} - ${leadOffer.lead.maxBudget} Lacs.
+ You can find the property 
+details below.
+    
+    </td>
+  </tr>
+  
+  
+  <tr>
+    <td bgcolor="#f5f5f5" style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
+    
+    <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
+    <tr><td height="5"></td></tr>
+             <tr>
+    <td style="font-size:12px;">Suggested by Broker:  ${agent.fullName}</td>
+  </tr>         
+        
+            </table>
+            
+            <table border="0" cellpadding="0" cellspacing="0" align="right" width="28%">
+              
+             
+                  <tr>
+                    <td style="text-align:center;" class="responsive-image"	><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${agent.contactNumbers.get(0).contactNumber}</strong></div>
+                      
+                      
+                    </td></tr></table>
+    
+    </td>
+  </tr>
+  
+  <tr>
+  <td>&nbsp;</td>
+  </tr>
+
+#foreach (${offeredListing} in ${leadOffer.offeredListings})  
+    <tr>
+  <td>
+  
+  <table width="580" border="0" cellspacing="0" cellpadding="0" align="center" style="border-radius:5px; border:1px solid #dddddd;">
+  <tr>
+    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.name}</a>  &nbsp; (Click to view more details)</td>
+    </tr>
+  <tr>
+    <td width="173" style="padding:10px;"><strong>Locality:</strong> </td>
+    <td colspan="3" style="padding:10px;">${offeredListing.listing.property.project.locality.label}, ${offeredListing.listing.property.project.locality.suburb.label}, ${offeredListing.listing.property.project.locality.suburb.city.label}</td>
+    </tr>
+  <tr>
+    <td style="padding:10px;"><strong>Configuration: </strong></td>
+    <td width="156" style="padding:10px;">${offeredListing.listing.property.unitName}</td>
+    <td width="144" style="padding:10px;">Tower: </td>
+    <td width="107" style="padding:10px;">2A</td>
+  </tr>
+  <tr>
+    <td width="173" style="padding:10px;"><strong>Size</strong> </td>
+    <td style="padding:10px;">${offeredListing.listing.property.size}  ${offeredListing.listing.property.measure}</td>
+    <td style="padding:10px;"><strong>Parking:</strong></td>
+    <td style="padding:10px;">Available</td>
+  </tr>
+  <tr>
+    <td width="173" style="padding:10px;"><strong>Asking Price:</strong> </td>
+    <td style="padding:10px;">${offeredListing.listing.currentListingPrice.price} </td>
+    <td style="padding:10px;"><strong>Power Backup:</strong></td>
+    <td style="padding:10px;">Available</td>
+  </tr>
+  <tr>
+    <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
+    <td style="padding:10px;">${offeredListing.listing.floor} th</td>
+    <td style="padding:10px;"><strong>Club Membership:</strong></td>
+    <td style="padding:10px;">Not Available</td>
+  </tr>
+  <tr>
+    <td width="173" style="padding:10px;"><strong>Other Splecial Features</strong> </td>
+    <td colspan="3" style="padding:10px;">Swimming Pool, Gym, Golf Course, Meditation Center, Medical Clinic, Jogging Track, Landscape Garden</td>
+    </tr>
+</table>
+
+  
+  
+</td>
+  </tr>
+  
+   <tr>
+  <td>&nbsp;</td>
+  </tr>   
+#end
+
+   <tr>
+  <td style="padding:10px; line-height:20px;">The broker will get in touch with you shortly, to discuss your requirements in details. You can also contact us 
+at +91 92788 92788 or email us on <a href="#" style="color:#333;">customer.service@proptiger.com</a>. <br /><br />
+
+Yours sincerely, <br />
+
+The PropTiger Family<br />
+Web: <a href="#" style="color:#333;">http://www.proptiger.com</a><br />
+Email: <a href="#" style="color:#333;">cutomer.service@proptiger.com</a> |  Call: +91 92788 92788 <br /><br />
+
+
+<span style="font-size:10px; line-height:18px;">** You have received this email because your email id was given to us on our web site. If it was not you, 
+please notify us at cutomer.service@proptiger.com, or report it on http://www.proptiger.com/contact_us.php</span>
+
+
+
+
+ </td>
+  </tr>
+  
+   <tr>
+            <td bgcolor="#f6921e" style="padding:10px; color:#333333;" align="center">    D -12, Ist Floor, Sector 3, Noida 201301 (U.P.) | Help Desk: +91 92788 92788        
+</td>
+  </tr>
+  
+
+  
+</table>
+ 
+</body>
+</html>
