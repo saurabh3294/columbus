@@ -212,6 +212,16 @@ public class NotificationTypeService {
         populateNotificationTypeConfig(nType);
         return nType;
     }
+    
+    public NotificationType findByName(String notificationTypeName) {
+        List<NotificationType> nTypes = notificationTypeDao.findByName(notificationTypeName);
+        if (nTypes == null || nTypes.size() != 1) {
+            throw new NotificationTypeNotFoundException("Zero or more than one Notification Type found in DB");
+        }
+        NotificationType nType = nTypes.get(0);
+        populateNotificationTypeConfig(nType);
+        return nType;
+    }
 
     public NotificationType findDefaultNotificationType() {
         List<NotificationType> nTypes = notificationTypeDao.findByName("default");
