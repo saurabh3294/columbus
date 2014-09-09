@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.joda.time.DateTime;
@@ -73,7 +75,12 @@ public class LocalityService {
 
     private static int                 LOCALITY_PAGE_SIZE = 15;
 
-    @Value("${b2b.price-inventory.max.month}")
+    @Autowired
+    private B2BAttributeService        b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String                     currentMonthDbLabel;
+
     private String                     currentMonth;
 
     @Autowired
@@ -107,6 +114,11 @@ public class LocalityService {
 
     @Autowired
     private TrendService               trendService;
+    
+    @PostConstruct
+    private void initialize() {
+        currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
+    }
 
     /**
      * This method will return the List of localities selected based on the
