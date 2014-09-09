@@ -1,5 +1,7 @@
 package com.proptiger.data.repo.marketplace;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -71,7 +73,7 @@ public class LeadOfferDaoImpl {
         }
         if(dueDate != null && !dueDate.isEmpty()){
             if(dueDate.equalsIgnoreCase("today")){
-                queryStr.append(" and nt.scheduled_for >= :now").append(" and nt.scheduled_for < :tomorrow");
+                queryStr.append(" and nt.scheduled_for >= :today").append(" and nt.scheduled_for < :tomorrow");
             }
             else if(dueDate.equalsIgnoreCase("overdue")){
                 queryStr.append(" and nt.scheduled_for <  :now");
@@ -80,18 +82,26 @@ public class LeadOfferDaoImpl {
                 logger.error("dueDate value {} not supported, so ignored",dueDate);
             }
         }
-        queryStr.append(" order by nt.scheduled_for desc, lo.created_at asc");
+        queryStr.append(" order by nt.scheduled_for, lo.created_at");
         queryStr.append(" limit ").append(selector.getRows()).append(" offset ").append(selector.getStart());
         Query query = em
                 .createNativeQuery(queryStr.toString(), LeadOffer.class);
         Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         Date now = cal.getTime();
+
+        try {
+            now = sdf.parse(sdf.format(cal.getTime()));
+        }
+        catch (ParseException e) {
+        }
+
         cal.add(Calendar.DATE, 1);
         Date tomorrow = cal.getTime();
         
         if(dueDate != null && !dueDate.isEmpty()){
             if(dueDate.equalsIgnoreCase("today")){
-                query.setParameter("now", now, TemporalType.TIMESTAMP);
+                query.setParameter("today", now, TemporalType.TIMESTAMP);
                 query.setParameter("tomorrow", tomorrow, TemporalType.TIMESTAMP);
             }
             else if(dueDate.equalsIgnoreCase("overdue")){
