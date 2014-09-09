@@ -515,6 +515,10 @@ public class Project extends BaseModel {
     @Enumerated(EnumType.STRING)
     private ResidentialFlag         residentialFlag;
 
+    @Transient
+    @Field("IMAGE_TYPE_COUNT")
+    private Map<String, Integer>	 imageTypeCount;
+
     
     public int getProjectId() {
         return projectId;
@@ -1243,6 +1247,10 @@ public class Project extends BaseModel {
 
     public void setProjectLivabilityRank(Integer projectLivabilityRank) {
         this.projectLivabilityRank = projectLivabilityRank;
+    }
+
+    public void setImageTypeCount(Map<String, Integer> imageTypeCount) {
+        this.imageTypeCount = imageTypeCount;
     }
 
     public boolean isHas3DImages() {

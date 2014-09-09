@@ -1,6 +1,7 @@
 package com.proptiger.data.model;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -82,9 +83,6 @@ public class Property extends BaseModel {
     private Double            size;
 
     @Transient
-    private List<Media>       media;
-
-    @Transient
     @FieldMetaInfo(displayName = "Measure", description = "Measure")
     @Field(value = "MEASURE")
     private String            measure          = "sq ft";
@@ -154,8 +152,15 @@ public class Property extends BaseModel {
 
     @Transient
     @Field("PROJECT_NAME")
-    private String            projectName;
+    private String 			  projectName;
 
+    @Transient
+    @Field("IMAGE_TYPE_COUNT")
+    private Map<String, Integer>	 imageTypeCount;
+
+    @Transient
+    private List<Media>       media;
+    
     public String getProjectName() {
         return projectName;
     }
@@ -372,5 +377,9 @@ public class Property extends BaseModel {
 
     public void populateMaxResaleOrPrimaryPrice() {
         this.maxResaleOrPrimaryPrice = UtilityClass.max(this.budget, this.resalePrice);
+    }
+
+    public void setImageTypeCount(Map<String, Integer> imageTypeCount) {
+        this.imageTypeCount = imageTypeCount;
     }
 }
