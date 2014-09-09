@@ -293,10 +293,10 @@ public class LeadOfferService {
 
         List<Integer> latestOfferedListingIds = leadOfferDao
                 .findMaxListingByLeadOfferIdGroupbyLeadOfferId(leadOfferIds);
-        
-        if (latestOfferedListingIds != null && !latestOfferedListingIds.isEmpty()) {
-            List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao.getListingsById(latestOfferedListingIds);
 
+        if (latestOfferedListingIds != null && !latestOfferedListingIds.isEmpty()) {
+            List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao
+                    .getListingsById(latestOfferedListingIds);
 
             for (LeadOfferedListing latestOfferedListing : latestOfferedListings) {
                 listingMap.put(latestOfferedListing.getLeadOfferId(), latestOfferedListing);
@@ -476,13 +476,14 @@ public class LeadOfferService {
 
         if (leadOfferInDB.getMasterLeadOfferStatus().isClaimed() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered
                 .getId()) {
-            
-            if(leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && leadOfferedListingsGiven.size() > PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_PROPERTY_COUNT_WHILE_CLAIMING, Long.class).intValue())
-            {
-                throw new BadRequestException("Currently you can offer only 3 properties to the client. You may offer more later");
+
+            if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && leadOfferedListingsGiven.size() > PropertyReader
+                    .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_PROPERTY_COUNT_WHILE_CLAIMING, Long.class)
+                    .intValue()) {
+                throw new BadRequestException(
+                        "Currently you can offer only 3 properties to the client. You may offer more later");
             }
-            
-            
+
             if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
                 for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
                     listingIds.add(leadOfferedListing.getListingId());
@@ -537,10 +538,19 @@ public class LeadOfferService {
         fields.add("requirements");
         enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
         Map<String, Object> map = new HashMap<>();
-        
-        leadOfferInDB.setAgent(userService.getUserById(leadOfferInDB.getAgentId()));        
+
+        FIQLSelector fiqlSelector = new FIQLSelector();
+        fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
+        List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
+        Map<Integer, Listing> listingMap = new HashMap<>();
+        for (Listing listing : listings) {
+            listingMap.put(listing.getId(), listing);
+        }
+
+        leadOfferInDB.setAgent(userService.getUserById(leadOfferInDB.getAgentId()));
         map.put("leadOffer", leadOfferInDB);
-        
+        map.put("listingObjectWithAmenities", listingMap);
+
         String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
         generatedService.createNotificationGenerated(
                 Arrays.asList(new NotificationMessage(leadOfferInDB.getAgentId(), heading, template)),

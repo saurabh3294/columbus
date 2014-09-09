@@ -291,8 +291,7 @@ public class LeadService {
             else {
                 for (LeadOffer leadOffer : leadOffers) {
                     int statusId = leadOffer.getStatusId();
-                    if (statusId != LeadOfferStatus.Dead.getId() && statusId != LeadOfferStatus.ClosedLost.getId()
-                            && statusId != LeadOfferStatus.ClosedWon.getId()) {
+                    if (statusId != LeadOfferStatus.ClosedLost.getId() && statusId != LeadOfferStatus.ClosedWon.getId()) {
                         existingLead = lead;
                         break;
                     }
