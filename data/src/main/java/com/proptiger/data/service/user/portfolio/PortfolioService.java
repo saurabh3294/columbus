@@ -356,7 +356,7 @@ public class PortfolioService {
             PortfolioListing listing = itr.next();
             listing.setProperty(propertyMap.get(listing.getTypeId()));
 
-            if (listing.getProperty().getProject().getResidentialFlag().equals(ResidentialFlag.NonResidential)) {
+            if (listing.getProperty().getProject().getResidentialFlag() != null && listing.getProperty().getProject().getResidentialFlag().equals(ResidentialFlag.NonResidential)) {
                 itr.remove();
                 continue;
             }
