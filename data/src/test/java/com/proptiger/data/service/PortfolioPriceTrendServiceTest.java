@@ -13,13 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import ch.qos.logback.core.joran.conditional.IfAction;
+
 import com.proptiger.data.internal.dto.PortfolioPriceTrend;
 import com.proptiger.data.internal.dto.PriceDetail;
 import com.proptiger.data.internal.dto.ProjectPriceTrend;
 import com.proptiger.data.service.user.portfolio.PortfolioPriceTrendService;
 import com.proptiger.data.util.DateUtil;
 
-public class PortfolioPriceTrendServiceTest extends AbstractTest{
+public class PortfolioPriceTrendServiceTest extends AbstractTest {
     @Autowired
     private PortfolioPriceTrendService portfolioPriceTrendService;
 
@@ -44,6 +46,23 @@ public class PortfolioPriceTrendServiceTest extends AbstractTest{
 
         testBeforeSpecifiedDate();
         testAfterSpecifiedDate();
+    }
+
+    /*
+     * To test PortfolioPriceTrendService Method, in case Trend API returns zero
+     * result for a project
+     */
+    @Test
+    public void testPriceTrendForPortfolio() {
+
+        Integer userId = 38003;
+        Integer noOfMonths = 9;
+
+        PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths, null);
+
+        if (priceTrend == null) {
+            Assert.assertEquals(false, true);
+        }
     }
 
     private void testBeforeSpecifiedDate() throws NoSuchFieldException, SecurityException, IllegalArgumentException,

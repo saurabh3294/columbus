@@ -1,7 +1,10 @@
 package com.proptiger.data.service.marketplace;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.ListingPrice;
 import com.proptiger.data.repo.marketplace.ListingDao;
@@ -20,7 +23,7 @@ public class ListingService {
         return listingDao.findOne(listingId);
     }
 
-    public ListingPrice getLatestListingPrice(Integer propertyId) {
+    public List<ListingPrice> getLatestListingPrice(List<Integer> propertyId) {
         return listingDao.getListingPrice(propertyId);
     }
 }
