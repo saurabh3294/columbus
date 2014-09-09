@@ -16,6 +16,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -26,6 +27,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.MasterLeadOfferStatus;
+import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
 
 /**
  * @author mandeep
@@ -128,6 +132,15 @@ public class LeadOffer extends BaseModel {
     @JoinColumn(name = "status_id", referencedColumnName = "id", insertable = false, updatable = false)
     private MasterLeadOfferStatus    masterLeadOfferStatus;
 
+    @Transient
+    private Date expireTimestamp;
+
+    @PostLoad
+    public void evaluateExpiryTimestamp() {
+        expireTimestamp = DateUtil.addSeconds(createdAt, PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION) + PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION));
+    }
+
+    
     public Lead getLead() {
         return lead;
     }
@@ -278,6 +291,16 @@ public class LeadOffer extends BaseModel {
 
     public void setNextTaskId(Integer nextTaskId) {
         this.nextTaskId = nextTaskId;
+    }
+
+
+    public Date getExpireTimestamp() {
+        return expireTimestamp;
+    }
+
+
+    public void setExpireTimestamp(Date expireTimestamp) {
+        this.expireTimestamp = expireTimestamp;
     }
 
 }
