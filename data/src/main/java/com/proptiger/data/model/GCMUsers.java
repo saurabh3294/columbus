@@ -12,6 +12,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Type;
+
 import com.proptiger.data.enums.AndroidApplication;
 
 @Entity
@@ -38,7 +40,8 @@ public class GCMUsers extends BaseModel {
     @Column(name = "user_id")
     private Integer            userId;
 
-    @Column(name = "login_status")
+    @Column(name = "login_status", columnDefinition = "TINYINT")
+    @Type(type = "org.hibernate.type.NumericBooleanType")
     private Boolean            loginStatus;
 
     @Column(name = "created_at")

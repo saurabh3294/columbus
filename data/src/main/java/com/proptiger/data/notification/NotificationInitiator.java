@@ -123,4 +123,29 @@ public class NotificationInitiator {
         logger.info("NotificationSender: Sent " + numberOfSentNtGenerated + " Generated Notifications via Android");
     }
 
+    /**
+     * Send Notification Generated which are scheduled and Ready to be send in
+     * the respective medium
+     */
+    // @Scheduled(cron = "* 1 * * * *")
+    // @Scheduled(fixedDelay = 4000000)
+    public void marketplaceAppNotificationSender() {
+        logger.info("NotificationSender : Sending Scheduled Generated Notification via MarketplaceApp.");
+        Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.MarketplaceApp);
+        logger.info("NotificationSender: Sent " + numberOfSentNtGenerated
+                + " Generated Notifications via MarketplaceApp");
+    }
+
+    /**
+     * Send Notification Generated which are scheduled and Ready to be send in
+     * the respective medium
+     */
+    // @Scheduled(cron = "* 1 * * * *")
+    // @Scheduled(fixedDelay = 4000000)
+    public void proptigerAppNotificationSender() {
+        logger.info("NotificationSender : Sending Scheduled Generated Notification via ProptigerApp.");
+        Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.ProptigerApp);
+        logger.info("NotificationSender: Sent " + numberOfSentNtGenerated + " Generated Notifications via ProptigerApp");
+    }
+
 }

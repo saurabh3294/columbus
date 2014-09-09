@@ -128,8 +128,6 @@ public class AndroidSender implements MediumSender {
             regIds.clear();
             regIds.add(DUMMY_REG_ID);
 
-            logger.debug("Sending Android notification " + template + " to regIds: " + regIds);
-
             // Sending Push Notification
             String androidKey = androidKeyMap.get(app.toString());
             Map<String, String> dataMap = getDataMap(template, typeName);
@@ -137,6 +135,11 @@ public class AndroidSender implements MediumSender {
             Message message = new Message.Builder().timeToLive(TIME_TO_LIVE).delayWhileIdle(true).collapseKey(typeName)
                     .setData(dataMap).build();
             try {
+                logger.debug("Sending Android notification with AppID: " + androidKey
+                        + " and message: "
+                        + message
+                        + " to regIds: "
+                        + regIds);
                 MulticastResult result = sender.send(message, regIds, RETRY_COUNT);
                 logger.debug("Got Result " + result.toString()
                         + " after sending android notification "
@@ -156,7 +159,7 @@ public class AndroidSender implements MediumSender {
     private Map<String, String> getDataMap(String template, String typeName) {
         Map<String, String> dataMap = new HashMap<String, String>();
         dataMap.put(TYPE_KEY, typeName);
-        dataMap.put(DATA_KEY, typeName);
+        dataMap.put(DATA_KEY, template);
         return dataMap;
     }
 
