@@ -43,6 +43,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
+import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
 import com.proptiger.data.service.LeadTaskService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.mail.MailSender;
@@ -85,6 +86,9 @@ public class LeadOfferService {
 
     @Autowired
     private LeadTaskStatusDao            leadTaskStatusDao;
+
+    @Autowired
+    private MasterLeadOfferStatusDao     leadOfferStatusDao;
 
     @Autowired
     private MailSender                   mailSender;
@@ -289,10 +293,10 @@ public class LeadOfferService {
 
         List<Integer> latestOfferedListingIds = leadOfferDao
                 .findMaxListingByLeadOfferIdGroupbyLeadOfferId(leadOfferIds);
-        
-        if (latestOfferedListingIds != null && !latestOfferedListingIds.isEmpty()) {
-            List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao.getListingsById(latestOfferedListingIds);
 
+        if (latestOfferedListingIds != null && !latestOfferedListingIds.isEmpty()) {
+            List<LeadOfferedListing> latestOfferedListings = leadOfferedListingDao
+                    .getListingsById(latestOfferedListingIds);
 
             for (LeadOfferedListing latestOfferedListing : latestOfferedListings) {
                 listingMap.put(latestOfferedListing.getLeadOfferId(), latestOfferedListing);
@@ -554,8 +558,10 @@ public class LeadOfferService {
      */
     public LeadOffer updateLeadOfferStatus(int leadOfferId, int statusId) {
         LeadOffer leadOffer = leadOfferDao.findOne(leadOfferId);
-        leadOffer.setStatusId(statusId);
-        leadOffer = leadOfferDao.save(leadOffer);
+        if (leadOffer.getMasterLeadOfferStatus().getLevel() < leadOfferStatusDao.findOne(statusId).getLevel()) {
+            leadOffer.setStatusId(statusId);
+            leadOffer = leadOfferDao.save(leadOffer);
+        }
         return leadOffer;
     }
 

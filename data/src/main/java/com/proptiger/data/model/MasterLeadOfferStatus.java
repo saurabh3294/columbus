@@ -21,12 +21,14 @@ public class MasterLeadOfferStatus extends BaseModel {
     @Column(name = "status")
     private String            status;
 
+    private int               level;
+
     @Column(name = "claimed_flag")
-    private boolean claimedFlag;
-    
+    private boolean           claimedFlag;
+
     @Column(name = "open_flag")
-    private boolean openFlag;
-    
+    private boolean           openFlag;
+
     public int getId() {
         return id;
     }
@@ -58,7 +60,8 @@ public class MasterLeadOfferStatus extends BaseModel {
     public void setOpen(boolean openFlag) {
         this.openFlag = openFlag;
     }
-    
-    
-    
+
+    public int getLevel() {
+        return level;
+    }
 }
