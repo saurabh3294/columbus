@@ -52,7 +52,6 @@ import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
@@ -318,31 +317,50 @@ public class PortfolioService {
             propertyMap.put(property.getPropertyId(), property);
         }
 
+        List<Integer> propertiesFromDB = new ArrayList<Integer>();
+        List<Integer> pricesFromDB = new ArrayList<Integer>();
+
+        for (Long id : propertyIds) {
+            Property prop = propertyMap.get(id.intValue());
+            if (prop == null) {
+                propertiesFromDB.add(id.intValue());
+                pricesFromDB.add(id.intValue());
+            }
+            else if (prop.getPricePerUnitArea() == null)
+                pricesFromDB.add(id.intValue());
+        }
+
+        // Fetching Properties from DB
+        if (!propertiesFromDB.isEmpty()) {
+            List<Property> result = propertyDao.findByPropertyIdsList(propertiesFromDB);
+            for (Property property : result) {
+                propertyMap.put(property.getPropertyId(), property);
+            }
+        }
+
+        // Fetching Prices from DB
+        if (!pricesFromDB.isEmpty()) {
+            List<ListingPrice> latestListingPrices = listingService.getLatestListingPrice(pricesFromDB);
+            for (ListingPrice listingPrice : latestListingPrices) {
+                if (listingPrice != null && listingPrice.getPricePerUnitArea() != null) {
+                    propertyMap.get(listingPrice.getListing().getPropertyId()).setPricePerUnitArea(
+                            listingPrice.getPricePerUnitArea().doubleValue());
+                }
+            }
+        }
+
+        // Setting Property in Listings
         Iterator<PortfolioListing> itr = listings.iterator();
         while (itr.hasNext()) {
             PortfolioListing listing = itr.next();
-            if (listing.getTypeId() != null) {
-                listing.setProperty(propertyMap.get(listing.getTypeId()));
+            listing.setProperty(propertyMap.get(listing.getTypeId()));
 
-                if (listing.getProperty() == null) {
-                    Property result = propertyDao.findByPropertyId(listing.getTypeId());
-                    listing.setProperty(result);
-                }
-
-                if (listing.getProperty().getProject().getResidentialFlag() == ResidentialFlag.NonResidential) {
-                    itr.remove();
-                    continue;
-                }
-                if (listing.getProperty().getPricePerUnitArea() == null) {
-                    ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
-
-                    if (latestListingPrice != null && latestListingPrice.getPricePerUnitArea() != null) {
-                        listing.getProperty().setPricePerUnitArea(
-                                latestListingPrice.getPricePerUnitArea().doubleValue());
-                    }
-                }
-                properties.add(listing.getProperty());
+            if (listing.getProperty().getProject().getResidentialFlag() == ResidentialFlag.NonResidential) {
+                itr.remove();
+                continue;
             }
+
+            properties.add(listing.getProperty());
         }
 
         return properties;
