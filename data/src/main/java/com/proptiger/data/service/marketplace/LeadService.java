@@ -2,6 +2,7 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.slf4j.Logger;
@@ -19,11 +20,13 @@ import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.LeadOfferStatus;
+import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.UtilityClass;
+import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
 
 /**
@@ -53,6 +56,9 @@ public class LeadService {
 
     @Autowired
     private CompanyService          companyService;
+
+    @Autowired
+    private LocalityService         localityService;
 
     @Autowired
     private PropertyReader          propertyReader;
@@ -144,8 +150,28 @@ public class LeadService {
      * @return lead
      * 
      */
+    
+    private Lead validationOfProjectLocality(LeadRequirement leadRequirement)
+    {
+        if (leadRequirement.getLocalityId() == null || localityService.getLocality(leadRequirement
+                .getLocalityId()) == null) {
+            throw new BadRequestException("Localities should be valid");
+        }
+        if (leadRequirement.getProjectId() == null || projectService.getProjectDetails(leadRequirement
+                .getProjectId()) == null) {
+            throw new BadRequestException("Project should be valid");
+        }
+        return null;
+    }
+    
+    
     @Transactional
     public Lead createLead(Lead lead) {
+
+        if (lead.getCityId() == 0) {
+            throw new BadRequestException("CityId is mandatory");
+        }
+
         User user = userService.createUser(lead.getClient());
         lead.setClient(user);
         lead.setClientId(user.getId());
@@ -160,7 +186,8 @@ public class LeadService {
             lead.setId(leadDao.save(lead).getId());
             for (LeadRequirement leadRequirement : lead.getRequirements()) {
                 leadRequirement.setLeadId(lead.getId());
-                if (!isExactReplica(leadRequirement)) {                     
+                if (!isExactReplica(leadRequirement)) {
+                    validationOfProjectLocality(leadRequirement);
                     leadRequirementsService.save(leadRequirement);
                 }
             }
@@ -181,7 +208,8 @@ public class LeadService {
         lead.setId(leadDao.save(lead).getId());
         for (LeadRequirement leadRequirement : lead.getRequirements()) {
             leadRequirement.setLeadId(lead.getId());
-            if (!isExactReplica(leadRequirement)) { 
+            if (!isExactReplica(leadRequirement)) {
+                validationOfProjectLocality(leadRequirement);
                 leadRequirementsService.save(leadRequirement);
             }
         }
@@ -221,6 +249,7 @@ public class LeadService {
         for (LeadRequirement leadRequirement : lead.getRequirements()) {
             leadRequirement.setLeadId(lead.getId());
             if (!isExactReplica(leadRequirement)) {
+                validationOfProjectLocality(leadRequirement);
                 leadRequirement.setLeadId(existingLead.getId());
                 leadRequirementsService.saveAndFlush(leadRequirement);
             }
