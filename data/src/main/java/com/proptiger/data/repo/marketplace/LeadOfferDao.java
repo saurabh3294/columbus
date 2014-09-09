@@ -23,7 +23,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select LO from LeadOffer LO where LO.leadId = ?1 order by LO.statusId")
     public List<LeadOffer> getLeadOffers(int leadId);
    
-    @Query("select DISTINCT(LOL) from LeadOfferedListing LOL join fetch LOL.listing LI left join fetch LI.projectSupply left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LIPP.version='Website' and LOL.leadOfferId in (?1)")
+    @Query("select DISTINCT(LOL) from LeadOfferedListing LOL join fetch LOL.listing LI left join fetch LI.projectSupply LIPS left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LIPP.version='Website' and LIPS.version = 'Website' and LOL.leadOfferId in (?1)")
     public List<LeadOfferedListing> getLeadOfferedListings(List<Integer> leadOfferIds);
 
     @Query("select LO from LeadOffer LO join fetch LO.masterLeadOfferStatus MLOS where LO.id = ?1 and LO.agentId = ?2")
@@ -68,7 +68,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query(nativeQuery = true, value = "select * from marketplace.lead_offers where id = ?1 for update")
     public LeadOffer getLock(int ledOfferId);
 
-    @Query("SELECT NEW com.proptiger.data.model.marketplace.LeadOffer$CountListingObject(LO.id,count(LI)) from LeadOffer LO join LO.matchingListings LI join  LI.property LIP  join  LIP.project LIPP  join LIPP.builder  join  LIPP.locality where LO.id in (?1) and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' and LIPP.version='Website' group by LO")
+    @Query("SELECT NEW com.proptiger.data.model.marketplace.LeadOffer$CountListingObject(LO.id,count(LI)) from LeadOffer LO join LO.matchingListings LI join  LI.property LIP  join  LIP.project LIPP  join LIPP.builder  join  LIPP.locality where LO.id in (?1) and LO.lead.cityId = LI.property.project.locality.suburb.cityId and LI.status = 'Active' and LIPP.version='Website' and LIP.project.version='Website' and LI.isDeleted = false group by LO")
     List<CountListingObject> getMatchingListingCount(List<Integer> leadOfferIds);
 
     @Query(

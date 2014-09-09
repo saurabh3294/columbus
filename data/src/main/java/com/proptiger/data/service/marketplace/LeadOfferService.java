@@ -78,9 +78,6 @@ public class LeadOfferService {
     private LeadOfferedListingDao        leadOfferedListingDao;
 
     @Autowired
-    private LeadService                  leadService;
-
-    @Autowired
     private LeadTaskService              leadTaskService;
 
     @Autowired
@@ -174,8 +171,7 @@ public class LeadOfferService {
             int agentId,
             FIQLSelector selector,
             List<Integer> statusIds,
-            String dueDate) {
-        selector.applyDefSort(defaultSort);
+            String dueDate) {        
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferDao.getLeadOffers(
                 agentId,
                 statusIds,
