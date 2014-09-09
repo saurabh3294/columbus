@@ -78,7 +78,7 @@ public class EmailSender implements MediumSender {
             return map;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while getting MailContent From JsonTemplate.", e.getStackTrace().toString());
         }
         return null;
     }

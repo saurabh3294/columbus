@@ -134,7 +134,7 @@ public class NotificationMessageService {
      * @param template
      * @return
      */
-    public NotificationMessage createNotificationMessage(String notificationType, Integer userId, String template) {
+    public NotificationMessage createNotificationMessage(String notificationType, int userId, String template) {
         NotificationType notiType = notiTypeService.findByName(notificationType);
         NotificationMessagePayload payload = new NotificationMessagePayload();
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
@@ -152,7 +152,7 @@ public class NotificationMessageService {
      * @param body
      * @return
      */
-    public NotificationMessage createNotificationMessage(Integer userId, String subject, String body) {
+    public NotificationMessage createNotificationMessage(int userId, String subject, String body) {
         NotificationType notiType = notiTypeService.findDefaultNotificationType();
         NotificationMessagePayload payload = new NotificationMessagePayload();
         Map<String, Object> extraAttributes = new HashMap<String, Object>();

@@ -56,7 +56,7 @@ public class AndroidSender implements MediumSender {
             setAndroidKeyMap(mapper.readValue(KEY_STRING, HashMap.class));
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while populating AndroidKeyMap.", e.getStackTrace().toString());
         }
     }
 
@@ -64,7 +64,7 @@ public class AndroidSender implements MediumSender {
     public void send(String template, ForumUser forumUser, String typeName) {
         List<GCMUsers> gcmUsersList = new ArrayList<GCMUsers>();
         if (forumUser == null || forumUser.getUserId() == null) {
-            gcmUsersList = gcmUserService.findAll();
+            logger.error("No user found while sending Push Notification");
         }
         else {
             gcmUsersList = gcmUserService.findByLoggedInUserId(forumUser.getUserId());
@@ -88,7 +88,7 @@ public class AndroidSender implements MediumSender {
 
         List<GCMUsers> gcmUsersList = new ArrayList<GCMUsers>();
         if (forumUser == null || forumUser.getUserId() == null) {
-            gcmUsersList = gcmUserService.findByAppIdentifier(androidApp);
+            logger.error("No user found while sending Push Notification");
         }
         else {
             gcmUsersList = gcmUserService.findByAppIdentifierAndLoggedInUserId(androidApp, forumUser.getUserId());
@@ -148,10 +148,10 @@ public class AndroidSender implements MediumSender {
                         + regIds);
             }
             catch (IOException ioe) {
-                ioe.printStackTrace();
+                logger.error("Error while sending Push Notification.", ioe.getStackTrace().toString());
             }
             catch (Exception e) {
-                e.printStackTrace();
+                logger.error("Error while sending Push Notification.", e.getStackTrace().toString());
             }
         }
     }
