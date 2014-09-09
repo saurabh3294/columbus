@@ -326,8 +326,9 @@ public class PortfolioService {
                 propertiesFromDB.add(id.intValue());
                 pricesFromDB.add(id.intValue());
             }
-            else if (prop.getPricePerUnitArea() == null)
+            else if (prop.getPricePerUnitArea() == null) {
                 pricesFromDB.add(id.intValue());
+            }
         }
 
         // Fetching Properties from DB
@@ -355,7 +356,7 @@ public class PortfolioService {
             PortfolioListing listing = itr.next();
             listing.setProperty(propertyMap.get(listing.getTypeId()));
 
-            if (listing.getProperty().getProject().getResidentialFlag() == ResidentialFlag.NonResidential) {
+            if (listing.getProperty().getProject().getResidentialFlag().equals(ResidentialFlag.NonResidential)) {
                 itr.remove();
                 continue;
             }

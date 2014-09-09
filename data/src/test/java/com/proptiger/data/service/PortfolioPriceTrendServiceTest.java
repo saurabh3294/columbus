@@ -49,18 +49,19 @@ public class PortfolioPriceTrendServiceTest extends AbstractTest {
     }
 
     /*
-     * To test PortfolioPriceTrendService Method, in case Trend API returns zero result for a project
+     * To test PortfolioPriceTrendService Method, in case Trend API returns zero
+     * result for a project
      */
     @Test
     public void testPriceTrendForPortfolio() {
-        
+
         Integer userId = 38003;
         Integer noOfMonths = 9;
-        
+
         PortfolioPriceTrend priceTrend = portfolioPriceTrendService.getPortfolioPriceTrend(userId, noOfMonths, null);
-        
-        if(priceTrend == null) {
-        Assert.assertEquals(false, true);
+
+        if (priceTrend == null) {
+            Assert.assertEquals(false, true);
         }
     }
 
