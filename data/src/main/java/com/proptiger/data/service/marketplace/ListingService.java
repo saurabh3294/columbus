@@ -18,12 +18,13 @@ public class ListingService {
 
     @Autowired
     private ListingDao listingDao;
-   
+
     public Listing getListingByListingId(Integer listingId) {
         return listingDao.findOne(listingId);
     }
 
     public List<ListingPrice> getLatestListingPrice(List<Integer> propertyId) {
-        return listingDao.getListingPrice(propertyId);
+        List<Integer> listingPriceId = listingDao.getListingPriceIds(propertyId);
+        return listingDao.getListingPrice(listingPriceId);
     }
 }
