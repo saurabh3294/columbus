@@ -70,7 +70,7 @@ public class Lead extends BaseModel {
     private Integer               maxSize;
 
     @Column(name = "client_type")
-    private String                clientType;
+    private String                clientType = "Buyer";
 
     @Column(name = "source_id")
     private int                   sourceId;
@@ -79,7 +79,7 @@ public class Lead extends BaseModel {
     private Integer               mergedLeadId;
 
     @Column(name = "transaction_type")
-    private String                transactionType;
+    private String                transactionType = "Resale";
 
     @Column(name = "next_action_time")
     private Date                  nextActionTime;
@@ -98,7 +98,6 @@ public class Lead extends BaseModel {
 
     @Column(name = "updated_at")
     private Date                  updatedAt        = new Date();
-
 
     @Column(name = "updated_by")
     private Integer               updatedBy;

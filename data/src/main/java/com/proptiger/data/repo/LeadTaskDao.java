@@ -29,7 +29,7 @@ public interface LeadTaskDao extends JpaRepository<LeadTask, Integer> {
     @Query(value = "SELECT TOLM from LeadTask LT JOIN LT.offeredListingMappings TOLM INNER JOIN FETCH TOLM.offeredListing LOL WHERE TOLM.taskId = ?1 order by TOLM.createdAt desc")
     public List<TaskOfferedListingMapping> getMappedListingMappingsForTask(int taskId);
 
-    @Query(value = "SELECT DISTINCT(TOLM) FROM TaskOfferedListingMapping TOLM join fetch TOLM.offeredListing LOL join fetch LOL.listing LI left join fetch LI.projectSupply LIPS left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LIPP.version = 'Website' and LIPS.version = 'Website' and LI.status = 'Active' and TOLM.taskId in (?1)  order by TOLM.createdAt desc")
+    @Query(value = "SELECT DISTINCT(TOLM) FROM TaskOfferedListingMapping TOLM join fetch TOLM.offeredListing LOL join fetch LOL.listing LI left join fetch LI.projectSupply LIPS left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LIPP.version = 'Website' and (LIPS.version is null or LIPS.version = 'Website') and LI.status = 'Active' and TOLM.taskId in (?1)  order by TOLM.createdAt desc")
     public List<TaskOfferedListingMapping> getTaskOfferedListingMappings(List<Integer> taskIds);
 
     @Query(value = "SELECT LT FROM LeadTask LT INNER JOIN FETCH LT.offeredListingMappings TOLM INNER JOIN FETCH TOLM.offeredListing where LT.id IN (?1)")
