@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
 import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.ResidentialFlag;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.enums.mail.MailType;
 import com.proptiger.data.enums.portfolio.ListingStatus;
@@ -51,7 +52,6 @@ import com.proptiger.data.model.user.portfolio.PortfolioListing;
 import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
-import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
@@ -219,14 +219,6 @@ public class PortfolioService {
             if (listing.getListingStatus() == ListingStatus.ACTIVE) {
                 propertyIds.add(new Long(listing.getTypeId()));
                 if (listing.getProjectId() == null) {
-                    if (listing.getProperty() == null) {
-                        logger.error(
-                                "Portfolio Listing {} for userid {} doesn't contain ProjectId and Property",
-                                listing.getListingId(),
-                                listing.getUserId());
-                        itr.remove();
-                        continue;
-                    }
                     completeProjectIds.add(new Long(listing.getProperty().getProjectId()));
                 }
                 else if (listing.getTypeId() != null) {
@@ -238,6 +230,7 @@ public class PortfolioService {
                 incompleteProjectIds.add(listing.getProjectId());
             }
         }
+
         Map<Integer, Project> projectIdToProjectMap = new HashMap<Integer, Project>();
         Map<Integer, List<Image>> propertyIdToImageMap = new HashMap<Integer, List<Image>>();
         if (!propertyIds.isEmpty()) {
@@ -287,16 +280,16 @@ public class PortfolioService {
                 Image defaultProjectImage = imageEnricher.getDefaultProjectImage(project.getImageURL());
                 listing.setPropertyImages(Arrays.asList(defaultProjectImage));
             }
-            if(project != null) {
-            listing.setProjectName(project.getName());
-            listing.setBuilderName(project.getBuilder().getName());
-            listing.setCompletionDate(project.getPossessionDate());
-            listing.setProjectStatus(project.getProjectStatus());
-            City city = project.getLocality().getSuburb().getCity();
-            listing.setCityName(city.getLabel());
-            Locality locality = project.getLocality();
-            listing.setLocality(locality.getLabel());
-            listing.setLocalityId(locality.getLocalityId());
+            if (project != null) {
+                listing.setProjectName(project.getName());
+                listing.setBuilderName(project.getBuilder().getName());
+                listing.setCompletionDate(project.getPossessionDate());
+                listing.setProjectStatus(project.getProjectStatus());
+                City city = project.getLocality().getSuburb().getCity();
+                listing.setCityName(city.getLabel());
+                Locality locality = project.getLocality();
+                listing.setLocality(locality.getLabel());
+                listing.setLocalityId(locality.getLocalityId());
             }
         }
     }
@@ -324,28 +317,51 @@ public class PortfolioService {
             propertyMap.put(property.getPropertyId(), property);
         }
 
-        for (PortfolioListing listing : listings) {
-            if (listing.getTypeId() != null) {
-                listing.setProperty(propertyMap.get(listing.getTypeId()));
+        List<Integer> propertiesFromDB = new ArrayList<Integer>();
+        List<Integer> pricesFromDB = new ArrayList<Integer>();
 
-                if (listing.getProperty() == null) {
-                    Property result = propertyDao.findByPropertyId(listing.getTypeId());
-                    if (result != null ) {
-                        listing.setProperty(result);
-                        properties.add(result);
-                        ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
+        for (Long id : propertyIds) {
+            Property prop = propertyMap.get(id.intValue());
+            if (prop == null) {
+                propertiesFromDB.add(id.intValue());
+                pricesFromDB.add(id.intValue());
+            }
+            else if (prop.getPricePerUnitArea() == null) {
+                pricesFromDB.add(id.intValue());
+            }
+        }
 
-                        if (latestListingPrice.getPricePerUnitArea() != null) {
-                            listing.getProperty().setPricePerUnitArea(
-                                    latestListingPrice.getPricePerUnitArea().doubleValue());
-                        }
-                    }
-                }
-                
-                else {
-                    properties.add(listing.getProperty());
+        // Fetching Properties from DB
+        if (!propertiesFromDB.isEmpty()) {
+            List<Property> result = propertyDao.findByPropertyIdsList(propertiesFromDB);
+            for (Property property : result) {
+                propertyMap.put(property.getPropertyId(), property);
+            }
+        }
+
+        // Fetching Prices from DB
+        if (!pricesFromDB.isEmpty()) {
+            List<ListingPrice> latestListingPrices = listingService.getLatestListingPrice(pricesFromDB);
+            for (ListingPrice listingPrice : latestListingPrices) {
+                if (listingPrice != null && listingPrice.getPricePerUnitArea() != null) {
+                    propertyMap.get(listingPrice.getListing().getPropertyId()).setPricePerUnitArea(
+                            listingPrice.getPricePerUnitArea().doubleValue());
                 }
             }
+        }
+
+        // Setting Property in Listings
+        Iterator<PortfolioListing> itr = listings.iterator();
+        while (itr.hasNext()) {
+            PortfolioListing listing = itr.next();
+            listing.setProperty(propertyMap.get(listing.getTypeId()));
+
+            if (listing.getProperty().getProject().getResidentialFlag() != null && listing.getProperty().getProject().getResidentialFlag().equals(ResidentialFlag.NonResidential)) {
+                itr.remove();
+                continue;
+            }
+
+            properties.add(listing.getProperty());
         }
 
         return properties;
