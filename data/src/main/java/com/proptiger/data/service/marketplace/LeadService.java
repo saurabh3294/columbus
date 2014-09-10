@@ -2,7 +2,6 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.BackingStoreException;
 
 import org.apache.commons.lang.SerializationUtils;
 import org.slf4j.Logger;
@@ -201,9 +200,12 @@ public class LeadService {
                 }
             }
         }
+
         int leadId = lead.getId();
         leadOriginal.setMergedLeadId(leadId);
         createDump(leadOriginal);
+        
+        manageLeadAuctionAsync(leadId);
         return lead;
     }
 

@@ -93,8 +93,6 @@ public class LeadOfferService {
     @Autowired
     private MailSender                   mailSender;
 
-    private String                       defaultSort = "nextTask.scheduledFor";
-
     @Autowired
     private NotificationGeneratedService generatedService;
 
@@ -109,6 +107,9 @@ public class LeadOfferService {
 
     @Autowired
     private TemplateToHtmlGenerator      templateToHtmlGenerator;
+
+    @Autowired
+    private NotificationService notificationService;
 
     /**
      * 
@@ -460,7 +461,6 @@ public class LeadOfferService {
      * @param userId
      * @return
      */
-
     public LeadOffer updateLeadOffer(LeadOffer leadOffer, int leadOfferId, int userId) {
         LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentIdAndFetchLead(leadOfferId, userId);
 
@@ -468,57 +468,25 @@ public class LeadOfferService {
             throw new BadRequestException("Invalid lead offer");
         }
 
-        List<Integer> listingIds = new ArrayList<>();
-        List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
+        // Offer listings
+        offerListings(leadOffer, leadOfferInDB);
 
-        leadOfferInDB.setLastTask(null);
-        leadOfferInDB.setNextTask(null);
-
-        if (leadOfferInDB.getMasterLeadOfferStatus().isClaimed() || leadOfferInDB.getStatusId() == LeadOfferStatus.Offered
-                .getId()) {
-
-            if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && leadOfferedListingsGiven.size() > PropertyReader
-                    .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_PROPERTY_COUNT_WHILE_CLAIMING, Long.class)
-                    .intValue()) {
-                throw new BadRequestException(
-                        "Currently you can offer only 3 properties to the client. You may offer more later");
-            }
-
-            if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
-                for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
-                    listingIds.add(leadOfferedListing.getListingId());
-                }
-                offerListings(listingIds, leadOfferId, userId);
-                String heading = "More properties matching your requirement";
-                String templatePath = marketplaceTemplateBasePath + offerTemplate;
-                sendMailToClient(leadOfferInDB, templatePath, heading);
+        // Claim a lead
+        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
+            if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
+                claimLeadOffer(leadOffer, leadOfferInDB);
+                return leadOfferInDB;
             }
         }
-        else {
+
+        // Trying to claim a lead not in offered state
+        if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
             throw new BadRequestException("Sorry! The lead has already been claimed by another agent.");
         }
 
-        if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
-            if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
-                List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
-                        .singletonList(leadOfferId));
-
-                if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
-                    throw new BadRequestException("To claim add at least one listing");
-                }
-
-                leadTaskService.createDefaultLeadTaskForLeadOffer(leadOfferInDB);
-                leadOfferInDB.setStatusId(leadOffer.getStatusId());
-                leadOfferDao.save(leadOfferInDB);
-                leadOfferInDB.setOfferedListings(leadOfferedListingList);
-                restrictOtherBrokersFromClaiming(leadOfferId);
-                String heading = "Matching Property suggested by our trusted broker";
-                String templatePath = marketplaceTemplateBasePath + claimTemplate;
-                sendMailToClient(leadOfferInDB, templatePath, heading);
-                return leadOfferInDB;
-            }
-
-            if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId()) {
+        // Declining a lead from Offered or Expired state
+        if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId()) {
+            if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() || leadOfferInDB.getStatusId() == LeadOfferStatus.Expired.getId()) {
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
             }
         }
@@ -526,6 +494,69 @@ public class LeadOfferService {
         leadOfferInDB.setLead(null);
         leadOfferDao.save(leadOfferInDB);
         return leadOfferInDB;
+    }
+
+    /**
+     * @param leadOffer
+     * @param leadOfferId
+     * @param leadOfferInDB
+     */
+    private void claimLeadOffer(LeadOffer leadOffer, LeadOffer leadOfferInDB) {
+        List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
+                .singletonList(leadOfferInDB.getId()));
+
+        if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
+            throw new BadRequestException("To claim add at least one listing");
+        }
+
+        leadTaskService.createDefaultLeadTaskForLeadOffer(leadOfferInDB);
+        leadOfferInDB.setStatusId(leadOffer.getStatusId());
+        leadOfferDao.save(leadOfferInDB);
+        leadOfferInDB.setOfferedListings(leadOfferedListingList);
+        restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
+        notificationService.manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
+        String heading = "Matching Property suggested by our trusted broker";
+        String templatePath = marketplaceTemplateBasePath + claimTemplate;
+        sendMailToClient(leadOfferInDB, templatePath, heading);
+    }
+
+    /**
+     * @param leadOffer
+     * @param leadOfferId
+     * @param userId
+     * @param leadOfferInDB
+     */
+    private void offerListings(LeadOffer leadOffer, LeadOffer leadOfferInDB) {
+        List<Integer> listingIds = new ArrayList<>();
+        List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
+
+        leadOfferInDB.setLastTask(null);
+        leadOfferInDB.setNextTask(null);
+
+        // Code that offers listings
+        if (leadOfferInDB.getMasterLeadOfferStatus().isClaimed() ||
+            (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && 
+             leadOffer.getStatusId() == LeadOfferStatus.New.getId())) // Trying to claim case
+        {
+            int maxOfferCountWhileClaiming = PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_PROPERTY_COUNT_WHILE_CLAIMING, Long.class).intValue();
+            if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && 
+                leadOfferedListingsGiven != null && 
+                leadOfferedListingsGiven.size() > maxOfferCountWhileClaiming)
+            {
+                throw new BadRequestException("Currently you can offer only " + maxOfferCountWhileClaiming + " properties to the client. You may offer more later");
+            }
+
+            if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
+                for (LeadOfferedListing leadOfferedListing : leadOfferedListingsGiven) {
+                    listingIds.add(leadOfferedListing.getListingId());
+                }
+
+                offerListings(listingIds, leadOfferInDB.getId(), leadOfferInDB.getAgentId());
+                String heading = "More properties matching your requirement";
+                String templatePath = marketplaceTemplateBasePath + offerTemplate;
+                sendMailToClient(leadOfferInDB, templatePath, heading);
+            }
+        }
     }
 
     private void sendMailToClient(LeadOffer leadOfferInDB, String templatePath, String heading) {
