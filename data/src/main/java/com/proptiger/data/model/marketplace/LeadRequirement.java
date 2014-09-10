@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -55,6 +56,13 @@ public class LeadRequirement extends BaseModel {
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="lead_id" ,insertable=false, updatable=false)
     private Lead lead;
+
+    @PrePersist
+    public void validate() {
+        if (localityId == null && projectId == null) {
+            throw new IllegalArgumentException("At least one of locality or project is mandatory");
+        }
+    }
 
     public int getId() {
         return id;

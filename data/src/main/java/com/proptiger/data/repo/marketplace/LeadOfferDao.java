@@ -20,7 +20,7 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select LO from LeadOffer LO join LO.lead L where L.cityId = ?1 and L.clientId = ?2 order by LO.id desc")
     public List<LeadOffer> getLeadOffers(int cityId, int clientId);
 
-    @Query("select LO from LeadOffer LO where LO.leadId = ?1 order by LO.statusId")
+    @Query("select LO from LeadOffer LO join fetch LO.masterLeadOfferStatus where LO.leadId = ?1 order by LO.statusId")
     public List<LeadOffer> getLeadOffers(int leadId);
    
     @Query("select DISTINCT(LOL) from LeadOfferedListing LOL join fetch LOL.listing LI left join fetch LI.projectSupply LIPS left join fetch LI.currentListingPrice join fetch LI.property LIP join fetch LIP.project LIPP join fetch LIPP.projectStatusMaster join fetch LIPP.builder join fetch LIPP.locality LIPPL join fetch LIPPL.suburb LIPPLS join fetch LIPPLS.city where LIPP.version='Website' and LOL.leadOfferId in (?1)")

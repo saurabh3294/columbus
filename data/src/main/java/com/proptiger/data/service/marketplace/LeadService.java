@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.Company;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
@@ -19,7 +20,6 @@ import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.service.CityService;
-import com.proptiger.data.service.LeadOfferStatus;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.companyuser.CompanyService;
@@ -75,10 +75,10 @@ public class LeadService {
     public void manageLeadAuction(int leadId) {
         Lead lead = leadDao.getLock(leadId);
 
-        if (lead.getLeadOffers().size() == 0) {
+        if (lead.getLeadOffers() != null && lead.getLeadOffers().isEmpty()) {
             List<Company> brokerCompanies = getBrokersForLead(lead.getId());
 
-            if (brokerCompanies.size() == 0) {
+            if (brokerCompanies.isEmpty()) {
                 // XXX No broker found alert in future
             }
             else {
@@ -154,7 +154,7 @@ public class LeadService {
      * 
      */
     
-    private Lead validationOfProjectLocality(LeadRequirement leadRequirement)
+    private void validationOfProjectLocality(LeadRequirement leadRequirement)
     {
         if (leadRequirement.getLocalityId() != null && localityService.getLocality(leadRequirement
                 .getLocalityId()) == null) {
@@ -164,17 +164,14 @@ public class LeadService {
                 .getProjectId()) == null) {
             throw new BadRequestException("Project should be valid");
         }
-        return null;
     }
-    
     
     @Transactional
     public Lead createLead(Lead lead) {
-
         if (lead.getCityId() == 0) {
             throw new BadRequestException("CityId is mandatory");
         }
-        
+
         if(cityService.getCity(lead.getCityId()) == null)
         {
             throw new BadRequestException("CityId should be valid");
@@ -188,23 +185,16 @@ public class LeadService {
         if (existingLead != null) {
             lead.setId(existingLead.getId());
             patchLead(existingLead, lead);
-            notificationService.createLeadNotification(lead, 3);
+            notificationService.createLeadNotification(lead, NotificationType.DuplicateLead.getId());
         }
         else {
-            lead.setId(leadDao.save(lead).getId());
-            for (LeadRequirement leadRequirement : lead.getRequirements()) {
-                leadRequirement.setLeadId(lead.getId());
-                if (!isExactReplica(leadRequirement)) {
-                    validationOfProjectLocality(leadRequirement);
-                    leadRequirementsService.save(leadRequirement);
-                }
-            }
+            createDump(lead);
         }
 
         int leadId = lead.getId();
         leadOriginal.setMergedLeadId(leadId);
         createDump(leadOriginal);
-        
+
         manageLeadAuctionAsync(leadId);
         return lead;
     }
@@ -258,10 +248,9 @@ public class LeadService {
      */
     private void patchLead(Lead existingLead, Lead lead) {
         for (LeadRequirement leadRequirement : lead.getRequirements()) {
-            leadRequirement.setLeadId(lead.getId());
+            leadRequirement.setLeadId(existingLead.getId());
             if (!isExactReplica(leadRequirement)) {
                 validationOfProjectLocality(leadRequirement);
-                leadRequirement.setLeadId(existingLead.getId());
                 leadRequirementsService.saveAndFlush(leadRequirement);
             }
         }
@@ -301,8 +290,7 @@ public class LeadService {
             }
             else {
                 for (LeadOffer leadOffer : leadOffers) {
-                    int statusId = leadOffer.getStatusId();
-                    if (statusId != LeadOfferStatus.ClosedLost.getId() && statusId != LeadOfferStatus.ClosedWon.getId()) {
+                    if (leadOffer.getMasterLeadOfferStatus().isOpen()) {
                         existingLead = lead;
                         break;
                     }

@@ -637,8 +637,7 @@ public class LeadOfferService {
 
     private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings) {
         Set<Integer> offeredListingIds = new HashSet<>();
-        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(Collections
-                .singletonList(leadOfferId))) {
+        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(Collections.singletonList(leadOfferId))) {
             offeredListingIds.add(leadOfferListing.getListingId());
         }
 
