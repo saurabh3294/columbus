@@ -19,6 +19,7 @@ import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
+import com.proptiger.data.service.CityService;
 import com.proptiger.data.service.LeadOfferStatus;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
@@ -68,6 +69,9 @@ public class LeadService {
     @Autowired
     private NotificationService     notificationService;
 
+    @Autowired
+    private CityService cityService;
+    
     @Transactional
     public void manageLeadAuction(int leadId) {
         Lead lead = leadDao.getLock(leadId);
@@ -153,11 +157,11 @@ public class LeadService {
     
     private Lead validationOfProjectLocality(LeadRequirement leadRequirement)
     {
-        if (leadRequirement.getLocalityId() == null || localityService.getLocality(leadRequirement
+        if (leadRequirement.getLocalityId() != null && localityService.getLocality(leadRequirement
                 .getLocalityId()) == null) {
             throw new BadRequestException("Localities should be valid");
         }
-        if (leadRequirement.getProjectId() == null || projectService.getProjectDetails(leadRequirement
+        if (leadRequirement.getProjectId() != null && projectService.getProjectDetails(leadRequirement
                 .getProjectId()) == null) {
             throw new BadRequestException("Project should be valid");
         }
@@ -170,6 +174,11 @@ public class LeadService {
 
         if (lead.getCityId() == 0) {
             throw new BadRequestException("CityId is mandatory");
+        }
+        
+        if(cityService.getCity(lead.getCityId()) == null)
+        {
+            throw new BadRequestException("CityId should be valid");
         }
 
         User user = userService.createUser(lead.getClient());

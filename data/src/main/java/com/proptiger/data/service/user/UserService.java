@@ -725,14 +725,13 @@ public class UserService {
         User userInDB = userDao.findByEmail(email);
 
         if (userInDB != null) {
-            user.setId(userInDB.getId());
-            patchUser(user);
+            user.setId(userInDB.getId());            
         }
         else {
             user.setId(userDao.save(user).getId());
-            patchUser(user);
         }
 
+        patchUser(user);
         return user;
     }
 
