@@ -19,7 +19,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.PostLoad;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
@@ -33,9 +32,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.user.User;
-import com.proptiger.data.util.DateUtil;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
 
 /**
  * @author Anubhav
@@ -100,9 +96,6 @@ public class Lead extends BaseModel {
     @Column(name = "created_at")
     private Date                  createdAt        = new Date();
 
-    @Transient
-    private Date expireTimestamp;
-
     @Column(name = "updated_at")
     private Date                  updatedAt        = new Date();
 
@@ -119,11 +112,6 @@ public class Lead extends BaseModel {
 
     @OneToMany(mappedBy = "leadId")
     private List<LeadRequirement> requirements;
-
-    @PostLoad
-    public void evaluateExpiryTimestamp() {
-        expireTimestamp = DateUtil.addSeconds(createdAt, PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION) + PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION));
-    }
 
     public int getSourceId() {
         return sourceId;
@@ -311,13 +299,5 @@ public class Lead extends BaseModel {
 
     public void setDerivedBedroomsString(String derivedBedroomsString) {
         this.derivedBedroomsString = derivedBedroomsString;
-    }
-
-    public Date getExpireTimestamp() {
-        return expireTimestamp;
-    }
-
-    public void setExpireTimestamp(Date expireTimestamp) {
-        this.expireTimestamp = expireTimestamp;
     }
 }
