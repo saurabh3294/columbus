@@ -155,7 +155,7 @@ public class LeadOffer extends BaseModel {
     @PostLoad
     public void evaluateExpiryTimestamp() {
         expireTimestamp = DateUtil
-                .addSeconds(
+                .getWorkingTimeAddedIntoDate(
                         createdAt,
                         PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION) + PropertyReader
                                 .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION));
