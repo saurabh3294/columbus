@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -444,6 +443,12 @@ public class ProjectService {
      * @return
      */
     public List<Project> getProjectsByIds(Set<Integer> ids) {
+        List<Project> projects = getProjectListByIds(ids);
+        imageEnricher.setImagesOfProjects(projects);
+        return projects;
+    }
+    
+    public List<Project> getProjectListByIds(Set<Integer> ids) {
         List<SolrResult> result = projectDao.getProjectsOnIds(ids);
         List<Project> projects = new ArrayList<Project>();
         if (result != null) {
@@ -451,9 +456,9 @@ public class ProjectService {
                 projects.add(solrResult.getProject());
             }
         }
-        imageEnricher.setImagesOfProjects(projects);
         return projects;
     }
+    
 
     /**
      * This method will return the total number of project discussions in the
