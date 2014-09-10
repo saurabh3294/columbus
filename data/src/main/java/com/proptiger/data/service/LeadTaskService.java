@@ -50,6 +50,7 @@ import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.ResourceNotFoundException;
 import com.proptiger.exception.UnauthorizedException;
 
 /**
@@ -116,6 +117,9 @@ public class LeadTaskService {
         int currentTaskId = taskDto.getId();
         int nextTaskId = 0;
         LeadTask savedTask = leadTaskDao.findOne(currentTaskId);
+        if (savedTask == null) {
+            throw new ResourceNotFoundException();
+        }
         if (savedTask.getLeadOffer().getAgentId() != Integer.parseInt(user.getUserId())) {
             throw new UnauthorizedException();
         }
