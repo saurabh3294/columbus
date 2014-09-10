@@ -6,7 +6,7 @@ package com.proptiger.data.enums;
  * 
  */
 public enum NotificationType {
-    TaskDue(1), TaskOverDue(2), LeadOffered(4), NoBrokerFound("No Broker Found In Resale Marketplace"), SaleSuccessful(
+    TaskDue(1), TaskOverDue(2), DuplicateLead(3), LeadOffered(4), NoBrokerFound("No Broker Found In Resale Marketplace"), SaleSuccessful(
             5, "Resale Lead Marked Sold In Marketplace"), NoBrokerClaimed(6,
             "No Brokecr Claimed Lead In Resale Marketplace"), AuctionOverWithoutClaim(7, "No Claim Intimation");
 
