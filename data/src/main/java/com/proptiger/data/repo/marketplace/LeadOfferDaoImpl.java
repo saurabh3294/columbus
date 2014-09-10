@@ -2,6 +2,7 @@ package com.proptiger.data.repo.marketplace;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -12,6 +13,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.slf4j.Logger;
@@ -68,10 +70,14 @@ public class LeadOfferDaoImpl {
 
         cq.select(c);
         cq.where(cb.equal(c.get("agentId"), agentId));
+        
+        List<Predicate> conditions = new ArrayList<>();
+        conditions.add(cb.equal(c.get("agentId"), agentId));
+
         cq.orderBy(cb.asc(leadTaskJoin.<Date>get("scheduledFor")), cb.asc(c.get("createdAt")));
 
         if (statusIds != null && !statusIds.isEmpty()) {
-            cq.where(c.get("statusId").in(statusIds));
+            conditions.add(c.get("statusId").in(statusIds));
         }
 
         Calendar cal = Calendar.getInstance();
@@ -88,12 +94,13 @@ public class LeadOfferDaoImpl {
         Date tomorrow = cal.getTime();
 
         if ("today".equalsIgnoreCase(dueDate)) {
-            cq.where(cb.between(leadTaskJoin.<Date>get("scheduledFor"), cb.literal(today), cb.literal(tomorrow)));
+            conditions.add(cb.between(leadTaskJoin.<Date>get("scheduledFor"), cb.literal(today), cb.literal(tomorrow)));
         }
         else if ("overdue".equalsIgnoreCase(dueDate)) {
-            cq.where(cb.lessThan(leadTaskJoin.<Date>get("scheduledFor"), cb.currentTimestamp()));
+            conditions.add(cb.lessThan(leadTaskJoin.<Date>get("scheduledFor"), cb.currentTimestamp()));
         }
 
+        cq.where(conditions.toArray(new Predicate[0]));
         List<LeadOffer> leadOffers = em.createQuery(cq).getResultList();
         paginatedResponse.setResults(leadOffers);
         paginatedResponse.setTotalCount(leadOffers.size());
