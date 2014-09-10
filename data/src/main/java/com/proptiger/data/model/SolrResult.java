@@ -5,6 +5,8 @@ package com.proptiger.data.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import org.apache.solr.client.solrj.beans.Field;
 
@@ -12,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
+import com.google.gson.Gson;
 
 /**
  * @author mandeep
@@ -362,6 +365,9 @@ public class SolrResult extends BaseModel {
     
     @Field(value = "LOCALITY_LIVABILITY_RANK")
     private Integer                 localityLivabilityRank;
+    
+    @Field(value = "HAS_3D_IMAGES")
+    private boolean                 hasProject3DImages;
     
     public SolrResult() {
         property.setProject(project);
@@ -1146,5 +1152,23 @@ public class SolrResult extends BaseModel {
     @Field("LOCALITY_LIVABILITY_RANK")
     public void setLocalityLivabilityRank(Integer localityLivabilityRank) {
         locality.setLocalityLivabilityRank(localityLivabilityRank);
+    }
+
+    @Field("IMAGE_TYPE_COUNT")
+    public void setImageTypeCount(String imageJson) {
+        Gson gson=new Gson();
+        Map<String, Number> object = new HashMap<String, Number>();
+        Map<String, Integer> imageTypeCount = new HashMap<String, Integer>();
+        object = (Map<String, Number>) gson.fromJson(imageJson, object.getClass());
+        for(Map.Entry<String, Number> entry:object.entrySet()){
+            imageTypeCount.put(entry.getKey(), entry.getValue().intValue());
+        }
+        project.setImageTypeCount(imageTypeCount);
+        property.setImageTypeCount(imageTypeCount);
+    }
+
+    @Field("HAS_3D_IMAGES")
+    public void setHasProject3DImages(boolean hasProject3DImages) {
+        project.setHas3DImages(hasProject3DImages);
     }
 }

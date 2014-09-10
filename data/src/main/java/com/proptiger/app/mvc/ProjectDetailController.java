@@ -134,7 +134,9 @@ public class ProjectDetailController extends BaseController {
          * Setting locality Ratings And Reviews
          */
         localityService.updateLocalityRatingAndReviewDetails(locality);
-        localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
+        if (locality != null) {
+            localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
+        }
         Set<String> propertyFieldString = propertyDetailsSelector.getFields();
 
         Map<String, Object> response = new LinkedHashMap<>();
@@ -169,7 +171,9 @@ public class ProjectDetailController extends BaseController {
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
         
-        projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
+        if (project != null ) {
+            projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
+        }
         /*
          * Setting project Specification if needed.
          */
@@ -191,7 +195,9 @@ public class ProjectDetailController extends BaseController {
             projectSelector = new Selector();
         }
         Project project = projectService.getProjectInfoDetails(projectSelector, projectId);
-        projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
+        if (project != null) {
+            projectService.updateLifestyleScoresByHalf(Collections.singletonList(project));
+        }
         return new APIResponse(super.filterFields(project, projectSelector.getFields()));
     }
     

@@ -86,7 +86,9 @@ public class AppLocalityController extends BaseController {
             selector = new Selector();
         }
         Locality locality = localityService.getLocalityInfo(localityId, imageCount);
-        localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
+        if (locality != null ) {
+            localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
+        }
         return new APIResponse(super.filterFields(locality, selector.getFields()));
     }
 

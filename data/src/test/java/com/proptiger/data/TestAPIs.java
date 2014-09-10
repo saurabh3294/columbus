@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
@@ -75,11 +76,36 @@ public class TestAPIs {
     private Map<String, List<String>> apiKeysValuesMap;
     private Map<String, String>       populateMapforPostData;
 
-    Set<String>                       exclusionList      = new HashSet<String>();  // Set of APIs excluded
-    Set<String>                       excludedPOSTAPIs   = new HashSet<String>();  // Set of APIs whose POST data is not 
-                                                                                   // available in TestNG properties file
-    Set<String>                       excludedPUTAPIs   = new HashSet<String>();   // Set of APIs whose PUT data is not 
-                                                                                   // available in TestNG properties file
+    Set<String>                       exclusionList      = new HashSet<String>();                  // Set
+                                                                                                    // of
+                                                                                                    // APIs
+                                                                                                    // excluded
+    Set<String>                       excludedPOSTAPIs   = new HashSet<String>();                  // Set
+                                                                                                    // of
+                                                                                                    // APIs
+                                                                                                    // whose
+                                                                                                    // POST
+                                                                                                    // data
+                                                                                                    // is
+                                                                                                    // not
+                                                                                                    // available
+                                                                                                    // in
+                                                                                                    // TestNG
+                                                                                                    // properties
+                                                                                                    // file
+    Set<String>                       excludedPUTAPIs    = new HashSet<String>();                  // Set
+                                                                                                    // of
+                                                                                                    // APIs
+                                                                                                    // whose
+                                                                                                    // PUT
+                                                                                                    // data
+                                                                                                    // is
+                                                                                                    // not
+                                                                                                    // available
+                                                                                                    // in
+                                                                                                    // TestNG
+                                                                                                    // properties
+                                                                                                    // file
 
     @BeforeTest
     public void init() throws ConfigurationException {
@@ -97,13 +123,28 @@ public class TestAPIs {
         exclusionList.add("data/v1/entity/audio");
         exclusionList.add("data/v1/entity/document");
         exclusionList.add("data/v1/log");
-        exclusionList.add("data/v1/entity/project/{projectId}/phase");                  // to be removed when b2b is merged with develop
-        exclusionList.add("data/v1/entity/project/{projectId}/phase/{phaseId}");        // to be removed when b2b is merged with develop
+        exclusionList.add("data/v1/entity/project/{projectId}/phase"); // to be
+                                                                       // removed
+                                                                       // when
+                                                                       // b2b is
+                                                                       // merged
+                                                                       // with
+                                                                       // develop
+        exclusionList.add("data/v1/entity/project/{projectId}/phase/{phaseId}"); // to
+                                                                                 // be
+                                                                                 // removed
+                                                                                 // when
+                                                                                 // b2b
+                                                                                 // is
+                                                                                 // merged
+                                                                                 // with
+                                                                                 // develop
         exclusionList.add("/data/v1/entity/user/change-password");
         exclusionList.add("/app/v1/reset-password");
-        //TODO If registered with same user from TestNG.properties, will throw error
+        // TODO If registered with same user from TestNG.properties, will throw
+        // error
         exclusionList.add("/app/v1/register");
-        
+
         restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(new StringHttpMessageConverter());
         restTemplate.setErrorHandler(new ResponseErrorHandler() {
@@ -139,6 +180,9 @@ public class TestAPIs {
         populateMapforPostData.put(
                 apiKeysValuesMap.get("BASE_URL").get(0) + "/data/v1/entity/project/{projectId}/email",
                 "project_email");
+        populateMapforPostData.put(
+                apiKeysValuesMap.get("BASE_URL").get(0) + "/data/v2/entity/locality/{localityId}/rating",
+                "post_rating");
     }
 
     /**
@@ -188,7 +232,7 @@ public class TestAPIs {
              */
             Map<String, String> listofAPIs = getListOfAPis(apilist);
             Assert.assertTrue(listofAPIs.size() > 0, "Empty API list was returned by server.");
-            
+
             ExecutorService executors = Executors.newFixedThreadPool(listofAPIs.size());
             List<Future<Object>> futures = new ArrayList<Future<Object>>();
 
@@ -370,10 +414,10 @@ public class TestAPIs {
 
         for (String key : result) {
             max = apiKeysValuesMap.get(key).size();
-            if (apiKeysValuesMap.get(key) == null){
+            if (apiKeysValuesMap.get(key) == null) {
                 failedUrl++;
                 excludedPOSTAPIs.add(apiUrl);
-                return;  
+                return;
             }
             maximumValues = Math.max(maximumValues, max);
         }
@@ -389,10 +433,10 @@ public class TestAPIs {
                 responseCode = addApiResponseCode(apiResponse, finalUrl, method);
             }
             else if (method == "POST") {
-                if (VariableFromPostMap == null){
+                if (VariableFromPostMap == null) {
                     failedUrl++;
                     excludedPOSTAPIs.add(apiUrl);
-                    return;  
+                    return;
                 }
                 String dataToPost = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
@@ -403,10 +447,10 @@ public class TestAPIs {
                 responseCode = addApiResponseCode(postResponse, finalUrl, method);
             }
             else if (method == "PUT") {
-                if (VariableFromPostMap == null){
+                if (VariableFromPostMap == null) {
                     failedUrl++;
                     excludedPUTAPIs.add(apiUrl);
-                    return;  
+                    return;
                 }
                 logger.error("############# TESTAPI URL ########### " + apiUrl);
                 String dataToPost = apiKeysValuesMap.get(VariableFromPostMap).get(0);

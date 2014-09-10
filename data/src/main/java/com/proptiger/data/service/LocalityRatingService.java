@@ -222,4 +222,39 @@ public class LocalityRatingService {
             }
         }
     }
+
+    public void updateRatingsByTwice(LocalityRatings createdRating) {
+        if (createdRating != null) {
+            if (createdRating.getOverallRating() != null) {
+                createdRating.setOverallRating(createdRating.getOverallRating() * 2);
+            }
+            if (createdRating.getLocation() != null) {
+                createdRating.setLocation(createdRating.getLocation() * 2);
+            }
+            if (createdRating.getSafety() != null) {
+                createdRating.setSafety(createdRating.getSafety() * 2);
+            }
+            if (createdRating.getTraffic() != null) {
+                createdRating.setTraffic(createdRating.getTraffic() * 2);
+            }
+            if (createdRating.getPubTrans() != null) {
+                createdRating.setPubTrans(createdRating.getPubTrans() * 2);
+            }
+            if (createdRating.getRestShop() != null) {
+                createdRating.setRestShop(createdRating.getRestShop() * 2);
+            }
+            if (createdRating.getSchools() != null) {
+                createdRating.setSchools(createdRating.getSchools() * 2);
+            }
+            if (createdRating.getSchools() != null) {
+                createdRating.setHospitals(createdRating.getHospitals() * 2);
+            }
+            if (createdRating.getCivic() != null) {
+                createdRating.setCivic(createdRating.getCivic() * 2);
+            }
+            if (createdRating.getParks() != 0) {
+                createdRating.setParks(createdRating.getParks() * 2);
+            }
+        }
+    }
 }
