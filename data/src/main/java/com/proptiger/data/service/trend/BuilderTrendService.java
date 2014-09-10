@@ -55,7 +55,7 @@ public class BuilderTrendService {
 
     private String              currentMonth;
 
-    @Value("${b2b.price-inventory.max.month.dblabel}")
+    @Value("${b2b.price-appreciation.duration.dblabel}")
     private String             appreciationDurationDbLabel;
 
     private Integer             appreciationDuration;
