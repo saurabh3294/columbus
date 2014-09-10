@@ -124,7 +124,7 @@ public class LocalityService {
                 updateLocalityRatingAndReviewDetails(locality);
             }
         }
-        if (selector.getFields() == null || selector.getFields().contains("landmarkImages")) {
+        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
             imageEnricher.setLocalityAmenitiesImages(localities);
         }
         return paginatedRes;
