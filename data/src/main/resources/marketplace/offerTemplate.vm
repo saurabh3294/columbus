@@ -137,8 +137,8 @@
 
 Best Regards, <br /><br />
 
-${agent.fullName} <br />
-Phone: +91 ${agent.contactNumbers.get(0).contactNumber}  |  ${agent.email}<br />
+${leadOffer.agent.fullName} <br />
+Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}  |  ${leadOffer.agent.email}<br />
 
 <span style="font-size:10px; line-height:18px;">** You have received this email because your email id was given to us on our web site. If it was not you, 
 please notify us at cutomer.service@proptiger.com, or report it on http://www.proptiger.com/contact_us.php</span>
