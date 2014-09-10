@@ -18,7 +18,7 @@ import com.proptiger.data.enums.AndroidApplication;
 
 @Entity
 @Table(name = "gcm.gcm_users")
-public class GCMUsers extends BaseModel {
+public class GCMUser extends BaseModel {
 
     private static final long  serialVersionUID = 7829394463604901690L;
 

@@ -20,7 +20,7 @@ import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
 import com.proptiger.data.enums.AndroidApplication;
 import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.GCMUsers;
+import com.proptiger.data.model.GCMUser;
 import com.proptiger.data.service.GCMUserService;
 
 @Service
@@ -62,7 +62,7 @@ public class AndroidSender implements MediumSender {
 
     @Override
     public void send(String template, ForumUser forumUser, String typeName) {
-        List<GCMUsers> gcmUsersList = new ArrayList<GCMUsers>();
+        List<GCMUser> gcmUsersList = new ArrayList<GCMUser>();
         if (forumUser == null || forumUser.getUserId() == null) {
             logger.error("No user found while sending Push Notification");
         }
@@ -86,7 +86,7 @@ public class AndroidSender implements MediumSender {
             AndroidApplication androidApp,
             String typeName) {
 
-        List<GCMUsers> gcmUsersList = new ArrayList<GCMUsers>();
+        List<GCMUser> gcmUsersList = new ArrayList<GCMUser>();
         if (forumUser == null || forumUser.getUserId() == null) {
             logger.error("No user found while sending Push Notification");
         }
@@ -96,7 +96,7 @@ public class AndroidSender implements MediumSender {
         pushToAndroidDevice(template, gcmUsersList, typeName);
     }
 
-    private void pushToAndroidDevice(String template, List<GCMUsers> gcmUsersList, String typeName) {
+    private void pushToAndroidDevice(String template, List<GCMUser> gcmUsersList, String typeName) {
 
         if (gcmUsersList == null) {
             logger.info("No GCM users found.");
@@ -105,7 +105,7 @@ public class AndroidSender implements MediumSender {
 
         // Create a map of AppIdentifier to List of Reg Ids
         Map<AndroidApplication, List<String>> regIdMap = new HashMap<AndroidApplication, List<String>>();
-        for (GCMUsers gcmUser : gcmUsersList) {
+        for (GCMUser gcmUser : gcmUsersList) {
             AndroidApplication app = gcmUser.getAppIdentifier();
             String regId = gcmUser.getGcmRegId();
 
