@@ -149,6 +149,7 @@ public class LeadOffer extends BaseModel {
         this.agent = agent;
     }
 
+    @Transient
     private Date expireTimestamp;
 
     @PostLoad
