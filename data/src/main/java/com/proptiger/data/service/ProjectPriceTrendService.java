@@ -117,9 +117,12 @@ public class ProjectPriceTrendService {
                 while (priceDateItr.hasNext()) {
                     Long dateKey = priceDateItr.next();
                     Date effectiveDate = new Date(dateKey);
-
-                    Object price = projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()).get(0)
+                    
+                    Object price = null;
+                    if(projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()) != null) {
+                     price = projectPrices.get(dateKey).get(priceTrendInput.getBedrooms()).get(0)
                             .getExtraAttributes().get("wavgPricePerUnitAreaOnLtdSupply");
+                    }
                     
                     // populated in PortfolioPriceTrendService
                     if (price != null) {
