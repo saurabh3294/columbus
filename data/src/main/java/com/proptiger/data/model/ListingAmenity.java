@@ -45,6 +45,14 @@ public class ListingAmenity extends BaseModel {
     @JoinColumn(name = "project_amenity_id", nullable = false, insertable = false, updatable = false)
     private ProjectCMSAmenity amenity;
     
+    public ProjectCMSAmenity getAmenity() {
+        return amenity;
+    }
+
+    public void setAmenity(ProjectCMSAmenity amenity) {
+        this.amenity = amenity;
+    }
+
     public Integer getId() {
         return id;
     }

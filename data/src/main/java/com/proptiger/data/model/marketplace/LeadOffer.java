@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.proptiger.data.model.BaseModel;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.MasterLeadOfferStatus;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -43,24 +44,29 @@ public class LeadOffer extends BaseModel {
 
     public static class CountListingObject {
         private Integer leadOfferId;
-        private long countListings;
+        private long    countListings;
+
         public Integer getLeadOfferId() {
             return leadOfferId;
         }
+
         public void setLeadOfferId(Integer leadOfferId) {
             this.leadOfferId = leadOfferId;
         }
+
         public long getCountListings() {
             return countListings;
         }
+
         public void setCountListings(long countListings) {
             this.countListings = countListings;
         }
+
         public CountListingObject(Integer leadOfferId, long countListings) {
             super();
             this.leadOfferId = leadOfferId;
             this.countListings = countListings;
-        }                
+        }
     }
 
     @Id
@@ -86,16 +92,16 @@ public class LeadOffer extends BaseModel {
     private Integer                  lastTaskId;
 
     @Column(name = "next_task_id")
-    private Integer nextTaskId;
+    private Integer                  nextTaskId;
 
     @JsonManagedReference
-    @OneToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "previous_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "previous_task_id", referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 lastTask;
 
     @JsonManagedReference
-    @OneToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "next_task_id" , referencedColumnName = "id", insertable = false, updatable = false)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "next_task_id", referencedColumnName = "id", insertable = false, updatable = false)
     private LeadTask                 nextTask;
 
     @OneToMany(mappedBy = "leadOfferId")
@@ -133,14 +139,27 @@ public class LeadOffer extends BaseModel {
     private MasterLeadOfferStatus    masterLeadOfferStatus;
 
     @Transient
+    private User                     agent;
+
+    public User getAgent() {
+        return agent;
+    }
+
+    public void setAgent(User agent) {
+        this.agent = agent;
+    }
+
     private Date expireTimestamp;
 
     @PostLoad
     public void evaluateExpiryTimestamp() {
-        expireTimestamp = DateUtil.addSeconds(createdAt, PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION) + PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION));
+        expireTimestamp = DateUtil
+                .addSeconds(
+                        createdAt,
+                        PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_BIDDING_CYCLE_DURATION) + PropertyReader
+                                .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION));
     }
 
-    
     public Lead getLead() {
         return lead;
     }
@@ -293,11 +312,9 @@ public class LeadOffer extends BaseModel {
         this.nextTaskId = nextTaskId;
     }
 
-
     public Date getExpireTimestamp() {
         return expireTimestamp;
     }
-
 
     public void setExpireTimestamp(Date expireTimestamp) {
         this.expireTimestamp = expireTimestamp;
