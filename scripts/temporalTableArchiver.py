@@ -136,6 +136,34 @@ def checkAndCreateTableOnArchive(row, dcursor, scursor):
     return status 
 
 def verifyTableStructure(row, dcursor, scursor):
+    global archiveDatabase
+    query_template = "SELECT column_name, column_type, data_type from information_schema.columns where table_schema = '%s' and table_name = '%s' order by column_name "
+
+    squery = query_template % (row['table_schema'], row['table_name'])
+    scursor.execute(squery)
+    srows = scursor.fetchall()
+    
+    dquery = query_template % (archiveDatabase, row['table_name'])
+    dcursor.execute(dquery)
+    drows = dcursor.fetchall()
+    if( len(srows) != len(drows) ):
+        return 0
+
+    # if all column names are same then no need to create the map. just check them sequentially.
+    i=0
+    for srow in srows:
+        flag = 1
+        drow = drows[i]
+
+        # comparing each column name and its attributes. They all should be same.
+        for key in srow:
+            flag &= (srow[key] == drow[key])
+
+        i = i+1
+        # if any of the key comparision fails then both table columns are not equal hence returning false.
+        if flag == 0:
+            return 0
+
     return 1
 
 def getArchivingConfig(row, scriptconfig):
@@ -201,6 +229,13 @@ def handleTableReplication(row):
     scursor = srcdb.cursor()
     status = checkAndCreateTableOnArchive(row, dcursor, scursor)
     print "table created"
+    print "compare table columns"
+    status = verifyTableStructure(row, dcursor, scursor)
+    if status == 0:
+        print "column comparision failed"
+        return 0
+
+    print "comparison successfull"
     print "transfer data"
     status = handleTableArchiving(row, scriptconfig, dcursor, scursor)
 
