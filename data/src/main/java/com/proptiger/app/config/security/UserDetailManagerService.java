@@ -24,30 +24,32 @@ import com.proptiger.exception.InvalidUserRoleException;
  * authenicate a user. This class uses database to authenticate.
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 @Service
 public class UserDetailManagerService implements UserDetailsService {
 
-    private static Logger         logger = LoggerFactory.getLogger(UserDetailManagerService.class);
-    
+    private static Logger           logger                               = LoggerFactory
+                                                                                 .getLogger(UserDetailManagerService.class);
+
     @Autowired
-    private ForumUserDao          forumUserDao;
-    
+    private ForumUserDao            forumUserDao;
+
     @Autowired
     private UserSubscriptionService userSubscriptionService;
-    
-    private String errorMessageNonB2BUser = "You are not authorized to access this portal. In case this is happening by mistake, please connect with us at datalabs@proptiger.com";
-    private String errorMessageExpiredPermissionB2BUser = "Your access has expired. To continue using this service, please connect with us at datalabs@proptiger.com";
-    
+
+    private String                  errorMessageNonB2BUser               = "Invalid userid and password. Please send mail to datalabs@proptiger.com for verifying userid and password.";
+    private String                  errorMessageExpiredPermissionB2BUser = "Thanks for using our product. Validity of your subscription has expired. To continue using this service, please connect with your relationship manager or send us mail at datalabs@proptiger.com";
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDetails userDetails = null;
         ForumUser forumUser = null;
         if (username != null && !username.isEmpty()) {
             /*
-             * since there can be multiple rows for same email, say one from direct registration
-             * and other from some service provider login like facebook.
+             * since there can be multiple rows for same email, say one from
+             * direct registration and other from some service provider login
+             * like facebook.
              * 
              * TODO this call need to be changed once we make user merge live
              */
@@ -63,33 +65,32 @@ public class UserDetailManagerService implements UserDetailsService {
                         true,
                         new ArrayList<GrantedAuthority>());
             }
-            else{
-                logger.error("User not found with email {}",username);
+            else {
+                logger.error("User not found with email {}", username);
             }
         }
         // if no user found with given username(email)
         if (userDetails == null) {
             throw new UsernameNotFoundException("User name or password are incorrect");
         }
-        
+
         /* If a b2b-user's permissions have expired then login request is denied */
-        if(forumUser != null && ApplicationNameService.isB2BApplicationRequest())
-        {
+        if (forumUser != null && ApplicationNameService.isB2BApplicationRequest()) {
             int userId = forumUser.getUserId();
-            
+
             /* Throw error if user has no subscriptions at all (non-b2b user). */
             List<?> userSubscriptionMappingList = userSubscriptionService.getUserSubscriptionMappingList(userId);
-            if(userSubscriptionMappingList == null || userSubscriptionMappingList.isEmpty()){
+            if (userSubscriptionMappingList == null || userSubscriptionMappingList.isEmpty()) {
                 throw new InvalidUserRoleException(errorMessageNonB2BUser);
             }
-            
+
             /* Throw error if user has no *active* subscriptions. */
             List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(forumUser.getUserId());
-            if(permissionList == null || permissionList.isEmpty()){
+            if (permissionList == null || permissionList.isEmpty()) {
                 throw new InvalidUserRoleException(errorMessageExpiredPermissionB2BUser);
             }
         }
-        
+
         return userDetails;
     }
 
