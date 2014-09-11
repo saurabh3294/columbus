@@ -17,6 +17,7 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.user.UserSubscriptionService;
+import com.proptiger.exception.InvalidUserRoleException;
 
 /**
  * Custom implementation of UserDetailsService to provide criteria to
@@ -35,7 +36,10 @@ public class UserDetailManagerService implements UserDetailsService {
     
     @Autowired
     private UserSubscriptionService userSubscriptionService;
-
+    
+    private String errorMessageNonB2BUser = "You are not authorized to access this portal. In case this is happening by mistake, please connect with us at datalabs@proptiger.com";
+    private String errorMessageExpiredPermissionB2BUser = "Your access has expired. To continue using this service, please connect with us at datalabs@proptiger.com";
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDetails userDetails = null;
@@ -71,9 +75,18 @@ public class UserDetailManagerService implements UserDetailsService {
         /* If a b2b-user's permissions have expired then login request is denied */
         if(forumUser != null && ApplicationNameService.isB2BApplicationRequest())
         {
+            int userId = forumUser.getUserId();
+            
+            /* Throw error if user has no subscriptions at all (non-b2b user). */
+            List<?> userSubscriptionMappingList = userSubscriptionService.getUserSubscriptionMappingList(userId);
+            if(userSubscriptionMappingList == null || userSubscriptionMappingList.isEmpty()){
+                throw new InvalidUserRoleException(errorMessageNonB2BUser);
+            }
+            
+            /* Throw error if user has no *active* subscriptions. */
             List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(forumUser.getUserId());
             if(permissionList == null || permissionList.isEmpty()){
-                throw new UsernameNotFoundException("User does not have permissions for this feature.");
+                throw new InvalidUserRoleException(errorMessageExpiredPermissionB2BUser);
             }
         }
         

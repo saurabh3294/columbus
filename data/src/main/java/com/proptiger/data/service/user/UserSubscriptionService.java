@@ -76,7 +76,7 @@ public class UserSubscriptionService {
      */
     @Cacheable(value = Constants.CacheName.CACHE)
     public List<SubscriptionPermission> getUserAppSubscriptionDetails(int userId) {
-        List<UserSubscriptionMapping> userSubscriptionMappingList = userSubscriptionMappingDao.findAllByUserId(userId);
+        List<UserSubscriptionMapping> userSubscriptionMappingList = getUserSubscriptionMappingList(userId);
         if (userSubscriptionMappingList == null) {
             return (new ArrayList<SubscriptionPermission>());
         }
@@ -99,6 +99,11 @@ public class UserSubscriptionService {
         }
 
         return subscriptionPermissions;
+    }
+    
+    @Cacheable(value = Constants.CacheName.CACHE)
+    public List<UserSubscriptionMapping> getUserSubscriptionMappingList(int userId){
+        return (userSubscriptionMappingDao.findAllByUserId(userId));
     }
 
     /*
