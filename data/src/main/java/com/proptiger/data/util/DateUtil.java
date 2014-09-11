@@ -205,11 +205,7 @@ public class DateUtil {
         }
 
         DateTime finalTime = new DateTime(date.getTime());
-        DateTime workingHourStartTime = finalTime.withTimeAtStartOfDay()
-                .plus(
-                        PropertyReader.getRequiredPropertyAsType(
-                                PropertyKeys.CALENDAR_WORKING_HOUR_START,
-                                Integer.class) * 1000);
+        DateTime workingHourStartTime = finalTime.withTimeAtStartOfDay().plusSeconds(getWorkingTimeStartSeconds());
         if (workingHourStartTime.isAfter(finalTime)) {
             finalTime = workingHourStartTime;
         }
@@ -221,9 +217,7 @@ public class DateUtil {
         int secsInIncompleteDay = timeToAddInSecond % workingSecondsInADay;
         finalTime = finalTime.plusSeconds(add * secsInIncompleteDay);
 
-        DateTime workingHourEndTime = finalTime.withTimeAtStartOfDay().plusSeconds(
-                PropertyReader.getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_END, Integer.class));
-        if (finalTime.isAfter(workingHourEndTime)) {
+        if (!isWorkingTime(finalTime)) {
             finalTime = finalTime.plusSeconds(add * getNonWorkingSecondsInADay());
         }
 
@@ -246,8 +240,7 @@ public class DateUtil {
      * @return {@link Integer} no of working seconds in a day
      */
     private static int getWorkingSecondsInADay() {
-        return PropertyReader.getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_END, Integer.class) - PropertyReader
-                .getRequiredPropertyAsType(PropertyKeys.CALENDAR_WORKING_HOUR_START, Integer.class);
+        return getWorkingTimeEndSeconds() - getWorkingTimeStartSeconds();
     }
 
     /**
@@ -306,5 +299,23 @@ public class DateUtil {
             maxDate = date1;
         }
         return maxDate;
+    }
+
+    public static int getWorkingTimeStartSeconds() {
+        return PropertyReader.getRequiredPropertyAsInt(PropertyKeys.CALENDAR_WORKING_HOUR_START);
+    }
+
+    public static int getWorkingTimeEndSeconds() {
+        return PropertyReader.getRequiredPropertyAsInt(PropertyKeys.CALENDAR_WORKING_HOUR_END);
+    }
+
+    public static boolean isWorkingTime(Date date) {
+        DateTime dateTime = new DateTime(date);
+        return isWorkingTime(dateTime);
+    }
+
+    private static boolean isWorkingTime(DateTime date) {
+        int seconds = date.getSecondOfDay();
+        return seconds >= getWorkingTimeStartSeconds() && seconds <= getWorkingTimeEndSeconds();
     }
 }
