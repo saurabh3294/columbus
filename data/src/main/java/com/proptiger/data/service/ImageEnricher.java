@@ -400,6 +400,10 @@ public class ImageEnricher {
                     img.addAll(imagesMap.get(objId));
                 }
             }
+            //merging locality images also along with landmarks images
+            if (locality.getImages() != null) {
+                img.addAll(locality.getImages());
+            }
             locality.setLandmarkImages(getImageListSortedOnPriority(img));
         }
         return imagesMap;
