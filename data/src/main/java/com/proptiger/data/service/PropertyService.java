@@ -329,4 +329,20 @@ public class PropertyService {
         projectService.updateLifestyleScoresByHalf(projects);
     }
 
+    /**
+     * Get property objects from database using filters provided in fiql
+     * selector
+     * 
+     * @param selector
+     * @return
+     */
+    public PaginatedResponse<List<Property>> getPropertiesFromDB(FIQLSelector selector) {
+        PaginatedResponse<List<Property>> paginatedResponse = new PaginatedResponse<List<Property>>();
+        EntityManager entityManager = emf.createEntityManager();
+        AbstractQueryBuilder<Property> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Property.class);
+        builder.buildQuery(selector);
+        paginatedResponse.setResults(builder.retrieveResults());
+        entityManager.close();
+        return paginatedResponse;
+    }
 }

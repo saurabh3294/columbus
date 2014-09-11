@@ -18,12 +18,9 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.Status;
 import com.proptiger.data.util.DateUtil;
@@ -43,12 +40,11 @@ public class ListingPrice extends BaseModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer               id;
-    
-    @Column(name = "listing_id")
-    private Integer               listingId;
+    private int               id;
 
-    @JsonBackReference
+    @Column(name = "listing_id")
+    private int               listingId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "listing_id", insertable = false, updatable = false)
     private Listing           listing;
@@ -83,19 +79,19 @@ public class ListingPrice extends BaseModel {
     @Column(name = "updated_at")
     private Date              updatedAt;
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Integer getListingId() {
+    public int getListingId() {
         return listingId;
     }
 
-    public void setListingId(Integer listingId) {
+    public void setListingId(int listingId) {
         this.listingId = listingId;
     }
 

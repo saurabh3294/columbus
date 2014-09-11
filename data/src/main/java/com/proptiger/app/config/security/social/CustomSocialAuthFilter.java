@@ -8,6 +8,8 @@ import java.util.TreeMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -38,7 +40,7 @@ import com.proptiger.data.util.SecurityContextUtils;
  *
  */
 public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
-
+    private static Logger                       logger = LoggerFactory.getLogger(CustomSocialAuthFilter.class);
     private static final String                 SCOPE                    = "scope";
     private PropertyReader                      propertyReader;
 
