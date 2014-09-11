@@ -21,9 +21,6 @@ import com.proptiger.data.service.user.UserService;
 public class FilterAuthTrendRequest {
 
     @Autowired
-    ApplicationNameService applicationNameService;
-
-    @Autowired
     private UserService    userService;
 
     @Pointcut(
@@ -33,7 +30,7 @@ public class FilterAuthTrendRequest {
 
     @Before(value = "addSubscriptionPermissionsToSelectorPointCut()")
     public void beforeAddSubscriptionPermissionsToSelectorPointCut(JoinPoint jointPoint) throws Throwable {
-        if (!applicationNameService.isB2BApplicationRequest()) {
+        if (!ApplicationNameService.isB2BApplicationRequest()) {
             return;
         }
         ActiveUser user = SecurityContextUtils.getLoggedInUser();

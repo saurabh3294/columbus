@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -23,7 +22,7 @@ public class NotificationSender {
     private TemplateGenerator            templateGenerator;
 
     @Autowired
-    private NotificationGeneratedService ntGeneratedService;
+    private NotificationGeneratedService nGeneratedService;
 
     @Autowired
     private SentNotificationLogService   sentNotificationLogService;
@@ -31,18 +30,19 @@ public class NotificationSender {
     @Transactional
     public Integer sendNotification(MediumType medium) {
         Integer numberOfSendNtGen = 0;
-        List<NotificationGenerated> ntGeneratedList = ntGeneratedService.getScheduledAndReadyNotifications(medium);
-        logger.info("NotificationSender : Number of Scheduled and Ready Notifications " + ntGeneratedList.size());
-        for (NotificationGenerated ntGenerated : ntGeneratedList) {
+        List<NotificationGenerated> nGeneratedList = nGeneratedService.getScheduledAndReadyNotifications(medium);
+        logger.info("NotificationSender : Number of Scheduled and Ready Notifications " + nGeneratedList.size());
+        for (NotificationGenerated nGenerated : nGeneratedList) {
             try {
-                MailBody mailBody = templateGenerator.generateMailBodyFromTemplate(ntGenerated);
-                if (mailBody == null) {
-                    logger.info("Mail body is null so discarding it to send -" + ntGenerated.getId());
+                String template = templateGenerator.generatePopulatedTemplate(nGenerated);
+                if (template == null) {
+                    logger.info("Template is null so discarding it to send for notificationGenerated Id : " + nGenerated
+                            .getId());
                 }
                 else {
-                    ForumUser forumUser = ntGenerated.getForumUser();
-                    ntGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
-                            .send(mailBody, forumUser);
+                    ForumUser forumUser = nGenerated.getForumUser();
+                    nGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
+                            .send(template, forumUser, nGenerated.getNotificationType().getName());
                     // Sent NotificationGenerated logging handling will be done
                     // later.
                     // currently notification status of sent NG is marked as
@@ -54,15 +54,15 @@ public class NotificationSender {
                      * ntGenerated.getNotificationMessage().getForumUser()
                      * .getUserId(), new Date()));
                      */
-                    ntGeneratedService.updateNotificationGeneratedStatusOnOldStatus(
-                            ntGenerated.getId(),
+                    nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(
+                            nGenerated.getId(),
                             NotificationStatus.Sent,
-                            ntGenerated.getNotificationStatus());
+                            nGenerated.getNotificationStatus());
                     numberOfSendNtGen++;
                 }
             }
             catch (Exception e) {
-                logger.info("Send Notification failed for Notification ID " + ntGenerated.getId());
+                logger.info("Send Notification failed for Notification ID " + nGenerated.getId());
                 e.printStackTrace();
             }
         }

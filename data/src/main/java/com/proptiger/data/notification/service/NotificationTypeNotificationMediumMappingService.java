@@ -81,6 +81,7 @@ public class NotificationTypeNotificationMediumMappingService {
     }
 
     public String getTemplate(NotificationGenerated ntGenerated) {
+        logger.debug(templatesMap.toString());
         if (ntGenerated.getNotificationType().getId() == 0 || ntGenerated.getNotificationMedium().getId() == 0) {
             logger.info("Notification type or Notification Medium type id is zero");
             return null;
