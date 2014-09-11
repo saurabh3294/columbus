@@ -124,6 +124,9 @@ public class LocalityService {
                 updateLocalityRatingAndReviewDetails(locality);
             }
         }
+        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
+            imageEnricher.setLocalityAmenitiesImages(localities);
+        }
         return paginatedRes;
     }
 
@@ -354,7 +357,7 @@ public class LocalityService {
      * @param imageCount
      * @return Locality
      */
-    public Locality getLocalityInfo(int localityId, Integer imageCount) {
+    public Locality getLocalityInfo(int localityId, Integer imageCount, Selector selector) {
         logger.debug("Get locality info for locality id {}", localityId);
         Locality locality = getLocality(localityId);
         if (locality == null) {
@@ -365,7 +368,9 @@ public class LocalityService {
 
         locality.setAmenityTypeCount(localityAmenityCountMap);
         imageEnricher.setLocalityImages(locality, imageCount);
-
+        if (locality != null && selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
+            imageEnricher.setLocalityAmenitiesImages(Collections.singletonList(locality));
+        }
         /*
          * Setting Rating and Review Details.
          */
@@ -380,6 +385,10 @@ public class LocalityService {
                 locality.getDominantUnitType()));
 
         return locality;
+    }
+
+    public Locality getLocalityInfo(int localityId, Integer imageCount) {
+        return getLocalityInfo(localityId, imageCount, new Selector());
     }
 
     /**
@@ -436,6 +445,9 @@ public class LocalityService {
         List<Locality> result = localityDao.getPopularLocalities(cityId, suburbId, dateStr, selector);
         for (Locality locality : result) {
             updateLocalityRatingAndReviewDetails(locality);
+        }
+        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
+            imageEnricher.setLocalityAmenitiesImages(result);
         }
         return result;
     }
@@ -522,7 +534,9 @@ public class LocalityService {
         }
 
         imageEnricher.setLocalitiesImages(result, imageCount);
-
+        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
+            imageEnricher.setLocalityAmenitiesImages(result);
+        }
         return result;
     }
 
@@ -684,6 +698,9 @@ public class LocalityService {
                 }
             }
 
+        }
+        if (localitySelector.getFields() != null && localitySelector.getFields().contains("landmarkImages")) {
+            imageEnricher.setLocalityAmenitiesImages(localitiesAroundMainLocality);
         }
         return localitiesAroundMainLocality;
     }
@@ -965,7 +982,8 @@ public class LocalityService {
             String locationTypeStr,
             int locationId,
             int minReviewCount,
-            int numberOfLocalities) {
+            int numberOfLocalities,
+            Selector selector) {
         LimitOffsetPageRequest pageable = new LimitOffsetPageRequest(0, numberOfLocalities);
         int locationType;
         List<Integer> localities = null;
@@ -998,8 +1016,19 @@ public class LocalityService {
 
         if (localities == null || localities.size() < 1)
             return null;
-
-        return localityDao.findByLocalityIds(localities, null);
+        PaginatedResponse<List<Locality>> response = localityDao.findByLocalityIds(localities, null);
+        if (selector.getFields() != null && selector.getFields().contains("landmarkImages")) {
+            imageEnricher.setLocalityAmenitiesImages(response.getResults());
+        }
+        return response;
+    }
+    
+    public PaginatedResponse<List<Locality>> getTopReviewedLocalities(
+            String locationTypeStr,
+            int locationId,
+            int minReviewCount,
+            int numberOfLocalities) {
+        return getTopReviewedLocalities(locationTypeStr, locationId, minReviewCount, numberOfLocalities, new Selector());
     }
 
     /**
@@ -1017,7 +1046,8 @@ public class LocalityService {
             String locationTypeStr,
             int locationId,
             int numberOfLocalities,
-            double minimumPriceRise) {
+            double minimumPriceRise,
+            Selector localitySelector) {
 
         int radius[] = { 5, 10, 15 };
         PaginatedResponse<List<Locality>> localities = null;
@@ -1065,10 +1095,19 @@ public class LocalityService {
         if (localities == null) {
             return new PaginatedResponse<List<Locality>>();
         }
-
+        if (localitySelector.getFields() != null && localitySelector.getFields().contains("landmarkImages")) {
+            imageEnricher.setLocalityAmenitiesImages(localities.getResults());
+        }
         return localities;
     }
 
+    public PaginatedResponse<List<Locality>> getHighestReturnLocalities(
+            String locationTypeStr,
+            int locationId,
+            int numberOfLocalities,
+            double minimumPriceRise) {
+        return getHighestReturnLocalities(locationTypeStr, locationId, numberOfLocalities, minimumPriceRise, new Selector());
+    }
     /**
      * This method will return the localities data for all the locality Ids.
      * 

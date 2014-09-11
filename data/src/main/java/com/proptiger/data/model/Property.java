@@ -2,6 +2,7 @@ package com.proptiger.data.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -39,10 +40,8 @@ import com.proptiger.data.util.UtilityClass;
 @JsonInclude(Include.NON_NULL)
 public class Property extends BaseModel {
 
+    private static final long serialVersionUID = -3350129763568409835L;
 
-	private static final long serialVersionUID = -3350129763568409835L;
-
-    
     @FieldMetaInfo(displayName = "Property Id", description = "Property Id")
     @Field(value = "TYPE_ID")
     @Column(name = "OPTIONS_ID")
@@ -95,7 +94,7 @@ public class Property extends BaseModel {
     @Transient
     @FieldMetaInfo(displayName = "Measure", description = "Measure")
     @Field(value = "MEASURE")
-    private String            measure = "sq ft";
+    private String            measure          = "sq ft";
 
     @FieldMetaInfo(displayName = "URL", description = "URL")
     @Field(value = "PROPERTY_URL")
@@ -189,16 +188,20 @@ public class Property extends BaseModel {
     private Date                 updatedAt;
 
     @Transient
+    @Field("IMAGE_TYPE_COUNT")
+    private Map<String, Integer>	 imageTypeCount;
+
+    @Transient
     private List<Media>       media;
     
     public String getProjectName() {
-		return projectName;
-	}
+        return projectName;
+    }
 
-	public void setProjectName(String projectName) {
-		this.projectName = projectName;
-	}
-    
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
     public int getProjectId() {
         return projectId;
     }
@@ -261,6 +264,14 @@ public class Property extends BaseModel {
 
     public void setMeasure(String measure) {
         this.measure = measure;
+    }
+
+    public List<Media> getMedia() {
+        return media;
+    }
+
+    public void setMedia(List<Media> media) {
+        this.media = media;
     }
 
     public String getURL() {
@@ -471,11 +482,7 @@ public class Property extends BaseModel {
         return toCreate;
     }
 
-    public List<Media> getMedia() {
-        return media;
-    }
-
-    public void setMedia(List<Media> media) {
-        this.media = media;
+    public void setImageTypeCount(Map<String, Integer> imageTypeCount) {
+        this.imageTypeCount = imageTypeCount;
     }
 }

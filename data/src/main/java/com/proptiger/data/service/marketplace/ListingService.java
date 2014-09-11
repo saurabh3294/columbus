@@ -63,7 +63,7 @@ public class ListingService {
 
     @Autowired
     private PropertyDao           propertyDao;
-   
+
     public Listing getListingByListingId(Integer listingId) {
         return listingDao.findOne(listingId);
     }
@@ -279,7 +279,8 @@ public class ListingService {
         return listingIdToAmenitiesMap;
     }
 
-    public ListingPrice getLatestListingPrice(Integer propertyId) {
-        return listingDao.getListingPrice(propertyId);
+    public List<ListingPrice> getLatestListingPrice(List<Integer> propertyId) {
+        List<Integer> listingPriceId = listingDao.getListingPriceIds(propertyId);
+        return listingDao.getListingPrice(listingPriceId);
     }
 }

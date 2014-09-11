@@ -17,7 +17,6 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
  *
  */
 public interface PropertyCustomDao {
-
     public List<Property> getProperties(int projectId);
     public List<Property> getProperties(Selector selector);
     public Map<String, List<Map<Object, Long>>> getFacets(List<String> fields, Selector propertySelector);
@@ -48,5 +47,4 @@ public interface PropertyCustomDao {
     public SolrQuery createSolrQuery(Selector selector);
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector);
     public PaginatedResponse<List<Property>> getPropertiesFromDB(FIQLSelector selector);
-    
 }

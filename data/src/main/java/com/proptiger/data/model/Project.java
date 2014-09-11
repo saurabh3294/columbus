@@ -38,6 +38,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.enums.DataVersion;
+import com.proptiger.data.enums.ResidentialFlag;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.DoubletoIntegerConverter;
@@ -508,6 +509,16 @@ public class Project extends BaseModel {
     
     @Transient
     private boolean                 has3DImages;
+    
+    @JsonIgnore
+    @Column(name = "RESIDENTIAL_FLAG")
+    @Enumerated(EnumType.STRING)
+    private ResidentialFlag         residentialFlag;
+
+    @Transient
+    @Field("IMAGE_TYPE_COUNT")
+    private Map<String, Integer>	 imageTypeCount;
+
     
     public int getProjectId() {
         return projectId;
@@ -1238,6 +1249,10 @@ public class Project extends BaseModel {
         this.projectLivabilityRank = projectLivabilityRank;
     }
 
+    public void setImageTypeCount(Map<String, Integer> imageTypeCount) {
+        this.imageTypeCount = imageTypeCount;
+    }
+
     public boolean isHas3DImages() {
         return has3DImages;
     }
@@ -1245,4 +1260,14 @@ public class Project extends BaseModel {
     public void setHas3DImages(boolean has3dImages) {
         has3DImages = has3dImages;
     }
+
+    public ResidentialFlag getResidentialFlag() {
+        return residentialFlag;
+    }
+
+    public void setResidentialFlag(ResidentialFlag residentialFlag) {
+        this.residentialFlag = residentialFlag;
+    }
+
+    
 }

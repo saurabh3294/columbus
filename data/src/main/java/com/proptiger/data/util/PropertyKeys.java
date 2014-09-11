@@ -58,6 +58,9 @@ public final class PropertyKeys {
     public static final String ENABLE_CRAWL_PREVENTAION_WARNING            = "enable.crawl.prevention.warning";
     public static final String ENABLE_CRAWL_PREVENTION_TEST_SERVER         = "enable.crawl.prevention.test.server";
     public static final String MAIL_FROM_SUPPORT                           = "mail.from.support";
+    public static final String WHITELISTED_IP                             = "security.white.listed.ip";
+    public static final String REQ_POST_COUNT                             = "post.count";
+    public static final String REQ_ALL_COUNT                              = "all.count";
 
     public static final String MARKETPLACE_MAX_BIDDING_CYCLE_COUNT         = "marketplace.max.bidding.cycle.count";
     public static final String MARKETPLACE_BIDDING_CYCLE_DURATION          = "marketplace.bidding.cycle.duration";

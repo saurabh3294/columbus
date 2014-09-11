@@ -7,10 +7,13 @@ package com.proptiger.data.enums;
  */
 public enum UnitType {
 
-    Apartment, Plot, Villa, Commercial, @Deprecated
+    Apartment, Plot, Villa, Commercial, Shop, Office, Other, @Deprecated
     // Needed due to bug in FIQL query parser
     APARTMENT, @Deprecated
     PLOT, @Deprecated
     VILLA, @Deprecated
-    COMMERCIAL
-}
+    COMMERCIAL, @Deprecated
+    SHOP, @Deprecated
+    OFFICE, @Deprecated
+    OTHER 
+    }

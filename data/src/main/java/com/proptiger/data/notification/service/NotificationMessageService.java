@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.enums.NotificationTypeUserStrategy;
+import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.model.NotificationType;
 import com.proptiger.data.notification.model.NotificationTypeGenerated;
@@ -122,6 +123,43 @@ public class NotificationMessageService {
         }
 
         return groupNotificationMessageMap;
+    }
+
+    /**
+     * This method is used by marketplace project for creating Notification
+     * Message and adding template in its payload
+     * 
+     * @param notificationType
+     * @param userId
+     * @param template
+     * @return
+     */
+    public NotificationMessage createNotificationMessage(String notificationType, int userId, String template) {
+        NotificationType notiType = notiTypeService.findByName(notificationType);
+        NotificationMessagePayload payload = new NotificationMessagePayload();
+        Map<String, Object> extraAttributes = new HashMap<String, Object>();
+        extraAttributes.put(Tokens.Template.name(), template);
+        payload.setExtraAttributes(extraAttributes);
+        return new NotificationMessage(userId, payload, notiType);
+    }
+
+    /**
+     * This method is used by marketplace project for creating Notification
+     * Messages and adding email subject and body in its payload
+     * 
+     * @param userId
+     * @param subject
+     * @param body
+     * @return
+     */
+    public NotificationMessage createNotificationMessage(int userId, String subject, String body) {
+        NotificationType notiType = notiTypeService.findDefaultNotificationType();
+        NotificationMessagePayload payload = new NotificationMessagePayload();
+        Map<String, Object> extraAttributes = new HashMap<String, Object>();
+        extraAttributes.put(Tokens.Subject.name(), subject);
+        extraAttributes.put(Tokens.Body.name(), body);
+        payload.setExtraAttributes(extraAttributes);
+        return new NotificationMessage(userId, payload, notiType);
     }
 
     public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId, Object primaryKeyId) {

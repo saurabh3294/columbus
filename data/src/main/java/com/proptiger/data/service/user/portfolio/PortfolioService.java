@@ -23,8 +23,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.gson.Gson;
 import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.enums.ResidentialFlag;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.enums.mail.MailType;
 import com.proptiger.data.enums.portfolio.ListingStatus;
@@ -53,9 +53,9 @@ import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
+import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.CityService;
@@ -135,6 +135,8 @@ public class PortfolioService {
     @Autowired
     private ListingService            listingService;
 
+    @Autowired
+    private PropertyDao               propertyDao;
     @Value("${proptiger.url}")
     private String                    websiteHost;
 
@@ -178,13 +180,13 @@ public class PortfolioService {
     @Transactional(readOnly = true)
     public List<PortfolioListing> getAllPortfolioListings(Integer userId, List<ListingStatus> listingStatus) {
         logger.debug("Getting all portfolio listings for user id {}", userId);
+
         List<PortfolioListing> listings = portfolioListingDao
                 .findByUserIdAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
                         userId,
                         Constants.SOURCETYPE_LIST,
                         listingStatus,
                         LimitOffsetPageRequest.createPageableDefaultRowsAll(null));
-
         if (listings == null || listings.isEmpty()) {
             return listings;
         }
@@ -216,14 +218,6 @@ public class PortfolioService {
             if (listing.getListingStatus() == ListingStatus.ACTIVE) {
                 propertyIds.add(new Long(listing.getTypeId()));
                 if (listing.getProjectId() == null) {
-                    if (listing.getProperty() == null) {
-                        logger.error(
-                                "Portfolio Listing {} for userid {} doesn't contain ProjectId and Property",
-                                listing.getListingId(),
-                                listing.getUserId());
-                        itr.remove();
-                        continue;
-                    }
                     completeProjectIds.add(new Long(listing.getProperty().getProjectId()));
                 }
                 else if (listing.getTypeId() != null) {
@@ -235,6 +229,7 @@ public class PortfolioService {
                 incompleteProjectIds.add(listing.getProjectId());
             }
         }
+
         Map<Integer, Project> projectIdToProjectMap = new HashMap<Integer, Project>();
         Map<Integer, List<Image>> propertyIdToImageMap = new HashMap<Integer, List<Image>>();
         if (!propertyIds.isEmpty()) {
@@ -245,11 +240,12 @@ public class PortfolioService {
 
         List<Project> projects = new ArrayList<Project>();
         if (!incompleteProjectIds.isEmpty()) {
-            projects = projectService.getProjectsByIds(incompleteProjectIds);
+            projects = projectService.getProjectListByIds(incompleteProjectIds);
         }
         for (Project project : projects) {
             projectIdToProjectMap.put(project.getProjectId(), project);
         }
+
         List<Image> projectImages = imageService.getImages(DomainObject.project, null, completeProjectIds);
         Map<Integer, List<Image>> projectIdToImagesMap = PortfolioUtil.getProjectIdToImageMap(projectImages);
         Integer projectId;
@@ -284,15 +280,17 @@ public class PortfolioService {
                 Image defaultProjectImage = imageEnricher.getDefaultProjectImage(project.getImageURL());
                 listing.setPropertyImages(Arrays.asList(defaultProjectImage));
             }
-            listing.setProjectName(project.getName());
-            listing.setBuilderName(project.getBuilder().getName());
-            listing.setCompletionDate(project.getPossessionDate());
-            listing.setProjectStatus(project.getProjectStatus());
-            City city = project.getLocality().getSuburb().getCity();
-            listing.setCityName(city.getLabel());
-            Locality locality = project.getLocality();
-            listing.setLocality(locality.getLabel());
-            listing.setLocalityId(locality.getLocalityId());
+            if (project != null) {
+                listing.setProjectName(project.getName());
+                listing.setBuilderName(project.getBuilder().getName());
+                listing.setCompletionDate(project.getPossessionDate());
+                listing.setProjectStatus(project.getProjectStatus());
+                City city = project.getLocality().getSuburb().getCity();
+                listing.setCityName(city.getLabel());
+                Locality locality = project.getLocality();
+                listing.setLocality(locality.getLabel());
+                listing.setLocalityId(locality.getLocalityId());
+            }
         }
     }
 
@@ -300,18 +298,15 @@ public class PortfolioService {
         if (listings == null || listings.isEmpty()) {
             return new ArrayList<Property>();
         }
-
         List<Long> propertyIds = new ArrayList<Long>();
 
+        FIQLSelector selector = new FIQLSelector();
         for (PortfolioListing listing : listings) {
             propertyIds.add(new Long(listing.getTypeId()));
+            selector.addOrConditionToFilter("propertyId==" + new Long(listing.getTypeId()));
         }
 
-        Selector propertySelector = new Gson().fromJson(
-                "{\"filters\":{\"and\":[{\"equal\":{\"propertyId\":" + propertyIds
-                        + "}}]},\"paging\":{\"start\":0,\"rows\":9999}}",
-                Selector.class);
-        List<Property> properties = propertyService.getProperties(propertySelector);
+        List<Property> properties = propertyService.getProperties(selector).getResults();
 
         Map<Integer, Property> propertyMap = new HashMap<Integer, Property>();
 
@@ -319,24 +314,56 @@ public class PortfolioService {
             propertyMap.put(property.getPropertyId(), property);
         }
 
-        for (PortfolioListing listing : listings) {
-            FIQLSelector fiqlSelector = new FIQLSelector()
-                    .addAndConditionToFilter("propertyId==" + listing.getTypeId());
+        List<Integer> propertiesFromDB = new ArrayList<Integer>();
+        List<Integer> pricesFromDB = new ArrayList<Integer>();
 
-            if (listing.getTypeId() != null) {
-                listing.setProperty(propertyMap.get(listing.getTypeId()));
+        for (Long id : propertyIds) {
+            Property prop = propertyMap.get(id.intValue());
+            if (prop == null) {
+                propertiesFromDB.add(id.intValue());
+                pricesFromDB.add(id.intValue());
+            }
+            else if (prop.getPricePerUnitArea() == null) {
+                pricesFromDB.add(id.intValue());
+            }
+        }
 
-                if (listing.getProperty() == null) {
-                    listing.setProperty(propertyService.getPropertiesFromDB(fiqlSelector).getResults().get(0));
-                    ListingPrice latestListingPrice = listingService.getLatestListingPrice(listing.getTypeId());
+        // Fetching Properties from DB
+        if (!propertiesFromDB.isEmpty()) {
 
-                    if (latestListingPrice.getPricePerUnitArea() != null) {
-                        listing.getProperty().setPricePerUnitArea(
-                                latestListingPrice.getPricePerUnitArea().doubleValue());
-                    }
+            List<Property> result = propertyDao.findByPropertyIdsList(propertiesFromDB);
+
+            for (Property property : result) {
+                propertyMap.put(property.getPropertyId(), property);
+            }
+        }
+
+        // Fetching Prices from DB
+        if (!pricesFromDB.isEmpty()) {
+            List<ListingPrice> latestListingPrices = listingService.getLatestListingPrice(pricesFromDB);
+            for (ListingPrice listingPrice : latestListingPrices) {
+                if (listingPrice != null && listingPrice.getPricePerUnitArea() != null) {
+                    propertyMap.get(listingPrice.getListing().getPropertyId()).setPricePerUnitArea(
+                            listingPrice.getPricePerUnitArea().doubleValue());
                 }
             }
         }
+
+        // Setting Property in Listings
+        Iterator<PortfolioListing> itr = listings.iterator();
+        while (itr.hasNext()) {
+            PortfolioListing listing = itr.next();
+            listing.setProperty(propertyMap.get(listing.getTypeId()));
+
+            if (listing.getProperty().getProject().getResidentialFlag() != null && listing.getProperty().getProject()
+                    .getResidentialFlag().equals(ResidentialFlag.NonResidential)) {
+                itr.remove();
+                continue;
+            }
+
+            properties.add(listing.getProperty());
+        }
+
         return properties;
     }
 
@@ -360,7 +387,7 @@ public class PortfolioService {
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
         }
         updateOtherSpecificData(Arrays.asList(listing));
-        updatePaymentSchedule(listing);
+        updatePaymentSchedule(Arrays.asList(listing));
         OverallReturn overallReturn = PortfolioUtil
                 .getOverAllReturn(listing.getTotalPrice(), listing.getCurrentPrice());
         listing.setOverallReturn(overallReturn);
@@ -598,23 +625,20 @@ public class PortfolioService {
         return propertyPresent;
     }
 
-    private void updatePaymentSchedule(List<PortfolioListing> portfolioListings) {
-        if (portfolioListings == null || portfolioListings.isEmpty()) {
-            return;
-        }
-        for (PortfolioListing listing : portfolioListings) {
-            updatePaymentSchedule(listing);
-        }
-    }
-
     /**
      * This method updates payment plan for portfolio listing object, if user
      * have already added or updated payment plan
      * 
      * @param portfolioListings
      */
-    private void updatePaymentSchedule(PortfolioListing portfolioListing) {
-        if (portfolioListing != null) {
+    private void updatePaymentSchedule(List<PortfolioListing> portfolioListings) {
+        if (portfolioListings == null || portfolioListings.isEmpty()) {
+            return;
+        }
+
+        List<Integer> projectIds = new ArrayList<Integer>();
+        for (PortfolioListing listing : portfolioListings) {
+
             /*
              * If PortfolioListing does not have any payment plan associated,
              * means user is accessing this listing first time, so payment plan
@@ -622,16 +646,39 @@ public class PortfolioService {
              * plan is created or updated then, do not need to fetch payment
              * plan template
              */
-            if (portfolioListing.getListingPaymentPlan() == null || portfolioListing.getListingPaymentPlan().size() == 0) {
-                if (portfolioListing.getProperty() != null) {
-                    List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
-                            .findByProjectIdGroupByInstallmentNo(portfolioListing.getProperty().getProjectId());
-                    Set<PortfolioListingPaymentPlan> listingPaymentPlan = ProjectPaymentSchedule
-                            .convertToPortfolioListingPaymentPlan(paymentScheduleList);
-                    portfolioListing.setListingPaymentPlan(listingPaymentPlan);
+
+            if (listing.getListingPaymentPlan() == null || listing.getListingPaymentPlan().size() == 0) {
+
+                if (listing.getProperty() != null) {
+                    projectIds.add(listing.getProperty().getProjectId());
                 }
             }
+        }
 
+        List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
+                .findByProjectIdGroupByInstallmentNo(projectIds);
+
+        Map<Integer, List<ProjectPaymentSchedule>> scheduleMap = new HashMap<Integer, List<ProjectPaymentSchedule>>();
+
+        for (ProjectPaymentSchedule schedule : paymentScheduleList) {
+            if (scheduleMap.containsKey(schedule.getProjectId())) {
+                scheduleMap.get(schedule.getProjectId()).add(schedule);
+            }
+            else {
+                scheduleMap.put(schedule.getProjectId(), new ArrayList<ProjectPaymentSchedule>());
+            }
+        }
+
+        for (PortfolioListing listing : portfolioListings) {
+            if (listing.getProperty() != null) {
+                List<ProjectPaymentSchedule> paymentSchedules = scheduleMap.get(listing.getProperty().getProjectId());
+
+                if (paymentSchedules != null && !paymentSchedules.isEmpty()) {
+                    Set<PortfolioListingPaymentPlan> listingPaymentPlan = ProjectPaymentSchedule
+                            .convertToPortfolioListingPaymentPlan(paymentSchedules);
+                    listing.setListingPaymentPlan(listingPaymentPlan);
+                }
+            }
         }
     }
 

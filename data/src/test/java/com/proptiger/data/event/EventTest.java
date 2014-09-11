@@ -10,8 +10,8 @@ public class EventTest extends AbstractTest{
     @Autowired
     private RawEventToEventTypeMappingService rawEventToEventTypeMappingService;
     
-    //@Test
-    public void testMap(){
-        rawEventToEventTypeMappingService.constructDbConfig();
-    }
+//    @Test
+//    public void testMap(){
+//        rawEventToEventTypeMappingService.constructDbConfig();
+//    }
 }

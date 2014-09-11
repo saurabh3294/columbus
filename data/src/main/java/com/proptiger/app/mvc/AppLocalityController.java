@@ -85,8 +85,10 @@ public class AppLocalityController extends BaseController {
         if (selector == null) {
             selector = new Selector();
         }
-        Locality locality = localityService.getLocalityInfo(localityId, imageCount);
-        localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
+        Locality locality = localityService.getLocalityInfo(localityId, imageCount, selector);
+        if (locality != null ) {
+            localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(locality));
+        }
         return new APIResponse(super.filterFields(locality, selector.getFields()));
     }
 
@@ -105,7 +107,7 @@ public class AppLocalityController extends BaseController {
         if (selector == null) {
             selector = new Selector();
         }
-        Locality locality = localityService.getLocalityInfo(localityId, imageCount);
+        Locality locality = localityService.getLocalityInfo(localityId, imageCount, selector);
         return new APIResponse(super.filterFields(locality, selector.getFields()));
     }
 }

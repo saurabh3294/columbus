@@ -10,8 +10,9 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.SimpleTypeConverter;
-import org.springframework.beans.TypeConverter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.convert.support.DefaultConversionService;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;
@@ -32,7 +33,9 @@ import org.springframework.stereotype.Component;
 @ManagedResource(objectName = "com.proptiger.data.init:name=propertyReaderMBean", description = "Property Reader")
 public class PropertyReader {
 
-    private static TypeConverter       typeConverter;
+    @Autowired
+    private static GenericConversionService       conversionService;
+
     private Logger                     logger = LoggerFactory.getLogger(getClass());
     private static Map<String, String> propertyDataMap;
 
@@ -44,7 +47,7 @@ public class PropertyReader {
      */
     @PostConstruct
     public void init() throws ConfigurationException {
-        typeConverter = new SimpleTypeConverter();
+        conversionService = new DefaultConversionService();
         propertyDataMap = new HashMap<String, String>();
         PropertiesConfiguration configurer = new PropertiesConfiguration("application.properties");
         Iterator<?> keysIt = configurer.getKeys();
@@ -82,7 +85,7 @@ public class PropertyReader {
         if (key != null) {
             String value = propertyDataMap.get(key);
             if (value != null) {
-                return typeConverter.convertIfNecessary(value, requiredType);
+                return conversionService.convert(value, requiredType);
             }
         }
         throw new IllegalStateException("required key" + key + " not found");
