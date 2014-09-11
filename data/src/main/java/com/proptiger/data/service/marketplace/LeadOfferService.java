@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.LeadTaskStatusName;
+import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.internal.dto.ActiveUser;
@@ -720,7 +721,7 @@ public class LeadOfferService {
         }
         LeadTaskStatus leadTaskStatus = leadTaskStatusDao.getLeadTaskStatusFromTaskNameAndStatusName(
                 LeadTaskName.Email.name(),
-                LeadTaskStatusName.Done.name());
+                TaskStatus.Done);
         if (leadTaskStatus == null) {
             throw new BadRequestException("Email task done status not mapped");
         }
