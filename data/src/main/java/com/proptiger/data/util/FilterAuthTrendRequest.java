@@ -21,9 +21,6 @@ import com.proptiger.data.service.user.UserSubscriptionService;
 public class FilterAuthTrendRequest {
 
     @Autowired
-    ApplicationNameService applicationNameService;
-
-    @Autowired
     private UserSubscriptionService    userSubscriptionService;
 
     @Pointcut(

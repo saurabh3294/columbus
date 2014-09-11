@@ -29,14 +29,12 @@ import com.proptiger.data.service.user.UserSubscriptionService;
 public class UserDetailManagerService implements UserDetailsService {
 
     private static Logger         logger = LoggerFactory.getLogger(UserDetailManagerService.class);
+    
     @Autowired
     private ForumUserDao          forumUserDao;
     
     @Autowired
     private UserSubscriptionService userSubscriptionService;
-
-    @Autowired
-    ApplicationNameService applicationNameService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -45,7 +43,7 @@ public class UserDetailManagerService implements UserDetailsService {
         if (username != null && !username.isEmpty()) {
             /*
              * since there can be multiple rows for same email, say one from direct registration
-             * and other from srom some service provider login like facebook.
+             * and other from some service provider login like facebook.
              * 
              * TODO this call need to be changed once we make user merge live
              */
@@ -71,7 +69,7 @@ public class UserDetailManagerService implements UserDetailsService {
         }
         
         /* If a b2b-user's permissions have expired then login request is denied */
-        if(forumUser != null && applicationNameService.isB2BApplicationRequest())
+        if(forumUser != null && ApplicationNameService.isB2BApplicationRequest())
         {
             List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(forumUser.getUserId());
             if(permissionList == null || permissionList.isEmpty()){

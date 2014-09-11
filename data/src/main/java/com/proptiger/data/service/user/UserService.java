@@ -51,8 +51,6 @@ import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
-import com.proptiger.data.repo.SubscriptionPermissionDao;
-import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
@@ -97,12 +95,6 @@ public class UserService {
 
     @Autowired
     private LocalityService            localityService;
-
-    @Autowired
-    private UserSubscriptionMappingDao userSubscriptionMappingDao;
-
-    @Autowired
-    private SubscriptionPermissionDao  subscriptionPermissionDao;
 
     @Autowired
     private TrendDao                   trendDao;
