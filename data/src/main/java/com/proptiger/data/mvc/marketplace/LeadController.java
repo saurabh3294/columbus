@@ -28,9 +28,11 @@ public class LeadController extends BaseController {
     @RequestMapping(value = "data/v1/entity/lead", method = RequestMethod.POST)
     @ResponseBody
     public APIResponse create(@RequestBody Lead lead) {        
-        return new APIResponse(leadService.createLead(lead));
+        Lead createdLead = leadService.createLead(lead);
+        leadService.manageLeadAuction(createdLead.getId());
+        return new APIResponse(createdLead);
     }
-    
+
     @RequestMapping(value = "data/v1/entity/lead/exists")
     @ResponseBody
     public APIResponse get(@RequestParam String email, @RequestParam int cityId) {        

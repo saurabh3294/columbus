@@ -195,7 +195,6 @@ public class LeadService {
         leadOriginal.setMergedLeadId(leadId);
         createDump(leadOriginal);
 
-        manageLeadAuctionAsync(leadId);
         return lead;
     }
 
