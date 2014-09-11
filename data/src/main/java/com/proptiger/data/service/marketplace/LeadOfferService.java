@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.LeadTaskStatusName;
 import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
@@ -505,7 +504,6 @@ public class LeadOfferService {
     private void claimLeadOffer(LeadOffer leadOffer, LeadOffer leadOfferInDB) {
         List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
                 .singletonList(leadOfferInDB.getId()));
-
         if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
             throw new BadRequestException("To claim add at least one listing");
         }
