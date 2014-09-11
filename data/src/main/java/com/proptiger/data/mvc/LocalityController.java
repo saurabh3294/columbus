@@ -240,7 +240,8 @@ public class LocalityController extends BaseController {
                 locationType,
                 locationId,
                 minReviewCount,
-                numberOfLocalities);
+                numberOfLocalities,
+                localitySelector);
         localityService.updateLocalitiesLifestyleScoresAndRatings(localities.getResults());
         return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
@@ -263,7 +264,8 @@ public class LocalityController extends BaseController {
                 locationType,
                 locationId,
                 minReviewCount,
-                numberOfLocalities);
+                numberOfLocalities,
+                localitySelector);
         return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
     
@@ -284,7 +286,7 @@ public class LocalityController extends BaseController {
         PaginatedResponse<List<Locality>> localities = localityService.getHighestReturnLocalities(
                 locationType,
                 locationId,
-                numberOfLocalities, minimumPriceRise);
+                numberOfLocalities, minimumPriceRise, localitySelector);
         localityService.updateLocalitiesLifestyleScoresAndRatings(localities.getResults());
         return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }
@@ -306,7 +308,7 @@ public class LocalityController extends BaseController {
         PaginatedResponse<List<Locality>> localities = localityService.getHighestReturnLocalities(
                 locationType,
                 locationId,
-                numberOfLocalities, minimumPriceRise);
+                numberOfLocalities, minimumPriceRise, localitySelector);
 
         return new APIResponse(super.filterFields(localities.getResults(), localitySelector.getFields()), localities.getTotalCount());
     }

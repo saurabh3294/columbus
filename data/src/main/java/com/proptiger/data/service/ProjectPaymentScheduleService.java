@@ -1,5 +1,6 @@
 package com.proptiger.data.service;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import com.proptiger.data.enums.resource.ResourceTypeAction;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.exception.ResourceNotAvailableException;
+import com.sun.tools.javac.code.Attribute.Array;
 
 /**
  * @author Rajeev Pandey
@@ -22,7 +24,7 @@ public class ProjectPaymentScheduleService {
     private ProjectPaymentScheduleDao paymentScheduleDao;
 
     public List<ProjectPaymentSchedule> getProjectPaymentSchedule(Integer projectId) {
-        List<ProjectPaymentSchedule> list = paymentScheduleDao.findByProjectIdGroupByInstallmentNo(projectId);
+        List<ProjectPaymentSchedule> list = paymentScheduleDao.findByProjectIdGroupByInstallmentNo(Arrays.asList(projectId));
         if (list == null || list.size() == 0) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT_PAYMENT_SCHEDULE, ResourceTypeAction.GET);
         }
