@@ -5,8 +5,6 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.List;
 
-import javax.persistence.EntityManagerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +16,7 @@ import com.proptiger.data.repo.marketplace.LeadRequirementsDao;
  *
  */
 @Service
-public class LeadRequirementsService {
-    @Autowired
-    private EntityManagerFactory emf;
-    
+public class LeadRequirementsService {    
     @Autowired
     private LeadRequirementsDao leadRequirementsDao;
 
@@ -34,7 +29,7 @@ public class LeadRequirementsService {
     }
 
     public List<LeadRequirement> getRequirements(Integer bedroom, Integer localityId, Integer projectId, int leadId) {
-        return leadRequirementsDao.getRequirements(bedroom, localityId, projectId, leadId);
+        return leadRequirementsDao.fetchRequirements(bedroom, localityId, projectId, leadId);
     }
 
     public void saveAndFlush(LeadRequirement leadRequirement) {

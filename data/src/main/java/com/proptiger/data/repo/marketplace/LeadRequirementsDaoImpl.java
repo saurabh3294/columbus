@@ -22,7 +22,7 @@ public class LeadRequirementsDaoImpl {
     @Autowired
     private EntityManagerFactory emf;
     
-    public List<LeadRequirement> getRequirements(Integer bedroom, Integer localityId, Integer projectId, int leadId) {
+    public List<LeadRequirement> fetchRequirements(Integer bedroom, Integer localityId, Integer projectId, int leadId) {
         EntityManager em = emf.createEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<LeadRequirement> cq = cb.createQuery(LeadRequirement.class);
