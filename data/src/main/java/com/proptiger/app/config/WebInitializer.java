@@ -5,6 +5,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRegistration;
 
 import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.ShallowEtagHeaderFilter;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -45,6 +46,8 @@ public class WebInitializer implements WebApplicationInitializer {
                 false,
                 "/*");
         servletContext.getSessionCookieConfig().setMaxAge(Constants.Security.JSESSION_COOKIE_MAX_AGE);
+        
+        servletContext.addListener(new RequestContextListener());
     }
 
 }

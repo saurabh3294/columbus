@@ -16,11 +16,7 @@ import org.springframework.data.redis.cache.CustomRedisCacheManager;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.security.MaxAllowedRequestCount;
-import com.proptiger.data.util.APISecurityUtils;
 import com.proptiger.data.util.Constants;
-import com.proptiger.data.util.PasswordUtils;
-import com.proptiger.data.util.PropertyKeys;
-import com.proptiger.data.util.PropertyReader;
 
 /**
  * Identifies crawling and return captcha in case of POST request and writes in
@@ -35,11 +31,12 @@ public class CrawlPreventionService {
     private Logger                  logger = LoggerFactory.getLogger(CrawlPreventionService.class);
     @Autowired
     private CustomRedisCacheManager redisCacheManager;
-    @Autowired
-    private PropertyReader          propertyReader;
 
     @Autowired
     private CaptchaService          captchaService;
+
+    @Autowired
+    private SecurityUtilService     securityUtilService;
 
     /**
      * 1. First it will identify if request contains answer of previous captcha.
@@ -78,7 +75,7 @@ public class CrawlPreventionService {
         for (MaxAllowedRequestCount maxAllowedRequestCount : MaxAllowedRequestCount.values()) {
             Integer timeFrame = maxAllowedRequestCount.getTimeFrame();
             Cache cache = redisCacheManager.getCache(Constants.CacheName.API_ACCESS, timeFrame);
-            String key = APISecurityUtils.createCrawlCacheKey(request.getRemoteAddr(), timeFrame);
+            String key = securityUtilService.createCrawlCacheKey(request.getRemoteAddr(), timeFrame);
             ValueWrapper cacheValWrapper = cache.get(key);
             APIAccessCount apiAccessCount = (APIAccessCount) (cacheValWrapper != null
                     ? cacheValWrapper.get()
@@ -90,8 +87,20 @@ public class CrawlPreventionService {
         }
     }
 
+    /**
+     * This method identify any bot access or access from a script and validate
+     * that count in a specified time bucket, if access count surpass the limit,
+     * respond with captcha message. For internal IPs/server should be disabled
+     * 
+     * @param request
+     * @param response
+     * @return
+     */
     private boolean isCrawlIdentified(HttpServletRequest request, HttpServletResponse response) {
         boolean crawlIdentified = false;
+        if (securityUtilService.isCrawlCheckDisabled(request)) {
+            return false;
+        }
         for (MaxAllowedRequestCount maxAllowedRequestCount : MaxAllowedRequestCount.values()) {
             if (isSpecificCrawlingIdentified(maxAllowedRequestCount, request)) {
                 captchaService.writeCaptchaInResponse(response);
@@ -109,9 +118,9 @@ public class CrawlPreventionService {
         String requestMethod = request.getMethod();
         String requestIP = request.getRemoteAddr();
         Integer timeFrame = maxAllowedRequestCount.getTimeFrame();
-        Integer maxRequestCount = maxAllowedRequestCount.getAllowedRequestCount();
+        Integer maxRequestCount = maxAllowedRequestCount.getAllowedAllRequestCount();
         Cache cache = redisCacheManager.getCache(Constants.CacheName.API_ACCESS, timeFrame);
-        String key = APISecurityUtils.createCrawlCacheKey(requestIP, timeFrame);
+        String key = securityUtilService.createCrawlCacheKey(requestIP, timeFrame);
 
         APIAccessCount apiAccessCount = (APIAccessCount) (cache.get(key) != null
                 ? cache.get(key).get()
@@ -148,7 +157,7 @@ public class CrawlPreventionService {
             Integer count) {
         logger.error("Crawing Identified!! Method:" + request.getMethod()
                 + "  Type: "
-                + maxAllowedRequestCount.getLabel()
+                + maxAllowedRequestCount.name()
                 + " IP: "
                 + requestIP
                 + "  Request Count in Time Slot: "
@@ -172,40 +181,35 @@ public class CrawlPreventionService {
      * @return
      */
     private boolean isValidRequestWithSecretHash(HttpServletRequest request, HttpServletResponse response) {
-        APISecurityUtils.setTimeAndKeywordInHeader(response);
+        securityUtilService.setTimeAndKeywordInHeader(response);
         boolean isValid = true;
-        if (!propertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_CRAWL_PREVENTAION, Boolean.class)) {
+        if (securityUtilService.isReqValivationDisabled(request)) {
             /*
              * even if disabled, we are validating the request to show warning
              * message if needed and let request complete normally.
              * 
              * TODO should be removed once integrated by all clients.
              */
-            if (!isHashAndTimeExistInHeader(request) || !isValidServerTimeAndSecretHashHeader(request)) {
-                APISecurityUtils.addWarningHeader(response, propertyReader.getRequiredPropertyAsType(
-                        PropertyKeys.ENABLE_CRAWL_PREVENTAION_WARNING,
-                        Boolean.class));
+            if (!securityUtilService.isHashAndTimeExistInHeader(request) || !isValidServerTimeAndSecretHashHeader(request)) {
+                securityUtilService.addWarningHeader(response);
             }
             // should always return true, as bot prevention is disabled
             return true;
         }
+
+        Cache illegalAccessCache = redisCacheManager.getCache(Constants.CacheName.ILLEGAL_API_ACCESS);
+        String redisKey = securityUtilService.createKeyForSecretHash(request);
+        ValueWrapper redisValWrapper = illegalAccessCache.get(redisKey);
+        Integer illegalAccessCount = (Integer) (redisValWrapper != null ? illegalAccessCache.get(redisKey).get() : null);
+        /*
+         * probably first hit from the client, set access count to 1.
+         */
+        if (illegalAccessCount == null) {
+            illegalAccessCache.put(redisKey, 1);
+        }
         else {
-            Cache illegalAccessCache = redisCacheManager.getCache(Constants.CacheName.ILLEGAL_API_ACCESS);
-            String redisKey = APISecurityUtils.createKeyForSecretHash(request);
-            ValueWrapper redisValWrapper = illegalAccessCache.get(redisKey);
-            Integer illegalAccessCount = (Integer) (redisValWrapper != null
-                    ? illegalAccessCache.get(redisKey).get()
-                    : null);
-            /*
-             * probably first hit from the client, set access count to 1.
-             */
-            if (illegalAccessCount == null) {
-                illegalAccessCache.put(redisKey, 1);
-            }
-            else {
-                // not first request from user
-                isValid = isValidSubsequentRequest(request, response, illegalAccessCache, redisKey, illegalAccessCount);
-            }
+            // not first request from user
+            isValid = isValidSubsequentRequest(request, response, illegalAccessCache, redisKey, illegalAccessCount);
         }
 
         return isValid;
@@ -237,7 +241,7 @@ public class CrawlPreventionService {
          * discard the request being processed
          */
 
-        if (!isHashAndTimeExistInHeader(request)) {
+        if (!securityUtilService.isHashAndTimeExistInHeader(request)) {
             valid = handleIllegalAPIAccess(response, cache, redisKey, illegalAccessCount);
 
         }
@@ -263,10 +267,8 @@ public class CrawlPreventionService {
             String redisKey,
             Integer illegalAccessCount) {
         boolean valid = true;
-        APISecurityUtils.addWarningHeader(
-                response,
-                propertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_CRAWL_PREVENTAION_WARNING, Boolean.class));
-        int illegalAPIAccessThresholdCount = getIllegalAPIAccessCountThreshold();
+        securityUtilService.addWarningHeader(response);
+        int illegalAPIAccessThresholdCount = securityUtilService.getIllegalAPIAccessCountThreshold();
         if (illegalAccessCount >= illegalAPIAccessThresholdCount) {
             // illegal access count surpassed the threshold, block request
             logger.error(
@@ -317,10 +319,7 @@ public class CrawlPreventionService {
             return true;
         }
         else {
-            logger.error(
-                    "secret hash did not matched, user@{} sent {}",
-                    request.getRemoteAddr(),
-                    secretHashValHeader);
+            logger.error("secret hash did not matched, user@{} sent {}", request.getRemoteAddr(), secretHashValHeader);
             return false;
         }
     }
@@ -337,40 +336,8 @@ public class CrawlPreventionService {
             HttpServletRequest request,
             String serverTimeHeader,
             String secretHashValHeader) {
-        String generatedHash = generateSecretHash(request, serverTimeHeader);
+        String generatedHash = securityUtilService.generateSecretHash(request, serverTimeHeader);
         return generatedHash.equals(secretHashValHeader);
-    }
-
-    /**
-     * Generating MD5 encoded hash value, same sequence of values should be used
-     * by client as well to access apis.
-     * 
-     * @param request
-     * @param serverTimeHeader
-     * @return
-     */
-    private String generateSecretHash(HttpServletRequest request, String serverTimeHeader) {
-        StringBuilder hash = new StringBuilder();
-        hash.append(request.getRemoteAddr()).append(Constants.Security.HASH_SEPERATOR)
-                .append(request.getHeader(Constants.USER_AGENT)).append(Constants.Security.HASH_SEPERATOR)
-                .append(serverTimeHeader).append(Constants.Security.HASH_SEPERATOR)
-                .append(Constants.Security.API_SECRET_KEYWORD);
-        return PasswordUtils.encode(hash.toString());
-    }
-
-    public Integer getIllegalAPIAccessCountThreshold() {
-        return propertyReader.getRequiredPropertyAsType(PropertyKeys.ILLEGAL_API_ACCESS_THRESHOLD_COUNT, Integer.class);
-    }
-
-    public boolean isHashAndTimeExistInHeader(HttpServletRequest request) {
-        String serverTimeHeader = request.getHeader(Constants.Security.SERVER_CURR_TIME);
-        String secretHashValHeader = request.getHeader(Constants.Security.SECRET_HASH_HEADER_KEY);
-        if (serverTimeHeader == null || secretHashValHeader == null
-                || serverTimeHeader.trim().isEmpty()
-                || secretHashValHeader.trim().isEmpty()) {
-            return false;
-        }
-        return true;
     }
 
     private static class APIAccessCount implements Serializable {

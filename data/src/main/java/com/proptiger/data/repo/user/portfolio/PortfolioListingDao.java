@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import com.proptiger.data.enums.portfolio.ListingStatus;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
@@ -15,6 +16,8 @@ import com.proptiger.data.model.user.portfolio.PortfolioListing.Source;
  */
 public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Integer> {
 
+    @Query("SELECT PL FROM PortfolioListing PL LEFT JOIN fetch PL.otherPrices OP LEFT JOIN fetch PL.listingPaymentPlan LPP "
+         + " WHERE PL.userId = ?1 AND PL.sourceType IN ?2 AND PL.listingStatus IN ?3 ORDER BY PL.listingId DESC ")
     public List<PortfolioListing> findByUserIdAndSourceTypeInAndListingStatusInOrderByListingIdDesc(
             Integer userId,
             List<Source> sourceType,

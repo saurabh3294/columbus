@@ -252,12 +252,12 @@ public class URLService {
                 if (is404FallbackSet) {
                     redirectUrl = domainUrl;
                     if (domainUrl != null && !domainUrl.isEmpty()) {
-                        redirectUrl = domainUrl + "/overview";
+                        redirectUrl = domainUrl + "-overview";
                     }
                 }
                 else {
                     domainUrl = domainUrl.replaceFirst("property-sale-", "");
-                    domainUrl = domainUrl.replaceFirst(cityName, cityName + "-real-estate") + "/overview";
+                    domainUrl = domainUrl.replaceFirst(cityName, cityName + "-real-estate") + "-overview";
 
                     if (!domainUrl.equals(urlDetail.getUrl()) || hasTrailingSlace) {
                         redirectUrl = domainUrl;

@@ -11,6 +11,7 @@ public interface ResponseCodes {
     public static String SEARCH_QUERY_ALREADY_EXISTS = "498";
     public static String BAD_CREDENTIAL              = "497";
     public static String CAPTCHA_REQUIRED            = "498";
+    public static String SESSION_EXPIRED             = "496";
 
     public static String REQUEST_PARAM_INVALID       = BAD_REQUEST;
     public static String AUTHENTICATION_ERROR        = BAD_REQUEST;
