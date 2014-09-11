@@ -33,9 +33,6 @@ public class SolrDao {
 
     private HttpSolrServer   httpSolrServerDefault;
     
-    @Autowired
-    ApplicationNameService applicationNameService;
-
     @PostConstruct
     private void init() {
 
@@ -56,7 +53,7 @@ public class SolrDao {
         try {
             logger.debug("SolrQuery {}", query);
 
-            if (applicationNameService.isB2BApplicationRequest()) {
+            if (ApplicationNameService.isB2BApplicationRequest()) {
                 logger.debug("Running SolrQuery for b2b ");
                 return httpSolrServerb2b.query(query);
             }

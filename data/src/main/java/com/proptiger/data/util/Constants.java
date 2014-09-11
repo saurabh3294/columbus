@@ -31,7 +31,7 @@ public class Constants {
     public static final List<ListingStatus>  LISTINGSTATUS_LIST        = Arrays.asList(ListingStatus.ACTIVE, ListingStatus.INCOMPLETE);
     public static final int                  LIMIT_OF_COMPOSITE_APIs   = 15;
 
-    public static final String               APPLICATION_NAME_HEADER   = "applicationType";
+    public static final String               APPLICATION_TYPE_HEADER   = "applicationType";
     /**
      * Put all solr Dynamic Field generated in this class.
      */
