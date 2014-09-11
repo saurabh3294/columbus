@@ -82,7 +82,7 @@ public class CustomRedisCacheManager implements CacheManager {
         RequestAttributes requestAttribute = RequestContextHolder.getRequestAttributes();
         if(requestAttribute != null){
             HttpServletRequest request = ((ServletRequestAttributes) requestAttribute).getRequest();
-            String appname = request.getHeader(Constants.APPLICATION_NAME_HEADER);
+            String appname = request.getHeader(Constants.APPLICATION_TYPE_HEADER);
             if (appname != null && !appname.isEmpty()) {
                 return appname + "-" + name;
             }
