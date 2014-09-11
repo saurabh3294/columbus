@@ -8,6 +8,8 @@ import io
 import time
 import shlex
 from time import gmtime, strftime
+import threading
+from Queue import Queue
 
 # This script will serve the purpose to optimise images for faster load on web 
 # using imagemagick library
@@ -16,6 +18,9 @@ from time import gmtime, strftime
 # Upload failed images information and similarly successfully deleted and deletion failed
 # images information.
 #
+
+# number Of Threads
+numberOfThreads = 1
 
 # Configuration =========================================================
 env    = 'develop' # To set develop environment or production environment
@@ -53,7 +58,7 @@ config = dict(
         }
 )
 scriptconfig = {
-                    "days": 0, 
+                    "days": 120, 
                     "limit":1000,
                     "total_migrated":10000,
                     "run_time":1,
@@ -74,6 +79,8 @@ destdb = MySQLdb.connect(**config[env]['mysqldest'])
 
 srccursor = srcdb.cursor()
 destcursor = destdb.cursor()
+
+
 
 def logging(text):
     global logFile
@@ -162,32 +169,30 @@ def handleTableArchiving(row, scriptconfig, dcursor, scursor):
     
     rows_limit, run_time, last_days, total_migrated, progress = getArchivingConfig(row, scriptconfig)
 
-    filename = "%s-%s-%s.txt" % (row['table_schema'], row['table_name'], strftime("%Y-%m-%d%H:%M:%S", gmtime()) )
+    filename = "%s-%s-%s.txt" % (row['table_schema'], row['table_name'], strftime("%Y-%m-%d--%H:%M:%S", gmtime()) )
 
     #command = ["mk-archiver", "--source", "h=localhost,u=root,p=root,D=%s,t=%s" % (table_schema, table_name), "--dest", "h=localhost,u=root,p=root,D=%s,t=%s" % (archiveDatabase, table_name), "--commit-each", "--limit", str(rows_limit), "--where", "'_t_transaction_date < now() - interval %d day'" % (last_days)]#, "--progress", str(progress), "--statistics"]
-    commandStr = "mk-archiver --source h=localhost,u=root,p=root,D=%s,t=%s --dest h=localhost,u=root,p=root,D=%s,t=%s --commit-each --limit %d --where '_t_transaction_date < now() - interval %d day' --progress %d --statistics" % (table_schema, table_name, archiveDatabase, table_name, rows_limit, last_days, progress)#, "--progress", str(progress), "--statistics"]
+    commandStr = "mk-archiver --source h=localhost,u=root,p=root,D=%s,t=%s --dest h=localhost,u=root,p=root,D=%s,t=%s --commit-each --limit %d --where '_t_transaction_date < now() - interval %d day' --progress %d --statistics" % (table_schema, table_name, archiveDatabase, table_name, rows_limit, last_days, progress)
+    #, "--progress", str(progress), "--statistics"]
     print commandStr
-    #command = shlex.split(commandStr)
-    #print json.dumps(command)
     #output = subprocess.check_output(commandStr, shell=True, stderr=subprocess.STDOUT)
     #print output
-    #with io.open(filename, 'wb') as writer:
-    p = subprocess.Popen(commandStr, stdout=subprocess.PIPE, shell=True)
-    print "PID "+str(p.pid)
-    output, error = p.communicate()
-    #while p.poll is None:
-    #    time.sleep(2)
+    with io.open(filename, 'wb') as writer:
+        p = subprocess.Popen(commandStr, stdout=subprocess.PIPE, shell=True)
+        for line in iter(p.stdout.readline, ''):
+            writer.write(line)
 
-    p.wait()
-    status = p.returncode
-    #print "error: "+error
-    print output
-    #print " status return code "+str(status)
-    ## some error has occurred.
-    #if status < 0:
-    #    return 0
-    #else:
-    #    return 1
+        print "PID "+str(p.pid)
+        #output, error = p.communicate()
+        p.wait()
+        status = p.returncode
+        print output
+        #print " status return code "+str(status)
+        ## some error has occurred.
+        #if status < 0:
+        #    return 0
+        #else:
+        #    return 1
 
 def handleTableReplication(row):
     global destdb, srcdb, scriptconfig
@@ -195,17 +200,36 @@ def handleTableReplication(row):
     dcursor = destdb.cursor()
     scursor = srcdb.cursor()
     status = checkAndCreateTableOnArchive(row, dcursor, scursor)
+    print "table created"
+    print "transfer data"
     status = handleTableArchiving(row, scriptconfig, dcursor, scursor)
 
     scursor.close()
     dcursor.close()
 
+# the worker thread pulls an item from queue and process it.
+def worker():
+    while True:
+        if q.empty():
+            continue
+        print "threading"
+        item = q.get()
+        print json.dumps(item)
+        handleTableReplication(item)
+        q.task_done()
 
+# Create the queue and thread pool.
+q = Queue()
+for i in range(numberOfThreads):
+    t = threading.Thread(target=worker)
+    t.daemon = True # thread dies when main thread (only non-daemon thread) exits 
+    t.start()
 
 query = "SELECT table_schema, table_name,engine, table_rows, auto_increment from information_schema.tables where table_name like '_t_%' and table_schema != 'information_schema' and table_name = '_t_listing_prices_bk1'  and table_schema != 'archives' order by table_name"
 srccursor.execute(query)
 rows = srccursor.fetchall()
 for row in rows:
    print json.dumps(row)
-   handleTableReplication(row)
-   sys.exit(0)
+   q.put(row)
+
+q.join()
