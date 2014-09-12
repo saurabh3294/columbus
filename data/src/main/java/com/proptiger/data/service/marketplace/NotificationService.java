@@ -394,7 +394,7 @@ public class NotificationService {
             notification.setObjectId(lead.getId());
             notification.setDetails(SerializationUtils.objectToJson(lead));
 
-            List<Notification> notifications = notificationDao.findByObjectIdAndIsReadFalse(lead.getId());
+            List<Notification> notifications = notificationDao.findByObjectIdAndReadFalse(lead.getId());
             
             Map<Integer, Notification> unreadNotifications = new HashMap<>();
 
