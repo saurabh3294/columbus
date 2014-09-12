@@ -52,7 +52,6 @@ import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.BadRequestException;
-import com.proptiger.exception.ProAPIException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -479,7 +478,7 @@ public class LeadOfferService {
         }
 
         // Trying to claim a lead not in offered state
-        if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
+        if (!leadOfferInDB.getMasterLeadOfferStatus().isClaimed() && leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
             throw new BadRequestException("Sorry! The lead has already been claimed by another agent.");
         }
 
