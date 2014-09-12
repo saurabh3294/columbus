@@ -206,14 +206,22 @@ public class DateUtil {
 
         DateTime finalTime = new DateTime(date.getTime());
         DateTime workingHourStartTime = finalTime.withTimeAtStartOfDay().plusSeconds(getWorkingTimeStartSeconds());
+        if (!isWorkingTime(finalTime)) {
+            if (workingHourStartTime.isAfter(finalTime)) {
+                finalTime = workingHourStartTime;
+            }
+            else {
+                finalTime = workingHourStartTime.plusDays(1);
+            }
+        }
         if (workingHourStartTime.isAfter(finalTime)) {
             finalTime = workingHourStartTime;
         }
 
         int workingSecondsInADay = getWorkingSecondsInADay();
         int days = timeToAddInSecond / getWorkingSecondsInADay();
-        finalTime = finalTime.plusDays(add * days);
 
+        finalTime = finalTime.plusDays(add * days);
         int secsInIncompleteDay = timeToAddInSecond % workingSecondsInADay;
         finalTime = finalTime.plusSeconds(add * secsInIncompleteDay);
 
@@ -316,6 +324,6 @@ public class DateUtil {
 
     private static boolean isWorkingTime(DateTime date) {
         int seconds = date.getSecondOfDay();
-        return seconds >= getWorkingTimeStartSeconds() && seconds <= getWorkingTimeEndSeconds();
+        return seconds >= getWorkingTimeStartSeconds() && seconds < getWorkingTimeEndSeconds();
     }
 }
