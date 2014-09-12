@@ -38,6 +38,9 @@ public interface LeadOfferDao extends JpaRepository<LeadOffer, Integer>, LeadOff
     @Query("select LO from LeadOffer LO join fetch LO.lead L where LO.id = ?1")
     public LeadOffer findById(int leadOfferId);
 
+    @Query("select distinct(LO.agentId) from LeadOffer LO join fetch LO.masterLeadOfferStatus LOM where LO.leadId = ?1 and LOM.claimed = true and LOM.open = true")
+    public List<Integer> getLegitimateAgentIdsForDuplicateLeadNotifications(int leadId);
+    
     public List<LeadOffer> findByLeadId(int leadId);
 
     @Modifying

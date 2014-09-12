@@ -386,24 +386,33 @@ public class NotificationService {
      * @param notificationTypeId
      * @return
      */
+    public void createLeadNotification(Lead lead, int notificationTypeId) {
+        List<Integer> agentIds = leadOfferDao.getLegitimateAgentIdsForDuplicateLeadNotifications(lead.getId());        
+        if (agentIds != null && !agentIds.isEmpty()) {
+            Notification notification = new Notification();
+            notification.setNotificationTypeId(notificationTypeId);
+            notification.setObjectId(lead.getId());
+            notification.setDetails(SerializationUtils.objectToJson(lead));
 
-    public Notification createLeadNotification(Lead lead, int notificationTypeId) {
-        Notification notification = new Notification();
-        notification.setNotificationTypeId(notificationTypeId);
-        notification.setObjectId(lead.getId());
+            List<Notification> notifications = notificationDao.findByObjectIdAndIsReadFalse(lead.getId());
+            
+            Map<Integer, Notification> unreadNotifications = new HashMap<>();
 
-        notification.setDetails(SerializationUtils.objectToJson(lead));
-        Notification notificationPreMature = notification;
-        List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
+            if (notifications != null) {
+                for (Notification unreadNotification : notifications) {
+                    unreadNotifications.put(unreadNotification.getUserId(), unreadNotification);
+                }
+            }
 
-        for (LeadOffer leadOffer : leadOffers) {
-            Cloner cloner = new Cloner();
-            Notification notificationOriginal = cloner.deepClone(notificationPreMature);
-            notificationOriginal.setUserId(leadOffer.getAgentId());
-            notificationDao.save(notificationOriginal);
-
+            for (Integer agentId : agentIds) {
+                if (!unreadNotifications.containsKey(agentId)) {
+                    Cloner cloner = new Cloner();
+                    Notification notificationOriginal = cloner.deepClone(notification);
+                    notificationOriginal.setUserId(agentId);
+                    notificationDao.save(notificationOriginal);
+                }
+            }
         }
-        return notification;
     }
 
     /**
