@@ -44,6 +44,7 @@ public class URLDetail {
     private String   priceString   = "";
     private String   propertyType;
     private String   appendingString;
+    private String   overviewType;
 
     public Integer getBuilderId() {
         return builderId;
@@ -200,5 +201,13 @@ public class URLDetail {
 
     public void setAppendingString(String appendingString) {
         this.appendingString = appendingString;
+    }
+
+    public String getOverviewType() {
+        return overviewType;
+    }
+
+    public void setOverviewType(String overviewType) {
+        this.overviewType = overviewType;
     }
 }
