@@ -90,6 +90,14 @@ public class DateUtilTest extends AbstractTest {
                     formatter.parse("2014-09-11 19:00:00"),
                     3600 * 2,
                     formatter.parse("2014-09-12 10:00:00")));
+            fromDateDelayToDate.add(new Triple<Date, Integer, Date>(
+                    formatter.parse("2014-09-11 09:00:00"),
+                    3600 * 11,
+                    formatter.parse("2014-09-12 09:00:00")));
+            fromDateDelayToDate.add(new Triple<Date, Integer, Date>(
+                    formatter.parse("2014-09-11 19:59:59"),
+                    1,
+                    formatter.parse("2014-09-12 09:00:00")));
         }
         catch (ParseException e1) {
             // TODO Auto-generated catch block

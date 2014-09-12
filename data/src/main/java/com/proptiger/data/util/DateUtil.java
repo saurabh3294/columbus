@@ -220,8 +220,8 @@ public class DateUtil {
 
         int workingSecondsInADay = getWorkingSecondsInADay();
         int days = timeToAddInSecond / getWorkingSecondsInADay();
-        finalTime = finalTime.plusDays(add * days);
 
+        finalTime = finalTime.plusDays(add * days);
         int secsInIncompleteDay = timeToAddInSecond % workingSecondsInADay;
         finalTime = finalTime.plusSeconds(add * secsInIncompleteDay);
 
@@ -324,6 +324,6 @@ public class DateUtil {
 
     private static boolean isWorkingTime(DateTime date) {
         int seconds = date.getSecondOfDay();
-        return seconds >= getWorkingTimeStartSeconds() && seconds <= getWorkingTimeEndSeconds();
+        return seconds >= getWorkingTimeStartSeconds() && seconds < getWorkingTimeEndSeconds();
     }
 }
