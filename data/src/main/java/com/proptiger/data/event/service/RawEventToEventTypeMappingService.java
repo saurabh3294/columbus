@@ -169,10 +169,6 @@ public class RawEventToEventTypeMappingService {
 
     }
 
-    public List<DBRawEventTableConfig> getDBRawEventTableConfigs() {
-        return null;
-    }
-
     public Iterable<RawEventToEventTypeMapping> getAllMappingOfRawEventsToEventType() {
         Iterable<RawEventToEventTypeMapping> listEventTypeMapping = rawEventToEventTypeMappingDao.findAll();
         Iterator<RawEventToEventTypeMapping> itEventTypeMapping = listEventTypeMapping.iterator();
