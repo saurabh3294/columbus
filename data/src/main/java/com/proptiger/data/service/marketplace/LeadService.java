@@ -182,6 +182,9 @@ public class LeadService {
 
         lead.setRequirements(removeDuplicateEntries(lead.getRequirements()));
 
+        // Setting isregistered false for all such users
+        lead.getClient().setRegistered(false);
+
         User user = userService.createUser(lead.getClient());
         lead.setClient(user);
         lead.setClientId(user.getId());

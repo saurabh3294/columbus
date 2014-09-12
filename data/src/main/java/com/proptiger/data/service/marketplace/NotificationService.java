@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.Gson;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -393,8 +392,7 @@ public class NotificationService {
         notification.setNotificationTypeId(notificationTypeId);
         notification.setObjectId(lead.getId());
 
-        Gson gson = new Gson();
-        notification.setStringDetails(gson.toJson(lead).toString());
+        notification.setDetails(SerializationUtils.objectToJson(lead));
         Notification notificationPreMature = notification;
         List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
 
