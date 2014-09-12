@@ -43,6 +43,7 @@ public class URLDetail {
      */
     private String   priceString   = "";
     private String   propertyType;
+    private String   appendingString;
 
     public Integer getBuilderId() {
         return builderId;
@@ -193,4 +194,11 @@ public class URLDetail {
         this.portfolioId = portfolioId;
     }
 
+    public String getAppendingString() {
+        return appendingString;
+    }
+
+    public void setAppendingString(String appendingString) {
+        this.appendingString = appendingString;
+    }
 }
