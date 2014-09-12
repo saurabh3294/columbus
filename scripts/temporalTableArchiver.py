@@ -90,6 +90,9 @@ destcursor = destdb.cursor()
 
 
 
+
+        
+
 def customLogging(text):
     global logFile
     log(text+"\n", logFile)
@@ -105,23 +108,25 @@ def createTable(row, createTable, dropIndexStr, tableLogging, dcursor):
 
     tableLogging.info(" Table being created on Archive Server ")
     
-    dcursor.execute("START TRANSACTION")
-    status = dcursor.execute(createTable['Create Table'])
+    try:
+        status = dcursor.execute(createTable['Create Table'])
+        
+        # drop indexes
+        query = "ALTER TABLE %s.%s %s" % (archiveDatabase, row['table_name'], dropIndexStr)
+        status = dcursor.execute(query)
+
+        query = "ALTER TABLE %s.%s engine=archive, auto_increment = 0 " % (archiveDatabase, row['table_name'])
+        dcursor.execute(query)
+
+        #Rename table to current month
+        new_table_name = row['table_name'] + "_" + strftime("%Y_%b_%d", gmtime()) 
+        query = "RENAME TABLE %s.%s to %s.%s" % (archiveDatabase, row['table_name'], archiveDatabase, new_table_name)
+        dcursor.execute(query)
+    except Exception as e:
+        query = " DROP TABLE %s.%s" % (archiveDatabase, row['table_name'])
+        dcursor.execute(query)
+        raise Exception()
     
-    # drop indexes
-    query = "ALTER TABLE %s.%s %s" % (archiveDatabase, row['table_name'], dropIndexStr)
-    status = dcursor.execute(query)
-
-    query = "ALTER TABLE %s.%s engine=archive, auto_increment = 0 " % (archiveDatabase, row['table_name'])
-    dcursor.execute(query)
-
-    #Rename table to current month
-    new_table_name = row['table_name'] + "_" + strftime("%Y_%b_%d", gmtime()) 
-    query = "RENAME TABLE %s.%s to %s.%s" % (archiveDatabase, row['table_name'], archiveDatabase, new_table_name)
-    dcursor.execute(query)
-
-    dcursor.execute("COMMIT")
-
     return new_table_name
     
 def handleCreateTable(row, tableLogging, dcursor, scursor):
@@ -243,7 +248,7 @@ def handleTableArchiving(row, new_table_name, tableLogging, scriptconfig, dcurso
         #output, error = p.communicate()
         p.wait()
         status = p.returncode
-        tableLogging.info(" Data Migration Finished with Status Code "+status)
+        tableLogging.info(" Data Migration Finished with Status Code " + str(status))
         #print " status return code "+str(status)
         ## some error has occurred.
         #if status < 0:
@@ -280,6 +285,12 @@ def worker():
         handleTableReplication(item)
         q.task_done()
 
+def signalHandler(signum, frame):
+    print " Wait ! script being closed "
+    while !q.empty():
+        q.get()
+        q.task_done()
+    
 # Create the queue and thread pool.
 q = Queue()
 for i in range(numberOfThreads):
@@ -299,3 +310,5 @@ for row in rows:
    q.put(row)
 
 q.join()
+
+logging.shutdown()
