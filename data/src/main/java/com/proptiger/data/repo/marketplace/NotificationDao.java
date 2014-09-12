@@ -63,5 +63,5 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     @Query(value = "SELECT N FROM Notification N JOIN FETCH N.notificationType NT WHERE N.userId = ?1")
     public List<Notification> getNotificationWithTypeForUser(int userId);
 
-    public List<Notification> findByObjectIdAndReadFalse(int id);
+    public List<Notification> findByObjectIdInAndNotificationTypeIdAndReadFalse(List<Integer> objectIds, int notificationTypeId);
 }

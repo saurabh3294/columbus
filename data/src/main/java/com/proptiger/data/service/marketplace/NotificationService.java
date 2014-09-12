@@ -387,15 +387,15 @@ public class NotificationService {
      * @return
      */
     public void createLeadNotification(Lead lead, int notificationTypeId) {
-        List<Integer> agentIds = leadOfferDao.getLegitimateAgentIdsForDuplicateLeadNotifications(lead.getId());        
-        if (agentIds != null && !agentIds.isEmpty()) {
-            Notification notification = new Notification();
-            notification.setNotificationTypeId(notificationTypeId);
-            notification.setObjectId(lead.getId());
-            notification.setDetails(SerializationUtils.objectToJson(lead));
+        List<LeadOffer> leadOffers = leadOfferDao.getLegitimateLeadOffersForDuplicateLeadNotifications(lead.getId());        
+        if (leadOffers != null && !leadOffers.isEmpty()) {
+            List<Integer> leadOfferIds = new ArrayList<>();
+            for (LeadOffer leadOffer: leadOffers) {
+                leadOfferIds.add(leadOffer.getId());
+            }
 
-            List<Notification> notifications = notificationDao.findByObjectIdAndReadFalse(lead.getId());
-            
+            List<Notification> notifications = notificationDao.findByObjectIdInAndNotificationTypeIdAndReadFalse(leadOfferIds, notificationTypeId);
+
             Map<Integer, Notification> unreadNotifications = new HashMap<>();
 
             if (notifications != null) {
@@ -404,12 +404,19 @@ public class NotificationService {
                 }
             }
 
-            for (Integer agentId : agentIds) {
-                if (!unreadNotifications.containsKey(agentId)) {
-                    Cloner cloner = new Cloner();
-                    Notification notificationOriginal = cloner.deepClone(notification);
-                    notificationOriginal.setUserId(agentId);
-                    notificationDao.save(notificationOriginal);
+            for (LeadOffer leadOffer : leadOffers) {
+                if (!unreadNotifications.containsKey(leadOffer.getAgentId())) {
+                    Notification notification = new Notification();
+                    notification.setNotificationTypeId(notificationTypeId);
+                    notification.setUserId(leadOffer.getAgentId());
+                    notification.setObjectId(leadOffer.getId());
+                    notification.setDetails(SerializationUtils.objectToJson(lead));
+                    notificationDao.save(notification);
+                }
+                else {
+                    Notification notification = unreadNotifications.get(leadOffer.getAgentId());
+                    notification.setDetails(SerializationUtils.objectToJson(lead));
+                    notificationDao.save(notification);
                 }
             }
         }

@@ -17,7 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -210,7 +210,7 @@ public class LeadOffer extends BaseModel {
         this.createdAt = createdAt;
     }
 
-    @PrePersist
+    @PreUpdate
     public void populateUpdatedAt() {
         updatedAt = new Date();
     }
