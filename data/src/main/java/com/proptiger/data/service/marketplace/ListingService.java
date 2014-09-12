@@ -281,6 +281,10 @@ public class ListingService {
 
     public List<ListingPrice> getLatestListingPrice(List<Integer> propertyId) {
         List<Integer> listingPriceId = listingDao.getListingPriceIds(propertyId);
-        return listingDao.getListingPrice(listingPriceId);
+        List<ListingPrice> listingPrices = null;
+        if (listingPriceId != null && !listingPriceId.isEmpty()) {
+            listingPrices =  listingDao.getListingPrice(listingPriceId);
+        }
+        return listingPrices;
     }
 }
