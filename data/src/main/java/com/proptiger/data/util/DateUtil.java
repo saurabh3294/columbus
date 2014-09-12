@@ -206,6 +206,14 @@ public class DateUtil {
 
         DateTime finalTime = new DateTime(date.getTime());
         DateTime workingHourStartTime = finalTime.withTimeAtStartOfDay().plusSeconds(getWorkingTimeStartSeconds());
+        if (!isWorkingTime(finalTime)) {
+            if (workingHourStartTime.isAfter(finalTime)) {
+                finalTime = workingHourStartTime;
+            }
+            else {
+                finalTime = workingHourStartTime.plusDays(1);
+            }
+        }
         if (workingHourStartTime.isAfter(finalTime)) {
             finalTime = workingHourStartTime;
         }
