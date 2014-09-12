@@ -99,8 +99,8 @@ public class NotificationInitiator {
      * as Scheduled with appropriate Schedule time
      */
     @Scheduled(
-            fixedDelayString = "${scheduler.fixeddelay.notification}",
-            initialDelayString = "${scheduler.initialdelay.notification}")
+            fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
+            initialDelayString = "${scheduler.initialdelay.notification.marketplace}")
     public void notificationSchedular() {
         logger.info("NotificationSchedular: Scheduling Generated Notification.");
         Integer numberOfScheduledNtGenerated = notificationSchedular.scheduleNotifications();
@@ -112,8 +112,8 @@ public class NotificationInitiator {
      * the respective medium
      */
     @Scheduled(
-            fixedDelayString = "${scheduler.fixeddelay.notification}",
-            initialDelayString = "${scheduler.initialdelay.notification}")
+            fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
+            initialDelayString = "${scheduler.initialdelay.notification.marketplace}")
     public void emailNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via Email.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.Email);
@@ -135,7 +135,7 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(cron = "${scheduler.cron.notification}")
+    @Scheduled(cron = "${scheduler.cron.notification.marketplace}")
     public void marketplaceAppNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via MarketplaceApp.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.MarketplaceApp);
