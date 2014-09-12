@@ -417,12 +417,11 @@ public class LeadOfferService {
 
     public LeadOffer offerLeadToBroker(Lead lead, Company brokerCompany, int cycleId) {
         List<CompanyUser> agents = companyService.getCompanyUsersForCompanies(brokerCompany);
-        if (agents.size() == 0) {
-            throw new ProAPIException("No Agent Found For Broker");
+        LeadOffer leadOffer = null;
+        if (!agents.isEmpty()) {
+            leadOffer = createLeadOffer(lead, agents.get(0));
         }
-        else {
-            return createLeadOffer(lead, agents.get(0));
-        }
+        return leadOffer;
     }
 
     public LeadOffer createLeadOffer(Lead lead, CompanyUser agent) {

@@ -69,8 +69,8 @@ public class LeadService {
     private NotificationService     notificationService;
 
     @Autowired
-    private CityService cityService;
-    
+    private CityService             cityService;
+
     @Transactional
     public void manageLeadAuction(int leadId) {
         Lead lead = leadDao.getLock(leadId);
@@ -78,14 +78,21 @@ public class LeadService {
         if (lead.getLeadOffers() != null && lead.getLeadOffers().isEmpty()) {
             List<Company> brokerCompanies = getBrokersForLead(lead.getId());
 
+            boolean isAssigned = false;
             if (brokerCompanies.isEmpty()) {
                 // XXX No broker found alert in future
             }
             else {
                 for (Company company : brokerCompanies) {
                     LeadOffer offer = leadOfferService.offerLeadToBroker(lead, company, 1);
-                    notificationService.sendLeadOfferNotification(offer.getId());
+                    if (offer != null) {
+                        isAssigned = true;
+                        notificationService.sendLeadOfferNotification(offer.getId());
+                    }
                 }
+            }
+            if (!isAssigned) {
+                throw new ProAPIException("Error in Assigning lead id: " + leadId);
             }
         }
     }
@@ -153,27 +160,23 @@ public class LeadService {
      * @return lead
      * 
      */
-    
-    private void validationOfProjectLocality(LeadRequirement leadRequirement)
-    {
-        if (leadRequirement.getLocalityId() != null && localityService.getLocality(leadRequirement
-                .getLocalityId()) == null) {
+
+    private void validationOfProjectLocality(LeadRequirement leadRequirement) {
+        if (leadRequirement.getLocalityId() != null && localityService.getLocality(leadRequirement.getLocalityId()) == null) {
             throw new BadRequestException("Localities should be valid");
         }
-        if (leadRequirement.getProjectId() != null && projectService.getProjectDetails(leadRequirement
-                .getProjectId()) == null) {
+        if (leadRequirement.getProjectId() != null && projectService.getProjectDetails(leadRequirement.getProjectId()) == null) {
             throw new BadRequestException("Project should be valid");
         }
     }
-    
+
     @Transactional
     public Lead createLead(Lead lead) {
         if (lead.getCityId() == 0) {
             throw new BadRequestException("CityId is mandatory");
         }
 
-        if(cityService.getCity(lead.getCityId()) == null)
-        {
+        if (cityService.getCity(lead.getCityId()) == null) {
             throw new BadRequestException("CityId should be valid");
         }
 
