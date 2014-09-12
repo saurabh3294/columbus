@@ -10,6 +10,7 @@ import shlex
 from time import gmtime, strftime
 import threading
 from Queue import Queue
+import logging
 
 # This script will serve the purpose to optimise images for faster load on web 
 # using imagemagick library
@@ -22,6 +23,11 @@ from Queue import Queue
 # number Of Threads
 numberOfThreads = 1
 
+# initialize logging
+logging.basicConfig(filename = "archiveLogging.txt")
+
+logging.info(" Table Archiving Started ")
+
 # Configuration =========================================================
 env    = 'develop' # To set develop environment or production environment
 config = dict(  
@@ -33,7 +39,7 @@ config = dict(
             'cursorclass':  MySQLdb.cursors.DictCursor
             },
         'mysqldest'   :   {
-            'host'      :   'localhost',
+            'host'      :   '192.168.1.8',
             'user'      :   'root',
             'passwd'    :   'root',
             'db'        :   'archives',
@@ -72,6 +78,8 @@ scriptconfig = {
                     } 
                 }
 
+logging.info(" Enviornment Used : "+env)
+
 archiveDatabase = "archives"
 # Open database connection
 srcdb = MySQLdb.connect(**config[env]['mysqlsrc'])
@@ -82,7 +90,7 @@ destcursor = destdb.cursor()
 
 
 
-def logging(text):
+def customLogging(text):
     global logFile
     log(text+"\n", logFile)
 
@@ -92,20 +100,34 @@ def log(text, logFile) :
     f.write('\n')
     f.close()
 
-def createTable(row, createTable, dropIndexStr, dcursor):
+def createTable(row, createTable, dropIndexStr, tableLogging, dcursor):
     global archiveDatabase
-    status = dcursor.execute(createTable['Create Table'])
 
+    tableLogging.info(" Table being created on Archive Server ")
+    
+    dcursor.execute("START TRANSACTION")
+    status = dcursor.execute(createTable['Create Table'])
+    
     # drop indexes
     query = "ALTER TABLE %s.%s %s" % (archiveDatabase, row['table_name'], dropIndexStr)
     status = dcursor.execute(query)
 
     query = "ALTER TABLE %s.%s engine=archive, auto_increment = 0 " % (archiveDatabase, row['table_name'])
     dcursor.execute(query)
-    
-def handleCreateTable(row, dcursor, scursor):
-    global archiveDatabase
 
+    #Rename table to current month
+    new_table_name = row['table_name'] + "_" + strftime("%Y_%b_%d", gmtime()) 
+    query = "RENAME TABLE %s.%s to %s.%s" % (archiveDatabase, row['table_name'], archiveDatabase, new_table_name)
+    dcursor.execute(query)
+
+    dcursor.execute("COMMIT")
+
+    return new_table_name
+    
+def handleCreateTable(row, tableLogging, dcursor, scursor):
+    global archiveDatabase
+    
+    tableLogging.info(" Table Creation queries to be retreived from source server. ")
     query  = "SHOW CREATE TABLE %s.%s" % (row['table_schema'], row['table_name'])
     scursor.execute(query)
     createTableData = scursor.fetchone()
@@ -119,31 +141,37 @@ def handleCreateTable(row, dcursor, scursor):
 
     dropIndexStr = dropIndexStr.strip(',')
 
-    createTable(row, createTableData, dropIndexStr, dcursor)
+    return createTable(row, createTableData, dropIndexStr, tableLogging, dcursor)
 
     
-def checkAndCreateTableOnArchive(row, dcursor, scursor):
+def checkAndCreateTableOnArchive(row, tableLogging, dcursor, scursor):
     global archiveDatabase
-
-    query = "SELECT * from information_schema.tables where table_name = '%s' and table_schema = '%s'" % (row['table_name'], archiveDatabase)
+    
+    regexp = "^%s_[[:digit:]]{4}_[[:alpha:]]+_[[:digit:]]{1,2}$" % (row['table_name'])
+    query = "SELECT table_name from information_schema.tables where table_name regexp '%s' and table_schema = '%s' order by create_time desc limit 1 " % (regexp, archiveDatabase)
+    tableLogging.info(" CHECK TABLE QUERY "+query)
     dcursor.execute(query)
     rows = dcursor.fetchall()
     if(len(rows) > 0):
-        return 1
+        tableLogging.info(" Table Found ")
+        return [True, rows[0]['table_name']]
 
-    status = handleCreateTable(row, dcursor, scursor)
+    new_table_name = handleCreateTable(row, tableLogging, dcursor, scursor)
 
-    return status 
+    return [False, new_table_name] 
 
-def verifyTableStructure(row, dcursor, scursor):
+def verifyTableStructure(row, new_table_name, tableLogging, dcursor, scursor):
     global archiveDatabase
+
+    tableLogging.info(" Table Columns being verified ")
+
     query_template = "SELECT column_name, column_type, data_type from information_schema.columns where table_schema = '%s' and table_name = '%s' order by column_name "
 
     squery = query_template % (row['table_schema'], row['table_name'])
     scursor.execute(squery)
     srows = scursor.fetchall()
     
-    dquery = query_template % (archiveDatabase, row['table_name'])
+    dquery = query_template % (archiveDatabase, new_table_name)
     dcursor.execute(dquery)
     drows = dcursor.fetchall()
     if( len(srows) != len(drows) ):
@@ -190,21 +218,22 @@ def getArchivingConfig(row, scriptconfig):
     
     return [rows_limit, run_time, last_days, total_migrated, progress]
 
-def handleTableArchiving(row, scriptconfig, dcursor, scursor):
-    global archiveDatabase
+def handleTableArchiving(row, new_table_name, tableLogging, scriptconfig, dcursor, scursor):
+    global archiveDatabase, config, env
     table_name = row['table_name']
     table_schema = row['table_schema']
+    mysql_src = config[env]['mysqlsrc']
+    mysql_dest = config[env]['mysqldest']
     
     rows_limit, run_time, last_days, total_migrated, progress = getArchivingConfig(row, scriptconfig)
 
     filename = "%s-%s-%s.txt" % (row['table_schema'], row['table_name'], strftime("%Y-%m-%d--%H:%M:%S", gmtime()) )
 
-    #command = ["mk-archiver", "--source", "h=localhost,u=root,p=root,D=%s,t=%s" % (table_schema, table_name), "--dest", "h=localhost,u=root,p=root,D=%s,t=%s" % (archiveDatabase, table_name), "--commit-each", "--limit", str(rows_limit), "--where", "'_t_transaction_date < now() - interval %d day'" % (last_days)]#, "--progress", str(progress), "--statistics"]
-    commandStr = "mk-archiver --source h=localhost,u=root,p=root,D=%s,t=%s --dest h=localhost,u=root,p=root,D=%s,t=%s --commit-each --limit %d --where '_t_transaction_date < now() - interval %d day' --progress %d --statistics" % (table_schema, table_name, archiveDatabase, table_name, rows_limit, last_days, progress)
-    #, "--progress", str(progress), "--statistics"]
-    print commandStr
-    #output = subprocess.check_output(commandStr, shell=True, stderr=subprocess.STDOUT)
-    #print output
+    commandStr = "mk-archiver --source h=%s,u=%s,p=%s,D=%s,t=%s --dest h=%s,u=%s,p=%s,D=%s,t=%s --commit-each --limit %d --where '_t_transaction_date < now() - interval %d day' --progress %d --statistics" % (mysql_src['host'], mysql_src['user'], mysql_src['passwd'], table_schema, table_name, mysql_dest['host'], mysql_dest['user'], mysql_dest['passwd'], archiveDatabase, new_table_name, rows_limit, last_days, progress)
+
+    tableLogging.info(commandStr)
+    tableLogging.info(" Command Log Filename "+filename)
+
     with io.open(filename, 'wb') as writer:
         p = subprocess.Popen(commandStr, stdout=subprocess.PIPE, shell=True)
         for line in iter(p.stdout.readline, ''):
@@ -214,7 +243,7 @@ def handleTableArchiving(row, scriptconfig, dcursor, scursor):
         #output, error = p.communicate()
         p.wait()
         status = p.returncode
-        print output
+        tableLogging.info(" Data Migration Finished with Status Code "+status)
         #print " status return code "+str(status)
         ## some error has occurred.
         #if status < 0:
@@ -223,21 +252,21 @@ def handleTableArchiving(row, scriptconfig, dcursor, scursor):
         #    return 1
 
 def handleTableReplication(row):
-    global destdb, srcdb, scriptconfig
+    global destdb, srcdb, scriptconfig, logging
+    
+    tableLogging = logging.getLogger(row['table_schema']+"."+row['table_name'])
 
     dcursor = destdb.cursor()
     scursor = srcdb.cursor()
-    status = checkAndCreateTableOnArchive(row, dcursor, scursor)
-    print "table created"
-    print "compare table columns"
-    status = verifyTableStructure(row, dcursor, scursor)
-    if status == 0:
-        print "column comparision failed"
-        return 0
 
-    print "comparison successfull"
-    print "transfer data"
-    status = handleTableArchiving(row, scriptconfig, dcursor, scursor)
+    new_table_name = ""
+    new_table_status, new_table_name = checkAndCreateTableOnArchive(row, tableLogging, dcursor, scursor)
+    status = verifyTableStructure(row, new_table_name, tableLogging, dcursor, scursor)
+    if status == 0:
+        tableLogging.info(" Table Columns Info do not match. Hence stopping the data transfer ")
+        new_table_name = handleCreateTable(row, tableLogging, dcursor, scursor)
+
+    status = handleTableArchiving(row, new_table_name, tableLogging, scriptconfig, dcursor, scursor)
 
     scursor.close()
     dcursor.close()
@@ -247,24 +276,26 @@ def worker():
     while True:
         if q.empty():
             continue
-        print "threading"
         item = q.get()
-        print json.dumps(item)
         handleTableReplication(item)
         q.task_done()
 
 # Create the queue and thread pool.
 q = Queue()
 for i in range(numberOfThreads):
+    logging.info(" Thread %d Being Created" % (i+1))
     t = threading.Thread(target=worker)
     t.daemon = True # thread dies when main thread (only non-daemon thread) exits 
     t.start()
 
 query = "SELECT table_schema, table_name,engine, table_rows, auto_increment from information_schema.tables where table_name like '_t_%' and table_schema != 'information_schema' and table_name = '_t_listing_prices_bk1'  and table_schema != 'archives' order by table_name"
+
+logging.info(" Retrieving Table list "+query)
+
 srccursor.execute(query)
 rows = srccursor.fetchall()
 for row in rows:
-   print json.dumps(row)
+   logging.info(" Table Row being put in queue"+json.dumps(row))
    q.put(row)
 
 q.join()
