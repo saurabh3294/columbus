@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
+import com.proptiger.data.internal.dto.mail.MailBody;
+import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
@@ -27,12 +29,15 @@ import com.proptiger.data.model.marketplace.Notification;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
+import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.LeadTaskDao;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.MarketplaceNotificationTypeDao;
 import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.service.LeadTaskService;
+import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
@@ -73,7 +78,18 @@ public class NotificationService {
     @Autowired
     NotificationGeneratedService           generatedService;
 
+    @Autowired
+    NotificationMessageService             notificationMessageService;
+
     private static final List<Integer>     allMasterTaskIdsButCall = new ArrayList<>();
+
+    private static final String            defaultNotificationType = "marketplace_default";
+
+    @Autowired
+    UserService                            userService;
+
+    @Autowired
+    MailSender                             mailSender;
 
     @Autowired
     private static Logger                  logger;
@@ -275,19 +291,19 @@ public class NotificationService {
                 nextTask.getId(),
                 notificationTypeId);
         if (notification == null) {
-            createTaskNotification(nextTask, notificationTypeId);
+            notification = createTaskNotification(nextTask, notificationTypeId);
             if (sendNotification) {
-                // XXX NOTIFICATION TO BE SENT HERE
+                // XXX GCM notification being sent
+                if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_ALL)) {
+                    generatedService.createNotificationGenerated(Arrays.asList(notificationMessageService
+                            .createNotificationMessage(
+                                    defaultNotificationType,
+                                    notification.getUserId(),
+                                    notification.getStringDetails())), Arrays.asList(MediumType.MarketplaceApp));
+                }
             }
         }
-
-        LeadTask toBePersisted = leadTaskService.getTaskDetails(nextTask.getId());
-        toBePersisted.unlinkCircularLoop();
-        return createNotification(
-                toBePersisted.getLeadOffer().getAgentId(),
-                notificationTypeId,
-                toBePersisted.getId(),
-                SerializationUtils.objectToJson(toBePersisted));
+        return notification;
     }
 
     /**
@@ -575,7 +591,11 @@ public class NotificationService {
             JsonNode message = SerializationUtils.objectToJson(notificationType);
 
             System.out.println("SENDING NOTIFICATION TO USERID: " + userId + " MESSAGE: " + message);
-            // Send Notification To User
+            if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_ALL)) {
+                generatedService.createNotificationGenerated(Arrays.asList(notificationMessageService
+                        .createNotificationMessage(defaultNotificationType, userId, message.toString())), Arrays
+                        .asList(MediumType.MarketplaceApp));
+            }
         }
     }
 
@@ -610,6 +630,13 @@ public class NotificationService {
                 offer.getId(),
                 SerializationUtils.objectToJson(offer));
         // XXX send notification to broker
+        if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_GCM_SEND_NEW_OFFER)) {
+            generatedService.createNotificationGenerated(Arrays.asList(notificationMessageService
+                    .createNotificationMessage(
+                            defaultNotificationType,
+                            notification.getUserId(),
+                            notification.getStringDetails())), Arrays.asList(MediumType.MarketplaceApp));
+        }
         return notification;
     }
 
@@ -620,8 +647,8 @@ public class NotificationService {
 
         Date endDate = getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(
-                endDate.getTime() - PropertyReader
-                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
+                endDate.getTime() - PropertyReader.getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_CRON_BUFFER))
+                        * 1000);
 
         Date maxOfferDate = new Date(0);
         boolean claimed = false;
@@ -632,15 +659,12 @@ public class NotificationService {
 
         if (claimed || (maxOfferDate.after(startDate) && maxOfferDate.before(endDate))) {
             if (!claimed) {
-                leadOfferService.expireLeadOffers(offers);
-                generatedService
-                        .createNotificationGenerated(
-                                Arrays.asList(new NotificationMessage(
-                                        getRelationshipManagerUserId(),
-                                        NotificationType.NoBrokerClaimed.getEmailSubject(),
-                                        "Lead ID: " + leadId
-                                                + " of resale marketplace was not claimed by any broker. Marking all offers as expired.")),
-                                Arrays.asList(MediumType.Email));
+                leadOfferService.expireLeadOffersInOfferedStatus(offers);
+                sendEmail(
+                        getRelationshipManagerUserId(),
+                        NotificationType.NoBrokerClaimed.getEmailSubject(),
+                        "Lead ID: " + leadId
+                                + " of resale marketplace was not claimed by any broker. Marking all offers as expired.");
                 createNotification(
                         getRelationshipManagerUserId(),
                         NotificationType.NoBrokerClaimed.getId(),
@@ -685,11 +709,10 @@ public class NotificationService {
     }
 
     public Notification manageDealClosedNotification(int leadOfferId) {
-        generatedService.createNotificationGenerated(Arrays.asList(new NotificationMessage(
+        sendEmail(
                 getRelationshipManagerUserId(),
                 NotificationType.SaleSuccessful.getEmailSubject(),
-                "Lead OfferID: " + leadOfferId + " of resale marketplace is marked as closed won.")), Arrays
-                .asList(MediumType.Email));
+                "Lead OfferID: " + leadOfferId + " of resale marketplace is marked as closed won.");
         return createNotification(
                 getRelationshipManagerUserId(),
                 NotificationType.SaleSuccessful.getId(),
@@ -712,8 +735,8 @@ public class NotificationService {
     public void manageLeadOfferedReminderForLead(int leadId) {
         Date endDate = getAuctionOverCutoffTime();
         Date startDate = new Date(
-                endDate.getTime() - PropertyReader
-                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
+                endDate.getTime() - PropertyReader.getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_CRON_BUFFER))
+                        * 1000);
 
         Lead lead = leadDao.getLock(leadId);
         List<LeadOffer> offers = lead.getLeadOffers();
@@ -731,19 +754,33 @@ public class NotificationService {
                     lead.getId(),
                     notificationTypeId);
             if (notification == null) {
-                generatedService
-                        .createNotificationGenerated(
-                                Arrays.asList(new NotificationMessage(
-                                        getRelationshipManagerUserId(),
-                                        NotificationType.AuctionOverWithoutClaim.getEmailSubject(),
-                                        "Lead ID: " + lead.getId()
-                                                + " of resale marketplace is not yet claimed. Please intimate the brokers. Offer will get expired after "
-                                                + PropertyReader
-                                                        .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION)
-                                                + " working seconds.")),
-                                Arrays.asList(MediumType.Email));
+                sendEmail(
+                        getRelationshipManagerUserId(),
+                        NotificationType.AuctionOverWithoutClaim.getEmailSubject(),
+                        "Lead ID: " + lead.getId()
+                                + " of resale marketplace is not yet claimed. Please intimate the brokers. Offer will get expired after "
+                                + PropertyReader
+                                        .getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_POST_BIDDING_OFFER_DURATION)
+                                + " working seconds.");
                 createNotification(getRelationshipManagerUserId(), notificationTypeId, lead.getId(), null);
             }
+        }
+    }
+
+    private void sendEmail(int userId, String subject, String content) {
+        if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_SENDEMAIL_USING_SERVICE)) {
+            generatedService.createNotificationGenerated(
+                    Arrays.asList(new NotificationMessage(userId, subject, content)),
+                    Arrays.asList(MediumType.Email));
+        }
+        else {
+            MailBody mailBody = new MailBody();
+            mailBody.setSubject(subject);
+            mailBody.setBody(content);
+
+            MailDetails mailDetails = new MailDetails(mailBody);
+            mailDetails.setMailTo(userService.getUserById(userId).getEmail());
+            mailSender.sendMailUsingAws(mailDetails);
         }
     }
 }

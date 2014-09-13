@@ -108,7 +108,7 @@ public class LeadOfferService {
     private TemplateToHtmlGenerator      templateToHtmlGenerator;
 
     @Autowired
-    private NotificationService notificationService;
+    private NotificationService          notificationService;
 
     /**
      * 
@@ -175,7 +175,7 @@ public class LeadOfferService {
             int agentId,
             FIQLSelector selector,
             List<Integer> statusIds,
-            String dueDate) {        
+            String dueDate) {
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferDao.getLeadOffers(
                 agentId,
                 statusIds,
@@ -478,13 +478,15 @@ public class LeadOfferService {
         }
 
         // Trying to claim a lead not in offered state
-        if (!leadOfferInDB.getMasterLeadOfferStatus().isClaimed() && leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
+        if (!leadOfferInDB.getMasterLeadOfferStatus().isClaimed() && leadOffer.getStatusId() == LeadOfferStatus.New
+                .getId()) {
             throw new BadRequestException("Sorry! The lead has already been claimed by another agent.");
         }
 
         // Declining a lead from Offered or Expired state
         if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId()) {
-            if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() || leadOfferInDB.getStatusId() == LeadOfferStatus.Expired.getId()) {
+            if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() || leadOfferInDB.getStatusId() == LeadOfferStatus.Expired
+                    .getId()) {
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
             }
         }
@@ -531,16 +533,19 @@ public class LeadOfferService {
         leadOfferInDB.setNextTask(null);
 
         // Code that offers listings
-        if (leadOfferInDB.getMasterLeadOfferStatus().isClaimed() ||
-            (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && 
-             leadOffer.getStatusId() == LeadOfferStatus.New.getId())) // Trying to claim case
+        if (leadOfferInDB.getMasterLeadOfferStatus().isClaimed() || (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered
+                .getId() && leadOffer.getStatusId() == LeadOfferStatus.New.getId())) // Trying
+                                                                                     // to
+                                                                                     // claim
+                                                                                     // case
         {
-            int maxOfferCountWhileClaiming = PropertyReader.getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_MAX_PROPERTY_COUNT_WHILE_CLAIMING, Long.class).intValue();
-            if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && 
-                leadOfferedListingsGiven != null && 
-                leadOfferedListingsGiven.size() > maxOfferCountWhileClaiming)
-            {
-                throw new BadRequestException("Currently you can offer only " + maxOfferCountWhileClaiming + " properties to the client. You may offer more later");
+            int maxOfferCountWhileClaiming = PropertyReader.getRequiredPropertyAsType(
+                    PropertyKeys.MARKETPLACE_MAX_PROPERTY_COUNT_WHILE_CLAIMING,
+                    Long.class).intValue();
+            if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() && leadOfferedListingsGiven != null
+                    && leadOfferedListingsGiven.size() > maxOfferCountWhileClaiming) {
+                throw new BadRequestException("Currently you can offer only " + maxOfferCountWhileClaiming
+                        + " properties to the client. You may offer more later");
             }
 
             if (leadOfferedListingsGiven != null && !leadOfferedListingsGiven.isEmpty()) {
@@ -575,7 +580,7 @@ public class LeadOfferService {
             listingMap.put(listing.getId(), listing);
         }
 
-        leadOfferInDB.setAgent(userService.getUserById(leadOfferInDB.getAgentId()));
+        leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
         map.put("leadOffer", leadOfferInDB);
         map.put("listingObjectWithAmenities", listingMap);
 
@@ -634,7 +639,8 @@ public class LeadOfferService {
 
     private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings) {
         Set<Integer> offeredListingIds = new HashSet<>();
-        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(Collections.singletonList(leadOfferId))) {
+        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(Collections
+                .singletonList(leadOfferId))) {
             offeredListingIds.add(leadOfferListing.getListingId());
         }
 
@@ -752,10 +758,12 @@ public class LeadOfferService {
         return leadOfferInDB;
     }
 
-    public List<LeadOffer> expireLeadOffers(List<LeadOffer> leadOffers) {
+    public List<LeadOffer> expireLeadOffersInOfferedStatus(List<LeadOffer> leadOffers) {
         for (LeadOffer leadOffer : leadOffers) {
-            leadOffer.setStatusId(LeadOfferStatus.Expired.getId());
-            leadOfferDao.save(leadOffer);
+            if (leadOffer.getMasterLeadOfferStatus().getStatus().equals(LeadOfferStatus.Offered.toString())) {
+                leadOffer.setStatusId(LeadOfferStatus.Expired.getId());
+                leadOfferDao.save(leadOffer);
+            }
         }
         return leadOffers;
     }
