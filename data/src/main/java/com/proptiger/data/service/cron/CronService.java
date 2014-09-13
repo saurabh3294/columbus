@@ -43,7 +43,9 @@ public class CronService {
 
     @Scheduled(initialDelay = 10000, fixedDelay = 1800000)
     public void manageLeadAssignment() {
-        Date createdSince = new Date(new Date().getTime() - 7200 * 1000);
+        Date createdSince = new Date(
+                new Date().getTime() - PropertyReader.getRequiredPropertyAsInt(PropertyKeys.MARKETPLACE_CRON_BUFFER)
+                        * 1000);
         List<Lead> leads = leadDao.getMergedLeadsWithoutOfferCreatedSince(createdSince);
         for (Lead lead : leads) {
             try {
@@ -82,12 +84,12 @@ public class CronService {
         notificationService.sendTaskDueNotification();
     }
 
-    @Scheduled(initialDelay = 40000, fixedDelay = 1800000)
+    @Scheduled(initialDelay = 4000, fixedDelay = 60000)
     public void manageNoBrokerClaimedNotification() {
         Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(
-                endDate.getTime() - PropertyReader
-                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
+                endDate.getTime() - PropertyReader.getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_CRON_BUFFER))
+                        * 1000);
         List<Lead> leads = leadDao.getMergedLeadsByOfferredAtBetweenAndOfferStatusId(
                 startDate,
                 endDate,
@@ -106,8 +108,8 @@ public class CronService {
     public void manageLeadOfferedReminder() {
         Date endDate = notificationService.getAuctionOverCutoffTime();
         Date startDate = new Date(
-                endDate.getTime() - PropertyReader
-                        .getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_NO_BROKER_CLAIMED_CRON_BUFFER)) * 1000);
+                endDate.getTime() - PropertyReader.getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_CRON_BUFFER))
+                        * 1000);
         List<Lead> leads = leadDao.getMergedLeadsByOfferredAtBetweenAndOfferStatusId(
                 startDate,
                 endDate,

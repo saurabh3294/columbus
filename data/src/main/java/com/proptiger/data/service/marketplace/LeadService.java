@@ -1,5 +1,7 @@
 package com.proptiger.data.service.marketplace;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.model.Company;
@@ -24,6 +27,7 @@ import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.ProjectService;
 import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.BadRequestException;
@@ -319,5 +323,25 @@ public class LeadService {
 
     public List<Lead> getLeads(List<Integer> leadIds) {
         return leadDao.getLeads(leadIds);
+    }
+
+    public void moveToPrimary(int LeadId) {
+        RestTemplate restTemplate = new RestTemplate();
+        URI uri;
+        String stringUrl = "";
+        try {
+            stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.CRM_URL) + PropertyReader
+                    .getRequiredPropertyAsString(PropertyKeys.CRM_MOVE_RESALE_LEAD_TO_PRIMARY) + LeadId;
+            uri = new URI(stringUrl);
+            restTemplate.getForObject(uri, Object.class);
+        }
+        catch (URISyntaxException e) {
+            logger.error("Error in URL formation: " + stringUrl);
+        }
+    }
+
+    @Async
+    public void moveToPrimaryAsync(int LeadId) {
+        moveToPrimary(LeadId);
     }
 }

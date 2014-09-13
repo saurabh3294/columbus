@@ -576,7 +576,7 @@ public class LeadOfferService {
             listingMap.put(listing.getId(), listing);
         }
 
-        leadOfferInDB.setAgent(userService.getUserById(leadOfferInDB.getAgentId()));
+        leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
         map.put("leadOffer", leadOfferInDB);
         map.put("listingObjectWithAmenities", listingMap);
 

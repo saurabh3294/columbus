@@ -725,7 +725,7 @@ public class UserService {
         User userInDB = userDao.findByEmail(email);
 
         if (userInDB != null) {
-            user.setId(userInDB.getId());            
+            user.setId(userInDB.getId());
         }
         else {
             user.setId(userDao.save(user).getId());
@@ -804,8 +804,11 @@ public class UserService {
         return contactNumbersOfUser;
     }
 
-    public User getUserById(int Id) {
+    public User getUserWithContactNumberById(int Id) {
         return userDao.findById(Id);
     }
 
+    public User getUserById(int userId) {
+        return userDao.findOne(userId);
+    }
 }
