@@ -659,7 +659,7 @@ public class NotificationService {
 
         if (claimed || (maxOfferDate.after(startDate) && maxOfferDate.before(endDate))) {
             if (!claimed) {
-                leadOfferService.expireLeadOffers(offers);
+                leadOfferService.expireLeadOffersInOfferedStatus(offers);
                 sendEmail(
                         getRelationshipManagerUserId(),
                         NotificationType.NoBrokerClaimed.getEmailSubject(),
