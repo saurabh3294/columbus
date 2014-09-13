@@ -103,7 +103,7 @@ public class DBRawEventTableLog extends BaseModel {
     public void setDbName(String dbName) {
         this.dbName = dbName;
     }
-
+    
     public String getTableName() {
         return tableName;
     }
@@ -142,14 +142,6 @@ public class DBRawEventTableLog extends BaseModel {
 
     public void setLastTransactionKeyValue(Long lastTransactionKeyValue) {
         this.lastTransactionKeyValue = lastTransactionKeyValue;
-    }
-
-    public String getPreFilters() {
-        return prefilters;
-    }
-
-    public void setPreFilters(String preFilters) {
-        this.prefilters = preFilters;
     }
 
     public Map<String, List<Object>> getFilterMap() {

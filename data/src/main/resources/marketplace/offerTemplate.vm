@@ -71,7 +71,7 @@
   <tr>
     <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
     
-    Hi Akash,<br /><br />
+    Hi ${leadOffer.lead.client.fullName},<br /><br />
     As per your requirement, I would like to propose few more properties. Please find the property details below.
     
     </td>
@@ -80,7 +80,47 @@
   
   
   
-  #foreach (${offeredListing} in ${leadOffer.offeredListings})  
+  #foreach (${requirement} in ${leadOffer.lead.requirements})
+	#if (${requirement.project})    
+		${requirement.project.name}, ${requirement.project.address}, ${requirement.bedroom} BHK, 
+	#end
+#end
+${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq.ft., ${leadOffer.lead.minBudget} - ${leadOffer.lead.maxBudget} Lacs.
+ You can find the property 
+details below.
+    
+    </td>
+  </tr>
+  
+  
+  <tr>
+    <td bgcolor="#f5f5f5" style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
+    
+    <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
+    <tr><td height="5"></td></tr>
+             <tr>
+    <td style="font-size:12px;">Suggested by Broker:  ${leadOffer.agent.fullName}</td>
+  </tr>         
+        
+            </table>
+            
+            <table border="0" cellpadding="0" cellspacing="0" align="right" width="28%">
+              
+             
+                  <tr>
+                    <td style="text-align:center;" class="responsive-image"	><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}</strong></div>
+                      
+                      
+                    </td></tr></table>
+    
+    </td>
+  </tr>
+  
+  <tr>
+  <td>&nbsp;</td>
+  </tr>
+
+#foreach (${offeredListing} in ${leadOffer.offeredListings})  
     <tr>
   <td>
   
@@ -95,28 +135,36 @@
   <tr>
     <td style="padding:10px;"><strong>Configuration: </strong></td>
     <td width="156" style="padding:10px;">${offeredListing.listing.property.unitName}</td>
-    <td width="144" style="padding:10px;">Tower: </td>
-    <td width="107" style="padding:10px;">2A</td>
-  </tr>
-  <tr>
     <td width="173" style="padding:10px;"><strong>Size</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.property.size}  ${offeredListing.listing.property.measure}</td>
-    <td style="padding:10px;"><strong>Parking:</strong></td>
-    <td style="padding:10px;">Available</td>
+    <td style="padding:10px;">${offeredListing.listing.property.size}  ${offeredListing.listing.property.measure}</td>    
+    
   </tr>
   <tr>
     <td width="173" style="padding:10px;"><strong>Asking Price:</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.currentListingPrice.price} </td>
-    <td style="padding:10px;"><strong>Power Backup:</strong></td>
-    <td style="padding:10px;">Available</td>
-  </tr>
-  <tr>
     <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.floor} th</td>
-    <td style="padding:10px;"><strong>Club Membership:</strong></td>
-    <td style="padding:10px;">Not Available</td>
   </tr>
-  <tr>
+
+
+#set($a = 1)
+#foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
+#if ($a == 1)    
+    <tr>    
+    <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
+    <td style="padding:10px;">Available</td>
+#set($a = 2)
+#elseif ($a == 2)
+    <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
+    <td style="padding:10px;">Available</td>
+    </tr>
+#set($a = 1)
+#end	
+  
+#end  
+#if ($a == 2)
+</tr><tr>
+#end
     <td width="173" style="padding:10px;"><strong>Other Splecial Features</strong> </td>
     <td colspan="3" style="padding:10px;">Swimming Pool, Gym, Golf Course, Meditation Center, Medical Clinic, Jogging Track, Landscape Garden</td>
     </tr>
@@ -129,7 +177,8 @@
   
    <tr>
   <td>&nbsp;</td>
-  </tr>   
+  </tr>
+</table>   
 #end
   
    <tr>

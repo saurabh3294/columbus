@@ -31,7 +31,11 @@ public class LeadController extends BaseController {
     @ResponseBody
     public APIResponse create(@RequestBody Lead lead) {
         Lead createdLead = leadService.createLead(lead);
-        leadService.manageLeadAuctionAsync(createdLead.getId());
+        try {
+            leadService.manageLeadAuction(createdLead.getId());
+        }
+        catch (Exception e) {
+        }
         return new APIResponse(createdLead);
     }
 

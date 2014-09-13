@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.gson.Gson;
 import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -403,25 +402,40 @@ public class NotificationService {
      * @param notificationTypeId
      * @return
      */
+    public void createLeadNotification(Lead lead, int notificationTypeId) {
+        List<LeadOffer> leadOffers = leadOfferDao.getLegitimateLeadOffersForDuplicateLeadNotifications(lead.getId());        
+        if (leadOffers != null && !leadOffers.isEmpty()) {
+            List<Integer> leadOfferIds = new ArrayList<>();
+            for (LeadOffer leadOffer: leadOffers) {
+                leadOfferIds.add(leadOffer.getId());
+            }
 
-    public Notification createLeadNotification(Lead lead, int notificationTypeId) {
-        Notification notification = new Notification();
-        notification.setNotificationTypeId(notificationTypeId);
-        notification.setObjectId(lead.getId());
+            List<Notification> notifications = notificationDao.findByObjectIdInAndNotificationTypeIdAndReadFalse(leadOfferIds, notificationTypeId);
 
-        Gson gson = new Gson();
-        notification.setStringDetails(gson.toJson(lead).toString());
-        Notification notificationPreMature = notification;
-        List<LeadOffer> leadOffers = leadOfferDao.findByLeadId(lead.getId());
+            Map<Integer, Notification> unreadNotifications = new HashMap<>();
 
-        for (LeadOffer leadOffer : leadOffers) {
-            Cloner cloner = new Cloner();
-            Notification notificationOriginal = cloner.deepClone(notificationPreMature);
-            notificationOriginal.setUserId(leadOffer.getAgentId());
-            notificationDao.save(notificationOriginal);
+            if (notifications != null) {
+                for (Notification unreadNotification : notifications) {
+                    unreadNotifications.put(unreadNotification.getUserId(), unreadNotification);
+                }
+            }
 
+            for (LeadOffer leadOffer : leadOffers) {
+                if (!unreadNotifications.containsKey(leadOffer.getAgentId())) {
+                    Notification notification = new Notification();
+                    notification.setNotificationTypeId(notificationTypeId);
+                    notification.setUserId(leadOffer.getAgentId());
+                    notification.setObjectId(leadOffer.getId());
+                    notification.setDetails(SerializationUtils.objectToJson(lead));
+                    notificationDao.save(notification);
+                }
+                else {
+                    Notification notification = unreadNotifications.get(leadOffer.getAgentId());
+                    notification.setDetails(SerializationUtils.objectToJson(lead));
+                    notificationDao.save(notification);
+                }
+            }
         }
-        return notification;
     }
 
     /**

@@ -184,6 +184,11 @@ public class LeadService {
             throw new BadRequestException("CityId should be valid");
         }
 
+        lead.setRequirements(removeDuplicateEntries(lead.getRequirements()));
+
+        // Setting isregistered false for all such users
+        lead.getClient().setRegistered(false);
+
         User user = userService.createUser(lead.getClient());
         lead.setClient(user);
         lead.setClientId(user.getId());
@@ -307,8 +312,50 @@ public class LeadService {
         return existingLead;
     }
 
+    private boolean areRequirementsEqual(LeadRequirement leadRequirement, LeadRequirement otherLeadRequirement) {
+        Integer bedroom = leadRequirement.getBedroom();
+        Integer otherBedroom = otherLeadRequirement.getBedroom();
+        Integer localityId = leadRequirement.getLocalityId();
+        Integer otherLocalityId = otherLeadRequirement.getLocalityId();
+        Integer projectId = leadRequirement.getProjectId();
+        Integer otherProjectId = otherLeadRequirement.getProjectId();
+
+        if (((bedroom == null && otherBedroom == null) || (otherBedroom != null && otherBedroom.equals(bedroom))) && ((localityId == null && otherLocalityId == null) || (otherLocalityId != null && otherLocalityId
+                .equals(localityId)))
+                && ((projectId == null && otherProjectId == null) || (otherProjectId != null && otherProjectId
+                        .equals(projectId)))) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private List<LeadRequirement> removeDuplicateEntries(List<LeadRequirement> requirements) {
+        int i = 0;
+        List<LeadRequirement> uniqueList = new ArrayList<LeadRequirement>();
+
+        for (LeadRequirement leadRequirement : requirements) {
+            boolean isDuplicate = false;
+
+            for (int j = 0; j < i; j++) {
+                if (areRequirementsEqual(leadRequirement, requirements.get(j))) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            if (!isDuplicate) {
+                uniqueList.add(leadRequirement);
+            }
+
+            i++;
+        }
+
+        return uniqueList;
+    }
+
     /**
-     * 
      * @param email
      * @param contactNumber
      *            checks weather there exist a lead for some specific user with
