@@ -106,9 +106,6 @@ public class UserService {
     @Value("${b2b.price-inventory.max.month.dblabel}")
     private String                     currentMonthDbLabel;
 
-    @Value("${b2b.price-inventory.max.month}")
-    private String                           currentMonth;
-
     @Value("${enquired.within.days}")
     private Integer                          enquiredWithinDays;
 
