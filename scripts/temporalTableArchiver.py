@@ -11,6 +11,7 @@ from time import gmtime, strftime
 import threading
 from Queue import Queue
 import logging
+import signal
 
 # This script will serve the purpose to optimise images for faster load on web 
 # using imagemagick library
@@ -24,7 +25,7 @@ import logging
 numberOfThreads = 1
 
 # initialize logging
-logging.basicConfig(filename = "archiveLogging.txt")
+logging.basicConfig(filename = "archiveLogging.txt", level=logging.INFO)
 
 logging.info(" Table Archiving Started ")
 
@@ -39,7 +40,7 @@ config = dict(
             'cursorclass':  MySQLdb.cursors.DictCursor
             },
         'mysqldest'   :   {
-            'host'      :   '192.168.1.8',
+            'host'      :   'localhost',#'192.168.1.8',
             'user'      :   'root',
             'passwd'    :   'root',
             'db'        :   'archives',
@@ -68,7 +69,7 @@ scriptconfig = {
                     "limit":1000,
                     "total_migrated":10000,
                     "run_time":1,
-                    "progress":10000,
+                    "progress":10,
                     "tables":{
                         "days":10, 
                         "limit":1000,
@@ -88,10 +89,8 @@ destdb = MySQLdb.connect(**config[env]['mysqldest'])
 srccursor = srcdb.cursor()
 destcursor = destdb.cursor()
 
-
-
-
-        
+# create subprocess map.
+subprocessMap = {}
 
 def customLogging(text):
     global logFile
@@ -224,7 +223,7 @@ def getArchivingConfig(row, scriptconfig):
     return [rows_limit, run_time, last_days, total_migrated, progress]
 
 def handleTableArchiving(row, new_table_name, tableLogging, scriptconfig, dcursor, scursor):
-    global archiveDatabase, config, env
+    global archiveDatabase, config, env, subprocessMap
     table_name = row['table_name']
     table_schema = row['table_schema']
     mysql_src = config[env]['mysqlsrc']
@@ -241,7 +240,11 @@ def handleTableArchiving(row, new_table_name, tableLogging, scriptconfig, dcurso
 
     with io.open(filename, 'wb') as writer:
         p = subprocess.Popen(commandStr, stdout=subprocess.PIPE, shell=True)
+        subprocessMap[new_table_name] = p
+        print " data archiving started "
+
         for line in iter(p.stdout.readline, ''):
+            print line
             writer.write(line)
 
         print "PID "+str(p.pid)
@@ -249,6 +252,7 @@ def handleTableArchiving(row, new_table_name, tableLogging, scriptconfig, dcurso
         p.wait()
         status = p.returncode
         tableLogging.info(" Data Migration Finished with Status Code " + str(status))
+        del subprocessMap[new_table_name]
         #print " status return code "+str(status)
         ## some error has occurred.
         #if status < 0:
@@ -286,11 +290,18 @@ def worker():
         q.task_done()
 
 def signalHandler(signum, frame):
+    global q, subprocessMap
     print " Wait ! script being closed "
-    while !q.empty():
+    while q.empty() == False:
         q.get()
         q.task_done()
-    
+
+    for key in subprocessMap:
+        subprocessMap.terminate()
+
+
+signal.signal(signal.SIGINT, signalHandler)
+
 # Create the queue and thread pool.
 q = Queue()
 for i in range(numberOfThreads):
@@ -299,7 +310,7 @@ for i in range(numberOfThreads):
     t.daemon = True # thread dies when main thread (only non-daemon thread) exits 
     t.start()
 
-query = "SELECT table_schema, table_name,engine, table_rows, auto_increment from information_schema.tables where table_name like '_t_%' and table_schema != 'information_schema' and table_name = '_t_listing_prices_bk1'  and table_schema != 'archives' order by table_name"
+query = "SELECT table_schema, table_name,engine, table_rows, auto_increment from information_schema.tables where table_name like '_t_%' and table_schema != 'information_schema' and table_name = '_t_listing_prices_bk3'  and table_schema != 'archives' order by table_name"
 
 logging.info(" Retrieving Table list "+query)
 
@@ -312,3 +323,5 @@ for row in rows:
 q.join()
 
 logging.shutdown()
+srcdb.close()
+destdb.close()
