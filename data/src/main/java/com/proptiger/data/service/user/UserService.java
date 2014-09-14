@@ -71,14 +71,11 @@ import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
-<<<<<<< HEAD
-import com.proptiger.data.service.B2BAttributeService;
-=======
 import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
->>>>>>> marketplace
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
@@ -103,18 +100,14 @@ import com.proptiger.exception.UnauthorizedException;
 public class UserService {
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
-<<<<<<< HEAD
     @Autowired
     private B2BAttributeService        b2bAttributeService;
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
     private String                     currentMonthDbLabel;
 
-    private String                     currentMonth;
-=======
     @Value("${b2b.price-inventory.max.month}")
     private String                           currentMonth;
->>>>>>> marketplace
 
     @Value("${enquired.within.days}")
     private Integer                          enquiredWithinDays;
