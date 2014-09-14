@@ -310,7 +310,8 @@ for i in range(numberOfThreads):
     t.daemon = True # thread dies when main thread (only non-daemon thread) exits 
     t.start()
 
-query = "SELECT table_schema, table_name,engine, table_rows, auto_increment from information_schema.tables where table_name like '_t_%' and table_schema != 'information_schema' and table_name = '_t_listing_prices_bk3'  and table_schema != 'archives' order by table_name"
+query = "SELECT table_schema, table_name,engine, table_rows, auto_increment from information_schema.tables where table_name like '_t_%' and table_schema NOT IN ('information_schema', 'archives') order by table_name"
+#query = "SELECT table_schema, table_name,engine, table_rows, auto_increment from information_schema.tables where table_name like '_t_%' and table_schema != 'information_schema' and table_name = '_t_listing_prices_bk3'  and table_schema != 'archives' order by table_name"
 
 logging.info(" Retrieving Table list "+query)
 
