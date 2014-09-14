@@ -19,7 +19,7 @@ import com.proptiger.data.model.ForumUser;
  * Security utils to get current logged in user and session related work.
  * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public class SecurityContextUtils {
 
@@ -122,5 +122,9 @@ public class SecurityContextUtils {
 
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public static int getLoggedInUserId() {
+        return Integer.parseInt(getLoggedInUser().getUserId());
     }
 }

@@ -21,9 +21,6 @@ public class EmailSender implements MediumSender {
     private static final String SUBJECT     = "subject";
     private static final String BODY        = "body";
 
-    private static final String DUMMY_EMAIL = "midl-team+test@proptiger.com";
-    // private static final String DUMMY_EMAIL = "sahil.garg@proptiger.com";
-
     @Autowired
     private AmazonMailSender    amazonMailSender;
 
@@ -36,7 +33,7 @@ public class EmailSender implements MediumSender {
          * For testing, please add a test email id below to avoid sending
          * unnecessary emails to actual users
          */
-        emailId = DUMMY_EMAIL;
+        //emailId = "";
 
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(emailId);
         logger.debug("Sending email " + mailBody.getBody() + " to : " + emailId);

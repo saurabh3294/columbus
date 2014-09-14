@@ -18,20 +18,21 @@ import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.security.SocialUser;
 
+import com.proptiger.data.enums.AuthProvider;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.model.user.User;
+import com.proptiger.data.repo.user.UserDao;
 
 /**
  * Connection repository to find already estabilished connections with provider
  * 
  * @author Rajeev Pandey
- *
+ * @author azi
+ * 
  */
 public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepository {
-
     @Autowired
-    private ForumUserDao     forumUserDao;
+    private UserDao          userDao;
 
     private ConnectionSignUp connectionSignUp;
 
@@ -48,10 +49,11 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
     public List<String> findUserIdsWithConnection(Connection<?> connection) {
         ConnectionKey key = connection.getKey();
         List<String> localUserIds = new ArrayList<String>();
-        List<ForumUser> socialForumUser = forumUserDao.findByProviderAndProviderid(
-                key.getProviderId(),
+        User socialForumUser = userDao.findByProviderIdAndProviderUserId(
+                AuthProvider.getAuthProviderIgnoreCase(key.getProviderId()).getProviderId(),
                 key.getProviderUserId());
-        if (socialForumUser.size() == 0 && connectionSignUp != null) {
+
+        if (socialForumUser == null && connectionSignUp != null) {
             /*
              * if no provider and provider user id combination found in database
              * then create new
@@ -62,11 +64,9 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
             }
         }
         else {
-            for (ForumUser forumUser : socialForumUser) {
-                localUserIds.add(String.valueOf(forumUser.getUserId()));
-            }
+            localUserIds.add(String.valueOf(socialForumUser.getId()));
         }
-        
+
         return localUserIds;
     }
 
@@ -78,57 +78,17 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
      * 
      * @param provider
      * @param providerUserId
-     * @param profileImageUrl
-     * @param email
-     * @param userName
      * @return
      */
-    public Authentication createAuthenicationByProviderAndProviderUserId(
-            String provider,
-            String providerUserId,
-            String userName,
-            String email,
-            String profileImageUrl) {
-        List<ForumUser> forumUserList = forumUserDao.findByProviderAndProviderid(provider, providerUserId);
-        ForumUser forumUser = null;
-        if (forumUserList != null && forumUserList.size() == 1) {
-            forumUser = forumUserList.get(0);
-            /*
-             * due to bug in website's social login feature few user have empty
-             * email, so as a hack set passed email in forum user table and
-             * update user so that SocialUser object creation will not fail
-             */
-            if (forumUser.getEmail() == null || forumUser.getEmail().isEmpty()) {
-                forumUser.setEmail(email);
-                forumUser = forumUserDao.saveAndFlush(forumUser);
-            }
-        }
-        else {
-            // first time user, need to create entry in database
-            forumUser = new ForumUser();
-            forumUser.setProvider(provider);
-            forumUser.setProviderid(providerUserId);
-            forumUser.setUsername(userName);
-            forumUser.setEmail(email);
-            forumUser.setCity("");
-            forumUser.setPassword("");
-            forumUser.setUniqueUserId("");
-            forumUser.setStatus(ForumUser.USER_STATUS_ACTIVE);
-            if(provider.equalsIgnoreCase("facebook")){
-                forumUser.setFbImageUrl(profileImageUrl);
-                forumUser.setImage(providerUserId + ConnectionSignUpImpl.PROFILE_IMAGE_FORMAT);
-            }
-            else{
-                forumUser.setFbImageUrl("");
-                forumUser.setImage("");
-            }
-            forumUser = forumUserDao.save(forumUser);
-        }
-        if(forumUser != null){
+    public Authentication createAuthenicationByProviderAndProviderUserId(String provider, String providerUserId) {
+        User user = userDao.findByProviderIdAndProviderUserId(AuthProvider.getAuthProviderIgnoreCase(provider)
+                .getProviderId(), providerUserId.toString());
+        if (user != null) {
+            String password = user.getPassword() == null ? "" : user.getPassword();
             SocialUser socialUser = new ActiveUser(
-                    forumUser.getUserId(),
-                    forumUser.getEmail(),
-                    forumUser.getPassword(),
+                    user.getId(),
+                    user.getEmail(),
+                    password,
                     true,
                     true,
                     true,
@@ -137,7 +97,6 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
 
             return new UsernamePasswordAuthenticationToken(socialUser, null, socialUser.getAuthorities());
         }
-        
         return null;
     }
 }

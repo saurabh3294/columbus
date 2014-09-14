@@ -82,7 +82,7 @@ public class NotificationMessage extends BaseModel {
     }
 
     public NotificationMessage() {
-        // TODO Auto-generated constructor stub
+            // TODO Auto-generated constructor stub
     }
 
     /*

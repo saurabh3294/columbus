@@ -34,9 +34,10 @@ import org.springframework.stereotype.Component;
 public class PropertyReader {
 
     @Autowired
-    private static GenericConversionService       conversionService;
-    private Logger                     logger = LoggerFactory.getLogger(getClass());
-    private static Map<String, String> propertyDataMap;
+    private static GenericConversionService conversionService;
+
+    private Logger                          logger = LoggerFactory.getLogger(getClass());
+    private static Map<String, String>      propertyDataMap;
 
     /**
      * Initializing the property key value map. Using Map as key value store so
@@ -88,6 +89,35 @@ public class PropertyReader {
             }
         }
         throw new IllegalStateException("required key" + key + " not found");
+    }
+
+    /**
+     * 
+     * @param key
+     * @return
+     */
+    public static int getRequiredPropertyAsInt(String key) {
+        return getRequiredPropertyAsType(key, Integer.class);
+    }
+
+    /**
+     * gets property as boolean
+     * 
+     * @param key
+     * @return
+     */
+    public static boolean getRequiredPropertyAsBoolean(String key) {
+        return getRequiredPropertyAsType(key, Boolean.class);
+    }
+
+    /**
+     * gets property as string
+     * 
+     * @param key
+     * @return
+     */
+    public static String getRequiredPropertyAsString(String key) {
+        return getRequiredPropertyAsType(key, String.class);
     }
 
     /**

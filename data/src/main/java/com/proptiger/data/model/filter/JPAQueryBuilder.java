@@ -4,11 +4,12 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.StringTokenizer;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.filter.FieldsMapLoader.FieldMetaInfo;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.pojo.SortBy;
@@ -138,33 +140,37 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
                 groupByList.add(root.get(fieldName));
                 criteriaQuery.groupBy(groupByList);
                 addToFields(selector, fieldName);
-                Expression<?> expression = createExpression(fieldName);
-                if (criteriaQuery.getSelection() != null) {
-                    addSelection(expression);
-                }
-                else {
-                    criteriaQuery.select(criteriaBuilder.tuple(expression));
+                Expression<?> expression = createExpression(fieldName, false);
+                // expression might be null for a field of composite classes
+                if (expression != null) {
+                    if (criteriaQuery.getSelection() != null) {
+                        addSelection(expression);
+                    }
+                    else {
+                        criteriaQuery.select(criteriaBuilder.tuple(expression));
+                    }
                 }
             }
         }
-        else {
-            root.alias("root");
-            criteriaQuery.select(criteriaBuilder.tuple(root));
-        }
+        root.alias("root");
+        criteriaQuery.select(criteriaBuilder.tuple(root));
     }
 
     @Override
     protected void buildSelectClause(FIQLSelector selector) {
         if (selector != null && selector.getFields() != null && !selector.getFields().isEmpty()) {
             for (String fieldName : selector.getFields().split(",")) {
-                addSelection(createExpression(fieldName));
+                Expression<?> exp = createExpression(fieldName, true);
+                if (exp != null) {
+                    addSelection(exp);
+                }
             }
 
             addToFields(selector, "extraAttributes");
         }
     }
 
-    private Expression<?> createExpression(String fieldName) {
+    private Expression<?> createExpression(String fieldName, boolean isSelectExp) {
         String prefix = parseAggregateFunctionFromField(fieldName);
         String actualFieldName = StringUtils.uncapitalize(fieldName.substring(prefix.length()));
         Expression<?> expression = null;
@@ -227,29 +233,46 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
             }
         }
         else {
-            if (fieldName.contains(".")) {
-                // there might be a accociated field reference, need to create
-                // path till the last reference
-                // we expect the fieldname do not have "-" or some other
-                // character for sorting etc.
-                String[] fields = fieldName.split("\\.");
-                Path<Object> path = null;
-                for (String f : fields) {
-                    if (path == null) {
-                        path = root.get(f);
+            FieldMetaInfo fieldMetaIfo = FieldsMapLoader.getFieldMeta(domainClazz, fieldName);
+            if (!fieldMetaIfo.isTransientField()) {
+                /*
+                 * field is not transient and if that is a composite filed, so
+                 * will contain dot.
+                 */
+                if (fieldName.contains(".")) {
+                    // there might be a accociated field reference, need to
+                    // create
+                    // path till the last reference
+                    // we expect the fieldname do not have "-" or some other
+                    // character for sorting etc.
+                    String[] fields = fieldName.split("\\.");
+                    Path<Object> path = null;
+                    for (String f : fields) {
+                        if (path == null) {
+                            path = root.get(f);
+                        }
+                        else {
+                            path = path.get(f);
+                        }
                     }
-                    else {
-                        path = path.get(f);
+                    expression = path;
+                }
+                else {
+                    if (!isSelectExp) {
+                        expression = root.get(fieldName);
+                    }
+                    else if (fieldMetaIfo.isFieldInModel() && !fieldMetaIfo.isDirectFieldInModel()) {
+                        /*
+                         * if field in model and not direct field then create expression
+                         */
+                        expression = root.get(fieldName);
                     }
                 }
-                expression = path;
-            }
-            else {
-                expression = root.get(fieldName);
             }
         }
-
-        expression.alias(fieldName);
+        if (expression != null) {
+            expression.alias(fieldName);
+        }
         return expression;
     }
 
@@ -307,14 +330,23 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
             List<Order> orders = new ArrayList<>();
             for (String fieldName : selector.getSort().split(",")) {
                 Order order = null;
+                Expression<?> exp = null;
                 if (fieldName.startsWith("-")) {
-                    order = criteriaBuilder.desc(createExpression(fieldName.substring(1)));
+                    exp = createExpression(fieldName.substring(1), false);
+                    if (exp != null) {
+                        order = criteriaBuilder.desc(exp);
+                    }
                 }
                 else {
-                    order = criteriaBuilder.asc(createExpression(fieldName));
+                    exp = createExpression(fieldName, false);
+                    if (exp != null) {
+                        order = criteriaBuilder.asc(exp);
+                    }
+                }
+                if (order != null) {
+                    orders.add(order);
                 }
 
-                orders.add(order);
             }
 
             criteriaQuery.orderBy(orders);
@@ -379,14 +411,28 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
      * @param fieldValue
      * @return
      */
-    public static boolean set(Object object, String fieldName, Object fieldValue) {
-        Class<?> clazz = object.getClass();
+    public static boolean set(Object resultObject, String fieldName, Object fieldValue) {
+        Class<?> clazz = resultObject.getClass();
         while (clazz != null) {
             try {
-                Field field = clazz.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                field.set(object, fieldValue);
-                return true;
+                if (fieldName.contains(".")) {
+                    String[] expandedFieldNames = fieldName.split("\\.", 2);
+                    Field field = clazz.getDeclaredField(expandedFieldNames[0]);
+                    clazz = field.getType();
+                    field.setAccessible(true);
+                    Object fieldValInResultObject = field.get(resultObject);
+                    if (fieldValInResultObject == null) {
+                        fieldValInResultObject = clazz.newInstance();
+                        field.set(resultObject, fieldValInResultObject);
+                    }
+                    return set(fieldValInResultObject, expandedFieldNames[1], fieldValue);
+                }
+                else {
+                    Field field = clazz.getDeclaredField(fieldName);
+                    field.setAccessible(true);
+                    field.set(resultObject, fieldValue);
+                    return true;
+                }
             }
             catch (NoSuchFieldException e) {
                 clazz = clazz.getSuperclass();
@@ -611,5 +657,53 @@ public class JPAQueryBuilder<T extends BaseModel> extends AbstractQueryBuilder<T
     @Override
     protected void validateSelector(Selector selector) {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    protected void enrichSelector(FIQLSelector selector) {
+        String fields = selector.getFields();
+        if (fields != null && !fields.isEmpty()) {
+            Set<String> fieldSet = new HashSet<>();
+            String[] fieldArray = fields.split(",");
+            for (String fieldWithDot : fieldArray) {
+                String[] splittedFields = fieldWithDot.split("\\.");
+                fieldSet.addAll(getCompositeFieldPaths(splittedFields));
+            }
+            StringBuilder enrichedFields = new StringBuilder();
+            for(String f: fieldSet){
+                if(enrichedFields.length() > 0){
+                    enrichedFields.append(",");
+                }
+                enrichedFields.append(f);
+            }
+            if(enrichedFields.length() > 0){
+                selector.setFields(enrichedFields.toString());
+            }
+        }
+    }
+
+    /**
+     * Creates paths of composite fields, like foe field a.b.c it should create
+     * three fields as a, a.b, a.b.c
+     * 
+     * @param splittedFields
+     * @return
+     */
+    private List<String> getCompositeFieldPaths(String[] splittedFields) {
+        List<String> fieldPaths = new ArrayList<>();
+        if (splittedFields.length == 1) {
+            fieldPaths.add(splittedFields[0]);
+        }
+        else {
+            StringBuilder fPath = new StringBuilder();
+            for (String f : splittedFields) {
+                if (fPath.length() > 0) {
+                    fPath.append(".");
+                }
+                fPath.append(f);
+                fieldPaths.add(fPath.toString());
+            }
+        }
+        return fieldPaths;
     }
 }

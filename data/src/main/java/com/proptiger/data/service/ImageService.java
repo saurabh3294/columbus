@@ -71,7 +71,7 @@ public class ImageService extends MediaService {
 
     @PostConstruct
     private void init() {
-        locks = Striped.lock(propertyReader.getRequiredPropertyAsType("image.lock.stripes.count", Integer.class));
+        locks = Striped.lock(PropertyReader.getRequiredPropertyAsType("image.lock.stripes.count", Integer.class));
     }
 
     public ImageService() {
