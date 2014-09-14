@@ -282,6 +282,9 @@ public class SeoPageService {
             if (property.getSize() != null) {
                 size = property.getSize().intValue();
             }
+            if (property.getBedrooms() > 0) {
+                bedroomStr = property.getBedrooms() + "";
+            }
         }
         if (urlDetail.getProjectId() != null) {
             String json = "{\"fields\":[\"distinctBedrooms\"]}";

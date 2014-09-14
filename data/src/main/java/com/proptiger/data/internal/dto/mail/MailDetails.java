@@ -14,6 +14,7 @@ public class MailDetails extends MailBody {
     private String[] mailTo;
     private String[] mailCC;
     private String[] mailBCC;
+    private String replyTo;
 
     public MailDetails() {
     }
@@ -80,4 +81,14 @@ public class MailDetails extends MailBody {
         return this;
     }
 
+    public String getReplyTo() {
+        return replyTo;
+    }
+
+    public MailDetails setReplyTo(String replyTo) {
+        this.replyTo = replyTo;
+        return this;
+    }
+
+    
 }
