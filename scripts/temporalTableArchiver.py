@@ -66,10 +66,10 @@ config = dict(
 )
 scriptconfig = {
                     "days": 120, 
-                    "limit":1000,
+                    "limit":10000,
                     "total_migrated":10000,
                     "run_time":1,
-                    "progress":10,
+                    "progress":10000,
                     "tables":{
                         "days":10, 
                         "limit":1000,
