@@ -647,10 +647,12 @@ public class LeadTaskService {
         int leadOfferId = leadOffer.getId();
         List<LeadTask> leadTasks = leadTaskDao.findByLeadOfferId(leadOfferId);
         if (leadTasks.isEmpty()) {
+            
             leadTask.setTaskStatusId(offerDefaultLeadTaskStatusMappingId);
             leadTask.setScheduledFor(DateUtil.getWorkingTimeAddedIntoDate(new Date(), PropertyReader
                     .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_DEFAULT_TASK_DURATION, Integer.class)));
             leadTask.setLeadOfferId(leadOfferId);
+            leadTask.setNotes("Contact the client to discuss the requirements");
             leadTask = leadTaskDao.save(leadTask);
 
             leadOfferService.updateLeadOfferTasks(leadOffer, null, leadTask.getId());
