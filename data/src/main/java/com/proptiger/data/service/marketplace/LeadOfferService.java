@@ -13,9 +13,12 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
+import com.proptiger.data.enums.ListingCategory;
+import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
@@ -41,6 +44,7 @@ import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.LeadTaskStatusDao;
+import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.MasterLeadOfferStatusDao;
@@ -49,6 +53,7 @@ import com.proptiger.data.service.companyuser.CompanyService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.BadRequestException;
@@ -67,6 +72,9 @@ public class LeadOfferService {
 
     @Autowired
     private LeadOfferDao                 leadOfferDao;
+
+    @Autowired
+    private LeadDao                      leadDao;
 
     @Autowired
     private LeadRequirementsService      leadRequirementsService;
@@ -513,10 +521,48 @@ public class LeadOfferService {
         leadOfferDao.save(leadOfferInDB);
         leadOfferInDB.setOfferedListings(leadOfferedListingList);
         restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
-        notificationService.manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
+        manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
         String heading = "Matching Property suggested by our trusted broker";
         String templatePath = marketplaceTemplateBasePath + claimTemplate;
         sendMailToClient(leadOfferInDB, templatePath, heading);
+    }
+
+    @Transactional
+    public void manageLeadOfferedNotificationDeletionForLead(int leadId) {
+        Lead lead = leadDao.getLock(leadId);
+        List<LeadOffer> offers = lead.getLeadOffers();
+
+        Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
+        Date startDate = new Date(
+                endDate.getTime() - PropertyReader.getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_CRON_BUFFER))
+                        * 1000);
+
+        Date maxOfferDate = new Date(0);
+        boolean claimed = false;
+        for (LeadOffer offer : offers) {
+            claimed = claimed || offer.getMasterLeadOfferStatus().isClaimed();
+            maxOfferDate = DateUtil.max(maxOfferDate, offer.getCreatedAt());
+        }
+
+        if (claimed || (maxOfferDate.after(startDate) && maxOfferDate.before(endDate))) {
+            if (!claimed) {
+                this.expireLeadOffersInOfferedStatus(offers);
+                notificationService.sendEmail(
+                        notificationService.getRelationshipManagerUserId(),
+                        NotificationType.NoBrokerClaimed.getEmailSubject(),
+                        "Lead ID: " + leadId
+                                + " of resale marketplace was not claimed by any broker. Marking all offers as expired.");
+                notificationService.createNotification(
+                        notificationService.getRelationshipManagerUserId(),
+                        NotificationType.NoBrokerClaimed.getId(),
+                        leadId,
+                        null);
+                if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
+                    notificationService.moveToPrimary(leadId);
+                }
+            }
+            notificationService.deleteLeadOfferNotificationForLead(offers);
+        }
     }
 
     /**
