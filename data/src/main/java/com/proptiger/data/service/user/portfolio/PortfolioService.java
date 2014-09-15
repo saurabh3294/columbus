@@ -341,10 +341,12 @@ public class PortfolioService {
         // Fetching Prices from DB
         if (!pricesFromDB.isEmpty()) {
             List<ListingPrice> latestListingPrices = listingService.getLatestListingPrice(pricesFromDB);
-            for (ListingPrice listingPrice : latestListingPrices) {
-                if (listingPrice != null && listingPrice.getPricePerUnitArea() != null) {
-                    propertyMap.get(listingPrice.getListing().getPropertyId()).setPricePerUnitArea(
-                            listingPrice.getPricePerUnitArea().doubleValue());
+            if (latestListingPrices != null) {
+                for (ListingPrice listingPrice : latestListingPrices) {
+                    if (listingPrice != null && listingPrice.getPricePerUnitArea() != null) {
+                        propertyMap.get(listingPrice.getListing().getPropertyId()).setPricePerUnitArea(
+                                listingPrice.getPricePerUnitArea().doubleValue());
+                    }
                 }
             }
         }

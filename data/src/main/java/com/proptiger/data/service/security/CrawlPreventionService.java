@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.security.MaxAllowedRequestCount;
 import com.proptiger.data.util.Constants;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
 
 /**
  * Identifies crawling and return captcha in case of POST request and writes in
@@ -48,6 +50,9 @@ public class CrawlPreventionService {
      * @return boolean
      */
     public boolean isValidRequest(HttpServletRequest request, HttpServletResponse response) {
+        if (!PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_CRAWL_PREVENTION_TEST_SERVER, Boolean.class)) {
+            return true;
+        }
         if (captchaService.isCaptchaRequest(request)) {
             if (captchaService.isValidCaptcha(request)) {
                 resetAccessCountInCache(request);

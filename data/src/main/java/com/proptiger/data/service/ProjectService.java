@@ -105,6 +105,19 @@ public class ProjectService {
     @Value("${proptiger.url}")
     private String                  websiteHost;
 
+    public Project getProjectDetail(int projectId) {
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"projectId\":" + projectId
+                + "}}]}}", Selector.class);
+
+        List<Project> projects = projectDao.getProjects(selector).getResults();
+        if (projects.size() == 0) {
+            throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+        }
+        else {
+            return projects.get(0);
+        }
+    }
+
     @Autowired
     private MediaEnricher           mediaEnricher;
     

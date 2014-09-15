@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.social.connect.UserProfile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ import com.google.gson.Gson;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
+import com.proptiger.data.enums.AuthProvider;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.external.dto.CustomUser;
@@ -43,15 +46,27 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.ProjectDiscussionSubscription;
 import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.UserAuthProviderDetail;
+import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
+import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
+import com.proptiger.data.repo.SubscriptionPermissionDao;
+import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
+import com.proptiger.data.repo.user.UserContactNumberDao;
+import com.proptiger.data.repo.user.UserDao;
+import com.proptiger.data.repo.user.UserEmailDao;
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
@@ -73,50 +88,81 @@ import com.proptiger.exception.UnauthorizedException;
  */
 @Service
 public class UserService {
-    private static Logger              logger = LoggerFactory.getLogger(UserService.class);
+    private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
-    @Value("${b2b.price-inventory.max.month}")
-    private String                     currentMonth;
+    @Autowired
+    private B2BAttributeService        b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String                     currentMonthDbLabel;
+
+    private String                           currentMonth;
 
     @Value("${enquired.within.days}")
-    private Integer                    enquiredWithinDays;
+    private Integer                          enquiredWithinDays;
 
     @Value("${proptiger.url}")
-    private String                     proptigerUrl;
+    private String                           proptigerUrl;
 
     @Autowired
-    private EnquiryDao                 enquiryDao;
+    private EnquiryDao                       enquiryDao;
 
     @Autowired
-    private ForumUserDao               forumUserDao;
+    private ForumUserDao                     forumUserDao;
 
     @Autowired
-    private UserPreferenceService      preferenceService;
+    private UserDao                          userDao;
 
     @Autowired
-    private LocalityService            localityService;
+    private UserEmailDao                     emailDao;
 
     @Autowired
-    private TrendDao                   trendDao;
+    private UserContactNumberDao             contactNumberDao;
 
     @Autowired
-    private AuthenticationManager      authManager;
+    private UserAuthProviderDetailDao        authProviderDetailDao;
 
     @Autowired
-    private PropertyReader             propertyReader;
+    private ProjectDiscussionSubscriptionDao discussionSubscriptionDao;
+
+    @Autowired
+    private UserPreferenceService            preferenceService;
+
+    @Autowired
+    private LocalityService                  localityService;
+
+    @Autowired
+    private UserSubscriptionMappingDao       userSubscriptionMappingDao;
+
+    @Autowired
+    private SubscriptionPermissionDao        subscriptionPermissionDao;
+
+    @Autowired
+    private TrendDao                         trendDao;
+
+    @Autowired
+    private AuthenticationManager            authManager;
+
+    @Autowired
+    private PropertyReader                   propertyReader;
 
     @Value("${cdn.image.url}")
-    private String                     cdnImageBase;
+    private String                           cdnImageBase;
 
     @Autowired
-    private MailSender                 mailSender;
+    private MailSender                       mailSender;
 
     @Autowired
-    private ForumUserTokenDao          forumUserTokenDao;
+    private ForumUserTokenDao                forumUserTokenDao;
 
     @Autowired
-    private TemplateToHtmlGenerator    htmlGenerator;
+    private TemplateToHtmlGenerator          htmlGenerator;
 
+    @PostConstruct
+    private void initialize() {
+        currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
+    }
+    
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
             return true;
@@ -141,7 +187,7 @@ public class UserService {
         customUser.setFirstName(user.getUsername());
         customUser.setContactNumber(Long.toString(user.getContact()));
         customUser.setProfileImageUrl(user.getFbImageUrl());
-        customUser.setCreatedDate(user.getCreatedDate());
+
         Hibernate.initialize(user.getDashboards());
         customUser.setDashboards(user.getDashboards());
 
@@ -362,11 +408,10 @@ public class UserService {
         }
         PasswordUtils.validateChangePasword(changePassword);
         logger.debug("Changing password for user {}", activeUser.getUsername());
-        ForumUser forumUser = forumUserDao.findOne(activeUser.getUserIdentifier());
-        forumUser.setPassword(changePassword.getNewPassword());
-        forumUser = forumUserDao.save(forumUser);
-
-        SecurityContextUtils.autoLogin(forumUser);
+        User user = userDao.findOne(activeUser.getUserIdentifier());
+        user.setPassword(changePassword.getNewPassword());
+        userDao.save(user);
+        SecurityContextUtils.autoLogin(forumUserDao.findByUserId(user.getId()));
     }
 
     /**
@@ -376,22 +421,75 @@ public class UserService {
      * @return
      */
     @Transactional
-    public ForumUser register(Register register) {
+    public CustomUser register(Register register) {
         RegistrationUtils.validateRegistration(register);
-        ForumUser userPresent = forumUserDao.findByEmail(register.getEmail());
-        if (userPresent != null) {
-            throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+        User user = getUserFromRegister(register);
+
+        user = userDao.saveAndFlush(user);
+
+        createDefaultProjectDiscussionSubscriptionForUser(user.getId());
+
+        manageContactNumberOnRegistration(user, register);
+
+        /*
+         * send mail only if user registers
+         */
+        if (user.isRegistered()) {
+            ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
+            MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
+            MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
+                    propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
+            mailSender.sendMailUsingAws(details);
+            SecurityContextUtils.autoLogin(registeredUser);
         }
-        ForumUser savedUser = forumUserDao.save(register.createForumUserObject());
-        MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
-        MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
-                propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
-        mailSender.sendMailUsingAws(details);
+
         /*
          * after registration make user auto login
          */
-        SecurityContextUtils.autoLogin(savedUser);
-        return savedUser;
+        return getUserDetails(user.getId());
+    }
+
+    private User getUserFromRegister(Register register) {
+        User user = userDao.findByEmail(register.getEmail());
+        if (user == null) {
+            user = createFreshUserFromRegister(register);
+        }
+        else {
+            if (!register.getRegisterMe() || user.isRegistered()) {
+                throw new BadRequestException(ResponseCodes.BAD_REQUEST, ResponseErrorMessages.EMAIL_ALREADY_REGISTERED);
+            }
+            else {
+                user.copyFieldsFromRegisterToUser(register);
+            }
+        }
+        return user;
+    }
+
+    private User createFreshUserFromRegister(Register register) {
+        User user = new User();
+        user.setEmail(register.getEmail());
+        user.copyFieldsFromRegisterToUser(register);
+        return user;
+    }
+
+    // manages contact numbers for every registration
+    // will be more relevant once we start supporting multiple contacts
+    private void manageContactNumberOnRegistration(User user, Register register) {
+        String primaryContactNumber = register.getContact().toString();
+        UserContactNumber savedContactNumber = user.getContactByContactNumber(primaryContactNumber);
+
+        if (savedContactNumber == null) {
+            contactNumberDao.incrementPriorityForUser(user.getId());
+            UserContactNumber userContactNumber = new UserContactNumber(primaryContactNumber, user.getId());
+            contactNumberDao.save(userContactNumber);
+        }
+        else {
+            if (savedContactNumber.getPriority() != UserContactNumber.primaryContactPriority) {
+                contactNumberDao.incrementPriorityForUser(user.getId());
+                savedContactNumber.setPriority(UserContactNumber.primaryContactPriority);
+                contactNumberDao.save(savedContactNumber);
+            }
+        }
     }
 
     /**
@@ -402,7 +500,7 @@ public class UserService {
      * @return
      */
     public String resetPassword(String email) {
-        ForumUser forumUser = forumUserDao.findByEmailAndProvider(email, "");
+        ForumUser forumUser = forumUserDao.findRegisteredUserByEmail(email);
         if (forumUser == null) {
             return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
         }
@@ -426,4 +524,154 @@ public class UserService {
         return ResponseErrorMessages.PASSWORD_RECOVERY_MAIL_SENT;
     }
 
+    /**
+     * 
+     * creates social auth details... creates login details if not already
+     * there... updates it otherwise
+     * 
+     * @param userProfile
+     * @param provider
+     * @param providerUserId
+     * @param imageUrl
+     * @return {@link User}
+     */
+    @Transactional
+    public User createSocialAuthDetails(
+            UserProfile userProfile,
+            AuthProvider provider,
+            String providerUserId,
+            String imageUrl) {
+
+        String email = userProfile.getEmail();
+        User user = userDao.findByEmail(email);
+        if (user == null) {
+            user = new User();
+            user.setEmail(email);
+            user.setFullName(userProfile.getName());
+            user = userDao.save(user);
+        }
+
+        int userId = user.getId();
+        createDefaultProjectDiscussionSubscriptionForUser(userId);
+
+        UserAuthProviderDetail authProviderDetail = authProviderDetailDao.findByUserIdAndProviderId(
+                userId,
+                provider.getProviderId());
+        if (authProviderDetail == null) {
+            authProviderDetail = new UserAuthProviderDetail();
+            authProviderDetail.setProviderId(provider.getProviderId());
+            authProviderDetail.setProviderUserId(providerUserId);
+            authProviderDetail.setImageUrl(imageUrl);
+            authProviderDetail.setUserId(userId);
+            authProviderDetail = authProviderDetailDao.save(authProviderDetail);
+        }
+        else {
+            authProviderDetail.setProviderUserId(providerUserId);
+            authProviderDetail.setImageUrl(imageUrl);
+            authProviderDetailDao.save(authProviderDetail);
+        }
+        return user;
+    }
+
+    private ProjectDiscussionSubscription createDefaultProjectDiscussionSubscriptionForUser(int userId) {
+        ProjectDiscussionSubscription discussionSubscription = discussionSubscriptionDao.findOne(userId);
+        if (discussionSubscription == null) {
+            discussionSubscription = new ProjectDiscussionSubscription();
+            discussionSubscription.setUserId(userId);
+        }
+        discussionSubscription.setSubscribed(true);
+        return discussionSubscriptionDao.save(discussionSubscription);
+    }
+
+    public User createUser(User user) {
+        String email = user.getEmail();
+        User userInDB = userDao.findByEmail(email);
+
+        if (userInDB != null) {
+            user.setId(userInDB.getId());
+        }
+        else {
+            user.setId(userDao.save(user).getId());
+        }
+
+        patchUser(user);
+        return user;
+    }
+
+    /**
+     * 
+     * @param user
+     * @param clientId
+     * @param priority
+     *            merges email and phone number in user_emails table and
+     *            user_contact_numbers also set clientid and priority
+     * @return
+     */
+    private void patchUser(User user) {
+        List<UserContactNumber> contactNumbers = user.getContactNumbers();
+
+        if (contactNumbers == null || contactNumbers.isEmpty()) {
+            return;
+        }
+
+        UserContactNumber userContactNumber = contactNumbers.get(0);
+        String contactNumber = userContactNumber.getContactNumber();
+
+        if (contactNumber != null && !contactNumber.isEmpty()) {
+            int userId = user.getId();
+            userContactNumber.setUserId(userId);
+            userContactNumber.setCreatedBy(userId);
+
+            User userByPhone = userDao.findByPhone(contactNumber, userId);
+            if (userByPhone == null) {
+                contactNumberDao.incrementPriorityForUser(userId);
+                userContactNumber.setPriority(UserContactNumber.primaryContactPriority);
+                contactNumberDao.saveAndFlush(userContactNumber);
+            }
+            else {
+                user.setId(userContactNumber.getUserId());
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param email
+     * @param contactNumber
+     *            get user on the basis of email or contact_numbers
+     * @return
+     */
+    public User getUser(String email) {
+        return userDao.findByEmail(email);
+    }
+
+    public Map<Integer, User> getUsers(List<Integer> clientIds) {
+        Map<Integer, User> users = new HashMap<>();
+        for (User user : userDao.findAll(clientIds)) {
+            users.put(user.getId(), user);
+        }
+
+        return users;
+    }
+
+    public Map<Integer, List<UserContactNumber>> getUserContactNumbers(List<Integer> clientIds) {
+        List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
+        Map<Integer, List<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
+
+        for (UserContactNumber userContactNumber : userContactNumbers) {
+            if (!contactNumbersOfUser.containsValue(userContactNumber.getUserId())) {
+                contactNumbersOfUser.put(userContactNumber.getUserId(), new ArrayList<UserContactNumber>());
+            }
+            contactNumbersOfUser.get(userContactNumber.getUserId()).add(userContactNumber);
+        }
+        return contactNumbersOfUser;
+    }
+
+    public User getUserWithContactNumberById(int Id) {
+        return userDao.findById(Id);
+    }
+
+    public User getUserById(int userId) {
+        return userDao.findOne(userId);
+    }
 }

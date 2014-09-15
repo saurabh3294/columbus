@@ -41,7 +41,7 @@ import com.proptiger.data.util.SecurityContextUtils;
  */
 public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
     private static Logger                       logger = LoggerFactory.getLogger(CustomSocialAuthFilter.class);
-    private static final String                 SCOPE  = "scope";
+    private static final String                 SCOPE                    = "scope";
     private PropertyReader                      propertyReader;
 
     private UsersConnectionRepository           connectionRepository;
@@ -92,7 +92,6 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
 
     /**
      * Attempt authentication using access_token passed in request
-     * 
      * @param request
      * @param accessToken
      * @return
@@ -138,17 +137,10 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
             if (customJdbcUsersConnectionRepository != null) {
                 return customJdbcUsersConnectionRepository.createAuthenicationByProviderAndProviderUserId(
                         provider,
-                        providerUserId, userName, email, profileImageUrl);
+                        providerUserId);
             }
 
         }
-        logger.error(
-                "invlid data for login using provider and provider id {},{},{},{},{}",
-                provider,
-                providerUserId,
-                userName,
-                email,
-                profileImageUrl);
         return null;
     }
 

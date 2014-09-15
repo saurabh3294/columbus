@@ -240,6 +240,7 @@ public class URLService {
                 }
                 break;
             case LOCALITY_SUBURB_OVERVIEW:
+            case LOCALITY_SUBURB_LANDMARK:
                 // localitySuburbListingUrl, cityName, response status
                 responseStatus = HttpStatus.SC_MOVED_PERMANENTLY;
                 Object[] localitySuburbUrlData = getLocalitySuburbListingUrl(urlDetail);
@@ -252,12 +253,23 @@ public class URLService {
                 if (is404FallbackSet) {
                     redirectUrl = domainUrl;
                     if (domainUrl != null && !domainUrl.isEmpty()) {
-                        redirectUrl = domainUrl + "-overview";
+                        redirectUrl = domainUrl;
+                        if (urlDetail.getOverviewType() != null) {
+                            redirectUrl = domainUrl;
+                        }
                     }
                 }
                 else {
                     domainUrl = domainUrl.replaceFirst("property-sale-", "");
-                    domainUrl = domainUrl.replaceFirst(cityName, cityName + "-real-estate") + "-overview";
+                    domainUrl = domainUrl.replaceFirst(cityName, cityName + "-real-estate");
+                    if (urlDetail.getOverviewType() != null) {
+                        domainUrl = domainUrl.replaceFirst(
+                                urlDetail.getLocalityId() + "",
+                                urlDetail.getOverviewType()) + "-" + urlDetail.getLocalityId();
+                    }
+                    else {
+                        domainUrl = domainUrl + urlDetail.getAppendingString();
+                    }
 
                     if (!domainUrl.equals(urlDetail.getUrl()) || hasTrailingSlace) {
                         redirectUrl = domainUrl;

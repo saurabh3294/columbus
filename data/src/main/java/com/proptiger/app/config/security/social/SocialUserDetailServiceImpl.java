@@ -17,33 +17,35 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
 
 /**
- * Social user details service 
+ * Social user details service
+ * 
  * @author Rajeev Pandey
- *
+ * 
  */
 public class SocialUserDetailServiceImpl implements SocialUserDetailsService {
 
-    private static Logger         logger = LoggerFactory.getLogger(SocialUserDetailServiceImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(SocialUserDetailServiceImpl.class);
     @Autowired
-    private ForumUserDao          forumUserDao;
-    
+    private ForumUserDao  forumUserDao;
+
     @Override
     public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException, DataAccessException {
         SocialUser socialUser = null;
         ForumUser forumUser = forumUserDao.findByUserId(Integer.parseInt(userId));
         if (forumUser != null) {
+            String password = forumUser.getPassword() == null ? "" : forumUser.getPassword();
             socialUser = new ActiveUser(
                     forumUser.getUserId(),
                     forumUser.getEmail(),
-                    forumUser.getPassword(),
+                    password,
                     true,
                     true,
                     true,
                     true,
                     new ArrayList<GrantedAuthority>());
         }
-        else{
-            logger.error("User not found with id {}",userId);
+        else {
+            logger.error("User not found with id {}", userId);
         }
         return socialUser;
     }

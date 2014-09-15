@@ -13,27 +13,27 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.user.UserSubscriptionService;
 import com.proptiger.exception.InvalidUserRoleException;
+import com.proptiger.data.model.user.User;
+import com.proptiger.data.repo.user.UserDao;
 
 /**
  * Custom implementation of UserDetailsService to provide criteria to
  * authenicate a user. This class uses database to authenticate.
  * 
  * @author Rajeev Pandey
+ * @author azi
  * 
  */
 @Service
 public class UserDetailManagerService implements UserDetailsService {
 
-    private static Logger           logger                               = LoggerFactory
-                                                                                 .getLogger(UserDetailManagerService.class);
+    private static Logger           logger   = LoggerFactory.getLogger(UserDetailManagerService.class);
 
     @Autowired
-    private ForumUserDao            forumUserDao;
+    private UserDao                 userDao;
 
     @Autowired
     private UserSubscriptionService userSubscriptionService;
@@ -44,21 +44,15 @@ public class UserDetailManagerService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDetails userDetails = null;
-        ForumUser forumUser = null;
+        User user = null;
         if (username != null && !username.isEmpty()) {
-            /*
-             * since there can be multiple rows for same email, say one from
-             * direct registration and other from some service provider login
-             * like facebook.
-             * 
-             * TODO this call need to be changed once we make user merge live
-             */
-            forumUser = forumUserDao.findByEmailAndProvider(username, "");
-            if (forumUser != null) {
+            user = userDao.findByEmail(username);
+            if (user != null) {
+                String password = user.getPassword() == null ? "" : user.getPassword();
                 userDetails = new ActiveUser(
-                        forumUser.getUserId(),
-                        forumUser.getEmail(),
-                        forumUser.getPassword(),
+                        user.getId(),
+                        user.getEmail(),
+                        password,
                         true,
                         true,
                         true,
@@ -75,8 +69,8 @@ public class UserDetailManagerService implements UserDetailsService {
         }
 
         /* If a b2b-user's permissions have expired then login request is denied */
-        if (forumUser != null && ApplicationNameService.isB2BApplicationRequest()) {
-            int userId = forumUser.getUserId();
+        if (user != null && ApplicationNameService.isB2BApplicationRequest()) {
+            int userId = user.getId();
 
             /* Throw error if user has no subscriptions at all (non-b2b user). */
             List<?> userSubscriptionMappingList = userSubscriptionService.getUserSubscriptionMappingList(userId);
@@ -85,7 +79,7 @@ public class UserDetailManagerService implements UserDetailsService {
             }
 
             /* Throw error if user has no *active* subscriptions. */
-            List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(forumUser.getUserId());
+            List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(user.getId());
             if (permissionList == null || permissionList.isEmpty()) {
                 throw new InvalidUserRoleException(errorMessageExpiredPermissionB2BUser);
             }

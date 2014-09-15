@@ -71,7 +71,7 @@ public class ImageService extends MediaService {
 
     @PostConstruct
     private void init() {
-        locks = Striped.lock(propertyReader.getRequiredPropertyAsType("image.lock.stripes.count", Integer.class));
+        locks = Striped.lock(PropertyReader.getRequiredPropertyAsType("image.lock.stripes.count", Integer.class));
     }
 
     public ImageService() {
@@ -125,6 +125,7 @@ public class ImageService extends MediaService {
         original.delete();
         amazonS3Util.uploadFile(image.getPath() + image.getWaterMarkName(), waterMark);
         createAndUploadMoreResolutions(image, waterMark, format);
+        deleteFileFromDisc(waterMark);
     }
 
     /**
@@ -317,6 +318,9 @@ public class ImageService extends MediaService {
                 lock.lock();
                 Image duplicateImage = isImageHashExists(originalHash, object.getText());
                 if (duplicateImage != null) {
+                    //If already existing images present then deleting originalFile and processedFile images.
+                    deleteFileFromDisc(processedFile);
+                    deleteFileFromDisc(originalFile);
                     throw new ResourceAlreadyExistException("This Image Already Exists for " + object.getText()
                             + " id-"
                             + duplicateImage.getObjectId()
