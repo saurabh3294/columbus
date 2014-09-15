@@ -199,9 +199,10 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public GenericFilterBean createRememberMeAuthFilter() {
-        RememberMeAuthenticationFilter rememberMeFilter = new CustomRememberMeAuthFilter(
+        CustomRememberMeAuthFilter rememberMeFilter = new CustomRememberMeAuthFilter(
                 createAuthenticationManager(),
                 createPersistentTokenBasedRememberMeService());
+        rememberMeFilter.setSessionStrategy(createSessionStrategy());
         return rememberMeFilter;
     }
 
