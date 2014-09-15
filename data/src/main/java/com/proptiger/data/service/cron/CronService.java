@@ -13,6 +13,7 @@ import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
+import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.service.marketplace.LeadService;
 import com.proptiger.data.service.marketplace.NotificationService;
 import com.proptiger.data.util.PropertyKeys;
@@ -35,6 +36,9 @@ public class CronService {
 
     @Autowired
     private LeadOfferDao        leadOfferDao;
+
+    @Autowired
+    private LeadOfferService    leadOfferService;
 
     @Autowired
     private LeadDao             leadDao;
@@ -96,7 +100,7 @@ public class CronService {
                 LeadOfferStatus.Offered.getId());
         for (Lead lead : leads) {
             try {
-                notificationService.manageLeadOfferedNotificationDeletionForLead(lead.getId());
+                leadOfferService.manageLeadOfferedNotificationDeletionForLead(lead.getId());
             }
             catch (ConstraintViolationException e) {
                 logger.error("Error while deleting lead offer notification for lead id: " + lead.getId() + e);

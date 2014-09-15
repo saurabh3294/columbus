@@ -21,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.mail.MailBody;
@@ -70,9 +69,6 @@ public class NotificationService {
 
     @Autowired
     private LeadOfferDao                   leadOfferDao;
-
-    @Autowired
-    private LeadOfferService               leadOfferService;
 
     @Autowired
     private LeadDao                        leadDao;
@@ -390,7 +386,7 @@ public class NotificationService {
      * @param details
      * @return
      */
-    private Notification createNotification(int userId, int notificationTypeId, int objectId, JsonNode details) {
+    public Notification createNotification(int userId, int notificationTypeId, int objectId, JsonNode details) {
         Notification notification = new Notification();
         notification.setNotificationTypeId(notificationTypeId);
         notification.setObjectId(objectId);
@@ -647,50 +643,13 @@ public class NotificationService {
         return notification;
     }
 
-    @Transactional
-    public void manageLeadOfferedNotificationDeletionForLead(int leadId) {
-        Lead lead = leadDao.getLock(leadId);
-        List<LeadOffer> offers = lead.getLeadOffers();
-
-        Date endDate = getNoBrokerClaimedCutoffTime();
-        Date startDate = new Date(
-                endDate.getTime() - PropertyReader.getRequiredPropertyAsInt((PropertyKeys.MARKETPLACE_CRON_BUFFER))
-                        * 1000);
-
-        Date maxOfferDate = new Date(0);
-        boolean claimed = false;
-        for (LeadOffer offer : offers) {
-            claimed = claimed || offer.getMasterLeadOfferStatus().isClaimed();
-            maxOfferDate = DateUtil.max(maxOfferDate, offer.getCreatedAt());
-        }
-
-        if (claimed || (maxOfferDate.after(startDate) && maxOfferDate.before(endDate))) {
-            if (!claimed) {
-                leadOfferService.expireLeadOffersInOfferedStatus(offers);
-                sendEmail(
-                        getRelationshipManagerUserId(),
-                        NotificationType.NoBrokerClaimed.getEmailSubject(),
-                        "Lead ID: " + leadId
-                                + " of resale marketplace was not claimed by any broker. Marking all offers as expired.");
-                createNotification(
-                        getRelationshipManagerUserId(),
-                        NotificationType.NoBrokerClaimed.getId(),
-                        leadId,
-                        null);
-                if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
-                    moveToPrimary(leadId);
-                }
-            }
-            deleteLeadOfferNotificationForLead(offers);
-        }
-    }
 
     /**
      * deletes offerred notification for a list of offers
      * 
      * @param offers
      */
-    private void deleteLeadOfferNotificationForLead(List<LeadOffer> offers) {
+    public void deleteLeadOfferNotificationForLead(List<LeadOffer> offers) {
         for (LeadOffer offer : offers) {
             Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
                     offer.getId(),
@@ -701,7 +660,7 @@ public class NotificationService {
         }
     }
 
-    private int getRelationshipManagerUserId() {
+    public int getRelationshipManagerUserId() {
         return PropertyReader.getRequiredPropertyAsType(
                 PropertyKeys.MARKETPLACE_RELATIONSHIP_MANAGER_USER_ID,
                 Integer.class);
@@ -777,7 +736,7 @@ public class NotificationService {
         }
     }
 
-    private void sendEmail(int userId, String subject, String content) {
+    public void sendEmail(int userId, String subject, String content) {
         if (PropertyReader.getRequiredPropertyAsBoolean(PropertyKeys.MARKETPLACE_SENDEMAIL_USING_SERVICE)) {
             generatedService.createNotificationGenerated(
                     Arrays.asList(new NotificationMessage(userId, subject, content)),
