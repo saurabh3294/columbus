@@ -28,6 +28,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.FIQLSelector.FIQLOperator;
 import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.user.CatchmentService;
 import com.proptiger.data.util.UtilityClass;
 import com.proptiger.exception.ProAPIException;
@@ -38,7 +39,13 @@ import com.proptiger.exception.ProAPIException;
 
 @Service
 public class TrendService {
-    @Value("${b2b.price-inventory.max.month}")
+
+    @Autowired
+    private B2BAttributeService b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String              currentMonthDbLabel;
+
     private String              currentMonth;
 
     @Autowired
@@ -56,6 +63,7 @@ public class TrendService {
 
     @PostConstruct
     private void initialize() {
+        currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
         HithertoDurationSelector.currentMonth = currentMonth;
     }
 

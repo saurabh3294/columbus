@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
@@ -73,6 +75,7 @@ import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.UserEmailDao;
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.LocalityService;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
@@ -97,7 +100,12 @@ import com.proptiger.exception.UnauthorizedException;
 public class UserService {
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
-    @Value("${b2b.price-inventory.max.month}")
+    @Autowired
+    private B2BAttributeService        b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String                     currentMonthDbLabel;
+
     private String                           currentMonth;
 
     @Value("${enquired.within.days}")
@@ -160,6 +168,11 @@ public class UserService {
     @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
+    @PostConstruct
+    private void initialize() {
+        currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
+    }
+    
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
             return true;
