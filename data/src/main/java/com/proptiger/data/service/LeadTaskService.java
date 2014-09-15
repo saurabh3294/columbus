@@ -216,7 +216,7 @@ public class LeadTaskService {
                 }
             }
             if (lost && primaryLead) {
-                leadService.moveToPrimaryAsync(leadId);
+                notificationService.moveToPrimaryAsync(leadId);
             }
         }
     }
