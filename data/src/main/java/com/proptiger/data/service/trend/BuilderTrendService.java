@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.collections.comparators.ComparatorChain;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +25,7 @@ import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.trend.InventoryPriceTrend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.service.B2BAttributeService;
 import com.proptiger.data.service.BuilderService;
 import com.proptiger.data.util.DateUtil;
 import com.proptiger.data.util.UtilityClass;
@@ -44,10 +47,17 @@ public class BuilderTrendService {
     @Autowired
     TrendDao                    trendDao;
 
-    @Value("${b2b.price-inventory.max.month}")
+    @Autowired
+    private B2BAttributeService b2bAttributeService;
+
+    @Value("${b2b.price-inventory.max.month.dblabel}")
+    private String              currentMonthDbLabel;
+
     private String              currentMonth;
 
-    @Value("${b2b.price-appreciation.duration}")
+    @Value("${b2b.price-appreciation.duration.dblabel}")
+    private String             appreciationDurationDbLabel;
+
     private Integer             appreciationDuration;
 
     private static final int    MAX_ROWS          = 5000;
@@ -59,6 +69,12 @@ public class BuilderTrendService {
     @Autowired
     private BuilderService      builderService;
 
+    @PostConstruct
+    private void initialize() {
+        currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
+        appreciationDuration = Integer.parseInt(b2bAttributeService.getAttributeByName(appreciationDurationDbLabel));
+    }
+    
     public BuilderTrend getBuilderTrendForSingleBuilder(Integer builderId, ActiveUser userInfo) {
         FIQLSelector selector = new FIQLSelector();
         selector.addAndConditionToFilter("builderId==" + builderId);

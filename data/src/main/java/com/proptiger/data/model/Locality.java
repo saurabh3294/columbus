@@ -66,6 +66,7 @@ public class Locality extends BaseModel {
     @Transient
     @Deprecated
     @Field("CITY_ID")
+    @JsonIgnore
     private int                             cityId;
 
     @FieldMetaInfo(displayName = "Label", description = "Label")
@@ -258,6 +259,9 @@ public class Locality extends BaseModel {
     
     @Transient
     private List<LandMark>          landmarks;
+    
+    @Transient
+    private List<Image>             landmarkImages;
 
     public int getLocalityId() {
         return localityId;
@@ -667,5 +671,13 @@ public class Locality extends BaseModel {
 
     public void setLandmarks(List<LandMark> landmarks) {
         this.landmarks = landmarks;
+    }
+
+    public List<Image> getLandmarkImages() {
+        return landmarkImages;
+    }
+
+    public void setLandmarkImages(List<Image> landmarkImages) {
+        this.landmarkImages = landmarkImages;
     }
 }

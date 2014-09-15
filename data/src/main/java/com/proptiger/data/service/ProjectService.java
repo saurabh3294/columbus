@@ -7,7 +7,7 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -104,6 +104,19 @@ public class ProjectService {
 
     @Value("${proptiger.url}")
     private String                  websiteHost;
+
+    public Project getProjectDetail(int projectId) {
+        Selector selector = new Gson().fromJson("{\"filters\":{\"and\":[{\"equal\":{\"projectId\":" + projectId
+                + "}}]}}", Selector.class);
+
+        List<Project> projects = projectDao.getProjects(selector).getResults();
+        if (projects.size() == 0) {
+            throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
+        }
+        else {
+            return projects.get(0);
+        }
+    }
 
     @Autowired
     private MediaEnricher           mediaEnricher;
@@ -443,6 +456,12 @@ public class ProjectService {
      * @return
      */
     public List<Project> getProjectsByIds(Set<Integer> ids) {
+        List<Project> projects = getProjectListByIds(ids);
+        imageEnricher.setImagesOfProjects(projects);
+        return projects;
+    }
+    
+    public List<Project> getProjectListByIds(Set<Integer> ids) {
         List<SolrResult> result = projectDao.getProjectsOnIds(ids);
         List<Project> projects = new ArrayList<Project>();
         if (result != null) {
@@ -450,9 +469,9 @@ public class ProjectService {
                 projects.add(solrResult.getProject());
             }
         }
-        imageEnricher.setImagesOfProjects(projects);
         return projects;
     }
+    
 
     /**
      * This method will return the total number of project discussions in the
@@ -677,13 +696,7 @@ public class ProjectService {
             }
             
             if (project.getLocality() != null) {
-                if (project.getLocality().getLivabilityScore() != null) {
-                    project.getLocality().setLivabilityScore(project.getLocality().getLivabilityScore()/2);
-                }
-                
-                if (project.getLocality().getSafetyScore() != null) {
-                    project.getLocality().setSafetyScore(project.getLocality().getSafetyScore()/2);
-                }
+                localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(project.getLocality()));
             }
         }
     }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.proptiger.data.external.dto.CustomUser;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.Register;
@@ -85,8 +86,8 @@ public class UserController extends BaseController {
     @RequestMapping(value = Constants.Security.REGISTER_URL, method = RequestMethod.POST)
     @ResponseBody
     public APIResponse register(@RequestBody Register register){
-        ForumUser forumUser = userService.register(register);
-        return new APIResponse(userService.getUserDetails(forumUser.getUserId()));
+        CustomUser forumUser = userService.register(register);
+        return new APIResponse(forumUser);
     }
     
     @RequestMapping(value = "app/v1/reset-password", method = RequestMethod.POST)

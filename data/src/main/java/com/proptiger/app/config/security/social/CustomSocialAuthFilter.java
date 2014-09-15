@@ -41,7 +41,7 @@ import com.proptiger.data.util.SecurityContextUtils;
  */
 public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
     private static Logger                       logger = LoggerFactory.getLogger(CustomSocialAuthFilter.class);
-    private static final String                 SCOPE  = "scope";
+    private static final String                 SCOPE                    = "scope";
     private PropertyReader                      propertyReader;
 
     private UsersConnectionRepository           connectionRepository;
@@ -81,9 +81,10 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
          * posting on our app/v1/login/{provider} api. So if authentication
          * created then return it other wise normal flow should execute.
          */
-        Authentication authentication = attemptAuthUsingProviderAndProviderId(request);
-        if (authentication != null) {
-            return authentication;
+        String provider = request.getParameter("provider");
+        String providerUserId = request.getParameter("providerUserId");
+        if(provider != null && !provider.isEmpty() && providerUserId != null && !providerUserId.isEmpty()){
+            return attemptAuthUsingProviderAndProviderId(provider, providerUserId, request);
         }
         HttpServletRequest wrappedRequest = addScopeInRequestParameter(request);
         return super.attemptAuthentication(wrappedRequest, response);
@@ -91,7 +92,6 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
 
     /**
      * Attempt authentication using access_token passed in request
-     * 
      * @param request
      * @param accessToken
      * @return
@@ -115,7 +115,7 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
                 return auth;
             }
             catch (Exception e) {
-                logger.error("Invalid access token {}", e);
+                logger.error("Invalid access token {} {}",accessToken, e);
                 throw new AuthenticationServiceException("invalid access token");
             }
         }
@@ -128,29 +128,19 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
         return success;
     }
 
-    private Authentication attemptAuthUsingProviderAndProviderId(HttpServletRequest request) {
-        // these string constants are as per defined in checkuser.php
-        String provider = request.getParameter("provider");
-        String providerUserId = request.getParameter("providerUserId");
+    private Authentication attemptAuthUsingProviderAndProviderId(String provider, String providerUserId, HttpServletRequest request) {
         logger.debug("login attempt using provider and provideruserid {},{}", provider, providerUserId);
         String userName = request.getParameter("userName");
         String email = request.getParameter("email");
         String profileImageUrl = request.getParameter("profileImageUrl");
-        if (provider != null && providerUserId != null && !provider.isEmpty() && !providerUserId.isEmpty() && email != null && !email.isEmpty()) {
+        if (email != null && !email.isEmpty()) {
             if (customJdbcUsersConnectionRepository != null) {
                 return customJdbcUsersConnectionRepository.createAuthenicationByProviderAndProviderUserId(
                         provider,
-                        providerUserId, userName, email, profileImageUrl);
+                        providerUserId);
             }
 
         }
-        logger.error(
-                "invlid data for login using provider and provider id {},{},{},{},{}",
-                provider,
-                providerUserId,
-                userName,
-                email,
-                profileImageUrl);
         return null;
     }
 
