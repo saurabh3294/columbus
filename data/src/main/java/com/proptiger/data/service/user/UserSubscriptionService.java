@@ -1,0 +1,191 @@
+package com.proptiger.data.service.user;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.collections.map.MultiKeyMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import com.proptiger.data.enums.DomainObject;
+import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Permission;
+import com.proptiger.data.model.SubscriptionPermission;
+import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.pojo.FIQLSelector;
+import com.proptiger.data.repo.SubscriptionPermissionDao;
+import com.proptiger.data.repo.UserSubscriptionMappingDao;
+import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.service.LocalityService;
+import com.proptiger.data.util.Constants;
+
+@Service
+public class UserSubscriptionService {
+
+    @Autowired
+    private LocalityService            localityService;
+
+    @Autowired
+    private UserSubscriptionMappingDao userSubscriptionMappingDao;
+
+    @Autowired
+    private SubscriptionPermissionDao  subscriptionPermissionDao;
+
+    @Autowired
+    private TrendDao                   trendDao;
+
+    public FIQLSelector getUserAppSubscriptionFilters(int userId) {
+
+        FIQLSelector selector = new FIQLSelector();
+
+        List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
+
+        for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
+
+            Permission permission = subscriptionPermission.getPermission();
+            int objectTypeId = permission.getObjectTypeId();
+
+            switch (DomainObject.getFromObjectTypeId(objectTypeId)) {
+
+                case city:
+                    selector.addOrConditionToFilter("cityId==" + permission.getObjectId());
+                    break;
+
+                case locality:
+                    selector.addOrConditionToFilter("localityId==" + permission.getObjectId());
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        return selector;
+    }
+
+    /**
+     * @param userId
+     *            userId for which subscription permissions are needed.
+     * @return List of subscriptionPermissions or an empty-list if there are no
+     *         permissions installed.
+     */
+    @Cacheable(value = Constants.CacheName.CACHE)
+    public List<SubscriptionPermission> getUserAppSubscriptionDetails(int userId) {
+        List<UserSubscriptionMapping> userSubscriptionMappingList = getUserSubscriptionMappingList(userId);
+        if (userSubscriptionMappingList == null) {
+            return (new ArrayList<SubscriptionPermission>());
+        }
+
+        List<Integer> subscriptionIdList = new ArrayList<Integer>();
+        for (UserSubscriptionMapping usm : userSubscriptionMappingList) {
+            if (usm.getSubscription().getExpiryTime().getTime() > new Date().getTime()) {
+                subscriptionIdList.add(usm.getSubscriptionId());
+            }
+        }
+
+        if (subscriptionIdList.isEmpty()) {
+            return (new ArrayList<SubscriptionPermission>());
+        }
+
+        List<SubscriptionPermission> subscriptionPermissions = subscriptionPermissionDao
+                .findBySubscriptionIdIn(subscriptionIdList);
+        if (subscriptionPermissions == null) {
+            return (new ArrayList<SubscriptionPermission>());
+        }
+
+        return subscriptionPermissions;
+    }
+    
+    @Cacheable(value = Constants.CacheName.CACHE)
+    public List<UserSubscriptionMapping> getUserSubscriptionMappingList(int userId){
+        return (userSubscriptionMappingDao.findAllByUserId(userId));
+    }
+
+    /*
+     * Returns a MultiKeyMap with 2 keys. [K1 = ObjectTypeId, K2 = ObjectId],
+     * [Value = Permission Object]
+     * 
+     * [1]. In case of locality, checking existence of the key should be enough.
+     * [2]. For city, a key will exist (with a value null), even if the user has
+     * a permission for some locality in the city. To check for full city
+     * permission, check if the value mapped to that key is not null.
+     */
+
+    public MultiKeyMap getUserSubscriptionMap(int userId) {
+        List<SubscriptionPermission> subscriptionPermissions = getUserAppSubscriptionDetails(userId);
+        MultiKeyMap userSubscriptionMap = new MultiKeyMap();
+        Permission permission;
+        int objectTypeId, objectId;
+        List<Integer> localityIDList = new ArrayList<Integer>();
+
+        int objTypeIdLocality = DomainObject.locality.getObjectTypeId();
+        int objTypeIdCity = DomainObject.city.getObjectTypeId();
+        for (SubscriptionPermission sp : subscriptionPermissions) {
+            permission = sp.getPermission();
+
+            if (permission != null) {
+                objectTypeId = permission.getObjectTypeId();
+                objectId = permission.getObjectId();
+                userSubscriptionMap.put(objectTypeId, objectId, permission);
+                if (objectTypeId == objTypeIdLocality) {
+                    localityIDList.add(objectId);
+                }
+            }
+        }
+
+        /*
+         * populating psuedo permissions for city if any locality in that city
+         * is permitted
+         */
+        Set<Integer> cityIdList = getCityIdListFromLocalityIdList(localityIDList);
+        for (int cityId : cityIdList) {
+            userSubscriptionMap.put(objTypeIdCity, cityId, null);
+        }
+
+        List<Integer> subscribedBuilders = getSubscribedBuilderList(userId);
+        for (Integer builderId : subscribedBuilders) {
+            userSubscriptionMap.put(DomainObject.builder.getObjectTypeId(), builderId, builderId);
+        }
+        return userSubscriptionMap;
+    }
+
+    @Async
+    public void preloadUserSubscriptionMap(int userId) {
+        getUserSubscriptionMap(userId);
+    }
+
+    @Cacheable(value = Constants.CacheName.CACHE)
+    private List<Integer> getSubscribedBuilderList(int userId) {
+        FIQLSelector selector = getUserAppSubscriptionFilters(userId);
+        List<Integer> builderList = new ArrayList<>();
+        if (selector.getFilters() != null) {
+            String builderId = "builderId";
+            selector.setFields(builderId);
+            selector.setGroup(builderId);
+
+            List<InventoryPriceTrend> list = trendDao.getTrend(selector);
+            for (InventoryPriceTrend inventoryPriceTrend : list) {
+                builderList.add(inventoryPriceTrend.getBuilderId());
+            }
+        }
+        return builderList;
+    }
+
+    private Set<Integer> getCityIdListFromLocalityIdList(List<Integer> localityIDList) {
+        Set<Integer> cityIdList = new HashSet<Integer>();
+        List<Locality> localiltyList = localityService.findByLocalityIdList(localityIDList).getResults();
+        for (Locality locality : localiltyList) {
+            cityIdList.add(locality.getSuburb().getCityId());
+        }
+        return cityIdList;
+    }
+
+    
+
+
+}
