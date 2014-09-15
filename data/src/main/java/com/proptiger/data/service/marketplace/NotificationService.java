@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.LeadTaskName;
+import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.mail.MailBody;
@@ -90,6 +91,9 @@ public class NotificationService {
 
     @Autowired
     MailSender                             mailSender;
+
+    @Autowired
+    LeadService                            leadService;
 
     @Autowired
     private static Logger                  logger;
@@ -403,14 +407,16 @@ public class NotificationService {
      * @return
      */
     public void createLeadNotification(Lead lead, int notificationTypeId) {
-        List<LeadOffer> leadOffers = leadOfferDao.getLegitimateLeadOffersForDuplicateLeadNotifications(lead.getId());        
+        List<LeadOffer> leadOffers = leadOfferDao.getLegitimateLeadOffersForDuplicateLeadNotifications(lead.getId());
         if (leadOffers != null && !leadOffers.isEmpty()) {
             List<Integer> leadOfferIds = new ArrayList<>();
-            for (LeadOffer leadOffer: leadOffers) {
+            for (LeadOffer leadOffer : leadOffers) {
                 leadOfferIds.add(leadOffer.getId());
             }
 
-            List<Notification> notifications = notificationDao.findByObjectIdInAndNotificationTypeIdAndReadFalse(leadOfferIds, notificationTypeId);
+            List<Notification> notifications = notificationDao.findByObjectIdInAndNotificationTypeIdAndReadFalse(
+                    leadOfferIds,
+                    notificationTypeId);
 
             Map<Integer, Notification> unreadNotifications = new HashMap<>();
 
@@ -670,6 +676,9 @@ public class NotificationService {
                         NotificationType.NoBrokerClaimed.getId(),
                         leadId,
                         null);
+                if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
+                    leadService.moveToPrimary(leadId);
+                }
             }
             deleteLeadOfferNotificationForLead(offers);
         }
