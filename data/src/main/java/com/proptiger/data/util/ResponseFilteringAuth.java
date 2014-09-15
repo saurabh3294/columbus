@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.data.enums.DomainObject;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.pojo.response.APIResponse;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserSubscriptionService;
 
 /**
  * This class is used for authentication based filtering of APIResponse.
@@ -35,7 +35,7 @@ import com.proptiger.data.service.user.UserService;
 public class ResponseFilteringAuth {
 
     @Autowired
-    private UserService   userService;
+    private UserSubscriptionService   userSubscriptionService;
 
     private final int     objTypeIdLocality    = DomainObject.locality.getObjectTypeId();
 
@@ -220,7 +220,7 @@ public class ResponseFilteringAuth {
     private MultiKeyMap getUserSubscriptionMap() {
         try {
             ActiveUser activeUser = (ActiveUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return (userService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
+            return (userSubscriptionService.getUserSubscriptionMap(activeUser.getUserIdentifier()));
         }
         catch (Exception e) {
             return null;

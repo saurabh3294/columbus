@@ -657,28 +657,31 @@ public class PortfolioService {
             }
         }
 
-        List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
-                .findByProjectIdGroupByInstallmentNo(projectIds);
+        if (!projectIds.isEmpty()) {
+            List<ProjectPaymentSchedule> paymentScheduleList = paymentScheduleDao
+                    .findByProjectIdGroupByInstallmentNo(projectIds);
 
-        Map<Integer, List<ProjectPaymentSchedule>> scheduleMap = new HashMap<Integer, List<ProjectPaymentSchedule>>();
+            Map<Integer, List<ProjectPaymentSchedule>> scheduleMap = new HashMap<Integer, List<ProjectPaymentSchedule>>();
 
-        for (ProjectPaymentSchedule schedule : paymentScheduleList) {
-            if (scheduleMap.containsKey(schedule.getProjectId())) {
-                scheduleMap.get(schedule.getProjectId()).add(schedule);
+            for (ProjectPaymentSchedule schedule : paymentScheduleList) {
+                if (scheduleMap.containsKey(schedule.getProjectId())) {
+                    scheduleMap.get(schedule.getProjectId()).add(schedule);
+                }
+                else {
+                    scheduleMap.put(schedule.getProjectId(), new ArrayList<ProjectPaymentSchedule>());
+                }
             }
-            else {
-                scheduleMap.put(schedule.getProjectId(), new ArrayList<ProjectPaymentSchedule>());
-            }
-        }
 
-        for (PortfolioListing listing : portfolioListings) {
-            if (listing.getProperty() != null) {
-                List<ProjectPaymentSchedule> paymentSchedules = scheduleMap.get(listing.getProperty().getProjectId());
+            for (PortfolioListing listing : portfolioListings) {
+                if (listing.getProperty() != null) {
+                    List<ProjectPaymentSchedule> paymentSchedules = scheduleMap.get(listing.getProperty()
+                            .getProjectId());
 
-                if (paymentSchedules != null && !paymentSchedules.isEmpty()) {
-                    Set<PortfolioListingPaymentPlan> listingPaymentPlan = ProjectPaymentSchedule
-                            .convertToPortfolioListingPaymentPlan(paymentSchedules);
-                    listing.setListingPaymentPlan(listingPaymentPlan);
+                    if (paymentSchedules != null && !paymentSchedules.isEmpty()) {
+                        Set<PortfolioListingPaymentPlan> listingPaymentPlan = ProjectPaymentSchedule
+                                .convertToPortfolioListingPaymentPlan(paymentSchedules);
+                        listing.setListingPaymentPlan(listingPaymentPlan);
+                    }
                 }
             }
         }

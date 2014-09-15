@@ -13,6 +13,8 @@ import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
+import com.proptiger.data.service.LeadTaskService;
+import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.service.marketplace.LeadService;
 import com.proptiger.data.service.marketplace.NotificationService;
 import com.proptiger.data.util.PropertyKeys;
@@ -31,10 +33,16 @@ public class CronService {
     private LeadService         leadService;
 
     @Autowired
+    private LeadTaskService     leadTaskService;
+
+    @Autowired
     private NotificationService notificationService;
 
     @Autowired
     private LeadOfferDao        leadOfferDao;
+
+    @Autowired
+    private LeadOfferService    leadOfferService;
 
     @Autowired
     private LeadDao             leadDao;
@@ -59,28 +67,28 @@ public class CronService {
 
     @Scheduled(initialDelay = 20000, fixedDelay = 300000)
     public void manageCallDueNotification() {
-        notificationService.manageCallDueNotification();
+        leadTaskService.manageCallDueNotification();
     }
 
     @Scheduled(initialDelay = 30000, fixedDelay = 1800000)
     public void populateTaskDueNotification() {
-        notificationService.populateTaskDueNotification();
+        leadTaskService.populateTaskDueNotification();
     }
 
     @Scheduled(initialDelay = 40000, fixedDelay = 1800000)
     public void populateTaskOverDueNotification() {
-        notificationService.populateTaskOverDueNotification();
+        leadTaskService.populateTaskOverDueNotification();
     }
 
     @Scheduled(cron = "0 0 9 * * ?")
     public void sendTaskOverDueNotification() {
-        notificationService.populateTaskOverDueNotification();
+        leadTaskService.populateTaskOverDueNotification();
         notificationService.sendTaskOverDueNotification();
     }
 
     @Scheduled(cron = "0 0 9,18 * * ?")
     public void sendTaskDueNotification() {
-        notificationService.populateTaskDueNotification();
+        leadTaskService.populateTaskDueNotification();
         notificationService.sendTaskDueNotification();
     }
 
@@ -96,7 +104,7 @@ public class CronService {
                 LeadOfferStatus.Offered.getId());
         for (Lead lead : leads) {
             try {
-                notificationService.manageLeadOfferedNotificationDeletionForLead(lead.getId());
+                leadOfferService.manageLeadOfferedNotificationDeletionForLead(lead.getId());
             }
             catch (ConstraintViolationException e) {
                 logger.error("Error while deleting lead offer notification for lead id: " + lead.getId() + e);

@@ -41,7 +41,7 @@ import com.proptiger.data.util.SecurityContextUtils;
  */
 public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
     private static Logger                       logger = LoggerFactory.getLogger(CustomSocialAuthFilter.class);
-    private static final String                 SCOPE                    = "scope";
+    private static final String                 SCOPE  = "scope";
     private PropertyReader                      propertyReader;
 
     private UsersConnectionRepository           connectionRepository;
@@ -83,7 +83,7 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
          */
         String provider = request.getParameter("provider");
         String providerUserId = request.getParameter("providerUserId");
-        if(provider != null && !provider.isEmpty() && providerUserId != null && !providerUserId.isEmpty()){
+        if (provider != null && !provider.isEmpty() && providerUserId != null && !providerUserId.isEmpty()) {
             return attemptAuthUsingProviderAndProviderId(provider, providerUserId, request);
         }
         HttpServletRequest wrappedRequest = addScopeInRequestParameter(request);
@@ -92,6 +92,7 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
 
     /**
      * Attempt authentication using access_token passed in request
+     * 
      * @param request
      * @param accessToken
      * @return
@@ -115,7 +116,7 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
                 return auth;
             }
             catch (Exception e) {
-                logger.error("Invalid access token {} {}",accessToken, e);
+                logger.error("Invalid access token {} {}", accessToken, e);
                 throw new AuthenticationServiceException("invalid access token");
             }
         }
@@ -128,7 +129,11 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
         return success;
     }
 
-    private Authentication attemptAuthUsingProviderAndProviderId(String provider, String providerUserId, HttpServletRequest request) {
+    private Authentication attemptAuthUsingProviderAndProviderId(
+            String provider,
+            String providerUserId,
+            HttpServletRequest request) {
+        // these string constants are as per defined in checkuser.php
         logger.debug("login attempt using provider and provideruserid {},{}", provider, providerUserId);
         String userName = request.getParameter("userName");
         String email = request.getParameter("email");
@@ -137,10 +142,20 @@ public class CustomSocialAuthFilter extends SocialAuthenticationFilter {
             if (customJdbcUsersConnectionRepository != null) {
                 return customJdbcUsersConnectionRepository.createAuthenicationByProviderAndProviderUserId(
                         provider,
-                        providerUserId);
+                        providerUserId,
+                        userName,
+                        email,
+                        profileImageUrl);
             }
 
         }
+        logger.error(
+                "invlid data for login using provider and provider id {},{},{},{},{}",
+                provider,
+                providerUserId,
+                userName,
+                email,
+                profileImageUrl);
         return null;
     }
 

@@ -22,6 +22,7 @@ import com.proptiger.data.enums.AuthProvider;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.user.UserDao;
+import com.proptiger.data.service.user.UserService;
 
 /**
  * Connection repository to find already estabilished connections with provider
@@ -30,7 +31,12 @@ import com.proptiger.data.repo.user.UserDao;
  * @author azi
  * 
  */
+
 public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepository {
+    
+    @Autowired
+    private UserService userService;
+
     @Autowired
     private UserDao          userDao;
 
@@ -78,17 +84,28 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
      * 
      * @param provider
      * @param providerUserId
+     * @param profileImageUrl
+     * @param email
+     * @param userName
      * @return
      */
-    public Authentication createAuthenicationByProviderAndProviderUserId(String provider, String providerUserId) {
-        User user = userDao.findByProviderIdAndProviderUserId(AuthProvider.getAuthProviderIgnoreCase(provider)
-                .getProviderId(), providerUserId.toString());
+    public Authentication createAuthenicationByProviderAndProviderUserId(
+            String provider,
+            String providerUserId,
+            String userName,
+            String email,
+            String profileImageUrl) {
+        User user = userService.createSocialAuthDetails(
+                email,
+                userName,
+                AuthProvider.getAuthProviderIgnoreCase(provider),
+                providerUserId,
+                profileImageUrl);
         if (user != null) {
-            String password = user.getPassword() == null ? "" : user.getPassword();
             SocialUser socialUser = new ActiveUser(
                     user.getId(),
                     user.getEmail(),
-                    password,
+                    (user.getPassword() == null)? "dummy": user.getPassword() ,
                     true,
                     true,
                     true,
@@ -97,6 +114,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
 
             return new UsernamePasswordAuthenticationToken(socialUser, null, socialUser.getAuthorities());
         }
+
         return null;
     }
 }
