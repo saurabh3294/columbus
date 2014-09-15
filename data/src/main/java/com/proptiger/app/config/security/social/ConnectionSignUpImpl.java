@@ -29,7 +29,7 @@ public final class ConnectionSignUpImpl implements ConnectionSignUp {
         ConnectionKey connectionKey = connection.getKey();
         UserProfile userProfile = connection.fetchUserProfile();
         int userId = userService.createSocialAuthDetails(
-                userProfile,
+                userProfile.getEmail(), userProfile.getName(),
                 AuthProvider.getAuthProviderIgnoreCase(connectionKey.getProviderId()),
                 connectionKey.getProviderUserId(),
                 connection.getImageUrl()).getId();

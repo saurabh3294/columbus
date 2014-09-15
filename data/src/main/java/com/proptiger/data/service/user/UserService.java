@@ -537,17 +537,17 @@ public class UserService {
      */
     @Transactional
     public User createSocialAuthDetails(
-            UserProfile userProfile,
+            String email,
+            String userName,
             AuthProvider provider,
             String providerUserId,
             String imageUrl) {
 
-        String email = userProfile.getEmail();
         User user = userDao.findByEmail(email);
         if (user == null) {
             user = new User();
             user.setEmail(email);
-            user.setFullName(userProfile.getName());
+            user.setFullName(userName);
             user = userDao.save(user);
         }
 

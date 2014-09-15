@@ -16,6 +16,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.util.CacheClientUtil;
@@ -39,6 +41,8 @@ import com.proptiger.data.util.SecurityContextUtils;
 public class CustomRememberMeAuthFilter extends RememberMeAuthenticationFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomRememberMeAuthFilter.class);
+    
+    private SessionAuthenticationStrategy sessionStrategy = new NullAuthenticatedSessionStrategy();
 
     public CustomRememberMeAuthFilter(AuthenticationManager authenticationManager, RememberMeServices rememberMeServices) {
         super(authenticationManager, rememberMeServices);
@@ -86,5 +90,16 @@ public class CustomRememberMeAuthFilter extends RememberMeAuthenticationFilter {
             HttpServletResponse response,
             Authentication authResult) {
         SecurityContextUtils.putActiveUserInSession(request, authResult);
+        sessionStrategy.onAuthentication(authResult, request, response);
     }
+
+    public SessionAuthenticationStrategy getSessionStrategy() {
+        return sessionStrategy;
+    }
+
+    public void setSessionStrategy(SessionAuthenticationStrategy sessionStrategy) {
+        this.sessionStrategy = sessionStrategy;
+    }
+    
+    
 }
