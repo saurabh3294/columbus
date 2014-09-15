@@ -6,5 +6,5 @@ package com.proptiger.data.enums;
  */
 public enum ListingCategory {
 
-    Primary, Resale, Rental;
+    Primary, Resale, Rental, PrimaryAndResale;
 }

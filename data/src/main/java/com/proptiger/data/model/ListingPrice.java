@@ -18,6 +18,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -45,6 +46,7 @@ public class ListingPrice extends BaseModel {
     @Column(name = "listing_id")
     private int               listingId;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "listing_id", insertable = false, updatable = false)
     private Listing           listing;
@@ -63,6 +65,12 @@ public class ListingPrice extends BaseModel {
 
     @Column(name = "construction_cost_per_unit_area")
     private Integer           constructionCostPerUnitArea;
+
+    @Column(name = "price")
+    private Integer           price;
+
+    @Column(name = "other_charges")
+    private Integer           otherCharges;
 
     @Enumerated(EnumType.STRING)
     private Status            status;
@@ -221,5 +229,21 @@ public class ListingPrice extends BaseModel {
         public void setEffectiveMonth(Date effectiveMonth) {
             this.effectiveMonth = effectiveMonth;
         }
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
+
+    public Integer getOtherCharges() {
+        return otherCharges;
+    }
+
+    public void setOtherCharges(Integer otherCharges) {
+        this.otherCharges = otherCharges;
     }
 }

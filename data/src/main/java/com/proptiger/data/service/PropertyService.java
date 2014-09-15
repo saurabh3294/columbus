@@ -17,11 +17,15 @@ import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.google.gson.Gson;
+import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.model.Listing;
+import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
@@ -35,6 +39,7 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 import com.proptiger.data.repo.PropertyDao;
 import com.proptiger.data.repo.SolrDao;
 import com.proptiger.data.util.Constants;
+import com.proptiger.exception.BadRequestException;
 import com.proptiger.exception.ResourceNotAvailableException;
 
 /**
@@ -266,6 +271,53 @@ public class PropertyService {
         return properties.get(0);
     }
 
+    /**
+     * Tries to find a matching property from database based on other info
+     * provided from database, if found used in listing otherwise create a
+     * unverified property and used that while creating listing
+     * 
+     * @param listing
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public Property createUnverifiedPropertyOrGetExisting(Listing listing, Integer userId) {
+        Property property = null;
+        OtherInfo otherInfo = listing.getOtherInfo();
+        if (otherInfo != null && otherInfo.getSize() > 0 && otherInfo.getBedrooms() > 0 && otherInfo.getProjectId() > 0) {
+            FIQLSelector selector = new FIQLSelector()
+                    .addAndConditionToFilter("projectId==" + otherInfo.getProjectId())
+                    .addAndConditionToFilter("bedrooms==" + otherInfo.getBedrooms())
+                    .addAndConditionToFilter("size==" + otherInfo.getSize())
+                    .addAndConditionToFilter("project.version==" + DataVersion.Website);
+
+            if (otherInfo.getBathrooms() > 0) {
+                selector.addAndConditionToFilter("bathrooms==" + otherInfo.getBathrooms());
+            }
+            PaginatedResponse<List<Property>> propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+            if (propertyWithMatchingCriteria != null && propertyWithMatchingCriteria.getResults() != null
+                    && propertyWithMatchingCriteria.getResults().size() > 0) {
+                // matching property object found for the given other
+                // information
+                property = propertyWithMatchingCriteria.getResults().get(0);
+            }
+            else {
+                selector = new FIQLSelector().setGroup("unitType")
+                        .addAndConditionToFilter("projectId==" + otherInfo.getProjectId()).setRows(1)
+                        .addSortDESC("countPropertyId");
+
+                propertyWithMatchingCriteria = getPropertiesFromDB(selector);
+                Property toCreate = Property.createUnverifiedProperty(userId, otherInfo, propertyWithMatchingCriteria
+                        .getResults().get(0).getUnitType());
+                property = propertyDao.saveAndFlush(toCreate);
+            }
+        }
+        else {
+            throw new BadRequestException("Other info is invalid");
+        }
+        return property;
+    }
+
     public void updateProjectsLifestyleScores(List<Property> properties) {
         if (properties == null || properties.isEmpty()) {
             return;
@@ -277,4 +329,20 @@ public class PropertyService {
         projectService.updateLifestyleScoresByHalf(projects);
     }
 
+    /**
+     * Get property objects from database using filters provided in fiql
+     * selector
+     * 
+     * @param selector
+     * @return
+     */
+    public PaginatedResponse<List<Property>> getPropertiesFromDB(FIQLSelector selector) {
+        PaginatedResponse<List<Property>> paginatedResponse = new PaginatedResponse<List<Property>>();
+        EntityManager entityManager = emf.createEntityManager();
+        AbstractQueryBuilder<Property> builder = new JPAQueryBuilder<>(emf.createEntityManager(), Property.class);
+        builder.buildQuery(selector);
+        paginatedResponse.setResults(builder.retrieveResults());
+        entityManager.close();
+        return paginatedResponse;
+    }
 }

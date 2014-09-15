@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import com.github.fge.jsonschema.exceptions.ProcessingException;
@@ -21,6 +22,7 @@ import com.github.fge.jsonschema.report.ProcessingReport;
 public class JsonUtil {
     private static final JsonValidator VALIDATOR = JsonSchemaFactory.byDefault().getValidator();
     private Logger                     logger    = LoggerFactory.getLogger(this.getClass());
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * matches a json for a fiven schema
@@ -68,5 +70,18 @@ public class JsonUtil {
         catch (JsonPatchException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public static boolean isValidJsonString(String str) {
+        try {
+            objectMapper.readTree(str);
+        }
+        catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+    public static void main(String args[]){
+        System.out.println(JsonUtil.isValidJsonString(""));
     }
 }
