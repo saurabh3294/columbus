@@ -2,7 +2,6 @@ package com.proptiger.data.service.marketplace;
 
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -607,8 +606,8 @@ public class NotificationService {
             uri = new URI(stringUrl);
             restTemplate.getForObject(uri, Object.class);
         }
-        catch (URISyntaxException e) {
-            logger.error("Error in URL formation: " + stringUrl);
+        catch (Exception e) {
+            logger.error("Error in CRM API CALL: ", e);
         }
     }
 

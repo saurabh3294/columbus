@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.ApplicationNameService;
-import com.proptiger.data.service.user.UserService;
+import com.proptiger.data.service.user.UserSubscriptionService;
 
 /**
  * This class appends the subscription permissions for logged in user to the
@@ -21,7 +21,7 @@ import com.proptiger.data.service.user.UserService;
 public class FilterAuthTrendRequest {
 
     @Autowired
-    private UserService    userService;
+    private UserSubscriptionService    userSubscriptionService;
 
     @Pointcut(
             value = "execution(* com.proptiger.data.mvc.trend.TrendController.get*Trend(..)) || execution(* com.proptiger.data.mvc.trend.BuilderTrendController.get*(..))")
@@ -39,7 +39,7 @@ public class FilterAuthTrendRequest {
             for (Object arg : methodArgs) {
                 if (arg != null && arg.getClass().equals(FIQLSelector.class)) {
 
-                    String filters = userService.getUserAppSubscriptionFilters(user.getUserIdentifier()).getFilters();
+                    String filters = userSubscriptionService.getUserAppSubscriptionFilters(user.getUserIdentifier()).getFilters();
                     if (filters != null) {
                         ((FIQLSelector) arg).addAndConditionToFilter(filters);
                     }
