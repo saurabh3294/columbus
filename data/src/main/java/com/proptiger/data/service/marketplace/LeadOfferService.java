@@ -495,6 +495,7 @@ public class LeadOfferService {
         if (leadOffer.getStatusId() == LeadOfferStatus.Declined.getId()) {
             if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId() || leadOfferInDB.getStatusId() == LeadOfferStatus.Expired
                     .getId()) {
+                notificationService.removeNotification(leadOfferInDB);
                 leadOfferInDB.setStatusId(leadOffer.getStatusId());
             }
         }
@@ -631,9 +632,8 @@ public class LeadOfferService {
         map.put("listingObjectWithAmenities", listingMap);
 
         String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
-        generatedService.createNotificationGenerated(
-                Arrays.asList(new NotificationMessage(leadOfferInDB.getAgentId(), heading, template)),
-                Arrays.asList(MediumType.Email));
+        MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
+        mailSender.sendMailUsingAws(mailDetails);
     }
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {

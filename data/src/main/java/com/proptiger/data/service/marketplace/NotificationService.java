@@ -772,4 +772,8 @@ public class NotificationService {
     public void moveToPrimaryAsync(int LeadId) {
         moveToPrimary(LeadId);
     }
+    
+    public void removeNotification(LeadOffer leadOfferInDB) {
+    notificationDao.removeNotification(leadOfferInDB.getLeadId(),leadOfferInDB.getAgentId());
+    }
 }
