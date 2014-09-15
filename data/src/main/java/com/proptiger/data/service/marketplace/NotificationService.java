@@ -1,6 +1,8 @@
 package com.proptiger.data.service.marketplace;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,8 +14,10 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.LeadTaskName;
@@ -91,9 +95,6 @@ public class NotificationService {
 
     @Autowired
     MailSender                             mailSender;
-
-    @Autowired
-    LeadService                            leadService;
 
     @Autowired
     private static Logger                  logger;
@@ -677,7 +678,7 @@ public class NotificationService {
                         leadId,
                         null);
                 if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
-                    leadService.moveToPrimary(leadId);
+                    moveToPrimary(leadId);
                 }
             }
             deleteLeadOfferNotificationForLead(offers);
@@ -791,5 +792,25 @@ public class NotificationService {
             mailDetails.setMailTo(userService.getUserById(userId).getEmail());
             mailSender.sendMailUsingAws(mailDetails);
         }
+    }
+
+    public void moveToPrimary(int LeadId) {
+        RestTemplate restTemplate = new RestTemplate();
+        URI uri;
+        String stringUrl = "";
+        try {
+            stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.CRM_URL) + PropertyReader
+                    .getRequiredPropertyAsString(PropertyKeys.CRM_MOVE_RESALE_LEAD_TO_PRIMARY) + LeadId;
+            uri = new URI(stringUrl);
+            restTemplate.getForObject(uri, Object.class);
+        }
+        catch (URISyntaxException e) {
+            logger.error("Error in URL formation: " + stringUrl);
+        }
+    }
+
+    @Async
+    public void moveToPrimaryAsync(int LeadId) {
+        moveToPrimary(LeadId);
     }
 }
