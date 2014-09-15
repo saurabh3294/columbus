@@ -1,7 +1,6 @@
 package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.enums.resource.ResourceType;
@@ -38,8 +36,6 @@ import com.proptiger.data.model.marketplace.LeadRequirement;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.notification.enums.MediumType;
-import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
@@ -559,9 +555,12 @@ public class LeadOfferService {
                         NotificationType.NoBrokerClaimed.getId(),
                         leadId,
                         null);
-                if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
-                    notificationService.moveToPrimary(leadId);
-                }
+                // skipping interested in primary check
+                // if
+                // (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString()))
+                // {
+                notificationService.moveToPrimary(leadId);
+                // }
             }
             notificationService.deleteLeadOfferNotificationForLead(offers);
         }
