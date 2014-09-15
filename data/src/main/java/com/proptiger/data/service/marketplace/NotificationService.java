@@ -1,6 +1,8 @@
 package com.proptiger.data.service.marketplace;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,11 +14,14 @@ import java.util.Map;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.LeadTaskName;
+import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.mail.MailBody;
@@ -403,14 +408,16 @@ public class NotificationService {
      * @return
      */
     public void createLeadNotification(Lead lead, int notificationTypeId) {
-        List<LeadOffer> leadOffers = leadOfferDao.getLegitimateLeadOffersForDuplicateLeadNotifications(lead.getId());        
+        List<LeadOffer> leadOffers = leadOfferDao.getLegitimateLeadOffersForDuplicateLeadNotifications(lead.getId());
         if (leadOffers != null && !leadOffers.isEmpty()) {
             List<Integer> leadOfferIds = new ArrayList<>();
-            for (LeadOffer leadOffer: leadOffers) {
+            for (LeadOffer leadOffer : leadOffers) {
                 leadOfferIds.add(leadOffer.getId());
             }
 
-            List<Notification> notifications = notificationDao.findByObjectIdInAndNotificationTypeIdAndReadFalse(leadOfferIds, notificationTypeId);
+            List<Notification> notifications = notificationDao.findByObjectIdInAndNotificationTypeIdAndReadFalse(
+                    leadOfferIds,
+                    notificationTypeId);
 
             Map<Integer, Notification> unreadNotifications = new HashMap<>();
 
@@ -670,6 +677,9 @@ public class NotificationService {
                         NotificationType.NoBrokerClaimed.getId(),
                         leadId,
                         null);
+                if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
+                    moveToPrimary(leadId);
+                }
             }
             deleteLeadOfferNotificationForLead(offers);
         }
@@ -782,5 +792,25 @@ public class NotificationService {
             mailDetails.setMailTo(userService.getUserById(userId).getEmail());
             mailSender.sendMailUsingAws(mailDetails);
         }
+    }
+
+    public void moveToPrimary(int LeadId) {
+        RestTemplate restTemplate = new RestTemplate();
+        URI uri;
+        String stringUrl = "";
+        try {
+            stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.CRM_URL) + PropertyReader
+                    .getRequiredPropertyAsString(PropertyKeys.CRM_MOVE_RESALE_LEAD_TO_PRIMARY) + LeadId;
+            uri = new URI(stringUrl);
+            restTemplate.getForObject(uri, Object.class);
+        }
+        catch (URISyntaxException e) {
+            logger.error("Error in URL formation: " + stringUrl);
+        }
+    }
+
+    @Async
+    public void moveToPrimaryAsync(int LeadId) {
+        moveToPrimary(LeadId);
     }
 }

@@ -371,24 +371,4 @@ public class LeadService {
     public List<Lead> getLeads(List<Integer> leadIds) {
         return leadDao.getLeads(leadIds);
     }
-
-    public void moveToPrimary(int LeadId) {
-        RestTemplate restTemplate = new RestTemplate();
-        URI uri;
-        String stringUrl = "";
-        try {
-            stringUrl = PropertyReader.getRequiredPropertyAsString(PropertyKeys.CRM_URL) + PropertyReader
-                    .getRequiredPropertyAsString(PropertyKeys.CRM_MOVE_RESALE_LEAD_TO_PRIMARY) + LeadId;
-            uri = new URI(stringUrl);
-            restTemplate.getForObject(uri, Object.class);
-        }
-        catch (URISyntaxException e) {
-            logger.error("Error in URL formation: " + stringUrl);
-        }
-    }
-
-    @Async
-    public void moveToPrimaryAsync(int LeadId) {
-        moveToPrimary(LeadId);
-    }
 }
