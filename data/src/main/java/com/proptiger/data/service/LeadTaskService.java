@@ -42,7 +42,6 @@ import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.service.marketplace.LeadOfferService;
-import com.proptiger.data.service.marketplace.LeadService;
 import com.proptiger.data.service.marketplace.ListingService;
 import com.proptiger.data.service.marketplace.NotificationService;
 import com.proptiger.data.util.DateUtil;
@@ -87,9 +86,6 @@ public class LeadTaskService {
 
     @Autowired
     private NotificationService          notificationService;
-
-    @Autowired
-    private LeadService                  leadService;
 
     private static final int             offerDefaultLeadTaskStatusMappingId = 1;
 
