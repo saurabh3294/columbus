@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.enums.LeadOfferStatus;
 import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -358,7 +357,8 @@ public class LeadTaskService {
      */
     private void manageMoveToPrimary(int leadId) {
         Lead lead = leadDao.findOne(leadId);
-        if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
+        // skipping interested in primary check
+//        if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
             List<LeadOffer> offers = leadOfferDao.findByLeadId(leadId);
             boolean lost = true;
             boolean primaryLead = false;
@@ -374,7 +374,7 @@ public class LeadTaskService {
             if (lost && primaryLead) {
                 notificationService.moveToPrimaryAsync(leadId);
             }
-        }
+        // }
     }
 
     // XXX -- introduced only because we have not yet found a solution to load
