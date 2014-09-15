@@ -135,7 +135,7 @@ public class LeadOffer extends BaseModel {
     @JoinColumn(name = "seller_id", referencedColumnName = "agent_id", insertable = false, updatable = false)
     private List<Listing>            matchingListings;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id", referencedColumnName = "id", insertable = false, updatable = false)
     private MasterLeadOfferStatus    masterLeadOfferStatus;
 

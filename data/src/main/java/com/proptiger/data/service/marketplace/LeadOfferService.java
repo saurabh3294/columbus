@@ -531,7 +531,7 @@ public class LeadOfferService {
     @Transactional
     public void manageLeadOfferedNotificationDeletionForLead(int leadId) {
         Lead lead = leadDao.getLock(leadId);
-        List<LeadOffer> offers = lead.getLeadOffers();
+        List<LeadOffer> offers = leadOfferDao.getLeadOffers(leadId);
 
         Date endDate = notificationService.getNoBrokerClaimedCutoffTime();
         Date startDate = new Date(
