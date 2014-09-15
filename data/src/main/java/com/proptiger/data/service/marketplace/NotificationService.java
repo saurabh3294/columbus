@@ -643,7 +643,6 @@ public class NotificationService {
         return notification;
     }
 
-
     /**
      * deletes offerred notification for a list of offers
      * 
@@ -772,8 +771,14 @@ public class NotificationService {
     public void moveToPrimaryAsync(int LeadId) {
         moveToPrimary(LeadId);
     }
-    
+
     public void removeNotification(LeadOffer leadOfferInDB) {
-    notificationDao.removeNotification(leadOfferInDB.getLeadId(),leadOfferInDB.getAgentId());
+        
+        Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
+                leadOfferInDB.getId(),
+                NotificationType.LeadOffered.getId());
+        if (notification != null) {
+            notificationDao.delete(notification);
+        }
     }
 }

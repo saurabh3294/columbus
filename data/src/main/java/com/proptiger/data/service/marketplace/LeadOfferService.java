@@ -523,9 +523,9 @@ public class LeadOfferService {
         leadOfferInDB.setOfferedListings(leadOfferedListingList);
         restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
-        //String heading = "Matching Property suggested by our trusted broker";
-        //String templatePath = marketplaceTemplateBasePath + claimTemplate;
-        //sendMailToClient(leadOfferInDB, templatePath, heading);
+        // String heading = "Matching Property suggested by our trusted broker";
+        // String templatePath = marketplaceTemplateBasePath + claimTemplate;
+        // sendMailToClient(leadOfferInDB, templatePath, heading);
     }
 
     @Transactional
@@ -548,11 +548,12 @@ public class LeadOfferService {
         if (claimed || (maxOfferDate.after(startDate) && maxOfferDate.before(endDate))) {
             if (!claimed) {
                 this.expireLeadOffersInOfferedStatus(offers);
-                notificationService.sendEmail(
-                        notificationService.getRelationshipManagerUserId(),
-                        NotificationType.NoBrokerClaimed.getEmailSubject(),
-                        "Lead ID: " + leadId
-                                + " of resale marketplace was not claimed by any broker. Marking all offers as expired.");
+                notificationService
+                        .sendEmail(
+                                notificationService.getRelationshipManagerUserId(),
+                                NotificationType.NoBrokerClaimed.getEmailSubject(),
+                                "Lead ID: " + leadId
+                                        + " of resale marketplace was not claimed by any broker. Marking all offers as expired.");
                 notificationService.createNotification(
                         notificationService.getRelationshipManagerUserId(),
                         NotificationType.NoBrokerClaimed.getId(),
@@ -601,9 +602,10 @@ public class LeadOfferService {
                 }
 
                 offerListings(listingIds, leadOfferInDB.getId(), leadOfferInDB.getAgentId());
-                //String heading = "More properties matching your requirement";
-                //String templatePath = marketplaceTemplateBasePath + offerTemplate;
-                //sendMailToClient(leadOfferInDB, templatePath, heading);
+                // String heading = "More properties matching your requirement";
+                // String templatePath = marketplaceTemplateBasePath +
+                // offerTemplate;
+                // sendMailToClient(leadOfferInDB, templatePath, heading);
             }
         }
     }
@@ -632,7 +634,8 @@ public class LeadOfferService {
         map.put("listingObjectWithAmenities", listingMap);
 
         String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
-        MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
+        MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
+                leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
         mailSender.sendMailUsingAws(mailDetails);
     }
 

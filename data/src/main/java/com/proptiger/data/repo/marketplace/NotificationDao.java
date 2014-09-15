@@ -65,9 +65,5 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     public List<Notification> getNotificationWithTypeForUser(int userId);
 
     public List<Notification> findByObjectIdInAndNotificationTypeIdAndReadFalse(List<Integer> objectIds, int notificationTypeId);
-
-    @Modifying
-    @Query("delete from Notification N where N.objectId = ?1 and N.userId = ?2")
-    public void removeNotification(Integer leadId , Integer userId);
     
 }
