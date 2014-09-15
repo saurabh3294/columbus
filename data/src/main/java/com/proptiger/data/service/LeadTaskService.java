@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.enums.LeadOfferStatus;
-import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.external.dto.LeadTaskDto;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
@@ -24,7 +23,6 @@ import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.LeadTaskStatus;
 import com.proptiger.data.model.MasterLeadOfferStatus;
 import com.proptiger.data.model.MasterLeadTask;
-import com.proptiger.data.model.marketplace.Lead;
 import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadOfferedListing;
 import com.proptiger.data.model.marketplace.LeadTask;
@@ -201,24 +199,27 @@ public class LeadTaskService {
      * @param leadId
      */
     private void manageMoveToPrimary(int leadId) {
-        Lead lead = leadDao.findOne(leadId);
-        if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
-            List<LeadOffer> offers = leadOfferDao.findByLeadId(leadId);
-            boolean lost = true;
-            boolean primaryLead = false;
-            for (LeadOffer offer : offers) {
-                MasterLeadOfferStatus status = offer.getMasterLeadOfferStatus();
-                if (status.isOpen() || LeadOfferStatus.ClosedWon.equals(LeadOfferStatus.valueOf(status.getStatus()))) {
-                    lost = false;
-                }
-                if (!(leadTaskDao.findByofferIdAndStatusReason(offer.getId(), interestedInPrimary) == null)) {
-                    primaryLead = true;
-                }
+        // skipping check of transaction type
+        // Lead lead = leadDao.findOne(leadId);
+        // if
+        // (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString()))
+        // {
+        List<LeadOffer> offers = leadOfferDao.findByLeadId(leadId);
+        boolean lost = true;
+        boolean primaryLead = false;
+        for (LeadOffer offer : offers) {
+            MasterLeadOfferStatus status = offer.getMasterLeadOfferStatus();
+            if (status.isOpen() || LeadOfferStatus.ClosedWon.equals(LeadOfferStatus.valueOf(status.getStatus()))) {
+                lost = false;
             }
-            if (lost && primaryLead) {
-                notificationService.moveToPrimaryAsync(leadId);
+            if (!(leadTaskDao.findByofferIdAndStatusReason(offer.getId(), interestedInPrimary) == null)) {
+                primaryLead = true;
             }
         }
+        if (lost && primaryLead) {
+            notificationService.moveToPrimaryAsync(leadId);
+        }
+        // }
     }
 
     // XXX -- introduced only because we have not yet found a solution to load

@@ -20,7 +20,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.proptiger.data.enums.LeadTaskName;
-import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.NotificationType;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.internal.dto.mail.MailBody;
@@ -676,9 +675,12 @@ public class NotificationService {
                         NotificationType.NoBrokerClaimed.getId(),
                         leadId,
                         null);
-                if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
-                    moveToPrimary(leadId);
-                }
+                // skiping transaction type change
+                // if
+                // (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString()))
+                // {
+                moveToPrimary(leadId);
+                // }
             }
             deleteLeadOfferNotificationForLead(offers);
         }
