@@ -2,6 +2,7 @@ package com.proptiger.data.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.enums.LeadOfferStatus;
+import com.proptiger.data.enums.LeadTaskName;
 import com.proptiger.data.enums.ListingCategory;
 import com.proptiger.data.enums.TaskStatus;
 import com.proptiger.data.external.dto.LeadTaskDto;
@@ -40,6 +42,7 @@ import com.proptiger.data.repo.marketplace.LeadDao;
 import com.proptiger.data.repo.marketplace.LeadOfferDao;
 import com.proptiger.data.repo.marketplace.LeadOfferedListingDao;
 import com.proptiger.data.repo.marketplace.LeadTaskStatusReasonDao;
+import com.proptiger.data.repo.marketplace.NotificationDao;
 import com.proptiger.data.repo.marketplace.TaskOfferedListingMappingDao;
 import com.proptiger.data.service.marketplace.LeadOfferService;
 import com.proptiger.data.service.marketplace.ListingService;
@@ -83,6 +86,9 @@ public class LeadTaskService {
 
     @Autowired
     private ListingService               listingService;
+
+    @Autowired
+    private NotificationDao          notificationDao;
 
     @Autowired
     private NotificationService          notificationService;
@@ -165,14 +171,168 @@ public class LeadTaskService {
         finalTask.unlinkCircularLoop();
         return finalTask.populateTransientAttributes();
     }
+    /**
+     * manages task due notifications
+     */
+    public void manageCallDueNotification() {
+        Date validStartTime = new Date();
+        Date validEndTime = notificationService.getCallDueEndScheduledTime();
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
 
+        List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
+                validStartTime,
+                validEndTime,
+                notificationTypeId,
+                Arrays.asList(LeadTaskName.Call.getId()));
+        for (LeadOffer leadOffer : leadOffers) {
+            manageCallDueNotificationForLeadOffer(leadOffer.getId());
+        }
+        notificationDao.deleteTaskNotificationNotScheduledBetween(
+                validStartTime,
+                validEndTime,
+                notificationTypeId,
+                Arrays.asList(LeadTaskName.Call.getId()));
+    }
+
+    public void manageTaskNotificationForLeadOffer(int leadOfferId) {
+        manageCallDueNotificationForLeadOffer(leadOfferId);
+        populateTaskDueNotificationForLeadOffer(leadOfferId);
+        populateTaskOverDueNotificationForLeadOffer(leadOfferId);
+    }
+    
+
+    /**
+     * manages task overdue notifications
+     */
+    public void populateTaskDueNotification() {
+        Date validStartTime = new Date();
+        Date validEndTime = notificationService.getTaskDueEndScheduledTime();
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+
+        List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
+                validStartTime,
+                validEndTime,
+                notificationTypeId,
+                NotificationService.allMasterTaskIdsButCall);
+        for (LeadOffer leadOffer : leadOffers) {
+            populateTaskDueNotificationForLeadOffer(leadOffer.getId());
+        }
+        notificationDao.deleteTaskNotificationNotScheduledBetween(
+                validStartTime,
+                validEndTime,
+                notificationTypeId,
+                NotificationService.allMasterTaskIdsButCall);
+    }
+    
+    /**
+     * manages task due notification for one single lead offer... gets lock on
+     * lead offer to avoid race conditions
+     * 
+     * @param leadOfferId
+     */
+    @Transactional
+    private void manageCallDueNotificationForLeadOffer(int leadOfferId) {
+        LeadOffer leadOffer = leadOfferDao.getLock(leadOfferId);
+
+        Date validStartTime = new Date();
+        Date validEndTime = notificationService.getCallDueEndScheduledTime();
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+
+        int validTaskIdForNotification = 0;
+
+        if (leadOffer.getNextTaskId() != null) {
+            LeadTask nextTask = getLeadTask(leadOffer.getNextTaskId());
+            Date scheduledTime = nextTask.getScheduledFor();
+            if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
+                    && !(leadOffer.getLastTask() == null && nextTask.getTaskStatusId() == LeadTaskService
+                            .getOfferdefaultleadtaskstatusmappingid())) {
+                notificationService.createNotificationForTask(notificationTypeId, nextTask, true);
+                validTaskIdForNotification = nextTask.getId();
+            }
+        }
+        notificationService.deleteInvalidNotificationForLeadOffer(leadOfferId, validTaskIdForNotification, notificationTypeId);
+    }
+
+    /**
+     * manages task overdue notifications
+     */
+    public void populateTaskOverDueNotification() {
+        Date validStartTime = new Date(0);
+        Date validEndTime = new Date();
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+
+        List<LeadOffer> leadOffers = leadOfferDao.getOffersWithTaskScheduledBetweenAndWithoutNotification(
+                validStartTime,
+                validEndTime,
+                notificationTypeId);
+        for (LeadOffer leadOffer : leadOffers) {
+            populateTaskOverDueNotificationForLeadOffer(leadOffer.getId());
+        }
+    }
+
+    /**
+     * manages task due notification for one single lead offer... gets lock on
+     * lead offer to avoid race conditions
+     * 
+     * @param leadOfferId
+     */
+    @Transactional
+    public void populateTaskOverDueNotificationForLeadOffer(int leadOfferId) {
+        LeadOffer leadOffer = leadOfferDao.getLock(leadOfferId);
+
+        Date validStartTime = new Date(0);
+        Date validEndTime = new Date();
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskOverDue.getId();
+
+        int validTaskIdForNotification = 0;
+
+        Integer nextTaskId = leadOffer.getNextTaskId();
+        if (nextTaskId != null) {
+            LeadTask nextTask = getLeadTask(nextTaskId);
+            Date scheduledTime = nextTask.getScheduledFor();
+            if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)) {
+                notificationService.createNotificationForTask(notificationTypeId, nextTask, false);
+                validTaskIdForNotification = nextTask.getId();
+            }
+        }
+        notificationService.deleteInvalidNotificationForLeadOffer(leadOfferId, validTaskIdForNotification, notificationTypeId);
+    }
+    
+    
+    /**
+     * manages task due notification for one single lead offer... gets lock on
+     * lead offer to avoid race conditions
+     * 
+     * @param leadOfferId
+     */
+    @Transactional
+    public void populateTaskDueNotificationForLeadOffer(int leadOfferId) {
+        LeadOffer leadOffer = leadOfferDao.getLock(leadOfferId);
+
+        Date validStartTime = new Date();
+        Date validEndTime = notificationService.getTaskDueEndScheduledTime();
+        int notificationTypeId = com.proptiger.data.enums.NotificationType.TaskDue.getId();
+
+        int validTaskIdForNotification = 0;
+
+        if (leadOffer.getNextTaskId() != null) {
+            LeadTask nextTask = getLeadTask(leadOffer.getNextTaskId());
+            Date scheduledTime = nextTask.getScheduledFor();
+            if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)) {
+                notificationService.createNotificationForTask(notificationTypeId, nextTask, false);
+                validTaskIdForNotification = nextTask.getId();
+            }
+        }
+        notificationService.deleteInvalidNotificationForLeadOffer(leadOfferId, validTaskIdForNotification, notificationTypeId);
+    }
+    
     /**
      * manages actions which are supposed to happen post update of a task
      * 
      * @param task
      */
     private void managePostUpdateActivities(LeadTask task) {
-        notificationService.manageTaskNotificationForLeadOffer(task.getLeadOfferId());
+        manageTaskNotificationForLeadOffer(task.getLeadOfferId());
         manageDealClosed(task);
         manageMoveToPrimary(task.getLeadOffer().getLeadId());
     }
