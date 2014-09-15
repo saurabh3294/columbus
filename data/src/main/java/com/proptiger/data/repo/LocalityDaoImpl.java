@@ -267,7 +267,16 @@ public class LocalityDaoImpl {
 
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
 
-        return getPaginatedResponse(queryResponse.getBeans(SolrResult.class), queryResponse);
+        PaginatedResponse<List<Locality>> results = getPaginatedResponse(
+                queryResponse.getBeans(SolrResult.class),
+                queryResponse);
+
+        if (results == null) {
+            results = new PaginatedResponse<List<Locality>>();
+            results.setResults(new ArrayList<Locality>());
+        }
+
+        return results;
     }
 
     /**
