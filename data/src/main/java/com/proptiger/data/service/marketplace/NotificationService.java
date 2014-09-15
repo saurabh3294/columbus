@@ -270,8 +270,8 @@ public class NotificationService {
 
         int validTaskIdForNotification = 0;
 
-        LeadTask nextTask = leadTaskService.getLeadTask(leadOffer.getNextTaskId());
-        if (nextTask != null) {
+        if (leadOffer.getNextTaskId() != null) {
+            LeadTask nextTask = leadTaskService.getLeadTask(leadOffer.getNextTaskId());
             Date scheduledTime = nextTask.getScheduledFor();
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
                     && !(leadOffer.getLastTask() == null && nextTask.getTaskStatusId() == LeadTaskService
@@ -350,8 +350,8 @@ public class NotificationService {
 
         int validTaskIdForNotification = 0;
 
-        LeadTask nextTask = leadTaskService.getLeadTask(leadOffer.getNextTaskId());
-        if (nextTask != null) {
+        if (leadOffer.getNextTaskId() != null) {
+            LeadTask nextTask = leadTaskService.getLeadTask(leadOffer.getNextTaskId());
             Date scheduledTime = nextTask.getScheduledFor();
             if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)) {
                 createNotificationForTask(notificationTypeId, nextTask, false);
