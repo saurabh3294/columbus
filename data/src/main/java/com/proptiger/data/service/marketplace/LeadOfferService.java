@@ -523,9 +523,9 @@ public class LeadOfferService {
         leadOfferInDB.setOfferedListings(leadOfferedListingList);
         restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
-        String heading = "Matching Property suggested by our trusted broker";
-        String templatePath = marketplaceTemplateBasePath + claimTemplate;
-        sendMailToClient(leadOfferInDB, templatePath, heading);
+        //String heading = "Matching Property suggested by our trusted broker";
+        //String templatePath = marketplaceTemplateBasePath + claimTemplate;
+        //sendMailToClient(leadOfferInDB, templatePath, heading);
     }
 
     @Transactional
@@ -601,9 +601,9 @@ public class LeadOfferService {
                 }
 
                 offerListings(listingIds, leadOfferInDB.getId(), leadOfferInDB.getAgentId());
-                String heading = "More properties matching your requirement";
-                String templatePath = marketplaceTemplateBasePath + offerTemplate;
-                sendMailToClient(leadOfferInDB, templatePath, heading);
+                //String heading = "More properties matching your requirement";
+                //String templatePath = marketplaceTemplateBasePath + offerTemplate;
+                //sendMailToClient(leadOfferInDB, templatePath, heading);
             }
         }
     }
