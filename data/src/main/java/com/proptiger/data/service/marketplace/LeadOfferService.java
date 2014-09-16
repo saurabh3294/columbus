@@ -480,7 +480,7 @@ public class LeadOfferService {
         // Claim a lead
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
-                claimLeadOffer(leadOffer, leadOfferInDB,newListingIds);
+                claimLeadOffer(leadOffer, leadOfferInDB, newListingIds);
                 return leadOfferInDB;
             }
         }
@@ -523,9 +523,9 @@ public class LeadOfferService {
         leadOfferInDB.setOfferedListings(leadOfferedListingList);
         restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
-         String heading = "Matching Property suggested by our trusted broker";
-         String templatePath = marketplaceTemplateBasePath + claimTemplate;
-         sendMailToClient(leadOfferInDB, templatePath, heading,newListingIds);
+        String heading = "Matching Property suggested by our trusted broker";
+        String templatePath = marketplaceTemplateBasePath + claimTemplate;
+        sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds);
     }
 
     @Transactional
@@ -601,46 +601,55 @@ public class LeadOfferService {
                     listingIds.add(leadOfferedListing.getListingId());
                 }
 
-                 List<Integer> newListingIds = offerListings(listingIds, leadOfferInDB.getId(), leadOfferInDB.getAgentId());
-                 String heading = "More properties matching your requirement";
-                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
-                 sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds);
-                 return newListingIds;
+                List<Integer> newListingIds = offerListings(
+                        listingIds,
+                        leadOfferInDB.getId(),
+                        leadOfferInDB.getAgentId());
+                String heading = "More properties matching your requirement";
+                String templatePath = marketplaceTemplateBasePath + offerTemplate;
+                sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds);
+                return newListingIds;
             }
         }
-         return null;
+        return null;
     }
 
-    private void sendMailToClient(LeadOffer leadOfferInDB, String templatePath, String heading,List<Integer> newListingIds) {
+    private void sendMailToClient(
+            LeadOffer leadOfferInDB,
+            String templatePath,
+            String heading,
+            List<Integer> newListingIds) {
 
-        Set<String> fields = new HashSet<>();
-        fields.add("lead");
-        fields.add("offeredListings");
-        fields.add("client");
-        fields.add("contactNumbers");
-        fields.add("requirements");
-        enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
-        Map<String, Object> map = new HashMap<>();
-
-        FIQLSelector fiqlSelector = new FIQLSelector();
-        fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
-        List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
-        Map<Integer, Listing> listingMap = new HashMap<>();
-        for (Listing listing : listings) {
-            if(newListingIds.contains(listing.getId()))
-            {
-                listingMap.put(listing.getId(), listing);
-            }
+        if(newListingIds != null)
+        {
+                Set<String> fields = new HashSet<>();
+                fields.add("lead");
+                fields.add("offeredListings");
+                fields.add("client");
+                fields.add("contactNumbers");
+                fields.add("requirements");
+                enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
+                Map<String, Object> map = new HashMap<>();
+        
+                FIQLSelector fiqlSelector = new FIQLSelector();
+                fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
+                List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
+                Map<Integer, Listing> listingMap = new HashMap<>();
+                for (Listing listing : listings) {
+                    if (newListingIds.contains(listing.getId())) {
+                        listingMap.put(listing.getId(), listing);
+                    }
+                }
+        
+                leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
+                map.put("leadOffer", leadOfferInDB);
+                map.put("listingObjectWithAmenities", listingMap);
+        
+                String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
+                MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
+                        leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
+                mailSender.sendMailUsingAws(mailDetails);
         }
-
-        leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
-        map.put("leadOffer", leadOfferInDB);
-        map.put("listingObjectWithAmenities", listingMap);
-
-        String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
-        MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
-                leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
-        mailSender.sendMailUsingAws(mailDetails);
     }
 
     private void restrictOtherBrokersFromClaiming(int leadOfferId) {
