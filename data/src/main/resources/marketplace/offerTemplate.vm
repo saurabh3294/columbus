@@ -187,8 +187,6 @@ Best Regards, <br /><br />
 ${leadOffer.agent.fullName} <br />
 Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}  |  ${leadOffer.agent.email}<br />
  
-please notify us at cutomer.service@proptiger.com, or report it on http://www.proptiger.com/contact_us.php</span>
- 
  </td>
   </tr>
   
