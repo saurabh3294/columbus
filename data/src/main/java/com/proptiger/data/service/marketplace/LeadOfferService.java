@@ -475,12 +475,12 @@ public class LeadOfferService {
         }
 
         // Offer listings
-        offerListings(leadOffer, leadOfferInDB);
+        List<Integer> newListingIds = offerListings(leadOffer, leadOfferInDB);
 
         // Claim a lead
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
-                claimLeadOffer(leadOffer, leadOfferInDB);
+                claimLeadOffer(leadOffer, leadOfferInDB,newListingIds);
                 return leadOfferInDB;
             }
         }
@@ -510,7 +510,7 @@ public class LeadOfferService {
      * @param leadOfferId
      * @param leadOfferInDB
      */
-    private void claimLeadOffer(LeadOffer leadOffer, LeadOffer leadOfferInDB) {
+    private void claimLeadOffer(LeadOffer leadOffer, LeadOffer leadOfferInDB, List<Integer> newListingIds) {
         List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
                 .singletonList(leadOfferInDB.getId()));
         if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
@@ -523,9 +523,9 @@ public class LeadOfferService {
         leadOfferInDB.setOfferedListings(leadOfferedListingList);
         restrictOtherBrokersFromClaiming(leadOfferInDB.getId());
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
-        // String heading = "Matching Property suggested by our trusted broker";
-        // String templatePath = marketplaceTemplateBasePath + claimTemplate;
-        // sendMailToClient(leadOfferInDB, templatePath, heading);
+         String heading = "Matching Property suggested by our trusted broker";
+         String templatePath = marketplaceTemplateBasePath + claimTemplate;
+         sendMailToClient(leadOfferInDB, templatePath, heading,newListingIds);
     }
 
     @Transactional
@@ -573,7 +573,7 @@ public class LeadOfferService {
      * @param userId
      * @param leadOfferInDB
      */
-    private void offerListings(LeadOffer leadOffer, LeadOffer leadOfferInDB) {
+    private List<Integer> offerListings(LeadOffer leadOffer, LeadOffer leadOfferInDB) {
         List<Integer> listingIds = new ArrayList<>();
         List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
 
@@ -601,16 +601,17 @@ public class LeadOfferService {
                     listingIds.add(leadOfferedListing.getListingId());
                 }
 
-                offerListings(listingIds, leadOfferInDB.getId(), leadOfferInDB.getAgentId());
-                // String heading = "More properties matching your requirement";
-                // String templatePath = marketplaceTemplateBasePath +
-                // offerTemplate;
-                // sendMailToClient(leadOfferInDB, templatePath, heading);
+                 List<Integer> newListingIds = offerListings(listingIds, leadOfferInDB.getId(), leadOfferInDB.getAgentId());
+                 String heading = "More properties matching your requirement";
+                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
+                 sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds);
+                 return newListingIds;
             }
         }
+         return null;
     }
 
-    private void sendMailToClient(LeadOffer leadOfferInDB, String templatePath, String heading) {
+    private void sendMailToClient(LeadOffer leadOfferInDB, String templatePath, String heading,List<Integer> newListingIds) {
 
         Set<String> fields = new HashSet<>();
         fields.add("lead");
@@ -626,7 +627,10 @@ public class LeadOfferService {
         List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
         Map<Integer, Listing> listingMap = new HashMap<>();
         for (Listing listing : listings) {
-            listingMap.put(listing.getId(), listing);
+            if(newListingIds.contains(listing.getId()))
+            {
+                listingMap.put(listing.getId(), listing);
+            }
         }
 
         leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));

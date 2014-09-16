@@ -121,7 +121,7 @@ details below.
   
   <table width="580" border="0" cellspacing="0" cellpadding="0" align="center" style="border-radius:5px; border:1px solid #dddddd;">
   <tr>
-    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.name}</a>  &nbsp; (Click to view more details)</td>
+    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name} ${offeredListing.listing.property.project.name}</a>  &nbsp; (Click to view more details)</td>
     </tr>
   <tr>
     <td width="173" style="padding:10px;"><strong>Locality:</strong> </td>
@@ -158,8 +158,9 @@ details below.
   
 #end  
 #if ($a == 2)
-</tr><tr>
+</tr>
 #end
+<tr>
     <td width="173" style="padding:10px;"><strong>Other Splecial Features</strong> </td>
     <td colspan="3" style="padding:10px;">Swimming Pool, Gym, Golf Course, Meditation Center, Medical Clinic, Jogging Track, Landscape Garden</td>
     </tr>
@@ -173,9 +174,9 @@ details below.
    <tr>
   <td>&nbsp;</td>
   </tr>
-</table>   
+   
 #end
-
+</table>
    <tr>
   <td style="padding:10px; line-height:20px;">The broker will get in touch with you shortly, to discuss your requirements in details. You can also contact us 
 at +91 92788 92788 or email us on <a href="#" style="color:#333;">customer.service@proptiger.com</a>. <br /><br />
