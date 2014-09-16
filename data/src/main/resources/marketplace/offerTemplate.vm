@@ -43,7 +43,7 @@
             <table width="25%" border="0" cellpadding="0" cellspacing="0" align="left">
             <tr><td>&nbsp;</td></tr>
              <tr>
-    <td  style="font-size: 0; line-height: 0;" height="auto" align="center" class="responsive-icon"><a href="http://www.proptiger.com/google_page_4.php?projectName=Supertech CapeTown - Noida&amp;utm_source=internal&amp;utm_medium=mailerInternal&amp;utm_campaign=Mailer Campaign Noida&amp;localityId=50082" target="_blank"><img src="images/proptiger_logo.gif" width="130" height="43" border="0" /></a></td>
+    <td  style="font-size: 0; line-height: 0;" height="auto" align="center" class="responsive-icon"><a href="http://www.proptiger.com/google_page_4.php?projectName=Supertech CapeTown - Noida&amp;utm_source=internal&amp;utm_medium=mailerInternal&amp;utm_campaign=Mailer Campaign Noida&amp;localityId=50082" target="_blank"><img src="http://cdn.proptiger.com/images/proptiger_logo.gif" width="130" height="43" border="0" /></a></td>
   </tr>         
         
             </table>
@@ -52,7 +52,7 @@
               
               <tr><td>&nbsp;</td></tr>
                   <tr>
-                    <td style="text-align:center;" ><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <img src="images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" />&nbsp; <img src="images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></div>
+                    <td style="text-align:center;" ><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <img src="http://cdn.proptiger.com/images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" />&nbsp; <img src="http://cdn.proptiger.com/images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></div>
                       
                       
                     </td></tr></table>
@@ -187,7 +187,6 @@ Best Regards, <br /><br />
 ${leadOffer.agent.fullName} <br />
 Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}  |  ${leadOffer.agent.email}<br />
  
-<span style="font-size:10px; line-height:18px;">** You have received this email because your email id was given to us on our web site. If it was not you, 
 please notify us at cutomer.service@proptiger.com, or report it on http://www.proptiger.com/contact_us.php</span>
  
  </td>
