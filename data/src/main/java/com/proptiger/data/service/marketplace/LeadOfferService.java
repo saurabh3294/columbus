@@ -758,6 +758,7 @@ public class LeadOfferService {
      * @param mailDetails2
      * @return
      */
+    @Transactional
     public LeadOffer updateLeadOfferForEmailTask(int leadOfferId, ActiveUser activeUser, SenderDetail senderDetails) {
         LeadOffer leadOfferInDB = leadOfferDao.findByIdAndAgentId(leadOfferId, activeUser.getUserIdentifier());
         if (leadOfferInDB == null) {
