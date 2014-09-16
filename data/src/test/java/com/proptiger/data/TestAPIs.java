@@ -271,6 +271,8 @@ public class TestAPIs {
                 }
             }
             executors.shutdown();
+            
+            // Entering logs in console and Reporter.Output file
             logger.debug("Total APIs tested    :" + totalUrl);
             logger.debug("Distinct successful APIs      :" + successUrl);
             logger.debug("Distinct failed APIs       :" + failedUrl);
@@ -281,40 +283,72 @@ public class TestAPIs {
             logger.debug("No. of failed GET APIs       :" + failedGETUrlList.size());
             logger.debug("No. of failed POST APIs       :" + failedPOSTUrlList.size());
             logger.debug("No. of failed PUT APIs       :" + failedPUTUrlList.size());
+            
+            Reporter.log("Total APIs tested    :" + totalUrl);
+            Reporter.log("Distinct successful APIs      :" + successUrl);
+            Reporter.log("Distinct failed APIs       :" + failedUrl);
+            Reporter.log("Skipped APIs       :" + skippedUrl);
+            Reporter.log("No. of successful GET APIs   :" + successGETUrlList.size());
+            Reporter.log("No. of successful POST APIs   :" + successPOSTUrlList.size());
+            Reporter.log("No. of successful PUT APIs   :" + successPUTUrlList.size());
+            Reporter.log("No. of failed GET APIs       :" + failedGETUrlList.size());
+            Reporter.log("No. of failed POST APIs       :" + failedPOSTUrlList.size());
+            Reporter.log("No. of failed PUT APIs       :" + failedPUTUrlList.size());
+
             logger.debug("List of successful GET APIs :");
+            Reporter.log("List of successful GET APIs :");
             for (String element : successGETUrlList) {
                 logger.debug(element);
+                Reporter.log(element);
             }
             logger.debug("List of successful POST APIs :");
+            Reporter.log("List of successful POST APIs :");
             for (String element : successPOSTUrlList) {
                 logger.debug(element);
+                Reporter.log(element);
             }
             logger.debug("List of successful PUT APIs :");
+            Reporter.log("List of successful PUT APIs :");
             for (String element : successPUTUrlList) {
                 logger.debug(element);
+                Reporter.log(element);
             }
             logger.debug("POST data not available for APIs  :");
+            Reporter.log("POST data not available for APIs  :");
             for (String element : excludedPOSTAPIs) {
                 logger.debug(element);
+                Reporter.log(element);
             }
             logger.debug("PUT data not available for APIs  :");
+            Reporter.log("PUT data not available for APIs  :");
             for (String element : excludedPUTAPIs) {
                 logger.debug(element);
+                Reporter.log(element);
             }
             logger.debug("List of failed GET APIs :");
+            Reporter.log("List of failed GET APIs :");
             for (Map.Entry<String, String> entry : failedGETUrlList.entrySet()) {
                 logger.debug("\n " + entry.getKey());
                 logger.debug("\n Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
+
             }
             logger.debug("List of failed POST APIs :");
+            Reporter.log("List of failed POST APIs :");
             for (Map.Entry<String, String> entry : failedPOSTUrlList.entrySet()) {
                 logger.debug("\n " + entry.getKey());
                 logger.debug("\n Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
             }
             logger.debug("List of failed PUT APIs :");
+            Reporter.log("List of failed PUT APIs :");
             for (Map.Entry<String, String> entry : failedPUTUrlList.entrySet()) {
                 logger.debug("\n " + entry.getKey());
                 logger.debug("\n Error :" + entry.getValue());
+                Reporter.log("\n " + entry.getKey());
+                Reporter.log("\n Error :" + entry.getValue());
             }
         }
         int numberOfAPIFailed = failedGETUrlList.size() + failedPOSTUrlList.size() + failedPUTUrlList.size();
@@ -369,11 +403,9 @@ public class TestAPIs {
         }
         if (apiUrl.contains("app/v1/locality?")) {
             apiUrl = apiUrl + apiKeysValuesMap.get("locality_selector").get(0);
-            logger.debug("apiurl:   " + apiUrl);
         }
         if (apiUrl.contains("data/v2/entity/project")) {
             apiUrl = apiUrl + apiKeysValuesMap.get("entity_project_selector").get(0);
-            logger.debug("apiurl:   " + apiUrl);
         }
         if (method == "GET") {
             apiResponse = restTemplate.getForObject(apiUrl, String.class);
@@ -414,7 +446,8 @@ public class TestAPIs {
 
         for (String key : result) {
             if (apiKeysValuesMap.get(key) == null) {
-                logger.error("Request Param not present for API: " + apiUrl);
+                logger.debug("\n Request Param not present for API: \n" + apiUrl);
+                Reporter.log("\n Request Param not present for API: \n" + apiUrl);
                 failedUrl++;
                 excludedPOSTAPIs.add(apiUrl);
                 return;
@@ -453,7 +486,6 @@ public class TestAPIs {
                     excludedPUTAPIs.add(apiUrl);
                     return;
                 }
-                logger.error("############# TESTAPI URL ########### " + apiUrl);
                 String dataToPost = apiKeysValuesMap.get(VariableFromPostMap).get(0);
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
