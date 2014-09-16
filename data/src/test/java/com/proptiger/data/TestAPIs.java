@@ -271,16 +271,16 @@ public class TestAPIs {
                 }
             }
             executors.shutdown();
-            Reporter.log("Total APIs tested    :" + totalUrl);
-            Reporter.log("Distinct successful APIs      :" + successUrl);
-            Reporter.log("Distinct failed APIs       :" + failedUrl);
-            Reporter.log("Skipped APIs       :" + skippedUrl);
+            logger.debug("Total APIs tested    :" + totalUrl);
+            logger.debug("Distinct successful APIs      :" + successUrl);
+            logger.debug("Distinct failed APIs       :" + failedUrl);
+            logger.debug("Skipped APIs       :" + skippedUrl);
             logger.debug("No. of successful GET APIs   :" + successGETUrlList.size());
             logger.debug("No. of successful POST APIs   :" + successPOSTUrlList.size());
             logger.debug("No. of successful PUT APIs   :" + successPUTUrlList.size());
-            Reporter.log("No. of failed GET APIs       :" + failedGETUrlList.size());
-            Reporter.log("No. of failed POST APIs       :" + failedPOSTUrlList.size());
-            Reporter.log("No. of failed PUT APIs       :" + failedPUTUrlList.size());
+            logger.debug("No. of failed GET APIs       :" + failedGETUrlList.size());
+            logger.debug("No. of failed POST APIs       :" + failedPOSTUrlList.size());
+            logger.debug("No. of failed PUT APIs       :" + failedPUTUrlList.size());
             logger.debug("List of successful GET APIs :");
             for (String element : successGETUrlList) {
                 logger.debug(element);
@@ -293,28 +293,28 @@ public class TestAPIs {
             for (String element : successPUTUrlList) {
                 logger.debug(element);
             }
-            Reporter.log("POST data not available for APIs  :");
+            logger.debug("POST data not available for APIs  :");
             for (String element : excludedPOSTAPIs) {
-                Reporter.log(element);
+                logger.debug(element);
             }
-            Reporter.log("PUT data not available for APIs  :");
+            logger.debug("PUT data not available for APIs  :");
             for (String element : excludedPUTAPIs) {
-                Reporter.log(element);
+                logger.debug(element);
             }
-            Reporter.log("List of failed GET APIs :");
+            logger.debug("List of failed GET APIs :");
             for (Map.Entry<String, String> entry : failedGETUrlList.entrySet()) {
-                Reporter.log("\n " + entry.getKey());
-                Reporter.log("\n Error :" + entry.getValue());
+                logger.debug("\n " + entry.getKey());
+                logger.debug("\n Error :" + entry.getValue());
             }
-            Reporter.log("List of failed POST APIs :");
+            logger.debug("List of failed POST APIs :");
             for (Map.Entry<String, String> entry : failedPOSTUrlList.entrySet()) {
-                Reporter.log("\n " + entry.getKey());
-                Reporter.log("\n Error :" + entry.getValue());
+                logger.debug("\n " + entry.getKey());
+                logger.debug("\n Error :" + entry.getValue());
             }
             logger.debug("List of failed PUT APIs :");
             for (Map.Entry<String, String> entry : failedPUTUrlList.entrySet()) {
-                Reporter.log("\n " + entry.getKey());
-                Reporter.log("\n Error :" + entry.getValue());
+                logger.debug("\n " + entry.getKey());
+                logger.debug("\n Error :" + entry.getValue());
             }
         }
         int numberOfAPIFailed = failedGETUrlList.size() + failedPOSTUrlList.size() + failedPUTUrlList.size();
@@ -413,12 +413,13 @@ public class TestAPIs {
         int i = 0, maximumValues = 0, max = 0;
 
         for (String key : result) {
-            max = apiKeysValuesMap.get(key).size();
             if (apiKeysValuesMap.get(key) == null) {
+                logger.error("Request Param not present for API: " + apiUrl);
                 failedUrl++;
                 excludedPOSTAPIs.add(apiUrl);
                 return;
             }
+            max = apiKeysValuesMap.get(key).size();
             maximumValues = Math.max(maximumValues, max);
         }
 
