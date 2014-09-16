@@ -10,9 +10,16 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import com.proptiger.data.model.BaseModel;
+
 @Entity
 @Table(name = "notification.subscriber_config")
-public class SubscriberConfig {
+public class SubscriberConfig extends BaseModel {
+  
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 66872383451935024L;
 
     public enum ConfigName {
         MaxActiveNotificationTypeCount,

@@ -33,7 +33,7 @@ public class EmailSender implements MediumSender {
          * For testing, please add a test email id below to avoid sending
          * unnecessary emails to actual users
          */
-        //emailId = "";
+        emailId = "";
 
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(emailId);
         logger.debug("Sending email " + mailBody.getBody() + " to : " + emailId);

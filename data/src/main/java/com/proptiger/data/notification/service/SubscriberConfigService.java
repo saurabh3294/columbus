@@ -42,7 +42,7 @@ public class SubscriberConfigService {
 
     @PostConstruct
     public void constructSubscriberConfig() {
-        Iterable<SubscriberConfig> subscriberConfigList = subscriberConfigDao.findAll();
+        Iterable<SubscriberConfig> subscriberConfigList = findAllSubscriberConfig();
         Iterator<SubscriberConfig> subscriberConfigIterator = subscriberConfigList.iterator();
 
         while (subscriberConfigIterator.hasNext()) {
@@ -52,13 +52,21 @@ public class SubscriberConfigService {
             subscriberConfigMap.put(generateKey(subscriberName, configName), subscriberConfig.getConfigValue());
         }
 
-        Iterable<Subscriber> subscriberList = subscriberDao.findAll();
+        Iterable<Subscriber> subscriberList = findAllSubscriber();
         Iterator<Subscriber> subscriberIterator = subscriberList.iterator();
 
         while (subscriberIterator.hasNext()) {
             Subscriber subscriber = subscriberIterator.next();
             subscriberMap.put(subscriber.getSubscriberName(), subscriber);
         }
+    }
+    
+    public Iterable<SubscriberConfig> findAllSubscriberConfig() {
+        return subscriberConfigDao.findAll();
+    }
+    
+    public Iterable<Subscriber> findAllSubscriber() {
+        return subscriberDao.findAll();
     }
 
     public Integer getMaxActiveNotificationTypeCount() {
