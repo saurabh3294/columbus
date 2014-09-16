@@ -9,10 +9,16 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.proptiger.data.event.model.EventType;
+import com.proptiger.data.model.BaseModel;
 
 @Entity
 @Table(name = "notification.event_type_to_notification_type_mapping")
-public class EventTypeToNotificationTypeMapping {
+public class EventTypeToNotificationTypeMapping extends BaseModel {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4664822896651901749L;
 
     @Column(name = "id")
     @Id

@@ -1,6 +1,7 @@
 package com.proptiger.data.notification.repo;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,5 +14,7 @@ public interface SubscriberDao extends PagingAndSortingRepository<Subscriber, In
     @Modifying
     @Query("Update Subscriber S set S.lastEventDate=?2 where S.id=?1 ")
     public Integer updateLastEventDateById(int id, Date lastEventDate);
+    
+    public List<Subscriber> findAll(); 
     
 }

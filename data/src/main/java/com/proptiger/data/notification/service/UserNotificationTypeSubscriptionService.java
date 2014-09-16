@@ -36,7 +36,7 @@ public class UserNotificationTypeSubscriptionService {
 
     @PostConstruct
     private void constuctMappingFromDB() {
-        Iterable<UserNotificationTypeSubscription> userNTSubscriptionList = userNTSubscriptionDao.findAll();
+        Iterable<UserNotificationTypeSubscription> userNTSubscriptionList = findAll();
         Iterator<UserNotificationTypeSubscription> iterator = userNTSubscriptionList.iterator();
 
         while (iterator.hasNext()) {
@@ -53,6 +53,10 @@ public class UserNotificationTypeSubscriptionService {
         }
     }
 
+    public Iterable<UserNotificationTypeSubscription> findAll() {
+        return userNTSubscriptionDao.findAll();
+    }
+    
     private Map<Integer, List<ForumUser>> addToNotificationTypeUserMap(
             UserNotificationTypeSubscription userNTSubscription,
             Map<Integer, List<ForumUser>> ntUserMap) {

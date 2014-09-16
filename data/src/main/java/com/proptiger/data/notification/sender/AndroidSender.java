@@ -28,10 +28,9 @@ public class AndroidSender implements MediumSender {
 
     private static Logger       logger       = LoggerFactory.getLogger(AndroidSender.class);
 
-    private static final String DUMMY_REG_ID = "APA91bH2YQR2UDkjdHSmz5UPeZrE2DFzSOF37FK3DeBnGHFRkXSaplBQLocrPZ2dTy-Y0Z6hTfI9QszdtT4usbVsOWameXYVoYH9RknKFtkdGwlEW__V3MpmDR1zo3Dn_sNFDkY6XwFYuOUYTWKc2kr-N8TSpQlzSA";
-    // private static final String DUMMY_REG_ID =
-    // "APA91bFplBbOgmXopu5RfDO1tiSJH9tkIW-Cl0BwmAQhOL8lGVt50sj-eLwX6TVXpOmgno6MXG9-iRYvdH-H9RNDYAF37glWThvE-yx38ymIBnM6ZsXzdurOHsssQ-0e-jk1Ikeod-ywQWGEE8Q_SuqMNI99I8EkyA";
-
+    // private static final String DUMMY_REG_ID = "APA91bH2YQR2UDkjdHSmz5UPeZrE2DFzSOF37FK3DeBnGHFRkXSaplBQLocrPZ2dTy-Y0Z6hTfI9QszdtT4usbVsOWameXYVoYH9RknKFtkdGwlEW__V3MpmDR1zo3Dn_sNFDkY6XwFYuOUYTWKc2kr-N8TSpQlzSA";
+    private static final String DUMMY_REG_ID = "APA91bEnKjfyD83UbADzrV5AK95dcQayRrZJqszVR5gdT3Lq4gTXXXs1WzEvpCLEHEZ0sVJe5X5Hlt1qv_puHgFJSpVPXTWUw2HsjfyOyGJKbrB7llYAMMak0zSUYQkrenkC1ExpKih17rJY0knmS2FxRfDBuwwlR4eZmPohbTJVC1axduponOQ";
+    
     private static final String TYPE_KEY     = "type";
     private static final String DATA_KEY     = "data";
 
