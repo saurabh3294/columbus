@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.model.marketplace.Notification;
 
@@ -64,4 +65,5 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     public List<Notification> getNotificationWithTypeForUser(int userId);
 
     public List<Notification> findByObjectIdInAndNotificationTypeIdAndReadFalse(List<Integer> objectIds, int notificationTypeId);
+    
 }

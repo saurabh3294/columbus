@@ -119,8 +119,8 @@ public class ProjectService {
     }
 
     @Autowired
-    private MediaEnricher           mediaEnricher;
-    
+    private MediaEnricher mediaEnricher;
+
     /**
      * This method will return the list of projects and total projects found
      * based on the selector.
@@ -161,7 +161,8 @@ public class ProjectService {
             cityClause = "{\"equal\":{\"cityLabel\":\"" + cityName + "\"}},";
         }
 
-        projectFilter.setFilters(new Gson().fromJson("{\"and\":[" + cityClause + "{\"equal\":{\"projectStatus\":[\"pre launch\",\"not launched\"]}}]}", Map.class));
+        projectFilter.setFilters(new Gson().fromJson("{\"and\":[" + cityClause
+                + "{\"equal\":{\"projectStatus\":[\"pre launch\",\"not launched\"]}}]}", Map.class));
         return propertyService.getPropertiesGroupedToProjects(projectFilter);
     }
 
@@ -206,40 +207,17 @@ public class ProjectService {
 
         Project project = solrProjects.get(0);
 
-        List<Property> properties = propertyService.getPropertiesForProject(projectId);
-        for (int i = 0; i < properties.size(); i++) {
-            Property property = properties.get(i);
-            Double pricePerUnitArea = property.getPricePerUnitArea();
-
-            if (pricePerUnitArea == null)
-                pricePerUnitArea = 0D;
-
-            // set Primary Prices.
-            project.setMinPricePerUnitArea(UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea()));
-            project.setMaxPricePerUnitArea(UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
-            // setting distinct bedrooms
-            project.addBedrooms(property.getBedrooms());
-            project.addPropertyUnitType(property.getUnitType());
-
-            // setting resale Price
-            Double resalePrice = property.getResalePrice();
-            project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
-            project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
-            project.setResale(property.getProject().isIsResale() | project.isIsResale());
-
-            property.setProject(null);
-        }
-
         project.setMinResaleOrPrimaryPrice(UtilityClass.min(project.getMinPrice(), project.getMinResalePrice()));
         project.setMaxResaleOrPrimaryPrice(UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()));
 
         Set<String> fields = selector.getFields();
 
+        List<Property> properties = getPropertyFromIdAndUpdateojectField(project);
         /*
          * Setting properites if needed.
          */
         if (fields == null || fields.contains("properties")) {
-            //Setting media (3D Images), if needed.
+            // Setting media (3D Images), if needed.
             if (fields == null || fields.contains("media")) {
                 mediaEnricher.setPropertiesMedia(properties);
             }
@@ -345,6 +323,7 @@ public class ProjectService {
         // sorting provided in api call will not be considered
         projectSelector.setSort(sortBySet);
         PaginatedResponse<List<Project>> result = getProjects(projectSelector);
+        setProjectsFieldFromProperties(result.getResults());
         return result.getResults();
     }
 
@@ -460,7 +439,7 @@ public class ProjectService {
         imageEnricher.setImagesOfProjects(projects);
         return projects;
     }
-    
+
     public List<Project> getProjectListByIds(Set<Integer> ids) {
         List<SolrResult> result = projectDao.getProjectsOnIds(ids);
         List<Project> projects = new ArrayList<Project>();
@@ -471,7 +450,6 @@ public class ProjectService {
         }
         return projects;
     }
-    
 
     /**
      * This method will return the total number of project discussions in the
@@ -644,6 +622,7 @@ public class ProjectService {
         Selector selector = new Gson().fromJson(json, Selector.class);
         PaginatedResponse<List<Project>> paginatedResponse = projectDao.getProjects(selector);
         imageEnricher.setImagesOfProjects(paginatedResponse.getResults());
+        setProjectsFieldFromProperties(paginatedResponse.getResults());
         return paginatedResponse;
     }
 
@@ -671,33 +650,87 @@ public class ProjectService {
         return projectDao.findActiveOrInactiveProjectById(projectId);
     }
 
-    // This method will divide the Safety and Livability scores by 2 for backward compatibility
-    // of API's, as all these scores now will be based on 10 and earlier it was based on 5.
+    // This method will divide the Safety and Livability scores by 2 for
+    // backward compatibility
+    // of API's, as all these scores now will be based on 10 and earlier it was
+    // based on 5.
     public void updateLifestyleScoresByHalf(List<Project> results) {
         if (results == null || results.isEmpty()) {
             return;
         }
-        
-        for(Project project : results) {
+
+        for (Project project : results) {
             if (project.getSafetyScore() != null) {
-                project.setSafetyScore(project.getSafetyScore()/2);
+                project.setSafetyScore(project.getSafetyScore() / 2);
             }
-            
+
             if (project.getLivabilityScore() != null) {
-                project.setLivabilityScore(project.getLivabilityScore()/2);
+                project.setLivabilityScore(project.getLivabilityScore() / 2);
             }
-            
+
             if (project.getProjectLocalityScore() != null) {
-                project.setProjectLocalityScore(project.getProjectLocalityScore()/2);
+                project.setProjectLocalityScore(project.getProjectLocalityScore() / 2);
             }
-            
+
             if (project.getProjectSocietyScore() != null) {
-                project.setProjectSocietyScore(project.getProjectSocietyScore()/2);
+                project.setProjectSocietyScore(project.getProjectSocietyScore() / 2);
             }
-            
+
             if (project.getLocality() != null) {
-                localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(project.getLocality()));
+                localityService.updateLocalitiesLifestyleScoresAndRatings(Collections.singletonList(project
+                        .getLocality()));
             }
         }
+    }
+
+    /**
+     * This method will take list of projects and set the project fields derived
+     * from properies of that project.
+     * 
+     * @param projects
+     */
+    private void setProjectsFieldFromProperties(List<Project> projects) {
+        if (projects == null || projects.isEmpty())
+            return;
+
+        for (Project project : projects) {
+            getPropertyFromIdAndUpdateojectField(project);
+        }
+    }
+
+    /**
+     * This method will set fields derived from the properties of a project to
+     * the project object. It will return the list of properties for a project.
+     * 
+     * @param project
+     * @return List of properties of a project.
+     */
+    @Cacheable(value = Constants.CacheName.PROJECT)
+    private List<Property> getPropertyFromIdAndUpdateojectField(Project project) {
+        List<Property> properties = propertyService.getPropertiesForProject(project.getProjectId());
+        for (int i = 0; i < properties.size(); i++) {
+            Property property = properties.get(i);
+            Double pricePerUnitArea = property.getPricePerUnitArea();
+
+            if (pricePerUnitArea == null)
+                pricePerUnitArea = 0D;
+
+            // set Primary Prices.
+            project.setMinPricePerUnitArea(UtilityClass.min(pricePerUnitArea, project.getMinPricePerUnitArea()));
+            project.setMaxPricePerUnitArea(UtilityClass.max(pricePerUnitArea, project.getMaxPricePerUnitArea()));
+            // setting distinct bedrooms
+            project.addBedrooms(property.getBedrooms());
+            project.addPropertyUnitType(property.getUnitType());
+
+            // setting resale Price
+            Double resalePrice = property.getResalePrice();
+            project.setMaxResalePrice(UtilityClass.max(resalePrice, project.getMaxResalePrice()));
+            project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
+            project.setResale(property.getProject().isIsResale() | project.isIsResale());
+
+            property.setProject(null);
+        }
+
+        return properties;
     }
 }
