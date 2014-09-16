@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import javax.persistence.Transient;
+
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -368,6 +370,30 @@ public class SolrResult extends BaseModel {
     
     @Field(value = "HAS_3D_IMAGES")
     private boolean                 hasProject3DImages;
+    
+    @Field(value = "PROJECT_MAX_SAFETY_SCORE")
+    private Double                  projectMaxSafetyScore;
+    
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")                     
+    private Double                  projectMinSafetyScore;
+    
+    @Field(value = "PROJECT_MAX_LIVABILITY_SCORE")
+    private Double                  projectMaxLivabilityScore;
+    
+    @Field(value = "PROJECT_MIN_LIVABILITY_SCORE")
+    private Double                  projectMinLivabilityScore;
+    
+    @Field(value = "LOCALITY_MAX_SAFETY_SCORE")
+    private Double                  localityMaxSafetyScore;
+    
+    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")                     
+    private Double                  localityMinSafetyScore;
+    
+    @Field(value = "LOCALITY_MAX_LIVABILITY_SCORE")
+    private Double                  localityMaxLivabilityScore;
+    
+    @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
+    private Double                  localityMinLivabilityScore;
     
     public SolrResult() {
         property.setProject(project);
@@ -1170,5 +1196,45 @@ public class SolrResult extends BaseModel {
     @Field("HAS_3D_IMAGES")
     public void setHasProject3DImages(boolean hasProject3DImages) {
         project.setHas3DImages(hasProject3DImages);
+    }
+
+    @Field(value = "PROJECT_MAX_SAFETY_SCORE")
+    public void setProjectMaxSafetyScore(Double projectMaxSafetyScore) {
+        locality.setProjectMaxSafetyScore(projectMaxSafetyScore);
+    }
+    
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")     
+    public void setProjectMinSafetyScore(Double projectMinSafetyScore) {
+        locality.setProjectMinSafetyScore(projectMinSafetyScore);
+    }
+
+    @Field(value = "PROJECT_MAX_LIVABILITY_SCORE")
+    public void setProjectMaxLivabilityScore(Double projectMaxLivabilityScore) {
+        locality.setProjectMaxLivabilityScore(projectMaxLivabilityScore);
+    }
+
+    @Field(value = "PROJECT_MIN_LIVABILITY_SCORE")
+    public void setProjectMinLivabilityScore(Double projectMinLivabilityScore) {
+        locality.setProjectMinLivabilityScore(projectMinLivabilityScore);
+    }
+    
+    @Field(value = "LOCALITY_MAX_SAFETY_SCORE")
+    public void setLocalityMaxSafetyScore(Double projectMaxSafetyScore) {
+        city.setLocalityMaxSafetyScore(projectMaxSafetyScore);
+    }
+    
+    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")     
+    public void setLocalityMinSafetyScore(Double projectMinSafetyScore) {
+        city.setLocalityMinSafetyScore(projectMinSafetyScore);
+    }
+
+    @Field(value = "LOCALITY_MAX_LIVABILITY_SCORE")
+    public void setLocalityMaxLivabilityScore(Double projectMaxLivabilityScore) {
+        city.setLocalityMaxLivabilityScore(projectMaxLivabilityScore);
+    }
+
+    @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
+    public void setLocalityMinLivabilityScore(Double projectMinLivabilityScore) {
+        city.setLocalityMinLivabilityScore(projectMinLivabilityScore);
     }
 }
