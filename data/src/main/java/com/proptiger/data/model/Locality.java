@@ -92,10 +92,10 @@ public class Locality extends BaseModel {
     @Column(name = "URL")
     @Field("LOCALITY_URL")
     private String                          url;
-    
+
     @Column(name = "STATUS")
     @Enumerated(EnumType.STRING)
-    private   Status                        status;
+    private Status                          status;
 
     @FieldMetaInfo(displayName = "Description", description = "Description")
     @Column(name = "DESCRIPTION")
@@ -239,28 +239,45 @@ public class Locality extends BaseModel {
     @FieldMetaInfo(displayName = "Locality view count", description = "Locality view count")
     @Field(value = "LOCALITY_VIEW_COUNT")
     private Integer                         localityViewCount;
-    
+
     @Transient
     @Field(value = "LOCALITY_SAFETY_SCORE")
-    private Double                         safetyScore;
-    
+    private Double                          safetyScore;
+
     @Transient
     @Field(value = "LOCALITY_LIVABILITY_SCORE")
-    private Float                         livabilityScore;
-    
+    private Float                           livabilityScore;
+
     @Transient
     @Field(value = "LOCALITY_SAFETY_RANK")
-    private Integer                 localitySafetyRank;
-   
+    private Integer                         localitySafetyRank;
+
     @Transient
     @Field(value = "LOCALITY_LIVABILITY_RANK")
-    private Integer                 localityLivabilityRank;
-    
+    private Integer                         localityLivabilityRank;
+
     @Transient
-    private List<LandMark>          landmarks;
-    
+    private List<LandMark>                  landmarks;
+
     @Transient
-    private List<Image>             landmarkImages;
+    private List<Image>                     landmarkImages;
+
+    @Transient
+    private Double                          projectMaxSafetyScore;
+
+    @Transient
+    private Double                          projectMinSafetyScore;
+
+    @Transient
+    private Double                          projectMaxLivabilityScore;
+
+    @Transient
+    private Double                          projectMinLivabilityScore;
+
+    @Transient
+    @Field("LOCALITY_UNIT_TYPES")
+    @JsonIgnore
+    private List<String>                    propertyUnitTypes;
 
     public int getLocalityId() {
         return localityId;
@@ -678,5 +695,45 @@ public class Locality extends BaseModel {
 
     public void setLandmarkImages(List<Image> landmarkImages) {
         this.landmarkImages = landmarkImages;
+    }
+
+    public Double getProjectMaxSafetyScore() {
+        return projectMaxSafetyScore;
+    }
+
+    public void setProjectMaxSafetyScore(Double projectMaxSafetyScore) {
+        this.projectMaxSafetyScore = projectMaxSafetyScore;
+    }
+
+    public Double getProjectMinSafetyScore() {
+        return projectMinSafetyScore;
+    }
+
+    public void setProjectMinSafetyScore(Double projectMinSafetyScore) {
+        this.projectMinSafetyScore = projectMinSafetyScore;
+    }
+
+    public Double getProjectMaxLivabilityScore() {
+        return projectMaxLivabilityScore;
+    }
+
+    public void setProjectMaxLivabilityScore(Double projectMaxLivabilityScore) {
+        this.projectMaxLivabilityScore = projectMaxLivabilityScore;
+    }
+
+    public Double getProjectMinLivabilityScore() {
+        return projectMinLivabilityScore;
+    }
+
+    public void setProjectMinLivabilityScore(Double projectMinLivabilityScore) {
+        this.projectMinLivabilityScore = projectMinLivabilityScore;
+    }
+
+    public List<String> getPropertyUnitTypes() {
+        return propertyUnitTypes;
+    }
+
+    public void setPropertyUnitTypes(List<String> propertyUnitTypes) {
+        this.propertyUnitTypes = propertyUnitTypes;
     }
 }

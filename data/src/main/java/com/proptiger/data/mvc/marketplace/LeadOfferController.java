@@ -1,6 +1,5 @@
 package com.proptiger.data.mvc.marketplace;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +33,13 @@ public class LeadOfferController extends BaseController {
     public APIResponse get(
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
-            @RequestParam(required = false) List<Integer> statusIds,@RequestParam(required = false) String dueDate) {
+            @RequestParam(required = false) List<Integer> statusIds,
+            @RequestParam(required = false) String dueDate) {
         PaginatedResponse<List<LeadOffer>> paginatedResponse = leadOfferService.getLeadOffers(
                 activeUser.getUserIdentifier(),
-                selector, statusIds, dueDate);
+                selector,
+                statusIds,
+                dueDate);
         return new APIResponse(paginatedResponse.getResults(), paginatedResponse.getTotalCount());
     }
 
@@ -48,7 +50,8 @@ public class LeadOfferController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         PaginatedResponse<List<Listing>> offeredListings = leadOfferService.getOfferedListings(
-                leadOfferId);
+                leadOfferId,
+                activeUser.getUserIdentifier());
         return new APIResponse(
                 super.filterFieldsFromSelector(offeredListings.getResults(), selector),
                 offeredListings.getTotalCount());
@@ -60,7 +63,9 @@ public class LeadOfferController extends BaseController {
             @PathVariable int leadOfferId,
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        PaginatedResponse<List<Listing>> matchingListings = leadOfferService.getSortedMatchingListings(leadOfferId);
+        PaginatedResponse<List<Listing>> matchingListings = leadOfferService.getSortedMatchingListings(
+                leadOfferId,
+                activeUser.getUserIdentifier());
         return new APIResponse(
                 super.filterFieldsFromSelector(matchingListings.getResults(), selector),
                 matchingListings.getTotalCount());
@@ -83,7 +88,7 @@ public class LeadOfferController extends BaseController {
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         return new APIResponse(leadOfferService.updateLeadOffer(leadOffer, leadOfferId, activeUser.getUserIdentifier()));
     }
-    
+
     @RequestMapping(value = "data/v1/entity/user/lead-offer/{leadOfferId}/email", method = RequestMethod.PUT)
     @ResponseBody
     public APIResponse updateLeadOfferForEmailTask(

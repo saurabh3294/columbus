@@ -26,14 +26,10 @@ import com.proptiger.data.service.GCMUserService;
 @Service
 public class AndroidSender implements MediumSender {
 
-    private static Logger       logger       = LoggerFactory.getLogger(AndroidSender.class);
+    private static Logger       logger   = LoggerFactory.getLogger(AndroidSender.class);
 
-    private static final String DUMMY_REG_ID = "APA91bH2YQR2UDkjdHSmz5UPeZrE2DFzSOF37FK3DeBnGHFRkXSaplBQLocrPZ2dTy-Y0Z6hTfI9QszdtT4usbVsOWameXYVoYH9RknKFtkdGwlEW__V3MpmDR1zo3Dn_sNFDkY6XwFYuOUYTWKc2kr-N8TSpQlzSA";
-    // private static final String DUMMY_REG_ID =
-    // "APA91bFplBbOgmXopu5RfDO1tiSJH9tkIW-Cl0BwmAQhOL8lGVt50sj-eLwX6TVXpOmgno6MXG9-iRYvdH-H9RNDYAF37glWThvE-yx38ymIBnM6ZsXzdurOHsssQ-0e-jk1Ikeod-ywQWGEE8Q_SuqMNI99I8EkyA";
-
-    private static final String TYPE_KEY     = "type";
-    private static final String DATA_KEY     = "data";
+    private static final String TYPE_KEY = "type";
+    private static final String DATA_KEY = "data";
 
     @Autowired
     private GCMUserService      gcmUserService;
@@ -120,13 +116,6 @@ public class AndroidSender implements MediumSender {
         for (Map.Entry<AndroidApplication, List<String>> entry : regIdMap.entrySet()) {
             AndroidApplication app = entry.getKey();
             List<String> regIds = entry.getValue();
-
-            /*
-             * For testing, please add a test reg id below to avoid sending
-             * unnecessary notifications to actual users
-             */
-            regIds.clear();
-            regIds.add(DUMMY_REG_ID);
 
             // Sending Push Notification
             String androidKey = androidKeyMap.get(app.toString());

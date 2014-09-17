@@ -10,9 +10,16 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.proptiger.data.model.BaseModel;
+
 @Entity
 @Table(name = "notification.subscriber")
-public class Subscriber {
+public class Subscriber extends BaseModel {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 7389423816245412201L;
 
     public enum SubscriberName {
         Notification;
