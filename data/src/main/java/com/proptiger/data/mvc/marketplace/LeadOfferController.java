@@ -1,6 +1,5 @@
 package com.proptiger.data.mvc.marketplace;
 
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +47,7 @@ public class LeadOfferController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
         PaginatedResponse<List<Listing>> offeredListings = leadOfferService.getOfferedListings(
-                leadOfferId);
+                leadOfferId,activeUser.getUserIdentifier());
         return new APIResponse(
                 super.filterFieldsFromSelector(offeredListings.getResults(), selector),
                 offeredListings.getTotalCount());
@@ -60,7 +59,7 @@ public class LeadOfferController extends BaseController {
             @PathVariable int leadOfferId,
             @ModelAttribute FIQLSelector selector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
-        PaginatedResponse<List<Listing>> matchingListings = leadOfferService.getSortedMatchingListings(leadOfferId);
+        PaginatedResponse<List<Listing>> matchingListings = leadOfferService.getSortedMatchingListings(leadOfferId,activeUser.getUserIdentifier());
         return new APIResponse(
                 super.filterFieldsFromSelector(matchingListings.getResults(), selector),
                 matchingListings.getTotalCount());
