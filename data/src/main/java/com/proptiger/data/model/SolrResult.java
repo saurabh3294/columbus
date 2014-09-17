@@ -331,70 +331,73 @@ public class SolrResult extends BaseModel {
 
     @Field("BUILDER_URL")
     private String            builderUrl;
-       
+
     @Field("BUILDER_LOCALITY_COUNT")
     private Integer           builderLocalityCount;
-    
+
     @Field("BUILDER_CITIES")
     private List<String>      builderCities;
-    
+
     @Field("BUILDER_IMAGE_ALTTEXT")
     private String            builderImgAltText;
-    
+
     @Field("BUILDER_IMAGE_TITLE")
     private String            builderImgTitle;
-    
+
     @Field("PROJECT_IMAGE_ALTTEXT")
     private String            projectImgAltText;
-    
+
     @Field("PROJECT_IMAGE_TITLE")
     private String            projectImgTitle;
-    
+
     @Field("PROJECT_LOCALITY_SCORE")
     private Float             projectLocalityScore;
-    
+
     @Field("PROJECT_SOCIETY_SCORE")
     private Float             projectSocietyScore;
-    
+
     @Field(value = "PROJECT_SAFETY_RANK")
-    private Integer                 projectSafetyRank;
-    
+    private Integer           projectSafetyRank;
+
     @Field(value = "PROJECT_LIVABILITY_RANK")
-    private Integer                 projectLivabilityRank;
-    
+    private Integer           projectLivabilityRank;
+
     @Field(value = "LOCALITY_SAFETY_RANK")
-    private Integer                 localitySafetyRank;
-    
+    private Integer           localitySafetyRank;
+
     @Field(value = "LOCALITY_LIVABILITY_RANK")
-    private Integer                 localityLivabilityRank;
-    
+    private Integer           localityLivabilityRank;
+
     @Field(value = "HAS_3D_IMAGES")
-    private boolean                 hasProject3DImages;
-    
+    private boolean           hasProject3DImages;
+
     @Field(value = "PROJECT_MAX_SAFETY_SCORE")
-    private Double                  projectMaxSafetyScore;
-    
-    @Field(value = "PROJECT_MIN_SAFETY_SCORE")                     
-    private Double                  projectMinSafetyScore;
-    
+    private Double            projectMaxSafetyScore;
+
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")
+    private Double            projectMinSafetyScore;
+
     @Field(value = "PROJECT_MAX_LIVABILITY_SCORE")
-    private Double                  projectMaxLivabilityScore;
-    
+    private Double            projectMaxLivabilityScore;
+
     @Field(value = "PROJECT_MIN_LIVABILITY_SCORE")
-    private Double                  projectMinLivabilityScore;
-    
+    private Double            projectMinLivabilityScore;
+
     @Field(value = "LOCALITY_MAX_SAFETY_SCORE")
-    private Double                  localityMaxSafetyScore;
-    
-    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")                     
-    private Double                  localityMinSafetyScore;
-    
+    private Double            localityMaxSafetyScore;
+
+    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")
+    private Double            localityMinSafetyScore;
+
     @Field(value = "LOCALITY_MAX_LIVABILITY_SCORE")
-    private Double                  localityMaxLivabilityScore;
-    
+    private Double            localityMaxLivabilityScore;
+
     @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
-    private Double                  localityMinLivabilityScore;
-    
+    private Double            localityMinLivabilityScore;
+
+    @Field(value = "LOCALITY_UNIT_TYPES")
+    private List<String>      localityPropertyUnitTypes;
+
     public SolrResult() {
         property.setProject(project);
         project.setBuilder(builder);
@@ -614,7 +617,7 @@ public class SolrResult extends BaseModel {
         suburb.setCityId(cityId);
         city.setId(cityId);
         locality.setCityId(cityId);
-        
+
     }
 
     @Field("CITY")
@@ -1114,12 +1117,12 @@ public class SolrResult extends BaseModel {
     public void setBuilderUrl(String builderUrl) {
         builder.setUrl(builderUrl);
     }
-    
+
     @Field("BUILDER_LOCALITY_COUNT")
     public void setBuilderLocalityCount(Integer builderLocalityCount) {
         builder.setBuilderLocalityCount(builderLocalityCount);
-    } 
-    
+    }
+
     @Field("BUILDER_CITIES")
     public void setBuilderCities(List<String> builderCities) {
         builder.setBuilderCities(builderCities);
@@ -1132,14 +1135,14 @@ public class SolrResult extends BaseModel {
 
     @Field("BUILDER_IMAGE_TITLE")
     public void setBuilderImgTitle(String builderImgTitle) {
-       builder.setImageTitle(builderImgTitle);
+        builder.setImageTitle(builderImgTitle);
     }
 
     @Field("PROJECT_IMAGE_ALTTEXT")
     public void setProjectImgAltText(String projectImgAltText) {
         project.getMainImage().setAltText(projectImgAltText);
     }
-    
+
     @Field("PROJECT_IMAGE_TITLE")
     public void setProjectImgTitle(String projectImgTitle) {
         project.getMainImage().setTitle(projectImgTitle);
@@ -1154,7 +1157,7 @@ public class SolrResult extends BaseModel {
     public void setProjectStatus(String projectStatus) {
         project.setProjectStatus(projectStatus);
     }
-    
+
     @Field("PROJECT_SOCIETY_SCORE")
     public void setProjectSocietyScore(Float projectSocietyScore) {
         project.setProjectSocietyScore(projectSocietyScore);
@@ -1172,7 +1175,7 @@ public class SolrResult extends BaseModel {
 
     @Field("LOCALITY_SAFETY_RANK")
     public void setLocalitySafetyRank(Integer localitySafetyRank) {
-       locality.setLocalitySafetyRank(localitySafetyRank);
+        locality.setLocalitySafetyRank(localitySafetyRank);
     }
 
     @Field("LOCALITY_LIVABILITY_RANK")
@@ -1182,11 +1185,11 @@ public class SolrResult extends BaseModel {
 
     @Field("IMAGE_TYPE_COUNT")
     public void setImageTypeCount(String imageJson) {
-        Gson gson=new Gson();
+        Gson gson = new Gson();
         Map<String, Number> object = new HashMap<String, Number>();
         Map<String, Integer> imageTypeCount = new HashMap<String, Integer>();
         object = (Map<String, Number>) gson.fromJson(imageJson, object.getClass());
-        for(Map.Entry<String, Number> entry:object.entrySet()){
+        for (Map.Entry<String, Number> entry : object.entrySet()) {
             imageTypeCount.put(entry.getKey(), entry.getValue().intValue());
         }
         project.setImageTypeCount(imageTypeCount);
@@ -1202,8 +1205,8 @@ public class SolrResult extends BaseModel {
     public void setProjectMaxSafetyScore(Double projectMaxSafetyScore) {
         locality.setProjectMaxSafetyScore(projectMaxSafetyScore);
     }
-    
-    @Field(value = "PROJECT_MIN_SAFETY_SCORE")     
+
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")
     public void setProjectMinSafetyScore(Double projectMinSafetyScore) {
         locality.setProjectMinSafetyScore(projectMinSafetyScore);
     }
@@ -1217,13 +1220,13 @@ public class SolrResult extends BaseModel {
     public void setProjectMinLivabilityScore(Double projectMinLivabilityScore) {
         locality.setProjectMinLivabilityScore(projectMinLivabilityScore);
     }
-    
+
     @Field(value = "LOCALITY_MAX_SAFETY_SCORE")
     public void setLocalityMaxSafetyScore(Double projectMaxSafetyScore) {
         city.setLocalityMaxSafetyScore(projectMaxSafetyScore);
     }
-    
-    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")     
+
+    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")
     public void setLocalityMinSafetyScore(Double projectMinSafetyScore) {
         city.setLocalityMinSafetyScore(projectMinSafetyScore);
     }
