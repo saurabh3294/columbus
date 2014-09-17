@@ -3,49 +3,47 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Untitled Document</title>
-
+ 
 <style type="text/css">
       body {margin: 10px 0; padding: 0 10px; background: #ffffff; font-size: 13px;}
       table {border-collapse: collapse;}
       td {font-family: arial, sans-serif; color: #333333;}
-
+ 
       @media only screen and (max-width: 480px) {
         body,table,td,p,a,li,blockquote {
           -webkit-text-size-adjust:none !important;
         }
         table {width: 100% !important;}
-		table tr td{width:100% !important;}
-
+        table tr td{width:100% !important;}
+ 
         .responsive-image img {
           height: auto !important;
           max-width: 100% !important;
           width: 100% !important;
         }
-		
-	.responsive-icon img{ height: auto !important;
+         
+    .responsive-icon img{ height: auto !important;
           max-width: 50% !important;
-          width: 100% !important;}	
-		
+          width: 100% !important;}     
+         
       }
     </style>
-
-
+ 
+ 
 </head>
-
+ 
 <body>
-
+ 
 <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" >
   <tr>
-    <td><table width="600" border="0" cellspacing="0" align="center" cellpadding="0" style="border:1px solid #333333;">
-    
-   
-            
+    <td>
+        <table width="600" border="0" cellspacing="0" align="center" cellpadding="0" style="border:1px solid #333333;">
             <tr>
             <td bgcolor="#f5f5f5" style="padding:5px 5px 5px 10px;">  
             <table width="25%" border="0" cellpadding="0" cellspacing="0" align="left">
             <tr><td>&nbsp;</td></tr>
              <tr>
-    <td  style="font-size: 0; line-height: 0;" height="auto" align="center" class="responsive-icon"><a href="http://www.proptiger.com/google_page_4.php?projectName=Supertech CapeTown - Noida&amp;utm_source=internal&amp;utm_medium=mailerInternal&amp;utm_campaign=Mailer Campaign Noida&amp;localityId=50082" target="_blank"><img src="images/proptiger_logo.gif" width="130" height="43" border="0" /></a></td>
+    <td  style="font-size: 0; line-height: 0;" height="auto" align="center" class="responsive-icon"><a href="http://www.proptiger.com/google_page_4.php?projectName=Supertech CapeTown - Noida&amp;utm_source=internal&amp;utm_medium=mailerInternal&amp;utm_campaign=Mailer Campaign Noida&amp;localityId=50082" target="_blank"><img src="http://cdn.proptiger.com/images/proptiger_logo.gif" width="130" height="43" border="0" /></a></td>
   </tr>         
         
             </table>
@@ -54,7 +52,7 @@
               
               <tr><td>&nbsp;</td></tr>
                   <tr>
-                    <td style="text-align:center;" ><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <img src="images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" />&nbsp; <img src="images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></div>
+                    <td style="text-align:center;" ><div style="font-size: 15px; font-family: Arial, Helvetica, sans-serif;  color:#f16d20; line-height:30px;"> Get the mobile app <img src="http://cdn.proptiger.com/images/appple_app.gif"  width="36" height="37" border="0" align="absmiddle" />&nbsp; <img src="http://cdn.proptiger.com/images/andriod_app.gif" width="36" height="37" border="0" align="absmiddle" /></div>
                       
                       
                     </td></tr></table>
@@ -66,24 +64,23 @@
        
        </td></tr>
     
-      
-   
-  <tr>
-    <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
-    
-    Hi ${leadOffer.lead.client.fullName},<br /><br />
-    As per your requirement, I would like to propose few more properties. Please find the property details below.
-    
-    </td>
-  </tr>
+              <tr>
+            <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
+            
+            Hi ${leadOffer.lead.client.fullName},<br /><br />
+            As per your requirement, I would like to propose few more properties. Please find the property details below.
+            
+            </td>
+          </tr>
   
   
-  
+              <tr>
+        <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
   
   #foreach (${requirement} in ${leadOffer.lead.requirements})
-	#if (${requirement.project})    
-		${requirement.project.name}, ${requirement.project.address}, ${requirement.bedroom} BHK, 
-	#end
+    #if (${requirement.project})    
+        ${requirement.project.name}, ${requirement.project.address}, ${requirement.bedroom} BHK, 
+    #end
 #end
 ${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq.ft., ${leadOffer.lead.minBudget} - ${leadOffer.lead.maxBudget} Lacs.
  You can find the property 
@@ -93,40 +90,40 @@ details below.
   </tr>
   
   
-  <tr>
-    <td bgcolor="#f5f5f5" style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
-    
-    <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
-    <tr><td height="5"></td></tr>
              <tr>
-    <td style="font-size:12px;">Suggested by Broker:  ${leadOffer.agent.fullName}</td>
-  </tr>         
-        
-            </table>
-            
-            <table border="0" cellpadding="0" cellspacing="0" align="right" width="28%">
-              
-             
-                  <tr>
-                    <td style="text-align:center;" class="responsive-image"	><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}</strong></div>
-                      
-                      
-                    </td></tr></table>
-    
-    </td>
-  </tr>
+                <td bgcolor="#f5f5f5" style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
+                
+                <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
+                <tr><td height="5"></td></tr>
+                         <tr>
+                <td style="font-size:12px;">Suggested by Broker:  ${leadOffer.agent.fullName}</td>
+              </tr>         
+                    
+                        </table>
+                        
+                        <table border="0" cellpadding="0" cellspacing="0" align="right" width="28%">
+                          
+                         
+                              <tr>
+                                <td style="text-align:center;" class="responsive-image"    ><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}</strong></div>
+                                  
+                                  
+                                </td></tr></table>
+                
+                </td>
+              </tr>
   
-  <tr>
+             <tr>
   <td>&nbsp;</td>
   </tr>
-
+ 
 #foreach (${offeredListing} in ${leadOffer.offeredListings})  
-    <tr>
+            <tr>
   <td>
   
   <table width="580" border="0" cellspacing="0" cellpadding="0" align="center" style="border-radius:5px; border:1px solid #dddddd;">
   <tr>
-    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.name}</a>  &nbsp; (Click to view more details)</td>
+    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name}    ${offeredListing.listing.property.project.name}</a>  &nbsp; (Click to view more details)</td>
     </tr>
   <tr>
     <td width="173" style="padding:10px;"><strong>Locality:</strong> </td>
@@ -145,12 +142,12 @@ details below.
     <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.floor} th</td>
   </tr>
-
-
+ 
+ 
 #set($a = 1)
 #foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 #if ($a == 1)    
-    <tr>    
+<tr>    
     <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
     <td style="padding:10px;">Available</td>
 #set($a = 2)
@@ -159,39 +156,37 @@ details below.
     <td style="padding:10px;">Available</td>
     </tr>
 #set($a = 1)
-#end	
+#end     
   
 #end  
 #if ($a == 2)
-</tr><tr>
+</tr>
 #end
+<tr>
     <td width="173" style="padding:10px;"><strong>Other Splecial Features</strong> </td>
     <td colspan="3" style="padding:10px;">Swimming Pool, Gym, Golf Course, Meditation Center, Medical Clinic, Jogging Track, Landscape Garden</td>
-    </tr>
+ </tr>
 </table>
-
+ 
   
   
 </td>
-  </tr>
+  </tr> 
   
    <tr>
   <td>&nbsp;</td>
   </tr>
-</table>   
+   
 #end
-  
+</table>  
    <tr>
   <td style="padding:10px; line-height:20px;">Let me know if you need any more details for this project.<br /><br />
-
+ 
 Best Regards, <br /><br />
-
+ 
 ${leadOffer.agent.fullName} <br />
 Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}  |  ${leadOffer.agent.email}<br />
-
-<span style="font-size:10px; line-height:18px;">** You have received this email because your email id was given to us on our web site. If it was not you, 
-please notify us at cutomer.service@proptiger.com, or report it on http://www.proptiger.com/contact_us.php</span>
-
+ 
  </td>
   </tr>
   
@@ -200,7 +195,8 @@ please notify us at cutomer.service@proptiger.com, or report it on http://www.pr
 </td>
   </tr>
   
-
+ </td>
+ </tr>
   
 </table>
  
