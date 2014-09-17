@@ -129,7 +129,7 @@ public class LeadOfferService {
         List<Integer> newOfferedListingIds = new ArrayList<>();
 
         Set<Integer> matchingListingIds = new HashSet<>();
-        for (Listing listing : getUnsortedMatchingListings(leadOfferId).getResults()) {
+        for (Listing listing : getUnsortedMatchingListings(leadOfferId, userId).getResults()) {
             matchingListingIds.add(listing.getId());
         }
 
@@ -187,12 +187,12 @@ public class LeadOfferService {
                 selector);
 
         Set<String> fields = selector.getFieldSet();
-        enrichLeadOffers(paginatedResponse.getResults(), fields);
+        enrichLeadOffers(paginatedResponse.getResults(), fields, agentId);
 
         return paginatedResponse;
     }
 
-    private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields) {
+    private void enrichLeadOffers(List<LeadOffer> leadOffers, Set<String> fields, Integer userId) {
         if (fields != null && leadOffers != null && !leadOffers.isEmpty()) {
             if (fields.contains("client")) {
                 List<Integer> clientIds = extractClientIds(leadOffers);
@@ -221,7 +221,7 @@ public class LeadOfferService {
 
             if (fields.contains("offeredListings") || fields.contains("countOfferedListings")) {
                 List<Integer> leadOfferIds = extractLeadOfferIds(leadOffers);
-                Map<Integer, List<LeadOfferedListing>> leadOfferedListings = getLeadOfferedListing(leadOfferIds);
+                Map<Integer, List<LeadOfferedListing>> leadOfferedListings = getLeadOfferedListing(leadOfferIds, userId);
                 for (LeadOffer leadOffer : leadOffers) {
                     leadOffer.setOfferedListings(leadOfferedListings.get(leadOffer.getId()));
                     if (leadOfferedListings.get(leadOffer.getId()) != null) {
@@ -388,10 +388,10 @@ public class LeadOfferService {
      * @return
      */
 
-    private Map<Integer, List<LeadOfferedListing>> getLeadOfferedListing(List<Integer> leadOfferIds) {
+    private Map<Integer, List<LeadOfferedListing>> getLeadOfferedListing(List<Integer> leadOfferIds, Integer userId) {
 
         Map<Integer, List<LeadOfferedListing>> listingMap = new HashMap<>();
-        List<LeadOfferedListing> leadOfferListings = leadOfferDao.getLeadOfferedListings(leadOfferIds);
+        List<LeadOfferedListing> leadOfferListings = leadOfferDao.getLeadOfferedListings(leadOfferIds, userId);
 
         for (LeadOfferedListing leadOfferedListing : leadOfferListings) {
             if (!listingMap.containsKey(leadOfferedListing.getLeadOfferId())) {
@@ -443,10 +443,11 @@ public class LeadOfferService {
      * @param integer
      * @return listings for that lead offer id
      */
-    public PaginatedResponse<List<Listing>> getOfferedListings(int leadOfferId) {
+    public PaginatedResponse<List<Listing>> getOfferedListings(int leadOfferId, Integer userId) {
         List<Listing> listings = new ArrayList<>();
-        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(Collections
-                .singletonList(leadOfferId))) {
+        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(
+                Collections.singletonList(leadOfferId),
+                userId)) {
             listings.add(leadOfferListing.getListing());
         }
 
@@ -471,12 +472,12 @@ public class LeadOfferService {
         }
 
         // Offer listings
-        List<Integer> newListingIds = offerListings(leadOffer, leadOfferInDB);
+        List<Integer> newListingIds = offerListings(leadOffer, leadOfferInDB, userId);
 
         // Claim a lead
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
             if (leadOffer.getStatusId() == LeadOfferStatus.New.getId()) {
-                claimLeadOffer(leadOffer, leadOfferInDB, newListingIds);
+                claimLeadOffer(leadOffer, leadOfferInDB, newListingIds, userId);
                 return leadOfferInDB;
             }
         }
@@ -506,9 +507,14 @@ public class LeadOfferService {
      * @param leadOfferId
      * @param leadOfferInDB
      */
-    private void claimLeadOffer(LeadOffer leadOffer, LeadOffer leadOfferInDB, List<Integer> newListingIds) {
-        List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(Collections
-                .singletonList(leadOfferInDB.getId()));
+    private void claimLeadOffer(
+            LeadOffer leadOffer,
+            LeadOffer leadOfferInDB,
+            List<Integer> newListingIds,
+            Integer userId) {
+        List<LeadOfferedListing> leadOfferedListingList = leadOfferDao.getLeadOfferedListings(
+                Collections.singletonList(leadOfferInDB.getId()),
+                userId);
         if (leadOfferedListingList == null || leadOfferedListingList.isEmpty()) {
             throw new BadRequestException("To claim add at least one listing");
         }
@@ -521,7 +527,7 @@ public class LeadOfferService {
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
         String heading = "Matching Property suggested by our trusted broker";
         String templatePath = marketplaceTemplateBasePath + claimTemplate;
-        sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds);
+        sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
     }
 
     @Transactional
@@ -572,7 +578,7 @@ public class LeadOfferService {
      * @param userId
      * @param leadOfferInDB
      */
-    private List<Integer> offerListings(LeadOffer leadOffer, LeadOffer leadOfferInDB) {
+    private List<Integer> offerListings(LeadOffer leadOffer, LeadOffer leadOfferInDB, Integer userId) {
         List<Integer> listingIds = new ArrayList<>();
         List<LeadOfferedListing> leadOfferedListingsGiven = leadOffer.getOfferedListings();
 
@@ -606,7 +612,7 @@ public class LeadOfferService {
                         leadOfferInDB.getAgentId());
                 String heading = "More properties matching your requirement";
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
-                sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds);
+                sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
                 return newListingIds;
             }
         }
@@ -617,37 +623,37 @@ public class LeadOfferService {
             LeadOffer leadOfferInDB,
             String templatePath,
             String heading,
-            List<Integer> newListingIds) {
+            List<Integer> newListingIds,
+            Integer userId) {
 
-        if(newListingIds != null)
-        {
-                Set<String> fields = new HashSet<>();
-                fields.add("lead");
-                fields.add("offeredListings");
-                fields.add("client");
-                fields.add("contactNumbers");
-                fields.add("requirements");
-                enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields);
-                Map<String, Object> map = new HashMap<>();
-        
-                FIQLSelector fiqlSelector = new FIQLSelector();
-                fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
-                List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
-                Map<Integer, Listing> listingMap = new HashMap<>();
-                for (Listing listing : listings) {
-                    if (newListingIds.contains(listing.getId())) {
-                        listingMap.put(listing.getId(), listing);
-                    }
+        if (newListingIds != null) {
+            Set<String> fields = new HashSet<>();
+            fields.add("lead");
+            fields.add("offeredListings");
+            fields.add("client");
+            fields.add("contactNumbers");
+            fields.add("requirements");
+            enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields, userId);
+            Map<String, Object> map = new HashMap<>();
+
+            FIQLSelector fiqlSelector = new FIQLSelector();
+            fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
+            List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
+            Map<Integer, Listing> listingMap = new HashMap<>();
+            for (Listing listing : listings) {
+                if (newListingIds.contains(listing.getId())) {
+                    listingMap.put(listing.getId(), listing);
                 }
-        
-                leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
-                map.put("leadOffer", leadOfferInDB);
-                map.put("listingObjectWithAmenities", listingMap);
-        
-                String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
-                MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
-                        leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
-                mailSender.sendMailUsingAws(mailDetails);
+            }
+
+            leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
+            map.put("leadOffer", leadOfferInDB);
+            map.put("listingObjectWithAmenities", listingMap);
+
+            String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
+            MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
+                    leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
+            mailSender.sendMailUsingAws(mailDetails);
         }
     }
 
@@ -692,16 +698,17 @@ public class LeadOfferService {
         return leadOffer;
     }
 
-    private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId) {
+    private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
         List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
-        populateOfferedFlag(leadOfferId, matchingListings);
+        populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
     }
 
-    private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings) {
+    private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings, Integer userId) {
         Set<Integer> offeredListingIds = new HashSet<>();
-        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(Collections
-                .singletonList(leadOfferId))) {
+        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(
+                Collections.singletonList(leadOfferId),
+                userId)) {
             offeredListingIds.add(leadOfferListing.getListingId());
         }
 
@@ -712,8 +719,8 @@ public class LeadOfferService {
         }
     }
 
-    public PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId) {
-        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId);
+    public PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId, Integer userId) {
+        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId, userId);
         List<LeadRequirement> leadRequirements = leadRequirementsService.getRequirements(leadOfferId);
         listings.setResults(sortMatchingListings(listings.getResults(), leadRequirements));
         return listings;
@@ -757,7 +764,7 @@ public class LeadOfferService {
     public LeadOffer get(int leadOfferId, Integer userId, FIQLSelector selector) {
         LeadOffer leadOffer = leadOfferDao.findById(leadOfferId);
         Set<String> fields = selector.getFieldSet();
-        enrichLeadOffers(Collections.singletonList(leadOffer), fields);
+        enrichLeadOffers(Collections.singletonList(leadOffer), fields, userId);
 
         return leadOffer;
     }

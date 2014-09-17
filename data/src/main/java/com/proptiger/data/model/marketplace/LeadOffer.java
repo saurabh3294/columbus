@@ -124,7 +124,7 @@ public class LeadOffer extends BaseModel {
     @ManyToOne(fetch = FetchType.LAZY)
     private Lead                     lead;
 
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "lead_offer_id", referencedColumnName = "id")
     private List<LeadOfferedListing> offeredListings;
 
