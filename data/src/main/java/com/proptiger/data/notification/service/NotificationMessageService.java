@@ -309,4 +309,13 @@ public class NotificationMessageService {
             }
         }
     }
+
+    public NotificationTypeService getNotiTypeService() {
+        return notiTypeService;
+    }
+
+    public void setNotiTypeService(NotificationTypeService notiTypeService) {
+        this.notiTypeService = notiTypeService;
+    }
+    
 }

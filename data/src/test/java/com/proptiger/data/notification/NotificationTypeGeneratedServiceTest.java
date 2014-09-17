@@ -40,9 +40,9 @@ public class NotificationTypeGeneratedServiceTest extends AbstractTest {
     public void testGetNotificationTypesForEventGenerated() {
 
         EventGenerated eventGenerated = eventMockerService.getMockEventGenerated();
-
-        EventTypeToNotificationTypeMappingService ntMappingService = mock(EventTypeToNotificationTypeMappingService.class);
         List<NotificationType> notificationTypes = notificationMockerService.getMockNotificationTypes();
+        
+        EventTypeToNotificationTypeMappingService ntMappingService = mock(EventTypeToNotificationTypeMappingService.class);
         when(ntMappingService.getNotificationTypesByEventType(eventGenerated.getEventType())).thenReturn(
                 notificationTypes);
         ntGeneratedService.setNtMappingService(ntMappingService);
