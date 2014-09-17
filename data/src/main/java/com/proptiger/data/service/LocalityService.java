@@ -1180,6 +1180,22 @@ public class LocalityService {
             if (locality.getAverageRating() != null) {
                 locality.setAverageRating(locality.getAverageRating() / 2);
             }
+            
+            if (locality.getProjectMaxLivabilityScore() != null) {
+                locality.setProjectMaxLivabilityScore(locality.getProjectMaxLivabilityScore() / 2);
+            }
+            
+            if (locality.getProjectMinLivabilityScore() != null) {
+                locality.setProjectMinLivabilityScore(locality.getProjectMinLivabilityScore() / 2);
+            }
+            
+            if (locality.getProjectMaxSafetyScore() != null) {
+                locality.setProjectMaxSafetyScore(locality.getProjectMaxSafetyScore() / 2);
+            }
+            
+            if (locality.getProjectMinSafetyScore() != null) {
+                locality.setProjectMinSafetyScore(locality.getProjectMinSafetyScore() / 2);
+            }
 
             if (locality.getAvgRatingsByCategory() != null) {
                 LocalityAverageRatingByCategory locAvgRatingsByCat = locality.getAvgRatingsByCategory();

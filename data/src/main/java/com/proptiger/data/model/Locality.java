@@ -261,6 +261,18 @@ public class Locality extends BaseModel {
     
     @Transient
     private List<Image>             landmarkImages;
+    
+    @Transient
+    private Double                  projectMaxSafetyScore;
+    
+    @Transient                      
+    private Double                  projectMinSafetyScore;
+    
+    @Transient
+    private Double                  projectMaxLivabilityScore;
+    
+    @Transient
+    private Double                  projectMinLivabilityScore;
 
     public int getLocalityId() {
         return localityId;
@@ -678,5 +690,37 @@ public class Locality extends BaseModel {
 
     public void setLandmarkImages(List<Image> landmarkImages) {
         this.landmarkImages = landmarkImages;
+    }
+
+    public Double getProjectMaxSafetyScore() {
+        return projectMaxSafetyScore;
+    }
+
+    public void setProjectMaxSafetyScore(Double projectMaxSafetyScore) {
+        this.projectMaxSafetyScore = projectMaxSafetyScore;
+    }
+
+    public Double getProjectMinSafetyScore() {
+        return projectMinSafetyScore;
+    }
+
+    public void setProjectMinSafetyScore(Double projectMinSafetyScore) {
+        this.projectMinSafetyScore = projectMinSafetyScore;
+    }
+
+    public Double getProjectMaxLivabilityScore() {
+        return projectMaxLivabilityScore;
+    }
+
+    public void setProjectMaxLivabilityScore(Double projectMaxLivabilityScore) {
+        this.projectMaxLivabilityScore = projectMaxLivabilityScore;
+    }
+
+    public Double getProjectMinLivabilityScore() {
+        return projectMinLivabilityScore;
+    }
+
+    public void setProjectMinLivabilityScore(Double projectMinLivabilityScore) {
+        this.projectMinLivabilityScore = projectMinLivabilityScore;
     }
 }
