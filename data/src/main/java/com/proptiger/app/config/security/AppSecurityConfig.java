@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -182,9 +183,16 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public DaoAuthenticationProvider createDaoAuthProvider() {
         DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider();
+        daoAuthProvider.setPostAuthenticationChecks(createPostAuthCheckProvider());
         daoAuthProvider.setUserDetailsService(userService);
         daoAuthProvider.setPasswordEncoder(createPasswordEncoder());
         return daoAuthProvider;
+    }
+
+    @Bean
+    public UserDetailsChecker createPostAuthCheckProvider() {
+        UserDetailsChecker userDetailsChecker = new PostAuthenticationCheck();
+        return userDetailsChecker;
     }
 
     @Bean

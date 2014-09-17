@@ -34,13 +34,7 @@ public class UserDetailManagerService implements UserDetailsService {
 
     @Autowired
     private UserDao                 userDao;
-
-    @Autowired
-    private UserSubscriptionService userSubscriptionService;
-
-    private String                  errorMessageNonB2BUser               = "Invalid userid and password. Please send mail to datalabs@proptiger.com for verifying userid and password.";
-    private String                  errorMessageExpiredPermissionB2BUser = "Thanks for using our product. Validity of your subscription has expired. To continue using this service, please connect with your relationship manager or send us mail at datalabs@proptiger.com";
-
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserDetails userDetails = null;
@@ -67,24 +61,6 @@ public class UserDetailManagerService implements UserDetailsService {
         if (userDetails == null) {
             throw new UsernameNotFoundException("User name or password are incorrect");
         }
-
-        /* If a b2b-user's permissions have expired then login request is denied */
-        if (user != null && ApplicationNameService.isB2BApplicationRequest()) {
-            int userId = user.getId();
-
-            /* Throw error if user has no subscriptions at all (non-b2b user). */
-            List<?> userSubscriptionMappingList = userSubscriptionService.getUserSubscriptionMappingList(userId);
-            if (userSubscriptionMappingList == null || userSubscriptionMappingList.isEmpty()) {
-                throw new InvalidUserRoleException(errorMessageNonB2BUser);
-            }
-
-            /* Throw error if user has no *active* subscriptions. */
-            List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(user.getId());
-            if (permissionList == null || permissionList.isEmpty()) {
-                throw new InvalidUserRoleException(errorMessageExpiredPermissionB2BUser);
-            }
-        }
-
         return userDetails;
     }
 
