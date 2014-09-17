@@ -147,7 +147,7 @@ public class NotificationGeneratedService {
             populateDataBeforeSave(notificationGenerated);
             if (notificationGenerated.getNotificationMessage() != null) {
                 notificationGenerated.getNotificationMessage().setNotificationStatus(NotificationStatus.Generated);
-            }                
+            }
         }
         return notificationGeneratedDao.save(nGenerateds);
 
@@ -237,6 +237,14 @@ public class NotificationGeneratedService {
         return nGenerated;
     }
 
+    /**
+     * Create NotificationGenerateds for given Notification Messages in given
+     * Mediums
+     * 
+     * @param nMessages
+     * @param mediumTypes
+     * @return
+     */
     public List<NotificationGenerated> createNotificationGenerated(
             List<NotificationMessage> nMessages,
             List<MediumType> mediumTypes) {
@@ -359,6 +367,7 @@ public class NotificationGeneratedService {
         return notificationGeneratedDao.findByNotificationStatus(NotificationStatus.Generated);
     }
 
+    @Transactional
     public void markNotificationGeneratedScheduled(NotificationGenerated ntGenerated, Date scheduledTime) {
         notificationGeneratedDao.updatedNotificationStatusAndScheduleTimeById(
                 ntGenerated.getId(),
@@ -366,6 +375,7 @@ public class NotificationGeneratedService {
                 scheduledTime);
     }
 
+    @Transactional
     public void markNotificationGeneratedSuppressed(NotificationGenerated ntGenerated) {
         notificationGeneratedDao.updateNotificationStatusById(
                 ntGenerated.getId(),
