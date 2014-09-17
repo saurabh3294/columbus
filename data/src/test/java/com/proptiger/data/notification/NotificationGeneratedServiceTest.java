@@ -13,7 +13,7 @@ import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.service.AbstractTest;
 
-public class NotificationTest extends AbstractTest {
+public class NotificationGeneratedServiceTest extends AbstractTest {
 
     @Autowired
     private NotificationInitiator        notificationInitiator;
