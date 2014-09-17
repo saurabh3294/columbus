@@ -16,10 +16,10 @@ import com.proptiger.data.service.mail.AmazonMailSender;
 @Service
 public class EmailSender implements MediumSender {
 
-    private static Logger       logger      = LoggerFactory.getLogger(EmailSender.class);
+    private static Logger       logger  = LoggerFactory.getLogger(EmailSender.class);
 
-    private static final String SUBJECT     = "subject";
-    private static final String BODY        = "body";
+    private static final String SUBJECT = "subject";
+    private static final String BODY    = "body";
 
     @Autowired
     private AmazonMailSender    amazonMailSender;
@@ -28,12 +28,6 @@ public class EmailSender implements MediumSender {
     public void send(String template, ForumUser forumUser, String typeName) {
         String emailId = forumUser.getEmail();
         MailBody mailBody = getMailBody(template);
-
-        /*
-         * For testing, please add a test email id below to avoid sending
-         * unnecessary emails to actual users
-         */
-        emailId = "";
 
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(emailId);
         logger.debug("Sending email " + mailBody.getBody() + " to : " + emailId);

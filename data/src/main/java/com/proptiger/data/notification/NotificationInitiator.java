@@ -135,7 +135,9 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(cron = "${scheduler.cron.notification.marketplace}")
+    @Scheduled(
+            fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
+            initialDelayString = "${scheduler.initialdelay.notification.marketplace}")
     public void marketplaceAppNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via MarketplaceApp.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.MarketplaceApp);
