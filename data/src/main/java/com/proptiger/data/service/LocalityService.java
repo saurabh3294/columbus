@@ -711,6 +711,7 @@ public class LocalityService {
             }
 
         }
+        imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
         if (localitySelector.getFields() != null && localitySelector.getFields().contains("landmarkImages")) {
             imageEnricher.setLocalityAmenitiesImages(localitiesAroundMainLocality);
         }
@@ -1107,6 +1108,7 @@ public class LocalityService {
         if (localities == null) {
             return new PaginatedResponse<List<Locality>>();
         }
+        imageEnricher.setLocalitiesImages(localities.getResults(), null);
         if (localitySelector.getFields() != null && localitySelector.getFields().contains("landmarkImages")) {
             imageEnricher.setLocalityAmenitiesImages(localities.getResults());
         }
