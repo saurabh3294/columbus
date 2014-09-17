@@ -129,7 +129,7 @@ public class LeadOfferService {
         List<Integer> newOfferedListingIds = new ArrayList<>();
 
         Set<Integer> matchingListingIds = new HashSet<>();
-        for (Listing listing : getUnsortedMatchingListings(leadOfferId,userId).getResults()) {
+        for (Listing listing : getUnsortedMatchingListings(leadOfferId, userId).getResults()) {
             matchingListingIds.add(listing.getId());
         }
 
@@ -472,7 +472,7 @@ public class LeadOfferService {
         }
 
         // Offer listings
-        List<Integer> newListingIds = offerListings(leadOffer, leadOfferInDB,userId);
+        List<Integer> newListingIds = offerListings(leadOffer, leadOfferInDB, userId);
 
         // Claim a lead
         if (leadOfferInDB.getStatusId() == LeadOfferStatus.Offered.getId()) {
@@ -527,7 +527,7 @@ public class LeadOfferService {
         manageLeadOfferedNotificationDeletionForLead(leadOfferInDB.getLeadId());
         String heading = "Matching Property suggested by our trusted broker";
         String templatePath = marketplaceTemplateBasePath + claimTemplate;
-        sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds,userId);
+        sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
     }
 
     @Transactional
@@ -623,7 +623,8 @@ public class LeadOfferService {
             LeadOffer leadOfferInDB,
             String templatePath,
             String heading,
-            List<Integer> newListingIds,Integer userId) {
+            List<Integer> newListingIds,
+            Integer userId) {
 
         if (newListingIds != null) {
             Set<String> fields = new HashSet<>();
@@ -699,14 +700,15 @@ public class LeadOfferService {
 
     private PaginatedResponse<List<Listing>> getUnsortedMatchingListings(int leadOfferId, Integer userId) {
         List<Listing> matchingListings = leadOfferDao.getMatchingListings(leadOfferId);
-        populateOfferedFlag(leadOfferId, matchingListings,userId);
+        populateOfferedFlag(leadOfferId, matchingListings, userId);
         return new PaginatedResponse<List<Listing>>(matchingListings, matchingListings.size());
     }
 
-    private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings,Integer userId) {
+    private void populateOfferedFlag(int leadOfferId, List<Listing> matchingListings, Integer userId) {
         Set<Integer> offeredListingIds = new HashSet<>();
-        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(Collections
-                .singletonList(leadOfferId), userId)) {
+        for (LeadOfferedListing leadOfferListing : leadOfferDao.getLeadOfferedListings(
+                Collections.singletonList(leadOfferId),
+                userId)) {
             offeredListingIds.add(leadOfferListing.getListingId());
         }
 
@@ -717,8 +719,8 @@ public class LeadOfferService {
         }
     }
 
-    public PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId,Integer userId) {
-        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId,userId);
+    public PaginatedResponse<List<Listing>> getSortedMatchingListings(int leadOfferId, Integer userId) {
+        PaginatedResponse<List<Listing>> listings = getUnsortedMatchingListings(leadOfferId, userId);
         List<LeadRequirement> leadRequirements = leadRequirementsService.getRequirements(leadOfferId);
         listings.setResults(sortMatchingListings(listings.getResults(), leadRequirements));
         return listings;
