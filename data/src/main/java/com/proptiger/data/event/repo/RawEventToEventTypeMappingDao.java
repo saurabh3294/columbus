@@ -9,5 +9,7 @@ import com.proptiger.data.event.model.RawEventToEventTypeMapping;
 public interface RawEventToEventTypeMappingDao extends PagingAndSortingRepository<RawEventToEventTypeMapping, Integer> {
 
     public List<RawEventToEventTypeMapping> findByEventTypeId(Integer eventTypeId);
+    
+    public List<RawEventToEventTypeMapping> findAll();
 
 }

@@ -151,6 +151,21 @@ public class City extends BaseModel {
     @Transient
     private List<Locality>       localities;
 
+    @Transient
+    private Double               localityMaxSafetyScore;
+
+    @Transient
+    private Double               localityMinSafetyScore;
+
+    @Transient
+    private Double               localityMaxLivabilityScore;
+
+    @Transient
+    private Double               localityMinLivabilityScore;
+    
+    @Transient
+    private Integer              cityLocalityCount;
+
     public Integer getId() {
         return id;
     }
@@ -373,5 +388,45 @@ public class City extends BaseModel {
 
     public void setLocalities(List<Locality> localities) {
         this.localities = localities;
+    }
+
+    public Double getLocalityMaxSafetyScore() {
+        return localityMaxSafetyScore;
+    }
+
+    public void setLocalityMaxSafetyScore(Double localityMaxSafetyScore) {
+        this.localityMaxSafetyScore = localityMaxSafetyScore;
+    }
+
+    public Double getLocalityMinSafetyScore() {
+        return localityMinSafetyScore;
+    }
+
+    public void setLocalityMinSafetyScore(Double localityMinSafetyScore) {
+        this.localityMinSafetyScore = localityMinSafetyScore;
+    }
+
+    public Double getLocalityMaxLivabilityScore() {
+        return localityMaxLivabilityScore;
+    }
+
+    public void setLocalityMaxLivabilityScore(Double localityMaxLivabilityScore) {
+        this.localityMaxLivabilityScore = localityMaxLivabilityScore;
+    }
+
+    public Double getLocalityMinLivabilityScore() {
+        return localityMinLivabilityScore;
+    }
+
+    public void setLocalityMinLivabilityScore(Double localityMinLivabilityScore) {
+        this.localityMinLivabilityScore = localityMinLivabilityScore;
+    }
+
+    public Integer getCityLocalityCount() {
+        return cityLocalityCount;
+    }
+
+    public void setCityLocalityCount(Integer cityLocalityCount) {
+        this.cityLocalityCount = cityLocalityCount;
     }
 }

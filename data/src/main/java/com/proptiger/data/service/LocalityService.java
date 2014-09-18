@@ -711,6 +711,7 @@ public class LocalityService {
             }
 
         }
+        imageEnricher.setLocalitiesImages(localitiesAroundMainLocality, imageCount);
         if (localitySelector.getFields() != null && localitySelector.getFields().contains("landmarkImages")) {
             imageEnricher.setLocalityAmenitiesImages(localitiesAroundMainLocality);
         }
@@ -1107,6 +1108,7 @@ public class LocalityService {
         if (localities == null) {
             return new PaginatedResponse<List<Locality>>();
         }
+        imageEnricher.setLocalitiesImages(localities.getResults(), null);
         if (localitySelector.getFields() != null && localitySelector.getFields().contains("landmarkImages")) {
             imageEnricher.setLocalityAmenitiesImages(localities.getResults());
         }
@@ -1179,6 +1181,22 @@ public class LocalityService {
 
             if (locality.getAverageRating() != null) {
                 locality.setAverageRating(locality.getAverageRating() / 2);
+            }
+            
+            if (locality.getProjectMaxLivabilityScore() != null) {
+                locality.setProjectMaxLivabilityScore(locality.getProjectMaxLivabilityScore() / 2);
+            }
+            
+            if (locality.getProjectMinLivabilityScore() != null) {
+                locality.setProjectMinLivabilityScore(locality.getProjectMinLivabilityScore() / 2);
+            }
+            
+            if (locality.getProjectMaxSafetyScore() != null) {
+                locality.setProjectMaxSafetyScore(locality.getProjectMaxSafetyScore() / 2);
+            }
+            
+            if (locality.getProjectMinSafetyScore() != null) {
+                locality.setProjectMinSafetyScore(locality.getProjectMinSafetyScore() / 2);
             }
 
             if (locality.getAvgRatingsByCategory() != null) {

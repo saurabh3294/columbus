@@ -170,7 +170,7 @@ public class RawEventToEventTypeMappingService {
     }
 
     public Iterable<RawEventToEventTypeMapping> getAllMappingOfRawEventsToEventType() {
-        Iterable<RawEventToEventTypeMapping> listEventTypeMapping = rawEventToEventTypeMappingDao.findAll();
+        Iterable<RawEventToEventTypeMapping> listEventTypeMapping = findAll();
         Iterator<RawEventToEventTypeMapping> itEventTypeMapping = listEventTypeMapping.iterator();
 
         while (itEventTypeMapping.hasNext()) {
@@ -182,6 +182,10 @@ public class RawEventToEventTypeMappingService {
         }
         
         return listEventTypeMapping;
+    }
+    
+    public Iterable<RawEventToEventTypeMapping> findAll() {
+        return rawEventToEventTypeMappingDao.findAll();
     }
 
     public RawEventToEventTypeMapping getMappingByEventTypeId(Integer eventTypeId) {
