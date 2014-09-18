@@ -612,7 +612,11 @@ public class LeadOfferService {
                         leadOfferInDB.getAgentId());
                 String heading = "More properties matching your requirement";
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
-                sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
+               
+                if(leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId())
+                {
+                    sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
+                }
                 return newListingIds;
             }
         }
@@ -636,20 +640,26 @@ public class LeadOfferService {
             enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields, userId);
             Map<String, Object> map = new HashMap<>();
 
+            for(LeadOfferedListing leadOfferedListing : leadOfferInDB.getOfferedListings())
+            {
+                if(!newListingIds.contains(leadOfferedListing.getListingId()))
+                {
+                    leadOfferedListing.setListing(null);
+                }
+            }
+            
+            
             FIQLSelector fiqlSelector = new FIQLSelector();
             fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
             List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
             Map<Integer, Listing> listingMap = new HashMap<>();
             for (Listing listing : listings) {
-                if (newListingIds.contains(listing.getId())) {
-                    listingMap.put(listing.getId(), listing);
-                }
+                listingMap.put(listing.getId(), listing);
             }
 
             leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
-
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
                     leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
