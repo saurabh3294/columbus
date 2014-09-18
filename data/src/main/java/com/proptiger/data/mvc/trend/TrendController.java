@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.proptiger.data.dto.internal.trend.HithertoDurationSelector;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.mvc.BaseController;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.APIResponse;
@@ -566,7 +566,7 @@ public class TrendController extends BaseController {
     }
 
     private PaginatedResponse<Object> getMappedResults(
-            PaginatedResponse<List<InventoryPriceTrend>> inventoryPriceTrends,
+            PaginatedResponse<List<Trend>> inventoryPriceTrends,
             String rangeField,
             String rangeValue,
             FIQLSelector selector) {
