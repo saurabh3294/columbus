@@ -400,6 +400,9 @@ public class SolrResult extends BaseModel {
     
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer           cityLocalityCount;
+    
+    @Field(value = "LOCALITY_TAG_LINE")
+    private String            localityTagLine;
 
     public SolrResult() {
         property.setProject(project);
@@ -1247,5 +1250,10 @@ public class SolrResult extends BaseModel {
     @Field(value = "CITY_LOCALITY_COUNT")
     public void setCityLocalityCount(Integer cityLocalityCount) {
         city.setCityLocalityCount(cityLocalityCount);
+    }
+
+    @Field(value = "LOCALITY_TAG_LINE")
+    public void setLocalityTagLine(String localityTagLine) {
+        locality.setLocalityTagLine(localityTagLine);
     }
 }
