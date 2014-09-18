@@ -397,6 +397,12 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "LOCALITY_UNIT_TYPES")
     private List<String>      localityPropertyUnitTypes;
+    
+    @Field(value = "CITY_LOCALITY_COUNT")
+    private Integer           cityLocalityCount;
+    
+    @Field(value = "LOCALITY_TAG_LINE")
+    private String            localityTagLine;
 
     public SolrResult() {
         property.setProject(project);
@@ -1239,5 +1245,15 @@ public class SolrResult extends BaseModel {
     @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
     public void setLocalityMinLivabilityScore(Double projectMinLivabilityScore) {
         city.setLocalityMinLivabilityScore(projectMinLivabilityScore);
+    }
+    
+    @Field(value = "CITY_LOCALITY_COUNT")
+    public void setCityLocalityCount(Integer cityLocalityCount) {
+        city.setCityLocalityCount(cityLocalityCount);
+    }
+
+    @Field(value = "LOCALITY_TAG_LINE")
+    public void setLocalityTagLine(String localityTagLine) {
+        locality.setLocalityTagLine(localityTagLine);
     }
 }

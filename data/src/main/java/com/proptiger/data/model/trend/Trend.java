@@ -30,7 +30,7 @@ import com.proptiger.data.model.BaseModel;
 @Entity
 @Table(name = "cms.d_inventory_prices")
 @JsonFilter("fieldFilter")
-public class InventoryPriceTrend extends BaseModel {
+public class Trend extends BaseModel {
 
     private static final long serialVersionUID = 1L;
 

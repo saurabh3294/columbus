@@ -162,6 +162,9 @@ public class City extends BaseModel {
 
     @Transient
     private Double               localityMinLivabilityScore;
+    
+    @Transient
+    private Integer              cityLocalityCount;
 
     public Integer getId() {
         return id;
@@ -417,5 +420,13 @@ public class City extends BaseModel {
 
     public void setLocalityMinLivabilityScore(Double localityMinLivabilityScore) {
         this.localityMinLivabilityScore = localityMinLivabilityScore;
+    }
+
+    public Integer getCityLocalityCount() {
+        return cityLocalityCount;
+    }
+
+    public void setCityLocalityCount(Integer cityLocalityCount) {
+        this.cityLocalityCount = cityLocalityCount;
     }
 }
