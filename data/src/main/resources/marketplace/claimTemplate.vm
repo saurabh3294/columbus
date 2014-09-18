@@ -146,12 +146,13 @@ $minBudgetInLacs - $maxBudgetInLacs Lacs.
   <tr>
     <td style="padding:10px;"><strong>Configuration: </strong></td>
     <td width="156" style="padding:10px;">${offeredListing.listing.property.unitName}</td>
-    <td width="173" style="padding:10px;"><strong>Size</strong> </td>
+    <td width="91" style="padding:10px;"><strong>Size</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</td>    
     
   </tr>
   <tr>
-    <td width="173" style="padding:10px;"><strong>Asking Price:</strong> </td>
+	#if (${offeredListing.listing.currentListingPrice.price}) 
+    <td width="91" style="padding:10px;"><strong>Asking Price:</strong> </td>
     <td style="padding:10px;">
 			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000)
 			      #if($priceInLacs > 100)
@@ -160,7 +161,7 @@ $minBudgetInLacs - $maxBudgetInLacs Lacs.
 			      #else		
 				$priceInLacs Lacs </td>
 		  	      #end
-
+	#end
    			     #if(${offeredListing.listing.floor}) 	
     <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.floor}</td>#end
@@ -221,8 +222,7 @@ $minBudgetInLacs - $maxBudgetInLacs Lacs.
 #end
 </table>
    <tr>
-  <td style="padding:10px; line-height:20px;">The broker will get in touch with you shortly, to discuss your requirements in details. You can also contact us 
-at +91 92788 92788 or email us on <a href="#" style="color:#333;">customer.service@proptiger.com</a>. <br /><br />
+  <td style="padding:10px; line-height:20px;">The broker will get in touch with you shortly, to discuss your requirements in details.  <br /><br />
 
 Yours sincerely, <br />
 

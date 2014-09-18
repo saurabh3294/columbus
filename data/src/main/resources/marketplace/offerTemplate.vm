@@ -67,28 +67,7 @@
             
             </td>
           </tr>
-               <tr>
-                <td bgcolor="#f5f5f5" style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
-                
-                <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
-                <tr><td height="5"></td></tr>
-                         <tr>
-                <td style="font-size:12px;">Suggested by Broker:  ${leadOffer.agent.fullName}</td>
-              </tr>         
-                    
-                        </table>
-                        
-                        <table border="0" cellpadding="0" cellspacing="0" align="right" width="28%">
-                          
-                         
-                              <tr>
-                                <td style="text-align:center;" class="responsive-image"    ><div style="font-size: 13px; font-family: Arial, Helvetica, sans-serif;  color:#3f3f3f; line-height:30px;"><strong>Phone: +91 ${leadOffer.agent.contactNumbers.get(0).contactNumber}</strong></div>
-                                  
-                                  
-                                </td></tr></table>
-                
-                </td>
-              </tr>
+               
   
              <tr>
   <td>&nbsp;</td>
@@ -111,11 +90,12 @@
   <tr>
     <td style="padding:10px;"><strong>Configuration: </strong></td>
     <td width="156" style="padding:10px;">${offeredListing.listing.property.unitName}</td>
-    <td width="173" style="padding:10px;"><strong>Size</strong> </td>
+    <td width="91" style="padding:10px;"><strong>Size</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</td>    
     
   </tr>
   <tr>
+#if(${offeredListing.listing.currentListingPrice.price})	
     <td width="173" style="padding:10px;"><strong>Asking Price:</strong> </td>
     <td style="padding:10px;">
 			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000)
@@ -125,9 +105,9 @@
 			      #else		
 				$priceInLacs Lacs </td>
 		  	      #end
-
+#end
    			     #if(${offeredListing.listing.floor}) 	
-    <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
+    <td width="91" style="padding:10px;"><strong>Floor</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.floor}</td>#end
   </tr>
 
