@@ -317,5 +317,13 @@ public class NotificationMessageService {
     public void setNotiTypeService(NotificationTypeService notiTypeService) {
         this.notiTypeService = notiTypeService;
     }
+
+    public UserNotificationTypeSubscriptionService getUserNTSubscriptionService() {
+        return userNTSubscriptionService;
+    }
+
+    public void setUserNTSubscriptionService(UserNotificationTypeSubscriptionService userNTSubscriptionService) {
+        this.userNTSubscriptionService = userNTSubscriptionService;
+    }
     
 }
