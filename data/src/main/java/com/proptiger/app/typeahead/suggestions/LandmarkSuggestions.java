@@ -31,6 +31,7 @@ public class LandmarkSuggestions {
             obj.setRedirectUrl(String.format(template[1], defaultMapRadius, latitude, longitude));
             obj.setId(templateId);
             obj.setType(obj.getId());
+            obj.setIsSuggestion(true);
             suggestions.add(obj);
         }
         return suggestions;
