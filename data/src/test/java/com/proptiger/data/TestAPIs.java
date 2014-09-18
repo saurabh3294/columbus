@@ -353,6 +353,7 @@ public class TestAPIs {
         }
         int numberOfAPIFailed = failedGETUrlList.size() + failedPOSTUrlList.size() + failedPUTUrlList.size();
         if (numberOfAPIFailed > 0) {
+            Reporter.log("\nAPIs Test Status : Failure Reported");
             Assert.assertEquals(true, true, "API has faced some failure");
         }
     }
