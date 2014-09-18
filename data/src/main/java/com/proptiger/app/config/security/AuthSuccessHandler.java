@@ -32,9 +32,6 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Autowired
     private UserController   userController;
     
-    @Autowired
-    private PropertyReader propertyReader;
-
     public AuthSuccessHandler() {
         super();
     }
@@ -50,7 +47,7 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
          * same as of cookie life time, so both should be synched.
          */
         request.getSession().setMaxInactiveInterval(
-                propertyReader.getRequiredPropertyAsType(PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL, Integer.class));
+                PropertyReader.getRequiredPropertyAsType(PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL, Integer.class));
         ActiveUser userInfo = SecurityContextUtils.putActiveUserInSession(request, authentication);
         clearAuthenticationAttributes(request);
         SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter(
