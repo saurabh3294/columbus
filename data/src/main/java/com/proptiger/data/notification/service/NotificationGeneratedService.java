@@ -381,4 +381,36 @@ public class NotificationGeneratedService {
                 ntGenerated.getId(),
                 NotificationStatus.SchedulerSuppressed);
     }
+
+    public NotificationGeneratedDao getNotificationGeneratedDao() {
+        return notificationGeneratedDao;
+    }
+
+    public void setNotificationGeneratedDao(NotificationGeneratedDao notificationGeneratedDao) {
+        this.notificationGeneratedDao = notificationGeneratedDao;
+    }
+
+    public NotificationMediumService getNotificationMediumService() {
+        return notificationMediumService;
+    }
+
+    public void setNotificationMediumService(NotificationMediumService notificationMediumService) {
+        this.notificationMediumService = notificationMediumService;
+    }
+
+    public NotificationTypeService getNotificationTypeService() {
+        return notificationTypeService;
+    }
+
+    public void setNotificationTypeService(NotificationTypeService notificationTypeService) {
+        this.notificationTypeService = notificationTypeService;
+    }
+
+    public NotificationTypeNotificationMediumMappingService getnMappingService() {
+        return nMappingService;
+    }
+
+    public void setnMappingService(NotificationTypeNotificationMediumMappingService nMappingService) {
+        this.nMappingService = nMappingService;
+    }
 }
