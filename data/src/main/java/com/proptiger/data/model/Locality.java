@@ -278,6 +278,9 @@ public class Locality extends BaseModel {
     @Field("LOCALITY_UNIT_TYPES")
     @JsonIgnore
     private List<String>                    propertyUnitTypes;
+    
+    @Transient
+    private String                          localityTagLine;
 
     public int getLocalityId() {
         return localityId;
@@ -735,5 +738,13 @@ public class Locality extends BaseModel {
 
     public void setPropertyUnitTypes(List<String> propertyUnitTypes) {
         this.propertyUnitTypes = propertyUnitTypes;
+    }
+
+    public String getLocalityTagLine() {
+        return localityTagLine;
+    }
+
+    public void setLocalityTagLine(String localityTagLine) {
+        this.localityTagLine = localityTagLine;
     }
 }
