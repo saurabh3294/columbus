@@ -46,7 +46,7 @@ import com.proptiger.data.model.LocalityReviewComments;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.SolrResult;
 import com.proptiger.data.model.Suburb;
-import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.pojo.Paging;
@@ -835,7 +835,7 @@ public class LocalityService {
 
         Map<Integer, Double> avgPrice = new HashMap<Integer, Double>();
 
-        for (InventoryPriceTrend inventoryPriceTrend : trendService.getTrend(selector)) {
+        for (Trend inventoryPriceTrend : trendService.getTrend(selector)) {
             Object avgPricePerUnitArea = inventoryPriceTrend.getExtraAttributes().get("wavgPricePerUnitAreaOnSupply");
             if (avgPricePerUnitArea != null) {
                 avgPrice.put(inventoryPriceTrend.getBedrooms(), Double.valueOf(avgPricePerUnitArea.toString()));

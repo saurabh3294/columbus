@@ -17,7 +17,7 @@ import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.UserSubscriptionMapping;
-import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
@@ -168,8 +168,8 @@ public class UserSubscriptionService {
             selector.setFields(builderId);
             selector.setGroup(builderId);
 
-            List<InventoryPriceTrend> list = trendDao.getTrend(selector);
-            for (InventoryPriceTrend inventoryPriceTrend : list) {
+            List<Trend> list = trendDao.getTrend(selector);
+            for (Trend inventoryPriceTrend : list) {
                 builderList.add(inventoryPriceTrend.getBuilderId());
             }
         }
