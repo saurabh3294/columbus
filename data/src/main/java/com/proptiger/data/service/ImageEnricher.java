@@ -138,10 +138,25 @@ public class ImageEnricher {
         if (localities == null || localities.isEmpty())
             return;
 
-        Locality locality;
-        for (int i = 0; i < localities.size(); i++) {
-            locality = localities.get(i);
-            setLocalityImages(locality, imageCount);
+        List<Long> localityIds = new ArrayList<Long>();
+        for(Locality locality : localities) {
+            localityIds.add(new Long(locality.getLocalityId()));
+        }
+        
+        Map<Long, List<Image>> imagesMap = getImagesMap(DomainObject.locality, localityIds);
+        if (imagesMap == null) {
+            return;
+        }
+        
+        for(Locality  locality : localities) {
+            List<Image> images = imagesMap.get(new Long(locality.getLocalityId()));
+            if (images != null && images.size() > 0) {
+                locality.setImageCount(images.size());
+                if (imageCount == null || imageCount < 0 || imageCount > images.size()) {
+                    imageCount = images.size();
+                }
+                locality.setImages(new ArrayList<Image>(images.subList(0, imageCount)));
+            }
         }
     }
 
