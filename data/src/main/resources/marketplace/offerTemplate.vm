@@ -43,7 +43,7 @@
             <table width="25%" border="0" cellpadding="0" cellspacing="0" align="left">
             <tr><td>&nbsp;</td></tr>
              <tr>
-    <td  style="font-size: 0; line-height: 0;" height="auto" align="center" class="responsive-icon"><a href="http://www.proptiger.com/google_page_4.php?projectName=Supertech CapeTown - Noida&amp;utm_source=internal&amp;utm_medium=mailerInternal&amp;utm_campaign=Mailer Campaign Noida&amp;localityId=50082" target="_blank"><img src="http://cdn.proptiger.com/images/proptiger_logo.gif" width="130" height="43" border="0" /></a></td>
+    <td  style="font-size: 0; line-height: 0;" height="auto" align="center" class="responsive-icon"><a href="http://www.proptiger.com/" target="_blank"><img src="http://cdn.proptiger.com/images/proptiger_logo.gif" width="130" height="43" border="0" /></a></td>
   </tr>         
         
             </table>
@@ -57,12 +57,7 @@
                       
                     </td></tr></table>
                       
-                      
-                      
-                  
-           
-       
-       </td></tr>
+      </td></tr>
     
               <tr>
             <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
@@ -72,25 +67,7 @@
             
             </td>
           </tr>
-  
-  
-              <tr>
-        <td style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
-  
-  #foreach (${requirement} in ${leadOffer.lead.requirements})
-    #if (${requirement.project})    
-        ${requirement.project.name}, ${requirement.project.address}, ${requirement.bedroom} BHK, 
-    #end
-#end
-${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq.ft., ${leadOffer.lead.minBudget} - ${leadOffer.lead.maxBudget} Lacs.
- You can find the property 
-details below.
-    
-    </td>
-  </tr>
-  
-  
-             <tr>
+               <tr>
                 <td bgcolor="#f5f5f5" style="font-size: 13; padding:10px; line-height: 20px; text-align:left;">
                 
                 <table width="68%" border="0" cellpadding="0" cellspacing="0" align="left">
@@ -118,12 +95,14 @@ details below.
   </tr>
  
 #foreach (${offeredListing} in ${leadOffer.offeredListings})  
-            <tr>
+   
+#if (${offeredListing.listing})
+ <tr>
   <td>
   
   <table width="580" border="0" cellspacing="0" cellpadding="0" align="center" style="border-radius:5px; border:1px solid #dddddd;">
   <tr>
-    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name}    ${offeredListing.listing.property.project.name}</a>  &nbsp; (Click to view more details)</td>
+    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name} ${offeredListing.listing.property.project.name}</a></td>
     </tr>
   <tr>
     <td width="173" style="padding:10px;"><strong>Locality:</strong> </td>
@@ -133,50 +112,76 @@ details below.
     <td style="padding:10px;"><strong>Configuration: </strong></td>
     <td width="156" style="padding:10px;">${offeredListing.listing.property.unitName}</td>
     <td width="173" style="padding:10px;"><strong>Size</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.property.size}  ${offeredListing.listing.property.measure}</td>    
+    <td style="padding:10px;">${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</td>    
     
   </tr>
   <tr>
     <td width="173" style="padding:10px;"><strong>Asking Price:</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.currentListingPrice.price} </td>
+    <td style="padding:10px;">
+			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000)
+			      #if($priceInLacs > 100)
+				#set($priceInCrores = $priceInLacs/100)
+				$priceInCrores Cr.					
+			      #else		
+				$priceInLacs Lacs </td>
+		  	      #end
+
+   			     #if(${offeredListing.listing.floor}) 	
     <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.floor} th</td>
+    <td style="padding:10px;">${offeredListing.listing.floor}</td>#end
   </tr>
- 
- 
+
+
 #set($a = 1)
 #foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
-#if ($a == 1)    
-<tr>    
-    <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
-    <td style="padding:10px;">Available</td>
-#set($a = 2)
-#elseif ($a == 2)
-    <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
-    <td style="padding:10px;">Available</td>
-    </tr>
-#set($a = 1)
-#end     
+
+    #if(${listingAmenity.amenity.verified} == false)		
+	#if ($a == 1)    
+	    <tr>    
+	    <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
+	    <td style="padding:10px;">Available</td>
+	#set($a = 2)
+	#elseif ($a == 2)
+	    <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
+	    <td style="padding:10px;">Available</td>
+	    </tr>
+	#set($a = 1)
+	#end	
+    #end	
   
 #end  
 #if ($a == 2)
 </tr>
 #end
 <tr>
-    <td width="173" style="padding:10px;"><strong>Other Splecial Features</strong> </td>
-    <td colspan="3" style="padding:10px;">Swimming Pool, Gym, Golf Course, Meditation Center, Medical Clinic, Jogging Track, Landscape Garden</td>
- </tr>
+	#set($b = 0)
+	#foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
+	    #if($b == 0)	
+		<td width="173" style="padding:10px;"><strong>Other Splecial Features</strong> </td>    		
+		<td colspan="3" style="padding:10px;">		
+		#set($b = 1)	
+	    #end				
+		#if(${listingAmenity.amenity.verified} == true)		
+			${listingAmenity.amenity.amenityDisplayName},
+		#end
+	#end
+
+	#if($b==1)
+	</td>
+	#end
+
+    </tr>
 </table>
- 
+
   
   
 </td>
-  </tr> 
+  </tr>
   
    <tr>
   <td>&nbsp;</td>
   </tr>
-   
+#end
 #end
 </table>  
    <tr>

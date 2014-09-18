@@ -147,7 +147,7 @@ $minBudgetInLacs - $maxBudgetInLacs Lacs.
     <td style="padding:10px;"><strong>Configuration: </strong></td>
     <td width="156" style="padding:10px;">${offeredListing.listing.property.unitName}</td>
     <td width="173" style="padding:10px;"><strong>Size</strong> </td>
-    <td style="padding:10px;">${offeredListing.listing.property.size}  ${offeredListing.listing.property.measure}</td>    
+    <td style="padding:10px;">${offeredListing.listing.property.size.intValue()}  ${offeredListing.listing.property.measure}</td>    
     
   </tr>
   <tr>

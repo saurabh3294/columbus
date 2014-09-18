@@ -612,9 +612,8 @@ public class LeadOfferService {
                         leadOfferInDB.getAgentId());
                 String heading = "More properties matching your requirement";
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
-               
-                if(leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId())
-                {
+
+                if (leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId()) {
                     sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
                 }
                 return newListingIds;
@@ -640,15 +639,11 @@ public class LeadOfferService {
             enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields, userId);
             Map<String, Object> map = new HashMap<>();
 
-            for(LeadOfferedListing leadOfferedListing : leadOfferInDB.getOfferedListings())
-            {
-                if(!newListingIds.contains(leadOfferedListing.getListingId()))
-                {
+            for (LeadOfferedListing leadOfferedListing : leadOfferInDB.getOfferedListings()) {
+                if (!newListingIds.contains(leadOfferedListing.getListingId())) {
                     leadOfferedListing.setListing(null);
                 }
             }
-            
-            
             FIQLSelector fiqlSelector = new FIQLSelector();
             fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
             List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
