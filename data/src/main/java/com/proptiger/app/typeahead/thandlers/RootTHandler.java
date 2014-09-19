@@ -38,6 +38,7 @@ public abstract class RootTHandler {
         typeahead.setDisplayText(displayText);
         typeahead.setRedirectUrl(redirectUrl);
         typeahead.setType(typeahead.getId());
+        typeahead.setIsSuggestion(true);
         return typeahead;
     }
     
