@@ -46,16 +46,14 @@ public class CronController {
     @RequestMapping("/v1/populate-notifications")
     public @ResponseBody
     APIResponse populateNotifications() throws Exception {
-        cronService.manageCallDueNotification();
-        cronService.populateTaskDueNotification();
-        cronService.populateTaskOverDueNotification();
+        cronService.populateNotification();
         return new APIResponse();
     }
 
     @RequestMapping("/v1/send-notifications")
     public @ResponseBody
     APIResponse sendNotifications() throws Exception {
-        cronService.manageCallDueNotification();
+        cronService.populateNotification();;
         cronService.sendTaskDueNotification();
         cronService.sendTaskOverDueNotification();
         return new APIResponse();

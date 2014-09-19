@@ -87,7 +87,7 @@ public class LeadTaskService {
     private ListingService               listingService;
 
     @Autowired
-    private NotificationDao          notificationDao;
+    private NotificationDao              notificationDao;
 
     @Autowired
     private NotificationService          notificationService;
@@ -170,6 +170,7 @@ public class LeadTaskService {
         finalTask.unlinkCircularLoop();
         return finalTask.populateTransientAttributes();
     }
+
     /**
      * manages task due notifications
      */
@@ -198,7 +199,6 @@ public class LeadTaskService {
         populateTaskDueNotificationForLeadOffer(leadOfferId);
         populateTaskOverDueNotificationForLeadOffer(leadOfferId);
     }
-    
 
     /**
      * manages task overdue notifications
@@ -222,7 +222,7 @@ public class LeadTaskService {
                 notificationTypeId,
                 NotificationService.allMasterTaskIdsButCall);
     }
-    
+
     /**
      * manages task due notification for one single lead offer... gets lock on
      * lead offer to avoid race conditions
@@ -249,7 +249,11 @@ public class LeadTaskService {
                 validTaskIdForNotification = nextTask.getId();
             }
         }
-        notificationService.deleteInvalidNotificationForLeadOffer(leadOfferId, validTaskIdForNotification, notificationTypeId);
+        notificationService.deleteInvalidNotificationForLeadOffer(
+                leadOfferId,
+                validTaskIdForNotification,
+                notificationTypeId,
+                Arrays.asList(LeadTaskName.Call.getId()));
     }
 
     /**
@@ -267,6 +271,12 @@ public class LeadTaskService {
         for (LeadOffer leadOffer : leadOffers) {
             populateTaskOverDueNotificationForLeadOffer(leadOffer.getId());
         }
+
+        notificationDao.deleteTaskNotificationNotScheduledBetween(
+                validStartTime,
+                validEndTime,
+                notificationTypeId,
+                LeadTaskName.getAllIds());
     }
 
     /**
@@ -294,10 +304,13 @@ public class LeadTaskService {
                 validTaskIdForNotification = nextTask.getId();
             }
         }
-        notificationService.deleteInvalidNotificationForLeadOffer(leadOfferId, validTaskIdForNotification, notificationTypeId);
+        notificationService.deleteInvalidNotificationForLeadOffer(
+                leadOfferId,
+                validTaskIdForNotification,
+                notificationTypeId,
+                LeadTaskName.getAllIds());
     }
-    
-    
+
     /**
      * manages task due notification for one single lead offer... gets lock on
      * lead offer to avoid race conditions
@@ -317,14 +330,19 @@ public class LeadTaskService {
         if (leadOffer.getNextTaskId() != null) {
             LeadTask nextTask = getLeadTask(leadOffer.getNextTaskId());
             Date scheduledTime = nextTask.getScheduledFor();
-            if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)) {
+            if (scheduledTime.after(validStartTime) && scheduledTime.before(validEndTime)
+                    && nextTask.getTaskStatus().getMasterTaskId() != LeadTaskName.Call.getId()) {
                 notificationService.createNotificationForTask(notificationTypeId, nextTask, false);
                 validTaskIdForNotification = nextTask.getId();
             }
         }
-        notificationService.deleteInvalidNotificationForLeadOffer(leadOfferId, validTaskIdForNotification, notificationTypeId);
+        notificationService.deleteInvalidNotificationForLeadOffer(
+                leadOfferId,
+                validTaskIdForNotification,
+                notificationTypeId,
+                notificationService.allMasterTaskIdsButCall);
     }
-    
+
     /**
      * manages actions which are supposed to happen post update of a task
      * 
@@ -358,22 +376,24 @@ public class LeadTaskService {
     private void manageMoveToPrimary(int leadId) {
         Lead lead = leadDao.findOne(leadId);
         // skipping interested in primary check
-//        if (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString())) {
-            List<LeadOffer> offers = leadOfferDao.findByLeadId(leadId);
-            boolean lost = true;
-            boolean primaryLead = false;
-            for (LeadOffer offer : offers) {
-                MasterLeadOfferStatus status = offer.getMasterLeadOfferStatus();
-                if (status.isOpen() || LeadOfferStatus.ClosedWon.equals(LeadOfferStatus.valueOf(status.getStatus()))) {
-                    lost = false;
-                }
-                if (!(leadTaskDao.findByofferIdAndStatusReason(offer.getId(), interestedInPrimary) == null)) {
-                    primaryLead = true;
-                }
+        // if
+        // (lead.getTransactionType().equals(ListingCategory.PrimaryAndResale.toString()))
+        // {
+        List<LeadOffer> offers = leadOfferDao.findByLeadId(leadId);
+        boolean lost = true;
+        boolean primaryLead = false;
+        for (LeadOffer offer : offers) {
+            MasterLeadOfferStatus status = offer.getMasterLeadOfferStatus();
+            if (status.isOpen() || LeadOfferStatus.ClosedWon.equals(LeadOfferStatus.valueOf(status.getStatus()))) {
+                lost = false;
             }
-            if (lost && primaryLead) {
-                notificationService.moveToPrimaryAsync(leadId);
+            if (!(leadTaskDao.findByofferIdAndStatusReason(offer.getId(), interestedInPrimary) == null)) {
+                primaryLead = true;
             }
+        }
+        if (lost && primaryLead) {
+            notificationService.moveToPrimaryAsync(leadId);
+        }
         // }
     }
 
@@ -647,7 +667,7 @@ public class LeadTaskService {
         int leadOfferId = leadOffer.getId();
         List<LeadTask> leadTasks = leadTaskDao.findByLeadOfferId(leadOfferId);
         if (leadTasks.isEmpty()) {
-            
+
             leadTask.setTaskStatusId(offerDefaultLeadTaskStatusMappingId);
             leadTask.setScheduledFor(DateUtil.getWorkingTimeAddedIntoDate(new Date(), PropertyReader
                     .getRequiredPropertyAsType(PropertyKeys.MARKETPLACE_DEFAULT_TASK_DURATION, Integer.class)));
