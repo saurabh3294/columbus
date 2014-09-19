@@ -649,7 +649,7 @@ public class LeadOfferService {
             List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
             Map<Integer, Listing> listingMap = new HashMap<>();
             for (Listing listing : listings) {
-                if (newListingIds.contains(listing.getId())) { 
+                if (newListingIds.contains(listing.getId())) {
                     listingMap.put(listing.getId(), listing);
                 }
             }
@@ -776,7 +776,15 @@ public class LeadOfferService {
         }
 
         for (LeadRequirement leadRequirement : leadRequirements) {
-            Integer localityId = leadRequirement.getLocalityId();
+            Integer localityId = null;
+
+            if (leadRequirement.getProject() != null && leadRequirement.getProjectId() != null) {
+                localityId = leadRequirement.getProject().getLocalityId();
+            }
+            else {
+                localityId = leadRequirement.getLocalityId();
+            }
+
             if (listingsByLocalityId.containsKey(localityId)) {
                 sortedList.addAll(listingsByLocalityId.get(localityId));
                 listingsByLocalityId.remove(localityId);

@@ -107,7 +107,7 @@
 		  	      #end
 	#end
    			     #if(${offeredListing.listing.floor}) 	
-    <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
+    <td width="91" style="padding:10px;"><strong>Floor</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.floor}</td>#end
   </tr>
 
@@ -140,11 +140,16 @@
 	    #if($b == 0)	
 		<td width="173" style="padding:10px;"><strong>Other Special Features</strong> </td>    		
 		<td colspan="3" style="padding:10px;">		
-		#set($b = 1)	
-	    #end				
+		#set($b = 1)
 		#if(${listingAmenity.amenity.verified} == true)		
-			${listingAmenity.amenity.amenityDisplayName},
+			${listingAmenity.amenity.amenityDisplayName}
 		#end
+	    #elseif($b == 1)
+		#if(${listingAmenity.amenity.verified} == true)		
+			,${listingAmenity.amenity.amenityDisplayName}
+		#end		
+	    #end				
+		
 	#end
 
 	#if($b==1)

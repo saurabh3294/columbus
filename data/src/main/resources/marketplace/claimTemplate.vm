@@ -162,7 +162,7 @@ $velocityUtility.roundToTwoDecimal($minBudgetInLacs) - $velocityUtility.roundToT
 		  	      #end
 	#end
    			     #if(${offeredListing.listing.floor}) 	
-    <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
+    <td width="91" style="padding:10px;"><strong>Floor</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.floor}</td>#end
   </tr>
 
@@ -195,11 +195,16 @@ $velocityUtility.roundToTwoDecimal($minBudgetInLacs) - $velocityUtility.roundToT
 	    #if($b == 0)	
 		<td width="173" style="padding:10px;"><strong>Other Special Features</strong> </td>    		
 		<td colspan="3" style="padding:10px;">		
-		#set($b = 1)	
-	    #end				
+		#set($b = 1)
 		#if(${listingAmenity.amenity.verified} == true)		
-			${listingAmenity.amenity.amenityDisplayName},
+			${listingAmenity.amenity.amenityDisplayName}
 		#end
+	    #elseif($b == 1)
+		#if(${listingAmenity.amenity.verified} == true)		
+			,${listingAmenity.amenity.amenityDisplayName}
+		#end		
+	    #end				
+		
 	#end
 
 	#if($b==1)
@@ -227,7 +232,7 @@ Yours sincerely, <br />
 
 The PropTiger Family<br />
 Web: <a href="#" style="color:#333;">http://www.proptiger.com</a><br />
-Email: <a href="#" style="color:#333;">cutomer.service@proptiger.com</a> |  Call: +91 92788 92788 <br /><br />
+Email: <a href="#" style="color:#333;">customer.service@proptiger.com</a> |  Call: +91 92788 92788 <br /><br />
 
 
 
