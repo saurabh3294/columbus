@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
@@ -20,6 +21,7 @@ public interface NotificationGeneratedDao extends PagingAndSortingRepository<Not
             NotificationStatus generatedNotificationStatus);
 
     @Modifying
+    @Transactional
     @Query("UPDATE NotificationGenerated set notificationStatus = ?2 WHERE notificationStatus = ?3 AND id = ?1 ")
     public Integer updateByNotificationStatusOnOldNotificationStatus(
             Integer id,

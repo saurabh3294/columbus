@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.MediumType;
@@ -29,6 +28,7 @@ public class NotificationSender {
     @Autowired
     private SentNotificationLogService   sentNotificationLogService;
 
+    
     public Integer sendNotification(MediumType medium) {
         Integer numberOfSendNtGen = 0;
         List<NotificationGenerated> nGeneratedList = nGeneratedService.getScheduledAndReadyNotifications(medium);
@@ -49,8 +49,7 @@ public class NotificationSender {
         return numberOfSendNtGen;
     }
 
-    @Transactional
-    private boolean sendAndUpdateNotificationGenerated(NotificationGenerated nGenerated, String template) {
+    public boolean sendAndUpdateNotificationGenerated(NotificationGenerated nGenerated, String template) {
         if (template == null) {
             logger.info("Template is null so discarding it to send for notificationGenerated Id : " + nGenerated
                     .getId());
