@@ -645,7 +645,7 @@ public class LeadOfferService {
                 }
             }
             FIQLSelector fiqlSelector = new FIQLSelector();
-            fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
+            fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster,amenityId,jsonDump");
             List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
             Map<Integer, Listing> listingMap = new HashMap<>();
             for (Listing listing : listings) {
