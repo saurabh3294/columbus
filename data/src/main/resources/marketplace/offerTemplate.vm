@@ -95,19 +95,19 @@
     
   </tr>
   <tr>
-#if(${offeredListing.listing.currentListingPrice.price})	
-    <td width="173" style="padding:10px;"><strong>Asking Price:</strong> </td>
+	#if (${offeredListing.listing.currentListingPrice.price}) 
+    <td width="91" style="padding:10px;"><strong>Asking Price:</strong> </td>
     <td style="padding:10px;">
-			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000)
+			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000.0)
 			      #if($priceInLacs > 100)
-				#set($priceInCrores = $priceInLacs/100)
-				$priceInCrores Cr.					
+				#set($priceInCrores = $priceInLacs/100.0)
+				$velocityUtility.roundToTwoDecimal($priceInCrores) Cr.					
 			      #else		
-				$priceInLacs Lacs </td>
+				$velocityUtility.roundToTwoDecimal($priceInLacs) Lacs </td>
 		  	      #end
-#end
+	#end
    			     #if(${offeredListing.listing.floor}) 	
-    <td width="91" style="padding:10px;"><strong>Floor</strong> </td>
+    <td width="173" style="padding:10px;"><strong>Floor</strong> </td>
     <td style="padding:10px;">${offeredListing.listing.floor}</td>#end
   </tr>
 
@@ -134,6 +134,7 @@
 </tr>
 #end
 <tr>
+    
 	#set($b = 0)
 	#foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 	    #if($b == 0)	

@@ -649,12 +649,15 @@ public class LeadOfferService {
             List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
             Map<Integer, Listing> listingMap = new HashMap<>();
             for (Listing listing : listings) {
-                listingMap.put(listing.getId(), listing);
+                if (newListingIds.contains(listing.getId())) { 
+                    listingMap.put(listing.getId(), listing);
+                }
             }
 
             leadOfferInDB.setAgent(userService.getUserWithContactNumberById(leadOfferInDB.getAgentId()));
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
+
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
                     leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());

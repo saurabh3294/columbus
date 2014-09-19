@@ -73,7 +73,7 @@
     
     Hi ${leadOffer.lead.client.fullName},<br /><br />
     Greetings from Proptiger.com and thank you for using Proptiger services.<br />
-    ${leadOffer.agent.fullName}, our trusted brokers has suggested properties as per your property requirements of 
+    ${leadOffer.agent.fullName}, our trusted broker has suggested properties as per your property requirements of 
 
 #foreach (${requirement} in ${leadOffer.lead.requirements})
 	#if (${requirement.project})    
@@ -84,17 +84,16 @@
 	
 	#end
 #end
-${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq.ft., 
+${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq ft, 
 
-#set($minBudgetInLacs = ${leadOffer.lead.minBudget}/100000)
-#set($maxBudgetInLacs = ${leadOffer.lead.maxBudget}/100000)
-
+#set($minBudgetInLacs = ${leadOffer.lead.minBudget}/100000.0)
+#set($maxBudgetInLacs = ${leadOffer.lead.maxBudget}/100000.0)
 #if($minBudgetInLacs > 100)
-#set($minBudgetInCrores = $minBudgetInLacs/100)
-#set($maxBudgetInCrores = $maxBudgetInLacs/100)
-$minBudgetInCrores - $maxBudgetInCrores Cr.
+#set($minBudgetInCrores = $minBudgetInLacs/100.0)
+#set($maxBudgetInCrores = $maxBudgetInLacs/100.0)
+$velocityUtility.roundToTwoDecimal($minBudgetInCrores) - $velocityUtility.roundToTwoDecimal($maxBudgetInCrores) Cr.
 #else
-$minBudgetInLacs - $maxBudgetInLacs Lacs.
+$velocityUtility.roundToTwoDecimal($minBudgetInLacs) - $velocityUtility.roundToTwoDecimal($maxBudgetInLacs) Lacs.
 #end
  You can find the property details below.
     
@@ -154,12 +153,12 @@ $minBudgetInLacs - $maxBudgetInLacs Lacs.
 	#if (${offeredListing.listing.currentListingPrice.price}) 
     <td width="91" style="padding:10px;"><strong>Asking Price:</strong> </td>
     <td style="padding:10px;">
-			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000)
+			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000.0)
 			      #if($priceInLacs > 100)
-				#set($priceInCrores = $priceInLacs/100)
-				$priceInCrores Cr.					
+				#set($priceInCrores = $priceInLacs/100.0)
+				$velocityUtility.roundToTwoDecimal($priceInCrores) Cr.					
 			      #else		
-				$priceInLacs Lacs </td>
+				$velocityUtility.roundToTwoDecimal($priceInLacs) Lacs </td>
 		  	      #end
 	#end
    			     #if(${offeredListing.listing.floor}) 	
