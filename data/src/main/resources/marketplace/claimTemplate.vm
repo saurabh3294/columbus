@@ -193,7 +193,7 @@ $velocityUtility.roundToTwoDecimal($minBudgetInLacs) - $velocityUtility.roundToT
 	#set($b = 0)
 	#foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 	    #if($b == 0)	
-		<td width="173" style="padding:10px;"><strong>Other Splecial Features</strong> </td>    		
+		<td width="173" style="padding:10px;"><strong>Other Special Features</strong> </td>    		
 		<td colspan="3" style="padding:10px;">		
 		#set($b = 1)	
 	    #end				
