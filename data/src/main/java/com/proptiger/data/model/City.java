@@ -152,15 +152,19 @@ public class City extends BaseModel {
     private List<Locality>       localities;
 
     @Transient
+    @Field(value = "LOCALITY_MAX_SAFETY_SCORE")
     private Double               localityMaxSafetyScore;
 
     @Transient
+    @Field(value = "LOCALITY_MIN_SAFETY_SCORE")
     private Double               localityMinSafetyScore;
 
     @Transient
+    @Field(value = "LOCALITY_MAX_LIVABILITY_SCORE")
     private Double               localityMaxLivabilityScore;
 
     @Transient
+    @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
     private Double               localityMinLivabilityScore;
     
     @Transient
