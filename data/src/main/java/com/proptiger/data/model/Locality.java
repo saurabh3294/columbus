@@ -263,15 +263,19 @@ public class Locality extends BaseModel {
     private List<Image>                     landmarkImages;
 
     @Transient
+    @Field(value = "PROJECT_MAX_SAFETY_SCORE")
     private Double                          projectMaxSafetyScore;
 
     @Transient
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")
     private Double                          projectMinSafetyScore;
 
     @Transient
+    @Field(value = "PROJECT_MAX_LIVABILITY_SCORE")
     private Double                          projectMaxLivabilityScore;
 
     @Transient
+    @Field(value = "PROJECT_MIN_LIVABILITY_SCORE")
     private Double                          projectMinLivabilityScore;
 
     @Transient
