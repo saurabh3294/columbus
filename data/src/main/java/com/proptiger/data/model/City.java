@@ -168,6 +168,7 @@ public class City extends BaseModel {
     private Double               localityMinLivabilityScore;
     
     @Transient
+    @Field(value = "CITY_LOCALITY_COUNT")
     private Integer              cityLocalityCount;
 
     public Integer getId() {
