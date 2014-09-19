@@ -142,6 +142,22 @@ public class NotificationMessageService {
         payload.setExtraAttributes(extraAttributes);
         return new NotificationMessage(userId, payload, notiType);
     }
+    
+    /**
+     * This method is used by external clients for creating Notification
+     * Message and adding payloadMap in it
+     * 
+     * @param notificationType
+     * @param userId
+     * @param payloadMap
+     * @return
+     */
+    public NotificationMessage createNotificationMessage(String notificationType, int userId, HashMap<String, Object> payloadMap) {
+        NotificationType notiType = notiTypeService.findByName(notificationType);
+        NotificationMessagePayload payload = new NotificationMessagePayload();
+        payload.setExtraAttributes(payloadMap);
+        return new NotificationMessage(userId, payload, notiType);
+    }
 
     /**
      * This method is used by marketplace project for creating Notification
@@ -309,4 +325,21 @@ public class NotificationMessageService {
             }
         }
     }
+
+    public NotificationTypeService getNotiTypeService() {
+        return notiTypeService;
+    }
+
+    public void setNotiTypeService(NotificationTypeService notiTypeService) {
+        this.notiTypeService = notiTypeService;
+    }
+
+    public UserNotificationTypeSubscriptionService getUserNTSubscriptionService() {
+        return userNTSubscriptionService;
+    }
+
+    public void setUserNTSubscriptionService(UserNotificationTypeSubscriptionService userNTSubscriptionService) {
+        this.userNTSubscriptionService = userNTSubscriptionService;
+    }
+    
 }
