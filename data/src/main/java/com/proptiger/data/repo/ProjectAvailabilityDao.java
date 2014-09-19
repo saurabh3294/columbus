@@ -13,5 +13,5 @@ import com.proptiger.data.model.ProjectAvailability;
  * 
  */
 public interface ProjectAvailabilityDao extends PagingAndSortingRepository<ProjectAvailability, Integer> {
-    Integer getSumCurrentAvailabilityFromSupplyIds(Set<Integer> supplyIds);
+    Integer getSumCurrentAvailabilityFromSupplyIds(Set<Integer> supplyIds, String endMonth);
 }
