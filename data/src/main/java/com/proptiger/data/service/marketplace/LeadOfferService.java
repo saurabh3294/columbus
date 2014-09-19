@@ -612,7 +612,10 @@ public class LeadOfferService {
                         leadOfferInDB.getAgentId());
                 String heading = "More properties matching your requirement";
                 String templatePath = marketplaceTemplateBasePath + offerTemplate;
-                sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
+
+                if (leadOfferInDB.getStatusId() != LeadOfferStatus.Offered.getId()) {
+                    sendMailToClient(leadOfferInDB, templatePath, heading, newListingIds, userId);
+                }
                 return newListingIds;
             }
         }
@@ -636,6 +639,11 @@ public class LeadOfferService {
             enrichLeadOffers(Collections.singletonList(leadOfferInDB), fields, userId);
             Map<String, Object> map = new HashMap<>();
 
+            for (LeadOfferedListing leadOfferedListing : leadOfferInDB.getOfferedListings()) {
+                if (!newListingIds.contains(leadOfferedListing.getListingId())) {
+                    leadOfferedListing.setListing(null);
+                }
+            }
             FIQLSelector fiqlSelector = new FIQLSelector();
             fiqlSelector.setFields("id,listingAmenities,amenity,amenityDisplayName,amenityMaster");
             List<Listing> listings = listingService.getListings(leadOfferInDB.getAgentId(), fiqlSelector).getResults();
@@ -736,13 +744,14 @@ public class LeadOfferService {
     private List<Listing> sortMatchingListings(List<Listing> listings, List<LeadRequirement> leadRequirements) {
         List<Listing> sortedList = new ArrayList<>();
         Map<Integer, List<Listing>> listingsByProjectId = new HashMap<>();
+        Map<Integer, List<Listing>> listingsByLocalityId = new HashMap<>();
+        List<Listing> remainingAfterProjectSort = new ArrayList<>();
 
         for (Listing listing : listings) {
             int projectId = listing.getProperty().getProjectId();
             if (!listingsByProjectId.containsKey(projectId)) {
                 listingsByProjectId.put(projectId, new ArrayList<Listing>());
             }
-
             listingsByProjectId.get(projectId).add(listing);
         }
 
@@ -755,9 +764,36 @@ public class LeadOfferService {
         }
 
         for (List<Listing> remainingListings : listingsByProjectId.values()) {
-            sortedList.addAll(remainingListings);
+            remainingAfterProjectSort.addAll(remainingListings);
         }
 
+        for (Listing listing : remainingAfterProjectSort) {
+            int localityId = listing.getProperty().getProject().getLocalityId();
+            if (!listingsByLocalityId.containsKey(localityId)) {
+                listingsByLocalityId.put(localityId, new ArrayList<Listing>());
+            }
+            listingsByLocalityId.get(localityId).add(listing);
+        }
+
+        for (LeadRequirement leadRequirement : leadRequirements) {
+            Integer localityId = null;
+
+            if (leadRequirement.getProject() != null && leadRequirement.getProjectId() != null) {
+                localityId = leadRequirement.getProject().getLocalityId();
+            }
+            else {
+                localityId = leadRequirement.getLocalityId();
+            }
+
+            if (listingsByLocalityId.containsKey(localityId)) {
+                sortedList.addAll(listingsByLocalityId.get(localityId));
+                listingsByLocalityId.remove(localityId);
+            }
+        }
+
+        for (List<Listing> remainingListings : listingsByLocalityId.values()) {
+            sortedList.addAll(remainingListings);
+        }
         return sortedList;
     }
 

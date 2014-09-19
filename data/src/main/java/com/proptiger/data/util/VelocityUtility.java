@@ -1,5 +1,6 @@
 package com.proptiger.data.util;
 
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,4 +34,10 @@ public class VelocityUtility {
     public long round(Double val){
         return Math.round(val);
     }
+    public String roundToTwoDecimal(Double val)
+    {
+        DecimalFormat df = new DecimalFormat("#.##");
+        return df.format(val);
+    }
+    
 }

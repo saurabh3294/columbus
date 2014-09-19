@@ -65,30 +65,24 @@ public class CronService {
         }
     }
 
-    @Scheduled(initialDelay = 20000, fixedDelay = 300000)
-    public void manageCallDueNotification() {
+    @Scheduled(
+            initialDelayString = "${marketplace.notification.initial.delay}",
+            fixedDelayString = "${marketplace.notification.fixed.delay}")
+    public void populateNotification() {
         leadTaskService.manageCallDueNotification();
-    }
-
-    @Scheduled(initialDelay = 30000, fixedDelay = 1800000)
-    public void populateTaskDueNotification() {
         leadTaskService.populateTaskDueNotification();
-    }
-
-    @Scheduled(initialDelay = 40000, fixedDelay = 1800000)
-    public void populateTaskOverDueNotification() {
         leadTaskService.populateTaskOverDueNotification();
     }
 
     @Scheduled(cron = "0 0 9 * * ?")
     public void sendTaskOverDueNotification() {
-        leadTaskService.populateTaskOverDueNotification();
+        populateNotification();
         notificationService.sendTaskOverDueNotification();
     }
 
     @Scheduled(cron = "0 0 9,18 * * ?")
     public void sendTaskDueNotification() {
-        leadTaskService.populateTaskDueNotification();
+        populateNotification();
         notificationService.sendTaskDueNotification();
     }
 

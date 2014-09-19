@@ -350,11 +350,12 @@ public class NotificationService {
     public void deleteInvalidNotificationForLeadOffer(
             int leadOfferId,
             int validTaskIdForNotification,
-            int notificationTypeId) {
+            int notificationTypeId,
+            List<Integer> masterTaskIds) {
         List<Notification> notifications = notificationDao.getInvalidTaskNotificationForLeadOffer(
                 leadOfferId,
                 validTaskIdForNotification,
-                notificationTypeId);
+                notificationTypeId, masterTaskIds);
         notificationDao.delete(notifications);
     }
 
