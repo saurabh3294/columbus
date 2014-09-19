@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.MediumType;
@@ -17,7 +16,9 @@ import com.proptiger.data.notification.service.SentNotificationLogService;
 
 @Service
 public class NotificationSender {
+
     private static Logger                logger = LoggerFactory.getLogger(NotificationSender.class);
+
     @Autowired
     private TemplateGenerator            templateGenerator;
 
@@ -27,7 +28,7 @@ public class NotificationSender {
     @Autowired
     private SentNotificationLogService   sentNotificationLogService;
 
-    @Transactional
+    
     public Integer sendNotification(MediumType medium) {
         Integer numberOfSendNtGen = 0;
         List<NotificationGenerated> nGeneratedList = nGeneratedService.getScheduledAndReadyNotifications(medium);
@@ -35,29 +36,8 @@ public class NotificationSender {
         for (NotificationGenerated nGenerated : nGeneratedList) {
             try {
                 String template = templateGenerator.generatePopulatedTemplate(nGenerated);
-                if (template == null) {
-                    logger.info("Template is null so discarding it to send for notificationGenerated Id : " + nGenerated
-                            .getId());
-                }
-                else {
-                    ForumUser forumUser = nGenerated.getForumUser();
-                    nGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
-                            .send(template, forumUser, nGenerated.getNotificationType().getName());
-                    // Sent NotificationGenerated logging handling will be done
-                    // later.
-                    // currently notification status of sent NG is marked as
-                    // sent in DB.
-                    /*
-                     * sentNotificationLogService.save(new
-                     * SentNotificationLog(ntGenerated.getId(), ntGenerated
-                     * .getNotificationMedium().getId(),
-                     * ntGenerated.getNotificationMessage().getForumUser()
-                     * .getUserId(), new Date()));
-                     */
-                    nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(
-                            nGenerated.getId(),
-                            NotificationStatus.Sent,
-                            nGenerated.getNotificationStatus());
+
+                if (sendAndUpdateNotificationGenerated(nGenerated, template)) {
                     numberOfSendNtGen++;
                 }
             }
@@ -67,5 +47,35 @@ public class NotificationSender {
             }
         }
         return numberOfSendNtGen;
+    }
+
+    public boolean sendAndUpdateNotificationGenerated(NotificationGenerated nGenerated, String template) {
+        if (template == null) {
+            logger.info("Template is null so discarding it to send for notificationGenerated Id : " + nGenerated
+                    .getId());
+            return false;
+        }
+
+        ForumUser forumUser = nGenerated.getForumUser();
+        nGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
+                .send(template, forumUser, nGenerated.getNotificationType().getName());
+        // Sent NotificationGenerated logging handling will be done
+        // later.
+        // currently notification status of sent NG is marked as
+        // sent in DB.
+        /*
+         * sentNotificationLogService.save(new
+         * SentNotificationLog(ntGenerated.getId(), ntGenerated
+         * .getNotificationMedium().getId(),
+         * ntGenerated.getNotificationMessage().getForumUser() .getUserId(), new
+         * Date()));
+         */
+        nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(
+                nGenerated.getId(),
+                NotificationStatus.Sent,
+                nGenerated.getNotificationStatus());
+
+        return true;
+
     }
 }

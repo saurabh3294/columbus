@@ -156,4 +156,12 @@ public class NotificationTypeGeneratedService {
         saveOrUpdateType(ntGenerated);
     }
 
+    public EventTypeToNotificationTypeMappingService getNtMappingService() {
+        return ntMappingService;
+    }
+
+    public void setNtMappingService(EventTypeToNotificationTypeMappingService ntMappingService) {
+        this.ntMappingService = ntMappingService;
+    }
+
 }

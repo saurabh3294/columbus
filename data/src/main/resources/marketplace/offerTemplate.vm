@@ -81,7 +81,7 @@
   
   <table width="580" border="0" cellspacing="0" cellpadding="0" align="center" style="border-radius:5px; border:1px solid #dddddd;">
   <tr>
-    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name} ${offeredListing.listing.property.project.name}</a></td>
+    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><span href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name} ${offeredListing.listing.property.project.name}</span></td>
     </tr>
   <tr>
     <td width="173" style="padding:10px;"><strong>Locality:</strong> </td>
@@ -174,8 +174,7 @@
   <td>&nbsp;</td>
   </tr>
 #end
-#end
-</table>  
+#end  
    <tr>
   <td style="padding:10px; line-height:20px;">Let me know if you need any more details for this project.<br /><br />
  
