@@ -47,7 +47,7 @@ public class ProjectPhaseServiceTest extends AbstractTest {
         projectPhaseService.setProjectPhaseDao(projectPhaseDao);
 
         ProjectPhase phase;
-        phase = projectPhaseService.getPhaseDetail(504235, 1008416, DataVersion.Website);
+        phase = projectPhaseService.getPhaseDetail(504235, 1008416, DataVersion.Website, null);
 
         for (Property property : phase.getProperties()) {
             if (property.getPropertyId() == 5010148) {

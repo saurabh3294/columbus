@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import com.proptiger.data.enums.Application;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.exception.AuthenticationException;
+import com.proptiger.data.service.ApplicationNameService;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * Util class to connect memcache and get the values from memcache
@@ -57,14 +59,15 @@ public class CacheClientUtil {
     }
 
     /**
-     * Get user id from memcache based on key
-     * sessionId is expected to be Constants.PHPSESSID_KEY
+     * Get user id from memcache based on key sessionId is expected to be
+     * Constants.PHPSESSID_KEY
+     * 
      * @param sessionId
      * @return
      */
     public static ActiveUser getUserInfoFromMemcache(String sessionId) {
         if (sessionId == null) {
-            throw new AuthenticationException("Session id null");
+            throw new ProAPIException("Session id null");
         }
         ActiveUser userInfo = null;// new ActiveUser();
         Integer userId = null;
@@ -97,10 +100,20 @@ public class CacheClientUtil {
             }
         }
         if (userId == null) {
-            throw new AuthenticationException("session data not found in memcache for sessionkey " + sessionId);
+            throw new ProAPIException("session data not found in memcache for sessionkey " + sessionId);
         }
         else {
-            userInfo = new ActiveUser(userId, email, "dummy", true, true, true, true,  new ArrayList<GrantedAuthority>());
+            Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
+            userInfo = new ActiveUser(
+                    userId,
+                    email,
+                    "dummy",
+                    true,
+                    true,
+                    true,
+                    true,
+                    SecurityContextUtils.getUserAuthority(applicationType),
+                    applicationType);
         }
         return userInfo;
     }

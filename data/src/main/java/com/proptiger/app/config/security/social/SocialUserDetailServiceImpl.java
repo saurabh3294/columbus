@@ -12,9 +12,12 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.social.security.SocialUserDetailsService;
 
+import com.proptiger.data.enums.Application;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.service.ApplicationNameService;
+import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Social user details service
@@ -34,6 +37,7 @@ public class SocialUserDetailServiceImpl implements SocialUserDetailsService {
         ForumUser forumUser = forumUserDao.findByUserId(Integer.parseInt(userId));
         if (forumUser != null) {
             String password = forumUser.getPassword() == null ? "" : forumUser.getPassword();
+            Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
             socialUser = new ActiveUser(
                     forumUser.getUserId(),
                     forumUser.getEmail(),
@@ -42,7 +46,8 @@ public class SocialUserDetailServiceImpl implements SocialUserDetailsService {
                     true,
                     true,
                     true,
-                    new ArrayList<GrantedAuthority>());
+                    SecurityContextUtils.getUserAuthority(applicationType),
+                    applicationType);
         }
         else {
             logger.error("User not found with id {}", userId);

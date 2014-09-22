@@ -182,8 +182,6 @@ public class Constants {
 
         public static final String USER_API_REGEX               = ".*/user/.*";
 
-        public static final String AUTH_API_REGEX               = ".*/auth/.*";
-
         public static final String REMEMBER_ME_PARAMETER        = "rememberme";
 
         public static final String REMEMBER_ME_COOKIE           = "api.rememberme.cookie";
@@ -210,5 +208,14 @@ public class Constants {
         public static final String HASH_SEPERATOR               = "#$$#";
 
         public static final String WARN_ILLEGAL_API_ACCESS_MSG  = "illegal api access, use with _shhkey and server-time header";
+
+        /**
+         * API regex that requires PRE_AUTH_USER authority to access
+         */
+        public static final String OTP_VALIDATE_API_REGEX = ".*/otp/validate.*";
+        /*
+         * API regex that does not require authentication
+         */
+        public static final String NON_AUTHENTICATED_API_REGEX = "^((?!user|otp).)*$";
     }
 }

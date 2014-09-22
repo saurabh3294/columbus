@@ -81,7 +81,7 @@
   
   <table width="580" border="0" cellspacing="0" cellpadding="0" align="center" style="border-radius:5px; border:1px solid #dddddd;">
   <tr>
-    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><a href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name} ${offeredListing.listing.property.project.name}</a></td>
+    <td bgcolor="#efefef" colspan="4" style="font-family:Arial, Helvetica, sans-serif; color:#3f3f3f; border-radius:5px; padding:10px; font-size:13px;"><span href="#" style="font-size:16px;">${offeredListing.listing.property.project.builder.name} ${offeredListing.listing.property.project.name}</span></td>
     </tr>
   <tr>
     <td width="173" style="padding:10px;"><strong>Locality:</strong> </td>
@@ -112,51 +112,57 @@
   </tr>
 
 
+
+
+
+
 #set($a = 1)
+#set($powerBackup = 0)
+#set($carParking = 0)
+#set($clubHouse = 0)
 #foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
 
-    #if(${listingAmenity.amenity.verified} == false)		
-	#if ($a == 1)    
-	    <tr>    
-	    <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
-	    <td style="padding:10px;">Available</td>
-	#set($a = 2)
-	#elseif ($a == 2)
-	    <td style="padding:10px;"><strong>${listingAmenity.amenity.amenityDisplayName}</strong></td>
-	    <td style="padding:10px;">Available</td>
-	    </tr>
-	#set($a = 1)
-	#end	
-    #end	
-  
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 13)		
+    	#set($powerBackup = 1)
+    #end		
+
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 17)		
+    	#set($carParking = 1)
+    #end
+
+    #if(${listingAmenity.amenity.amenityMaster.amenityId} == 4)		
+    	#set($clubHouse = 1)
+    #end		
+
 #end  
-#if ($a == 2)
-</tr>
-#end
-<tr>
-    
-	#set($b = 0)
-	#foreach (${listingAmenity} in ${listingObjectWithAmenities.get(${offeredListing.listing.id}).listingAmenities})
-	    #if($b == 0)	
-		<td width="173" style="padding:10px;"><strong>Other Special Features</strong> </td>    		
-		<td colspan="3" style="padding:10px;">		
-		#set($b = 1)
-		#if(${listingAmenity.amenity.verified} == true)		
-			${listingAmenity.amenity.amenityDisplayName}
-		#end
-	    #elseif($b == 1)
-		#if(${listingAmenity.amenity.verified} == true)		
-			,${listingAmenity.amenity.amenityDisplayName}
-		#end		
-	    #end				
-		
-	#end
 
-	#if($b==1)
-	</td>
-	#end
+	    <tr>    
+	    <td style="padding:10px;"><strong>Power Backup</strong></td>
+	    <td style="padding:10px;">#if ($powerBackup == 1) 
+					Available 
+				      #else
+					Not Available
+				      #end	
+ </td>
+	    <td style="padding:10px;"><strong>Parking</strong></td>
+	    <td style="padding:10px;">#if ($carParking == 1) 
+					Available 
+				      #else
+					Not Available
+				      #end</td>
+	    </tr>
 
-    </tr>
+	    <tr>    
+	    <td style="padding:10px;"><strong>Club Membership</strong></td>
+	    <td style="padding:10px;">#if ($clubHouse == 1) 
+					Available 
+				      #else
+					Not Available
+				      #end	
+ </td>
+	    
+	    </tr>	
+
 </table>
 
   
@@ -168,8 +174,7 @@
   <td>&nbsp;</td>
   </tr>
 #end
-#end
-</table>  
+#end  
    <tr>
   <td style="padding:10px; line-height:20px;">Let me know if you need any more details for this project.<br /><br />
  
