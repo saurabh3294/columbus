@@ -135,12 +135,9 @@ public class NotificationMessageService {
      * @return
      */
     public NotificationMessage createNotificationMessage(String notificationType, int userId, String template) {
-        NotificationType notiType = notiTypeService.findByName(notificationType);
-        NotificationMessagePayload payload = new NotificationMessagePayload();
-        Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Template.name(), template);
-        payload.setExtraAttributes(extraAttributes);
-        return new NotificationMessage(userId, payload, notiType);
+        Map<String, Object> payloadMap = new HashMap<String, Object>();
+        payloadMap.put(Tokens.Template.name(), template);
+        return createNotificationMessage(notificationType, userId, payloadMap);
     }
     
     /**
@@ -152,8 +149,13 @@ public class NotificationMessageService {
      * @param payloadMap
      * @return
      */
-    public NotificationMessage createNotificationMessage(String notificationType, int userId, HashMap<String, Object> payloadMap) {
-        NotificationType notiType = notiTypeService.findByName(notificationType);
+    public NotificationMessage createNotificationMessage(String notificationType, int userId, Map<String, Object> payloadMap) {
+        NotificationType notiType = null;
+        if (notificationType == null) {
+            notiType = notiTypeService.findDefaultNotificationType();
+        } else {
+            notiType = notiTypeService.findByName(notificationType);
+        }
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setExtraAttributes(payloadMap);
         return new NotificationMessage(userId, payload, notiType);
@@ -169,13 +171,10 @@ public class NotificationMessageService {
      * @return
      */
     public NotificationMessage createNotificationMessage(int userId, String subject, String body) {
-        NotificationType notiType = notiTypeService.findDefaultNotificationType();
-        NotificationMessagePayload payload = new NotificationMessagePayload();
-        Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Subject.name(), subject);
-        extraAttributes.put(Tokens.Body.name(), body);
-        payload.setExtraAttributes(extraAttributes);
-        return new NotificationMessage(userId, payload, notiType);
+        Map<String, Object> payloadMap = new HashMap<String, Object>();
+        payloadMap.put(Tokens.Subject.name(), subject);
+        payloadMap.put(Tokens.Body.name(), body);
+        return createNotificationMessage(null, userId, payloadMap);
     }
 
     public NotificationMessage createNotificationMessage(Integer notificationTypeId, Integer userId, Object primaryKeyId) {

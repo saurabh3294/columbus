@@ -10,6 +10,7 @@ import com.proptiger.data.notification.sender.EmailSender;
 import com.proptiger.data.notification.sender.MarketplaceAppSender;
 import com.proptiger.data.notification.sender.MediumSender;
 import com.proptiger.data.notification.sender.ProptigerAppSender;
+import com.proptiger.data.notification.sender.SmsSender;
 
 public class MediumTypeConfig extends BaseModel {
     
@@ -20,6 +21,7 @@ public class MediumTypeConfig extends BaseModel {
         mediumTypeConfigMap = new HashMap<MediumType, MediumTypeConfig>();
         mediumTypeConfigMap.put(MediumType.Email, new MediumTypeConfig(EmailSender.class));
         mediumTypeConfigMap.put(MediumType.Android, new MediumTypeConfig(AndroidSender.class));
+        mediumTypeConfigMap.put(MediumType.Sms, new MediumTypeConfig(SmsSender.class));
         mediumTypeConfigMap.put(MediumType.ProptigerApp, new MediumTypeConfig(ProptigerAppSender.class));
         mediumTypeConfigMap.put(MediumType.MarketplaceApp, new MediumTypeConfig(MarketplaceAppSender.class));
     }
