@@ -498,18 +498,18 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_SOCIETY_SCORE")
     private Float                   projectSocietyScore;
-    
+
     @Transient
     @Field(value = "PROJECT_SAFETY_RANK")
     private Integer                 projectSafetyRank;
-    
+
     @Transient
     @Field(value = "PROJECT_LIVABILITY_RANK")
     private Integer                 projectLivabilityRank;
-    
+
     @Transient
     private boolean                 has3DImages;
-    
+
     @JsonIgnore
     @Column(name = "RESIDENTIAL_FLAG")
     @Enumerated(EnumType.STRING)
@@ -517,32 +517,32 @@ public class Project extends BaseModel {
 
     @Transient
     @Field("IMAGE_TYPE_COUNT")
-    private Map<String, Integer>	 imageTypeCount;
-    
-    @Transient
-    private Integer maxDiscount;
-    
-    @Transient
-    private Integer couponsInventoryLeft = 0;
-    
-    @Transient
-    private Integer totalCouponsInventory = 0;
+    private Map<String, Integer>    imageTypeCount;
 
     @Transient
-    private Double minDiscountPrice;
-    
+    private Integer                 maxDiscount;
+
     @Transient
-    private Double maxDiscountPrice;
-    
+    private Integer                 couponsInventoryLeft;
+
     @Transient
-    private Double minResaleOrDiscountPrice;
-    
+    private Integer                 totalCouponsInventory;
+
     @Transient
-    private Double maxResaleOrDiscountPrice;
-    
+    private Double                  minDiscountPrice;
+
     @Transient
-    private boolean isCouponAvailable;
-    
+    private Double                  maxDiscountPrice;
+
+    @Transient
+    private Double                  minResaleOrDiscountPrice;
+
+    @Transient
+    private Double                  maxResaleOrDiscountPrice;
+
+    @Transient
+    private Boolean                 isCouponAvailable;
+
     public int getProjectId() {
         return projectId;
     }
@@ -792,7 +792,7 @@ public class Project extends BaseModel {
     public String getProjectStatus() {
         return projectStatus;
     }
-    
+
     public void setProjectStatus(String projectStatus) {
         this.projectStatus = projectStatus;
     }
@@ -1348,16 +1348,16 @@ public class Project extends BaseModel {
         this.maxResaleOrDiscountPrice = maxResaleOrDiscountPrice;
     }
 
-    public boolean isCouponAvailable() {
+    public Boolean isCouponAvailable() {
         return isCouponAvailable;
     }
 
-    public void setCouponAvailable(boolean isCouponAvailable) {
+    public void setCouponAvailable(Boolean isCouponAvailable) {
         this.isCouponAvailable = isCouponAvailable;
     }
 
     public Map<String, Integer> getImageTypeCount() {
         return imageTypeCount;
     }
-        
+
 }
