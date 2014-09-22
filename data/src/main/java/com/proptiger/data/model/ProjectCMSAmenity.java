@@ -55,7 +55,6 @@ public class ProjectCMSAmenity extends BaseModel {
     private AmenityMaster     amenityMaster;
     
     @Column(name = "VERIFIED")
-    @JsonIgnore
     private boolean verified;
 
     public long getId() {

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,7 @@ public class NotificationService {
     @Autowired
     NotificationMessageService             notificationMessageService;
 
-    public static final List<Integer>     allMasterTaskIdsButCall = new ArrayList<>();
+    public static final List<Integer>      allMasterTaskIdsButCall = new ArrayList<>();
 
     private static final String            defaultNotificationType = "marketplace_default";
 
@@ -87,8 +88,7 @@ public class NotificationService {
     @Autowired
     MailSender                             mailSender;
 
-    @Autowired
-    private static Logger                  logger;
+    private static Logger                  logger                  = LoggerFactory.getLogger(NotificationService.class);
 
     static {
         for (LeadTaskName leadTask : LeadTaskName.values()) {
@@ -176,7 +176,6 @@ public class NotificationService {
         }
         return finalNotificationTypes;
     }
-
 
     /**
      * 
@@ -351,11 +350,12 @@ public class NotificationService {
     public void deleteInvalidNotificationForLeadOffer(
             int leadOfferId,
             int validTaskIdForNotification,
-            int notificationTypeId) {
+            int notificationTypeId,
+            List<Integer> masterTaskIds) {
         List<Notification> notifications = notificationDao.getInvalidTaskNotificationForLeadOffer(
                 leadOfferId,
                 validTaskIdForNotification,
-                notificationTypeId);
+                notificationTypeId, masterTaskIds);
         notificationDao.delete(notifications);
     }
 
@@ -616,7 +616,7 @@ public class NotificationService {
     }
 
     public void removeNotification(LeadOffer leadOfferInDB) {
-        
+
         Notification notification = notificationDao.findByObjectIdAndNotificationTypeId(
                 leadOfferInDB.getId(),
                 NotificationType.LeadOffered.getId());

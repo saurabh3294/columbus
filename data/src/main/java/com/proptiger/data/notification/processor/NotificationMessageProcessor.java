@@ -92,4 +92,12 @@ public abstract class NotificationMessageProcessor {
         return payloadMap;
     }
 
+    public PortfolioService getPortfolioService() {
+        return portfolioService;
+    }
+
+    public void setPortfolioService(PortfolioService portfolioService) {
+        this.portfolioService = portfolioService;
+    }
+
 }

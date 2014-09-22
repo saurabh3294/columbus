@@ -54,6 +54,7 @@ public class ProjectSuggestions {
             obj.setRedirectUrl(mapEntry.getValue());
             obj.setId(templateId);
             obj.setType(obj.getId());
+            obj.setIsSuggestion(true);
             suggestions.add(obj);
         }
 

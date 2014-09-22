@@ -13,7 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
-import com.proptiger.data.model.trend.InventoryPriceTrend;
+import com.proptiger.data.model.trend.Trend;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.util.Constants;
 
@@ -29,14 +29,14 @@ public class TrendDao {
     }
 
     @Cacheable(value = Constants.CacheName.CACHE)
-    public List<InventoryPriceTrend> getTrend(FIQLSelector selector) {
+    public List<Trend> getTrend(FIQLSelector selector) {
         EntityManager entityManager = emf.createEntityManager();
-        AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
+        AbstractQueryBuilder<Trend> builder = new JPAQueryBuilder<>(
                 entityManager,
-                InventoryPriceTrend.class);
+                Trend.class);
         HashMap<String, String> fieldSwitchMap = trendDaoFieldSwitcher.getFieldSwitchMapForSelectorFields(selector);
         builder.buildQuery(modifyWavgFieldsInSelector(selector, fieldSwitchMap));
-        List<InventoryPriceTrend> modifyWavgKeysInResultSet = modifyWavgKeysInResultSet(
+        List<Trend> modifyWavgKeysInResultSet = modifyWavgKeysInResultSet(
                 builder.retrieveResults(),
                 fieldSwitchMap);
         entityManager.close();
@@ -46,9 +46,9 @@ public class TrendDao {
     @Cacheable(value = Constants.CacheName.CACHE)
     public long getResultCount(FIQLSelector selector) {
         EntityManager entityManager = emf.createEntityManager();
-        AbstractQueryBuilder<InventoryPriceTrend> builder = new JPAQueryBuilder<>(
+        AbstractQueryBuilder<Trend> builder = new JPAQueryBuilder<>(
                 entityManager,
-                InventoryPriceTrend.class);
+                Trend.class);
         builder.buildQuery(modifyWavgFieldsInSelector(selector, trendDaoFieldSwitcher.getFieldSwitchMapForSelectorFields(selector)));
         long count = builder.retrieveCount();
         entityManager.close();
@@ -71,11 +71,11 @@ public class TrendDao {
     }
 
     // XXX - Hack to switch column names without clients knowing about it
-    private List<InventoryPriceTrend> modifyWavgKeysInResultSet(
-            List<InventoryPriceTrend> list,
+    private List<Trend> modifyWavgKeysInResultSet(
+            List<Trend> list,
             HashMap<String, String> fieldSwitchMap) {
 
-        for (InventoryPriceTrend inventoryPriceTrend : list) {
+        for (Trend inventoryPriceTrend : list) {
 
             Map<String, Object> extraAttributes = inventoryPriceTrend.getExtraAttributes();
             Map<String, Object> newExtraAttributes = new HashMap<>();

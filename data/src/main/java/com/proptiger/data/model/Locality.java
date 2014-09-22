@@ -263,21 +263,28 @@ public class Locality extends BaseModel {
     private List<Image>                     landmarkImages;
 
     @Transient
+    @Field(value = "PROJECT_MAX_SAFETY_SCORE")
     private Double                          projectMaxSafetyScore;
 
     @Transient
+    @Field(value = "PROJECT_MIN_SAFETY_SCORE")
     private Double                          projectMinSafetyScore;
 
     @Transient
+    @Field(value = "PROJECT_MAX_LIVABILITY_SCORE")
     private Double                          projectMaxLivabilityScore;
 
     @Transient
+    @Field(value = "PROJECT_MIN_LIVABILITY_SCORE")
     private Double                          projectMinLivabilityScore;
 
     @Transient
     @Field("LOCALITY_UNIT_TYPES")
     @JsonIgnore
     private List<String>                    propertyUnitTypes;
+    
+    @Transient
+    private String                          localityTagLine;
 
     public int getLocalityId() {
         return localityId;
@@ -735,5 +742,13 @@ public class Locality extends BaseModel {
 
     public void setPropertyUnitTypes(List<String> propertyUnitTypes) {
         this.propertyUnitTypes = propertyUnitTypes;
+    }
+
+    public String getLocalityTagLine() {
+        return localityTagLine;
+    }
+
+    public void setLocalityTagLine(String localityTagLine) {
+        this.localityTagLine = localityTagLine;
     }
 }

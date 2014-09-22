@@ -140,7 +140,7 @@ public class ListingService {
             List<ProjectPhase> projectPhase = projectPhaseService.getPhaseDetailsFromFiql(
                     new FIQLSelector().addAndConditionToFilter("phaseType==" + EntityType.Logical),
                     property.getProjectId(),
-                    DataVersion.Website);
+                    DataVersion.Website, null);
             if (projectPhase != null && projectPhase.size() > 0) {
                 listing.setPhaseId(projectPhase.get(0).getPhaseId());
             }

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.model.NotificationGenerated;
@@ -31,7 +30,6 @@ public class NotificationScheduler {
     // Map of userId and medium to priority of Notifications Scheduled
     Map<String, Integer>                 priorityMap = new HashMap<String, Integer>();
 
-    @Transactional
     public Integer scheduleNotifications() {
         Integer scheduledNtGeneratedCount = 0;
         List<NotificationGenerated> notificationGeneratedList = nGeneratedService.getRawNotificationGeneratedList();
