@@ -397,10 +397,10 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "LOCALITY_UNIT_TYPES")
     private List<String>      localityPropertyUnitTypes;
-    
+
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer           cityLocalityCount;
-    
+
     @Field(value = "LOCALITY_TAG_LINE")
     private String            localityTagLine;
 
@@ -1246,7 +1246,7 @@ public class SolrResult extends BaseModel {
     public void setLocalityMinLivabilityScore(Double projectMinLivabilityScore) {
         city.setLocalityMinLivabilityScore(projectMinLivabilityScore);
     }
-    
+
     @Field(value = "CITY_LOCALITY_COUNT")
     public void setCityLocalityCount(Integer cityLocalityCount) {
         city.setCityLocalityCount(cityLocalityCount);
@@ -1255,5 +1255,25 @@ public class SolrResult extends BaseModel {
     @Field(value = "LOCALITY_TAG_LINE")
     public void setLocalityTagLine(String localityTagLine) {
         locality.setLocalityTagLine(localityTagLine);
+    }
+
+    @Field(value = "LOCALITY_COUPON_MAX_DISCOUNT")
+    public void setLocalityCouponMaxDiscount(Integer couponMaxDiscount) {
+        locality.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "CITY_COUPON_MAX_DISCOUNT")
+    public void setCityCouponMaxDiscount(Integer couponMaxDiscount) {
+        city.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "SUBURB_COUPON_MAX_DISCOUNT")
+    public void setSuburbCouponMaxDiscount(Integer couponMaxDiscount) {
+        suburb.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "BUILDER_COUPON_MAX_DISCOUNT")
+    public void setBuilderCouponMaxDiscount(Integer couponMaxDiscount) {
+        builder.setMaxDiscount(couponMaxDiscount);
     }
 }
