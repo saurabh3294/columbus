@@ -213,7 +213,16 @@ public class ProjectService {
 
         Set<String> fields = selector.getFields();
 
-        List<Property> properties = getPropertyFromIdAndUpdateojectField(project, true);
+        /*
+         * Coupon Catalogue data will be fetched only when the coupon flag is
+         * demanded by client.
+         */
+        boolean isCouponCatalogueNeeded = false;
+        if (fields != null && fields.contains("isCouponAvailable")) {
+            isCouponCatalogueNeeded = true;
+        }
+
+        List<Property> properties = getPropertyFromIdAndUpdateojectField(project, isCouponCatalogueNeeded);
         /*
          * Setting properites if needed.
          */
@@ -737,7 +746,7 @@ public class ProjectService {
             project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
             project.setResale(property.getProject().isIsResale() | project.isIsResale());
 
-            if (property.isCouponAvailable()) {
+            if (property.isCouponAvailable() != null && property.isCouponAvailable()) {
                 couponCatalogue = property.getCouponCatalogue();
                 project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponCatalogue.getDiscount()));
                 project.setCouponAvailable(true);
@@ -758,7 +767,7 @@ public class ProjectService {
 
             property.setProject(null);
         }
-        
+
         if (isCouponCatalogueNeeded == true) {
             project.setTotalCouponsInventory(totalCoupons);
             project.setCouponsInventoryLeft(totalCouponsLeft);

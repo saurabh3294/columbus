@@ -114,6 +114,8 @@ public class PropertyDaoImpl {
         solrQuery.add("group.limit", "-1");
         solrQuery.add("group.field", "PROJECT_ID");
 
+        Set<String> selectorFields = propertyListingSelector.getFields();
+
         List<Project> projects = new ArrayList<Project>();
         List<Integer> allPropertiesId = new ArrayList<Integer>();
         Map<Integer, Map.Entry<Property, Project>> propertyMap = new HashMap<Integer, Map.Entry<Property, Project>>();
@@ -129,7 +131,6 @@ public class PropertyDaoImpl {
                 Double resalePrice = null;
                 Double minResaleOrPrimaryPrice = null;
                 Double maxResaleOrPrimaryPrice = null;
-                Map.Entry<Property, Project> entry = null;
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
                     allPropertiesId.add(property.getPropertyId());
@@ -179,39 +180,60 @@ public class PropertyDaoImpl {
             }
         }
 
-        List<CouponCatalogue> couponsList = couponCatalogueDao
-                .findByPropertyIdInAndInventoryLeftGreaterThanAndPurchaseExpiryAtGreaterThan(
-                        allPropertiesId,
-                        0,
-                        new Date());
-        
-        if(couponsList != null && !couponsList.isEmpty() ){
-            for(CouponCatalogue couponCatalogue:couponsList){
+        /*
+         * Processing Coupons Code.
+         */
+        List<CouponCatalogue> couponsList = null;
+        if (selectorFields != null && selectorFields.contains("isCouponAvailable")) {
+            couponsList = couponCatalogueDao
+                    .findByPropertyIdInAndInventoryLeftGreaterThanAndPurchaseExpiryAtGreaterThan(
+                            allPropertiesId,
+                            0,
+                            new Date());
+        }
+        /*
+         * Setting the coupons fields in the project object.
+         */
+        if (couponsList != null && !couponsList.isEmpty()) {
+            for (CouponCatalogue couponCatalogue : couponsList) {
                 Map.Entry<Property, Project> entry = propertyMap.get(couponCatalogue.getPropertyId());
                 Project project = entry.getValue();
                 Property property = entry.getKey();
                 Double budget = property.getBudget();
                 Integer discount = couponCatalogue.getDiscount();
                 
-                project.setCouponAvailable(true);
-                project.setCouponsInventoryLeft(project.getCouponsInventoryLeft() + couponCatalogue.getInventoryLeft());
-                project.setTotalCouponsInventory(project.getTotalCouponsInventory() + couponCatalogue.getTotalInventory());
-                project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), discount));
-                
-                if(budget != null){
-                    Double discountPrice = budget-discount;
-                    Double minResaleOrDiscountPrice = UtilityClass.min(discountPrice, property.getResalePrice());
-                    Double maxResaleOrDiscountPrice = UtilityClass.max(discountPrice, property.getResalePrice());
-                    
-                    project.setMinDiscountPrice(UtilityClass.min(project.getMinDiscountPrice(), discountPrice));
-                    project.setMaxDiscountPrice(UtilityClass.max(project.getMaxDiscountPrice(), discountPrice));
-                    project.setMinResaleOrDiscountPrice(UtilityClass.min(project.getMinResaleOrDiscountPrice(), minResaleOrDiscountPrice));
-                    project.setMaxResaleOrDiscountPrice(UtilityClass.max(project.getMaxResaleOrDiscountPrice(), maxResaleOrDiscountPrice));
+                if(project.getCouponsInventoryLeft() == null){
+                    project.setCouponsInventoryLeft(0);
+                }
+                if(project.getTotalCouponsInventory() == null){
+                    project.setTotalCouponsInventory(0);
                 }
                 
+                property.setCouponAvailable(true);
+                project.setCouponAvailable(true);
+                project.setCouponsInventoryLeft(project.getCouponsInventoryLeft() + couponCatalogue.getInventoryLeft());
+                project.setTotalCouponsInventory(project.getTotalCouponsInventory() + couponCatalogue
+                        .getTotalInventory());
+                project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), discount));
+
+                if (budget != null) {
+                    Double discountPrice = budget - discount;
+                    Double minResaleOrDiscountPrice = UtilityClass.min(discountPrice, property.getResalePrice());
+                    Double maxResaleOrDiscountPrice = UtilityClass.max(discountPrice, property.getResalePrice());
+
+                    project.setMinDiscountPrice(UtilityClass.min(project.getMinDiscountPrice(), discountPrice));
+                    project.setMaxDiscountPrice(UtilityClass.max(project.getMaxDiscountPrice(), discountPrice));
+                    project.setMinResaleOrDiscountPrice(UtilityClass.min(
+                            project.getMinResaleOrDiscountPrice(),
+                            minResaleOrDiscountPrice));
+                    project.setMaxResaleOrDiscountPrice(UtilityClass.max(
+                            project.getMaxResaleOrDiscountPrice(),
+                            maxResaleOrDiscountPrice));
+                }
+
             }
         }
-        
+
         PaginatedResponse<List<Project>> solrRes = new PaginatedResponse<List<Project>>();
         solrRes.setTotalCount(queryResponse.getGroupResponse().getValues().get(0).getNGroups());
         solrRes.setResults(projects);

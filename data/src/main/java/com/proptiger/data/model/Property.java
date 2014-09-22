@@ -197,7 +197,7 @@ public class Property extends BaseModel {
 
     private CouponCatalogue      couponCatalogue;
 
-    private boolean              isCouponAvailable;
+    private Boolean              isCouponAvailable;
 
     public String getProjectName() {
         return projectName;
@@ -499,11 +499,11 @@ public class Property extends BaseModel {
         this.couponCatalogue = couponCatalogue;
     }
 
-    public boolean isCouponAvailable() {
+    public Boolean isCouponAvailable() {
         return isCouponAvailable;
     }
 
-    public void setCouponAvailable(boolean isCouponAvailable) {
+    public void setCouponAvailable(Boolean isCouponAvailable) {
         this.isCouponAvailable = isCouponAvailable;
     }
 }

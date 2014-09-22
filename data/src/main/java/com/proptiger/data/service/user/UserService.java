@@ -5,8 +5,11 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +55,7 @@ import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.pojo.Selector;
@@ -62,6 +66,7 @@ import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
@@ -91,10 +96,10 @@ public class UserService {
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    private B2BAttributeService        b2bAttributeService;
+    private B2BAttributeService              b2bAttributeService;
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
-    private String                     currentMonthDbLabel;
+    private String                           currentMonthDbLabel;
 
     private String                           currentMonth;
 
@@ -158,11 +163,14 @@ public class UserService {
     @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
+    @Autowired
+    private UserAttributeDao                 userAttributeDao;
+
     @PostConstruct
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
     }
-    
+
     public boolean isRegistered(String email) {
         if (forumUserDao.findByEmail(email) != null) {
             return true;
@@ -610,6 +618,9 @@ public class UserService {
     private void patchUser(User user) {
         List<UserContactNumber> contactNumbers = user.getContactNumbers();
 
+        // checking and creating user attributes.
+        createUserAttributes(user);
+
         if (contactNumbers == null || contactNumbers.isEmpty()) {
             return;
         }
@@ -632,6 +643,63 @@ public class UserService {
                 user.setId(userContactNumber.getUserId());
             }
         }
+    }
+
+    /**
+     * This method will take the user attributes from the user object. It will
+     * check whether these attributes exists in the database for a user. If it
+     * does not exists then it will create them else update them with new value.
+     * 
+     * @param user
+     */
+    private void createUserAttributes(User user) {
+        List<UserAttribute> attributeList = user.getAttributes();
+        if (attributeList == null || attributeList.isEmpty()) {
+            return;
+        }
+
+        int userId = user.getId();
+        ListIterator<UserAttribute> it = attributeList.listIterator();
+
+        while (it.hasNext()) {
+            UserAttribute userAttribute = it.next();
+            String attributeName = userAttribute.getAttributeName();
+            String attributeValue = userAttribute.getAttributeValue();
+
+            /*
+             * If attribute value or name is invalid then it will remove those
+             * attributes.
+             */
+            if (attributeName == null || attributeValue == null || attributeName.isEmpty() || attributeValue.isEmpty()) {
+                it.remove();
+                continue;
+            }
+
+            UserAttribute savedAttribute = userAttributeDao.findByUserIdAndAttributeName(userId, attributeName);
+            /**
+             * 1: attribute Name does not exists 2: attribute Name exists but
+             * its value has been changed.
+             */
+            if (savedAttribute == null || !savedAttribute.getAttributeValue().equals(userAttribute.getAttributeValue())) {
+                userAttribute.setUserId(userId);
+                // Attribute value has been changed. Hence setting the primary
+                // key to make a update.
+                if (savedAttribute != null) {
+                    userAttribute.setId(savedAttribute.getId());
+                }
+                /*
+                 * It will fire the insert query or update query.
+                 */
+                savedAttribute = userAttributeDao.saveAndFlush(userAttribute);
+
+            }
+            // replacing the current object with the database object.
+            it.remove();
+            it.add(savedAttribute);
+
+        }
+
+        user.setAttributes(attributeList);
     }
 
     /**
