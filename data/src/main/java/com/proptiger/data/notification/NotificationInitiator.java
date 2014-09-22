@@ -135,9 +135,9 @@ public class NotificationInitiator {
      * Send Notification Generated which are scheduled and Ready to be send in
      * the respective medium
      */
-    @Scheduled(
-            fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
-            initialDelayString = "${scheduler.initialdelay.notification.marketplace}")
+//    @Scheduled(
+//            fixedDelayString = "${scheduler.fixeddelay.notification.marketplace}",
+//            initialDelayString = "${scheduler.initialdelay.notification.marketplace}")
     public void smsNotificationSender() {
         logger.info("NotificationSender : Sending Scheduled Generated Notification via SMS.");
         Integer numberOfSentNtGenerated = notificationSender.sendNotification(MediumType.Sms);

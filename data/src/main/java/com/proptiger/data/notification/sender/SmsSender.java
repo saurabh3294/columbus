@@ -38,7 +38,7 @@ public class SmsSender implements MediumSender {
     @Override
     public void send(String template, ForumUser forumUser, String typeName) {
         Long contact = forumUser.getContact();
-
+        
         Map<String, String> urlVariables = new HashMap<String, String>();
         urlVariables.put(USERNAME_KEY, USERNAME);
         urlVariables.put(PASSWORD_KEY, PASSWORD);
@@ -47,8 +47,8 @@ public class SmsSender implements MediumSender {
         urlVariables.put(SMS_TEXT, template);
 
         RestTemplate restTemplate = new RestTemplate();
-        logger.info("Sending SMS request to BaseURL: " + BASE_URL + " with parameters : " + urlVariables);
-        Object obj = restTemplate.getForObject(BASE_URL, Object.class, urlVariables);
-        logger.info("Received SMS response " + obj + " for BaseURL: " + BASE_URL + " with parameters : " + urlVariables);
+        logger.info("Sending SMS request to BaseURL: " + BASE_URL + " for contact: " + contact + " with message = \"" + template + "\"");
+        String response = restTemplate.getForObject(BASE_URL, String.class, urlVariables);
+        logger.info("Received SMS response \"" + response + "\" for contact: " + contact);
     }
 }
