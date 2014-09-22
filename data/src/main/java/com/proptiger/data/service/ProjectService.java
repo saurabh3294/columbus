@@ -31,6 +31,7 @@ import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.Bank;
+import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -212,7 +213,16 @@ public class ProjectService {
 
         Set<String> fields = selector.getFields();
 
-        List<Property> properties = getPropertyFromIdAndUpdateojectField(project);
+        /*
+         * Coupon Catalogue data will be fetched only when the coupon flag is
+         * demanded by client.
+         */
+        boolean isCouponCatalogueNeeded = false;
+        if (fields != null && fields.contains("isCouponAvailable")) {
+            isCouponCatalogueNeeded = true;
+        }
+
+        List<Property> properties = getPropertyFromIdAndUpdateojectField(project, isCouponCatalogueNeeded);
         /*
          * Setting properites if needed.
          */
@@ -323,7 +333,7 @@ public class ProjectService {
         // sorting provided in api call will not be considered
         projectSelector.setSort(sortBySet);
         PaginatedResponse<List<Project>> result = getProjects(projectSelector);
-        setProjectsFieldFromProperties(result.getResults());
+        setProjectsFieldFromProperties(result.getResults(), false);
         return result.getResults();
     }
 
@@ -622,7 +632,7 @@ public class ProjectService {
         Selector selector = new Gson().fromJson(json, Selector.class);
         PaginatedResponse<List<Project>> paginatedResponse = projectDao.getProjects(selector);
         imageEnricher.setImagesOfProjects(paginatedResponse.getResults());
-        setProjectsFieldFromProperties(paginatedResponse.getResults());
+        setProjectsFieldFromProperties(paginatedResponse.getResults(), false);
         return paginatedResponse;
     }
 
@@ -689,12 +699,12 @@ public class ProjectService {
      * 
      * @param projects
      */
-    private void setProjectsFieldFromProperties(List<Project> projects) {
+    private void setProjectsFieldFromProperties(List<Project> projects, boolean isCouponCatalogueNeeded) {
         if (projects == null || projects.isEmpty())
             return;
 
         for (Project project : projects) {
-            getPropertyFromIdAndUpdateojectField(project);
+            getPropertyFromIdAndUpdateojectField(project, isCouponCatalogueNeeded);
         }
     }
 
@@ -706,11 +716,19 @@ public class ProjectService {
      * @return List of properties of a project.
      */
     @Cacheable(value = Constants.CacheName.PROJECT)
-    private List<Property> getPropertyFromIdAndUpdateojectField(Project project) {
+    private List<Property> getPropertyFromIdAndUpdateojectField(Project project, boolean isCouponCatalogueNeeded) {
         List<Property> properties = propertyService.getPropertiesForProject(project.getProjectId());
+        if (isCouponCatalogueNeeded == true) {
+            propertyService.setCouponCatalogueForProperties(properties);
+        }
+
+        CouponCatalogue couponCatalogue = null;
+        int totalCouponsLeft = 0, totalCoupons = 0;
+
         for (int i = 0; i < properties.size(); i++) {
             Property property = properties.get(i);
             Double pricePerUnitArea = property.getPricePerUnitArea();
+            Double primaryPrice = property.getBudget();
 
             if (pricePerUnitArea == null)
                 pricePerUnitArea = 0D;
@@ -728,7 +746,31 @@ public class ProjectService {
             project.setMinResalePrice(UtilityClass.min(resalePrice, project.getMinResalePrice()));
             project.setResale(property.getProject().isIsResale() | project.isIsResale());
 
+            if (property.isCouponAvailable() != null && property.isCouponAvailable()) {
+                couponCatalogue = property.getCouponCatalogue();
+                project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponCatalogue.getDiscount()));
+                project.setCouponAvailable(true);
+                totalCouponsLeft += couponCatalogue.getInventoryLeft();
+                totalCoupons += couponCatalogue.getTotalInventory();
+
+                if (primaryPrice != null) {
+                    project.setMinDiscountPrice(UtilityClass.min(
+                            project.getMinDiscountPrice(),
+                            primaryPrice - couponCatalogue.getDiscount()));
+                    project.setMaxDiscountPrice(UtilityClass.max(
+                            project.getMaxDiscountPrice(),
+                            primaryPrice - couponCatalogue.getDiscount()));
+
+                }
+
+            }
+
             property.setProject(null);
+        }
+
+        if (isCouponCatalogueNeeded == true) {
+            project.setTotalCouponsInventory(totalCoupons);
+            project.setCouponsInventoryLeft(totalCouponsLeft);
         }
 
         return properties;

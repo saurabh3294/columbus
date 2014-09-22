@@ -498,18 +498,18 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_SOCIETY_SCORE")
     private Float                   projectSocietyScore;
-    
+
     @Transient
     @Field(value = "PROJECT_SAFETY_RANK")
     private Integer                 projectSafetyRank;
-    
+
     @Transient
     @Field(value = "PROJECT_LIVABILITY_RANK")
     private Integer                 projectLivabilityRank;
-    
+
     @Transient
     private boolean                 has3DImages;
-    
+
     @JsonIgnore
     @Column(name = "RESIDENTIAL_FLAG")
     @Enumerated(EnumType.STRING)
@@ -517,9 +517,32 @@ public class Project extends BaseModel {
 
     @Transient
     @Field("IMAGE_TYPE_COUNT")
-    private Map<String, Integer>	 imageTypeCount;
+    private Map<String, Integer>    imageTypeCount;
 
-    
+    @Transient
+    private Integer                 maxDiscount;
+
+    @Transient
+    private Integer                 couponsInventoryLeft;
+
+    @Transient
+    private Integer                 totalCouponsInventory;
+
+    @Transient
+    private Double                  minDiscountPrice;
+
+    @Transient
+    private Double                  maxDiscountPrice;
+
+    @Transient
+    private Double                  minResaleOrDiscountPrice;
+
+    @Transient
+    private Double                  maxResaleOrDiscountPrice;
+
+    @Transient
+    private Boolean                 isCouponAvailable;
+
     public int getProjectId() {
         return projectId;
     }
@@ -769,7 +792,7 @@ public class Project extends BaseModel {
     public String getProjectStatus() {
         return projectStatus;
     }
-    
+
     public void setProjectStatus(String projectStatus) {
         this.projectStatus = projectStatus;
     }
@@ -1269,5 +1292,72 @@ public class Project extends BaseModel {
         this.residentialFlag = residentialFlag;
     }
 
-    
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
+    }
+
+    public Integer getCouponsInventoryLeft() {
+        return couponsInventoryLeft;
+    }
+
+    public void setCouponsInventoryLeft(Integer couponsInventoryLeft) {
+        this.couponsInventoryLeft = couponsInventoryLeft;
+    }
+
+    public Integer getTotalCouponsInventory() {
+        return totalCouponsInventory;
+    }
+
+    public void setTotalCouponsInventory(Integer totalCouponsInventory) {
+        this.totalCouponsInventory = totalCouponsInventory;
+    }
+
+    public Double getMinDiscountPrice() {
+        return minDiscountPrice;
+    }
+
+    public void setMinDiscountPrice(Double minDiscountPrice) {
+        this.minDiscountPrice = minDiscountPrice;
+    }
+
+    public Double getMaxDiscountPrice() {
+        return maxDiscountPrice;
+    }
+
+    public void setMaxDiscountPrice(Double maxDiscountPrice) {
+        this.maxDiscountPrice = maxDiscountPrice;
+    }
+
+    public Double getMinResaleOrDiscountPrice() {
+        return minResaleOrDiscountPrice;
+    }
+
+    public void setMinResaleOrDiscountPrice(Double minResaleOrDiscountPrice) {
+        this.minResaleOrDiscountPrice = minResaleOrDiscountPrice;
+    }
+
+    public Double getMaxResaleOrDiscountPrice() {
+        return maxResaleOrDiscountPrice;
+    }
+
+    public void setMaxResaleOrDiscountPrice(Double maxResaleOrDiscountPrice) {
+        this.maxResaleOrDiscountPrice = maxResaleOrDiscountPrice;
+    }
+
+    public Boolean isCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public Map<String, Integer> getImageTypeCount() {
+        return imageTypeCount;
+    }
+
 }

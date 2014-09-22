@@ -24,6 +24,7 @@ import com.proptiger.data.enums.DataVersion;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.enums.resource.ResourceType;
 import com.proptiger.data.enums.resource.ResourceTypeAction;
+import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.Listing;
 import com.proptiger.data.model.Listing.OtherInfo;
 import com.proptiger.data.model.Project;
@@ -49,21 +50,24 @@ import com.proptiger.exception.ResourceNotAvailableException;
 @Service
 public class PropertyService {
     @Autowired
-    private PropertyDao          propertyDao;
+    private PropertyDao            propertyDao;
 
     @Autowired
-    private ProjectService       projectService;
+    private ProjectService         projectService;
 
     @Autowired
-    private ImageEnricher        imageEnricher;
+    private ImageEnricher          imageEnricher;
 
     @Autowired
-    private SolrDao              solrDao;
+    private SolrDao                solrDao;
 
     @Autowired
-    private EntityManagerFactory emf;
+    private EntityManagerFactory   emf;
 
-    private static int           ROWS_THRESHOLD = 200;
+    @Autowired
+    private CouponCatalogueService couponCatalogueService;
+
+    private static int             ROWS_THRESHOLD = 200;
 
     /**
      * Returns properties given a selector
@@ -74,6 +78,7 @@ public class PropertyService {
     public List<Property> getProperties(Selector propertyFilter) {
         List<Property> properties = propertyDao.getProperties(propertyFilter);
         imageEnricher.setPropertiesImages(properties);
+        setCouponCatalogueForProperties(properties);
 
         return properties;
     }
@@ -344,5 +349,48 @@ public class PropertyService {
         paginatedResponse.setResults(builder.retrieveResults());
         entityManager.close();
         return paginatedResponse;
+    }
+
+    /**
+     * This method will take the list of property object and return the list of
+     * property Ids.
+     * 
+     * @param properties
+     * @return
+     */
+    private List<Integer> getPropertyIdsFromProperties(List<Property> properties) {
+        List<Integer> propertyIds = new ArrayList<Integer>();
+
+        if (properties == null || properties.isEmpty())
+            return propertyIds;
+
+        for (Property property : properties) {
+            propertyIds.add(property.getPropertyId());
+        }
+
+        return propertyIds;
+    }
+
+    /**
+     * This method will take the list of properties and set the coupon catalogue
+     * for those properties.
+     * 
+     * @param properties
+     */
+    public void setCouponCatalogueForProperties(List<Property> properties) {
+        List<Integer> propertyIds = getPropertyIdsFromProperties(properties);
+
+        Map<Integer, CouponCatalogue> map = couponCatalogueService.getCouponCatalogueMapByPropertyIds(propertyIds);
+
+        CouponCatalogue couponCatalogue;
+        for (Property property : properties) {
+            couponCatalogue = map.get(property.getPropertyId());
+            if (couponCatalogue == null) {
+                continue;
+            }
+
+            property.setCouponCatalogue(map.get(property.getPropertyId()));
+            property.setCouponAvailable(true);
+        }
     }
 }

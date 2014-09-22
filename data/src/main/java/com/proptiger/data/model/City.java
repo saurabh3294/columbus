@@ -166,10 +166,14 @@ public class City extends BaseModel {
     @Transient
     @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
     private Double               localityMinLivabilityScore;
-    
+
     @Transient
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer              cityLocalityCount;
+
+    @Transient
+    @Field("CITY_COUPON_MAX_DISCOUNT")
+    private Integer              maxDiscount;
 
     public Integer getId() {
         return id;
@@ -433,5 +437,13 @@ public class City extends BaseModel {
 
     public void setCityLocalityCount(Integer cityLocalityCount) {
         this.cityLocalityCount = cityLocalityCount;
+    }
+
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
     }
 }
