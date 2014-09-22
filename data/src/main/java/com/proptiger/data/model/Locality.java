@@ -282,9 +282,13 @@ public class Locality extends BaseModel {
     @Field("LOCALITY_UNIT_TYPES")
     @JsonIgnore
     private List<String>                    propertyUnitTypes;
-    
+
     @Transient
     private String                          localityTagLine;
+
+    @Transient
+    @Field("LOCALITY_COUPON_MAX_DISCOUNT")
+    private Integer                         maxDiscount;
 
     public int getLocalityId() {
         return localityId;
@@ -750,5 +754,13 @@ public class Locality extends BaseModel {
 
     public void setLocalityTagLine(String localityTagLine) {
         this.localityTagLine = localityTagLine;
+    }
+
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
     }
 }

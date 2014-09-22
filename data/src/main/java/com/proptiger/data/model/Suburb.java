@@ -125,6 +125,10 @@ public class Suburb extends BaseModel {
     @Field(value = "SUBURB_VIEW_COUNT")
     private Integer                         suburbViewCount;
 
+    @Transient
+    @Field("SUBURB_COUPON_MAX_DISCOUNT")
+    private Integer                         maxDiscount;
+
     public int getId() {
         return id;
     }
@@ -275,5 +279,13 @@ public class Suburb extends BaseModel {
 
     public void setSuburbViewCount(Integer suburbViewCount) {
         this.suburbViewCount = suburbViewCount;
+    }
+
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
     }
 }
