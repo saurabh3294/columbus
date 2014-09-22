@@ -15,7 +15,7 @@ public enum NotificationTypeEnum {
     CouponIssued("coupon_issued"),
     CouponCancelled("coupon_cancelled"),
     CouponRefunded("coupon_refunded"),
-    CouponRefundSuccessful("coupon_refund_successful");
+    CouponRedeemed("coupon_redeemed");
     
     String name;
     
