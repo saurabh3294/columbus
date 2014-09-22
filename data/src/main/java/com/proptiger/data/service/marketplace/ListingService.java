@@ -2,6 +2,7 @@ package com.proptiger.data.service.marketplace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,46 @@ public class ListingService {
         listing.setListingAmenities(amenities);
         return listing;
     }
+    
+    
+    public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) { 
+        listing.setId(listingId);        
+        preCreateValidation(listing, userIdentifier);
+        Property property = listing.getProperty();
+        listing.setProperty(null);
+        
+        Listing listingInDB = listingDao.findById(listingId);
+        
+        if(listing.getFloor() != null)
+        {
+            listingInDB.setFloor(listing.getFloor());
+        }
+        
+        if(listing.getJsonDump() != null)
+        {
+            listingInDB.setJsonDump(listing.getJsonDump());
+        }
+
+        List<ListingAmenity> listingAmenities = listingAmenityService.getListingAmenities(Collections.singletonList(listingId));
+            
+        List<Integer> masterAmenityIds = new ArrayList<Integer>();
+         
+        for(ListingAmenity listingAmenity:listingAmenities)
+        {
+            if(!listing.getMasterAmenityIds().contains(listingAmenity.getAmenity().getAmenityId()))
+            {    
+                masterAmenityIds.add((int) listingAmenity.getAmenity().getAmenityId());
+            }
+        }
+            listing.setMasterAmenityIds(masterAmenityIds);
+            List<ListingAmenity> amenities = listingAmenityService.createListingAmenities(property.getProjectId(), listing);
+            listing.setListingAmenities(amenities);
+
+        listingDao.save(listingInDB);
+        
+        return new PaginatedResponse<>(listing, 1);
+    }
+    
 
     /**
      * Validate Listing data before creation
@@ -287,4 +328,6 @@ public class ListingService {
         }
         return listingPrices;
     }
+
+    
 }

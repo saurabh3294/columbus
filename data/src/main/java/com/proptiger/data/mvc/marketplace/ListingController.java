@@ -69,4 +69,12 @@ public class ListingController extends BaseController {
         return new APIResponse(super.filterFields(listing, null));
     }
 
+    @ResponseBody
+    @RequestMapping(value = "{listingId}",method = RequestMethod.PUT)
+    public APIResponse putListing(
+            @PathVariable Integer listingId,
+            @RequestBody Listing listing,
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
+        return new APIResponse(listingService.putListing(listing,userInfo.getUserIdentifier(),listingId));
+    }
 }
