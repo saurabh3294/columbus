@@ -9,7 +9,7 @@ import com.proptiger.data.constants.ResponseCodes;
  * @author Rajeev Pandey
  * 
  */
-public class ProAPIException extends RuntimeException {
+public class ProAPIException extends RuntimeException implements APIException{
 
     private static final long serialVersionUID = 4182555505392936914L;
 
