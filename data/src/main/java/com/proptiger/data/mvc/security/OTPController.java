@@ -34,4 +34,13 @@ public class OTPController extends BaseController{
         boolean valid = otpService.validate(otp, activeUser);
         return new APIResponse(valid);
     }
+    
+    @RequestMapping(value = "app/v1/entity/otp/validate", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getOTP(
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        otpService.respondWithOTP(activeUser);;
+        return new APIResponse();
+    }
+
 }
