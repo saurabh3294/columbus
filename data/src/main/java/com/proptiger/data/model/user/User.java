@@ -9,6 +9,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -56,11 +57,13 @@ public class User extends BaseModel {
     private Date                         createdAt        = new Date();
 
     @Column(name = "updated_at")
-    private Date                         updatedAt = new Date();
+    private Date                         updatedAt        = new Date();
 
     @Column(name = "email")
-    private String email;
+    private String                       email;
 
+    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
+    private List<UserAttribute>         attributes;
 
     public int getId() {
         return id;
@@ -190,5 +193,13 @@ public class User extends BaseModel {
         this.setCountryId(register.getCountryId());
         this.setRegistered(register.getRegisterMe());
         this.setEmail(register.getEmail());
+    }
+
+    public List<UserAttribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<UserAttribute> attributes) {
+        this.attributes = attributes;
     }
 }
