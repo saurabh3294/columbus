@@ -139,14 +139,11 @@ public class NotificationService {
      * @return
      */
     public int getNotificationsCountForUser(int userId) {
-        List<Notification> notificationTypes = notificationDao.getNotificationWithTypeForUser(userId);
+        List<MarketplaceNotificationType> notificationTypes = getNotificationsForUser(userId);
 
         int count = 0;
-        for (Notification notification : notificationTypes) {
-
-            if (!(notification.getNotificationType().isIgnorable() && notification.isRead())) {
-                count = count + 1;
-            }
+        for (MarketplaceNotificationType notificationType : notificationTypes) {
+            count = count + notificationType.getNotifications().size();
         }
         return count;
     }
@@ -355,7 +352,8 @@ public class NotificationService {
         List<Notification> notifications = notificationDao.getInvalidTaskNotificationForLeadOffer(
                 leadOfferId,
                 validTaskIdForNotification,
-                notificationTypeId, masterTaskIds);
+                notificationTypeId,
+                masterTaskIds);
         notificationDao.delete(notifications);
     }
 
