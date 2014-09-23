@@ -1,19 +1,24 @@
 package com.proptiger.data.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.proptiger.data.enums.Application;
+import com.proptiger.data.enums.security.UserRole;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.service.ApplicationNameService;
 
 /**
  * Security utils to get current logged in user and session related work.
@@ -63,6 +68,7 @@ public class SecurityContextUtils {
     }
 
     private static Authentication createNewAuthentication(ForumUser forumUser) {
+        Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
         UserDetails userDetails = new ActiveUser(
                 forumUser.getUserId(),
                 forumUser.getEmail(),
@@ -71,7 +77,7 @@ public class SecurityContextUtils {
                 true,
                 true,
                 true,
-                new ArrayList<GrantedAuthority>());
+                getUserAuthority(applicationType), applicationType);
 
         UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
@@ -126,5 +132,20 @@ public class SecurityContextUtils {
 
     public static int getLoggedInUserId() {
         return Integer.parseInt(getLoggedInUser().getUserId());
+    }
+
+    public static void setAuthentication(Authentication newAuth) {
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+    }
+    
+    public static List<GrantedAuthority> getUserAuthority(Application application){
+        List<GrantedAuthority> authority = new ArrayList<>();
+        if(application == Application.B2B){
+            authority.add(new SimpleGrantedAuthority(UserRole.PRE_AUTH_USER.name()));
+        }
+        else{
+            authority.add(new SimpleGrantedAuthority(UserRole.USER.name()));
+        }
+        return authority;
     }
 }

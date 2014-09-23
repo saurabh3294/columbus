@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
+import com.proptiger.exception.APIException;
 
 /**
  * Handle authenication failure case.
@@ -23,10 +24,14 @@ public class AuthFailureHandler implements AuthenticationFailureHandler {
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException exception) throws IOException, ServletException {
+        String code = ResponseCodes.BAD_CREDENTIAL;
+        if(exception instanceof APIException){
+            code = ((APIException)exception).getResponseCode();
+        }
         String userIpAddress = request.getRemoteAddr();
         ResponseErrorWriter.writeErrorToResponse(
                 response,
-                ResponseCodes.BAD_CREDENTIAL,
+                code,
                 exception.getMessage() != null ? exception.getMessage() : ResponseErrorMessages.BAD_CREDENTIAL,
                 userIpAddress);
     }

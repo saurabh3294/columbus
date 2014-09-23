@@ -5,6 +5,7 @@ public interface ResponseCodes {
     public static String SUCCESS                     = "2XX";
     // Request errors
     public static String UNAUTHORIZED                = "401";
+    public static String FORBIDDEN                   = "403";
     public static String RESOURCE_NOT_FOUND          = "404";
     public static String BAD_REQUEST                 = "4XX";
     public static String NAME_ALREADY_EXISTS         = "499";
@@ -12,6 +13,7 @@ public interface ResponseCodes {
     public static String BAD_CREDENTIAL              = "497";
     public static String SESSION_EXPIRED             = "496";
     public static String CAPTCHA_REQUIRED            = "495";
+    public static String OTP_REQUIRED                = "494";
 
     public static String REQUEST_PARAM_INVALID       = BAD_REQUEST;
     public static String AUTHENTICATION_ERROR        = BAD_REQUEST;

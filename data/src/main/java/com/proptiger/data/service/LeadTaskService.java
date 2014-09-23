@@ -194,6 +194,7 @@ public class LeadTaskService {
                 Arrays.asList(LeadTaskName.Call.getId()));
     }
 
+    @Transactional
     public void manageTaskNotificationForLeadOffer(int leadOfferId) {
         manageCallDueNotificationForLeadOffer(leadOfferId);
         populateTaskDueNotificationForLeadOffer(leadOfferId);

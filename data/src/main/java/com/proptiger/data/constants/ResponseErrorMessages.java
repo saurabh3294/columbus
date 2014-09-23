@@ -43,5 +43,8 @@ public interface ResponseErrorMessages {
     static String EMAIL_NOT_REGISTERED                = "Sorry, that email id is not registered with us.";
     static String PASSWORD_RECOVERY_MAIL_SENT         = "Password recovery mail sent";
     static String CAPTCHA_REQUIRED                    = "Captcha Required";
-    static String SESSION_EXPIRED_DUPLICATE_LOGIN                    = "Session expired, duplicate login";
+    static String SESSION_EXPIRED_DUPLICATE_LOGIN     = "Session expired, duplicate login";
+    static String OTP_REQUIRED                        = "one time password required";
+    static String WRONG_OTP                           = "Wrong OTP";
+    static String OTP_EXPIRED                         = "OTP expired, sent new OTP";
 }
