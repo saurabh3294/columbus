@@ -23,6 +23,6 @@ public interface CouponCatalogueDao extends JpaRepository<CouponCatalogue, Integ
             Date date);
 
     @Modifying
-    @Query("UPDATE CouponCatalogue cc set inventory_left = inventory_left + ?2 where id=?1")
+    @Query("UPDATE CouponCatalogue  set inventoryLeft = inventoryLeft + ?2 where id=?1 AND inventoryLeft + ?2 BETWEEN 0 AND totalInventory ")
     int updateCouponInventory(int couponId, int inventoryCount);
 }
