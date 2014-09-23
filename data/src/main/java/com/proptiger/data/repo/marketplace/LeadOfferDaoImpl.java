@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -29,11 +30,11 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 
 /**
  * @author Rajeev Pandey
- *
+ * 
  */
 public class LeadOfferDaoImpl {
 
-    private static Logger             logger = LoggerFactory.getLogger(LeadOfferDaoImpl.class);
+    private static Logger        logger = LoggerFactory.getLogger(LeadOfferDaoImpl.class);
 
     @Autowired
     private EntityManagerFactory emf;
@@ -48,17 +49,22 @@ public class LeadOfferDaoImpl {
         em.close();
         return paginatedResponse;
     }
-    
-    //TODO should be done with FIQL selector using method getLeadOffers(FIQLSelector selector)
+
+    // TODO should be done with FIQL selector using method
+    // getLeadOffers(FIQLSelector selector)
     /**
      * Get lead offers using native query
-     *
+     * 
      * @param agentId
      * @param statusIds
      * @param dueDate
      * @return
      */
-    public PaginatedResponse<List<LeadOffer>> getLeadOffers(int agentId, List<Integer> statusIds, String dueDate, FIQLSelector selector){
+    public PaginatedResponse<List<LeadOffer>> getLeadOffers(
+            int agentId,
+            List<Integer> statusIds,
+            String dueDate,
+            FIQLSelector selector) {
         PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>();
         EntityManager em = emf.createEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -70,11 +76,11 @@ public class LeadOfferDaoImpl {
 
         cq.select(c);
         cq.where(cb.equal(c.get("agentId"), agentId));
-        
+
         List<Predicate> conditions = new ArrayList<>();
         conditions.add(cb.equal(c.get("agentId"), agentId));
 
-        cq.orderBy(cb.asc(leadTaskJoin.<Date>get("scheduledFor")), cb.asc(c.get("createdAt")));
+        cq.orderBy(cb.asc(leadTaskJoin.<Date> get("scheduledFor")), cb.asc(c.get("createdAt")));
 
         if (statusIds != null && !statusIds.isEmpty()) {
             conditions.add(c.get("statusId").in(statusIds));
@@ -94,16 +100,64 @@ public class LeadOfferDaoImpl {
         Date tomorrow = cal.getTime();
 
         if ("today".equalsIgnoreCase(dueDate)) {
-            conditions.add(cb.between(leadTaskJoin.<Date>get("scheduledFor"), cb.literal(today), cb.literal(tomorrow)));
+            conditions
+                    .add(cb.between(leadTaskJoin.<Date> get("scheduledFor"), cb.literal(today), cb.literal(tomorrow)));
         }
         else if ("overdue".equalsIgnoreCase(dueDate)) {
-            conditions.add(cb.lessThan(leadTaskJoin.<Date>get("scheduledFor"), cb.currentTimestamp()));
+            conditions.add(cb.lessThan(leadTaskJoin.<Date> get("scheduledFor"), cb.currentTimestamp()));
         }
 
         cq.where(conditions.toArray(new Predicate[0]));
-        List<LeadOffer> leadOffers = em.createQuery(cq).getResultList();
+
+        Query query = em.createQuery(cq);
+
+        query.setFirstResult(selector.getStart());
+        query.setMaxResults(selector.getRows());
+
+        List<LeadOffer> leadOffers = query.getResultList();
         paginatedResponse.setResults(leadOffers);
-        paginatedResponse.setTotalCount(leadOffers.size());
+
+        EntityManager emCount = emf.createEntityManager();
+        CriteriaBuilder cbCount = emCount.getCriteriaBuilder();
+        CriteriaQuery<Long> cqCount = cbCount.createQuery(Long.class);
+        Root<LeadOffer> cCount = cqCount.from(LeadOffer.class);
+
+        cqCount.select(cbCount.count(cCount));
+
+        Join<LeadOffer, LeadTask> leadTaskJoinCount = cCount.join("nextTask", JoinType.LEFT);
+
+        cqCount.where(cbCount.equal(cCount.get("agentId"), agentId));
+
+        List<Predicate> conditionsCount = new ArrayList<>();
+        conditionsCount.add(cbCount.equal(cCount.get("agentId"), agentId));
+
+        cqCount.orderBy(cbCount.asc(leadTaskJoinCount.<Date> get("scheduledFor")), cbCount.asc(cCount.get("createdAt")));
+
+        if (statusIds != null && !statusIds.isEmpty()) {
+            conditionsCount.add(cCount.get("statusId").in(statusIds));
+        }
+
+        try {
+            today = sdf.parse(sdf.format(cal.getTime()));
+        }
+        catch (ParseException e) {
+        }
+
+        if ("today".equalsIgnoreCase(dueDate)) {
+            conditionsCount.add(cbCount.between(
+                    leadTaskJoinCount.<Date> get("scheduledFor"),
+                    cbCount.literal(today),
+                    cbCount.literal(tomorrow)));
+        }
+        else if ("overdue".equalsIgnoreCase(dueDate)) {
+            conditionsCount.add(cbCount.lessThan(
+                    leadTaskJoinCount.<Date> get("scheduledFor"),
+                    cbCount.currentTimestamp()));
+        }
+
+        cqCount.where(conditionsCount.toArray(new Predicate[0]));
+        List<Long> countTotal = em.createQuery(cqCount).getResultList();
+        paginatedResponse.setTotalCount(countTotal.get(0));
         return paginatedResponse;
     }
 }
