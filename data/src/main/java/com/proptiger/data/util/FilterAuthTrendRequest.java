@@ -16,6 +16,7 @@ import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.service.ApplicationNameService;
 import com.proptiger.data.service.user.UserSubscriptionService;
 import com.proptiger.exception.AuthenticationExceptionImpl;
+import com.proptiger.exception.BadRequestException;
 
 /**
  * This class appends the subscription permissions for logged in user to the
@@ -44,7 +45,7 @@ public class FilterAuthTrendRequest {
             /* If all of users's permissions have expired then log him out */
             List<?> permissionList = userSubscriptionService.getUserAppSubscriptionDetails(user.getUserIdentifier());
             if (permissionList == null || permissionList.isEmpty()) {
-                throw new AuthenticationExceptionImpl(
+                throw new BadRequestException(
                         ResponseCodes.ACCESS_EXPIRED,
                         ResponseErrorMessages.EXPIRED_PERMISSION_B2B_USER);
             }
