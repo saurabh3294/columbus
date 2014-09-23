@@ -95,8 +95,8 @@ public class NotificationMessage extends BaseModel {
         this.userId = userId;
         NotificationMessagePayload payload = new NotificationMessagePayload();
         Map<String, Object> extraAttributes = new HashMap<String, Object>();
-        extraAttributes.put(Tokens.Subject.name(), subject);
-        extraAttributes.put(Tokens.Body.name(), body);
+        extraAttributes.put(Tokens.Default.Subject.name(), subject);
+        extraAttributes.put(Tokens.Default.Body.name(), body);
         payload.setExtraAttributes(extraAttributes);
         this.notificationMessagePayload = payload;
     }

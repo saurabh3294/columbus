@@ -59,8 +59,8 @@ public class NotificationMessageServiceTest extends AbstractTest {
         Assert.assertNotNull(message.getNotificationMessagePayload());
 
         Map<String, Object> extraAttributes = message.getNotificationMessagePayload().getExtraAttributes();
-        Assert.assertEquals((String) extraAttributes.get(Tokens.Subject.name()), subject);
-        Assert.assertEquals((String) extraAttributes.get(Tokens.Body.name()), body);
+        Assert.assertEquals((String) extraAttributes.get(Tokens.Default.Subject.name()), subject);
+        Assert.assertEquals((String) extraAttributes.get(Tokens.Default.Body.name()), body);
     }
 
     @Test
@@ -111,7 +111,7 @@ public class NotificationMessageServiceTest extends AbstractTest {
         Assert.assertNotNull(message.getNotificationMessagePayload());
 
         Map<String, Object> extraAttributes = message.getNotificationMessagePayload().getExtraAttributes();
-        Assert.assertEquals(extraAttributes.get(Tokens.Template.name()), template);
+        Assert.assertEquals(extraAttributes.get(Tokens.Default.Template.name()), template);
     }
 
     @Test
