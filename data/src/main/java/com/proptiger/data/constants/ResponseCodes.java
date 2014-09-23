@@ -14,6 +14,8 @@ public interface ResponseCodes {
     public static String SESSION_EXPIRED             = "496";
     public static String CAPTCHA_REQUIRED            = "495";
     public static String OTP_REQUIRED                = "494";
+    public static String ACCESS_DENIED               = "493";
+    public static String ACCESS_EXPIRED              = "492";
 
     public static String REQUEST_PARAM_INVALID       = BAD_REQUEST;
     public static String AUTHENTICATION_ERROR        = BAD_REQUEST;
