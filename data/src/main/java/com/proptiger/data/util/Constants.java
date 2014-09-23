@@ -212,10 +212,7 @@ public class Constants {
         /**
          * API regex that requires PRE_AUTH_USER authority to access
          */
-        public static final String OTP_VALIDATE_API_REGEX = ".*/otp/validate.*";
-        /*
-         * API regex that does not require authentication
-         */
-        public static final String NON_AUTHENTICATED_API_REGEX = "^((?!user|otp).)*$";
+        public static final String OTP_VALIDATE_API_REGEX       = "/app/v\\d*/otp.*";
     }
+
 }

@@ -25,7 +25,7 @@ public class OTPController extends BaseController{
     @Autowired
     private OTPService otpService;
 
-    @RequestMapping(value = "app/v1/entity/otp/validate", method = RequestMethod.POST)
+    @RequestMapping(value = "app/v1/otp/validate", method = RequestMethod.POST)
     @ResponseBody
     public APIResponse validateOTP(
             @RequestBody Integer otp,
@@ -35,7 +35,7 @@ public class OTPController extends BaseController{
         return new APIResponse(valid);
     }
     
-    @RequestMapping(value = "app/v1/entity/otp/validate", method = RequestMethod.GET)
+    @RequestMapping(value = "app/v1/otp", method = RequestMethod.GET)
     @ResponseBody
     public APIResponse getOTP(
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {

@@ -83,10 +83,10 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
                 .key(Constants.Security.REMEMBER_ME_COOKIE);
         http.csrf().disable();
 
-        http.authorizeRequests().regexMatchers(Constants.Security.NON_AUTHENTICATED_API_REGEX).permitAll()
+        http.authorizeRequests()
                 .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.USER.name() + "')")
                 .regexMatchers(Constants.Security.OTP_VALIDATE_API_REGEX)
-                .access("hasRole('" + UserRole.PRE_AUTH_USER.name() + "')").anyRequest().authenticated();
+                .access("hasRole('" + UserRole.PRE_AUTH_USER.name() + "')").anyRequest().permitAll();
 
         http.exceptionHandling().authenticationEntryPoint(createAuthEntryPoint());
         http.addFilter(createUserNamePasswordLoginFilter());
