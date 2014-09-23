@@ -59,7 +59,7 @@ public class TransactionService {
         transaction.setUserId(user.getId());
 
         // TODO - To be replaced by actual coupon service
-        transaction.setAmount(2000);
+        transaction.setAmount(1);
 
         transaction.setStatusId(TransactionStatus.Incomplete.getId());
         transaction = transactionDao.saveAndFlush(transaction);
