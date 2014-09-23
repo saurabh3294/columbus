@@ -77,7 +77,7 @@
 
 #foreach (${requirement} in ${leadOffer.lead.requirements})
 	#if (${requirement.project})    
-	       	${requirement.project.builder.name} , ${requirement.project.name}, ${requirement.project.address}, 
+	       	${requirement.project.builder.name} ${requirement.project.name}, ${requirement.project.address}, 
 	      #if(${requirement.bedroom})	
 		${requirement.bedroom} BHK,
 	      #end
@@ -88,8 +88,11 @@
 	      	#end
 	#end
 #end
-${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq ft, 
-
+#if(${leadOffer.lead.minSize} == 0 || ${leadOffer.lead.maxSize} == ${leadOffer.lead.minSize})
+	${leadOffer.lead.maxSize} sq ft,
+#else 	
+	${leadOffer.lead.minSize} - ${leadOffer.lead.maxSize} sq ft, 
+#end
 #set($minBudgetInLacs = ${leadOffer.lead.minBudget}/100000.0)
 #set($maxBudgetInLacs = ${leadOffer.lead.maxBudget}/100000.0)
 
