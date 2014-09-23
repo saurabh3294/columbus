@@ -164,13 +164,24 @@ $velocityUtility.roundToTwoDecimal($maxBudgetInLacs) Lacs.
 	#if (${offeredListing.listing.currentListingPrice.price}) 
     <td width="91" style="padding:10px;"><strong>Asking Price:</strong> </td>
     <td style="padding:10px;">
-			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000.0)
-			      #if($priceInLacs > 100)
+
+			#if (${offeredListing.listing.currentListingPrice.price} != 0)	
+			      #set($priceInLacs = ${offeredListing.listing.currentListingPrice.price}/100000.0)			      
+			#else
+			#set($priceInLacs = ${offeredListing.listing.currentListingPrice.pricePerUnitArea}*${offeredListing.listing.property.size}/100000.0)
+
+		#if(${offeredListing.listing.currentListingPrice.otherCharges})
+			#set($priceInLacs = $priceInLacs + ${offeredListing.listing.currentListingPrice.otherCharges}/100000.0)	
+		#end	
+	
+			#end
+				#if($priceInLacs > 100)
 				#set($priceInCrores = $priceInLacs/100.0)
 				$velocityUtility.roundToTwoDecimal($priceInCrores) Cr.					
-			      #else		
+			      	#else		
 				$velocityUtility.roundToTwoDecimal($priceInLacs) Lacs </td>
-		  	      #end
+		  	      	#end
+		
 	#end
    			     #if(${offeredListing.listing.floor}) 	
     <td width="91" style="padding:10px;"><strong>Floor</strong> </td>
