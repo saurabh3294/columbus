@@ -243,6 +243,16 @@ public class ListingService {
                 selector.getSpringDataSort());
         List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
 
+        List<Long> listingSize = listingDao.findListingsCount(userId, DataVersion.Website, Status.Active, pageable);
+
+        for(long lon:listingSize)
+        {
+            System.out.println("anubhav");
+            System.out.println(lon);
+            System.out.println("anubhav");
+        }
+        
+        System.out.println("anubhav singh gangwar");
         String fields = selector.getFields();
         if(fields != null){
             if (fields.contains("listingAmenities")) {
@@ -261,7 +271,7 @@ public class ListingService {
                 l.setProperty(null);    
             }
         }
-        return new PaginatedResponse<>(listings, listings.size());
+        return new PaginatedResponse<>(listings, listingSize.get(0));
     }
 
     /**

@@ -30,8 +30,8 @@ public interface ListingDao extends JpaRepository<Listing, Integer>, ListingCust
     @Query(" SELECT MAX(LP.id) as maxId FROM Listing L JOIN L.listingPrices AS LP WHERE L.propertyId IN ?1 AND LP.version = 'Website' GROUP BY L.propertyId")
     public List<Integer> getListingPriceIds(List<Integer> propertyId);
 
-    @Query("select l from Listing l left join fetch l.projectSupply left join fetch l.currentListingPrice join fetch l.property prop join fetch prop.project as p join fetch p.projectStatusMaster join fetch p.builder join fetch p.locality pl join fetch pl.suburb pls join fetch pls.city where l.sellerId=?1 and p.version=?2  and l.status=?3")
-    List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status, Pageable pageable);
+    @Query("select count(l) from Listing l left join l.projectSupply left join l.currentListingPrice join l.property prop join prop.project as p join p.projectStatusMaster join p.builder join  p.locality pl join pl.suburb pls join pls.city where l.sellerId=?1 and p.version=?2  and l.status=?3")
+    public List<Long> findListingsCount(Integer userId, DataVersion dataVersion, Status status, Pageable pageable);
 
     Listing findById(Integer listingId);
 }
