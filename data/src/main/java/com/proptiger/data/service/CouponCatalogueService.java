@@ -69,7 +69,7 @@ public class CouponCatalogueService {
     @Transactional
     public CouponCatalogue updateCouponCatalogueInventoryLeft(int couponId, int inventoryCount) {
         Integer numberOfRowsAffected = couponCatalogueDao.updateCouponInventory(couponId, inventoryCount);
-        if (numberOfRowsAffected > 0) {
+        if (numberOfRowsAffected != null && numberOfRowsAffected > 0) {
             return couponCatalogueDao.findOne(couponId);
         }
 
