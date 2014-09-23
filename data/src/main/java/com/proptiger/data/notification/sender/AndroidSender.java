@@ -144,7 +144,7 @@ public class AndroidSender implements MediumSender {
                 MulticastResult result = sender.send(message, regIds, RETRY_COUNT);
 
                 if (result.getSuccess() == 0) {
-                    logger.error("Unable to android notification to regIds: " + regIds
+                    logger.error("Unable to send android notification to regIds: " + regIds
                             + ". Got Result: "
                             + result.toString());
                     return false;
