@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ import org.testng.annotations.Test;
 import com.proptiger.data.mocker.NotificationMockerService;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.enums.NotificationTypeEnum;
+import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMedium;
 import com.proptiger.data.notification.model.NotificationMessage;
@@ -53,15 +56,32 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
     }
 
     @Test
+    public void testCreateNotificationGeneratedForSms() {
+        List<MediumType> mediumTypes = new ArrayList<MediumType>();
+        mediumTypes.add(MediumType.Sms);
+        
+        Map<String, Object> templateMap = new HashMap<String, Object>();
+        templateMap.put(Tokens.CouponCode.name(), "12AB56ab90zB345");
+        templateMap.put(Tokens.Date.name(), "24th September'2014");
+
+        // NotificationMessage message =
+        // nMessageService.createNotificationMessage(NotificationTypeEnum.CouponIssued.getName(),
+        // 1211883, templateMap);
+        NotificationMessage message = notificationMockerService.getMockNotificationMessageForTemplateMap(templateMap);
+
+        testCreateNotificationGenerated(message, mediumTypes);
+    }
+
+    @Test
     public void testCreateNotificationGeneratedForAndroid() {
         List<MediumType> mediumTypes = new ArrayList<MediumType>();
         mediumTypes.add(MediumType.MarketplaceApp);
 
+        String template = "{'id':121, 'notifications': ['notification_01', 'notification_02'] }";
         // NotificationMessage message =
-        // nMessageService.createNotificationMessage("marketplace_default",
-        // 1211883,
-        // "{'id':121, 'notifications': ['notification_01', 'notification_02'] }");
-        NotificationMessage message = notificationMockerService.getMockNotificationMessageForAndroid();
+        // nMessageService.createNotificationMessage(NotificationTypeEnum.MarketplaceDefault.getName(),
+        // 1211883, template);
+        NotificationMessage message = notificationMockerService.getMockNotificationMessageForTemplate(template);
 
         testCreateNotificationGenerated(message, mediumTypes);
     }
@@ -132,7 +152,7 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
             List<NotificationGenerated> notificationGenerateds,
             NotificationMessage message,
             NotificationMedium notificationMedium) {
-        
+
         for (NotificationGenerated notificationGenerated : notificationGenerateds) {
             Assert.assertEquals(notificationGenerated.getUserId(), message.getUserId());
             Assert.assertEquals(notificationGenerated.getNotificationMedium().getId(), notificationMedium.getId());
