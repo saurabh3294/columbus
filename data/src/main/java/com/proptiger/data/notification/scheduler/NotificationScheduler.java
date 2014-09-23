@@ -38,7 +38,7 @@ public class NotificationScheduler {
 
         for (NotificationGenerated nGenerated : notificationGeneratedList) {
 
-            Integer userId = nGenerated.getForumUser().getUserId();
+            Integer userId = nGenerated.getUserId();
             MediumType mediumType = nGenerated.getNotificationMedium().getName();
             Integer lastPriority = priorityMap.get(generatePriorityMapKey(userId, mediumType));
             Integer currentPriority = nGenerated.getNotificationType().getPriority();

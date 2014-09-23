@@ -19,7 +19,6 @@ import com.google.android.gcm.server.Message;
 import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
 import com.proptiger.data.enums.AndroidApplication;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.GCMUser;
 import com.proptiger.data.service.GCMUserService;
 
@@ -57,47 +56,59 @@ public class AndroidSender implements MediumSender {
     }
 
     @Override
-    public void send(String template, ForumUser forumUser, String typeName) {
+    public boolean send(String template, Integer userId, String typeName) {
+
+        if (userId == null) {
+            logger.error("Found null User Id while sending Push Notification.");
+            return false;
+        }
+
         List<GCMUser> gcmUsersList = new ArrayList<GCMUser>();
-        if (forumUser == null || forumUser.getUserId() == null) {
-            logger.error("No user found while sending Push Notification");
+        gcmUsersList = gcmUserService.findByLoggedInUserId(userId);
+
+        if (gcmUsersList == null || gcmUsersList.isEmpty()) {
+            logger.error("No GCM users found for UserId: " + userId + " while sending Push Notification.");
+            return false;
         }
-        else {
-            gcmUsersList = gcmUserService.findByLoggedInUserId(forumUser.getUserId());
-        }
-        pushToAndroidDevice(template, gcmUsersList, typeName);
+
+        return pushToAndroidDevice(template, gcmUsersList, typeName);
     }
 
-    public void sendToMarketplaceApp(String template, ForumUser forumUser, String typeName) {
-        findUsersAndPushToAndroidDevice(template, forumUser, AndroidApplication.Marketplace, typeName);
+    public boolean sendToMarketplaceApp(String template, Integer userId, String typeName) {
+        return findUsersAndPushToAndroidDevice(template, userId, AndroidApplication.Marketplace, typeName);
     }
 
-    public void sendToProptigerApp(String template, ForumUser forumUser, String typeName) {
-        findUsersAndPushToAndroidDevice(template, forumUser, AndroidApplication.Proptiger, typeName);
+    public boolean sendToProptigerApp(String template, Integer userId, String typeName) {
+        return findUsersAndPushToAndroidDevice(template, userId, AndroidApplication.Proptiger, typeName);
     }
 
-    private void findUsersAndPushToAndroidDevice(
+    private boolean findUsersAndPushToAndroidDevice(
             String template,
-            ForumUser forumUser,
+            Integer userId,
             AndroidApplication androidApp,
             String typeName) {
 
+        if (userId == null) {
+            logger.error("Found null User Id while sending Push Notification for " + androidApp.name()
+                    + " AndroidApplication");
+            return false;
+        }
+
         List<GCMUser> gcmUsersList = new ArrayList<GCMUser>();
-        if (forumUser == null || forumUser.getUserId() == null) {
-            logger.error("No user found while sending Push Notification");
+        gcmUsersList = gcmUserService.findByAppIdentifierAndLoggedInUserId(androidApp, userId);
+
+        if (gcmUsersList == null || gcmUsersList.isEmpty()) {
+            logger.error("No GCM users found for UserId: " + userId
+                    + " while sending Push Notification for "
+                    + androidApp.name()
+                    + " AndroidApplication");
+            return false;
         }
-        else {
-            gcmUsersList = gcmUserService.findByAppIdentifierAndLoggedInUserId(androidApp, forumUser.getUserId());
-        }
-        pushToAndroidDevice(template, gcmUsersList, typeName);
+
+        return pushToAndroidDevice(template, gcmUsersList, typeName);
     }
 
-    private void pushToAndroidDevice(String template, List<GCMUser> gcmUsersList, String typeName) {
-
-        if (gcmUsersList == null) {
-            logger.info("No GCM users found.");
-            return;
-        }
+    private boolean pushToAndroidDevice(String template, List<GCMUser> gcmUsersList, String typeName) {
 
         // Create a map of AppIdentifier to List of Reg Ids
         Map<AndroidApplication, List<String>> regIdMap = new HashMap<AndroidApplication, List<String>>();
@@ -129,11 +140,18 @@ public class AndroidSender implements MediumSender {
                         + message
                         + " to regIds: "
                         + regIds);
+
                 MulticastResult result = sender.send(message, regIds, RETRY_COUNT);
-                logger.debug("Got Result " + result.toString()
-                        + " after sending android notification "
-                        + dataMap
-                        + " to regIds: "
+
+                if (result.getSuccess() == 0) {
+                    logger.error("Unable to android notification to regIds: " + regIds
+                            + ". Got Result: "
+                            + result.toString());
+                    return false;
+                }
+
+                logger.info("Got Result " + result.toString()
+                        + " after sending android notification to regIds: "
                         + regIds);
             }
             catch (IOException ioe) {
@@ -143,6 +161,8 @@ public class AndroidSender implements MediumSender {
                 logger.error("Error while sending Push Notification.", e.getStackTrace().toString());
             }
         }
+
+        return true;
     }
 
     private Map<String, String> getDataMap(String template, String typeName) {

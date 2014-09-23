@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.social.connect.UserProfile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +53,7 @@ import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
+import com.proptiger.data.model.user.UserEmail;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
@@ -674,4 +674,13 @@ public class UserService {
     public User getUserById(int userId) {
         return userDao.findOne(userId);
     }
+    
+    public UserContactNumber getTopPriorityContact(int userId) {
+        List<UserContactNumber> contacts = contactNumberDao.findByUserIdOrderByPriorityAsc(userId);
+        if (contacts.isEmpty()) {
+            return null;
+        }
+        return contacts.get(0);
+    }
+    
 }

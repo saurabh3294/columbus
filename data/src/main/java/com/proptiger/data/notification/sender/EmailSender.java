@@ -10,8 +10,9 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.service.mail.AmazonMailSender;
+import com.proptiger.data.service.user.UserService;
 
 @Service
 public class EmailSender implements MediumSender {
@@ -24,14 +25,36 @@ public class EmailSender implements MediumSender {
     @Autowired
     private AmazonMailSender    amazonMailSender;
 
+    @Autowired
+    private UserService         userService;
+
     @Override
-    public void send(String template, ForumUser forumUser, String typeName) {
-        String emailId = forumUser.getEmail();
+    public boolean send(String template, Integer userId, String typeName) {
+
+        if (userId == null) {
+            logger.error("Found null User Id while sending email.");
+            return false;
+        }
+
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            logger.error("No user found with UserId: " + userId + " while sending email.");
+            return false;
+        }
+
+        String emailId = user.getEmail();
+        if (emailId == null) {
+            logger.error("No email found for UserId: " + userId + " while sending email.");
+            return false;
+        }
+
         MailBody mailBody = getMailBody(template);
 
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(emailId);
         logger.debug("Sending email " + mailBody.getBody() + " to : " + emailId);
         amazonMailSender.sendMail(mailDetails);
+
+        return true;
     }
 
     private MailBody getMailBody(String template) {
