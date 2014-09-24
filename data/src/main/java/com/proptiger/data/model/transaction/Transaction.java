@@ -79,6 +79,9 @@ public class Transaction extends BaseModel {
     @Transient
     private User user;
 
+    @Transient
+    private Object product;
+    
     @PreUpdate
     public void update() {
         updatedAt = new Date();
@@ -200,5 +203,13 @@ public class Transaction extends BaseModel {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Object getProduct() {
+        return product;
+    }
+
+    public void setProduct(Object product) {
+        this.product = product;
     }
 }

@@ -39,7 +39,7 @@ public class TransactionController extends BaseController {
     }
 
     @ResponseBody
-    @RequestMapping(value="data/v1/entity/user/transaction/{transactionId}")
+    @RequestMapping(value={"data/v1/entity/user/transaction/{transactionId}", "data/v1/entity/transaction/{transactionId}"})
     public APIResponse get(@PathVariable int transactionId) {
         return new APIResponse(transactionService.getUpdatedTransaction(transactionId));
     }    

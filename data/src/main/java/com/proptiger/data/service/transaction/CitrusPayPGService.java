@@ -27,6 +27,7 @@ import com.citruspay.pg.model.Enquiry;
 import com.citruspay.pg.model.EnquiryCollection;
 import com.citruspay.pg.model.Refund;
 import com.citruspay.pg.net.RequestSignature;
+import com.citruspay.pg.util.CitruspayConstant;
 import com.google.gson.Gson;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;
@@ -49,6 +50,10 @@ import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
  */
 @Service
 public class CitrusPayPGService {
+    private static final String CURRENCY_INR = "INR";
+
+    private static final String ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE = "200";
+
     private static final String          FORWARD_SLASH         = "/";
 
     private static final String          SUCCESS_RESPONSE_CODE = "0";
@@ -94,7 +99,7 @@ public class CitrusPayPGService {
         MultiValueMap<String, String> mvm = new LinkedMultiValueMap<String, String>();
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.merchantTxnId.name(), String.valueOf(transaction.getId()));
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.firstName.name(), transaction.getUser().getFullName());
-        mvm.add(CitrusPayPGInitiatePaymentRequestParams.currency.name(), "INR");
+        mvm.add(CitrusPayPGInitiatePaymentRequestParams.currency.name(), CURRENCY_INR);
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.email.name(), transaction.getUser().getEmail());
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.orderAmount.name(), String.valueOf(transaction.getAmount()));
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.reqtime.name(), String.valueOf(System.currentTimeMillis()));
@@ -124,7 +129,7 @@ public class CitrusPayPGService {
         }
 
         String generateHMAC = RequestSignature.generateHMAC(
-                vanityURLPart + transaction.getAmount() + transaction.getId() + "INR",
+                vanityURLPart + transaction.getAmount() + transaction.getId() + CURRENCY_INR,
                 CITRUS_PAY_PG_MERCHANT_SECRET_KEY);
         return generateHMAC;
     }
@@ -257,32 +262,23 @@ public class CitrusPayPGService {
     }
 
     private EnquiryCollection fetchEnquiryCollection(int transactionId) {
-        MultiValueMap<String, String> mvm = new LinkedMultiValueMap<String, String>();
-        mvm.add("merchantAccessKey", CITRUS_PAY_PG_MERCHANT_ACCESS_KEY);
-        mvm.add("merchantTxnId", String.valueOf(transactionId));
-        mvm.add("key", CITRUS_PAY_PG_MERCHANT_SECRET_KEY);
+        String key = CITRUS_PAY_PG_MERCHANT_SECRET_KEY;
+        com.citruspay.pg.util.CitruspayConstant.merchantKey = key;
+        String merchantId = CITRUS_PAY_PG_MERCHANT_ACCESS_KEY;
+        String merchantTxnId = String.valueOf(transactionId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("merchantAccessKey", merchantId);
+        map.put("transactionId", merchantTxnId);
 
+        EnquiryCollection enquiryResult = null;
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("access_key", CITRUS_PAY_PG_MERCHANT_ACCESS_KEY);
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-            
-            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(mvm, headers);
-            System.out.println(new Gson().toJson(requestEntity));
-            ResponseEntity<String> exchange = restTemplate.exchange(
-                    CITRUS_PAY_PG_MERCHANT_URL,
-                    HttpMethod.GET,
-                    requestEntity,
-                    String.class);
-            System.out.println(new Gson().toJson(exchange));
-            return null; //exchange.getBody();
+            enquiryResult = com.citruspay.pg.model.Enquiry.create(map);
         }
-        catch (Exception e) {
-            logger.error("Error enquiring transaction id: " + transactionId, e);
+        catch (CitruspayException e) {
+            logger.error("Could not fetch payment details", e);
         }
 
-        return null;
+        return enquiryResult;
     }
 
     public void updateDetails(Transaction transaction) {
@@ -291,16 +287,16 @@ public class CitrusPayPGService {
         Enquiry lastEnquiry = null;
 
         EnquiryCollection enquiryCollection = fetchEnquiryCollection(transaction.getId());
-        if (enquiryCollection != null && SUCCESS_RESPONSE_CODE.equals(enquiryCollection.getRespCode())) {
+        if (enquiryCollection != null && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection.getRespCode())) {
             for (Enquiry enquiry : enquiryCollection.getEnquiry()) {
                 if (SUCCESS_RESPONSE_CODE.equals(enquiry.getRespCode())) {
-                    if (CitrusPayPGEnquiryTransactionType.Sale.name().equals(enquiry.getTxnType())) {
+                    if (CitrusPayPGEnquiryTransactionType.SALE.name().equalsIgnoreCase(enquiry.getTxnType())) {
                         paymentStatus = PaymentStatus.Success;
                         transactionStatus = TransactionStatus.Complete;
                         lastEnquiry = enquiry;
                     }
 
-                    if (CitrusPayPGEnquiryTransactionType.Refund.name().equals(enquiry.getTxnType())) {
+                    if (CitrusPayPGEnquiryTransactionType.REFUND.name().equalsIgnoreCase(enquiry.getTxnType())) {
                         paymentStatus = PaymentStatus.Refunded;
                         transactionStatus = TransactionStatus.Refunded;
                         lastEnquiry = enquiry;
@@ -310,7 +306,7 @@ public class CitrusPayPGService {
             }
 
             if (lastEnquiry != null) {
-                if (lastEnquiry.getCurrency().equalsIgnoreCase("INR")) {
+                if (lastEnquiry.getCurrency().equalsIgnoreCase(CURRENCY_INR)) {
                     if (transactionStatus == TransactionStatus.Complete && transaction.getStatusId() == TransactionStatus.Incomplete
                             .getId()) {
                         if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
@@ -363,9 +359,10 @@ public class CitrusPayPGService {
     }
 
     private void initiateRefund(Transaction transaction, Enquiry lastEnquiry) {
+        CitruspayConstant.merchantKey = CITRUS_PAY_PG_MERCHANT_SECRET_KEY;
         Map<String, Object> params = new HashMap<>();
         params.put("merchantAccessKey", CITRUS_PAY_PG_MERCHANT_ACCESS_KEY);
-        params.put("transactionId", transaction.getId());
+        params.put("transactionId", String.valueOf(transaction.getId()));
         params.put("pgTxnId", lastEnquiry.getPgTxnId());
         params.put("RRN", lastEnquiry.getRrn());
         params.put("authIdCode", lastEnquiry.getAuthIdCode());

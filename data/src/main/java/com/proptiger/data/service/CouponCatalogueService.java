@@ -79,4 +79,8 @@ public class CouponCatalogueService {
     public CouponCatalogue findOne(int couponId) {
         return couponCatalogueDao.findByIdAndPurchaseExpiryAtGreaterThan(couponId, new Date());
     }
+
+    public CouponCatalogue getCouponCatalogue(int id) {
+        return couponCatalogueDao.fetchCoupon(id);
+    }
 }

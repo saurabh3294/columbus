@@ -6,6 +6,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -51,6 +53,10 @@ public class CouponCatalogue extends BaseModel {
 
     @Column(name = "inventory_left")
     private int               inventoryLeft;
+
+    @ManyToOne
+    @JoinColumn(name="option_id", insertable=false, updatable=false)
+    private Property property;
 
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
