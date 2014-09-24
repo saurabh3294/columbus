@@ -429,10 +429,7 @@ public class ImageEnricher {
             return;
         }
         
-        List<Long> amenityIds = new ArrayList<Long>();
-        for (LandMark amenity : amenityList) {
-            amenityIds.add(new Long(amenity.getId()));
-        }
+        List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenityList);
         
         Map<Long, List<Image>> imagesMap = getImagesMapOfAmenities(DomainObject.landmark, amenityIds, localities, idLandMarksMap);
         if (imagesMap == null) {
@@ -499,5 +496,24 @@ public class ImageEnricher {
             meanVal += img.getPriority(); 
         }
         return meanVal/imgList.size();
+    }
+
+    public void setProjectAmenitiesImages(Project project) {
+        if (project == null) {
+            return;
+        }
+
+        List<LandMark> amenities = project.getNeighborhood() != null
+                ? project.getNeighborhood()
+                : localityAmenityService.getLandMarksForProject(project, null, null);
+        if (amenities == null || amenities.isEmpty()) {
+            return;
+        }
+        List<Long> amenityIds = localityAmenityService.getIdListFromAmenities(amenities);
+        List<Image> images = imageService.getImages(DomainObject.landmark, null, amenityIds);
+        if (images == null) {
+            return;
+        }
+        project.setLandmarkImages(images);
     }
 }
