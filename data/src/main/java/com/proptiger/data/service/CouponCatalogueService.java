@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.repo.CouponCatalogueDao;
 import com.proptiger.data.service.transaction.TransactionService;
 import com.proptiger.data.service.user.UserService;
@@ -138,12 +140,19 @@ public class CouponCatalogueService {
      * @param couponCode
      * @return
      */
+    @Transactional
     public User fetchUserDetailsOfCouponBuyer(String couponCode){
         Transaction transaction = transactionService.getTransactionsByCouponCode(couponCode);
         if(transaction == null){
             throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
         }
      
-        return userService.getUserById(transaction.getUserId());
+        User user = userService.getUserById(transaction.getUserId());
+        /**
+         * Get call to get them from db as they are fetched in LAZY.
+         */
+        Hibernate.initialize(user.getAttributes());
+                
+        return user;
     }
 }
