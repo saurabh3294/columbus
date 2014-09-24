@@ -34,6 +34,9 @@ public interface TransactionDao extends JpaRepository<Transaction, Integer> {
     @Query("select T from Transaction T where T.statusId = 2 and T.code = ?1 and T.typeId = 1")
     public Transaction getNonExercisedTransactionByCode(String code);
     
+    @Query("Select T from Transaction where code = ?1 and typeId=1")
+    public Transaction getTransactionByCode(String code);
+    
     @Modifying
     @Query("update Transaction  set statusId = 4 where id = ?1 and statusId = 2")
     public int updateCouponAsRedeem(int transactionId);

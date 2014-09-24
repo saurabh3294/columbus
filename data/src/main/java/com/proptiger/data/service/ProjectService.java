@@ -218,7 +218,7 @@ public class ProjectService {
          * demanded by client.
          */
         boolean isCouponCatalogueNeeded = false;
-        if (fields == null && fields.contains("isCouponAvailable")) {
+        if (fields == null || fields.contains("isCouponAvailable")) {
             isCouponCatalogueNeeded = true;
         }
 

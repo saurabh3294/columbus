@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.amazonaws.services.cloudfront_2012_03_15.model.InvalidArgumentException;
+import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.CouponCatalogueDao;
 import com.proptiger.data.service.transaction.TransactionService;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.exception.ProAPIException;
 
 @Service
 public class CouponCatalogueService {
@@ -109,7 +111,7 @@ public class CouponCatalogueService {
     public int redeemCoupon(String couponCode){
         Transaction transaction = transactionService.getNonRedeemTransactionByCode(couponCode);
         if(transaction == null){
-            throw new InvalidArgumentException("Coupon Code does not exits or has been redeemed.");
+            throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits or has been redeemed.");
         }
         CouponCatalogue couponCatalogue = couponCatalogueDao.findOne(transaction.getProductId());
         
@@ -117,20 +119,25 @@ public class CouponCatalogueService {
          * Coupon Expired then throw Exception.
          */
         if( couponCatalogue.getPurchaseExpiryAt().before(new Date()) ){
-            throw new InvalidArgumentException("Coupon has been expired. Hence cannot be redeemed.");
+            throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Coupon has been expired. Hence cannot be redeemed.");
         }
         int status = transactionService.updateCouponRedeem(transaction);
         
         if(status < 1){
-            throw new IllegalArgumentException(" Coupon has already been redeem or been refunded.");
+            throw new ProAPIException(ResponseCodes.NAME_ALREADY_EXISTS, " Coupon has already been redeem or been refunded.");
         }
         return status;
     }
     
+    /**
+     * Fetch user details of the user based on Coupon Code.
+     * @param couponCode
+     * @return
+     */
     public User fetchUserDetailsOfCouponBuyer(String couponCode){
-        Transaction transaction = transactionService.getNonRedeemTransactionByCode(couponCode);
+        Transaction transaction = transactionService.getTransactionsByCouponCode(couponCode);
         if(transaction == null){
-            throw new InvalidArgumentException("Coupon Code does not exits or has been redeemed.");
+            throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
         }
      
         return userService.getUserById(transaction.getUserId());
