@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
 import com.proptiger.data.model.enums.transaction.TransactionType;
 import com.proptiger.data.model.transaction.Transaction;
@@ -19,6 +20,7 @@ import com.proptiger.data.repo.transaction.TransactionDao;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * @author mandeep
@@ -27,11 +29,11 @@ import com.proptiger.data.util.DateUtil;
 @Service
 public class TransactionService {
     @Value("${transaction.peruser.max.count}")
-    private static final int MAX_COUPON_PER_USER = 3;
+    private static int MAX_COUPON_PER_USER;
     
     @Value("${transaction.refund.days.count}")
-    private static final int MAX_REFUND_PERIOD = 30;
-    
+    private static int MAX_REFUND_PERIOD;
+
     @Autowired
     private TransactionDao     transactionDao;
 
@@ -49,7 +51,6 @@ public class TransactionService {
         User user = userService.createUser(transaction.getUser());
 
         validateMaxCouponsBought(user.getId());
-        checkProductInventory(transaction);
 
         // Trying to reuse existing transaction wherever possible
         List<Transaction> transactions = transactionDao.getExistingReusableTransactions(user.getId());
@@ -63,8 +64,13 @@ public class TransactionService {
 
         transaction.setUserId(user.getId());
 
-        // TODO - To be replaced by actual coupon service
-        transaction.setAmount(1);
+        if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
+            if (couponCatalogueService.isPurchasable(transaction.getProductId())) {
+                throw new ProAPIException(ResponseCodes.COUPONS_SOLD_OUT, "Coupons sold out!");
+            }
+
+            transaction.setAmount(couponCatalogueService.getCouponCatalogue(transaction.getProductId()).getCouponPrice());
+        }
 
         transaction.setStatusId(TransactionStatus.Incomplete.getId());
         transaction = transactionDao.saveAndFlush(transaction);
@@ -72,22 +78,14 @@ public class TransactionService {
         return transaction;
     }
 
-    // TODO
-    private void checkProductInventory(Transaction transaction) {
-        if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
-            
-        }
-    }
-
     private void validateMaxCouponsBought(int userId) {
         List<Transaction> transactions = transactionDao.getCompletedTransactionsForUser(userId);
         if (transactions != null && transactions.size() >= MAX_COUPON_PER_USER) {
-            throw new IllegalArgumentException("Cannot purchase more than " + MAX_COUPON_PER_USER + " coupon(s)");
+            throw new ProAPIException(ResponseCodes.MAX_COUPON_BUY_LIMIT, "Cannot purchase more than " + MAX_COUPON_PER_USER + " coupon(s)");
         }
     }
 
     public Transaction getUpdatedTransaction(int transactionId) {
-        
         Transaction transaction = transactionDao.findOne(transactionId);
         List<Transaction> transactions = transactionDao.getExistingReusableTransactions(transaction.getUserId());
         if (transactions != null && !transactions.isEmpty() && transaction.getStatusId() == TransactionStatus.Incomplete.getId()) {

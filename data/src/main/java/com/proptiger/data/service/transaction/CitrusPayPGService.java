@@ -30,7 +30,6 @@ import com.citruspay.pg.model.Refund;
 import com.citruspay.pg.net.RequestSignature;
 import com.citruspay.pg.util.CitruspayConstant;
 import com.google.gson.Gson;
-import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
@@ -122,7 +121,6 @@ public class CitrusPayPGService {
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(mvm, headers);
 
         ResponseEntity<String> exchange = restTemplate.exchange(CITRUS_PAY_PG_MERCHANT_URL, HttpMethod.POST, requestEntity, String.class);
-        System.out.println(new Gson().toJson(exchange));
         return exchange.getHeaders().getLocation();
     }
 
@@ -337,7 +335,6 @@ public class CitrusPayPGService {
 
                             paymentService.save(payment);
                             transactionService.save(transaction);
-                            // TODO - inventory change
                         }
                         else {
                             logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
@@ -408,12 +405,7 @@ public class CitrusPayPGService {
     }
 
     private boolean existsProductInventory(Transaction transaction) {
-        CouponCatalogue couponCatalogue = couponCatalogueService.findOne(transaction.getProductId());
-        if (couponCatalogue != null && couponCatalogue.getInventoryLeft() > 0) {
-            return true;
-        }
-
-        return false;
+        return couponCatalogueService.isPurchasable(transaction.getProductId());
     }
 
     private Payment createPaymentFromEnquiry(Transaction transaction, Enquiry lastEnquiry) {

@@ -101,8 +101,9 @@ public class CouponCatalogueService {
      * This method will return the valid coupons based on coupon Id by checking its
      * expiry date.
      */
-    public CouponCatalogue findOne(int couponId) {
-        return couponCatalogueDao.findByIdAndPurchaseExpiryAtGreaterThan(couponId, new Date());
+    public boolean isPurchasable(int couponId) {
+        CouponCatalogue coupon = couponCatalogueDao.findByIdAndPurchaseExpiryAtGreaterThan(couponId, new Date());
+        return coupon != null && coupon.getInventoryLeft() > 0;
     }
 
     /**
