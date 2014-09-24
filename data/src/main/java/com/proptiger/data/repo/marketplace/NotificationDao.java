@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.MarketplaceNotificationType;
 import com.proptiger.data.model.marketplace.Notification;
 
@@ -26,14 +25,14 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     @Transactional
     @Query(
             nativeQuery = true,
-            value = "delete n.* from marketplace.notifications n left join marketplace.lead_offers lo on n.object_id = lo.next_task_id left join marketplace.lead_tasks lt on lo.next_task_id = lt.id and lt.scheduled_for between ?1 and ?2 where n.notification_type_id = ?3 and lt.id is null")
+            value = "delete marketplace.notifications from marketplace.notifications left join marketplace.lead_offers lo on marketplace.notifications.object_id = lo.next_task_id left join marketplace.lead_tasks lt on lo.next_task_id = lt.id and lt.scheduled_for between ?1 and ?2 where marketplace.notifications.notification_type_id = ?3 and lt.id is null")
     public void deleteTaskNotificationNotScheduledBetween(Date validStartTime, Date validEndTime, int notificationTypeId);
 
     @Modifying
     @Transactional
     @Query(
             nativeQuery = true,
-            value = "delete n.* from marketplace.notifications n left join marketplace.lead_tasks lt on n.object_id = lt.id and lt.scheduled_for between ?1 and ?2 left join marketplace.master_lead_task_status_mappings mlts on mlts.id = lt.lead_task_status_id and mlts.master_task_id in (?4) where n.notification_type_id = ?3 and lt.id is null")
+            value = "delete marketplace.notifications from marketplace.notifications left join marketplace.lead_tasks lt on marketplace.notifications.object_id = lt.id and lt.scheduled_for between ?1 and ?2 left join marketplace.master_lead_task_status_mappings mlts on mlts.id = lt.lead_task_status_id and mlts.master_task_id in (?4) where marketplace.notifications.notification_type_id = ?3 and lt.id is null")
     public void deleteTaskNotificationNotScheduledBetween(
             Date validStartTime,
             Date validEndTime,
@@ -45,7 +44,8 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     public List<Notification> getInvalidTaskNotificationForLeadOffer(
             int leadOfferId,
             int validTaskId,
-            int notificationTypeId, List<Integer> masterTaskIds);
+            int notificationTypeId,
+            List<Integer> masterTaskIds);
 
     public Notification findByObjectIdAndNotificationTypeId(int objectId, int notificationTypeId);
 
@@ -64,6 +64,8 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     @Query(value = "SELECT N FROM Notification N JOIN FETCH N.notificationType NT WHERE N.userId = ?1")
     public List<Notification> getNotificationWithTypeForUser(int userId);
 
-    public List<Notification> findByObjectIdInAndNotificationTypeIdAndReadFalse(List<Integer> objectIds, int notificationTypeId);
-    
+    public List<Notification> findByObjectIdInAndNotificationTypeIdAndReadFalse(
+            List<Integer> objectIds,
+            int notificationTypeId);
+
 }
