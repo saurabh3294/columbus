@@ -173,7 +173,8 @@ public class UtilityClass {
     /**
      * @param list
      * @param count
-     * @return first count elements of the list OR whole list if it has less N elements.
+     * @return first count elements of the list OR whole list if it has less N
+     *         elements.
      */
     public static <T> List<T> getFirstNElementsOfList(List<T> list, int count) {
         if (list == null) {
@@ -184,5 +185,21 @@ public class UtilityClass {
             return (new ArrayList<T>(list.subList(0, finalIndex)));
         }
     }
-    
+
+    /**
+     * 
+     * @param actualKey
+     * @return {@link Object} that can pe put in grouped response as key
+     */
+    public static Object getResponseGroupKey(Object actualKey) {
+        Object result = null;
+        if (actualKey instanceof Date) {
+            Date date = (Date) actualKey;
+            result = date.getTime();
+        }
+        else {
+            result = actualKey;
+        }
+        return result;
+    }
 }

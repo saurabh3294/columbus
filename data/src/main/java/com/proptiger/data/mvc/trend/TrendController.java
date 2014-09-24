@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +52,19 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
         return new APIResponse(getMappedResults(
+                trendService.getPaginatedTrend(selector, rangeField, rangeValue),
+                rangeField,
+                rangeValue,
+                selector));
+    }
+
+    @RequestMapping("app/v1/trend")
+    @ResponseBody
+    public APIResponse getAppTrend(
+            @ModelAttribute FIQLSelector selector,
+            @RequestParam(required = false) String rangeField,
+            @RequestParam(required = false) String rangeValue) throws Exception {
+        return new APIResponse(getFilledResults(
                 trendService.getPaginatedTrend(selector, rangeField, rangeValue),
                 rangeField,
                 rangeValue,
@@ -594,6 +608,89 @@ public class TrendController extends BaseController {
             result.setResults(serviceResponse);
         }
         return result;
+    }
+
+    private Object getFilledResults(
+            PaginatedResponse<List<Trend>> inventoryPriceTrends,
+            String rangeField,
+            String rangeValue,
+            FIQLSelector selector) {
+
+        Map<String, Object> serviceResponse = (Map<String, Object>) getMappedResults(
+                inventoryPriceTrends,
+                rangeField,
+                rangeValue,
+                selector).getResults();
+
+        List<String> groupKeys = getGroupKeysFromUserInput(selector, rangeField, rangeValue);
+
+        if (!groupKeys.isEmpty()) {
+            String groupField = new ArrayList<String>(selector.getGroupSet()).get(0);
+            Map<String, Set<Object>> allGroupValues = trendService.getAllGroupValues(
+                    inventoryPriceTrends.getResults(),
+                    selector);
+            LinkedHashMap<String, Object> valuesForDummyObject = new LinkedHashMap<>();
+            if (rangeField != null || rangeValue != null) {
+                for (String string : serviceResponse.keySet()) {
+                    valuesForDummyObject.put(trendService.RANGE_KEY, string);
+                    validateGroupValues(
+                            serviceResponse.get(string),
+                            allGroupValues,
+                            selector,
+                            valuesForDummyObject,
+                            groupField);
+                }
+            }
+            else {
+                validateGroupValues(serviceResponse, allGroupValues, selector, valuesForDummyObject, groupField);
+            }
+        }
+        return serviceResponse;
+    }
+
+    private Object validateGroupValues(
+            Object object,
+            Map<String, Set<Object>> allGroupValues,
+            FIQLSelector selector,
+            LinkedHashMap<String, Object> valuesForDummyObject,
+            String groupField) {
+        Map<Object, Object> map = (Map<Object, Object>) object;
+
+        boolean nextLevelAvailable = false;
+        String nextGroupField = null;
+        Iterator<String> iterator = selector.getGroupSet().iterator();
+        while (iterator.hasNext()) {
+            String next = iterator.next();
+            if (next.equals(groupField) && iterator.hasNext()) {
+                nextLevelAvailable = true;
+                nextGroupField = iterator.next();
+            }
+        }
+
+        for (Object key : allGroupValues.get(groupField)) {
+            LinkedHashMap<String, Object> valuesForDummyObjectNew = (LinkedHashMap<String, Object>) valuesForDummyObject
+                    .clone();
+            valuesForDummyObjectNew.put(groupField, key);
+            if (!map.containsKey(UtilityClass.getResponseGroupKey(key))) {
+                map.put(
+                        UtilityClass.getResponseGroupKey(key),
+                        new ArrayList<>(Arrays.asList(trendService.getDummyObject(
+                                allGroupValues,
+                                selector,
+                                valuesForDummyObjectNew))));
+            }
+            else if (nextLevelAvailable) {
+                map.put(
+                        UtilityClass.getResponseGroupKey(key),
+                        validateGroupValues(
+                                map.get(key),
+                                allGroupValues,
+                                selector,
+                                valuesForDummyObjectNew,
+                                nextGroupField));
+            }
+        }
+        return map;
     }
 
     private List<String> getGroupKeysFromUserInput(FIQLSelector selector, String rangeField, String rangeValue) {
