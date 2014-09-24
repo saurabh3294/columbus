@@ -17,5 +17,5 @@ import com.proptiger.data.pojo.response.PaginatedResponse;
 public interface ListingCustomDao {
 
     public PaginatedResponse<List<Listing>> getListings(FIQLSelector selector);
-    public List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status, Pageable pageable);
+    public List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status, FIQLSelector selector);
 }

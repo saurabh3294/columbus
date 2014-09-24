@@ -27,6 +27,7 @@ import com.proptiger.data.model.marketplace.LeadOffer;
 import com.proptiger.data.model.marketplace.LeadTask;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.exception.BadRequestException;
 
 /**
  * @author Rajeev Pandey
@@ -60,12 +61,9 @@ public class LeadOfferDaoImpl {
      * @param dueDate
      * @return
      */
-    public PaginatedResponse<List<LeadOffer>> getLeadOffers(
-            int agentId,
-            List<Integer> statusIds,
-            String dueDate,
-            FIQLSelector selector) {
-        PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>();
+    
+    public List<LeadOffer> getPage(int agentId,List<Integer> statusIds,String dueDate,FIQLSelector selector)
+    {
         EntityManager em = emf.createEntityManager();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<LeadOffer> cq = cb.createQuery(LeadOffer.class);
@@ -115,8 +113,15 @@ public class LeadOfferDaoImpl {
         query.setMaxResults(selector.getRows());
 
         List<LeadOffer> leadOffers = query.getResultList();
-        paginatedResponse.setResults(leadOffers);
-
+        return leadOffers;
+    }
+    
+    
+    public List<Long> getTotalCount(int agentId,
+            List<Integer> statusIds,
+            String dueDate,
+            FIQLSelector selector)
+    {
         EntityManager emCount = emf.createEntityManager();
         CriteriaBuilder cbCount = emCount.getCriteriaBuilder();
         CriteriaQuery<Long> cqCount = cbCount.createQuery(Long.class);
@@ -137,12 +142,19 @@ public class LeadOfferDaoImpl {
             conditionsCount.add(cCount.get("statusId").in(statusIds));
         }
 
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        Date today = cal.getTime();
+        
         try {
             today = sdf.parse(sdf.format(cal.getTime()));
         }
         catch (ParseException e) {
         }
 
+        cal.add(Calendar.DATE, 1);
+        Date tomorrow = cal.getTime();
+        
         if ("today".equalsIgnoreCase(dueDate)) {
             conditionsCount.add(cbCount.between(
                     leadTaskJoinCount.<Date> get("scheduledFor"),
@@ -156,8 +168,28 @@ public class LeadOfferDaoImpl {
         }
 
         cqCount.where(conditionsCount.toArray(new Predicate[0]));
-        List<Long> countTotal = em.createQuery(cqCount).getResultList();
+        List<Long> countTotal = emCount.createQuery(cqCount).getResultList();
+        
+        return countTotal;
+    }
+    
+    
+    public PaginatedResponse<List<LeadOffer>> getLeadOffers(
+            int agentId,
+            List<Integer> statusIds,
+            String dueDate,
+            FIQLSelector selector) {
+        PaginatedResponse<List<LeadOffer>> paginatedResponse = new PaginatedResponse<>();
+        List<Long> countTotal = getTotalCount(agentId, statusIds, dueDate, selector);
         paginatedResponse.setTotalCount(countTotal.get(0));
+        
+        if(selector.getStart() > countTotal.get(0))
+        {
+            throw new BadRequestException("Start entry is greater than size");
+        }
+        List<LeadOffer> leadOffers = getPage(agentId, statusIds, dueDate, selector);
+        paginatedResponse.setResults(leadOffers);
+        
         return paginatedResponse;
     }
 }

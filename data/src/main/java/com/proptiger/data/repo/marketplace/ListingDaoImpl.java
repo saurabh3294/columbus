@@ -17,6 +17,7 @@ import com.proptiger.data.model.filter.AbstractQueryBuilder;
 import com.proptiger.data.model.filter.JPAQueryBuilder;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.response.PaginatedResponse;
+import com.proptiger.exception.BadRequestException;
 
 /**
  * @author Rajeev Pandey
@@ -39,15 +40,16 @@ public class ListingDaoImpl {
 
     }
     
-    public List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status, Pageable pageable)
+    public List<Listing> findListings(Integer userId, DataVersion dataVersion, Status status, FIQLSelector selector)
     {
         EntityManager em = emf.createEntityManager();
         Query query = em.createQuery("select l from Listing l left join fetch l.projectSupply left join fetch l.currentListingPrice join fetch l.property prop join fetch prop.project as p join fetch p.projectStatusMaster join fetch p.builder join fetch p.locality pl join fetch pl.suburb pls join fetch pls.city where l.sellerId=?1 and p.version=?2  and l.status=?3");                    
         query.setParameter(1, userId);
         query.setParameter(2, dataVersion);
         query.setParameter(3, status);
-        query.setFirstResult(pageable.getOffset());
-        query.setMaxResults(pageable.getPageSize());        
+        
+        query.setFirstResult(selector.getStart());
+        query.setMaxResults(selector.getRows());        
         
         List<Listing> listings = query.getResultList();
         

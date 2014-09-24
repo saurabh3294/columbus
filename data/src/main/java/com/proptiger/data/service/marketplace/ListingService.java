@@ -237,22 +237,16 @@ public class ListingService {
      */
     public PaginatedResponse<List<Listing>> getListings(Integer userId, FIQLSelector selector) {
         selector.applyDefSort("-id");
-        Pageable pageable = new LimitOffsetPageRequest(
-                selector.getStart(),
-                selector.getRows(),
-                selector.getSpringDataSort());
-        List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, pageable);
 
-        List<Long> listingSize = listingDao.findListingsCount(userId, DataVersion.Website, Status.Active, pageable);
-
-        for(long lon:listingSize)
+        List<Long> listingSize = listingDao.findListingsCount(userId, DataVersion.Website, Status.Active);
+        
+        if(selector.getStart() > listingSize.get(0))
         {
-            System.out.println("anubhav");
-            System.out.println(lon);
-            System.out.println("anubhav");
+            throw new BadRequestException("Start row is greater than the size of result");
         }
         
-        System.out.println("anubhav singh gangwar");
+        List<Listing> listings = listingDao.findListings(userId, DataVersion.Website, Status.Active, selector);
+        
         String fields = selector.getFields();
         if(fields != null){
             if (fields.contains("listingAmenities")) {
