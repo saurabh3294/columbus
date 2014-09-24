@@ -175,6 +175,10 @@ public class City extends BaseModel {
     @Field("CITY_COUPON_MAX_DISCOUNT")
     private Integer              maxDiscount;
 
+    @Transient
+    @Field("CITY_COUPON_AVAILABLE")
+    private Boolean              isCouponAvailable;
+
     public Integer getId() {
         return id;
     }
@@ -445,5 +449,13 @@ public class City extends BaseModel {
 
     public void setMaxDiscount(Integer maxDiscount) {
         this.maxDiscount = maxDiscount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
     }
 }

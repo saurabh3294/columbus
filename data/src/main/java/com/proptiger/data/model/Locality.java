@@ -290,6 +290,10 @@ public class Locality extends BaseModel {
     @Field("LOCALITY_COUPON_MAX_DISCOUNT")
     private Integer                         maxDiscount;
 
+    @Transient
+    @Field("LOCALITY_COUPON_AVAILABLE")
+    private Boolean                         isCouponAvailable;
+
     public int getLocalityId() {
         return localityId;
     }
@@ -762,5 +766,13 @@ public class Locality extends BaseModel {
 
     public void setMaxDiscount(Integer maxDiscount) {
         this.maxDiscount = maxDiscount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
     }
 }
