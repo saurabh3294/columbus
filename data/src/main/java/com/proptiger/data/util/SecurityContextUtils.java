@@ -63,6 +63,15 @@ public class SecurityContextUtils {
              * controllers
              */
             request.getSession().setAttribute(Constants.LOGIN_INFO_OBJECT_NAME, activeUser);
+            /*
+             * session will be valid for SESSION_MAX_INTERACTIVE_INTERVAL value,
+             * this should be same as of cookie life time, so both should be
+             * synched.
+             */
+            request.getSession().setMaxInactiveInterval(
+                    PropertyReader.getRequiredPropertyAsType(
+                            PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL,
+                            Integer.class));
         }
         return activeUser;
     }
@@ -77,7 +86,8 @@ public class SecurityContextUtils {
                 true,
                 true,
                 true,
-                getUserAuthority(applicationType), applicationType);
+                getUserAuthority(applicationType),
+                applicationType);
 
         UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
@@ -137,13 +147,13 @@ public class SecurityContextUtils {
     public static void setAuthentication(Authentication newAuth) {
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
-    
-    public static List<GrantedAuthority> getUserAuthority(Application application){
+
+    public static List<GrantedAuthority> getUserAuthority(Application application) {
         List<GrantedAuthority> authority = new ArrayList<>();
-        if(application == Application.B2B){
+        if (application == Application.B2B) {
             authority.add(new SimpleGrantedAuthority(UserRole.PRE_AUTH_USER.name()));
         }
-        else{
+        else {
             authority.add(new SimpleGrantedAuthority(UserRole.USER.name()));
         }
         return authority;
