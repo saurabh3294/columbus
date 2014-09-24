@@ -742,7 +742,7 @@ public class UserService {
     public User getUserById(int userId) {
         return userDao.findOne(userId);
     }
-    
+
     public UserContactNumber getTopPriorityContact(int userId) {
         List<UserContactNumber> contacts = contactNumberDao.findByUserIdOrderByPriorityAsc(userId);
         if (contacts.isEmpty()) {
@@ -751,4 +751,14 @@ public class UserService {
         return contacts.get(0);
     }
     
+    /**
+     * This method will return the attributes of the user based on the attribute value provided.
+     * @param userId
+     * @param attributeValue
+     * @return
+     */
+    public UserAttribute checkUserAttributesByAttributeValue(int userId, String attributeValue) {
+        return userAttributeDao.findByUserIdAndAttributeValue(userId, attributeValue);
+    }
+
 }
