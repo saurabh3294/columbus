@@ -5,8 +5,11 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,6 +48,7 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
 import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
@@ -53,7 +57,6 @@ import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.model.user.UserEmail;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
@@ -251,14 +254,20 @@ public class UserService {
             List<SubscriptionPermission> subscriptionPermissions,
             UserAppSubscription userAppSubscription) {
         List<Integer> subscribedIds = new ArrayList<>();
+        Set<Integer> objectTypeIdSet = new HashSet<Integer>();
+        Permission permission = null;
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
-            subscribedIds.add(subscriptionPermission.getPermission().getObjectId());
+            permission = subscriptionPermission.getPermission();
+            subscribedIds.add(permission.getObjectId());
+            objectTypeIdSet.add(permission.getObjectTypeId());
         }
-
+        
+        String userType = (objectTypeIdSet.contains(DomainObject.city.getObjectTypeId())
+                ? DomainObject.city.toString()
+                : DomainObject.locality.toString());
+        
         if (!subscribedIds.isEmpty()) {
-            userAppSubscription.setUserType(DomainObject.getFromObjectTypeId(
-                    subscriptionPermissions.get(0).getPermission().getObjectTypeId()).toString());
-
+            userAppSubscription.setUserType(userType);
             String json = "{\"filters\":{\"and\":[{\"equal\":{\"" + userAppSubscription.getUserType()
                     + "Id\":["
                     + StringUtils.join(subscribedIds, ',')
