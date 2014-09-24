@@ -25,7 +25,7 @@ public class CouponCatalogController extends BaseController {
     
     @ResponseBody
     @RequestMapping("data/v1/coupon/{couponCode}/user-details")
-    public APIResponse fetchUserDetails(String couponCode){
+    public APIResponse fetchUserDetails(@PathVariable String couponCode){
         User user = couponService.fetchUserDetailsOfCouponBuyer(couponCode);
         
         return new APIResponse(user);

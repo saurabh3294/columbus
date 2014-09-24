@@ -124,6 +124,10 @@ public class TransactionService {
         return transactionDao.getNonExercisedTransactionByCode(code);
     }
     
+    public Transaction getTransactionsByCouponCode(String code){
+        return transactionDao.getTransactionByCode(code);
+    }
+    
     @Transactional
     public int updateCouponRedeem(Transaction transaction){
         return transactionDao.updateCouponAsRedeem(transaction.getId());

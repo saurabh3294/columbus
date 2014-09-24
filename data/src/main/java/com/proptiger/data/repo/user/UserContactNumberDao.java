@@ -23,4 +23,6 @@ public interface UserContactNumberDao extends JpaRepository<UserContactNumber, I
 
     @Query("select UCN from UserContactNumber UCN where UCN.userId in (?1)")
     public List<UserContactNumber> getContactNumbersByUserId(List<Integer> clientIds);
+    
+    public List<UserContactNumber> findByUserIdOrderByPriorityAsc(int userId);
 }

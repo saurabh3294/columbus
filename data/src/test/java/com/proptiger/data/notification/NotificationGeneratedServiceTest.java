@@ -61,8 +61,8 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
         mediumTypes.add(MediumType.Sms);
         
         Map<String, Object> templateMap = new HashMap<String, Object>();
-        templateMap.put(Tokens.CouponCode.name(), "12AB56ab90zB345");
-        templateMap.put(Tokens.Date.name(), "24th September'2014");
+        templateMap.put(Tokens.CouponIssued.CouponCode.name(), "12AB56ab90zB345");
+        templateMap.put(Tokens.CouponIssued.Date.name(), "24th September'2014");
 
         // NotificationMessage message =
         // nMessageService.createNotificationMessage(NotificationTypeEnum.CouponIssued.getName(),
