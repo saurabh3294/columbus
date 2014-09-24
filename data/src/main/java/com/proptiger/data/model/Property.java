@@ -195,8 +195,10 @@ public class Property extends BaseModel {
     @Transient
     private List<Media>          media;
 
+    @Transient
     private CouponCatalogue      couponCatalogue;
 
+    @Transient
     private Boolean              isCouponAvailable;
 
     public String getProjectName() {

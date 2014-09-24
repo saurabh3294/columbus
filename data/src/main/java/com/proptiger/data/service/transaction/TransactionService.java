@@ -16,6 +16,7 @@ import com.proptiger.data.model.enums.transaction.TransactionType;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.transaction.TransactionDao;
+import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
 
@@ -40,6 +41,9 @@ public class TransactionService {
     @Autowired
     private CitrusPayPGService citrusPayPGService;
 
+    @Autowired
+    private CouponCatalogueService couponCatalogueService;
+    
     public Transaction createTransaction(Transaction transaction) {
         transaction.getUser().setRegistered(false);
         User user = userService.createUser(transaction.getUser());
@@ -60,7 +64,7 @@ public class TransactionService {
         transaction.setUserId(user.getId());
 
         // TODO - To be replaced by actual coupon service
-        transaction.setAmount(2000);
+        transaction.setAmount(1);
 
         transaction.setStatusId(TransactionStatus.Incomplete.getId());
         transaction = transactionDao.saveAndFlush(transaction);
@@ -83,12 +87,19 @@ public class TransactionService {
     }
 
     public Transaction getUpdatedTransaction(int transactionId) {
+        
         Transaction transaction = transactionDao.findOne(transactionId);
         List<Transaction> transactions = transactionDao.getExistingReusableTransactions(transaction.getUserId());
-        if (transactions != null && !transactions.isEmpty()
-                && transaction.getStatusId() == TransactionStatus.Incomplete.getId()) {
+        if (transactions != null && !transactions.isEmpty() && transaction.getStatusId() == TransactionStatus.Incomplete.getId()) {
             citrusPayPGService.updateDetails(transaction);
         }
+
+//        if (transaction.getStatusId() == TransactionStatus.Complete.getId()) {
+            if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
+                transaction.setUser(userService.getUserById(transaction.getUserId()));
+                transaction.setProduct(couponCatalogueService.getCouponCatalogue(transaction.getProductId()));
+            }
+//        }
 
         return transaction;
     }

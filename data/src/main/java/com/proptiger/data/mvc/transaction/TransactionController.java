@@ -5,10 +5,10 @@ package com.proptiger.data.mvc.transaction;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.proptiger.data.model.enums.transaction.TransactionType;
@@ -39,8 +39,8 @@ public class TransactionController extends BaseController {
     }
 
     @ResponseBody
-    @RequestMapping(value="data/v1/entity/user/transaction/{transactionId}")
-    public APIResponse get(@RequestParam int transactionId) {
+    @RequestMapping(value={"data/v1/entity/user/transaction/{transactionId}", "data/v1/entity/transaction/{transactionId}"})
+    public APIResponse get(@PathVariable int transactionId) {
         return new APIResponse(transactionService.getUpdatedTransaction(transactionId));
     }    
 }

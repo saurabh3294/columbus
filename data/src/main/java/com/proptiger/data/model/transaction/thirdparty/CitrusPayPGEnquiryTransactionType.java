@@ -8,5 +8,5 @@ package com.proptiger.data.model.transaction.thirdparty;
  *
  */
 public enum CitrusPayPGEnquiryTransactionType {
-    Sale, Refund;
+    SALE, REFUND;
 }

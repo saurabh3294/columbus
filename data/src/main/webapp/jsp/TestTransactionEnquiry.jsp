@@ -51,14 +51,14 @@
 
 				<%
 					if ("Submit".equals(request.getParameter("search"))) {
-						String key = "338a66359a415abb25586f19192f62ff8df736ba";
+						String key = "8da5ff817f67ed0a6d623b5a69a008f7a398a068";
 						com.citruspay.pg.util.CitruspayConstant.merchantKey = key;
 						String merchantId = request.getParameter("merchantId");
 						String merchantTxnId = request.getParameter("merchantTxnID");
 						java.util.Map map = new java.util.HashMap();
 						map.put("merchantAccessKey", merchantId);
 						map.put("transactionId", merchantTxnId);
-						map.put("bankName", "ABC BANK");
+						map.put("bankName", "kotak");
 
 						com.citruspay.pg.model.EnquiryCollection enquiryResult = com.citruspay.pg.model.Enquiry
 								.create(map);
