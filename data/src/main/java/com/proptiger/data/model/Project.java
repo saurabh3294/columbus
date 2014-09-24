@@ -23,6 +23,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
@@ -542,6 +543,9 @@ public class Project extends BaseModel {
 
     @Transient
     private Boolean                 isCouponAvailable;
+
+    @Transient
+    private Date                    maxCouponExpiryAt;
 
     public int getProjectId() {
         return projectId;
@@ -1358,6 +1362,22 @@ public class Project extends BaseModel {
 
     public Map<String, Integer> getImageTypeCount() {
         return imageTypeCount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public Date getMaxCouponExpiryAt() {
+        return maxCouponExpiryAt;
+    }
+
+    public void setMaxCouponExpiryAt(Date maxCouponExpiryAt) {
+        this.maxCouponExpiryAt = maxCouponExpiryAt;
     }
 
 }
