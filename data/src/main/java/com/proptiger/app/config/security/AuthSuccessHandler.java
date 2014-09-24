@@ -46,13 +46,6 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             final HttpServletResponse response,
             final Authentication authentication) throws ServletException, IOException {
 
-        /*
-         * session will be valid for SESSION_MAX_INTERACTIVE_INTERVAL value,
-         * this should be same as of cookie life time, so both should be
-         * synched.
-         */
-        request.getSession().setMaxInactiveInterval(
-                PropertyReader.getRequiredPropertyAsType(PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL, Integer.class));
         ActiveUser activeUser = SecurityContextUtils.putActiveUserInSession(request, authentication);
         clearAuthenticationAttributes(request);
         SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter(

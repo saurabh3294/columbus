@@ -1,8 +1,13 @@
 package com.proptiger.data.service.security;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.proptiger.app.config.security.AuthSuccessHandler;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
@@ -46,6 +52,9 @@ public class OTPService {
     private UserOTPDao      userOTPDao;
 
     private OTPGenerator    generator = new OTPGenerator();
+    
+    @Autowired
+    private AuthSuccessHandler authSuccessHandler;
 
     public boolean isOTPRequired(Authentication auth) {
         ActiveUser activeUser = (ActiveUser) auth.getPrincipal();
@@ -72,8 +81,7 @@ public class OTPService {
     }
 
     @Transactional
-    public boolean validate(Integer otp, ActiveUser activeUser) {
-        boolean valid = false;
+    public void validate(Integer otp, ActiveUser activeUser, HttpServletRequest request, HttpServletResponse response) {
         Pageable pageable = new LimitOffsetPageRequest(0, 1, Direction.DESC, "id");
         List<UserOTP> userOTPs = userOTPDao.findLatestOTPByUserId(activeUser.getUserIdentifier(), pageable);
         if (userOTPs.isEmpty() || otp == null) {
@@ -91,12 +99,16 @@ public class OTPService {
         if (otp.equals(userOTPs.get(0).getOtp())) {
             grantAuthority();
             clearUserOTP(activeUser);
-            valid = true;
+            try {
+                authSuccessHandler.onAuthenticationSuccess(request, response, SecurityContextUtils.getAuthentication());
+            }
+            catch (ServletException | IOException e) {
+                throw new BadRequestException(ResponseCodes.OTP_REQUIRED, "OTP validation failed");
+            }
         }
         else {
             throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.WRONG_OTP);
         }
-        return valid;
     }
 
     private void clearUserOTP(ActiveUser activeUser) {

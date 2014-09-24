@@ -52,6 +52,10 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
         }
         if (otpService.isOTPRequired(authResult)) {
             /*
+             * this need to be done as success handler will be skipped for OTP flow
+             */
+            SecurityContextUtils.putActiveUserInSession(request, authResult);
+            /*
              * user authentication is not complete yet, send him a OTP over
              * specified channels and validate the same before marking that user
              * fully authenticated
