@@ -105,6 +105,11 @@ public class CouponCatalogueService {
         return couponCatalogueDao.findByIdAndPurchaseExpiryAtGreaterThan(couponId, new Date());
     }
 
+    /**
+     * Returns all details
+     * @param id
+     * @return
+     */
     public CouponCatalogue getCouponCatalogue(int id) {
         return couponCatalogueDao.fetchCoupon(id);
     }

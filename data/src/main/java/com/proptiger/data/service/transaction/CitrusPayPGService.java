@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import com.citruspay.pg.model.Refund;
 import com.citruspay.pg.net.RequestSignature;
 import com.citruspay.pg.util.CitruspayConstant;
 import com.google.gson.Gson;
+import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
@@ -43,6 +45,7 @@ import com.proptiger.data.model.user.User;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
+import com.proptiger.data.service.CouponCatalogueService;
 
 /**
  * @author mandeep
@@ -86,6 +89,9 @@ public class CitrusPayPGService {
 
     @Autowired
     private TransactionService           transactionService;
+
+    @Autowired
+    private CouponCatalogueService       couponCatalogueService;
 
     @Autowired
     private PaymentService               paymentService;
@@ -145,6 +151,11 @@ public class CitrusPayPGService {
 
         Transaction transaction = transactionService.getTransaction(data.getTxId());
         validateResponse(data, transaction);
+        
+        // XXX - We would like to hit enquiry to handle this case
+        if (!existsProductInventory(transaction)) {
+            return;
+        }
 
         Payment payment = new Payment();
         payment.setTransactionId(transaction.getId());
@@ -158,7 +169,7 @@ public class CitrusPayPGService {
             transaction.setCode(createCouponCode(transaction));
             transactionService.save(transaction);
             payment.setStatusId(PaymentStatus.Success.getId());
-            // TODO - inventory to be reduced
+            couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), -1);
         }
         else {
             payment.setStatusId(PaymentStatus.Failed.getId());
@@ -168,7 +179,7 @@ public class CitrusPayPGService {
     }
 
     private String createCouponCode(Transaction transaction) {
-        return "COUPON" + transaction.getId();
+        return "PT" + transaction.getId() + RandomStringUtils.randomAlphabetic(7 - (int) Math.log10(transaction.getId())).toUpperCase();
     }
 
     private void validateResponse(CitrusPayPGPaymentResponseData data, Transaction transaction) {
@@ -310,12 +321,13 @@ public class CitrusPayPGService {
                     if (transactionStatus == TransactionStatus.Complete && transaction.getStatusId() == TransactionStatus.Incomplete
                             .getId()) {
                         if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
-                            if (!existsProductInventory()) {
+                            if (!existsProductInventory(transaction)) {
                                 transactionStatus = TransactionStatus.Refunded;
                                 paymentStatus = PaymentStatus.Refunded;
                                 initiateRefund(transaction, lastEnquiry);
                             }
                             else {
+                                couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), -1);
                                 transaction.setCode(createCouponCode(transaction));
                             }
 
@@ -342,7 +354,7 @@ public class CitrusPayPGService {
                             transaction.setStatusId(TransactionStatus.Refunded.getId());
                             paymentService.save(payment);
                             transactionService.save(transaction);
-                            // TODO - inventory change
+                            couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), 1);
                         }
                         else {
                             logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
@@ -395,8 +407,12 @@ public class CitrusPayPGService {
         }
     }
 
-    private boolean existsProductInventory() {
-        // TODO Auto-generated method stub
+    private boolean existsProductInventory(Transaction transaction) {
+        CouponCatalogue couponCatalogue = couponCatalogueService.findOne(transaction.getProductId());
+        if (couponCatalogue != null && couponCatalogue.getInventoryLeft() > 0) {
+            return true;
+        }
+
         return false;
     }
 

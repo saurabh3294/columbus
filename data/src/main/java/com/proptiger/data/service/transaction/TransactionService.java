@@ -94,12 +94,10 @@ public class TransactionService {
             citrusPayPGService.updateDetails(transaction);
         }
 
-//        if (transaction.getStatusId() == TransactionStatus.Complete.getId()) {
-            if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
-                transaction.setUser(userService.getUserById(transaction.getUserId()));
-                transaction.setProduct(couponCatalogueService.getCouponCatalogue(transaction.getProductId()));
-            }
-//        }
+        if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
+            transaction.setUser(userService.getUserById(transaction.getUserId()));
+            transaction.setProduct(couponCatalogueService.getCouponCatalogue(transaction.getProductId()));
+        }
 
         return transaction;
     }
