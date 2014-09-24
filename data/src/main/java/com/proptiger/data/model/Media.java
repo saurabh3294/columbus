@@ -1,7 +1,7 @@
 package com.proptiger.data.model;
 
-import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,8 +22,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonschema.util.JsonLoader;
+import com.google.gson.Gson;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.util.MediaUtil;
@@ -82,7 +81,7 @@ public class Media extends BaseModel {
     private String            stringMediaExtraAttributes;
 
     @Transient
-    private JsonNode          mediaExtraAttributes;
+    private Map<String, Object>          mediaExtraAttributes;
 
     @JsonIgnore
     @ExcludeFromBeanCopy
@@ -168,11 +167,11 @@ public class Media extends BaseModel {
         extractAndSetExtraAttributesFromString();
     }
 
-    public JsonNode getMediaExtraAttributes() {
+    public Map<String, Object> getMediaExtraAttributes() {
         return mediaExtraAttributes;
     }
 
-    public void setMediaExtraAttributes(JsonNode mediaExtraAttributes) {
+    public void setMediaExtraAttributes(Map<String, Object> mediaExtraAttributes) {
         this.mediaExtraAttributes = mediaExtraAttributes;
         this.stringMediaExtraAttributes = mediaExtraAttributes.toString();
     }
@@ -251,9 +250,9 @@ public class Media extends BaseModel {
         }
 
         try {
-            this.mediaExtraAttributes = JsonLoader.fromString(this.stringMediaExtraAttributes);
+            this.mediaExtraAttributes = new Gson().fromJson(this.stringMediaExtraAttributes, Map.class);
         }
-        catch (IOException e) {
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
