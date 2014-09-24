@@ -748,6 +748,7 @@ public class ProjectService {
 
             if (property.isCouponAvailable() != null && property.isCouponAvailable()) {
                 couponCatalogue = property.getCouponCatalogue();
+                project.setMaxCouponExpiryAt(UtilityClass.max(project.getMaxCouponExpiryAt(), couponCatalogue.getPurchaseExpiryAt()));
                 project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponCatalogue.getDiscount()));
                 project.setCouponAvailable(true);
                 totalCouponsLeft += couponCatalogue.getInventoryLeft();

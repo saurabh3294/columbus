@@ -6,8 +6,10 @@ package com.proptiger.data.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -78,7 +80,11 @@ public class PropertyService {
     public List<Property> getProperties(Selector propertyFilter) {
         List<Property> properties = propertyDao.getProperties(propertyFilter);
         imageEnricher.setPropertiesImages(properties);
-        setCouponCatalogueForProperties(properties);
+        
+        Set<String> fields = propertyFilter.getFields();
+        if (fields != null && fields.contains("couponCatalogue")) {
+            setCouponCatalogueForProperties(properties);
+        }
 
         return properties;
     }
@@ -177,7 +183,14 @@ public class PropertyService {
     }
 
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
-        return propertyDao.getProperties(selector);
+        PaginatedResponse<List<Property>> response =  propertyDao.getProperties(selector);
+        
+        Set<String> fields = selector.getFieldSet();
+        if (fields != null && fields.contains("couponCatalogue")) {
+            setCouponCatalogueForProperties(response.getResults());
+        }
+        
+        return response;
     }
 
     public Map<String, Map<String, Map<String, FieldStatsInfo>>> getAvgPricePerUnitAreaBHKWise(
