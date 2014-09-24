@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -29,4 +30,11 @@ public interface TransactionDao extends JpaRepository<Transaction, Integer> {
 
     @Query("select T from Transaction T where T.statusId = 2 and T.userId = ?1 and T.code = ?2")
     public Transaction getTransaction(int userId, String code);
+    
+    @Query("select T from Transaction T where T.statusId = 2 and T.code = ?1 and T.typeId = 1")
+    public Transaction getNonExercisedTransactionByCode(String code);
+    
+    @Modifying
+    @Query("update Transaction  set statusId = 4 where id = ?1 and statusId = 2")
+    public int updateCouponAsRedeem(int transactionId);
 }

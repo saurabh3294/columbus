@@ -1276,4 +1276,24 @@ public class SolrResult extends BaseModel {
     public void setBuilderCouponMaxDiscount(Integer couponMaxDiscount) {
         builder.setMaxDiscount(couponMaxDiscount);
     }
+
+    @Field(value = "LOCALITY_COUPON_AVAILABLE")
+    public void setLocalityCouponAvailable(Boolean isCouponAvailable) {
+        locality.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "SUBURB_COUPON_AVAILABLE")
+    public void setSuburbCouponAvailable(Boolean isCouponAvailable) {
+        suburb.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "CITY_COUPON_AVAILABLE")
+    public void setCityCouponAvailable(Boolean isCouponAvailable) {
+        city.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "BUILDER_COUPON_AVAILABLE")
+    public void setBuilderCouponAvailable(Boolean isCouponAvailable) {
+        builder.setIsCouponAvailable(isCouponAvailable);
+    }
 }
