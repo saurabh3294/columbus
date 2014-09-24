@@ -518,7 +518,9 @@ public class Project extends BaseModel {
     @Transient
     @Field("IMAGE_TYPE_COUNT")
     private Map<String, Integer>	 imageTypeCount;
-
+    
+    @Transient
+    private List<Image>              landmarkImages;
     
     public int getProjectId() {
         return projectId;
@@ -1269,5 +1271,11 @@ public class Project extends BaseModel {
         this.residentialFlag = residentialFlag;
     }
 
-    
+    public List<Image> getLandmarkImages() {
+        return landmarkImages;
+    }
+
+    public void setLandmarkImages(List<Image> landmarkImages) {
+        this.landmarkImages = landmarkImages;
+    }
 }

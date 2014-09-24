@@ -279,7 +279,11 @@ public class ProjectService {
          * setting images.
          */
         imageEnricher.setProjectImages(project);
-
+        
+        /*
+         * set project LandMark Images.
+         */
+        imageEnricher.setProjectAmenitiesImages(project);
         /*
          * Setting locality Ratings And Reviews
          */
