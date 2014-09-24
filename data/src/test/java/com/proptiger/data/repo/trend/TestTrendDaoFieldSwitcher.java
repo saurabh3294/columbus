@@ -40,6 +40,7 @@ public class TestTrendDaoFieldSwitcher {
         selector.addField("avgInventoryOverhang");
         selector.addField("wavgInventoryOverhangOnSupply");
         selector.addField("wavgInventoryOverhangOnSupply");
+        selector.addField("constructionStatus");
         selector.setGroup("quarter");
 
         HashMap<String, String> fieldSwitchMap = tdfw.getFieldSwitchMapForSelectorFields(selector);
@@ -51,6 +52,7 @@ public class TestTrendDaoFieldSwitcher {
         assertEquals(testMsg, "wavgInventoryQuarterOnLtdSupply", fieldSwitchMap.get("wavgInventoryOnSupply"));
         assertEquals(testMsg, "avgInventoryOverhangQuarter", fieldSwitchMap.get("avgInventoryOverhang"));
         assertEquals(testMsg, "wavgInventoryOverhangQuarterOnLtdSupply", fieldSwitchMap.get("wavgInventoryOverhangOnSupply"));
+        assertEquals(testMsg, "constructionStatusQuarter", fieldSwitchMap.get("constructionStatus"));
         
         selector = new FIQLSelector();
         selector.addField("avgPricePerUnitArea");
@@ -61,6 +63,7 @@ public class TestTrendDaoFieldSwitcher {
         selector.addField("avgInventoryOverhang");
         selector.addField("wavgInventoryOverhangOnSupply");
         selector.addField("wavgInventoryOverhangOnSupply");
+        selector.addField("constructionStatus");
         selector.setGroup("month");
 
         fieldSwitchMap = tdfw.getFieldSwitchMapForSelectorFields(selector);
@@ -72,6 +75,7 @@ public class TestTrendDaoFieldSwitcher {
         assertEquals(testMsg, "wavgInventoryOnLtdSupply", fieldSwitchMap.get("wavgInventoryOnSupply"));
         assertEquals(testMsg, "avgInventoryOverhang", fieldSwitchMap.get("avgInventoryOverhang"));
         assertEquals(testMsg, "wavgInventoryOverhangOnLtdSupply", fieldSwitchMap.get("wavgInventoryOverhangOnSupply"));
+        assertEquals(testMsg, "constructionStatus", fieldSwitchMap.get("constructionStatus"));
         
         assertEquals(testMsg, selector.getFieldSet().size(), fieldSwitchMap.size());
         
