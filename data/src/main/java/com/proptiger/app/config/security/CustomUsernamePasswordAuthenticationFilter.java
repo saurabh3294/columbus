@@ -46,14 +46,6 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
          * complete yet, as this will be handled in filters
          */
         SecurityContextHolder.getContext().setAuthentication(authResult);
-        /*
-         * session will be valid for SESSION_MAX_INTERACTIVE_INTERVAL value,
-         * this should be same as of cookie life time, so both should be
-         * synched.
-         */
-        request.getSession().setMaxInactiveInterval(
-                PropertyReader.getRequiredPropertyAsType(PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL, Integer.class));
-        ActiveUser activeUser = SecurityContextUtils.putActiveUserInSession(request, authResult);
         // Fire event
         if (this.eventPublisher != null) {
             eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
@@ -64,7 +56,7 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
              * specified channels and validate the same before marking that user
              * fully authenticated
              */
-            otpService.respondWithOTP(activeUser);
+            otpService.respondWithOTP((ActiveUser) authResult.getPrincipal());
             getFailureHandler().onAuthenticationFailure(
                     request,
                     response,

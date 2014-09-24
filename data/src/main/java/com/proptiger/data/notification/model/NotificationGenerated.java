@@ -20,7 +20,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.proptiger.data.model.BaseModel;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.payload.NotificationMessagePayload;
 
@@ -52,10 +51,6 @@ public class NotificationGenerated extends BaseModel {
 
     @Column(name = "user_id")
     private Integer                    userId;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
-    private ForumUser                  forumUser;
 
     @Column(name = "data")
     private String                     data;
@@ -167,14 +162,6 @@ public class NotificationGenerated extends BaseModel {
 
     public void setNotificationMessagePayload(NotificationMessagePayload notificationMessagePayload) {
         this.notificationMessagePayload = notificationMessagePayload;
-    }
-
-    public ForumUser getForumUser() {
-        return forumUser;
-    }
-
-    public void setForumUser(ForumUser forumUser) {
-        this.forumUser = forumUser;
     }
 
     public NotificationType getNotificationType() {

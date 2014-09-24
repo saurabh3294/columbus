@@ -136,7 +136,7 @@ public class NotificationMessageService {
      */
     public NotificationMessage createNotificationMessage(String notificationType, int userId, String template) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
-        payloadMap.put(Tokens.Template.name(), template);
+        payloadMap.put(Tokens.Default.Template.name(), template);
         return createNotificationMessage(notificationType, userId, payloadMap);
     }
     
@@ -172,8 +172,8 @@ public class NotificationMessageService {
      */
     public NotificationMessage createNotificationMessage(int userId, String subject, String body) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
-        payloadMap.put(Tokens.Subject.name(), subject);
-        payloadMap.put(Tokens.Body.name(), body);
+        payloadMap.put(Tokens.Default.Subject.name(), subject);
+        payloadMap.put(Tokens.Default.Body.name(), body);
         return createNotificationMessage(null, userId, payloadMap);
     }
 

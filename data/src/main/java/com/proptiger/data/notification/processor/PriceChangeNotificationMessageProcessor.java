@@ -61,10 +61,10 @@ public class PriceChangeNotificationMessageProcessor extends NotificationMessage
                     (Double) notificationTypePayload.getNewValue());
 
             Map<String, Object> userDataMap = new HashMap<String, Object>();
-            userDataMap.put(Tokens.ProjectName.name(), portfolioListing.getProjectName());
-            userDataMap.put(Tokens.PropertyName.name(), portfolioListing.getName());
-            userDataMap.put(Tokens.AbsolutePercentageDifference.name(), Math.abs(percentageDifference));
-            userDataMap.put(Tokens.PercentageChangeString.name(), getPercentageChangeString(percentageDifference));
+            userDataMap.put(Tokens.PortfolioPriceChange.ProjectName.name(), portfolioListing.getProjectName());
+            userDataMap.put(Tokens.PortfolioPriceChange.PropertyName.name(), portfolioListing.getName());
+            userDataMap.put(Tokens.PortfolioPriceChange.AbsolutePercentageDifference.name(), Math.abs(percentageDifference));
+            userDataMap.put(Tokens.PortfolioPriceChange.PercentageChangeString.name(), getPercentageChangeString(percentageDifference));
 
             NotificationMessagePayload nmPayload = new NotificationMessagePayload();
             nmPayload.setExtraAttributes(userDataMap);

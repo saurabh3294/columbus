@@ -17,6 +17,9 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.mvc.UserController;
 import com.proptiger.data.service.security.OTPService;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.SecurityContextUtils;
 
 /**
  * Auth success handler to manage session and response after authentication. It
@@ -43,6 +46,14 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             final HttpServletResponse response,
             final Authentication authentication) throws ServletException, IOException {
 
+        /*
+         * session will be valid for SESSION_MAX_INTERACTIVE_INTERVAL value,
+         * this should be same as of cookie life time, so both should be
+         * synched.
+         */
+        request.getSession().setMaxInactiveInterval(
+                PropertyReader.getRequiredPropertyAsType(PropertyKeys.SESSION_MAX_INTERACTIVE_INTERVAL, Integer.class));
+        ActiveUser activeUser = SecurityContextUtils.putActiveUserInSession(request, authentication);
         clearAuthenticationAttributes(request);
         SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter(
                 "fieldFilter",
@@ -51,6 +62,6 @@ public class AuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         ObjectMapper mapper = userController.getMapper();
         response.getWriter().print(
                 mapper.writer(filterProvider).writeValueAsString(
-                        userController.getUserDetails((ActiveUser) authentication.getPrincipal())));
+                        userController.getUserDetails(activeUser)));
     }
 }
