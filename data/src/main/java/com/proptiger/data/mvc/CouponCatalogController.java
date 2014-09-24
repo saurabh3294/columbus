@@ -23,6 +23,8 @@ public class CouponCatalogController extends BaseController {
         return new APIResponse("Coupon Has been redeemed.");
     }
     
+    @ResponseBody
+    @RequestMapping("data/v1/coupon/{couponCode}/user-details")
     public APIResponse fetchUserDetails(String couponCode){
         User user = couponService.fetchUserDetailsOfCouponBuyer(couponCode);
         
