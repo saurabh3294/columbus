@@ -28,6 +28,7 @@ public class UserAttribute extends BaseModel {
     private int id;
     
     @Column(name = "user_id")
+    @JsonIgnore
     private int userId;
     
     @Column(name = "attribute_name")

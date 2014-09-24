@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
 import com.proptiger.data.model.enums.transaction.TransactionType;
@@ -117,5 +118,14 @@ public class TransactionService {
 
     public List<Transaction> getRefundableTransactions() {
         return transactionDao.getRefundableTransactions(DateUtil.addDays(new Date(), -1 * MAX_REFUND_PERIOD));
+    }
+    
+    public Transaction getNonRedeemTransactionByCode(String code){
+        return transactionDao.getNonExercisedTransactionByCode(code);
+    }
+    
+    @Transactional
+    public int updateCouponRedeem(Transaction transaction){
+        return transactionDao.updateCouponAsRedeem(transaction.getId());
     }
 }

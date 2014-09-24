@@ -9,14 +9,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.amazonaws.services.cloudfront_2012_03_15.model.InvalidArgumentException;
 import com.proptiger.data.model.CouponCatalogue;
+import com.proptiger.data.model.transaction.Transaction;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.repo.CouponCatalogueDao;
+import com.proptiger.data.service.transaction.TransactionService;
+import com.proptiger.data.service.user.UserService;
 
 @Service
 public class CouponCatalogueService {
 
     @Autowired
     private CouponCatalogueDao couponCatalogueDao;
+    
+    @Autowired
+    private TransactionService transactionService;
+    
+    @Autowired
+    private UserService userService;
 
     /**
      * This method will return the coupon catalogue for a propertyId
@@ -66,6 +77,12 @@ public class CouponCatalogueService {
         return map;
     }
 
+    /**
+     * This method will update the number of coupons left after coupon refund or purchase.
+     * @param couponId
+     * @param inventoryCount
+     * @return
+     */
     @Transactional
     public CouponCatalogue updateCouponCatalogueInventoryLeft(int couponId, int inventoryCount) {
         Integer numberOfRowsAffected = couponCatalogueDao.updateCouponInventory(couponId, inventoryCount);
@@ -75,12 +92,51 @@ public class CouponCatalogueService {
 
         return null;
     }
-
+    
+    /**
+     * This method will return the valid coupons based on coupon Id by checking its
+     * expiry date.
+     */
     public CouponCatalogue findOne(int couponId) {
         return couponCatalogueDao.findByIdAndPurchaseExpiryAtGreaterThan(couponId, new Date());
     }
 
     public CouponCatalogue getCouponCatalogue(int id) {
         return couponCatalogueDao.fetchCoupon(id);
+    }
+
+    /**
+     * This method will redeem coupon.
+     * @param couponCode
+     * @return
+     */
+    public int redeemCoupon(String couponCode){
+        Transaction transaction = transactionService.getNonRedeemTransactionByCode(couponCode);
+        if(transaction == null){
+            throw new InvalidArgumentException("Coupon Code does not exits or has been redeemed.");
+        }
+        CouponCatalogue couponCatalogue = couponCatalogueDao.findOne(transaction.getProductId());
+        
+        /*
+         * Coupon Expired then throw Exception.
+         */
+        if( couponCatalogue.getPurchaseExpiryAt().before(new Date()) ){
+            throw new InvalidArgumentException("Coupon has been expired. Hence cannot be redeemed.");
+        }
+        int status = transactionService.updateCouponRedeem(transaction);
+        
+        if(status < 1){
+            throw new IllegalArgumentException(" Coupon has already been redeem or been refunded.");
+        }
+        return status;
+    }
+    
+    public User fetchUserDetailsOfCouponBuyer(String couponCode){
+        Transaction transaction = transactionService.getNonRedeemTransactionByCode(couponCode);
+        if(transaction == null){
+            throw new InvalidArgumentException("Coupon Code does not exits or has been redeemed.");
+        }
+     
+        return userService.getUserById(transaction.getUserId());
     }
 }

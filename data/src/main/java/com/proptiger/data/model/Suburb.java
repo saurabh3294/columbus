@@ -129,6 +129,10 @@ public class Suburb extends BaseModel {
     @Field("SUBURB_COUPON_MAX_DISCOUNT")
     private Integer                         maxDiscount;
 
+    @Transient
+    @Field("SUBURB_COUPON_AVAILABLE")
+    private Boolean                         isCouponAvailable;
+
     public int getId() {
         return id;
     }
@@ -287,5 +291,13 @@ public class Suburb extends BaseModel {
 
     public void setMaxDiscount(Integer maxDiscount) {
         this.maxDiscount = maxDiscount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
     }
 }
