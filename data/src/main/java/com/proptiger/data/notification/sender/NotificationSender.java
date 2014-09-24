@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
 import com.proptiger.data.notification.model.NotificationGenerated;
@@ -28,7 +27,6 @@ public class NotificationSender {
     @Autowired
     private SentNotificationLogService   sentNotificationLogService;
 
-    
     public Integer sendNotification(MediumType medium) {
         Integer numberOfSendNtGen = 0;
         List<NotificationGenerated> nGeneratedList = nGeneratedService.getScheduledAndReadyNotifications(medium);
@@ -56,9 +54,10 @@ public class NotificationSender {
             return false;
         }
 
-        ForumUser forumUser = nGenerated.getForumUser();
-        nGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
-                .send(template, forumUser, nGenerated.getNotificationType().getName());
+        Integer userId = nGenerated.getUserId();
+        boolean isSent = nGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
+                .send(template, userId, nGenerated.getNotificationType().getName());
+        
         // Sent NotificationGenerated logging handling will be done
         // later.
         // currently notification status of sent NG is marked as
@@ -70,12 +69,18 @@ public class NotificationSender {
          * ntGenerated.getNotificationMessage().getForumUser() .getUserId(), new
          * Date()));
          */
+
+        NotificationStatus notificationStatus = NotificationStatus.Failed;
+        if (isSent) {
+            notificationStatus = NotificationStatus.Sent;
+        }
+
         nGeneratedService.updateNotificationGeneratedStatusOnOldStatus(
                 nGenerated.getId(),
-                NotificationStatus.Sent,
+                notificationStatus,
                 nGenerated.getNotificationStatus());
 
-        return true;
+        return isSent;
 
     }
 }
