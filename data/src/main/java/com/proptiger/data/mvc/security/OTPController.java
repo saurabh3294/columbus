@@ -1,5 +1,8 @@
 package com.proptiger.data.mvc.security;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -26,13 +29,13 @@ public class OTPController extends BaseController{
     private OTPService otpService;
 
     @RequestMapping(value = "app/v1/otp/validate", method = RequestMethod.POST)
-    @ResponseBody
-    public APIResponse validateOTP(
+    public void validateOTP(
             @RequestBody Integer otp,
-            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+            @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser,
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
-        boolean valid = otpService.validate(otp, activeUser);
-        return new APIResponse(valid);
+        otpService.validate(otp, activeUser, request, response);
     }
     
     @RequestMapping(value = "app/v1/otp", method = RequestMethod.GET)
