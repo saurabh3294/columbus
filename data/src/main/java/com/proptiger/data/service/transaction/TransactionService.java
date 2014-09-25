@@ -29,10 +29,10 @@ import com.proptiger.exception.ProAPIException;
 @Service
 public class TransactionService {
     @Value("${transaction.peruser.max.count}")
-    private static int MAX_COUPON_PER_USER;
+    private int MAX_COUPON_PER_USER;
     
     @Value("${transaction.refund.days.count}")
-    private static int MAX_REFUND_PERIOD;
+    private int MAX_REFUND_PERIOD;
 
     @Autowired
     private TransactionDao     transactionDao;
@@ -65,7 +65,7 @@ public class TransactionService {
         transaction.setUserId(user.getId());
 
         if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
-            if (couponCatalogueService.isPurchasable(transaction.getProductId())) {
+            if (!couponCatalogueService.isPurchasable(transaction.getProductId())) {
                 throw new ProAPIException(ResponseCodes.COUPONS_SOLD_OUT, "Coupons sold out!");
             }
 
@@ -92,8 +92,10 @@ public class TransactionService {
             citrusPayPGService.updateDetails(transaction);
         }
 
+        transaction = transactionDao.findOne(transactionId);
         if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
             transaction.setUser(userService.getUserById(transaction.getUserId()));
+            userService.enrichUserDetails(transaction.getUser());
             transaction.setProduct(couponCatalogueService.getCouponCatalogue(transaction.getProductId()));
         }
 
