@@ -41,16 +41,24 @@ public class CustomUsernamePasswordAuthenticationFilter extends UsernamePassword
             HttpServletResponse response,
             FilterChain chain,
             Authentication authResult) throws IOException, ServletException {
+        boolean otpRequired = otpService.isOTPRequired(authResult, request);
+        if(otpRequired){
+            /*
+             * grant PRE_AUTH_USER role to all users who requires otp
+             */
+            authResult = SecurityContextUtils.grantPreAuthAuthority(authResult);
+        }
+        
         /*
          * let Authentication set in security context even if auth did not
          * complete yet, as this will be handled in filters
          */
-        SecurityContextHolder.getContext().setAuthentication(authResult);
+        SecurityContextUtils.setAuthentication(authResult);
         // Fire event
         if (this.eventPublisher != null) {
             eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
         }
-        if (otpService.isOTPRequired(authResult)) {
+        if (otpRequired) {
             /*
              * this need to be done as success handler will be skipped for OTP flow
              */

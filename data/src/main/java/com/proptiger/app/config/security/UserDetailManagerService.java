@@ -48,7 +48,7 @@ public class UserDetailManagerService implements UserDetailsService {
                         true,
                         true,
                         true,
-                       SecurityContextUtils.getUserAuthority(applicationType), applicationType);
+                       SecurityContextUtils.getDefaultAuthority(), applicationType);
             }
             else {
                 logger.error("User not found with email {}", username);

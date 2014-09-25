@@ -112,7 +112,7 @@ public class CacheClientUtil {
                     true,
                     true,
                     true,
-                    SecurityContextUtils.getUserAuthority(applicationType),
+                    SecurityContextUtils.getDefaultAuthority(),
                     applicationType);
         }
         return userInfo;

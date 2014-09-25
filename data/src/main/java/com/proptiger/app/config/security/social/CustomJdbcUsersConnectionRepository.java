@@ -114,7 +114,7 @@ public class CustomJdbcUsersConnectionRepository extends JdbcUsersConnectionRepo
                     true,
                     true,
                     true,
-                    SecurityContextUtils.getUserAuthority(applicationType),
+                    SecurityContextUtils.getDefaultAuthority(),
                     applicationType);
 
             return new UsernamePasswordAuthenticationToken(socialUser, null, socialUser.getAuthorities());

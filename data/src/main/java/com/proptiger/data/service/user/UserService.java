@@ -184,7 +184,7 @@ public class UserService {
      * @return {@link ForumUser}
      */
     @Transactional
-    public CustomUser getUserDetails(int userId) {
+    public CustomUser getUserDetails(Integer userId, Application application) {
         User user = userDao.findById(userId);
         CustomUser customUser = new CustomUser();
         customUser.setId(user.getId());
@@ -195,7 +195,9 @@ public class UserService {
         List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
         customUser.setDashboards(dashboards);
 
-        setAppDetails(customUser, user);
+        if(application.equals(Application.B2B)){
+            setAppDetails(customUser, user);
+        }
         return customUser;
     }
 
@@ -447,10 +449,7 @@ public class UserService {
             SecurityContextUtils.autoLogin(user);
         }
 
-        /*
-         * after registration make user auto login
-         */
-        return getUserDetails(user.getId());
+        return getUserDetails(user.getId(), Application.DEFAULT);
     }
 
     private User getUserFromRegister(Register register) {
