@@ -53,10 +53,11 @@ public class TransactionService {
         validateMaxCouponsBought(user.getId());
 
         // Trying to reuse existing transaction wherever possible
+        // TODO - remove as one user's payment might not be inserted because of same
         List<Transaction> transactions = transactionDao.getExistingReusableTransactions(user.getId());
         if (transactions != null && !transactions.isEmpty()) {
             transaction.setId(transactions.get(0).getId());
-            transaction.setCreatedAt(new Date());
+            transaction.setCreatedAt(transactions.get(0).getCreatedAt());
         }
         else {
             transaction.setId(null);

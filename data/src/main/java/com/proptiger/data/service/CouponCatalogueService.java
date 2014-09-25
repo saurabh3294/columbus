@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.amazonaws.services.cloudfront_2012_03_15.model.InvalidArgumentException;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.transaction.Transaction;
