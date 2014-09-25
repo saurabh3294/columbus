@@ -17,7 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.proptiger.data.enums.Application;
 import com.proptiger.data.enums.security.UserRole;
 import com.proptiger.data.internal.dto.ActiveUser;
-import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.service.ApplicationNameService;
 
 /**
@@ -76,17 +76,17 @@ public class SecurityContextUtils {
         return activeUser;
     }
 
-    private static Authentication createNewAuthentication(ForumUser forumUser) {
+    private static Authentication createNewAuthentication(User user) {
         Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
         UserDetails userDetails = new ActiveUser(
-                forumUser.getUserId(),
-                forumUser.getEmail(),
-                forumUser.getPassword(),
+                user.getId(),
+                user.getEmail(),
+                user.getPassword(),
                 true,
                 true,
                 true,
                 true,
-                getUserAuthority(applicationType),
+                getDefaultAuthority(),
                 applicationType);
 
         UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
@@ -103,11 +103,11 @@ public class SecurityContextUtils {
      * This method will put active user in request session too, to enable
      * controllers to get active user object
      * 
-     * @param forumUser
+     * @param user
      * @return
      */
-    public static Authentication autoLogin(ForumUser forumUser) {
-        Authentication auth = createNewAuthentication(forumUser);
+    public static Authentication autoLogin(User user) {
+        Authentication auth = createNewAuthentication(user);
         putAuthInContext(auth);
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                 .getRequest();
@@ -148,14 +148,40 @@ public class SecurityContextUtils {
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
-    public static List<GrantedAuthority> getUserAuthority(Application application) {
+    public static List<GrantedAuthority> getDefaultAuthority() {
         List<GrantedAuthority> authority = new ArrayList<>();
-        if (application == Application.B2B) {
-            authority.add(new SimpleGrantedAuthority(UserRole.PRE_AUTH_USER.name()));
-        }
-        else {
-            authority.add(new SimpleGrantedAuthority(UserRole.USER.name()));
-        }
+        authority.add(new SimpleGrantedAuthority(UserRole.USER.name()));
         return authority;
+    }
+
+    /**
+     * This method grants USER role to the currently logged in user after otp
+     * validation
+     */
+    public static Authentication grantUserAuthorityToActiveUser() {
+        Authentication auth = SecurityContextUtils.getAuthentication();
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority(UserRole.USER.name()));
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                auth.getPrincipal(),
+                auth.getCredentials(),
+                authorities);
+        SecurityContextUtils.setAuthentication(newAuth);
+        return newAuth;
+    }
+    
+    /**
+     * This method grants PRE_AUTH_USER role to the currently logged in user after otp
+     * validation
+     */
+    public static Authentication grantPreAuthAuthority(Authentication auth) {
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        authorities.add(new SimpleGrantedAuthority(UserRole.PRE_AUTH_USER.name()));
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                auth.getPrincipal(),
+                auth.getCredentials(),
+                authorities);
+        SecurityContextUtils.setAuthentication(newAuth);
+        return newAuth;
     }
 }

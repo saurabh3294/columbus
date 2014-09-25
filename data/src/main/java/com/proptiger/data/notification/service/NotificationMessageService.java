@@ -25,7 +25,6 @@ import com.proptiger.data.notification.model.payload.NotificationMessageUpdateHi
 import com.proptiger.data.notification.model.payload.NotificationTypePayload;
 import com.proptiger.data.notification.processor.NotificationMessageProcessor;
 import com.proptiger.data.notification.repo.NotificationMessageDao;
-import com.proptiger.data.service.ForumUserService;
 import com.proptiger.data.util.Serializer;
 
 @Service
@@ -40,9 +39,6 @@ public class NotificationMessageService {
 
     @Autowired
     private NotificationTypeService                 notiTypeService;
-
-    @Autowired
-    private ForumUserService                        forumUserService;
 
     @Autowired
     private UserNotificationTypeSubscriptionService userNTSubscriptionService;
