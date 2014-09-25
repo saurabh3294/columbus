@@ -217,4 +217,12 @@ public class LandMarkService {
 
         return localityAmenityDao.getLocalityAmenitiesOnSelector(selector);
     }
+
+    public List<Long> getIdListFromAmenities(List<LandMark> amenities) {
+        List<Long> amenityIds = new ArrayList<Long>();
+        for (LandMark amenity : amenities) {
+            amenityIds.add(new Long(amenity.getId()));
+        }
+        return amenityIds;
+    }
 }

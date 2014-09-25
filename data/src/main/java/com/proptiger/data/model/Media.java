@@ -1,7 +1,7 @@
 package com.proptiger.data.model;
 
-import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,8 +22,7 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jsonschema.util.JsonLoader;
+import com.google.gson.Gson;
 import com.proptiger.data.annotations.ExcludeFromBeanCopy;
 import com.proptiger.data.model.image.ObjectMediaType;
 import com.proptiger.data.util.MediaUtil;
@@ -37,73 +36,73 @@ import com.proptiger.data.util.MediaUtil;
 @Entity
 @Table(name = "media")
 public class Media extends BaseModel {
-    private static final long serialVersionUID = 1L;
+    private static final long   serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @ExcludeFromBeanCopy
-    private Integer           id;
+    private Integer             id;
 
     @Column(name = "object_media_type_id")
     @ExcludeFromBeanCopy
-    private Integer           objectMediaTypeId;
+    private Integer             objectMediaTypeId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "object_media_type_id", insertable = false, updatable = false)
     @ExcludeFromBeanCopy
-    private ObjectMediaType   objectMediaType;
+    private ObjectMediaType     objectMediaType;
 
     @Column(name = "object_id")
     @ExcludeFromBeanCopy
-    private Integer           objectId;
+    private Integer             objectId;
 
     @JsonIgnore
     @ExcludeFromBeanCopy
-    private String            url;
+    private String              url;
 
     @Min(value = 1, message = "Priority can't be less than 1")
     @Max(value = 999, message = "Priority can't be more than 999")
-    private int               priority         = 1;
+    private int                 priority         = 1;
 
     @Transient
     @ExcludeFromBeanCopy
-    private String            absoluteUrl;
+    private String              absoluteUrl;
 
     @Column(name = "size_in_bytes")
     @ExcludeFromBeanCopy
-    private Long              sizeInBytes;
+    private Long                sizeInBytes;
 
-    private String            description;
+    private String              description;
 
     @JsonIgnore
     @ExcludeFromBeanCopy
     @Column(name = "media_extra_attributes")
-    private String            stringMediaExtraAttributes;
+    private String              stringMediaExtraAttributes;
 
     @Transient
-    private JsonNode          mediaExtraAttributes;
+    private Map<String, Object> mediaExtraAttributes;
 
     @JsonIgnore
     @ExcludeFromBeanCopy
     @Column(name = "content_hash")
-    private String            contentHash;
+    private String              contentHash;
 
     @ExcludeFromBeanCopy
-    private boolean           active;
+    private boolean             active;
 
     @Column(name = "created_at")
     @ExcludeFromBeanCopy
-    private Date              createdAt        = new Date();
+    private Date                createdAt        = new Date();
 
     @Column(name = "updated_at")
     @ExcludeFromBeanCopy
-    private Date              updatedAt        = new Date();
+    private Date                updatedAt        = new Date();
 
     @OneToOne(optional = true)
     @JoinColumn(name = "id", insertable = false, updatable = false)
     @ExcludeFromBeanCopy
-    private AudioAttributes   audioAttributes;
+    private AudioAttributes     audioAttributes;
 
     @PostLoad
     private void postLoad() {
@@ -168,11 +167,11 @@ public class Media extends BaseModel {
         extractAndSetExtraAttributesFromString();
     }
 
-    public JsonNode getMediaExtraAttributes() {
+    public Map<String, Object> getMediaExtraAttributes() {
         return mediaExtraAttributes;
     }
 
-    public void setMediaExtraAttributes(JsonNode mediaExtraAttributes) {
+    public void setMediaExtraAttributes(Map<String, Object> mediaExtraAttributes) {
         this.mediaExtraAttributes = mediaExtraAttributes;
         this.stringMediaExtraAttributes = mediaExtraAttributes.toString();
     }
@@ -251,9 +250,9 @@ public class Media extends BaseModel {
         }
 
         try {
-            this.mediaExtraAttributes = JsonLoader.fromString(this.stringMediaExtraAttributes);
+            this.mediaExtraAttributes = new Gson().fromJson(this.stringMediaExtraAttributes, Map.class);
         }
-        catch (IOException e) {
+        catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

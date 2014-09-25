@@ -108,7 +108,12 @@ public class TrendDaoFieldSwitcher {
                 fieldSwitchMap.put(fieldName, switchedName);
                 continue;
             }
-            String baseFieldNameCaps = StringUtils.capitalize(baseFieldName);
+            
+            String baseFieldNameCaps = baseFieldName;
+            if(!baseFieldName.equals(switchedName)){
+                baseFieldNameCaps = StringUtils.capitalize(baseFieldName);
+            }
+            
             switchedName = StringUtils.replace(
                     switchedName,
                     baseFieldNameCaps,
