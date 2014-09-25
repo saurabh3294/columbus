@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,6 +46,7 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Permission;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
 import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
@@ -53,7 +55,6 @@ import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.model.user.UserEmail;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
@@ -250,26 +251,46 @@ public class UserService {
     private UserAppSubscription setUserAppSubscriptionDetails(
             List<SubscriptionPermission> subscriptionPermissions,
             UserAppSubscription userAppSubscription) {
-        List<Integer> subscribedIds = new ArrayList<>();
+        List<Integer> subscribedIdsCity = new ArrayList<>();
+        List<Integer> subscribedIdsLocality = new ArrayList<>();
+        Permission permission = null;
+        int objectTypeId = 0;
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
-            subscribedIds.add(subscriptionPermission.getPermission().getObjectId());
+            permission = subscriptionPermission.getPermission();
+            objectTypeId = permission.getObjectTypeId();
+            if(objectTypeId == DomainObject.city.getObjectTypeId()){
+                subscribedIdsCity.add(permission.getObjectId());
+            }
+            else if(objectTypeId == DomainObject.locality.getObjectTypeId()){
+                subscribedIdsLocality.add(permission.getObjectId());
+            }
         }
-
-        if (!subscribedIds.isEmpty()) {
-            userAppSubscription.setUserType(DomainObject.getFromObjectTypeId(
-                    subscriptionPermissions.get(0).getPermission().getObjectTypeId()).toString());
-
-            String json = "{\"filters\":{\"and\":[{\"equal\":{\"" + userAppSubscription.getUserType()
-                    + "Id\":["
-                    + StringUtils.join(subscribedIds, ',')
-                    + "]}}]},\"paging\":{\"start\":0,\"rows\":9999}}";
-
-            List<Locality> localities = localityService.getLocalities(new Gson().fromJson(json, Selector.class))
-                    .getResults();
-
+        
+        /* Populating UserType */
+        
+        if(subscribedIdsCity.isEmpty() && subscribedIdsLocality.isEmpty()){
+            return userAppSubscription;
+        }
+        else if(subscribedIdsCity.isEmpty()){
+            userAppSubscription.setUserType(DomainObject.locality.toString());
+        }
+        else{
+            userAppSubscription.setUserType(DomainObject.city.toString());
+        }
+        
+        /* Populating Locality List */
+        
+        List<Locality> localityList = getLocalityListByCityIdList(subscribedIdsCity);
+        
+        if(!subscribedIdsLocality.isEmpty()){
+            localityList.addAll(localityService.findByLocalityIdList(subscribedIdsLocality).getResults());
+        }
+        
+        if (!localityList.isEmpty()) {
+            
             @SuppressWarnings("unchecked")
             Map<Integer, List<Locality>> cityGroupedLocalities = (Map<Integer, List<Locality>>) UtilityClass
-                    .groupFieldsAsPerKeys(localities, Arrays.asList("cityId"));
+                    .groupFieldsAsPerKeys(localityList, Arrays.asList("cityId"));
 
             for (Integer cityId : cityGroupedLocalities.keySet()) {
                 userAppSubscription.setCityCount(userAppSubscription.getCityCount() + 1);
@@ -298,7 +319,20 @@ public class UserService {
         }
         return userAppSubscription;
     }
+    
+    private List<Locality> getLocalityListByCityIdList(List<Integer> subscribedIdsCity) {
 
+        if (subscribedIdsCity.isEmpty()) {
+            return new ArrayList<Locality>();
+        }
+
+        String json = "{\"filters\":{\"and\":[{\"equal\":{\"" + "cityId\":["
+                + StringUtils.join(subscribedIdsCity, ',')
+                + "]}}]},\"paging\":{\"start\":0,\"rows\":9999}}";
+
+        return (localityService.getLocalities(new Gson().fromJson(json, Selector.class)).getResults());
+    }
+    
     /**
      * Get if user have already enquired a entity
      * 
