@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.model.Enquiry.EnquiryCustomDetails;
 import com.proptiger.data.repo.EnquiryDao;
-import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.user.UserDao;
 
 /**
  * Enquiry service class to provide enquiry details done by user
@@ -22,7 +22,7 @@ public class EnquiryService {
     private EnquiryDao   enquiryDao;
 
     @Autowired
-    private ForumUserDao forumUserDao;
+    private UserDao      userDao;
 
     /**
      * Get enquiries for user
@@ -31,8 +31,7 @@ public class EnquiryService {
      * @return
      */
     public List<EnquiryCustomDetails> getEnquiries(Integer userId) {
-        String email = forumUserDao.findEmailByUserId(userId);
-        List<EnquiryCustomDetails> list = enquiryDao.findEnquiriesByEmail(email);
+        List<EnquiryCustomDetails> list = enquiryDao.findEnquiriesByEmail(userDao.findById(userId).getEmail());
         return list;
     }
 }

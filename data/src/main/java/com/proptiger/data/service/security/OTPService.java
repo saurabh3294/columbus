@@ -1,9 +1,10 @@
 package com.proptiger.data.service.security;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -12,25 +13,28 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.app.config.security.AuthSuccessHandler;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.enums.Application;
-import com.proptiger.data.enums.security.UserRole;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
+import com.proptiger.data.model.CompanyIP;
+import com.proptiger.data.model.CompanySubscription;
+import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.user.UserOTP;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
 import com.proptiger.data.repo.APIAccessLogDao;
+import com.proptiger.data.repo.CompanyIPDao;
 import com.proptiger.data.repo.user.UserOTPDao;
 import com.proptiger.data.service.mail.MailSender;
+import com.proptiger.data.service.user.UserSubscriptionService;
+import com.proptiger.data.util.PropertyKeys;
+import com.proptiger.data.util.PropertyReader;
 import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.BadRequestException;
 
@@ -43,26 +47,66 @@ import com.proptiger.exception.BadRequestException;
 public class OTPService {
 
     @Autowired
-    private APIAccessLogDao accessLogDao;
+    private APIAccessLogDao         accessLogDao;
 
     @Autowired
-    private MailSender      mailSender;
+    private MailSender              mailSender;
 
     @Autowired
-    private UserOTPDao      userOTPDao;
+    private UserOTPDao              userOTPDao;
 
-    private OTPGenerator    generator = new OTPGenerator();
-    
+    private OTPGenerator            generator = new OTPGenerator();
+
     @Autowired
-    private AuthSuccessHandler authSuccessHandler;
+    private AuthSuccessHandler      authSuccessHandler;
 
-    public boolean isOTPRequired(Authentication auth) {
+    @Autowired
+    private UserSubscriptionService userSubscriptionService;
+
+    @Autowired
+    private CompanyIPDao            companyIPDao;
+
+    public boolean isOTPRequired(Authentication auth, HttpServletRequest request) {
+        boolean required = false;
+        if(!PropertyReader.getRequiredPropertyAsType(PropertyKeys.ENABLE_OTP, Boolean.class)){
+            return required;
+        }
         ActiveUser activeUser = (ActiveUser) auth.getPrincipal();
         if (activeUser.getApplicationType().equals(Application.B2B)) {
-            // check if user's IP is not white listed, then return true
-            return true;
+            required = true;
+            String userIP = request.getRemoteAddr();
+            if(isUserCompanyIPWhitelisted(userIP, activeUser)){
+                /*
+                 * if user company ip is whitelisted then no need of
+                 * otp
+                 */
+                required = false;
+            }
         }
-        return false;
+        return required;
+    }
+
+    private boolean isUserCompanyIPWhitelisted(String userIP, ActiveUser activeUser) {
+        boolean whitelisted = false;
+        List<UserSubscriptionMapping> userSubscriptions = userSubscriptionService
+                .getUserSubscriptionMappingList(activeUser.getUserIdentifier());
+        Set<Integer> companyIds = new HashSet<>();
+        for (UserSubscriptionMapping userSubscription : userSubscriptions) {
+            CompanySubscription subs = userSubscription.getSubscription();
+            if (subs != null) {
+                companyIds.add(subs.getCompanyId());
+            }
+        }
+        if (!companyIds.isEmpty()) {
+            List<CompanyIP> companyIps = companyIPDao.findByCompanyIdIn(companyIds);
+            for (CompanyIP companyIP : companyIps) {
+                if (companyIP.getIp().equals(userIP)) {
+                    whitelisted = true;
+                    break;
+                }
+            }
+        }
+        return whitelisted;
     }
 
     @Transactional
@@ -97,7 +141,7 @@ public class OTPService {
             throw new BadRequestException(ResponseCodes.OTP_REQUIRED, ResponseErrorMessages.OTP_EXPIRED);
         }
         if (otp.equals(userOTPs.get(0).getOtp())) {
-            grantAuthority();
+            SecurityContextUtils.grantUserAuthorityToActiveUser();
             clearUserOTP(activeUser);
             try {
                 authSuccessHandler.onAuthenticationSuccess(request, response, SecurityContextUtils.getAuthentication());
@@ -115,18 +159,4 @@ public class OTPService {
         userOTPDao.deleteByUserId(activeUser.getUserIdentifier());
     }
 
-    /**
-     * This method grants USER role to the currently logged in user after otp
-     * validation
-     */
-    private void grantAuthority() {
-        Authentication auth = SecurityContextUtils.getAuthentication();
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority(UserRole.USER.name()));
-        Authentication newAuth = new UsernamePasswordAuthenticationToken(
-                auth.getPrincipal(),
-                auth.getCredentials(),
-                authorities);
-        SecurityContextUtils.setAuthentication(newAuth);
-    }
 }
