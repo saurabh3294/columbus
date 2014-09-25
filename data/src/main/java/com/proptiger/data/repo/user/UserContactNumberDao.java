@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.proptiger.data.model.user.UserContactNumber;
 
@@ -18,6 +19,7 @@ public interface UserContactNumberDao extends JpaRepository<UserContactNumber, I
     public List<UserContactNumber> findByContactNumber(String contactNumber);
 
     @Modifying
+    @Transactional
     @Query("UPDATE UserContactNumber SET priority=priority+1 WHERE userId = ?1")
     public int incrementPriorityForUser(int userId);
 

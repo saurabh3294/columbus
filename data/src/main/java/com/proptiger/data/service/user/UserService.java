@@ -761,4 +761,8 @@ public class UserService {
         return userAttributeDao.findByUserIdAndAttributeValue(userId, attributeValue);
     }
 
+    public void enrichUserDetails(User user) {
+        user.setContactNumbers(contactNumberDao.findByUserIdOrderByPriorityAsc(user.getId()));
+        user.setAttributes(userAttributeDao.findByUserId(user.getId()));
+    }
 }
