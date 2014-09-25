@@ -564,10 +564,6 @@ public class TrendService {
         Set<String> selectorGroups = selector.getGroupSet();
         Object result = null;
 
-        if (selectorGroups.size() > 2) {
-            throw new ProAPIException("Error");
-        }
-
         ArrayList<String> allKeys = new ArrayList<>(valuesForDummyObject.keySet());
         String setGroupField = allKeys.get(allKeys.size() - 1);
 
@@ -591,7 +587,7 @@ public class TrendService {
                     result = nextCallResult;
                 }
                 else {
-                    result = populatedGroupFieldsInDummyTrend(getDummyTrendObject(selector), valuesForDummyObject);
+                    result = populateGroupFieldsInDummyTrend(getDummyTrendObject(selector), valuesForDummyObject);
                 }
             }
         }
@@ -606,7 +602,7 @@ public class TrendService {
      *            key value map of group values that needs to be populated
      * @return
      */
-    private Trend populatedGroupFieldsInDummyTrend(Trend trend, Map<String, Object> groupValueMap) {
+    private Trend populateGroupFieldsInDummyTrend(Trend trend, Map<String, Object> groupValueMap) {
         for (String key : groupValueMap.keySet()) {
             try {
                 Field field = trend.getClass().getDeclaredField(key);

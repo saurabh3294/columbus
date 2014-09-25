@@ -51,7 +51,7 @@ public class TrendController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
-        return new APIResponse(getMappedResults(
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
                 trendService.getPaginatedTrend(selector, rangeField, rangeValue),
                 rangeField,
                 rangeValue,
@@ -64,8 +64,8 @@ public class TrendController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
-        return new APIResponse(getFilledResults(
-                trendService.getPaginatedTrend(selector, rangeField, rangeValue),
+        return new APIResponse(getResultsWithMandatoryGroupValues(
+                trendService.getTrend(selector, rangeField, rangeValue),
                 rangeField,
                 rangeValue,
                 selector));
@@ -99,7 +99,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
-        return new APIResponse(getMappedResults(
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
                 trendService.getCatchmentPaginatedTrend(selector, rangeField, rangeValue, catchmentId, userInfo),
                 rangeField,
                 rangeValue,
@@ -144,7 +144,7 @@ public class TrendController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
-        return new APIResponse(getMappedResults(
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
                 trendService.getCurrentPaginatedTrend(selector, rangeField, rangeValue),
                 rangeField,
                 rangeValue,
@@ -180,7 +180,7 @@ public class TrendController extends BaseController {
             @PathVariable Integer catchmentId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         return new APIResponse(
-                getMappedResults(trendService.getCatchmentCurrentPaginatedTrend(
+                getPaginatedResultsWithMandatoryRangeKeys(trendService.getCatchmentCurrentPaginatedTrend(
                         selector,
                         rangeField,
                         rangeValue,
@@ -227,7 +227,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue,
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector) throws Exception {
-        return new APIResponse(getMappedResults(
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
                 trendService.getHithertoPaginatedTrend(selector, rangeField, rangeValue, hithertoDurationSelector),
                 rangeField,
                 rangeValue,
@@ -271,13 +271,17 @@ public class TrendController extends BaseController {
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
             @PathVariable Integer catchmentId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
-        return new APIResponse(getMappedResults(trendService.getCatchmentHithertoPaginatedTrend(
-                selector,
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
+                trendService.getCatchmentHithertoPaginatedTrend(
+                        selector,
+                        rangeField,
+                        rangeValue,
+                        hithertoDurationSelector,
+                        catchmentId,
+                        userInfo),
                 rangeField,
                 rangeValue,
-                hithertoDurationSelector,
-                catchmentId,
-                userInfo), rangeField, rangeValue, selector));
+                selector));
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/trend/hitherto.csv")
@@ -322,7 +326,7 @@ public class TrendController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
-        return new APIResponse(getMappedResults(
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
                 trendService.getPricePaginatedTrend(selector, rangeField, rangeValue),
                 rangeField,
                 rangeValue,
@@ -357,7 +361,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
-        return new APIResponse(getMappedResults(
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
                 trendService.getCatchmentPricePaginatedTrend(selector, rangeField, rangeValue, catchmentId, userInfo),
                 rangeField,
                 rangeValue,
@@ -402,7 +406,7 @@ public class TrendController extends BaseController {
             @ModelAttribute FIQLSelector selector,
             @RequestParam(required = false) String rangeField,
             @RequestParam(required = false) String rangeValue) throws Exception {
-        return new APIResponse(getMappedResults(
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
                 trendService.getCurrentPricePaginatedTrend(selector, rangeField, rangeValue),
                 rangeField,
                 rangeValue,
@@ -437,12 +441,16 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @PathVariable Integer catchmentId,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
-        return new APIResponse(getMappedResults(trendService.getCatchmentCurrentPricePaginatedTrend(
-                selector,
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
+                trendService.getCatchmentCurrentPricePaginatedTrend(
+                        selector,
+                        rangeField,
+                        rangeValue,
+                        catchmentId,
+                        userInfo),
                 rangeField,
                 rangeValue,
-                catchmentId,
-                userInfo), rangeField, rangeValue, selector));
+                selector));
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend/current.csv")
@@ -485,7 +493,7 @@ public class TrendController extends BaseController {
             @RequestParam(required = false) String rangeValue,
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector) throws Exception {
         return new APIResponse(
-                getMappedResults(trendService.getHithertoPricePaginatedTrend(
+                getPaginatedResultsWithMandatoryRangeKeys(trendService.getHithertoPricePaginatedTrend(
                         selector,
                         rangeField,
                         rangeValue,
@@ -530,13 +538,17 @@ public class TrendController extends BaseController {
             @ModelAttribute HithertoDurationSelector hithertoDurationSelector,
             @ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) throws Exception {
         selector.addAndConditionToFilter(catchmentService.getCatchmentFIQLFilter(catchmentId, userInfo));
-        return new APIResponse(getMappedResults(trendService.getCatchmentHithertoPricePaginatedTrend(
-                selector,
+        return new APIResponse(getPaginatedResultsWithMandatoryRangeKeys(
+                trendService.getCatchmentHithertoPricePaginatedTrend(
+                        selector,
+                        rangeField,
+                        rangeValue,
+                        hithertoDurationSelector,
+                        catchmentId,
+                        userInfo),
                 rangeField,
                 rangeValue,
-                hithertoDurationSelector,
-                catchmentId,
-                userInfo), rangeField, rangeValue, selector));
+                selector));
     }
 
     @RequestMapping("/data/v1/entity/user/catchment/{catchmentId}/price-trend-list/hitherto")
@@ -579,20 +591,34 @@ public class TrendController extends BaseController {
                         userInfo)), selector);
     }
 
-    private PaginatedResponse<Object> getMappedResults(
-            PaginatedResponse<List<Trend>> inventoryPriceTrends,
+    private PaginatedResponse<Object> getPaginatedResultsWithMandatoryRangeKeys(
+            PaginatedResponse<List<Trend>> trends,
             String rangeField,
             String rangeValue,
             FIQLSelector selector) {
         PaginatedResponse<Object> result = new PaginatedResponse<>();
+        result.setTotalCount(trends.getTotalCount());
+        result.setResults(getResultsWithMandatoryRangeKeys(
+                trends.getResults(),
+                rangeField,
+                rangeValue,
+                selector));
+        return result;
+    }
+
+    private Object getResultsWithMandatoryRangeKeys(
+            List<Trend> trends,
+            String rangeField,
+            String rangeValue,
+            FIQLSelector selector) {
+        Object result = null;
 
         List<String> groupKeys = getGroupKeysFromUserInput(selector, rangeField, rangeValue);
-        result.setTotalCount(inventoryPriceTrends.getTotalCount());
-        result.setResults(inventoryPriceTrends.getResults());
 
         if (!groupKeys.isEmpty()) {
+            @SuppressWarnings("unchecked")
             Map<String, Object> serviceResponse = (Map<String, Object>) UtilityClass.groupFieldsAsPerKeys(
-                    inventoryPriceTrends.getResults(),
+                    trends,
                     getGroupKeysFromUserInput(selector, rangeField, rangeValue));
 
             if (rangeField != null || rangeValue != null) {
@@ -605,36 +631,46 @@ public class TrendController extends BaseController {
                     }
                 }
             }
-            result.setResults(serviceResponse);
+            result = serviceResponse;
         }
         return result;
     }
 
-    private Object getFilledResults(
-            PaginatedResponse<List<Trend>> inventoryPriceTrends,
+    /**
+     * gets results as hash with all group values being mandatory
+     * 
+     * @param inventoryPriceTrends
+     * @param rangeField
+     * @param rangeValue
+     * @param selector
+     * @return
+     */
+    private Object getResultsWithMandatoryGroupValues(
+            List<Trend> inventoryPriceTrends,
             String rangeField,
             String rangeValue,
             FIQLSelector selector) {
 
-        Map<String, Object> serviceResponse = (Map<String, Object>) getMappedResults(
+        @SuppressWarnings("unchecked")
+        Map<String, Object> response = (Map<String, Object>) getResultsWithMandatoryRangeKeys(
                 inventoryPriceTrends,
                 rangeField,
                 rangeValue,
-                selector).getResults();
+                selector);
 
         List<String> groupKeys = getGroupKeysFromUserInput(selector, rangeField, rangeValue);
 
         if (!groupKeys.isEmpty()) {
             String groupField = new ArrayList<String>(selector.getGroupSet()).get(0);
             Map<String, Set<Object>> allGroupValues = trendService.getAllGroupValues(
-                    inventoryPriceTrends.getResults(),
+                    inventoryPriceTrends,
                     selector);
             LinkedHashMap<String, Object> valuesForDummyObject = new LinkedHashMap<>();
             if (rangeField != null || rangeValue != null) {
-                for (String string : serviceResponse.keySet()) {
+                for (String string : response.keySet()) {
                     valuesForDummyObject.put(trendService.RANGE_KEY, string);
                     validateGroupValues(
-                            serviceResponse.get(string),
+                            response.get(string),
                             allGroupValues,
                             selector,
                             valuesForDummyObject,
@@ -642,12 +678,23 @@ public class TrendController extends BaseController {
                 }
             }
             else {
-                validateGroupValues(serviceResponse, allGroupValues, selector, valuesForDummyObject, groupField);
+                validateGroupValues(response, allGroupValues, selector, valuesForDummyObject, groupField);
             }
         }
-        return serviceResponse;
+        return response;
     }
 
+    /**
+     * validates if all group values are present in the result hash at a
+     * particular level
+     * 
+     * @param object
+     * @param allGroupValues
+     * @param selector
+     * @param valuesForDummyObject
+     * @param groupField
+     * @return
+     */
     private Object validateGroupValues(
             Object object,
             Map<String, Set<Object>> allGroupValues,
@@ -693,13 +740,21 @@ public class TrendController extends BaseController {
         return map;
     }
 
+    /**
+     * method to get list of keys for which value needs to be populated in
+     * 
+     * @param selector
+     * @param rangeField
+     * @param rangeValue
+     * @return
+     */
     private List<String> getGroupKeysFromUserInput(FIQLSelector selector, String rangeField, String rangeValue) {
         List<String> result = new ArrayList<>();
         if (rangeField != null && rangeValue != null) {
             result.add(trendService.RANGE_KEY);
         }
         if (selector.getGroup() != null) {
-            result.addAll(Arrays.asList(selector.getGroup().split(",")));
+            result.addAll(selector.getGroupSet());
         }
         return result;
     }
