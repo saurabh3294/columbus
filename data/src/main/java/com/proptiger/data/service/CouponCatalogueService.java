@@ -7,15 +7,20 @@ import java.util.Map;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.amazonaws.services.cloudfront_2012_03_15.model.InvalidArgumentException;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.CouponCatalogue;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAttribute;
+import com.proptiger.data.notification.enums.NotificationTypeEnum;
+import com.proptiger.data.notification.enums.Tokens;
+import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;
 import com.proptiger.data.service.transaction.TransactionService;
 import com.proptiger.data.service.user.UserService;
@@ -32,6 +37,12 @@ public class CouponCatalogueService {
 
     @Autowired
     private UserService        userService;
+    
+    @Autowired
+    private PropertyService propertyService;
+    
+    @Autowired
+    private NotificationMessageService nMessageService;
 
     /**
      * This method will return the coupon catalogue for a propertyId
@@ -155,6 +166,8 @@ public class CouponCatalogueService {
                     ResponseCodes.NAME_ALREADY_EXISTS,
                     " Coupon has already been redeem or been refunded.");
         }
+        
+        notifyUserOnCouponRedeem(transaction, couponCatalogue);
         return status;
     }
 
@@ -187,5 +200,39 @@ public class CouponCatalogueService {
         Hibernate.initialize(user.getAttributes());
 
         return user;
+    }
+    
+    /**
+     * Notify user by email/sms when user coupon has been redeemed.
+     * @param transaction
+     * @param couponCatalogue
+     */
+    @Async
+    public void notifyUserOnCouponRedeem(Transaction transaction, CouponCatalogue couponCatalogue){
+        Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
+        
+        Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
+        User user = userService.getUserById(transaction.getUserId());
+        
+        notificationPayloadMap.put(Tokens.CouponRedeemed.CouponCode.name(), transaction.getCode());
+        notificationPayloadMap.put(Tokens.CouponRedeemed.ProjectName.name(), property.getProjectName());
+        notificationPayloadMap.put(Tokens.CouponRedeemed.UnitName.name(), property.getUnitName());
+        notificationPayloadMap.put(Tokens.CouponRedeemed.UserName.name(), user.getFullName());
+        
+        nMessageService.createNotificationMessage(NotificationTypeEnum.CouponRedeemed.getName(), transaction.getUserId(), notificationPayloadMap);
+    }
+    
+    /**
+     * fetching coupon details based on coupon Code.
+     */
+    public CouponCatalogue fetchCouponDetails(String couponCode){
+        Transaction transaction = transactionService.getNonRedeemTransactionByCode(couponCode);
+        if (transaction == null) {
+            throw new ProAPIException(
+                    ResponseCodes.RESOURCE_NOT_FOUND,
+                    "Coupon Code does not exits or has been redeemed.");
+        }
+        
+        return couponCatalogueDao.findOne(transaction.getProductId());
     }
 }

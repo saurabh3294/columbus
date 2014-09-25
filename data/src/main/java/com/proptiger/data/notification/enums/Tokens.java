@@ -23,7 +23,7 @@ public class Tokens {
     }
 
     public enum CouponIssued {
-        CouponCode, Date;
+        CouponCode, Date, ProjectName, UnitName, Discount, CouponPrice, DiscountPrice, UserName;
     }
 
     public enum CouponCancelled {
@@ -35,7 +35,7 @@ public class Tokens {
     }
 
     public enum CouponRedeemed {
-        CouponCode;
+        CouponCode, ProjectName, UnitName, UserName;
     }
 
 }
