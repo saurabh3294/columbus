@@ -24,9 +24,10 @@ import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDiscussion;
 import com.proptiger.data.model.user.ProjectCommentLikes;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.pojo.Paging;
 import com.proptiger.data.pojo.response.PaginatedResponse;
-import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.portfolio.ProjectCommentLikesDao;
 import com.proptiger.data.repo.user.portfolio.ProjectDiscussionsDao;
 import com.proptiger.data.service.ProjectService;
@@ -50,9 +51,6 @@ public class ProjectDiscussionsService {
     private ProjectService          projectService;
 
     @Autowired
-    private ForumUserDao            forumUserDao;
-
-    @Autowired
     private ProjectCommentLikesDao  projectCommentLikesDao;
 
     @Autowired
@@ -66,8 +64,11 @@ public class ProjectDiscussionsService {
 
     @Autowired
     private Caching                 caching;
+    
+    @Autowired
+    private UserDao userDao;
 
-    public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, ActiveUser userInfo) {
+    public ProjectDiscussion saveProjectComments(ProjectDiscussion projectDiscussion, ActiveUser activeUser) {
 
         if (projectDiscussion.getComment() == null || projectDiscussion.getComment().isEmpty()) {
             throw new IllegalArgumentException("Comments cannot be null");
@@ -77,10 +78,10 @@ public class ProjectDiscussionsService {
             throw new IllegalArgumentException("Enter valid Project Id");
         }
 
-        ForumUser forumUser = forumUserDao.findOne(userInfo.getUserIdentifier());
+        User user = userDao.findById(activeUser.getUserIdentifier());
 
-        projectDiscussion.setUserId(userInfo.getUserIdentifier());
-        projectDiscussion.setAdminUserName(forumUser.getUsername());
+        projectDiscussion.setUserId(activeUser.getUserIdentifier());
+        projectDiscussion.setAdminUserName(user.getFullName());
         projectDiscussion.setLevel(0);
         projectDiscussion.setNumLikes(0);
         projectDiscussion.setStatus("0");
@@ -101,7 +102,7 @@ public class ProjectDiscussionsService {
         ProjectDiscussion savedProjectDiscussions = projectDiscussionDao.save(projectDiscussion);
 
         subscriptionService.enableOrAddUserSubscription(
-                userInfo.getUserIdentifier(),
+                activeUser.getUserIdentifier(),
                 projectDiscussion.getProjectId(),
                 Project.class.getAnnotation(Table.class).name(),
                 Constants.SubscriptionType.FORUM);

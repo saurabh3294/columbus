@@ -45,6 +45,7 @@ import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectPaymentSchedule;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.portfolio.OverallReturn;
 import com.proptiger.data.model.user.portfolio.Portfolio;
 import com.proptiger.data.model.user.portfolio.PortfolioListing;
@@ -53,9 +54,9 @@ import com.proptiger.data.model.user.portfolio.PortfolioListingPaymentPlan;
 import com.proptiger.data.model.user.portfolio.PortfolioListingPrice;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.LimitOffsetPageRequest;
-import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ProjectPaymentScheduleDao;
 import com.proptiger.data.repo.PropertyDao;
+import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingDao;
 import com.proptiger.data.repo.user.portfolio.PortfolioListingPriceDao;
 import com.proptiger.data.service.CityService;
@@ -109,9 +110,6 @@ public class PortfolioService {
     private PropertyReader            propertyReader;
 
     @Autowired
-    private ForumUserDao              forumUserDao;
-
-    @Autowired
     private MailSender                mailSender;
 
     @Autowired
@@ -142,6 +140,9 @@ public class PortfolioService {
 
     @Autowired
     private ImageEnricher             imageEnricher;
+    
+    @Autowired
+    private UserDao userDao;
 
     /**
      * Get portfolio object for a particular user id
@@ -833,10 +834,10 @@ public class PortfolioService {
     }
 
     public PortfolioListing sellYourProperty(PortfolioListing portfolioListing) {
-        ForumUser forumUser = null;
+        User user = null;
         if (portfolioListing.getUserId() != null) {
-            forumUser = forumUserDao.findOne(portfolioListing.getUserId());
-            if (forumUser == null) {
+            user = userDao.findById(portfolioListing.getUserId());
+            if (user == null) {
                 throw new ResourceNotAvailableException(ResourceType.USER, ResourceTypeAction.GET);
             }
         }
@@ -914,7 +915,8 @@ public class PortfolioService {
         if (savePortfolioListing == null) {
             throw new PersistenceException("Sell your property request cannot be saved.");
         }
-        savePortfolioListing.setForumUser(forumUser);
+        
+        savePortfolioListing.setForumUser(user.createForumUser());
         sendMailOnSellYourProperty(savePortfolioListing);
         return savePortfolioListing;
     }

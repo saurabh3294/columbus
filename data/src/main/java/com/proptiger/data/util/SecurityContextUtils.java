@@ -18,6 +18,7 @@ import com.proptiger.data.enums.Application;
 import com.proptiger.data.enums.security.UserRole;
 import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.model.ForumUser;
+import com.proptiger.data.model.user.User;
 import com.proptiger.data.service.ApplicationNameService;
 
 /**
@@ -76,12 +77,12 @@ public class SecurityContextUtils {
         return activeUser;
     }
 
-    private static Authentication createNewAuthentication(ForumUser forumUser) {
+    private static Authentication createNewAuthentication(User user) {
         Application applicationType = ApplicationNameService.getApplicationTypeOfRequest();
         UserDetails userDetails = new ActiveUser(
-                forumUser.getUserId(),
-                forumUser.getEmail(),
-                forumUser.getPassword(),
+                user.getId(),
+                user.getEmail(),
+                user.getPassword(),
                 true,
                 true,
                 true,
@@ -103,11 +104,11 @@ public class SecurityContextUtils {
      * This method will put active user in request session too, to enable
      * controllers to get active user object
      * 
-     * @param forumUser
+     * @param user
      * @return
      */
-    public static Authentication autoLogin(ForumUser forumUser) {
-        Authentication auth = createNewAuthentication(forumUser);
+    public static Authentication autoLogin(User user) {
+        Authentication auth = createNewAuthentication(user);
         putAuthInContext(auth);
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                 .getRequest();

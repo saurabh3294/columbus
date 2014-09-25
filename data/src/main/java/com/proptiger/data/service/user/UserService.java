@@ -5,8 +5,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +46,6 @@ import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.ProjectDiscussionSubscription;
@@ -50,13 +53,14 @@ import com.proptiger.data.model.SubscriptionPermission;
 import com.proptiger.data.model.SubscriptionSection;
 import com.proptiger.data.model.UserPreference;
 import com.proptiger.data.model.UserSubscriptionMapping;
+import com.proptiger.data.model.user.Dashboard;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.model.user.User.WhoAmIDetail;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.model.user.UserEmail;
+import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
-import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
@@ -91,10 +95,10 @@ public class UserService {
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    private B2BAttributeService        b2bAttributeService;
+    private B2BAttributeService              b2bAttributeService;
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
-    private String                     currentMonthDbLabel;
+    private String                           currentMonthDbLabel;
 
     private String                           currentMonth;
 
@@ -106,9 +110,6 @@ public class UserService {
 
     @Autowired
     private EnquiryDao                       enquiryDao;
-
-    @Autowired
-    private ForumUserDao                     forumUserDao;
 
     @Autowired
     private UserDao                          userDao;
@@ -158,13 +159,17 @@ public class UserService {
     @Autowired
     private TemplateToHtmlGenerator          htmlGenerator;
 
+    @Autowired
+    private DashboardService                 dashboardService;
+
     @PostConstruct
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
     }
-    
+
     public boolean isRegistered(String email) {
-        if (forumUserDao.findByEmail(email) != null) {
+        User user = userDao.findByEmail(email);
+        if (user != null && user.isRegistered()) {
             return true;
         }
 
@@ -180,16 +185,15 @@ public class UserService {
      */
     @Transactional
     public CustomUser getUserDetails(int userId) {
-        ForumUser user = forumUserDao.findByUserId(userId);
+        User user = userDao.findById(userId);
         CustomUser customUser = new CustomUser();
-        customUser.setId(user.getUserId());
+        customUser.setId(user.getId());
         customUser.setEmail(user.getEmail());
-        customUser.setFirstName(user.getUsername());
-        customUser.setContactNumber(Long.toString(user.getContact()));
-        customUser.setProfileImageUrl(user.getFbImageUrl());
-
-        Hibernate.initialize(user.getDashboards());
-        customUser.setDashboards(user.getDashboards());
+        customUser.setFirstName(user.getFullName());
+        customUser.setContactNumber(user.getPriorityContactNumber());
+        customUser.setProfileImageUrl(user.getProfileImageUrl());
+        List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
+        customUser.setDashboards(dashboards);
 
         setAppDetails(customUser, user);
         return customUser;
@@ -201,17 +205,17 @@ public class UserService {
      * @param user
      * @return {@link ForumUser}
      */
-    private CustomUser setAppDetails(CustomUser customUser, ForumUser user) {
+    private CustomUser setAppDetails(CustomUser customUser, User user) {
         HashMap<Application, UserAppDetail> appDetailsMap = new HashMap<>();
 
-        for (UserPreference preference : preferenceService.getUserPreferences(user.getUserId())) {
+        for (UserPreference preference : preferenceService.getUserPreferences(user.getId())) {
             UserAppDetail appDetail = new UserAppDetail();
             appDetail.setPreference(preference);
             appDetailsMap.put(preference.getApp(), appDetail);
         }
-
+        List<UserSubscriptionMapping> userSubscriptions = userSubscriptionMappingDao.findAllByUserId(user.getId());
         List<UserAppSubscription> subscriptions = new ArrayList<>();
-        for (UserSubscriptionMapping mapping : user.getUserSubscriptionMappings()) {
+        for (UserSubscriptionMapping mapping : userSubscriptions) {
             CompanySubscription subscription = mapping.getSubscription();
             customUser.getCompanyIds().add(subscription.getCompanyId());
 
@@ -307,7 +311,7 @@ public class UserService {
      * @return
      */
     public AlreadyEnquiredDetails hasEnquired(Integer projectId, Integer userId) {
-        String email = forumUserDao.findEmailByUserId(userId);
+        String email = userDao.findById(userId).getEmail();
         Enquiry enquiry = null;
         AlreadyEnquiredDetails alreadyEnquiredDetails = new AlreadyEnquiredDetails(null, false, enquiredWithinDays);
         if (projectId != null) {
@@ -383,7 +387,8 @@ public class UserService {
         if (activeUser == null) {
             throw new UnauthorizedException();
         }
-        WhoAmIDetail whoAmIDetail = forumUserDao.getWhoAmIDetail(activeUser.getUserIdentifier());
+        User user = userDao.findById(activeUser.getUserIdentifier());
+        WhoAmIDetail whoAmIDetail = user.createWhoAmI();
         if (whoAmIDetail.getImageUrl() == null || whoAmIDetail.getImageUrl().isEmpty()) {
             whoAmIDetail.setImageUrl(cdnImageBase + propertyReader.getRequiredProperty(PropertyKeys.AVATAR_IMAGE_URL));
         }
@@ -410,8 +415,8 @@ public class UserService {
         logger.debug("Changing password for user {}", activeUser.getUsername());
         User user = userDao.findOne(activeUser.getUserIdentifier());
         user.setPassword(changePassword.getNewPassword());
-        userDao.save(user);
-        SecurityContextUtils.autoLogin(forumUserDao.findByUserId(user.getId()));
+        user = userDao.save(user);
+        SecurityContextUtils.autoLogin(user);
     }
 
     /**
@@ -435,12 +440,11 @@ public class UserService {
          * send mail only if user registers
          */
         if (user.isRegistered()) {
-            ForumUser registeredUser = forumUserDao.findByUserId(user.getId());
             MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.NEW_USER_REGISTRATION, register);
             MailDetails details = new MailDetails(mailBody).setMailTo(register.getEmail()).setFrom(
                     propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_SUPPORT));
             mailSender.sendMailUsingAws(details);
-            SecurityContextUtils.autoLogin(registeredUser);
+            SecurityContextUtils.autoLogin(user);
         }
 
         /*
@@ -500,8 +504,8 @@ public class UserService {
      * @return
      */
     public String resetPassword(String email) {
-        ForumUser forumUser = forumUserDao.findRegisteredUserByEmail(email);
-        if (forumUser == null) {
+        User user = userDao.findByEmail(email);
+        if (user == null || !user.isRegistered()) {
             return ResponseErrorMessages.EMAIL_NOT_REGISTERED;
         }
         // token valid for 1 month
@@ -515,9 +519,7 @@ public class UserService {
         forumUserToken.setExpirationDate(calendar.getTime());
         forumUserTokenDao.save(forumUserToken);
         String retrivePasswordLink = proptigerUrl + "/forgotpass.php?token=" + token + "&id=" + encodedEmail;
-        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(
-                forumUser.getUsername(),
-                retrivePasswordLink);
+        ResetPasswordTemplateData resetPassword = new ResetPasswordTemplateData(user.getFullName(), retrivePasswordLink);
         MailBody mailBody = htmlGenerator.generateMailBody(MailTemplateDetail.RESET_PASSWORD, resetPassword);
         MailDetails details = new MailDetails(mailBody).setMailTo(email);
         mailSender.sendMailUsingAws(details);
@@ -608,13 +610,14 @@ public class UserService {
      * @return
      */
     private void patchUser(User user) {
-        List<UserContactNumber> contactNumbers = user.getContactNumbers();
+        Set<UserContactNumber> contactNumbers = user.getContactNumbers();
 
         if (contactNumbers == null || contactNumbers.isEmpty()) {
             return;
         }
+        Iterator<UserContactNumber> it = contactNumbers.iterator();
 
-        UserContactNumber userContactNumber = contactNumbers.get(0);
+        UserContactNumber userContactNumber = it.next();
         String contactNumber = userContactNumber.getContactNumber();
 
         if (contactNumber != null && !contactNumber.isEmpty()) {
@@ -654,13 +657,13 @@ public class UserService {
         return users;
     }
 
-    public Map<Integer, List<UserContactNumber>> getUserContactNumbers(List<Integer> clientIds) {
+    public Map<Integer, Set<UserContactNumber>> getUserContactNumbers(List<Integer> clientIds) {
         List<UserContactNumber> userContactNumbers = contactNumberDao.getContactNumbersByUserId(clientIds);
-        Map<Integer, List<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
+        Map<Integer, Set<UserContactNumber>> contactNumbersOfUser = new HashMap<>();
 
         for (UserContactNumber userContactNumber : userContactNumbers) {
             if (!contactNumbersOfUser.containsValue(userContactNumber.getUserId())) {
-                contactNumbersOfUser.put(userContactNumber.getUserId(), new ArrayList<UserContactNumber>());
+                contactNumbersOfUser.put(userContactNumber.getUserId(), new HashSet<UserContactNumber>());
             }
             contactNumbersOfUser.get(userContactNumber.getUserId()).add(userContactNumber);
         }
@@ -674,7 +677,7 @@ public class UserService {
     public User getUserById(int userId) {
         return userDao.findOne(userId);
     }
-    
+
     public UserContactNumber getTopPriorityContact(int userId) {
         List<UserContactNumber> contacts = contactNumberDao.findByUserIdOrderByPriorityAsc(userId);
         if (contacts.isEmpty()) {
