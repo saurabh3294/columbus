@@ -199,6 +199,7 @@ public class Property extends BaseModel {
     private CouponCatalogue      couponCatalogue;
 
     @Transient
+    @Field("PROPERTY_COUPON_AVAILABLE")
     private Boolean              isCouponAvailable;
 
     public String getProjectName() {

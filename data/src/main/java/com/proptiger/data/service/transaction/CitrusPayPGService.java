@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -106,15 +108,15 @@ public class CitrusPayPGService {
 
     @Autowired
     private CitrusPayPGResponseDao       citrusPayPGResponseDao;
-    
+
     @Autowired
-    private PropertyService propertyService;
-    
+    private NotificationMessageService   nMessageService;
+
     @Autowired
-    private NotificationMessageService nMessageService;
-    
+    private UserService                  userService;
+
     @Autowired
-    private UserService userService;
+    private ApplicationContext           applicationContext;
 
     public URI initiatePaymentRequest(Transaction transaction) {
         String signature = createSignature(transaction);
@@ -172,8 +174,7 @@ public class CitrusPayPGService {
                 CitrusPayPGPaymentResponseData.class);
 
         boolean couponBuyed = persistTransactionOnPaymentResponse(data, response);
-        
-        
+
     }
 
     @Transactional
@@ -207,7 +208,7 @@ public class CitrusPayPGService {
             transaction.setCode(createCouponCode(transaction));
             transactionService.save(transaction);
             payment.setStatusId(PaymentStatus.Success.getId());
-            
+
             /**
              * Notify User about the payment of coupon.
              */
@@ -219,8 +220,7 @@ public class CitrusPayPGService {
         }
 
         paymentService.save(payment);
-        
-        
+
         return true;
     }
 
@@ -479,13 +479,14 @@ public class CitrusPayPGService {
             }
         }
     }
-    
-    private void notifyUserOnCouponBuy(Transaction transaction, CouponCatalogue couponCatalogue){
+
+    private void notifyUserOnCouponBuy(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> payloadMap = new HashMap<String, Object>();
-        
-        Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
+
+        Property property = applicationContext.getBean(PropertyService.class).getProperty(
+                couponCatalogue.getPropertyId());
         User user = userService.getUserById(transaction.getUserId());
-        
+
         payloadMap.put(Tokens.CouponIssued.CouponCode.name(), transaction.getCode());
         payloadMap.put(Tokens.CouponIssued.CouponPrice.name(), couponCatalogue.getCouponPrice());
         payloadMap.put(Tokens.CouponIssued.Date.name(), couponCatalogue.getPurchaseExpiryAt());
@@ -494,7 +495,10 @@ public class CitrusPayPGService {
         payloadMap.put(Tokens.CouponIssued.ProjectName.name(), property.getProjectName());
         payloadMap.put(Tokens.CouponIssued.UnitName.name(), property.getUnitName());
         payloadMap.put(Tokens.CouponIssued.UserName.name(), user.getFullName());
-        
-        nMessageService.createNotificationMessage(NotificationTypeEnum.CouponIssued.name(), transaction.getUserId(), payloadMap);
+
+        nMessageService.createNotificationMessage(
+                NotificationTypeEnum.CouponIssued.name(),
+                transaction.getUserId(),
+                payloadMap);
     }
 }

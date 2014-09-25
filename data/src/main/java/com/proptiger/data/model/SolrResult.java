@@ -404,6 +404,9 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "LOCALITY_TAG_LINE")
     private String            localityTagLine;
+    
+    @Field(value = "PROPERTY_COUPON_AVAILABLE")
+    private Boolean isCouponAvailable;
 
     public SolrResult() {
         property.setProject(project);

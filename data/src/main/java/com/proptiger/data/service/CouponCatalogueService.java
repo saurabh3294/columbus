@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,19 +32,20 @@ import com.proptiger.exception.ProAPIException;
 public class CouponCatalogueService {
 
     @Autowired
-    private CouponCatalogueDao couponCatalogueDao;
+    private CouponCatalogueDao         couponCatalogueDao;
 
     @Autowired
-    private TransactionService transactionService;
+    private UserService                userService;
 
     @Autowired
-    private UserService        userService;
-    
-    @Autowired
-    private PropertyService propertyService;
-    
+    private ApplicationContext         applicationContext;
+
     @Autowired
     private NotificationMessageService nMessageService;
+
+    // Do not autowire them. Use getter to use them.
+    private TransactionService         transactionService;
+    private PropertyService            propertyService;
 
     /**
      * This method will return the coupon catalogue for a propertyId
@@ -121,6 +124,7 @@ public class CouponCatalogueService {
 
     /**
      * Returns all details
+     * 
      * @param id
      * @return
      */
@@ -135,7 +139,7 @@ public class CouponCatalogueService {
      * @return
      */
     public int redeemCoupon(String couponCode, String userProofId) {
-        Transaction transaction = transactionService.getNonRedeemTransactionByCode(couponCode);
+        Transaction transaction = getTransactionService().getNonRedeemTransactionByCode(couponCode);
         if (transaction == null) {
             throw new ProAPIException(
                     ResponseCodes.RESOURCE_NOT_FOUND,
@@ -159,14 +163,14 @@ public class CouponCatalogueService {
         if (couponCatalogue.getPurchaseExpiryAt().before(new Date())) {
             throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Coupon has been expired. Hence cannot be redeemed.");
         }
-        int status = transactionService.updateCouponRedeem(transaction);
+        int status = getTransactionService().updateCouponRedeem(transaction);
 
         if (status < 1) {
             throw new ProAPIException(
                     ResponseCodes.NAME_ALREADY_EXISTS,
                     " Coupon has already been redeem or been refunded.");
         }
-        
+
         notifyUserOnCouponRedeem(transaction, couponCatalogue);
         return status;
     }
@@ -179,7 +183,7 @@ public class CouponCatalogueService {
      */
     @Transactional
     public User fetchUserDetailsOfCouponBuyer(String couponCode, String userProofId) {
-        Transaction transaction = transactionService.getTransactionsByCouponCode(couponCode);
+        Transaction transaction = getTransactionService().getTransactionsByCouponCode(couponCode);
         if (transaction == null) {
             throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
         }
@@ -201,38 +205,65 @@ public class CouponCatalogueService {
 
         return user;
     }
-    
+
     /**
      * Notify user by email/sms when user coupon has been redeemed.
+     * 
      * @param transaction
      * @param couponCatalogue
      */
     @Async
-    public void notifyUserOnCouponRedeem(Transaction transaction, CouponCatalogue couponCatalogue){
+    public void notifyUserOnCouponRedeem(Transaction transaction, CouponCatalogue couponCatalogue) {
         Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
-        
-        Property property = propertyService.getProperty(couponCatalogue.getPropertyId());
+
+        Property property = getPropertyService().getProperty(couponCatalogue.getPropertyId());
         User user = userService.getUserById(transaction.getUserId());
-        
+
         notificationPayloadMap.put(Tokens.CouponRedeemed.CouponCode.name(), transaction.getCode());
         notificationPayloadMap.put(Tokens.CouponRedeemed.ProjectName.name(), property.getProjectName());
         notificationPayloadMap.put(Tokens.CouponRedeemed.UnitName.name(), property.getUnitName());
         notificationPayloadMap.put(Tokens.CouponRedeemed.UserName.name(), user.getFullName());
-        
-        nMessageService.createNotificationMessage(NotificationTypeEnum.CouponRedeemed.getName(), transaction.getUserId(), notificationPayloadMap);
+
+        nMessageService.createNotificationMessage(
+                NotificationTypeEnum.CouponRedeemed.getName(),
+                transaction.getUserId(),
+                notificationPayloadMap);
     }
-    
+
     /**
      * fetching coupon details based on coupon Code.
      */
-    public CouponCatalogue fetchCouponDetails(String couponCode){
-        Transaction transaction = transactionService.getNonRedeemTransactionByCode(couponCode);
-        if (transaction == null) {
-            throw new ProAPIException(
-                    ResponseCodes.RESOURCE_NOT_FOUND,
-                    "Coupon Code does not exits or has been redeemed.");
-        }
+    public Transaction fetchCouponDetails(String couponCode, String userProofId) {
+        Transaction transaction = getTransactionService().getTransactionsByCouponCode(couponCode);
+        transaction = getTransactionService().getUpdatedTransaction(transaction.getId());
         
-        return couponCatalogueDao.findOne(transaction.getProductId());
+        if (transaction == null) {
+            throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
+        }
+
+        UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
+                transaction.getUserId(),
+                userProofId);
+        if (userAttribute == null) {
+            throw new ProAPIException(
+                    ResponseCodes.BAD_CREDENTIAL,
+                    "User Identity for this Coupon code does not match with our records.");
+        }
+
+        return transaction;
+    }
+
+    private TransactionService getTransactionService() {
+        if (transactionService == null) {
+            transactionService = applicationContext.getBean(TransactionService.class);
+        }
+        return transactionService;
+    }
+
+    private PropertyService getPropertyService() {
+        if (propertyService == null) {
+            propertyService = applicationContext.getBean(PropertyService.class);
+        }
+        return propertyService;
     }
 }

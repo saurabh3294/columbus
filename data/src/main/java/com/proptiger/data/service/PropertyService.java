@@ -66,7 +66,6 @@ public class PropertyService {
     @Autowired
     private EntityManagerFactory   emf;
 
-    @Autowired
     private CouponCatalogueService couponCatalogueService;
 
     private static int             ROWS_THRESHOLD = 200;
