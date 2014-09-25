@@ -92,8 +92,10 @@ public class TransactionService {
             citrusPayPGService.updateDetails(transaction);
         }
 
+        transaction = transactionDao.findOne(transactionId);
         if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
             transaction.setUser(userService.getUserById(transaction.getUserId()));
+            userService.enrichUserDetails(transaction.getUser());
             transaction.setProduct(couponCatalogueService.getCouponCatalogue(transaction.getProductId()));
         }
 
