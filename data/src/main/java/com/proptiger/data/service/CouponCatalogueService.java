@@ -26,12 +26,12 @@ public class CouponCatalogueService {
 
     @Autowired
     private CouponCatalogueDao couponCatalogueDao;
-    
+
     @Autowired
     private TransactionService transactionService;
-    
+
     @Autowired
-    private UserService userService;
+    private UserService        userService;
 
     /**
      * This method will return the coupon catalogue for a propertyId
@@ -82,7 +82,9 @@ public class CouponCatalogueService {
     }
 
     /**
-     * This method will update the number of coupons left after coupon refund or purchase.
+     * This method will update the number of coupons left after coupon refund or
+     * purchase.
+     * 
      * @param couponId
      * @param inventoryCount
      * @return
@@ -96,10 +98,10 @@ public class CouponCatalogueService {
 
         return null;
     }
-    
+
     /**
-     * This method will return the valid coupons based on coupon Id by checking its
-     * expiry date.
+     * This method will return the valid coupons based on coupon Id by checking
+     * its expiry date.
      */
     public boolean isPurchasable(int couponId) {
         CouponCatalogue coupon = couponCatalogueDao.findByIdAndPurchaseExpiryAtGreaterThan(couponId, new Date());
@@ -117,48 +119,73 @@ public class CouponCatalogueService {
 
     /**
      * This method will redeem coupon.
+     * 
      * @param couponCode
      * @return
      */
-    public int redeemCoupon(String couponCode){
+    public int redeemCoupon(String couponCode, String userProofId) {
         Transaction transaction = transactionService.getNonRedeemTransactionByCode(couponCode);
-        if(transaction == null){
-            throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits or has been redeemed.");
+        if (transaction == null) {
+            throw new ProAPIException(
+                    ResponseCodes.RESOURCE_NOT_FOUND,
+                    "Coupon Code does not exits or has been redeemed.");
         }
+
+        UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
+                transaction.getUserId(),
+                userProofId);
+        if (userAttribute == null) {
+            throw new ProAPIException(
+                    ResponseCodes.BAD_CREDENTIAL,
+                    "User Identity for this Coupon code does not match with our records.");
+        }
+
         CouponCatalogue couponCatalogue = couponCatalogueDao.findOne(transaction.getProductId());
-        
+
         /*
          * Coupon Expired then throw Exception.
          */
-        if( couponCatalogue.getPurchaseExpiryAt().before(new Date()) ){
+        if (couponCatalogue.getPurchaseExpiryAt().before(new Date())) {
             throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Coupon has been expired. Hence cannot be redeemed.");
         }
         int status = transactionService.updateCouponRedeem(transaction);
-        
-        if(status < 1){
-            throw new ProAPIException(ResponseCodes.NAME_ALREADY_EXISTS, " Coupon has already been redeem or been refunded.");
+
+        if (status < 1) {
+            throw new ProAPIException(
+                    ResponseCodes.NAME_ALREADY_EXISTS,
+                    " Coupon has already been redeem or been refunded.");
         }
         return status;
     }
-    
+
     /**
      * Fetch user details of the user based on Coupon Code.
+     * 
      * @param couponCode
      * @return
      */
     @Transactional
-    public User fetchUserDetailsOfCouponBuyer(String couponCode){
+    public User fetchUserDetailsOfCouponBuyer(String couponCode, String userProofId) {
         Transaction transaction = transactionService.getTransactionsByCouponCode(couponCode);
-        if(transaction == null){
+        if (transaction == null) {
             throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
         }
-     
+
+        UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
+                transaction.getUserId(),
+                userProofId);
+        if (userAttribute == null) {
+            throw new ProAPIException(
+                    ResponseCodes.BAD_CREDENTIAL,
+                    "User Identity for this Coupon code does not match with our records.");
+        }
+
         User user = userService.getUserById(transaction.getUserId());
         /**
          * Get call to get them from db as they are fetched in LAZY.
          */
         Hibernate.initialize(user.getAttributes());
-                
+
         return user;
     }
 }

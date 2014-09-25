@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.util.Serializer;
 import com.google.gson.Gson;
 
 /**
@@ -1295,5 +1296,16 @@ public class SolrResult extends BaseModel {
     @Field(value = "BUILDER_COUPON_AVAILABLE")
     public void setBuilderCouponAvailable(Boolean isCouponAvailable) {
         builder.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "COUPON_CATALOGUE_OBJECT")
+    public void setCouponCatalogueObject(String couponCatalogueObjectStr) {
+        CouponCatalogue couponCatalogue = Serializer.fromJson(couponCatalogueObjectStr, CouponCatalogue.class);
+        property.setCouponCatalogue(couponCatalogue);
+    }
+
+    @Field(value = "PROPERTY_COUPON_AVAILABLE")
+    public void setPropertyCouponAvailable(Boolean isCouponAvailable) {
+        property.setCouponAvailable(isCouponAvailable);
     }
 }
