@@ -13,11 +13,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -32,6 +35,7 @@ import com.citruspay.pg.net.RequestSignature;
 import com.citruspay.pg.util.CitruspayConstant;
 import com.google.gson.Gson;
 import com.proptiger.data.model.CouponCatalogue;
+import com.proptiger.data.model.Property;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
@@ -43,10 +47,14 @@ import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentRespons
 import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentStatus;
 import com.proptiger.data.model.transaction.thirdparty.PaymentGatewayResponse;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.notification.enums.NotificationTypeEnum;
+import com.proptiger.data.notification.enums.Tokens;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
 import com.proptiger.data.service.CouponCatalogueService;
+import com.proptiger.data.service.PropertyService;
+import com.proptiger.data.service.user.UserService;
 
 /**
  * @author mandeep
@@ -100,6 +108,15 @@ public class CitrusPayPGService {
 
     @Autowired
     private CitrusPayPGResponseDao       citrusPayPGResponseDao;
+
+    @Autowired
+    private NotificationMessageService   nMessageService;
+
+    @Autowired
+    private UserService                  userService;
+
+    @Autowired
+    private ApplicationContext           applicationContext;
 
     public URI initiatePaymentRequest(Transaction transaction) {
         String signature = createSignature(transaction);
@@ -156,11 +173,12 @@ public class CitrusPayPGService {
                 response.getJsonDump(),
                 CitrusPayPGPaymentResponseData.class);
 
-        persistTransactionOnPaymentResponse(data, response);
+        boolean couponBuyed = persistTransactionOnPaymentResponse(data, response);
+
     }
 
     @Transactional
-    private void persistTransactionOnPaymentResponse(
+    private boolean persistTransactionOnPaymentResponse(
             CitrusPayPGPaymentResponseData data,
             PaymentGatewayResponse response) {
         Transaction transaction = transactionService.getTransaction(data.getTxId());
@@ -183,7 +201,7 @@ public class CitrusPayPGService {
                     transaction.getProductId(),
                     -1);
             if (couponCatalogue == null) {
-                return;
+                return false;
             }
 
             transaction.setStatusId(TransactionStatus.Complete.getId());
@@ -191,12 +209,19 @@ public class CitrusPayPGService {
             transactionService.save(transaction);
             payment.setStatusId(PaymentStatus.Success.getId());
 
+            /**
+             * Notify User about the payment of coupon.
+             */
+            notifyUserOnCouponBuy(transaction, couponCatalogue);
+
         }
         else {
             payment.setStatusId(PaymentStatus.Failed.getId());
         }
 
         paymentService.save(payment);
+
+        return true;
     }
 
     private String createCouponCode(Transaction transaction) {
@@ -453,5 +478,27 @@ public class CitrusPayPGService {
                 updateDetails(transaction);
             }
         }
+    }
+
+    private void notifyUserOnCouponBuy(Transaction transaction, CouponCatalogue couponCatalogue) {
+        Map<String, Object> payloadMap = new HashMap<String, Object>();
+
+        Property property = applicationContext.getBean(PropertyService.class).getProperty(
+                couponCatalogue.getPropertyId());
+        User user = userService.getUserById(transaction.getUserId());
+
+        payloadMap.put(Tokens.CouponIssued.CouponCode.name(), transaction.getCode());
+        payloadMap.put(Tokens.CouponIssued.CouponPrice.name(), couponCatalogue.getCouponPrice());
+        payloadMap.put(Tokens.CouponIssued.Date.name(), couponCatalogue.getPurchaseExpiryAt());
+        payloadMap.put(Tokens.CouponIssued.Discount.name(), couponCatalogue.getDiscount());
+        payloadMap.put(Tokens.CouponIssued.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
+        payloadMap.put(Tokens.CouponIssued.ProjectName.name(), property.getProjectName());
+        payloadMap.put(Tokens.CouponIssued.UnitName.name(), property.getUnitName());
+        payloadMap.put(Tokens.CouponIssued.UserName.name(), user.getFullName());
+
+        nMessageService.createNotificationMessage(
+                NotificationTypeEnum.CouponIssued.name(),
+                transaction.getUserId(),
+                payloadMap);
     }
 }
