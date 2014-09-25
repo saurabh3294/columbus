@@ -19,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -30,6 +31,7 @@ import com.citruspay.pg.model.Refund;
 import com.citruspay.pg.net.RequestSignature;
 import com.citruspay.pg.util.CitruspayConstant;
 import com.google.gson.Gson;
+import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.enums.transaction.PaymentStatus;
 import com.proptiger.data.model.enums.transaction.PaymentType;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
@@ -52,13 +54,13 @@ import com.proptiger.data.service.CouponCatalogueService;
  */
 @Service
 public class CitrusPayPGService {
-    private static final String CURRENCY_INR = "INR";
+    private static final String          CURRENCY_INR                             = "INR";
 
-    private static final String ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE = "200";
+    private static final String          ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE = "200";
 
-    private static final String          FORWARD_SLASH         = "/";
+    private static final String          FORWARD_SLASH                            = "/";
 
-    private static final String          SUCCESS_RESPONSE_CODE = "0";
+    private static final String          SUCCESS_RESPONSE_CODE                    = "0";
 
     @Value("${paymentgateway.citruspay.merchant.bankname}")
     private String                       CITRUS_PAY_PG_MERCHANT_BANKNAME;
@@ -84,7 +86,8 @@ public class CitrusPayPGService {
     @Autowired
     private NotificationMessageService   notificationMessageService;
 
-    private static Logger                logger                = LoggerFactory.getLogger(CitrusPayPGService.class);
+    private static Logger                logger                                   = LoggerFactory
+                                                                                          .getLogger(CitrusPayPGService.class);
 
     @Autowired
     private TransactionService           transactionService;
@@ -100,7 +103,7 @@ public class CitrusPayPGService {
 
     public URI initiatePaymentRequest(Transaction transaction) {
         String signature = createSignature(transaction);
-        
+
         MultiValueMap<String, String> mvm = new LinkedMultiValueMap<String, String>();
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.merchantTxnId.name(), String.valueOf(transaction.getId()));
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.firstName.name(), transaction.getUser().getFullName());
@@ -110,7 +113,9 @@ public class CitrusPayPGService {
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.reqtime.name(), String.valueOf(System.currentTimeMillis()));
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.secSignature.name(), signature);
         mvm.add(CitrusPayPGInitiatePaymentRequestParams.notifyUrl.name(), CITRUS_PAY_PG_MERCHANT_NOTIFY_URL);
-        mvm.add(CitrusPayPGInitiatePaymentRequestParams.returnUrl.name(), CITRUS_PAY_PG_MERCHANT_RETURN_URL + "?transactionId=" + transaction.getId());
+        mvm.add(
+                CitrusPayPGInitiatePaymentRequestParams.returnUrl.name(),
+                CITRUS_PAY_PG_MERCHANT_RETURN_URL + "?transactionId=" + transaction.getId());
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -120,7 +125,11 @@ public class CitrusPayPGService {
 
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(mvm, headers);
 
-        ResponseEntity<String> exchange = restTemplate.exchange(CITRUS_PAY_PG_MERCHANT_URL, HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> exchange = restTemplate.exchange(
+                CITRUS_PAY_PG_MERCHANT_URL,
+                HttpMethod.POST,
+                requestEntity,
+                String.class);
         return exchange.getHeaders().getLocation();
     }
 
@@ -147,13 +156,15 @@ public class CitrusPayPGService {
                 response.getJsonDump(),
                 CitrusPayPGPaymentResponseData.class);
 
+        persistTransactionOnPaymentResponse(data, response);
+    }
+
+    @Transactional
+    private void persistTransactionOnPaymentResponse(
+            CitrusPayPGPaymentResponseData data,
+            PaymentGatewayResponse response) {
         Transaction transaction = transactionService.getTransaction(data.getTxId());
         validateResponse(data, transaction);
-        
-        // XXX - We would like to hit enquiry to handle this case
-        if (!existsProductInventory(transaction)) {
-            return;
-        }
 
         Payment payment = new Payment();
         payment.setTransactionId(transaction.getId());
@@ -163,11 +174,23 @@ public class CitrusPayPGService {
         payment.setPaymentGatewayResponseId(response.getId());
         payment.setTypeId(PaymentType.Online.getId());
         if (data.getPgRespCode() == 0 && CitrusPayPGPaymentStatus.SUCCESS.name().equals(data.getTxStatus())) {
+            /**
+             * reducing the coupon inventory in the coupon Catalogue table. If
+             * it coupon reduction failed then coupon cannot be bought. Hence,
+             * not saving the transaction.
+             */
+            CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
+                    transaction.getProductId(),
+                    -1);
+            if (couponCatalogue == null) {
+                return;
+            }
+
             transaction.setStatusId(TransactionStatus.Complete.getId());
             transaction.setCode(createCouponCode(transaction));
             transactionService.save(transaction);
             payment.setStatusId(PaymentStatus.Success.getId());
-            couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), -1);
+
         }
         else {
             payment.setStatusId(PaymentStatus.Failed.getId());
@@ -177,7 +200,8 @@ public class CitrusPayPGService {
     }
 
     private String createCouponCode(Transaction transaction) {
-        return "PT" + transaction.getId() + RandomStringUtils.randomAlphabetic(7 - (int) Math.log10(transaction.getId())).toUpperCase();
+        return "PT" + transaction.getId()
+                + RandomStringUtils.randomAlphabetic(7 - (int) Math.log10(transaction.getId())).toUpperCase();
     }
 
     private void validateResponse(CitrusPayPGPaymentResponseData data, Transaction transaction) {
@@ -296,7 +320,8 @@ public class CitrusPayPGService {
         Enquiry lastEnquiry = null;
 
         EnquiryCollection enquiryCollection = fetchEnquiryCollection(transaction.getId());
-        if (enquiryCollection != null && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection.getRespCode())) {
+        if (enquiryCollection != null && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection
+                .getRespCode())) {
             for (Enquiry enquiry : enquiryCollection.getEnquiry()) {
                 if (SUCCESS_RESPONSE_CODE.equals(enquiry.getRespCode())) {
                     if (CitrusPayPGEnquiryTransactionType.SALE.name().equalsIgnoreCase(enquiry.getTxnType())) {
@@ -325,7 +350,9 @@ public class CitrusPayPGService {
                                 initiateRefund(transaction, lastEnquiry);
                             }
                             else {
-                                couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), -1);
+                                couponCatalogueService.updateCouponCatalogueInventoryLeft(
+                                        transaction.getProductId(),
+                                        -1);
                                 transaction.setCode(createCouponCode(transaction));
                             }
 

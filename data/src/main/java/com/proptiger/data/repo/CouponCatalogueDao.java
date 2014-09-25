@@ -23,8 +23,8 @@ public interface CouponCatalogueDao extends JpaRepository<CouponCatalogue, Integ
             Date date);
 
     @Modifying
-    @Query("UPDATE CouponCatalogue  set inventoryLeft = inventoryLeft + ?2 where id=?1 AND inventoryLeft + ?2 BETWEEN 0 AND totalInventory ")
-    int updateCouponInventory(int couponId, int inventoryCount);
+    @Query("UPDATE CouponCatalogue  set inventoryLeft = inventoryLeft + ?2 where id=?1 AND purchaseExpiryAt > ?3 AND inventoryLeft + ?2 BETWEEN 0 AND totalInventory ")
+    int updateCouponInventory(int couponId, int inventoryCount, Date date);
 
     @Query("select C from CouponCatalogue C join fetch C.property CP join fetch CP.project CPP join fetch CPP.locality CPPL join fetch CPPL.suburb CPPLS join fetch CPPLS.city join fetch CPP.builder where C.id = ?1 and CPP.version='Website'")
     CouponCatalogue fetchCoupon(int id);
