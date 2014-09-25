@@ -5,10 +5,8 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -253,32 +251,46 @@ public class UserService {
     private UserAppSubscription setUserAppSubscriptionDetails(
             List<SubscriptionPermission> subscriptionPermissions,
             UserAppSubscription userAppSubscription) {
-        List<Integer> subscribedIds = new ArrayList<>();
-        Set<Integer> objectTypeIdSet = new HashSet<Integer>();
+        List<Integer> subscribedIdsCity = new ArrayList<>();
+        List<Integer> subscribedIdsLocality = new ArrayList<>();
         Permission permission = null;
+        int objectTypeId = 0;
         for (SubscriptionPermission subscriptionPermission : subscriptionPermissions) {
             permission = subscriptionPermission.getPermission();
-            subscribedIds.add(permission.getObjectId());
-            objectTypeIdSet.add(permission.getObjectTypeId());
+            objectTypeId = permission.getObjectTypeId();
+            if(objectTypeId == DomainObject.city.getObjectTypeId()){
+                subscribedIdsCity.add(permission.getObjectId());
+            }
+            else if(objectTypeId == DomainObject.locality.getObjectTypeId()){
+                subscribedIdsLocality.add(permission.getObjectId());
+            }
         }
         
-        String userType = (objectTypeIdSet.contains(DomainObject.city.getObjectTypeId())
-                ? DomainObject.city.toString()
-                : DomainObject.locality.toString());
+        /* Populating UserType */
         
-        if (!subscribedIds.isEmpty()) {
-            userAppSubscription.setUserType(userType);
-            String json = "{\"filters\":{\"and\":[{\"equal\":{\"" + userAppSubscription.getUserType()
-                    + "Id\":["
-                    + StringUtils.join(subscribedIds, ',')
-                    + "]}}]},\"paging\":{\"start\":0,\"rows\":9999}}";
-
-            List<Locality> localities = localityService.getLocalities(new Gson().fromJson(json, Selector.class))
-                    .getResults();
-
+        if(subscribedIdsCity.isEmpty() && subscribedIdsLocality.isEmpty()){
+            return userAppSubscription;
+        }
+        else if(subscribedIdsCity.isEmpty()){
+            userAppSubscription.setUserType(DomainObject.locality.toString());
+        }
+        else{
+            userAppSubscription.setUserType(DomainObject.city.toString());
+        }
+        
+        /* Populating Locality List */
+        
+        List<Locality> localityList = getLocalityListByCityIdList(subscribedIdsCity);
+        
+        if(!subscribedIdsLocality.isEmpty()){
+            localityList.addAll(localityService.findByLocalityIdList(subscribedIdsLocality).getResults());
+        }
+        
+        if (!localityList.isEmpty()) {
+            
             @SuppressWarnings("unchecked")
             Map<Integer, List<Locality>> cityGroupedLocalities = (Map<Integer, List<Locality>>) UtilityClass
-                    .groupFieldsAsPerKeys(localities, Arrays.asList("cityId"));
+                    .groupFieldsAsPerKeys(localityList, Arrays.asList("cityId"));
 
             for (Integer cityId : cityGroupedLocalities.keySet()) {
                 userAppSubscription.setCityCount(userAppSubscription.getCityCount() + 1);
@@ -307,7 +319,20 @@ public class UserService {
         }
         return userAppSubscription;
     }
+    
+    private List<Locality> getLocalityListByCityIdList(List<Integer> subscribedIdsCity) {
 
+        if (subscribedIdsCity.isEmpty()) {
+            return new ArrayList<Locality>();
+        }
+
+        String json = "{\"filters\":{\"and\":[{\"equal\":{\"" + "cityId\":["
+                + StringUtils.join(subscribedIdsCity, ',')
+                + "]}}]},\"paging\":{\"start\":0,\"rows\":9999}}";
+
+        return (localityService.getLocalities(new Gson().fromJson(json, Selector.class)).getResults());
+    }
+    
     /**
      * Get if user have already enquired a entity
      * 
