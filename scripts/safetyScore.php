@@ -19,7 +19,7 @@ function getSafetyScore(){
 	$tokenTimeout = time() + 36000; // This will generate token valid for next 1 hour
 	$apiHash = sha1($apiKey.$apiSecret.$tokenTimeout);
 
-	$tokenUrl = "http://safetyscore.metadesignsolutions.com/index.php/api/Token";
+	$tokenUrl = "http://safetipin.com/api/Token";
 	$opts = array(
 			'http'=>array(
 					'method'=>"GET",
@@ -52,8 +52,11 @@ function getScoreProjectAndLocality($objectType){
 	}
 	$result = mysql_unbuffered_query($sql);
 	$documents = array();
+	
+	$logger->info("Fetching Safety Scores");
+	
  	while ($document = mysql_fetch_assoc($result)) {
-	$url = "http://safetyscore.metadesignsolutions.com/index.php/api/GetScore?";
+	$url = "http://safetipin.com/api/GetScore?";
 	$latitude  = $document['LATITUDE'];
 	$longitude = $document['LONGITUDE'];
 	$safetyScoreUrl = $url."GetScore[lat]=".$latitude."&GetScore[lng]=".$longitude;
@@ -63,9 +66,13 @@ function getScoreProjectAndLocality($objectType){
 					'header'=>"X-TOKEN: $accessToken\r\n"
 			)
 	);
-
+	
 	$file = file_get_contents($safetyScoreUrl, false, stream_context_create($opts));
 	$object = json_decode($file, true)['score'];
+	if(json_decode($file, true)['success'] == "false"){
+		$logger->info("Either the request failed or results not found for lattitude: ".$document['LATITUDE']." and longitude: ".$document['LONGITUDE']);
+	}
+
 	if(empty($object)){
 		$document['SAFETY_SCORE'] = null;
 	}
@@ -74,17 +81,19 @@ function getScoreProjectAndLocality($objectType){
 	}
 	array_push($documents, $document);
  	}
+ 	
+ 	$logger->info("Updating Safety Scores");
  	$len = count($documents);
  	for($i=0; $i<$len; $i++){
  	$document = &$documents[$i];
  	if($objectType=='PROJECT'){
- 		$updateSql = "UPDATE cms.resi_project set SAFETY_SCORE = "."ROUND((".$document['SAFETY_SCORE']."/10),1)"." where PROJECT_ID = ".$document['PROJECT_ID'];
+ 		$updateSql = "UPDATE cms.resi_project set SAFETY_SCORE = "."ROUND((".$document['SAFETY_SCORE']."*2),1)"." where PROJECT_ID = ".$document['PROJECT_ID'];
     	//Logging details for debugging
  		$logger->info("\n\n ProjectId: ".$document['PROJECT_ID']." Latitude: ".$document['LATITUDE'].
  		" Longitude: ".$document['LONGITUDE']." SafetyScore: ".$document['SAFETY_SCORE']);
  	}
  	else if($objectType=='LOCALITY'){
- 		$updateSql = "UPDATE cms.locality set SAFETY_SCORE = "."ROUND((".$document['SAFETY_SCORE']."/10),1)"." where LOCALITY_ID = ".$document['LOCALITY_ID'];
+ 		$updateSql = "UPDATE cms.locality set SAFETY_SCORE = "."ROUND((".$document['SAFETY_SCORE']."*2),1)"." where LOCALITY_ID = ".$document['LOCALITY_ID'];
  		//Logging details for debugging
  	 	$logger->info("\n\n LocalityId: ".$document['LOCALITY_ID']." Latitude: ".$document['LATITUDE'].
  		" Longitude: ".$document['LONGITUDE']." SafetyScore: ".$document['SAFETY_SCORE']);
