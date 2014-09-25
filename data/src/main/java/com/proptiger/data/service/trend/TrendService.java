@@ -564,7 +564,7 @@ public class TrendService {
         Set<String> selectorGroups = selector.getGroupSet();
         Object result = null;
 
-        ArrayList<String> allKeys = new ArrayList<>(valuesForDummyObject.keySet());
+        List<String> allKeys = new ArrayList<>(valuesForDummyObject.keySet());
         String setGroupField = allKeys.get(allKeys.size() - 1);
 
         Iterator<String> iterator = selectorGroups.iterator();
@@ -573,7 +573,7 @@ public class TrendService {
             if (currentGroupField.equals(setGroupField)) {
                 if (iterator.hasNext()) {
                     String nextGroupField = iterator.next();
-                    HashMap<Object, Object> nextCallResult = new HashMap<>();
+                    Map<Object, Object> nextCallResult = new HashMap<>();
 
                     for (Object groupValue : allGroupValues.get(nextGroupField)) {
                         @SuppressWarnings("unchecked")
