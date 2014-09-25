@@ -31,4 +31,11 @@ public class CouponCatalogController extends BaseController {
 
         return new APIResponse(user);
     }
+    
+    @ResponseBody
+    @RequestMapping("data/v1/coupon/{couponCode}/details")
+    public APIResponse fetchCouponDetails(@PathVariable String couponCode, @RequestParam String userProofId) {
+        return new APIResponse(couponService.fetchCouponDetails(couponCode, userProofId));
+    }
+
 }

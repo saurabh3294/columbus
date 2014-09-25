@@ -18,6 +18,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.response.FieldStatsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,8 +67,11 @@ public class PropertyService {
     @Autowired
     private EntityManagerFactory   emf;
 
-    @Autowired
+    // do not apply autowire.
     private CouponCatalogueService couponCatalogueService;
+
+    @Autowired
+    private ApplicationContext     applicationContext;
 
     private static int             ROWS_THRESHOLD = 200;
 
@@ -80,7 +84,7 @@ public class PropertyService {
     public List<Property> getProperties(Selector propertyFilter) {
         List<Property> properties = propertyDao.getProperties(propertyFilter);
         imageEnricher.setPropertiesImages(properties);
-        
+
         Set<String> fields = propertyFilter.getFields();
         if (fields != null && fields.contains("couponCatalogue")) {
             setCouponCatalogueForProperties(properties);
@@ -183,13 +187,13 @@ public class PropertyService {
     }
 
     public PaginatedResponse<List<Property>> getProperties(FIQLSelector selector) {
-        PaginatedResponse<List<Property>> response =  propertyDao.getProperties(selector);
-        
+        PaginatedResponse<List<Property>> response = propertyDao.getProperties(selector);
+
         Set<String> fields = selector.getFieldSet();
         if (fields != null && fields.contains("couponCatalogue")) {
             setCouponCatalogueForProperties(response.getResults());
         }
-        
+
         return response;
     }
 
@@ -393,7 +397,7 @@ public class PropertyService {
     public void setCouponCatalogueForProperties(List<Property> properties) {
         List<Integer> propertyIds = getPropertyIdsFromProperties(properties);
 
-        Map<Integer, CouponCatalogue> map = couponCatalogueService.getCouponCatalogueMapByPropertyIds(propertyIds);
+        Map<Integer, CouponCatalogue> map = getCoupCatalogueService().getCouponCatalogueMapByPropertyIds(propertyIds);
 
         CouponCatalogue couponCatalogue;
         for (Property property : properties) {
@@ -405,5 +409,13 @@ public class PropertyService {
             property.setCouponCatalogue(map.get(property.getPropertyId()));
             property.setCouponAvailable(true);
         }
+    }
+
+    public CouponCatalogueService getCoupCatalogueService(){
+        if(couponCatalogueService == null){
+            couponCatalogueService = applicationContext.getBean(CouponCatalogueService.class);
+        }
+        
+        return couponCatalogueService;
     }
 }
