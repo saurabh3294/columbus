@@ -799,7 +799,7 @@ public class TrendController extends BaseController {
                 map.put(
                         UtilityClass.getResponseGroupKey(key),
                         validateGroupValues(
-                                map.get(key),
+                                map.get(UtilityClass.getResponseGroupKey(key)),
                                 allGroupValues,
                                 selector,
                                 valuesForDummyObjectNew,
