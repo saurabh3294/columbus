@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
 import com.proptiger.data.internal.dto.ActiveUser;
+import com.proptiger.data.internal.dto.UnmatchedProjectDetails;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.repo.ForumUserDao;
+import com.proptiger.data.model.user.User;
+import com.proptiger.data.repo.user.UserDao;
 import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.PropertyKeys;
@@ -27,10 +27,10 @@ public class UnmatchedProjectRequestService {
     private TemplateToHtmlGenerator mailBodyGenerator;
 
     @Autowired
-    private ForumUserDao            forumUserDao;
-
-    @Autowired
     private PropertyReader          propertyReader;
+    
+    @Autowired
+    private UserDao userDao;
 
     private static Logger           logger = LoggerFactory.getLogger(UnmatchedProjectRequestService.class);
 
@@ -40,10 +40,10 @@ public class UnmatchedProjectRequestService {
      * @return
      */
     public boolean handleUnmatchedProjectRequest(UnmatchedProjectDetails unmatchedProjectDetails, ActiveUser userInfo) {
-        ForumUser forumUser = forumUserDao.findOne(userInfo.getUserIdentifier());
-        unmatchedProjectDetails.setUserEmail(forumUser.getEmail());
-        unmatchedProjectDetails.setContact(forumUser.getContact());
-        unmatchedProjectDetails.setUserName(forumUser.getUsername());
+        User user = userDao.findById(userInfo.getUserIdentifier());
+        unmatchedProjectDetails.setUserEmail(user.getEmail());
+        unmatchedProjectDetails.setContact(Long.valueOf(user.getPriorityContactNumber()));
+        unmatchedProjectDetails.setUserName(user.getFullName());
         MailBody mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.UNMATCHED_PROJECT_INTERNAL,
                 unmatchedProjectDetails);
@@ -51,7 +51,7 @@ public class UnmatchedProjectRequestService {
         logger.debug("Unmatched project request mail to internal {}", toAddress);
         MailDetails mailDetails = new MailDetails(mailBody).setMailTo(toAddress);
         boolean userMailStatus = mailSender.sendMailUsingAws(mailDetails);
-        toAddress = forumUser.getEmail();
+        toAddress = user.getEmail();
         logger.debug("Unmatched project request mail to user {}", toAddress);
         mailBody = mailBodyGenerator.generateMailBody(
                 MailTemplateDetail.UNMATCHED_PROJECT_USER,
