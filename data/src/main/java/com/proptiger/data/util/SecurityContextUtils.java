@@ -31,7 +31,7 @@ public class SecurityContextUtils {
     /**
      * @return ActiveUser object or null if user is not logged in
      */
-    public static ActiveUser getLoggedInUser() {
+    public static ActiveUser getActiveUser() {
         ActiveUser activeUser = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
@@ -86,7 +86,7 @@ public class SecurityContextUtils {
                 true,
                 true,
                 true,
-                getDefaultAuthority(),
+                getDefaultAuthority(user.getId()),
                 applicationType);
 
         UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(
@@ -108,7 +108,7 @@ public class SecurityContextUtils {
      */
     public static Authentication autoLogin(User user) {
         Authentication auth = createNewAuthentication(user);
-        putAuthInContext(auth);
+        setAuthentication(auth);
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
                 .getRequest();
         putActiveUserInSession(request, auth);
@@ -128,12 +128,11 @@ public class SecurityContextUtils {
                 activeUser,
                 null,
                 activeUser.getAuthorities());
-        putAuthInContext(newAuthentication);
+        setAuthentication(newAuthentication);
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes())
+                .getRequest();
+        putActiveUserInSession(request, newAuthentication);
         return newAuthentication;
-    }
-
-    private static void putAuthInContext(Authentication auth) {
-        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     public static Authentication getAuthentication() {
@@ -141,16 +140,20 @@ public class SecurityContextUtils {
     }
 
     public static int getLoggedInUserId() {
-        return Integer.parseInt(getLoggedInUser().getUserId());
+        return getActiveUser().getUserIdentifier();
     }
 
     public static void setAuthentication(Authentication newAuth) {
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
-    public static List<GrantedAuthority> getDefaultAuthority() {
+    public static List<GrantedAuthority> getDefaultAuthority(Integer userId) {
         List<GrantedAuthority> authority = new ArrayList<>();
         authority.add(new SimpleGrantedAuthority(UserRole.USER.name()));
+        if(userId.equals(Constants.ADMIN_USER_ID)){
+            authority.add(new SimpleGrantedAuthority(UserRole.ADMIN_BACKEND.name()));
+        }
+        
         return authority;
     }
 

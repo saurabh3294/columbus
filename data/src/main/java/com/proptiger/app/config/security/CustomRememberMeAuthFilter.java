@@ -70,7 +70,7 @@ public class CustomRememberMeAuthFilter extends RememberMeAuthenticationFilter {
                     onSuccessfulAuthentication(request, (HttpServletResponse) res, auth);
                 }
                 catch (Exception e) {
-                    logger.error("Remembered user could not be found in memcache for PHPSESSID {}", sessionId);
+                    logger.debug("Remembered user could not be found in memcache for PHPSESSID {}", sessionId);
                 }
             }
         }

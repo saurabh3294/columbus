@@ -7,7 +7,6 @@ import org.springframework.social.security.SocialUser;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.proptiger.data.enums.Application;
-import com.proptiger.data.service.ApplicationNameService;
 
 /**
  * Active user details to hold principle and other authorities of user after
