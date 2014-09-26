@@ -148,5 +148,13 @@ public class CouponCatalogue extends BaseModel {
     public void setInventoryLeft(int inventoryLeft) {
         this.inventoryLeft = inventoryLeft;
     }
+
+    public Property getProperty() {
+        return property;
+    }
+
+    public void setProperty(Property property) {
+        this.property = property;
+    }
     
 }

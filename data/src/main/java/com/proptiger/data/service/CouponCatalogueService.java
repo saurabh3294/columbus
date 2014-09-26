@@ -127,7 +127,9 @@ public class CouponCatalogueService {
      * @return
      */
     public CouponCatalogue getCouponCatalogue(int id) {
-        return couponCatalogueDao.fetchCoupon(id);
+        CouponCatalogue coupon = couponCatalogueDao.findOne(id);
+        coupon.setProperty(getPropertyService().getProperty(coupon.getPropertyId()));
+        return coupon;
     }
 
     /**
