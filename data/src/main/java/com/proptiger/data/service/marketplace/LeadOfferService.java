@@ -859,8 +859,11 @@ public class LeadOfferService {
                 || senderDetails.getMailTo().isEmpty()) {
             throw new BadRequestException("Invalid mail details");
         }
+        
+        String username = userService.getUserById(activeUser.getUserIdentifier()).getFullName();
+        
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
-                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername());
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername()).setFrom(username +" <no-reply@proptiger.com>");
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }
