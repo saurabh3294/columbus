@@ -398,15 +398,36 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "LOCALITY_UNIT_TYPES")
     private List<String>      localityPropertyUnitTypes;
-
+    
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer           cityLocalityCount;
-
+    
+    @Field(value = "CITY_POPULATION")
+    private Integer           cityPopulation;
+    
+    @Field(value = "CITY_TAG_LINE")
+    private String            cityTagLine;
+      
+    @Field(value = "CITY_PROPERTY_COUNT")
+    private Integer           cityPropertyCount;
+    
     @Field(value = "LOCALITY_TAG_LINE")
     private String            localityTagLine;
     
     @Field(value = "PROPERTY_COUPON_AVAILABLE")
     private Boolean isCouponAvailable;
+
+    @Field(value = "SUBURB_TAG_LINE")
+    private String            suburbTagLine;
+	
+@Field(value = "CITY_POPULATION")
+    private Integer           cityPopulation;
+    
+    @Field(value = "CITY_TAG_LINE")
+    private String            cityTagLine;
+      
+    @Field(value = "CITY_PROPERTY_COUNT")
+    private Integer           cityPropertyCount;
 
     public SolrResult() {
         property.setProject(project);
@@ -1250,10 +1271,20 @@ public class SolrResult extends BaseModel {
     public void setLocalityMinLivabilityScore(Double projectMinLivabilityScore) {
         city.setLocalityMinLivabilityScore(projectMinLivabilityScore);
     }
-
+    
     @Field(value = "CITY_LOCALITY_COUNT")
     public void setCityLocalityCount(Integer cityLocalityCount) {
         city.setCityLocalityCount(cityLocalityCount);
+    }
+    
+    @Field(value = "CITY_POPULATION")
+    public void setCityPopulation(Integer cityPopulation) {
+        city.setCityPopulation(cityPopulation);
+    }
+    
+    @Field(value = "CITY_TAG_LINE")
+    public void setCityTagLine(String cityTagLine) {
+        city.setCityTagLine(cityTagLine);
     }
 
     @Field(value = "LOCALITY_TAG_LINE")
@@ -1261,7 +1292,7 @@ public class SolrResult extends BaseModel {
         locality.setLocalityTagLine(localityTagLine);
     }
 
-    @Field(value = "LOCALITY_COUPON_MAX_DISCOUNT")
+@Field(value = "LOCALITY_COUPON_MAX_DISCOUNT")
     public void setLocalityCouponMaxDiscount(Integer couponMaxDiscount) {
         locality.setMaxDiscount(couponMaxDiscount);
     }
@@ -1310,5 +1341,15 @@ public class SolrResult extends BaseModel {
     @Field(value = "PROPERTY_COUPON_AVAILABLE")
     public void setPropertyCouponAvailable(Boolean isCouponAvailable) {
         property.setCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "SUBURB_TAG_LINE")
+    public void setSuburbTagLine(String suburbTagLine) {
+        suburb.setSuburbTagLine(suburbTagLine);
+    }
+    
+    @Field(value = "CITY_PROPERTY_COUNT")
+    public void setCityPropertyCount(Integer cityPropertyCount) {
+        city.setCityPropertyCount(cityPropertyCount);
     }
 }

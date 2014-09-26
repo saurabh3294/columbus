@@ -403,6 +403,9 @@ public class PropertyService {
         for (Property property : properties) {
             couponCatalogue = map.get(property.getPropertyId());
             if (couponCatalogue == null) {
+                // resetting them if they are coming from solr.
+                property.setCouponCatalogue(null);
+                property.setCouponAvailable(null);
                 continue;
             }
 
@@ -411,11 +414,11 @@ public class PropertyService {
         }
     }
 
-    public CouponCatalogueService getCoupCatalogueService(){
-        if(couponCatalogueService == null){
+    public CouponCatalogueService getCoupCatalogueService() {
+        if (couponCatalogueService == null) {
             couponCatalogueService = applicationContext.getBean(CouponCatalogueService.class);
         }
-        
+
         return couponCatalogueService;
     }
 }

@@ -6,6 +6,8 @@ package com.proptiger.data.service.transaction;
 import java.util.Date;
 import java.util.List;
 
+import javax.ws.rs.core.SecurityContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -21,6 +23,7 @@ import com.proptiger.data.repo.transaction.TransactionDao;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
+import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.BadRequestException;
 
 /**
@@ -53,7 +56,7 @@ public class TransactionService {
     public Transaction createTransaction(Transaction transaction) {
         transaction.getUser().setRegistered(false);
         User user = userService.createUser(transaction.getUser());
-
+        //SecurityContextUtils.auto
         validateMaxCouponsBought(user.getId());
 
         // Trying to reuse existing transaction wherever possible

@@ -37,7 +37,7 @@ public class GCMUserController {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public APIResponse postGCMUser(@RequestBody GCMUser gcmUser) {
-        ActiveUser activeUser = SecurityContextUtils.getLoggedInUser();
+        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
         Integer userId = null;
         if (activeUser != null) {
             userId = activeUser.getUserIdentifier();

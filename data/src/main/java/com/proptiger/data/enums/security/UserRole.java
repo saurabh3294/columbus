@@ -9,5 +9,5 @@ package com.proptiger.data.enums.security;
  */
 public enum UserRole {
 
-    USER, PRE_AUTH_USER
+    USER, PRE_AUTH_USER, ADMIN_BACKEND
 }

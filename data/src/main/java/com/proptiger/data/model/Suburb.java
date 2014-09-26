@@ -126,6 +126,10 @@ public class Suburb extends BaseModel {
     private Integer                         suburbViewCount;
 
     @Transient
+    @Field("SUBURB_TAG_LINE")
+    private String                          suburbTagLine;
+
+    @Transient
     @Field("SUBURB_COUPON_MAX_DISCOUNT")
     private Integer                         maxDiscount;
 
@@ -299,5 +303,13 @@ public class Suburb extends BaseModel {
 
     public void setIsCouponAvailable(Boolean isCouponAvailable) {
         this.isCouponAvailable = isCouponAvailable;
+    }
+
+    public String getSuburbTagLine() {
+        return suburbTagLine;
+    }
+
+    public void setSuburbTagLine(String suburbTagLine) {
+        this.suburbTagLine = suburbTagLine;
     }
 }

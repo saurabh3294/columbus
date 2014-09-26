@@ -1,5 +1,6 @@
 package com.proptiger.data.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -18,8 +19,11 @@ import com.proptiger.data.model.Property;
 import com.proptiger.data.model.transaction.Transaction;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAttribute;
+import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
+import com.proptiger.data.notification.model.NotificationMessage;
+import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;
 import com.proptiger.data.service.transaction.TransactionService;
@@ -40,6 +44,9 @@ public class CouponCatalogueService {
 
     @Autowired
     private NotificationMessageService nMessageService;
+    
+    @Autowired
+    private NotificationGeneratedService nGeneratedService;
 
     // Do not autowire them. Use getter to use them.
     private TransactionService         transactionService;
@@ -224,10 +231,31 @@ public class CouponCatalogueService {
         notificationPayloadMap.put(Tokens.CouponRedeemed.UnitName.name(), property.getUnitName());
         notificationPayloadMap.put(Tokens.CouponRedeemed.UserName.name(), user.getFullName());
 
-        nMessageService.createNotificationMessage(
+        NotificationMessage nMessage = nMessageService.createNotificationMessage(
                 NotificationTypeEnum.CouponRedeemed.getName(),
                 transaction.getUserId(),
                 notificationPayloadMap);
+        
+        List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
+        nMessages.add(nMessage);
+        List<MediumType> mediumTypes = new ArrayList<MediumType>();
+        mediumTypes.add(MediumType.Sms);
+        mediumTypes.add(MediumType.Email);
+        
+        nGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
+        
+        // sending it to builder.
+        // TODO to handle it later when checked how builder email is handled.
+        /*nMessage = nMessageService.createNotificationMessage(
+                NotificationTypeEnum.CouponIssued.name(),
+                property.getPropertyId(),
+                payloadMap);
+        nMessages = new ArrayList<NotificationMessage>();
+        nMessages.add(nMessage);
+        mediumTypes = new ArrayList<MediumType>();
+        mediumTypes.add(MediumType.Email);
+        
+        notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);*/
     }
 
     /**

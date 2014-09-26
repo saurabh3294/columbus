@@ -499,26 +499,29 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_SOCIETY_SCORE")
     private Float                   projectSocietyScore;
-
+    
     @Transient
     @Field(value = "PROJECT_SAFETY_RANK")
     private Integer                 projectSafetyRank;
-
+    
     @Transient
     @Field(value = "PROJECT_LIVABILITY_RANK")
     private Integer                 projectLivabilityRank;
-
+    
     @Transient
     private boolean                 has3DImages;
-
+    
     @JsonIgnore
     @Column(name = "RESIDENTIAL_FLAG")
     @Enumerated(EnumType.STRING)
     private ResidentialFlag         residentialFlag;
 
     @Transient
+    private List<Image>              landmarkImages;
+
+    @Transient
     @Field("IMAGE_TYPE_COUNT")
-    private Map<String, Integer>    imageTypeCount;
+    private Map<String, Integer>	 imageTypeCount;
 
     @Transient
     private Integer                 maxDiscount;
@@ -796,7 +799,7 @@ public class Project extends BaseModel {
     public String getProjectStatus() {
         return projectStatus;
     }
-
+    
     public void setProjectStatus(String projectStatus) {
         this.projectStatus = projectStatus;
     }
@@ -1294,6 +1297,14 @@ public class Project extends BaseModel {
 
     public void setResidentialFlag(ResidentialFlag residentialFlag) {
         this.residentialFlag = residentialFlag;
+    }
+	
+ public List<Image> getLandmarkImages() {
+        return landmarkImages;
+    }
+
+    public void setLandmarkImages(List<Image> landmarkImages) {
+        this.landmarkImages = landmarkImages;
     }
 
     public Integer getMaxDiscount() {

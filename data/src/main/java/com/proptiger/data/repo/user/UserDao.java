@@ -26,7 +26,7 @@ public interface UserDao extends JpaRepository<User, Integer>, UserCustomDao {
     @Query("select U from User U join U.contactNumbers CN where (CN.contactNumber = ?1 and U.id = ?2)")
     public User findByPhone(String contactNumber, int userId);
 
-    @Query("select U from User U join fetch U.contactNumbers where U.id = ?1")
+    @Query("select U from User U left join fetch U.contactNumbers CN left join fetch U.userAuthProviderDetails where U.id = ?1")
     public User findById(int id);
     
 }
