@@ -36,6 +36,9 @@ public class ProjectDao extends ProjectSolrDao {
     private ProjectDatabaseDao   projectDatabaseDao;
 
     @Autowired
+    private ProjectDiscussionDao projectDiscussionDao;
+    
+    @Autowired
     private EntityManagerFactory emf;
     
     @Deprecated
@@ -61,7 +64,7 @@ public class ProjectDao extends ProjectSolrDao {
             int locationType,
             int locationId,
             int minCount) {
-        return projectDatabaseDao.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
+        return projectDiscussionDao.getRecentlyMostDiscussedProjects(date, locationType, locationId, minCount);
     }
 
     public List<Integer> getMostDiscussedProjectInNWeeksOnLocation(
