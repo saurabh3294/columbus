@@ -374,6 +374,11 @@
 			<artifactId>spring-social-security</artifactId>
 			<version>${spring.social.version}</version>
 		</dependency>
+		<dependency>
+		    <groupId>com.surftools</groupId>
+ 		    <artifactId>BeanstalkClient</artifactId>
+		    <version>1.4.6</version>
+		</dependency>
 		<!-- Spring Social Facebook -->
 		<dependency>
 			<groupId>org.springframework.social</groupId>
