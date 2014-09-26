@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -57,7 +56,6 @@ import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
-import com.proptiger.data.model.user.UserEmail;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
 import com.proptiger.data.repo.ForumUserDao;
@@ -597,6 +595,11 @@ public class UserService {
 
         if (userInDB != null) {
             user.setId(userInDB.getId());
+            String fullName = user.getFullName();
+            if (fullName != null && !fullName.isEmpty()) {
+                userInDB.setFullName(fullName);
+                userDao.save(userInDB);
+            }
         }
         else {
             user.setId(userDao.save(user).getId());
@@ -616,10 +619,16 @@ public class UserService {
      * @return
      */
     private void patchUser(User user) {
-        List<UserContactNumber> contactNumbers = user.getContactNumbers();
-
+        
+        
         // checking and creating user attributes.
         createUserAttributes(user);
+        updateContactNumbers(user);
+    }
+
+    private void updateContactNumbers(User user) {
+        List<UserContactNumber> contactNumbers = user.getContactNumbers();
+
 
         if (contactNumbers == null || contactNumbers.isEmpty()) {
             return;

@@ -339,6 +339,7 @@ public class CitrusPayPGService {
         return enquiryResult;
     }
 
+    @Transactional
     public void updateDetails(Transaction transaction) {
         TransactionStatus transactionStatus = null;
         PaymentStatus paymentStatus = null;
@@ -368,54 +369,66 @@ public class CitrusPayPGService {
                 if (lastEnquiry.getCurrency().equalsIgnoreCase(CURRENCY_INR)) {
                     if (transactionStatus == TransactionStatus.Complete && transaction.getStatusId() == TransactionStatus.Incomplete
                             .getId()) {
-                        if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
-                            if (!existsProductInventory(transaction)) {
-                                transactionStatus = TransactionStatus.Refunded;
-                                paymentStatus = PaymentStatus.Refunded;
-                                initiateRefund(transaction, lastEnquiry);
-                            }
-                            else {
-                                couponCatalogueService.updateCouponCatalogueInventoryLeft(
-                                        transaction.getProductId(),
-                                        -1);
-                                transaction.setCode(createCouponCode(transaction));
-                            }
-
-                            Payment payment = createPaymentFromEnquiry(transaction, lastEnquiry);
-                            payment.setStatusId(paymentStatus.getId());
-                            transaction.setStatusId(transactionStatus.getId());
-
-                            paymentService.save(payment);
-                            transactionService.save(transaction);
-                        }
-                        else {
-                            logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
-                                    + ", Expected: "
-                                    + transaction.getAmount());
-                        }
+                        handleSuccessPayment(transaction, transactionStatus, paymentStatus, lastEnquiry);
                     }
-
-                    if (transactionStatus == TransactionStatus.Refunded && transaction.getStatusId() != TransactionStatus.Refunded
-                            .getId()) {
-                        if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
-                            Payment payment = createPaymentFromEnquiry(transaction, lastEnquiry);
-                            payment.setStatusId(paymentStatus.getId());
-                            transaction.setStatusId(TransactionStatus.Refunded.getId());
-                            paymentService.save(payment);
-                            transactionService.save(transaction);
-                            couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), 1);
-                        }
-                        else {
-                            logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
-                                    + ", Expected: "
-                                    + transaction.getAmount());
-                        }
+                    // TODO only for completed state inventory should be reduced
+                    else if (transactionStatus == TransactionStatus.Refunded && transaction.getStatusId() == TransactionStatus.Complete.getId()) {
+                        handleRefundPayment(transaction, paymentStatus, lastEnquiry);
                     }
                 }
                 else {
                     logger.error("Currency mismatch - Found: " + lastEnquiry.getCurrency() + ", Expected: INR");
                 }
             }
+        }
+    }
+
+    private void handleRefundPayment(Transaction transaction, PaymentStatus paymentStatus, Enquiry lastEnquiry) {
+        if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
+            Payment payment = createPaymentFromEnquiry(transaction, lastEnquiry);
+            payment.setStatusId(paymentStatus.getId());
+            transaction.setStatusId(TransactionStatus.Refunded.getId());
+            paymentService.save(payment);
+            transactionService.save(transaction);
+            couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), 1);
+        }
+        else {
+            logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
+                    + ", Expected: "
+                    + transaction.getAmount());
+        }
+    }
+
+    private void handleSuccessPayment(
+            Transaction transaction,
+            TransactionStatus transactionStatus,
+            PaymentStatus paymentStatus,
+            Enquiry lastEnquiry) {
+        if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
+            if (!existsProductInventory(transaction)) {
+                transactionStatus = TransactionStatus.Refunded;
+                paymentStatus = PaymentStatus.Refunded;
+                initiateRefund(transaction, lastEnquiry);
+            }
+            else {
+                couponCatalogueService.updateCouponCatalogueInventoryLeft(
+                        transaction.getProductId(),
+                        -1);
+                transaction.setCode(createCouponCode(transaction));
+            }
+
+            Payment payment = createPaymentFromEnquiry(transaction, lastEnquiry);
+            payment.setStatusId(paymentStatus.getId());
+            transaction.setStatusId(transactionStatus.getId());
+
+            paymentService.save(payment);
+            transactionService.save(transaction);
+        }
+        else {
+            // TODO Refund or punish
+            logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
+                    + ", Expected: "
+                    + transaction.getAmount());
         }
     }
 
