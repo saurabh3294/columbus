@@ -4,6 +4,7 @@
 package com.proptiger.data.service.transaction;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +48,11 @@ import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentRespons
 import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentStatus;
 import com.proptiger.data.model.transaction.thirdparty.PaymentGatewayResponse;
 import com.proptiger.data.model.user.User;
+import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
+import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
@@ -93,6 +97,9 @@ public class CitrusPayPGService {
 
     @Autowired
     private NotificationMessageService   notificationMessageService;
+    
+    @Autowired
+    private NotificationGeneratedService nGeneratedService;
 
     private static Logger                logger                                   = LoggerFactory
                                                                                           .getLogger(CitrusPayPGService.class);
@@ -526,10 +533,34 @@ public class CitrusPayPGService {
         payloadMap.put(Tokens.CouponIssued.UnitName.name(), property.getUnitName());
         payloadMap.put(Tokens.CouponIssued.UserName.name(), user.getFullName());
 
-        nMessageService.createNotificationMessage(
+        
+        
+        // Sending it to user.
+        NotificationMessage nMessage = nMessageService.createNotificationMessage(
                 NotificationTypeEnum.CouponIssued.name(),
                 transaction.getUserId(),
                 payloadMap);
+        List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
+        nMessages.add(nMessage);
+        List<MediumType> mediumTypes = new ArrayList<MediumType>();
+        mediumTypes.add(MediumType.Sms);
+        mediumTypes.add(MediumType.Email);
+        
+        notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
+        
+        // sending it to builder.
+        // TODO to handle it later when checked how builder email is handled.
+        /*nMessage = nMessageService.createNotificationMessage(
+                NotificationTypeEnum.CouponIssued.name(),
+                property.getPropertyId(),
+                payloadMap);
+        nMessages = new ArrayList<NotificationMessage>();
+        nMessages.add(nMessage);
+        mediumTypes = new ArrayList<MediumType>();
+        mediumTypes.add(MediumType.Email);
+        
+        notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);*/
+        
     }
     
     
