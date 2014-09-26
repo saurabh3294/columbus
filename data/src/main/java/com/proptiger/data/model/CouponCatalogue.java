@@ -53,7 +53,7 @@ public class CouponCatalogue extends BaseModel {
     private int               totalInventory;
 
     @Column(name = "inventory_left")
-    private int               inventoryLeft;
+    private Integer               inventoryLeft;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="option_id", insertable=false, updatable=false)
@@ -141,11 +141,11 @@ public class CouponCatalogue extends BaseModel {
         this.totalInventory = totalInventory;
     }
 
-    public int getInventoryLeft() {
+    public Integer getInventoryLeft() {
         return inventoryLeft;
     }
 
-    public void setInventoryLeft(int inventoryLeft) {
+    public void setInventoryLeft(Integer inventoryLeft) {
         this.inventoryLeft = inventoryLeft;
     }
 
