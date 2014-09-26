@@ -381,7 +381,7 @@ public class PortfolioService {
     public PortfolioListing getPortfolioListingById(Integer userId, Integer listingId) {
         logger.debug("Getting portfolio listing {} for user id {}", listingId, userId);
 
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId,
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
 
@@ -459,7 +459,7 @@ public class PortfolioService {
         logger.debug("Update portfolio listing {} for user id {}", listingId, userId);
         listing.setUserId(userId);
         listing.setId(listingId);
-        PortfolioListing updated = update(listing);
+        PortfolioListing updated = update(userId, listing);
         return updated;
     }
 
@@ -495,8 +495,8 @@ public class PortfolioService {
         return created;
     }
 
-    private PortfolioListing update(PortfolioListing toUpdate) {
-        PortfolioListing resourcePresent = preProcessUpdate(toUpdate);
+    private PortfolioListing update(Integer userId, PortfolioListing toUpdate) {
+        PortfolioListing resourcePresent = preProcessUpdate(userId, toUpdate);
         PortfolioListing resourceWithSameName = portfolioListingDao
                 .findByUserIdAndNameAndProjectIdAndListingStatusInAndSourceTypeIn(
                         toUpdate.getUserId(),
@@ -581,8 +581,8 @@ public class PortfolioService {
         }
     }
 
-    private PortfolioListing preProcessUpdate(PortfolioListing toUpdate) {
-        PortfolioListing resourcePresent = portfolioListingDao.findByListingIdAndListingStatusIn(
+    private PortfolioListing preProcessUpdate(Integer userId, PortfolioListing toUpdate) {
+        PortfolioListing resourcePresent = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
                 toUpdate.getId(),
                 Constants.LISTINGSTATUS_LIST);
         if (resourcePresent == null) {
@@ -608,7 +608,7 @@ public class PortfolioService {
     @CacheEvict(value = Constants.CacheName.PORTFOLIO_LISTING, key = "#listingId")
     public PortfolioListing deletePortfolioListing(Integer userId, Integer listingId, String reason) {
         logger.debug("Delete Portfolio Listing id {} for userid {}", listingId, userId);
-        PortfolioListing propertyPresent = portfolioListingDao.findByListingIdAndListingStatusIn(
+        PortfolioListing propertyPresent = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
         if (propertyPresent == null) {
@@ -704,7 +704,9 @@ public class PortfolioService {
                 userId,
                 listingId,
                 interestedToSell);
-        PortfolioListing listing = portfolioListingDao.findOne(listingId);
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId,
+                listingId,
+                Arrays.asList(ListingStatus.ACTIVE));
         if (listing == null || !listing.getUserId().equals(userId)) {
             logger.error("Portfolio Listing id {} not found for userid {}", listingId, userId);
             throw new ResourceNotAvailableException(ResourceType.LISTING, ResourceTypeAction.GET);
@@ -745,7 +747,7 @@ public class PortfolioService {
                 userId,
                 listingId,
                 interestedToLoan);
-        PortfolioListing listing = portfolioListingDao.findByListingIdAndListingStatusIn(
+        PortfolioListing listing = portfolioListingDao.findByUserIdAndListingIdAndListingStatusIn(userId, 
                 listingId,
                 Constants.LISTINGSTATUS_LIST);
         if (listing == null) {

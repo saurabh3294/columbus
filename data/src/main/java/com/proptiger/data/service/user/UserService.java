@@ -419,7 +419,7 @@ public class UserService {
      * @return
      */
     public WhoAmIDetail getWhoAmIDetail() {
-        ActiveUser activeUser = SecurityContextUtils.getLoggedInUser();
+        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
         if (activeUser == null) {
             throw new UnauthorizedException();
         }
