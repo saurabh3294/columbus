@@ -113,6 +113,9 @@ public class LeadOfferService {
 
     @Autowired
     private NotificationService          notificationService;
+    
+    @Autowired
+    private PropertyReader                 propertyReader;
 
     /**
      * 
@@ -658,9 +661,21 @@ public class LeadOfferService {
             map.put("leadOffer", leadOfferInDB);
             map.put("listingObjectWithAmenities", listingMap);
 
+            
+            String username ="";
+            if(templatePath.contains("claimTemplate"))
+            {
+                username = "Proptiger.com";
+            }
+            else if(templatePath.contains("offerTemplate"))
+            {
+                username = leadOfferInDB.getAgent().getFullName();
+            }
+            
+            
             String template = templateToHtmlGenerator.generateHtmlFromTemplate(map, templatePath);
             MailDetails mailDetails = new MailDetails(new MailBody().setSubject(heading).setBody(template)).setMailTo(
-                    leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail());
+                    leadOfferInDB.getLead().getClient().getEmail()).setReplyTo(leadOfferInDB.getAgent().getEmail()).setFrom(username + "<"+propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY)+">");
             mailSender.sendMailUsingAws(mailDetails);
         }
     }
@@ -863,7 +878,7 @@ public class LeadOfferService {
         String username = userService.getUserById(activeUser.getUserIdentifier()).getFullName();
         
         MailDetails mailDetails = new MailDetails(new MailBody().setSubject(senderDetails.getSubject()).setBody(
-                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername()).setFrom(username +" <no-reply@proptiger.com>");
+                senderDetails.getMessage())).setMailTo(senderDetails.getMailTo()).setReplyTo(activeUser.getUsername()).setFrom(username +"<"+propertyReader.getRequiredProperty(PropertyKeys.MAIL_FROM_NOREPLY)+">");
         mailSender.sendMailUsingAws(mailDetails);
         return leadOfferInDB;
     }
