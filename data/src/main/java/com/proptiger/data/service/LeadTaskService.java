@@ -118,7 +118,7 @@ public class LeadTaskService {
      */
     @Transactional
     public LeadTask updateTask(LeadTaskDto taskDto) {
-        ActiveUser user = SecurityContextUtils.getLoggedInUser();
+        ActiveUser user = SecurityContextUtils.getActiveUser();
         int currentTaskId = taskDto.getId();
         int nextTaskId = 0;
         LeadTask savedTask = leadTaskDao.findOne(currentTaskId);

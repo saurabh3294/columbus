@@ -44,7 +44,7 @@ public class SocialUserDetailServiceImpl implements SocialUserDetailsService {
                     true,
                     true,
                     true,
-                    SecurityContextUtils.getDefaultAuthority(),
+                    SecurityContextUtils.getDefaultAuthority(user.getId()),
                     applicationType);
         }
         else {

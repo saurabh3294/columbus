@@ -72,7 +72,7 @@ public class APIAccessDetailPersistentService {
 
     public void processRequest(ServletRequest request, ServletResponse response) throws IOException, ServletException {
         HttpServletRequest httpRequest = ((HttpServletRequest) request);
-        ActiveUser activeUser = SecurityContextUtils.getLoggedInUser();
+        ActiveUser activeUser = SecurityContextUtils.getActiveUser();
         if (activeUser != null) {
             addAccessLogToInternalDS(activeUser, httpRequest);
         }
