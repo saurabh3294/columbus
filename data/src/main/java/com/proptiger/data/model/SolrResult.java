@@ -401,8 +401,20 @@ public class SolrResult extends BaseModel {
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer           cityLocalityCount;
     
+    @Field(value = "CITY_POPULATION")
+    private Integer           cityPopulation;
+    
+    @Field(value = "CITY_TAG_LINE")
+    private String            cityTagLine;
+      
+    @Field(value = "CITY_PROPERTY_COUNT")
+    private Integer           cityPropertyCount;
+    
     @Field(value = "LOCALITY_TAG_LINE")
     private String            localityTagLine;
+    
+    @Field(value = "SUBURB_TAG_LINE")
+    private String            suburbTagLine;
 
     public SolrResult() {
         property.setProject(project);
@@ -1251,9 +1263,30 @@ public class SolrResult extends BaseModel {
     public void setCityLocalityCount(Integer cityLocalityCount) {
         city.setCityLocalityCount(cityLocalityCount);
     }
+    
+    @Field(value = "CITY_POPULATION")
+    public void setCityPopulation(Integer cityPopulation) {
+        city.setCityPopulation(cityPopulation);
+    }
+    
+    @Field(value = "CITY_TAG_LINE")
+    public void setCityTagLine(String cityTagLine) {
+        city.setCityTagLine(cityTagLine);
+    }
 
     @Field(value = "LOCALITY_TAG_LINE")
     public void setLocalityTagLine(String localityTagLine) {
         locality.setLocalityTagLine(localityTagLine);
     }
+    
+    @Field(value = "SUBURB_TAG_LINE")
+    public void setSuburbTagLine(String suburbTagLine) {
+        suburb.setSuburbTagLine(suburbTagLine);
+    }
+    
+    @Field(value = "CITY_PROPERTY_COUNT")
+    public void setCityPropertyCount(Integer cityPropertyCount) {
+        city.setCityPropertyCount(cityPropertyCount);
+    }
+
 }
