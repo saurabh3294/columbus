@@ -4,7 +4,6 @@
 package com.proptiger.data.repo;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -28,7 +27,6 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mchange.v1.util.SimpleMapEntry;
 import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.enums.filter.Operator;
 import com.proptiger.data.model.CouponCatalogue;
