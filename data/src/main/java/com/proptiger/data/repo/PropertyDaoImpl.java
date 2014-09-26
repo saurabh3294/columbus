@@ -136,6 +136,7 @@ public class PropertyDaoImpl {
                     Double pricePerUnitArea = property.getPricePerUnitArea();
                     Double size = property.getSize();
                     resalePrice = property.getResalePrice();
+                    discountPrice = property.getBudget();
                     minResaleOrPrimaryPrice = property.getMinResaleOrPrimaryPrice();
                     maxResaleOrPrimaryPrice = property.getMaxResaleOrPrimaryPrice();
                     properties.add(property);

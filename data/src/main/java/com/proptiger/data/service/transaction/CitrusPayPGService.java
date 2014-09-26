@@ -390,7 +390,10 @@ public class CitrusPayPGService {
             transaction.setStatusId(TransactionStatus.Refunded.getId());
             paymentService.save(payment);
             transactionService.save(transaction);
-            couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), 1);
+            /**
+             * check if coupon has been granted only then refund it.
+             */
+            //couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), 1);
         }
         else {
             logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
@@ -398,22 +401,36 @@ public class CitrusPayPGService {
                     + transaction.getAmount());
         }
     }
-
+    
+    /**
+     * TODO to review the transactional annotation as payment need to saved compulsory.
+     *       Payment saving is must.
+     * @param transaction
+     * @param transactionStatus
+     * @param paymentStatus
+     * @param lastEnquiry
+     */
+    @Transactional
     private void handleSuccessPayment(
             Transaction transaction,
             TransactionStatus transactionStatus,
             PaymentStatus paymentStatus,
             Enquiry lastEnquiry) {
         if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
-            if (!existsProductInventory(transaction)) {
+            
+            CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
+                    transaction.getProductId(),
+                    -1);
+            
+            // Coupon Inventory did not get updated.
+            if (couponCatalogue == null) {
                 transactionStatus = TransactionStatus.Refunded;
                 paymentStatus = PaymentStatus.Refunded;
                 initiateRefund(transaction, lastEnquiry);
+                notifyUserOnCouponBuy(transaction, couponCatalogue);
             }
             else {
-                couponCatalogueService.updateCouponCatalogueInventoryLeft(
-                        transaction.getProductId(),
-                        -1);
+                
                 transaction.setCode(createCouponCode(transaction));
             }
 
@@ -514,4 +531,6 @@ public class CitrusPayPGService {
                 transaction.getUserId(),
                 payloadMap);
     }
+    
+    
 }
