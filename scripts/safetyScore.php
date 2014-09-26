@@ -65,7 +65,6 @@ function updateScores($objectType) {
 	$len = count($documents);
 	for($i=0; $i<$len; $i++){
 		$document = &$documents[$i];
-		print_r ($document);
 		$url = "http://safetipin.com/api/GetScore?";
 		$latitude = $document ['LATITUDE'];
 		$longitude = $document ['LONGITUDE'];
@@ -102,7 +101,7 @@ function updateScores($objectType) {
 			$logger->info($updateSql);
 		}
 		
-		$query = mysql_unbuffered_query ( $updateSql );
+		$query = mysql_query ( $updateSql );
 	}
 }
 
