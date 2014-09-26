@@ -841,6 +841,8 @@ public class LeadOfferService {
         /*
          * creating task for email status done
          */
+        
+        leadTask.setNotes(senderDetails.getSubject());
         LeadTask createdTask = leadTaskService.createLeadTask(leadTask);
         /*
          * update last task id in lead offer
