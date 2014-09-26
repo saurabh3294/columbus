@@ -1,0 +1,9 @@
+#if ($leadgeneration.leadMailFlag == 'google_buy_sell')
+PropTiger | Seller’s Info for '.$leadgeneration.enquiry.cityName
+
+#elseif ($leadgeneration.enquiry.pageName == 'portfolio')
+PropTiger | Resale Listing Interest Confirmation
+
+#else
+PropTiger | Requirement Confirmation
+#end

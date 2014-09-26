@@ -14,6 +14,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 import com.proptiger.data.model.Locality;
+import com.proptiger.data.model.Project;
 
 /**
  * 
@@ -54,5 +55,11 @@ public interface LocalityDao extends PagingAndSortingRepository<Locality, Intege
             double rating,
             Integer excludeLocalityId,
             Pageable pageable);
+
+    @Query("SELECT L FROM Locality L left join fetch L.suburb S left join fetch S.city where L.localityId = ?1")
+    public Locality getLocalityOnId(Integer localityId);
+
+    @Query("SELECT L FROM Locality L left join fetch L.suburb S left join fetch S.city C where L.label = ?1 AND C.label = ?2")
+    public Locality getLocalityOnLocAndCity(String localityName, String cityName);
 
 }

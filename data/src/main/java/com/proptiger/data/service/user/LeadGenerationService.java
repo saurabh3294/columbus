@@ -102,7 +102,7 @@ public class LeadGenerationService {
         leadData.append("lead_name").append(EQUAL).append(enquiry.getName()).append(AMPERCEND);
         leadData.append("lead_email").append(EQUAL).append(enquiry.getEmail()).append(AMPERCEND);
         leadData.append("lead_phone").append(EQUAL).append(enquiry.getPhone()).append(AMPERCEND);
-        leadData.append("lead_country").append(EQUAL).append(enquiry.getCountryOfResidence()).append(AMPERCEND);
+//        leadData.append("lead_country").append(EQUAL).append(enquiry.getCountryOfResidence()).append(AMPERCEND);
         leadData.append("lead_query").append(EQUAL).append(enquiry.getQuery()).append(AMPERCEND);
         leadData.append("lead_projectId").append(EQUAL).append(enquiry.getProjectId()).append(AMPERCEND);
         leadData.append("lead_projectName").append(EQUAL).append(enquiry.getProjectName()).append(AMPERCEND);

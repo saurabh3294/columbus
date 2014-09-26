@@ -16,10 +16,10 @@ public class ProjectStatusMaster extends BaseModel {
     private int               Id;
 
     @Column(name = "PROJECT_STATUS")
-    private String            project_status;
+    private String            projectStatus;
 
     @Column(name = "DISPLAY_NAME")
-    private String            display_name;
+    private String            displayName;
 
     public int getId() {
         return Id;
@@ -29,20 +29,19 @@ public class ProjectStatusMaster extends BaseModel {
         Id = id;
     }
 
-    public String getProject_status() {
-        return project_status;
+    public String getProjectStatus() {
+        return projectStatus;
     }
 
-    public void setProject_status(String project_status) {
-        this.project_status = project_status;
+    public void setProjectStatus(String projectStatus) {
+        this.projectStatus = projectStatus;
     }
 
-    public String getDisplay_name() {
-        return display_name;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public void setDisplay_name(String display_name) {
-        this.display_name = display_name;
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
-
 }

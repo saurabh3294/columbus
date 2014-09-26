@@ -14,6 +14,8 @@ import com.proptiger.data.model.ProjectDiscussion;
 
 @Repository
 public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, Integer> {
+    
+    
     public Project findByProjectIdAndVersion(int projectId, DataVersion dataVersion);
 
     @Query("SELECT pd " + "FROM ProjectDiscussion pd "
@@ -32,7 +34,7 @@ public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, 
     @Query("SELECT pd.projectId FROM Project P , ProjectDiscussion pd " + "WHERE pd.projectId=p.projectId AND p.version='Website' AND pd.createdDate >= ?1"
             + " AND CASE ?2 WHEN 1 THEN p.locality.suburb.city.id  WHEN 2 THEN p.locality.suburb.id WHEN 3 THEN p.localityId END = ?3 "
             + " GROUP BY pd.projectId HAVING COUNT(*) > ?4 ORDER BY pd.createdDate DESC, COUNT(*) DESC , p.assignedPriority ASC")
-    public List<Integer> getRecentlyMostDiscussedProjects(
+    public List<Integer> getRecentlyMo5stDiscussedProjects(
             @Param Date date,
             @Param int localityType,
             @Param int cityId,
@@ -46,5 +48,11 @@ public interface ProjectDatabaseDao extends PagingAndSortingRepository<Project, 
             @Param int localityType,
             @Param int cityId,
             @Param long minCount);
-
+    
+    @Query("SELECT P FROM Project P left join fetch P.projectStatusMaster PM left join fetch P.builder B left join fetch P.locality L left join fetch L.suburb S left join fetch S.city C where P.projectId = ?1 AND P.version = 'Website' ")
+    public Project getProjectOnId(Integer projectId);
+    
+    @Query("SELECT P FROM Project P left join fetch P.builder B where P.projectId IN ?1 AND P.version = 'Website' ")
+    public List<Project> getProjectsOnId(List<Integer> projectId);
+    
 }

@@ -57,4 +57,10 @@ public final class PropertyKeys {
     public static final String ENABLE_CRAWL_PREVENTAION                   = "enable.crawl.prevention";
     public static final String ENABLE_CRAWL_PREVENTAION_WARNING           = "enable.crawl.prevention.warning";
     public static final String MAIL_FROM_SUPPORT                          = "mail.from.support";
+    public static final String BEANSTALK_PORT                             = "beanstalk.port";
+    public static final String BEANSTALK_PRODUCTION_SERVER                = "beanstalk.prod.server";
+    public static final String BEANSTALK_INTERNAL_SERVER                  = "beanstalk.internal.server";
+    public static final String BEANSTALK_QUEUE_NAME                       = "beanstalk.queue.name";
+    public static final String MAIL_LEAD_INTERNAL_RECIPIENT               = "mail.lead.internal.recipient";
+
 }
