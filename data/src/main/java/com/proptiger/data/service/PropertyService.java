@@ -405,7 +405,7 @@ public class PropertyService {
             if (couponCatalogue == null) {
                 // resetting them if they are coming from solr.
                 property.setCouponCatalogue(null);
-                property.setCouponAvailable(false);
+                property.setCouponAvailable(null);
                 continue;
             }
 

@@ -128,7 +128,7 @@ public class PropertyDaoImpl {
                 CouponCatalogue couponCatalogue = null;
                 Double resalePrice = null, minResaleOrPrimaryPrice = null, maxResaleOrPrimaryPrice = null;
                 Double minResaleOrDiscountPrice = null, maxResaleOrDiscountPrice = null, discountPrice = null;
-                int totalCouponInventory = 0, totalCouponInventoryLeft = 0, couponDiscount = 0;
+                int totalCouponInventory = 0, couponDiscount = 0;
 
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
@@ -187,7 +187,6 @@ public class PropertyDaoImpl {
                         }
                         project.setCouponAvailable(true);
                         totalCouponInventory += couponCatalogue.getTotalInventory();
-                        totalCouponInventoryLeft += couponCatalogue.getInventoryLeft();
 
                         project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponDiscount));
 
@@ -207,9 +206,6 @@ public class PropertyDaoImpl {
                 // setting coupon inventory values.
                 if (totalCouponInventory > 0) {
                     project.setTotalCouponsInventory(totalCouponInventory);
-                }
-                if (totalCouponInventoryLeft > 0) {
-                    project.setCouponsInventoryLeft(totalCouponInventoryLeft);
                 }
                 // ending setting coupon inventory values.
 
