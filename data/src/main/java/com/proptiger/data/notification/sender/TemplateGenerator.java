@@ -64,8 +64,9 @@ public class TemplateGenerator {
         for (String token : tokens) {
             Object tokenValueObj = payloadDataMap.get(token.substring(1, token.length() - 1));
             if (tokenValueObj == null) {
-                logger.info("Token value NOT present in payload Data Map for token -" + token);
-                return null;
+                logger.error("Token value NOT present in payload Data Map for token - " + token);
+                // Returning the token value same as token
+                tokenValueObj = token;
             }
             String tokenValue = "";
             if (!(tokenValueObj instanceof String)) {
