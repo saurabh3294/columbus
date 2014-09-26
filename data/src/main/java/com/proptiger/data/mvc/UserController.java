@@ -15,7 +15,6 @@ import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.ChangePassword;
 import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.meta.DisableCaching;
-import com.proptiger.data.model.ForumUser;
 import com.proptiger.data.pojo.response.APIResponse;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.service.user.UserService.AlreadyEnquiredDetails;
@@ -65,8 +64,8 @@ public class UserController extends BaseController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/app/v1/user/details")
     @ResponseBody
-    public APIResponse getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser userInfo) {
-        return new APIResponse(userService.getUserDetails(userInfo.getUserIdentifier()));
+    public APIResponse getUserDetails(@ModelAttribute(Constants.LOGIN_INFO_OBJECT_NAME) ActiveUser activeUser) {
+        return new APIResponse(userService.getUserDetails(activeUser.getUserIdentifier(),activeUser.getApplicationType()));
     }
     
     @RequestMapping(value = "data/v1/entity/user/who-am-i", method = RequestMethod.GET)

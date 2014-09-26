@@ -85,4 +85,5 @@ public final class PropertyKeys {
 
     public static final String CALENDAR_WORKING_HOUR_START                   = "calendar.working.hour.start";
     public static final String CALENDAR_WORKING_HOUR_END                     = "calendar.working.hour.end";
+    public static final String ENABLE_OTP = "security.enable.otp";
 }

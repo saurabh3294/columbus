@@ -166,12 +166,25 @@ public class City extends BaseModel {
     @Transient
     @Field(value = "LOCALITY_MIN_LIVABILITY_SCORE")
     private Double               localityMinLivabilityScore;
-
+    
     @Transient
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer              cityLocalityCount;
-
+    
     @Transient
+    @Field(value = "CITY_POPULATION")
+    private Integer              cityPopulation;
+    
+    @Transient
+    @Field(value = "CITY_TAG_LINE")
+    private String               cityTagLine;
+    
+    @Transient
+    @Field(value = "CITY_PROPERTY_COUNT")
+    private Integer              cityPropertyCount;
+    
+
+	@Transient
     @Field("CITY_COUPON_MAX_DISCOUNT")
     private Integer              maxDiscount;
 
@@ -457,5 +470,29 @@ public class City extends BaseModel {
 
     public void setIsCouponAvailable(Boolean isCouponAvailable) {
         this.isCouponAvailable = isCouponAvailable;
+    }
+
+public Integer getCityPopulation() {
+        return cityPopulation;
+    }
+
+    public void setCityPopulation(Integer cityPopulation) {
+        this.cityPopulation = cityPopulation;
+    }
+
+    public String getCityTagLine() {
+        return cityTagLine;
+    }
+
+    public void setCityTagLine(String cityTagLine) {
+        this.cityTagLine = cityTagLine;
+    }
+    
+    public Integer getCityPropertyCount() {
+        return cityPropertyCount;
+    }
+
+    public void setCityPropertyCount(Integer cityPropertyCount) {
+        this.cityPropertyCount = cityPropertyCount;
     }
 }

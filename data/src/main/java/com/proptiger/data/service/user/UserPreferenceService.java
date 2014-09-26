@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.proptiger.data.constants.ResponseErrorMessages;
 import com.proptiger.data.init.ExclusionAwareBeanUtilsBean;
 import com.proptiger.data.model.UserPreference;
-import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.user.DashboardDao;
 import com.proptiger.data.repo.user.UserPreferenceDao;
 import com.proptiger.data.util.UserPreferenceProcessor;
@@ -33,9 +32,6 @@ public class UserPreferenceService {
 
     @Autowired
     private DashboardDao      dashboardDao;
-
-    @Autowired
-    private ForumUserDao      userDao;
 
     public UserPreference createUserPreference(UserPreference preference, int userId) {
         if (userPreferenceDao.findByUserIdAndApp(userId, preference.getApp()) != null) {

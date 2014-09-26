@@ -1,9 +1,13 @@
 package com.proptiger.data.service.trend;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +84,7 @@ public class TrendService {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public PaginatedResponse<List<Trend>> getPaginatedTrend(
             final FIQLSelector selector,
             final String rangeField,
@@ -364,10 +369,7 @@ public class TrendService {
                 rangeValue);
     }
 
-    public List<Trend> getRangeSpecificTrend(
-            final FIQLSelector selector,
-            final String rangeField,
-            String rangeValue) {
+    public List<Trend> getRangeSpecificTrend(final FIQLSelector selector, final String rangeField, String rangeValue) {
         List<Trend> result = new ArrayList<>();
 
         final List<Integer> rangeValueList = new ArrayList<>(getRangeValueListFromUserInput(rangeValue));
@@ -517,5 +519,121 @@ public class TrendService {
             result.add(allValues.get(size - 1) + RANGE_VALUE_SEPARATOR);
         }
         return result;
+    }
+
+    /**
+     * gets master list of all group values that's there in the trend list
+     * 
+     * @param trends
+     * @param selector
+     * @return {@link Map} of {@link String} and {@link Set} of {@link Object}
+     */
+    public Map<String, Set<Object>> getAllGroupValues(List<Trend> trends, FIQLSelector selector) {
+        Map<String, Set<Object>> allValues = new HashMap<>();
+        Set<String> groupFields = selector.getGroupSet();
+
+        for (Trend trend : trends) {
+            for (String groupField : groupFields) {
+                try {
+                    Field field = trend.getClass().getDeclaredField(groupField);
+                    field.setAccessible(true);
+                    if (!allValues.containsKey(groupField)) {
+                        allValues.put(groupField, new HashSet<>());
+                    }
+                    allValues.get(groupField).add(field.get(trend));
+                }
+                catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                    throw new ProAPIException("Error in reading field value: ", e);
+                }
+            }
+        }
+        return allValues;
+    }
+
+    /**
+     * 
+     * @param allGroupValues
+     * @param selector
+     * @param valuesForDummyObject
+     * @return
+     */
+    public Object getDummyObject(
+            Map<String, Set<Object>> allGroupValues,
+            FIQLSelector selector,
+            LinkedHashMap<String, Object> valuesForDummyObject) {
+        Set<String> selectorGroups = selector.getGroupSet();
+        Object result = null;
+
+        List<String> allKeys = new ArrayList<>(valuesForDummyObject.keySet());
+        String setGroupField = allKeys.get(allKeys.size() - 1);
+
+        Iterator<String> iterator = selectorGroups.iterator();
+        while (iterator.hasNext()) {
+            String currentGroupField = iterator.next();
+            if (currentGroupField.equals(setGroupField)) {
+                if (iterator.hasNext()) {
+                    String nextGroupField = iterator.next();
+                    Map<Object, Object> nextCallResult = new HashMap<>();
+
+                    for (Object groupValue : allGroupValues.get(nextGroupField)) {
+                        @SuppressWarnings("unchecked")
+                        LinkedHashMap<String, Object> valuesForNextDummyObject = (LinkedHashMap<String, Object>) valuesForDummyObject
+                                .clone();
+                        valuesForNextDummyObject.put(nextGroupField, groupValue);
+                        nextCallResult.put(
+                                UtilityClass.getResponseGroupKey(groupValue),
+                                getDummyObject(allGroupValues, selector, valuesForNextDummyObject));
+                    }
+                    result = nextCallResult;
+                }
+                else {
+                    result = populateGroupFieldsInDummyTrend(getDummyTrendObject(selector), valuesForDummyObject);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * populates group values in dummy {@link Trend} object
+     * 
+     * @param trend
+     * @param groupValueMap
+     *            key value map of group values that needs to be populated
+     * @return
+     */
+    private Trend populateGroupFieldsInDummyTrend(Trend trend, Map<String, Object> groupValueMap) {
+        for (String key : groupValueMap.keySet()) {
+            try {
+                Field field = trend.getClass().getDeclaredField(key);
+                field.setAccessible(true);
+                field.set(trend, groupValueMap.get(key));
+            }
+            catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+                throw new ProAPIException("Exception in generating group values", e);
+            }
+        }
+        return trend;
+    }
+
+    /**
+     * gets dummy {@link Trend} object populating extra attributes as required
+     * by group fields
+     * 
+     * @param selector
+     * @return
+     */
+    private Trend getDummyTrendObject(FIQLSelector selector) {
+        Trend trend = new Trend();
+        Set<String> selectorFields = selector.getFieldSet();
+        for (String selectorField : selectorFields) {
+            try {
+                Trend.class.getField(selectorField);
+            }
+            catch (NoSuchFieldException | SecurityException e) {
+                trend.getExtraAttributes().put(selectorField, null);
+            }
+        }
+        return trend;
     }
 }

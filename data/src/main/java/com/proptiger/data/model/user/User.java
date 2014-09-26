@@ -1,7 +1,9 @@
 package com.proptiger.data.model.user;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,6 +19,7 @@ import javax.persistence.Table;
 
 import com.proptiger.data.internal.dto.Register;
 import com.proptiger.data.model.BaseModel;
+import com.proptiger.data.model.ForumUser;
 
 /**
  * 
@@ -48,19 +51,19 @@ public class User extends BaseModel {
     private List<UserEmail>              emails;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
-    private List<UserContactNumber>      contactNumbers;
+    private Set<UserContactNumber>      contactNumbers;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
-    private List<UserAuthProviderDetail> userAuthProviderDetails;
+    private Set<UserAuthProviderDetail> userAuthProviderDetails;
 
     @Column(name = "created_at")
     private Date                         createdAt        = new Date();
 
     @Column(name = "updated_at")
-    private Date                         updatedAt        = new Date();
+    private Date                         updatedAt = new Date();
 
     @Column(name = "email")
-    private String                       email;
+    private String email;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<UserAttribute>         attributes;
@@ -121,19 +124,19 @@ public class User extends BaseModel {
         this.emails = emails;
     }
 
-    public List<UserContactNumber> getContactNumbers() {
+    public Set<UserContactNumber> getContactNumbers() {
         return contactNumbers;
     }
 
-    public void setContactNumbers(List<UserContactNumber> contactNumbers) {
+    public void setContactNumbers(Set<UserContactNumber> contactNumbers) {
         this.contactNumbers = contactNumbers;
     }
 
-    public List<UserAuthProviderDetail> getUserAuthProviderDetails() {
+    public Set<UserAuthProviderDetail> getUserAuthProviderDetails() {
         return userAuthProviderDetails;
     }
 
-    public void setUserAuthProviderDetails(List<UserAuthProviderDetail> userAuthProviderDetails) {
+    public void setUserAuthProviderDetails(Set<UserAuthProviderDetail> userAuthProviderDetails) {
         this.userAuthProviderDetails = userAuthProviderDetails;
     }
 
@@ -194,12 +197,72 @@ public class User extends BaseModel {
         this.setRegistered(register.getRegisterMe());
         this.setEmail(register.getEmail());
     }
-
-    public List<UserAttribute> getAttributes() {
+    
+    public static class WhoAmIDetail extends BaseModel{
+        private static final long serialVersionUID = 708536340494027592L;
+        private String userName;
+        private String imageUrl;
+        public WhoAmIDetail(String userName, String avatar) {
+            super();
+            this.userName = userName;
+            this.imageUrl = avatar;
+        }
+        public String getUserName() {
+            return userName;
+        }
+        public String getImageUrl() {
+            return imageUrl;
+        }
+        public void setImageUrl(String url) {
+            this.imageUrl = url;
+        }
+    }
+	public List<UserAttribute> getAttributes() {
         return attributes;
     }
 
     public void setAttributes(List<UserAttribute> attributes) {
         this.attributes = attributes;
+    }
+
+    public String getProfileImageUrl() {
+        if (this.userAuthProviderDetails != null && !this.userAuthProviderDetails.isEmpty()) {
+            for (UserAuthProviderDetail authProviderDetail : userAuthProviderDetails) {
+                if (authProviderDetail.getImageUrl() != null && !authProviderDetail.getImageUrl().isEmpty()) {
+                    return authProviderDetail.getImageUrl();
+                }
+            }
+        }
+        return null;
+    }
+    
+    public String getPriorityContactNumber() {
+        String contact = "";
+        if (this.contactNumbers != null && !this.contactNumbers.isEmpty()) {
+            Iterator<UserContactNumber> it = this.contactNumbers.iterator();
+            contact = it.next().getContactNumber();
+            while(it.hasNext()) {
+                UserContactNumber userContact = it.next();
+                if (userContact.getPriority() == UserContactNumber.primaryContactPriority) {
+                    contact = userContact.getContactNumber();
+                    break;
+                }
+            }
+        }
+        return contact;
+    }
+    
+    public WhoAmIDetail createWhoAmI() {
+        return  new WhoAmIDetail(this.fullName, getProfileImageUrl());
+    }
+
+    public ForumUser createForumUser() {
+        ForumUser forumUser = new ForumUser();
+        forumUser.setEmail(this.getEmail());
+        forumUser.setContact(Long.valueOf(this.getPriorityContactNumber()));
+        forumUser.setUserId(this.getId());
+        forumUser.setUsername(this.getFullName());
+        forumUser.setCountryId(this.getCountryId());
+        return forumUser;
     }
 }
