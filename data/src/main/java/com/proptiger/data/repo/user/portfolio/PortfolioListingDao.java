@@ -24,8 +24,17 @@ public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Int
             List<ListingStatus> listingStatus,
             Pageable limitOffsetPageRequest);
 
+    public PortfolioListing findByUserIdAndListingIdAndListingStatusIn(Integer userId, Integer listingId, List<ListingStatus> listingStatus);
+
+    /**
+     * This query should be used  by internal service and should not be exposed to users 
+     * @param listingId
+     * @param listingStatus
+     * @return
+     */
     public PortfolioListing findByListingIdAndListingStatusIn(Integer listingId, List<ListingStatus> listingStatus);
 
+    
     public PortfolioListing findByUserIdAndNameAndProjectIdAndListingStatusInAndSourceTypeIn(
             Integer userId,
             String name,
@@ -33,6 +42,12 @@ public interface PortfolioListingDao extends JpaRepository<PortfolioListing, Int
             List<ListingStatus> listingStatus,
             List<Source> sourceType);
 
+    /**
+     * This query should be used  by internal service and should not be exposed to users 
+     * @param listingId
+     * @param listingStatus
+     * @return
+     */
     public List<PortfolioListing> findByTypeIdAndListingStatusAndSourceTypeIn(
             Integer typeId,
             ListingStatus listingStatus,

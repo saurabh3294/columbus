@@ -39,7 +39,7 @@ public class FilterAuthTrendRequest {
         if (!ApplicationNameService.isB2BApplicationRequest()) {
             return;
         }
-        ActiveUser user = SecurityContextUtils.getLoggedInUser();
+        ActiveUser user = SecurityContextUtils.getActiveUser();
         if (user != null) {
             
             /* If all of users's permissions have expired then log him out */
