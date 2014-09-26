@@ -9,7 +9,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +21,7 @@ import com.proptiger.data.repo.transaction.TransactionDao;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.data.util.DateUtil;
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.BadRequestException;
 
 /**
  * @author mandeep
@@ -72,7 +71,7 @@ public class TransactionService {
 
         if (transaction.getTypeId() == TransactionType.BuyCoupon.getId()) {
             if (!couponCatalogueService.isPurchasable(transaction.getProductId())) {
-                throw new ProAPIException(ResponseCodes.COUPONS_SOLD_OUT, "Coupons sold out!");
+                throw new BadRequestException(ResponseCodes.COUPONS_SOLD_OUT, "Coupons sold out!");
             }
 
             transaction.setAmount(couponCatalogueService.getCouponCatalogue(transaction.getProductId())
@@ -88,7 +87,7 @@ public class TransactionService {
     private void validateMaxCouponsBought(int userId) {
         List<Transaction> transactions = transactionDao.getCompletedTransactionsForUser(userId);
         if (transactions != null && transactions.size() >= MAX_COUPON_PER_USER) {
-            throw new ProAPIException(
+            throw new BadRequestException(
                     ResponseCodes.MAX_COUPON_BUY_LIMIT,
                     "Cannot purchase more than " + MAX_COUPON_PER_USER + " coupon(s)");
         }

@@ -8,7 +8,6 @@ import java.util.Map;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +24,7 @@ import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.CouponCatalogueDao;
 import com.proptiger.data.service.transaction.TransactionService;
 import com.proptiger.data.service.user.UserService;
-import com.proptiger.exception.ProAPIException;
+import com.proptiger.exception.BadRequestException;
 
 @Service
 public class CouponCatalogueService {
@@ -140,7 +139,7 @@ public class CouponCatalogueService {
     public int redeemCoupon(String couponCode, String userProofId) {
         Transaction transaction = getTransactionService().getNonRedeemTransactionByCode(couponCode);
         if (transaction == null) {
-            throw new ProAPIException(
+            throw new BadRequestException(
                     ResponseCodes.RESOURCE_NOT_FOUND,
                     "Coupon Code does not exits or has been redeemed.");
         }
@@ -149,7 +148,7 @@ public class CouponCatalogueService {
                 transaction.getUserId(),
                 userProofId);
         if (userAttribute == null) {
-            throw new ProAPIException(
+            throw new BadRequestException(
                     ResponseCodes.BAD_CREDENTIAL,
                     "User Identity for this Coupon code does not match with our records.");
         }
@@ -160,12 +159,12 @@ public class CouponCatalogueService {
          * Coupon Expired then throw Exception.
          */
         if (couponCatalogue.getPurchaseExpiryAt().before(new Date())) {
-            throw new ProAPIException(ResponseCodes.BAD_REQUEST, "Coupon has been expired. Hence cannot be redeemed.");
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, "Coupon has been expired. Hence cannot be redeemed.");
         }
         int status = getTransactionService().updateCouponRedeem(transaction);
 
         if (status < 1) {
-            throw new ProAPIException(
+            throw new BadRequestException(
                     ResponseCodes.NAME_ALREADY_EXISTS,
                     " Coupon has already been redeem or been refunded.");
         }
@@ -184,14 +183,14 @@ public class CouponCatalogueService {
     public User fetchUserDetailsOfCouponBuyer(String couponCode, String userProofId) {
         Transaction transaction = getTransactionService().getTransactionsByCouponCode(couponCode);
         if (transaction == null) {
-            throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
+            throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
         }
 
         UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
                 transaction.getUserId(),
                 userProofId);
         if (userAttribute == null) {
-            throw new ProAPIException(
+            throw new BadRequestException(
                     ResponseCodes.BAD_CREDENTIAL,
                     "User Identity for this Coupon code does not match with our records.");
         }
@@ -237,14 +236,14 @@ public class CouponCatalogueService {
         transaction = getTransactionService().getUpdatedTransaction(transaction.getId());
         
         if (transaction == null) {
-            throw new ProAPIException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
+            throw new BadRequestException(ResponseCodes.RESOURCE_NOT_FOUND, "Coupon Code does not exits.");
         }
 
         UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
                 transaction.getUserId(),
                 userProofId);
         if (userAttribute == null) {
-            throw new ProAPIException(
+            throw new BadRequestException(
                     ResponseCodes.BAD_CREDENTIAL,
                     "User Identity for this Coupon code does not match with our records.");
         }
