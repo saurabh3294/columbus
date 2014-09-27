@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +47,6 @@ import com.proptiger.data.internal.dto.mail.ResetPasswordTemplateData;
 import com.proptiger.data.model.CompanySubscription;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.ForumUser;
-import com.proptiger.data.model.ForumUser.WhoAmIDetail;
 import com.proptiger.data.model.ForumUserToken;
 import com.proptiger.data.model.Locality;
 import com.proptiger.data.model.Permission;
@@ -57,17 +58,18 @@ import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.user.Dashboard;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.User.WhoAmIDetail;
+import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.pojo.FIQLSelector;
 import com.proptiger.data.pojo.Selector;
 import com.proptiger.data.repo.EnquiryDao;
-import com.proptiger.data.repo.ForumUserDao;
 import com.proptiger.data.repo.ForumUserTokenDao;
 import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
@@ -112,9 +114,6 @@ public class UserService {
 
     @Autowired
     private EnquiryDao                       enquiryDao;
-
-    @Autowired
-    private ForumUserDao                     forumUserDao;
 
     @Autowired
     private UserDao                          userDao;
@@ -807,7 +806,7 @@ public class UserService {
     }
 
     public void enrichUserDetails(User user) {
-        user.setContactNumbers(contactNumberDao.findByUserIdOrderByPriorityAsc(user.getId()));
+        user.setContactNumbers(new HashSet<UserContactNumber>(contactNumberDao.findByUserIdOrderByPriorityAsc(user.getId())));
         user.setAttributes(userAttributeDao.findByUserId(user.getId()));
     }
 }
