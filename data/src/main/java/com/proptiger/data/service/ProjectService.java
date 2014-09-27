@@ -733,7 +733,8 @@ public class ProjectService {
             Property property = properties.get(i);
             Double pricePerUnitArea = property.getPricePerUnitArea();
             Double primaryPrice = property.getBudget();
-
+            Double discountPrice = primaryPrice;
+            
             if (pricePerUnitArea == null)
                 pricePerUnitArea = 0D;
 
@@ -752,23 +753,24 @@ public class ProjectService {
 
             if (property.isCouponAvailable() != null && property.isCouponAvailable()) {
                 couponCatalogue = property.getCouponCatalogue();
+                if(primaryPrice != null){
+                    discountPrice = primaryPrice - couponCatalogue.getDiscount();
+                }
+                
                 project.setMaxCouponExpiryAt(UtilityClass.max(project.getMaxCouponExpiryAt(), couponCatalogue.getPurchaseExpiryAt()));
                 project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponCatalogue.getDiscount()));
                 project.setCouponAvailable(true);
                 totalCouponsLeft += couponCatalogue.getInventoryLeft();
                 totalCoupons += couponCatalogue.getTotalInventory();
-
-                if (primaryPrice != null) {
-                    project.setMinDiscountPrice(UtilityClass.min(
-                            project.getMinDiscountPrice(),
-                            primaryPrice - couponCatalogue.getDiscount()));
-                    project.setMaxDiscountPrice(UtilityClass.max(
-                            project.getMaxDiscountPrice(),
-                            primaryPrice - couponCatalogue.getDiscount()));
-
-                }
-
+                                
             }
+            
+            project.setMinDiscountPrice(UtilityClass.min(
+                        project.getMinDiscountPrice(),
+                        discountPrice));
+            project.setMaxDiscountPrice(UtilityClass.max(
+                        project.getMaxDiscountPrice(),
+                        discountPrice));
 
             property.setProject(null);
         }

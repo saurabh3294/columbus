@@ -402,15 +402,6 @@ public class SolrResult extends BaseModel {
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer           cityLocalityCount;
     
-    @Field(value = "CITY_POPULATION")
-    private Integer           cityPopulation;
-    
-    @Field(value = "CITY_TAG_LINE")
-    private String            cityTagLine;
-      
-    @Field(value = "CITY_PROPERTY_COUNT")
-    private Integer           cityPropertyCount;
-    
     @Field(value = "LOCALITY_TAG_LINE")
     private String            localityTagLine;
     
