@@ -181,9 +181,6 @@ public class PropertyDaoImpl {
                         if (property.getBudget() != null) {
                             discountPrice = property.getBudget() - couponDiscount;
 
-                            project.setMinDiscountPrice(UtilityClass.min(project.getMinDiscountPrice(), discountPrice));
-                            project.setMaxDiscountPrice(UtilityClass.max(project.getMaxDiscountPrice(), discountPrice));
-
                         }
                         project.setCouponAvailable(true);
                         totalCouponInventory += couponCatalogue.getTotalInventory();
@@ -191,7 +188,9 @@ public class PropertyDaoImpl {
                         project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponDiscount));
 
                     }
-
+                    
+                    project.setMinDiscountPrice(UtilityClass.min(project.getMinDiscountPrice(), discountPrice));
+                    project.setMaxDiscountPrice(UtilityClass.max(project.getMaxDiscountPrice(), discountPrice));
                     minResaleOrDiscountPrice = UtilityClass.min(discountPrice, property.getResalePrice());
                     maxResaleOrDiscountPrice = UtilityClass.max(discountPrice, property.getResalePrice());
 
