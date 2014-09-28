@@ -18,6 +18,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -102,6 +103,9 @@ public class ProjectService {
 
     @Autowired
     private TemplateToHtmlGenerator mailBodyGenerator;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Value("${proptiger.url}")
     private String                  websiteHost;
@@ -199,7 +203,7 @@ public class ProjectService {
      * @return Project Model Object
      */
     public Project getProjectInfoDetails(Selector selector, Integer projectId) {
-        Project project = getProjectDataBySelector(selector, projectId);
+        Project project = applicationContext.getBean(ProjectService.class).getProjectDataBySelector(selector, projectId);
         Set<String> fields = selector.getFields();
         
         /*
@@ -213,7 +217,7 @@ public class ProjectService {
 
         List<Property> properties = setProjectFieldFromPropertiesAndCoupon(project, isCouponCatalogueNeeded);
         
-        setPropertyFieldsForProject(selector, project, properties);
+        applicationContext.getBean(ProjectService.class).setPropertyFieldsForProject(selector, project, properties);
         
         return project;
     }
