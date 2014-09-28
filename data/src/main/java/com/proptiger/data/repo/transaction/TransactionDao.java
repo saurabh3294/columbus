@@ -22,8 +22,8 @@ public interface TransactionDao extends JpaRepository<Transaction, Integer> {
     @Query(nativeQuery=true, value="select T.* from transactions T left join payments TP on (T.id = TP.transaction_id and TP.status_id != 2) where TP.id is null and T.user_id = ?1 and T.status_id = 1")
     public List<Transaction> getExistingReusableTransactions(int userId);
 
-    @Query("select T from Transaction T where T.statusId = 2 and T.userId = ?1")
-    public List<Transaction> getCompletedTransactionsForUser(int userId);
+    @Query("select T from Transaction T where T.statusId = ?2 and T.userId = ?1 and T.typeId = 1 ")
+    public List<Transaction> getTransactionsByStatusAndUser(int userId, List<Integer> status);
 
     @Query("select T from Transaction T where T.statusId = 2 and T.updatedAt > ?1")
     public List<Transaction> getRefundableTransactions(Date thresholdDate);

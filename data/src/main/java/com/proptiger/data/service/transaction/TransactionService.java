@@ -3,6 +3,7 @@
  */
 package com.proptiger.data.service.transaction;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -90,7 +91,7 @@ public class TransactionService {
     }
 
     private void validateMaxCouponsBought(int userId) {
-        List<Transaction> transactions = transactionDao.getCompletedTransactionsForUser(userId);
+        List<Transaction> transactions = getUserCouponsBought(userId);
         if (transactions != null && transactions.size() >= MAX_COUPON_PER_USER) {
             throw new BadRequestException(
                     ResponseCodes.MAX_COUPON_BUY_LIMIT,
@@ -140,6 +141,18 @@ public class TransactionService {
         return transactionDao.getTransactionByCode(code);
     }
 
+    public List<Transaction> getUserCouponsBought(int userId){
+        List<Integer> listTransaction = new ArrayList<Integer>();
+        listTransaction.add(TransactionStatus.Complete.getId());
+        listTransaction.add(TransactionStatus.CouponExercised.getId());
+        listTransaction.add(TransactionStatus.RefundInitiated.getId());
+        listTransaction.add(TransactionStatus.Incomplete.getId());
+        
+        List<Transaction> transactions = transactionDao.getTransactionsByStatusAndUser(userId, listTransaction);
+        
+        return transactions;
+    }
+    
     // Do not place Transaction annotation here as it will revert back the refund initiated status.
     public boolean handleTransactionRefund(Transaction transaction){
         // Needed to work on Transaction Annotation on internal method calls.
