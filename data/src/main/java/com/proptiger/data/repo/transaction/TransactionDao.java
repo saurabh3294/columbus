@@ -40,4 +40,8 @@ public interface TransactionDao extends JpaRepository<Transaction, Integer> {
     @Modifying
     @Query("update Transaction  set statusId = 4 where id = ?1 and statusId = 2")
     public int updateCouponAsRedeem(int transactionId);
+    
+    @Modifying
+    @Query("update Transaction set statusId = ?2 where id = ?1 and statusId = ?3")
+    public int updateTransactionStatusByOldStatus(int transactionId, int newStatusId, int oldStatusId);
 }

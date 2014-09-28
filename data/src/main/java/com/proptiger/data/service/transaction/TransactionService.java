@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.model.enums.transaction.TransactionStatus;
@@ -56,7 +57,8 @@ public class TransactionService {
     public Transaction createTransaction(Transaction transaction) {
         transaction.getUser().setRegistered(false);
         User user = userService.createUser(transaction.getUser());
-        //SecurityContextUtils.auto
+        //SecurityContextUtils.autoLogin(user);
+        
         validateMaxCouponsBought(user.getId());
 
         // Trying to reuse existing transaction wherever possible
@@ -138,6 +140,29 @@ public class TransactionService {
         return transactionDao.getTransactionByCode(code);
     }
 
+    // Do not place Transaction annotation here as it will revert back the refund initiated status.
+    public boolean handleTransactionRefund(Transaction transaction){
+        // Needed to work on Transaction Annotation on internal method calls.
+        boolean status = applicationContext.getBean(TransactionService.class).updateTransactionAsRefundInitiate(transaction);
+        if(!status){
+            throw new BadRequestException(ResponseCodes.BAD_REQUEST, "Invalid Refund Request");
+        }
+        
+        return getCitrusPayPGService().handleRefundByTransactionId(transaction);
+    }
+    
+    @Transactional
+    public boolean updateTransactionAsRefundInitiate(Transaction transaction){
+     // mark transaction as refund initiated.
+        int rowsAffected = updateTransactionStatusByOldStatus(transaction.getId(), TransactionStatus.RefundInitiated, TransactionStatus.Complete);
+        
+        if(rowsAffected < 1){
+            return false;
+        }
+        
+        return true;
+    }
+    
     @Transactional
     public int updateCouponRedeem(Transaction transaction) {
         return transactionDao.updateCouponAsRedeem(transaction.getId());
@@ -148,5 +173,10 @@ public class TransactionService {
             citrusPayPGService = applicationContext.getBean(CitrusPayPGService.class);
         }
         return citrusPayPGService;
+    }
+    
+    @Transactional
+    private int updateTransactionStatusByOldStatus(int transactionId, TransactionStatus newTxnStatus, TransactionStatus oldTxnStatus){
+        return transactionDao.updateTransactionStatusByOldStatus(transactionId, newTxnStatus.getId(), oldTxnStatus.getId());
     }
 }

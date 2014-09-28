@@ -3,6 +3,8 @@
  */
 package com.proptiger.data.service.transaction;
 
+import com.proptiger.data.model.transaction.thirdparty.EnquiryResponseCode;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,6 +61,7 @@ import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
 import com.proptiger.data.service.CouponCatalogueService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.UserService;
+import com.proptiger.exception.ProAPIException;
 
 /**
  * @author mandeep
@@ -97,7 +100,7 @@ public class CitrusPayPGService {
 
     @Autowired
     private NotificationMessageService   notificationMessageService;
-    
+
     @Autowired
     private NotificationGeneratedService nGeneratedService;
 
@@ -379,7 +382,8 @@ public class CitrusPayPGService {
                         handleSuccessPayment(transaction, transactionStatus, paymentStatus, lastEnquiry);
                     }
                     // TODO only for completed state inventory should be reduced
-                    else if (transactionStatus == TransactionStatus.Refunded && transaction.getStatusId() == TransactionStatus.Complete.getId()) {
+                    else if (transactionStatus == TransactionStatus.Refunded && transaction.getStatusId() == TransactionStatus.Complete
+                            .getId()) {
                         handleRefundPayment(transaction, paymentStatus, lastEnquiry);
                     }
                 }
@@ -400,7 +404,8 @@ public class CitrusPayPGService {
             /**
              * check if coupon has been granted only then refund it.
              */
-            //couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(), 1);
+            // couponCatalogueService.updateCouponCatalogueInventoryLeft(transaction.getProductId(),
+            // 1);
         }
         else {
             logger.error("Amount mismatch - Found: " + lastEnquiry.getAmount()
@@ -408,10 +413,11 @@ public class CitrusPayPGService {
                     + transaction.getAmount());
         }
     }
-    
+
     /**
-     * TODO to review the transactional annotation as payment need to saved compulsory.
-     *       Payment saving is must.
+     * TODO to review the transactional annotation as payment need to saved
+     * compulsory. Payment saving is must.
+     * 
      * @param transaction
      * @param transactionStatus
      * @param paymentStatus
@@ -424,20 +430,18 @@ public class CitrusPayPGService {
             PaymentStatus paymentStatus,
             Enquiry lastEnquiry) {
         if (Math.abs(Double.valueOf(lastEnquiry.getAmount()) - transaction.getAmount()) < 0.01) {
-            
+
             CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
                     transaction.getProductId(),
                     -1);
-            
+
             // Coupon Inventory did not get updated.
             if (couponCatalogue == null) {
                 transactionStatus = TransactionStatus.Refunded;
                 paymentStatus = PaymentStatus.Refunded;
                 initiateRefund(transaction, lastEnquiry);
-                notifyUserOnCouponBuy(transaction, couponCatalogue);
             }
             else {
-                
                 transaction.setCode(createCouponCode(transaction));
             }
 
@@ -447,6 +451,11 @@ public class CitrusPayPGService {
 
             paymentService.save(payment);
             transactionService.save(transaction);
+
+            if (transaction.getStatusId() == TransactionStatus.Complete.getId()) {
+                notifyUserOnCouponBuy(transaction, couponCatalogue);
+            }
+
         }
         else {
             // TODO Refund or punish
@@ -508,6 +517,93 @@ public class CitrusPayPGService {
         return payment;
     }
 
+    @Transactional
+    public boolean handleRefundByTransactionId(Transaction transaction) {
+        Object[] transactionStatusData = checkTransactionStatus(transaction);
+        Enquiry lastEnquiry = (Enquiry) transactionStatusData[0];
+        TransactionStatus transactionStatus = (TransactionStatus) transactionStatusData[1];
+        PaymentStatus paymentStatus = (PaymentStatus) transactionStatusData[2];
+
+        if (!transactionStatus.equals(TransactionStatus.Complete)) {
+            // TODO handle this case.
+            return false;
+        }
+
+        initiateRefund(transaction, lastEnquiry);
+
+        transactionStatusData = checkTransactionStatus(transaction);
+        lastEnquiry = (Enquiry) transactionStatusData[0];
+        transactionStatus = (TransactionStatus) transactionStatusData[1];
+        paymentStatus = (PaymentStatus) transactionStatusData[2];
+
+        if (!transactionStatus.equals(TransactionStatus.Refunded)) {
+            // TODO handle this case.
+            return false;
+        }
+
+        Payment payment = createPaymentFromEnquiry(transaction, lastEnquiry);
+        payment.setStatusId(PaymentStatus.Refunded.getId());
+        transaction.setStatusId(TransactionStatus.Refunded.getId());
+
+        paymentService.save(payment);
+        transactionService.save(transaction);
+        CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
+                transaction.getProductId(),
+                1);
+
+        return true;
+    }
+
+    private Object[] checkTransactionStatus(Transaction transaction) {
+
+        EnquiryCollection enquiryCollection = fetchEnquiryCollection(transaction.getId());
+
+        if (enquiryCollection == null || enquiryCollection.getEnquiry() == null
+                || enquiryCollection.getEnquiry().isEmpty()) {
+            throw new ProAPIException();
+        }
+        Enquiry lastEnquiry = null;
+        TransactionStatus transactionStatus = null;
+        PaymentStatus paymentStatus = null;
+
+        if (enquiryCollection != null && ENQUIRY_COLLECTION_SUCCESS_RESPONSE_CODE.equals(enquiryCollection
+                .getRespCode())) {
+            for (Enquiry enquiry : enquiryCollection.getEnquiry()) {
+                if ( enquiry.getRespCode().equals(EnquiryResponseCode.SuccessPayment.getResponseCode()) ) {
+
+                    if (CitrusPayPGEnquiryTransactionType.SALE.name().equalsIgnoreCase(enquiry.getTxnType())) {
+                        paymentStatus = PaymentStatus.Success;
+                        transactionStatus = TransactionStatus.Complete;
+                        lastEnquiry = enquiry;
+                    }
+                    
+                }
+                else if ( enquiry.getRespCode().equals(EnquiryResponseCode.RefundSuccess.getResponseCode()) ) {
+                    
+                    if (CitrusPayPGEnquiryTransactionType.REFUND.name().equalsIgnoreCase(enquiry.getTxnType())) {
+                        paymentStatus = PaymentStatus.Refunded;
+                        transactionStatus = TransactionStatus.Refunded;
+                        lastEnquiry = enquiry;
+                        // already refunded.
+                        break;
+                    }
+                    
+                }
+                
+                else if ( enquiry.getRespCode().equals(EnquiryResponseCode.RefundSuccess.getResponseCode()) ){
+                    transactionStatus = TransactionStatus.RefundInitiated;
+                }
+            }
+        }
+
+        Object transactionStatusData[] = new Object[3];
+        transactionStatusData[0] = (Object) lastEnquiry;
+        transactionStatusData[1] = (Object) transactionStatus;
+        transactionStatusData[2] = (Object) paymentStatus;
+
+        return transactionStatusData;
+    }
+
     public void updateRefundableTransaction() {
         List<Transaction> transactions = transactionService.getRefundableTransactions();
         if (transactions != null) {
@@ -533,8 +629,6 @@ public class CitrusPayPGService {
         payloadMap.put(Tokens.CouponIssued.UnitName.name(), property.getUnitName());
         payloadMap.put(Tokens.CouponIssued.UserName.name(), user.getFullName());
 
-        
-        
         // Sending it to user.
         NotificationMessage nMessage = nMessageService.createNotificationMessage(
                 NotificationTypeEnum.CouponIssued.name(),
@@ -545,23 +639,22 @@ public class CitrusPayPGService {
         List<MediumType> mediumTypes = new ArrayList<MediumType>();
         mediumTypes.add(MediumType.Sms);
         mediumTypes.add(MediumType.Email);
-        
+
         notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
-        
+
         // sending it to builder.
         // TODO to handle it later when checked how builder email is handled.
-        /*nMessage = nMessageService.createNotificationMessage(
-                NotificationTypeEnum.CouponIssued.name(),
-                property.getPropertyId(),
-                payloadMap);
-        nMessages = new ArrayList<NotificationMessage>();
-        nMessages.add(nMessage);
-        mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Email);
-        
-        notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);*/
-        
+        /*
+         * nMessage = nMessageService.createNotificationMessage(
+         * NotificationTypeEnum.CouponIssued.name(), property.getPropertyId(),
+         * payloadMap); nMessages = new ArrayList<NotificationMessage>();
+         * nMessages.add(nMessage); mediumTypes = new ArrayList<MediumType>();
+         * mediumTypes.add(MediumType.Email);
+         * 
+         * notificationGeneratedService.createNotificationGenerated(nMessages,
+         * mediumTypes);
+         */
+
     }
-    
-    
+
 }

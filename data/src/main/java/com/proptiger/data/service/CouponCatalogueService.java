@@ -281,6 +281,28 @@ public class CouponCatalogueService {
         return transaction;
     }
 
+    
+    public boolean cancelCoupon(String couponCode, String userProofId){
+        Transaction transaction = getTransactionService().getNonRedeemTransactionByCode(couponCode);
+        
+        if (transaction == null) {
+            throw new BadRequestException(ResponseCodes.BAD_CREDENTIAL, "Coupon Code does not exits or has been redeemed or been refunded already.");
+        }
+
+        UserAttribute userAttribute = userService.checkUserAttributesByAttributeValue(
+                transaction.getUserId(),
+                userProofId);
+        if (userAttribute == null) {
+            throw new BadRequestException(
+                    ResponseCodes.BAD_CREDENTIAL,
+                    "User Identity for this Coupon code does not match with our records.");
+        }
+        
+        boolean refundStatus = getTransactionService().handleTransactionRefund(transaction);
+        
+        return refundStatus;
+    }
+    
     private TransactionService getTransactionService() {
         if (transactionService == null) {
             transactionService = applicationContext.getBean(TransactionService.class);
@@ -294,4 +316,6 @@ public class CouponCatalogueService {
         }
         return propertyService;
     }
+    
+    
 }

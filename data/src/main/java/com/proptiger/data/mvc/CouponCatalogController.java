@@ -2,6 +2,7 @@ package com.proptiger.data.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,7 +22,7 @@ public class CouponCatalogController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "{couponCode}/redeem", method = RequestMethod.POST)
-    public APIResponse redeemCoupon(@PathVariable String couponCode, @RequestParam String userProofId) {
+    public APIResponse redeemCoupon(@PathVariable String couponCode, @ModelAttribute String userProofId) {
         couponService.redeemCoupon(couponCode, userProofId);
         return new APIResponse("Coupon Has been redeemed.");
     }
@@ -38,6 +39,12 @@ public class CouponCatalogController extends BaseController {
     @RequestMapping("{couponCode}/details")
     public APIResponse fetchCouponDetails(@PathVariable String couponCode, @RequestParam String userProofId) {
         return new APIResponse(couponService.fetchCouponDetails(couponCode, userProofId));
+    }
+    
+    @ResponseBody
+    @RequestMapping(value = "{couponCode}/cancel", method = RequestMethod.POST)
+    public APIResponse cancelCoupon(@PathVariable String couponCode, @RequestParam String userProofId) {
+        return new APIResponse(couponService.cancelCoupon(couponCode, userProofId));
     }
 
 }
