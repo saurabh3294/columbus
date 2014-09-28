@@ -9,9 +9,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -43,6 +45,9 @@ public class CouponCatalogue extends BaseModel {
     @Column(name = "discount")
     private int               discount;
 
+    @Transient
+    private Integer           discountPricePerUnitArea;
+
     @Column(name = "purchase_expiry_at")
     private Date              purchaseExpiryAt;
 
@@ -53,11 +58,11 @@ public class CouponCatalogue extends BaseModel {
     private int               totalInventory;
 
     @Column(name = "inventory_left")
-    private Integer               inventoryLeft;
+    private Integer           inventoryLeft;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="option_id", insertable=false, updatable=false)
-    private Property property;
+    @JoinColumn(name = "option_id", insertable = false, updatable = false)
+    private Property          property;
 
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -69,6 +74,10 @@ public class CouponCatalogue extends BaseModel {
     @JsonIgnore
     private Date              updatedAt;
 
+    @Column(name = "email")
+    @JsonIgnore
+    private String            builderEmail;
+    
     public int getId() {
         return id;
     }
@@ -156,5 +165,21 @@ public class CouponCatalogue extends BaseModel {
     public void setProperty(Property property) {
         this.property = property;
     }
-    
+
+    public String getBuilderEmail() {
+        return builderEmail;
+    }
+
+    public void setBuilderEmail(String builderEmail) {
+        this.builderEmail = builderEmail;
+    }
+
+    public Integer getDiscountPricePerUnitArea() {
+        return discountPricePerUnitArea;
+    }
+
+    public void setDiscountPricePerUnitArea(Integer discountPricePerUnitArea) {
+        this.discountPricePerUnitArea = discountPricePerUnitArea;
+    }
+
 }

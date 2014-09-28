@@ -411,7 +411,7 @@ public class SolrResult extends BaseModel {
     @Field(value = "SUBURB_TAG_LINE")
     private String            suburbTagLine;
 	
-@Field(value = "CITY_POPULATION")
+    @Field(value = "CITY_POPULATION")
     private Integer           cityPopulation;
     
     @Field(value = "CITY_TAG_LINE")
