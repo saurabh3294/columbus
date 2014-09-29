@@ -213,6 +213,8 @@ public class Constants {
          * API regex that requires PRE_AUTH_USER authority to access
          */
         public static final String OTP_VALIDATE_API_REGEX       = "/app/v\\d*/otp.*";
+
+        public static final String USER_DETAIL_API_REGEX = "/app/v\\d*/user/details-by-email.*";
     }
 
 }

@@ -39,6 +39,7 @@ import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.GenericFilterBean;
 
+import com.proptiger.api.filter.IPBasedAPIAccessFilter;
 import com.proptiger.app.config.security.social.CustomSpringSocialConfigurer;
 import com.proptiger.data.enums.security.UserRole;
 import com.proptiger.data.service.security.OTPService;
@@ -84,6 +85,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
         http.authorizeRequests()
+                .regexMatchers(Constants.Security.USER_DETAIL_API_REGEX).access("hasRole('" + UserRole.ADMIN_BACKEND.name() + "')")
                 .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.USER.name() + "')")
                 .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.ADMIN_BACKEND.name() + "')")
                 .regexMatchers(Constants.Security.OTP_VALIDATE_API_REGEX)
@@ -98,6 +100,12 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.apply(createSocialAuthConfigurer());
         http.addFilter(createConcurrentSessionFilter());
         http.exceptionHandling().accessDeniedHandler(createAccessDeniedHandler());
+        http.addFilterBefore(createIPBasedAPIAccessFilter(), CustomUsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Bean
+    public Filter createIPBasedAPIAccessFilter() {
+        return new IPBasedAPIAccessFilter();
     }
 
     @Bean

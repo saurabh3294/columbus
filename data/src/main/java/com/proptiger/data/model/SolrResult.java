@@ -4,20 +4,19 @@
 package com.proptiger.data.model;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-
-import javax.persistence.Transient;
 
 import org.apache.solr.client.solrj.beans.Field;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
+import com.google.gson.Gson;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
 import com.proptiger.data.util.Serializer;
-import com.google.gson.Gson;
+
 
 /**
  * @author mandeep
@@ -264,6 +263,9 @@ public class SolrResult extends BaseModel {
     @Field("RESALE_PRICE")
     private Double            resalePrice;
 
+    @Field("RESALE_PRICE_PER_UNIT_AREA")
+    private Double            resalePricePerUnitArea;
+
     @Field("geodist()")
     private Double            geoDistance;
 
@@ -398,7 +400,7 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "LOCALITY_UNIT_TYPES")
     private List<String>      localityPropertyUnitTypes;
-    
+
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer           cityLocalityCount;
     
@@ -413,10 +415,10 @@ public class SolrResult extends BaseModel {
 	
     @Field(value = "CITY_POPULATION")
     private Integer           cityPopulation;
-    
+
     @Field(value = "CITY_TAG_LINE")
     private String            cityTagLine;
-      
+
     @Field(value = "CITY_PROPERTY_COUNT")
     private Integer           cityPropertyCount;
 
@@ -816,6 +818,7 @@ public class SolrResult extends BaseModel {
     @Field("RESALE_PRICE_PER_UNIT_AREA")
     public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
         property.setResalePricePerUnitArea(resalePricePerUnitArea);
+        project.setResalePricePerUnitArea(resalePricePerUnitArea);
     }
 
     @Field("RESALE_PRICE")
@@ -1262,17 +1265,17 @@ public class SolrResult extends BaseModel {
     public void setLocalityMinLivabilityScore(Double projectMinLivabilityScore) {
         city.setLocalityMinLivabilityScore(projectMinLivabilityScore);
     }
-    
+
     @Field(value = "CITY_LOCALITY_COUNT")
     public void setCityLocalityCount(Integer cityLocalityCount) {
         city.setCityLocalityCount(cityLocalityCount);
     }
-    
+
     @Field(value = "CITY_POPULATION")
     public void setCityPopulation(Integer cityPopulation) {
         city.setCityPopulation(cityPopulation);
     }
-    
+
     @Field(value = "CITY_TAG_LINE")
     public void setCityTagLine(String cityTagLine) {
         city.setCityTagLine(cityTagLine);
@@ -1283,7 +1286,7 @@ public class SolrResult extends BaseModel {
         locality.setLocalityTagLine(localityTagLine);
     }
 
-@Field(value = "LOCALITY_COUPON_MAX_DISCOUNT")
+    @Field(value = "LOCALITY_COUPON_MAX_DISCOUNT")
     public void setLocalityCouponMaxDiscount(Integer couponMaxDiscount) {
         locality.setMaxDiscount(couponMaxDiscount);
     }
@@ -1338,7 +1341,7 @@ public class SolrResult extends BaseModel {
     public void setSuburbTagLine(String suburbTagLine) {
         suburb.setSuburbTagLine(suburbTagLine);
     }
-    
+
     @Field(value = "CITY_PROPERTY_COUNT")
     public void setCityPropertyCount(Integer cityPropertyCount) {
         city.setCityPropertyCount(cityPropertyCount);

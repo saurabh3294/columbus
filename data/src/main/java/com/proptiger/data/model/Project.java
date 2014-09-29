@@ -470,6 +470,9 @@ public class Project extends BaseModel {
     @Field("MIN_RESALE_OR_PRIMARY_PRICE")
     private Double                  minResaleOrPrimaryPrice;
 
+    @Field("RESALE_PRICE_PER_UNIT_AREA")
+    private Double                  resalePricePerUnitArea;
+
     @Transient
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double                  maxResaleOrPrimaryPrice;
@@ -499,18 +502,18 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_SOCIETY_SCORE")
     private Float                   projectSocietyScore;
-    
+
     @Transient
     @Field(value = "PROJECT_SAFETY_RANK")
     private Integer                 projectSafetyRank;
-    
+
     @Transient
     @Field(value = "PROJECT_LIVABILITY_RANK")
     private Integer                 projectLivabilityRank;
-    
+
     @Transient
     private boolean                 has3DImages;
-    
+
     @JsonIgnore
     @Column(name = "RESIDENTIAL_FLAG")
     @Enumerated(EnumType.STRING)
@@ -799,7 +802,7 @@ public class Project extends BaseModel {
     public String getProjectStatus() {
         return projectStatus;
     }
-    
+
     public void setProjectStatus(String projectStatus) {
         this.projectStatus = projectStatus;
     }
@@ -1299,7 +1302,7 @@ public class Project extends BaseModel {
         this.residentialFlag = residentialFlag;
     }
 	
- public List<Image> getLandmarkImages() {
+    public List<Image> getLandmarkImages() {
         return landmarkImages;
     }
 
@@ -1391,4 +1394,11 @@ public class Project extends BaseModel {
         this.maxCouponExpiryAt = maxCouponExpiryAt;
     }
 
+    public Double getResalePricePerUnitArea() {
+        return resalePricePerUnitArea;
+    }
+
+    public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
+        this.resalePricePerUnitArea = resalePricePerUnitArea;
+    }
 }
