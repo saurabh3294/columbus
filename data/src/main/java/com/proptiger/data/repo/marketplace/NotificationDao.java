@@ -25,13 +25,6 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
     @Transactional
     @Query(
             nativeQuery = true,
-            value = "delete marketplace.notifications from marketplace.notifications left join marketplace.lead_offers lo on marketplace.notifications.object_id = lo.next_task_id left join marketplace.lead_tasks lt on lo.next_task_id = lt.id and lt.scheduled_for between ?1 and ?2 where marketplace.notifications.notification_type_id = ?3 and lt.id is null")
-    public void deleteTaskNotificationNotScheduledBetween(Date validStartTime, Date validEndTime, int notificationTypeId);
-
-    @Modifying
-    @Transactional
-    @Query(
-            nativeQuery = true,
             value = "delete marketplace.notifications from marketplace.notifications left join marketplace.lead_tasks lt on marketplace.notifications.object_id = lt.id and lt.scheduled_for between ?1 and ?2 left join marketplace.master_lead_task_status_mappings mlts on mlts.id = lt.lead_task_status_id and mlts.master_task_id in (?4) where marketplace.notifications.notification_type_id = ?3 and lt.id is null")
     public void deleteTaskNotificationNotScheduledBetween(
             Date validStartTime,
@@ -68,4 +61,5 @@ public interface NotificationDao extends JpaRepository<Notification, Integer> {
             List<Integer> objectIds,
             int notificationTypeId);
 
+    public List<Notification> findByUserIdAndNotificationTypeId(int userId, int notificationTypeId);
 }
