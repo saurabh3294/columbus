@@ -20,6 +20,7 @@ import com.google.android.gcm.server.MulticastResult;
 import com.google.android.gcm.server.Sender;
 import com.proptiger.data.enums.AndroidApplication;
 import com.proptiger.data.model.GCMUser;
+import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.service.GCMUserService;
 
 @Service
@@ -56,7 +57,7 @@ public class AndroidSender implements MediumSender {
     }
 
     @Override
-    public boolean send(String template, Integer userId, String typeName) {
+    public boolean send(String template, Integer userId, String typeName, NotificationSenderPayload payload) {
 
         if (userId == null) {
             logger.error("Found null User Id while sending Push Notification.");

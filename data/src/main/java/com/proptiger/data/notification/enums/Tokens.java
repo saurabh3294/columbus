@@ -23,11 +23,11 @@ public class Tokens {
     }
 
     public enum CouponIssued {
-        CouponCode, Date, UserName, ProjectName, UnitName, Discount, CouponPrice, DiscountPrice;
+        CouponCode, Date, UserName, ProjectName, UnitName, Size, Discount, CouponPrice, DiscountPrice;
     }
 
     public enum CouponCancelled {
-        CouponCode, Date, UserName, ProjectName, UnitName, Discount, CouponPrice, DiscountPrice, Size;
+        CouponCode, Date, UserName, ProjectName, UnitName, Size, Discount, CouponPrice, DiscountPrice;
     }
 
     public enum CouponRefunded {
@@ -35,11 +35,11 @@ public class Tokens {
     }
 
     public enum CouponRedeemed {
-        CouponCode, UserName, ProjectName, UnitName;
+        CouponCode, UserName, ProjectName, UnitName, Size, CouponPrice, DiscountPrice, RedeemedDate;
     }
     
     public enum CouponPaymentFailure {
-        CouponCode, Date, UserName, ProjectName, UnitName, Discount, CouponPrice, DiscountPrice;
+        CouponCode, Date, UserName, ProjectName, UnitName, Size, Discount, CouponPrice, DiscountPrice, FailedAmount;
     }
 
 }

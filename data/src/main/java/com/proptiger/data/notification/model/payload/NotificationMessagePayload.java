@@ -18,6 +18,12 @@ public class NotificationMessagePayload extends BaseModel {
 
     private List<NotificationMessageUpdateHistory> notificationMessageUpdateHistories = new ArrayList<NotificationMessageUpdateHistory>();
 
+    private String                                 fromEmail;
+
+    private List<String>                           ccList;
+
+    private List<String>                           bccList;
+
     public List<NotificationMessageUpdateHistory> getNotificationMessageUpdateHistories() {
         return notificationMessageUpdateHistories;
     }
@@ -41,6 +47,30 @@ public class NotificationMessagePayload extends BaseModel {
 
     public void setNotificationMessagePayloads(List<NotificationMessagePayload> notificationMessagePayloads) {
         this.notificationMessagePayloads = notificationMessagePayloads;
+    }
+
+    public String getFromEmail() {
+        return fromEmail;
+    }
+
+    public void setFromEmail(String fromEmail) {
+        this.fromEmail = fromEmail;
+    }
+
+    public List<String> getCcList() {
+        return ccList;
+    }
+
+    public void setCcList(List<String> ccList) {
+        this.ccList = ccList;
+    }
+
+    public List<String> getBccList() {
+        return bccList;
+    }
+
+    public void setBccList(List<String> bccList) {
+        this.bccList = bccList;
     }
 
 }
