@@ -84,6 +84,7 @@ public class AppSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
 
         http.authorizeRequests()
+                .regexMatchers(Constants.Security.USER_DETAIL_API_REGEX).access("hasRole('" + UserRole.ADMIN_BACKEND.name() + "')")
                 .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.USER.name() + "')")
                 .regexMatchers(Constants.Security.USER_API_REGEX).access("hasRole('" + UserRole.ADMIN_BACKEND.name() + "')")
                 .regexMatchers(Constants.Security.OTP_VALIDATE_API_REGEX)
