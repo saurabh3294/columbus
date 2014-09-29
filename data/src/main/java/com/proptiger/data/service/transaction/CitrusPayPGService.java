@@ -512,8 +512,8 @@ public class CitrusPayPGService {
         payment.setTypeId(PaymentType.Online.getId());
         return payment;
     }
-
-    @Transactional
+    
+    @Transactional(timeout = 120)
     public boolean handleRefundByTransactionId(Transaction transaction) {
         Object[] transactionStatusData = checkTransactionStatus(transaction);
         Enquiry lastEnquiry = (Enquiry) transactionStatusData[0];
@@ -536,7 +536,7 @@ public class CitrusPayPGService {
             // TODO handle this case.
             return false;
         }
-
+        
         Payment payment = createPaymentFromEnquiry(transaction, lastEnquiry);
         payment.setStatusId(PaymentStatus.Refunded.getId());
         transaction.setStatusId(TransactionStatus.Refunded.getId());
@@ -546,10 +546,10 @@ public class CitrusPayPGService {
         CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
                 transaction.getProductId(),
                 1);
-
+       
         return true;
     }
-
+   
     private Object[] checkTransactionStatus(Transaction transaction) {
 
         EnquiryCollection enquiryCollection = fetchEnquiryCollection(transaction.getId());
