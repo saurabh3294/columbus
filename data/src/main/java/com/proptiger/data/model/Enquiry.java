@@ -65,7 +65,7 @@ public class Enquiry extends BaseModel {
 
 //    @JsonProperty("project_id")
     @Column(name = "PROJECT_ID", nullable = true)
-    private Integer           projectId;
+    private Integer           projectId = 0;
     
     @Transient
     private List<Integer>           multipleProjectIds;
@@ -92,11 +92,11 @@ public class Enquiry extends BaseModel {
     private String            localityUrl;
     
     @Column(name = "CITY_ID")
-    private Integer           cityId;
+    private Integer           cityId = 0;
 
     //@JsonProperty("city_name")
     @Column(name = "CITY_NAME")
-    private String            cityName;
+    private String            cityName = "";
     
     @Transient
     private String            cityUrl;
