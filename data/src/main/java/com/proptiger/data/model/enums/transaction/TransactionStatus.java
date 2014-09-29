@@ -8,7 +8,7 @@ package com.proptiger.data.model.enums.transaction;
  * 
  */
 public enum TransactionStatus {
-    Incomplete(1), Complete(2), Refunded(3), CouponExercised(4);
+    Incomplete(1), Complete(2), Refunded(3), CouponExercised(4), RefundInitiated(5), TransactionCancelled(6);
 
     int id;
 

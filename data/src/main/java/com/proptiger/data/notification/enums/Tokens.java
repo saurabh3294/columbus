@@ -27,7 +27,7 @@ public class Tokens {
     }
 
     public enum CouponCancelled {
-        CouponCode, Date, UserName, ProjectName, UnitName, Discount, CouponPrice, DiscountPrice;
+        CouponCode, Date, UserName, ProjectName, UnitName, Discount, CouponPrice, DiscountPrice, Size;
     }
 
     public enum CouponRefunded {
