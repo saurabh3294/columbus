@@ -64,7 +64,7 @@ public class Enquiry extends BaseModel {
     private String            query;
 
 //    @JsonProperty("project_id")
-    @Column(name = "PROJECT_ID", nullable = true)
+    @Column(name = "PROJECT_ID")
     private Integer           projectId = 0;
     
     @Transient
