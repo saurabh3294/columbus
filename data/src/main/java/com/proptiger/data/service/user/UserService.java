@@ -193,18 +193,32 @@ public class UserService {
     @Transactional
     public CustomUser getUserDetails(Integer userId, Application application) {
         User user = userDao.findById(userId);
+        CustomUser customUser = createCustomUserObj(user, application, true);
+        return customUser;
+    }
+
+    private CustomUser createCustomUserObj(User user, Application application, boolean needDashboards) {
         CustomUser customUser = new CustomUser();
         customUser.setId(user.getId());
         customUser.setEmail(user.getEmail());
         customUser.setFirstName(user.getFullName());
         customUser.setContactNumber(user.getPriorityContactNumber());
         customUser.setProfileImageUrl(user.getProfileImageUrl());
-        List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
-        customUser.setDashboards(dashboards);
-
+        if(needDashboards){
+            List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
+            customUser.setDashboards(dashboards);
+        }
+       
         if(application.equals(Application.B2B)){
             setAppDetails(customUser, user);
         }
+        return customUser;
+    }
+    
+    @Transactional
+    public CustomUser getUserDetailsByEmail(String email){
+        User user = userDao.findByEmail(email);
+        CustomUser customUser = createCustomUserObj(user, Application.DEFAULT, false);
         return customUser;
     }
 
