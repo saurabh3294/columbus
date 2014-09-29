@@ -3,8 +3,6 @@
  */
 package com.proptiger.data.service.transaction;
 
-import com.proptiger.data.model.transaction.thirdparty.EnquiryResponseCode;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,13 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -48,12 +44,12 @@ import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGEnquiryTransac
 import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGInitiatePaymentRequestParams;
 import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentResponseData;
 import com.proptiger.data.model.transaction.thirdparty.CitrusPayPGPaymentStatus;
+import com.proptiger.data.model.transaction.thirdparty.EnquiryResponseCode;
 import com.proptiger.data.model.transaction.thirdparty.PaymentGatewayResponse;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationTypeEnum;
 import com.proptiger.data.notification.enums.Tokens;
-import com.proptiger.data.notification.model.NotificationGenerated;
 import com.proptiger.data.notification.model.NotificationMessage;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
@@ -590,7 +586,7 @@ public class CitrusPayPGService {
                     
                 }
                 
-                else if ( enquiry.getRespCode().equals(EnquiryResponseCode.RefundSuccess.getResponseCode()) ){
+                else if ( enquiry.getRespCode().equals(EnquiryResponseCode.RefundInitiated.getResponseCode()) ){
                     transactionStatus = TransactionStatus.RefundInitiated;
                 }
             }
