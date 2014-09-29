@@ -60,7 +60,7 @@ public class TransactionService {
         User user = userService.createUser(transaction.getUser());
         //SecurityContextUtils.autoLogin(user);
         
-        validateMaxCouponsBought(user.getId());
+        validateMaxCouponsBought(user.getId(), transaction);
 
         // Trying to reuse existing transaction wherever possible
         // TODO - remove as one user's payment might not be inserted because of same
@@ -90,8 +90,8 @@ public class TransactionService {
         return transaction;
     }
 
-    private void validateMaxCouponsBought(int userId) {
-        List<Transaction> transactions = getUserCouponsBought(userId);
+    private void validateMaxCouponsBought(int userId, Transaction transaction) {
+        List<Transaction> transactions = getUserCouponsBought(userId, transaction);
         if (transactions != null && transactions.size() >= MAX_COUPON_PER_USER) {
             throw new BadRequestException(
                     ResponseCodes.MAX_COUPON_BUY_LIMIT,
@@ -141,14 +141,14 @@ public class TransactionService {
         return transactionDao.getTransactionByCode(code);
     }
 
-    public List<Transaction> getUserCouponsBought(int userId){
+    public List<Transaction> getUserCouponsBought(int userId, Transaction transaction){
         List<Integer> listTransaction = new ArrayList<Integer>();
         listTransaction.add(TransactionStatus.Complete.getId());
         listTransaction.add(TransactionStatus.CouponExercised.getId());
         listTransaction.add(TransactionStatus.RefundInitiated.getId());
         listTransaction.add(TransactionStatus.Incomplete.getId());
         
-        List<Transaction> transactions = transactionDao.getTransactionsByStatusAndUser(userId, listTransaction);
+        List<Transaction> transactions = transactionDao.getTransactionsByStatusAndUserAndProductId(userId, listTransaction, transaction.getProductId());
         
         return transactions;
     }
@@ -161,7 +161,7 @@ public class TransactionService {
             throw new BadRequestException(ResponseCodes.BAD_REQUEST, "Invalid Refund Request");
         }
         
-        return getCitrusPayPGService().handleRefundByTransactionId(transaction);
+        return getCitrusPayPGService().handleRefundByTransactionId(transaction, true);
     }
     
     @Transactional

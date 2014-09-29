@@ -94,9 +94,9 @@ public class MailDetails extends MailBody {
     public String toString() {
         String str = "";
         str += " from: " + from;
-        str += " mailTo: " + mailTo.toString();
-        str += " mailCC: " + mailCC.toString();
-        str += " mailBCC: " + mailBCC.toString();
+        str += " mailTo: " + mailTo;
+        str += " mailCC: " + mailCC;
+        str += " mailBCC: " + mailBCC;
         str += " replyTo: " + replyTo;
         return str;
     }
