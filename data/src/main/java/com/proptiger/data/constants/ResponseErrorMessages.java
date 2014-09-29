@@ -50,4 +50,5 @@ public interface ResponseErrorMessages {
     
     static String NON_B2B_USER                        = "Invalid userid and password. Please send mail to datalabs@proptiger.com for verifying userid and password.";
     static String EXPIRED_PERMISSION_B2B_USER         = "Thanks for using our product. Validity of your subscription has expired. To continue using this service, please connect with your relationship manager or send us mail at datalabs@proptiger.com";
+    static String ACCESS_DENIED                       = "Access is denied";
 }
