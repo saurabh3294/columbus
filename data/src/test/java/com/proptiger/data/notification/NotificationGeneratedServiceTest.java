@@ -54,6 +54,37 @@ public class NotificationGeneratedServiceTest extends AbstractTest {
 
         testCreateNotificationGenerated(message, mediumTypes);
     }
+    
+//  @Test(enabled=false)
+//  public void testCreateNotificationGeneratedForCouponEmail() {
+//      List<MediumType> mediumTypes = new ArrayList<MediumType>();
+//      mediumTypes.add(MediumType.Email);
+//
+//      Map<String, Object> templateMap = new HashMap<String, Object>();
+//      templateMap.put(Tokens.CouponIssued.CouponCode.name(), "12AB56ab90zB345");
+//      templateMap.put(Tokens.CouponIssued.Date.name(), "24th September'2014");
+//      templateMap.put(Tokens.CouponIssued.CouponPrice.name(), "25000");
+//      templateMap.put(Tokens.CouponIssued.Discount.name(), "4 Lacs");
+//      templateMap.put(Tokens.CouponIssued.DiscountPrice.name(), "34.63 Lacs");
+//      templateMap.put(Tokens.CouponIssued.ProjectName.name(), "Satyam Greens");
+//      templateMap.put(Tokens.CouponIssued.Size.name(), "1150 sq ft");
+//      templateMap.put(Tokens.CouponIssued.UnitName.name(), "2BHK + 2T");
+//      templateMap.put(Tokens.CouponIssued.UserName.name(), "Sahil Garg");
+//
+//      List<String> ccList = new ArrayList<String>();
+//      ccList.add("mukand.agarwal@proptiger.com");
+//
+//      String fromEmail = "customer.service@proptiger.com";
+//
+//      NotificationMessage message = nMessageService.createNotificationMessage(
+//              NotificationTypeEnum.CouponIssued.getName(),
+//              1211883,
+//              templateMap,
+//              fromEmail,
+//              ccList);
+//
+//      testCreateNotificationGenerated(message, mediumTypes);
+//  }
 
     @Test
     public void testCreateNotificationGeneratedForSms() {
