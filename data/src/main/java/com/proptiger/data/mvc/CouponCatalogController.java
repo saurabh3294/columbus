@@ -22,7 +22,7 @@ public class CouponCatalogController extends BaseController {
 
     @ResponseBody
     @RequestMapping(value = "{couponCode}/redeem", method = RequestMethod.POST)
-    public APIResponse redeemCoupon(@PathVariable String couponCode, @ModelAttribute String userProofId) {
+    public APIResponse redeemCoupon(@PathVariable String couponCode, @RequestParam String userProofId) {
         couponService.redeemCoupon(couponCode, userProofId);
         return new APIResponse("Coupon Has been redeemed.");
     }
