@@ -469,6 +469,9 @@ public class Project extends BaseModel {
     @Field("MIN_RESALE_OR_PRIMARY_PRICE")
     private Double                  minResaleOrPrimaryPrice;
 
+    @Field("RESALE_PRICE_PER_UNIT_AREA")
+    private Double                  resalePricePerUnitArea;
+
     @Transient
     @Field("MAX_RESALE_OR_PRIMARY_PRICE")
     private Double                  maxResaleOrPrimaryPrice;
@@ -498,18 +501,18 @@ public class Project extends BaseModel {
     @Transient
     @Field(value = "PROJECT_SOCIETY_SCORE")
     private Float                   projectSocietyScore;
-    
+
     @Transient
     @Field(value = "PROJECT_SAFETY_RANK")
     private Integer                 projectSafetyRank;
-    
+
     @Transient
     @Field(value = "PROJECT_LIVABILITY_RANK")
     private Integer                 projectLivabilityRank;
-    
+
     @Transient
     private boolean                 has3DImages;
-    
+
     @JsonIgnore
     @Column(name = "RESIDENTIAL_FLAG")
     @Enumerated(EnumType.STRING)
@@ -517,11 +520,11 @@ public class Project extends BaseModel {
 
     @Transient
     @Field("IMAGE_TYPE_COUNT")
-    private Map<String, Integer>	 imageTypeCount;
-    
+    private Map<String, Integer>    imageTypeCount;
+
     @Transient
-    private List<Image>              landmarkImages;
-    
+    private List<Image>             landmarkImages;
+
     public int getProjectId() {
         return projectId;
     }
@@ -771,7 +774,7 @@ public class Project extends BaseModel {
     public String getProjectStatus() {
         return projectStatus;
     }
-    
+
     public void setProjectStatus(String projectStatus) {
         this.projectStatus = projectStatus;
     }
@@ -1277,5 +1280,13 @@ public class Project extends BaseModel {
 
     public void setLandmarkImages(List<Image> landmarkImages) {
         this.landmarkImages = landmarkImages;
+    }
+
+    public Double getResalePricePerUnitArea() {
+        return resalePricePerUnitArea;
+    }
+
+    public void setResalePricePerUnitArea(Double resalePricePerUnitArea) {
+        this.resalePricePerUnitArea = resalePricePerUnitArea;
     }
 }
