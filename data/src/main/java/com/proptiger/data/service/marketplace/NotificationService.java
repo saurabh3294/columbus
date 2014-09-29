@@ -495,7 +495,7 @@ public class NotificationService {
      * @param notificationTypeId
      * @return
      */
-    public String getGcmMessageContentForGroupableNotification(int userId, int notificationTypeId) {
+    private String getGcmMessageContentForGroupableNotification(int userId, int notificationTypeId) {
         MarketplaceNotificationType notificationType = notificationTypeDao.findOne(notificationTypeId);
         List<Notification> notifications = notificationDao
                 .findByUserIdAndNotificationTypeId(userId, notificationTypeId);
