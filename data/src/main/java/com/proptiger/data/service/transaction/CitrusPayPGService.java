@@ -627,7 +627,7 @@ public class CitrusPayPGService {
 
         // Sending it to user.
         NotificationMessage nMessage = nMessageService.createNotificationMessage(
-                NotificationTypeEnum.CouponIssued.name(),
+                NotificationTypeEnum.CouponIssued.getName(),
                 transaction.getUserId(),
                 payloadMap);
         List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
