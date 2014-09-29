@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,12 @@ public class CouponCatalogueService {
     
     @Autowired
     private NotificationGeneratedService nGeneratedService;
+    
+    @Value("${mail.from.customer}")
+    private String fromEmail;
+    
+    @Autowired
+    private CouponNotificationService couponNotificationService;
 
     // Do not autowire them. Use getter to use them.
     private TransactionService         transactionService;
@@ -178,7 +185,7 @@ public class CouponCatalogueService {
                     " Coupon has already been redeem or been refunded.");
         }
 
-        notifyUserOnCouponRedeem(transaction, couponCatalogue);
+        couponNotificationService.notifyUserOnCouponRedeem(transaction, couponCatalogue);
         return status;
     }
 
@@ -213,38 +220,7 @@ public class CouponCatalogueService {
         return user;
     }
 
-    /**
-     * Notify user by email/sms when user coupon has been redeemed.
-     * 
-     * @param transaction
-     * @param couponCatalogue
-     */
-    @Async
-    public void notifyUserOnCouponRedeem(Transaction transaction, CouponCatalogue couponCatalogue) {
-        Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
-
-        Property property = getPropertyService().getProperty(couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
-
-        notificationPayloadMap.put(Tokens.CouponRedeemed.CouponCode.name(), transaction.getCode());
-        notificationPayloadMap.put(Tokens.CouponRedeemed.ProjectName.name(), property.getProjectName());
-        notificationPayloadMap.put(Tokens.CouponRedeemed.UnitName.name(), property.getUnitName());
-        notificationPayloadMap.put(Tokens.CouponRedeemed.UserName.name(), user.getFullName());
-
-        NotificationMessage nMessage = nMessageService.createNotificationMessage(
-                NotificationTypeEnum.CouponRedeemed.getName(),
-                transaction.getUserId(),
-                notificationPayloadMap);
-        
-        List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
-        nMessages.add(nMessage);
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-        mediumTypes.add(MediumType.Email);
-        
-        nGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
-        
-    }
+    
 
     /**
      * fetching coupon details based on coupon Code.
@@ -289,39 +265,13 @@ public class CouponCatalogueService {
         boolean refundStatus = getTransactionService().handleTransactionRefund(transaction);
         
         if(refundStatus){
-            //notifyUserForCancelCoupon(transaction, getCouponCatalogue(transaction.getProductId()));
+            couponNotificationService.notifyUserForCancelCoupon(transaction, getCouponCatalogue(transaction.getProductId()));
         }
         
         return refundStatus;
     }
     
-    public void notifyUserForCancelCoupon(Transaction transaction, CouponCatalogue couponCatalogue){
-        Map<String, Object> notificationPayloadMap = new HashMap<String, Object>();
-
-        Property property = getPropertyService().getProperty(couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
-
-        notificationPayloadMap.put(Tokens.CouponCancelled.CouponCode.name(), transaction.getCode());
-        notificationPayloadMap.put(Tokens.CouponCancelled.ProjectName.name(), property.getProjectName());
-        notificationPayloadMap.put(Tokens.CouponCancelled.UnitName.name(), property.getUnitName());
-        notificationPayloadMap.put(Tokens.CouponCancelled.UserName.name(), user.getFullName());
-        notificationPayloadMap.put(Tokens.CouponCancelled.Size.name(), property.getSize());
-        notificationPayloadMap.put(Tokens.CouponCancelled.Discount.name(), couponCatalogue.getDiscount());
-        notificationPayloadMap.put(Tokens.CouponCancelled.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
-
-        NotificationMessage nMessage = nMessageService.createNotificationMessage(
-                NotificationTypeEnum.CouponCancelled.getName(),
-                transaction.getUserId(),
-                notificationPayloadMap);
-        
-        List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
-        nMessages.add(nMessage);
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-        mediumTypes.add(MediumType.Email);
-        
-        nGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
-    }
+    
     
     private TransactionService getTransactionService() {
         if (transactionService == null) {

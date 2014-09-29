@@ -149,7 +149,7 @@ public class NotificationMessageService {
             String notificationType,
             int userId,
             Map<String, Object> payloadMap) {
-        return createNotificationMessage(notificationType, userId, payloadMap, null, null);
+        return createNotificationMessage(notificationType, userId, payloadMap, null, null, null);
     }
 
     /**
@@ -168,7 +168,8 @@ public class NotificationMessageService {
             int userId,
             Map<String, Object> payloadMap,
             String fromEmail,
-            List<String> ccList) {
+            List<String> ccList,
+            List<String> bccList) {
         
         NotificationType notiType = null;
         if (notificationType == null) {
@@ -181,6 +182,7 @@ public class NotificationMessageService {
         payload.setExtraAttributes(payloadMap);
         payload.setFromEmail(fromEmail);
         payload.setCcList(ccList);
+        payload.setBccList(bccList);
         return new NotificationMessage(userId, payload, notiType);
     }
 

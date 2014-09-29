@@ -55,6 +55,7 @@ import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.NotificationMessageService;
 import com.proptiger.data.repo.transaction.CitrusPayPGResponseDao;
 import com.proptiger.data.service.CouponCatalogueService;
+import com.proptiger.data.service.CouponNotificationService;
 import com.proptiger.data.service.PropertyService;
 import com.proptiger.data.service.user.UserService;
 import com.proptiger.exception.ProAPIException;
@@ -123,6 +124,9 @@ public class CitrusPayPGService {
 
     @Autowired
     private ApplicationContext           applicationContext;
+    
+    @Autowired
+    private CouponNotificationService couponNotificationService;
 
     public URI initiatePaymentRequest(Transaction transaction) {
         String signature = createSignature(transaction);
@@ -218,7 +222,7 @@ public class CitrusPayPGService {
             /**
              * Notify User about the payment of coupon.
              */
-            notifyUserOnCouponBuy(transaction, couponCatalogue);
+            couponNotificationService.notifyUserOnCouponBuy(transaction, couponCatalogue);
 
         }
         else {
@@ -433,9 +437,10 @@ public class CitrusPayPGService {
 
             // Coupon Inventory did not get updated.
             if (couponCatalogue == null) {
-                transactionStatus = TransactionStatus.Refunded;
+                handleRefundByTransactionId(transaction, false);
+                /*transactionStatus = TransactionStatus.Refunded;
                 paymentStatus = PaymentStatus.Refunded;
-                initiateRefund(transaction, lastEnquiry);
+                initiateRefund(transaction, lastEnquiry);*/
             }
             else {
                 transaction.setCode(createCouponCode(transaction));
@@ -449,7 +454,7 @@ public class CitrusPayPGService {
             transactionService.save(transaction);
 
             if (transaction.getStatusId() == TransactionStatus.Complete.getId()) {
-                notifyUserOnCouponBuy(transaction, couponCatalogue);
+                couponNotificationService.notifyUserOnCouponBuy(transaction, couponCatalogue);
             }
 
         }
@@ -514,7 +519,7 @@ public class CitrusPayPGService {
     }
     
     @Transactional(timeout = 120)
-    public boolean handleRefundByTransactionId(Transaction transaction) {
+    public boolean handleRefundByTransactionId(Transaction transaction, boolean incrementCouponInventory) {
         Object[] transactionStatusData = checkTransactionStatus(transaction);
         Enquiry lastEnquiry = (Enquiry) transactionStatusData[0];
         TransactionStatus transactionStatus = (TransactionStatus) transactionStatusData[1];
@@ -525,7 +530,14 @@ public class CitrusPayPGService {
             return false;
         }
 
-        initiateRefund(transaction, lastEnquiry);
+        //initiateRefund(transaction, lastEnquiry);
+        try {
+            Thread.sleep(60000L);
+        }
+        catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         transactionStatusData = checkTransactionStatus(transaction);
         lastEnquiry = (Enquiry) transactionStatusData[0];
@@ -543,10 +555,19 @@ public class CitrusPayPGService {
 
         paymentService.save(payment);
         transactionService.save(transaction);
-        CouponCatalogue couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
+        
+        /**
+         * The case when coupon has not been granted but the payment has been done.
+         */
+        CouponCatalogue couponCatalogue = null;
+        if(incrementCouponInventory){
+            couponCatalogue = couponCatalogueService.updateCouponCatalogueInventoryLeft(
                 transaction.getProductId(),
                 1);
-       
+        }
+        
+        couponNotificationService.notifyUserOnRefund(transaction, couponCatalogue);
+        
         return true;
     }
    
@@ -607,50 +628,6 @@ public class CitrusPayPGService {
                 updateDetails(transaction);
             }
         }
-    }
-
-    private void notifyUserOnCouponBuy(Transaction transaction, CouponCatalogue couponCatalogue) {
-        Map<String, Object> payloadMap = new HashMap<String, Object>();
-
-        Property property = applicationContext.getBean(PropertyService.class).getProperty(
-                couponCatalogue.getPropertyId());
-        User user = userService.getUserById(transaction.getUserId());
-
-        payloadMap.put(Tokens.CouponIssued.CouponCode.name(), transaction.getCode());
-        payloadMap.put(Tokens.CouponIssued.CouponPrice.name(), couponCatalogue.getCouponPrice());
-        payloadMap.put(Tokens.CouponIssued.Date.name(), couponCatalogue.getPurchaseExpiryAt());
-        payloadMap.put(Tokens.CouponIssued.Discount.name(), couponCatalogue.getDiscount());
-        payloadMap.put(Tokens.CouponIssued.DiscountPrice.name(), property.getBudget() - couponCatalogue.getDiscount());
-        payloadMap.put(Tokens.CouponIssued.ProjectName.name(), property.getProjectName());
-        payloadMap.put(Tokens.CouponIssued.UnitName.name(), property.getUnitName());
-        payloadMap.put(Tokens.CouponIssued.UserName.name(), user.getFullName());
-
-        // Sending it to user.
-        NotificationMessage nMessage = nMessageService.createNotificationMessage(
-                NotificationTypeEnum.CouponIssued.name(),
-                transaction.getUserId(),
-                payloadMap);
-        List<NotificationMessage> nMessages = new ArrayList<NotificationMessage>();
-        nMessages.add(nMessage);
-        List<MediumType> mediumTypes = new ArrayList<MediumType>();
-        mediumTypes.add(MediumType.Sms);
-        mediumTypes.add(MediumType.Email);
-
-        notificationGeneratedService.createNotificationGenerated(nMessages, mediumTypes);
-
-        // sending it to builder.
-        // TODO to handle it later when checked how builder email is handled.
-        /*
-         * nMessage = nMessageService.createNotificationMessage(
-         * NotificationTypeEnum.CouponIssued.name(), property.getPropertyId(),
-         * payloadMap); nMessages = new ArrayList<NotificationMessage>();
-         * nMessages.add(nMessage); mediumTypes = new ArrayList<MediumType>();
-         * mediumTypes.add(MediumType.Email);
-         * 
-         * notificationGeneratedService.createNotificationGenerated(nMessages,
-         * mediumTypes);
-         */
-
     }
 
 }
