@@ -96,4 +96,10 @@ public class UserController extends BaseController {
         return new APIResponse(message);
     }
     
+    @RequestMapping(value = "/app/v1/user/details-by-email", method = RequestMethod.GET)
+    @ResponseBody
+    public APIResponse getUserDetailsByEmailId(@RequestParam String email){
+        CustomUser customUser = userService.getUserDetailsByEmail(email);
+        return new APIResponse(customUser);
+    }
 }

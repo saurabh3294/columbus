@@ -18,6 +18,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -31,6 +32,7 @@ import com.proptiger.data.internal.dto.SenderDetail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
 import com.proptiger.data.model.Bank;
+import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.ProjectDB;
 import com.proptiger.data.model.ProjectDiscussion;
@@ -101,6 +103,9 @@ public class ProjectService {
 
     @Autowired
     private TemplateToHtmlGenerator mailBodyGenerator;
+    
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Value("${proptiger.url}")
     private String                  websiteHost;
@@ -197,9 +202,28 @@ public class ProjectService {
      * @param projectId
      * @return Project Model Object
      */
-    @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
     public Project getProjectInfoDetails(Selector selector, Integer projectId) {
+        Project project = applicationContext.getBean(ProjectService.class).getProjectDataBySelector(selector, projectId);
+        Set<String> fields = selector.getFields();
+        
+        /*
+         * Coupon Catalogue data will be fetched only when the coupon flag is
+         * demanded by client.
+         */
+        boolean isCouponCatalogueNeeded = false;
+        if (fields == null || fields.contains("isCouponAvailable")) {
+            isCouponCatalogueNeeded = true;
+        }
 
+        List<Property> properties = setProjectFieldFromPropertiesAndCoupon(project, isCouponCatalogueNeeded);
+        
+        applicationContext.getBean(ProjectService.class).setPropertyFieldsForProject(selector, project, properties);
+        
+        return project;
+    }
+    
+    @Cacheable(value = Constants.CacheName.PROJECT_DETAILS, key = "#projectId+':'+#selector")
+    public Project getProjectDataBySelector(Selector selector, Integer projectId){
         List<Project> solrProjects = getProjectsByIds(new HashSet<Integer>(Arrays.asList(projectId)));
         if (solrProjects == null || solrProjects.size() < 1) {
             throw new ResourceNotAvailableException(ResourceType.PROJECT, ResourceTypeAction.GET);
@@ -211,18 +235,6 @@ public class ProjectService {
         project.setMaxResaleOrPrimaryPrice(UtilityClass.max(project.getMaxPrice(), project.getMaxResalePrice()));
 
         Set<String> fields = selector.getFields();
-
-        List<Property> properties = getPropertyFromIdAndUpdateojectField(project);
-        /*
-         * Setting properites if needed.
-         */
-        if (fields == null || fields.contains("properties")) {
-            // Setting media (3D Images), if needed.
-            if (fields == null || fields.contains("media")) {
-                mediaEnricher.setPropertiesMedia(properties);
-            }
-            project.setProperties(properties);
-        }
 
         /*
          * Setting neighborhood if needed.
@@ -291,7 +303,21 @@ public class ProjectService {
 
         return project;
     }
-
+    
+    @Cacheable(value = Constants.CacheName.PROJECT_DETAILS)
+    public void setPropertyFieldsForProject(Selector selector, Project project, List<Property> properties){
+        Set<String> fields = selector.getFields();
+        /*
+         * Setting properites if needed.
+         */
+        if (fields == null || fields.contains("properties")) {
+            // Setting media (3D Images), if needed.
+            if (fields == null || fields.contains("media")) {
+                mediaEnricher.setPropertiesMedia(properties);
+            }
+            project.setProperties(properties);
+        }
+    }
     /**
      * Returns all discussions for a project
      * 
@@ -327,7 +353,7 @@ public class ProjectService {
         // sorting provided in api call will not be considered
         projectSelector.setSort(sortBySet);
         PaginatedResponse<List<Project>> result = getProjects(projectSelector);
-        setProjectsFieldFromProperties(result.getResults());
+        setProjectsFieldFromProperties(result.getResults(), false);
         return result.getResults();
     }
 
@@ -626,7 +652,7 @@ public class ProjectService {
         Selector selector = new Gson().fromJson(json, Selector.class);
         PaginatedResponse<List<Project>> paginatedResponse = projectDao.getProjects(selector);
         imageEnricher.setImagesOfProjects(paginatedResponse.getResults());
-        setProjectsFieldFromProperties(paginatedResponse.getResults());
+        setProjectsFieldFromProperties(paginatedResponse.getResults(), false);
         return paginatedResponse;
     }
 
@@ -693,15 +719,21 @@ public class ProjectService {
      * 
      * @param projects
      */
-    private void setProjectsFieldFromProperties(List<Project> projects) {
+    private void setProjectsFieldFromProperties(List<Project> projects, boolean isCouponCatalogueNeeded) {
         if (projects == null || projects.isEmpty())
             return;
 
         for (Project project : projects) {
-            getPropertyFromIdAndUpdateojectField(project);
+            setProjectFieldFromPropertiesAndCoupon(project, isCouponCatalogueNeeded);
         }
     }
-
+    
+    private List<Property> setProjectFieldFromPropertiesAndCoupon(Project project, boolean isCouponCatalogueNeeded){
+        List<Property> properties = getPropertyFromIdAndUpdateObjectField(project);
+        updateCouponDetailsInProject(project, properties, isCouponCatalogueNeeded);
+        
+        return properties;
+    }
     /**
      * This method will set fields derived from the properties of a project to
      * the project object. It will return the list of properties for a project.
@@ -710,12 +742,13 @@ public class ProjectService {
      * @return List of properties of a project.
      */
     @Cacheable(value = Constants.CacheName.PROJECT)
-    private List<Property> getPropertyFromIdAndUpdateojectField(Project project) {
+    private List<Property> getPropertyFromIdAndUpdateObjectField(Project project) {
         List<Property> properties = propertyService.getPropertiesForProject(project.getProjectId());
+       
         for (int i = 0; i < properties.size(); i++) {
             Property property = properties.get(i);
             Double pricePerUnitArea = property.getPricePerUnitArea();
-
+            
             if (pricePerUnitArea == null)
                 pricePerUnitArea = 0D;
 
@@ -736,5 +769,59 @@ public class ProjectService {
         }
 
         return properties;
+    }
+    
+    private void updateCouponDetailsInProject(Project project, List<Property> properties, boolean isCouponCatalogueNeeded){
+        if (!isCouponCatalogueNeeded || properties ==null || properties.isEmpty()) {
+            return;
+        }
+                
+        propertyService.setCouponCatalogueForProperties(properties);
+
+        CouponCatalogue couponCatalogue = null;
+        int totalCouponsLeft = 0, totalCoupons = 0;
+
+        for (int i = 0; i < properties.size(); i++) {
+            Property property = properties.get(i);
+            Double primaryPrice = property.getBudget();
+            Double discountPrice = primaryPrice;
+            Double resalePrice = property.getResalePrice();
+            Integer discountPricePerUnitArea = null;
+            Double minResaleOrDiscountPrice = null;
+            Double maxResaleOrDiscountPrice = null;
+                
+            if (property.isCouponAvailable() != null && property.isCouponAvailable()) {
+                couponCatalogue = property.getCouponCatalogue();
+                
+                if(primaryPrice != null){
+                    discountPricePerUnitArea = property.getPricePerUnitArea().intValue() - new Long(Math.round( couponCatalogue.getDiscount()/property.getSize() )).intValue();
+                    couponCatalogue.setDiscountPricePerUnitArea(discountPricePerUnitArea);
+                    discountPrice = primaryPrice - couponCatalogue.getDiscount();
+                }
+                
+                project.setMaxCouponExpiryAt(UtilityClass.max(project.getMaxCouponExpiryAt(), couponCatalogue.getPurchaseExpiryAt()));
+                project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponCatalogue.getDiscount()));
+                project.setCouponAvailable(true);
+                totalCouponsLeft += couponCatalogue.getInventoryLeft();
+                totalCoupons += couponCatalogue.getTotalInventory();
+                project.setTotalCouponsInventory(totalCoupons);
+                project.setCouponsInventoryLeft(totalCouponsLeft);
+                                
+            }
+            
+            minResaleOrDiscountPrice = UtilityClass.min(resalePrice, discountPrice);
+            maxResaleOrDiscountPrice = UtilityClass.max(resalePrice, discountPrice);
+            
+            project.setMinDiscountPrice(UtilityClass.min(
+                        project.getMinDiscountPrice(),
+                        discountPrice));
+            project.setMaxDiscountPrice(UtilityClass.max(
+                        project.getMaxDiscountPrice(),
+                        discountPrice));
+            project.setMinResaleOrDiscountPrice(UtilityClass.min(project.getMinResaleOrDiscountPrice(), minResaleOrDiscountPrice));
+            project.setMaxResaleOrDiscountPrice(UtilityClass.max(project.getMaxResaleOrDiscountPrice(), maxResaleOrDiscountPrice));
+
+        }
+
     }
 }

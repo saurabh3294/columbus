@@ -90,5 +90,15 @@ public class MailDetails extends MailBody {
         return this;
     }
 
+    @Override
+    public String toString() {
+        String str = "";
+        str += " from: " + from;
+        str += " mailTo: " + mailTo;
+        str += " mailCC: " + mailCC;
+        str += " mailBCC: " + mailBCC;
+        str += " replyTo: " + replyTo;
+        return str;
+    }
     
 }

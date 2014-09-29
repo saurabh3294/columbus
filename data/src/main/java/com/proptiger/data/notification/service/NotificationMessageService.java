@@ -135,25 +135,54 @@ public class NotificationMessageService {
         payloadMap.put(Tokens.Default.Template.name(), template);
         return createNotificationMessage(notificationType, userId, payloadMap);
     }
-    
+
     /**
-     * This method is used by external clients for creating Notification
-     * Message and adding payloadMap in it
+     * This method is used by external clients for creating Notification Message
+     * and adding payloadMap in it
      * 
      * @param notificationType
      * @param userId
      * @param payloadMap
      * @return
      */
-    public NotificationMessage createNotificationMessage(String notificationType, int userId, Map<String, Object> payloadMap) {
+    public NotificationMessage createNotificationMessage(
+            String notificationType,
+            int userId,
+            Map<String, Object> payloadMap) {
+        return createNotificationMessage(notificationType, userId, payloadMap, null, null, null);
+    }
+
+    /**
+     * This method is used by external clients for creating Notification Message
+     * and adding payloadMap in it
+     * 
+     * @param notificationType
+     * @param userId
+     * @param payloadMap
+     * @param fromEmail
+     * @param ccList
+     * @return
+     */
+    public NotificationMessage createNotificationMessage(
+            String notificationType,
+            int userId,
+            Map<String, Object> payloadMap,
+            String fromEmail,
+            List<String> ccList,
+            List<String> bccList) {
+        
         NotificationType notiType = null;
         if (notificationType == null) {
             notiType = notiTypeService.findDefaultNotificationType();
-        } else {
+        }
+        else {
             notiType = notiTypeService.findByName(notificationType);
         }
         NotificationMessagePayload payload = new NotificationMessagePayload();
         payload.setExtraAttributes(payloadMap);
+        payload.setFromEmail(fromEmail);
+        payload.setCcList(ccList);
+        payload.setBccList(bccList);
         return new NotificationMessage(userId, payload, notiType);
     }
 
@@ -336,5 +365,5 @@ public class NotificationMessageService {
     public void setUserNTSubscriptionService(UserNotificationTypeSubscriptionService userNTSubscriptionService) {
         this.userNTSubscriptionService = userNTSubscriptionService;
     }
-    
+
 }

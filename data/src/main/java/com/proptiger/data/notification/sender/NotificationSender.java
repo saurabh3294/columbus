@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 
 import com.proptiger.data.notification.enums.MediumType;
 import com.proptiger.data.notification.enums.NotificationStatus;
+import com.proptiger.data.notification.model.MediumTypeConfig;
 import com.proptiger.data.notification.model.NotificationGenerated;
+import com.proptiger.data.notification.model.payload.NotificationSenderPayload;
 import com.proptiger.data.notification.service.NotificationGeneratedService;
 import com.proptiger.data.notification.service.SentNotificationLogService;
 
@@ -55,9 +57,18 @@ public class NotificationSender {
         }
 
         Integer userId = nGenerated.getUserId();
-        boolean isSent = nGenerated.getNotificationMedium().getMediumTypeConfig().getMediumSenderObject()
-                .send(template, userId, nGenerated.getNotificationType().getName());
-        
+        MediumTypeConfig config = nGenerated.getNotificationMedium().getMediumTypeConfig();
+
+        NotificationSenderPayload payload = config.getNotificationSenderPayloadObject();
+        if (payload != null) {
+            payload = payload.populatePayload(nGenerated);
+        }
+        boolean isSent = config.getMediumSenderObject().send(
+                template,
+                userId,
+                nGenerated.getNotificationType().getName(),
+                payload);
+
         // Sent NotificationGenerated logging handling will be done
         // later.
         // currently notification status of sent NG is marked as

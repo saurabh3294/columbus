@@ -17,6 +17,9 @@ public interface ResponseCodes {
     public static String ACCESS_DENIED               = "493";
     public static String ACCESS_EXPIRED              = "492";
 
+    public static String COUPONS_SOLD_OUT            = "499";
+    public static String MAX_COUPON_BUY_LIMIT        = "498";
+    
     public static String REQUEST_PARAM_INVALID       = BAD_REQUEST;
     public static String AUTHENTICATION_ERROR        = BAD_REQUEST;
 

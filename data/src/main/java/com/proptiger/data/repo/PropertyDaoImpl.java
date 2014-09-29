@@ -29,6 +29,7 @@ import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.proptiger.data.enums.SortOrder;
 import com.proptiger.data.enums.filter.Operator;
+import com.proptiger.data.model.CouponCatalogue;
 import com.proptiger.data.model.Project;
 import com.proptiger.data.model.Property;
 import com.proptiger.data.model.SolrResult;
@@ -53,6 +54,9 @@ import com.proptiger.data.util.UtilityClass;
 public class PropertyDaoImpl {
     @Autowired
     private SolrDao             solrDao;
+
+    @Autowired
+    private CouponCatalogueDao  couponCatalogueDao;
 
     @Autowired
     public EntityManagerFactory emf;
@@ -108,9 +112,12 @@ public class PropertyDaoImpl {
         solrQuery.add("group.limit", "-1");
         solrQuery.add("group.field", "PROJECT_ID");
 
+        Set<String> selectorFields = propertyListingSelector.getFields();
+
         List<Project> projects = new ArrayList<Project>();
 
         QueryResponse queryResponse = solrDao.executeQuery(solrQuery);
+
         for (GroupCommand groupCommand : queryResponse.getGroupResponse().getValues()) {
             for (Group group : groupCommand.getValues()) {
                 List<SolrResult> solrResults = convertSolrResult(group.getResult());
@@ -118,14 +125,18 @@ public class PropertyDaoImpl {
 
                 Set<String> unitTypes = new HashSet<String>();
                 List<Property> properties = new ArrayList<Property>();
-                Double resalePrice = null;
-                Double minResaleOrPrimaryPrice = null;
-                Double maxResaleOrPrimaryPrice = null;
+                CouponCatalogue couponCatalogue = null;
+                Double resalePrice = null, minResaleOrPrimaryPrice = null, maxResaleOrPrimaryPrice = null;
+                Double minResaleOrDiscountPrice = null, maxResaleOrDiscountPrice = null, discountPrice = null;
+                int totalCouponInventory = 0, couponDiscount = 0;
+
                 for (SolrResult solrResult : solrResults) {
                     Property property = solrResult.getProperty();
+
                     Double pricePerUnitArea = property.getPricePerUnitArea();
                     Double size = property.getSize();
                     resalePrice = property.getResalePrice();
+                    discountPrice = property.getBudget();
                     minResaleOrPrimaryPrice = property.getMinResaleOrPrimaryPrice();
                     maxResaleOrPrimaryPrice = property.getMaxResaleOrPrimaryPrice();
                     properties.add(property);
@@ -159,7 +170,47 @@ public class PropertyDaoImpl {
                         project.setMinPrice(UtilityClass.min(price, project.getMinPrice()));
                         project.setMaxPrice(UtilityClass.max(price, project.getMaxPrice()));
                     }
+
+                    /**
+                     * Start setting coupon discount related values.
+                     */
+                    couponCatalogue = property.getCouponCatalogue();
+                    if (couponCatalogue != null) {
+                        Integer discountPricePerUnitArea = null;
+                        
+                        couponDiscount = couponCatalogue.getDiscount();
+                        
+                        if (property.getBudget() != null) {
+                            discountPricePerUnitArea = property.getPricePerUnitArea().intValue() - couponCatalogue.getDiscountPricePerUnitArea();
+                            couponCatalogue.setDiscountPricePerUnitArea(discountPricePerUnitArea);
+                            discountPrice = property.getBudget() - couponDiscount;
+                        }
+                        project.setCouponAvailable(true);
+                        totalCouponInventory += couponCatalogue.getTotalInventory();
+
+                        project.setMaxDiscount(UtilityClass.max(project.getMaxDiscount(), couponDiscount));
+
+                    }
+                    
+                    project.setMinDiscountPrice(UtilityClass.min(project.getMinDiscountPrice(), discountPrice));
+                    project.setMaxDiscountPrice(UtilityClass.max(project.getMaxDiscountPrice(), discountPrice));
+                    minResaleOrDiscountPrice = UtilityClass.min(discountPrice, property.getResalePrice());
+                    maxResaleOrDiscountPrice = UtilityClass.max(discountPrice, property.getResalePrice());
+
+                    project.setMinResaleOrDiscountPrice(UtilityClass.min(
+                            project.getMinResaleOrDiscountPrice(),
+                            minResaleOrDiscountPrice));
+                    project.setMaxResaleOrDiscountPrice(UtilityClass.max(
+                            project.getMaxResaleOrDiscountPrice(),
+                            maxResaleOrDiscountPrice));
+                    // Ending Coupon Discount Related Values.
                 }
+                // setting coupon inventory values.
+                if (totalCouponInventory > 0) {
+                    project.setTotalCouponsInventory(totalCouponInventory);
+                }
+                // ending setting coupon inventory values.
+
                 project.setPropertyUnitTypes(unitTypes);
                 project.setProperties(properties);
                 projects.add(project);

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,6 +58,7 @@ import com.proptiger.data.model.UserSubscriptionMapping;
 import com.proptiger.data.model.user.Dashboard;
 import com.proptiger.data.model.user.User;
 import com.proptiger.data.model.user.User.WhoAmIDetail;
+import com.proptiger.data.model.user.UserAttribute;
 import com.proptiger.data.model.user.UserAuthProviderDetail;
 import com.proptiger.data.model.user.UserContactNumber;
 import com.proptiger.data.pojo.FIQLSelector;
@@ -67,6 +69,7 @@ import com.proptiger.data.repo.ProjectDiscussionSubscriptionDao;
 import com.proptiger.data.repo.SubscriptionPermissionDao;
 import com.proptiger.data.repo.UserSubscriptionMappingDao;
 import com.proptiger.data.repo.trend.TrendDao;
+import com.proptiger.data.repo.user.UserAttributeDao;
 import com.proptiger.data.repo.user.UserAuthProviderDetailDao;
 import com.proptiger.data.repo.user.UserContactNumberDao;
 import com.proptiger.data.repo.user.UserDao;
@@ -96,10 +99,10 @@ public class UserService {
     private static Logger                    logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    private B2BAttributeService              b2bAttributeService;
+    private B2BAttributeService        b2bAttributeService;
 
     @Value("${b2b.price-inventory.max.month.dblabel}")
-    private String                           currentMonthDbLabel;
+    private String                     currentMonthDbLabel;
 
     private String                           currentMonth;
 
@@ -162,12 +165,15 @@ public class UserService {
 
     @Autowired
     private DashboardService                 dashboardService;
+	
+    @Autowired
+    private UserAttributeDao                 userAttributeDao;
 
     @PostConstruct
     private void initialize() {
         currentMonth = b2bAttributeService.getAttributeByName(currentMonthDbLabel);
     }
-
+    
     public boolean isRegistered(String email) {
         User user = userDao.findByEmail(email);
         if (user != null && user.isRegistered()) {
@@ -187,18 +193,32 @@ public class UserService {
     @Transactional
     public CustomUser getUserDetails(Integer userId, Application application) {
         User user = userDao.findById(userId);
+        CustomUser customUser = createCustomUserObj(user, application, true);
+        return customUser;
+    }
+
+    private CustomUser createCustomUserObj(User user, Application application, boolean needDashboards) {
         CustomUser customUser = new CustomUser();
         customUser.setId(user.getId());
         customUser.setEmail(user.getEmail());
         customUser.setFirstName(user.getFullName());
         customUser.setContactNumber(user.getPriorityContactNumber());
         customUser.setProfileImageUrl(user.getProfileImageUrl());
-        List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
-        customUser.setDashboards(dashboards);
-
+        if(needDashboards){
+            List<Dashboard> dashboards = dashboardService.getAllByUserIdAndType(user.getId(), new FIQLSelector());
+            customUser.setDashboards(dashboards);
+        }
+       
         if(application.equals(Application.B2B)){
             setAppDetails(customUser, user);
         }
+        return customUser;
+    }
+    
+    @Transactional
+    public CustomUser getUserDetailsByEmail(String email){
+        User user = userDao.findByEmail(email);
+        CustomUser customUser = createCustomUserObj(user, Application.DEFAULT, false);
         return customUser;
     }
 
@@ -624,6 +644,11 @@ public class UserService {
 
         if (userInDB != null) {
             user.setId(userInDB.getId());
+            String fullName = user.getFullName();
+            if (fullName != null && !fullName.isEmpty()) {
+                userInDB.setFullName(fullName);
+                userDao.save(userInDB);
+            }
         }
         else {
             user.setId(userDao.save(user).getId());
@@ -643,6 +668,14 @@ public class UserService {
      * @return
      */
     private void patchUser(User user) {
+        
+        
+        // checking and creating user attributes.
+        createUserAttributes(user);
+        updateContactNumbers(user);
+    }
+
+    private void updateContactNumbers(User user) {
         Set<UserContactNumber> contactNumbers = user.getContactNumbers();
 
         if (contactNumbers == null || contactNumbers.isEmpty()) {
@@ -668,6 +701,63 @@ public class UserService {
                 user.setId(userContactNumber.getUserId());
             }
         }
+    }
+
+    /**
+     * This method will take the user attributes from the user object. It will
+     * check whether these attributes exists in the database for a user. If it
+     * does not exists then it will create them else update them with new value.
+     * 
+     * @param user
+     */
+    private void createUserAttributes(User user) {
+        List<UserAttribute> attributeList = user.getAttributes();
+        if (attributeList == null || attributeList.isEmpty()) {
+            return;
+        }
+
+        int userId = user.getId();
+        ListIterator<UserAttribute> it = attributeList.listIterator();
+
+        while (it.hasNext()) {
+            UserAttribute userAttribute = it.next();
+            String attributeName = userAttribute.getAttributeName();
+            String attributeValue = userAttribute.getAttributeValue();
+
+            /*
+             * If attribute value or name is invalid then it will remove those
+             * attributes.
+             */
+            if (attributeName == null || attributeValue == null || attributeName.isEmpty() || attributeValue.isEmpty()) {
+                it.remove();
+                continue;
+            }
+
+            UserAttribute savedAttribute = userAttributeDao.findByUserIdAndAttributeName(userId, attributeName);
+            /**
+             * 1: attribute Name does not exists 2: attribute Name exists but
+             * its value has been changed.
+             */
+            if (savedAttribute == null || !savedAttribute.getAttributeValue().equals(userAttribute.getAttributeValue())) {
+                userAttribute.setUserId(userId);
+                // Attribute value has been changed. Hence setting the primary
+                // key to make a update.
+                if (savedAttribute != null) {
+                    userAttribute.setId(savedAttribute.getId());
+                }
+                /*
+                 * It will fire the insert query or update query.
+                 */
+                savedAttribute = userAttributeDao.saveAndFlush(userAttribute);
+
+            }
+            // replacing the current object with the database object.
+            it.remove();
+            it.add(savedAttribute);
+
+        }
+
+        user.setAttributes(attributeList);
     }
 
     /**
@@ -710,7 +800,7 @@ public class UserService {
     public User getUserById(int userId) {
         return userDao.findOne(userId);
     }
-
+    
     public UserContactNumber getTopPriorityContact(int userId) {
         List<UserContactNumber> contacts = contactNumberDao.findByUserIdOrderByPriorityAsc(userId);
         if (contacts.isEmpty()) {
@@ -719,4 +809,18 @@ public class UserService {
         return contacts.get(0);
     }
     
+    /**
+     * This method will return the attributes of the user based on the attribute value provided.
+     * @param userId
+     * @param attributeValue
+     * @return
+     */
+    public UserAttribute checkUserAttributesByAttributeValue(int userId, String attributeValue) {
+        return userAttributeDao.findByUserIdAndAttributeValue(userId, attributeValue);
+    }
+
+    public void enrichUserDetails(User user) {
+        user.setContactNumbers(new HashSet<UserContactNumber>(contactNumberDao.findByUserIdOrderByPriorityAsc(user.getId())));
+        user.setAttributes(userAttributeDao.findByUserId(user.getId()));
+    }
 }
