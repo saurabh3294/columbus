@@ -170,6 +170,19 @@ public class City extends BaseModel {
     @Transient
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer              cityLocalityCount;
+    
+    @Transient
+    @Field(value = "CITY_POPULATION")
+    private Integer              cityPopulation;
+    
+    @Transient
+    @Field(value = "CITY_TAG_LINE")
+    private String               cityTagLine;
+    
+    @Transient
+    @Field(value = "CITY_PROPERTY_COUNT")
+    private Integer              cityPropertyCount;
+    
 
     public Integer getId() {
         return id;
@@ -434,4 +447,29 @@ public class City extends BaseModel {
     public void setCityLocalityCount(Integer cityLocalityCount) {
         this.cityLocalityCount = cityLocalityCount;
     }
+
+    public Integer getCityPopulation() {
+        return cityPopulation;
+    }
+
+    public void setCityPopulation(Integer cityPopulation) {
+        this.cityPopulation = cityPopulation;
+    }
+
+    public String getCityTagLine() {
+        return cityTagLine;
+    }
+
+    public void setCityTagLine(String cityTagLine) {
+        this.cityTagLine = cityTagLine;
+    }
+    
+    public Integer getCityPropertyCount() {
+        return cityPropertyCount;
+    }
+
+    public void setCityPropertyCount(Integer cityPropertyCount) {
+        this.cityPropertyCount = cityPropertyCount;
+    }
+    
 }

@@ -124,6 +124,10 @@ public class Suburb extends BaseModel {
     @FieldMetaInfo(displayName = "Suburb view count", description = "Suburb view count")
     @Field(value = "SUBURB_VIEW_COUNT")
     private Integer                         suburbViewCount;
+    
+    @Transient
+    @Field("SUBURB_TAG_LINE")
+    private String                          suburbTagLine;
 
     public int getId() {
         return id;
@@ -276,4 +280,13 @@ public class Suburb extends BaseModel {
     public void setSuburbViewCount(Integer suburbViewCount) {
         this.suburbViewCount = suburbViewCount;
     }
+
+    public String getSuburbTagLine() {
+        return suburbTagLine;
+    }
+
+    public void setSuburbTagLine(String suburbTagLine) {
+        this.suburbTagLine = suburbTagLine;
+    }
+    
 }
