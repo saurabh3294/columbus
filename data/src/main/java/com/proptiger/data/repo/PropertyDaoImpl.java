@@ -177,17 +177,13 @@ public class PropertyDaoImpl {
                     couponCatalogue = property.getCouponCatalogue();
                     if (couponCatalogue != null) {
                         Integer discountPricePerUnitArea = null;
-                        if(property.getPricePerUnitArea() != null ){
-                            discountPricePerUnitArea = property.getPricePerUnitArea().intValue() - couponCatalogue.getDiscountPricePerUnitArea();
-                        }
+                        
                         couponDiscount = couponCatalogue.getDiscount();
                         
-                        if(property.getSize() != null ){
-                            couponCatalogue.setDiscountPricePerUnitArea(discountPricePerUnitArea);
-                        }
                         if (property.getBudget() != null) {
+                            discountPricePerUnitArea = property.getPricePerUnitArea().intValue() - couponCatalogue.getDiscountPricePerUnitArea();
+                            couponCatalogue.setDiscountPricePerUnitArea(discountPricePerUnitArea);
                             discountPrice = property.getBudget() - couponDiscount;
-
                         }
                         project.setCouponAvailable(true);
                         totalCouponInventory += couponCatalogue.getTotalInventory();

@@ -786,7 +786,7 @@ public class ProjectService {
             Double primaryPrice = property.getBudget();
             Double discountPrice = primaryPrice;
             Double resalePrice = property.getResalePrice();
-            Integer discountPricePerUnitArea = property.getPricePerUnitArea().intValue();
+            Integer discountPricePerUnitArea = null;
             Double minResaleOrDiscountPrice = null;
             Double maxResaleOrDiscountPrice = null;
                 
@@ -794,7 +794,7 @@ public class ProjectService {
                 couponCatalogue = property.getCouponCatalogue();
                 
                 if(primaryPrice != null){
-                    discountPricePerUnitArea -= new Long(Math.round( couponCatalogue.getDiscount()/property.getSize() )).intValue();
+                    discountPricePerUnitArea = property.getPricePerUnitArea().intValue() - new Long(Math.round( couponCatalogue.getDiscount()/property.getSize() )).intValue();
                     couponCatalogue.setDiscountPricePerUnitArea(discountPricePerUnitArea);
                     discountPrice = primaryPrice - couponCatalogue.getDiscount();
                 }
@@ -804,6 +804,8 @@ public class ProjectService {
                 project.setCouponAvailable(true);
                 totalCouponsLeft += couponCatalogue.getInventoryLeft();
                 totalCoupons += couponCatalogue.getTotalInventory();
+                project.setTotalCouponsInventory(totalCoupons);
+                project.setCouponsInventoryLeft(totalCouponsLeft);
                                 
             }
             
@@ -819,11 +821,6 @@ public class ProjectService {
             project.setMinResaleOrDiscountPrice(UtilityClass.min(project.getMinResaleOrDiscountPrice(), minResaleOrDiscountPrice));
             project.setMaxResaleOrDiscountPrice(UtilityClass.max(project.getMaxResaleOrDiscountPrice(), maxResaleOrDiscountPrice));
 
-        }
-
-        if (isCouponCatalogueNeeded == true) {
-            project.setTotalCouponsInventory(totalCoupons);
-            project.setCouponsInventoryLeft(totalCouponsLeft);
         }
 
     }
