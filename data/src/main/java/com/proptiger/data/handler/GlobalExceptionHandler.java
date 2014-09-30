@@ -196,7 +196,11 @@ public class GlobalExceptionHandler {
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     protected APIResponse handleUnauthorizedException(UnauthorizedException exception, HttpServletRequest httpRequest) {
         ResponseErrorWriter.logAPIUrlInLogFile(httpRequest, exception);
-        return new APIResponse(ResponseCodes.UNAUTHORIZED, ResponseErrorMessages.UNAUTHORIZED);
+        return new APIResponse(exception.getResponseCode() != null
+                ? exception.getResponseCode()
+                : ResponseCodes.UNAUTHORIZED, exception.getMessage() != null
+                ? exception.getMessage()
+                : ResponseErrorMessages.UNAUTHORIZED);
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -206,9 +210,9 @@ public class GlobalExceptionHandler {
         ResponseErrorWriter.logAPIUrlInLogFile(httpRequest, exception);
         return new APIResponse(exception.getResponseCode() != null
                 ? exception.getResponseCode()
-                : ResponseCodes.BAD_REQUEST, exception.getMessage() == null ? exception.getMessage() != null
+                : ResponseCodes.BAD_REQUEST, exception.getMessage() != null
                 ? exception.getMessage()
-                : ResponseErrorMessages.BAD_REQUEST : exception.getMessage());
+                : ResponseErrorMessages.BAD_REQUEST);
     }
 
     @ExceptionHandler(BindException.class)
