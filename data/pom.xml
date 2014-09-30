@@ -70,7 +70,7 @@
     <dependencies>
         <dependency>
             <groupId>com.citruspay</groupId>
-            <artifactId>merchant-kit</artifactId>
+            <artifactId>sandbox-merchant-kit</artifactId>
             <version>1.4</version>
         </dependency>
         <dependency>
