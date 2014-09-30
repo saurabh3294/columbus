@@ -304,7 +304,6 @@ public class ProjectService {
         return project;
     }
     
-    @Cacheable(value = Constants.CacheName.PROJECT_DETAILS)
     public void setPropertyFieldsForProject(Selector selector, Project project, List<Property> properties){
         Set<String> fields = selector.getFields();
         /*
