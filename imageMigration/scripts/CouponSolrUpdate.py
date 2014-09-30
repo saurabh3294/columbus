@@ -12,6 +12,7 @@ import logging
 # Configurations
 ###################################################
 env = 'develop'
+solrIndexFilePath = ''
 config = dict(
     env         =   {
                         'develop'   :   {
@@ -105,9 +106,9 @@ def updateSolr():
         # If SolrIndex.php pid is not present then initiating solrIndexing for above project ids
 	if "solrIndex.php" not in output:
 		# Finding absolute path of SolrIndex.php file
-		cmd = ['locate','-br', '^solrIndex.php']
-		solrIndex = subprocess.Popen(cmd, stdout=subprocess.PIPE ).communicate()[0].replace("\n","")
-		cmd = ['php', solrIndex, list_2str(project_ids)]
+		#cmd = ['locate','-br', '^solrIndex.php']
+		#solrIndex = subprocess.Popen(cmd, stdout=subprocess.PIPE ).communicate()[0].replace("\n","")
+		cmd = ['php', solrIndexFilePath, list_2str(project_ids)]
 
 		# Intiating sorl Indexing process
 		subprocess.Popen( cmd, stdout=subprocess.PIPE ).communicate()[0]
