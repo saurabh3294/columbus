@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.net.HttpHeaders;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.enums.lead.ProcessingStatus;
 import com.proptiger.data.enums.lead.SalesType;
@@ -137,18 +138,18 @@ public class LeadService {
     private void generateAndWriteLead(Enquiry enquiry) {
 
         generateLeadData(enquiry);
-        
-        //TODO
+
+        // TODO
         enquiry.setGaPpc(1);
-        
-//        try {
-            enquiry = leadDao.saveAndFlush(enquiry);
-//        }
-//        catch (Exception exception) {
-//            throw new ProAPIException(
-//                    ResponseCodes.DATABASE_CONNECTION_ERROR,
-//                    "Lead : All validations passed but still unable to insert into enquiry table");
-//        }
+
+        // try {
+        enquiry = leadDao.saveAndFlush(enquiry);
+        // }
+        // catch (Exception exception) {
+        // throw new ProAPIException(
+        // ResponseCodes.DATABASE_CONNECTION_ERROR,
+        // "Lead : All validations passed but still unable to insert into enquiry table");
+        // }
 
         if (((enquiry.getMultipleProjectIds() != null) && !enquiry.getMultipleProjectIds().isEmpty()) || enquiry
                 .getBuySell() != "sell") {
@@ -172,7 +173,6 @@ public class LeadService {
             if (projectNames.isEmpty()) {
                 return;
             }
-
             dataForTemplate = generateDataToMail(enquiry);
             emailReceiver = enquiry.getEmail();
             mailBody = mailBodyGenerator.generateMailBody(MailTemplateDetail.LEAD_GENERATION, dataForTemplate);
@@ -209,8 +209,8 @@ public class LeadService {
             List<Project> projects = projectDatabaseDao.getProjectsOnId(enquiry.getMultipleProjectIds());
 
             StringBuilder projectDetail = new StringBuilder();
-            
-            //TODO
+
+            // TODO
             for (Project project : projects) {
                 projectDetail.append("<a href='http://www.proptiger.com/" + project.getURL()
                         + "' style='text-decoration:none;'>"
@@ -337,52 +337,50 @@ public class LeadService {
                 }
 
                 if (c.getName().equals("LANDING_PAGE")) {
-                        enquiry.setLandingPage(c.getValue());
+                    enquiry.setLandingPage(c.getValue());
                 }
                 else if (c.getName().equals("USER_CAMPAIGN")) {
-                        enquiry.setCampaign(c.getValue());
+                    enquiry.setCampaign(c.getValue());
                 }
                 else if (c.getName().equals("USER_ADGROUP")) {
-                        enquiry.setAdGrp(c.getValue());
-                    }
+                    enquiry.setAdGrp(c.getValue());
+                }
                 else if (c.getName().equals("USER_KEYWORD")) {
-                        enquiry.setKeywords(c.getValue());
+                    enquiry.setKeywords(c.getValue());
                 }
                 else if (c.getName().equals("USER_FROM")) {
-                        enquiry.setSource(c.getValue());
+                    enquiry.setSource(c.getValue());
                 }
                 else if (c.getName().equals("USER_ID")) {
-                        enquiry.setUser(c.getValue());
+                    enquiry.setUser(c.getValue());
                 }
                 else if (c.getName().equals("USER_MEDIUM")) {
-                        enquiry.setUserMedium(c.getValue());
+                    enquiry.setUserMedium(c.getValue());
                 }
-                // TODO
-                // registerflag left
             }
         }
-            if (enquiry.getUserMedium() == null) {
-                enquiry.setUserMedium("");
-            }
-            if (enquiry.getUser() == null) {
-                enquiry.setUser("");
-            }
-            if (enquiry.getSource() == null) {
-                enquiry.setSource("");
-            }
-            if (enquiry.getKeywords() == null) {
-                enquiry.setKeywords("");
-            }
-            if (enquiry.getAdGrp() == null) {
-                enquiry.setAdGrp("");
-            }
-            if (enquiry.getLandingPage() == null) {
-                enquiry.setLandingPage("");
-            }
-            if (enquiry.getCampaign() == null) {
-                enquiry.setCampaign("");
-            }
-            
+        if (enquiry.getUserMedium() == null) {
+            enquiry.setUserMedium("");
+        }
+        if (enquiry.getUser() == null) {
+            enquiry.setUser("");
+        }
+        if (enquiry.getSource() == null) {
+            enquiry.setSource("");
+        }
+        if (enquiry.getKeywords() == null) {
+            enquiry.setKeywords("");
+        }
+        if (enquiry.getAdGrp() == null) {
+            enquiry.setAdGrp("");
+        }
+        if (enquiry.getLandingPage() == null) {
+            enquiry.setLandingPage("");
+        }
+        if (enquiry.getCampaign() == null) {
+            enquiry.setCampaign("");
+        }
+
         return cookieMap;
     }
 
@@ -390,11 +388,11 @@ public class LeadService {
 
         Locality localityInfo = null;
         Project projectInfo = null;
-        
+
         if (enquiry.getProjectId() == null) {
             enquiry.setProjectId(0);
         }
-        if(enquiry.getProjectName() == null) {
+        if (enquiry.getProjectName() == null) {
             enquiry.setProjectName("");
         }
         if (enquiry.getCityId() == null) {
@@ -465,7 +463,7 @@ public class LeadService {
 
         setSalesTypeInEnquiry(enquiry, projectInfo);
         ActiveUser user = SecurityContextUtils.getLoggedInUser();
-        if(user == null) {
+        if (user == null) {
             enquiry.setRegisteredUser("NO");
         }
         else {
