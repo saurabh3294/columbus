@@ -1,10 +1,7 @@
 package com.proptiger.data.service;
 
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -15,25 +12,18 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.time.DurationFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 import com.proptiger.data.constants.ResponseCodes;
 import com.proptiger.data.enums.lead.ProcessingStatus;
 import com.proptiger.data.enums.lead.SalesType;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
-import com.proptiger.data.handler.LeadValidator;
+import com.proptiger.data.init.GACookies;
+import com.proptiger.data.init.LeadValidator;
 import com.proptiger.data.internal.dto.mail.LeadSubmitMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
-import com.proptiger.data.model.BeanstalkEnquiry;
 import com.proptiger.data.model.City;
 import com.proptiger.data.model.Enquiry;
 import com.proptiger.data.model.Locality;
@@ -47,8 +37,6 @@ import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
 import com.proptiger.exception.ProAPIException;
-import com.surftools.BeanstalkClient.Client;
-import com.surftools.BeanstalkClientImpl.ClientImpl;
 
 @Service
 public class LeadService {
@@ -61,6 +49,9 @@ public class LeadService {
 
     @Autowired
     CountryService                  countryService;
+
+    @Autowired
+    BeanstalkService                beanstalkService;
 
     @Autowired
     LeadDao                         leadDao;
@@ -80,13 +71,10 @@ public class LeadService {
     @Autowired
     private PropertyReader          propertyReader;
 
-    HashMap<String, String>         leadInvalidations = new HashMap<String, String>();
-    HashMap<String, String>         cookieMap         = new HashMap<String, String>();
-    List<String>                    projectNames      = new ArrayList<String>();
+    public Object createLeadEnquiry(Enquiry enquiry, HttpServletRequest request) {
 
-    public String createLeadEnquiry(Enquiry enquiry, HttpServletRequest request, BindingResult result) {
-
-        String leadresponse = null;
+        Map<String, Object> leadResponse = new LinkedHashMap<String, Object>();
+        HashMap<String, String> leadInvalidations = new HashMap<String, String>();
 
         if (enquiry.getCountryId() != null) {
             enquiry.setCountry(countryService.getCountryOnId(enquiry.getCountryId()).getLabel());
@@ -95,40 +83,30 @@ public class LeadService {
             enquiry.setEmail(enquiry.getEmail().toLowerCase());
         }
 
-        // negative Ids
+        // many come as negative Ids, need to store as 0
         LeadValidator leadValidator = new LeadValidator();
-        leadValidator.validate(enquiry, result);
-        StringBuilder strbuilder = new StringBuilder();
+        leadInvalidations = leadValidator.validateLead(enquiry);
 
-        if (result.hasErrors()) {
-            List<ObjectError> errors = result.getGlobalErrors();
-            strbuilder.append("Lead : Server-Side validation failed");
-            for (ObjectError error : errors) {
-                strbuilder.append(error.getDefaultMessage());
-            }
-            Gson gson = new Gson();
-            JsonReader reader = new JsonReader(new StringReader(strbuilder.toString()));
-            reader.setLenient(true);
-            Object finalJson = gson.fromJson(reader, Object.class);
-
-            // TODO to return json
-            throw new ProAPIException(ResponseCodes.BAD_REQUEST, strbuilder.toString());
+        // give 5xx not map
+        if (!leadInvalidations.isEmpty()) {
+            throw new ProAPIException(ResponseCodes.BAD_REQUEST, leadInvalidations.toString());
         }
         else {
-            enrichLeadQuery(enquiry);
-            setCookieInLead(enquiry, request);
-
-                readGACookies(enquiry, request);
+            List<String> projectNames = new ArrayList<String>();
+            GACookies gaCookies = new GACookies();
             List<Long> enquiryIds = new ArrayList<Long>();
+
+            enrichLeadQuery(enquiry);
+            HashMap<String, String> cookieMap = setCookieInLead(enquiry, request);
+            gaCookies.setGACookies(enquiry, cookieMap);
 
             if (enquiry.getMultipleProjectIds() != null && !enquiry.getMultipleProjectIds().isEmpty()) {
 
                 for (Integer projectId : enquiry.getMultipleProjectIds()) {
-
                     Enquiry enquiryNew = enquiry;
                     enquiryNew.setProjectId(projectId);
-                    projectNames.add(enquiryNew.getProjectName());
                     generateAndWriteLead(enquiryNew);
+                    projectNames.add(enquiryNew.getProjectName());
                     enquiryIds.add(enquiryNew.getId());
                 }
             }
@@ -137,59 +115,50 @@ public class LeadService {
                 enquiryIds.add(enquiry.getId());
             }
             // eqnruiyId going zero
-            Map<String, Object> map = new LinkedHashMap<String, Object>();
             if (enquiry.getPpc()) {
-                map.put("status", "success");
-                map.put("ppc", "TRUE");
-                map.put("enquiryid", enquiryIds);
-                Gson gson = new Gson();
-                leadresponse = gson.toJson(map);
+                leadResponse.put("status", "success");
+                leadResponse.put("ppc", "TRUE");
+                leadResponse.put("enquiryid", enquiryIds);
             }
             else {
-                map.put("status", "success");
-                map.put("ppc", "FALSE");
-                map.put("enquiryid", enquiryIds);
-                Gson gson = new Gson();
-                leadresponse = gson.toJson(map);
+                leadResponse.put("status", "success");
+                leadResponse.put("ppc", "FALSE");
+                leadResponse.put("enquiryid", enquiryIds);
             }
 
-            SendEmailRequest(enquiry);
+            SendEmailRequest(enquiry, projectNames);
         }
         // returning here might leave beanstalk failing
-        return leadresponse;
+        return leadResponse;
     }
 
     private void generateAndWriteLead(Enquiry enquiry) {
 
         generateLeadData(enquiry);
-
-        if ((enquiry.getMultipleProjectIds() == null || enquiry.getMultipleProjectIds().isEmpty()) && enquiry
-                .getBuySell() != null && enquiry.getBuySell().equals("sell")) {
-            enquiry.setProcessingStatus(ProcessingStatus.processed);
-        }
-        else {
-            enquiry.setProcessingStatus(ProcessingStatus.processing);
-        }
+        
+        //TODO
         enquiry.setGaPpc(1);
-        enquiry = leadDao.saveAndFlush(enquiry);
-         try {
-         enquiry = leadDao.saveAndFlush(enquiry);
-         }
-         catch (Exception exception) {
-         throw new ProAPIException(
-         ResponseCodes.DATABASE_CONNECTION_ERROR,
-         "Lead : All validations passed but still unable to insert into enquiry table");
-         }
+        enquiry.setRegisteredUser("");
+        
+//        try {
+            enquiry = leadDao.saveAndFlush(enquiry);
+//        }
+//        catch (Exception exception) {
+//            throw new ProAPIException(
+//                    ResponseCodes.DATABASE_CONNECTION_ERROR,
+//                    "Lead : All validations passed but still unable to insert into enquiry table");
+//        }
 
         if (((enquiry.getMultipleProjectIds() != null) && !enquiry.getMultipleProjectIds().isEmpty()) || enquiry
                 .getBuySell() != "sell") {
-            if (!writeToBeanstalk(enquiry)) {
+            Boolean beanstalkResponse = beanstalkService.writeToBeanstalk(enquiry);
+            if (!beanstalkResponse) {
                 enquiry.setProcessingStatus(ProcessingStatus.unsuccessful);
             }
         }
     }
 
-    private void SendEmailRequest(Enquiry enquiry) {
+    private void SendEmailRequest(Enquiry enquiry, List<String> projectNames) {
 
         LeadSubmitMail dataForTemplate = null;
         String emailReceiver = null;
@@ -198,8 +167,7 @@ public class LeadService {
 
         // Separate Mail Logic in case of multiple ProjectIds
         if ((enquiry.getMultipleProjectIds() != null) && !enquiry.getMultipleProjectIds().isEmpty()) {
-
-            // If project names(details) not present, do not send mail
+            // If project names not present, do not send mail
             if (projectNames.isEmpty()) {
                 return;
             }
@@ -240,6 +208,8 @@ public class LeadService {
             List<Project> projects = projectDatabaseDao.getProjectsOnId(enquiry.getMultipleProjectIds());
 
             StringBuilder projectDetail = new StringBuilder();
+            
+            //TODO
             for (Project project : projects) {
                 projectDetail.append("<a href='http://www.proptiger.com/" + project.getURL()
                         + "' style='text-decoration:none;'>"
@@ -248,7 +218,9 @@ public class LeadService {
                         + project.getName()
                         + "</a>, ");
             }
+
             String projectDetailString = projectDetail.toString().substring(0, projectDetail.toString().length() - 2);
+            leadMailData.setProjects(projects);
             leadMailData.setProjectsDetail(projectDetailString);
             leadMailData.setLeadMailFlag("leadAcceptanceResale");
             leadMailData.setEnquiry(enquiry);
@@ -259,95 +231,59 @@ public class LeadService {
                 && enquiry.getProjectName() != null
                 && enquiry.getProjectName() != "") { // empty to null
 
-            Project projectDetails = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
-
             // TODO set projecturl
-            leadMailData.setProject(projectDetails);
             leadMailData.setEnquiry(enquiry);
+            if (enquiry.getProject() == null) {
+                Project projectDetails = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
+                leadMailData.getEnquiry().setProject(projectDetails);
+            }
+
             leadMailData.setLeadMailFlag("google_buy_sell_client");
         }
 
         else if (enquiry.getProjectName() != null && enquiry.getProjectName() != "") {
-
-            Project projectDetails = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
-
-            leadMailData.setProject(projectDetails);
             leadMailData.setEnquiry(enquiry);
+
+            if (enquiry.getProject() == null) {
+                Project projectDetails = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
+                leadMailData.getEnquiry().setProject(projectDetails);
+            }
             leadMailData.setLeadMailFlag("leadAcceptance");
         }
 
-        else if (enquiry.getPageName().equals("HOMELOAN")) {
-
-            City city = cityService.getCityByName(enquiry.getCityName());
-
-            leadMailData.setLeadMailFlag("homeloan");
-            leadMailData.setCity(city);
+        else if (enquiry.getPageName() != null && enquiry.getPageName().equals("HOMELOAN")) {
             leadMailData.setEnquiry(enquiry);
+
+            if (enquiry.getCity() == null) {
+                City city = cityService.getCityByName(enquiry.getCityName());
+                leadMailData.getEnquiry().setCity(city);
+            }
+            leadMailData.setLeadMailFlag("homeloan");
         }
 
-        if ((enquiry.getProjectName() == null || enquiry.getProjectId() == null) && enquiry.getPageName().equals(
-                "GOOGLE 4")
-                || enquiry.getPageName().equals("GOOGLE 8")) {
+        else if ((enquiry.getProjectName() == null || enquiry.getProjectId() == null) && enquiry.getPageName() != null
+                && (enquiry.getPageName().equals("GOOGLE 4") || enquiry.getPageName().equals("GOOGLE 8"))) {
 
             leadMailData.setLeadMailFlag("googlepage-withoutproject");
             leadMailData.setEnquiry(enquiry);
         }
-        else if (enquiry.getPageName().toLowerCase().equals("portfolio")) {
+        else if (enquiry.getPageName() != null && enquiry.getPageName().toLowerCase().equals("portfolio")) {
 
             leadMailData.setLeadMailFlag("my-portfolio");
             leadMailData.setEnquiry(enquiry);
         }
 
         else {
-
-            Locality localityInfo = localityDao.getLocalityOnLocAndCity(
-                    enquiry.getLocalityName(),
-                    enquiry.getCityName());
-
             leadMailData.setLeadMailFlag("leadAcceptancewithoutproject");
-            leadMailData.setLocality(localityInfo);
             leadMailData.setEnquiry(enquiry);
+            if (enquiry.getLocality() == null) {
+                Locality localityInfo = localityDao.getLocalityOnLocAndCity(
+                        enquiry.getLocalityName(),
+                        enquiry.getCityName());
+                leadMailData.getEnquiry().setLocality(localityInfo);
+            }
         }
         return leadMailData;
-    }
-
-    private boolean writeToBeanstalk(Enquiry enquiry) {
-        ObjectMapper mapper = new ObjectMapper();
-
-        BeanstalkEnquiry beanstalkEnquiry = enquiry.createBeanstalkEnquiryObj();
-        // serialize enquiry to JSON format
-        String enquiryJson = null;
-        try {
-            enquiryJson = mapper.writeValueAsString(beanstalkEnquiry);
-        }
-        catch (JsonProcessingException e) {
-            return false;
-        }
-
-        System.out.println("JSON string: " + enquiryJson);
-
-        Integer beanstalkPort = propertyReader.getRequiredPropertyAsType(PropertyKeys.BEANSTALK_PORT, Integer.class);
-        String beanstalkQueue = propertyReader.getRequiredProperty(PropertyKeys.BEANSTALK_QUEUE_NAME);
-        // TODO // change to production
-        // enquiry id not setting
-        String beanstalkHost = propertyReader.getRequiredProperty(PropertyKeys.BEANSTALK_INTERNAL_SERVER);
-
-        try {
-            Client client = new ClientImpl(beanstalkHost, beanstalkPort);
-            client.useTube(beanstalkQueue);
-            long jobId = client.put(1024, 0, 60, enquiryJson.getBytes());
-
-            if (jobId > 1) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        catch (Exception e) {
-            return false;
-        }
-
     }
 
     public void enrichLeadQuery(Enquiry enquiry) {
@@ -376,7 +312,8 @@ public class LeadService {
         enquiry.setQuery(leadQuery.toString());
     }
 
-    public void setCookieInLead(Enquiry enquiry, HttpServletRequest request) {
+    public HashMap<String, String> setCookieInLead(Enquiry enquiry, HttpServletRequest request) {
+        HashMap<String, String> cookieMap = new HashMap<String, String>();
         Cookie[] requestCookies = request.getCookies();
         Enumeration<String> aEnumeration = request.getHeaderNames();
         System.out.println(aEnumeration);
@@ -399,134 +336,90 @@ public class LeadService {
                 }
 
                 if (c.getName().equals("LANDING_PAGE")) {
-                    enquiry.setLandingPage(c.getValue());
+                        enquiry.setLandingPage(c.getValue());
                 }
                 else if (c.getName().equals("USER_CAMPAIGN")) {
-                    enquiry.setCampaign(c.getValue());
+                        enquiry.setCampaign(c.getValue());
                 }
                 else if (c.getName().equals("USER_ADGROUP")) {
-                    enquiry.setAdGrp(c.getValue());
-                }
+                        enquiry.setAdGrp(c.getValue());
+                    }
                 else if (c.getName().equals("USER_KEYWORD")) {
-                    enquiry.setKeywords(c.getValue());
+                        enquiry.setKeywords(c.getValue());
                 }
                 else if (c.getName().equals("USER_FROM")) {
-                    enquiry.setSource(c.getValue());
+                        enquiry.setSource(c.getValue());
                 }
                 else if (c.getName().equals("USER_ID")) {
-                    enquiry.setUser(c.getValue());
+                        enquiry.setUser(c.getValue());
                 }
                 else if (c.getName().equals("USER_MEDIUM")) {
-                    enquiry.setUserMedium(c.getValue());
+                        enquiry.setUserMedium(c.getValue());
                 }
                 // TODO
                 // registerflag left
             }
         }
-    }
-
-    private void readGACookies(Enquiry enquiry, HttpServletRequest request) {
-
-        String campaignSource = null;
-        String campaignName = null;
-        String campaignMedium = null;
-        String campaignTerm = null;
-        String campaignContent = null;
-        String randomid = null;
-        
-        if (cookieMap.containsKey("__utma") && cookieMap.containsKey("__utmz")) {
-
-            // Parse __utmz cookie
-        String[] utmzCookies = cookieMap.get("__utmz").split("\\.", 5);
-        String campaignData = utmzCookies[4];
-
-        Map<String, String> fbParam = new HashMap<String, String>();
-
-        if (campaignData.contains("|")) {
-            String[] pairs = campaignData.split("\\|");
-            for (String pair : pairs) {
-                String[] keyval = pair.split("=");
-                fbParam.put(keyval[0], keyval[1]);
+            if (enquiry.getUserMedium() == null) {
+                enquiry.setUserMedium("");
             }
-
-            /*
-             * You should tag you campaigns manually to have a full view of your
-             * adwords campaigns data.
-             */
-            campaignSource = fbParam.get("utmcsr");
-            campaignName = fbParam.get("utmccn");
-            campaignMedium = fbParam.get("utmcmd");
-            campaignTerm = fbParam.get("utmctr");
-            campaignContent = fbParam.get("utmcct");
-
-            if (fbParam.containsKey("utmgclid")) {
-                campaignSource = "google";
-                campaignMedium = "cpc";
-                campaignTerm = fbParam.get("utmctr");
+            if (enquiry.getUser() == null) {
+                enquiry.setUser("");
             }
-        }
-        // Parse the __utma Cookie
-        String[] utmaCookies = cookieMap.get("__utma").split("\\.");
-        randomid = utmaCookies[1];
-
-        DateFormat format = new SimpleDateFormat("Y-m-d H:m:s");
-        // format.setTimeZone(TimeZone.getTimeZone("Etc/UTC"));
-        long currentTime = System.currentTimeMillis() / 1000l;
-        long timeSpent = (currentTime - Long.parseLong(utmaCookies[4])) * 1000;
-        String dateString = DurationFormatUtils.formatDuration(timeSpent, "'0-0-'d' 'H':'m':'s");
-        enquiry.setGaTimespent(dateString); // wrong
-        }
-
-        if (cookieMap.get("USER_NETWORK") != null) {
-            enquiry.setGaNetwork(cookieMap.get("USER_NETWORK").toLowerCase().trim());
-            // logMsg(TRACE, "in lead.php network is: " .$ga_network);
-        }
-
-        enquiry.setGaSource(campaignSource);
-        enquiry.setGaMedium(campaignMedium);
-        enquiry.setGaKeywords(campaignTerm);
-        enquiry.setGaCampaign(campaignName);
-        enquiry.setGaUserId(randomid);
-        
-        if (enquiry.getGaMedium() != null && (enquiry.getGaMedium().toLowerCase().trim().equals("ppc") || enquiry
-                .getGaMedium().toLowerCase().trim().equals("cpc")
-                || enquiry.getGaMedium().toLowerCase().trim().equals("external mailer")
-                || enquiry.getGaMedium().toLowerCase().trim().equals("externalmailer")
-                || enquiry.getGaMedium().toLowerCase().trim().equals("mailer external")
-                || enquiry.getGaMedium().toLowerCase().trim().equals("mailerexternal")
-                || enquiry.getGaMedium().toLowerCase().trim().equals("banner") || !enquiry.getGaSource().toLowerCase()
-                .trim().equals("banner_ad"))) {
-            enquiry.setPpc(true);
-            enquiry.setGaPpc(1);
-        }
-        else {
-            enquiry.setPpc(false);
-            enquiry.setGaPpc(0);
-        }
-        // can be set before
-        // setting to ''
-        if (campaignSource == null) {
-            enquiry.setGaSource(enquiry.getSource());
-        }
-        if (campaignMedium == null) {
-            enquiry.setGaMedium(enquiry.getUserMedium());
-        }
+            if (enquiry.getSource() == null) {
+                enquiry.setSource("");
+            }
+            if (enquiry.getKeywords() == null) {
+                enquiry.setKeywords("");
+            }
+            if (enquiry.getAdGrp() == null) {
+                enquiry.setAdGrp("");
+            }
+            if (enquiry.getLandingPage() == null) {
+                enquiry.setLandingPage("");
+            }
+            if (enquiry.getCampaign() == null) {
+                enquiry.setCampaign("");
+            }
+            
+        return cookieMap;
     }
 
     private void generateLeadData(Enquiry enquiry) {
 
         Locality localityInfo = null;
         Project projectInfo = null;
-        if (enquiry.getProjectId() != null) {
+        
+        if (enquiry.getProjectId() == null) {
+            enquiry.setProjectId(0);
+        }
+        if(enquiry.getProjectName() == null) {
+            enquiry.setProjectName("");
+        }
+        if (enquiry.getCityId() == null) {
+            enquiry.setCityId(0);
+        }
+        if (enquiry.getCityName() == null) {
+            enquiry.setCityName("");
+        }
+        if (enquiry.getPageName() == null) {
+            enquiry.setPageName("");
+        }
+        if (enquiry.getPageUrl() == null) {
+            enquiry.setPageUrl("");
+        }
+
+        if (enquiry.getProjectId() != 0) {
             projectInfo = projectDatabaseDao.getProjectOnId(enquiry.getProjectId());
             if (projectInfo != null) {
                 enquiry.setProjectName(projectInfo.getName());
                 enquiry.setLocalityId(projectInfo.getLocalityId());
                 enquiry.setCityId(projectInfo.getLocality().getSuburb().getCity().getId());
                 enquiry.setCityName(projectInfo.getLocality().getSuburb().getCity().getLabel());
+                enquiry.setProject(projectInfo);
             }
         }
-        else if (enquiry.getLocalityName() != null && enquiry.getCityName() != null) {
+        else if (enquiry.getLocalityName() != null && enquiry.getCityName() != "") {
 
             localityInfo = localityDao.getLocalityOnLocAndCity(enquiry.getLocalityName(), enquiry.getCityName());
         }
@@ -540,16 +433,17 @@ public class LeadService {
             enquiry.setProjectName("Resale");
         }
 
-        else if (enquiry.getPageName().equals("HOMELOAN") && enquiry.getCityName() != null) {
+        else if (enquiry.getPageName().equals("HOMELOAN") && enquiry.getCityName() != "") {
             City city = cityService.getCityByName(enquiry.getCityName());
             if (city != null) {
                 enquiry.setCityId(city.getId());
                 enquiry.setCityName(city.getLabel());
+                enquiry.setCity(city);
             }
         }
 
         else if (enquiry.getPageName().equals("AMENITIES") && (enquiry.getMultipleProjectIds() == null || enquiry
-                .getMultipleProjectIds().isEmpty())) {
+                .getMultipleProjectIds().isEmpty()) && enquiry.getCityName() != "") {
             localityInfo = localityDao.getLocalityOnLocAndCity(enquiry.getLocalityName(), enquiry.getCityName());
         }
 
@@ -557,6 +451,15 @@ public class LeadService {
             enquiry.setLocalityId(localityInfo.getLocalityId());
             enquiry.setCityId(localityInfo.getSuburb().getCity().getId());
             enquiry.setCityName(localityInfo.getSuburb().getCity().getLabel());
+            enquiry.setLocality(localityInfo);
+        }
+
+        if ((enquiry.getMultipleProjectIds() == null || enquiry.getMultipleProjectIds().isEmpty()) && enquiry
+                .getBuySell() != null && enquiry.getBuySell().equals("sell")) {
+            enquiry.setProcessingStatus(ProcessingStatus.processed);
+        }
+        else {
+            enquiry.setProcessingStatus(ProcessingStatus.processing);
         }
 
         setSalesTypeInEnquiry(enquiry, projectInfo);

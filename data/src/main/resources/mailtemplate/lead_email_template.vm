@@ -26,12 +26,12 @@
                <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                   Dear ${leadgeneration.enquiry.name}, <br /><br />
                   Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
-                  We have received your enquiry regarding <b>${leadgeneration.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.project.suburb.city.label} </b>. Our Sales team will 
+                  We have received your enquiry regarding <b>${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.enquiry.project.locality.suburb.city.label} </b>. Our Sales team will 
                   get in touch with you soon. 
                   
-                  For more details about this project, please visit <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.project.URL}">${leadgeneration.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.project.suburb.city.label}</a>. <br /><br />
+                  For more details about this project, please visit <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.project.URL}">${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.enquiry.project.locality.suburb.city.label}</a>. <br /><br />
                  
-                  For more options in ${leadgeneration.project.locality.label}, please click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.project.locality.url}" target="_blank">here</a>. Or for all properties in ${leadgeneration.project.locality.city.label}, click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.project.locality.city.url}" target="_blank">here</a>.<br /><br />
+                  For more options in ${leadgeneration.enquiry.project.locality.label}, please click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.project.locality.url}" target="_blank">here</a>. Or for all properties in ${leadgeneration.enquiry.project.locality.suburb.city.label}, click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.project.locality.suburb.city.url}" target="_blank">here</a>.<br /><br />
                   You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
                   <strong>How does PropTiger Work?</strong><br /><br />
                   <strong>Step 1: Search for Properties </strong><br /><br />
@@ -211,9 +211,9 @@
                <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                   Dear ${leadgeneration.enquiry.name}, <br /><br />
                   Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
-                  We have received your enquiry for <b> ${leadgeneration.project.suburb.city.label}</b>. Our team will get in touch with you soon. 
+                  We have received your enquiry for <b> ${leadgeneration.enquiry.project.locality.suburb.city.label}</b>. Our team will get in touch with you soon. 
                   
-                  For more information about properties in ${leadgeneration.project.suburb.city.label}, click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.project.suburb.city.url}" target="_blank">here</a>.<br /><br />
+                  For more information about properties in ${leadgeneration.enquiry.project.locality.suburb.city.label}, click <a style="color:#1155cc; text-decoration:none;" href="http://www.proptiger.com/${leadgeneration.enquiry.project.locality.suburb.city.url}" target="_blank">here</a>.<br /><br />
                   You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />
                   <strong>How does PropTiger Work?</strong><br /><br />
                   <strong>Step 1: Search for Properties </strong><br /><br />
@@ -390,7 +390,17 @@
                   Dear ${leadgeneration.enquiry.name}, <br /><br />
                   Greetings from PropTiger.com, your first port of call to buy a residential property. <br /><br />
                   We have received your enquiry regarding 
-                  ${leadgeneration.projectsDetail}
+                  $projects = ${leadgeneration.projects}
+                  #foreach($project in $projects)
+                  $last:  $foreach.last
+                  $index: $foreach.index
+                  
+                  	if ($last != $index)
+                  		<a href=http://www.proptiger.com/$project.URL style='text-decoration:none;'> $project.builder.name project.name </a>,  
+                  	else
+                  		<a href=http://www.proptiger.com/$project.URL style='text-decoration:none;'> $project.builder.name project.name </a>
+                  
+                  #end
                   </b> -  
                   Our Sales team will get in touch with you soon. 
                   <br /><br />
@@ -545,7 +555,7 @@
                     <b>Email: </b>${leadgeneration.enquiry.email}<br>
                     <b>Phone Number:</b>${leadgeneration.enquiry.phone}<br>
                     <b>Country of residence: </b>${leadgeneration.enquiry.country}<br>
-                    <b>Project of Interest: </b>${leadgeneration.project.builder.name} ${leadgeneration.enquiry.projectName}<br>
+                    <b>Project of Interest: </b>${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName}<br>
                     <b>Query: </b>${leadgeneration.enquiry.query}
                </td>
                <td width="15" bgcolor="#e3e3e3">&nbsp;</td>
@@ -596,7 +606,7 @@
                <td style="font-family:Arial, Helvetica, sans-serif; font-size:13px; line-height:18px; padding:10px; color:#333;">
                   Dear ${leadgeneration.enquiry.name}, <br /><br />
                   Greetings from PropTiger.com, your first port of call to buy or sell a residential property. <br /><br />
-                  We have received your sale request for <b>${leadgeneration.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.project.suburb.city.label}</b>. Our team will 
+                  We have received your sale request for <b>${leadgeneration.enquiry.project.builder.name} ${leadgeneration.enquiry.projectName} - ${leadgeneration.enquiry.project.locality.suburb.city.label} </b>. Our team will 
                   get in touch with you soon to take this forward. 
                     <br /><br />
                   You can also contact us at +91 92788 92788 or email us on <a style="color:#1155cc; text-decoration:none;" href="mailto:support@proptiger.com">support@proptiger.com</a>.<br /><br />

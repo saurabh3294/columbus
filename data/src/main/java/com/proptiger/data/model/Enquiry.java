@@ -65,7 +65,7 @@ public class Enquiry extends BaseModel {
 
 //    @JsonProperty("project_id")
     @Column(name = "PROJECT_ID")
-    private Integer           projectId = 0;
+    private Integer           projectId;
     
     @Transient
     private List<Integer>           multipleProjectIds;
@@ -92,11 +92,11 @@ public class Enquiry extends BaseModel {
     private String            localityUrl;
     
     @Column(name = "CITY_ID")
-    private Integer           cityId = 0;
+    private Integer           cityId;
 
     //@JsonProperty("city_name")
     @Column(name = "CITY_NAME")
-    private String            cityName = "";
+    private String            cityName;
     
     @Transient
     private String            cityUrl;
@@ -115,34 +115,34 @@ public class Enquiry extends BaseModel {
     private Date              createdDate;
     
     @Column(name = "SOURCE")
-    private String            source   = "";
+    private String            source;
     
     @Column(name = "FORM_NAME")
     private String            formName;
     
     @Column(name = "PAGE_NAME")
-    private String            pageName   = "";
+    private String            pageName;
     
     @Column(name = "PAGE_URL")
-    private String            pageUrl   = "";
+    private String            pageUrl;
     
     @Column(name = "REF_URL")
-    private String            landingPage   = "";
+    private String            landingPage;
 
     @Column(name = "AD_GRP")
-    private String            adGrp   = "";
+    private String            adGrp;
     
     @Column(name = "KEYWORDS")
-    private String            keywords   = "";
+    private String            keywords;
     
     @Column(name = "CAMPAIGN")
-    private String            campaign   = "";
+    private String            campaign;
     
     @Column(name = "PPC")
     private Boolean            ppc;
     
     @Column(name = "USER")
-    private String            user   = "";
+    private String            user;
     
     @Column(name = "HTTP_REFERER")
     private String            httpReferer;
@@ -176,7 +176,7 @@ public class Enquiry extends BaseModel {
     
 
     @Column(name = "GA_PPC")
-    private int            gaPpc    =   1;
+    private int            gaPpc;
 
     @Column(name = "PROCESSING_STATUS")
     @Enumerated(EnumType.STRING)
@@ -191,7 +191,7 @@ public class Enquiry extends BaseModel {
 
     //@JsonProperty("application_type")
     @Column(name = "APPLICATION_TYPE")
-    private String            applicationType   = "";
+    private String            applicationType;
     
     // Lead Query fields
     @Transient
@@ -238,6 +238,11 @@ public class Enquiry extends BaseModel {
     @JsonIgnore
     private Project         project;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CITY_ID", insertable = false, updatable = false)
+    @JsonIgnore
+    private City            city;
+    
     public long getId() {
         return id;
     }
@@ -708,6 +713,15 @@ public class Enquiry extends BaseModel {
 
     public void setBuyPeriod(BuyPeriod buyPeriod) {
         this.buyPeriod = buyPeriod;
+    }
+
+    
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
     }
 
     @PrePersist
