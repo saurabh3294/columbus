@@ -15,6 +15,8 @@ import com.google.gson.Gson;
 import com.proptiger.data.enums.DataType;
 import com.proptiger.data.meta.FieldMetaInfo;
 import com.proptiger.data.model.image.Image;
+import com.proptiger.data.util.Serializer;
+
 
 /**
  * @author mandeep
@@ -401,7 +403,16 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "CITY_LOCALITY_COUNT")
     private Integer           cityLocalityCount;
+    
+    @Field(value = "LOCALITY_TAG_LINE")
+    private String            localityTagLine;
+    
+    @Field(value = "PROPERTY_COUPON_AVAILABLE")
+    private Boolean isCouponAvailable;
 
+    @Field(value = "SUBURB_TAG_LINE")
+    private String            suburbTagLine;
+	
     @Field(value = "CITY_POPULATION")
     private Integer           cityPopulation;
 
@@ -410,12 +421,6 @@ public class SolrResult extends BaseModel {
 
     @Field(value = "CITY_PROPERTY_COUNT")
     private Integer           cityPropertyCount;
-
-    @Field(value = "LOCALITY_TAG_LINE")
-    private String            localityTagLine;
-
-    @Field(value = "SUBURB_TAG_LINE")
-    private String            suburbTagLine;
 
     public SolrResult() {
         property.setProject(project);
@@ -1279,6 +1284,57 @@ public class SolrResult extends BaseModel {
     @Field(value = "LOCALITY_TAG_LINE")
     public void setLocalityTagLine(String localityTagLine) {
         locality.setLocalityTagLine(localityTagLine);
+    }
+
+    @Field(value = "LOCALITY_COUPON_MAX_DISCOUNT")
+    public void setLocalityCouponMaxDiscount(Integer couponMaxDiscount) {
+        locality.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "CITY_COUPON_MAX_DISCOUNT")
+    public void setCityCouponMaxDiscount(Integer couponMaxDiscount) {
+        city.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "SUBURB_COUPON_MAX_DISCOUNT")
+    public void setSuburbCouponMaxDiscount(Integer couponMaxDiscount) {
+        suburb.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "BUILDER_COUPON_MAX_DISCOUNT")
+    public void setBuilderCouponMaxDiscount(Integer couponMaxDiscount) {
+        builder.setMaxDiscount(couponMaxDiscount);
+    }
+
+    @Field(value = "LOCALITY_COUPON_AVAILABLE")
+    public void setLocalityCouponAvailable(Boolean isCouponAvailable) {
+        locality.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "SUBURB_COUPON_AVAILABLE")
+    public void setSuburbCouponAvailable(Boolean isCouponAvailable) {
+        suburb.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "CITY_COUPON_AVAILABLE")
+    public void setCityCouponAvailable(Boolean isCouponAvailable) {
+        city.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "BUILDER_COUPON_AVAILABLE")
+    public void setBuilderCouponAvailable(Boolean isCouponAvailable) {
+        builder.setIsCouponAvailable(isCouponAvailable);
+    }
+
+    @Field(value = "COUPON_CATALOGUE_OBJECT")
+    public void setCouponCatalogueObject(String couponCatalogueObjectStr) {
+        CouponCatalogue couponCatalogue = Serializer.fromJson(couponCatalogueObjectStr, CouponCatalogue.class);
+        property.setCouponCatalogue(couponCatalogue);
+    }
+
+    @Field(value = "PROPERTY_COUPON_AVAILABLE")
+    public void setPropertyCouponAvailable(Boolean isCouponAvailable) {
+        property.setCouponAvailable(isCouponAvailable);
     }
 
     @Field(value = "SUBURB_TAG_LINE")

@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
@@ -64,6 +65,8 @@ public class User extends BaseModel {
     @Column(name = "email")
     private String email;
 
+    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
+    private List<UserAttribute>         attributes;
 
     public int getId() {
         return id;
@@ -213,6 +216,13 @@ public class User extends BaseModel {
         public void setImageUrl(String url) {
             this.imageUrl = url;
         }
+    }
+	public List<UserAttribute> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(List<UserAttribute> attributes) {
+        this.attributes = attributes;
     }
 
     public String getProfileImageUrl() {

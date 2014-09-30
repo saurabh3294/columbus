@@ -119,6 +119,14 @@ public class Builder extends BaseModel {
     @Transient
     private Image                mainImage        = new Image();
 
+    @Transient
+    @Field("BUILDER_COUPON_MAX_DISCOUNT")
+    private Integer              maxDiscount;
+
+    @Transient
+    @Field("BUILDER_COUPON_AVAILABLE")
+    private Boolean              isCouponAvailable;
+
     public int getId() {
         return id;
     }
@@ -293,5 +301,21 @@ public class Builder extends BaseModel {
     @Field("BUILDER_LOGO_IMAGE")
     public void setAbsolutePath(String absolutePath) {
         mainImage.setAbsolutePath(absolutePath);
+    }
+
+    public Integer getMaxDiscount() {
+        return maxDiscount;
+    }
+
+    public void setMaxDiscount(Integer maxDiscount) {
+        this.maxDiscount = maxDiscount;
+    }
+
+    public Boolean getIsCouponAvailable() {
+        return isCouponAvailable;
+    }
+
+    public void setIsCouponAvailable(Boolean isCouponAvailable) {
+        this.isCouponAvailable = isCouponAvailable;
     }
 }

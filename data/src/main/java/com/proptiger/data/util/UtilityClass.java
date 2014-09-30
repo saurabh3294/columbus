@@ -28,6 +28,25 @@ public class UtilityClass {
 
         return c;
     }
+    
+    /**
+     * Returns non zero max of given 2 date - null otherwise
+     * 
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Date max(Date a, Date b) {
+        Date c = a;
+        if (a == null) {
+            c = b;
+        }
+        else if (b != null) {
+            c = DateUtil.max(a, b);
+        }
+
+        return c;
+    }
 
     /**
      * Returns non zero min of given 2 numbers - null otherwise
@@ -47,7 +66,26 @@ public class UtilityClass {
 
         return c;
     }
+    
+    /**
+     * Returns non zero min of given 2 date - null otherwise
+     * 
+     * @param a
+     * @param b
+     * @return
+     */
+    public static Date min(Date a, Date b) {
+        Date c = a;
+        if (a == null) {
+            c = b;
+        }
+        else if (b != null) {
+            c = DateUtil.min(a, b);
+        }
 
+        return c;
+    }
+    
     /**
      * @return {@link Integer} non zero min of given 2 integers - null otherwise
      * 
