@@ -53,7 +53,7 @@ def updateInLog(text) :
 def readFromLog():
 	if os.path.isfile('Log.txt'):
 		f = open('Log.txt','r')
-		data = f.read().replace("\n","")
+		data = f.read().replace("\n",",")
 		data = data.split(",")
 		return data
 	else :
