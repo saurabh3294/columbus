@@ -860,6 +860,11 @@ public class TrendController extends BaseController {
     
     private Set<String> getFilterFieldSet(FIQLSelector selector)
     {
-        return(selector.clone().addField("extraAttributes").addField(TrendService.RANGE_KEY).getFieldSet());
+        FIQLSelector selector2 = selector.clone().addField("extraAttributes").addField(TrendService.RANGE_KEY);
+        Set<String> groupedFields = selector.getGroupSet();
+        for(String gf : groupedFields)       {   
+            selector2.addField(gf);
+        }
+        return(selector2.getFieldSet());
     }
 }
