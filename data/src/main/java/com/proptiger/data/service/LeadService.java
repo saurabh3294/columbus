@@ -21,6 +21,7 @@ import com.proptiger.data.enums.lead.SalesType;
 import com.proptiger.data.enums.mail.MailTemplateDetail;
 import com.proptiger.data.init.GACookies;
 import com.proptiger.data.init.LeadValidator;
+import com.proptiger.data.internal.dto.ActiveUser;
 import com.proptiger.data.internal.dto.mail.LeadSubmitMail;
 import com.proptiger.data.internal.dto.mail.MailBody;
 import com.proptiger.data.internal.dto.mail.MailDetails;
@@ -36,6 +37,7 @@ import com.proptiger.data.service.mail.MailSender;
 import com.proptiger.data.service.mail.TemplateToHtmlGenerator;
 import com.proptiger.data.util.PropertyKeys;
 import com.proptiger.data.util.PropertyReader;
+import com.proptiger.data.util.SecurityContextUtils;
 import com.proptiger.exception.ProAPIException;
 
 @Service
@@ -138,7 +140,6 @@ public class LeadService {
         
         //TODO
         enquiry.setGaPpc(1);
-        enquiry.setRegisteredUser("");
         
 //        try {
             enquiry = leadDao.saveAndFlush(enquiry);
@@ -463,6 +464,13 @@ public class LeadService {
         }
 
         setSalesTypeInEnquiry(enquiry, projectInfo);
+        ActiveUser user = SecurityContextUtils.getLoggedInUser();
+        if(user == null) {
+            enquiry.setRegisteredUser("NO");
+        }
+        else {
+            enquiry.setRegisteredUser("YES");
+        }
     }
 
     private void setSalesTypeInEnquiry(Enquiry enquiry, Project project) {
