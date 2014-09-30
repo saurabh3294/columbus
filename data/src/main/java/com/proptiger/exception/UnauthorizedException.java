@@ -12,4 +12,9 @@ public class UnauthorizedException extends ProAPIException {
     public UnauthorizedException() {
         super();
     }
+    
+    public UnauthorizedException(String responseCode, String message) {
+        super(responseCode, message);
+    }
+    
 }
