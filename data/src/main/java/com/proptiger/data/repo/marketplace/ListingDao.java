@@ -34,5 +34,6 @@ public interface ListingDao extends JpaRepository<Listing, Integer>, ListingCust
     @Query("select count(l) from Listing l left join l.projectSupply left join l.currentListingPrice join l.property prop join prop.project as p join p.projectStatusMaster join p.builder join  p.locality pl join pl.suburb pls join pls.city where l.sellerId=?1 and p.version=?2  and l.status=?3")
     public List<Long> findListingsCount(Integer userId, DataVersion dataVersion, Status status);
 
+    @Query("select L from Listing L join fetch L.property where L.id = ?1")
     Listing findById(Integer listingId);
 }

@@ -119,11 +119,9 @@ public class ListingService {
     
     public PaginatedResponse<Listing> putListing(Listing listing, Integer userIdentifier, Integer listingId) { 
         listing.setId(listingId);        
-        preCreateValidation(listing, userIdentifier);
-        Property property = listing.getProperty();
-        listing.setProperty(null);
-        
         Listing listingInDB = listingDao.findById(listingId);
+        Property property = listingInDB.getProperty();
+        listing.setProperty(null);
         
         if(listing.getFloor() != null)
         {
